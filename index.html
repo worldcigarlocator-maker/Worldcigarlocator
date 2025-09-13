@@ -6,60 +6,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      --bg:#111;
-      --fg:#f5f5f5;
-      --muted:#bdbdbd;
-      --card:#1a1a1a;
-      --gold:#d4af37;
-      --gold-strong:#c79c1d;
+      --bg: #111;
+      --fg: #f5f5f5;
+      --muted: #bdbdbd;
+      --card: #1a1a1a;
+      --gold: #d4af37;
+      --gold-strong: #c79c1d;
     }
     body {
-      margin:0; background:var(--bg); color:var(--fg);
-      font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      text-align:center;
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      text-align: center;
     }
-    header { padding:40px 16px 18px; }
-    h1 { margin:0; font-size:clamp(28px, 4vw, 40px); color:var(--gold); }
-    p.lead { margin:8px 0 24px; color:var(--muted); }
+    header { padding: 40px 16px 20px; }
+    h1 { margin: 0; font-size: clamp(28px, 4vw, 40px); color: var(--gold); }
+    p.lead { margin: 8px 0 24px; color: var(--muted); }
 
-    .map-wrap { max-width:1100px; margin:0 auto; padding:0 16px; }
+    .map-wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
     .card {
-      background:var(--card);
-      border:1px solid #2b2b2b;
-      border-radius:12px;
-      padding:12px;
-      box-shadow:0 0 24px rgba(0,0,0,.35);
+      background: var(--card);
+      border: 1px solid #2b2b2b;
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 0 24px rgba(0,0,0,.35);
     }
 
-    /* SVG style */
-    .worldmap { width:100%; height:auto; }
+    svg.worldmap { width: 100%; height: auto; }
     .continent {
-      fill:#2b2b2b; stroke:#444; stroke-width:0.8;
-      transition:fill .25s, stroke .25s;
-      cursor:pointer;
+      fill: #2b2b2b;
+      stroke: #444;
+      stroke-width: 0.5;
+      cursor: pointer;
+      transition: fill 0.25s, stroke 0.25s;
     }
     .continent:hover {
-      fill:var(--gold); stroke:var(--gold-strong); stroke-width:1.2;
+      fill: var(--gold);
+      stroke: var(--gold-strong);
     }
-    .continent.active {
-      fill:#3f3f3f; stroke:var(--gold); stroke-width:1.2;
+    .active {
+      fill: #3f3f3f;
+      stroke: var(--gold);
     }
 
-    /* Buttons under */
     .continents {
-      display:flex; flex-wrap:wrap; gap:12px; justify-content:center;
-      margin:18px auto 36px; padding:0 16px; max-width:900px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin: 18px auto 36px;
+      padding: 0 16px;
+      max-width: 900px;
     }
     .btn {
-      background:var(--gold); color:#111; font-weight:700;
-      text-decoration:none; padding:12px 18px; border-radius:10px;
-      transition:transform .06s ease, background .2s ease;
+      background: var(--gold);
+      color: #111;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 10px;
+      transition: transform 0.06s ease, background 0.2s ease;
     }
-    .btn:hover { background:var(--gold-strong); transform:translateY(-1px); }
-    .btn.secondary { background:#333; color:#eee; border:1px solid #444; }
-    .btn.secondary:hover { background:#3a3a3a; }
+    .btn:hover { background: var(--gold-strong); transform: translateY(-1px); }
+    .btn.secondary { background: #333; color: #eee; border: 1px solid #444; }
+    .btn.secondary:hover { background: #3a3a3a; }
 
-    footer { color:#7a7a7a; font-size:13px; margin:28px 0 24px; }
+    footer { color: #7a7a7a; font-size: 13px; margin: 28px 0 24px; }
   </style>
 </head>
 <body>
@@ -70,49 +83,8 @@
 
   <div class="map-wrap">
     <div class="card">
-      <!-- SVG från förenklad världskarta (mer detaljerad kontur) -->
+      <!-- SVG-världskarta med kontinenter -->
       <svg class="worldmap" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1001">
-        <!-- Europe (active) -->
-        <a xlink:href="europe.html">
-          <path class="continent active" d="M1040 240l40-20 50 10 40 30 20 40-30 30-60 10-40-20-20-30z" />
-        </a>
-        <!-- Africa -->
-        <a xlink:href="#" onclick="comingSoon('Africa'); return false;">
-          <path class="continent" d="M1060 320l80 20 40 60-10 100-60 80-80-40-30-70 20-100z" />
-        </a>
-        <!-- Asia -->
-        <a xlink:href="#" onclick="comingSoon('Asia'); return false;">
-          <path class="continent" d="M1140 220l240 20 160 80-40 120-100 60-160-20-120-80-40-60z" />
-        </a>
         <!-- North America -->
-        <a xlink:href="#" onclick="comingSoon('North America'); return false;">
-          <path class="continent" d="M200 200l200-80 200 60 80 100-60 120-160 20-180-40-60-80z" />
-        </a>
-        <!-- South America -->
-        <a xlink:href="#" onclick="comingSoon('South America'); return false;">
-          <path class="continent" d="M540 420l60 40 20 120-40 160-60-40-20-120 20-120z" />
-        </a>
-        <!-- Oceania -->
-        <a xlink:href="#" onclick="comingSoon('Oceania'); return false;">
-          <path class="continent" d="M1580 600l60 20 40 40-40 40-60-20-40-40z" />
-        </a>
-      </svg>
-    </div>
-  </div>
-
-  <div class="continents">
-    <a class="btn" href="europe.html">Europe</a>
-    <a class="btn secondary" href="#" onclick="comingSoon('Asia'); return false;">Asia</a>
-    <a class="btn secondary" href="#" onclick="comingSoon('Africa'); return false;">Africa</a>
-    <a class="btn secondary" href="#" onclick="comingSoon('North America'); return false;">North America</a>
-    <a class="btn secondary" href="#" onclick="comingSoon('South America'); return false;">South America</a>
-    <a class="btn secondary" href="#" onclick="comingSoon('Oceania'); return false;">Oceania</a>
-  </div>
-
-  <footer>© 2025 World Cigar Locator — Beta</footer>
-
-  <script>
-    function comingSoon(name){ alert(name + ' – Coming soon'); }
-  </script>
-</body>
-</html>
+        <a href="#" onclick="comingSoon('North America'); return false;">
+          <path class="continent" d="M 200 200 L 400 120 L
