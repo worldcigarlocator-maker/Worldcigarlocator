@@ -1,104 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>World Cigar Locator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    :root {
+      --bg:#111;
+      --fg:#f5f5f5;
+      --muted:#bdbdbd;
+      --card:#1a1a1a;
+      --gold:#d4af37;
+      --gold-strong:#c79c1d;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #f5f5f5;
-      margin: 0;
-      padding: 0;
-      text-align: center;
+      margin:0; background:var(--bg); color:var(--fg);
+      font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      text-align:center;
     }
-    header {
-      padding: 40px 20px 20px;
+    header { padding:40px 16px 18px; }
+    h1 { margin:0; font-size:clamp(28px, 4vw, 40px); color:var(--gold); }
+    p.lead { margin:8px 0 24px; color:var(--muted); }
+
+    .map-wrap { max-width:1100px; margin:0 auto; padding:0 16px; }
+    .card {
+      background:var(--card);
+      border:1px solid #2b2b2b;
+      border-radius:12px;
+      padding:12px;
+      box-shadow:0 0 24px rgba(0,0,0,.35);
     }
-    h1 {
-      font-size: 2.5rem;
-      color: goldenrod;
-      margin: 0;
+
+    /* SVG style */
+    .worldmap { width:100%; height:auto; }
+    .continent {
+      fill:#2b2b2b; stroke:#444; stroke-width:0.8;
+      transition:fill .25s, stroke .25s;
+      cursor:pointer;
     }
-    p {
-      color: #bbb;
-      margin: 10px 0 30px;
+    .continent:hover {
+      fill:var(--gold); stroke:var(--gold-strong); stroke-width:1.2;
     }
-    .map {
-      max-width: 900px;
-      margin: 0 auto 30px;
+    .continent.active {
+      fill:#3f3f3f; stroke:var(--gold); stroke-width:1.2;
     }
-    img.worldmap {
-      width: 100%;
-      border: 3px solid #333;
-      border-radius: 10px;
-    }
+
+    /* Buttons under */
     .continents {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin: 20px auto 40px;
-      max-width: 800px;
+      display:flex; flex-wrap:wrap; gap:12px; justify-content:center;
+      margin:18px auto 36px; padding:0 16px; max-width:900px;
     }
-    .continents a {
-      background: goldenrod;
-      color: #111;
-      font-weight: bold;
-      text-decoration: none;
-      padding: 14px 24px;
-      border-radius: 8px;
-      transition: background 0.3s;
+    .btn {
+      background:var(--gold); color:#111; font-weight:700;
+      text-decoration:none; padding:12px 18px; border-radius:10px;
+      transition:transform .06s ease, background .2s ease;
     }
-    .continents a:hover {
-      background: #d4af37;
-    }
-    footer {
-      color: #777;
-      font-size: 0.9rem;
-      margin: 40px 0 20px;
-    }
+    .btn:hover { background:var(--gold-strong); transform:translateY(-1px); }
+    .btn.secondary { background:#333; color:#eee; border:1px solid #444; }
+    .btn.secondary:hover { background:#3a3a3a; }
+
+    footer { color:#7a7a7a; font-size:13px; margin:28px 0 24px; }
   </style>
 </head>
 <body>
   <header>
     <h1>🌍 World Cigar Locator</h1>
-    <p>Find cigar stores & lounges all over the world.</p>
+    <p class="lead">Find cigar stores & lounges all over the world.</p>
   </header>
 
-  <div class="map">
-    <!-- Placeholder-karta -->
-    <img src="https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg" 
-         alt="World map" usemap="#worldmap" class="worldmap">
-
-    <!-- Klickbara områden -->
-    <map name="worldmap">
-      <area shape="rect" coords="370,100,550,200" href="europe.html" alt="Europe">
-      <area shape="rect" coords="550,200,700,350" href="#" alt="Asia" onclick="comingSoon('Asia')">
-      <area shape="rect" coords="250,250,400,400" href="#" alt="Africa" onclick="comingSoon('Africa')">
-      <area shape="rect" coords="50,150,200,300" href="#" alt="North America" onclick="comingSoon('North America')">
-      <area shape="rect" coords="100,350,250,500" href="#" alt="South America" onclick="comingSoon('South America')">
-      <area shape="rect" coords="750,450,900,600" href="#" alt="Oceania" onclick="comingSoon('Oceania')">
-    </map>
+  <div class="map-wrap">
+    <div class="card">
+      <!-- SVG från förenklad världskarta (mer detaljerad kontur) -->
+      <svg class="worldmap" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1001">
+        <!-- Europe (active) -->
+        <a xlink:href="europe.html">
+          <path class="continent active" d="M1040 240l40-20 50 10 40 30 20 40-30 30-60 10-40-20-20-30z" />
+        </a>
+        <!-- Africa -->
+        <a xlink:href="#" onclick="comingSoon('Africa'); return false;">
+          <path class="continent" d="M1060 320l80 20 40 60-10 100-60 80-80-40-30-70 20-100z" />
+        </a>
+        <!-- Asia -->
+        <a xlink:href="#" onclick="comingSoon('Asia'); return false;">
+          <path class="continent" d="M1140 220l240 20 160 80-40 120-100 60-160-20-120-80-40-60z" />
+        </a>
+        <!-- North America -->
+        <a xlink:href="#" onclick="comingSoon('North America'); return false;">
+          <path class="continent" d="M200 200l200-80 200 60 80 100-60 120-160 20-180-40-60-80z" />
+        </a>
+        <!-- South America -->
+        <a xlink:href="#" onclick="comingSoon('South America'); return false;">
+          <path class="continent" d="M540 420l60 40 20 120-40 160-60-40-20-120 20-120z" />
+        </a>
+        <!-- Oceania -->
+        <a xlink:href="#" onclick="comingSoon('Oceania'); return false;">
+          <path class="continent" d="M1580 600l60 20 40 40-40 40-60-20-40-40z" />
+        </a>
+      </svg>
+    </div>
   </div>
 
   <div class="continents">
-    <a href="europe.html">Europe</a>
-    <a href="#" onclick="comingSoon('Asia')">Asia</a>
-    <a href="#" onclick="comingSoon('Africa')">Africa</a>
-    <a href="#" onclick="comingSoon('North America')">North America</a>
-    <a href="#" onclick="comingSoon('South America')">South America</a>
-    <a href="#" onclick="comingSoon('Oceania')">Oceania</a>
+    <a class="btn" href="europe.html">Europe</a>
+    <a class="btn secondary" href="#" onclick="comingSoon('Asia'); return false;">Asia</a>
+    <a class="btn secondary" href="#" onclick="comingSoon('Africa'); return false;">Africa</a>
+    <a class="btn secondary" href="#" onclick="comingSoon('North America'); return false;">North America</a>
+    <a class="btn secondary" href="#" onclick="comingSoon('South America'); return false;">South America</a>
+    <a class="btn secondary" href="#" onclick="comingSoon('Oceania'); return false;">Oceania</a>
   </div>
 
-  <footer>
-    © 2025 World Cigar Locator – Beta version
-  </footer>
+  <footer>© 2025 World Cigar Locator — Beta</footer>
 
   <script>
-    function comingSoon(continent) {
-      alert(continent + " – Coming soon!");
-    }
+    function comingSoon(name){ alert(name + ' – Coming soon'); }
   </script>
 </body>
 </html>
