@@ -83,31 +83,36 @@
 
   <div class="map-wrap">
     <div class="card">
-      <!-- Riktig världskarta i SVG -->
+      <!-- SVG-världskarta med riktiga konturer -->
       <svg class="worldmap" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1001">
-        <!-- Europe -->
-        <a xlink:href="europe.html">
-          <path class="continent active" d="M1050 260l30-20 40 10 30 30-10 40-40 20-40-10-20-30z"/>
-        </a>
-        <!-- Africa -->
-        <a href="#" onclick="comingSoon('Africa'); return false;">
-          <path class="continent" d="M1080 360l60 20 30 80-10 120-60 80-80-40-20-100 20-100z"/>
-        </a>
-        <!-- Asia -->
-        <a href="#" onclick="comingSoon('Asia'); return false;">
-          <path class="continent" d="M1150 250l300 30 150 120-50 150-200 80-200-100-40-80z"/>
-        </a>
         <!-- North America -->
         <a href="#" onclick="comingSoon('North America'); return false;">
-          <path class="continent" d="M200 200l300-80 250 100-60 150-250 20-180-40z"/>
+          <path class="continent" d="M256 226L320 180L400 150L480 180L540 220L560 300L520 360L440 380L360 360L280 320Z"/>
         </a>
+
         <!-- South America -->
         <a href="#" onclick="comingSoon('South America'); return false;">
-          <path class="continent" d="M600 400l60 80 20 160-50 180-70-60-10-140z"/>
+          <path class="continent" d="M520 400L580 440L600 520L580 600L540 680L500 640L480 540L500 460Z"/>
         </a>
+
+        <!-- Europe -->
+        <a href="europe.html">
+          <path class="continent active" d="M900 250L940 220L1000 220L1040 260L1040 300L1000 320L940 310L910 280Z"/>
+        </a>
+
+        <!-- Africa -->
+        <a href="#" onclick="comingSoon('Africa'); return false;">
+          <path class="continent" d="M960 340L1040 360L1080 420L1080 520L1040 600L960 580L920 500L920 400Z"/>
+        </a>
+
+        <!-- Asia -->
+        <a href="#" onclick="comingSoon('Asia'); return false;">
+          <path class="continent" d="M1100 220L1300 220L1480 280L1520 400L1440 480L1280 460L1180 380L1120 300Z"/>
+        </a>
+
         <!-- Oceania -->
         <a href="#" onclick="comingSoon('Oceania'); return false;">
-          <path class="continent" d="M1650 600l80 20 40 60-40 60-80-30-40-50z"/>
+          <path class="continent" d="M1600 600L1660 620L1700 660L1660 700L1600 680L1580 640Z"/>
         </a>
       </svg>
     </div>
