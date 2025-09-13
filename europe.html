@@ -33,6 +33,25 @@
 
     p.lead { margin: 8px 0 20px; color: var(--muted); }
 
+    .image-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .card img {
+      width: 100%;   /* bred bild */
+      height: auto;
+      display: block;
+    }
+
     .countries {
       display: flex;
       flex-wrap: wrap;
@@ -73,19 +92,21 @@
     <p class="lead">Select a country to explore cigar stores & lounges.</p>
   </header>
 
+  <div class="image-wrap">
+    <div class="card">
+      <!-- Din svartvita cigarloungebild -->
+      <img src="europe-lounge.jpg" alt="Cigar Lounge in Europe" />
+    </div>
+  </div>
+
   <div class="countries">
     <a class="btn" href="sweden.html">Sweden</a>
     <a class="btn" href="norway.html">Norway</a>
     <a class="btn" href="denmark.html">Denmark</a>
     <a class="btn" href="finland.html">Finland</a>
     <a class="btn" href="iceland.html">Iceland</a>
-    <a class="btn secondary" href="#" onclick="comingSoon('Other Europe'); return false;">More countries soon</a>
   </div>
 
   <footer>© 2025 World Cigar Locator — Beta</footer>
-
-  <script>
-    function comingSoon(name){ alert(name + ' – Coming soon'); }
-  </script>
 </body>
 </html>
