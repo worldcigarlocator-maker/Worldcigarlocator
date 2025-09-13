@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Europe — World Cigar Locator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111111;
+      --muted: #666666;
+      --card: #f9f9f9;
+      --gold: #d4af37;
+      --silver: #c0c0c0;
+      --shadow: rgba(0,0,0,0.08);
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      text-align: center;
+    }
+
+    header { padding: 30px 16px 10px; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 34px);
+      color: var(--gold);
+    }
+
+    p.lead { margin: 8px 0 20px; color: var(--muted); }
+
+    .countries {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin: 22px auto 40px;
+      padding: 0 16px;
+      max-width: 800px;
+    }
+
+    .btn {
+      background: var(--gold);
+      color: #111;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: 999px;
+      box-shadow: 0 3px 8px var(--shadow);
+      transition: transform .1s ease, box-shadow .2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px var(--shadow);
+    }
+
+    .btn.secondary {
+      background: var(--silver);
+      color: #111;
+    }
+
+    footer { color: var(--muted); font-size: 13px; margin: 28px 0 24px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Europe</h1>
+    <p class="lead">Select a country to explore cigar stores & lounges.</p>
+  </header>
+
+  <div class="countries">
+    <a class="btn" href="sweden.html">Sweden</a>
+    <a class="btn" href="norway.html">Norway</a>
+    <a class="btn" href="denmark.html">Denmark</a>
+    <a class="btn" href="finland.html">Finland</a>
+    <a class="btn" href="iceland.html">Iceland</a>
+    <a class="btn secondary" href="#" onclick="comingSoon('Other Europe'); return false;">More countries soon</a>
+  </div>
+
+  <footer>© 2025 World Cigar Locator — Beta</footer>
+
+  <script>
+    function comingSoon(name){ alert(name + ' – Coming soon'); }
+  </script>
+</body>
+</html>
