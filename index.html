@@ -66,11 +66,11 @@
       text-decoration: none;
       padding: 12px 18px;
       border-radius: 10px;
-      transition: transform 0.06s ease, background 0.2s ease;
+      transition: transform .06s ease, background .2s ease;
     }
     .btn:hover { background: var(--gold-strong); transform: translateY(-1px); }
     .btn.secondary { background: #333; color: #eee; border: 1px solid #444; }
-    .btn.secondary:hover { background: #3a3a3a; }
+    .btn.secondary:hover { background:#3a3a3a; }
 
     footer { color: #7a7a7a; font-size: 13px; margin: 28px 0 24px; }
   </style>
@@ -83,36 +83,31 @@
 
   <div class="map-wrap">
     <div class="card">
-      <!-- SVG-världskarta med kontinenter -->
+      <!-- Riktig världskarta i SVG -->
       <svg class="worldmap" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1001">
-        <!-- North America -->
-        <a href="#" onclick="comingSoon('North America'); return false;">
-          <path class="continent" d="M 200 200 L 400 120 L 600 180 L 550 280 L 350 260 Z" />
+        <!-- Europe -->
+        <a xlink:href="europe.html">
+          <path class="continent active" d="M1050 260l30-20 40 10 30 30-10 40-40 20-40-10-20-30z"/>
         </a>
-
-        <!-- South America -->
-        <a href="#" onclick="comingSoon('South America'); return false;">
-          <path class="continent" d="M 500 400 L 560 440 L 580 600 L 520 800 L 460 700 Z" />
-        </a>
-
-        <!-- Europe (active) -->
-        <a href="europe.html">
-          <path class="continent active" d="M 900 180 L 1000 160 L 1100 200 L 1080 250 L 960 240 Z" />
-        </a>
-
         <!-- Africa -->
         <a href="#" onclick="comingSoon('Africa'); return false;">
-          <path class="continent" d="M 950 280 L 1100 300 L 1140 420 L 1080 560 L 940 480 Z" />
+          <path class="continent" d="M1080 360l60 20 30 80-10 120-60 80-80-40-20-100 20-100z"/>
         </a>
-
         <!-- Asia -->
         <a href="#" onclick="comingSoon('Asia'); return false;">
-          <path class="continent" d="M 1100 180 L 1500 200 L 1600 400 L 1400 500 L 1200 400 Z" />
+          <path class="continent" d="M1150 250l300 30 150 120-50 150-200 80-200-100-40-80z"/>
         </a>
-
+        <!-- North America -->
+        <a href="#" onclick="comingSoon('North America'); return false;">
+          <path class="continent" d="M200 200l300-80 250 100-60 150-250 20-180-40z"/>
+        </a>
+        <!-- South America -->
+        <a href="#" onclick="comingSoon('South America'); return false;">
+          <path class="continent" d="M600 400l60 80 20 160-50 180-70-60-10-140z"/>
+        </a>
         <!-- Oceania -->
         <a href="#" onclick="comingSoon('Oceania'); return false;">
-          <path class="continent" d="M 1600 600 L 1700 620 L 1740 680 L 1660 700 Z" />
+          <path class="continent" d="M1650 600l80 20 40 60-40 60-80-30-40-50z"/>
         </a>
       </svg>
     </div>
