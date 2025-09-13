@@ -54,9 +54,7 @@
     <div id="intro">
       <h2>🌍 World Cigar Locator</h2>
       <p>
-        Here you will be able to find cigar stores and lounges all over the
-        world... <br />
-        <em>More content coming soon.</em>
+        Find cigar stores & lounges all over the world..
       </p>
     </div>
 
@@ -74,4 +72,18 @@
     </div>
 
     <script>
-      const correctCode = "2025demo"; //
+      const correctCode = "2025demo"; // ← ändra koden här
+
+      function checkCode() {
+        const input = document.getElementById("code").value;
+        if (input === correctCode) {
+          document.getElementById("login").style.display = "none";
+          document.getElementById("intro").style.display = "none";
+          document.getElementById("content").style.display = "block";
+        } else {
+          document.getElementById("error").style.display = "block";
+        }
+      }
+    </script>
+  </body>
+</html>
