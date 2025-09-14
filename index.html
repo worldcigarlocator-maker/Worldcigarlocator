@@ -9,14 +9,11 @@
       --bg: #ffffff;
       --fg: #111111;
       --muted: #666666;
-      --card: #f9f9f9;
       --gold: #d4af37;
       --silver: #c0c0c0;
       --shadow: rgba(0,0,0,0.08);
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       background: var(--bg);
@@ -25,32 +22,30 @@
       text-align: center;
     }
 
-    header { padding: 40px 16px 20px; }
-
+    header { padding: 20px 16px 20px; }
     h1 {
       margin: 0;
       font-size: clamp(28px, 4vw, 40px);
       color: var(--gold);
     }
-
-    p.lead { margin: 8px 0 24px; color: var(--muted); }
-
-    .map-wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; }
-
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 4px 12px var(--shadow);
+    p.lead {
+      margin: 8px 0 24px;
+      color: var(--muted);
     }
 
-    .card img {
-      width: 40%;
-      height: auto;
+    .map-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    .map-image {
+      width: 70%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
       border-radius: 12px;
       display: block;
       margin: 0 auto;
-      filter: grayscale(100%);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
     .continents {
@@ -58,11 +53,10 @@
       flex-wrap: wrap;
       gap: 12px;
       justify-content: center;
-      margin: 60px auto 40px;
+      margin: 40px auto;
       padding: 0 16px;
       max-width: 800px;
     }
-
     .btn {
       background: var(--gold);
       color: #111;
@@ -73,18 +67,14 @@
       box-shadow: 0 3px 8px var(--shadow);
       transition: transform .1s ease, box-shadow .2s ease;
     }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 14px var(--shadow); }
+    .btn.secondary { background: var(--silver); color: #111; }
 
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 14px var(--shadow);
+    footer {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 28px 0 24px;
     }
-
-    .btn.secondary {
-      background: var(--silver);
-      color: #111;
-    }
-
-    footer { color: var(--muted); font-size: 13px; margin: 28px 0 24px; }
   </style>
 </head>
 <body>
@@ -94,26 +84,18 @@
   </header>
 
   <div class="map-wrap">
-    <div class="card">
-      <!-- Svartvit karta -->
-      <img src="https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg"
-           alt="World map" class="map-img" />
-    </div>
+    <img src="worldmap.jpg" alt="World map" class="map-image"/>
   </div>
 
   <div class="continents">
-    <a class="btn secondary" href="#" onclick="comingSoon('Africa'); return false;">Africa</a>
-    <a class="btn secondary" href="#" onclick="comingSoon('Asia'); return false;">Asia</a>
     <a class="btn" href="europe.html">Europe</a>
-    <a class="btn secondary" href="#" onclick="comingSoon('North America'); return false;">North America</a>
-    <a class="btn secondary" href="#" onclick="comingSoon('Oceania'); return false;">Oceania</a>
-    <a class="btn secondary" href="#" onclick="comingSoon('South America'); return false;">South America</a>
+    <a class="btn" href="#">Asia</a>
+    <a class="btn" href="#">Africa</a>
+    <a class="btn" href="#">North America</a>
+    <a class="btn" href="#">South America</a>
+    <a class="btn" href="#">Oceania</a>
   </div>
 
   <footer>© 2025 World Cigar Locator — Beta</footer>
-
-  <script>
-    function comingSoon(name){ alert(name + ' – Coming soon'); }
-  </script>
 </body>
 </html>
