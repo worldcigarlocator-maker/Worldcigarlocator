@@ -74,7 +74,7 @@
 
     .map-wrap {
       max-width: 900px;
-      margin: 0 auto;
+      margin: 0 auto 30px;
       padding: 0 16px;
     }
     .map-image {
@@ -87,14 +87,14 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
-    .continents {
+    .countries {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
       justify-content: center;
       margin: 40px auto;
       padding: 0 16px;
-      max-width: 800px;
+      max-width: 900px;
     }
     .btn {
       background: var(--gold);
@@ -115,7 +115,6 @@
       margin: 28px 0 24px;
     }
 
-    /* RESPONSIVE */
     @media (max-width: 768px) {
       .layout { flex-direction: column; }
       .sidebar {
@@ -152,11 +151,54 @@
         <img src="europe-lounge-4.jpg" alt="Europe cigar lounge" class="map-image"/>
       </div>
 
-      <div class="continents">
-        <a class="btn" href="#">Sweden</a>
-        <a class="btn" href="#">Norway</a>
+      <div class="countries">
+        <!-- Norden (guld) -->
         <a class="btn" href="#">Denmark</a>
         <a class="btn" href="#">Finland</a>
+        <a class="btn" href="#">Iceland</a>
+        <a class="btn" href="#">Norway</a>
+        <a class="btn" href="#">Sweden</a>
+
+        <!-- Övriga Europa (silver, A–Ö) -->
+        <a class="btn secondary" href="#">Albania</a>
+        <a class="btn secondary" href="#">Andorra</a>
+        <a class="btn secondary" href="#">Austria</a>
+        <a class="btn secondary" href="#">Belarus</a>
+        <a class="btn secondary" href="#">Belgium</a>
+        <a class="btn secondary" href="#">Bosnia and Herzegovina</a>
+        <a class="btn secondary" href="#">Bulgaria</a>
+        <a class="btn secondary" href="#">Croatia</a>
+        <a class="btn secondary" href="#">Czechia</a>
+        <a class="btn secondary" href="#">Estonia</a>
+        <a class="btn secondary" href="#">France</a>
+        <a class="btn secondary" href="#">Germany</a>
+        <a class="btn secondary" href="#">Greece</a>
+        <a class="btn secondary" href="#">Hungary</a>
+        <a class="btn secondary" href="#">Ireland</a>
+        <a class="btn secondary" href="#">Italy</a>
+        <a class="btn secondary" href="#">Kosovo</a>
+        <a class="btn secondary" href="#">Latvia</a>
+        <a class="btn secondary" href="#">Liechtenstein</a>
+        <a class="btn secondary" href="#">Lithuania</a>
+        <a class="btn secondary" href="#">Luxembourg</a>
+        <a class="btn secondary" href="#">Malta</a>
+        <a class="btn secondary" href="#">Moldova</a>
+        <a class="btn secondary" href="#">Monaco</a>
+        <a class="btn secondary" href="#">Montenegro</a>
+        <a class="btn secondary" href="#">Netherlands</a>
+        <a class="btn secondary" href="#">North Macedonia</a>
+        <a class="btn secondary" href="#">Poland</a>
+        <a class="btn secondary" href="#">Portugal</a>
+        <a class="btn secondary" href="#">Romania</a>
+        <a class="btn secondary" href="#">San Marino</a>
+        <a class="btn secondary" href="#">Serbia</a>
+        <a class="btn secondary" href="#">Slovakia</a>
+        <a class="btn secondary" href="#">Slovenia</a>
+        <a class="btn secondary" href="#">Spain</a>
+        <a class="btn secondary" href="#">Switzerland</a>
+        <a class="btn secondary" href="#">Ukraine</a>
+        <a class="btn secondary" href="#">United Kingdom</a>
+        <a class="btn secondary" href="#">Vatican City</a>
       </div>
 
       <footer>© 2025 World Cigar Locator — Beta</footer>
