@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tribute — World Cigar Locator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111111;
+      --muted: #666666;
+      --gold: #d4af37;
+      --shadow: rgba(0,0,0,0.08);
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      color: var(--gold);
+      text-align: center;
+    }
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+    form label {
+      display: block;
+      margin: 8px 0 4px;
+      font-weight: 600;
+    }
+    form input, form select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    form button {
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      background: var(--gold);
+      color: #111;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    form button:hover {
+      background: #c9a534;
+    }
+  </style>
+</head>
+<body>
+  <h1>Add a Cigar Store or Lounge</h1>
+  <form>
+    <label for="continent">Continent</label>
+    <select id="continent" name="continent">
+      <option>Europe</option>
+      <option>Asia</option>
+      <option>Africa</option>
+      <option>North America</option>
+      <option>South America</option>
+      <option>Oceania</option>
+    </select>
+
+    <label for="country">Country</label>
+    <input type="text" id="country" name="country" />
+
+    <label for="region">Region</label>
+    <input type="text" id="region" name="region" />
+
+    <label for="city">City</label>
+    <input type="text" id="city" name="city" />
+
+    <label for="type">Type</label>
+    <select id="type" name="type">
+      <option>Store</option>
+      <option>Lounge</option>
+    </select>
+
+    <label for="access">Access</label>
+    <select id="access" name="access">
+      <option>Open</option>
+      <option>Members only</option>
+      <option>Temporary membership</option>
+    </select>
+
+    <label for="address">Address</label>
+    <input type="text" id="address" name="address" />
+
+    <label for="phone">Phone</label>
+    <input type="text" id="phone" name="phone" />
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" />
+
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html>
