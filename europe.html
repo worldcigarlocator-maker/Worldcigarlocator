@@ -113,14 +113,27 @@
       color: var(--muted);
       font-size: 13px;
       margin: 28px 0 24px;
+      text-align: center;
     }
 
+    /* MOBILANPASSNING */
     @media (max-width: 768px) {
       .layout { flex-direction: column; }
       .sidebar {
         width: 100%;
         border-right: none;
         border-bottom: 1px solid #ddd;
+        text-align: center;
+      }
+      .map-image {
+        width: 95%;
+      }
+      .countries {
+        gap: 8px;
+      }
+      .btn {
+        flex: 1 1 45%;
+        text-align: center;
       }
     }
   </style>
