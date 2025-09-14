@@ -33,6 +33,8 @@
       color: var(--gold);
     }
 
+    p.lead { margin: 8px 0 24px; color: var(--muted); }
+
     .map-wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; }
 
     .card {
@@ -44,8 +46,8 @@
 
     .card img {
       width: 100%;
-      aspect-ratio: 16 / 9;   /* tvinga samma proportion som kartan */
-      object-fit: cover;      /* beskär överflöd istället för att sträcka */
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
       border-radius: 12px;
       display: block;
       margin: 0 auto;
@@ -88,7 +90,7 @@
 <body>
   <header>
     <h1>Europe</h1>
-    <!-- texten Select a country... är borttagen -->
+    <p class="lead">Find cigar stores & lounges all over the world.</p>
   </header>
 
   <div class="map-wrap">
