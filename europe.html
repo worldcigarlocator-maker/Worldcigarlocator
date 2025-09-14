@@ -1,221 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Europe — World Cigar Locator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css">
   <style>
-    :root {
-      --bg: #ffffff;
-      --fg: #111111;
-      --muted: #666666;
-      --gold: #d4af37;
-      --silver: #c0c0c0;
-      --shadow: rgba(0,0,0,0.08);
-    }
-    * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    }
-
-    .layout {
+      font-family: Arial, sans-serif;
       display: flex;
-      min-height: 100vh;
-      flex-wrap: wrap;
     }
-
-    /* SIDEBAR */
     .sidebar {
-      width: 260px;
-      background: #f8f8f8;
-      border-right: 1px solid #ddd;
+      width: 220px;
+      background: #f5f5f5;
+      color: #333;
       padding: 20px;
-      font-size: 14px;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      border-right: 1px solid #ccc;
     }
-    .sidebar h2 {
+    .sidebar h2, .sidebar h3 {
       margin-top: 0;
-      color: var(--gold);
     }
-    .sidebar input {
+    .sidebar a {
+      display: block;
+      color: #333;
+      text-decoration: none;
+      margin: 8px 0;
+    }
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+    .sidebar input, .sidebar button {
       width: 100%;
-      padding: 8px;
-      margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      padding: 6px;
+      margin-top: 5px;
+      box-sizing: border-box;
     }
-    .sidebar nav a {
-      display: block;
-      margin: 6px 0;
-      color: #111;
-      text-decoration: none;
-    }
-    .sidebar nav a:hover { text-decoration: underline; }
-    .sidebar p { margin: 10px 0; }
-
-    /* MAIN CONTENT */
     .content {
-      flex: 1;
+      margin-left: 240px; /* plats för sidomenyn */
       padding: 20px;
-      text-align: center;
+      flex: 1;
     }
-    header { padding: 20px 16px 20px; }
-    h1 {
-      margin: 0;
-      font-size: clamp(28px, 4vw, 40px);
-      color: var(--gold);
+    .card {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      background: #fff;
     }
-    p.lead {
-      margin: 8px 0 24px;
-      color: var(--muted);
-    }
-
-    .map-wrap {
-      max-width: 900px;
-      margin: 0 auto 30px;
-      padding: 0 16px;
-    }
-    .map-image {
-      width: 70%;
-      aspect-ratio: 16/9;
-      object-fit: cover;
-      border-radius: 12px;
-      display: block;
-      margin: 0 auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .countries {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: center;
-      margin: 40px auto;
-      padding: 0 16px;
-      max-width: 900px;
-    }
-    .btn {
-      background: var(--gold);
-      color: #111;
-      font-weight: 700;
-      text-decoration: none;
-      padding: 12px 20px;
-      border-radius: 999px;
-      box-shadow: 0 3px 8px var(--shadow);
-      transition: transform .1s ease, box-shadow .2s ease;
-    }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 14px var(--shadow); }
-    .btn.secondary { background: var(--silver); color: #111; }
-
-    footer {
-      color: var(--muted);
-      font-size: 13px;
-      margin: 28px 0 24px;
-      text-align: center;
-    }
-
-    /* MOBILANPASSNING */
-    @media (max-width: 768px) {
-      .layout { flex-direction: column; }
-      .sidebar {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #ddd;
-        text-align: center;
-      }
-      .map-image {
-        width: 95%;
-      }
-      .countries {
-        gap: 8px;
-      }
-      .btn {
-        flex: 1 1 45%;
-        text-align: center;
-      }
+    .hero-image {
+      width: 100%;
+      height: auto;
+      border-radius: 5px;
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="layout">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <h2>World Cigar Locator</h2>
-      <input type="text" placeholder="Search..." />
-      <nav>
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="support.html">Support</a>
-        <a href="tribute.html">Tribute</a>
-      </nav>
-      <p><strong>Members online:</strong> 124</p>
-    </aside>
+  <div class="sidebar">
+    <h2>World Cigar Locator</h2>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="tribute.html">Tribute</a>
+    <a href="locations.html">Locations</a>
 
-    <!-- MAIN CONTENT -->
-    <main class="content">
-      <header>
-        <h1>Europe</h1>
-        <p class="lead">Find cigar stores & lounges all over the world.</p>
-      </header>
+    <hr>
 
-      <div class="map-wrap">
-        <img src="europe-lounge-4.jpg" alt="Europe cigar lounge" class="map-image"/>
-      </div>
+    <h3>Search</h3>
+    <input type="text" id="searchBox" placeholder="Search...">
+    <button id="searchBtn">Go</button>
 
-      <div class="countries">
-        <!-- Norden (guld) -->
-        <a class="btn" href="#">Denmark</a>
-        <a class="btn" href="#">Finland</a>
-        <a class="btn" href="#">Iceland</a>
-        <a class="btn" href="#">Norway</a>
-        <a class="btn" href="#">Sweden</a>
+    <hr>
 
-        <!-- Övriga Europa (silver, A–Ö) -->
-        <a class="btn secondary" href="#">Albania</a>
-        <a class="btn secondary" href="#">Andorra</a>
-        <a class="btn secondary" href="#">Austria</a>
-        <a class="btn secondary" href="#">Belarus</a>
-        <a class="btn secondary" href="#">Belgium</a>
-        <a class="btn secondary" href="#">Bosnia and Herzegovina</a>
-        <a class="btn secondary" href="#">Bulgaria</a>
-        <a class="btn secondary" href="#">Croatia</a>
-        <a class="btn secondary" href="#">Czechia</a>
-        <a class="btn secondary" href="#">Estonia</a>
-        <a class="btn secondary" href="#">France</a>
-        <a class="btn secondary" href="#">Germany</a>
-        <a class="btn secondary" href="#">Greece</a>
-        <a class="btn secondary" href="#">Hungary</a>
-        <a class="btn secondary" href="#">Ireland</a>
-        <a class="btn secondary" href="#">Italy</a>
-        <a class="btn secondary" href="#">Kosovo</a>
-        <a class="btn secondary" href="#">Latvia</a>
-        <a class="btn secondary" href="#">Liechtenstein</a>
-        <a class="btn secondary" href="#">Lithuania</a>
-        <a class="btn secondary" href="#">Luxembourg</a>
-        <a class="btn secondary" href="#">Malta</a>
-        <a class="btn secondary" href="#">Moldova</a>
-        <a class="btn secondary" href="#">Monaco</a>
-        <a class="btn secondary" href="#">Montenegro</a>
-        <a class="btn secondary" href="#">Netherlands</a>
-        <a class="btn secondary" href="#">North Macedonia</a>
-        <a class="btn secondary" href="#">Poland</a>
-        <a class="btn secondary" href="#">Portugal</a>
-        <a class="btn secondary" href="#">Romania</a>
-        <a class="btn secondary" href="#">San Marino</a>
-        <a class="btn secondary" href="#">Serbia</a>
-        <a class="btn secondary" href="#">Slovakia</a>
-        <a class="btn secondary" href="#">Slovenia</a>
-        <a class="btn secondary" href="#">Spain</a>
-        <a class="btn secondary" href="#">Switzerland</a>
-        <a class="btn secondary" href="#">Ukraine</a>
-        <a class="btn secondary" href="#">United Kingdom</a>
-        <a class="btn secondary" href="#">Vatican City</a>
-      </div>
+    <h3>Info</h3>
+    <p>Members online: <span id="onlineCount">12</span></p>
+    <p><a href="support.html">Support</a></p>
+  </div>
 
-      <footer>© 2025 World Cigar Locator — Beta</footer>
-    </main>
+  <div class="content">
+    <h1>Europe</h1>
+    <img src="images/europe-lounge-4.jpg" alt="Europe Lounge" class="hero-image">
+
+    <h2>Select a Country</h2>
+    <div class="card">Sweden</div>
+    <div class="card">Norway</div>
+    <div class="card">Denmark</div>
+    <div class="card">Finland</div>
+    <!-- Lägg till fler länder efter behov -->
   </div>
 </body>
 </html>
