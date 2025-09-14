@@ -29,7 +29,7 @@
 
     /* SIDEBAR */
     .sidebar {
-      width: 260px;
+      width: 280px;
       background: #f8f8f8;
       border-right: 1px solid #ddd;
       padding: 20px;
@@ -54,6 +54,40 @@
     }
     .sidebar nav a:hover { text-decoration: underline; }
     .sidebar p { margin: 10px 0; }
+
+    form {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #ddd;
+    }
+    form label {
+      display: block;
+      text-align: left;
+      margin: 8px 0 4px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    form input, form select {
+      width: 100%;
+      padding: 6px;
+      margin-bottom: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    form button {
+      margin-top: 8px;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      background: var(--gold);
+      color: #111;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    form button:hover {
+      background: #c9a534;
+    }
 
     /* MAIN CONTENT */
     .content {
@@ -133,11 +167,57 @@
       <h2>World Cigar Locator</h2>
       <input type="text" placeholder="Search..." />
       <nav>
-        <a href="#">Quick links</a>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
         <a href="support.html">Support</a>
       </nav>
       <p><strong>Members online:</strong> 124</p>
-      <p class="info">Welcome to World Cigar Locator. Find lounges and stores across the globe.</p>
+
+      <!-- FORM -->
+      <form>
+        <label for="continent">Continent</label>
+        <select id="continent" name="continent">
+          <option>Europe</option>
+          <option>Asia</option>
+          <option>Africa</option>
+          <option>North America</option>
+          <option>South America</option>
+          <option>Oceania</option>
+        </select>
+
+        <label for="country">Country</label>
+        <input type="text" id="country" name="country" />
+
+        <label for="region">Region</label>
+        <input type="text" id="region" name="region" />
+
+        <label for="city">City</label>
+        <input type="text" id="city" name="city" />
+
+        <label for="type">Type</label>
+        <select id="type" name="type">
+          <option>Store</option>
+          <option>Lounge</option>
+        </select>
+
+        <label for="access">Access</label>
+        <select id="access" name="access">
+          <option>Open</option>
+          <option>Members only</option>
+          <option>Temporary membership</option>
+        </select>
+
+        <label for="address">Address</label>
+        <input type="text" id="address" name="address" />
+
+        <label for="phone">Phone</label>
+        <input type="text" id="phone" name="phone" />
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" />
+
+        <button type="submit">Submit</button>
+      </form>
     </aside>
 
     <!-- MAIN CONTENT -->
