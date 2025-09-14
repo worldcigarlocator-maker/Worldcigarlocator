@@ -46,7 +46,8 @@
 
     .card img {
       width: 100%;
-      height: auto;
+      aspect-ratio: 16 / 9;   /* samma proportioner som kartan */
+      object-fit: cover;      /* beskär istället för att sträcka */
       border-radius: 12px;
       display: block;
       margin: 0 auto;
@@ -94,8 +95,8 @@
 
   <div class="map-wrap">
     <div class="card">
-      <!-- Ny lounge-bild -->
-      <img src="europe-lounge-4.jpg" alt="Cigar Lounge in Europe" />
+      <!-- Lounge-bild i samma format som kartan -->
+      <img src="europe-lounge-16-9.jpg" alt="Cigar Lounge in Europe" />
     </div>
   </div>
 
