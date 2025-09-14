@@ -1,8 +1,10 @@
 <script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+  // 🔑 Viktigt: alltid inom citationstecken!
   const SUPABASE_URL = "https://kvmifqqbpbkfalqlhaud.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bWlmcXFicGJrZmFscWxoYXVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzU3ODEsImV4cCI6MjA3MzQ1MTc4MX0.RCgl3Va7KGK21HP7sW_wueNWa5l17XMHnSXJ1aQA7gM";
+
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const continentEl = document.getElementById("continent");
@@ -43,8 +45,8 @@
 
     data?.forEach(c => {
       const o = document.createElement("option");
-      o.value = c.id;           // UUID
-      o.textContent = c.name;   // Namn
+      o.value = c.id;
+      o.textContent = c.name;
       countryEl.appendChild(o);
     });
   });
@@ -63,8 +65,8 @@
 
     data?.forEach(r => {
       const o = document.createElement("option");
-      o.value = r.id;           // UUID
-      o.textContent = r.name;   // Namn
+      o.value = r.id;
+      o.textContent = r.name;
       regionEl.appendChild(o);
     });
   });
@@ -82,12 +84,11 @@
 
     data?.forEach(ci => {
       const o = document.createElement("option");
-      o.value = ci.id;           // UUID
-      o.textContent = ci.name;   // Namn
+      o.value = ci.id;
+      o.textContent = ci.name;
       cityEl.appendChild(o);
     });
 
-    // Tillåt manuell inmatning
     const other = document.createElement("option");
     other.value = "OTHER";
     other.textContent = "Other (add manually)";
@@ -125,7 +126,7 @@
     };
 
     const payload = {
-      city_id, // alltid en UUID här ✅
+      city_id,
       type:   typeMap[document.getElementById("type").value],
       access: accessMap[document.getElementById("access").value],
       address: document.getElementById("address").value || null,
