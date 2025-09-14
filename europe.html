@@ -15,6 +15,8 @@
       --shadow: rgba(0,0,0,0.08);
     }
 
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
       background: var(--bg);
@@ -23,36 +25,34 @@
       text-align: center;
     }
 
-    header { padding: 30px 16px 10px; }
+    header { padding: 40px 16px 20px; }
 
     h1 {
       margin: 0;
-      font-size: clamp(24px, 3vw, 34px);
+      font-size: clamp(28px, 4vw, 40px);
       color: var(--gold);
     }
 
-    p.lead { margin: 8px 0 20px; color: var(--muted); }
+    p.lead { margin: 8px 0 24px; color: var(--muted); }
 
-    .image-wrap {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
+    .map-wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; }
 
     .card {
       background: var(--card);
       border-radius: 14px;
-      overflow: hidden;
+      padding: 16px;
       box-shadow: 0 4px 12px var(--shadow);
     }
 
     .card img {
-      width: 100%;   /* bred bild */
+      width: 40%;   /* samma storlek som kartan på startsidan */
       height: auto;
+      border-radius: 12px;
       display: block;
+      margin: 0 auto;
     }
 
-    .countries {
+    .continents {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
@@ -92,14 +92,14 @@
     <p class="lead">Select a country to explore cigar stores & lounges.</p>
   </header>
 
-  <div class="image-wrap">
+  <div class="map-wrap">
     <div class="card">
-      <!-- Din svartvita cigarloungebild -->
+      <!-- Bred lounge-bild istället för kartan -->
       <img src="europe-lounge.jpg" alt="Cigar Lounge in Europe" />
     </div>
   </div>
 
-  <div class="countries">
+  <div class="continents">
     <a class="btn" href="sweden.html">Sweden</a>
     <a class="btn" href="norway.html">Norway</a>
     <a class="btn" href="denmark.html">Denmark</a>
