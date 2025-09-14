@@ -35,7 +35,7 @@
 
     .map-wrap {
       max-width: 900px;
-      margin: 0 auto 30px; /* spacing under bilden */
+      margin: 0 auto 30px;
       padding: 0 16px;
     }
     .map-image {
@@ -75,6 +75,37 @@
       font-size: 13px;
       margin: 28px 0 24px;
     }
+
+    .about-text {
+      max-width: 700px;
+      margin: 20px auto 40px;
+      padding: 20px;
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .about-text strong {
+      color: var(--gold);
+      font-size: 16px;
+    }
+
+    /* MOBILANPASSNING */
+    @media (max-width: 768px) {
+      .map-image {
+        width: 95%;
+      }
+      .continents {
+        gap: 8px;
+      }
+      .btn {
+        flex: 1 1 45%;
+        text-align: center;
+      }
+      .about-text {
+        padding: 10px;
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -97,7 +128,7 @@
     <a class="btn" href="#">South America</a>
   </div>
 
-   <footer>© 2025 World Cigar Locator — Beta</footer>
+  <footer>© 2025 World Cigar Locator — Beta</footer>
 
   <section class="about-text">
     <p>
