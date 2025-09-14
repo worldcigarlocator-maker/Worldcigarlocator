@@ -39,6 +39,10 @@
       </label>
     </div>
 
+    <label>Name of Store or Lounge
+      <input type="text" id="venueName" required>
+    </label>
+
     <label>Type
       <select id="type">
         <option>Store</option>
@@ -71,7 +75,7 @@
 
   <div id="output"></div>
 
-  <!-- ✅ Script flyttat längst ner -->
+  <!-- ✅ Script längst ner -->
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -200,6 +204,7 @@
 
       const payload = {
         city_id,
+        name: document.getElementById("venueName").value,   // 🔥 nytt namn-fält
         type:   typeMap[document.getElementById("type").value],
         access: accessMap[document.getElementById("access").value],
         address: document.getElementById("address").value || null,
