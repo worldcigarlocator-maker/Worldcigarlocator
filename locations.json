@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tribute — World Cigar Locator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      background: #fff;
+      color: #111;
+      padding: 20px;
+    }
+    h1 { color: #d4af37; }
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+      display: grid;
+      gap: 14px;
+    }
+    label { font-weight: 600; }
+    select, input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      width: 100%;
+    }
+    button {
+      background: #d4af37;
+      border: none;
+      padding: 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { background: #c0a030; }
+    .output {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Contribute a Lounge or Store</h1>
+  <form id="tributeForm">
+    <label>Continent
+      <select id="continent" required></select>
+    </label>
+    <label>Country
+      <select id="country" required></select>
+    </label>
+    <label>City
+      <select id="city" required></select>
+    </label>
+    <label>Type
+      <select id="type">
+        <option>Store</option>
+        <option>Lounge</option>
+      </select>
+    </label>
+    <label>Access
+      <select id="access">
+        <option>Open for everyone</option>
+        <option>Members only</option>
+        <option>Temporary membership available</option>
+      </select>
+    </label>
+    <label>Address <input id="address"></label>
+    <label>Phone <input id="phone"></label>
+    <label>Email <input id="email"></label>
+    <button type="submit">Submit</button>
+  </form>
+
+  <div id="output" class="output" style="display:none"></div>
+
+  <script>
+    // Ladda locations.json
+    let locations = {};
+    fetch("locations.json")
+      .then(res => res.json())
+      .then(data => {
+        locations = data;
+        populateContinents();
+      });
+
+    function populateContinents() {
+      const continentSelect = document.getElementById("continent");
+      continentSelect.innerHTML = "<option value=''>Select...</option>";
+      for (let cont in locations) {
+        continentSelect.innerHTML += `<option>${cont}</option>`;
+      }
+      continentSelect.addEventListener("change", populateCountries);
+    }
+
+    function populateCountries() {
+      const countrySelect = document.getElementById("country");
+      const citySelect = document.getElementById("city");
+      countrySelect.innerHTML = "<option value=''>Select...</option>";
+      citySelect.innerHTML = "<option value=''>Select...</option>";
+      const cont = document.getElementById("continent").value;
+      if (!cont) return;
+      for (let country in locations[cont]) {
+        countrySelect.innerHTML += `<option>${country}</option>`;
+      }
+      countrySelect.addEventListener("change", populateCities);
+    }
+
+    function populateCities() {
+      const citySelect = document.getElementById("city");
+      citySelect.innerHTML = "<option value=''>Select...</option>";
+      const cont = document.getElementById("continent").value;
+      const country = document.getElementById("country").value;
+      if (!cont || !country) return;
+      for (let city of locations[cont][country]) {
+        citySelect.innerHTML += `<option>${city}</option>`;
+      }
+    }
+
+    // Hantera submit
+    document.getElementById("tributeForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      const data = {
+        continent: continent.value,
+        country: country.value,
+        city: city.value,
+        type: type.value,
+        access: access.value,
+        address: address.value,
+        phone: phone.value,
+        email: email.value
+      };
+      document.getElementById("output").style.display = "block";
+      document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+    });
+  </script>
+</body>
+</html>
+{
+  "Europe": {
+    "Sweden": ["Stockholm", "Gothenburg", "Malmö"],
+    "Norway": ["Oslo", "Bergen", "Trondheim"],
+    "Denmark": ["Copenhagen", "Aarhus"],
+    "Finland": ["Helsinki", "Tampere"]
+  },
+  "North America": {
+    "USA": ["New York", "Miami", "Los Angeles"],
+    "Canada": ["Toronto", "Vancouver"]
+  }
+}
