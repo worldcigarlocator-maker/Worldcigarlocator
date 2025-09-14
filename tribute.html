@@ -1,8 +1,8 @@
 <script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-  const SUPABASE_URL = "https://kvmifqqbpbkfalqlhaud.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bWlmcXFicGJrZmFscWxoYXVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzU3ODEsImV4cCI6MjA3MzQ1MTc4MX0.RCgl3Va7KGK21HP7sW_wueNWa5l17XMHnSXJ1aQA7gM";
+  const SUPABASE_URL = https://kvmifqqbpbkfalqlhaud.supabase.co;
+  const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bWlmcXFicGJrZmFscWxoYXVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzU3ODEsImV4cCI6MjA3MzQ1MTc4MX0.RCgl3Va7KGK21HP7sW_wueNWa5l17XMHnSXJ1aQA7gM;
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const continentEl = document.getElementById("continent");
@@ -12,9 +12,9 @@
   const cityManualWrapper = document.getElementById("cityManualWrapper");
   const cityManual  = document.getElementById("cityManual");
 
-  // 1) Ladda världsdelar
+  // Load continents
   (async function loadContinents(){
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("continents")
       .select("id, name")
       .order("name", { ascending: true });
@@ -22,13 +22,13 @@
     continentEl.innerHTML = "<option value=''>Select...</option>";
     data?.forEach(c => {
       const o = document.createElement("option");
-      o.value = c.id; o.textContent = c.name;
+      o.value = c.id;           // UUID
+      o.textContent = c.name;   // Namn
       continentEl.appendChild(o);
     });
   })();
 
   continentEl.addEventListener("change", async () => {
-    // 2) Länder för vald världsdel
     countryEl.innerHTML = "<option value=''>Select...</option>";
     regionEl.innerHTML  = "<option value=''>Select...</option>";
     cityEl.innerHTML    = "<option value=''>Select...</option>";
@@ -43,13 +43,13 @@
 
     data?.forEach(c => {
       const o = document.createElement("option");
-      o.value = c.id; o.textContent = c.name;
+      o.value = c.id;           // UUID
+      o.textContent = c.name;   // Namn
       countryEl.appendChild(o);
     });
   });
 
   countryEl.addEventListener("change", async () => {
-    // 3) Regioner för valt land
     regionEl.innerHTML = "<option value=''>Select...</option>";
     cityEl.innerHTML   = "<option value=''>Select...</option>";
     cityManualWrapper.style.display = "none";
@@ -63,13 +63,13 @@
 
     data?.forEach(r => {
       const o = document.createElement("option");
-      o.value = r.id; o.textContent = r.name;
+      o.value = r.id;           // UUID
+      o.textContent = r.name;   // Namn
       regionEl.appendChild(o);
     });
   });
 
   regionEl.addEventListener("change", async () => {
-    // 4) Städer för vald region
     cityEl.innerHTML = "<option value=''>Select...</option>";
     cityManualWrapper.style.display = "none";
 
@@ -82,11 +82,12 @@
 
     data?.forEach(ci => {
       const o = document.createElement("option");
-      o.value = ci.id; o.textContent = ci.name;
+      o.value = ci.id;           // UUID
+      o.textContent = ci.name;   // Namn
       cityEl.appendChild(o);
     });
 
-    // Låt användaren lägga till ny stad om den saknas
+    // Tillåt manuell inmatning
     const other = document.createElement("option");
     other.value = "OTHER";
     other.textContent = "Other (add manually)";
@@ -97,13 +98,11 @@
     cityManualWrapper.style.display = (cityEl.value === "OTHER") ? "block" : "none";
   });
 
-  // Submit → ev. skapa ny City → skapa Venue
   document.getElementById("tributeForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
     let city_id = cityEl.value;
 
-    // Om "Other": skapa ny stad kopplad till vald region
     if (city_id === "OTHER") {
       const name = (cityManual.value || "").trim();
       if (!name) { alert("Please enter the city name."); return; }
@@ -118,7 +117,6 @@
       city_id = cityIns.id;
     }
 
-    // Mappa fält
     const typeMap   = { "Store":"store", "Lounge":"lounge" };
     const accessMap = {
       "Open for everyone":"open",
@@ -127,7 +125,7 @@
     };
 
     const payload = {
-      city_id,
+      city_id, // alltid en UUID här ✅
       type:   typeMap[document.getElementById("type").value],
       access: accessMap[document.getElementById("access").value],
       address: document.getElementById("address").value || null,
