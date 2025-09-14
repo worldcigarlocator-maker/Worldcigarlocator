@@ -1,108 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Tribute — World Cigar Locator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root {
-      --bg: #ffffff;
-      --fg: #111111;
-      --muted: #666666;
-      --gold: #d4af37;
-      --shadow: rgba(0,0,0,0.08);
-    }
     body {
+      font-family: system-ui, sans-serif;
       margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: #fff;
+      color: #111;
       padding: 20px;
     }
-    h1 {
-      color: var(--gold);
-      text-align: center;
-    }
+    h1 { color: #d4af37; }
     form {
       max-width: 600px;
       margin: 0 auto;
-      padding: 20px;
-      background: #f9f9f9;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px var(--shadow);
+      display: grid;
+      gap: 14px;
     }
-    form label {
-      display: block;
-      margin: 8px 0 4px;
-      font-weight: 600;
-    }
-    form input, form select {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 12px;
+    label { font-weight: 600; }
+    select, input {
+      padding: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
-    }
-    form button {
-      padding: 12px;
+      font-size: 14px;
       width: 100%;
+    }
+    button {
+      background: #d4af37;
       border: none;
-      border-radius: 6px;
-      background: var(--gold);
-      color: #111;
+      padding: 12px;
+      border-radius: 999px;
       font-weight: 700;
       cursor: pointer;
     }
-    form button:hover {
-      background: #c9a534;
+    button:hover { background: #c0a030; }
+    .output {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #f9f9f9;
     }
   </style>
 </head>
 <body>
-  <h1>Add a Cigar Store or Lounge</h1>
-  <form>
-    <label for="continent">Continent</label>
-    <select id="continent" name="continent">
-      <option>Europe</option>
-      <option>Asia</option>
-      <option>Africa</option>
-      <option>North America</option>
-      <option>South America</option>
-      <option>Oceania</option>
-    </select>
-
-    <label for="country">Country</label>
-    <input type="text" id="country" name="country" />
-
-    <label for="region">Region</label>
-    <input type="text" id="region" name="region" />
-
-    <label for="city">City</label>
-    <input type="text" id="city" name="city" />
-
-    <label for="type">Type</label>
-    <select id="type" name="type">
-      <option>Store</option>
-      <option>Lounge</option>
-    </select>
-
-    <label for="access">Access</label>
-    <select id="access" name="access">
-      <option>Open</option>
-      <option>Members only</option>
-      <option>Temporary membership</option>
-    </select>
-
-    <label for="address">Address</label>
-    <input type="text" id="address" name="address" />
-
-    <label for="phone">Phone</label>
-    <input type="text" id="phone" name="phone" />
-
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" />
-
+  <h1>Contribute a Lounge or Store</h1>
+  <form id="tributeForm">
+    <label>Continent
+      <select id="continent" required></select>
+    </label>
+    <label>Country
+      <select id="country" required></select>
+    </label>
+    <label>Region
+      <select id="region" required></select>
+    </label>
+    <label>City
+      <select id="city" required></select>
+    </label>
+    <div id="cityManualWrapper" style="display:none;">
+      <label>Enter city manually <input id="cityManual"></label>
+    </div>
+    <label>Type
+      <select id="type">
+        <option>Store</option>
+        <option>Lounge</option>
+      </select>
+    </label>
+    <label>Access
+      <select id="access">
+        <option>Open for everyone</option>
+        <option>Members only</option>
+        <option>Temporary membership available</option>
+      </select>
+    </label>
+    <label>Address <input id="address"></label>
+    <label>Phone <input id="phone"></label>
+    <label>Email <input id="email"></label>
     <button type="submit">Submit</button>
   </form>
+
+  <div id="output" class="output" style="display:none"></div>
+
+  <script>
+    let locations = {};
+
+    // Ladda locations.json
+    fetch("locations.json")
+      .then(res => res.json())
+      .then(data => {
+        locations = data;
+        populateContinents();
+      });
+
+    function populateContinents() {
+      const continentSelect = document.getElementById("continent");
+      continentSelect.innerHTML = "<option value=''>Select...</option>";
+      for (let cont in locations) {
+        continentSelect.innerHTML += `<option>${cont}</option>`;
+      }
+      continentSelect.addEventListener("change", populateCountries);
+    }
+
+    function populateCountries() {
+      const countrySelect = document.getElementById("country");
+      const regionSelect = document.getElementById("region");
+      const citySelect = document.getElementById("city");
+      countrySelect.innerHTML = "<option value=''>Select...</option>";
+      regionSelect.innerHTML = "<option value=''>Select...</option>";
+      citySelect.innerHTML = "<option value=''>Select...</option>";
+
+      const cont = document.getElementById("continent").value;
+      if (!cont) return;
+
+      for (let country in locations[cont]) {
+        countrySelect.innerHTML += `<option>${country}</option>`;
+      }
+      countrySelect.addEventListener("change", populateRegions);
+    }
+
+    function populateRegions() {
+      const regionSelect = document.getElementById("region");
+      const citySelect = document.getElementById("city");
+      regionSelect.innerHTML = "<option value=''>Select...</option>";
+      citySelect.innerHTML = "<option value=''>Select...</option>";
+
+      const cont = document.getElementById("continent").value;
+      const country = document.getElementById("country").value;
+      if (!cont || !country) return;
+
+      for (let region in locations[cont][country]) {
+        regionSelect.innerHTML += `<option>${region}</option>`;
+      }
+      regionSelect.addEventListener("change", populateCities);
+    }
+
+    function populateCities() {
+      const citySelect = document.getElementById("city");
+      citySelect.innerHTML = "<option value=''>Select...</option>";
+
+      const cont = document.getElementById("continent").value;
+      const country = document.getElementById("country").value;
+      const region = document.getElementById("region").value;
+      if (!cont || !country || !region) return;
+
+      for (let city of locations[cont][country][region]) {
+        citySelect.innerHTML += `<option>${city}</option>`;
+      }
+      citySelect.innerHTML += `<option>Other</option>`;
+    }
+
+    document.getElementById("city").addEventListener("change", function() {
+      document.getElementById("cityManualWrapper").style.display =
+        this.value === "Other" ? "block" : "none";
+    });
+
+    document.getElementById("tributeForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      const data = {
+        continent: continent.value,
+        country: country.value,
+        region: region.value,
+        city: city.value === "Other" ? cityManual.value : city.value,
+        type: type.value,
+        access: access.value,
+        address: address.value,
+        phone: phone.value,
+        email: email.value
+      };
+      document.getElementById("output").style.display = "block";
+      document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+    });
+  </script>
 </body>
 </html>
