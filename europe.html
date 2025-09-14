@@ -13,32 +13,73 @@
       --silver: #c0c0c0;
       --shadow: rgba(0,0,0,0.08);
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       background: var(--bg);
       color: var(--fg);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      text-align: center;
     }
 
-    header { padding: 40px 16px 20px; }
+    .layout {
+      display: flex;
+      min-height: 100vh;
+      flex-wrap: wrap;
+    }
 
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      background: #f8f8f8;
+      border-right: 1px solid #ddd;
+      padding: 20px;
+      font-size: 14px;
+    }
+    .sidebar h2 {
+      margin-top: 0;
+      color: var(--gold);
+    }
+    .sidebar input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .sidebar nav a {
+      display: block;
+      margin: 6px 0;
+      color: #111;
+      text-decoration: none;
+    }
+    .sidebar nav a:hover { text-decoration: underline; }
+    .sidebar p { margin: 10px 0; }
+
+    /* MAIN CONTENT */
+    .content {
+      flex: 1;
+      padding: 20px;
+      text-align: center;
+    }
+    header { padding: 20px 16px 20px; }
     h1 {
       margin: 0;
       font-size: clamp(28px, 4vw, 40px);
       color: var(--gold);
     }
+    p.lead {
+      margin: 8px 0 24px;
+      color: var(--muted);
+    }
 
-    p.lead { margin: 8px 0 24px; color: var(--muted); }
-
-    .map-wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; }
-
+    .map-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
     .map-wrap img {
-      width: 70%;              /* 30% mindre */
-      aspect-ratio: 16 / 9; 
+      width: 70%;
+      aspect-ratio: 16/9;
       object-fit: cover;
       border-radius: 12px;
       display: block;
@@ -51,11 +92,10 @@
       flex-wrap: wrap;
       gap: 12px;
       justify-content: center;
-      margin: 60px auto 40px;
+      margin: 40px auto;
       padding: 0 16px;
       max-width: 800px;
     }
-
     .btn {
       background: var(--gold);
       color: #111;
@@ -66,38 +106,60 @@
       box-shadow: 0 3px 8px var(--shadow);
       transition: transform .1s ease, box-shadow .2s ease;
     }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 14px var(--shadow); }
+    .btn.secondary { background: var(--silver); color: #111; }
 
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 14px var(--shadow);
+    footer {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 28px 0 24px;
     }
 
-    .btn.secondary {
-      background: var(--silver);
-      color: #111;
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .layout { flex-direction: column; }
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+      }
     }
-
-    footer { color: var(--muted); font-size: 13px; margin: 28px 0 24px; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Europe</h1>
-    <p class="lead">Find cigar stores & lounges all over the world.</p>
-  </header>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <h2>Tools</h2>
+      <input type="text" placeholder="Search..." />
+      <nav>
+        <a href="#">Quick links</a>
+        <a href="support.html">Support</a>
+      </nav>
+      <p><strong>Members online:</strong> 124</p>
+      <p class="info">Welcome to World Cigar Locator. Find lounges and stores across the globe.</p>
+    </aside>
 
-  <div class="map-wrap">
-    <img src="europe-lounge-4.jpg" alt="Cigar Lounge in Europe" />
+    <!-- MAIN CONTENT -->
+    <main class="content">
+      <header>
+        <h1>Europe</h1>
+        <p class="lead">Find cigar stores & lounges all over the world.</p>
+      </header>
+
+      <div class="map-wrap">
+        <img src="europe-lounge.jpg" alt="Europe cigar lounge" />
+      </div>
+
+      <div class="continents">
+        <a class="btn" href="#">Sweden</a>
+        <a class="btn" href="#">Norway</a>
+        <a class="btn" href="#">Denmark</a>
+        <a class="btn" href="#">Finland</a>
+      </div>
+
+      <footer>© 2025 World Cigar Locator — Beta</footer>
+    </main>
   </div>
-
-  <div class="continents">
-    <a class="btn" href="denmark.html">Denmark</a>
-    <a class="btn" href="finland.html">Finland</a>
-    <a class="btn" href="iceland.html">Iceland</a>
-    <a class="btn" href="norway.html">Norway</a>
-    <a class="btn" href="sweden.html">Sweden</a>
-  </div>
-
-  <footer>© 2025 World Cigar Locator — Beta</footer>
 </body>
 </html>
