@@ -12,25 +12,32 @@
     }
     .sidebar {
       width: 220px;
-      background: #222;
-      color: white;
+      background: #f5f5f5;
+      color: #333;
       padding: 20px;
       height: 100vh;
       position: fixed;
       left: 0;
       top: 0;
+      border-right: 1px solid #ccc;
     }
-    .sidebar h2 {
+    .sidebar h2, .sidebar h3 {
       margin-top: 0;
     }
     .sidebar a {
       display: block;
-      color: white;
+      color: #333;
       text-decoration: none;
-      margin: 10px 0;
+      margin: 8px 0;
     }
     .sidebar a:hover {
       text-decoration: underline;
+    }
+    .sidebar input, .sidebar button {
+      width: 100%;
+      padding: 6px;
+      margin-top: 5px;
+      box-sizing: border-box;
     }
     .content {
       margin-left: 240px; /* plats för sidomenyn */
@@ -56,13 +63,69 @@
     <a href="about.html">About</a>
     <a href="tribute.html">Tribute</a>
     <a href="locations.html">Locations</a>
+
+    <hr>
+
+    <h3>Search</h3>
+    <input type="text" id="searchBox" placeholder="Search...">
+    <button id="searchBtn">Go</button>
+
+    <hr>
+
+    <h3>Info</h3>
+    <p>Members online: <span id="onlineCount">12</span></p>
+    <p><a href="support.html">Support</a></p>
   </div>
 
   <div class="content">
     <h1>Add a Store or Lounge</h1>
     <form id="tributeForm">
-      <!-- formuläret här -->
+      <label for="continent">Continent</label>
+      <select id="continent"></select>
+
+      <label for="country">Country</label>
+      <select id="country"></select>
+
+      <label for="region">Region</label>
+      <select id="region"></select>
+
+      <label for="city">City</label>
+      <select id="city"></select>
+
+      <div id="cityManualWrapper" style="display:none;">
+        <label for="cityManual">Enter city manually</label>
+        <input type="text" id="cityManual">
+      </div>
+
+      <label for="name">Name of Store/Lounge</label>
+      <input type="text" id="name" required>
+
+      <label for="type">Type</label>
+      <select id="type">
+        <option>Store</option>
+        <option>Lounge</option>
+      </select>
+
+      <label for="access">Access</label>
+      <select id="access">
+        <option>Open for everyone</option>
+        <option>Members only</option>
+        <option>Temporary membership available</option>
+      </select>
+
+      <label for="address">Address</label>
+      <input type="text" id="address">
+
+      <label for="phone">Phone</label>
+      <input type="text" id="phone">
+
+      <label for="email">Email</label>
+      <input type="email" id="email">
+
+      <button type="submit">Save</button>
     </form>
+
+    <pre id="output" style="display:none; margin-top:20px;"></pre>
   </div>
 
   <script type="module" src="tribute.js"></script>
