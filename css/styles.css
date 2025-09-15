@@ -101,3 +101,18 @@ body.with-sidebar .content {
     max-width: 85%;   /* större på mobil */
   }
 }
+/* Lounge-bilder */
+.lounge-image {
+  max-width: 60%;   /* lagom på dator */
+  height: auto;
+  display: block;
+  margin: 20px auto 30px;
+  border-radius: 8px;
+}
+
+/* Mobilanpassning */
+@media (max-width: 768px) {
+  .lounge-image {
+    max-width: 90%;   /* större på mobil */
+  }
+}
