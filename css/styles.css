@@ -149,3 +149,9 @@ h1, h2, h3 {
   background: #c0c0c0;
   color: #333;
 }
+/* Centrera innehåll på sidor UTAN sidopanel */
+body:not(.with-sidebar) .content {
+  text-align: center;
+  margin: 0 auto;
+  max-width: 800px;
+}
