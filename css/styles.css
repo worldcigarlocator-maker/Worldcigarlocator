@@ -1,158 +1,75 @@
-/* Bas (gäller alla sidor) */
+/* === Base === */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #fff;
+  color: #333;
 }
 
-/* === Layout NÄR sidopanel finns === */
-body.with-sidebar {           /* lägg class="with-sidebar" på sidor som har sidopanel */
+/* === Sidebar layout === */
+body.with-sidebar {
   display: flex;
 }
+
 .sidebar {
   width: 220px;
   background: #f5f5f5;
-  color: #333;
   padding: 20px;
   height: 100vh;
   position: fixed;
   left: 0;
   top: 0;
   border-right: 1px solid #ccc;
-}
-.sidebar h2, .sidebar h3 { margin-top: 0; }
-.sidebar a {
-  display: block;
-  color: #333;
-  text-decoration: none;
-  margin: 8px 0;
-}
-.sidebar a:hover { text-decoration: underline; }
-.sidebar input, .sidebar button {
-  width: 100%;
-  padding: 6px;
-  margin-top: 5px;
-  box-sizing: border-box;
-}
 
-/* Innehållsyta på sidor MED sidopanel */
-body.with-sidebar .content {
-  margin-left: 240px; /* plats för sidomenyn */
-  padding: 20px;
-  flex: 1;
-  text-align: center;
-}
-
-/* === Layout NÄR sidopanel INTE finns (t.ex. index) === */
-.content {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 20px;
-  text-align: center;
-}
-
-/* Hero-bild */
-.hero-image {
-  width: 40%;
-  height: auto;
-  border-radius: 8px;
-  margin: 20px 0 30px;
-}
-
-/* Knappar / grid */
-.countries {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 10px;
-}
-.country-btn {
-  background: linear-gradient(145deg, #d4af37, #c0c0c0); /* guld/silver */
-  border: none;
-  color: #fff;
-  padding: 12px 24px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 700;
-  transition: transform .2s, opacity .2s;
-}
-.country-btn:hover {
-  transform: translateY(-3px);
-  opacity: .9;
-}
-
-/* Responsivt (lätt touch) */
-@media (max-width: 600px) {
-  .country-btn { padding: 10px 16px; font-size: 15px; }
-}
-.hero-image {
-  max-width: 40%;   /* för datorer */
-  height: auto;
-  display: block;
-  margin: 20px auto 30px;
-  border-radius: 8px;
-}
-
-/* Mobilanpassning */
-@media (max-width: 768px) {
-  .hero-image {
-    max-width: 85%;   /* större på mobil */
-  }
-}
-/* Lounge-bilder */
-.lounge-image {
-  max-width: 60%;   /* lagom på dator */
-  height: auto;
-  display: block;
-  margin: 20px auto 30px;
-  border-radius: 8px;
-}
-
-/* Mobilanpassning */
-@media (max-width: 768px) {
-  .lounge-image {
-    max-width: 90%;   /* större på mobil */
-  }
-}
-/* Guld-färg för rubriker */
-h1, h2, h3 {
-  color: #d4af37;   /* klassisk guldton */
-}
-
-/* Om du vill att sidopanelens huvudrubrik också ska vara guld */
-.sidebar h2 {
-  color: #d4af37;
-}
-.sidebar {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+}
+
+.sidebar h2 {
+  color: #d4af37; /* guld */
+  margin-top: 0;
 }
 
 .sidebar .nav-links {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+}
+
+.sidebar .nav-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar .nav-links a {
+  display: block;
+  color: #333;
+  text-decoration: none;
+  margin: 6px 0;
+}
+.sidebar .nav-links a:hover {
+  text-decoration: underline;
 }
 
 .sidebar .tools {
-  margin-top: 20px;
+  margin-bottom: 25px;
   font-size: 14px;
 }
 
 .sidebar .tools h3 {
   font-size: 16px;
   margin-bottom: 10px;
+  color: #d4af37;
 }
 
 .sidebar .stats {
-  margin-top: 15px;
+  margin-top: 10px;
   font-size: 13px;
   color: #555;
 }
 
+/* Add Store-knapp */
 .sidebar .add-store {
-  margin-top: auto; /* tvingar ner den */
+  margin-top: 25px;
 }
 
 .sidebar .add-store a {
@@ -167,4 +84,68 @@ h1, h2, h3 {
 }
 .sidebar .add-store a:hover {
   opacity: 0.9;
+}
+
+/* === Content === */
+body.with-sidebar .content {
+  margin-left: 240px;
+  padding: 20px;
+  flex: 1;
+  text-align: center;
+}
+
+/* Rubriker */
+h1, h2, h3 {
+  color: #d4af37;
+}
+
+/* Bilder */
+.hero-image {
+  max-width: 40%;   /* desktop */
+  height: auto;
+  display: block;
+  margin: 20px auto 30px;
+  border-radius: 8px;
+}
+@media (max-width: 768px) {
+  .hero-image { max-width: 85%; }
+}
+
+.lounge-image {
+  max-width: 60%;   /* desktop */
+  height: auto;
+  display: block;
+  margin: 20px auto 30px;
+  border-radius: 8px;
+}
+@media (max-width: 768px) {
+  .lounge-image { max-width: 90%; }
+}
+
+/* Länderknappar */
+.button-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+.btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #fff;
+  font-weight: bold;
+  transition: transform 0.2s, opacity 0.2s;
+}
+.btn:hover {
+  transform: translateY(-3px);
+  opacity: 0.9;
+}
+.gold {
+  background: linear-gradient(145deg, #d4af37, #c0c0c0);
+}
+.silver {
+  background: #c0c0c0;
+  color: #333;
 }
