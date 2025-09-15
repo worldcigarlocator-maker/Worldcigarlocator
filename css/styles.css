@@ -116,3 +116,12 @@ body.with-sidebar .content {
     max-width: 90%;   /* större på mobil */
   }
 }
+/* Guld-färg för rubriker */
+h1, h2, h3 {
+  color: #d4af37;   /* klassisk guldton */
+}
+
+/* Om du vill att sidopanelens huvudrubrik också ska vara guld */
+.sidebar h2 {
+  color: #d4af37;
+}
