@@ -1,1 +1,84 @@
+/* Allmän layout */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  background: #fff;
+}
+
+/* Sidopanel */
+.sidebar {
+  width: 220px;
+  background: #f5f5f5;
+  color: #333;
+  padding: 20px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  border-right: 1px solid #ccc;
+}
+.sidebar h2, .sidebar h3 {
+  margin-top: 0;
+}
+.sidebar a {
+  display: block;
+  color: #333;
+  text-decoration: none;
+  margin: 8px 0;
+}
+.sidebar a:hover {
+  text-decoration: underline;
+}
+.sidebar input, .sidebar button {
+  width: 100%;
+  padding: 6px;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+
+/* Innehåll */
+.content {
+  margin-left: 240px; /* plats för sidomenyn */
+  padding: 20px;
+  flex: 1;
+  text-align: center;
+}
+.hero-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+/* Rubriker */
+h1 {
+  font-size: 2em;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Länder-knappar */
+.countries {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+.country-btn {
+  background: linear-gradient(145deg, #d4af37, #c0c0c0); /* guld/silver */
+  border: none;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: transform 0.2s, opacity 0.2s;
+}
+.country-btn:hover {
+  transform: translateY(-3px);
+  opacity: 0.9;
+}
 
