@@ -87,3 +87,17 @@ body.with-sidebar .content {
 @media (max-width: 600px) {
   .country-btn { padding: 10px 16px; font-size: 15px; }
 }
+.hero-image {
+  max-width: 40%;   /* för datorer */
+  height: auto;
+  display: block;
+  margin: 20px auto 30px;
+  border-radius: 8px;
+}
+
+/* Mobilanpassning */
+@media (max-width: 768px) {
+  .hero-image {
+    max-width: 85%;   /* större på mobil */
+  }
+}
