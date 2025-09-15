@@ -2,132 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Tribute — World Cigar Locator</title>
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-    }
-    .sidebar {
-      width: 220px;
-      background: #f5f5f5;
-      color: #333;
-      padding: 20px;
-      height: 100vh;
-      position: fixed;
-      left: 0;
-      top: 0;
-      border-right: 1px solid #ccc;
-    }
-    .sidebar h2, .sidebar h3 {
-      margin-top: 0;
-    }
-    .sidebar a {
-      display: block;
-      color: #333;
-      text-decoration: none;
-      margin: 8px 0;
-    }
-    .sidebar a:hover {
-      text-decoration: underline;
-    }
-    .sidebar input, .sidebar button {
-      width: 100%;
-      padding: 6px;
-      margin-top: 5px;
-      box-sizing: border-box;
-    }
-    .content {
-      margin-left: 240px; /* plats för sidomenyn */
-      padding: 20px;
-      flex: 1;
-    }
-    form label {
-      display: block;
-      margin-top: 10px;
-    }
-    form input, form select, form button {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      box-sizing: border-box;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Store or Lounge – World Cigar Locator</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body class="with-sidebar">
   <div class="sidebar">
-    <h2>World Cigar Locator</h2>
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="tribute.html">Tribute</a>
-    <a href="locations.html">Locations</a>
-
-    <hr>
-
-    <h3>Search</h3>
-    <input type="text" id="searchBox" placeholder="Search...">
-    <button id="searchBtn">Go</button>
-
-    <hr>
-
-    <h3>Info</h3>
-    <p>Members online: <span id="onlineCount">12</span></p>
-    <p><a href="support.html">Support</a></p>
+    <div>
+      <h2>World Cigar Locator</h2>
+      <div class="nav-links">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="locations.html">Locations</a></li>
+          <li><a href="support.html">Support</a></li>
+        </ul>
+      </div>
+      <div class="tools">
+        <h3>Tools</h3>
+        <input type="text" placeholder="Search..." />
+        <div class="stats">
+          <p>Members online: 12</p>
+        </div>
+      </div>
+    </div>
+    <div class="add-store">
+      <a href="tribute.html">➕ Add Store or Lounge</a>
+    </div>
   </div>
 
   <div class="content">
-    <h1>Add a Store or Lounge</h1>
+    <h1>Add Store or Lounge</h1>
     <form id="tributeForm">
-      <label for="continent">Continent</label>
-      <select id="continent"></select>
-
-      <label for="country">Country</label>
-      <select id="country"></select>
-
-      <label for="region">Region</label>
-      <select id="region"></select>
-
-      <label for="city">City</label>
-      <select id="city"></select>
-
+      <label>Continent:</label><br>
+      <select id="continent"></select><br><br>
+      <label>Country:</label><br>
+      <select id="country"></select><br><br>
+      <label>Region:</label><br>
+      <select id="region"></select><br><br>
+      <label>City:</label><br>
+      <select id="city"></select><br>
       <div id="cityManualWrapper" style="display:none;">
-        <label for="cityManual">Enter city manually</label>
-        <input type="text" id="cityManual">
-      </div>
-
-      <label for="name">Name of Store/Lounge</label>
-      <input type="text" id="name" required>
-
-      <label for="type">Type</label>
+        <input type="text" id="cityManual" placeholder="Enter city manually" />
+      </div><br>
+      <label>Type:</label><br>
       <select id="type">
         <option>Store</option>
         <option>Lounge</option>
-      </select>
-
-      <label for="access">Access</label>
+      </select><br><br>
+      <label>Access:</label><br>
       <select id="access">
         <option>Open for everyone</option>
         <option>Members only</option>
         <option>Temporary membership available</option>
-      </select>
-
-      <label for="address">Address</label>
-      <input type="text" id="address">
-
-      <label for="phone">Phone</label>
-      <input type="text" id="phone">
-
-      <label for="email">Email</label>
-      <input type="email" id="email">
-
+      </select><br><br>
+      <label>Address:</label><br>
+      <input type="text" id="address"><br><br>
+      <label>Phone:</label><br>
+      <input type="text" id="phone"><br><br>
+      <label>Email:</label><br>
+      <input type="email" id="email"><br><br>
       <button type="submit">Save</button>
     </form>
-
-    <pre id="output" style="display:none; margin-top:20px;"></pre>
+    <pre id="output" style="display:none;"></pre>
+    <script type="module" src="js/tribute.js"></script>
   </div>
-
-  <script type="module" src="tribute.js"></script>
 </body>
 </html>
