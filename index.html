@@ -1,148 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World Cigar Locator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --bg: #ffffff;
-      --fg: #111111;
-      --muted: #666666;
-      --gold: #d4af37;
-      --silver: #c0c0c0;
-      --shadow: rgba(0,0,0,0.08);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      text-align: center;
-    }
-
-    header { padding: 20px 16px 20px; }
-    h1 {
-      margin: 0;
-      font-size: clamp(28px, 4vw, 40px);
-      color: var(--gold);
-    }
-    p.lead {
-      margin: 8px 0 24px;
-      color: var(--muted);
-    }
-
-    .map-wrap {
-      max-width: 900px;
-      margin: 0 auto 30px;
-      padding: 0 16px;
-    }
-    .map-image {
-      width: 70%;
-      aspect-ratio: 16/9;
-      object-fit: cover;
-      border-radius: 12px;
-      display: block;
-      margin: 0 auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .continents {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: center;
-      margin: 40px auto;
-      padding: 0 16px;
-      max-width: 800px;
-    }
-    .btn {
-      background: var(--gold);
-      color: #111;
-      font-weight: 700;
-      text-decoration: none;
-      padding: 12px 20px;
-      border-radius: 999px;
-      box-shadow: 0 3px 8px var(--shadow);
-      transition: transform .1s ease, box-shadow .2s ease;
-    }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 14px var(--shadow); }
-    .btn.secondary { background: var(--silver); color: #111; }
-
-    footer {
-      color: var(--muted);
-      font-size: 13px;
-      margin: 28px 0 24px;
-    }
-
-    .about-text {
-      max-width: 700px;
-      margin: 20px auto 40px;
-      padding: 20px;
-      font-size: 15px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-    .about-text strong {
-      color: var(--gold);
-      font-size: 16px;
-    }
-
-    /* MOBILANPASSNING */
-    @media (max-width: 768px) {
-      .map-image {
-        width: 95%;
-      }
-      .continents {
-        gap: 8px;
-      }
-      .btn {
-        flex: 1 1 45%;
-        text-align: center;
-      }
-      .about-text {
-        padding: 10px;
-        font-size: 14px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <header>
-    <h1>World Cigar Locator</h1>
-    <p class="lead">Find cigar stores & lounges all over the world.</p>
-  </header>
-
-  <div class="map-wrap">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/1200px-World_map_-_low_resolution.svg.png" 
-         alt="World map" class="map-image"/>
+  <!-- SIDOPANEL -->
+  <div class="sidebar">
+    <h2>World Cigar Locator</h2>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="tribute.html">Tribute</a>
+    <a href="locations.html">Locations</a>
+    <h3>Search</h3>
+    <input type="text" placeholder="Search...">
+    <h3>Quick links</h3>
+    <a href="europe.html">Europe</a>
+    <a href="north-america.html">North America</a>
+    <a href="south-america.html">South America</a>
+    <a href="asia.html">Asia</a>
+    <a href="africa.html">Africa</a>
+    <a href="oceania.html">Oceania</a>
+    <h3>Support</h3>
+    <a href="mailto:support@worldcigarlocator.com">support@worldcigarlocator.com</a>
+    <h3>Members online</h3>
+    <p>123 online</p>
   </div>
 
-  <div class="continents">
-    <a class="btn" href="#">Africa</a>
-    <a class="btn" href="#">Asia</a>
-    <a class="btn" href="europe.html">Europe</a>
-    <a class="btn" href="#">North America</a>
-    <a class="btn" href="#">Oceania</a>
-    <a class="btn" href="#">South America</a>
+  <!-- INNEHÅLL -->
+  <div class="content">
+    <h1>Select a continent</h1>
+    <img src="images/worldmap.svg" alt="World Map" class="hero-image">
+
+    <div class="countries">
+      <button class="country-btn" onclick="location.href='europe.html'">Europe</button>
+      <button class="country-btn" onclick="location.href='north-america.html'">North America</button>
+      <button class="country-btn" onclick="location.href='south-america.html'">South America</button>
+      <button class="country-btn" onclick="location.href='asia.html'">Asia</button>
+      <button class="country-btn" onclick="location.href='africa.html'">Africa</button>
+      <button class="country-btn" onclick="location.href='oceania.html'">Oceania</button>
+    </div>
+
+    <p style="margin-top:40px; font-size:14px; color:#555;">
+      This site is dedicated to help you find a cigar store or a cigar lounge near you.  
+      So that you never have to worry about not being able to have a good smoke. Hope you enjoy it.  
+      And may it bring you a lot of good smokes and memories.  
+      Bear with us in the progress of collecting data from all over the world to make this site as accurate as possible.  
+      <br><br>
+      Kind regards // Bakerman
+    </p>
   </div>
-
-  <footer>© 2025 World Cigar Locator — Beta</footer>
-
-  <section class="about-text">
-    <p>
-      This site is dedicated to helping you find a cigar store or a cigar lounge near you, 
-      so you never have to worry about not being able to enjoy a good smoke.
-    </p>
-    <p>
-      We hope you enjoy it, and may it bring you many great smokes and memories.
-    </p>
-    <p>
-      Please bear with us as we collect data from all over the world 
-      to make this site as accurate as possible.
-    </p>
-    <p><strong>Kind regards,<br/>Bakerman</strong></p>
-  </section>
 </body>
 </html>
