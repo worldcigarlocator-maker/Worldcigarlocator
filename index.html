@@ -1,41 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <div class="content">
     <h1>World Cigar Locator</h1>
     <p>Find cigar stores & lounges all over the world..</p>
 
-    <!-- Kartbild -->
-    <img src="images/worldmap.svg" alt="World Map" class="worldmap">
+    <!-- Karta: använder .hero-image för rätt storlek -->
+    <img src="images/worldmap.svg" alt="World Map" class="hero-image" />
 
-    <!-- Världsdelar -->
-    <div class="continent-buttons">
-      <a href="africa.html" class="btn">Africa</a>
-      <a href="asia.html" class="btn">Asia</a>
-      <a href="australia.html" class="btn">Australia</a>
-      <a href="europe.html" class="btn">Europe</a>
-      <a href="north-america.html" class="btn">North America</a>
-      <a href="south-america.html" class="btn">South America</a>
+    <!-- Världsdelar: använder .countries + .country-btn -->
+    <div class="countries" style="margin-top: 20px;">
+      <button class="country-btn" onclick="location.href='africa.html'">Africa</button>
+      <button class="country-btn" onclick="location.href='asia.html'">Asia</button>
+      <button class="country-btn" onclick="location.href='oceania.html'">Oceania</button>
+      <button class="country-btn" onclick="location.href='europe.html'">Europe</button>
+      <button class="country-btn" onclick="location.href='north-america.html'">North America</button>
+      <button class="country-btn" onclick="location.href='south-america.html'">South America</button>
     </div>
 
-    <!-- Introtext -->
-    <div class="intro-text">
-      <p>
-        This site is dedicated to help you find a cigar store or a cigar lounge near you.  
-        So that you never have to worry about not being able to have a good smoke.  
-        Hope you enjoy it. And may it bring you a lot of good smokes and memories.
-      </p>
-      <p>
-        Bear with us in the progress of collecting data from all over the world to make this site as accurate as possible.
-      </p>
-      <p><em>Kind regards // Bakerman</em></p>
-    </div>
+    <p style="margin-top:40px; font-size:14px; color:#555;">
+      This site is dedicated to help you find a cigar store or a cigar lounge near you.<br/>
+      Bear with us in the progress of collecting data from all over the world to make this site as accurate as possible.
+      <br/><br/>
+      <em>Kind regards // Bakerman</em>
+    </p>
   </div>
 </body>
 </html>
