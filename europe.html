@@ -3,54 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World Cigar Locator</title>
+  <title>World Cigar Locator – Europe</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <!-- SIDOPANEL -->
+  <!-- Sidebar -->
   <div class="sidebar">
     <h2>World Cigar Locator</h2>
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="tribute.html">Tribute</a>
-    <a href="locations.html">Locations</a>
-    <h3>Search</h3>
-    <input type="text" placeholder="Search...">
-    <h3>Quick links</h3>
-    <a href="europe.html">Europe</a>
-    <a href="north-america.html">North America</a>
-    <a href="south-america.html">South America</a>
-    <a href="asia.html">Asia</a>
-    <a href="africa.html">Africa</a>
-    <a href="oceania.html">Oceania</a>
-    <h3>Support</h3>
-    <a href="mailto:support@worldcigarlocator.com">support@worldcigarlocator.com</a>
-    <h3>Members online</h3>
-    <p>123 online</p>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="tribute.html">Tribute</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="locations.html">Locations</a></li>
+      <li><a href="support.html">Support</a></li>
+    </ul>
   </div>
 
-  <!-- INNEHÅLL -->
-  <div class="content">
-    <h1>Select a continent</h1>
-    <img src="images/worldmap.svg" alt="World Map" class="hero-image">
-
-    <div class="countries">
-      <button class="country-btn" onclick="location.href='europe.html'">Europe</button>
-      <button class="country-btn" onclick="location.href='north-america.html'">North America</button>
-      <button class="country-btn" onclick="location.href='south-america.html'">South America</button>
-      <button class="country-btn" onclick="location.href='asia.html'">Asia</button>
-      <button class="country-btn" onclick="location.href='africa.html'">Africa</button>
-      <button class="country-btn" onclick="location.href='oceania.html'">Oceania</button>
+  <!-- Main content -->
+  <div class="main-content">
+    <h1>Europe</h1>
+    <div class="image-container">
+      <img src="images/europe-lounge-4.jpg" alt="Europe Cigar Lounge">
     </div>
 
-    <p style="margin-top:40px; font-size:14px; color:#555;">
-      This site is dedicated to help you find a cigar store or a cigar lounge near you.  
-      So that you never have to worry about not being able to have a good smoke. Hope you enjoy it.  
-      And may it bring you a lot of good smokes and memories.  
-      Bear with us in the progress of collecting data from all over the world to make this site as accurate as possible.  
-      <br><br>
-      Kind regards // Bakerman
-    </p>
+    <h2>Select a Country</h2>
+    <div class="button-grid">
+      <!-- Norden färgade, övriga grå -->
+      <a href="sweden.html" class="btn gold">Sweden</a>
+      <a href="norway.html" class="btn gold">Norway</a>
+      <a href="denmark.html" class="btn gold">Denmark</a>
+      <a href="finland.html" class="btn gold">Finland</a>
+
+      <a href="#" class="btn silver">Austria</a>
+      <a href="#" class="btn silver">Belgium</a>
+      <a href="#" class="btn silver">France</a>
+      <a href="#" class="btn silver">Germany</a>
+      <a href="#" class="btn silver">Italy</a>
+      <a href="#" class="btn silver">Netherlands</a>
+      <a href="#" class="btn silver">Spain</a>
+      <a href="#" class="btn silver">United Kingdom</a>
+      <!-- fortsätt lista alla länder i Europa -->
+    </div>
   </div>
 </body>
 </html>
