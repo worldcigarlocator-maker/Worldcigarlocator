@@ -2,87 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Locations — World Cigar Locator</title>
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-    }
-    .sidebar {
-      width: 220px;
-      background: #f5f5f5;
-      color: #333;
-      padding: 20px;
-      height: 100vh;
-      position: fixed;
-      left: 0;
-      top: 0;
-      border-right: 1px solid #ccc;
-    }
-    .sidebar h2, .sidebar h3 {
-      margin-top: 0;
-    }
-    .sidebar a {
-      display: block;
-      color: #333;
-      text-decoration: none;
-      margin: 8px 0;
-    }
-    .sidebar a:hover {
-      text-decoration: underline;
-    }
-    .sidebar input, .sidebar button {
-      width: 100%;
-      padding: 6px;
-      margin-top: 5px;
-      box-sizing: border-box;
-    }
-    .content {
-      margin-left: 240px; /* plats för sidomenyn */
-      padding: 20px;
-      flex: 1;
-    }
-    .venue {
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      background: #fff;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Locations – World Cigar Locator</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body class="with-sidebar">
   <div class="sidebar">
-    <h2>World Cigar Locator</h2>
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="tribute.html">Tribute</a>
-    <a href="locations.html">Locations</a>
-
-    <hr>
-
-    <h3>Search</h3>
-    <input type="text" id="searchBox" placeholder="Search...">
-    <button id="searchBtn">Go</button>
-
-    <hr>
-
-    <h3>Info</h3>
-    <p>Members online: <span id="onlineCount">12</span></p>
-    <p><a href="support.html">Support</a></p>
+    <div>
+      <h2>World Cigar Locator</h2>
+      <div class="nav-links">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="locations.html">Locations</a></li>
+          <li><a href="support.html">Support</a></li>
+        </ul>
+      </div>
+      <div class="tools">
+        <h3>Tools</h3>
+        <input type="text" placeholder="Search..." />
+        <div class="stats">
+          <p>Members online: 12</p>
+        </div>
+      </div>
+    </div>
+    <div class="add-store">
+      <a href="tribute.html">➕ Add Store or Lounge</a>
+    </div>
   </div>
 
   <div class="content">
     <h1>Locations</h1>
-    <p>Here you can see all submitted cigar stores and lounges.</p>
-
-    <div id="locationsList">
-      <!-- venues laddas här från locations.js -->
+    <p>Here you will be able to browse all added stores and lounges.</p>
+    <div id="locations-list">
+      <!-- Dynamisk lista -->
     </div>
+    <script type="module" src="js/locations.js"></script>
   </div>
-
-  <script type="module" src="locations.js"></script>
 </body>
 </html>
