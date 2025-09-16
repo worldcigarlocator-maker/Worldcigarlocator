@@ -155,3 +155,24 @@ body:not(.with-sidebar) .content {
   margin: 0 auto;
   max-width: 800px;
 }
+/* Justera About-sidan */
+body.with-sidebar.about .content {
+  text-align: left;
+  font-family: "Georgia", serif;  /* elegant känsla */
+  line-height: 1.6;
+  max-width: 800px;
+}
+
+/* Rubrik snyggare */
+body.with-sidebar.about h1 {
+  text-align: center;
+  color: #d4af37; /* guld */
+  margin-bottom: 20px;
+}
+
+/* Avslutningen i kursiv */
+body.with-sidebar.about .signature {
+  font-style: italic;
+  margin-top: 30px;
+  text-align: right;
+}
