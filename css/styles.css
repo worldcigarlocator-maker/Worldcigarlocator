@@ -185,3 +185,37 @@ body.with-sidebar.about .signature {
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
+/* Sidopanel layout */
+.sidebar {
+  width: 220px;
+  background: #fff;  /* vit bakgrund */
+  border-right: 1px solid #ddd;
+  padding: 20px;
+  flex-shrink: 0;
+}
+
+/* Sidopanel rubrik */
+.sidebar h2 {
+  color: #d4af37;  /* guld */
+  font-size: 1.4em;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Länkar i sidopanel */
+.sidebar nav a {
+  display: block;
+  margin: 10px 0;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.sidebar nav a:hover {
+  color: #d4af37;
+}
+
+.sidebar nav a.active {
+  color: #d4af37;
+  font-weight: bold;
+}
