@@ -101,7 +101,7 @@ h1, h2, h3 {
 
 /* Bilder */
 .hero-image {
-  max-width: 40%;   /* desktop */
+  max-width: 50%;   /* desktop */
   height: auto;
   display: block;
   margin: 20px auto 30px;
