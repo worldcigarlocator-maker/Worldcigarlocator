@@ -1,59 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World Cigar Locator – Europe</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Europe - World Cigar Locator</title>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
-<a href="europe.html" class="active">Europe</a>
-  <div class="sidebar">
-    <div>
-      <h2>World Cigar Locator</h2>
-      <div class="nav-links">
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="locations.html">Locations</a></li>
-          <li><a href="support.html">Support</a></li>
-        </ul>
-      </div>
+<body class="with-sidebar europe">
+  <!-- Standardiserad sidopanel -->
+  <aside class="sidebar">
+    <h2>World Cigar Locator</h2>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="europe.html" class="active">Europe</a>
+      <a href="locations.html">Locations</a>
+      <a href="tribute.html">Add Store or Lounge</a>
+      <a href="about.html">About</a>
+      <a href="support.html">Support</a>
+    </nav>
+  </aside>
 
-      <div class="tools">
-        <h3>Tools</h3>
-        <input type="text" placeholder="Search..." />
-        <div class="quick-links">
-          <p><a href="europe.html">Quick: Europe</a></p>
-          <p><a href="north-america.html">Quick: North America</a></p>
-        </div>
-        <div class="stats">
-          <p>Members online: 12</p>
-        </div>
-      </div>
-    </div>
-    <div class="add-store">
-      <a href="tribute.html">➕ Add Store or Lounge</a>
-    </div>
-  </div>
-
-  <div class="content">
+  <!-- Huvudinnehåll -->
+  <main class="content">
     <h1>Europe</h1>
-    <div class="image-container">
-      <img src="images/europe-lounge-4.jpg" alt="Europe Cigar Lounge" class="lounge-image">
-    </div>
 
-    <h2>Select a Country</h2>
-    <div class="button-grid">
-      <a href="sweden.html" class="btn gold">Sweden</a>
-      <a href="norway.html" class="btn gold">Norway</a>
-      <a href="denmark.html" class="btn gold">Denmark</a>
-      <a href="finland.html" class="btn gold">Finland</a>
-      <a href="#" class="btn silver">France</a>
-      <a href="#" class="btn silver">Germany</a>
-      <a href="#" class="btn silver">Spain</a>
-      <a href="#" class="btn silver">United Kingdom</a>
-      <!-- ...resten av Europa-länderna -->
+    <!-- Loungen i Europa -->
+    <img src="images/europe-lounge-4.jpg" alt="European Cigar Lounge" class="lounge-image" />
+
+    <!-- Lista över länder (A–Ö, där Norden är markerade med färg) -->
+    <div class="countries">
+      <button class="country-btn nordic" onclick="location.href='sweden.html'">Sweden</button>
+      <button class="country-btn nordic" onclick="location.href='norway.html'">Norway</button>
+      <button class="country-btn nordic" onclick="location.href='denmark.html'">Denmark</button>
+      <button class="country-btn nordic" onclick="location.href='finland.html'">Finland</button>
+      <button class="country-btn" disabled>Iceland (coming soon)</button>
+      <button class="country-btn">Austria</button>
+      <button class="country-btn">Belgium</button>
+      <button class="country-btn">Croatia</button>
+      <button class="country-btn">Czech Republic</button>
+      <button class="country-btn">Estonia</button>
+      <button class="country-btn">France</button>
+      <button class="country-btn">Germany</button>
+      <button class="country-btn">Greece</button>
+      <button class="country-btn">Hungary</button>
+      <button class="country-btn">Ireland</button>
+      <button class="country-btn">Italy</button>
+      <button class="country-btn">Latvia</button>
+      <button class="country-btn">Lithuania</button>
+      <button class="country-btn">Luxembourg</button>
+      <button class="country-btn">Netherlands</button>
+      <button class="country-btn">Poland</button>
+      <button class="country-btn">Portugal</button>
+      <button class="country-btn">Spain</button>
+      <button class="country-btn">Switzerland</button>
+      <button class="country-btn">United Kingdom</button>
+      <!-- Lägg till fler länder vid behov -->
     </div>
-  </div>
+  </main>
 </body>
 </html>
