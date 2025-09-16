@@ -176,3 +176,12 @@ body.with-sidebar.about .signature {
   margin-top: 30px;
   text-align: right;
 }
+/* About-sidan bild (skalad ner) */
+.about-image {
+  max-width: 70%;
+  height: auto;
+  display: block;
+  margin: 20px auto 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
