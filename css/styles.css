@@ -219,3 +219,30 @@ body.with-sidebar.about .signature {
   color: #d4af37;
   font-weight: bold;
 }
+/* Sökruta i sidopanelen */
+.sidebar-search {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.sidebar-search input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px 0 0 4px;
+  font-size: 14px;
+}
+
+.sidebar-search button {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-left: none;
+  background: #d4af37;
+  color: white;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
+.sidebar-search button:hover {
+  background: #b8962e;
+}
