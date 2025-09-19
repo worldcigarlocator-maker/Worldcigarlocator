@@ -1,271 +1,162 @@
-/* === Base === */
-body {
+/* ========== RESET ========== */
+* {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
   font-family: Arial, sans-serif;
   background: #fff;
-  color: #333;
-}
-
-/* === Sidebar layout === */
-body.with-sidebar {
-  display: flex;
-}
-
-.sidebar {
-  width: 220px;
-  background: #f5f5f5;
-  padding: 20px;
-  height: 100vh;
-  position: fixed;
-  left: 0;
-  top: 0;
-  border-right: 1px solid #ccc;
-
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar h2 {
-  color: #d4af37; /* guld */
-  margin-top: 0;
-}
-
-.sidebar .nav-links {
-  margin-bottom: 20px;
-}
-
-.sidebar .nav-links ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sidebar .nav-links a {
-  display: block;
-  color: #333;
-  text-decoration: none;
-  margin: 6px 0;
-}
-.sidebar .nav-links a:hover {
-  text-decoration: underline;
-}
-
-.sidebar .tools {
-  margin-bottom: 25px;
-  font-size: 14px;
-}
-
-.sidebar .tools h3 {
-  font-size: 16px;
-  margin-bottom: 10px;
-  color: #d4af37;
-}
-
-.sidebar .stats {
-  margin-top: 10px;
-  font-size: 13px;
-  color: #555;
-}
-
-/* Add Store-knapp */
-.sidebar .add-store {
-  margin-top: 25px;
-}
-
-.sidebar .add-store a {
-  display: block;
-  text-align: center;
-  background: linear-gradient(145deg, #d4af37, #c0c0c0);
-  color: #fff;
-  font-weight: bold;
-  padding: 10px;
-  border-radius: 8px;
-  text-decoration: none;
-}
-.sidebar .add-store a:hover {
-  opacity: 0.9;
-}
-
-/* === Content === */
-body.with-sidebar .content {
-  margin-left: 240px;
-  padding: 20px;
-  flex: 1;
-  text-align: center;
-}
-
-/* Rubriker */
-h1, h2, h3 {
-  color: #d4af37;
-}
-
-/* Bilder */
-.hero-image {
-  max-width: 50%;   /* desktop */
-  height: auto;
-  display: block;
-  margin: 20px auto 30px;
-  border-radius: 8px;
-}
-@media (max-width: 768px) {
-  .hero-image { max-width: 85%; }
-}
-
-.lounge-image {
-  max-width: 60%;   /* desktop */
-  height: auto;
-  display: block;
-  margin: 20px auto 30px;
-  border-radius: 8px;
-}
-@media (max-width: 768px) {
-  .lounge-image { max-width: 90%; }
-}
-
-/* Länderknappar */
-.button-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 20px;
-}
-.btn {
-  padding: 10px 18px;
-  border-radius: 8px;
-  text-decoration: none;
-  color: #fff;
-  font-weight: bold;
-  transition: transform 0.2s, opacity 0.2s;
-}
-.btn:hover {
-  transform: translateY(-3px);
-  opacity: 0.9;
-}
-.gold {
-  background: linear-gradient(145deg, #d4af37, #c0c0c0);
-}
-.silver {
-  background: #c0c0c0;
-  color: #333;
-}
-/* Centrera innehåll på sidor UTAN sidopanel */
-body:not(.with-sidebar) .content {
-  text-align: center;
-  margin: 0 auto;
-  max-width: 800px;
-}
-/* Justera About-sidan */
-body.with-sidebar.about .content {
-  text-align: left;
-  font-family: "Georgia", serif;  /* elegant känsla */
+  color: #222;
   line-height: 1.6;
-  max-width: 800px;
+  display: flex;
+  min-height: 100vh;
 }
 
-/* Rubrik snyggare */
-body.with-sidebar.about h1 {
-  text-align: center;
-  color: #d4af37; /* guld */
-  margin-bottom: 20px;
-}
-
-/* Avslutningen i kursiv */
-body.with-sidebar.about .signature {
-  font-style: italic;
-  margin-top: 30px;
-  text-align: right;
-}
-/* About-sidan bild (skalad ner) */
-.about-image {
-  max-width: 70%;
-  height: auto;
-  display: block;
-  margin: 20px auto 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-/* Sidopanel layout */
+/* ========== SIDEBAR ========== */
 .sidebar {
-  width: 220px;
-  background: #fff;  /* vit bakgrund */
-  border-right: 1px solid #ddd;
+  width: 260px;
+  background: #111;
+  color: #fff;
   padding: 20px;
-  flex-shrink: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
 }
 
-/* Sidopanel rubrik */
 .sidebar h2 {
-  color: #d4af37;  /* guld */
-  font-size: 1.4em;
+  color: #d4af37; /* guld */
+  font-size: 1.4rem;
   margin-bottom: 20px;
   text-align: center;
 }
 
-/* Länkar i sidopanel */
+.sidebar input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 4px;
+}
+
 .sidebar nav a {
   display: block;
-  margin: 10px 0;
-  color: #333;
+  color: #fff;
   text-decoration: none;
-  font-weight: 500;
+  padding: 8px 10px;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  transition: background 0.2s;
 }
 
 .sidebar nav a:hover {
+  background: #333;
   color: #d4af37;
 }
 
-.sidebar nav a.active {
-  color: #d4af37;
-  font-weight: bold;
+/* ========== MAIN CONTENT ========== */
+.main-content {
+  margin-left: 260px;
+  padding: 30px;
+  flex: 1;
 }
-/* Sökruta i sidopanelen */
-.sidebar-search {
-  display: flex;
+
+.main-content h1 {
+  font-size: 2rem;
+  color: #222;
   margin-bottom: 20px;
 }
 
-.sidebar-search input {
-  flex: 1;
-  padding: 6px 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px 0 0 4px;
-  font-size: 14px;
+.main-content p {
+  margin-bottom: 15px;
 }
 
-.sidebar-search button {
-  padding: 6px 10px;
-  border: 1px solid #ccc;
-  border-left: none;
-  background: #d4af37;
-  color: white;
-  border-radius: 0 4px 4px 0;
+/* ========== BUTTONS ========== */
+button, .btn {
+  background: #d4af37; /* guld */
+  color: #111;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-weight: bold;
 }
 
-.sidebar-search button:hover {
-  background: #b8962e;
+button:hover, .btn:hover {
+  background: #b8962d;
+  color: #fff;
 }
-/* Locations tabell */
-.locations-table {
+
+/* ========== IMAGES ========== */
+img.responsive {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+/* ========== TABLES ========== */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  font-size: 14px;
 }
 
-.locations-table th,
-.locations-table td {
+table th, table td {
+  padding: 12px;
   border: 1px solid #ddd;
-  padding: 8px;
   text-align: left;
 }
 
-.locations-table th {
-  background-color: #f2f2f2;
-  color: #333;
+table th {
+  background: #111;
+  color: #d4af37;
 }
 
-.locations-table tr:nth-child(even) {
-  background-color: #fafafa;
+table tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+/* ========== FORMS ========== */
+form {
+  margin-top: 20px;
+}
+
+form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+form input, form select, form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+form button {
+  display: inline-block;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
 }
