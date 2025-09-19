@@ -246,3 +246,26 @@ body.with-sidebar.about .signature {
 .sidebar-search button:hover {
   background: #b8962e;
 }
+/* Locations tabell */
+.locations-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.locations-table th,
+.locations-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.locations-table th {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+.locations-table tr:nth-child(even) {
+  background-color: #fafafa;
+}
