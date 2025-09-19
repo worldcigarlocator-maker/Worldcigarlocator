@@ -3,26 +3,118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>World Cigar Locator</title>
+  <title>World Cigar Locator - Age Gate</title>
   <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    .age-gate {
+      text-align: center;
+      background: #222;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      max-width: 400px;
+      width: 100%;
+    }
+    .age-gate h1 {
+      color: #d4af37; /* guld */
+    }
+    .age-gate select, 
+    .age-gate button, 
+    .age-gate input {
+      margin-top: 15px;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    .age-gate button {
+      background: #d4af37;
+      color: #fff;
+      cursor: pointer;
+    }
+    .age-gate button:hover {
+      background: #b8962e;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <div class="content">
+  <div class="age-gate">
     <h1>World Cigar Locator</h1>
-    <p>Find cigar stores & lounges all over the world..</p>
+    <p>Select your country to verify your age:</p>
+    <select id="country">
+      <option value="">-- Select Country --</option>
+      <option value="SE">Sweden (18+)</option>
+      <option value="NO">Norway (18+)</option>
+      <option value="FI">Finland (18+)</option>
+      <option value="DK">Denmark (18+)</option>
+      <option value="US">USA (21+)</option>
+      <!-- fler länder kan läggas till -->
+    </select>
+    <button onclick="checkAge()">Enter</button>
 
-    <!-- Kartbild -->
-    <img src="images/worldmap.svg" alt="World Map" class="hero-image" />
-
-    <!-- Världsdelar -->
-    <div class="countries" style="margin-top: 20px;">
-      <button class="country-btn" onclick="location.href='africa.html'">Africa</button>
-      <button class="country-btn" onclick="location.href='asia.html'">Asia</button>
-      <button class="country-btn" onclick="location.href='oceania.html'">Oceania</button>
-      <button class="country-btn" onclick="location.href='europe.html'">Europe</button>
-      <button class="country-btn" onclick="location.href='north-america.html'">North America</button>
-      <button class="country-btn" onclick="location.href='south-america.html'">South America</button>
+    <div id="devAccess" class="hidden">
+      <p>Enter development code:</p>
+      <input type="password" id="devCode" placeholder="Enter code" />
+      <button onclick="checkDevCode()">Unlock</button>
     </div>
+
+    <p id="message"></p>
   </div>
+
+  <script>
+    const ageLimits = {
+      "SE": 18,
+      "NO": 18,
+      "FI": 18,
+      "DK": 18,
+      "US": 21
+    };
+
+    function checkAge() {
+      const country = document.getElementById("country").value;
+      const message = document.getElementById("message");
+      const devAccess = document.getElementById("devAccess");
+
+      if (!country) {
+        message.textContent = "Please select a country.";
+        return;
+      }
+
+      const legalAge = ageLimits[country];
+      const confirmAge = confirm(`Are you over ${legalAge}?`);
+      
+      if (confirmAge) {
+        // Visa dev-spärr
+        devAccess.classList.remove("hidden");
+        message.textContent = "";
+      } else {
+        message.textContent = `You must be ${legalAge}+ to enter.`;
+      }
+    }
+
+    function checkDevCode() {
+      const code = document.getElementById("devCode").value;
+      const message = document.getElementById("message");
+
+      if (code === "dev123") { // byt till ditt kodord
+        window.location.href = "home.html"; // ersätt med din riktiga startsida senare
+      } else {
+        message.textContent = "Wrong code.";
+      }
+    }
+  </script>
 </body>
 </html>
