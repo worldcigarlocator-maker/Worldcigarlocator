@@ -5,81 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World Cigar Locator</title>
   <link rel="stylesheet" href="styles.css">
-  <style>
-   <style>
-  .hero-image {
-    max-width: 70%;
-    margin: 0 auto 30px auto;
-    display: block;
-  }
-
-  .button-group {
-    text-align: center;
-    margin-top: 20px;
-  }
-
-  .button-group .btn {
-    font-size: 1.2rem;
-    padding: 14px 26px;
-    margin: 12px;
-    border-radius: 8px;
-    background-color: #d4af37; /* guld */
-    color: #fff; /* vit text */
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    transition: background-color 0.3s, transform 0.2s;
-  }
-
-  .button-group .btn:hover {
-    background-color: #b7950b; /* mörkare guld vid hover */
-    transform: translateY(-2px);
-  }
-</style>
-
-  </style>
 </head>
 <body>
-  <!-- SIDOPANEL -->
-  <aside class="sidebar">
-    <h2>World Cigar Locator</h2>
+  <div class="container">
+    <!-- SIDOPANEL -->
+    <aside class="sidebar">
+      <h2>World Cigar Locator</h2>
+      <input type="text" placeholder="Search..." class="search-bar">
+      <nav>
+        <ul>
+          <li><a href="africa.html">Africa</a></li>
+          <li><a href="asia.html">Asia</a></li>
+          <li><a href="europe.html">Europe</a></li>
+          <li><a href="north-america.html">North America</a></li>
+          <li><a href="oceania.html">Oceania</a></li>
+          <li><a href="south-america.html">South America</a></li>
+        </ul>
+      </nav>
+      <ul class="sidebar-links">
+        <li><a href="tribute.html">Add Store or Lounge</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="support.html">Support</a></li>
+      </ul>
+    </aside>
 
-    <input type="text" placeholder="Search..." id="searchBox">
+    <!-- HUVUDINNEHÅLL -->
+    <main class="content">
+      <div class="welcome-text">
+        <h1>Welcome To <span>World Cigar Locator</span></h1>
+        <p>Find cigar stores and lounges near you...</p>
+      </div>
 
-    <nav>
-      <a href="africa.html">Africa</a>
-      <a href="asia.html">Asia</a>
-      <a href="europe.html">Europe</a>
-      <
+      <div class="image-container">
+        <img src="images/worldmap.svg" alt="World Map" class="main-image">
+      </div>
 
-
-    <nav>
-      <a href="africa.html">Africa</a>
-      <a href="asia.html">Asia</a>
-      <a href="europe.html">Europe</a>
-      <a href="north-america.html">North America</a>
-      <a href="oceania.html">Oceania</a>
-      <a href="south-america.html">South America</a>
-    </nav>
-
-    <hr style="margin:15px 0; border: 1px solid #333;">
-
-    <nav>
-      <a href="tribute.html">Add Store or Lounge</a>
-      <a href="about.html">About</a>
-      <a href="support.html">Support</a>
-    </nav>
-  </aside>
-
-  <!-- HUVUDINNEHÅLL -->
-  <main class="main-content" style="text-align:center;">
-    <h1>Welcome</h1>
-    <img src="images/worldmap.svg" alt="World Map" class="hero-image">
-
-    <div class="button-group">
-      <a href="https://www.google.com" class="btn">Under 18</a>
-      <a href="europe.html" class="btn">Over 18</a>
-    </div>
-  </main>
+      <div class="button-container">
+        <a href="https://www.google.com" class="btn">Under 18</a>
+        <a href="europe.html" class="btn">Over 18</a>
+      </div>
+    </main>
+  </div>
 </body>
 </html>
