@@ -125,12 +125,12 @@ body {
 .continent-menu summary {
   cursor: pointer;
   font-weight: bold;
-  color: #d4af37;
+  color: #fff;   /* <-- ändrat till vit */
   list-style: none;
 }
 
 .continent-menu summary:hover {
-  color: #fff;
+  color: #d4af37; /* guld vid hover */
 }
 
 .continent-menu ul {
@@ -150,5 +150,17 @@ body {
 }
 
 .continent-menu ul li a:hover {
+  color: #d4af37;
+}
+
+/* Sidebar extra länkar längst ner */
+.sidebar-actions a {
+  display: block;
+  margin: 10px 0;
+  text-decoration: none;
+  color: #fff;   /* <-- ändrat till vit */
+}
+
+.sidebar-actions a:hover {
   color: #d4af37;
 }
