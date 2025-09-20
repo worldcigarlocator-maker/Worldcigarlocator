@@ -22,26 +22,27 @@ body {
 
 .welcome-text h1 {
   font-size: 2.5rem;
-  color: #d4af37 !important; /* guld */
+  color: #d4af37; /* guld */
   margin-bottom: 10px;
   font-weight: bold;
 }
 
 .welcome-text p {
   font-size: 1.2rem;
-  color: #555; /* grå text */
+  color: #555; /* grå */
 }
 
 /* BILDER */
 .image-container {
   margin: 20px auto;
-  text-align: center;
 }
 
 .main-image {
-  width: 70%;
-  max-width: 800px;
+  width: 40%;   /* 40% av skärmen */
+  max-width: 600px;
   height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 /* KNAPPAR */
@@ -55,8 +56,8 @@ body {
   margin: 10px;
   font-size: 1.1rem;
   font-weight: bold;
-  color: #fff !important;
-  background: #d4af37 !important; /* guld */
+  color: #fff;
+  background: #d4af37; /* guld */
   border: none;
   border-radius: 30px;
   text-decoration: none;
@@ -64,6 +65,6 @@ body {
 }
 
 .btn:hover {
-  background: #b8962e !important; /* mörkare guld */
+  background: #b8962e; /* mörkare guld */
   transform: translateY(-3px);
 }
