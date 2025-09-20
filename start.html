@@ -1,38 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World Cigar Locator - Start</title>
-  <!-- Viktigt: CSS ligger i mappen css -->
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-  <!-- SIDOPANEL -->
-  <div class="sidebar">
-    <h2>World Cigar Locator</h2>
-    <a href="grind.html">Grind</a>
-    <a href="start.html" class="active">Start</a>
+<!-- SIDOPANEL -->
+<aside class="sidebar">
+  <h2>World Cigar Locator</h2>
+
+  <!-- Search -->
+  <div class="search-box">
+    <input type="text" placeholder="Search..." />
+  </div>
+
+  <!-- Continents -->
+  <nav class="sidebar-nav">
+    <details>
+      <summary>➕ Africa</summary>
+      <ul>
+        <li><a href="#">Coming soon</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>➕ Asia</summary>
+      <ul>
+        <li><a href="#">Coming soon</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>➕ Australia</summary>
+      <ul>
+        <li><a href="#">Coming soon</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>➕ Europe</summary>
+      <ul>
+        <li><a href="#">Coming soon</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>➕ North America</summary>
+      <ul>
+        <li><a href="#">Coming soon</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>➕ South America</summary>
+      <ul>
+        <li><a href="#">Coming soon</a></li>
+      </ul>
+    </details>
+  </nav>
+
+  <!-- Extra links -->
+  <div class="sidebar-extra">
+    <a href="tribute.html">➕ Add a store or lounge</a>
     <a href="about.html">About</a>
-    <a href="support.html">Support</a>
+    <a href="support.html">Kontakt / Support</a>
   </div>
-
-  <!-- HUVUDINNEHÅLL -->
-  <div class="main-content">
-    <h1 class="page-title">Welcome to the Start Page</h1>
-    <p class="subtitle">Select a country in Europe to explore cigar stores & lounges</p>
-    
-    <div class="image-container">
-      <img src="images/europe-lounge-4.jpg" alt="Europe Lounge" style="width:100%;max-width:900px;">
-    </div>
-
-    <div class="button-container">
-      <button class="gold-button">Sweden</button>
-      <button class="gold-button">Norway</button>
-      <button class="gold-button">Denmark</button>
-      <button class="gold-button">Finland</button>
-      <button class="gold-button">More coming soon...</button>
-    </div>
-  </div>
-</body>
-</html>
+</aside>
