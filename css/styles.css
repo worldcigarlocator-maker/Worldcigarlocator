@@ -69,10 +69,13 @@ body {
 }
 
 /* === RUBRIKER === */
-.welcome-text {
-  text-align: center;
-  margin-bottom: 30px;
+.welcome-text h1 {
+  font-size: 2.5rem;
+  color: #d4af37 !important; /* tvingar guld */
+  margin-bottom: 10px;
+  font-weight: bold;
 }
+
 
 .welcome-text h1 {
   font-size: 2.5rem;
@@ -103,19 +106,13 @@ body {
 
 /* === KNAPPAR === */
 .button-container {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.btn {
+  .btn {
   display: inline-block;
   padding: 12px 25px;
   font-size: 1.1rem;
   font-weight: bold;
-  color: #fff;
-  background: #d4af37;
+  color: #fff !important;
+  background: #d4af37 !important; /* guld */
   border: none;
   border-radius: 30px;
   text-decoration: none;
@@ -123,6 +120,6 @@ body {
 }
 
 .btn:hover {
-  background: #b8962e;
+  background: #b8962e !important; /* mörkare guld */
   transform: translateY(-3px);
 }
