@@ -115,7 +115,7 @@ body {
 .banner {
   width: 100%;
   height: 300px;
-  background: url("../images/banner.jpg") no-repeat center 40%; /* flyttar upp */
+  background: url("../images/banner.jpg") no-repeat center 50%; /* flyttar upp */
   background-size: cover;
   border-radius: 6px;
   margin: 20px 0 40px 0; /* mer luft under bilden */
