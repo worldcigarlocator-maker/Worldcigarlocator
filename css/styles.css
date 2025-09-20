@@ -114,11 +114,11 @@ body {
 
 .banner {
   width: 100%;
-  height: 400px; /* långsmal */
-  background: url("../images/banner.jpg") no-repeat center center;
+  height: 200px;
+  background: url("../images/banner.jpg") no-repeat center 20%; /* flyttar upp */
   background-size: cover;
   border-radius: 6px;
-  margin: 20px 0;
+  margin: 20px 0 40px 0; /* mer luft under bilden */
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
