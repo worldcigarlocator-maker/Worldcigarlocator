@@ -38,7 +38,7 @@ body {
 }
 
 .main-image {
-  width: 40%;   /* 40% av skärmen */
+  width: 50%;   /* 40% av skärmen */
   max-width: 600px;
   height: auto;
   display: block;
