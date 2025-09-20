@@ -5,156 +5,115 @@
   box-sizing: border-box;
 }
 
-/* Body */
+/* Body layout */
 body {
   font-family: Arial, sans-serif;
-  background: #f5f5f5;
-  color: #333;
+  display: flex;
+  min-height: 100vh;
 }
 
-/* SIDOPANEL */
+/* Sidebar */
 .sidebar {
-  width: 260px;
+  width: 220px;
   background: #111;
   color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
   position: fixed;
   top: 0;
   left: 0;
-  height: 100%;
-  padding: 20px;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.5);
-  overflow-y: auto;
+  bottom: 0;
 }
 
 .sidebar h2 {
-  color: #d4af37; /* guld */
+  color: #d4af37;
   margin-bottom: 20px;
 }
 
-.search-box input {
-  width: 100%;
+.search-box {
   padding: 8px;
   border: none;
   border-radius: 4px;
   margin-bottom: 20px;
+  width: 100%;
 }
 
-.sidebar-nav summary {
-  cursor: pointer;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-.sidebar-nav ul {
-  margin: 5px 0 10px 15px;
+.sidebar nav ul {
   list-style: none;
-  padding: 0;
+  margin-bottom: 20px;
 }
 
-.sidebar-nav a {
+.sidebar nav ul li {
+  margin: 10px 0;
+}
+
+.sidebar nav ul li a {
   color: #ddd;
   text-decoration: none;
 }
 
-.sidebar-nav a:hover {
+.sidebar nav ul li a:hover {
   color: #d4af37;
 }
 
-/* Extra länkar längst ner */
-.sidebar-extra {
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.sidebar-extra a {
-  color: #d4af37;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.sidebar-extra a:hover {
-  text-decoration: underline;
-}
-
-/* MAIN CONTENT */
-.main-content {
-  margin-left: 280px; /* flyttar main åt höger */
-  padding: 30px;
-}
-
-.main-content h1 {
-  font-size: 2rem;
-  color: #d4af37;
-  margin-bottom: 10px;
-}
-
-.main-content .subtitle {
-  font-size: 1.2rem;
-  color: #999;
-  margin-bottom: 20px;
-}
-
-.hero-img {
-  width: 80%;         /* bredd på bilden */
-  height: 400px;      /* höjd på "bildytan" */
-  margin: 20px auto;
-  background: url("../images/worldmap.svg") no-repeat center center;
-  background-size: contain; /* eller cover om du vill fylla hela */
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-/* START */
-.page-title {
-  text-align: center;
-  color: #d4af37; /* guld */
-  margin-bottom: 20px;
-}
-
-.banner {
-  width: 100%;
-  height: 300px;
-  background: url("../images/banner.jpg") no-repeat center 60%; /* flyttar upp */
-  background-size: cover;
-  border-radius: 6px;
-  margin: 20px 0 40px 0; /* mer luft under bilden */
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-.intro-text {
-  max-width: 800px;
-  margin: 0 auto;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: #000;
-}
-
-.intro-text p {
-  margin-bottom: 22px;
-}
-/* Container for actions at bottom */
 .sidebar-actions {
-  margin-top: auto; /* trycker ner till botten */
+  margin-top: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* Special gold button */
 .sidebar-button {
-  display: block;
   background-color: #d4af37;
   color: #111;
-  padding: 10px 15px;
+  padding: 10px;
   text-align: center;
   font-weight: bold;
-  border-radius: 6px;
+  border-radius: 5px;
   text-decoration: none;
-  transition: background 0.3s;
 }
 
 .sidebar-button:hover {
   background-color: #b8942c;
   color: #fff;
+}
+
+/* Main content */
+.content {
+  margin-left: 240px;
+  padding: 30px;
+  flex: 1;
+}
+
+.welcome-text {
+  color: #d4af37;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  color: #555;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.banner img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto 20px auto;
+  border-radius: 8px;
+}
+
+.intro-text p {
+  color: #000;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.signature {
+  font-style: italic;
+  text-align: right;
+  margin-top: 20px;
 }
