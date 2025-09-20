@@ -133,3 +133,28 @@ body {
 .intro-text p {
   margin-bottom: 22px;
 }
+/* Container for actions at bottom */
+.sidebar-actions {
+  margin-top: auto; /* trycker ner till botten */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Special gold button */
+.sidebar-button {
+  display: block;
+  background-color: #d4af37;
+  color: #111;
+  padding: 10px 15px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.sidebar-button:hover {
+  background-color: #b8942c;
+  color: #fff;
+}
