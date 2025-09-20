@@ -97,10 +97,11 @@ body {
 }
 
 .hero-img {
-  width: 60%;
-  max-width: 800px;
-  display: block;
-  margin: 0 auto;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  width: 80%;         /* bredd på bilden */
+  height: 400px;      /* höjd på "bildytan" */
+  margin: 20px auto;
+  background: url("../images/worldmap.svg") no-repeat center center;
+  background-size: contain; /* eller cover om du vill fylla hela */
   border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
