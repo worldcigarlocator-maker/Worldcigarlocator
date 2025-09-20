@@ -3,102 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World Cigar Locator - Start</title>
+  <title>World Cigar Locator</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <!-- Sidebar -->
   <aside class="sidebar">
     <h2>World Cigar Locator</h2>
+    <input type="text" placeholder="Search...">
 
-    <input type="text" placeholder="Search..." class="search-box">
-
-    <nav class="continent-menu">
+    <details>
+      <summary>Europe</summary>
       <details>
-        <summary>Africa</summary>
+        <summary>Sweden</summary>
         <ul>
-          <li><a href="#">Nigeria</a></li>
-          <li><a href="#">South Africa</a></li>
-          <li><a href="#">Egypt</a></li>
+          <li><a href="#" data-country="Sweden" data-city="Stockholm">Stockholm</a></li>
+          <li><a href="#" data-country="Sweden" data-city="Gothenburg">Gothenburg</a></li>
+          <li><a href="#" data-country="Sweden" data-city="Malmö">Malmö</a></li>
         </ul>
       </details>
-
       <details>
-        <summary>Asia</summary>
+        <summary>Norway</summary>
         <ul>
-          <li><a href="#">China</a></li>
-          <li><a href="#">Japan</a></li>
-          <li><a href="#">India</a></li>
+          <li><a href="#" data-country="Norway" data-city="Oslo">Oslo</a></li>
+          <li><a href="#" data-country="Norway" data-city="Bergen">Bergen</a></li>
         </ul>
       </details>
-
-<details class="continent-menu" open>
-  <summary>Europe</summary>
-  <ul>
-    <li><a href="europe/sweden.html">Sweden</a></li>
-    <li><a href="europe/norway.html">Norway</a></li>
-    <li><a href="europe/denmark.html">Denmark</a></li>
-    <li><a href="europe/finland.html">Finland</a></li>
-    <li><a href="europe/germany.html">Germany</a></li>
-  </ul>
-</details>
-
-      <details>
-        <summary>North America</summary>
-        <ul>
-          <li><a href="#">USA</a></li>
-          <li><a href="#">Canada</a></li>
-          <li><a href="#">Mexico</a></li>
-        </ul>
-      </details>
-
-      <details>
-        <summary>South America</summary>
-        <ul>
-          <li><a href="#">Brazil</a></li>
-          <li><a href="#">Argentina</a></li>
-          <li><a href="#">Chile</a></li>
-        </ul>
-      </details>
-
-      <details>
-        <summary>Oceania</summary>
-        <ul>
-          <li><a href="#">Australia</a></li>
-          <li><a href="#">New Zealand</a></li>
-          <li><a href="#">Fiji</a></li>
-        </ul>
-      </details>
-    </nav>
-
-    <div class="sidebar-actions">
-      <a href="tribute.html" class="sidebar-button">➕ Add Store or Lounge</a>
-      <a href="contact.html">Contact / Support</a>
-    </div>
+    </details>
   </aside>
 
-  <!-- Main Content -->
-  <main class="content">
+  <main id="content">
     <h1 class="welcome-text">Welcome To World Cigar Locator</h1>
-    <p class="subtitle">Find cigar stores and lounges near you...</p>
-
-    <div class="banner">
-      <img src="images/banner.jpg" alt="Cigar World Banner">
-    </div>
-
-    <section class="intro">
-      <p>
-        This site is dedicated to help you find a cigar store or a cigar lounge near you. 
-        So that you never have to worry about not being able to have a good smoke.
-      </p>
-      <p>
-        Hope you enjoy it. And may it bring you a lot of good smokes and memories.
-      </p>
-      <p>
-        Bear with us in the progress of collecting data from all over the world to make this site as accurate as possible.
-      </p>
-      <p><strong>Kind regards,<br>Bakerman</strong></p>
-    </section>
+    <p class="subtitle">Find cigar stores and lounges near you…</p>
+    <img src="images/banner.jpg" alt="Banner" class="hero-img">
+    <p>
+      This site is dedicated to help you find a cigar store or a cigar lounge near you.  
+      So that you never have to worry about not being able to have a good smoke.
+    </p>
+    <p><em>Kind regards, Bakerman</em></p>
   </main>
+
+  <script src="js/dynamic.js"></script>
 </body>
 </html>
