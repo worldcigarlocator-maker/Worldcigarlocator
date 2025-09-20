@@ -117,3 +117,38 @@ body {
   text-align: right;
   margin-top: 20px;
 }
+/* Continent menu (accordion) */
+.continent-menu details {
+  margin-bottom: 10px;
+}
+
+.continent-menu summary {
+  cursor: pointer;
+  font-weight: bold;
+  color: #d4af37;
+  list-style: none;
+}
+
+.continent-menu summary:hover {
+  color: #fff;
+}
+
+.continent-menu ul {
+  list-style: none;
+  margin-left: 15px;
+  margin-top: 5px;
+  padding-left: 0;
+}
+
+.continent-menu ul li {
+  margin: 5px 0;
+}
+
+.continent-menu ul li a {
+  color: #ddd;
+  text-decoration: none;
+}
+
+.continent-menu ul li a:hover {
+  color: #d4af37;
+}
