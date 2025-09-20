@@ -105,3 +105,31 @@ body {
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
+/* START */
+.page-title {
+  text-align: center;
+  color: #d4af37; /* guld */
+  margin-bottom: 20px;
+}
+
+.banner {
+  width: 100%;
+  height: 200px; /* långsmal */
+  background: url("../images/banner.jpg") no-repeat center center;
+  background-size: cover;
+  border-radius: 6px;
+  margin: 20px 0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.intro-text {
+  max-width: 800px;
+  margin: 0 auto;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #ddd;
+}
+
+.intro-text p {
+  margin-bottom: 16px;
+}
