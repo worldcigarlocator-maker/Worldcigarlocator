@@ -5,30 +5,29 @@
   box-sizing: border-box;
 }
 
-/* Body layout */
 body {
   font-family: Arial, sans-serif;
   display: flex;
   min-height: 100vh;
+  background-color: #f8f8f8;
+  color: #000;
 }
 
 /* Sidebar */
 .sidebar {
-  width: 220px;
-  background: #111;
-  color: #fff;
-  padding: 20px;
+  width: 250px;
+  background-color: #111;
+  color: white;
   display: flex;
   flex-direction: column;
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
+  padding: 20px;
 }
 
 .sidebar h2 {
   color: #d4af37;
   margin-bottom: 20px;
+  font-size: 20px;
+  text-align: center;
 }
 
 .search-box {
@@ -39,21 +38,26 @@ body {
   width: 100%;
 }
 
-.sidebar nav ul {
+.continent-menu summary {
+  cursor: pointer;
+  padding: 6px 0;
+  font-weight: bold;
+  color: white;
+}
+
+.continent-menu ul {
   list-style: none;
-  margin-bottom: 20px;
+  margin: 5px 0 10px 15px;
 }
 
-.sidebar nav ul li {
-  margin: 10px 0;
-}
-
-.sidebar nav ul li a {
-  color: #ddd;
+.continent-menu a {
+  color: #ccc;
   text-decoration: none;
+  display: block;
+  padding: 4px 0;
 }
 
-.sidebar nav ul li a:hover {
+.continent-menu a:hover {
   color: #d4af37;
 }
 
@@ -65,102 +69,108 @@ body {
 }
 
 .sidebar-button {
+  display: block;
   background-color: #d4af37;
-  color: #111;
-  padding: 10px;
+  color: black;
   text-align: center;
+  padding: 10px;
+  border-radius: 6px;
   font-weight: bold;
-  border-radius: 5px;
   text-decoration: none;
 }
 
 .sidebar-button:hover {
-  background-color: #b8942c;
-  color: #fff;
+  background-color: #b8962c;
 }
 
-/* Main content */
+.sidebar-actions a {
+  color: white;
+  text-decoration: none;
+  text-align: center;
+}
+
+/* Main Content */
 .content {
-  margin-left: 240px;
-  padding: 30px;
   flex: 1;
+  padding: 40px;
+  text-align: center;
 }
 
 .welcome-text {
+  font-size: 28px;
   color: #d4af37;
-  text-align: center;
-  margin-bottom: 5px;
-}
-
-.subtitle {
-  color: #555;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.banner img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  margin: 0 auto 20px auto;
-  border-radius: 8px;
-}
-
-.intro-text p {
-  color: #000;
-  margin-bottom: 15px;
-  line-height: 1.6;
-}
-
-.signature {
-  font-style: italic;
-  text-align: right;
-  margin-top: 20px;
-}
-/* Continent menu (accordion) */
-.continent-menu details {
   margin-bottom: 10px;
 }
 
-.continent-menu summary {
-  cursor: pointer;
-  font-weight: bold;
-  color: #fff;   /* <-- ändrat till vit */
-  list-style: none;
+.subtitle {
+  font-size: 16px;
+  color: #777;
+  margin-bottom: 20px;
 }
 
-.continent-menu summary:hover {
-  color: #d4af37; /* guld vid hover */
-}
-
-.continent-menu ul {
-  list-style: none;
-  margin-left: 15px;
-  margin-top: 5px;
-  padding-left: 0;
-}
-
-.continent-menu ul li {
-  margin: 5px 0;
-}
-
-.continent-menu ul li a {
-  color: #ddd;
-  text-decoration: none;
-}
-
-.continent-menu ul li a:hover {
-  color: #d4af37;
-}
-
-/* Sidebar extra länkar längst ner */
-.sidebar-actions a {
+/* Banner */
+.banner img {
+  max-width: 80%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  margin: 20px auto;
   display: block;
-  margin: 10px 0;
-  text-decoration: none;
-  color: #fff;   /* <-- ändrat till vit */
 }
 
-.sidebar-actions a:hover {
-  color: #d4af37;
+/* Buttons (for grind and general use) */
+.button-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.button {
+  background-color: #d4af37;
+  color: black;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.button:hover {
+  background-color: #b8962c;
+}
+
+/* Intro text */
+.intro {
+  max-width: 700px;
+  margin: 20px auto;
+  line-height: 1.6;
+  text-align: left;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .content {
+    padding: 20px;
+  }
+
+  .banner img {
+    max-width: 100%;
+  }
+
+  .button-container {
+    flex-direction: column;
+  }
 }
