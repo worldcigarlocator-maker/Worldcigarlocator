@@ -68,3 +68,6 @@ body {
   background: #b8962e; /* mörkare guld */
   transform: translateY(-3px);
 }
+body {
+  background: pink !important;
+}
