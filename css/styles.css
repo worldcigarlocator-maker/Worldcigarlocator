@@ -1,106 +1,106 @@
-/* RESET */
+/* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
 }
 
-/* BODY */
+/* Body */
 body {
-  background: #fff;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
   color: #333;
-  line-height: 1.6;
-  text-align: center;
-  padding: 20px;
 }
 
-/* RUBRIKER */
-.welcome-text {
-  margin-bottom: 30px;
-}
-
-.welcome-text h1 {
-  font-size: 2.5rem;
-  color: #d4af37; /* guld */
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-
-.welcome-text p {
-  font-size: 1.2rem;
-  color: #999; /* grå */
-}
-
-/* BILDER */
-.image-container {
-  margin: 20px auto;
-}
-
-.main-image {
-  width: 50%;   /* 40% av skärmen */
-  max-width: 600px;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
-/* KNAPPAR */
-.button-container {
-  margin-top: 20px;
-}
-
-.btn {
-  display: inline-block;
-  padding: 12px 25px;
-  margin: 10px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #fff;
-  background: #d4af37; /* guld */
-  border: none;
-  border-radius: 30px;
-  text-decoration: none;
-  transition: background 0.3s, transform 0.2s;
-}
-
-.btn:hover {
-  background: #b8962e; /* mörkare guld */
-  transform: translateY(-3px);
-}
 /* SIDOPANEL */
 .sidebar {
+  width: 260px;
+  background: #111;
+  color: #fff;
   position: fixed;
   top: 0;
   left: 0;
-  width: 250px;
   height: 100%;
-  background: #111;
-  color: #fff;
-  padding-top: 20px;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+  overflow-y: auto;
 }
 
 .sidebar h2 {
-  color: #d4af37;
-  text-align: center;
+  color: #d4af37; /* guld */
   margin-bottom: 20px;
 }
 
-.sidebar a {
-  display: block;
-  padding: 10px 20px;
-  color: #fff;
+.search-box input {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.sidebar-nav summary {
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.sidebar-nav ul {
+  margin: 5px 0 10px 15px;
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-nav a {
+  color: #ddd;
   text-decoration: none;
-  transition: background 0.3s;
 }
 
-.sidebar a:hover {
-  background: #333;
+.sidebar-nav a:hover {
+  color: #d4af37;
 }
 
-/* HUVUDINNEHÅLL BREDVID SIDOPANEL */
+/* Extra länkar längst ner */
+.sidebar-extra {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-extra a {
+  color: #d4af37;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.sidebar-extra a:hover {
+  text-decoration: underline;
+}
+
+/* MAIN CONTENT */
 .main-content {
-  margin-left: 250px; /* gör plats för sidopanelen */
-  padding: 20px;
+  margin-left: 280px; /* flyttar main åt höger */
+  padding: 30px;
 }
 
+.main-content h1 {
+  font-size: 2rem;
+  color: #d4af37;
+  margin-bottom: 10px;
+}
+
+.main-content .subtitle {
+  font-size: 1.2rem;
+  color: #999;
+  margin-bottom: 20px;
+}
+
+.hero-img {
+  width: 60%;
+  max-width: 800px;
+  display: block;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  border-radius: 8px;
+}
