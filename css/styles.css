@@ -114,7 +114,7 @@ body {
 
 .banner {
   width: 100%;
-  height: 200px; /* långsmal */
+  height: 400px; /* långsmal */
   background: url("../images/banner.jpg") no-repeat center center;
   background-size: cover;
   border-radius: 6px;
