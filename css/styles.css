@@ -150,3 +150,13 @@ button:hover, .btn:hover {
     max-width: 80%;
   }
 }
+.intro-text {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: #000; /* Svart text */
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 20px auto;
+  text-align: left;
+}
