@@ -1,51 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <title>World Cigar Locator - Start</title>
+  <link rel="stylesheet" href="css/start.css">
 </head>
 <body>
+  <!-- Sidebar -->
   <aside class="sidebar">
     <h2>World Cigar Locator</h2>
-    <input type="text" placeholder="Search...">
-
-    <details>
-      <summary>Europe</summary>
-      <details>
-        <summary>Sweden</summary>
-        <ul>
-          <li><a href="#" data-country="Sweden" data-city="Stockholm">Stockholm</a></li>
-          <li><a href="#" data-country="Sweden" data-city="Gothenburg">Gothenburg</a></li>
-          <li><a href="#" data-country="Sweden" data-city="Malmö">Malmö</a></li>
-        </ul>
-      </details>
-      <details>
-        <summary>Norway</summary>
-        <ul>
-          <li><a href="#" data-country="Norway" data-city="Oslo">Oslo</a></li>
-          <li><a href="#" data-country="Norway" data-city="Bergen">Bergen</a></li>
-        </ul>
-      </details>
-    </details>
+    <nav>
+      <ul>
+        <li>
+          <button class="dropdown-btn">Europa ▾</button>
+          <ul class="dropdown-content">
+            <li><a href="#">Sverige</a></li>
+            <li><a href="#">Norge</a></li>
+            <li><a href="#">Tyskland</a></li>
+            <li><a href="#">Spanien</a></li>
+          </ul>
+        </li>
+        <li>
+          <button class="dropdown-btn">USA ▾</button>
+          <ul class="dropdown-content">
+            <li><a href="#">New York</a></li>
+            <li><a href="#">Miami</a></li>
+          </ul>
+        </li>
+        <li><a href="#">Asien</a></li>
+      </ul>
+    </nav>
   </aside>
 
-  <main id="content">
-    <h1 class="welcome-text">Welcome To World Cigar Locator</h1>
-    <p class="subtitle">Find cigar stores and lounges near you…</p>
-    <img src="images/banner.jpg" alt="Banner" class="hero-img">
-<div class="intro-text">
-  <p>
-    WCL was born from a simple need: the desire to always know where to find a good cigar, no matter where life takes you. 
-    We hope this will make it easy for you to find a cigar store, a lounge, or maybe the perfect little spot for a nice smoke when you are away from home.
-  </p>
-  <p>Kind regards,<br>Bakerman</p>
-</div>
+  <!-- Main content -->
+  <main class="content">
+    <section class="intro">
+      <h1>Welcome to World Cigar Locator</h1>
+      <p><em>
+        WCL was born from a simple need: the desire to always know where to find a good cigar, 
+        no matter where life takes you. We hope this will make it easy for you to find a cigar store, 
+        a lounge, or maybe the perfect little spot for a nice smoke when you are away from home.
+      </em></p>
+      <p class="signature">Kind regards, Bakerman</p>
+    </section>
 
+    <section class="banner">
+      <img src="images/worldmap.svg" alt="World Map">
+    </section>
   </main>
-
-  <script src="js/dynamic.js"></script>
 </body>
 </html>
