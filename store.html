@@ -1,134 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>La Casa del Habano – Store</title>
-  <link rel="stylesheet" href="css/city.css" />
-  <style>
-    .rating-section {
-      margin: 2rem 0;
-      text-align: center;
-    }
-    .stars {
-      font-size: 2rem;
-      cursor: pointer;
-      color: #ccc;
-    }
-    .stars span:hover,
-    .stars span:hover ~ span {
-      color: #ccc; /* förhindra hover-bugg */
-    }
-    .stars span.active {
-      color: #d4af37; /* guld */
-    }
-    #avg-rating {
-      margin-top: 0.5rem;
-      font-weight: bold;
-      color: #333;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Butik – World Cigar Locator</title>
+  <link rel="stylesheet" href="css/store.css">
 </head>
 <body>
-  <button class="hamburger">☰</button>
-
   <aside class="sidebar">
-    <h1 class="sidebar-title">World Cigar Locator</h1>
-    <!-- här ligger din sidebar med kontinenter & städer -->
+    <h2>World Cigar Locator</h2>
+    <a href="start.html">← Tillbaka till start</a>
   </aside>
 
-  <div class="overlay"></div>
-
   <main class="main-content">
-    <h2>La Casa del Habano – Paris</h2>
-    <p>En klassisk cigarrbutik och lounge i hjärtat av Paris.</p>
+    <h1 id="store-name">Butiksnamn</h1>
+    <p><strong>Adress:</strong> <span id="store-address"></span></p>
+    <p><a id="store-link" href="#" target="_blank">Besök sidan</a></p>
 
-    <!-- ⭐ Rating-system -->
-    <section class="rating-section">
-      <div class="stars" id="stars">
-        <span data-value="1">★</span>
-        <span data-value="2">★</span>
-        <span data-value="3">★</span>
-        <span data-value="4">★</span>
-        <span data-value="5">★</span>
-      </div>
-      <p id="avg-rating">Laddar...</p>
-    </section>
+    <div id="rating-section">
+      <h3>Betyg</h3>
+      <div id="stars"></div>
+      <p id="average"></p>
+    </div>
   </main>
 
-  <!-- Supabase script -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const { createClient } = supabase;
-
-    // 🔹 Byt ut till dina egna värden från Supabase settings
-    const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-    const db = createClient(supabaseUrl, supabaseKey);
-
-    const storeId = "paris_lcdh"; // unik ID för butiken
-
-    async function saveRating(value) {
-      const { error } = await db
-        .from("ratings")
-        .insert([{ store_id: storeId, rating: value }]);
-      if (error) {
-        console.error(error);
+    // 🔧 Här kan vi byta till Supabase senare
+    const stores = {
+      "gottegrisen": {
+        name: "Gotte Grisen",
+        address: "Drottninggatan 49, 602 32 Norrköping",
+        link: "https://www.facebook.com/gottegrisen.norrkoping/"
+      },
+      "lcdh-paris": {
+        name: "La Casa del Habano – Paris",
+        address: "Rue de XYZ 12, Paris",
+        link: "https://www.lcdhparis.com"
       }
-      loadAverage();
+    };
+
+    // Hämta ?store=… från URL
+    const params = new URLSearchParams(window.location.search);
+    const storeId = params.get("store");
+
+    if (storeId && stores[storeId]) {
+      const store = stores[storeId];
+      document.getElementById("store-name").textContent = store.name;
+      document.getElementById("store-address").textContent = store.address;
+      document.getElementById("store-link").href = store.link;
+      document.getElementById("store-link").textContent = "Besök " + store.name;
+    } else {
+      document.querySelector(".main-content").innerHTML = "<p>Butiken hittades inte.</p>";
     }
 
-    async function loadAverage() {
-      const { data, error } = await db
-        .from("ratings")
-        .select("rating")
-        .eq("store_id", storeId);
-      if (error) {
-        console.error(error);
-        return;
-      }
-      if (data.length === 0) {
-        document.getElementById("avg-rating").textContent = "Inga betyg än";
-        return;
-      }
-      const ratings = data.map(r => r.rating);
-      const avg = (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1);
-      document.getElementById("avg-rating").textContent = `${avg} / 5 (${ratings.length} röster)`;
-      highlightStars(Math.round(avg));
+    // ⭐ Enkel demo för stjärnor (kan kopplas mot Supabase sen)
+    const starsDiv = document.getElementById("stars");
+    for (let i = 1; i <= 5; i++) {
+      const star = document.createElement("span");
+      star.textContent = "★";
+      star.style.cursor = "pointer";
+      star.style.fontSize = "2rem";
+      star.onclick = () => alert(`Du gav ${i} stjärnor till ${stores[storeId].name}`);
+      starsDiv.appendChild(star);
     }
-
-    function highlightStars(value) {
-      const stars = document.querySelectorAll("#stars span");
-      stars.forEach(star => {
-        star.classList.toggle("active", star.dataset.value <= value);
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const stars = document.querySelectorAll("#stars span");
-      stars.forEach(star => {
-        star.addEventListener("click", () => {
-          saveRating(parseInt(star.dataset.value));
-        });
-      });
-      loadAverage();
-    });
-  </script>
-
-  <!-- Din befintliga JS för sidebar/hamburger -->
-  <script>
-    const hamburger = document.querySelector(".hamburger");
-    const sidebar = document.querySelector(".sidebar");
-    const overlay = document.querySelector(".overlay");
-
-    hamburger.addEventListener("click", () => {
-      sidebar.classList.toggle("open");
-      overlay.classList.toggle("show");
-    });
-    overlay.addEventListener("click", () => {
-      sidebar.classList.remove("open");
-      overlay.classList.remove("show");
-    });
   </script>
 </body>
 </html>
