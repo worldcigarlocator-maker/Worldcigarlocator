@@ -30,8 +30,12 @@ a {
   font-size: 1.4rem;
   color: #d4af37;
   text-align: center;
-  margin-bottom: 5rem;
+  margin-bottom: 1.5rem;
   font-family: "Merriweather", serif;
+  sidebar-title {
+  margin-top: 3.5rem;  /* puttar ner rubriken så den inte krockar med hamburgaren */
+  text-align: center;
+}
 }
 
 .search-box input {
