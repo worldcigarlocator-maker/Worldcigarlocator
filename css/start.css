@@ -165,3 +165,26 @@ body {
   position: fixed;
   top: 1rem;
   le
+/* Mobilläge */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;          /* 🔹 visa knappen på mobil */
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1100;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #d4af37;          /* guld */
+    cursor: pointer;
+  }
+
+  .sidebar {
+    left: -270px;            /* 🔹 göm sidomenyn från början */
+  }
+
+  .sidebar.open {
+    left: 0;                 /* 🔹 glid in när man klickar */
+  }
+}
