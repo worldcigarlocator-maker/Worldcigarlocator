@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>World Cigar Locator – Start</title>
-  <link rel="stylesheet" href="css/start.css">
+  <link rel="stylesheet" href="css/start.css"/>
 </head>
 <body>
   <!-- Hamburger för mobil -->
@@ -42,86 +42,29 @@
     <!-- Europe -->
     <button class="dropdown-btn">Europe <span class="arrow">▼</span></button>
     <div class="dropdown-container">
-      <a href="paris.html">Paris</a>
-      <a href="stockholm.html">Stockholm</a>
-      <a href="oslo.html">Oslo</a>
-    </div>
 
-    <!-- North America -->
-    <button class="dropdown-btn">North America <span class="arrow">▼</span></button>
-    <div class="dropdown-container">
-      <a href="#">New York</a>
-      <a href="#">Miami</a>
-      <a href="#">Toronto</a>
-    </div>
+      <!-- Sweden -->
+      <button class="dropdown-btn">Sweden <span class="arrow">▼</span></button>
+      <div class="dropdown-container">
+        <a href="#">Stockholm</a>
+        <a href="#">Gothenburg</a>
+        <a href="#">Malmö</a>
+        <a href="#">Uppsala</a>
+        <a href="#">Västerås</a>
+        <a href="#">Örebro</a>
+        <a href="#">Linköping</a>
+        <a href="#">Helsingborg</a>
+        <a href="#">Jönköping</a>
+        <a href="#">Norrköping</a>
+      </div>
 
-    <!-- Oceania -->
-    <button class="dropdown-btn">Oceania <span class="arrow">▼</span></button>
-    <div class="dropdown-container">
-      <a href="#">Sydney</a>
-      <a href="#">Auckland</a>
-    </div>
-
-    <!-- South America -->
-    <button class="dropdown-btn">South America <span class="arrow">▼</span></button>
-    <div class="dropdown-container">
-      <a href="#">Havana</a>
-      <a href="#">São Paulo</a>
-      <a href="#">Buenos Aires</a>
-    </div>
-
-    <a href="#" class="add-store">+ Add a Store</a>
-    <a href="#" class="support">Support / Contact</a>
-  </aside>
-
-  <!-- Overlay -->
-  <div class="overlay"></div>
-
-  <!-- Main content -->
-  <main class="main-content">
-    <h1 class="page-title">Welcome to World Cigar Locator</h1>
-
-    <section class="banner">
-      <img src="images/paris.jpg" alt="Paris" />
-    </section>
-
-    <section class="intro">
-      <p>
-        WCL was born from a simple need: the desire to always know where to find
-        a good cigar, no matter where life takes you. We hope this will make it
-        easy for you to find a cigar store, a lounge, or maybe the perfect
-        little spot for a nice smoke when you are away from home.
-      </p>
-      <p><em>Kind regards,<br>Bakerman</em></p>
-    </section>
-  </main>
-
-  <!-- JS -->
-  <script>
-    // Dropdown toggle
-    document.querySelectorAll(".dropdown-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        btn.classList.toggle("active");
-        const content = btn.nextElementSibling;
-        content.style.display =
-          content.style.display === "block" ? "none" : "block";
-      });
-    });
-
-    // Sidebar toggle
-    const hamburger = document.querySelector(".hamburger");
-    const sidebar = document.querySelector(".sidebar");
-    const overlay = document.querySelector(".overlay");
-
-    hamburger.addEventListener("click", () => {
-      sidebar.classList.toggle("open");
-      overlay.classList.toggle("active");
-    });
-
-    overlay.addEventListener("click", () => {
-      sidebar.classList.remove("open");
-      overlay.classList.remove("active");
-    });
-  </script>
-</body>
-</html>
+      <!-- Norway -->
+      <button class="dropdown-btn">Norway <span class="arrow">▼</span></button>
+      <div class="dropdown-container">
+        <a href="#">Oslo</a>
+        <a href="#">Bergen</a>
+        <a href="#">Trondheim</a>
+        <a href="#">Stavanger</a>
+        <a href="#">Drammen</a>
+        <a href="#">Fredrikstad</a>
+        <a href="#">Kristiansand</a>
