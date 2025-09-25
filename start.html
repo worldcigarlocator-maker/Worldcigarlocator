@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="css/start.css" />
 </head>
 <body>
+  <button class="hamburger">☰</button>
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <h2>World Cigar Locator</h2>
@@ -78,3 +79,21 @@
   <script src="js/sidebar.js"></script>
 </body>
 </html>
+<script>
+  // Dropdowns i sidebaren
+  document.querySelectorAll(".dropdown-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const content = btn.nextElementSibling;
+      content.style.display =
+        content.style.display === "block" ? "none" : "block";
+    });
+  });
+
+  // Hamburger för mobil
+  const hamburger = document.querySelector(".hamburger");
+  const sidebar = document.querySelector(".sidebar");
+
+  hamburger.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+  });
+</script>
