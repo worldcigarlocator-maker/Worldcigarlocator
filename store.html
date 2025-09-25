@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Casa del Habano – Store</title>
+  <link rel="stylesheet" href="css/start.css">
+  <style>
+    /* === Store Page Specific === */
+    .store-header {
+      max-width: 800px;
+      margin: 0 auto 2rem;
+      text-align: center;
+    }
+    .store-type {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 0.3rem;
+    }
+    .store-name {
+      font-size: 2rem;
+      color: #d4af37;
+      margin: 0.2rem 0;
+    }
+    .stars {
+      color: #d4af37;
+      font-size: 1.3rem;
+      margin: 0.5rem 0;
+    }
+    .store-details {
+      margin-top: 1rem;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    .store-details a {
+      color: #d4af37;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .store-details a:hover {
+      text-decoration: underline;
+    }
+
+    /* Reviews accordion */
+    .reviews {
+      max-width: 800px;
+      margin: 2rem auto;
+    }
+    .accordion {
+      background: #f1f1f1;
+      color: #333;
+      cursor: pointer;
+      padding: 1rem;
+      width: 100%;
+      text-align: left;
+      border: none;
+      outline: none;
+      transition: 0.2s;
+      font-weight: bold;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+    .accordion:hover {
+      background: #e3e3e3;
+    }
+    .panel {
+      padding: 0 1rem;
+      display: none;
+      overflow: hidden;
+      background: #fff;
+      border-radius: 0 0 8px 8px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .panel p {
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Hamburgare + Sidebar + Overlay (samma som city.html) -->
+  <button class="hamburger">☰</button>
+
+  <aside class="sidebar">
+    <h1 class="sidebar-title">World Cigar Locator</h1>
+    <div class="search-box">
+      <input type="text" placeholder="Search...">
+    </div>
+    <button class="dropdown-btn">Europe <span class="arrow">▼</span></button>
+    <div class="dropdown-container">
+      <a href="paris.html">Paris</a>
+      <a href="stockholm.html">Stockholm</a>
+      <a href="oslo.html">Oslo</a>
+    </div>
+    <a href="#" class="add-store">+ Add a Store</a>
+    <a href="#" class="support">Support / Contact</a>
+  </aside>
+
+  <div class="overlay"></div>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <div class="store-header">
+      <div class="store-type">Store</div>
+      <div class="store-name">La Casa del Habano</div>
+      <div class="stars">★★★★★</div>
+      <div class="store-details">
+        <p><strong>Hemsida:</strong> <a href="https://www.lcdhparis.com" target="_blank">lcdhparis.com</a></p>
+        <p><strong>Adress:</strong> 32 Rue de la Cigarette, Paris</p>
+      </div>
+    </div>
+
+    <!-- Recensioner -->
+    <div class="reviews">
+      <button class="accordion">Recension 1 – Johan</button>
+      <div class="panel">
+        <p>Fantastisk service och otroligt sortiment av kubanska cigarrer. Loungen är mysig och personalen kunnig.</p>
+      </div>
+
+      <button class="accordion">Recension 2 – Maria</button>
+      <div class="panel">
+        <p>Lite dyrt, men värt varje euro. En av de bästa cigarrbutiker jag har besökt i Europa.</p>
+      </div>
+
+      <button class="accordion">Recension 3 – Anders</button>
+      <div class="panel">
+        <p>Stämningen är exklusiv men avslappnad. Rekommenderas starkt för både nybörjare och erfarna rökare.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- JS -->
+  <script>
+    // Sidebar toggle
+    const hamburger = document.querySelector(".hamburger");
+    const sidebar = document.querySelector(".sidebar");
+    const overlay = document.querySelector(".overlay");
+
+    hamburger.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("active");
+    });
+
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("active");
+    });
+
+    // Dropdown toggle
+    document.querySelectorAll(".dropdown-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        btn.classList.toggle("active");
+        const content = btn.nextElementSibling;
+        content.style.display =
+          content.style.display === "block" ? "none" : "block";
+      });
+    });
+
+    // Accordion for reviews
+    document.querySelectorAll(".accordion").forEach((acc) => {
+      acc.addEventListener("click", () => {
+        acc.classList.toggle("active");
+        const panel = acc.nextElementSibling;
+        panel.style.display = panel.style.display === "block" ? "none" : "block";
+      });
+    });
+  </script>
+</body>
+</html>
