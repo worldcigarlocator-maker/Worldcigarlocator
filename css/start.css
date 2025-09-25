@@ -1,192 +1,46 @@
-/* === Reset & Bas === */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Layout */
+.hamburger{
+  position: fixed; top: 12px; left: 12px; z-index: 2001;
+  font-size: 24px; background:#fff; border:1px solid #ddd;
+  border-radius:8px; padding:6px 10px; cursor:pointer;
+}
+.sidebar{
+  position: fixed; top:0; left:-300px; height:100vh; width:280px;
+  background:#fff; border-right:1px solid #eee; padding:16px;
+  overflow:auto; z-index:2000; transition:left .25s ease;
+}
+.sidebar.open{ left:0; }
+.overlay{
+  position: fixed; inset:0; background:rgba(0,0,0,.4);
+  opacity:0; pointer-events:none; transition: opacity .2s ease; z-index:1500;
+}
+.overlay.show{ opacity:1; pointer-events:auto; }
+
+.sidebar-title{ margin:0 0 12px 0; color:#b8860b; }
+.sidebar-section{ margin:16px 0; }
+.sidebar-section ul{ list-style:none; padding-left:14px; margin:8px 0; }
+.sidebar-section li{ margin:6px 0; }
+.sidebar .btn.wide{
+  display:block; text-align:center; padding:.6rem 1rem;
+  background:#b8860b; color:#fff; border-radius:8px; text-decoration:none;
+}
+.sidebar .btn.wide:hover{ background:#daa520; }
+
+#sidebar-search{
+  width:100%; padding:.5rem; border:1px solid #ccc; border-radius:6px;
 }
 
-body {
-  font-family: "Merriweather", serif;
-  background: #fdfdfc;
-  color: #222;
-  display: flex;
-  min-height: 100vh;
+/* Main */
+.main{ max-width: 980px; margin: 60px auto 80px; padding: 0 16px; }
+.hero{ margin:16px 0 8px; }
+.hero-img{
+  width:100%; height: auto; max-height: 460px; 
+  object-fit: cover; object-position: center 55%; /* justera fokus vid behov */
+  border-radius:12px;
 }
+.intro{ color:#444; line-height:1.6; }
 
-/* === Sidebar === */
-.sidebar {
-  width: 260px;
-  background: #111;
-  color: #fff;
-  height: 100vh;
-  position: fixed;
-  left: 0;
-  top: 0;
-  padding: 1rem;
-  overflow-y: auto;
-  transition: left 0.3s ease;
-  z-index: 1000;
-}
-
-.sidebar-title {
-  font-size: 1.4rem;
-  color: #d4af37;
-  text-align: center;
-  margin-top: 5rem; /* flytta ner under hamburgaren */
-  margin-bottom: 1.5rem;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-}
-
-.search-box input {
-  width: 90%;
-  padding: 0.4rem;
-  font-size: 0.9rem;
-  border: none;
-  border-radius: 6px;
-  margin: 0 auto 1rem;
-  display: block;
-}
-
-.dropdown-btn {
-  background: none;
-  border: none;
-  color: #fff;
-  padding: 0.6rem;
-  text-align: left;
-  width: 100%;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.dropdown-btn:hover {
-  color: #d4af37;
-}
-
-.dropdown-container {
-  display: none;
-  padding-left: 1rem;
-}
-
-.dropdown-container a {
-  display: block;
-  color: #ccc;
-  padding: 0.3rem 0;
-  text-decoration: none;
-  font-size: 0.95rem;
-}
-
-.dropdown-container a:hover {
-  color: #d4af37;
-}
-
-.add-store, .support {
-  display: block;
-  margin-top: 1.5rem;
-  text-align: center;
-  padding: 0.6rem;
-  background: #d4af37;
-  color: #111;
-  font-weight: bold;
-  border-radius: 6px;
-  text-decoration: none;
-}
-
-.add-store:hover, .support:hover {
-  background: #b8952e;
-}
-
-/* === Main content === */
-.main-content {
-  flex: 1;
-  margin-left: 260px;
-  padding: 2rem;
-  max-width: 1000px;
-}
-
-.page-title {
-  text-align: center;
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-  color: #d4af37;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-}
-
-/* Banner */
-.banner {
-  max-width: 800px;
-  margin: 0 auto 2rem;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.banner img {
-  width: 100%;
-  height: 300px;
-  object-fit: cover;
-  object-position: center bottom;
-  display: block;
-}
-
-/* Intro */
-.intro {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-/* === Overlay (mobile) === */
-.overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  z-index: 900;
-}
-
-.overlay.active {
-  display: block;
-}
-
-/* === Hamburger (mobile) === */
-.hamburger {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .hamburger {
-    display: block;
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 2000;
-    background: none;
-    border: none;
-    font-size: 2rem;
-    color: #d4af37;
-    cursor: pointer;
-  }
-
-  .sidebar {
-    left: -300px; /* gömd från början */
-  }
-
-  .sidebar.open {
-    left: 0;
-  }
-
-  .main-content {
-    margin-left: 0;
-    padding: 1rem;
-  }
-
-  .banner img {
-    height: auto;
-    max-height: 220px;
-    object-fit: contain; /* visa hela bilden på mobil */
-    object-position: center;
-  }
+/* Desktop: låt sidebar ligga stängd tills man öppnar den */
+@media (min-width: 1024px){
+  .main{ margin-top: 80px; }
 }
