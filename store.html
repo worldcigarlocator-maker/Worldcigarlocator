@@ -1,67 +1,126 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Butik – World Cigar Locator</title>
-  <link rel="stylesheet" href="css/store.css">
+  <title>Store</title>
+  <link rel="stylesheet" href="css/start.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      color: goldenrod;
+    }
+    .stars {
+      font-size: 2rem;
+      cursor: pointer;
+      color: #ccc;
+    }
+    .stars span.active {
+      color: gold;
+    }
+  </style>
 </head>
 <body>
-  <aside class="sidebar">
-    <h2>World Cigar Locator</h2>
-    <a href="start.html">← Tillbaka till start</a>
-  </aside>
+  <h1 id="storeName">Loading...</h1>
+  <p id="storeAddress"></p>
+  <p><a id="storeLink" href="#" target="_blank">Visit external page</a></p>
 
-  <main class="main-content">
-    <h1 id="store-name">Butiksnamn</h1>
-    <p><strong>Adress:</strong> <span id="store-address"></span></p>
-    <p><a id="store-link" href="#" target="_blank">Besök sidan</a></p>
+  <h2>Rating</h2>
+  <div id="starContainer" class="stars"></div>
+  <p id="ratingInfo">Loading rating...</p>
 
-    <div id="rating-section">
-      <h3>Betyg</h3>
-      <div id="stars"></div>
-      <p id="average"></p>
-    </div>
-  </main>
-
+  <!-- Supabase client -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
-    // 🔧 Här kan vi byta till Supabase senare
-    const stores = {
-      "gottegrisen": {
-        name: "Gotte Grisen",
-        address: "Drottninggatan 49, 602 32 Norrköping",
-        link: "https://www.facebook.com/gottegrisen.norrkoping/"
-      },
-      "lcdh-paris": {
-        name: "La Casa del Habano – Paris",
-        address: "Rue de XYZ 12, Paris",
-        link: "https://www.lcdhparis.com"
-      }
-    };
+    // 🔑 Byt ut mot din egen Supabase URL och anon key
+    const supabaseUrl = "https://YOUR-PROJECT.supabase.co";
+    const supabaseKey = "YOUR-ANON-KEY";
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Hämta ?store=… från URL
+    // Hämta ?store=id från URL
     const params = new URLSearchParams(window.location.search);
     const storeId = params.get("store");
 
-    if (storeId && stores[storeId]) {
-      const store = stores[storeId];
-      document.getElementById("store-name").textContent = store.name;
-      document.getElementById("store-address").textContent = store.address;
-      document.getElementById("store-link").href = store.link;
-      document.getElementById("store-link").textContent = "Besök " + store.name;
-    } else {
-      document.querySelector(".main-content").innerHTML = "<p>Butiken hittades inte.</p>";
+    if (!storeId) {
+      document.getElementById("storeName").textContent = "No store selected.";
+      throw new Error("No store ID in URL");
     }
 
-    // ⭐ Enkel demo för stjärnor (kan kopplas mot Supabase sen)
-    const starsDiv = document.getElementById("stars");
-    for (let i = 1; i <= 5; i++) {
-      const star = document.createElement("span");
-      star.textContent = "★";
-      star.style.cursor = "pointer";
-      star.style.fontSize = "2rem";
-      star.onclick = () => alert(`Du gav ${i} stjärnor till ${stores[storeId].name}`);
-      starsDiv.appendChild(star);
+    // Ladda butikens info
+    async function loadStore() {
+      const { data, error } = await supabaseClient
+        .from("stores")
+        .select("*")
+        .eq("id", storeId)
+        .single();
+
+      if (error || !data) {
+        document.getElementById("storeName").textContent = "Store not found.";
+        return;
+      }
+
+      document.getElementById("storeName").textContent = data.name;
+      document.getElementById("storeAddress").textContent = data.address || "";
+      document.getElementById("storeLink").href = data.link || "#";
+      document.getElementById("storeLink").textContent = data.link ? "Visit external page" : "";
     }
+
+    // Rita stjärnor
+    function renderStars(avg = 0) {
+      const container = document.getElementById("starContainer");
+      container.innerHTML = "";
+      for (let i = 1; i <= 5; i++) {
+        const star = document.createElement("span");
+        star.textContent = "★";
+        if (i <= avg) star.classList.add("active");
+        star.addEventListener("click", () => saveRating(i));
+        container.appendChild(star);
+      }
+    }
+
+    // Ladda rating
+    async function loadRating() {
+      const { data, error } = await supabaseClient
+        .from("ratings")
+        .select("rating")
+        .eq("store_id", storeId);
+
+      if (error) {
+        document.getElementById("ratingInfo").textContent = "❌ Error loading rating";
+        return;
+      }
+
+      if (data.length === 0) {
+        renderStars(0);
+        document.getElementById("ratingInfo").textContent = "No ratings yet.";
+        return;
+      }
+
+      const sum = data.reduce((acc, r) => acc + r.rating, 0);
+      const avg = sum / data.length;
+      renderStars(Math.round(avg));
+      document.getElementById("ratingInfo").textContent = 
+        `Average: ${avg.toFixed(1)} (${data.length} votes)`;
+    }
+
+    // Spara rating
+    async function saveRating(value) {
+      const { error } = await supabaseClient
+        .from("ratings")
+        .insert([{ store_id: storeId, rating: value }]);
+
+      if (error) {
+        alert("❌ Error saving rating: " + error.message);
+      } else {
+        loadRating();
+      }
+    }
+
+    // Kör allt
+    loadStore();
+    loadRating();
   </script>
 </body>
 </html>
