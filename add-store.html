@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Store – Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      padding: 2rem;
+    }
+    h1 { color: #444; }
+    form {
+      background: white;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      max-width: 400px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    label { display: block; margin-top: 1rem; }
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      margin-top: 1rem;
+      background: goldenrod;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover { background: darkgoldenrod; }
+  </style>
+</head>
+<body>
+  <h1>Add Store (Test Page)</h1>
+  <form id="addStoreForm">
+    <label>Store ID (kort namn, t.ex. gottegrisen)</label>
+    <input type="text" name="id" required>
+
+    <label>Store Name</label>
+    <input type="text" name="name" required>
+
+    <label>Address</label>
+    <input type="text" name="address" required>
+
+    <label>Link (hemsida/Facebook)</label>
+    <input type="url" name="link">
+
+    <button type="submit">Save Store</button>
+  </form>
+
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script>
+    const supabaseUrl = "DIN_SUPABASE_URL";
+    const supabaseKey = "DIN_ANON_KEY"; 
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    document.getElementById("addStoreForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const id = form.id.value.trim();
+      const name = form.name.value.trim();
+      const address = form.address.value.trim();
+      const link = form.link.value.trim();
+
+      const { error } = await supabase
+        .from("stores")
+        .insert([{ id, name, address, link }]);
+
+      if (error) {
+        alert("❌ Error: " + error.message);
+      } else {
+        alert("✅ Store saved to Supabase!");
+        form.reset();
+      }
+    };
+  </script>
+</body>
+</html>
