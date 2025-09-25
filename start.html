@@ -1,15 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>World Cigar Locator - Start</title>
-  <link rel="stylesheet" href="css/start.css">
+  <link rel="stylesheet" href="css/start.css" />
 </head>
 <body>
-  <!-- Sidebar -->
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <h2>World Cigar Locator</h2>
+
+    <!-- Search -->
+    <div class="search-box">
+      <input type="text" placeholder="Search..." />
+    </div>
+
+    <!-- Regions -->
     <nav>
       <ul>
         <li>
@@ -18,7 +25,6 @@
             <li><a href="#">Sverige</a></li>
             <li><a href="#">Norge</a></li>
             <li><a href="#">Tyskland</a></li>
-            <li><a href="#">Spanien</a></li>
           </ul>
         </li>
         <li>
@@ -28,33 +34,45 @@
             <li><a href="#">Miami</a></li>
           </ul>
         </li>
-        <li><a href="#">Asien</a></li>
+        <li>
+          <button class="dropdown-btn">Asien ▾</button>
+          <ul class="dropdown-content">
+            <li><a href="#">Tokyo</a></li>
+            <li><a href="#">Bangkok</a></li>
+          </ul>
+        </li>
       </ul>
     </nav>
+
+    <!-- Add Store -->
+    <div class="sidebar-section">
+      <a href="#" class="sidebar-button">+ Add a Store</a>
+    </div>
+
+    <!-- Support -->
+    <div class="sidebar-section support">
+      <a href="#" class="sidebar-link">Support / Kontakt</a>
+    </div>
   </aside>
 
-<main>
-  <section class="banner">
-    <img src="images/paris.jpg" alt="Paris" />
-  </section>
-
-  <section class="intro">
-    <!-- text här -->
-  </section>
-</main>
-    <section class="intro">
-      <h1>Welcome to World Cigar Locator</h1>
-      <p><em>
-        WCL was born from a simple need: the desire to always know where to find a good cigar, 
-        no matter where life takes you. We hope this will make it easy for you to find a cigar store, 
-        a lounge, or maybe the perfect little spot for a nice smoke when you are away from home.
-      </em></p>
-      <p class="signature">Kind regards, Bakerman</p>
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <section class="banner">
+      <img src="images/paris.jpg" alt="Paris" />
     </section>
 
-    <section class="banner">
-  <img src="images/paris.jpg" alt="Paris" />
-</section>
+    <section class="intro">
+      <h1>Welcome to World Cigar Locator</h1>
+      <p>
+        WCL was born from a simple need: the desire to always know where to find
+        a good cigar, no matter where life takes you. We hope this will make it
+        easy for you to find a cigar store, a lounge, or maybe the perfect
+        little spot for a nice smoke when you are away from home.
+      </p>
+      <p><em>Kind regards,<br />Bakerman</em></p>
+    </section>
   </main>
+
+  <script src="js/sidebar.js"></script>
 </body>
 </html>
