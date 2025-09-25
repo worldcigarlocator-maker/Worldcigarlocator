@@ -8,32 +8,37 @@
   <style>
     .active-link {
       font-weight: bold;
-      color: #d4af37; /* guld för markerad stad */
+      color: #d4af37; /* guld */
     }
   </style>
 </head>
 <body>
+  <!-- Hamburger for mobile -->
   <button class="hamburger">☰</button>
 
+  <!-- Sidebar -->
   <aside class="sidebar">
     <h1 class="sidebar-title">World Cigar Locator</h1>
 
+    <!-- Example: Europe expanded -->
     <div class="dropdown">
       <button class="dropdown-btn">Europe</button>
       <div class="dropdown-container" style="display:block;">
         <button class="dropdown-btn">Sweden</button>
         <div class="dropdown-container" style="display:block;">
-          <a href="city-norrkoping.html" class="active-link">Norrköping</a>
-          <!-- Här kan du lägga till fler svenska städer -->
+          <span class="active-link">Norrköping</span>
+          <!-- fler svenska städer kan läggas här -->
         </div>
       </div>
     </div>
 
-    <!-- Resten av dina kontinenter/länder här -->
+    <!-- Lägg till fler kontinenter/länder här om du vill -->
   </aside>
 
+  <!-- Overlay for mobile -->
   <div class="overlay"></div>
 
+  <!-- Main content -->
   <main class="main-content">
     <h2>Norrköping – Stores & Lounges</h2>
     <p>Här hittar du cigarbutiker och lounger i Norrköping.</p>
@@ -42,12 +47,16 @@
       <div class="store-card">
         <h3><a href="store-norrkoping-gottegrisen.html">Gotte Grisen</a></h3>
         <p><strong>Adress:</strong> Drottninggatan 49, 602 32 Norrköping</p>
-        <p><a href="https://www.facebook.com/gottegrisen.norrkoping/" target="_blank">
-          Facebook – Gotte Grisen</a></p>
+        <p>
+          <a href="https://www.facebook.com/gottegrisen.norrkoping/" target="_blank">
+            Facebook – Gotte Grisen
+          </a>
+        </p>
       </div>
     </div>
   </main>
 
+  <!-- Sidebar + overlay toggle -->
   <script>
     const hamburger = document.querySelector(".hamburger");
     const sidebar = document.querySelector(".sidebar");
