@@ -1,101 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>World Cigar Locator - Start</title>
-  <link rel="stylesheet" href="css/start.css" />
-</head>
 <body>
   <button class="hamburger">☰</button>
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-  <h1 class="sidebar-title">World Cigar Locator</h1>
-  
-  <!-- sökfält, regioner osv -->
-</aside>
 
-    <!-- Search -->
+  <aside class="sidebar">
+    <h1 class="sidebar-title">World Cigar Locator</h1>
+
     <div class="search-box">
       <input type="text" placeholder="Search..." />
     </div>
 
-    <!-- Regions -->
-    <nav>
-      <ul>
-        <li>
-          <button class="dropdown-btn">Europa ▾</button>
-          <ul class="dropdown-content">
-            <li><a href="#">Sverige</a></li>
-            <li><a href="#">Norge</a></li>
-            <li><a href="#">Tyskland</a></li>
-          </ul>
-        </li>
-        <li>
-          <button class="dropdown-btn">USA ▾</button>
-          <ul class="dropdown-content">
-            <li><a href="#">New York</a></li>
-            <li><a href="#">Miami</a></li>
-          </ul>
-        </li>
-        <li>
-          <button class="dropdown-btn">Asien ▾</button>
-          <ul class="dropdown-content">
-            <li><a href="#">Tokyo</a></li>
-            <li><a href="#">Bangkok</a></li>
-          </ul>
-        </li>
-      </ul>
-    </nav>
-
-    <!-- Add Store -->
-    <div class="sidebar-section">
-      <a href="#" class="sidebar-button">+ Add a Store</a>
+    <button class="dropdown-btn">Europe ▾</button>
+    <div class="dropdown-container">
+      <a href="#">Sweden</a>
+      <a href="#">Norway</a>
+      <a href="#">France</a>
     </div>
 
-    <!-- Support -->
-    <div class="sidebar-section support">
-      <a href="#" class="sidebar-link">Support / Kontakt</a>
+    <button class="dropdown-btn">USA ▾</button>
+    <div class="dropdown-container">
+      <a href="#">New York</a>
+      <a href="#">Miami</a>
+    </div>
+
+    <button class="dropdown-btn">Asia ▾</button>
+    <div class="dropdown-container">
+      <a href="#">Tokyo</a>
+      <a href="#">Hong Kong</a>
+    </div>
+
+    <a href="#" class="add-store">+ Add a Store</a>
+
+    <div class="support">
+      <a href="#">Support / Contact</a>
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
- <main class="main-content">
+  <main class="main-content">
+    <section class="banner">
+      <img src="images/paris.jpg" alt="Paris" />
+    </section>
 
-  <section class="banner">
-    <img src="images/paris.jpg" alt="Paris" />
-  </section>
+    <section class="intro">
+      <p>
+        WCL was born from a simple need: the desire to always know where to find
+        a good cigar, no matter where life takes you.
+      </p>
+      <p><em>Kind regards,<br />Bakerman</em></p>
+    </section>
+  </main>
 
-  <section class="intro">
-    <p>
-      WCL was born from a simple need: the desire to always know where to find
-      a good cigar, no matter where life takes you. We hope this will make it
-      easy for you to find a cigar store, a lounge, or maybe the perfect
-      little spot for a nice smoke when you are away from home.
-    </p>
-    <p><em>Kind regards,<br />Bakerman</em></p>
-  </section>
-</main>
-
-
-  <script src="js/sidebar.js"></script>
-</body>
-</html>
-<script>
-  // Dropdowns i sidebaren
-  document.querySelectorAll(".dropdown-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const content = btn.nextElementSibling;
-      content.style.display =
-        content.style.display === "block" ? "none" : "block";
+  <script>
+    // Dropdown toggle
+    document.querySelectorAll(".dropdown-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        btn.classList.toggle("active");
+        const content = btn.nextElementSibling;
+        content.style.display =
+          content.style.display === "block" ? "none" : "block";
+      });
     });
-  });
 
-  // Hamburger för mobil
-  const hamburger = document.querySelector(".hamburger");
-  const sidebar = document.querySelector(".sidebar");
-
-  hamburger.addEventListener("click", () => {
-    sidebar.classList.toggle("open");
-  });
-</script>
+    // Sidebar toggle (mobile)
+    const hamburger = document.querySelector(".hamburger");
+    const sidebar = document.querySelector(".sidebar");
+    hamburger.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+    });
+  </script>
+</body>
