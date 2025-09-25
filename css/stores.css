@@ -1,0 +1,77 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 2rem;
+  background: #fdfdfc;
+}
+
+h1#storeName {
+  color: #b8860b; /* guld */
+  margin-top: 0;
+  font-size: 2rem;
+}
+
+h1#storeName a {
+  color: #b8860b;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+h1#storeName a:hover {
+  color: #daa520; /* ljusare guld */
+  text-decoration: underline;
+}
+
+#storeAddress {
+  margin: 0.3rem 0 1rem 0;
+  color: #444;
+}
+
+#storeLink {
+  color: #0077cc;
+  text-decoration: none;
+}
+#storeLink:hover {
+  text-decoration: underline;
+}
+
+#ratingSummary {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: #b8860b; /* guld även för snittbetyg */
+  font-weight: bold;
+}
+
+.stars span {
+  font-size: 2rem;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.2s ease;
+}
+.stars span.active {
+  color: gold;
+}
+
+textarea {
+  width: 100%;
+  height: 80px;
+  margin-top: 0.5rem;
+}
+
+button {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: #b8860b;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+button:hover {
+  background: #daa520;
+}
+
+.review {
+  margin: 1rem 0;
+  padding: 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
