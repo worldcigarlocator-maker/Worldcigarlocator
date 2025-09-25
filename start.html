@@ -1,220 +1,126 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8">
-  <title>Butik</title>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2rem;
-      background: #fdfdfc;
-    }
-
-    h1#storeName {
-      color: #b8860b; /* guld */
-      margin-top: 0;
-      font-size: 2rem;
-    }
-
-    h1#storeName a {
-      color: #b8860b;
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    h1#storeName a:hover {
-      color: #daa520; /* ljusare guld */
-      text-decoration: underline;
-    }
-
-    #storeAddress {
-      margin: 0.3rem 0 1rem 0;
-      color: #444;
-    }
-
-    #storeLink {
-      color: #0077cc;
-      text-decoration: none;
-    }
-    #storeLink:hover {
-      text-decoration: underline;
-    }
-
-    #ratingSummary {
-      margin-top: 1rem;
-      font-size: 1rem;
-      color: #b8860b; /* guld även för snittbetyg */
-      font-weight: bold;
-    }
-
-    .stars span {
-      font-size: 2rem;
-      cursor: pointer;
-      color: #ccc;
-      transition: color 0.2s ease;
-    }
-    .stars span.active {
-      color: gold;
-    }
-
-    textarea {
-      width: 100%;
-      height: 80px;
-      margin-top: 0.5rem;
-    }
-
-    button {
-      margin-top: 0.5rem;
-      padding: 0.5rem 1rem;
-      border: none;
-      background: #b8860b;
-      color: white;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-    button:hover {
-      background: #daa520;
-    }
-
-    .review {
-      margin: 1rem 0;
-      padding: 0.5rem;
-      border-bottom: 1px solid #ddd;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>World Cigar Locator</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/start.css" />
 </head>
 <body>
-  <h1 id="storeName">Butiksnamn</h1>
-  <p id="storeAddress"></p>
-  <p><a id="storeLink" target="_blank"></a></p>
+  <!-- Hamburger -->
+  <button class="hamburger" aria-label="Open menu">☰</button>
 
-  <h2>Betyg</h2>
-  <div id="ratingSummary">Laddar betyg...</div>
-  <div class="stars" id="stars"></div>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <h2 class="sidebar-title">World Cigar Locator</h2>
 
-  <h2>Lämna recension</h2>
-  <textarea id="reviewText" placeholder="Skriv en recension..."></textarea><br>
-  <button id="submitReview">Skicka</button>
+    <div class="sidebar-section">
+      <label for="sidebar-search">Sök</label>
+      <input id="sidebar-search" type="text" placeholder="Sök stad eller butik..." />
+    </div>
 
-  <h2>Recensioner</h2>
-  <div id="reviews">Laddar recensioner...</div>
+    <div class="sidebar-section">
+      <details>
+        <summary>Continents</summary>
 
-<script>
-  // 🔑 Din Supabase-info
-  const supabaseUrl = "DIN_SUPABASE_URL";
-  const supabaseKey = "DIN_SUPABASE_ANON_KEY";
-  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        <details>
+          <summary>Europe</summary>
+          <ul>
+            <li><a href="city.html?city=Stockholm">Stockholm</a></li>
+            <li><a href="city.html?city=Gothenburg">Gothenburg</a></li>
+            <li><a href="city.html?city=Norrköping">Norrköping</a></li>
+            <li><a href="city.html?city=Paris">Paris</a></li>
+            <li><a href="city.html?city=Berlin">Berlin</a></li>
+          </ul>
+        </details>
 
-  // Hämta store_id från URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const storeId = urlParams.get("store");
+        <details>
+          <summary>North America</summary>
+          <ul>
+            <li><a href="city.html?city=New%20York">New York</a></li>
+            <li><a href="city.html?city=Toronto">Toronto</a></li>
+          </ul>
+        </details>
 
-  const starsContainer = document.getElementById("stars");
-  let selectedRating = 0;
+        <details>
+          <summary>Asia</summary>
+          <ul>
+            <li><a href="city.html?city=Tokyo">Tokyo</a></li>
+            <li><a href="city.html?city=Bangkok">Bangkok</a></li>
+          </ul>
+        </details>
 
-  // Skapa 5 stjärnor
-  for (let i = 1; i <= 5; i++) {
-    const star = document.createElement("span");
-    star.textContent = "★";
-    star.addEventListener("click", () => {
-      selectedRating = i;
-      highlightStars(i);
-    });
-    starsContainer.appendChild(star);
-  }
+        <details>
+          <summary>South America</summary>
+          <ul>
+            <li><a href="city.html?city=Buenos%20Aires">Buenos Aires</a></li>
+          </ul>
+        </details>
 
-  function highlightStars(count) {
-    [...starsContainer.children].forEach((s, i) => {
-      s.classList.toggle("active", i < count);
-    });
-  }
+        <details>
+          <summary>Oceania</summary>
+          <ul>
+            <li><a href="city.html?city=Sydney">Sydney</a></li>
+          </ul>
+        </details>
 
-  // 🚀 Hämta store-info
-  async function loadStore() {
-    const { data, error } = await supabaseClient
-      .from("stores")
-      .select("*")
-      .eq("id", storeId)
-      .single();
+        <details>
+          <summary>Africa</summary>
+          <ul>
+            <li><a href="city.html?city=Cape%20Town">Cape Town</a></li>
+          </ul>
+        </details>
+      </details>
+    </div>
 
-    if (data) {
-      const nameElem = document.getElementById("storeName");
-      nameElem.innerHTML = `<a href="${data.link}" target="_blank">${data.name}</a>`;
+    <div class="sidebar-section">
+      <a class="btn wide" href="add-store.html">➕ Add a Store</a>
+    </div>
 
-      document.getElementById("storeAddress").textContent = data.address || "";
-      const link = document.getElementById("storeLink");
-      link.textContent = data.link || "";
-      link.href = data.link || "#";
-    }
-  }
+    <div class="sidebar-section">
+      <h3>Support</h3>
+      <p><a href="list-store.html">Visa alla butiker</a></p>
+      <p><a href="mailto:worldcigarlocator@gmail.com">Kontakt</a></p>
+    </div>
+  </aside>
 
-  // 🚀 Hämta rating-sammanfattning från vyn
-  async function loadRatingSummary() {
-    const { data, error } = await supabaseClient
-      .from("store_ratings_summary")
-      .select("*")
-      .eq("store_id", storeId)
-      .single();
+  <!-- Overlay (mobil) -->
+  <div class="overlay" id="overlay"></div>
 
-    if (data) {
-      document.getElementById("ratingSummary").textContent =
-        `⭐ ${data.average_rating || 0} (${data.total_ratings} röster, ${data.total_reviews} recensioner)`;
-    } else {
-      document.getElementById("ratingSummary").textContent =
-        "⭐ Inga betyg än.";
-    }
-  }
+  <!-- Main content -->
+  <main class="main">
+    <h1 class="gold">World Cigar Locator</h1>
+    <p>Find cigar stores and lounges near you…</p>
 
-  // 🚀 Hämta recensioner
-  async function loadReviews() {
-    const { data, error } = await supabaseClient
-      .from("ratings")
-      .select("rating, review, created_at")
-      .eq("store_id", storeId)
-      .order("created_at", { ascending: false });
+    <div class="hero">
+      <img src="images/paris.jpg" alt="Paris" class="hero-img" />
+    </div>
 
-    const reviewsDiv = document.getElementById("reviews");
-    reviewsDiv.innerHTML = "";
-    if (data && data.length > 0) {
-      data.forEach(r => {
-        const div = document.createElement("div");
-        div.className = "review";
-        div.textContent = `⭐ ${r.rating} – ${r.review || ""}`;
-        reviewsDiv.appendChild(div);
-      });
-    } else {
-      reviewsDiv.textContent = "Inga recensioner än.";
-    }
-  }
+    <div class="intro">
+      <p>
+        WCL föddes ur ett enkelt behov: att alltid veta var man hittar en bra cigarr,
+        oavsett var man är. Här kan du hitta butiker, lounger och favoritplatser för en
+        skön rök – även på resande fot.
+      </p>
+      <p>Kind regards,<br>Bakerman</p>
+    </div>
+  </main>
 
-  // 🚀 Spara ny recension
-  document.getElementById("submitReview").addEventListener("click", async () => {
-    const text = document.getElementById("reviewText").value;
-    if (!selectedRating) {
-      alert("Välj antal stjärnor först!");
-      return;
-    }
+  <script>
+    // Enkel sidebar-toggle (krockar inte med något annat)
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const burger  = document.querySelector('.hamburger');
 
-    const { error } = await supabaseClient
-      .from("ratings")
-      .insert([{ store_id: storeId, rating: selectedRating, review: text }]);
+    function openSidebar(){ sidebar.classList.add('open'); overlay.classList.add('show'); }
+    function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
 
-    if (error) {
-      alert("Kunde inte spara recensionen: " + error.message);
-    } else {
-      document.getElementById("reviewText").value = "";
-      selectedRating = 0;
-      highlightStars(0);
-      await loadRatingSummary();
-      await loadReviews();
-    }
-  });
+    burger.addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
 
-  // Ladda allt
-  loadStore();
-  loadRatingSummary();
-  loadReviews();
-</script>
+    // Stäng vid ESC
+    window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeSidebar(); });
+  </script>
 </body>
 </html>
