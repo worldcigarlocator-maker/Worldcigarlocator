@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/start.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Cigar Locator - Start</title>
+  <link rel="stylesheet" href="css/start.css">
 </head>
 <body>
-  <!-- Hamburger-knapp (syns bara på mobil) -->
+  <!-- Hamburger för mobil -->
   <button class="hamburger">☰</button>
 
   <!-- Sidebar -->
@@ -15,33 +15,36 @@
     <h1 class="sidebar-title">World Cigar Locator</h1>
 
     <div class="search-box">
-      <input type="text" placeholder="Search..." />
+      <input type="text" placeholder="Search...">
     </div>
 
-    <button class="dropdown-btn">Europe ▾</button>
+    <button class="dropdown-btn">
+      Europe <span class="arrow">▼</span>
+    </button>
     <div class="dropdown-container">
       <a href="#">Sweden</a>
       <a href="#">Norway</a>
       <a href="#">France</a>
     </div>
 
-    <button class="dropdown-btn">USA ▾</button>
+    <button class="dropdown-btn">
+      USA <span class="arrow">▼</span>
+    </button>
     <div class="dropdown-container">
       <a href="#">New York</a>
       <a href="#">Miami</a>
     </div>
 
-    <button class="dropdown-btn">Asia ▾</button>
+    <button class="dropdown-btn">
+      Asia <span class="arrow">▼</span>
+    </button>
     <div class="dropdown-container">
-      <a href="#">Tokyo</a>
-      <a href="#">Hong Kong</a>
+      <a href="#">Japan</a>
+      <a href="#">China</a>
     </div>
 
     <a href="#" class="add-store">+ Add a Store</a>
-
-    <div class="support">
-      <a href="#">Support / Contact</a>
-    </div>
+    <a href="#" class="support">Support / Contact</a>
   </aside>
 
   <!-- Overlay -->
@@ -52,7 +55,7 @@
     <h1 class="page-title">Welcome to World Cigar Locator</h1>
 
     <section class="banner">
-      <img src="images/paris.jpg" alt="Paris" />
+      <img src="images/paris.jpg" alt="Paris">
     </section>
 
     <section class="intro">
@@ -62,37 +65,36 @@
         easy for you to find a cigar store, a lounge, or maybe the perfect
         little spot for a nice smoke when you are away from home.
       </p>
-      <p><em>Kind regards,<br />Bakerman</em></p>
+      <p><em>Kind regards,<br>Bakerman</em></p>
     </section>
   </main>
 
+  <!-- Script -->
   <script>
-    // Dropdowns i sidebaren
+    // Dropdowns
     document.querySelectorAll(".dropdown-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         btn.classList.toggle("active");
-        const content = btn.nextElementSibling;
-        content.style.display =
-          content.style.display === "block" ? "none" : "block";
+        const container = btn.nextElementSibling;
+        container.style.display =
+          container.style.display === "block" ? "none" : "block";
       });
     });
 
-    // Sidebar + overlay
+    // Sidebar toggle
     const hamburger = document.querySelector(".hamburger");
     const sidebar = document.querySelector(".sidebar");
     const overlay = document.querySelector(".overlay");
 
-    function closeSidebar() {
-      sidebar.classList.remove("open");
-      overlay.classList.remove("show");
-    }
-
     hamburger.addEventListener("click", () => {
       sidebar.classList.toggle("open");
-      overlay.classList.toggle("show");
+      overlay.classList.toggle("active");
     });
 
-    overlay.addEventListener("click", closeSidebar);
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("active");
+    });
   </script>
 </body>
 </html>
