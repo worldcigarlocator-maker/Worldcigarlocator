@@ -59,4 +59,120 @@ header {
   display: none;
 }
 
-.si
+.sidebar .submenu li {
+  font-size: 0.9rem;
+}
+
+.sidebar .open .submenu {
+  display: block;
+}
+
+/* === MAIN CONTENT AREA === */
+main {
+  margin-left: 240px; /* lämnar plats för sidebar */
+  padding: 2rem;
+}
+
+/* === INTRO (STARTSIDA) === */
+.intro {
+  max-width: 800px;
+  margin: 0 auto;
+  font-style: italic;
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #444;
+}
+
+.intro strong {
+  font-size: 1.4rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+/* === WORLD MAP PAGE === */
+.worldmap {
+  padding: 2rem;
+  text-align: center;
+}
+
+.worldmap h2 {
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  color: #2b2b2b;
+}
+
+/* Grid container */
+.worldmap .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Grid items (korten) */
+.worldmap .grid-item {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.worldmap .grid-item:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+/* Bilder */
+.worldmap .grid-item img {
+  width: 100%;
+  max-width: 200px;
+  height: 150px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+
+/* Text */
+.worldmap .grid-item span {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  main {
+    margin-left: 200px;
+  }
+
+  .intro {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  main {
+    margin-left: 0;
+  }
+
+  .worldmap .grid {
+    grid-template-columns: 1fr;
+  }
+}
