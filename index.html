@@ -4,11 +4,75 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World Cigar Locator - Age Gate</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fdfdfc;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    .content {
+      max-width: 600px;
+    }
+
+    h1 {
+      color: #b8860b; /* guld */
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+
+    p.subtitle {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      color: #555;
+    }
+
+    .banner img {
+      max-width: 400px;
+      height: auto;
+      margin-bottom: 2rem;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      padding: 0.8rem 1.6rem;
+      background: #b8860b;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+
+    .button:hover {
+      background: #daa520; /* ljusare guld */
+    }
+
+    .note {
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: #777;
+    }
+  </style>
 </head>
 <body>
   <div class="content">
-    <h1 class="welcome-text">Welcome To World Cigar Locator</h1>
+    <h1>Welcome to World Cigar Locator</h1>
     <p class="subtitle">Find cigar stores and lounges near you...</p>
 
     <div class="banner">
@@ -16,9 +80,11 @@
     </div>
 
     <div class="button-container">
-      <a href="https://www.google.com" class="button">Under 18</a>
+      <a href="#" onclick="alert('Sorry, you must be 18+ to enter.'); return false;" class="button">Under 18</a>
       <a href="start.html" class="button">Over 18</a>
     </div>
+
+    <p class="note">You must be 18 years or older to enter this site.</p>
   </div>
 </body>
 </html>
