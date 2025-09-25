@@ -1,14 +1,9 @@
-/* === Bas === */
+/* === Base === */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: "Merriweather", serif;
   background: #fdfdfc;
-  color: #333;
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
+  color: #222;
 }
 
 /* === Sidebar === */
@@ -23,91 +18,94 @@ a {
   padding: 1rem;
   overflow-y: auto;
   transition: left 0.3s ease;
-  z-index: 1200;
+  z-index: 1000;
 }
 
 .sidebar-title {
   font-size: 1.4rem;
   color: #d4af37;
   text-align: center;
-  margin-bottom: 1.5rem;
-  font-family: "Merriweather", serif;
-  sidebar-title {
-  margin-top: 3.5rem;  /* puttar ner rubriken så den inte krockar med hamburgaren */
-  text-align: center;
-}
+  margin: 3.5rem 0 1.5rem; /* nedflyttad så den inte krockar med hamburgaren */
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
 }
 
+/* === Search box === */
 .search-box input {
   width: 90%;
   padding: 0.4rem;
   font-size: 0.9rem;
   border: none;
   border-radius: 6px;
-  margin: 0 auto 1.5rem;
+  margin: 0 auto 1rem;
   display: block;
 }
 
-/* Dropdowns */
+/* === Dropdowns === */
 .dropdown-btn {
-  width: 100%;
   background: none;
   border: none;
   color: #fff;
-  padding: 0.6rem;
   text-align: left;
+  padding: 0.5rem;
+  width: 100%;
   font-size: 1rem;
   cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dropdown-btn:hover {
-  color: #d4af37;
+  outline: none;
 }
 
 .dropdown-btn .arrow {
-  transition: transform 0.3s ease;
-}
-
-.dropdown-btn.active .arrow {
-  transform: rotate(180deg);
+  float: right;
 }
 
 .dropdown-container {
   display: none;
   padding-left: 1rem;
-  margin-bottom: 0.5rem;
 }
 
 .dropdown-container a {
   display: block;
   padding: 0.4rem 0;
-  font-size: 0.9rem;
-  color: #ccc;
+  color: #ddd;
+  text-decoration: none;
 }
 
 .dropdown-container a:hover {
   color: #d4af37;
 }
 
-/* Extra länkar */
 .add-store,
 .support {
   display: block;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  text-align: center;
   padding: 0.6rem;
   background: #d4af37;
   color: #111;
-  text-align: center;
+  text-decoration: none;
   border-radius: 6px;
   font-weight: bold;
 }
 
 .support {
-  background: #444;
+  background: #333;
   color: #fff;
+  margin-top: 2rem;
+}
+
+/* === Overlay for mobile === */
+.overlay {
+  display: none;
+}
+
+.overlay.active {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 900;
 }
 
 /* === Main content === */
@@ -122,12 +120,11 @@ a {
   margin-bottom: 1.5rem;
   color: #d4af37;
   text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-  font-family: "Merriweather", serif;
 }
 
 .banner {
   max-width: 800px;
-  margin: 0 auto 1.5rem;
+  margin: 0 auto 2rem;
   border-radius: 12px;
   overflow: hidden;
 }
@@ -136,7 +133,7 @@ a {
   width: 100%;
   height: 300px;
   object-fit: cover;
-  object-position: center bottom;
+  object-position: center bottom; /* fokus på nederdelen */
   display: block;
 }
 
@@ -145,37 +142,49 @@ a {
   margin: 0 auto;
   font-size: 1.1rem;
   line-height: 1.6;
+  text-align: center;
 }
 
-/* === Overlay (mobil) === */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  z-index: 1100;
+/* === Stores grid (city pages) === */
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 2rem auto;
 }
 
-.overlay.active {
-  display: block;
+.store-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* === Hamburger === */
+.store-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.store-card h2 {
+  margin-top: 0;
+  color: #d4af37;
+}
+
+/* === Hamburger (hidden on desktop) === */
 .hamburger {
   display: none;
 }
 
-/* === Mobilanpassning === */
+/* === Responsive === */
 @media (max-width: 768px) {
   .hamburger {
     display: block;
     position: fixed;
     top: 1rem;
     left: 1rem;
-    z-index: 2000;
+    z-index: 2000; /* över sidebar */
     background: none;
     border: none;
     font-size: 2rem;
@@ -184,7 +193,7 @@ a {
   }
 
   .sidebar {
-    left: -300px;
+    left: -300px; /* gömmer hela sidebar på mobil */
   }
 
   .sidebar.open {
@@ -192,15 +201,11 @@ a {
   }
 
   .main-content {
-    margin-left: 0;
-    padding: 1rem;
+    margin-left: 0; /* innehållet täcker hela skärmen */
+    padding: 1.5rem;
   }
 
   .banner img {
-    height: 220px;
-  }
-
-  .page-title {
-    font-size: 1.6rem;
+    height: 220px; /* lite lägre på mobil */
   }
 }
