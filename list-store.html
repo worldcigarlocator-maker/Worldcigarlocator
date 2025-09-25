@@ -23,6 +23,13 @@
       margin: 0 0 5px;
       color: #333;
     }
+    .store-card h3 a {
+      color: goldenrod;
+      text-decoration: none;
+    }
+    .store-card h3 a:hover {
+      text-decoration: underline;
+    }
     .store-card p {
       margin: 0;
       font-size: 0.9rem;
@@ -64,9 +71,9 @@
         const card = document.createElement("div");
         card.className = "store-card";
         card.innerHTML = `
-          <h3>${store.name}</h3>
+          <h3><a href="store.html?store=${store.id}">${store.name}</a></h3>
           <p><strong>Address:</strong> ${store.address || "–"}</p>
-          <p><a href="${store.link || "#"}" target="_blank">Visit page</a></p>
+          <p><a href="${store.link || "#"}" target="_blank">Visit external page</a></p>
           <p><small>ID: ${store.id}</small></p>
         `;
         storeList.appendChild(card);
