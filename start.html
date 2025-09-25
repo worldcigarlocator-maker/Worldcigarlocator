@@ -1,192 +1,98 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  display: flex;
-  background: #fdfdfc;
-  color: #222;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Cigar Locator</title>
+  <link rel="stylesheet" href="css/start.css" />
+</head>
+<body>
+  <!-- Hamburger-knapp (syns bara på mobil) -->
+  <button class="hamburger">☰</button>
 
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  background: #111;
-  color: #fff;
-  height: 100vh;
-  position: fixed;
-  left: 0;
-  top: 0;
-  padding: 1rem;
-  overflow-y: auto;
-  transition: left 0.3s ease;
-  z-index: 1000;
-}
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h1 class="sidebar-title">World Cigar Locator</h1>
 
-.sidebar-title {
-  font-size: 1.4rem;
-  color: #d4af37;
-  text-align: center;
-  margin: 0 0 1.5rem;
-  font-family: "Merriweather", serif;
-}
+    <div class="search-box">
+      <input type="text" placeholder="Search..." />
+    </div>
 
-/* Search */
-.search-box input {
-  width: 100%;
-  padding: 0.5rem;
-  border: none;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-}
+    <button class="dropdown-btn">Europe ▾</button>
+    <div class="dropdown-container">
+      <a href="#">Sweden</a>
+      <a href="#">Norway</a>
+      <a href="#">France</a>
+    </div>
 
-/* Dropdowns */
-.dropdown-btn {
-  background: none;
-  color: #fff;
-  padding: 0.6rem;
-  border: none;
-  text-align: left;
-  width: 100%;
-  cursor: pointer;
-  font-size: 1rem;
-}
+    <button class="dropdown-btn">USA ▾</button>
+    <div class="dropdown-container">
+      <a href="#">New York</a>
+      <a href="#">Miami</a>
+    </div>
 
-.dropdown-btn.active,
-.dropdown-btn:hover {
-  color: #d4af37;
-}
+    <button class="dropdown-btn">Asia ▾</button>
+    <div class="dropdown-container">
+      <a href="#">Tokyo</a>
+      <a href="#">Hong Kong</a>
+    </div>
 
-.dropdown-container {
-  display: none;
-  padding-left: 1rem;
-}
+    <a href="#" class="add-store">+ Add a Store</a>
 
-.dropdown-container a {
-  display: block;
-  padding: 0.4rem 0;
-  color: #ddd;
-  text-decoration: none;
-}
+    <div class="support">
+      <a href="#">Support / Contact</a>
+    </div>
+  </aside>
 
-.dropdown-container a:hover {
-  color: #d4af37;
-}
+  <!-- Overlay -->
+  <div class="overlay"></div>
 
-/* Add store button */
-.add-store {
-  display: block;
-  margin: 1.5rem 0;
-  padding: 0.7rem;
-  text-align: center;
-  background: #d4af37;
-  color: #111;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: bold;
-}
+  <!-- Main content -->
+  <main class="main-content">
+    <h1 class="page-title">Welcome to World Cigar Locator</h1>
 
-/* Support */
-.support {
-  margin-top: 2rem;
-  text-align: center;
-}
+    <section class="banner">
+      <img src="images/paris.jpg" alt="Paris" />
+    </section>
 
-.support a {
-  color: #bbb;
-  text-decoration: none;
-}
+    <section class="intro">
+      <p>
+        WCL was born from a simple need: the desire to always know where to find
+        a good cigar, no matter where life takes you. We hope this will make it
+        easy for you to find a cigar store, a lounge, or maybe the perfect
+        little spot for a nice smoke when you are away from home.
+      </p>
+      <p><em>Kind regards,<br />Bakerman</em></p>
+    </section>
+  </main>
 
-.support a:hover {
-  color: #fff;
-}
+  <script>
+    // Dropdowns i sidebaren
+    document.querySelectorAll(".dropdown-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        btn.classList.toggle("active");
+        const content = btn.nextElementSibling;
+        content.style.display =
+          content.style.display === "block" ? "none" : "block";
+      });
+    });
 
-/* Overlay */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease;
-  z-index: 900;
-}
+    // Sidebar + overlay
+    const hamburger = document.querySelector(".hamburger");
+    const sidebar = document.querySelector(".sidebar");
+    const overlay = document.querySelector(".overlay");
 
-.overlay.show {
-  opacity: 1;
-  visibility: visible;
-}
+    function closeSidebar() {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("show");
+    }
 
-/* Main content */
-.main-content {
-  margin-left: 260px;
-  padding: 2rem;
-  flex: 1;
-}
+    hamburger.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("show");
+    });
 
-.page-title {
-  text-align: center;
-  font-size: 2.2rem;
-  margin-bottom: 1.5rem;
-  color: #d4af37;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-  font-family: "Merriweather", serif;
-}
-
-/* Banner */
-.banner {
-  max-width: 1000px;
-  margin: 0 auto 1.5rem;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.banner img {
-  width: 100%;
-  max-height: 400px;
-  object-fit: cover;
-  display: block;
-}
-
-/* Intro */
-.intro {
-  max-width: 800px;
-  margin: 0 auto;
-  font-size: 1.1rem;
-  line-height: 1.6;
-}
-
-/* Hamburger */
-.hamburger {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  font-size: 1.8rem;
-  background: none;
-  border: none;
-  color: #111;
-  z-index: 1100;
-  cursor: pointer;
-  display: none;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .sidebar {
-    left: -270px;
-  }
-  .sidebar.open {
-    left: 0;
-  }
-  .hamburger {
-    display: block;
-  }
-  .main-content {
-    margin-left: 0;
-    padding: 1rem;
-  }
-  .banner img {
-    max-height: 250px;
-  }
-}
+    overlay.addEventListener("click", closeSidebar);
+  </script>
+</body>
+</html>
