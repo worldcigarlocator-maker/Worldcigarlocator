@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World Cigar Locator - Start</title>
+  <title>World Cigar Locator – Start</title>
   <link rel="stylesheet" href="css/start.css">
 </head>
 <body>
@@ -18,29 +18,56 @@
       <input type="text" placeholder="Search...">
     </div>
 
-    <button class="dropdown-btn">
-      Europe <span class="arrow">▼</span>
-    </button>
+    <!-- Africa -->
+    <button class="dropdown-btn">Africa <span class="arrow">▼</span></button>
     <div class="dropdown-container">
-      <a href="#">Sweden</a>
-      <a href="#">Norway</a>
-      <a href="#">France</a>
+      <a href="#">Cairo</a>
+      <a href="#">Johannesburg</a>
     </div>
 
-    <button class="dropdown-btn">
-      USA <span class="arrow">▼</span>
-    </button>
+    <!-- Antarctica -->
+    <button class="dropdown-btn">Antarctica <span class="arrow">▼</span></button>
+    <div class="dropdown-container">
+      <a href="#">McMurdo Station</a>
+    </div>
+
+    <!-- Asia -->
+    <button class="dropdown-btn">Asia <span class="arrow">▼</span></button>
+    <div class="dropdown-container">
+      <a href="#">Bangkok</a>
+      <a href="#">Tokyo</a>
+      <a href="#">Hong Kong</a>
+    </div>
+
+    <!-- Europe -->
+    <button class="dropdown-btn">Europe <span class="arrow">▼</span></button>
+    <div class="dropdown-container">
+      <a href="paris.html">Paris</a>
+      <a href="stockholm.html">Stockholm</a>
+      <a href="oslo.html">Oslo</a>
+    </div>
+
+    <!-- North America -->
+    <button class="dropdown-btn">North America <span class="arrow">▼</span></button>
     <div class="dropdown-container">
       <a href="#">New York</a>
       <a href="#">Miami</a>
+      <a href="#">Toronto</a>
     </div>
 
-    <button class="dropdown-btn">
-      Asia <span class="arrow">▼</span>
-    </button>
+    <!-- Oceania -->
+    <button class="dropdown-btn">Oceania <span class="arrow">▼</span></button>
     <div class="dropdown-container">
-      <a href="#">Japan</a>
-      <a href="#">China</a>
+      <a href="#">Sydney</a>
+      <a href="#">Auckland</a>
+    </div>
+
+    <!-- South America -->
+    <button class="dropdown-btn">South America <span class="arrow">▼</span></button>
+    <div class="dropdown-container">
+      <a href="#">Havana</a>
+      <a href="#">São Paulo</a>
+      <a href="#">Buenos Aires</a>
     </div>
 
     <a href="#" class="add-store">+ Add a Store</a>
@@ -55,7 +82,7 @@
     <h1 class="page-title">Welcome to World Cigar Locator</h1>
 
     <section class="banner">
-      <img src="images/paris.jpg" alt="Paris">
+      <img src="images/paris.jpg" alt="Paris" />
     </section>
 
     <section class="intro">
@@ -69,15 +96,15 @@
     </section>
   </main>
 
-  <!-- Script -->
+  <!-- JS -->
   <script>
-    // Dropdowns
+    // Dropdown toggle
     document.querySelectorAll(".dropdown-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         btn.classList.toggle("active");
-        const container = btn.nextElementSibling;
-        container.style.display =
-          container.style.display === "block" ? "none" : "block";
+        const content = btn.nextElementSibling;
+        content.style.display =
+          content.style.display === "block" ? "none" : "block";
       });
     });
 
