@@ -3,160 +3,131 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>La Casa del Habano – Paris</title>
-  <link rel="stylesheet" href="css/city.css"/>
+  <title>La Casa del Habano – Store</title>
+  <link rel="stylesheet" href="css/city.css" />
   <style>
-    /* Extra stil för butikssidan */
-    .store-header {
+    .rating-section {
+      margin: 2rem 0;
       text-align: center;
-      margin-bottom: 2rem;
     }
-    .store-header h1 {
+    .stars {
       font-size: 2rem;
-      color: #d4af37;
-      margin-bottom: 0.5rem;
-    }
-    .store-header p {
-      font-size: 1rem;
-      color: #555;
-      margin: 0.2rem 0;
-    }
-    .rating {
-      color: #d4af37;
-      font-size: 1.2rem;
-      margin: 0.5rem 0;
-    }
-    /* Accordion för recensioner */
-    .accordion {
-      background: #fff;
-      color: #222;
       cursor: pointer;
-      padding: 1rem;
-      margin: 0.5rem 0;
-      border: none;
-      border-radius: 8px;
-      text-align: left;
-      outline: none;
-      font-size: 1rem;
-      transition: background 0.3s ease;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      color: #ccc;
     }
-    .accordion:hover {
-      background: #f2f2f2;
+    .stars span:hover,
+    .stars span:hover ~ span {
+      color: #ccc; /* förhindra hover-bugg */
     }
-    .accordion:after {
-      content: "▼";
-      float: right;
+    .stars span.active {
+      color: #d4af37; /* guld */
     }
-    .accordion.active:after {
-      content: "▲";
-    }
-    .panel {
-      padding: 0 1rem;
-      background: #fafafa;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-      border-radius: 0 0 8px 8px;
-    }
-    .panel p {
-      padding: 0.8rem 0;
-      font-size: 0.95rem;
-      color: #444;
+    #avg-rating {
+      margin-top: 0.5rem;
+      font-weight: bold;
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <!-- Hamburger för mobil -->
   <button class="hamburger">☰</button>
 
-  <!-- Sidebar -->
   <aside class="sidebar">
     <h1 class="sidebar-title">World Cigar Locator</h1>
-    <div class="search-box">
-      <input type="text" placeholder="Search...">
-    </div>
-    <button class="dropdown-btn">Europe <span class="arrow">▼</span></button>
-    <div class="dropdown-container">
-      <button class="dropdown-btn">France <span class="arrow">▼</span></button>
-      <div class="dropdown-container">
-        <a href="city.html">Paris</a>
-      </div>
-    </div>
-    <a href="#" class="add-store">+ Add a Store</a>
-    <a href="#" class="support">Support / Contact</a>
+    <!-- här ligger din sidebar med kontinenter & städer -->
   </aside>
 
-  <!-- Overlay -->
   <div class="overlay"></div>
 
-  <!-- Main Content -->
   <main class="main-content">
-    <div class="store-header">
-      <h1>La Casa del Habano</h1>
-      <div class="rating">★★★★★</div>
-      <p><strong>Type:</strong> Store & Lounge</p>
-      <p><strong>Address:</strong> 5 Rue de la Paix, Paris</p>
-      <p><a href="https://www.lacasadelhabano.com" target="_blank">Visit Website</a></p>
-    </div>
+    <h2>La Casa del Habano – Paris</h2>
+    <p>En klassisk cigarrbutik och lounge i hjärtat av Paris.</p>
 
-    <h2 style="margin-bottom:1rem;">Reviews</h2>
-
-    <button class="accordion">John D. – ★★★★★</button>
-    <div class="panel">
-      <p>Amazing selection of Cuban cigars and a very classy lounge. Highly recommend!</p>
-    </div>
-
-    <button class="accordion">Marie L. – ★★★★☆</button>
-    <div class="panel">
-      <p>Beautiful lounge with friendly staff. Prices are high but worth it for the atmosphere.</p>
-    </div>
-
-    <button class="accordion">Alex P. – ★★★☆☆</button>
-    <div class="panel">
-      <p>Good selection, but service was a bit slow during my visit.</p>
-    </div>
+    <!-- ⭐ Rating-system -->
+    <section class="rating-section">
+      <div class="stars" id="stars">
+        <span data-value="1">★</span>
+        <span data-value="2">★</span>
+        <span data-value="3">★</span>
+        <span data-value="4">★</span>
+        <span data-value="5">★</span>
+      </div>
+      <p id="avg-rating">Laddar...</p>
+    </section>
   </main>
 
-  <!-- JS -->
+  <!-- Supabase script -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Sidebar toggle
+    const { createClient } = supabase;
+
+    // 🔹 Byt ut till dina egna värden från Supabase settings
+    const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    const db = createClient(supabaseUrl, supabaseKey);
+
+    const storeId = "paris_lcdh"; // unik ID för butiken
+
+    async function saveRating(value) {
+      const { error } = await db
+        .from("ratings")
+        .insert([{ store_id: storeId, rating: value }]);
+      if (error) {
+        console.error(error);
+      }
+      loadAverage();
+    }
+
+    async function loadAverage() {
+      const { data, error } = await db
+        .from("ratings")
+        .select("rating")
+        .eq("store_id", storeId);
+      if (error) {
+        console.error(error);
+        return;
+      }
+      if (data.length === 0) {
+        document.getElementById("avg-rating").textContent = "Inga betyg än";
+        return;
+      }
+      const ratings = data.map(r => r.rating);
+      const avg = (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1);
+      document.getElementById("avg-rating").textContent = `${avg} / 5 (${ratings.length} röster)`;
+      highlightStars(Math.round(avg));
+    }
+
+    function highlightStars(value) {
+      const stars = document.querySelectorAll("#stars span");
+      stars.forEach(star => {
+        star.classList.toggle("active", star.dataset.value <= value);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const stars = document.querySelectorAll("#stars span");
+      stars.forEach(star => {
+        star.addEventListener("click", () => {
+          saveRating(parseInt(star.dataset.value));
+        });
+      });
+      loadAverage();
+    });
+  </script>
+
+  <!-- Din befintliga JS för sidebar/hamburger -->
+  <script>
     const hamburger = document.querySelector(".hamburger");
     const sidebar = document.querySelector(".sidebar");
     const overlay = document.querySelector(".overlay");
 
     hamburger.addEventListener("click", () => {
       sidebar.classList.toggle("open");
-      overlay.classList.toggle("active");
+      overlay.classList.toggle("show");
     });
-
     overlay.addEventListener("click", () => {
       sidebar.classList.remove("open");
-      overlay.classList.remove("active");
-    });
-
-    // Dropdown toggle
-    document.querySelectorAll(".dropdown-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        btn.classList.toggle("active");
-        const content = btn.nextElementSibling;
-        content.style.display =
-          content.style.display === "block" ? "none" : "block";
-      });
-    });
-
-    // Accordion toggle
-    const accordions = document.querySelectorAll(".accordion");
-    accordions.forEach((acc) => {
-      acc.addEventListener("click", function () {
-        this.classList.toggle("active");
-        const panel = this.nextElementSibling;
-        if (panel.style.maxHeight) {
-          panel.style.maxHeight = null;
-        } else {
-          panel.style.maxHeight = panel.scrollHeight + "px";
-        }
-      });
+      overlay.classList.remove("show");
     });
   </script>
 </body>
