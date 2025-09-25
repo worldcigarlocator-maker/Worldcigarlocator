@@ -4,15 +4,15 @@
   <meta charset="UTF-8">
   <title>Butik</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="css/store.css">
+  <link rel="stylesheet" href="css/global.css">
 </head>
 <body>
-  <h1 id="storeName">Butiksnamn</h1>
+  <h1 id="storeName" class="gold">Butiksnamn</h1>
   <p id="storeAddress"></p>
   <p><a id="storeLink" target="_blank"></a></p>
 
   <h2>Betyg</h2>
-  <div id="ratingSummary">Laddar betyg...</div>
+  <div id="ratingSummary" class="gold">Laddar betyg...</div>
   <div class="stars" id="stars"></div>
 
   <h2>Lämna recension</h2>
@@ -51,7 +51,7 @@
   }
 
   async function loadStore() {
-    const { data, error } = await supabaseClient
+    const { data } = await supabaseClient
       .from("stores")
       .select("*")
       .eq("id", storeId)
@@ -59,7 +59,7 @@
 
     if (data) {
       const nameElem = document.getElementById("storeName");
-      nameElem.innerHTML = `<a href="${data.link}" target="_blank">${data.name}</a>`;
+      nameElem.innerHTML = `<a href="${data.link}" target="_blank" class="gold">${data.name}</a>`;
       document.getElementById("storeAddress").textContent = data.address || "";
       const link = document.getElementById("storeLink");
       link.textContent = data.link || "";
@@ -68,7 +68,7 @@
   }
 
   async function loadRatingSummary() {
-    const { data, error } = await supabaseClient
+    const { data } = await supabaseClient
       .from("store_ratings_summary")
       .select("*")
       .eq("store_id", storeId)
@@ -84,7 +84,7 @@
   }
 
   async function loadReviews() {
-    const { data, error } = await supabaseClient
+    const { data } = await supabaseClient
       .from("ratings")
       .select("rating, review, created_at")
       .eq("store_id", storeId)
@@ -111,19 +111,15 @@
       return;
     }
 
-    const { error } = await supabaseClient
+    await supabaseClient
       .from("ratings")
       .insert([{ store_id: storeId, rating: selectedRating, review: text }]);
 
-    if (error) {
-      alert("Kunde inte spara recensionen: " + error.message);
-    } else {
-      document.getElementById("reviewText").value = "";
-      selectedRating = 0;
-      highlightStars(0);
-      await loadRatingSummary();
-      await loadReviews();
-    }
+    document.getElementById("reviewText").value = "";
+    selectedRating = 0;
+    highlightStars(0);
+    await loadRatingSummary();
+    await loadReviews();
   });
 
   loadStore();
