@@ -25,7 +25,7 @@ body {
   font-size: 1.4rem;
   color: #d4af37;
   text-align: center;
-  margin: 5rem 0 1.5rem; /* nedflyttad så den inte krockar med hamburgaren */
+  margin: 5rem 0 1.5rem; /* 🔹 nedflyttad för att inte krocka med hamburgaren */
   text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
 }
 
@@ -73,6 +73,7 @@ body {
   color: #d4af37;
 }
 
+/* === Buttons in sidebar === */
 .add-store,
 .support {
   display: block;
@@ -131,13 +132,11 @@ body {
 
 .banner img {
   width: 100%;
-  height: auto;          /* 🔹 skalar naturligt */
-  max-height: 220px;     /* 🔹 begränsa så den inte blir för hög */
-  object-fit: contain;   /* 🔹 hela bilden visas */
-  object-position: center;
+  height: 300px;
+  object-fit: cover;
+  object-position: center bottom; /* 🔹 fokus på nederdelen */
   display: block;
 }
-
 
 .intro {
   max-width: 800px;
@@ -147,7 +146,7 @@ body {
   text-align: center;
 }
 
-/* === Stores grid (city pages) === */
+/* === Stores grid (for city pages) === */
 .store-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -174,7 +173,7 @@ body {
   color: #d4af37;
 }
 
-/* === Hamburger (hidden on desktop) === */
+/* === Hamburger === */
 .hamburger {
   display: none;
 }
@@ -186,7 +185,7 @@ body {
     position: fixed;
     top: 1rem;
     left: 1rem;
-    z-index: 2000; /* över sidebar */
+    z-index: 2000;
     background: none;
     border: none;
     font-size: 2rem;
@@ -195,7 +194,7 @@ body {
   }
 
   .sidebar {
-    left: -300px; /* gömmer hela sidebar på mobil */
+    left: -300px; /* 🔹 göm sidomenyn på mobil */
   }
 
   .sidebar.open {
@@ -203,11 +202,14 @@ body {
   }
 
   .main-content {
-    margin-left: 0; /* innehållet täcker hela skärmen */
+    margin-left: 0;
     padding: 1.5rem;
   }
 
   .banner img {
-    height: 220px; /* lite lägre på mobil */
+    height: auto;         /* 🔹 naturlig höjd */
+    max-height: 220px;    /* 🔹 begränsa */
+    object-fit: contain;  /* 🔹 visa hela bilden */
+    object-position: center;
   }
 }
