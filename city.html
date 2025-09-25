@@ -1,110 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Paris – Stores & Lounges</title>
-  <link rel="stylesheet" href="css/city.css"/>
+  <meta charset="UTF-8">
+  <title>Paris – Butiker & Lounges</title>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="css/global.css">
 </head>
 <body>
-  <!-- Hamburger för mobil -->
-  <button class="hamburger">☰</button>
+  <h1 class="gold">Paris – Butiker & Lounges</h1>
+  <p>Här hittar du cigarbutiker och lounger i Paris.</p>
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <h1 class="sidebar-title">World Cigar Locator</h1>
+  <div id="storeList">Laddar...</div>
 
-    <div class="search-box">
-      <input type="text" placeholder="Search...">
-    </div>
+<script>
+  // 🔑 Din Supabase-info
+  const supabaseUrl = "DIN_SUPABASE_URL";
+  const supabaseKey = "DIN_SUPABASE_ANON_KEY";
+  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    <!-- Europe -->
-    <button class="dropdown-btn">Europe <span class="arrow">▼</span></button>
-    <div class="dropdown-container">
-      <!-- France -->
-      <button class="dropdown-btn">France <span class="arrow">▼</span></button>
-      <div class="dropdown-container">
-        <a href="city.html">Paris</a>
-        <a href="#">Marseille</a>
-        <a href="#">Lyon</a>
-        <a href="#">Toulouse</a>
-        <a href="#">Nice</a>
-      </div>
-      <!-- Lägg in fler länder/städer här -->
-    </div>
+  const city = "Paris"; // 👉 byt stadens namn beroende på vilken city.html
 
-    <!-- North America -->
-    <button class="dropdown-btn">North America <span class="arrow">▼</span></button>
-    <div class="dropdown-container">
-      <a href="#">New York</a>
-      <a href="#">Miami</a>
-    </div>
+  async function loadStores() {
+    // Hämta butiker för denna stad
+    const { data: stores } = await supabaseClient
+      .from("stores")
+      .select("*")
+      .ilike("address", `%${city}%`)  // letar efter stad i adress
+      .order("name");
 
-    <a href="#" class="add-store">+ Add a Store</a>
-    <a href="#" class="support">Support / Contact</a>
-  </aside>
+    // Hämta rating-sammanfattning
+    const { data: summaries } = await supabaseClient
+      .from("store_ratings_summary")
+      .select("*");
 
-  <!-- Overlay -->
-  <div class="overlay"></div>
+    const storeList = document.getElementById("storeList");
+    storeList.innerHTML = "";
 
-  <!-- Main Content -->
-  <main class="main-content">
-    <h1 class="city-title">Paris – Stores & Lounges</h1>
-    <p class="city-intro">
-      Discover the best cigar stores and lounges in Paris. Whether you’re a local or just visiting, 
-      here are some of the top places to enjoy a fine cigar.
-    </p>
+    if (stores && stores.length > 0) {
+      stores.forEach(store => {
+        const summary = summaries?.find(s => s.store_id === store.id);
 
-    <section class="store-grid">
-      <div class="store-card">
-        <h2>La Casa del Habano</h2>
-        <p><strong>Address:</strong> 5 Rue de la Paix, Paris</p>
-        <p>Exclusive Cuban cigars and a premium lounge.</p>
-        <a href="store.html">See more</a>
-      </div>
+        const div = document.createElement("div");
+        div.className = "store-card";
 
-      <div class="store-card">
-        <h2>Le Lotus Cigar Lounge</h2>
-        <p><strong>Address:</strong> 22 Avenue Montaigne, Paris</p>
-        <p>Luxury lounge with wide selection of rare cigars.</p>
-        <a href="store.html">See more</a>
-      </div>
+        // Namn (länk till store.html)
+        const name = document.createElement("h2");
+        name.innerHTML = `<a href="store.html?store=${store.id}" class="gold">${store.name}</a>`;
+        div.appendChild(name);
 
-      <div class="store-card">
-        <h2>Club Havana Paris</h2>
-        <p><strong>Address:</strong> 12 Boulevard Saint-Germain, Paris</p>
-        <p>Relaxed atmosphere with live jazz nights.</p>
-        <a href="store.html">See more</a>
-      </div>
-    </section>
-  </main>
+        // Adress
+        if (store.address) {
+          const address = document.createElement("p");
+          address.textContent = store.address;
+          div.appendChild(address);
+        }
 
-  <!-- JS -->
-  <script>
-    // Dropdown toggle
-    document.querySelectorAll(".dropdown-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        btn.classList.toggle("active");
-        const content = btn.nextElementSibling;
-        content.style.display =
-          content.style.display === "block" ? "none" : "block";
+        // Extern länk
+        if (store.link) {
+          const link = document.createElement("p");
+          link.innerHTML = `<a href="${store.link}" target="_blank">Besök hemsida</a>`;
+          div.appendChild(link);
+        }
+
+        // Betyg
+        const rating = document.createElement("div");
+        rating.className = "rating";
+        if (summary) {
+          rating.textContent =
+            `⭐ ${summary.average_rating || 0} (${summary.total_ratings} röster, ${summary.total_reviews} recensioner)`;
+        } else {
+          rating.textContent = "⭐ Inga betyg än.";
+        }
+        div.appendChild(rating);
+
+        storeList.appendChild(div);
       });
-    });
+    } else {
+      storeList.textContent = "Inga butiker hittades i " + city + ".";
+    }
+  }
 
-    // Sidebar toggle
-    const hamburger = document.querySelector(".hamburger");
-    const sidebar = document.querySelector(".sidebar");
-    const overlay = document.querySelector(".overlay");
-
-    hamburger.addEventListener("click", () => {
-      sidebar.classList.toggle("open");
-      overlay.classList.toggle("active");
-    });
-
-    overlay.addEventListener("click", () => {
-      sidebar.classList.remove("open");
-      overlay.classList.remove("active");
-    });
-  </script>
+  loadStores();
+</script>
 </body>
 </html>
