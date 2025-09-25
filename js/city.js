@@ -1,8 +1,8 @@
 // js/city.js
 
 // 1. Initiera Supabase-klienten
-const supabaseUrl = "https://YOUR_PROJECT.supabase.co"; // byt ut
-const supabaseKey = "YOUR_ANON_KEY"; // byt ut
+const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co"; // byt ut
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // byt ut
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 // 2. Hämta city från URL, t.ex. city.html?city=Norrköping
