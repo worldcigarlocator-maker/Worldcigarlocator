@@ -131,11 +131,13 @@ body {
 
 .banner img {
   width: 100%;
-  height: 300px;
-  object-fit: cover;
-  object-position: center bottom; /* fokus på nederdelen */
+  height: auto;          /* 🔹 skalar naturligt */
+  max-height: 220px;     /* 🔹 begränsa så den inte blir för hög */
+  object-fit: contain;   /* 🔹 hela bilden visas */
+  object-position: center;
   display: block;
 }
+
 
 .intro {
   max-width: 800px;
