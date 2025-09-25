@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Store List</title>
+  <link rel="stylesheet" href="css/start.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      color: goldenrod;
+    }
+    .store-card {
+      border: 1px solid #ddd;
+      padding: 10px 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+    .store-card h3 {
+      margin: 0 0 5px;
+      color: #333;
+    }
+    .store-card p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>All Stores</h1>
+  <div id="storeList">Loading...</div>
+
+  <!-- Supabase client -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    // 🔑 Byt ut mot din egen Supabase URL och anon key
+    const supabaseUrl = "https://YOUR-PROJECT.supabase.co";
+    const supabaseKey = "YOUR-ANON-KEY";
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function loadStores() {
+      const storeList = document.getElementById("storeList");
+
+      const { data, error } = await supabaseClient
+        .from("stores")
+        .select("*")
+        .order("name", { ascending: true });
+
+      if (error) {
+        storeList.textContent = "❌ Error: " + error.message;
+        return;
+      }
+
+      if (data.length === 0) {
+        storeList.textContent = "No stores yet.";
+        return;
+      }
+
+      storeList.innerHTML = "";
+      data.forEach(store => {
+        const card = document.createElement("div");
+        card.className = "store-card";
+        card.innerHTML = `
+          <h3>${store.name}</h3>
+          <p><strong>Address:</strong> ${store.address || "–"}</p>
+          <p><a href="${store.link || "#"}" target="_blank">Visit page</a></p>
+          <p><small>ID: ${store.id}</small></p>
+        `;
+        storeList.appendChild(card);
+      });
+    }
+
+    loadStores();
+  </script>
+</body>
+</html>
