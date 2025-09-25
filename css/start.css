@@ -171,3 +171,60 @@ body {
   text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
   font-family: "Merriweather", serif;
 }
+/* === MOBILE STYLES === */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column; /* sidebar ovanför/utanför */
+  }
+
+  /* Sidebar göms på mobil */
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100vh;
+    transition: left 0.3s ease;
+    z-index: 1000;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  /* Hamburger knapp */
+  .hamburger {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    font-size: 1.8rem;
+    background: none;
+    border: none;
+    color: #222;
+    z-index: 1100;
+    cursor: pointer;
+  }
+
+  /* Main content */
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.6rem;
+  }
+
+  .banner {
+    max-width: 100%;
+    margin: 0 auto 1.5rem;
+  }
+
+  .banner img {
+    max-height: 250px; /* mindre höjd på mobil */
+  }
+
+  .intro {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+}
