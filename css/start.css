@@ -163,3 +163,11 @@ body {
 .intro p {
   margin-bottom: 1rem;
 }
+.page-title {
+  text-align: center;
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+  color: #d4af37;            /* guld */
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  font-family: "Merriweather", serif;
+}
