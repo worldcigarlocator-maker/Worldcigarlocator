@@ -2,13 +2,13 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <title>Paris – Butiker & Lounges</title>
+  <title>Stad – Butiker & Lounges</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="css/global.css">
 </head>
 <body>
-  <h1 class="gold">Paris – Butiker & Lounges</h1>
-  <p>Här hittar du cigarbutiker och lounger i Paris.</p>
+  <h1 id="cityTitle" class="gold"></h1>
+  <p id="cityIntro"></p>
 
   <div id="storeList">Laddar...</div>
 
@@ -18,14 +18,21 @@
   const supabaseKey = "DIN_SUPABASE_ANON_KEY";
   const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-  const city = "Paris"; // 👉 byt stadens namn beroende på vilken city.html
+  // 📌 Hämta city från URL-param
+  const urlParams = new URLSearchParams(window.location.search);
+  const city = urlParams.get("city");
+
+  // 🖊️ Uppdatera rubrik & intro
+  document.getElementById("cityTitle").textContent = `${city} – Butiker & Lounges`;
+  document.getElementById("cityIntro").textContent =
+    `Här hittar du cigarbutiker och lounger i ${city}.`;
 
   async function loadStores() {
-    // Hämta butiker för denna stad
+    // Hämta butiker som innehåller stadens namn i adressen
     const { data: stores } = await supabaseClient
       .from("stores")
       .select("*")
-      .ilike("address", `%${city}%`)  // letar efter stad i adress
+      .ilike("address", `%${city}%`)
       .order("name");
 
     // Hämta rating-sammanfattning
@@ -76,7 +83,7 @@
         storeList.appendChild(div);
       });
     } else {
-      storeList.textContent = "Inga butiker hittades i " + city + ".";
+      storeList.textContent = `Inga butiker hittades i ${city}.`;
     }
   }
 
