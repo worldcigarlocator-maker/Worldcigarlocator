@@ -20,16 +20,41 @@
     .stars span.active {
       color: gold;
     }
+    #reviewForm {
+      margin-top: 20px;
+    }
+    #reviewForm textarea {
+      width: 100%;
+      min-height: 80px;
+      margin: 10px 0;
+    }
+    .review {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+    }
+    .review strong {
+      color: goldenrod;
+    }
   </style>
 </head>
 <body>
   <h1 id="storeName">Loading...</h1>
   <p id="storeAddress"></p>
-  <p><a id="storeLink" href="#" target="_blank">Visit external page</a></p>
+  <p><a id="storeLink" href="#" target="_blank"></a></p>
 
   <h2>Rating</h2>
   <div id="starContainer" class="stars"></div>
   <p id="ratingInfo">Loading rating...</p>
+
+  <h2>Leave a review</h2>
+  <form id="reviewForm">
+    <label for="reviewText">Your review:</label>
+    <textarea id="reviewText" placeholder="Write something..."></textarea>
+    <button type="submit">Submit</button>
+  </form>
+
+  <h2>Reviews</h2>
+  <div id="reviewsList">Loading reviews...</div>
 
   <!-- Supabase client -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -39,16 +64,17 @@
     const supabaseKey = "YOUR-ANON-KEY";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Hämta ?store=id från URL
     const params = new URLSearchParams(window.location.search);
     const storeId = params.get("store");
+
+    let selectedRating = 0;
 
     if (!storeId) {
       document.getElementById("storeName").textContent = "No store selected.";
       throw new Error("No store ID in URL");
     }
 
-    // Ladda butikens info
+    // Ladda butik
     async function loadStore() {
       const { data, error } = await supabaseClient
         .from("stores")
@@ -75,52 +101,85 @@
         const star = document.createElement("span");
         star.textContent = "★";
         if (i <= avg) star.classList.add("active");
-        star.addEventListener("click", () => saveRating(i));
+        star.addEventListener("click", () => {
+          selectedRating = i;
+          highlightStars(i);
+        });
         container.appendChild(star);
       }
     }
 
-    // Ladda rating
-    async function loadRating() {
+    function highlightStars(count) {
+      document.querySelectorAll("#starContainer span").forEach((s, idx) => {
+        if (idx < count) s.classList.add("active");
+        else s.classList.remove("active");
+      });
+    }
+
+    // Ladda rating + recensioner
+    async function loadRatings() {
       const { data, error } = await supabaseClient
         .from("ratings")
-        .select("rating")
-        .eq("store_id", storeId);
+        .select("*")
+        .eq("store_id", storeId)
+        .order("created_at", { ascending: false });
 
       if (error) {
-        document.getElementById("ratingInfo").textContent = "❌ Error loading rating";
+        document.getElementById("ratingInfo").textContent = "❌ Error loading ratings";
         return;
       }
 
       if (data.length === 0) {
         renderStars(0);
         document.getElementById("ratingInfo").textContent = "No ratings yet.";
+        document.getElementById("reviewsList").textContent = "No reviews yet.";
         return;
       }
 
-      const sum = data.reduce((acc, r) => acc + r.rating, 0);
+      // Snittbetyg
+      const sum = data.reduce((acc, r) => acc + (r.rating || 0), 0);
       const avg = sum / data.length;
       renderStars(Math.round(avg));
       document.getElementById("ratingInfo").textContent = 
         `Average: ${avg.toFixed(1)} (${data.length} votes)`;
+
+      // Recensioner
+      const reviewsList = document.getElementById("reviewsList");
+      reviewsList.innerHTML = "";
+      data.forEach(r => {
+        if (r.review) {
+          const div = document.createElement("div");
+          div.className = "review";
+          div.innerHTML = `<strong>★${r.rating}</strong> – ${r.review}`;
+          reviewsList.appendChild(div);
+        }
+      });
     }
 
-    // Spara rating
-    async function saveRating(value) {
+    // Spara rating + recension
+    document.getElementById("reviewForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const reviewText = document.getElementById("reviewText").value.trim();
+      if (selectedRating === 0) {
+        alert("Please select a star rating first.");
+        return;
+      }
+
       const { error } = await supabaseClient
         .from("ratings")
-        .insert([{ store_id: storeId, rating: value }]);
+        .insert([{ store_id: storeId, rating: selectedRating, review: reviewText }]);
 
       if (error) {
-        alert("❌ Error saving rating: " + error.message);
+        alert("❌ Error saving review: " + error.message);
       } else {
-        loadRating();
+        document.getElementById("reviewText").value = "";
+        selectedRating = 0;
+        loadRatings();
       }
-    }
+    });
 
-    // Kör allt
     loadStore();
-    loadRating();
+    loadRatings();
   </script>
 </body>
 </html>
