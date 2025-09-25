@@ -5,13 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Norrköping – Stores & Lounges</title>
   <link rel="stylesheet" href="css/city.css" />
+  <style>
+    .active-link {
+      font-weight: bold;
+      color: #d4af37; /* guld för markerad stad */
+    }
+  </style>
 </head>
 <body>
   <button class="hamburger">☰</button>
 
   <aside class="sidebar">
     <h1 class="sidebar-title">World Cigar Locator</h1>
-    <!-- Din befintliga sidebar med kontinenter/länder/städer -->
+
+    <div class="dropdown">
+      <button class="dropdown-btn">Europe</button>
+      <div class="dropdown-container" style="display:block;">
+        <button class="dropdown-btn">Sweden</button>
+        <div class="dropdown-container" style="display:block;">
+          <a href="city-norrkoping.html" class="active-link">Norrköping</a>
+          <!-- Här kan du lägga till fler svenska städer -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Resten av dina kontinenter/länder här -->
   </aside>
 
   <div class="overlay"></div>
@@ -34,10 +52,12 @@
     const hamburger = document.querySelector(".hamburger");
     const sidebar = document.querySelector(".sidebar");
     const overlay = document.querySelector(".overlay");
+
     hamburger.addEventListener("click", () => {
       sidebar.classList.toggle("open");
       overlay.classList.toggle("show");
     });
+
     overlay.addEventListener("click", () => {
       sidebar.classList.remove("open");
       overlay.classList.remove("show");
