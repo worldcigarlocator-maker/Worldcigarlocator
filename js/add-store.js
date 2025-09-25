@@ -1,79 +1,60 @@
-// 🔑 Din Supabase-info
-const supabaseUrl = "DIN_SUPABASE_URL";
-const supabaseKey = "DIN_SUPABASE_ANON_KEY";
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
-// Ladda städer i dropdown
-async function loadCities() {
-  const { data: cities, error } = await supabaseClient
-    .from("cities")
-    .select("*")
-    .order("name");
-
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  const select = document.getElementById("citySelect");
-  if (cities) {
-    cities.forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c.name;
-      opt.textContent = c.name;
-      select.insertBefore(opt, select.querySelector('option[value="__new__"]'));
-    });
-  }
-}
-
-// Visa/dölj fältet för ny stad
-document.getElementById("citySelect").addEventListener("change", e => {
-  const newCityInput = document.getElementById("newCityInput");
-  newCityInput.style.display = e.target.value === "__new__" ? "block" : "none";
-});
-
-// Skapa ID automatiskt
-function generateId(name) {
-  return name
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "");
-}
-
-// Spara butik
-document.getElementById("storeForm").addEventListener("submit", async e => {
+document.getElementById("storeForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const name = document.getElementById("storeName").value.trim();
   const address = document.getElementById("storeAddress").value.trim();
   const link = document.getElementById("storeLink").value.trim();
-  let city = document.getElementById("citySelect").value;
+  const citySelect = document.getElementById("storeCity");
+  const newCityInput = document.getElementById("newCity");
 
-  // Ny stad
-  if (city === "__new__") {
-    city = document.getElementById("newCityInput").value.trim();
-    if (city) {
-      await supabaseClient.from("cities").insert([{ name: city }]);
+  let cityId;
+
+  // 1. Om användaren valde "Add new city"
+  if (citySelect.value === "new") {
+    const newCityName = newCityInput.value.trim();
+    if (!newCityName) {
+      document.getElementById("status").innerText = "Please enter a city name.";
+      return;
     }
+
+    // Spara ny stad i Supabase
+    const { data: newCity, error: cityError } = await supabase
+      .from("cities")
+      .insert([{ name: newCityName }])
+      .select()
+      .single();
+
+    if (cityError) {
+      console.error(cityError);
+      document.getElementById("status").innerText = "Error saving new city.";
+      return;
+    }
+
+    cityId = newCity.id; // ta id från ny stad
+  } else {
+    cityId = citySelect.value; // ta city_id från dropdown
   }
 
-  const id = generateId(name);
+  // 2. Skapa ett ID för butiken (slug)
+  const storeId = name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
-  const { error } = await supabaseClient.from("stores").insert([
-    { id, name, address, link, city }
+  // 3. Lägg till butik i Supabase
+  const { error: storeError } = await supabase.from("stores").insert([
+    {
+      id: storeId,
+      name: name,
+      address: address,
+      link: link || null,
+      city_id: cityId, // <--- Spara relationen här
+    },
   ]);
 
-  const status = document.getElementById("status");
-  if (error) {
-    console.error(error);
-    status.textContent = "❌ Fel: " + error.message;
-    status.style.color = "red";
+  if (storeError) {
+    console.error(storeError);
+    document.getElementById("status").innerText = "Error saving store.";
   } else {
-    status.textContent = "✅ Butiken sparad!";
-    status.style.color = "green";
+    document.getElementById("status").innerText = "Store added successfully!";
     document.getElementById("storeForm").reset();
+    newCityInput.style.display = "none"; // göm om man skrev ny stad
   }
 });
-
-// 🚀 Starta
-loadCities();
