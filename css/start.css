@@ -144,10 +144,12 @@ body {
 
 .banner img {
   width: 100%;
-  max-height: 300px;
+  max-height: 300px;       /* kan justeras om du vill */
   object-fit: cover;
+  object-position: center top; /* 🔹 fokus på toppen = mer av nedre delen syns */
   display: block;
 }
+
 
 /* Intro */
 .intro {
