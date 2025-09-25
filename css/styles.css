@@ -1,4 +1,4 @@
-/* === RESET & BAS === */
+/* === Reset & Base === */
 * {
   margin: 0;
   padding: 0;
@@ -6,173 +6,49 @@
 }
 
 body {
-  font-family: 'Merriweather', serif;
-  background-color: #f7f5f2;
-  color: #2b2b2b;
-  line-height: 1.6;
+  font-family: 'Playfair Display', serif;
+  background-color: #111; /* mörk bakgrund för lyxig känsla */
+  color: #eee;
+  line-height: 1.5;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* === HEADER === */
-header {
-  background: #2b2b2b;
-  color: #fff;
-  padding: 1rem 2rem;
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-/* === SIDEBAR === */
-.sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 240px;
-  background: #333;
-  color: #fff;
-  padding-top: 2rem;
-  overflow-y: auto;
-}
-
-.sidebar ul {
-  list-style: none;
-}
-
-.sidebar li {
-  padding: 0.75rem 1.5rem;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.sidebar li:hover {
-  background: #444;
-}
-
-.sidebar .submenu {
-  margin-left: 1rem;
-  display: none;
-}
-
-.sidebar .submenu li {
-  font-size: 0.9rem;
-}
-
-.sidebar .open .submenu {
-  display: block;
-}
-
-/* === MAIN CONTENT AREA === */
-main {
-  margin-left: 240px; /* lämnar plats för sidebar */
-  padding: 2rem;
-}
-
-/* === INTRO (STARTSIDA) === */
-.intro {
-  max-width: 800px;
-  margin: 0 auto;
-  font-style: italic;
-  font-size: 1.2rem;
-  text-align: center;
-  padding: 3rem 1rem;
-  color: #444;
-}
-
-.intro strong {
-  font-size: 1.4rem;
-  display: block;
-  margin-bottom: 1rem;
-}
-
-/* === WORLD MAP PAGE === */
-.worldmap {
-  padding: 2rem;
-  text-align: center;
-}
-
-.worldmap h2 {
-  margin-bottom: 2rem;
-  font-size: 2rem;
-  color: #2b2b2b;
-}
-
-/* Grid container */
-.worldmap .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-/* Grid items (korten) */
-.worldmap .grid-item {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  padding: 1rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* === Content Wrapper === */
+.content {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 2rem;
 }
 
-.worldmap .grid-item:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+/* === Guldrubrik === */
+.welcome-text {
+  font-size: 3rem;
+  color: #d4af37; /* guld */
+  text-shadow: 0 0 8px rgba(212,175,55,0.5);
+  margin-bottom: 0.5rem;
 }
 
-/* Bilder */
-.worldmap .grid-item img {
+.subtitle {
+  font-size: 1.25rem;
+  color: #ccc;
+  margin-bottom: 2rem;
+}
+
+/* === Karta === */
+.banner img {
+  max-width: 600px;
   width: 100%;
-  max-width: 200px;
-  height: 150px;
-  object-fit: contain;
-  margin-bottom: 1rem;
+  height: auto;
+  margin-bottom: 2rem;
+  filter: drop-shadow(0 0 12px rgba(0,0,0,0.6));
+  border-radius: 12px;
 }
 
-/* Text */
-.worldmap .grid-item span {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #333;
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 200px;
-  }
-
-  main {
-    margin-left: 200px;
-  }
-
-  .intro {
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 500px) {
-  .sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
-  }
-
-  main {
-    margin-left: 0;
-  }
-
-  .worldmap .grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* === Knappar === */
+.button-container {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap; /* gör så*
