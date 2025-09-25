@@ -1,4 +1,4 @@
-/* Reset */
+/* === RESET & BAS === */
 * {
   margin: 0;
   padding: 0;
@@ -6,157 +6,57 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
-  display: flex;
-  min-height: 100vh;
-  background-color: #f7f7f7;
-  color: #111;
+  font-family: 'Merriweather', serif;
+  background-color: #f7f5f2;
+  color: #2b2b2b;
+  line-height: 1.6;
 }
 
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  background-color: #1a1a1a;
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* === HEADER === */
+header {
+  background: #2b2b2b;
   color: #fff;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar h2 {
-  color: #d4af37;
-  font-size: 20px;
-  margin-bottom: 15px;
+  padding: 1rem 2rem;
   text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
-.sidebar input[type="text"] {
-  width: 100%;
-  padding: 8px 10px;
-  margin-bottom: 20px;
-  border: none;
-  border-radius: 5px;
-}
-
-/* Expandable menus */
-.sidebar details {
-  margin-bottom: 10px;
-}
-
-.sidebar summary {
-  cursor: pointer;
-  padding: 6px 0;
-  font-weight: bold;
+/* === SIDEBAR === */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 240px;
+  background: #333;
   color: #fff;
+  padding-top: 2rem;
+  overflow-y: auto;
 }
 
 .sidebar ul {
   list-style: none;
-  padding-left: 15px;
-  margin-top: 5px;
 }
 
 .sidebar li {
-  margin: 6px 0;
-}
-
-.sidebar a {
-  text-decoration: none;
-  color: #bbb;
-  font-size: 14px;
-  transition: color 0.2s;
-}
-
-.sidebar a:hover {
-  color: #d4af37;
-}
-
-/* Main content */
-main {
-  flex: 1;
-  padding: 40px;
-  text-align: center;
-}
-
-.welcome-text {
-  font-size: 32px;
-  color: #d4af37;
-  margin-bottom: 20px;
-}
-
-.subtitle {
-  font-size: 18px;
-  color: #666;
-  margin-bottom: 30px;
-}
-
-.hero-img {
-  max-width: 70%;
-  height: auto;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  margin: 20px auto;
-  display: block;
-}
-
-p {
-  font-size: 16px;
-  line-height: 1.6;
-  margin-bottom: 15px;
-}
-
-/* Buttons (for grind.html) */
-.button-container {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-button, .btn {
-  background-color: #d4af37;
-  border: none;
-  padding: 12px 25px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #111;
-  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  transition: background 0.2s ease;
 }
 
-button:hover, .btn:hover {
-  background-color: #b8962f;
-  transform: translateY(-2px);
+.sidebar li:hover {
+  background: #444;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  body {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    overflow-x: auto;
-  }
-
-  main {
-    padding: 20px;
-  }
-
-  .hero-img {
-    max-width: 80%;
-  }
+.sidebar .submenu {
+  margin-left: 1rem;
+  display: none;
 }
-.intro-text {
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  font-size: 1.1rem;
-  color: #000; /* Svart text */
-  line-height: 1.6;
-  max-width: 800px;
-  margin: 20px auto;
-  text-align: left;
-}
+
+.si
