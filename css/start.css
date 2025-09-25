@@ -1,12 +1,17 @@
+/* === Bas === */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  display: flex;
   background: #fdfdfc;
-  color: #222;
+  color: #333;
 }
 
-/* Sidebar */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* === Sidebar === */
 .sidebar {
   width: 260px;
   background: #111;
@@ -17,112 +22,94 @@ body {
   top: 0;
   padding: 1rem;
   overflow-y: auto;
-  transition: left 0.3s ease;   /* mjuk slide */
-  z-index: 1000;
+  transition: left 0.3s ease;
+  z-index: 1200;
 }
 
 .sidebar-title {
   font-size: 1.4rem;
   color: #d4af37;
   text-align: center;
-  margin: 0 0 1.5rem;
+  margin-bottom: 1rem;
   font-family: "Merriweather", serif;
 }
 
-/* Search */
 .search-box input {
   width: 90%;
   padding: 0.4rem;
+  font-size: 0.9rem;
   border: none;
   border-radius: 6px;
-  margin-bottom: 1rem;
+  margin: 0 auto 1.5rem;
+  display: block;
 }
 
 /* Dropdowns */
 .dropdown-btn {
+  width: 100%;
   background: none;
+  border: none;
   color: #fff;
   padding: 0.6rem;
-  border: none;
   text-align: left;
-  width: 100%;
-  cursor: pointer;
   font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.dropdown-btn.active,
 .dropdown-btn:hover {
   color: #d4af37;
+}
+
+.dropdown-btn .arrow {
+  transition: transform 0.3s ease;
+}
+
+.dropdown-btn.active .arrow {
+  transform: rotate(180deg);
 }
 
 .dropdown-container {
   display: none;
   padding-left: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .dropdown-container a {
   display: block;
   padding: 0.4rem 0;
-  color: #ddd;
-  text-decoration: none;
+  font-size: 0.9rem;
+  color: #ccc;
 }
 
 .dropdown-container a:hover {
   color: #d4af37;
 }
 
-/* Add store button */
-.add-store {
+/* Extra länkar */
+.add-store,
+.support {
   display: block;
-  margin: 1.5rem 0;
-  padding: 0.7rem;
-  text-align: center;
+  margin-top: 1rem;
+  padding: 0.6rem;
   background: #d4af37;
   color: #111;
-  border-radius: 8px;
-  text-decoration: none;
+  text-align: center;
+  border-radius: 6px;
   font-weight: bold;
 }
 
-/* Support */
 .support {
-  margin-top: 2rem;
-  text-align: center;
-}
-
-.support a {
-  color: #bbb;
-  text-decoration: none;
-}
-
-.support a:hover {
+  background: #444;
   color: #fff;
 }
 
-/* Overlay */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease;
-  z-index: 900;
-}
-
-.overlay.show {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* Main content */
+/* === Main content === */
 .main-content {
   margin-left: 260px;
   padding: 2rem;
-  flex: 1;
 }
 
 .page-title {
@@ -134,7 +121,6 @@ body {
   font-family: "Merriweather", serif;
 }
 
-/* Banner */
 .banner {
   max-width: 800px;
   margin: 0 auto 1.5rem;
@@ -144,15 +130,12 @@ body {
 
 .banner img {
   width: 100%;
-  height: 300px;               /* fast höjd gör cover förutsägbart */
+  height: 300px;
   object-fit: cover;
-  object-position: center bottom; /* 🔹 fokus på nederdelen */
+  object-position: center bottom;
   display: block;
 }
 
-
-
-/* Intro */
 .intro {
   max-width: 800px;
   margin: 0 auto;
@@ -160,31 +143,60 @@ body {
   line-height: 1.6;
 }
 
-/* Hamburger */
-.hamburger {
+/* === Overlay (mobil) === */
+.overlay {
   position: fixed;
-  top: 1rem;
-  le
-/* Mobilläge */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  z-index: 1100;
+}
+
+.overlay.active {
+  display: block;
+}
+
+/* === Hamburger === */
+.hamburger {
+  display: none;
+}
+
+/* === Mobilanpassning === */
 @media (max-width: 768px) {
   .hamburger {
-    display: block;          /* 🔹 visa knappen på mobil */
+    display: block;
     position: fixed;
     top: 1rem;
     left: 1rem;
-    z-index: 1100;
+    z-index: 1300;
     background: none;
     border: none;
     font-size: 2rem;
-    color: #d4af37;          /* guld */
+    color: #d4af37;
     cursor: pointer;
   }
 
   .sidebar {
-    left: -270px;            /* 🔹 göm sidomenyn från början */
+    left: -270px;
   }
 
   .sidebar.open {
-    left: 0;                 /* 🔹 glid in när man klickar */
+    left: 0;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .banner img {
+    height: 220px;
+  }
+
+  .page-title {
+    font-size: 1.6rem;
   }
 }
