@@ -1,60 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="UTF-8">
   <title>Alla butiker</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 2rem; background: #fdfdfc; }
-    h1 { color: #333; }
-
-    .store-card {
-      border: 1px solid #ddd;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 6px;
-      background: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .store-card h2 {
-      margin: 0;
-      font-size: 1.3rem;
-    }
-
-    .store-card h2 a {
-      color: #b8860b; /* guld */
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    .store-card h2 a:hover {
-      color: #daa520; /* lite ljusare guld */
-      text-decoration: underline;
-    }
-
-    .store-card p {
-      margin: 0.3rem 0;
-      color: #444;
-    }
-
-    .store-card a.external {
-      color: #0077cc;
-      text-decoration: none;
-    }
-    .store-card a.external:hover {
-      text-decoration: underline;
-    }
-
-    .rating {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      color: #555;
-    }
-  </style>
+  <link rel="stylesheet" href="css/global.css">
 </head>
 <body>
-  <h1>Alla butiker</h1>
+  <h1 class="gold">Alla butiker</h1>
   <div id="storeList">Laddar...</div>
 
 <script>
@@ -64,68 +17,62 @@
   const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
   async function loadStores() {
-    // 1. Hämta alla butiker
-    const { data: stores, error: storeError } = await supabaseClient
+    // Hämta butiker
+    const { data: stores } = await supabaseClient
       .from("stores")
-      .select("*");
+      .select("*")
+      .order("name");
 
-    if (storeError) {
-      document.getElementById("storeList").textContent =
-        "Kunde inte ladda butiker: " + storeError.message;
-      return;
-    }
-
-    // 2. Hämta summeringar (alla på en gång)
-    const { data: summaries, error: summaryError } = await supabaseClient
+    // Hämta rating-sammanfattning
+    const { data: summaries } = await supabaseClient
       .from("store_ratings_summary")
       .select("*");
 
-    if (summaryError) {
-      document.getElementById("storeList").textContent =
-        "Kunde inte ladda betyg: " + summaryError.message;
-      return;
+    const storeList = document.getElementById("storeList");
+    storeList.innerHTML = "";
+
+    if (stores && stores.length > 0) {
+      stores.forEach(store => {
+        const summary = summaries?.find(s => s.store_id === store.id);
+
+        const div = document.createElement("div");
+        div.className = "store-card";
+
+        // Namn (länk till store.html)
+        const name = document.createElement("h2");
+        name.innerHTML = `<a href="store.html?store=${store.id}" class="gold">${store.name}</a>`;
+        div.appendChild(name);
+
+        // Adress
+        if (store.address) {
+          const address = document.createElement("p");
+          address.textContent = store.address;
+          div.appendChild(address);
+        }
+
+        // Extern länk
+        if (store.link) {
+          const link = document.createElement("p");
+          link.innerHTML = `<a href="${store.link}" target="_blank">Besök hemsida</a>`;
+          div.appendChild(link);
+        }
+
+        // Betyg
+        const rating = document.createElement("div");
+        rating.className = "rating";
+        if (summary) {
+          rating.textContent =
+            `⭐ ${summary.average_rating || 0} (${summary.total_ratings} röster, ${summary.total_reviews} recensioner)`;
+        } else {
+          rating.textContent = "⭐ Inga betyg än.";
+        }
+        div.appendChild(rating);
+
+        storeList.appendChild(div);
+      });
+    } else {
+      storeList.textContent = "Inga butiker hittades.";
     }
-
-    // 3. Slå ihop butiker + summeringar
-    const listDiv = document.getElementById("storeList");
-    listDiv.innerHTML = "";
-    stores.forEach(store => {
-      const summary = summaries.find(s => s.store_id === store.id);
-      const card = document.createElement("div");
-      card.className = "store-card";
-
-      const title = document.createElement("h2");
-      const titleLink = document.createElement("a");
-      titleLink.href = `store.html?store=${store.id}`;
-      titleLink.textContent = store.name;
-      title.appendChild(titleLink);
-      card.appendChild(title);
-
-      const addr = document.createElement("p");
-      addr.textContent = store.address || "";
-      card.appendChild(addr);
-
-      if (store.link) {
-        const link = document.createElement("a");
-        link.href = store.link;
-        link.textContent = "Besök hemsida";
-        link.target = "_blank";
-        link.className = "external";
-        card.appendChild(link);
-      }
-
-      const rating = document.createElement("div");
-      rating.className = "rating";
-      if (summary) {
-        rating.textContent =
-          `⭐ ${summary.average_rating || 0} ( ${summary.total_ratings} röster, ${summary.total_reviews} recensioner )`;
-      } else {
-        rating.textContent = "⭐ Inga betyg än";
-      }
-      card.appendChild(rating);
-
-      listDiv.appendChild(card);
-    });
   }
 
   loadStores();
