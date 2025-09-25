@@ -25,7 +25,7 @@ body {
   font-size: 1.4rem;
   color: #d4af37;
   text-align: center;
-  margin: 3.5rem 0 1.5rem; /* nedflyttad så den inte krockar med hamburgaren */
+  margin: 5rem 0 1.5rem; /* nedflyttad så den inte krockar med hamburgaren */
   text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
 }
 
