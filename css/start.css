@@ -1,9 +1,16 @@
-/* === Base === */
-body {
+/* === Reset & Bas === */
+* {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
   font-family: "Merriweather", serif;
   background: #fdfdfc;
   color: #222;
+  display: flex;
+  min-height: 100vh;
 }
 
 /* === Sidebar === */
@@ -25,11 +32,11 @@ body {
   font-size: 1.4rem;
   color: #d4af37;
   text-align: center;
-  margin: 5rem 0 1.5rem; /* 🔹 nedflyttad för att inte krocka med hamburgaren */
+  margin-top: 5rem; /* flytta ner under hamburgaren */
+  margin-bottom: 1.5rem;
   text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
 }
 
-/* === Search box === */
 .search-box input {
   width: 90%;
   padding: 0.4rem;
@@ -40,21 +47,20 @@ body {
   display: block;
 }
 
-/* === Dropdowns === */
 .dropdown-btn {
   background: none;
   border: none;
   color: #fff;
+  padding: 0.6rem;
   text-align: left;
-  padding: 0.5rem;
   width: 100%;
-  font-size: 1rem;
   cursor: pointer;
-  outline: none;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
-.dropdown-btn .arrow {
-  float: right;
+.dropdown-btn:hover {
+  color: #d4af37;
 }
 
 .dropdown-container {
@@ -64,65 +70,49 @@ body {
 
 .dropdown-container a {
   display: block;
-  padding: 0.4rem 0;
-  color: #ddd;
+  color: #ccc;
+  padding: 0.3rem 0;
   text-decoration: none;
+  font-size: 0.95rem;
 }
 
 .dropdown-container a:hover {
   color: #d4af37;
 }
 
-/* === Buttons in sidebar === */
-.add-store,
-.support {
+.add-store, .support {
   display: block;
   margin-top: 1.5rem;
   text-align: center;
   padding: 0.6rem;
   background: #d4af37;
   color: #111;
-  text-decoration: none;
-  border-radius: 6px;
   font-weight: bold;
+  border-radius: 6px;
+  text-decoration: none;
 }
 
-.support {
-  background: #333;
-  color: #fff;
-  margin-top: 2rem;
-}
-
-/* === Overlay for mobile === */
-.overlay {
-  display: none;
-}
-
-.overlay.active {
-  display: block;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  z-index: 900;
+.add-store:hover, .support:hover {
+  background: #b8952e;
 }
 
 /* === Main content === */
 .main-content {
+  flex: 1;
   margin-left: 260px;
   padding: 2rem;
+  max-width: 1000px;
 }
 
 .page-title {
   text-align: center;
-  font-size: 2.2rem;
+  font-size: 2rem;
   margin-bottom: 1.5rem;
   color: #d4af37;
   text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
 }
 
+/* Banner */
 .banner {
   max-width: 800px;
   margin: 0 auto 2rem;
@@ -134,51 +124,38 @@ body {
   width: 100%;
   height: 300px;
   object-fit: cover;
-  object-position: center bottom; /* 🔹 fokus på nederdelen */
+  object-position: center bottom;
   display: block;
 }
 
+/* Intro */
 .intro {
-  max-width: 800px;
-  margin: 0 auto;
   font-size: 1.1rem;
   line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto;
   text-align: center;
 }
 
-/* === Stores grid (for city pages) === */
-.store-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  max-width: 1000px;
-  margin: 2rem auto;
+/* === Overlay (mobile) === */
+.overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  z-index: 900;
 }
 
-.store-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  padding: 1.5rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.overlay.active {
+  display: block;
 }
 
-.store-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-}
-
-.store-card h2 {
-  margin-top: 0;
-  color: #d4af37;
-}
-
-/* === Hamburger === */
+/* === Hamburger (mobile) === */
 .hamburger {
   display: none;
 }
 
-/* === Responsive === */
 @media (max-width: 768px) {
   .hamburger {
     display: block;
@@ -194,7 +171,7 @@ body {
   }
 
   .sidebar {
-    left: -300px; /* 🔹 göm sidomenyn på mobil */
+    left: -300px; /* gömd från början */
   }
 
   .sidebar.open {
@@ -203,13 +180,13 @@ body {
 
   .main-content {
     margin-left: 0;
-    padding: 1.5rem;
+    padding: 1rem;
   }
 
   .banner img {
-    height: auto;         /* 🔹 naturlig höjd */
-    max-height: 220px;    /* 🔹 begränsa */
-    object-fit: contain;  /* 🔹 visa hela bilden */
+    height: auto;
+    max-height: 220px;
+    object-fit: contain; /* visa hela bilden på mobil */
     object-position: center;
   }
 }
