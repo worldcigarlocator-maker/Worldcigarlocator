@@ -1,23 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <title>Store</title>
+  <title>Butik</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 2rem; }
-    .stars span { font-size: 2rem; cursor: pointer; color: #ccc; }
-    .stars span.active { color: gold; }
-    .review { margin: 1rem 0; padding: 0.5rem; border-bottom: 1px solid #ddd; }
-  </style>
+  <link rel="stylesheet" href="css/store.css">
 </head>
 <body>
-  <h1 id="storeName"></h1>
+  <h1 id="storeName">Butiksnamn</h1>
   <p id="storeAddress"></p>
-  <a id="storeLink" target="_blank"></a>
+  <p><a id="storeLink" target="_blank"></a></p>
 
   <h2>Betyg</h2>
-  <div id="ratingSummary"></div>
+  <div id="ratingSummary">Laddar betyg...</div>
   <div class="stars" id="stars"></div>
 
   <h2>Lämna recension</h2>
@@ -25,22 +20,20 @@
   <button id="submitReview">Skicka</button>
 
   <h2>Recensioner</h2>
-  <div id="reviews"></div>
+  <div id="reviews">Laddar recensioner...</div>
 
 <script>
-  // 🔑 Ditt Supabase-projekt
+  // 🔑 Din Supabase-info
   const supabaseUrl = "DIN_SUPABASE_URL";
   const supabaseKey = "DIN_SUPABASE_ANON_KEY";
   const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // Hämta store_id från URL
   const urlParams = new URLSearchParams(window.location.search);
   const storeId = urlParams.get("store");
 
   const starsContainer = document.getElementById("stars");
   let selectedRating = 0;
 
-  // Skapa 5 stjärnor
   for (let i = 1; i <= 5; i++) {
     const star = document.createElement("span");
     star.textContent = "★";
@@ -57,7 +50,6 @@
     });
   }
 
-  // 🚀 Hämta store-info
   async function loadStore() {
     const { data, error } = await supabaseClient
       .from("stores")
@@ -66,15 +58,15 @@
       .single();
 
     if (data) {
-      document.getElementById("storeName").textContent = data.name;
-      document.getElementById("storeAddress").textContent = data.address;
+      const nameElem = document.getElementById("storeName");
+      nameElem.innerHTML = `<a href="${data.link}" target="_blank">${data.name}</a>`;
+      document.getElementById("storeAddress").textContent = data.address || "";
       const link = document.getElementById("storeLink");
-      link.textContent = data.link;
-      link.href = data.link;
+      link.textContent = data.link || "";
+      link.href = data.link || "#";
     }
   }
 
-  // 🚀 Hämta rating-sammanfattning från vyn
   async function loadRatingSummary() {
     const { data, error } = await supabaseClient
       .from("store_ratings_summary")
@@ -84,14 +76,13 @@
 
     if (data) {
       document.getElementById("ratingSummary").textContent =
-        `Snittbetyg: ${data.average_rating || 0} (${data.total_ratings} röster, ${data.total_reviews} recensioner)`;
+        `⭐ ${data.average_rating || 0} (${data.total_ratings} röster, ${data.total_reviews} recensioner)`;
     } else {
       document.getElementById("ratingSummary").textContent =
-        "Inga betyg än.";
+        "⭐ Inga betyg än.";
     }
   }
 
-  // 🚀 Hämta recensioner
   async function loadReviews() {
     const { data, error } = await supabaseClient
       .from("ratings")
@@ -101,17 +92,18 @@
 
     const reviewsDiv = document.getElementById("reviews");
     reviewsDiv.innerHTML = "";
-    if (data) {
+    if (data && data.length > 0) {
       data.forEach(r => {
         const div = document.createElement("div");
         div.className = "review";
         div.textContent = `⭐ ${r.rating} – ${r.review || ""}`;
         reviewsDiv.appendChild(div);
       });
+    } else {
+      reviewsDiv.textContent = "Inga recensioner än.";
     }
   }
 
-  // 🚀 Spara ny recension
   document.getElementById("submitReview").addEventListener("click", async () => {
     const text = document.getElementById("reviewText").value;
     if (!selectedRating) {
@@ -134,7 +126,6 @@
     }
   });
 
-  // Ladda allt
   loadStore();
   loadRatingSummary();
   loadReviews();
