@@ -1,0 +1,92 @@
+/* 🎨 Grundinställningar */
+body {
+  font-family: Arial, sans-serif;
+  margin: 2rem;
+  background: #fdfdfc;
+  color: #333;
+}
+
+h1, h2 {
+  margin-top: 0;
+}
+
+/* ✨ Guld-stil för rubriker & länkar */
+.gold {
+  color: #b8860b;
+  transition: color 0.2s ease;
+}
+.gold:hover {
+  color: #daa520;
+  text-decoration: underline;
+}
+
+/* 🔗 Vanliga länkar */
+a {
+  color: #0077cc;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* ⭐ Stjärnor */
+.stars span {
+  font-size: 2rem;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.2s ease;
+}
+.stars span.active {
+  color: gold;
+}
+
+/* 📝 Recensioner */
+.review {
+  margin: 1rem 0;
+  padding: 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
+
+/* 📦 Kort (list-stores) */
+.store-card {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.store-card h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+.store-card p {
+  margin: 0.3rem 0;
+  color: #444;
+}
+.rating {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* 🟨 Knapp */
+button {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: #b8860b;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+button:hover {
+  background: #daa520;
+}
+
+/* 📄 Textarea */
+textarea {
+  width: 100%;
+  height: 80px;
+  margin-top: 0.5rem;
+}
