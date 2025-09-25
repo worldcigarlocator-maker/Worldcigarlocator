@@ -1,126 +1,22 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/global.css" />
-  <link rel="stylesheet" href="css/start.css" />
+  <link rel="stylesheet" href="css/global.css">
 </head>
 <body>
-  <!-- Hamburger -->
-  <button class="hamburger" aria-label="Open menu">☰</button>
+  <div class="sidebar">
+    <h2>World Cigar Locator</h2>
+    <ul id="sidebarMenu"></ul>
+  </div>
 
-  <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
-    <h2 class="sidebar-title">World Cigar Locator</h2>
+  <div class="main">
+    <h1>Välkommen</h1>
+    <p>Välj en stad i menyn för att hitta cigarrbutiker och lounger.</p>
+  </div>
 
-    <div class="sidebar-section">
-      <label for="sidebar-search">Sök</label>
-      <input id="sidebar-search" type="text" placeholder="Sök stad eller butik..." />
-    </div>
-
-    <div class="sidebar-section">
-      <details>
-        <summary>Continents</summary>
-
-        <details>
-          <summary>Europe</summary>
-          <ul>
-            <li><a href="city.html?city=Stockholm">Stockholm</a></li>
-            <li><a href="city.html?city=Gothenburg">Gothenburg</a></li>
-            <li><a href="city.html?city=Norrköping">Norrköping</a></li>
-            <li><a href="city.html?city=Paris">Paris</a></li>
-            <li><a href="city.html?city=Berlin">Berlin</a></li>
-          </ul>
-        </details>
-
-        <details>
-          <summary>North America</summary>
-          <ul>
-            <li><a href="city.html?city=New%20York">New York</a></li>
-            <li><a href="city.html?city=Toronto">Toronto</a></li>
-          </ul>
-        </details>
-
-        <details>
-          <summary>Asia</summary>
-          <ul>
-            <li><a href="city.html?city=Tokyo">Tokyo</a></li>
-            <li><a href="city.html?city=Bangkok">Bangkok</a></li>
-          </ul>
-        </details>
-
-        <details>
-          <summary>South America</summary>
-          <ul>
-            <li><a href="city.html?city=Buenos%20Aires">Buenos Aires</a></li>
-          </ul>
-        </details>
-
-        <details>
-          <summary>Oceania</summary>
-          <ul>
-            <li><a href="city.html?city=Sydney">Sydney</a></li>
-          </ul>
-        </details>
-
-        <details>
-          <summary>Africa</summary>
-          <ul>
-            <li><a href="city.html?city=Cape%20Town">Cape Town</a></li>
-          </ul>
-        </details>
-      </details>
-    </div>
-
-    <div class="sidebar-section">
-      <a class="btn wide" href="add-store.html">➕ Add a Store</a>
-    </div>
-
-    <div class="sidebar-section">
-      <h3>Support</h3>
-      <p><a href="list-store.html">Visa alla butiker</a></p>
-      <p><a href="mailto:worldcigarlocator@gmail.com">Kontakt</a></p>
-    </div>
-  </aside>
-
-  <!-- Overlay (mobil) -->
-  <div class="overlay" id="overlay"></div>
-
-  <!-- Main content -->
-  <main class="main">
-    <h1 class="gold">World Cigar Locator</h1>
-    <p>Find cigar stores and lounges near you…</p>
-
-    <div class="hero">
-      <img src="images/paris.jpg" alt="Paris" class="hero-img" />
-    </div>
-
-    <div class="intro">
-      <p>
-        WCL föddes ur ett enkelt behov: att alltid veta var man hittar en bra cigarr,
-        oavsett var man är. Här kan du hitta butiker, lounger och favoritplatser för en
-        skön rök – även på resande fot.
-      </p>
-      <p>Kind regards,<br>Bakerman</p>
-    </div>
-  </main>
-
-  <script>
-    // Enkel sidebar-toggle (krockar inte med något annat)
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const burger  = document.querySelector('.hamburger');
-
-    function openSidebar(){ sidebar.classList.add('open'); overlay.classList.add('show'); }
-    function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
-
-    burger.addEventListener('click', openSidebar);
-    overlay.addEventListener('click', closeSidebar);
-
-    // Stäng vid ESC
-    window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeSidebar(); });
-  </script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/start.js"></script>
 </body>
 </html>
