@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World Cigar Locator - Paris</title>
-  <link rel="stylesheet" href="css/start.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Paris – Stores & Lounges</title>
+  <link rel="stylesheet" href="css/city.css"/>
 </head>
 <body>
   <!-- Hamburger för mobil -->
   <button class="hamburger">☰</button>
 
-  <!-- Sidebar (samma som i start.html) -->
+  <!-- Sidebar -->
   <aside class="sidebar">
     <h1 class="sidebar-title">World Cigar Locator</h1>
 
@@ -18,21 +18,26 @@
       <input type="text" placeholder="Search...">
     </div>
 
-    <button class="dropdown-btn">
-      Europe <span class="arrow">▼</span>
-    </button>
+    <!-- Europe -->
+    <button class="dropdown-btn">Europe <span class="arrow">▼</span></button>
     <div class="dropdown-container">
-      <a href="city.html">Sweden</a>
-      <a href="city.html">Norway</a>
-      <a href="city.html" class="active">France</a>
+      <!-- France -->
+      <button class="dropdown-btn">France <span class="arrow">▼</span></button>
+      <div class="dropdown-container">
+        <a href="city.html">Paris</a>
+        <a href="#">Marseille</a>
+        <a href="#">Lyon</a>
+        <a href="#">Toulouse</a>
+        <a href="#">Nice</a>
+      </div>
+      <!-- Lägg in fler länder/städer här -->
     </div>
 
-    <button class="dropdown-btn">
-      USA <span class="arrow">▼</span>
-    </button>
+    <!-- North America -->
+    <button class="dropdown-btn">North America <span class="arrow">▼</span></button>
     <div class="dropdown-container">
-      <a href="city.html">New York</a>
-      <a href="city.html">Miami</a>
+      <a href="#">New York</a>
+      <a href="#">Miami</a>
     </div>
 
     <a href="#" class="add-store">+ Add a Store</a>
@@ -42,47 +47,47 @@
   <!-- Overlay -->
   <div class="overlay"></div>
 
-  <!-- Main content -->
+  <!-- Main Content -->
   <main class="main-content">
-    <h1 class="page-title">Paris</h1>
-
-    <section class="city-intro">
-      <p>
-        Here you can find recommended cigar lounges and stores in Paris.  
-        Select a location to learn more, or add your own if it's missing.
-      </p>
-    </section>
+    <h1 class="city-title">Paris – Stores & Lounges</h1>
+    <p class="city-intro">
+      Discover the best cigar stores and lounges in Paris. Whether you’re a local or just visiting, 
+      here are some of the top places to enjoy a fine cigar.
+    </p>
 
     <section class="store-grid">
       <div class="store-card">
         <h2>La Casa del Habano</h2>
-        <p><strong>Address:</strong> 32 Rue de l'Arcade, 75008 Paris</p>
-        <p>Classic Cuban cigar lounge with elegant atmosphere and wide selection.</p>
+        <p><strong>Address:</strong> 5 Rue de la Paix, Paris</p>
+        <p>Exclusive Cuban cigars and a premium lounge.</p>
+        <a href="store.html">See more</a>
       </div>
 
       <div class="store-card">
-        <h2>Cigare & Co</h2>
-        <p><strong>Address:</strong> 21 Rue d'Artois, 75008 Paris</p>
-        <p>Specialized shop with premium cigars and accessories.</p>
+        <h2>Le Lotus Cigar Lounge</h2>
+        <p><strong>Address:</strong> 22 Avenue Montaigne, Paris</p>
+        <p>Luxury lounge with wide selection of rare cigars.</p>
+        <a href="store.html">See more</a>
       </div>
 
       <div class="store-card">
-        <h2>Le Lotus</h2>
-        <p><strong>Address:</strong> 12 Avenue de la Grande Armée, 75017 Paris</p>
-        <p>Cosy cigar lounge with cocktails and high-quality cigars.</p>
+        <h2>Club Havana Paris</h2>
+        <p><strong>Address:</strong> 12 Boulevard Saint-Germain, Paris</p>
+        <p>Relaxed atmosphere with live jazz nights.</p>
+        <a href="store.html">See more</a>
       </div>
     </section>
   </main>
 
-  <!-- Script -->
+  <!-- JS -->
   <script>
-    // Dropdowns
+    // Dropdown toggle
     document.querySelectorAll(".dropdown-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         btn.classList.toggle("active");
-        const container = btn.nextElementSibling;
-        container.style.display =
-          container.style.display === "block" ? "none" : "block";
+        const content = btn.nextElementSibling;
+        content.style.display =
+          content.style.display === "block" ? "none" : "block";
       });
     });
 
