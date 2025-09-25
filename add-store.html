@@ -1,37 +1,36 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Lägg till butik</title>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <title>Add Store – World Cigar Locator</title>
   <link rel="stylesheet" href="css/global.css">
 </head>
 <body>
-  <h1 class="gold">Lägg till butik</h1>
+  <div class="container">
+    <h1 class="gold-title">➕ Add a Store</h1>
+    <form id="storeForm" class="form-box">
+      <label for="storeName">Store Name</label>
+      <input type="text" id="storeName" placeholder="Enter store name" required>
 
-  <form id="storeForm">
-    <label for="storeName">Namn:</label>
-    <input type="text" id="storeName" required>
+      <label for="storeAddress">Address</label>
+      <input type="text" id="storeAddress" placeholder="Enter address" required>
 
-    <label for="storeAddress">Adress:</label>
-    <input type="text" id="storeAddress" required>
+      <label for="storeLink">Website (optional)</label>
+      <input type="url" id="storeLink" placeholder="https://example.com">
 
-    <label for="citySelect">Stad:</label>
-    <select id="citySelect" required>
-      <option value="">-- Välj stad --</option>
-      <option value="__new__">➕ Lägg till ny stad</option>
-    </select>
-    <input type="text" id="newCityInput" placeholder="Skriv ny stad" style="display:none; margin-top:5px;">
+      <label for="storeCity">City</label>
+      <select id="storeCity"></select>
 
-    <label for="storeLink">Länk (frivilligt):</label>
-    <input type="url" id="storeLink">
+      <input type="text" id="newCity" placeholder="Enter new city" style="display:none;">
 
-    <button type="submit">Spara butik</button>
-  </form>
+      <button type="submit" class="btn-gold">Save Store</button>
+    </form>
 
-  <p id="status"></p>
+    <p id="status" class="status"></p>
+  </div>
 
-  <!-- 👇 Länkar till din externa JS-fil -->
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/add-store.js"></script>
 </body>
 </html>
