@@ -1,230 +1,162 @@
-/* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
-  font-family: "Merriweather", serif;
-  background: #fdfdfc;
-  color: #222;
+  margin: 0;
+  font-family: Arial, sans-serif;
   display: flex;
 }
 
 /* Sidebar */
 .sidebar {
-  width: 260px;
-  background: #1c1c1c;
+  width: 250px;
+  background: #111;
   color: #fff;
   height: 100vh;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
   position: fixed;
   left: 0;
   top: 0;
+  padding: 1rem;
+  overflow-y: auto;
+  transition: left 0.3s ease;
 }
 
-.sidebar h2 {
-  margin-bottom: 1.5rem;
+.sidebar-title {
   font-size: 1.4rem;
-  color: #d4af37; /* guld */
-}
-
-/* Search */
-.search-box {
-  margin-bottom: 1.5rem;
+  color: #d4af37;
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
 .search-box input {
   width: 100%;
   padding: 0.5rem;
-  border-radius: 6px;
   border: none;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+/* Dropdowns */
+.dropdown-btn {
+  background: none;
+  color: #fff;
+  padding: 0.6rem;
+  border: none;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
   outline: none;
   font-size: 1rem;
 }
 
-/* Navigation */
-.sidebar nav ul {
-  list-style: none;
-}
-
-.sidebar nav li {
-  margin-bottom: 0.5rem;
-}
-
-.dropdown-btn {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1rem;
-  text-align: left;
-  width: 100%;
-  padding: 0.5rem 0;
-  cursor: pointer;
-}
-
+.dropdown-btn.active,
 .dropdown-btn:hover {
   color: #d4af37;
 }
 
-.dropdown-content {
+.dropdown-container {
   display: none;
   padding-left: 1rem;
 }
 
-.dropdown-content li {
-  margin: 0.4rem 0;
-}
-
-.dropdown-content a {
-  color: #ccc;
-  text-decoration: none;
-}
-
-.dropdown-content a:hover {
-  color: #fff;
-}
-
-/* Add Store Button */
-.sidebar-section {
-  margin-top: 2rem;
-}
-
-.sidebar-button {
+.dropdown-container a {
   display: block;
-  background: #d4af37;
-  color: #fff;
-  text-align: center;
-  padding: 0.7rem 1rem;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: background 0.2s ease;
-}
-
-.sidebar-button:hover {
-  background: #b89626;
-}
-
-/* Support */
-.support {
-  margin-top: auto; /* put it at the bottom */
-  font-size: 0.95rem;
-  text-align: center;
-}
-
-.support .sidebar-link {
-  color: #ccc;
+  padding: 0.4rem 0;
+  color: #ddd;
   text-decoration: none;
 }
 
-.support .sidebar-link:hover {
+.dropdown-container a:hover {
   color: #d4af37;
 }
 
-/* Main Content */
+/* Add store button */
+.add-store {
+  display: block;
+  margin: 1.5rem 0;
+  padding: 0.7rem;
+  text-align: center;
+  background: #d4af37;
+  color: #111;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Support link */
+.support {
+  margin-top: auto;
+  text-align: center;
+}
+
+.support a {
+  color: #bbb;
+  text-decoration: none;
+}
+
+.support a:hover {
+  color: #fff;
+}
+
+/* Main content */
 .main-content {
-  margin-left: 260px;
+  margin-left: 250px;
   padding: 2rem;
   flex: 1;
 }
 
+/* Banner */
 .banner {
-  max-width: 1100px;
-  margin: 0 auto 2rem;
+  max-width: 1000px;
+  margin: 0 auto 1.5rem;
   border-radius: 12px;
   overflow: hidden;
 }
 
 .banner img {
   width: 100%;
-  height: auto;
-  max-height: 400px;   /* ↓ här styr vi höjden */
+  max-height: 400px;
   object-fit: cover;
   display: block;
 }
 
+/* Intro text */
 .intro {
   max-width: 800px;
   margin: 0 auto;
   font-size: 1.1rem;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
-.intro h1 {
-  color: #2c2c2c;
-  font-size: 2rem;
-  margin-bottom: 1rem;
+/* Hamburger (mobile) */
+.hamburger {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  font-size: 1.8rem;
+  background: none;
+  border: none;
+  color: #111;
+  z-index: 1100;
+  cursor: pointer;
+  display: none;
 }
 
-.intro p {
-  margin-bottom: 1rem;
-}
-.page-title {
-  text-align: center;
-  font-size: 2.2rem;
-  margin-bottom: 1.5rem;
-  color: #d4af37;            /* guld */
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-  font-family: "Merriweather", serif;
-}
-/* === MOBILE STYLES === */
+/* Responsive */
 @media (max-width: 768px) {
-  body {
-    flex-direction: column; /* sidebar ovanför/utanför */
-  }
-
-  /* Sidebar göms på mobil */
   .sidebar {
-    position: fixed;
     left: -260px;
-    top: 0;
-    height: 100vh;
-    transition: left 0.3s ease;
     z-index: 1000;
   }
-
   .sidebar.open {
     left: 0;
   }
-
-  /* Hamburger knapp */
   .hamburger {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    font-size: 1.8rem;
-    background: none;
-    border: none;
-    color: #222;
-    z-index: 1100;
-    cursor: pointer;
+    display: block;
   }
-
-  /* Main content */
   .main-content {
     margin-left: 0;
     padding: 1rem;
   }
-
-  .page-title {
-    font-size: 1.6rem;
-  }
-
-  .banner {
-    max-width: 100%;
-    margin: 0 auto 1.5rem;
-  }
-
   .banner img {
-    max-height: 250px; /* mindre höjd på mobil */
-  }
-
-  .intro {
-    font-size: 1rem;
-    line-height: 1.4;
+    max-height: 250px;
   }
 }
+
