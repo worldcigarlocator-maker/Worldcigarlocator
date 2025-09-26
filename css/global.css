@@ -121,7 +121,34 @@ textarea {
     padding: 0.8rem;
   }
 
-  .stars {
-    font-size: 1.1rem;
-  }
+.stars {
+  display: inline-block;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.star {
+  position: relative;
+  display: inline-block;
+  color: #ccc; /* grå för tomma */
+}
+
+.star.full {
+  color: gold;
+}
+
+.star.empty {
+  color: #ccc;
+}
+
+.star.half {
+  color: #ccc; /* bas */
+}
+.star.half::before {
+  content: "★";
+  color: gold;
+  position: absolute;
+  left: 0;
+  width: 50%;
+  overflow: hidden;
 }
