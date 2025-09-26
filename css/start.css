@@ -1,104 +1,102 @@
-/* ===== Namespace: START ===== */
-.wcl-start, .wcl-start * { box-sizing: border-box; }
-
-/* Layout */
-.wcl-start {
-  display: flex;
-  background: #fdfdfc;
-  color: #222;
-  min-height: 100vh;
+/* ===== Start-sida putsad ===== */
+body {
   margin: 0;
   font-family: Arial, sans-serif;
+  background: #fdfdfc;
+  color: #222;
 }
 
-/* Sidebar (desktop default) */
-.wcl-sidebar{
+/* Sidebar */
+.sidebar {
   position: fixed;
   top: 0; left: 0;
-  width: 280px;
+  width: 240px;
   height: 100vh;
   background: #111;
   color: #fff;
-  padding: 16px;
+  padding: 1rem;
   overflow-y: auto;
-  z-index: 1000;
-  box-shadow: 2px 0 8px rgba(0,0,0,.2);
-  transform: translateX(0);           /* synlig på desktop */
-  transition: transform .25s ease;
 }
 
-.wcl-sidebar__title{ color:#b8860b; margin: 0 0 10px; }
-.wcl-sidebar__section{ margin: 16px 0; }
-.wcl-list{ list-style: none; padding-left: 14px; margin: 6px 0; }
-.wcl-list li{ margin: 6px 0; }
-.wcl-sidebar a{ color:#fff; text-decoration: none; }
-.wcl-sidebar a:hover{ color:#b8860b; }
+.sidebar h2 {
+  color: #b8860b;
+  margin-top: 0;
+}
 
-/* Inputs + knappar i sidomeny */
-.wcl-label{ display:block; color:#ddd; font-size:.9rem; margin-bottom:6px; }
-.wcl-input{
-  width:100%; padding:.55rem .65rem; border:1px solid #333; border-radius:8px;
-  background:#0e0e0e; color:#fff;
+.sidebar a {
+  color: #fff;
+  text-decoration: none;
 }
-.wcl-btn{ display:inline-block; padding:.6rem 1rem; border-radius:8px; text-align:center; }
-.wcl-btn--block{ display:block; width:100%; }
-.wcl-btn--gold{ background:#b8860b; color:#fff; }
-.wcl-btn--gold:hover{ background:#d4a017; }
 
-/* Burger & overlay (mobil) */
-.wcl-burger{
-  display:none;
-  position: fixed; top: 12px; left: 12px;
-  z-index: 1101;
-  font-size: 22px; line-height: 1;
-  border: 1px solid #ddd; background:#fff; color:#b8860b;
-  padding: 6px 10px; border-radius: 8px; cursor: pointer;
+.sidebar a:hover {
+  color: #b8860b;
 }
-.wcl-overlay{
-  display: none;
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.45);
-  z-index: 900;
-  opacity: 0; transition: opacity .2s ease;
-}
-.wcl-overlay.is-show{ display:block; opacity:1; }
 
 /* Main */
-.wcl-main{
-  margin-left: 280px;               /* plats för sidebar */
-  width: 100%;
-  max-width: 1200px;
-  padding: 24px;
+main {
+  margin-left: 240px;
+  padding: 2rem;
+  max-width: 1000px;
 }
 
-/* Hero-bild: Tvinga maxhöjd så den aldrig blir "jätte stor" */
-.wcl-hero{ margin-bottom: 18px; }
-.wcl-hero__img{
+/* Hero-bild */
+.hero {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.hero img {
   width: 100%;
   height: auto;
-  max-height: 360px !important;     /* <- säker cap */
+  max-height: 300px;
   object-fit: cover;
-  object-position: center 55%;
   border-radius: 12px;
-  display: block;
+}
+
+/* Rubrik */
+.hero h1 {
+  color: #b8860b;
+  margin-bottom: 1rem;
 }
 
 /* Intro */
-.wcl-intro .wcl-title{ color:#b8860b; margin: 6px 0 8px; }
-.wcl-intro p{ color:#444; max-width: 70ch; }
+.intro {
+  text-align: center;
+  max-width: 70ch;
+  margin: 0 auto;
+}
 
-/* ===== Responsivt (mobil & surfplatta) ===== */
-@media (max-width: 1024px){
-  .wcl-burger{ display:block; }
-  .wcl-sidebar{
-    transform: translateX(-100%);   /* gömd som default på mobil */
+.intro p {
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+/* Knappar */
+.btn {
+  display: inline-block;
+  background: #b8860b;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  margin: 0.5rem;
+  transition: background 0.2s;
+}
+.btn:hover {
+  background: #d4a017;
+}
+
+/* Responsivt */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
   }
-  .wcl-sidebar.is-open{
-    transform: translateX(0);       /* slide in */
+  .sidebar.is-open {
+    transform: translateX(0);
   }
-  .wcl-main{
-    margin-left: 0;                 /* inget sidomarginal på mobil */
-    padding: 18px;
+  main {
+    margin-left: 0;
+    padding: 1rem;
   }
-  .wcl-hero__img{ max-height: 280px !important; }
 }
