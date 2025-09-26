@@ -2,21 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>World Cigar Locator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Store</title>
   <link rel="stylesheet" href="css/global.css">
 </head>
 <body>
-  <div class="sidebar">
-    <h2>World Cigar Locator</h2>
-    <ul id="sidebarMenu"></ul>
-  </div>
+  <main>
+    <h1 id="store-name">Loading...</h1>
+    <p id="store-address"></p>
+    <p><a id="store-link" target="_blank"></a></p>
 
-  <div class="main">
-    <h1>Välkommen</h1>
-    <p>Välj en stad i menyn för att hitta cigarrbutiker och lounger.</p>
-  </div>
+    <!-- Rating summary -->
+    <div class="card">
+      <h2>Rating</h2>
+      <div id="rating-summary">Loading ratings...</div>
+    </div>
 
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="js/start.js"></script>
+    <!-- Add review -->
+    <div class="card">
+      <h2>Leave a Review</h2>
+      <div id="star-rating" class="stars"></div>
+      <textarea id="review-text" placeholder="Write your review..."></textarea>
+      <button id="submit-review">Submit</button>
+      <p id="status"></p>
+    </div>
+
+    <!-- Reviews list -->
+    <div class="card">
+      <h2>Reviews</h2>
+      <div id="reviews-list">Loading reviews...</div>
+    </div>
+  </main>
+
+  <!-- Supabase & JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/store.js"></script>
 </body>
 </html>
