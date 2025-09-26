@@ -59,18 +59,32 @@ document.addEventListener("DOMContentLoaded", async () => {
       : null;
     const total = ratingData?.total_ratings || 0;
 
-    // Rendera stjärnor
-    let starsHtml = "";
-    if (avg) {
-      const fullStars = Math.floor(avg);
-      const halfStar = avg - fullStars >= 0.5;
-      const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+    // Rendera stjärnor (med halva)
+function renderStars(avg) {
+  if (!avg) return "No ratings yet";
 
-      starsHtml += "★".repeat(fullStars);
-      if (halfStar) starsHtml += "☆"; // halv stjärna (kan bytas mot annan symbol)
-      starsHtml += "✩".repeat(emptyStars);
-    } else {
-      starsHtml = "No ratings yet";
+  const fullStars = Math.floor(avg);
+  const halfStar = avg - fullStars >= 0.5;
+  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+  let starsHtml = "";
+
+  // hela stjärnor
+  for (let i = 0; i < fullStars; i++) {
+    starsHtml += `<span class="star full">★</span>`;
+  }
+
+  // halv stjärna
+  if (halfStar) {
+    starsHtml += `<span class="star half">★</span>`;
+  }
+
+  // tomma stjärnor
+  for (let i = 0; i < emptyStars; i++) {
+    starsHtml += `<span class="star empty">★</span>`;
+  }
+
+  return starsHtml;
     }
 
     // Skapa kort
