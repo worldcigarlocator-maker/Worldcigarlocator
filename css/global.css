@@ -180,3 +180,34 @@ textarea {
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
+.stars {
+  display: inline-block;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.star {
+  position: relative;
+  display: inline-block;
+  color: #ccc; /* grå för tomma */
+}
+
+.star.full {
+  color: gold;
+}
+
+.star.empty {
+  color: #ccc;
+}
+
+.star.half {
+  color: #ccc; /* bas */
+}
+.star.half::before {
+  content: "★";
+  color: gold;
+  position: absolute;
+  left: 0;
+  width: 50%;
+  overflow: hidden;
+}
