@@ -1,137 +1,128 @@
-/* DEBUG: syns det? */
-body { outline: 6px solid hotpink !important; }
-
-/* ===== Start-sida putsad ===== */
-body.wcl-start {
+/* === Reset & Bas === */
+* {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #fdfdfc;
-  color: #222;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* ===== Sidebar ===== */
+body.wcl-start {
+  font-family: "Merriweather", serif;
+  background: #fdfdfc;
+  color: #222;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* === Sidebar === */
 .wcl-sidebar {
-  position: fixed;
-  top: 0; left: 0;
-  width: 240px;
-  height: 100vh;
+  width: 260px;
   background: #111;
   color: #fff;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
   padding: 1rem;
   overflow-y: auto;
+  transition: left 0.3s ease;
   z-index: 1000;
 }
 
 .wcl-sidebar__title {
-  color: #b8860b;
-  margin-top: 0;
+  font-size: 1.4rem;
+  color: #d4af37;
+  text-align: center;
+  margin-top: 5rem; /* flytta ner under hamburgaren */
+  margin-bottom: 1.5rem;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
 }
 
-.wcl-sidebar a {
-  color: #fff;
+.wcl-input {
+  width: 90%;
+  padding: 0.4rem;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 6px;
+  margin: 0 auto 1rem;
+  display: block;
+}
+
+.wcl-list a {
+  display: block;
+  color: #ccc;
+  padding: 0.3rem 0;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.wcl-list a:hover {
+  color: #d4af37;
+}
+
+.wcl-btn {
+  display: block;
+  margin-top: 1.5rem;
+  text-align: center;
+  padding: 0.6rem;
+  background: #d4af37;
+  color: #111;
+  font-weight: bold;
+  border-radius: 6px;
   text-decoration: none;
 }
 
-.wcl-sidebar a:hover {
-  color: #b8860b;
+.wcl-btn:hover {
+  background: #b8952e;
 }
 
-.wcl-list {
-  list-style: none;
-  padding-left: 1rem;
-  margin: 0;
-}
-
-.wcl-subtitle {
-  margin-top: 1rem;
-  color: #b8860b;
-}
-
-/* ===== Main ===== */
+/* === Main content === */
 .wcl-main {
-  margin-left: 240px;
+  flex: 1;
+  margin-left: 260px;
   padding: 2rem;
   max-width: 1000px;
 }
 
-/* ===== Hero ===== */
-.wcl-hero {
+.wcl-title {
   text-align: center;
+  font-size: 2rem;
   margin-bottom: 1.5rem;
+  color: #d4af37;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Hero */
+.wcl-hero {
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .wcl-hero__img {
   width: 100%;
-  height: auto;
-  max-height: 300px;
+  height: 300px;
   object-fit: cover;
-  border-radius: 12px;
-}
-
-/* ===== Rubrik ===== */
-.wcl-title {
-  color: #b8860b;
-  margin-bottom: 1rem;
-}
-
-/* ===== Intro ===== */
-.wcl-intro {
-  text-align: center;
-  max-width: 70ch;
-  margin: 0 auto;
-}
-
-.wcl-intro p {
-  margin-bottom: 1rem;
-  line-height: 1.5;
-}
-
-/* ===== Knappar ===== */
-.wcl-btn {
-  display: inline-block;
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  text-decoration: none;
-  margin: 0.5rem;
-  transition: background 0.2s;
-  text-align: center;
-}
-
-.wcl-btn--gold {
-  background: #b8860b;
-  color: #fff;
-}
-
-.wcl-btn--gold:hover {
-  background: #d4a017;
-}
-
-.wcl-btn--block {
+  object-position: center bottom;
   display: block;
-  width: 100%;
 }
 
-/* ===== Hamburger (mobil) ===== */
-.wcl-burger {
-  display: none;
-  position: fixed;
-  top: 1rem; left: 1rem;
-  z-index: 1100;
-  background: #111;
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
-  font-size: 1.5rem;
-  cursor: pointer;
-  border-radius: 4px;
+/* Intro */
+.wcl-intro {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
 }
 
+/* === Overlay (mobile) === */
 .wcl-overlay {
-  display: none;
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.6);
+  display: none;
   z-index: 900;
 }
 
@@ -139,21 +130,42 @@ body.wcl-start {
   display: block;
 }
 
-/* ===== Responsivt ===== */
+/* === Hamburger (mobile) === */
+.wcl-burger {
+  display: none;
+}
+
 @media (max-width: 768px) {
+  .wcl-burger {
+    display: block;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 2000;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #d4af37;
+    cursor: pointer;
+  }
+
   .wcl-sidebar {
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    width: 220px;
+    left: -300px; /* gömd från början */
   }
+
   .wcl-sidebar.is-open {
-    transform: translateX(0);
+    left: 0;
   }
+
   .wcl-main {
     margin-left: 0;
     padding: 1rem;
   }
-  .wcl-burger {
-    display: block;
+
+  .wcl-hero__img {
+    height: auto;
+    max-height: 220px;
+    object-fit: contain; /* visa hela bilden på mobil */
+    object-position: center;
   }
 }
