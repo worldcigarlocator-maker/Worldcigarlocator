@@ -1,100 +1,104 @@
-/* ====== Layout ====== */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
+/* ===== Namespace: START ===== */
+.wcl-start, .wcl-start * { box-sizing: border-box; }
+
+/* Layout */
+.wcl-start {
+  display: flex;
   background: #fdfdfc;
   color: #222;
-  display: flex;
+  min-height: 100vh;
+  margin: 0;
+  font-family: Arial, sans-serif;
 }
 
-/* Sidebar (desktop) */
-.sidebar {
-  width: 250px;
-  background: #111;
-  color: white;
+/* Sidebar (desktop default) */
+.wcl-sidebar{
+  position: fixed;
+  top: 0; left: 0;
+  width: 280px;
   height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
+  background: #111;
+  color: #fff;
+  padding: 16px;
   overflow-y: auto;
-  padding: 1rem;
-  box-sizing: border-box;
-  transition: left 0.3s ease;
+  z-index: 1000;
+  box-shadow: 2px 0 8px rgba(0,0,0,.2);
+  transform: translateX(0);           /* synlig på desktop */
+  transition: transform .25s ease;
 }
 
-.sidebar h2 {
-  color: #b8860b;
-  margin-top: 0;
-}
+.wcl-sidebar__title{ color:#b8860b; margin: 0 0 10px; }
+.wcl-sidebar__section{ margin: 16px 0; }
+.wcl-list{ list-style: none; padding-left: 14px; margin: 6px 0; }
+.wcl-list li{ margin: 6px 0; }
+.wcl-sidebar a{ color:#fff; text-decoration: none; }
+.wcl-sidebar a:hover{ color:#b8860b; }
 
-.sidebar a {
-  display: block;
-  padding: 0.4rem 0;
-  color: white;
-  text-decoration: none;
+/* Inputs + knappar i sidomeny */
+.wcl-label{ display:block; color:#ddd; font-size:.9rem; margin-bottom:6px; }
+.wcl-input{
+  width:100%; padding:.55rem .65rem; border:1px solid #333; border-radius:8px;
+  background:#0e0e0e; color:#fff;
 }
+.wcl-btn{ display:inline-block; padding:.6rem 1rem; border-radius:8px; text-align:center; }
+.wcl-btn--block{ display:block; width:100%; }
+.wcl-btn--gold{ background:#b8860b; color:#fff; }
+.wcl-btn--gold:hover{ background:#d4a017; }
 
-.sidebar a:hover {
-  color: #b8860b;
+/* Burger & overlay (mobil) */
+.wcl-burger{
+  display:none;
+  position: fixed; top: 12px; left: 12px;
+  z-index: 1101;
+  font-size: 22px; line-height: 1;
+  border: 1px solid #ddd; background:#fff; color:#b8860b;
+  padding: 6px 10px; border-radius: 8px; cursor: pointer;
 }
-
-/* Main content */
-.main {
-  margin-left: 250px;
-  padding: 1rem;
-  flex: 1;
-}
-
-.banner img {
-  width: 100%;
-  max-height: 350px;   /* <-- gör bilden lagom stor */
-  object-fit: cover;   /* fyller utan att bli utdragen */
-  border-radius: 8px;
-  margin-bottom: 1rem;
-}
-}
-
-/* ====== Mobile ====== */
-.hamburger {
+.wcl-overlay{
   display: none;
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  font-size: 1.8rem;
-  color: #b8860b;
-  background: none;
-  border: none;
-  cursor: pointer;
-  z-index: 1100;
-}
-
-.overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
   z-index: 900;
+  opacity: 0; transition: opacity .2s ease;
+}
+.wcl-overlay.is-show{ display:block; opacity:1; }
+
+/* Main */
+.wcl-main{
+  margin-left: 280px;               /* plats för sidebar */
+  width: 100%;
+  max-width: 1200px;
+  padding: 24px;
 }
 
-@media (max-width: 768px) {
-  .sidebar {
-    left: -260px;
-    z-index: 1000;
-  }
+/* Hero-bild: Tvinga maxhöjd så den aldrig blir "jätte stor" */
+.wcl-hero{ margin-bottom: 18px; }
+.wcl-hero__img{
+  width: 100%;
+  height: auto;
+  max-height: 360px !important;     /* <- säker cap */
+  object-fit: cover;
+  object-position: center 55%;
+  border-radius: 12px;
+  display: block;
+}
 
-  .sidebar.active {
-    left: 0;
-  }
+/* Intro */
+.wcl-intro .wcl-title{ color:#b8860b; margin: 6px 0 8px; }
+.wcl-intro p{ color:#444; max-width: 70ch; }
 
-  .main {
-    margin-left: 0;
+/* ===== Responsivt (mobil & surfplatta) ===== */
+@media (max-width: 1024px){
+  .wcl-burger{ display:block; }
+  .wcl-sidebar{
+    transform: translateX(-100%);   /* gömd som default på mobil */
   }
-
-  .hamburger {
-    display: block;
+  .wcl-sidebar.is-open{
+    transform: translateX(0);       /* slide in */
   }
-
-  .overlay.active {
-    display: block;
+  .wcl-main{
+    margin-left: 0;                 /* inget sidomarginal på mobil */
+    padding: 18px;
   }
+  .wcl-hero__img{ max-height: 280px !important; }
 }
