@@ -97,3 +97,6 @@ async function loadCity() {
     storeListEl.appendChild(storeDiv);
   }
 }
+
+// Initiera
+loadCity();
