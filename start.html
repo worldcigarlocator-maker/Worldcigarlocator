@@ -1,41 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Store</title>
-  <link rel="stylesheet" href="css/global.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Cigar Locator – Start</title>
+  <link rel="stylesheet" href="css/start.css" />
 </head>
 <body>
-  <main>
-    <h1 id="store-name">Loading...</h1>
-    <p id="store-address"></p>
-    <p><a id="store-link" target="_blank"></a></p>
+  <!-- Hamburger (mobile only) -->
+  <button class="hamburger">☰</button>
+  <div class="overlay"></div>
 
-    <!-- Rating summary -->
-    <div class="card">
-      <h2>Rating</h2>
-      <div id="rating-summary">Loading ratings...</div>
-    </div>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h2>World Cigar Locator</h2>
+    <a href="city.html?city=Paris">Paris</a>
+    <a href="city.html?city=Norrköping">Norrköping</a>
+    <a href="add-store.html">➕ Add Store</a>
+  </aside>
 
-    <!-- Add review -->
-    <div class="card">
-      <h2>Leave a Review</h2>
-      <div id="star-rating" class="stars"></div>
-      <textarea id="review-text" placeholder="Write your review..."></textarea>
-      <button id="submit-review">Submit</button>
-      <p id="status"></p>
-    </div>
+  <!-- Main content -->
+  <div class="main">
+    <header class="banner">
+      <img src="images/paris.jpg" alt="Paris" />
+    </header>
 
-    <!-- Reviews list -->
-    <div class="card">
-      <h2>Reviews</h2>
-      <div id="reviews-list">Loading reviews...</div>
-    </div>
-  </main>
+    <section class="intro">
+      <h1>Welcome to World Cigar Locator</h1>
+      <p>
+        Find cigar stores and lounges around the world. Browse by city, add new
+        stores, and share your reviews.
+      </p>
+    </section>
+  </div>
 
-  <!-- Supabase & JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/store.js"></script>
+  <script>
+    // Toggle sidebar on mobile
+    const hamburger = document.querySelector(".hamburger");
+    const sidebar = document.querySelector(".sidebar");
+    const overlay = document.querySelector(".overlay");
+
+    hamburger.addEventListener("click", () => {
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    });
+
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
+    });
+  </script>
 </body>
 </html>
