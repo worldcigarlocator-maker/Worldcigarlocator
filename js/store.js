@@ -4,145 +4,171 @@ const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-// Hämta store-id från URL
+// Hämta store ID från URL (?store=xxx)
 const params = new URLSearchParams(window.location.search);
 const storeId = params.get("store");
 
 // Element
-const nameEl = document.getElementById("storeName");
-const addressEl = document.getElementById("storeAddress");
-const linkEl = document.getElementById("storeLink");
-const ratingSummaryEl = document.getElementById("ratingSummary");
-const reviewsList = document.getElementById("reviewsList");
+const storeNameEl = document.getElementById("store-name");
+const storeAddressEl = document.getElementById("store-address");
+const storeLinkEl = document.getElementById("store-link");
+const ratingSummaryEl = document.getElementById("rating-summary");
+const reviewsListEl = document.getElementById("reviews-list");
 const statusEl = document.getElementById("status");
+const starRatingEl = document.getElementById("star-rating");
 
 let selectedRating = 0;
 
-// Ladda butik
-async function loadStore() {
-  if (!storeId) {
-    statusEl.innerText = "❌ No store selected.";
-    return;
+// Funktion: bygg stjärnor (inkl halvor)
+function buildStars(avg) {
+  const fullStars = Math.floor(avg);
+  const halfStar = avg % 1 >= 0.5 ? 1 : 0;
+  const emptyStars = 5 - fullStars - halfStar;
+
+  let starsHTML = "";
+
+  for (let i = 0; i < fullStars; i++) {
+    starsHTML += `<span class="star full">★</span>`;
+  }
+  if (halfStar) {
+    starsHTML += `<span class="star half">★</span>`;
+  }
+  for (let i = 0; i < emptyStars; i++) {
+    starsHTML += `<span class="star empty">★</span>`;
   }
 
-  const { data: store, error } = await supabaseClient
+  return starsHTML;
+}
+
+// Ladda butiksinfo
+async function loadStore() {
+  const { data, error } = await supabase
     .from("stores")
-    .select("id, name, address, link")
+    .select("*")
     .eq("id", storeId)
     .single();
 
-  if (error || !store) {
-    statusEl.innerText = "❌ Store not found.";
+  if (error || !data) {
+    storeNameEl.textContent = "Store not found";
     return;
   }
 
-  nameEl.innerText = store.name;
-  addressEl.innerText = store.address;
-  if (store.link) {
-    linkEl.href = store.link;
-    linkEl.innerText = store.link;
-  } else {
-    linkEl.style.display = "none";
+  storeNameEl.textContent = data.name;
+  storeAddressEl.textContent = data.address;
+  storeLinkEl.textContent = data.link || "";
+  if (data.link) {
+    storeLinkEl.href = data.link;
+    storeLinkEl.textContent = "Website";
   }
-
-  loadRatings();
-  loadReviews();
 }
 
-// Ladda betyg
-async function loadRatings() {
-  const { data, error } = await supabaseClient
-    .from("ratings")
-    .select("rating")
-    .eq("store_id", storeId);
+// Ladda rating-sammanfattning
+async function loadRatingSummary() {
+  const { data, error } = await supabase
+    .from("store_ratings_summary")
+    .select("*")
+    .eq("store_id", storeId)
+    .single();
 
-  if (error) {
-    console.error(error);
-    ratingSummaryEl.innerText = "❌ Error loading ratings.";
+  if (error || !data) {
+    ratingSummaryEl.textContent = "No ratings yet";
     return;
   }
 
-  if (data.length === 0) {
-    ratingSummaryEl.innerText = "No ratings yet.";
-    return;
-  }
-
-  const avg = data.reduce((sum, r) => sum + r.rating, 0) / data.length;
-  ratingSummaryEl.innerText = `⭐ ${avg.toFixed(1)} / 5 (${data.length} votes)`;
+  ratingSummaryEl.innerHTML = `
+    <div class="stars">${buildStars(data.avg_rating || 0)}</div>
+    <p>${(data.avg_rating || 0).toFixed(1)} / 5 (${data.total_ratings} ratings, ${data.total_reviews} reviews)</p>
+  `;
 }
 
 // Ladda recensioner
 async function loadReviews() {
-  const { data, error } = await supabaseClient
+  const { data, error } = await supabase
     .from("ratings")
-    .select("rating, review, created_at")
+    .select("*")
     .eq("store_id", storeId)
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error(error);
-    reviewsList.innerText = "❌ Error loading reviews.";
+    reviewsListEl.textContent = "Could not load reviews";
     return;
   }
 
-  reviewsList.innerHTML = "";
   if (data.length === 0) {
-    reviewsList.innerText = "No reviews yet.";
+    reviewsListEl.textContent = "No reviews yet";
     return;
   }
 
-  data.forEach((rev) => {
-    const div = document.createElement("div");
-    div.className = "review-card";
-    div.innerHTML = `
-      <p>⭐ ${rev.rating}</p>
-      <p>${rev.review || ""}</p>
-      <small>${new Date(rev.created_at).toLocaleString()}</small>
-    `;
-    reviewsList.appendChild(div);
-  });
+  reviewsListEl.innerHTML = data
+    .map(
+      (r) => `
+      <div class="review">
+        <div class="stars">${buildStars(r.rating)}</div>
+        <p>${r.review || ""}</p>
+      </div>`
+    )
+    .join("");
 }
 
-// Hantera stjärnor
-const starsEl = document.getElementById("stars");
-starsEl.addEventListener("click", (e) => {
-  if (e.target.textContent === "★") {
-    selectedRating = [...starsEl.children].indexOf(e.target) + 1;
-    highlightStars(selectedRating);
+// Rendera interaktiva stjärnor för recension
+function renderInteractiveStars() {
+  starRatingEl.innerHTML = "";
+  for (let i = 1; i <= 5; i++) {
+    const span = document.createElement("span");
+    span.textContent = "★";
+    span.classList.add("star", "empty");
+    span.addEventListener("click", () => {
+      selectedRating = i;
+      updateStarDisplay();
+    });
+    starRatingEl.appendChild(span);
   }
-});
+}
 
-function highlightStars(n) {
-  [...starsEl.children].forEach((star, i) => {
-    star.style.color = i < n ? "#b8860b" : "#ccc";
+function updateStarDisplay() {
+  [...starRatingEl.children].forEach((span, idx) => {
+    span.className = "star";
+    if (idx < selectedRating) {
+      span.classList.add("full");
+    } else {
+      span.classList.add("empty");
+    }
   });
 }
 
-// Skicka recension
-document.getElementById("submitReview").addEventListener("click", async () => {
-  const text = document.getElementById("reviewText").value.trim();
-  if (selectedRating === 0) {
-    alert("Please select a rating.");
+// Skicka in recension
+async function submitReview() {
+  if (!selectedRating) {
+    statusEl.textContent = "Please select a rating";
     return;
   }
 
-  const { error } = await supabaseClient.from("ratings").insert([
-    { store_id: storeId, rating: selectedRating, review: text },
-  ]);
+  const reviewText = document.getElementById("review-text").value;
+
+  const { error } = await supabase.from("ratings").insert({
+    store_id: storeId,
+    rating: selectedRating,
+    review: reviewText,
+  });
 
   if (error) {
-    console.error(error);
-    statusEl.innerText = "❌ Error saving review.";
+    statusEl.textContent = "Error saving review";
     return;
   }
 
-  statusEl.innerText = "✅ Review submitted!";
-  document.getElementById("reviewText").value = "";
+  statusEl.textContent = "Review saved!";
+  document.getElementById("review-text").value = "";
   selectedRating = 0;
-  highlightStars(0);
+  updateStarDisplay();
 
-  loadRatings();
+  loadRatingSummary();
   loadReviews();
-});
+}
+
+// Init
+document.getElementById("submit-review").addEventListener("click", submitReview);
 
 loadStore();
+loadRatingSummary();
+loadReviews();
+renderInteractiveStars();
