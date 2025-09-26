@@ -1,185 +1,74 @@
-/* 🎨 Grundinställningar */
+/* ==== Reset & Bas ==== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   font-family: Arial, sans-serif;
-  margin: 2rem;
   background: #fdfdfc;
   color: #333;
+  line-height: 1.6;
+  padding: 1rem;
 }
 
-h1, h2 {
-  margin-top: 0;
+/* ==== Rubriker & Länkar ==== */
+h1, h2, h3 {
+  color: #b8860b; /* guld */
+  margin-bottom: 0.5rem;
 }
 
-/* ✨ Guld-stil för rubriker & länkar */
-.gold {
+a {
   color: #b8860b;
+  text-decoration: none;
   transition: color 0.2s ease;
 }
-.gold:hover {
-  color: #daa520;
-  text-decoration: underline;
-}
-
-/* 🔗 Vanliga länkar */
-a {
-  color: #0077cc;
-  text-decoration: none;
-}
 a:hover {
+  color: #d4a017;
   text-decoration: underline;
 }
-body {
-  font-family: Arial, sans-serif;
-  background: #fdfdfc;
-  color: #333;
-  margin: 0;
-  padding: 2rem;
+
+/* ==== Kort (Cards) ==== */
+.card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
 
-.container {
-  max-width: 500px;
-  margin: auto;
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+.card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.3rem;
 }
 
-.gold-title {
-  color: #b8860b;
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.form-box {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-input, select, button {
-  padding: 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
-}
-
-.btn-gold {
+/* ==== Knappar ==== */
+button, .btn {
   background: #b8860b;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s;
+  color: #fff;
   border: none;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
-
-.btn-gold:hover {
+button:hover, .btn:hover {
   background: #d4a017;
 }
 
-.status {
-  text-align: center;
-  margin-top: 1rem;
-  font-weight: bold;
-}
-
-/* ⭐ Stjärnor */
-.stars span {
-  font-size: 2rem;
-  cursor: pointer;
-  color: #ccc;
-  transition: color 0.2s ease;
-}
-.stars span.active {
-  color: gold;
-}
-
-/* 📝 Recensioner */
-.review {
-  margin: 1rem 0;
-  padding: 0.5rem;
-  border-bottom: 1px solid #ddd;
-}
-
-/* 📦 Kort (list-stores) */
-.store-card {
-  border: 1px solid #ddd;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 6px;
-  background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-.store-card h2 {
-  margin: 0;
-  font-size: 1.3rem;
-}
-.store-card p {
-  margin: 0.3rem 0;
-  color: #444;
-}
-.rating {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #555;
-}
-
-/* 🟨 Knapp */
-button {
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
-  border: none;
-  background: #b8860b;
-  color: white;
-  cursor: pointer;
-  border-radius: 4px;
-}
-button:hover {
-  background: #daa520;
-}
-
-/* 📄 Textarea */
+/* ==== Textarea ==== */
 textarea {
   width: 100%;
-  height: 80px;
-  margin-top: 0.5rem;
-}
-.store-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.store-card {
-  padding: 1rem;
-  border-radius: 8px;
-  background: white;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  min-height: 80px;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+  margin-bottom: 0.5rem;
 }
 
-.store-card h2 a {
-  color: #b8860b;
-  text-decoration: none;
-}
-
-.store-card h2 a:hover {
-  text-decoration: underline;
-  color: #d4a017;
-}
-.stars {
-  font-size: 2rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
-  color: #ccc;
-}
-
-.review-card {
-  background: #fff;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
+/* ==== Stjärnor ==== */
 .stars {
   display: inline-block;
   font-size: 1.3rem;
@@ -210,4 +99,29 @@ textarea {
   left: 0;
   width: 50%;
   overflow: hidden;
+}
+
+/* ==== Recensionslista ==== */
+.review {
+  border-top: 1px solid #eee;
+  padding: 0.5rem 0;
+}
+.review p {
+  margin: 0.2rem 0;
+  font-size: 0.9rem;
+}
+
+/* ==== Responsivt ==== */
+@media (max-width: 600px) {
+  body {
+    padding: 0.5rem;
+  }
+
+  .card {
+    padding: 0.8rem;
+  }
+
+  .stars {
+    font-size: 1.1rem;
+  }
 }
