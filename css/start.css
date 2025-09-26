@@ -1,16 +1,16 @@
-/* DEBUG: syns det? */ 
+/* DEBUG: syns det? */
 body { outline: 6px solid hotpink !important; }
 
 /* ===== Start-sida putsad ===== */
-body {
+body.wcl-start {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #fdfdfc;
   color: #222;
 }
 
-/* Sidebar */
-.sidebar {
+/* ===== Sidebar ===== */
+.wcl-sidebar {
   position: fixed;
   top: 0; left: 0;
   width: 240px;
@@ -19,35 +19,48 @@ body {
   color: #fff;
   padding: 1rem;
   overflow-y: auto;
+  z-index: 1000;
 }
 
-.sidebar h2 {
+.wcl-sidebar__title {
   color: #b8860b;
   margin-top: 0;
 }
 
-.sidebar a {
+.wcl-sidebar a {
   color: #fff;
   text-decoration: none;
 }
 
-.sidebar a:hover {
+.wcl-sidebar a:hover {
   color: #b8860b;
 }
 
-/* Main */
-main {
+.wcl-list {
+  list-style: none;
+  padding-left: 1rem;
+  margin: 0;
+}
+
+.wcl-subtitle {
+  margin-top: 1rem;
+  color: #b8860b;
+}
+
+/* ===== Main ===== */
+.wcl-main {
   margin-left: 240px;
   padding: 2rem;
   max-width: 1000px;
 }
 
-/* Hero-bild */
-.hero {
+/* ===== Hero ===== */
+.wcl-hero {
   text-align: center;
   margin-bottom: 1.5rem;
 }
-.hero img {
+
+.wcl-hero__img {
   width: 100%;
   height: auto;
   max-height: 300px;
@@ -55,51 +68,92 @@ main {
   border-radius: 12px;
 }
 
-/* Rubrik */
-.hero h1 {
+/* ===== Rubrik ===== */
+.wcl-title {
   color: #b8860b;
   margin-bottom: 1rem;
 }
 
-/* Intro */
-.intro {
+/* ===== Intro ===== */
+.wcl-intro {
   text-align: center;
   max-width: 70ch;
   margin: 0 auto;
 }
 
-.intro p {
+.wcl-intro p {
   margin-bottom: 1rem;
   line-height: 1.5;
 }
 
-/* Knappar */
-.btn {
+/* ===== Knappar ===== */
+.wcl-btn {
   display: inline-block;
-  background: #b8860b;
-  color: #fff;
   padding: 0.6rem 1.2rem;
   border-radius: 8px;
   text-decoration: none;
   margin: 0.5rem;
   transition: background 0.2s;
+  text-align: center;
 }
-.btn:hover {
+
+.wcl-btn--gold {
+  background: #b8860b;
+  color: #fff;
+}
+
+.wcl-btn--gold:hover {
   background: #d4a017;
 }
 
-/* Responsivt */
+.wcl-btn--block {
+  display: block;
+  width: 100%;
+}
+
+/* ===== Hamburger (mobil) ===== */
+.wcl-burger {
+  display: none;
+  position: fixed;
+  top: 1rem; left: 1rem;
+  z-index: 1100;
+  background: #111;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.wcl-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 900;
+}
+
+.wcl-overlay.is-show {
+  display: block;
+}
+
+/* ===== Responsivt ===== */
 @media (max-width: 768px) {
-  .sidebar {
-    width: 200px;
+  .wcl-sidebar {
     transform: translateX(-100%);
     transition: transform 0.3s ease;
+    width: 220px;
   }
-  .sidebar.is-open {
+  .wcl-sidebar.is-open {
     transform: translateX(0);
   }
-  main {
+  .wcl-main {
     margin-left: 0;
     padding: 1rem;
+  }
+  .wcl-burger {
+    display: block;
   }
 }
