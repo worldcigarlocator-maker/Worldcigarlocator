@@ -5,103 +5,95 @@ const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co"; // <-- ändra
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // <-- ändra
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+// Hämta city från URL (?city=Stockholm)
 const params = new URLSearchParams(window.location.search);
 const cityName = params.get("city");
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const cityTitle = document.getElementById("city-title");
-  if (cityTitle && cityName) {
-    cityTitle.textContent = cityName;
+// Element i DOM
+const cityTitleEl = document.getElementById("city-title");
+const storeListEl = document.getElementById("store-list");
+
+// Funktion för att rita stjärnor (fulla, halva, tomma)
+function renderStars(avg) {
+  const fullStars = Math.floor(avg);
+  const halfStar = avg % 1 >= 0.5 ? 1 : 0;
+  const emptyStars = 5 - fullStars - halfStar;
+
+  let starsHTML = "";
+
+  for (let i = 0; i < fullStars; i++) {
+    starsHTML += `<span class="star full">★</span>`;
+  }
+  if (halfStar) {
+    starsHTML += `<span class="star half">★</span>`;
+  }
+  for (let i = 0; i < emptyStars; i++) {
+    starsHTML += `<span class="star empty">★</span>`;
   }
 
-  // Hämta city-id
-  let { data: cities, error: cityError } = await supabase
+  return `<div class="stars">${starsHTML}</div>`;
+}
+
+// Ladda städer & butiker
+async function loadCity() {
+  if (!cityName) {
+    cityTitleEl.textContent = "No city selected";
+    return;
+  }
+
+  cityTitleEl.textContent = cityName;
+
+  // Hämta stadens ID
+  const { data: city, error: cityError } = await supabase
     .from("cities")
-    .select("id, name")
-    .eq("name", cityName);
+    .select("*")
+    .ilike("name", cityName)
+    .single();
 
-  if (cityError) {
-    console.error("Error loading city:", cityError);
-    return;
-  }
-  if (!cities || cities.length === 0) {
-    document.getElementById("store-list").innerHTML =
-      "<p>No stores found for this city.</p>";
+  if (cityError || !city) {
+    storeListEl.textContent = "City not found";
     return;
   }
 
-  const cityId = cities[0].id;
-
-  // Hämta butiker
-  let { data: stores, error: storeError } = await supabase
+  // Hämta butiker i staden
+  const { data: stores, error: storeError } = await supabase
     .from("stores")
-    .select("id, name, address, link")
-    .eq("city_id", cityId);
+    .select("*")
+    .eq("city_id", city.id);
 
-  if (storeError) {
-    console.error("Error loading stores:", storeError);
+  if (storeError || !stores || stores.length === 0) {
+    storeListEl.textContent = "No stores found in this city.";
     return;
   }
 
-  const listContainer = document.getElementById("store-list");
-  listContainer.innerHTML = "";
-
-  for (let store of stores) {
-    // Hämta betyg
-    let { data: ratingData } = await supabase
+  // Bygg lista
+  storeListEl.innerHTML = "";
+  for (const store of stores) {
+    // Hämta betygssammanfattning
+    const { data: summary, error: summaryError } = await supabase
       .from("store_ratings_summary")
-      .select("avg_rating, total_ratings, total_reviews")
+      .select("*")
       .eq("store_id", store.id)
       .single();
 
-    const avg = ratingData?.avg_rating
-      ? Number(ratingData.avg_rating).toFixed(1)
-      : null;
-    const total = ratingData?.total_ratings || 0;
+    const storeDiv = document.createElement("div");
+    storeDiv.classList.add("card");
 
-    // Rendera stjärnor (med halva)
-function renderStars(avg) {
-  if (!avg) return "No ratings yet";
-
-  const fullStars = Math.floor(avg);
-  const halfStar = avg - fullStars >= 0.5;
-  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-
-  let starsHtml = "";
-
-  // hela stjärnor
-  for (let i = 0; i < fullStars; i++) {
-    starsHtml += `<span class="star full">★</span>`;
-  }
-
-  // halv stjärna
-  if (halfStar) {
-    starsHtml += `<span class="star half">★</span>`;
-  }
-
-  // tomma stjärnor
-  for (let i = 0; i < emptyStars; i++) {
-    starsHtml += `<span class="star empty">★</span>`;
-  }
-
-  return starsHtml;
-    }
-
-    // Skapa kort
-    const card = document.createElement("div");
-    card.className = "store-card";
-
-    card.innerHTML = `
-      <h2>
-        <a href="store.html?store=${store.id}">
-          ${store.name}
-        </a>
-      </h2>
+    storeDiv.innerHTML = `
+      <h2><a href="store.html?store=${store.id}">${store.name}</a></h2>
       <p>${store.address || ""}</p>
-      ${store.link ? `<a href="${store.link}" target="_blank">Visit website</a>` : ""}
-      <p><strong>Rating:</strong> ${avg ? `${avg}/5` : "–"} <span class="stars">${starsHtml}</span> (${total} votes)</p>
+      ${store.link ? `<p><a href="${store.link}" target="_blank">Website</a></p>` : ""}
     `;
 
-    listContainer.appendChild(card);
+    if (summary) {
+      storeDiv.innerHTML += `
+        ${renderStars(summary.avg_rating || 0)}
+        <p>${(summary.avg_rating || 0).toFixed(1)} / 5 (${summary.total_ratings} ratings)</p>
+      `;
+    } else {
+      storeDiv.innerHTML += `<p>No ratings yet</p>`;
+    }
+
+    storeListEl.appendChild(storeDiv);
   }
-});
+}
