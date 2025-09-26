@@ -1,54 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>World Cigar Locator – Start</title>
-  <link rel="stylesheet" href="css/start.css" />
-</head>
-<body>
-  <!-- Hamburger (mobile only) -->
-  <button class="hamburger">☰</button>
-  <div class="overlay"></div>
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <h2>World Cigar Locator</h2>
-    <a href="city.html?city=Paris">Paris</a>
-    <a href="city.html?city=Norrköping">Norrköping</a>
-    <a href="add-store.html">➕ Add Store</a>
+  <!-- Ladda global först (typsnitt m.m.), start.css sedan så den vinner -->
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/start.css">
+</head>
+<body class="wcl-start">
+
+  <!-- Hamburger (mobil) -->
+  <button class="wcl-burger" aria-label="Meny">☰</button>
+  <div class="wcl-overlay" aria-hidden="true"></div>
+
+  <!-- Sidebar (namespacad så inget krockar) -->
+  <aside class="wcl-sidebar" aria-label="Sidomeny">
+    <h2 class="wcl-sidebar__title">World Cigar Locator</h2>
+
+    <div class="wcl-sidebar__section">
+      <label for="wcl-search" class="wcl-label">Sök</label>
+      <input id="wcl-search" class="wcl-input" type="text" placeholder="Stad eller butik…">
+    </div>
+
+    <div class="wcl-sidebar__section">
+      <details>
+        <summary>Europe</summary>
+        <ul class="wcl-list">
+          <li><a href="city.html?city=Stockholm">Stockholm</a></li>
+          <li><a href="city.html?city=Gothenburg">Gothenburg</a></li>
+          <li><a href="city.html?city=Norrköping">Norrköping</a></li>
+          <li><a href="city.html?city=Paris">Paris</a></li>
+          <li><a href="city.html?city=Berlin">Berlin</a></li>
+        </ul>
+      </details>
+      <details>
+        <summary>North America</summary>
+        <ul class="wcl-list">
+          <li><a href="city.html?city=New%20York">New York</a></li>
+          <li><a href="city.html?city=Toronto">Toronto</a></li>
+        </ul>
+      </details>
+      <details>
+        <summary>Asia</summary>
+        <ul class="wcl-list">
+          <li><a href="city.html?city=Tokyo">Tokyo</a></li>
+          <li><a href="city.html?city=Bangkok">Bangkok</a></li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="wcl-sidebar__section">
+      <a class="wcl-btn wcl-btn--gold wcl-btn--block" href="add-store.html">➕ Add a Store</a>
+    </div>
+
+    <div class="wcl-sidebar__section">
+      <h3 class="wcl-subtitle">Support</h3>
+      <p><a href="list-stores.html">Visa alla butiker</a></p>
+      <p><a href="mailto:worldcigarlocator@gmail.com">Kontakt</a></p>
+    </div>
   </aside>
 
-  <!-- Main content -->
-  <div class="main">
-    <header class="banner">
-      <img src="images/paris.jpg" alt="Paris" />
+  <!-- Main -->
+  <main class="wcl-main">
+    <header class="wcl-hero">
+      <!-- Viktigt: håll samma filnamn/sökväg -->
+      <img src="images/paris.jpg" alt="Paris" class="wcl-hero__img">
     </header>
 
-    <section class="intro">
-      <h1>Welcome to World Cigar Locator</h1>
+    <section class="wcl-intro">
+      <h1 class="wcl-title">World Cigar Locator</h1>
+      <p>Find cigar stores and lounges near you…</p>
       <p>
-        Find cigar stores and lounges around the world. Browse by city, add new
-        stores, and share your reviews.
+        WCL föddes ur ett enkelt behov: att alltid veta var man hittar en bra cigarr,
+        oavsett var man är. Hitta butiker, lounger och favoritplatser – även på resa.
       </p>
+      <p>Kind regards,<br>Bakerman</p>
     </section>
-  </div>
+  </main>
 
   <script>
-    // Toggle sidebar on mobile
-    const hamburger = document.querySelector(".hamburger");
-    const sidebar = document.querySelector(".sidebar");
-    const overlay = document.querySelector(".overlay");
+    // Mobil: öppna/stäng sidebar
+    const burger  = document.querySelector('.wcl-burger');
+    const sidebar = document.querySelector('.wcl-sidebar');
+    const overlay = document.querySelector('.wcl-overlay');
 
-    hamburger.addEventListener("click", () => {
-      sidebar.classList.toggle("active");
-      overlay.classList.toggle("active");
-    });
+    function toggleSidebar(){ sidebar.classList.toggle('is-open'); overlay.classList.toggle('is-show'); }
+    function closeSidebar(){ sidebar.classList.remove('is-open'); overlay.classList.remove('is-show'); }
 
-    overlay.addEventListener("click", () => {
-      sidebar.classList.remove("active");
-      overlay.classList.remove("active");
-    });
+    burger.addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', closeSidebar);
+    window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeSidebar(); });
   </script>
 </body>
 </html>
