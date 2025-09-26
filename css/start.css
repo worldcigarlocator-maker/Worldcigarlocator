@@ -12,7 +12,7 @@ body, html {
   position: fixed;
   top: 0;
   left: 0;
-  width: 220px;             /* smalare */
+  width: 220px;
   height: 100%;
   background: #111;
   padding: 1rem;
@@ -23,106 +23,110 @@ body, html {
 
 .wcl-sidebar h2 {
   color: #b8860b;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   margin-bottom: 1rem;
-  letter-spacing: 1px;
 }
 
 .wcl-sidebar a {
   display: block;
   color: #ddd;
   text-decoration: none;
-  padding: 0.4rem 0.6rem;
-  border-radius: 6px;
-  transition: background 0.2s, color 0.2s;
+  margin: 0.5rem 0;
+  transition: color 0.2s;
 }
 
 .wcl-sidebar a:hover {
-  background: #b8860b;
-  color: #fff;
+  color: #b8860b;
 }
 
 /* ===== Main content ===== */
 .wcl-main {
-  margin-left: 220px; /* matchar sidebar */
-  padding: 1.5rem;
+  margin-left: 220px; /* lämna plats för sidomenyn */
+  padding: 1rem 2rem;
 }
 
-/* Hero section */
-.wcl-hero h1 {
-  color: #b8860b;
+/* ===== Hero section ===== */
+.wcl-hero {
   text-align: center;
-  font-size: 2rem;
-  margin: 0 0 1rem;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-}
-
-.wcl-hero img {
-  display: block;
-  width: 100%;
-  max-height: 280px;   /* begränsad höjd */
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   margin-bottom: 1.5rem;
 }
 
-/* Intro text */
-.wcl-intro {
-  max-width: 700px;
-  margin: 0 auto;
-  text-align: center;
-  line-height: 1.6;
-  font-size: 1rem;
-  color: #444;
+.wcl-hero h1 {
+  color: #b8860b;
+  margin-bottom: 1rem;
 }
 
-/* Buttons */
-.wcl-buttons {
+.wcl-hero img {
+  max-width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* ===== Intro text ===== */
+.wcl-intro {
+  max-width: 700px;
+  margin: 0 auto 2rem auto;
   text-align: center;
-  margin-top: 2rem;
+  line-height: 1.6;
+}
+
+/* ===== Buttons ===== */
+.wcl-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .wcl-buttons a {
   display: inline-block;
   background: #b8860b;
-  color: #fff;
+  color: white;
   padding: 0.7rem 1.4rem;
-  margin: 0 0.5rem;
-  border-radius: 25px;
   text-decoration: none;
+  border-radius: 4px;
   font-weight: bold;
-  transition: background 0.2s, transform 0.2s;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: background 0.3s, transform 0.2s;
 }
 
 .wcl-buttons a:hover {
-  background: #9c7209;
+  background: #a07408;
   transform: translateY(-2px);
 }
 
-/* ===== Mobile ===== */
+/* ===== Hamburger (mobile) ===== */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: white;
+  z-index: 1100;
+  cursor: pointer;
+}
+
+/* ===== Responsive ===== */
 @media (max-width: 768px) {
   .wcl-sidebar {
-    left: -220px;
-    transition: left 0.3s;
+    left: -240px;
+    transition: left 0.3s ease;
   }
+
   .wcl-sidebar.active {
     left: 0;
   }
+
   .wcl-main {
     margin-left: 0;
+    padding-top: 4rem;
   }
+
   .hamburger {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1100;
-    background: #b8860b;
-    color: white;
-    border: none;
-    padding: 0.5rem 0.8rem;
-    border-radius: 6px;
-    cursor: pointer;
+    display: block;
   }
 }
