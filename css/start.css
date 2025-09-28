@@ -1,4 +1,4 @@
-/* ===== Global reset ===== */
+/* ===== Reset ===== */
 body, html {
   margin: 0;
   padding: 0;
@@ -8,7 +8,7 @@ body, html {
 }
 
 /* ===== Sidebar ===== */
-.wcl-sidebar {
+.sidebar {
   position: fixed;
   top: 0;
   left: 0;
@@ -21,42 +21,49 @@ body, html {
   z-index: 1000;
 }
 
-.wcl-sidebar h2 {
+.sidebar h2 {
   color: #b8860b;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   margin-bottom: 1rem;
 }
 
-.wcl-sidebar a {
-  display: block;
-  color: #ddd;
-  text-decoration: none;
-  margin: 0.5rem 0;
-  transition: color 0.2s;
+.sidebar ul {
+  list-style: none;
+  padding: 0;
 }
 
-.wcl-sidebar a:hover {
+.sidebar li {
+  margin-bottom: 0.5rem;
+}
+
+.sidebar a {
+  color: #ddd;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.sidebar a:hover {
   color: #b8860b;
 }
 
-/* ===== Main content ===== */
-.wcl-main {
-  margin-left: 220px; /* lämna plats för sidomenyn */
+/* ===== Main ===== */
+.main {
+  margin-left: 220px;
   padding: 1rem 2rem;
 }
 
-/* ===== Hero section ===== */
-.wcl-hero {
+/* ===== Hero ===== */
+.hero {
   text-align: center;
   margin-bottom: 1.5rem;
 }
 
-.wcl-hero h1 {
+.hero h1 {
   color: #b8860b;
   margin-bottom: 1rem;
 }
 
-.wcl-hero img {
+.hero img {
   max-width: 100%;
   max-height: 280px;
   object-fit: cover;
@@ -64,39 +71,35 @@ body, html {
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-/* ===== Intro text ===== */
-.wcl-intro {
-  max-width: 700px;
-  margin: 0 auto 2rem auto;
+/* ===== Intro ===== */
+.intro {
   text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+  font-size: 1.1rem;
   line-height: 1.6;
 }
 
-/* ===== Buttons ===== */
-.wcl-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1rem;
+.buttons {
+  margin-top: 1.5rem;
 }
 
-.wcl-buttons a {
+.btn {
   display: inline-block;
+  padding: 0.6rem 1.2rem;
+  margin: 0.3rem;
   background: #b8860b;
   color: white;
-  padding: 0.7rem 1.4rem;
-  text-decoration: none;
   border-radius: 4px;
-  font-weight: bold;
-  transition: background 0.3s, transform 0.2s;
+  text-decoration: none;
+  transition: background 0.2s;
 }
 
-.wcl-buttons a:hover {
-  background: #a07408;
-  transform: translateY(-2px);
+.btn:hover {
+  background: #d4a017;
 }
 
-/* ===== Hamburger (mobile) ===== */
+/* ===== Mobile ===== */
 .hamburger {
   display: none;
   position: fixed;
@@ -105,27 +108,23 @@ body, html {
   font-size: 1.5rem;
   background: none;
   border: none;
-  color: white;
+  color: #fff;
   z-index: 1100;
   cursor: pointer;
 }
 
-/* ===== Responsive ===== */
 @media (max-width: 768px) {
-  .wcl-sidebar {
-    left: -240px;
-    transition: left 0.3s ease;
+  .sidebar {
+    left: -220px;
+    transition: left 0.3s;
   }
-
-  .wcl-sidebar.active {
+  .sidebar.active {
     left: 0;
   }
-
-  .wcl-main {
+  .main {
     margin-left: 0;
-    padding-top: 4rem;
+    padding: 1rem;
   }
-
   .hamburger {
     display: block;
   }
