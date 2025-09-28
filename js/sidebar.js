@@ -3,120 +3,93 @@ const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Statisk struktur (världsdelar + länder syns alltid)
+// === Statisk struktur för kontinenter och länder ===
+// OBS! Landnamnen här måste matcha "country"-kolumnen i din cities-tabell
 const structure = {
-  Europe: ["Sweden", "Norway", "Denmark", "Germany", "Finland"],
-  "North America": ["USA", "Canada", "Mexico"],
-  "South America": ["Brazil", "Argentina", "Cuba"],
-  Asia: ["Japan", "China", "India"],
-  Africa: ["South Africa", "Egypt", "Morocco"],
-  Oceania: ["Australia", "New Zealand"]
+  Europe: { Sweden: [], France: [], Germany: [] },
+  Asia: { Japan: [], China: [], India: [] },
+  Africa: { Egypt: [], SouthAfrica: [] },
+  "North America": { USA: [], Canada: [] },
+  "South America": { Brazil: [], Argentina: [] },
+  Oceania: { Australia: [], NewZealand: [] }
 };
 
-const sidebar = document.querySelector(".sidebar");
-const sidebarMenu = document.getElementById("sidebarMenu");
-const sidebarSearch = document.getElementById("sidebarSearch");
+// === Rendera sidebar ===
+async function renderSidebar() {
+  const menu = document.getElementById("sidebarMenu");
+  menu.innerHTML = "";
 
-// 1) Rendera alltid kontinenter och länder (utan att vänta på Supabase)
-function renderStaticStructure() {
-  if (!sidebarMenu) return;
-  sidebarMenu.innerHTML = "";
+  // 1. Hämta städer som har butiker
+  const { data: stores, error } = await supabaseClient
+    .from("stores")
+    .select("id, city_id, cities(name, country, continent)")
+    .neq("city_id", null);
 
-  Object.entries(structure).forEach(([continent, countries]) => {
-    const continentEl = document.createElement("div");
-    continentEl.className = "continent";
-    continentEl.innerHTML = `<strong>${continent}</strong>`;
+  if (error) {
+    console.error("Fel vid hämtning av städer:", error);
+    return;
+  }
+
+  // 2. Gruppér städer efter kontinent/land
+  stores.forEach(store => {
+    const city = store.cities;
+    if (!city) return;
+    const { name, country, continent } = city;
+
+    if (structure[continent] && structure[continent][country]) {
+      if (!structure[continent][country].includes(name)) {
+        structure[continent][country].push(name);
+      }
+    }
+  });
+
+  // 3. Bygg menyerna
+  for (const continent in structure) {
+    // Kontinent-knapp
+    const continentBtn = document.createElement("button");
+    continentBtn.className = "sidebar-btn";
+    continentBtn.textContent = continent;
 
     const countryList = document.createElement("ul");
-    countries.forEach(country => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <span class="country">${country}</span>
-        <ul id="cities-${continent}-${country}"></ul>
-      `;
-      countryList.appendChild(li);
-    });
+    countryList.className = "nested hidden";
 
-    continentEl.appendChild(countryList);
-    sidebarMenu.appendChild(continentEl);
-  });
-}
+    // Länder
+    for (const country in structure[continent]) {
+      const countryLi = document.createElement("li");
+      const countryBtn = document.createElement("button");
+      countryBtn.className = "sidebar-subbtn";
+      countryBtn.textContent = country;
 
-// 2) Lägg in städer som har butiker
-async function loadCitiesWithStores() {
-  try {
-    const { data, error } = await supabase
-      .from("stores")
-      .select("id, city:cities(name, country, continent)");
+      const cityList = document.createElement("ul");
+      cityList.className = "nested hidden";
 
-    if (error) {
-      console.warn("Supabase fetch warning:", error.message);
-      return; // Vi låter kontinenter/länder ligga kvar ändå
+      // Städer (endast om butiker finns)
+      structure[continent][country].forEach(city => {
+        const cityLi = document.createElement("li");
+        cityLi.innerHTML = `<a href="city.html?city=${encodeURIComponent(city)}">${city}</a>`;
+        cityList.appendChild(cityLi);
+      });
+
+      // Toggle landets städer
+      countryBtn.addEventListener("click", () => {
+        cityList.classList.toggle("hidden");
+      });
+
+      countryLi.appendChild(countryBtn);
+      if (cityList.children.length > 0) {
+        countryLi.appendChild(cityList);
+      }
+      countryList.appendChild(countryLi);
     }
 
-    (data || []).forEach(row => {
-      const city = row.city;
-      if (!city) return;
-      const listId = `cities-${city.continent}-${city.country}`;
-      const targetList = document.getElementById(listId);
-      if (!targetList) return;
-
-      if (!targetList.querySelector(`[data-city='${city.name}']`)) {
-        const li = document.createElement("li");
-        li.dataset.city = city.name;
-        li.innerHTML = `<a href="city.html?city=${encodeURIComponent(city.name)}">${city.name}</a>`;
-        targetList.appendChild(li);
-      }
+    // Toggle kontinentens länder
+    continentBtn.addEventListener("click", () => {
+      countryList.classList.toggle("hidden");
     });
-  } catch (e) {
-    console.warn("Supabase init/fetch error:", e);
-    // Fortsätt utan att krascha – kontinenter/länder är redan renderade
+
+    menu.appendChild(continentBtn);
+    menu.appendChild(countryList);
   }
 }
 
-// 3) Sök (filtrerar men döljer inte rubriker i onödan)
-function bindSearch() {
-  sidebarSearch?.addEventListener("input", () => {
-    const term = (sidebarSearch.value || "").toLowerCase();
-
-    sidebarMenu.querySelectorAll(".continent").forEach(contEl => {
-      const continentName = contEl.querySelector("strong")?.innerText?.toLowerCase() || "";
-      let continentHasMatch = continentName.includes(term);
-
-      contEl.querySelectorAll("> ul > li").forEach(countryLi => {
-        const countryName = countryLi.querySelector(".country")?.innerText?.toLowerCase() || "";
-        let countryHasMatch = countryName.includes(term);
-
-        let cityHasAny = false;
-        countryLi.querySelectorAll("ul > li").forEach(cityLi => {
-          const cityName = cityLi.innerText.toLowerCase();
-          const hit = cityName.includes(term) || countryHasMatch || continentHasMatch;
-          cityLi.style.display = hit ? "" : "none";
-          if (hit) cityHasAny = true;
-        });
-
-        const showCountry = countryHasMatch || cityHasAny || continentHasMatch || term === "";
-        countryLi.style.display = showCountry ? "" : "none";
-        if (showCountry) continentHasMatch = true;
-      });
-
-      contEl.style.display = (continentHasMatch || term === "") ? "" : "none";
-    });
-  });
-}
-
-// 4) Hamburger (mobil)
-function bindHamburger() {
-  const burger = document.querySelector(".hamburger");
-  burger?.addEventListener("click", () => {
-    sidebar.classList.toggle("active");
-  });
-}
-
-// Init: rendera alltid statiskt först, sen försök fylla städer
-document.addEventListener("DOMContentLoaded", async () => {
-  renderStaticStructure();     // ← GARANTERAR VÄRLDSDELAR + LÄNDER
-  await loadCitiesWithStores(); // ← Fyll städer om data finns
-  bindSearch();
-  bindHamburger();
-});
+renderSidebar();
