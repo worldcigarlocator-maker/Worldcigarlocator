@@ -1,56 +1,41 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World Cigar Locator</title>
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="css/start.css?v=8">
-  <link rel="stylesheet" href="css/sidebar.css?v=3">
-
-  <!-- Supabase (måste laddas före sidebar.js) -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <!-- Sidebar-logik -->
-  <script defer src="js/sidebar.js?v=3"></script>
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/start.css">
 </head>
 <body>
-  <!-- Hamburger (mobil) -->
-  <button class="hamburger" aria-label="Meny">☰</button>
-
-  <!-- SIDEBAR -->
+  <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="sidebar-top">
+    <div class="sidebar-header">
       <input type="text" id="sidebarSearch" placeholder="Search..." />
     </div>
     <nav id="sidebarMenu"></nav>
-    <div class="sidebar-bottom">
+    <div class="sidebar-footer">
       <a href="add-store.html">➕ Add Store</a>
-      <a href="mailto:support@worldcigarlocator.com">📩 Support</a>
+      <a href="mailto:support@worldcigarlocator.com">✉️ Contact / Support</a>
     </div>
   </aside>
-<div id="sidebarMenu"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="js/sidebar.js"></script>
 
-  <!-- MAIN -->
+  <!-- Main content -->
   <main class="page-main">
     <section class="hero">
-      <h1>World Cigar Locator</h1>
-      <img src="images/paris.jpg" alt="Paris" />
+      <img src="images/banner.jpg" alt="Cigar world banner">
     </section>
-
     <section class="intro">
-      <p>Find cigar stores and lounges near you…</p>
+      <h1>Welcome to World Cigar Locator</h1>
       <p>
-        WCL föddes ur ett enkelt behov: att alltid veta var man hittar en bra cigarr,
-        oavsett var man är. Vi hoppas att detta gör det enkelt att hitta en cigarrbutik,
-        en lounge, eller kanske den perfekta lilla platsen för en skön rök när du är
-        hemifrån.
+        Discover cigar lounges and stores around the world.<br>
+        Browse by continent, country and city – or add your own favourites.
       </p>
-      <p>Kind regards,<br>Bakerman</p>
-      <!-- // Bakerman -->
+      <p class="signed">// Bakerman</p>
     </section>
   </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="js/sidebar.js"></script>
 </body>
 </html>
