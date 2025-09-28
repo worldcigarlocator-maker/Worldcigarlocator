@@ -1,4 +1,4 @@
-/* === SIDEBAR BAS === */
+/* === Sidebar === */
 .sidebar {
   position: fixed;
   top: 0;
@@ -6,101 +6,57 @@
   width: 240px;
   height: 100%;
   background: #111;
-  color: #eee;
+  color: #fff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 2px 0 6px rgba(0,0,0,0.3);
-  padding: 1rem 0;
+  padding: 1rem;
   overflow-y: auto;
+  box-shadow: 2px 0 6px rgba(0,0,0,0.3);
   z-index: 1000;
 }
 
-/* ÖVERST: Sök */
-.sidebar-top { padding: 0 1rem 1rem; }
-.sidebar-top input {
-  width: 100%;
-  padding: 0.5rem 0.6rem;
-  border: none;
-  border-radius: 6px;
-  outline: none;
+.sidebar-header {
+  margin-bottom: 1rem;
 }
 
-/* MENY: kontinenter/länder/städer */
-#sidebarMenu { flex: 1; padding: 0 1rem; }
-#sidebarMenu .continent { margin-bottom: 0.8rem; }
-#sidebarMenu .continent > strong {
-  display: block;
-  color: #b8860b;
-  margin-bottom: 0.3rem;
-}
-#sidebarMenu ul {
-  list-style: none;
-  margin: 0;
-  padding-left: 1rem;
-}
-#sidebarMenu li { margin: 0.2rem 0; }
-#sidebarMenu a {
-  text-decoration: none;
-  color: #ddd;
-  display: inline-block;
-  padding: 2px 6px;
+.sidebar-header input {
+  width: 100%;
+  padding: 6px;
+  border: none;
   border-radius: 4px;
 }
-#sidebarMenu a:hover { color: #fff; text-decoration: underline; }
 
-/* NEDERST: Actions */
-.sidebar-bottom {
-  padding: 1rem;
+#sidebarMenu {
+  flex-grow: 1;
+}
+
+.sidebar-footer {
   border-top: 1px solid #333;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
-.sidebar-bottom a {
-  display: block;
-  margin: 0.3rem 0;
-  color: #b8860b;
+
+.sidebar-footer a {
+  color: #bbb;
   text-decoration: none;
-  font-weight: 700;
+  font-size: 0.9rem;
 }
-.sidebar-bottom a:hover { color: #fff; }
-
-/* HAMBURGER + LAYOUT FÖR MAIN */
-.hamburger {
-  display: none;
-  position: fixed;
-  top: 12px; left: 12px;
-  z-index: 1100;
-  font-size: 1.6rem;
-  background: #b8860b;
+.sidebar-footer a:hover {
   color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 10px;
-  cursor: pointer;
 }
 
-.page-main {
-  margin-left: 240px;
-  padding: 1rem 2rem;
-}
-
-/* MOBIL */
-@media (max-width: 768px) {
-  .sidebar {
-    left: -260px;
-    transition: left .25s ease;
-  }
-  .sidebar.active { left: 0; }
-  .hamburger { display: block; }
-  .page-main { margin-left: 0; padding: 1rem; }
-}
+/* === Buttons === */
 .sidebar-btn, .sidebar-subbtn {
   display: block;
   width: 100%;
-  background: #222;
-  color: #f5f5f5;
+  background: none;
+  color: #eee;
   border: none;
   text-align: left;
-  padding: 8px 12px;
+  padding: 6px 8px;
   cursor: pointer;
   font-size: 0.95rem;
 }
@@ -117,4 +73,16 @@
 
 .hidden {
   display: none;
+}
+
+.nested a {
+  display: block;
+  padding: 4px 8px;
+  color: #ccc;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.nested a:hover {
+  background: #333;
+  color: #fff;
 }
