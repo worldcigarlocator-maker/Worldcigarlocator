@@ -1,46 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/start.css?v=6">
+
+  <!-- Din startsida-css -->
+  <link rel="stylesheet" href="css/start.css?v=1">
+  <!-- Sidebar-css -->
+  <link rel="stylesheet" href="css/sidebar.css?v=1">
+
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <!-- Sidebar script -->
+  <script defer src="js/sidebar.js?v=1"></script>
 </head>
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <h2>Navigation</h2>
-    <ul>
-      <li><a href="list-stores.html">All Stores</a></li>
-      <li><a href="add-store.html">➕ Add Store</a></li>
-      <li><a href="city.html?city=Paris">Paris</a></li>
-      <li><a href="city.html?city=Norrköping">Norrköping</a></li>
-    </ul>
-  </div>
+  <!-- Hamburger för mobil -->
+  <button class="hamburger" aria-label="Meny">☰</button>
 
-  <!-- Hamburger for mobile -->
-  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <!-- Search -->
+    <div class="sidebar-search">
+      <input type="text" id="sidebarSearch" placeholder="Search city..." />
+    </div>
 
-  <!-- Main content -->
-  <div class="main">
-    <div class="hero">
+    <!-- Menu fylls med Supabase -->
+    <nav class="sidebar-menu" id="sidebarMenu"></nav>
+
+    <!-- Actions -->
+    <div class="sidebar-actions">
+      <a href="add-store.html">➕ Add Store</a>
+      <a href="mailto:support@worldcigarlocator.com">📞 Contact / Support</a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="page-main">
+    <section class="hero">
       <h1>World Cigar Locator</h1>
-      <img src="images/paris.jpg" alt="Hero image">
-    </div>
+      <img src="images/paris.jpg" alt="Cigar Lounge" />
+    </section>
 
-    <div class="intro">
-      <p>Discover cigar lounges and stores around the world, rated and reviewed by our community.</p>
-      <div class="buttons">
-        <a href="list-stores.html" class="btn">Browse Stores</a>
-        <a href="add-store.html" class="btn">Add Store</a>
-      </div>
-    </div>
-  </div>
+    <section class="intro">
+      <p>
+        Welcome to <strong>World Cigar Locator</strong> – the community-driven guide to finding cigar lounges and stores around the world.
+      </p>
+      <p>
+        Browse by continent, country, or city. Add your favorite spots and share reviews with others.
+      </p>
+    </section>
 
-  <script>
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("active");
-    }
-  </script>
+    <div class="buttons">
+      <a href="list-stores.html" class="btn">Browse Stores</a>
+      <a href="add-store.html" class="btn">Add New Store</a>
+    </div>
+  </main>
 </body>
 </html>
