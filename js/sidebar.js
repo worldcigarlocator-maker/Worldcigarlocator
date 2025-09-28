@@ -7,7 +7,7 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 const structure = {
   Europe: ["Sweden", "Norway", "Denmark", "Germany", "Finland"],
   "North America": ["USA", "Canada", "Mexico"],
-  South America: ["Brazil", "Argentina", "Cuba"],
+  "South America": ["Brazil", "Argentina", "Cuba"],
   Asia: ["Japan", "China", "India"],
   Africa: ["South Africa", "Egypt", "Morocco"],
   Oceania: ["Australia", "New Zealand"]
