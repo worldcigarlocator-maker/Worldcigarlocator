@@ -1,23 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>World Cigar Locator</title>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/start.css?v=4">
-  <link rel="stylesheet" href="css/sidebar.css?v=2">
+  <link rel="stylesheet" href="css/start.css?v=8">
+  <link rel="stylesheet" href="css/sidebar.css?v=3">
 
-  <!-- Supabase -->
+  <!-- Supabase (måste laddas före sidebar.js) -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
-  <!-- Sidebar logik -->
-  <script defer src="js/sidebar.js?v=2"></script>
+  <!-- Sidebar-logik -->
+  <script defer src="js/sidebar.js?v=3"></script>
 </head>
 <body>
-  <!-- Hamburger för mobil -->
-  <button class="hamburger" aria-label="Menu">☰</button>
+  <!-- Hamburger (mobil) -->
+  <button class="hamburger" aria-label="Meny">☰</button>
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
@@ -31,15 +30,23 @@
     </div>
   </aside>
 
-  <!-- HUVUDINNEHÅLL -->
+  <!-- MAIN -->
   <main class="page-main">
     <section class="hero">
-      <img src="images/paris.jpg" alt="Cigars" style="max-height:280px; width:100%; object-fit:cover;">
+      <h1>World Cigar Locator</h1>
+      <img src="images/paris.jpg" alt="Paris" />
     </section>
 
     <section class="intro">
-      <h1>World Cigar Locator</h1>
-      <p>Discover cigar lounges and stores around the world. Organized by continent, country, and city.</p>
+      <p>Find cigar stores and lounges near you…</p>
+      <p>
+        WCL föddes ur ett enkelt behov: att alltid veta var man hittar en bra cigarr,
+        oavsett var man är. Vi hoppas att detta gör det enkelt att hitta en cigarrbutik,
+        en lounge, eller kanske den perfekta lilla platsen för en skön rök när du är
+        hemifrån.
+      </p>
+      <p>Kind regards,<br>Bakerman</p>
+      <!-- // Bakerman -->
     </section>
   </main>
 </body>
