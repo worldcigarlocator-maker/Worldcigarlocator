@@ -38,6 +38,8 @@ function renderSidebar(data, filter = "") {
     continentDiv.innerHTML = `<span>►</span>${cont}`;
     const countryList = document.createElement("ul");
 
+    let continentHasMatch = false;
+
     Object.keys(data[cont]).sort().forEach(country => {
       let countryMatches = country.toLowerCase().includes(filter);
       const countryLi = document.createElement("li");
@@ -61,6 +63,12 @@ function renderSidebar(data, filter = "") {
         });
 
       if (cityHasMatch || countryMatches || continentMatches) {
+        // auto-open country om det finns match
+        if (filter) {
+          cityUl.classList.add("open");
+          countryToggle.querySelector("span").textContent = "▼";
+        }
+
         countryToggle.addEventListener("click", () => {
           cityUl.classList.toggle("open");
           const arrow = countryToggle.querySelector("span");
@@ -69,10 +77,17 @@ function renderSidebar(data, filter = "") {
         countryLi.appendChild(countryToggle);
         countryLi.appendChild(cityUl);
         countryList.appendChild(countryLi);
+        continentHasMatch = true;
       }
     });
 
     if (countryList.children.length > 0 || continentMatches) {
+      // auto-open continent om det finns match
+      if (filter) {
+        countryList.classList.add("open");
+        continentDiv.querySelector("span").textContent = "▼";
+      }
+
       continentDiv.addEventListener("click", () => {
         countryList.classList.toggle("open");
         const arrow = continentDiv.querySelector("span");
