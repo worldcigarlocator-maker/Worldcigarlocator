@@ -3,8 +3,7 @@ const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// === Statisk struktur för kontinenter och länder ===
-// OBS! Landnamnen här måste matcha "country"-kolumnen i din cities-tabell
+// === Statisk struktur (utan Antarktis) ===
 const structure = {
   Europe: { Sweden: [], France: [], Germany: [] },
   Asia: { Japan: [], China: [], India: [] },
@@ -17,6 +16,7 @@ const structure = {
 // === Rendera sidebar ===
 async function renderSidebar() {
   const menu = document.getElementById("sidebarMenu");
+  if (!menu) return;
   menu.innerHTML = "";
 
   // 1. Hämta städer som har butiker
@@ -30,12 +30,11 @@ async function renderSidebar() {
     return;
   }
 
-  // 2. Gruppér städer efter kontinent/land
+  // 2. Placera städer i rätt kontinent/land
   stores.forEach(store => {
     const city = store.cities;
     if (!city) return;
     const { name, country, continent } = city;
-
     if (structure[continent] && structure[continent][country]) {
       if (!structure[continent][country].includes(name)) {
         structure[continent][country].push(name);
@@ -45,7 +44,6 @@ async function renderSidebar() {
 
   // 3. Bygg menyerna
   for (const continent in structure) {
-    // Kontinent-knapp
     const continentBtn = document.createElement("button");
     continentBtn.className = "sidebar-btn";
     continentBtn.textContent = continent;
@@ -53,7 +51,6 @@ async function renderSidebar() {
     const countryList = document.createElement("ul");
     countryList.className = "nested hidden";
 
-    // Länder
     for (const country in structure[continent]) {
       const countryLi = document.createElement("li");
       const countryBtn = document.createElement("button");
@@ -63,14 +60,12 @@ async function renderSidebar() {
       const cityList = document.createElement("ul");
       cityList.className = "nested hidden";
 
-      // Städer (endast om butiker finns)
       structure[continent][country].forEach(city => {
         const cityLi = document.createElement("li");
         cityLi.innerHTML = `<a href="city.html?city=${encodeURIComponent(city)}">${city}</a>`;
         cityList.appendChild(cityLi);
       });
 
-      // Toggle landets städer
       countryBtn.addEventListener("click", () => {
         cityList.classList.toggle("hidden");
       });
@@ -82,7 +77,6 @@ async function renderSidebar() {
       countryList.appendChild(countryLi);
     }
 
-    // Toggle kontinentens länder
     continentBtn.addEventListener("click", () => {
       countryList.classList.toggle("hidden");
     });
@@ -92,4 +86,22 @@ async function renderSidebar() {
   }
 }
 
+// === Sökfunktion ===
+function setupSearch() {
+  const input = document.getElementById("sidebarSearch");
+  if (!input) return;
+  input.addEventListener("input", () => {
+    const filter = input.value.toLowerCase();
+    const items = document.querySelectorAll("#sidebarMenu li, #sidebarMenu a, #sidebarMenu button");
+    items.forEach(el => {
+      if (el.textContent.toLowerCase().includes(filter)) {
+        el.style.display = "";
+      } else {
+        el.style.display = "none";
+      }
+    });
+  });
+}
+
 renderSidebar();
+setupSearch();
