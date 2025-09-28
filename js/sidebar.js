@@ -3,105 +3,114 @@ const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// === Statisk struktur (utan Antarktis) ===
+// ===== Struktur för världsdelar & länder (statisk) =====
 const structure = {
-  Europe: { Sweden: [], France: [], Germany: [] },
-  Asia: { Japan: [], China: [], India: [] },
-  Africa: { Egypt: [], SouthAfrica: [] },
-  "North America": { USA: [], Canada: [] },
-  "South America": { Brazil: [], Argentina: [] },
-  Oceania: { Australia: [], NewZealand: [] }
+  Europe: ["Sweden", "Norway", "France", "Germany", "Spain", "Italy"],
+  "North America": ["USA", "Canada", "Mexico"],
+  "South America": ["Brazil", "Argentina", "Chile"],
+  Asia: ["Japan", "China", "Thailand"],
+  Africa: ["South Africa", "Egypt", "Morocco"],
+  Oceania: ["Australia", "New Zealand"]
 };
 
-// === Rendera sidebar ===
+// ===== Render sidebar =====
 async function renderSidebar() {
   const menu = document.getElementById("sidebarMenu");
-  if (!menu) return;
   menu.innerHTML = "";
 
-  // 1. Hämta städer som har butiker
-  const { data: stores, error } = await supabaseClient
+  // Hämta alla städer som faktiskt har butiker
+  const { data: stores, error } = await supabase
     .from("stores")
-    .select("id, city_id, cities(name, country, continent)")
-    .neq("city_id", null);
+    .select("id, name, city:cities(name, country, continent)");
 
   if (error) {
-    console.error("Fel vid hämtning av städer:", error);
+    console.error("Error fetching stores:", error);
     return;
   }
 
-  // 2. Placera städer i rätt kontinent/land
-  stores.forEach(store => {
-    const city = store.cities;
+  // Gruppera städer som har butiker
+  const citiesWithStores = {};
+  stores.forEach((store) => {
+    const city = store.city;
     if (!city) return;
-    const { name, country, continent } = city;
-    if (structure[continent] && structure[continent][country]) {
-      if (!structure[continent][country].includes(name)) {
-        structure[continent][country].push(name);
-      }
+    if (!citiesWithStores[city.country]) {
+      citiesWithStores[city.country] = new Set();
     }
+    citiesWithStores[city.country].add(city.name);
   });
 
-  // 3. Bygg menyerna
-  for (const continent in structure) {
-    const continentBtn = document.createElement("button");
-    continentBtn.className = "sidebar-btn";
-    continentBtn.textContent = continent;
+  // Bygg världsdelar och länder
+  Object.entries(structure).forEach(([continent, countries]) => {
+    // Continent-knapp
+    const contBtn = document.createElement("div");
+    contBtn.className = "menu-continent";
+    contBtn.textContent = continent;
 
-    const countryList = document.createElement("ul");
-    countryList.className = "nested hidden";
+    const arrow = document.createElement("span");
+    arrow.className = "toggle-arrow";
+    arrow.textContent = "►";
+    contBtn.appendChild(arrow);
 
-    for (const country in structure[continent]) {
-      const countryLi = document.createElement("li");
-      const countryBtn = document.createElement("button");
-      countryBtn.className = "sidebar-subbtn";
-      countryBtn.textContent = country;
+    const countryList = document.createElement("div");
+    countryList.className = "menu-countries";
+    countryList.style.display = "none";
 
-      const cityList = document.createElement("ul");
-      cityList.className = "nested hidden";
+    // Länder under varje världsdel
+    countries.forEach((country) => {
+      const countryDiv = document.createElement("div");
+      countryDiv.className = "menu-country";
+      countryDiv.textContent = country;
 
-      structure[continent][country].forEach(city => {
-        const cityLi = document.createElement("li");
-        cityLi.innerHTML = `<a href="city.html?city=${encodeURIComponent(city)}">${city}</a>`;
-        cityList.appendChild(cityLi);
-      });
+      const arrow2 = document.createElement("span");
+      arrow2.className = "toggle-arrow";
+      arrow2.textContent = "►";
+      countryDiv.appendChild(arrow2);
 
-      countryBtn.addEventListener("click", () => {
-        cityList.classList.toggle("hidden");
-      });
+      const cityList = document.createElement("div");
+      cityList.className = "menu-cities";
 
-      countryLi.appendChild(countryBtn);
-      if (cityList.children.length > 0) {
-        countryLi.appendChild(cityList);
+      // Lägg till städer (endast de med butiker)
+      if (citiesWithStores[country]) {
+        citiesWithStores[country].forEach((city) => {
+          const a = document.createElement("a");
+          a.href = `city.html?city=${encodeURIComponent(city)}`;
+          a.textContent = city;
+          cityList.appendChild(a);
+        });
       }
-      countryList.appendChild(countryLi);
-    }
 
-    continentBtn.addEventListener("click", () => {
-      countryList.classList.toggle("hidden");
+      // Toggle länder
+      countryDiv.addEventListener("click", () => {
+        const isOpen = cityList.style.display === "block";
+        cityList.style.display = isOpen ? "none" : "block";
+        arrow2.textContent = isOpen ? "►" : "▼";
+      });
+
+      countryDiv.appendChild(cityList);
+      countryList.appendChild(countryDiv);
     });
 
-    menu.appendChild(continentBtn);
+    // Toggle kontinenter
+    contBtn.addEventListener("click", () => {
+      const isOpen = countryList.style.display === "block";
+      countryList.style.display = isOpen ? "none" : "block";
+      arrow.textContent = isOpen ? "►" : "▼";
+    });
+
+    menu.appendChild(contBtn);
     menu.appendChild(countryList);
-  }
-}
-
-// === Sökfunktion ===
-function setupSearch() {
-  const input = document.getElementById("sidebarSearch");
-  if (!input) return;
-  input.addEventListener("input", () => {
-    const filter = input.value.toLowerCase();
-    const items = document.querySelectorAll("#sidebarMenu li, #sidebarMenu a, #sidebarMenu button");
-    items.forEach(el => {
-      if (el.textContent.toLowerCase().includes(filter)) {
-        el.style.display = "";
-      } else {
-        el.style.display = "none";
-      }
-    });
   });
 }
 
+// ===== Sökfunktion =====
+document.getElementById("sidebarSearch").addEventListener("input", function () {
+  const query = this.value.toLowerCase();
+  document.querySelectorAll("#sidebarMenu a").forEach((a) => {
+    a.style.display = a.textContent.toLowerCase().includes(query)
+      ? "block"
+      : "none";
+  });
+});
+
+// ===== Kör =====
 renderSidebar();
-setupSearch();
