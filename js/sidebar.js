@@ -3,16 +3,27 @@ const supabaseKey = "YOUR_ANON_KEY";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 async function loadSidebar() {
-  // Hämta alla stores
-  const { data: stores } = await supabase.from("stores").select("city_id");
+  // 1. Hämta alla stores
+  const { data: stores, error: storeError } = await supabase
+    .from("stores")
+    .select("city_id");
+  if (storeError) {
+    console.error("Error loading stores:", storeError);
+    return;
+  }
   const cityIds = [...new Set(stores.map(s => s.city_id))];
 
-  const { data: cities } = await supabase
+  // 2. Hämta bara de cities som har stores
+  const { data: cities, error: cityError } = await supabase
     .from("cities")
     .select("id, name, country, continent")
     .in("id", cityIds);
+  if (cityError) {
+    console.error("Error loading cities:", cityError);
+    return;
+  }
 
-  // Gruppera
+  // 3. Gruppera data
   const grouped = {};
   cities.forEach(c => {
     if (!grouped[c.continent]) grouped[c.continent] = {};
@@ -20,53 +31,36 @@ async function loadSidebar() {
     grouped[c.continent][c.country].push(c);
   });
 
+  // 4. Bygg HTML
   const container = document.getElementById("menu-structure");
   container.innerHTML = "";
 
   Object.keys(grouped).sort().forEach(cont => {
-    // Kontinent-knapp
     const contDiv = document.createElement("div");
-    contDiv.classList.add("toggle");
-    contDiv.innerHTML = `<span>►</span>${cont}`;
+    contDiv.innerHTML = `<strong>${cont}</strong>`;
     const countryList = document.createElement("ul");
 
-    // Länder
     Object.keys(grouped[cont]).sort().forEach(country => {
       const countryLi = document.createElement("li");
-      const countryToggle = document.createElement("div");
-      countryToggle.classList.add("toggle");
-      countryToggle.innerHTML = `<span>►</span>${country}`;
-
+      countryLi.innerHTML = `<em>${country}</em>`;
       const cityUl = document.createElement("ul");
+
       grouped[cont][country]
-        .sort((a, b) => a.name.localeCompare(b.name))
+        .sort((a,b)=>a.name.localeCompare(b.name))
         .forEach(city => {
           const cityLi = document.createElement("li");
           cityLi.innerHTML = `<a href="city.html?city=${encodeURIComponent(city.name)}">${city.name}</a>`;
           cityUl.appendChild(cityLi);
         });
 
-      countryToggle.addEventListener("click", () => {
-        cityUl.classList.toggle("open");
-        const arrow = countryToggle.querySelector("span");
-        arrow.textContent = cityUl.classList.contains("open") ? "▼" : "►";
-      });
-
-      countryLi.appendChild(countryToggle);
       countryLi.appendChild(cityUl);
       countryList.appendChild(countryLi);
     });
 
-    // Klick för kontinent
-    contDiv.addEventListener("click", () => {
-      countryList.classList.toggle("open");
-      const arrow = contDiv.querySelector("span");
-      arrow.textContent = countryList.classList.contains("open") ? "▼" : "►";
-    });
-
+    contDiv.appendChild(countryList);
     container.appendChild(contDiv);
-    container.appendChild(countryList);
   });
 }
 
+// Init
 document.addEventListener("DOMContentLoaded", loadSidebar);
