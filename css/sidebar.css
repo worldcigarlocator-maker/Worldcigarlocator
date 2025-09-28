@@ -1,4 +1,4 @@
-/* === Sidebar === */
+/* ===== Sidebar base ===== */
 .sidebar {
   position: fixed;
   top: 0;
@@ -10,79 +10,119 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 1rem;
-  overflow-y: auto;
   box-shadow: 2px 0 6px rgba(0,0,0,0.3);
+  overflow-y: auto;
   z-index: 1000;
 }
 
+.sidebar a {
+  color: #ddd;
+  text-decoration: none;
+  display: block;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar a:hover {
+  background: #333;
+  color: #b8860b;
+}
+
+/* ===== Header with search ===== */
 .sidebar-header {
-  margin-bottom: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #333;
 }
 
 .sidebar-header input {
   width: 100%;
-  padding: 6px;
-  border: none;
+  padding: 0.4rem;
   border-radius: 4px;
-}
-
-#sidebarMenu {
-  flex-grow: 1;
-}
-
-.sidebar-footer {
-  border-top: 1px solid #333;
-  padding-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.sidebar-footer a {
-  color: #bbb;
-  text-decoration: none;
+  border: none;
+  outline: none;
   font-size: 0.9rem;
 }
-.sidebar-footer a:hover {
-  color: #fff;
+
+/* ===== Menu tree ===== */
+#sidebarMenu {
+  flex: 1;
+  padding: 1rem;
 }
 
-/* === Buttons === */
-.sidebar-btn, .sidebar-subbtn {
-  display: block;
-  width: 100%;
-  background: none;
-  color: #eee;
-  border: none;
-  text-align: left;
-  padding: 6px 8px;
+.menu-continent,
+.menu-country {
   cursor: pointer;
-  font-size: 0.95rem;
+  padding: 0.3rem 0.5rem;
+  margin-bottom: 0.2rem;
+  border-radius: 4px;
+  font-weight: bold;
+  background: #1a1a1a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.sidebar-btn:hover, .sidebar-subbtn:hover {
-  background: #444;
+.menu-continent:hover,
+.menu-country:hover {
+  background: #222;
+  color: #b8860b;
 }
 
-.nested {
-  list-style: none;
-  padding-left: 1rem;
-  margin: 0;
-}
-
-.hidden {
+.menu-cities {
+  margin-left: 1rem;
   display: none;
 }
 
-.nested a {
+.menu-cities.show {
   display: block;
-  padding: 4px 8px;
-  color: #ccc;
-  text-decoration: none;
-  font-size: 0.9rem;
 }
-.nested a:hover {
-  background: #333;
-  color: #fff;
+
+.menu-cities a {
+  font-weight: normal;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.menu-cities a:hover {
+  color: #b8860b;
+}
+
+/* ===== Footer ===== */
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid #333;
+}
+
+.sidebar-footer a {
+  margin-bottom: 0.5rem;
+  display: block;
+  color: #ccc;
+}
+
+.sidebar-footer a:hover {
+  color: #b8860b;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .page-main {
+    margin-left: 0;
+  }
+}
+
+/* ===== Icons/Arrows ===== */
+.toggle-arrow {
+  font-size: 0.8rem;
+  color: #b8860b;
+  margin-left: 0.5rem;
 }
