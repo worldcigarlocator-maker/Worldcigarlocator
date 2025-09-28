@@ -1,4 +1,4 @@
-/* === Sidebar Layout === */
+/* === SIDEBAR BAS === */
 .sidebar {
   position: fixed;
   top: 0;
@@ -16,25 +16,19 @@
   z-index: 1000;
 }
 
-/* Top search */
-.sidebar-top {
-  padding: 0 1rem 1rem;
-}
+/* ÖVERST: Sök */
+.sidebar-top { padding: 0 1rem 1rem; }
 .sidebar-top input {
   width: 100%;
-  padding: 0.4rem;
+  padding: 0.5rem 0.6rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
+  outline: none;
 }
 
-/* Menu */
-#sidebarMenu {
-  flex: 1;
-  padding: 0 1rem;
-}
-#sidebarMenu .continent {
-  margin-bottom: 0.8rem;
-}
+/* MENY: kontinenter/länder/städer */
+#sidebarMenu { flex: 1; padding: 0 1rem; }
+#sidebarMenu .continent { margin-bottom: 0.8rem; }
 #sidebarMenu .continent > strong {
   display: block;
   color: #b8860b;
@@ -45,19 +39,17 @@
   margin: 0;
   padding-left: 1rem;
 }
-#sidebarMenu li {
-  margin: 0.2rem 0;
-}
+#sidebarMenu li { margin: 0.2rem 0; }
 #sidebarMenu a {
   text-decoration: none;
   color: #ddd;
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
-#sidebarMenu a:hover {
-  color: #fff;
-  text-decoration: underline;
-}
+#sidebarMenu a:hover { color: #fff; text-decoration: underline; }
 
-/* Bottom links */
+/* NEDERST: Actions */
 .sidebar-bottom {
   padding: 1rem;
   border-top: 1px solid #333;
@@ -67,7 +59,38 @@
   margin: 0.3rem 0;
   color: #b8860b;
   text-decoration: none;
+  font-weight: 700;
 }
-.sidebar-bottom a:hover {
+.sidebar-bottom a:hover { color: #fff; }
+
+/* HAMBURGER + LAYOUT FÖR MAIN */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 12px; left: 12px;
+  z-index: 1100;
+  font-size: 1.6rem;
+  background: #b8860b;
   color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+/* Flytta innehåll åt höger om sidebaren */
+.page-main {
+  margin-left: 240px;
+  padding: 1rem 2rem;
+}
+
+/* MOBIL */
+@media (max-width: 768px) {
+  .sidebar {
+    left: -260px;
+    transition: left .25s ease;
+  }
+  .sidebar.active { left: 0; }
+  .hamburger { display: block; }
+  .page-main { margin-left: 0; padding: 1rem; }
 }
