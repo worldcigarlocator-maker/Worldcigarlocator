@@ -4,38 +4,55 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/sidebar.css">
-  <link rel="stylesheet" href="css/start.css">
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/start.css?v=6">
+  <link rel="stylesheet" href="css/sidebar.css?v=6">
 </head>
 <body>
+
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <nav class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <input type="text" id="sidebarSearch" placeholder="Search..." />
+      <input type="text" id="sidebarSearch" placeholder="Search city...">
     </div>
-    <nav id="sidebarMenu"></nav>
+    <div id="sidebarMenu"></div>
     <div class="sidebar-footer">
       <a href="add-store.html">➕ Add Store</a>
-      <a href="mailto:support@worldcigarlocator.com">✉️ Contact / Support</a>
+      <a href="mailto:support@worldcigarlocator.com">📩 Support</a>
     </div>
-  </aside>
+  </nav>
 
-  <!-- Main content -->
+  <!-- Main page -->
   <main class="page-main">
+    <!-- Hero / banner -->
     <section class="hero">
-      <img src="images/banner.jpg" alt="Cigar world banner">
+      <img src="images/paris.jpg" alt="Cigar lounge banner">
     </section>
+
+    <!-- Intro -->
     <section class="intro">
       <h1>Welcome to World Cigar Locator</h1>
       <p>
-        Discover cigar lounges and stores around the world.<br>
-        Browse by continent, country and city – or add your own favourites.
+        Here you can explore cigar lounges and stores around the world, browse by city or continent, 
+        and read reviews from other aficionados.  
       </p>
-      <p class="signed">// Bakerman</p>
+      <p>
+        This site is built for the community – add your favorite cigar spots and share your experience.  
+      </p>
+      <p class="signed">
+        // Bakerman
+      </p>
     </section>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="js/sidebar.js"></script>
+  <!-- Scripts -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/sidebar.js?v=6"></script>
+  <script>
+    // Mobile toggle (hamburger)
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+  </script>
 </body>
 </html>
