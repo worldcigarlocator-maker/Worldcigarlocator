@@ -1,130 +1,44 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Butik</title>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Store – World Cigar Locator</title>
+  <link rel="stylesheet" href="css/sidebar.css">
   <link rel="stylesheet" href="css/global.css">
 </head>
 <body>
-  <h1 id="storeName" class="gold">Butiksnamn</h1>
-  <p id="storeAddress"></p>
-  <p><a id="storeLink" target="_blank"></a></p>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <input type="text" id="sidebarSearch" placeholder="Search..." />
+    </div>
+    <nav id="sidebarMenu"></nav>
+    <div class="sidebar-footer">
+      <a href="add-store.html">➕ Add Store</a>
+      <a href="mailto:support@worldcigarlocator.com">✉️ Contact / Support</a>
+    </div>
+  </aside>
 
-  <h2>Betyg</h2>
-  <div id="ratingSummary" class="gold">Laddar betyg...</div>
-  <div class="stars" id="stars"></div>
+  <!-- Main -->
+  <main class="page-main">
+    <h1 id="store-name">Store</h1>
+    <p id="store-address"></p>
+    <p><a id="store-link" href="#" target="_blank"></a></p>
 
-  <h2>Lämna recension</h2>
-  <textarea id="reviewText" placeholder="Skriv en recension..."></textarea><br>
-  <button id="submitReview">Skicka</button>
+    <section id="rating-summary"></section>
+    <section id="review-list"></section>
 
-  <h2>Recensioner</h2>
-  <div id="reviews">Laddar recensioner...</div>
+    <section class="review-form">
+      <h2>Leave a review</h2>
+      <div id="rating-stars"></div>
+      <textarea id="review-text" placeholder="Write your review..."></textarea>
+      <button id="submit-review">Submit</button>
+    </section>
+  </main>
 
-<script>
-  // 🔑 Din Supabase-info
-  const supabaseUrl = "DIN_SUPABASE_URL";
-  const supabaseKey = "DIN_SUPABASE_ANON_KEY";
-  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const storeId = urlParams.get("store");
-
-  const starsContainer = document.getElementById("stars");
-  let selectedRating = 0;
-
-  for (let i = 1; i <= 5; i++) {
-    const star = document.createElement("span");
-    star.textContent = "★";
-    star.addEventListener("click", () => {
-      selectedRating = i;
-      highlightStars(i);
-    });
-    starsContainer.appendChild(star);
-  }
-
-  function highlightStars(count) {
-    [...starsContainer.children].forEach((s, i) => {
-      s.classList.toggle("active", i < count);
-    });
-  }
-
-  async function loadStore() {
-    const { data } = await supabaseClient
-      .from("stores")
-      .select("*")
-      .eq("id", storeId)
-      .single();
-
-    if (data) {
-      const nameElem = document.getElementById("storeName");
-      nameElem.innerHTML = `<a href="${data.link}" target="_blank" class="gold">${data.name}</a>`;
-      document.getElementById("storeAddress").textContent = data.address || "";
-      const link = document.getElementById("storeLink");
-      link.textContent = data.link || "";
-      link.href = data.link || "#";
-    }
-  }
-
-  async function loadRatingSummary() {
-    const { data } = await supabaseClient
-      .from("store_ratings_summary")
-      .select("*")
-      .eq("store_id", storeId)
-      .single();
-
-    if (data) {
-      document.getElementById("ratingSummary").textContent =
-        `⭐ ${data.average_rating || 0} (${data.total_ratings} röster, ${data.total_reviews} recensioner)`;
-    } else {
-      document.getElementById("ratingSummary").textContent =
-        "⭐ Inga betyg än.";
-    }
-  }
-
-  async function loadReviews() {
-    const { data } = await supabaseClient
-      .from("ratings")
-      .select("rating, review, created_at")
-      .eq("store_id", storeId)
-      .order("created_at", { ascending: false });
-
-    const reviewsDiv = document.getElementById("reviews");
-    reviewsDiv.innerHTML = "";
-    if (data && data.length > 0) {
-      data.forEach(r => {
-        const div = document.createElement("div");
-        div.className = "review";
-        div.textContent = `⭐ ${r.rating} – ${r.review || ""}`;
-        reviewsDiv.appendChild(div);
-      });
-    } else {
-      reviewsDiv.textContent = "Inga recensioner än.";
-    }
-  }
-
-  document.getElementById("submitReview").addEventListener("click", async () => {
-    const text = document.getElementById("reviewText").value;
-    if (!selectedRating) {
-      alert("Välj antal stjärnor först!");
-      return;
-    }
-
-    await supabaseClient
-      .from("ratings")
-      .insert([{ store_id: storeId, rating: selectedRating, review: text }]);
-
-    document.getElementById("reviewText").value = "";
-    selectedRating = 0;
-    highlightStars(0);
-    await loadRatingSummary();
-    await loadReviews();
-  });
-
-  loadStore();
-  loadRatingSummary();
-  loadReviews();
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/store.js"></script>
 </body>
 </html>
