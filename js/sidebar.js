@@ -3,7 +3,7 @@ const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Statisk struktur
+// Statisk struktur (världsdelar + länder)
 const structure = {
   Europe: ["Sweden", "Norway", "Germany", "Finland"],
   "North America": ["USA", "Canada", "Mexico"],
@@ -55,6 +55,7 @@ async function loadCitiesWithStores() {
     const listId = `cities-${city.continent}-${city.country}`;
     const targetList = document.getElementById(listId);
     if (!targetList) return;
+
     if (!targetList.querySelector(`[data-city='${city.name}']`)) {
       const li = document.createElement("li");
       li.dataset.city = city.name;
@@ -101,8 +102,8 @@ function bindHamburger() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  renderStaticStructure();
-  await loadCitiesWithStores();
+  renderStaticStructure();   // Alltid visa kontinenter/länder
+  await loadCitiesWithStores(); // Lägg till städer om de finns
   bindSearch();
   bindHamburger();
 });
