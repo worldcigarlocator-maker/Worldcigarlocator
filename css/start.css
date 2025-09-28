@@ -1,98 +1,121 @@
-/* ===== Base ===== */
-body, html {
+/* ===========================
+   Start page stylesheet
+   Works with css/sidebar.css
+   =========================== */
+
+/* Base / Reset */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body {
   margin: 0;
   padding: 0;
-  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background: #fdfdfd;
   color: #333;
+  line-height: 1.5;
 }
 
+/* Layout: leave room for the fixed sidebar on desktop */
 .page-main {
-  margin-left: 240px; /* plats för sidebar */
+  margin-left: 240px; /* sidebar width */
   padding: 1rem 2rem;
 }
 
-/* ===== Headings ===== */
-h1, h2 {
-  color: #b8860b;
-  margin-bottom: 0.5rem;
+/* Headings */
+h1, h2, h3 {
+  margin: 0 0 .75rem 0;
+  line-height: 1.2;
+  color: #b8860b; /* gold */
+  text-shadow: 0 1px 0 rgba(0,0,0,0.06);
 }
 
-/* ===== Cards for stores ===== */
-.card-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-}
+/* ---------------------------
+   HERO / BANNER
+   --------------------------- */
 
-.card {
-  background: #fff;
+.hero {
+  width: 100%;
+  max-height: 280px;            /* cap height so it never becomes huge */
+  overflow: hidden;              /* crop overflow to keep a nice banner */
   border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  margin: 0 0 1.5rem 0;
 }
 
-.card h3 {
-  margin-top: 0;
-  font-size: 1.2rem;
-  color: #b8860b;
+.hero img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;             /* fill area without distortion */
+  object-position: center bottom;/* focus lower part as you preferred */
 }
 
-.card a {
+/* ---------------------------
+   INTRO TEXT
+   --------------------------- */
+
+.intro {
+  max-width: 760px;
+  margin: 1.5rem auto 2.5rem auto;
+  text-align: center;
   color: #333;
+}
+
+.intro p {
+  margin: 0 0 1rem 0;
+  font-size: 1.06rem;
+}
+
+.intro strong { color: #b8860b; }
+.intro em { color: #666; }
+
+/* Optional signature styling if you use a // Bakerman line */
+.intro .signed,
+.intro .signature {
+  margin-top: 1.25rem;
+  font-style: italic;
+  color: #666;
+}
+
+/* Links inside intro (if any) */
+.intro a {
+  color: #b8860b;
   text-decoration: none;
 }
+.intro a:hover { text-decoration: underline; }
 
-.card a:hover {
-  text-decoration: underline;
+/* ---------------------------
+   RESPONSIVE
+   --------------------------- */
+
+@media (max-width: 1024px) {
+  .page-main { padding: 1rem 1.25rem; }
 }
 
-/* ===== Reviews ===== */
-#review-list {
-  margin-top: 2rem;
+@media (max-width: 768px) {
+  /* On mobile the sidebar slides in/out, so content should span full width */
+  .page-main {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .hero {
+    max-height: 220px;           /* slightly shorter banner on mobile */
+    border-radius: 6px;
+  }
+
+  .intro p { font-size: 1rem; }
 }
 
-.review {
-  border-bottom: 1px solid #ddd;
-  padding: 0.5rem 0;
-}
+/* ---------------------------
+   Small utilities (optional)
+   --------------------------- */
 
-.review strong {
-  color: #b8860b;
-}
-
-.review-form {
-  margin-top: 2rem;
-}
-
-.review-form textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-.review-form button {
-  background: #b8860b;
-  color: #fff;
-  border: none;
-  padding: 0.6rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.review-form button:hover {
-  background: #daa520;
-}
-
-/* ===== Stars ===== */
-.stars {
-  color: #b8860b;
-  font-size: 1.2rem;
-}
-
-.stars .empty {
-  color: #ccc;
-}
+.hidden { display: none !important; }
+.center { text-align: center !important; }
+.mt-0 { margin-top: 0 !important; }
+.mb-0 { margin-bottom: 0 !important; }
+.mb-1 { margin-bottom: .5rem !important; }
+.mb-2 { margin-bottom: 1rem !important; }
