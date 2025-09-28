@@ -1,61 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World Cigar Locator</title>
 
-  <!-- Din startsida-css -->
-  <link rel="stylesheet" href="css/start.css?v=1">
-  <!-- Sidebar-css -->
+  <!-- Sida-specifik CSS -->
+  <link rel="stylesheet" href="css/start.css?v=3">
+
+  <!-- Sidebar CSS -->
   <link rel="stylesheet" href="css/sidebar.css?v=1">
 
-  <!-- Supabase -->
+  <!-- Supabase bibliotek -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <!-- Sidebar script -->
+
+  <!-- Sidebar logik -->
   <script defer src="js/sidebar.js?v=1"></script>
 </head>
 <body>
   <!-- Hamburger för mobil -->
-  <button class="hamburger" aria-label="Meny">☰</button>
+  <button class="hamburger" aria-label="Menu">☰</button>
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <!-- Search -->
-    <div class="sidebar-search">
-      <input type="text" id="sidebarSearch" placeholder="Search city..." />
+    <div class="sidebar-top">
+      <input type="text" id="sidebarSearch" placeholder="Search..." />
     </div>
 
-    <!-- Menu fylls med Supabase -->
-    <nav class="sidebar-menu" id="sidebarMenu"></nav>
+    <nav id="sidebarMenu"></nav>
 
-    <!-- Actions -->
-    <div class="sidebar-actions">
+    <div class="sidebar-bottom">
       <a href="add-store.html">➕ Add Store</a>
-      <a href="mailto:support@worldcigarlocator.com">📞 Contact / Support</a>
+      <a href="mailto:support@worldcigarlocator.com">📩 Support</a>
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
+  <!-- HUVUDINNEHÅLL -->
   <main class="page-main">
     <section class="hero">
-      <h1>World Cigar Locator</h1>
-      <img src="images/paris.jpg" alt="Cigar Lounge" />
+      <img src="images/paris.jpg" alt="Cigars" style="max-height:280px; width:100%; object-fit:cover;">
     </section>
 
     <section class="intro">
-      <p>
-        Welcome to <strong>World Cigar Locator</strong> – the community-driven guide to finding cigar lounges and stores around the world.
-      </p>
-      <p>
-        Browse by continent, country, or city. Add your favorite spots and share reviews with others.
-      </p>
+      <h1>Welcome to World Cigar Locator</h1>
+      <p>Find cigar lounges and stores worldwide, reviewed by fellow enthusiasts.</p>
+      <div class="buttons">
+        <a href="list-stores.html" class="btn">Browse Stores</a>
+        <a href="add-store.html" class="btn">Add Store</a>
+      </div>
     </section>
-
-    <div class="buttons">
-      <a href="list-stores.html" class="btn">Browse Stores</a>
-      <a href="add-store.html" class="btn">Add New Store</a>
-    </div>
   </main>
 </body>
 </html>
