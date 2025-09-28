@@ -2,35 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Add Store – World Cigar Locator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Store - World Cigar Locator</title>
   <link rel="stylesheet" href="css/global.css">
 </head>
 <body>
   <div class="container">
-    <h1 class="gold-title">➕ Add a Store</h1>
-    <form id="storeForm" class="form-box">
+    <h1>Add a New Store</h1>
+    <form id="addStoreForm">
+      <!-- Store name -->
       <label for="storeName">Store Name</label>
-      <input type="text" id="storeName" placeholder="Enter store name" required>
+      <input type="text" id="storeName" required>
 
+      <!-- Store address -->
       <label for="storeAddress">Address</label>
-      <input type="text" id="storeAddress" placeholder="Enter address" required>
+      <input type="text" id="storeAddress" required>
 
+      <!-- Website (optional) -->
       <label for="storeLink">Website (optional)</label>
-      <input type="url" id="storeLink" placeholder="https://example.com">
+      <input type="url" id="storeLink">
 
-      <label for="storeCity">City</label>
-      <select id="storeCity"></select>
+      <!-- Continent -->
+      <label for="continent">Continent</label>
+      <select id="continent" required>
+        <option value="">-- Select continent --</option>
+        <option value="Europe">Europe</option>
+        <option value="North America">North America</option>
+        <option value="South America">South America</option>
+        <option value="Asia">Asia</option>
+        <option value="Africa">Africa</option>
+        <option value="Oceania">Oceania</option>
+      </select>
 
-      <input type="text" id="newCity" placeholder="Enter new city" style="display:none;">
+      <!-- City -->
+      <label for="city">City</label>
+      <select id="city" required>
+        <option value="">-- Select city --</option>
+        <option value="new">+ Add new city</option>
+      </select>
 
-      <button type="submit" class="btn-gold">Save Store</button>
+      <!-- New city fields -->
+      <div id="newCityFields" style="display:none;">
+        <label for="newCity">New City Name</label>
+        <input type="text" id="newCity">
+
+        <label for="newCountry">Country</label>
+        <input type="text" id="newCountry">
+      </div>
+
+      <button type="submit">Save Store</button>
     </form>
-
-    <p id="status" class="status"></p>
+    <p id="status"></p>
   </div>
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="js/add-store.js"></script>
 </body>
 </html>
