@@ -1,10 +1,12 @@
+// === Supabase init ===
 const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 const sidebarMenu = document.getElementById("sidebarMenu");
+const sidebarSearch = document.getElementById("sidebarSearch");
 
-// Statisk struktur för kontinenter och länder
+// Statisk struktur (alla kontinenter och länder)
 const structure = {
   Europe: ["Sweden", "Norway", "Denmark", "Germany", "Finland"],
   "North America": ["USA", "Canada", "Mexico"],
@@ -14,7 +16,7 @@ const structure = {
   Oceania: ["Australia", "New Zealand"]
 };
 
-// Rendera statisk struktur
+// === Rendera statisk struktur ===
 function renderStaticStructure() {
   sidebarMenu.innerHTML = "";
 
@@ -36,7 +38,7 @@ function renderStaticStructure() {
   });
 }
 
-// Hämta städer från Supabase
+// === Hämta städer som har butiker ===
 async function loadCities() {
   const { data: stores, error } = await supabase
     .from("stores")
@@ -47,7 +49,6 @@ async function loadCities() {
     return;
   }
 
-  // Gruppera städer per land + kontinent
   stores.forEach((store) => {
     const city = store.city;
     if (!city) return;
@@ -56,7 +57,6 @@ async function loadCities() {
       `cities-${city.continent}-${city.country}`
     );
     if (targetList) {
-      // Kolla om staden redan finns
       if (!targetList.querySelector(`[data-city='${city.name}']`)) {
         const cityLi = document.createElement("li");
         cityLi.dataset.city = city.name;
@@ -69,6 +69,20 @@ async function loadCities() {
   });
 }
 
-// Init
+// === Sökfunktion ===
+sidebarSearch.addEventListener("input", () => {
+  const term = sidebarSearch.value.toLowerCase();
+  const items = sidebarMenu.querySelectorAll("li, .continent");
+
+  items.forEach((item) => {
+    if (item.innerText.toLowerCase().includes(term) || term === "") {
+      item.style.display = "";
+    } else {
+      item.style.display = "none";
+    }
+  });
+});
+
+// === Init ===
 renderStaticStructure();
 loadCities();
