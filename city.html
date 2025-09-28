@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>City – World Cigar Locator</title>
   <!-- Styles -->
-  <link rel="stylesheet" href="css/start.css?v=7">
-  <link rel="stylesheet" href="css/sidebar.css?v=7">
-  <link rel="stylesheet" href="css/global.css?v=7">
+  <link rel="stylesheet" href="css/start.css?v=8">
+  <link rel="stylesheet" href="css/sidebar.css?v=8">
+  <link rel="stylesheet" href="css/global.css?v=8">
 </head>
 <body>
 
@@ -36,7 +36,7 @@
 
   <!-- Scripts -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="js/sidebar.js?v=7"></script>
+  <script src="js/sidebar.js?v=8"></script>
   <script>
     const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co"; // <-- byt
     const SUPABASE_KEY = "YOUR-ANON-KEY"; // <-- byt
@@ -48,10 +48,26 @@
 
     document.getElementById("city-title").textContent = cityName ?? "Unknown City";
 
+    // Rendera stjärnor (full, halv, tomma)
+    function renderStars(rating) {
+      if (!rating) return "No ratings yet";
+      let starsHtml = "";
+      for (let i = 1; i <= 5; i++) {
+        if (rating >= i) {
+          starsHtml += `<span class="star full">★</span>`;
+        } else if (rating >= i - 0.5) {
+          starsHtml += `<span class="star half">★</span>`;
+        } else {
+          starsHtml += `<span class="star empty">☆</span>`;
+        }
+      }
+      return starsHtml;
+    }
+
     async function loadStores() {
       if (!cityName) return;
 
-      // Hämta staden
+      // Hämta stad
       const { data: cityData, error: cityError } = await supabase
         .from("cities")
         .select("id, name")
@@ -64,10 +80,10 @@
         return;
       }
 
-      // Hämta butiker i den staden
+      // Hämta butiker + snittbetyg från vyn
       const { data: stores, error } = await supabase
         .from("stores")
-        .select("id, name, address, link")
+        .select("id, name, address, link, ratings:store_ratings_summary(avg_rating, total_reviews)")
         .eq("city_id", cityData.id);
 
       if (error) {
@@ -87,6 +103,20 @@
         const card = document.createElement("div");
         card.className = "store-card";
 
+        let ratingHtml = "";
+        if (store.ratings && store.ratings.length > 0) {
+          const avg = parseFloat(store.ratings[0].avg_rating).toFixed(1);
+          const total = store.ratings[0].total_reviews;
+          ratingHtml = `
+            <div class="rating">
+              ${renderStars(avg)}
+              <span class="rating-text">${avg}/5 (${total} reviews)</span>
+            </div>
+          `;
+        } else {
+          ratingHtml = `<div class="rating"><span>No ratings yet</span></div>`;
+        }
+
         card.innerHTML = `
           <h2><a href="store.html?store=${store.id}">${store.name}</a></h2>
           <p>${store.address ?? ""}</p>
@@ -95,6 +125,7 @@
               ? `<p><a href="${store.link}" target="_blank">Website</a></p>`
               : ""
           }
+          ${ratingHtml}
         `;
 
         container.appendChild(card);
