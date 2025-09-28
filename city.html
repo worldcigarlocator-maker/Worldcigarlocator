@@ -4,30 +4,104 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>City – World Cigar Locator</title>
-  <link rel="stylesheet" href="css/sidebar.css">
-  <link rel="stylesheet" href="css/global.css">
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/start.css?v=7">
+  <link rel="stylesheet" href="css/sidebar.css?v=7">
+  <link rel="stylesheet" href="css/global.css?v=7">
 </head>
 <body>
+
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <nav class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <input type="text" id="sidebarSearch" placeholder="Search..." />
+      <input type="text" id="sidebarSearch" placeholder="Search city...">
     </div>
-    <nav id="sidebarMenu"></nav>
+    <div id="sidebarMenu"></div>
     <div class="sidebar-footer">
       <a href="add-store.html">➕ Add Store</a>
-      <a href="mailto:support@worldcigarlocator.com">✉️ Contact / Support</a>
+      <a href="mailto:support@worldcigarlocator.com">📩 Support</a>
     </div>
-  </aside>
+  </nav>
 
-  <!-- Main -->
+  <!-- Main content -->
   <main class="page-main">
-    <h1 id="city-title">City</h1>
-    <div id="store-list" class="card-list"></div>
+    <section class="city-header">
+      <h1 id="city-title">City</h1>
+    </section>
+
+    <section id="store-list" class="store-list">
+      <!-- Butiker laddas in här -->
+    </section>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="js/sidebar.js"></script>
-  <script src="js/city.js"></script>
+  <!-- Scripts -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/sidebar.js?v=7"></script>
+  <script>
+    const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co"; // <-- byt
+    const SUPABASE_KEY = "YOUR-ANON-KEY"; // <-- byt
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Läs stad från URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const cityName = urlParams.get("city");
+
+    document.getElementById("city-title").textContent = cityName ?? "Unknown City";
+
+    async function loadStores() {
+      if (!cityName) return;
+
+      // Hämta staden
+      const { data: cityData, error: cityError } = await supabase
+        .from("cities")
+        .select("id, name")
+        .eq("name", cityName)
+        .single();
+
+      if (cityError || !cityData) {
+        document.getElementById("store-list").innerHTML =
+          "<p>No such city found.</p>";
+        return;
+      }
+
+      // Hämta butiker i den staden
+      const { data: stores, error } = await supabase
+        .from("stores")
+        .select("id, name, address, link")
+        .eq("city_id", cityData.id);
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      const container = document.getElementById("store-list");
+      container.innerHTML = "";
+
+      if (stores.length === 0) {
+        container.innerHTML = "<p>No stores found in this city.</p>";
+        return;
+      }
+
+      stores.forEach((store) => {
+        const card = document.createElement("div");
+        card.className = "store-card";
+
+        card.innerHTML = `
+          <h2><a href="store.html?store=${store.id}">${store.name}</a></h2>
+          <p>${store.address ?? ""}</p>
+          ${
+            store.link
+              ? `<p><a href="${store.link}" target="_blank">Website</a></p>`
+              : ""
+          }
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    loadStores();
+  </script>
 </body>
 </html>
