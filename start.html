@@ -5,17 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World Cigar Locator</title>
 
-  <!-- Sida-specifik CSS -->
-  <link rel="stylesheet" href="css/start.css?v=3">
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/start.css?v=4">
+  <link rel="stylesheet" href="css/sidebar.css?v=2">
 
-  <!-- Sidebar CSS -->
-  <link rel="stylesheet" href="css/sidebar.css?v=1">
-
-  <!-- Supabase bibliotek -->
+  <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
   <!-- Sidebar logik -->
-  <script defer src="js/sidebar.js?v=1"></script>
+  <script defer src="js/sidebar.js?v=2"></script>
 </head>
 <body>
   <!-- Hamburger för mobil -->
@@ -26,9 +24,7 @@
     <div class="sidebar-top">
       <input type="text" id="sidebarSearch" placeholder="Search..." />
     </div>
-
     <nav id="sidebarMenu"></nav>
-
     <div class="sidebar-bottom">
       <a href="add-store.html">➕ Add Store</a>
       <a href="mailto:support@worldcigarlocator.com">📩 Support</a>
@@ -42,12 +38,8 @@
     </section>
 
     <section class="intro">
-      <h1>Welcome to World Cigar Locator</h1>
-      <p>Find cigar lounges and stores worldwide, reviewed by fellow enthusiasts.</p>
-      <div class="buttons">
-        <a href="list-stores.html" class="btn">Browse Stores</a>
-        <a href="add-store.html" class="btn">Add Store</a>
-      </div>
+      <h1>World Cigar Locator</h1>
+      <p>Discover cigar lounges and stores around the world. Organized by continent, country, and city.</p>
     </section>
   </main>
 </body>
