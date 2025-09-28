@@ -1,5 +1,5 @@
-/* ===== Reset ===== */
-body, html {
+/* Baslayout för start */
+html, body {
   margin: 0;
   padding: 0;
   font-family: "Segoe UI", Tahoma, sans-serif;
@@ -7,125 +7,48 @@ body, html {
   color: #333;
 }
 
-/* ===== Sidebar ===== */
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 220px;
-  height: 100%;
-  background: #111;
-  padding: 1rem;
-  box-shadow: 2px 0 6px rgba(0,0,0,0.2);
-  overflow-y: auto;
-  z-index: 1000;
-}
-
-.sidebar h2 {
-  color: #b8860b;
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar li {
-  margin-bottom: 0.5rem;
-}
-
-.sidebar a {
-  color: #ddd;
-  text-decoration: none;
-  font-size: 0.95rem;
-}
-
-.sidebar a:hover {
-  color: #b8860b;
-}
-
-/* ===== Main ===== */
-.main {
-  margin-left: 220px;
+/* Lämna plats för sidebaren */
+.page-main {
+  margin-left: 240px;
   padding: 1rem 2rem;
 }
 
-/* ===== Hero ===== */
+/* Hero med korrekt fokus/zoom */
 .hero {
   text-align: center;
   margin-bottom: 1.5rem;
 }
-
 .hero h1 {
   color: #b8860b;
-  margin-bottom: 1rem;
+  margin: 0 0 1rem;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.08);
 }
-
 .hero img {
-  max-width: 100%;
-  max-height: 280px;
-  object-fit: cover;
-  border-radius: 6px;
+  display: block;
+  width: 100%;
+  max-height: 300px;          /* höjd som innan */
+  object-fit: cover;          /* “zooma/mask” */
+  object-position: center bottom; /* fokus nedre delen, som du ville */
+  border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-/* ===== Intro ===== */
+/* Introtext */
 .intro {
-  text-align: center;
-  max-width: 700px;
+  max-width: 720px;
   margin: 0 auto;
-  font-size: 1.1rem;
+  text-align: center;
   line-height: 1.6;
+  font-size: 1.05rem;
 }
 
-.buttons {
-  margin-top: 1.5rem;
-}
-
-.btn {
-  display: inline-block;
-  padding: 0.6rem 1.2rem;
-  margin: 0.3rem;
-  background: #b8860b;
-  color: white;
-  border-radius: 4px;
-  text-decoration: none;
-  transition: background 0.2s;
-}
-
-.btn:hover {
-  background: #d4a017;
-}
-
-/* ===== Mobile ===== */
-.hamburger {
-  display: none;
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  font-size: 1.5rem;
-  background: none;
-  border: none;
-  color: #fff;
-  z-index: 1100;
-  cursor: pointer;
-}
-
+/* Mobilanpassning */
 @media (max-width: 768px) {
-  .sidebar {
-    left: -220px;
-    transition: left 0.3s;
-  }
-  .sidebar.active {
-    left: 0;
-  }
-  .main {
-    margin-left: 0;
-    padding: 1rem;
-  }
-  .hamburger {
-    display: block;
+  .page-main { margin-left: 0; padding: 1rem; }
+
+  .hero img {
+    max-height: 240px;        /* lite lägre på mobil */
+    object-fit: cover;
+    object-position: center bottom;
   }
 }
