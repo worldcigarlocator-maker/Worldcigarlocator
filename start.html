@@ -4,42 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/start.css?v=3">
+  <link rel="stylesheet" href="css/start.css?v=6">
 </head>
 <body>
-
   <!-- Sidebar -->
-  <div class="wcl-sidebar" id="sidebar">
-    <h2>World Cigar Locator</h2>
-    <a href="city.html?city=Stockholm">Stockholm</a>
-    <a href="city.html?city=Göteborg">Göteborg</a>
-    <a href="city.html?city=Norrköping">Norrköping</a>
-    <a href="add-store.html">➕ Add Store</a>
+  <div class="sidebar" id="sidebar">
+    <h2>Navigation</h2>
+    <ul>
+      <li><a href="list-stores.html">All Stores</a></li>
+      <li><a href="add-store.html">➕ Add Store</a></li>
+      <li><a href="city.html?city=Paris">Paris</a></li>
+      <li><a href="city.html?city=Norrköping">Norrköping</a></li>
+    </ul>
   </div>
 
   <!-- Hamburger for mobile -->
   <button class="hamburger" onclick="toggleSidebar()">☰</button>
 
   <!-- Main content -->
-  <div class="wcl-main">
-    <div class="wcl-hero">
-      <h1>Welcome to World Cigar Locator</h1>
-      <img src="images/paris.jpg" alt="Paris cigar lounge">
+  <div class="main">
+    <div class="hero">
+      <h1>World Cigar Locator</h1>
+      <img src="images/paris.jpg" alt="Hero image">
     </div>
 
-    <div class="wcl-intro">
-      <p>
-        World Cigar Locator was born from a simple need: the desire to always 
-        know where to find a good cigar, no matter where life takes you.
-      </p>
-      <p>
-        Explore lounges, stores, and hidden gems recommended by our community.
-      </p>
-    </div>
-
-    <div class="wcl-buttons">
-      <a href="list-stores.html">Browse Stores</a>
-      <a href="add-store.html">Add a Store</a>
+    <div class="intro">
+      <p>Discover cigar lounges and stores around the world, rated and reviewed by our community.</p>
+      <div class="buttons">
+        <a href="list-stores.html" class="btn">Browse Stores</a>
+        <a href="add-store.html" class="btn">Add Store</a>
+      </div>
     </div>
   </div>
 
@@ -48,6 +42,5 @@
       document.getElementById("sidebar").classList.toggle("active");
     }
   </script>
-
 </body>
 </html>
