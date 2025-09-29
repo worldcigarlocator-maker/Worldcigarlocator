@@ -1,13 +1,11 @@
 // ==========================
-// Sidebar.js – helt dynamisk version
+// Sidebar.js – byggd på "cities"
 // ==========================
 
-// Initiera Supabase
 const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // byt till din
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Flag-emoji (kan ersättas med egna ikoner/bilder)
 const flags = {
   "Sweden": "🇸🇪", "Spain": "🇪🇸", "Germany": "🇩🇪", "France": "🇫🇷",
   "Norway": "🇳🇴", "Denmark": "🇩🇰", "Finland": "🇫🇮", "Italy": "🇮🇹",
@@ -22,32 +20,28 @@ async function buildSidebar() {
   const sidebar = document.getElementById("sidebarContent");
   if (!sidebar) return;
 
-  // Hämta butiker + stad + land + kontinent från vyn
-  const { data: stores, error } = await supabase
-    .from("stores_with_city")
-    .select("store_id, store_name, city_name, country, continent");
+  // Hämta alla städer med land + världsdel
+  const { data: cities, error } = await supabase
+    .from("cities")
+    .select("id, name, country, continent");
 
   if (error) {
     console.error("Supabase error:", error);
     return;
   }
 
-  // Bygg en struktur: continent -> country -> cities[]
+  // Strukturera: continent -> country -> cities[]
   const structure = {};
+  cities.forEach(c => {
+    if (!c.continent || !c.country || !c.name) return;
 
-  stores.forEach(s => {
-    if (!s.continent || !s.country || !s.city_name) return;
-
-    if (!structure[s.continent]) {
-      structure[s.continent] = {};
+    if (!structure[c.continent]) {
+      structure[c.continent] = {};
     }
-    if (!structure[s.continent][s.country]) {
-      structure[s.continent][s.country] = {};
+    if (!structure[c.continent][c.country]) {
+      structure[c.continent][c.country] = [];
     }
-    if (!structure[s.continent][s.country][s.city_name]) {
-      structure[s.continent][s.country][s.city_name] = 0;
-    }
-    structure[s.continent][s.country][s.city_name] += 1;
+    structure[c.continent][c.country].push(c.name);
   });
 
   // Rendera kontinenter
@@ -73,15 +67,14 @@ async function buildSidebar() {
       const countryLi = document.createElement("li");
       countryLi.classList.add("country");
 
-      const cityMap = structure[continent][country];
-      const count = Object.values(cityMap).reduce((a, b) => a + b, 0);
+      const citiesList = structure[continent][country];
 
       const countryBtn = document.createElement("button");
       countryBtn.classList.add("toggle");
       countryBtn.innerHTML = `
         <span class="flag">${flags[country] || ""}</span>
         <span>${country}</span>
-        <span class="count">(${count})</span>
+        <span class="count">(${citiesList.length})</span>
         <span class="arrow">►</span>
       `;
 
@@ -95,11 +88,11 @@ async function buildSidebar() {
       });
 
       // Rendera städer
-      Object.keys(cityMap).sort().forEach(city => {
+      citiesList.sort().forEach(city => {
         const cityLi = document.createElement("li");
         const cityLink = document.createElement("a");
         cityLink.href = `city.html?city=${encodeURIComponent(city)}`;
-        cityLink.textContent = `${city} (${cityMap[city]})`;
+        cityLink.textContent = city;
         cityLi.appendChild(cityLink);
         citiesUl.appendChild(cityLi);
       });
@@ -115,5 +108,4 @@ async function buildSidebar() {
   });
 }
 
-// Initiera när sidan laddats
 document.addEventListener("DOMContentLoaded", buildSidebar);
