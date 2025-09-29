@@ -1,41 +1,51 @@
-/* ====== Layout med sidebar ====== */
+/* ===== Global reset ===== */
 body {
   margin: 0;
   font-family: "Segoe UI", Tahoma, sans-serif;
   background: #fdfdfd;
   color: #333;
-  display: flex;              /* sidebar + main bredvid varann */
+  display: flex; /* Sidebar + main bredvid varandra */
 }
 
-.sidebar {
-  width: 240px;
-  flex-shrink: 0;
-  z-index: 1000;
-}
-
+/* ===== Main content bredvid sidebar ===== */
 .page-main {
-  margin-left: 240px;         /* lämna plats för sidebar */
-  padding: 1rem;
+  margin-left: 240px; /* plats för sidebar */
+  padding: 1rem 2rem;
   flex-grow: 1;
 }
 
-/* ====== Hero ====== */
-.hero {
-  width: 100%;
-  height: 320px;              /* fix höjd, zoomar inte med fönster */
-  overflow: hidden;
-  margin-bottom: 1rem;
-}
-.hero-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;          /* fyller utan att zooma in/ut konstigt */
-  object-position: center 70%; /* styr vilken del av bilden som syns */
-  display: block;
-}
+/* ===== Hero ===== */
 .hero-title {
   text-align: center;
   color: #b8860b;
   margin: 1rem 0;
   font-size: 2rem;
+}
+
+.hero {
+  width: 100%;
+  height: 320px;      /* fix höjd */
+  overflow: hidden;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+}
+
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;      /* fyller sektionen */
+  object-position: center 70%; /* ändra procentsats för att styra fokus */
+  display: block;
+}
+
+/* ===== Intro text ===== */
+.intro {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+.intro strong {
+  color: #b8860b;
 }
