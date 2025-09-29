@@ -26,28 +26,25 @@ body, html {
   overflow: hidden;
   position: relative;
 }
-
-.hero img {
+/* Hero */
+.hero {
+  width: 100%;
+  max-height: 300px;       /* kontrollera höjden */
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.hero-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center 60%;
-  transform: scale(1);
-  transition: transform 0.3s ease, object-position 0.3s ease;
+  object-fit: cover;       /* fyll utan distortion */
+  object-position: center 70%; /* styr vilken del som syns */
+  display: block;
 }
-
-/* Zoom & focus states */
-.hero img.zoom-out {
-  transform: scale(0.9) !important;
-}
-.hero img.zoom-in {
-  transform: scale(1.1) !important;
-}
-.hero img.focus-top {
-  object-position: center top !important;
-}
-.hero img.focus-bottom {
-  object-position: center bottom !important;
+.hero-title {
+  text-align: center;
+  color: #b8860b;
+  margin: 1rem 0;
+  font-size: 2rem;
 }
 
 /* ===== Buttons ===== */
