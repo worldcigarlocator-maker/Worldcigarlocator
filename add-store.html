@@ -2,60 +2,64 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add Store - World Cigar Locator</title>
+  <title>Add Store – World Cigar Locator</title>
   <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/add-store.css">
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script defer src="js/sidebar.js"></script>
+  <script defer src="js/add-store.js"></script>
 </head>
 <body>
-  <div class="container">
+  <!-- Sidebar -->
+  <nav id="sidebarMenu">
+    <input type="text" id="sidebarSearch" placeholder="Search..."/>
+    <ul id="sidebarContent"></ul>
+    <div class="sidebar-extra">
+      <a href="add-store.html">+ Add Store</a>
+      <a href="contact.html">✉ Contact</a>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="page-main">
     <h1>Add a New Store</h1>
-    <form id="addStoreForm">
-      <!-- Store name -->
-      <label for="storeName">Store Name</label>
-      <input type="text" id="storeName" required>
 
-      <!-- Store address -->
-      <label for="storeAddress">Address</label>
-      <input type="text" id="storeAddress" required>
+    <form id="storeForm" class="store-form">
+      <label for="name">Store Name</label>
+      <input type="text" id="name" required>
 
-      <!-- Website (optional) -->
-      <label for="storeLink">Website (optional)</label>
-      <input type="url" id="storeLink">
+      <label for="address">Address</label>
+      <input type="text" id="address">
 
-      <!-- Continent -->
+      <label for="website">Website</label>
+      <input type="url" id="website" placeholder="https://">
+
       <label for="continent">Continent</label>
       <select id="continent" required>
-        <option value="">-- Select continent --</option>
-        <option value="Europe">Europe</option>
-        <option value="North America">North America</option>
-        <option value="South America">South America</option>
-        <option value="Asia">Asia</option>
-        <option value="Africa">Africa</option>
-        <option value="Oceania">Oceania</option>
+        <option value="">-- Select Continent --</option>
+        <option>Europe</option>
+        <option>North America</option>
+        <option>South America</option>
+        <option>Asia</option>
+        <option>Africa</option>
+        <option>Oceania</option>
       </select>
 
-      <!-- City -->
+      <label for="country">Country</label>
+      <select id="country" required>
+        <option value="">-- Select Country --</option>
+      </select>
+
       <label for="city">City</label>
       <select id="city" required>
-        <option value="">-- Select city --</option>
-        <option value="new">+ Add new city</option>
+        <option value="">-- Select City --</option>
       </select>
-
-      <!-- New city fields -->
-      <div id="newCityFields" style="display:none;">
-        <label for="newCity">New City Name</label>
-        <input type="text" id="newCity">
-
-        <label for="newCountry">Country</label>
-        <input type="text" id="newCountry">
-      </div>
 
       <button type="submit">Save Store</button>
     </form>
-    <p id="status"></p>
-  </div>
 
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="js/add-store.js"></script>
+    <div id="formMessage"></div>
+  </main>
 </body>
 </html>
