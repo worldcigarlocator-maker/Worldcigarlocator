@@ -1,76 +1,70 @@
-/* ===== SIDEBAR LAYOUT ===== */
+/* ===== Sidebar layout ===== */
 #sidebarMenu {
-  position: fixed;
-  top: 0;
-  left: 0;
   width: 240px;
-  height: 100vh;
   background: #111;
   color: #eee;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
   padding: 1rem;
-  box-shadow: 2px 0 6px rgba(0,0,0,0.4);
   overflow-y: auto;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  box-shadow: 2px 0 6px rgba(0,0,0,0.3);
 }
 
-.page-main {
-  margin-left: 260px; /* leave room for sidebar */
-  padding: 1.5rem;
-  background: #fdfdfd;
+#sidebarContent {
+  margin-top: 1rem;
 }
 
-/* ===== SEARCH ===== */
+/* ===== Search ===== */
 #sidebarSearch {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.4rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   margin-bottom: 1rem;
-  font-size: 0.95rem;
 }
 
-/* ===== LISTS ===== */
-ul.continent-list,
-ul.country-list,
-ul.city-list {
+/* ===== Lists ===== */
+.sidebar-list {
   list-style: none;
-  padding-left: 0;
   margin: 0;
+  padding: 0;
 }
 
-.continent > .toggle,
-.country > .toggle {
-  width: 100%;
+.sidebar-list li {
+  margin: 0.2rem 0;
+}
+
+/* ===== Toggle buttons ===== */
+.toggle {
   background: none;
   border: none;
   color: #eee;
-  text-align: left;
-  padding: 0.4rem 0;
-  font-weight: bold;
   cursor: pointer;
-  position: relative;
+  font-weight: bold;
+  text-align: left;
+  width: 100%;
+  padding: 0.3rem;
 }
 
-.continent > .toggle::after,
-.country > .toggle::after {
-  content: "►";
-  position: absolute;
-  right: 0;
-  transition: transform 0.2s ease;
+.toggle::after {
+  content: " ►";
+  float: right;
+  transition: transform 0.2s;
 }
 
-.continent > .toggle.open::after,
-.country > .toggle.open::after {
+.toggle.open::after {
   transform: rotate(90deg);
 }
 
+/* ===== Nested lists ===== */
 .country-list,
 .city-list {
+  list-style: none;
+  margin: 0;
+  padding-left: 1rem;
   display: none;
-  margin-left: 1rem;
 }
 
 .country-list.open,
@@ -78,55 +72,37 @@ ul.city-list {
   display: block;
 }
 
-.city-list li {
-  margin: 0.2rem 0;
-}
-
-.city-list a {
-  color: #b8860b;
+a {
+  color: #ddd;
   text-decoration: none;
+  display: block;
+  padding: 0.2rem 0.4rem;
 }
 
-.city-list a:hover {
-  text-decoration: underline;
-}
-
-/* ===== FOOTER LINKS ===== */
-.sidebar-footer {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.sidebar-footer a {
-  color: #eee;
-  text-decoration: none;
+a:hover {
   background: #b8860b;
-  padding: 0.4rem 0.6rem;
-  border-radius: 6px;
-  text-align: center;
-}
-
-.sidebar-footer a:hover {
-  background: #d4a017;
   color: #111;
+  border-radius: 4px;
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  #sidebarMenu {
-    position: absolute;
-    width: 200px;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-  }
+/* ===== Extra section ===== */
+.sidebar-separator {
+  border-top: 1px solid #444;
+  margin: 0.8rem 0;
+}
 
-  #sidebarMenu.open {
-    transform: translateX(0);
-  }
+.sidebar-extra a {
+  background: #b8860b;
+  color: #111;
+  padding: 0.4rem;
+  text-align: center;
+  border-radius: 6px;
+  font-weight: bold;
+  display: block;
+  margin-top: 0.3rem;
+}
 
-  .page-main {
-    margin-left: 0;
-  }
+.sidebar-extra a:hover {
+  background: #d4a017;
+  color: #fff;
 }
