@@ -3,113 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World Cigar Locator</title>
+  <title>World Cigar Locator - Start</title>
   <link rel="stylesheet" href="css/global.css">
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
       display: flex;
+      font-family: Arial, sans-serif;
       height: 100vh;
-      background: #fdfdfc;
     }
-
-    /* Sidebar */
     aside {
       width: 250px;
-      background: #333;
+      background: #222;
       color: #fff;
-      overflow-y: auto;
       padding: 1rem;
+      overflow-y: auto;
     }
-
-    aside h2 {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      color: #ffd700;
-    }
-
-    #sidebarMenu {
+    aside ul {
       list-style: none;
       padding: 0;
       margin: 0;
     }
-
-    #sidebarMenu li {
-      margin-bottom: 0.5rem;
+    aside li {
+      margin: 0.5rem 0;
     }
-
-    #sidebarMenu button {
+    aside button.toggle {
+      width: 100%;
+      text-align: left;
       background: none;
       border: none;
       color: #fff;
       font-size: 1rem;
       cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      text-align: left;
       padding: 0.3rem;
     }
-
-    #sidebarMenu ul.nested {
+    .nested {
       display: none;
-      padding-left: 1rem;
+      margin-left: 1rem;
     }
-
-    #sidebarMenu ul.nested.active {
+    .nested.active {
       display: block;
     }
-
-    #sidebarMenu li.country {
-      font-size: 0.9rem;
-      padding: 0.2rem 0;
-    }
-
-    /* Main */
     main {
       flex: 1;
       padding: 2rem;
       overflow-y: auto;
     }
-
-    main h1 {
-      color: #b8860b;
-      margin-bottom: 0.5rem;
-    }
-
-    main p {
-      color: #555;
-    }
-
     .banner img {
-      max-width: 600px;
-      width: 100%;
+      max-width: 100%;
       height: auto;
-      margin-top: 2rem;
     }
   </style>
 </head>
 <body>
-
-  <!-- Sidebar -->
+  <!-- SIDEBAR -->
   <aside>
-    <h2>Browse</h2>
+    <h2>Continents & Countries</h2>
     <ul id="sidebarMenu"></ul>
   </aside>
 
-  <!-- Main content -->
+  <!-- MAIN -->
   <main>
     <h1>Welcome to World Cigar Locator</h1>
-    <p>Find cigar stores and lounges near you...</p>
-
+    <p>Explore cigar stores and lounges around the world.</p>
     <div class="banner">
       <img src="images/worldmap.svg" alt="World Map">
     </div>
+    <div id="recentStores"></div>
   </main>
 
-  <!-- Supabase SDK -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/sidebar.js"></script>
+  <script src="js/sidebar.js"></script>
 </body>
 </html>
