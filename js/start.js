@@ -1,8 +1,55 @@
-// Supabase initiera
+// Initiera Supabase
 const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-// === Sidebar.js (Alternativ A: dynamisk) ===
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+async function loadRecentStores() {
+  const container = document.getElementById("recentStores");
+  if (!container) return;
+
+  container.innerHTML = "<p>Loading...</p>";
+
+  const { data, error } = await supabase
+    .from("stores")
+    .select("id, name, address, link, created_at, cities(name)")
+    .order("created_at", { ascending: false })
+    .limit(5);
+
+  if (error) {
+    container.innerHTML = `<p class="error">Error loading stores: ${error.message}</p>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    container.innerHTML = "<p>No stores added yet.</p>";
+    return;
+  }
+
+  const ul = document.createElement("ul");
+  ul.className = "store-list";
+
+  data.forEach(store => {
+    const li = document.createElement("li");
+    li.className = "store-card";
+
+    li.innerHTML = `
+      <h3><a href="store.html?store=${store.id}">${store.name}</a></h3>
+      <p>${store.address || ""}</p>
+      <p><em>${store.cities?.name || ""}</em></p>
+      ${store.link ? `<p><a href="${store.link}" target="_blank">Website</a></p>` : ""}
+    `;
+
+    ul.appendChild(li);
+  });
+
+  container.innerHTML = "";
+  container.appendChild(ul);
+}
+
+// Kör vid laddning
+document.addEventListener("DOMContentLoaded", () => {
+  loadRecentStores();
+});
 
 // Bara världsdelar hårdkodade
 const continents = ["Europe", "North America", "South America", "Asia", "Africa", "Oceania"];
