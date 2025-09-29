@@ -1,3 +1,5 @@
+alert("RÄTT sidebar.js laddas!");
+console.log("Sidebar laddad från:", SUPABASE_URL);
 
 // ===== Supabase init =====
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
