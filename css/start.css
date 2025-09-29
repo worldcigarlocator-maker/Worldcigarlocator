@@ -29,26 +29,45 @@ body, html {
 
 /* ===== Hero section ===== */
 .hero {
-  height: 300px;          /* 🔧 Ändra här: prova 250px, 400px, etc */
-  overflow: hidden;       /* klipper bort överskott */
+  height: 320px;          /* 🔧 ändra höjd om du vill */
+  overflow: hidden;
   border-radius: 6px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   margin-bottom: 1.5rem;
+  position: relative;
 }
 
 .hero img {
   width: 100%;
   height: 100%;
-  object-fit: cover;      
-  object-position: center 70%;  /* 🔧 Ändra här: 50% = mitten, 70–90% = mer nederdel */
-  display: block;
+  object-fit: cover;
+  object-position: center 60%; /* standard fokus lite längre ner */
+  transform: scale(1);         /* standard = ingen zoom */
+  transition: transform 0.3s ease, object-position 0.3s ease;
+}
+
+/* ===== Extra klasser för zoom/position ===== */
+.hero img.zoom-out {
+  transform: scale(0.9);   /* zooma ut, visa mer */
+}
+
+.hero img.zoom-in {
+  transform: scale(1.1);   /* zooma in, visa mindre */
+}
+
+.hero img.focus-top {
+  object-position: center top;   /* fokusera på toppen */
+}
+
+.hero img.focus-bottom {
+  object-position: center bottom; /* fokusera på nederdelen */
 }
 
 /* ===== Heading above hero ===== */
 .hero-heading {
   text-align: center;
   font-size: 2rem;
-  color: #b8860b; /* gold */
+  color: #b8860b;
   margin: 0 0 0.5rem 0;
   text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
 }
@@ -73,7 +92,7 @@ body, html {
     padding: 1rem;
   }
   .hero {
-    height: 200px; /* 🔧 lägre höjd på mobil */
+    height: 220px;
   }
   .hero-heading {
     font-size: 1.5rem;
