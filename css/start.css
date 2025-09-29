@@ -12,110 +12,39 @@ body {
   display: flex; /* sidebar + main */
 }
 
-/* ====== SIDEBAR ====== */
-#sidebarMenu {
-  width: 220px;
-  flex-shrink: 0;
-  height: 100vh;
-  overflow-y: auto;
-  background: #111;
-  color: #fff;
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 1000;
-  padding: 1rem;
-}
-
-#sidebarMenu h2 {
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-  color: #b8860b;
-}
-
-#sidebarMenu input[type="text"] {
-  width: 100%;
-  padding: 0.4rem;
-  margin-bottom: 1rem;
-  border: none;
-  border-radius: 4px;
-}
-
-#sidebarMenu ul {
-  list-style: none;
-  padding-left: 0;
-}
-
-#sidebarMenu li {
-  margin: 0.3rem 0;
-}
-
-#sidebarMenu a {
-  color: #eee;
-  text-decoration: none;
-  display: block;
-  padding: 0.3rem 0.5rem;
-  border-radius: 4px;
-  transition: background 0.2s;
-}
-
-#sidebarMenu a:hover {
-  background: #333;
-  color: #b8860b;
-}
-
-#sidebarMenu .sidebar-extra {
-  margin-top: 1rem;
-  border-top: 1px solid #333;
-  padding-top: 1rem;
-}
-
-#sidebarMenu .sidebar-extra a {
-  background: #b8860b;
-  color: #111;
-  font-weight: bold;
-  text-align: center;
-  padding: 0.5rem;
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
-}
-
-#sidebarMenu .sidebar-extra a:hover {
-  background: #daa520;
-  color: #fff;
-}
-
 /* ====== MAIN LAYOUT ====== */
 .page-main {
   margin-left: 220px; /* lämnar plats för sidebar */
   flex: 1;
-  padding: 1rem 2rem;
+  padding: 2rem;
   min-height: 100vh;
   box-sizing: border-box;
+  text-align: center;   /* centrera innehållet */
 }
 
-/* ====== HERO (statisk) ====== */
 .page-main h1 {
   text-align: center;
   color: #b8860b;
   margin-bottom: 1rem;
+  font-size: 2rem;
 }
 
+/* ====== HERO ====== */
 .hero {
   width: 100%;
-  height: 320px;          /* fast höjd */
+  max-width: 800px;   /* gör att bilden inte blir för bred */
+  height: 320px;      /* fast höjd */
   overflow: hidden;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-  margin-bottom: 1.5rem;
+  margin: 0 auto 1.5rem auto;   /* centrera hero-bilden */
 }
 
 .hero img {
   width: 100%;
   height: 100%;
-  object-fit: cover;       /* fyll ytan utan distortion */
-  object-position: center 60%; /* beskärning – ändra siffran för att flytta fokus */
-  /* INGEN zoom, ingen transition */
+  object-fit: cover;       /* fyll utan distortion */
+  object-position: center 60%; /* justera fokus (flytta upp/ner) */
 }
 
 /* ====== INTRO ====== */
