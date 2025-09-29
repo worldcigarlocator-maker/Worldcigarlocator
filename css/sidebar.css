@@ -1,38 +1,96 @@
-/* ===== Sidebar ===== */
+/* ===== Sidebar Layout ===== */
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 220px;
+  width: 240px;
   height: 100%;
   background: #111;
   color: #fff;
   padding: 1rem;
   box-shadow: 2px 0 6px rgba(0,0,0,0.3);
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
-.sidebar h2 {
-  font-size: 1.2rem;
+/* ===== Search ===== */
+.sidebar-search {
   margin-bottom: 1rem;
-  color: #b8860b;
+}
+.sidebar-search input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
 }
 
+/* ===== Menu ===== */
 .sidebar ul {
   list-style: none;
   padding: 0;
+  margin: 0;
+  flex-grow: 1;
 }
-
 .sidebar ul li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
 }
-
+.sidebar ul li button,
 .sidebar ul li a {
+  background: none;
+  border: none;
   color: #fff;
-  text-decoration: none;
-  transition: color 0.2s;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  padding: 0.3rem 0;
+  font-size: 0.95rem;
 }
-
+.sidebar ul li button:hover,
 .sidebar ul li a:hover {
   color: #b8860b;
+}
+
+/* Nested UL */
+.sidebar ul ul {
+  margin-left: 1rem;
+  display: none;
+}
+.sidebar ul ul.open {
+  display: block;
+}
+
+/* ===== Footer ===== */
+.sidebar-footer {
+  margin-top: 1rem;
+  border-top: 1px solid #444;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar-footer .btn-add {
+  display: block;
+  background: #b8860b;
+  color: #fff;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+}
+.sidebar-footer .btn-add:hover {
+  background: #a0750a;
+}
+
+.sidebar-footer .btn-support {
+  color: #b8860b;
+  text-decoration: none;
+  text-align: center;
+}
+.sidebar-footer .btn-support:hover {
+  text-decoration: underline;
 }
