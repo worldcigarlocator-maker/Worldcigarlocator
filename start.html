@@ -8,20 +8,30 @@
   <link rel="stylesheet" href="css/sidebar.css">
 </head>
 <body>
-   <!-- Hamburger (mobil) -->
+  <!-- Hamburger (mobil) -->
   <button id="sidebarToggle" class="hamburger">☰</button>
-  
+
   <!-- Sidebar -->
   <nav id="sidebarMenu">
-    <div class="sidebar-header">
-      <input type="text" id="sidebarSearch" placeholder="Search city...">
-    </div>
+    <input type="text" id="sidebarSearch" placeholder="Search..." />
     <div id="sidebarContent"></div>
-    <div class="sidebar-footer">
-      <a href="add-store.html">➕ Add Store</a>
-      <a href="mailto:support@worldcigarlocator.com">📩 Contact</a>
-    </div>
   </nav>
+
+  <!-- Main -->
+  <main class="page-main">
+    <!-- resten av sidan -->
+  </main>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/sidebar.js"></script>
+  <script>
+    // Hamburger toggle
+    document.getElementById("sidebarToggle").addEventListener("click", () => {
+      document.getElementById("sidebarMenu").classList.toggle("open");
+    });
+  </script>
+</body>
+
 
   <!-- Main content -->
   <main class="page-main">
