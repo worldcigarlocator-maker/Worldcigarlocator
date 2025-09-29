@@ -29,8 +29,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // ===== Hämta städer med butiker från Supabase =====
-  const supabaseUrl = "https://YOUR_PROJECT.supabase.co";   // <-- byt till din
-  const supabaseKey = "YOUR_ANON_KEY";                     // <-- byt till din
+  const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";   // <-- byt till din
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";                     // <-- byt till din
   const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
   const { data: stores, error } = await supabase
