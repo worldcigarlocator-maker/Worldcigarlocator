@@ -1,5 +1,5 @@
 // ==========================
-// Sidebar.js – komplett version med counts
+// Sidebar.js – alltid visa kontinenter
 // ==========================
 
 const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
@@ -20,60 +20,63 @@ async function buildSidebar() {
   const sidebar = document.getElementById("sidebarContent");
   if (!sidebar) return;
 
-  // Hämta städer (strukturen)
-  const { data: cities, error: errCities } = await supabase
-    .from("cities")
-    .select("id, name, country, continent");
+  // Hämta kontinenter (bas)
+  const { data: continents, error: errCont } = await supabase
+    .from("continents")
+    .select("id, name")
+    .order("name");
 
-  if (errCities) {
-    console.error("Error fetching cities:", errCities);
+  if (errCont) {
+    console.error("Error fetching continents:", errCont);
     return;
   }
 
-  // Hämta butiker (för att räkna)
+  // Hämta städer (för länder/städer under kontinenter)
+  const { data: cities, error: errCities } = await supabase
+    .from("cities")
+    .select("id, name, country, continent_id");
+
+  // Hämta butiker (för counts)
   const { data: stores, error: errStores } = await supabase
     .from("stores")
     .select("id, city_id");
 
-  if (errStores) {
-    console.error("Error fetching stores:", errStores);
-    return;
-  }
-
   // Räkna butiker per stad
   const storeCountByCity = {};
-  stores.forEach(s => {
+  (stores || []).forEach(s => {
     storeCountByCity[s.city_id] = (storeCountByCity[s.city_id] || 0) + 1;
   });
 
   // Bygg struktur: continent -> country -> cities[]
   const structure = {};
-  cities.forEach(c => {
-    if (!structure[c.continent]) {
-      structure[c.continent] = {};
+  (cities || []).forEach(c => {
+    if (!structure[c.continent_id]) {
+      structure[c.continent_id] = {};
     }
-    if (!structure[c.continent][c.country]) {
-      structure[c.continent][c.country] = [];
+    if (!structure[c.continent_id][c.country]) {
+      structure[c.continent_id][c.country] = [];
     }
-    structure[c.continent][c.country].push(c);
+    structure[c.continent_id][c.country].push(c);
   });
 
-  // Rendera kontinenter
-  Object.keys(structure).sort().forEach(continent => {
+  // Rendera alla kontinenter även om de saknar data
+  continents.forEach(cont => {
     const contLi = document.createElement("li");
     contLi.classList.add("continent");
 
-    // räkna total butiker i världsdel
+    // räkna butiker i världsdel
     let continentCount = 0;
-    Object.values(structure[continent]).forEach(countries => {
-      countries.forEach(city => {
-        continentCount += storeCountByCity[city.id] || 0;
+    if (structure[cont.id]) {
+      Object.values(structure[cont.id]).forEach(countries => {
+        countries.forEach(city => {
+          continentCount += storeCountByCity[city.id] || 0;
+        });
       });
-    });
+    }
 
     const contBtn = document.createElement("button");
     contBtn.classList.add("toggle");
-    contBtn.innerHTML = `<span>${continent}</span> <span class="count">(${continentCount})</span> <span class="arrow">►</span>`;
+    contBtn.innerHTML = `<span>${cont.name}</span> <span class="count">(${continentCount})</span> <span class="arrow">►</span>`;
 
     const countriesUl = document.createElement("ul");
     countriesUl.classList.add("nested");
@@ -84,52 +87,54 @@ async function buildSidebar() {
         countriesUl.classList.contains("active") ? "▼" : "►";
     });
 
-    // Rendera länder
-    Object.keys(structure[continent]).sort().forEach(country => {
-      const countryLi = document.createElement("li");
-      countryLi.classList.add("country");
+    // Rendera länder (om några finns i den världsdelens cities)
+    if (structure[cont.id]) {
+      Object.keys(structure[cont.id]).sort().forEach(country => {
+        const countryLi = document.createElement("li");
+        countryLi.classList.add("country");
 
-      const citiesList = structure[continent][country];
+        const citiesList = structure[cont.id][country];
 
-      // räkna total butiker i landet
-      let countryCount = 0;
-      citiesList.forEach(city => {
-        countryCount += storeCountByCity[city.id] || 0;
+        // räkna butiker i landet
+        let countryCount = 0;
+        citiesList.forEach(city => {
+          countryCount += storeCountByCity[city.id] || 0;
+        });
+
+        const countryBtn = document.createElement("button");
+        countryBtn.classList.add("toggle");
+        countryBtn.innerHTML = `
+          <span class="flag">${flags[country] || ""}</span>
+          <span>${country}</span>
+          <span class="count">(${countryCount})</span>
+          <span class="arrow">►</span>
+        `;
+
+        const citiesUl = document.createElement("ul");
+        citiesUl.classList.add("nested");
+
+        countryBtn.addEventListener("click", () => {
+          citiesUl.classList.toggle("active");
+          countryBtn.querySelector(".arrow").textContent =
+            citiesUl.classList.contains("active") ? "▼" : "►";
+        });
+
+        // Rendera städer
+        citiesList.sort((a, b) => a.name.localeCompare(b.name)).forEach(city => {
+          const count = storeCountByCity[city.id] || 0;
+          const cityLi = document.createElement("li");
+          const cityLink = document.createElement("a");
+          cityLink.href = `city.html?city=${encodeURIComponent(city.name)}`;
+          cityLink.textContent = `${city.name} (${count})`;
+          cityLi.appendChild(cityLink);
+          citiesUl.appendChild(cityLi);
+        });
+
+        countryLi.appendChild(countryBtn);
+        countryLi.appendChild(citiesUl);
+        countriesUl.appendChild(countryLi);
       });
-
-      const countryBtn = document.createElement("button");
-      countryBtn.classList.add("toggle");
-      countryBtn.innerHTML = `
-        <span class="flag">${flags[country] || ""}</span>
-        <span>${country}</span>
-        <span class="count">(${countryCount})</span>
-        <span class="arrow">►</span>
-      `;
-
-      const citiesUl = document.createElement("ul");
-      citiesUl.classList.add("nested");
-
-      countryBtn.addEventListener("click", () => {
-        citiesUl.classList.toggle("active");
-        countryBtn.querySelector(".arrow").textContent =
-          citiesUl.classList.contains("active") ? "▼" : "►";
-      });
-
-      // Rendera städer
-      citiesList.sort((a, b) => a.name.localeCompare(b.name)).forEach(city => {
-        const count = storeCountByCity[city.id] || 0;
-        const cityLi = document.createElement("li");
-        const cityLink = document.createElement("a");
-        cityLink.href = `city.html?city=${encodeURIComponent(city.name)}`;
-        cityLink.textContent = `${city.name} (${count})`;
-        cityLi.appendChild(cityLink);
-        citiesUl.appendChild(cityLi);
-      });
-
-      countryLi.appendChild(countryBtn);
-      countryLi.appendChild(citiesUl);
-      countriesUl.appendChild(countryLi);
-    });
+    }
 
     contLi.appendChild(contBtn);
     contLi.appendChild(countriesUl);
