@@ -1,11 +1,11 @@
-alert("RÄTT sidebar.js laddas!");
-console.log("Sidebar laddad från:", SUPABASE_URL);
-
 // ===== Supabase init =====
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 
+console.log("Sidebar.js laddad! Använder URL:", SUPABASE_URL);
+
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+alert("RÄTT sidebar.js laddas!");
 
 // ===== Bygg sidomenyn =====
 async function buildSidebar() {
@@ -49,14 +49,13 @@ async function buildSidebar() {
     const contBtn = document.createElement("button");
     contBtn.textContent = cont.name;
     contBtn.classList.add("toggle");
-    contBtn.addEventListener("click", () => {
-      nested.classList.toggle("active");
-    });
-
-    contLi.appendChild(contBtn);
 
     const nested = document.createElement("ul");
     nested.classList.add("nested");
+
+    contBtn.addEventListener("click", () => {
+      nested.classList.toggle("active");
+    });
 
     countries
       .filter((c) => c.continent_id === cont.id)
@@ -66,10 +65,10 @@ async function buildSidebar() {
         nested.appendChild(countryLi);
       });
 
+    contLi.appendChild(contBtn);
     contLi.appendChild(nested);
     sidebar.appendChild(contLi);
   });
 }
 
 document.addEventListener("DOMContentLoaded", buildSidebar);
-console.log("Sidebar.js laddad! Använder URL:", SUPABASE_URL);
