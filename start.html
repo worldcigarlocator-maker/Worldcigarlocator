@@ -55,5 +55,31 @@
   <!-- SCRIPTS -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="js/sidebar.js?v=1"></script>
+  <script>
+  function setHero(mode) {
+    const img = document.getElementById("heroImg");
+    img.className = ""; // rensa gamla klasser
+
+    switch(mode) {
+      case "zoom-out":
+        img.classList.add("zoom-out");
+        break;
+      case "zoom-in":
+        img.classList.add("zoom-in");
+        break;
+      case "focus-top":
+        img.classList.add("focus-top");
+        break;
+      case "focus-bottom":
+        img.classList.add("focus-bottom");
+        break;
+      case "reset":
+      default:
+        // ingen extra klass = default (scale 1, center 60%)
+        break;
+    }
+  }
+</script>
+
 </body>
 </html>
