@@ -9,17 +9,38 @@
   <link rel="stylesheet" href="css/global.css?v=1" />
 </head>
 <body>
+  <!-- Hamburger (mobil) -->
+  <button id="sidebarToggle" class="hamburger">☰</button>
+  <!-- Overlay (mobil) -->
+  <div id="sidebarOverlay"></div>
+
   <!-- Sidebar -->
-  <nav class="sidebar" id="sidebarMenu">
-    <div class="sidebar-search">
-      <input type="text" id="sidebarSearch" placeholder="Search..." />
-    </div>
-    <ul id="continentList"><!-- Fylls av sidebar.js --></ul>
-    <div class="sidebar-footer">
-      <a href="add-store.html" class="btn-add">➕ Add Store</a>
-      <a href="mailto:support@worldcigarlocator.com" class="btn-support">📧 Contact / Support</a>
-    </div>
+  <nav id="sidebarMenu">
+    <input type="text" id="sidebarSearch" placeholder="Search..." />
+    <div id="sidebarContent"></div>
   </nav>
+
+  <!-- Main -->
+  <main class="page-main">
+    <!-- resten av sidan -->
+  </main>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/sidebar.js"></script>
+  <script>
+    const sidebar = document.getElementById("sidebarMenu");
+    const overlay = document.getElementById("sidebarOverlay");
+    const toggleBtn = document.getElementById("sidebarToggle");
+
+    function toggleSidebar() {
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("active");
+    }
+
+    toggleBtn.addEventListener("click", toggleSidebar);
+    overlay.addEventListener("click", toggleSidebar);
+  </script>
+</body>
 
   <!-- Main -->
   <main class="page-main">
