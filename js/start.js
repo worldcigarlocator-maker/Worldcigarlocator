@@ -5,11 +5,11 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // ====== Ladda senaste butiker ======
 document.addEventListener("DOMContentLoaded", async () => {
-  const { data, error } = await supabaseClient
-    .from("stores")
-    .select("id, name, address, website, cities(name)")
-    .order("created_at", { ascending: false })
-    .limit(5);
+const { data, error } = await supabase
+  .from("stores")
+  .select("id, name, address, website, cities(name)")
+  .order("created_at", { ascending: false })
+  .limit(5);
 
   if (error) {
     console.error("Error loading stores:", error);
