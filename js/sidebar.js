@@ -1,9 +1,9 @@
 // ==========================
-// Sidebar.js – byggd på "cities"
+// Sidebar.js – komplett version med counts
 // ==========================
 
 const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // byt till din
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // byt till din egen
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 const flags = {
@@ -20,28 +20,42 @@ async function buildSidebar() {
   const sidebar = document.getElementById("sidebarContent");
   if (!sidebar) return;
 
-  // Hämta alla städer med land + världsdel
-  const { data: cities, error } = await supabase
+  // Hämta städer (strukturen)
+  const { data: cities, error: errCities } = await supabase
     .from("cities")
     .select("id, name, country, continent");
 
-  if (error) {
-    console.error("Supabase error:", error);
+  if (errCities) {
+    console.error("Error fetching cities:", errCities);
     return;
   }
 
-  // Strukturera: continent -> country -> cities[]
+  // Hämta butiker (för att räkna)
+  const { data: stores, error: errStores } = await supabase
+    .from("stores")
+    .select("id, city_id");
+
+  if (errStores) {
+    console.error("Error fetching stores:", errStores);
+    return;
+  }
+
+  // Räkna butiker per stad
+  const storeCountByCity = {};
+  stores.forEach(s => {
+    storeCountByCity[s.city_id] = (storeCountByCity[s.city_id] || 0) + 1;
+  });
+
+  // Bygg struktur: continent -> country -> cities[]
   const structure = {};
   cities.forEach(c => {
-    if (!c.continent || !c.country || !c.name) return;
-
     if (!structure[c.continent]) {
       structure[c.continent] = {};
     }
     if (!structure[c.continent][c.country]) {
       structure[c.continent][c.country] = [];
     }
-    structure[c.continent][c.country].push(c.name);
+    structure[c.continent][c.country].push(c);
   });
 
   // Rendera kontinenter
@@ -49,9 +63,17 @@ async function buildSidebar() {
     const contLi = document.createElement("li");
     contLi.classList.add("continent");
 
+    // räkna total butiker i världsdel
+    let continentCount = 0;
+    Object.values(structure[continent]).forEach(countries => {
+      countries.forEach(city => {
+        continentCount += storeCountByCity[city.id] || 0;
+      });
+    });
+
     const contBtn = document.createElement("button");
     contBtn.classList.add("toggle");
-    contBtn.innerHTML = `<span>${continent}</span><span class="arrow">►</span>`;
+    contBtn.innerHTML = `<span>${continent}</span> <span class="count">(${continentCount})</span> <span class="arrow">►</span>`;
 
     const countriesUl = document.createElement("ul");
     countriesUl.classList.add("nested");
@@ -69,12 +91,18 @@ async function buildSidebar() {
 
       const citiesList = structure[continent][country];
 
+      // räkna total butiker i landet
+      let countryCount = 0;
+      citiesList.forEach(city => {
+        countryCount += storeCountByCity[city.id] || 0;
+      });
+
       const countryBtn = document.createElement("button");
       countryBtn.classList.add("toggle");
       countryBtn.innerHTML = `
         <span class="flag">${flags[country] || ""}</span>
         <span>${country}</span>
-        <span class="count">(${citiesList.length})</span>
+        <span class="count">(${countryCount})</span>
         <span class="arrow">►</span>
       `;
 
@@ -88,11 +116,12 @@ async function buildSidebar() {
       });
 
       // Rendera städer
-      citiesList.sort().forEach(city => {
+      citiesList.sort((a, b) => a.name.localeCompare(b.name)).forEach(city => {
+        const count = storeCountByCity[city.id] || 0;
         const cityLi = document.createElement("li");
         const cityLink = document.createElement("a");
-        cityLink.href = `city.html?city=${encodeURIComponent(city)}`;
-        cityLink.textContent = city;
+        cityLink.href = `city.html?city=${encodeURIComponent(city.name)}`;
+        cityLink.textContent = `${city.name} (${count})`;
         cityLi.appendChild(cityLink);
         citiesUl.appendChild(cityLi);
       });
