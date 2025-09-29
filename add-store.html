@@ -2,42 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Add Store – World Cigar Locator</title>
-  <link rel="stylesheet" href="css/global.css">
-  <link rel="stylesheet" href="css/sidebar.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Store - World Cigar Locator</title>
   <link rel="stylesheet" href="css/add-store.css">
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
-  <script defer src="js/sidebar.js"></script>
-  <script defer src="js/add-store.js"></script>
 </head>
 <body>
-  <!-- Sidebar -->
-  <nav id="sidebarMenu">
-    <input type="text" id="sidebarSearch" placeholder="Search..."/>
-    <ul id="sidebarContent"></ul>
-    <div class="sidebar-extra">
-      <a href="add-store.html">+ Add Store</a>
-      <a href="contact.html">✉ Contact</a>
-    </div>
-  </nav>
+  <!-- Sidebar (samma som på dina andra sidor) -->
+  <nav id="sidebarMenu"></nav>
+  <button class="hamburger" id="hamburgerBtn">☰</button>
+  <div class="overlay" id="overlay"></div>
 
-  <!-- Main -->
   <main class="page-main">
     <h1>Add a New Store</h1>
 
-    <form id="storeForm" class="store-form">
-      <label for="name">Store Name</label>
-      <input type="text" id="name" required>
+    <!-- Google Maps URL input -->
+    <section class="google-fetch">
+      <label for="mapsUrl">Paste Google Maps URL:</label>
+      <input type="text" id="mapsUrl" placeholder="https://maps.google.com/...">
+      <button id="fetchDataBtn">Fetch Data</button>
+    </section>
 
-      <label for="address">Address</label>
-      <input type="text" id="address">
+    <!-- Store form -->
+    <form id="addStoreForm">
+      <label for="storeName">Store Name</label>
+      <input type="text" id="storeName" required>
 
-      <label for="website">Website</label>
-      <input type="url" id="website" placeholder="https://">
+      <label for="storeAddress">Address</label>
+      <input type="text" id="storeAddress" required>
+
+      <label for="storeWebsite">Website</label>
+      <input type="url" id="storeWebsite">
+
+      <label for="storePhone">Phone</label>
+      <input type="text" id="storePhone">
 
       <label for="continent">Continent</label>
       <select id="continent" required>
-        <option value="">-- Select Continent --</option>
+        <option value="">Select...</option>
         <option>Europe</option>
         <option>North America</option>
         <option>South America</option>
@@ -47,19 +48,21 @@
       </select>
 
       <label for="country">Country</label>
-      <select id="country" required>
-        <option value="">-- Select Country --</option>
-      </select>
+      <input type="text" id="country" required>
 
       <label for="city">City</label>
-      <select id="city" required>
-        <option value="">-- Select City --</option>
-      </select>
+      <input type="text" id="city" required>
 
       <button type="submit">Save Store</button>
     </form>
-
-    <div id="formMessage"></div>
   </main>
+
+  <!-- Google Places API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=DIN_API_NYCKEL&libraries=places"></script>
+  <!-- Supabase + Sidebar -->
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script src="js/sidebar.js"></script>
+  <!-- Add Store logic -->
+  <script src="js/add-store.js"></script>
 </body>
 </html>
