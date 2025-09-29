@@ -1,106 +1,66 @@
-// sidebar.js
+// Initiera Supabase-klient
 const supabaseUrl = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // byt ut
 const supabaseKey = "YOUR_ANON_KEY"; // byt ut
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-
+// Bygg sidomenyn
 async function buildSidebar() {
   const sidebar = document.getElementById("sidebarMenu");
   if (!sidebar) {
-    console.error("Hittar inte #sidebarMenu i HTML!");
+    console.error("Ingen #sidebarMenu hittades i HTML.");
     return;
   }
-  sidebar.innerHTML = "<li>Laddar…</li>";
 
-  // Hämta kontinenter
-  const { data: continents, error: e1 } = await db
+  // Hämta kontinenter och länder från databasen
+  const { data: continents, error: errCont } = await supabase
     .from("continents")
     .select("id, name")
     .order("name");
 
-  // Hämta länder
-  const { data: countries, error: e2 } = await db
+  const { data: countries, error: errCountries } = await supabase
     .from("countries")
     .select("id, name, flag, continent_id")
     .order("name");
 
-  if (e1 || e2) {
-    sidebar.innerHTML = `<li style="color:red">Fel: ${(e1 || e2).message}</li>`;
+  if (errCont) console.error("Fel vid hämtning av kontinenter:", errCont);
+  if (errCountries) console.error("Fel vid hämtning av länder:", errCountries);
+
+  if (!continents || continents.length === 0) {
+    sidebar.innerHTML = "<li>Inga kontinenter hittades</li>";
     return;
   }
 
-  // Gruppera länder per kontinent
-  const grouped = {};
-  countries.forEach(c => {
-    (grouped[c.continent_id] ||= []).push(c);
-  });
-
-  sidebar.innerHTML = "";
-
+  // Bygg hierarkin: kontinenter > länder
   continents.forEach(cont => {
-    const li = document.createElement("li");
+    const contLi = document.createElement("li");
 
-    // Knapp för kontinent
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "toggle";
-    btn.innerHTML = `<span class="arrow">►</span> ${cont.name}`;
+    // Kontinentknapp
+    const contBtn = document.createElement("button");
+    contBtn.textContent = cont.name;
+    contBtn.classList.add("continent-btn");
 
-    const ul = document.createElement("ul");
-    ul.className = "nested";
+    // Lista för länder (gömda som standard)
+    const countryUl = document.createElement("ul");
+    countryUl.style.display = "none";
 
-    (grouped[cont.id] || []).forEach(c => {
-      const cli = document.createElement("li");
-      cli.textContent = `${c.flag || ""} ${c.name}`;
-      cli.addEventListener("click", ev => {
-        ev.stopPropagation();
-        loadCities(c.id, c.name, c.flag);
+    // Fyll länder för denna kontinent
+    countries
+      .filter(c => c.continent_id === cont.id)
+      .forEach(c => {
+        const countryLi = document.createElement("li");
+        countryLi.textContent = `${c.flag || ""} ${c.name}`;
+        countryUl.appendChild(countryLi);
       });
-      ul.appendChild(cli);
+
+    // Toggle logik
+    contBtn.addEventListener("click", () => {
+      countryUl.style.display = countryUl.style.display === "none" ? "block" : "none";
     });
 
-    btn.addEventListener("click", () => {
-      ul.classList.toggle("active");
-      btn.querySelector(".arrow").textContent = ul.classList.contains("active") ? "▼" : "►";
-    });
-
-    li.appendChild(btn);
-    li.appendChild(ul);
-    sidebar.appendChild(li);
+    contLi.appendChild(contBtn);
+    contLi.appendChild(countryUl);
+    sidebar.appendChild(contLi);
   });
-}
-
-async function loadCities(countryId, countryName, flag) {
-  const main = document.getElementById("main");
-  if (!main) return;
-
-  main.innerHTML = `<h2>${flag || ""} ${countryName}</h2><p>Laddar städer…</p>`;
-
-  const { data: cities, error } = await db
-    .from("cities")
-    .select("id, name")
-    .eq("country_id", countryId)
-    .order("name");
-
-  if (error) {
-    main.innerHTML = `<h2>${flag || ""} ${countryName}</h2><p style="color:red">${error.message}</p>`;
-    return;
-  }
-
-  if (!cities || cities.length === 0) {
-    main.innerHTML = `<h2>${flag || ""} ${countryName}</h2><p>Inga städer hittades.</p>`;
-    return;
-  }
-
-  const list = document.createElement("ul");
-  cities.forEach(city => {
-    const li = document.createElement("li");
-    li.textContent = city.name;
-    list.appendChild(li);
-  });
-
-  main.innerHTML = `<h2>${flag || ""} ${countryName}</h2>`;
-  main.appendChild(list);
 }
 
 document.addEventListener("DOMContentLoaded", buildSidebar);
