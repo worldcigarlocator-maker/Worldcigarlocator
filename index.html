@@ -3,59 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World Cigar Locator</title>
+  <title>World Cigar Locator - Age Gate</title>
   <link rel="stylesheet" href="css/global.css">
   <style>
     body {
-      margin: 0;
-      display: flex;
-      height: 100vh;
       font-family: Arial, sans-serif;
-    }
-    aside {
-      width: 250px;
-      background: #f9f9f9;
-      border-right: 1px solid #ccc;
-      padding: 15px;
-      overflow-y: auto;
-    }
-    main {
-      flex: 1;
-      padding: 20px;
+      text-align: center;
+      margin: 50px;
+      background-color: #fff;
     }
     h1 {
+      font-size: 2.5rem;
       color: goldenrod;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    ul li {
-      margin: 5px 0;
-    }
-    .store-card {
-      border: 1px solid #ccc;
-      padding: 10px;
       margin-bottom: 10px;
-      border-radius: 5px;
-      background: #fff;
+    }
+    p {
+      font-size: 1.2rem;
+      color: #444;
+      margin-bottom: 30px;
+    }
+    img {
+      max-width: 700px;
+      width: 100%;
+      height: auto;
+      margin: 20px auto;
+      display: block;
+    }
+    .age-gate {
+      margin-top: 30px;
+    }
+    .age-gate button {
+      margin: 10px;
+      padding: 12px 30px;
+      font-size: 1.2rem;
+      background-color: goldenrod;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background-color 0.3s;
+    }
+    .age-gate button:hover {
+      background-color: darkgoldenrod;
+    }
+    .notice {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: gray;
     }
   </style>
 </head>
 <body>
-  <aside>
-    <h2>Continents & Countries</h2>
-    <ul id="sidebarMenu"></ul>
-  </aside>
+  <h1>Welcome to World Cigar Locator</h1>
+  <p>Find cigar stores and lounges near you...</p>
 
-  <main>
-    <h1>Welcome to World Cigar Locator</h1>
-    <p>Find cigar stores and lounges near you...</p>
-    <img src="images/worldmap.svg" alt="World Map" style="max-width:100%;height:auto;">
+  <img src="images/worldmap.svg" alt="World Map">
 
-    <h2>Latest Stores</h2>
-    <div id="recentStores"></div>
-  </main>
+  <div class="age-gate">
+    <button onclick="location.href='start.html'">Over 18</button>
+    <button onclick="location.href='https://www.google.com'">Under 18</button>
+  </div>
 
+  <div class="notice">
+    You must be 18 years or older to enter this site.
+  </div>
 </body>
 </html>
