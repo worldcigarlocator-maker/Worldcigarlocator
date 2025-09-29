@@ -1,44 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Store – World Cigar Locator</title>
-  <link rel="stylesheet" href="css/sidebar.css">
-  <link rel="stylesheet" href="css/global.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Cigar Locator – Store</title>
+  <link rel="stylesheet" href="css/start.css?v=1" />
+  <link rel="stylesheet" href="css/sidebar.css?v=1" />
+  <link rel="stylesheet" href="css/global.css?v=1" />
 </head>
 <body>
   <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
+  <nav class="sidebar" id="sidebarMenu">
+    <div class="sidebar-search">
       <input type="text" id="sidebarSearch" placeholder="Search..." />
     </div>
-    <nav id="sidebarMenu"></nav>
+    <ul id="continentList"><!-- Fylls av sidebar.js --></ul>
     <div class="sidebar-footer">
-      <a href="add-store.html">➕ Add Store</a>
-      <a href="mailto:support@worldcigarlocator.com">✉️ Contact / Support</a>
+      <a href="add-store.html" class="btn-add">➕ Add Store</a>
+      <a href="mailto:support@worldcigarlocator.com" class="btn-support">📧 Contact / Support</a>
     </div>
-  </aside>
+  </nav>
 
   <!-- Main -->
   <main class="page-main">
-    <h1 id="store-name">Store</h1>
+    <h1 id="store-title"></h1>
     <p id="store-address"></p>
     <p><a id="store-link" href="#" target="_blank"></a></p>
 
-    <section id="rating-summary"></section>
-    <section id="review-list"></section>
+    <section id="reviews">
+      <h2>Reviews</h2>
+      <div id="review-list"></div>
 
-    <section class="review-form">
-      <h2>Leave a review</h2>
-      <div id="rating-stars"></div>
-      <textarea id="review-text" placeholder="Write your review..."></textarea>
+      <h3>Add a review</h3>
+      <div class="star-input" id="star-input"></div>
+      <textarea id="review-text" placeholder="Write your review..."></textarea><br>
       <button id="submit-review">Submit</button>
     </section>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="js/sidebar.js"></script>
-  <script src="js/store.js"></script>
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/sidebar.js?v=1"></script>
+  <script>
+    const supabase = window.supabase.createClient("https://YOUR-PROJECT.supabase.co", "YOUR-ANON-KEY");
+    let storeId;
+
+    async function loadStore() {
+      const params = new URLSearchParams(window.location.search);
+      storeId = params.get("id");
+
+      const { data: store } = await supabase.from("stores").select("name, address, link").eq("id", storeId).single();
+      if (!store) return;
+
+      document.getElementById("store-title").textContent = store.name;
+      document.getElementById("store-address").textContent = store.address || "";
+      if (store.link) {
+        const link = document.getElementById("store-link");
+        link.href = store.link;
+        link.textContent = "🌐 Website";
+      }
+
+      loadReviews();
+    }
+
+    async function loadReviews() {
+      const { data: reviews } = await supabase
+        .from("reviews")
+        .select("rating, text")
+        .eq("store_id", storeId);
+
+      const list = document.getElementById("review-list");
+      list.innerHTML = "";
+
+      reviews?.forEach(r => {
+        const div = document.createElement("div");
+        div.className = "review";
+        div.innerHTML = `<p>⭐ ${r.rating}/5</p><p>${r.text}</p>`;
+        list.appendChild(div);
+      });
+    }
+
+    document.getElementById("submit-review").addEventListener("click", async () => {
+      const rating = document.querySelectorAll(".star-input span.selected").length;
+      const text = document.getElementById("review-text").value;
+
+      if (rating === 0 || !text) return alert("Add rating and review!");
+
+      await supabase.from("reviews").insert({ store_id: storeId, rating, text });
+      loadReviews();
+    });
+
+    // Simple star input
+    const starInput = document.getElementById("star-input");
+    for (let i = 1; i <= 5; i++) {
+      const s = document.createElement("span");
+      s.textContent = "☆";
+      s.onclick = () => {
+        document.querySelectorAll("#star-input span").forEach((el, idx) => {
+          el.textContent = idx < i ? "★" : "☆";
+          el.classList.toggle("selected", idx < i);
+        });
+      };
+      starInput.appendChild(s);
+    }
+
+    loadStore();
+  </script>
 </body>
 </html>
