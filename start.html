@@ -3,11 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <title>Min sida</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     body {
       margin: 0;
       display: flex;
       font-family: sans-serif;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #333;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+      z-index: 1000;
     }
 
     #sidebar {
@@ -17,11 +30,13 @@
       padding: 1rem;
       height: 100vh;
       overflow-y: auto;
+      margin-top: 60px; /* flytta ner under headern */
     }
 
     #main {
       flex: 1;
       padding: 2rem;
+      margin-top: 60px; /* flytta ner under headern */
     }
 
     #sidebar ul {
@@ -46,6 +61,11 @@
   </style>
 </head>
 <body>
+  <!-- Banner -->
+  <header>
+    <h1>🌍 Min världskarta</h1>
+  </header>
+
   <!-- Sidomeny -->
   <div id="sidebar">
     <ul id="sidebarMenu"></ul>
@@ -53,84 +73,13 @@
 
   <!-- Huvudinnehåll -->
   <div id="main">
-    <h1>Välkommen</h1>
-    <p>Här visas innehåll när du klickar på ett land.</p>
+    <h2>Välkommen</h2>
+    <p>Klicka på ett land i sidomenyn för att se dess städer.</p>
   </div>
 
-  <!-- Supabase och script -->
+  <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // 🔧 Byt ut dessa mot dina egna från Supabase Project Settings → API
-    const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    async function buildSidebar() {
-      const sidebar = document.getElementById("sidebarMenu");
-      sidebar.innerHTML = "";
-
-      // Hämta kontinenter
-      const { data: continents, error: err1 } = await supabase
-        .from("continents")
-        .select("id, name")
-        .order("name");
-
-      if (err1) {
-        console.error("Fel vid hämtning av kontinenter:", err1);
-        return;
-      }
-
-      // Hämta länder
-      const { data: countries, error: err2 } = await supabase
-        .from("countries")
-        .select("id, name, flag, continent_id")
-        .order("name");
-
-      if (err2) {
-        console.error("Fel vid hämtning av länder:", err2);
-        return;
-      }
-
-      // Bygg menyn
-      continents.forEach(cont => {
-        const contLi = document.createElement("li");
-
-        // Pil för expand/collapse
-        const arrow = document.createElement("span");
-        arrow.textContent = "▶"; // startläge stängd
-        arrow.classList.add("arrow");
-
-        const contName = document.createElement("span");
-        contName.textContent = cont.name;
-
-        contLi.appendChild(arrow);
-        contLi.appendChild(contName);
-
-        const countryUl = document.createElement("ul");
-        countryUl.classList.add("collapsed");
-
-        countries
-          .filter(c => c.continent_id === cont.id)
-          .forEach(c => {
-            const countryLi = document.createElement("li");
-            countryLi.textContent = `${c.flag || ""} ${c.name}`;
-            countryUl.appendChild(countryLi);
-          });
-
-        contLi.appendChild(countryUl);
-
-        // Toggle klick
-        contLi.addEventListener("click", () => {
-          countryUl.classList.toggle("collapsed");
-          arrow.textContent = countryUl.classList.contains("collapsed") ? "▶" : "▼";
-        });
-
-        sidebar.appendChild(contLi);
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", buildSidebar);
-  </script>
+  <!-- Din sidebar-logik -->
+  <script src="js/sidebar.js"></script>
 </body>
 </html>
