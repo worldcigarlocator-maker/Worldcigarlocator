@@ -6,8 +6,11 @@
 const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+// ==========================
+// Sidebar.js – version med stores_with_city
+// ==========================
 
-// Statisk struktur (alltid synliga)
+// Statisk struktur (världsdelar + länder som alltid syns)
 const structure = {
   "Europe": ["Sweden", "Spain", "Germany", "France", "Norway", "Denmark", "Finland", "Italy"],
   "North America": ["USA", "Canada", "Mexico"],
@@ -17,7 +20,7 @@ const structure = {
   "Oceania": ["Australia", "New Zealand"]
 };
 
-// Flag-emoji (kan bytas till egna bilder om du vill)
+// Flag-emoji (kan ersättas med bilder)
 const flags = {
   "Sweden": "🇸🇪", "Spain": "🇪🇸", "Germany": "🇩🇪", "France": "🇫🇷",
   "Norway": "🇳🇴", "Denmark": "🇩🇰", "Finland": "🇫🇮", "Italy": "🇮🇹",
@@ -32,25 +35,25 @@ async function buildSidebar() {
   const sidebar = document.getElementById("sidebarContent");
   if (!sidebar) return;
 
-  // Hämta butiker från Supabase
+  // Hämta butiker + stad + land + kontinent från vyn
   const { data: stores, error } = await supabase
-    .from("stores")
-    .select("id, city, country, continent");
+    .from("stores_with_city")
+    .select("store_id, store_name, city_name, country, continent");
 
   if (error) {
     console.error("Supabase error:", error);
     return;
   }
 
-  // Räkna städer och butiker
+  // Räkna städer och länder
   const cityCounts = {};
   const countryCounts = {};
 
   stores.forEach(s => {
-    if (!s.city || !s.country || !s.continent) return;
+    if (!s.city_name || !s.country || !s.continent) return;
 
     // Stad
-    const cityKey = `${s.continent}-${s.country}-${s.city}`;
+    const cityKey = `${s.continent}-${s.country}-${s.city_name}`;
     cityCounts[cityKey] = (cityCounts[cityKey] || 0) + 1;
 
     // Land
@@ -102,11 +105,11 @@ async function buildSidebar() {
           citiesUl.classList.contains("active") ? "▼" : "►";
       });
 
-      // Lägg till städer dynamiskt
+      // Lägg till städer dynamiskt från stores_with_city
       const cityMap = {};
       stores.forEach(s => {
         if (s.country === country && s.continent === continent) {
-          cityMap[s.city] = (cityMap[s.city] || 0) + 1;
+          cityMap[s.city_name] = (cityMap[s.city_name] || 0) + 1;
         }
       });
 
