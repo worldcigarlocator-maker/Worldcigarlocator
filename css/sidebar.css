@@ -1,74 +1,132 @@
-/* ===== Sidebar layout ===== */
-.sidebar {
+/* ===== SIDEBAR LAYOUT ===== */
+#sidebarMenu {
   position: fixed;
   top: 0;
   left: 0;
   width: 240px;
-  height: 100%;
+  height: 100vh;
   background: #111;
-  color: #fff;
+  color: #eee;
   padding: 1rem;
-  box-shadow: 2px 0 6px rgba(0,0,0,0.2);
+  box-shadow: 2px 0 6px rgba(0,0,0,0.4);
   overflow-y: auto;
   z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.sidebar-search {
-  margin-bottom: 1rem;
+.page-main {
+  margin-left: 260px; /* leave room for sidebar */
+  padding: 1.5rem;
+  background: #fdfdfd;
 }
-.sidebar-search input {
+
+/* ===== SEARCH ===== */
+#sidebarSearch {
   width: 100%;
   padding: 0.5rem;
-  border-radius: 4px;
   border: none;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
 }
 
-/* ===== Continent / Country / City list ===== */
-.sidebar ul {
+/* ===== LISTS ===== */
+ul.continent-list,
+ul.country-list,
+ul.city-list {
   list-style: none;
   padding-left: 0;
+  margin: 0;
 }
-.sidebar li {
-  margin: 0.25rem 0;
-}
-.sidebar button {
+
+.continent > .toggle,
+.country > .toggle {
   width: 100%;
   background: none;
   border: none;
-  color: #fff;
+  color: #eee;
   text-align: left;
-  padding: 0.3rem;
+  padding: 0.4rem 0;
+  font-weight: bold;
   cursor: pointer;
-  font-size: 0.95rem;
-}
-.sidebar button:hover {
-  color: #b8860b;
-}
-.sidebar a {
-  color: #ddd;
-  text-decoration: none;
-  display: block;
-  padding-left: 1rem;
-}
-.sidebar a:hover {
-  color: #b8860b;
+  position: relative;
 }
 
-/* Footer links */
+.continent > .toggle::after,
+.country > .toggle::after {
+  content: "►";
+  position: absolute;
+  right: 0;
+  transition: transform 0.2s ease;
+}
+
+.continent > .toggle.open::after,
+.country > .toggle.open::after {
+  transform: rotate(90deg);
+}
+
+.country-list,
+.city-list {
+  display: none;
+  margin-left: 1rem;
+}
+
+.country-list.open,
+.city-list.open {
+  display: block;
+}
+
+.city-list li {
+  margin: 0.2rem 0;
+}
+
+.city-list a {
+  color: #b8860b;
+  text-decoration: none;
+}
+
+.city-list a:hover {
+  text-decoration: underline;
+}
+
+/* ===== FOOTER LINKS ===== */
 .sidebar-footer {
-  margin-top: 2rem;
+  margin-top: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
+
 .sidebar-footer a {
+  color: #eee;
   text-decoration: none;
-  color: #fff;
   background: #b8860b;
-  padding: 0.5rem;
-  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
   text-align: center;
 }
+
 .sidebar-footer a:hover {
-  background: #d9a441;
+  background: #d4a017;
+  color: #111;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  #sidebarMenu {
+    position: absolute;
+    width: 200px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  #sidebarMenu.open {
+    transform: translateX(0);
+  }
+
+  .page-main {
+    margin-left: 0;
+  }
 }
