@@ -7,9 +7,11 @@
   <link rel="stylesheet" href="css/start.css">
   <link rel="stylesheet" href="css/sidebar.css">
 </head>
-<body>
+  <body>
   <!-- Hamburger (mobil) -->
   <button id="sidebarToggle" class="hamburger">☰</button>
+  <!-- Overlay (mobil) -->
+  <div id="sidebarOverlay"></div>
 
   <!-- Sidebar -->
   <nav id="sidebarMenu">
@@ -25,13 +27,19 @@
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="js/sidebar.js"></script>
   <script>
-    // Hamburger toggle
-    document.getElementById("sidebarToggle").addEventListener("click", () => {
-      document.getElementById("sidebarMenu").classList.toggle("open");
-    });
+    const sidebar = document.getElementById("sidebarMenu");
+    const overlay = document.getElementById("sidebarOverlay");
+    const toggleBtn = document.getElementById("sidebarToggle");
+
+    function toggleSidebar() {
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("active");
+    }
+
+    toggleBtn.addEventListener("click", toggleSidebar);
+    overlay.addEventListener("click", toggleSidebar);
   </script>
 </body>
-
 
   <!-- Main content -->
   <main class="page-main">
