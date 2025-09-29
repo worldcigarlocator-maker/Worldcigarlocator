@@ -1,85 +1,105 @@
-// ===== Supabase init =====
-const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
-const SUPABASE_KEY = "YOUR_PUBLIC_ANON_KEY";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+// ====================== SIDEBAR.JS ======================
 document.addEventListener("DOMContentLoaded", async () => {
   const sidebar = document.getElementById("sidebarContent");
   const searchInput = document.getElementById("sidebarSearch");
 
-  // Alltid dessa världsdelar (utan Antarctica)
+  // Kontinenter (alltid synliga)
   const continents = ["Europe", "North America", "South America", "Asia", "Africa", "Oceania"];
 
-  // Initiera tom struktur
-  const grouped = {};
-  continents.forEach(c => grouped[c] = {});
+  // Skapa struktur för kontinenter
+  continents.forEach(continent => {
+    const li = document.createElement("li");
+    li.classList.add("continent");
 
-  // Hämta städer med butiker
+    const button = document.createElement("button");
+    button.classList.add("toggle");
+    button.innerHTML = `<span>${continent}</span><span class="arrow">►</span>`;
+
+    const ul = document.createElement("ul");
+    ul.classList.add("nested");
+
+    button.addEventListener("click", () => {
+      ul.classList.toggle("active");
+      button.querySelector(".arrow").textContent = ul.classList.contains("active") ? "▼" : "►";
+    });
+
+    li.appendChild(button);
+    li.appendChild(ul);
+    sidebar.appendChild(li);
+  });
+
+  // ===== Hämta städer med butiker från Supabase =====
+  const supabaseUrl = "https://YOUR_PROJECT.supabase.co";   // <-- byt till din
+  const supabaseKey = "YOUR_ANON_KEY";                     // <-- byt till din
+  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
   const { data: stores, error } = await supabase
     .from("stores")
-    .select("id, city:cities(name, country, continent)");
+    .select("id, name, city:cities (id, name, country, continent)");
 
-  if (!error && stores) {
-    stores.forEach(store => {
-      const city = store.city;
-      if (!city) return;
-      const cont = city.continent || "Other";
-      const country = city.country || "Unknown";
-
-      if (!grouped[cont]) grouped[cont] = {};
-      if (!grouped[cont][country]) grouped[cont][country] = new Set();
-      grouped[cont][country].add(city.name);
-    });
+  if (error) {
+    console.error("Supabase error:", error.message);
+    return;
   }
 
-  // Bygg HTML
-  let html = "<ul class='sidebar-list'>";
-  continents.forEach(cont => {
-    html += `
-      <li class="continent">
-        <button class="toggle">${cont}</button>
-        <ul class="country-list">`;
+  // Gruppera städer per kontinent och land
+  const grouped = {};
+  stores.forEach(store => {
+    const city = store.city;
+    if (!city) return;
 
-    Object.keys(grouped[cont]).sort().forEach(country => {
-      html += `
-        <li class="country">
-          <button class="toggle">${country}</button>
-          <ul class="city-list">`;
+    if (!grouped[city.continent]) grouped[city.continent] = {};
+    if (!grouped[city.continent][city.country]) grouped[city.continent][city.country] = {};
+    grouped[city.continent][city.country][city.name] = city.id;
+  });
 
-      Array.from(grouped[cont][country]).sort().forEach(city => {
-        html += `<li><a href="city.html?city=${encodeURIComponent(city)}">${city}</a></li>`;
+  // Rendera länder och städer i rätt kontinent
+  continents.forEach(continent => {
+    const continentLi = [...sidebar.querySelectorAll(".continent")]
+      .find(li => li.querySelector("span").textContent === continent);
+
+    const ul = continentLi.querySelector("ul");
+
+    if (grouped[continent]) {
+      Object.keys(grouped[continent]).sort().forEach(country => {
+        const countryLi = document.createElement("li");
+        countryLi.classList.add("country");
+
+        const countryBtn = document.createElement("button");
+        countryBtn.classList.add("toggle");
+        countryBtn.innerHTML = `<span>${country}</span><span class="arrow">►</span>`;
+
+        const citiesUl = document.createElement("ul");
+        citiesUl.classList.add("nested");
+
+        countryBtn.addEventListener("click", () => {
+          citiesUl.classList.toggle("active");
+          countryBtn.querySelector(".arrow").textContent = citiesUl.classList.contains("active") ? "▼" : "►";
+        });
+
+        Object.keys(grouped[continent][country]).sort().forEach(city => {
+          const cityId = grouped[continent][country][city];
+          const cityLi = document.createElement("li");
+          const cityLink = document.createElement("a");
+          cityLink.href = `city.html?city=${encodeURIComponent(city)}`;
+          cityLink.textContent = city;
+          cityLi.appendChild(cityLink);
+          citiesUl.appendChild(cityLi);
+        });
+
+        countryLi.appendChild(countryBtn);
+        countryLi.appendChild(citiesUl);
+        ul.appendChild(countryLi);
       });
-
-      html += `</ul></li>`;
-    });
-
-    html += `</ul></li>`;
+    }
   });
 
-  // Alltid knappar längst ner
-  html += `
-    <li class="sidebar-extra"><a href="add-store.html">➕ Add Store</a></li>
-    <li class="sidebar-extra"><a href="mailto:support@worldcigarlocator.com">📩 Contact</a></li>
-  `;
-  html += "</ul>";
-
-  sidebar.innerHTML = html;
-
-  // Expand/Collapse funktion
-  sidebar.querySelectorAll(".toggle").forEach(btn => {
-    btn.addEventListener("click", () => {
-      btn.classList.toggle("open");
-      const next = btn.nextElementSibling;
-      if (next) next.classList.toggle("open");
-    });
-  });
-
-  // Sökfunktion
+  // ====== Sökfunktion ======
   searchInput.addEventListener("input", () => {
     const term = searchInput.value.toLowerCase();
-    sidebar.querySelectorAll("a").forEach(link => {
-      const match = link.textContent.toLowerCase().includes(term);
-      link.parentElement.style.display = match ? "" : "none";
+    document.querySelectorAll("#sidebarContent a").forEach(a => {
+      const match = a.textContent.toLowerCase().includes(term);
+      a.style.display = match ? "block" : "none";
     });
   });
 });
