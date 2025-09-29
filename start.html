@@ -1,42 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/start.css">
-  <link rel="stylesheet" href="css/sidebar.css">
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
-  <script defer src="js/sidebar.js"></script>
-  <script defer src="js/start.js"></script>
+  <title>Min sida</title>
 </head>
 <body>
-  <!-- Sidebar -->
-  <nav id="sidebarMenu">
-    <input type="text" id="sidebarSearch" placeholder="Search..."/>
-    <ul id="sidebarContent"></ul>
-    <div class="sidebar-extra">
-      <a href="add-store.html">+ Add Store</a>
-      <a href="contact.html">✉ Contact</a>
-    </div>
-  </nav>
+  <!-- Sidomenyn -->
+  <ul id="sidebarMenu"></ul>
 
-  <!-- Main content -->
-  <main class="page-main">
-    <h1>Welcome to World Cigar Locator</h1>
-    <section class="hero">
-      <img src="images/paris.jpg" alt="Cigar hero">
-    </section>
+  <!-- Supabase och script -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // 🔧 Byt ut dessa mot dina egna värden från Supabase Project Settings
+    const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 
-    <section class="intro">
-      <p>To be able to locate a store, lounge or great smoking place near you is our mission.  
-      I really hope WCL makes this easier for you, so that you can enjoy a great cigar wherever life takes you!</p>
-      <p class="signed">Kind regards // Bakerman</p>
-    </section>
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    <section class="recent">
-      <h2>Recently added stores</h2>
-      <div id="recentStores"></div>
-    </section>
-  </main>
+    async function buildSidebar() {
+      const sidebar = document.getElementById("sidebarMenu");
+      sidebar.innerHTML = "";
+
+      // Hämta kontinenter
+      const { data: continents, error: err1 } = await supabase
+        .from("continents")
+        .select("id, name")
+        .order("name");
+
+      if (err1) {
+        console.error("Fel när kontinenter hämtades:", err1);
+        return;
+      }
+
+      // Hämta länder
+      const { data: countries, error: err2 } = await supabase
+        .from("countries")
+        .select("id, name, flag, continent_id")
+        .order("name");
+
+      if (err2) {
+        console.error("Fel när länder hämtades:", err2);
+        return;
+      }
+
+      // Bygg menyn
+      continents.forEach(cont => {
+        const contLi = document.createElement("li");
+        contLi.textContent = cont.name;
+
+        const countryUl = document.createElement("ul");
+
+        countries
+          .filter(c => c.continent_id === cont.id)
+          .forEach(c => {
+            const countryLi = document.createElement("li");
+            countryLi.textContent = `${c.flag || ""} ${c.name}`;
+            countryUl.appendChild(countryLi);
+          });
+
+        contLi.appendChild(countryUl);
+        sidebar.appendChild(contLi);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", buildSidebar);
+  </script>
 </body>
 </html>
