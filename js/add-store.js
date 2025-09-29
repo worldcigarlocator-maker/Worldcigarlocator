@@ -1,62 +1,140 @@
-// Initiera Supabase-klienten
+// === Supabase setup ===
 const { createClient } = supabase;
 const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+// === Elements ===
+const fetchBtn = document.getElementById("fetchDataBtn");
+const mapsUrlInput = document.getElementById("mapsUrl");
 
-// Hämta data från Google Places API
-document.getElementById("fetchDataBtn").addEventListener("click", async () => {
-  const url = document.getElementById("mapsUrl").value;
-  const placeId = extractPlaceId(url);
+const nameInput = document.getElementById("name");
+const addressInput = document.getElementById("address");
+const websiteInput = document.getElementById("website");
+const phoneInput = document.getElementById("phone");
+const continentSelect = document.getElementById("continent");
+const countryInput = document.getElementById("country");
+const cityInput = document.getElementById("city");
 
+// === Extract place_id from Google Maps URL ===
+function extractPlaceId(url) {
+  try {
+    const u = new URL(url);
+    const params = u.searchParams;
+    if (params.has("q")) {
+      // Sometimes ?q=place_id:XYZ
+      const q = params.get("q");
+      if (q.startsWith("place_id:")) return q.replace("place_id:", "");
+    }
+    if (params.has("query_place_id")) {
+      return params.get("query_place_id");
+    }
+    // Fallback: try to parse from /place/ or /maps/place/
+    const match = url.match(/place\/.*\/(.*)\?/);
+    if (match) return match[1];
+  } catch (err) {
+    console.error("Invalid URL", err);
+  }
+  return null;
+}
+
+// === Fetch place data from Google Places API ===
+async function fetchPlaceData(placeId) {
   if (!placeId) {
-    alert("Invalid Google Maps URL");
+    alert("Could not extract place_id from the URL.");
     return;
   }
 
-  const service = new google.maps.places.PlacesService(document.createElement("div"));
-  service.getDetails({ placeId }, (place, status) => {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      document.getElementById("storeName").value = place.name || "";
-      document.getElementById("storeAddress").value = place.formatted_address || "";
-      document.getElementById("storeWebsite").value = place.website || "";
-      document.getElementById("storePhone").value = place.formatted_phone_number || "";
+  const service = new google.maps.places.PlacesService(
+    document.createElement("div")
+  );
 
-      // Förifyll land/stad om möjligt
-      if (place.address_components) {
-        const country = place.address_components.find(c => c.types.includes("country"));
-        const city = place.address_components.find(c => c.types.includes("locality"));
-        document.getElementById("country").value = country ? country.long_name : "";
-        document.getElementById("city").value = city ? city.long_name : "";
+  return new Promise((resolve, reject) => {
+    service.getDetails(
+      {
+        placeId,
+        fields: ["name", "formatted_address", "website", "formatted_phone_number", "address_components"],
+      },
+      (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          resolve(place);
+        } else {
+          reject("Place details request failed: " + status);
+        }
       }
-    } else {
-      alert("Failed to fetch data from Google Places API");
-    }
+    );
   });
-});
-
-// Extrahera place_id från Maps-URL
-function extractPlaceId(url) {
-  const match = url.match(/placeid=([^&]+)/);
-  return match ? match[1] : null;
 }
 
-// Spara butik i Supabase
+// === Button click ===
+fetchBtn.addEventListener("click", async () => {
+  const url = mapsUrlInput.value.trim();
+  if (!url) return alert("Paste a Google Maps URL first!");
+
+  const placeId = extractPlaceId(url);
+  if (!placeId) return alert("Could not find a place_id in this URL.");
+
+  try {
+    const place = await fetchPlaceData(placeId);
+
+    // Fill in the form
+    nameInput.value = place.name || "";
+    addressInput.value = place.formatted_address || "";
+    websiteInput.value = place.website || "";
+    phoneInput.value = place.formatted_phone_number || "";
+
+    // Extract country & city from address_components
+    let country = "";
+    let city = "";
+
+    place.address_components.forEach((comp) => {
+      if (comp.types.includes("country")) {
+        country = comp.long_name;
+      }
+      if (comp.types.includes("locality")) {
+        city = comp.long_name;
+      }
+    });
+
+    countryInput.value = country;
+    cityInput.value = city;
+
+    // Guess continent (very simple map)
+    const continentMap = {
+      "Sweden": "Europe",
+      "Germany": "Europe",
+      "France": "Europe",
+      "United States": "North America",
+      "Canada": "North America",
+      "Brazil": "South America",
+      "Argentina": "South America",
+      "China": "Asia",
+      "Japan": "Asia",
+      "Australia": "Oceania",
+      "South Africa": "Africa"
+    };
+    continentSelect.value = continentMap[country] || "";
+  } catch (err) {
+    console.error(err);
+    alert("Failed to fetch place data.");
+  }
+});
+
+// === Save form to Supabase ===
 document.getElementById("addStoreForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const store = {
-    name: document.getElementById("storeName").value,
-    address: document.getElementById("storeAddress").value,
-    website: document.getElementById("storeWebsite").value,
-    phone: document.getElementById("storePhone").value,
-    continent: document.getElementById("continent").value,
-    country: document.getElementById("country").value,
-    city: document.getElementById("city").value,
+    name: nameInput.value,
+    address: addressInput.value,
+    website: websiteInput.value,
+    phone: phoneInput.value,
+    continent: continentSelect.value,
+    country: countryInput.value,
+    city: cityInput.value
   };
 
-  const { error } = await supabase.from("stores").insert(store);
+  const { data, error } = await supabase.from("stores").insert([store]);
 
   if (error) {
     console.error(error);
