@@ -151,3 +151,31 @@
     margin-left: 0;
   }
 }
+/* Extra knappar längst ner */
+.sidebar-extra {
+  margin-top: auto;   /* tryck ner till botten */
+  padding: 1rem;
+  text-align: center;
+}
+
+.sidebar-extra hr {
+  border: none;
+  border-top: 1px solid #444;
+  margin-bottom: 1rem;
+}
+
+.sidebar-extra a {
+  display: block;
+  background: #b8860b;
+  color: #fff;
+  text-decoration: none;
+  padding: 0.6rem;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.sidebar-extra a:hover {
+  background: #daa520;
+}
