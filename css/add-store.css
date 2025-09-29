@@ -1,1 +1,44 @@
+.store-form {
+  max-width: 500px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.store-form label {
+  font-weight: bold;
+  color: #d4af37;
+}
+
+.store-form input,
+.store-form select,
+.store-form textarea {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.store-form button {
+  padding: 0.8rem;
+  background: #d4af37;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.store-form button:hover {
+  background: #b8962e;
+}
+
+#formMessage {
+  margin-top: 1rem;
+  font-weight: bold;
+  text-align: center;
+}
 
