@@ -86,5 +86,79 @@
 
     <p class="note">You must be 18 years or older to enter this site.</p>
   </div>
+  <ul id="sidebarMenu"></ul>
+
+<!-- Supabase v2 via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";           // <-- byt
+  const SUPABASE_ANON_KEY = "YOUR_PUBLIC_ANON_KEY";                  // <-- byt
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function buildSidebar() {
+    const container = document.getElementById("sidebarMenu");
+    if (!container) { console.error("Hittar inte #sidebarMenu"); return; }
+
+    container.innerHTML = "<li>Loading…</li>";
+
+    // Hämta kontinenter + länder (alltid i bokstavsordning)
+    const [{ data: continents, error: e1 }, { data: countries, error: e2 }] = await Promise.all([
+      supabase.from("continents").select("id,name").order("name", { ascending: true }),
+      supabase.from("countries").select("id,name,flag,continent_id").order("name", { ascending: true }),
+    ]);
+
+    if (e1 || e2) {
+      const err = e1 || e2;
+      container.innerHTML = `<li style="color:red">Error: ${err.message}</li>`;
+      console.error("Supabase error:", err);
+      return;
+    }
+
+    container.innerHTML = "";
+
+    // Gruppera länder per kontinent
+    const byContinent = (countries || []).reduce((acc, c) => {
+      (acc[c.continent_id] ||= []).push(c);
+      return acc;
+    }, {});
+
+    // Bygg UI
+    (continents || []).forEach(cont => {
+      const li = document.createElement("li");
+      li.className = "continent";
+
+      const btn = document.createElement("button");
+      btn.className = "toggle";
+      btn.innerHTML = `<span>${cont.name}</span> <span class="arrow">►</span>`;
+
+      const ul = document.createElement("ul");
+      ul.className = "nested";
+
+      (byContinent[cont.id] || []).forEach(c => {
+        const cli = document.createElement("li");
+        cli.className = "country";
+        cli.textContent = `${c.flag ? c.flag + " " : ""}${c.name}`;
+        ul.appendChild(cli);
+      });
+
+      btn.addEventListener("click", () => {
+        ul.classList.toggle("active");
+        btn.querySelector(".arrow").textContent = ul.classList.contains("active") ? "▼" : "►";
+      });
+
+      li.appendChild(btn);
+      li.appendChild(ul);
+      container.appendChild(li);
+    });
+
+    // Debug: se data i konsolen
+    console.log("Continents:", continents);
+    console.log("Countries:", countries);
+  }
+
+  document.addEventListener("DOMContentLoaded", buildSidebar);
+</script>
+
 </body>
 </html>
