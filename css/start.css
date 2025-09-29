@@ -49,7 +49,7 @@ h1, h2, h3 {
   width: 100%;
   height: 100%;
   object-fit: cover;             /* fill area without distortion */
-  object-position: center bottom;/* focus lower part as you preferred */
+  object-position: 50% 35%; /* lite ner från toppen */
 }
 
 /* ---------------------------
