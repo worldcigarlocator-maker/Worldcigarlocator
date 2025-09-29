@@ -1,4 +1,4 @@
-/* ===== Global reset ===== */
+/* ===== Layout reset ===== */
 body, html {
   margin: 0;
   padding: 0;
@@ -7,110 +7,71 @@ body, html {
   color: #333;
 }
 
-/* ===== Sidebar ===== */
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 220px;
-  height: 100%;
-  background: #111;
-  color: #eee;
-  padding: 1rem;
-  overflow-y: auto;
-  box-shadow: 2px 0 6px rgba(0,0,0,0.2);
-  z-index: 1000;
+/* ===== Main content (bredvid sidebar) ===== */
+.main-content {
+  margin-left: 220px; /* samma som sidebar-bredd */
+  padding: 1rem 2rem;
 }
 
-.page-main {
-  margin-left: 220px;
-  padding: 1.5rem;
+/* ===== Hero ===== */
+.hero-header h1 {
+  text-align: center;
+  color: #b8860b;
+  margin: 1rem 0;
 }
 
-/* ===== Hero section ===== */
 .hero {
-  height: 320px;          /* 🔧 ändra höjd om du vill */
+  width: 100%;
+  height: 320px;   /* fast höjd */
   overflow: hidden;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  margin-bottom: 1.5rem;
   position: relative;
 }
+
 .hero img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 60%; /* standard */
+  object-position: center 60%;
   transform: scale(1);
   transition: transform 0.3s ease, object-position 0.3s ease;
 }
 
-/* När knapparna lägger på extra klasser */
+/* Zoom & focus states */
 .hero img.zoom-out {
-  transform: scale(0.9) !important;   /* zooma ut */
+  transform: scale(0.9) !important;
 }
-
 .hero img.zoom-in {
-  transform: scale(1.1) !important;   /* zooma in */
+  transform: scale(1.1) !important;
 }
-
 .hero img.focus-top {
   object-position: center top !important;
 }
-
 .hero img.focus-bottom {
   object-position: center bottom !important;
 }
 
-/* ===== Extra klasser för zoom/position ===== */
-.hero img.zoom-out {
-  transform: scale(0.9);   /* zooma ut, visa mer */
-}
-
-.hero img.zoom-in {
-  transform: scale(1.1);   /* zooma in, visa mindre */
-}
-
-.hero img.focus-top {
-  object-position: center top;   /* fokusera på toppen */
-}
-
-.hero img.focus-bottom {
-  object-position: center bottom; /* fokusera på nederdelen */
-}
-
-/* ===== Heading above hero ===== */
-.hero-heading {
+/* ===== Buttons ===== */
+.hero-controls {
   text-align: center;
-  font-size: 2rem;
-  color: #b8860b;
-  margin: 0 0 0.5rem 0;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  margin: 1rem 0;
+}
+.hero-controls button {
+  margin: 0.3rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  background: #b8860b;
+  color: #fff;
+  cursor: pointer;
+}
+.hero-controls button:hover {
+  background: #a0750a;
 }
 
-/* ===== Intro text ===== */
+/* ===== Intro ===== */
 .intro {
-  max-width: 650px;
-  margin: 0 auto;
+  max-width: 600px;
+  margin: 2rem auto;
   text-align: center;
-  line-height: 1.6;
   font-size: 1.1rem;
-  color: #444;
-}
-
-/* ===== Responsive adjustments ===== */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 180px;
-  }
-  .page-main {
-    margin-left: 180px;
-    padding: 1rem;
-  }
-  .hero {
-    height: 220px;
-  }
-  .hero-heading {
-    font-size: 1.5rem;
-  }
 }
