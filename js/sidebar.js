@@ -1,5 +1,5 @@
 // === Supabase init ===
-const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_KEY = "YOUR_PUBLIC_KEY";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
