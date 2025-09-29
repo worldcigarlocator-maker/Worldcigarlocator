@@ -2,85 +2,56 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>World Cigar Locator</title>
-
-  <!-- STYLES -->
-  <link rel="stylesheet" href="css/sidebar.css?v=1" />
-  <link rel="stylesheet" href="css/start.css?v=1" />
+  <link rel="stylesheet" href="css/start.css?v=6">
+  <link rel="stylesheet" href="css/sidebar.css?v=6">
 </head>
 <body>
 
-  <!-- (valfri) Hamburger för mobil -->
-  <button class="hamburger" aria-label="Menu" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <!-- Sidebar -->
+  <nav id="sidebarMenu"></nav>
 
-  <!-- SIDEBAR -->
-  <nav class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <input type="text" id="sidebarSearch" placeholder="Search city..." />
-    </div>
-    <div id="sidebarMenu"></div>
-    <div class="sidebar-footer">
-      <a href="add-store.html">➕ Add Store</a>
-      <a href="mailto:support@worldcigarlocator.com">✉️ Contact / Support</a>
-    </div>
-  </nav>
-
-  <!-- MAIN -->
   <main class="page-main">
-    <!-- Rubrik ovanför bannern -->
-    <h1 class="page-title">Welcome to World Cigar Locator</h1>
+    <header class="hero-header">
+      <h1>Welcome to World Cigar Locator</h1>
+    </header>
 
-    <!-- Banner -->
     <section class="hero">
-      <img src="images/paris.jpg" alt="Cigar world banner" />
+      <img id="heroImg" src="images/paris.jpg" alt="Paris">
     </section>
 
-<!-- Testpanel för justering -->
-<div class="hero-controls" style="text-align:center; margin: 1rem 0;">
-  <button onclick="setHero('zoom-out')">Zoom out</button>
-  <button onclick="setHero('zoom-in')">Zoom in</button>
-  <button onclick="setHero('focus-top')">Focus top</button>
-  <button onclick="setHero('focus-bottom')">Focus bottom</button>
-  <button onclick="setHero('reset')">Reset</button>
-</div>
+    <!-- Testpanel för att prova zoom/fokus -->
+    <div class="hero-controls" style="text-align:center; margin: 1rem 0;">
+      <button onclick="setHero('zoom-out')">Zoom out</button>
+      <button onclick="setHero('zoom-in')">Zoom in</button>
+      <button onclick="setHero('focus-top')">Focus top</button>
+      <button onclick="setHero('focus-bottom')">Focus bottom</button>
+      <button onclick="setHero('reset')">Reset</button>
+    </div>
 
-    <!-- Introtexten -->
     <section class="intro">
-      <p>To be able to locate a store, lounge or great smoking place near you is our mission.We really hope WCL will make this easier for you, so that you can enjoy cigar in the best possible way wherever you are.</p>
-      <p class="signed">Kind regards // Bakerman</p>
+      <p>
+        To be able to locate a store, lounge or great smoking place near you is our mission.<br>
+        I really hope WCL makes this easier for you, so that you can enjoy a great cigar wherever life takes you!
+      </p>
+      <p><em>Kind regards // Bakerman</em></p>
     </section>
   </main>
 
-  <!-- SCRIPTS -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="js/sidebar.js?v=1"></script>
+  <script src="js/sidebar.js"></script>
+
+  <!-- Hero control script -->
   <script>
-  function setHero(mode) {
-    const img = document.getElementById("heroImg");
-    img.className = ""; // rensa gamla klasser
+    function setHero(mode) {
+      const img = document.getElementById("heroImg");
+      img.classList.remove("zoom-out", "zoom-in", "focus-top", "focus-bottom");
 
-    switch(mode) {
-      case "zoom-out":
-        img.classList.add("zoom-out");
-        break;
-      case "zoom-in":
-        img.classList.add("zoom-in");
-        break;
-      case "focus-top":
-        img.classList.add("focus-top");
-        break;
-      case "focus-bottom":
-        img.classList.add("focus-bottom");
-        break;
-      case "reset":
-      default:
-        // ingen extra klass = default (scale 1, center 60%)
-        break;
+      if (mode !== "reset") {
+        img.classList.add(mode);
+      }
     }
-  }
-  }
-</script>
-
+  </script>
 </body>
 </html>
