@@ -1,134 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>City – World Cigar Locator</title>
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/start.css?v=8">
-  <link rel="stylesheet" href="css/sidebar.css?v=8">
-  <link rel="stylesheet" href="css/global.css?v=8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Cigar Locator – City</title>
+  <link rel="stylesheet" href="css/start.css?v=1" />
+  <link rel="stylesheet" href="css/sidebar.css?v=1" />
+  <link rel="stylesheet" href="css/global.css?v=1" />
 </head>
 <body>
-
   <!-- Sidebar -->
-  <nav class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <input type="text" id="sidebarSearch" placeholder="Search city...">
+  <nav class="sidebar" id="sidebarMenu">
+    <div class="sidebar-search">
+      <input type="text" id="sidebarSearch" placeholder="Search..." />
     </div>
-    <div id="sidebarMenu"></div>
+    <ul id="continentList"><!-- Fylls av sidebar.js --></ul>
     <div class="sidebar-footer">
-      <a href="add-store.html">➕ Add Store</a>
-      <a href="mailto:support@worldcigarlocator.com">📩 Support</a>
+      <a href="add-store.html" class="btn-add">➕ Add Store</a>
+      <a href="mailto:support@worldcigarlocator.com" class="btn-support">📧 Contact / Support</a>
     </div>
   </nav>
 
-  <!-- Main content -->
+  <!-- Main -->
   <main class="page-main">
-    <section class="city-header">
-      <h1 id="city-title">City</h1>
-    </section>
-
-    <section id="store-list" class="store-list">
-      <!-- Butiker laddas in här -->
+    <h1 id="city-title"></h1>
+    <section id="store-list" class="store-grid">
+      <!-- Butiker laddas här -->
     </section>
   </main>
 
   <!-- Scripts -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="js/sidebar.js?v=8"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/sidebar.js?v=1"></script>
   <script>
-    const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co"; // <-- byt
-    const SUPABASE_KEY = "YOUR-ANON-KEY"; // <-- byt
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // Läs stad från URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const cityName = urlParams.get("city");
-
-    document.getElementById("city-title").textContent = cityName ?? "Unknown City";
-
-    // Rendera stjärnor (full, halv, tomma)
-    function renderStars(rating) {
-      if (!rating) return "No ratings yet";
-      let starsHtml = "";
-      for (let i = 1; i <= 5; i++) {
-        if (rating >= i) {
-          starsHtml += `<span class="star full">★</span>`;
-        } else if (rating >= i - 0.5) {
-          starsHtml += `<span class="star half">★</span>`;
-        } else {
-          starsHtml += `<span class="star empty">☆</span>`;
-        }
-      }
-      return starsHtml;
-    }
+    const supabase = window.supabase.createClient("https://YOUR-PROJECT.supabase.co", "YOUR-ANON-KEY");
 
     async function loadStores() {
-      if (!cityName) return;
+      const urlParams = new URLSearchParams(window.location.search);
+      const cityName = urlParams.get("city");
+      document.getElementById("city-title").textContent = cityName;
 
-      // Hämta stad
-      const { data: cityData, error: cityError } = await supabase
-        .from("cities")
-        .select("id, name")
-        .eq("name", cityName)
-        .single();
+      const { data: city } = await supabase.from("cities").select("id").eq("name", cityName).single();
+      if (!city) return;
 
-      if (cityError || !cityData) {
-        document.getElementById("store-list").innerHTML =
-          "<p>No such city found.</p>";
-        return;
-      }
-
-      // Hämta butiker + snittbetyg från vyn
-      const { data: stores, error } = await supabase
+      const { data: stores } = await supabase
         .from("stores")
-        .select("id, name, address, link, ratings:store_ratings_summary(avg_rating, total_reviews)")
-        .eq("city_id", cityData.id);
+        .select("id, name, address, link")
+        .eq("city_id", city.id);
 
-      if (error) {
-        console.error(error);
-        return;
-      }
+      const list = document.getElementById("store-list");
+      list.innerHTML = "";
 
-      const container = document.getElementById("store-list");
-      container.innerHTML = "";
-
-      if (stores.length === 0) {
-        container.innerHTML = "<p>No stores found in this city.</p>";
-        return;
-      }
-
-      stores.forEach((store) => {
+      stores?.forEach(store => {
         const card = document.createElement("div");
         card.className = "store-card";
-
-        let ratingHtml = "";
-        if (store.ratings && store.ratings.length > 0) {
-          const avg = parseFloat(store.ratings[0].avg_rating).toFixed(1);
-          const total = store.ratings[0].total_reviews;
-          ratingHtml = `
-            <div class="rating">
-              ${renderStars(avg)}
-              <span class="rating-text">${avg}/5 (${total} reviews)</span>
-            </div>
-          `;
-        } else {
-          ratingHtml = `<div class="rating"><span>No ratings yet</span></div>`;
-        }
-
         card.innerHTML = `
-          <h2><a href="store.html?store=${store.id}">${store.name}</a></h2>
-          <p>${store.address ?? ""}</p>
-          ${
-            store.link
-              ? `<p><a href="${store.link}" target="_blank">Website</a></p>`
-              : ""
-          }
-          ${ratingHtml}
+          <h2><a href="store.html?id=${store.id}">${store.name}</a></h2>
+          <p>${store.address || ""}</p>
+          ${store.link ? `<a href="${store.link}" target="_blank">🌐 Website</a>` : ""}
         `;
-
-        container.appendChild(card);
+        list.appendChild(card);
       });
     }
 
