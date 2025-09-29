@@ -1,51 +1,217 @@
-/* ===== Global reset ===== */
-body {
+/* ====== RESET ====== */
+* {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
   font-family: "Segoe UI", Tahoma, sans-serif;
   background: #fdfdfd;
   color: #333;
-  display: flex; /* Sidebar + main bredvid varandra */
+  display: flex; /* sidebar + main */
 }
 
-/* ===== Main content bredvid sidebar ===== */
+/* ====== SIDEBAR ====== */
+#sidebarMenu {
+  width: 220px;
+  flex-shrink: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: #111;
+  color: #fff;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+#sidebarMenu h2 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #b8860b;
+}
+
+#sidebarMenu input[type="text"] {
+  width: 100%;
+  padding: 0.4rem;
+  margin-bottom: 1rem;
+  border: none;
+  border-radius: 4px;
+}
+
+#sidebarMenu ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+#sidebarMenu li {
+  margin: 0.3rem 0;
+}
+
+#sidebarMenu a {
+  color: #eee;
+  text-decoration: none;
+  display: block;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+#sidebarMenu a:hover {
+  background: #333;
+  color: #b8860b;
+}
+
+#sidebarMenu .sidebar-extra {
+  margin-top: 1rem;
+  border-top: 1px solid #333;
+  padding-top: 1rem;
+}
+
+#sidebarMenu .sidebar-extra a {
+  background: #b8860b;
+  color: #111;
+  font-weight: bold;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+#sidebarMenu .sidebar-extra a:hover {
+  background: #daa520;
+  color: #fff;
+}
+
+/* ====== MAIN LAYOUT ====== */
 .page-main {
-  margin-left: 240px; /* plats för sidebar */
+  margin-left: 220px; /* lämnar plats för sidebar */
+  flex: 1;
   padding: 1rem 2rem;
-  flex-grow: 1;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-/* ===== Hero ===== */
-.hero-title {
+/* ====== HERO ====== */
+.page-main h1 {
   text-align: center;
   color: #b8860b;
-  margin: 1rem 0;
-  font-size: 2rem;
+  margin-bottom: 1rem;
 }
 
 .hero {
   width: 100%;
-  height: 320px;      /* fix höjd */
+  height: 320px;
   overflow: hidden;
-  margin-bottom: 1rem;
-  border-radius: 6px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  margin-bottom: 1.5rem;
 }
 
-.hero-img {
+.hero img {
   width: 100%;
   height: 100%;
-  object-fit: cover;      /* fyller sektionen */
-  object-position: center 70%; /* ändra procentsats för att styra fokus */
-  display: block;
+  object-fit: cover;
+  object-position: center 60%;
+  transition: object-position 1s ease, transform 1s ease;
 }
 
-/* ===== Intro text ===== */
+/* Fokus & zoom states */
+.hero img.focus-top { object-position: center 20%; }
+.hero img.focus-middle { object-position: center 50%; }
+.hero img.focus-bottom { object-position: center 80%; }
+.hero img.zoom-in { transform: scale(1.1); }
+.hero img.zoom-out { transform: scale(0.95); }
+
+/* ====== INTRO ====== */
 .intro {
   max-width: 700px;
-  margin: 0 auto;
+  margin: 0 auto 2rem auto;
   text-align: center;
-  font-size: 1.1rem;
   line-height: 1.6;
+  font-size: 1.1rem;
 }
-.intro strong {
+
+/* ====== RECENT STORES ====== */
+.recent-stores {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.recent-stores h2 {
   color: #b8860b;
+  margin-bottom: 1rem;
+}
+
+.store-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.store-card h3 {
+  margin-bottom: 0.3rem;
+  color: #333;
+}
+
+.store-card a {
+  color: #b8860b;
+  text-decoration: none;
+}
+
+.store-card a:hover {
+  text-decoration: underline;
+}
+
+/* ====== BUTTONS ====== */
+button, .btn {
+  background: #b8860b;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  margin: 0.2rem;
+  transition: background 0.2s;
+}
+
+button:hover, .btn:hover {
+  background: #daa520;
+}
+
+/* ====== RESPONSIVE ====== */
+.hamburger {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  #sidebarMenu {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  #sidebarMenu.open {
+    transform: translateX(0);
+  }
+  .page-main {
+    margin-left: 0;
+    padding: 1rem;
+  }
+  .hamburger {
+    display: block;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: #b8860b;
+    border: none;
+    color: #fff;
+    padding: 0.5rem 0.8rem;
+    font-size: 1.2rem;
+    border-radius: 4px;
+    z-index: 1100;
+  }
 }
