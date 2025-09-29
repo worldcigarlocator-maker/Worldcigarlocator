@@ -12,6 +12,25 @@
   overflow-y: auto;
   z-index: 1000;
 }
+/* ===== HAMBURGER ===== */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  font-size: 1.8rem;
+  background: none;
+  border: none;
+  color: #d4af37;
+  z-index: 1100;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+}
 
 .page-main {
   margin-left: 240px;
