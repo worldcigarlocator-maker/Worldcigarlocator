@@ -1,39 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/start.css">
-  <link rel="stylesheet" href="css/sidebar.css">
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
-  <script src="js/sidebar.js" defer></script>
+  <link rel="stylesheet" href="css/start.css?v=1" />
+  <link rel="stylesheet" href="css/sidebar.css?v=1" />
 </head>
 <body>
   <!-- Sidebar -->
-  <nav class="sidebar">
+  <nav class="sidebar" id="sidebarMenu">
     <div class="sidebar-search">
-      <input type="text" id="sidebarSearch" placeholder="🔍 Search city...">
+      <input type="text" id="sidebarSearch" placeholder="Search..." />
     </div>
-    <ul id="sidebarMenu"></ul>
+    <ul id="continentList"><!-- Fylls av sidebar.js --></ul>
     <div class="sidebar-footer">
       <a href="add-store.html" class="btn-add">➕ Add Store</a>
-      <a href="mailto:support@worldcigarlocator.com" class="btn-support">📩 Contact</a>
+      <a href="mailto:support@worldcigarlocator.com" class="btn-support">📧 Contact / Support</a>
     </div>
   </nav>
 
-  <!-- Main -->
+  <!-- Main content -->
   <main class="page-main">
     <h1 class="hero-title">Welcome to World Cigar Locator</h1>
-    <section class="hero">
-      <img src="images/paris.jpg" alt="Cigar Hero" class="hero-img">
-    </section>
-
+    <div class="hero">
+      <img src="images/paris.jpg" alt="Cigar world" class="hero-img" />
+    </div>
     <section class="intro">
-      <p>To be able to locate a store, lounge or great smoking place near you is our mission.</p>
-      <p>I really hope WCL makes this easier for you, so that you can enjoy a great cigar wherever life takes you!</p>
-      <p><em>Kind regards // Bakerman</em></p>
+      <p>
+        To be able to locate a store, lounge or great smoking place near you is our mission.<br>
+        I really hope WCL makes this easier for you, so that you can enjoy a great cigar wherever life takes you!
+      </p>
+      <p><strong>Kind regards // Bakerman</strong></p>
     </section>
   </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/sidebar.js?v=1"></script>
 </body>
 </html>
