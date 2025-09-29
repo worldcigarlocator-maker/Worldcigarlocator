@@ -26,10 +26,20 @@ async function buildSidebar() {
     return;
   }
 
+  // Hämta länder
+  const { data: countries, error: errCountries } = await supabase
+    .from("countries")
+    .select("id, name, continent_id")
+    .order("name");
+  if (errCountries) {
+    console.error("Error fetching countries:", errCountries);
+    return;
+  }
+
   // Hämta städer
   const { data: cities, error: errCities } = await supabase
     .from("cities")
-    .select("id, name, country, continent_id");
+    .select("id, name, country_id");
   if (errCities) {
     console.error("Error fetching cities:", errCities);
     return;
@@ -50,20 +60,32 @@ async function buildSidebar() {
     storeCountByCity[s.city_id] = (storeCountByCity[s.city_id] || 0) + 1;
   });
 
-  // Bygg struktur: continent -> country -> cities[]
+  // Bygg struktur: continent -> countries[] -> cities[]
   const structure = {};
-  (cities || []).forEach(c => {
-    if (!structure[c.continent_id]) {
-      structure[c.continent_id] = {};
+  (continents || []).forEach(cont => {
+    structure[cont.id] = {
+      name: cont.name,
+      countries: {}
+    };
+  });
+
+  (countries || []).forEach(co => {
+    if (!structure[co.continent_id]) return;
+    structure[co.continent_id].countries[co.id] = {
+      name: co.name,
+      cities: []
+    };
+  });
+
+  (cities || []).forEach(ci => {
+    const co = countries.find(c => c.id === ci.country_id);
+    if (co && structure[co.continent_id]) {
+      structure[co.continent_id].countries[co.id].cities.push(ci);
     }
-    if (!structure[c.continent_id][c.country]) {
-      structure[c.continent_id][c.country] = [];
-    }
-    structure[c.continent_id][c.country].push(c);
   });
 
   // Rendera kontinenter
-  continents.forEach(cont => {
+  Object.values(structure).forEach(cont => {
     const contLi = document.createElement("li");
     contLi.classList.add("continent");
 
@@ -81,53 +103,49 @@ async function buildSidebar() {
     });
 
     // Rendera länder
-    if (structure[cont.id]) {
-      Object.keys(structure[cont.id]).sort().forEach(country => {
-        const countryLi = document.createElement("li");
-        countryLi.classList.add("country");
+    Object.entries(cont.countries).forEach(([coId, co]) => {
+      const countryLi = document.createElement("li");
+      countryLi.classList.add("country");
 
-        const citiesList = structure[cont.id][country];
-
-        // räkna alla butiker i landet
-        let countryCount = 0;
-        citiesList.forEach(city => {
-          countryCount += storeCountByCity[city.id] || 0;
-        });
-
-        const countryBtn = document.createElement("button");
-        countryBtn.classList.add("toggle");
-        countryBtn.innerHTML = `
-          <span class="flag">${flags[country] || ""}</span>
-          <span>${country}</span>
-          <span class="count">(${countryCount})</span>
-          <span class="arrow">►</span>
-        `;
-
-        const citiesUl = document.createElement("ul");
-        citiesUl.classList.add("nested");
-
-        countryBtn.addEventListener("click", () => {
-          citiesUl.classList.toggle("active");
-          countryBtn.querySelector(".arrow").textContent =
-            citiesUl.classList.contains("active") ? "▼" : "►";
-        });
-
-        // Rendera städer
-        citiesList.sort((a, b) => a.name.localeCompare(b.name)).forEach(city => {
-          const count = storeCountByCity[city.id] || 0;
-          const cityLi = document.createElement("li");
-          const cityLink = document.createElement("a");
-          cityLink.href = `city.html?city=${encodeURIComponent(city.name)}`;
-          cityLink.textContent = `${city.name} (${count})`;
-          cityLi.appendChild(cityLink);
-          citiesUl.appendChild(cityLi);
-        });
-
-        countryLi.appendChild(countryBtn);
-        countryLi.appendChild(citiesUl);
-        countriesUl.appendChild(countryLi);
+      // Räkna alla butiker i landets städer
+      let countryCount = 0;
+      co.cities.forEach(city => {
+        countryCount += storeCountByCity[city.id] || 0;
       });
-    }
+
+      const countryBtn = document.createElement("button");
+      countryBtn.classList.add("toggle");
+      countryBtn.innerHTML = `
+        <span class="flag">${flags[co.name] || ""}</span>
+        <span>${co.name}</span>
+        <span class="count">(${countryCount})</span>
+        <span class="arrow">►</span>
+      `;
+
+      const citiesUl = document.createElement("ul");
+      citiesUl.classList.add("nested");
+
+      countryBtn.addEventListener("click", () => {
+        citiesUl.classList.toggle("active");
+        countryBtn.querySelector(".arrow").textContent =
+          citiesUl.classList.contains("active") ? "▼" : "►";
+      });
+
+      // Rendera städer
+      co.cities.sort((a, b) => a.name.localeCompare(b.name)).forEach(city => {
+        const count = storeCountByCity[city.id] || 0;
+        const cityLi = document.createElement("li");
+        const cityLink = document.createElement("a");
+        cityLink.href = `city.html?city=${encodeURIComponent(city.name)}`;
+        cityLink.textContent = `${city.name} (${count})`;
+        cityLi.appendChild(cityLink);
+        citiesUl.appendChild(cityLi);
+      });
+
+      countryLi.appendChild(countryBtn);
+      countryLi.appendChild(citiesUl);
+      countriesUl.appendChild(countryLi);
+    });
 
     contLi.appendChild(contBtn);
     contLi.appendChild(countriesUl);
