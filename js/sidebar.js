@@ -1,87 +1,89 @@
-
-// Initiera Supabase-klient
+// sidebar.js
 const supabaseUrl = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // byt ut
 const supabaseKey = "YOUR_ANON_KEY"; // byt ut
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+
 async function buildSidebar() {
   const sidebar = document.getElementById("sidebarMenu");
-  sidebar.innerHTML = "";
+  if (!sidebar) {
+    console.error("Hittar inte #sidebarMenu i HTML!");
+    return;
+  }
+  sidebar.innerHTML = "<li>Laddar…</li>";
 
   // Hämta kontinenter
-  const { data: continents, error: err1 } = await supabase
+  const { data: continents, error: e1 } = await db
     .from("continents")
     .select("id, name")
     .order("name");
 
-  if (err1) {
-    console.error("Fel vid hämtning av kontinenter:", err1);
-    return;
-  }
-
   // Hämta länder
-  const { data: countries, error: err2 } = await supabase
+  const { data: countries, error: e2 } = await db
     .from("countries")
     .select("id, name, flag, continent_id")
     .order("name");
 
-  if (err2) {
-    console.error("Fel vid hämtning av länder:", err2);
+  if (e1 || e2) {
+    sidebar.innerHTML = `<li style="color:red">Fel: ${(e1 || e2).message}</li>`;
     return;
   }
 
-  // Bygg sidomenyn
+  // Gruppera länder per kontinent
+  const grouped = {};
+  countries.forEach(c => {
+    (grouped[c.continent_id] ||= []).push(c);
+  });
+
+  sidebar.innerHTML = "";
+
   continents.forEach(cont => {
-    const contLi = document.createElement("li");
+    const li = document.createElement("li");
 
-    const arrow = document.createElement("span");
-    arrow.textContent = "▶";
-    arrow.classList.add("arrow");
+    // Knapp för kontinent
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "toggle";
+    btn.innerHTML = `<span class="arrow">►</span> ${cont.name}`;
 
-    const contName = document.createElement("span");
-    contName.textContent = cont.name;
+    const ul = document.createElement("ul");
+    ul.className = "nested";
 
-    contLi.appendChild(arrow);
-    contLi.appendChild(contName);
-
-    const countryUl = document.createElement("ul");
-    countryUl.classList.add("collapsed");
-
-    countries
-      .filter(c => c.continent_id === cont.id)
-      .forEach(c => {
-        const countryLi = document.createElement("li");
-        countryLi.textContent = `${c.flag || ""} ${c.name}`;
-        countryLi.addEventListener("click", (e) => {
-          e.stopPropagation();
-          loadCities(c.id, c.name, c.flag);
-        });
-        countryUl.appendChild(countryLi);
+    (grouped[cont.id] || []).forEach(c => {
+      const cli = document.createElement("li");
+      cli.textContent = `${c.flag || ""} ${c.name}`;
+      cli.addEventListener("click", ev => {
+        ev.stopPropagation();
+        loadCities(c.id, c.name, c.flag);
       });
-
-    contLi.appendChild(countryUl);
-
-    contLi.addEventListener("click", () => {
-      countryUl.classList.toggle("collapsed");
-      arrow.textContent = countryUl.classList.contains("collapsed") ? "▶" : "▼";
+      ul.appendChild(cli);
     });
 
-    sidebar.appendChild(contLi);
+    btn.addEventListener("click", () => {
+      ul.classList.toggle("active");
+      btn.querySelector(".arrow").textContent = ul.classList.contains("active") ? "▼" : "►";
+    });
+
+    li.appendChild(btn);
+    li.appendChild(ul);
+    sidebar.appendChild(li);
   });
 }
 
 async function loadCities(countryId, countryName, flag) {
   const main = document.getElementById("main");
-  main.innerHTML = `<h2>${flag || ""} ${countryName}</h2><p>Laddar städer...</p>`;
+  if (!main) return;
 
-  const { data: cities, error } = await supabase
+  main.innerHTML = `<h2>${flag || ""} ${countryName}</h2><p>Laddar städer…</p>`;
+
+  const { data: cities, error } = await db
     .from("cities")
     .select("id, name")
     .eq("country_id", countryId)
     .order("name");
 
   if (error) {
-    main.innerHTML = `<h2>${flag || ""} ${countryName}</h2><p style="color:red;">Fel: ${error.message}</p>`;
+    main.innerHTML = `<h2>${flag || ""} ${countryName}</h2><p style="color:red">${error.message}</p>`;
     return;
   }
 
