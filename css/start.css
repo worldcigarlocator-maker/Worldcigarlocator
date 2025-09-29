@@ -1,129 +1,81 @@
-/* ===========================
-   Start page stylesheet
-   Works with css/sidebar.css
-   =========================== */
-
-/* Base / Reset */
-*,
-*::before,
-*::after { box-sizing: border-box; }
-
-html, body {
+/* ===== Global reset ===== */
+body, html {
   margin: 0;
   padding: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, sans-serif;
   background: #fdfdfd;
   color: #333;
-  line-height: 1.5;
 }
 
-/* Layout: leave room for the fixed sidebar on desktop */
+/* ===== Sidebar ===== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 220px;
+  height: 100%;
+  background: #111;
+  color: #eee;
+  padding: 1rem;
+  overflow-y: auto;
+  box-shadow: 2px 0 6px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
 .page-main {
-  margin-left: 240px; /* sidebar width */
-  padding: 1rem 2rem;
+  margin-left: 220px;
+  padding: 1.5rem;
 }
 
-/* Headings */
-h1, h2, h3 {
-  margin: 0 0 .75rem 0;
-  line-height: 1.2;
-  color: #b8860b; /* gold */
-  text-shadow: 0 1px 0 rgba(0,0,0,0.06);
-}
-
-/* ---------------------------
-   HERO / BANNER
-   --------------------------- */
-
+/* ===== Hero section ===== */
 .hero {
-  width: 100%;
-  max-height: 280px;            /* cap height so it never becomes huge */
-  overflow: hidden;              /* crop overflow to keep a nice banner */
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  margin: 0 0 1.5rem 0;
+  height: 300px;          /* 🔧 Ändra här: prova 250px, 400px, etc */
+  overflow: hidden;       /* klipper bort överskott */
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  margin-bottom: 1.5rem;
 }
 
 .hero img {
-  display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;             /* fill area without distortion */
-  object-position: 90% 35%; /* lite ner från toppen */
+  object-fit: cover;      
+  object-position: center 70%;  /* 🔧 Ändra här: 50% = mitten, 70–90% = mer nederdel */
+  display: block;
 }
 
-/* ---------------------------
-   INTRO TEXT
-   --------------------------- */
-
-.intro {
-  max-width: 760px;
-  margin: 1.5rem auto 2.5rem auto;
-  text-align: center;
-  color: #333;
-}
-
-.intro p {
-  margin: 0 0 1rem 0;
-  font-size: 1.06rem;
-}
-
-.intro strong { color: #b8860b; }
-.intro em { color: #666; }
-
-/* Optional signature styling if you use a // Bakerman line */
-.intro .signed,
-.intro .signature {
-  margin-top: 1.25rem;
-  font-style: italic;
-  color: #666;
-}
-
-/* Links inside intro (if any) */
-.intro a {
-  color: #b8860b;
-  text-decoration: none;
-}
-.intro a:hover { text-decoration: underline; }
-
-/* ---------------------------
-   RESPONSIVE
-   --------------------------- */
-
-@media (max-width: 1024px) {
-  .page-main { padding: 1rem 1.25rem; }
-}
-
-@media (max-width: 768px) {
-  /* On mobile the sidebar slides in/out, so content should span full width */
-  .page-main {
-    margin-left: 0;
-    padding: 1rem;
-  }
-
-  .hero {
-    max-height: 220px;           /* slightly shorter banner on mobile */
-    border-radius: 6px;
-  }
-
-  .intro p { font-size: 1rem; }
-}
-
-/* ---------------------------
-   Small utilities (optional)
-   --------------------------- */
-
-.hidden { display: none !important; }
-.center { text-align: center !important; }
-.mt-0 { margin-top: 0 !important; }
-.mb-0 { margin-bottom: 0 !important; }
-.mb-1 { margin-bottom: .5rem !important; }
-.mb-2 { margin-bottom: 1rem !important; }
-
-.page-title {
+/* ===== Heading above hero ===== */
+.hero-heading {
   text-align: center;
   font-size: 2rem;
-  color: #b8860b; /* guld */
-  margin: 1.5rem 0 1rem;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  color: #b8860b; /* gold */
+  margin: 0 0 0.5rem 0;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+/* ===== Intro text ===== */
+.intro {
+  max-width: 650px;
+  margin: 0 auto;
+  text-align: center;
+  line-height: 1.6;
+  font-size: 1.1rem;
+  color: #444;
+}
+
+/* ===== Responsive adjustments ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 180px;
+  }
+  .page-main {
+    margin-left: 180px;
+    padding: 1rem;
+  }
+  .hero {
+    height: 200px; /* 🔧 lägre höjd på mobil */
+  }
+  .hero-heading {
+    font-size: 1.5rem;
+  }
 }
