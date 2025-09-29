@@ -1,131 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>World Cigar Locator – Store</title>
-  <link rel="stylesheet" href="css/start.css?v=1" />
-  <link rel="stylesheet" href="css/sidebar.css?v=1" />
-  <link rel="stylesheet" href="css/global.css?v=1" />
+  <meta charset="UTF-8">
+  <title>Store – World Cigar Locator</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script defer src="js/sidebar.js"></script>
+  <script defer src="js/store.js"></script>
 </head>
 <body>
-  <!-- Hamburger (mobil) -->
-  <button id="sidebarToggle" class="hamburger">☰</button>
-  <!-- Overlay (mobil) -->
-  <div id="sidebarOverlay"></div>
-
   <!-- Sidebar -->
   <nav id="sidebarMenu">
-    <input type="text" id="sidebarSearch" placeholder="Search..." />
-    <div id="sidebarContent"></div>
+    <input type="text" id="sidebarSearch" placeholder="Search..."/>
+    <ul id="sidebarContent"></ul>
+    <div class="sidebar-extra">
+      <a href="add-store.html">+ Add Store</a>
+      <a href="contact.html">✉ Contact</a>
+    </div>
   </nav>
 
-  <!-- Main -->
+  <!-- Main content -->
   <main class="page-main">
-    <!-- resten av sidan -->
-  </main>
+    <h1 id="storeName"></h1>
+    <p id="storeAddress"></p>
+    <p><a id="storeWebsite" target="_blank"></a></p>
 
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="js/sidebar.js"></script>
-  <script>
-    const sidebar = document.getElementById("sidebarMenu");
-    const overlay = document.getElementById("sidebarOverlay");
-    const toggleBtn = document.getElementById("sidebarToggle");
-
-    function toggleSidebar() {
-      sidebar.classList.toggle("open");
-      overlay.classList.toggle("active");
-    }
-
-    toggleBtn.addEventListener("click", toggleSidebar);
-    overlay.addEventListener("click", toggleSidebar);
-  </script>
-</body>
-
-  <!-- Main -->
-  <main class="page-main">
-    <h1 id="store-title"></h1>
-    <p id="store-address"></p>
-    <p><a id="store-link" href="#" target="_blank"></a></p>
-
-    <section id="reviews">
+    <section class="reviews">
       <h2>Reviews</h2>
-      <div id="review-list"></div>
+      <div id="reviewsList"></div>
 
-      <h3>Add a review</h3>
-      <div class="star-input" id="star-input"></div>
-      <textarea id="review-text" placeholder="Write your review..."></textarea><br>
-      <button id="submit-review">Submit</button>
+      <form id="reviewForm">
+        <label for="rating">Rating:</label>
+        <select id="rating">
+          <option value="5">★★★★★</option>
+          <option value="4">★★★★☆</option>
+          <option value="3">★★★☆☆</option>
+          <option value="2">★★☆☆☆</option>
+          <option value="1">★☆☆☆☆</option>
+        </select>
+        <br>
+        <textarea id="comment" placeholder="Write your review..."></textarea>
+        <br>
+        <button type="submit">Submit Review</button>
+      </form>
     </section>
   </main>
-
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/sidebar.js?v=1"></script>
-  <script>
-    const supabase = window.supabase.createClient("https://YOUR-PROJECT.supabase.co", "YOUR-ANON-KEY");
-    let storeId;
-
-    async function loadStore() {
-      const params = new URLSearchParams(window.location.search);
-      storeId = params.get("id");
-
-      const { data: store } = await supabase.from("stores").select("name, address, link").eq("id", storeId).single();
-      if (!store) return;
-
-      document.getElementById("store-title").textContent = store.name;
-      document.getElementById("store-address").textContent = store.address || "";
-      if (store.link) {
-        const link = document.getElementById("store-link");
-        link.href = store.link;
-        link.textContent = "🌐 Website";
-      }
-
-      loadReviews();
-    }
-
-    async function loadReviews() {
-      const { data: reviews } = await supabase
-        .from("reviews")
-        .select("rating, text")
-        .eq("store_id", storeId);
-
-      const list = document.getElementById("review-list");
-      list.innerHTML = "";
-
-      reviews?.forEach(r => {
-        const div = document.createElement("div");
-        div.className = "review";
-        div.innerHTML = `<p>⭐ ${r.rating}/5</p><p>${r.text}</p>`;
-        list.appendChild(div);
-      });
-    }
-
-    document.getElementById("submit-review").addEventListener("click", async () => {
-      const rating = document.querySelectorAll(".star-input span.selected").length;
-      const text = document.getElementById("review-text").value;
-
-      if (rating === 0 || !text) return alert("Add rating and review!");
-
-      await supabase.from("reviews").insert({ store_id: storeId, rating, text });
-      loadReviews();
-    });
-
-    // Simple star input
-    const starInput = document.getElementById("star-input");
-    for (let i = 1; i <= 5; i++) {
-      const s = document.createElement("span");
-      s.textContent = "☆";
-      s.onclick = () => {
-        document.querySelectorAll("#star-input span").forEach((el, idx) => {
-          el.textContent = idx < i ? "★" : "☆";
-          el.classList.toggle("selected", idx < i);
-        });
-      };
-      starInput.appendChild(s);
-    }
-
-    loadStore();
-  </script>
 </body>
 </html>
