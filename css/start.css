@@ -94,7 +94,7 @@ body {
   box-sizing: border-box;
 }
 
-/* ====== HERO ====== */
+/* ====== HERO (statisk) ====== */
 .page-main h1 {
   text-align: center;
   color: #b8860b;
@@ -103,7 +103,7 @@ body {
 
 .hero {
   width: 100%;
-  height: 320px;
+  height: 320px;          /* fast höjd */
   overflow: hidden;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
@@ -113,17 +113,10 @@ body {
 .hero img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center 60%;
-  transition: object-position 1s ease, transform 1s ease;
+  object-fit: cover;       /* fyll ytan utan distortion */
+  object-position: center 60%; /* beskärning – ändra siffran för att flytta fokus */
+  /* INGEN zoom, ingen transition */
 }
-
-/* Fokus & zoom states */
-.hero img.focus-top { object-position: center 20%; }
-.hero img.focus-middle { object-position: center 50%; }
-.hero img.focus-bottom { object-position: center 80%; }
-.hero img.zoom-in { transform: scale(1.1); }
-.hero img.zoom-out { transform: scale(0.95); }
 
 /* ====== INTRO ====== */
 .intro {
