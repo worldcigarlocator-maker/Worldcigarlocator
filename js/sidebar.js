@@ -7,7 +7,7 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 
 async function buildSidebar() {
-  const sidebar = document.getElementById("sidebar");
+  const sidebar = document.getElementById("sidebarMenu");
   if (!sidebar) return;
 
   // Hämta kontinenter i bokstavsordning
