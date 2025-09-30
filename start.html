@@ -3,51 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World Cigar Locator - Start</title>
+  <title>World Cigar Locator</title>
   <link rel="stylesheet" href="css/global.css">
   <style>
     body {
       margin: 0;
-      display: flex;
       font-family: Arial, sans-serif;
+      display: flex;
       height: 100vh;
     }
     aside {
       width: 250px;
-      background: #222;
+      background-color: #111;
       color: #fff;
-      padding: 1rem;
+      padding: 20px;
       overflow-y: auto;
     }
-    aside ul {
+    aside h2 {
+      margin-top: 0;
+      font-size: 18px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 10px;
+    }
+    #sidebarMenu {
       list-style: none;
       padding: 0;
       margin: 0;
     }
-    aside li {
-      margin: 0.5rem 0;
-    }
-    aside button.toggle {
-      width: 100%;
-      text-align: left;
-      background: none;
-      border: none;
-      color: #fff;
-      font-size: 1rem;
+    #sidebarMenu li {
+      padding: 8px 0;
+      border-bottom: 1px solid #333;
       cursor: pointer;
-      padding: 0.3rem;
-    }
-    .nested {
-      display: none;
-      margin-left: 1rem;
-    }
-    .nested.active {
-      display: block;
     }
     main {
       flex: 1;
-      padding: 2rem;
+      padding: 20px;
+      background: #f4f4f4;
       overflow-y: auto;
+    }
+    .banner {
+      text-align: center;
+      margin: 20px 0;
     }
     .banner img {
       max-width: 100%;
@@ -56,24 +52,25 @@
   </style>
 </head>
 <body>
-  <!-- SIDEBAR -->
+  <!-- Sidebar -->
   <aside>
-    <h2>Continents & Countries</h2>
+    <h2>Continents</h2>
     <ul id="sidebarMenu"></ul>
   </aside>
 
-  <!-- MAIN -->
+  <!-- Main Content -->
   <main>
     <h1>Welcome to World Cigar Locator</h1>
-    <p>Explore cigar stores and lounges around the world.</p>
+    <p>Find cigar stores and lounges near you...</p>
     <div class="banner">
       <img src="images/worldmap.svg" alt="World Map">
     </div>
     <div id="recentStores"></div>
   </main>
 
-  <!-- Scripts -->
+  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Din sidebar-kod -->
   <script src="js/sidebar.js"></script>
 </body>
 </html>
