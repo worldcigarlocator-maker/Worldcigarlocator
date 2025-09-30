@@ -1,142 +1,110 @@
-/* === GLOBAL LAYOUT === */
+/* ====== Global Layout ====== */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  color: #222;
   display: flex;
   height: 100vh;
-  background: #f9f9f9;
 }
 
-/* === SIDEBAR === */
+/* ====== Sidebar ====== */
 aside {
   width: 260px;
   background: #222;
   color: #fff;
-  padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  padding: 15px;
+  box-sizing: border-box;
 }
 
-aside h2 {
-  margin-top: 0;
+/* Sidebar Title (WCL) */
+.sidebar-header {
+  font-size: 20px;
+  font-weight: bold;
+  color: #d4af37; /* guld */
+  margin-bottom: 15px;
   text-align: center;
-  color: #d4af37; /* Guld */
 }
 
-/* === SEARCH === */
+/* Search box */
 .sidebar-search {
+  display: flex;
   margin-bottom: 15px;
 }
-
-#searchBox {
-  width: 100%;
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  margin-bottom: 8px;
+.sidebar-search input {
+  flex-grow: 1;
+  padding: 6px;
+  border: none;
+  border-radius: 4px 0 0 4px;
 }
-
-#searchBtn {
-  width: 100%;
-  padding: 8px;
+.sidebar-search button {
+  padding: 6px 10px;
+  border: none;
   background: #d4af37;
   color: #000;
-  border: none;
-  border-radius: 4px;
   cursor: pointer;
+  border-radius: 0 4px 4px 0;
+}
+.sidebar-search button:hover {
+  background: #b8962d;
+}
+
+/* Continent titles */
+.continent-title {
+  margin: 10px 0 5px;
+  font-size: 15px;
   font-weight: bold;
-}
-
-#searchBtn:hover {
-  background: #b8902e;
-}
-
-/* === CONTINENTS LIST === */
-#sidebarMenu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  flex-grow: 1;
-}
-
-#sidebarMenu li {
-  margin: 6px 0;
-  cursor: pointer;
-}
-
-/* === EXTRA LINKS === */
-.extra-links {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 15px 0;
-}
-
-#addStoreBtn {
-  padding: 8px;
-  background: #d4af37;
-  color: #000;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-#addStoreBtn:hover {
-  background: #b8902e;
-}
-
-.extra-links a {
-  color: #fff;
-  text-decoration: none;
-  font-weight: bold;
-  text-align: center;
-}
-
-.extra-links a:hover {
-  text-decoration: underline;
-}
-
-/* === LOGO === */
-.sidebar-logo {
-  margin-top: 20px;
-  text-align: center;
-  opacity: 0.9;
-}
-
-.sidebar-logo svg {
-  width: 60px;
-  height: 60px;
-  fill: #d4af37;
-}
-
-/* === MAIN === */
-main {
-  flex-grow: 1;
-  padding: 40px;
-  overflow-y: auto;
-}
-
-main h1 {
   color: #d4af37;
-  text-align: center;
-  margin-top: 0;
 }
 
-main img {
-  max-width: 100%;
-  display: block;
-  margin: 20px auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+/* Countries & Cities list */
+.country-list,
+.city-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-main p {
-  max-width: 800px;
-  margin: 20px auto;
-  font-size: 1.1em;
-  line-height: 1.6;
-  color: #444;
+.country-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #333;
+}
+.country-row:hover {
+  background: #333;
+}
+
+.toggle-icon {
+  margin-right: 6px;
+  font-weight: bold;
+  width: 14px;
   text-align: center;
 }
+
+.country-flag {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.country-name {
+  flex-grow: 1;
+}
+
+.country-count {
+  color: #aaa;
+  font-size: 13px;
+}
+
+.city-list {
+  display: none;
+  margin-left: 28px;
+  border-left: 1px solid #444;
+  padding-left: 8px;
+}
+.city-item {
+  padding: 3px 0;
