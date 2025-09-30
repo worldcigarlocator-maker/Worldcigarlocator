@@ -1,139 +1,142 @@
-/* ====== RESET ====== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
+/* === GLOBAL LAYOUT === */
 body {
-  font-family: "Segoe UI", Tahoma, sans-serif;
-  background: #fdfdfd;
-  color: #333;
-  display: flex; /* sidebar + main */
+  margin: 0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  height: 100vh;
+  background: #f9f9f9;
 }
 
-/* ====== MAIN LAYOUT ====== */
-.page-main {
-  margin-left: 220px; /* lämnar plats för sidebar */
-  flex: 1;
-  padding: 2rem;
-  min-height: 100vh;
-  box-sizing: border-box;
-  text-align: center;   /* centrera innehållet */
+/* === SIDEBAR === */
+aside {
+  width: 260px;
+  background: #222;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.page-main h1 {
+aside h2 {
+  margin-top: 0;
   text-align: center;
-  color: #b8860b;
-  margin-bottom: 1rem;
-  font-size: 2rem;
+  color: #d4af37; /* Guld */
 }
 
-/* ====== HERO ====== */
-.hero {
+/* === SEARCH === */
+.sidebar-search {
+  margin-bottom: 15px;
+}
+
+#searchBox {
   width: 100%;
-  max-width: 800px;   /* gör att bilden inte blir för bred */
-  height: 320px;      /* fast höjd */
-  overflow: hidden;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-  margin: 0 auto 1.5rem auto;   /* centrera hero-bilden */
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-bottom: 8px;
 }
 
-.hero img {
+#searchBtn {
   width: 100%;
-  height: 100%;
-  object-fit: cover;       /* fyll utan distortion */
-  object-position: center 60%; /* justera fokus (flytta upp/ner) */
+  padding: 8px;
+  background: #d4af37;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
-/* ====== INTRO ====== */
-.intro {
-  max-width: 700px;
-  margin: 0 auto 2rem auto;
-  text-align: center;
-  line-height: 1.6;
-  font-size: 1.1rem;
+#searchBtn:hover {
+  background: #b8902e;
 }
 
-/* ====== RECENT STORES ====== */
-.recent-stores {
-  max-width: 900px;
-  margin: 0 auto;
+/* === CONTINENTS LIST === */
+#sidebarMenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
 }
 
-.recent-stores h2 {
-  color: #b8860b;
-  margin-bottom: 1rem;
+#sidebarMenu li {
+  margin: 6px 0;
+  cursor: pointer;
 }
 
-.store-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+/* === EXTRA LINKS === */
+.extra-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 15px 0;
 }
 
-.store-card h3 {
-  margin-bottom: 0.3rem;
-  color: #333;
+#addStoreBtn {
+  padding: 8px;
+  background: #d4af37;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
-.store-card a {
-  color: #b8860b;
+#addStoreBtn:hover {
+  background: #b8902e;
+}
+
+.extra-links a {
+  color: #fff;
   text-decoration: none;
+  font-weight: bold;
+  text-align: center;
 }
 
-.store-card a:hover {
+.extra-links a:hover {
   text-decoration: underline;
 }
 
-/* ====== BUTTONS ====== */
-button, .btn {
-  background: #b8860b;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  font-size: 1rem;
-  margin: 0.2rem;
-  transition: background 0.2s;
+/* === LOGO === */
+.sidebar-logo {
+  margin-top: 20px;
+  text-align: center;
+  opacity: 0.9;
 }
 
-button:hover, .btn:hover {
-  background: #daa520;
+.sidebar-logo svg {
+  width: 60px;
+  height: 60px;
+  fill: #d4af37;
 }
 
-/* ====== RESPONSIVE ====== */
-.hamburger {
-  display: none;
+/* === MAIN === */
+main {
+  flex-grow: 1;
+  padding: 40px;
+  overflow-y: auto;
 }
 
-@media (max-width: 768px) {
-  #sidebarMenu {
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-  }
-  #sidebarMenu.open {
-    transform: translateX(0);
-  }
-  .page-main {
-    margin-left: 0;
-    padding: 1rem;
-  }
-  .hamburger {
-    display: block;
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    background: #b8860b;
-    border: none;
-    color: #fff;
-    padding: 0.5rem 0.8rem;
-    font-size: 1.2rem;
-    border-radius: 4px;
-    z-index: 1100;
-  }
+main h1 {
+  color: #d4af37;
+  text-align: center;
+  margin-top: 0;
+}
+
+main img {
+  max-width: 100%;
+  display: block;
+  margin: 20px auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+main p {
+  max-width: 800px;
+  margin: 20px auto;
+  font-size: 1.1em;
+  line-height: 1.6;
+  color: #444;
+  text-align: center;
 }
