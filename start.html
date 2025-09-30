@@ -2,99 +2,195 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/global.css" />
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       display: flex;
-      min-height: 100vh;
+      height: 100vh;
     }
 
-    /* SIDOMENY */
     aside {
-      width: 250px;
+      width: 260px;
       background: #222;
       color: #fff;
       padding: 20px;
-      border-right: 1px solid #444;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
+
     aside h2 {
       margin-top: 0;
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #d4af37; /* guld */
       text-align: center;
+      color: #d4af37;
     }
-    aside ul {
+
+    .sidebar-search {
+      margin-bottom: 15px;
+    }
+
+    #searchBox {
+      width: 100%;
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      margin-bottom: 6px;
+    }
+
+    #searchBtn {
+      width: 100%;
+      padding: 6px;
+      background: #d4af37;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #searchBtn:hover {
+      background: #b8902e;
+    }
+
+    #sidebarMenu {
       list-style: none;
       padding: 0;
       margin: 0;
+      flex-grow: 1;
     }
-    aside li {
-      margin: 8px 0;
+
+    #sidebarMenu li {
+      margin: 6px 0;
       cursor: pointer;
     }
 
-    /* HUVUDINNEHÅLL */
-    main {
-      flex: 1;
-      padding: 20px;
-      background: #f9f9f9;
+    .extra-links {
+      list-style: none;
+      padding: 0;
+      margin: 15px 0;
     }
-    main h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 2.5rem;
-      color: #d4af37; /* guld */
+
+    .extra-links li {
+      margin: 8px 0;
     }
-    .banner img {
-      width: 100%;
-      height: auto;
-      display: block;
-      margin-bottom: 20px;
-      border-radius: 8px;
+
+    .extra-links a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
     }
-    .welcome {
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-      font-size: 1.1rem;
-      line-height: 1.6;
-      color: #333;
+
+    .extra-links a:hover {
+      text-decoration: underline;
     }
-    .signature {
+
+    .sidebar-logo {
       margin-top: 20px;
-      font-style: italic;
-      color: #555;
+      text-align: center;
+      opacity: 0.9;
+    }
+
+    .sidebar-logo svg {
+      width: 60px;
+      height: 60px;
+      fill: #d4af37;
+    }
+
+    main {
+      flex-grow: 1;
+      padding: 40px;
+      background: #f9f9f9;
+      overflow-y: auto;
+    }
+
+    main h1 {
+      color: #333;
+      margin-top: 0;
+    }
+
+    main img {
+      max-width: 100%;
+      display: block;
+      margin: 20px auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    main p {
+      max-width: 800px;
+      margin: 20px auto;
+      font-size: 1.1em;
+      line-height: 1.6;
+      color: #444;
     }
   </style>
 </head>
 <body>
-  <!-- SIDOMENY -->
   <aside>
-    <h2>WCL</h2>
-    <ul id="sidebarMenu"></ul>
+    <div>
+      <h2>WCL</h2>
+
+      <!-- SÖKRUTA -->
+      <div class="sidebar-search">
+        <input type="text" id="searchBox" placeholder="Search..." />
+        <button id="searchBtn">Search</button>
+      </div>
+
+      <hr/>
+
+      <!-- Dynamiska kontinenter -->
+      <ul id="sidebarMenu"></ul>
+    </div>
+
+    <div>
+      <hr/>
+      <!-- Extra länkar -->
+      <ul class="extra-links">
+        <li><a href="#" id="addStore">➕ Add Store</a></li>
+        <li><a href="mailto:support@worldcigarlocator.com">📩 Contact / Support</a></li>
+      </ul>
+
+      <!-- Logga -->
+      <div class="sidebar-logo">
+        <!-- Enkel cigarr-ikon som SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+          <rect x="8" y="28" width="48" height="8" rx="4" ry="4"/>
+          <circle cx="52" cy="32" r="6" fill="#b87333"/>
+        </svg>
+      </div>
+    </div>
   </aside>
 
-  <!-- HUVUDINNEHÅLL -->
   <main>
-    <h1>World Cigar Locator</h1>
-    <div class="banner">
-      <img src="images/paris.jpg" alt="Paris Banner" />
-    </div>
-    <div class="welcome">
-      <p>Welcome to World Cigar Locator.<br>
-      Are mission is to help you find a cigar store, lounge or just the most perfect spot for a smoke.<br>
-      Hope it makes it easier to enjoy a great cigar wherever you are!</p>
-      <p class="signature">Kind regards // Bakerman</p>
-    </div>
+    <h1>World Cigar Lounge</h1>
+    <img src="images/paris.jpg" alt="Banner">
+    <p>
+      Welcome to World Cigar Locator – the ultimate place to explore, connect and enjoy the world of premium cigars.  
+      Here you can find lounges, stores and experiences across the globe.  
+    </p>
+    <p><em>Kind regards // Bakerman</em></p>
   </main>
 
-  <!-- Supabase + sidomeny-script -->
+  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Din sidebar.js -->
   <script src="js/sidebar.js"></script>
+  <script>
+    // Add Store-knappen
+    document.getElementById("addStore").addEventListener("click", (e) => {
+      e.preventDefault();
+      alert("Add Store form coming soon!");
+    });
+
+    // Search-knappen
+    document.getElementById("searchBtn").addEventListener("click", () => {
+      const query = document.getElementById("searchBox").value.trim();
+      if (!query) return alert("Please type something to search.");
+      alert("Search not implemented yet. You searched for: " + query);
+    });
+  </script>
 </body>
 </html>
