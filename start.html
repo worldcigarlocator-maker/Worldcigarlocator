@@ -1,76 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/global.css" />
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       display: flex;
-      height: 100vh;
+      min-height: 100vh;
     }
     aside {
       width: 250px;
-      background-color: #111;
-      color: #fff;
+      background: #f4f4f4;
       padding: 20px;
-      overflow-y: auto;
-    }
-    aside h2 {
-      margin-top: 0;
-      font-size: 18px;
-      border-bottom: 1px solid #444;
-      padding-bottom: 10px;
-    }
-    #sidebarMenu {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    #sidebarMenu li {
-      padding: 8px 0;
-      border-bottom: 1px solid #333;
-      cursor: pointer;
+      border-right: 1px solid #ddd;
     }
     main {
       flex: 1;
       padding: 20px;
-      background: #f4f4f4;
-      overflow-y: auto;
-    }
-    .banner {
-      text-align: center;
-      margin: 20px 0;
     }
     .banner img {
       max-width: 100%;
       height: auto;
+      display: block;
+      margin: 0 auto 20px;
+    }
+    .welcome {
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <!-- Sidebar -->
+  <!-- SIDOMENY -->
   <aside>
-    <h2>WCL</h2>
+    <h2>World Cigar Locator</h2>
     <ul id="sidebarMenu"></ul>
   </aside>
 
-  <!-- Main Content -->
+  <!-- HUVUDINNEHÅLL -->
   <main>
-    <h1>Welcome to World Cigar Locator</h1>
-    <p>Find cigar stores and lounges near you...</p>
     <div class="banner">
-      <img src="images/worldmap.svg" alt="World Map">
+      <img src="images/worldmap.svg" alt="World Map" />
     </div>
-    <div id="recentStores"></div>
+    <div class="welcome">
+      <h1>Welcome to World Cigar Locator</h1>
+      <p>Find cigar stores and lounges near you across the world.  
+         Use the menu on the left to browse continents and countries.</p>
+    </div>
   </main>
 
-  <!-- Supabase SDK -->
+  <!-- Supabase + sidomeny-script -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Din sidebar-kod -->
   <script src="js/sidebar.js"></script>
 </body>
 </html>
