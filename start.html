@@ -4,136 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>World Cigar Locator</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      height: 100vh;
-    }
-
-    aside {
-      width: 260px;
-      background: #222;
-      color: #fff;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    aside h2 {
-      margin-top: 0;
-      text-align: center;
-      color: #d4af37;
-    }
-
-    .sidebar-search {
-      margin-bottom: 15px;
-    }
-
-    #searchBox {
-      width: 100%;
-      padding: 6px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      margin-bottom: 6px;
-    }
-
-    #searchBtn {
-      width: 100%;
-      padding: 6px;
-      background: #d4af37;
-      color: #000;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    #searchBtn:hover {
-      background: #b8902e;
-    }
-
-    #sidebarMenu {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      flex-grow: 1;
-    }
-
-    #sidebarMenu li {
-      margin: 6px 0;
-      cursor: pointer;
-    }
-
-    .extra-links {
-      list-style: none;
-      padding: 0;
-      margin: 15px 0;
-    }
-
-    .extra-links li {
-      margin: 8px 0;
-    }
-
-    .extra-links a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .extra-links a:hover {
-      text-decoration: underline;
-    }
-
-    .sidebar-logo {
-      margin-top: 20px;
-      text-align: center;
-      opacity: 0.9;
-    }
-
-    .sidebar-logo svg {
-      width: 60px;
-      height: 60px;
-      fill: #d4af37;
-    }
-
-    main {
-      flex-grow: 1;
-      padding: 40px;
-      background: #f9f9f9;
-      overflow-y: auto;
-    }
-
-    main h1 {
-      color: #333;
-      margin-top: 0;
-    }
-
-    main img {
-      max-width: 100%;
-      display: block;
-      margin: 20px auto;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-
-    main p {
-      max-width: 800px;
-      margin: 20px auto;
-      font-size: 1.1em;
-      line-height: 1.6;
-      color: #444;
-    }
-  </style>
+  <!-- Länka extern CSS -->
+  <link rel="stylesheet" href="css/start.css">
 </head>
 <body>
+  <!-- ===== SIDEBAR ===== -->
   <aside>
     <div>
       <h2>WCL</h2>
 
-      <!-- SÖKRUTA -->
+      <!-- Sökfält -->
       <div class="sidebar-search">
         <input type="text" id="searchBox" placeholder="Search..." />
         <button id="searchBtn">Search</button>
@@ -141,7 +21,7 @@
 
       <hr/>
 
-      <!-- Dynamiska kontinenter -->
+      <!-- Dynamiska kontinenter/countries -->
       <ul id="sidebarMenu"></ul>
     </div>
 
@@ -164,6 +44,7 @@
     </div>
   </aside>
 
+  <!-- ===== MAIN AREA ===== -->
   <main>
     <h1>World Cigar Lounge</h1>
     <img src="images/paris.jpg" alt="Banner">
@@ -174,9 +55,10 @@
     <p><em>Kind regards // Bakerman</em></p>
   </main>
 
+  <!-- ===== SCRIPTS ===== -->
   <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Din sidebar.js -->
+  <!-- Din sidebar/start-logik -->
   <script src="js/start.js"></script>
   <script>
     // Add Store-knappen
