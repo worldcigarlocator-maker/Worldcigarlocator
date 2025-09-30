@@ -1,12 +1,14 @@
-/* === Layout === */
+/* ==== Global layout ==== */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   display: flex;
   height: 100vh;
   background: #f9f9f9;
+  color: #222;
 }
 
+/* ==== Sidebar ==== */
 aside {
   width: 280px;
   background: #111;
@@ -16,18 +18,21 @@ aside {
   overflow-y: auto;
 }
 
-main {
-  flex: 1;
-  padding: 20px;
-  background: #fff;
-  overflow-y: auto;
-}
-
-/* === Sidebar === */
 #sidebarMenu {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+/* Continent headers */
+.continent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  color: #d4af37;        /* guld */
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .left-wrapper {
@@ -36,16 +41,15 @@ main {
   gap: 8px;
 }
 
-.continent-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 10px;
-  color: #d4af37;
-  cursor: pointer;
+.continent-toggle,
+.toggle-icon {
   font-weight: bold;
+  color: #d4af37;
+  width: 20px;
+  text-align: center;
 }
 
+/* Countries & cities */
 .country-row,
 .city-row {
   display: flex;
@@ -60,24 +64,47 @@ main {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.toggle-icon,
-.continent-toggle {
-  font-weight: bold;
-  color: #d4af37;
-  width: 20px;
-  text-align: center;
-}
-
 .count {
   font-size: 0.9em;
   color: #aaa;
 }
 
-/* === Nested lists === */
 .country-list,
 .city-list {
   list-style: none;
   margin: 0;
   padding-left: 20px;
-  display: none; /* stängda som default */
+  display: none; /* stängda som standard */
+}
+
+/* ==== Main content ==== */
+main {
+  flex: 1;
+  padding: 30px;
+  background: #fff;
+  overflow-y: auto;
+  text-align: center;
+}
+
+main h1 {
+  color: #d4af37;
+  font-size: 2.4em;
+  margin: 0 0 20px 0;
+  font-weight: bold;
+}
+
+main .banner img {
+  display: block;
+  margin: 0 auto 20px auto;
+  max-width: 70%;   /* skala ner */
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+main p {
+  font-size: 1.1em;
+  line-height: 1.6;
+  margin: 0 auto;
+  max-width: 700px;
 }
