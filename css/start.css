@@ -1,216 +1,83 @@
-/* ============ Global Layout ============ */
+/* === Layout === */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #f9f9f9;
-  color: #222;
   display: flex;
   height: 100vh;
+  background: #f9f9f9;
 }
 
-/* ============ Sidebar ============ */
 aside {
-  width: 270px;
-  background: #222;
+  width: 280px;
+  background: #111;
   color: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 15px;
+  padding: 20px;
   box-sizing: border-box;
   overflow-y: auto;
 }
 
-/* Sidebar header (WCL) */
-.sidebar-header {
-  font-size: 22px;
-  font-weight: bold;
-  color: #d4af37;
-  text-align: center;
-  margin-bottom: 15px;
+main {
+  flex: 1;
+  padding: 20px;
+  background: #fff;
+  overflow-y: auto;
 }
 
-/* Search box */
-.sidebar-search {
-  display: flex;
-  margin-bottom: 15px;
-}
-.sidebar-search input {
-  flex-grow: 1;
-  padding: 6px;
-  border: none;
-  border-radius: 4px 0 0 4px;
-}
-.sidebar-search button {
-  padding: 6px 10px;
-  border: none;
-  background: #d4af37;
-  color: #000;
-  cursor: pointer;
-  border-radius: 0 4px 4px 0;
-}
-.sidebar-search button:hover {
-  background: #b8962d;
-}
-
-/* Continent section */
-.continent-section {
-  margin-bottom: 10px;
-}
-.continent-header {
-  padding: 8px;
-  font-weight: bold;
-  color: #d4af37;
-  cursor: pointer;
-  border-bottom: 1px solid #333;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.continent-header:hover {
-  background: #333;
-}
-.continent-toggle {
-  font-weight: bold;
-  margin-left: 10px;
-  color: #aaa;
-}
-
-/* Countries */
-.country-list {
+/* === Sidebar === */
+#sidebarMenu {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-country-row,
-.continent-header {
+
+.left-wrapper {
   display: flex;
   align-items: center;
-  gap: 8px;              /* lite luft mellan ikon och text */
+  gap: 8px;
+}
+
+.continent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  color: #d4af37;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.country-row,
+.city-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 6px 10px;
   cursor: pointer;
-  justify-content: flex-start; /* allting till vänster */
+}
+
+.country-row:hover,
+.city-row:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .toggle-icon,
 .continent-toggle {
   font-weight: bold;
-  color: #d4af37; /* guld */
-  margin-left: 0; /* ta bort auto så den inte trycks ut höger */
-  width: 20px;    /* jämn placering */
-  text-align: center;
-
-}
-.country-row:hover {
-  background: #333;
-}
-.toggle-icon {
-  margin-right: 6px;
-  font-weight: bold;
-  width: 14px;
-  text-align: center;
-}
-.country-flag {
-  width: 20px;
-  height: 14px;
-  object-fit: cover;
-  margin-right: 6px;
-}
-.country-name {
-  flex-grow: 1;
-}
-.country-count {
-  color: #aaa;
-  font-size: 13px;
-}
-
-/* Cities */
-.city-list {
-  display: none;
-  margin: 0;
-  padding: 0 0 0 28px;
-  border-left: 1px solid #444;
-}
-.city-item {
-  padding: 3px 0;
-  font-size: 14px;
-  color: #ccc;
-}
-.city-item:hover {
-  color: #fff;
-}
-
-/* Sidebar footer */
-.sidebar-footer {
-  margin-top: 20px;
-  border-top: 1px solid #444;
-  padding-top: 15px;
-  text-align: center;
-}
-.sidebar-footer button,
-.sidebar-footer a {
-  display: block;
-  margin: 8px 0;
-  padding: 8px;
-  border: none;
-  border-radius: 4px;
-  text-decoration: none;
-  font-size: 14px;
-  cursor: pointer;
-}
-.sidebar-footer button {
-  background: #d4af37;
-  color: #000;
-}
-.sidebar-footer button:hover {
-  background: #b8962d;
-}
-.sidebar-footer a {
-  background: #444;
-  color: #fff;
-}
-.sidebar-footer a:hover {
-  background: #666;
-}
-.sidebar-footer img {
-  margin-top: 15px;
-  width: 50px;
-  opacity: 0.9;
-}
-
-/* ============ Main content ============ */
-main {
-  flex-grow: 1;
-  padding: 20px;
-  overflow-y: auto;
-}
-main h1 {
-  font-size: 30px;
   color: #d4af37;
-  margin-bottom: 15px;
+  width: 20px;
   text-align: center;
 }
-.banner {
-  width: 100%;
-  max-height: 300px;
-  overflow: hidden;
-  margin-bottom: 20px;
+
+.count {
+  font-size: 0.9em;
+  color: #aaa;
 }
-.banner img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-.welcome-text {
-  font-size: 16px;
-  line-height: 1.6;
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-}
-.welcome-text em {
-  display: block;
-  margin-top: 15px;
-  font-style: italic;
-  color: #555;
+
+/* === Nested lists === */
+.country-list,
+.city-list {
+  list-style: none;
+  margin: 0;
+  padding-left: 20px;
+  display: none; /* stängda som default */
 }
