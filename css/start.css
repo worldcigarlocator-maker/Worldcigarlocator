@@ -4,147 +4,144 @@ body {
   font-family: Arial, sans-serif;
   display: flex;
   height: 100vh;
+  background: #f9f9f9;
 }
 
+/* ===== Sidebar ===== */
 aside {
-  width: 260px;
+  width: 250px;
   background: #222;
   color: #fff;
-  padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  padding: 20px;
+  box-sizing: border-box;
+
+  /* inga scrollbars */
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+}
+aside::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
 }
 
+/* Sidebar header */
 aside h2 {
-  margin-top: 0;
+  color: #d4af37;
+  margin: 0 0 20px 0;
   text-align: center;
+}
+
+/* Search */
+.sidebar-search {
+  margin-bottom: 20px;
+}
+.sidebar-search input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+.sidebar-search button {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  background: #d4af37;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.sidebar-search button:hover {
+  background: #b8902e;
+}
+
+/* Sidebar menu (continents, countries, etc.) */
+.sidebar-menu {
+  flex-grow: 1;
+}
+.sidebar-menu li {
+  list-style: none;
+  margin: 6px 0;
+  cursor: pointer;
+  color: #fff;
+}
+.sidebar-menu li:hover {
   color: #d4af37;
 }
 
-/* ===== Searchbox ===== */
-.sidebar-search {
-  margin-bottom: 15px;
-}
-
-#searchBox {
-  width: 100%;
-  padding: 6px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  margin-bottom: 6px;
-}
-
-#searchBtn {
+/* Add Store button */
+.add-store-btn {
+  display: block;
   width: 100%;
   padding: 10px;
+  margin: 10px 0;
   background: #d4af37;
   color: #000;
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  border-radius: 6px;
   font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.3s;
 }
-
-#searchBtn:hover {
+.add-store-btn:hover {
   background: #b8902e;
 }
 
-/* ===== Sidebar Menu ===== */
-#sidebarMenu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  flex-grow: 1;
+/* Contact link (behålls som den är) */
+.contact-link {
+  display: block;
+  margin-top: 15px;
+  text-decoration: none;
+  font-weight: bold;
+  color: #fff;
+}
+.contact-link:hover {
+  color: #d4af37;
 }
 
-#sidebarMenu li {
-  margin: 6px 0;
-  cursor: pointer;
-}
-
-/* ===== Add Store / Lounge Button ===== */
-.add-store-container {
-  margin-bottom: 15px;
-}
-
-#addStoreBtn {
-  width: 100%;
-  padding: 10px;
-  background: #d4af37;
-  color: #000;
+/* Divider */
+aside hr {
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-#addStoreBtn:hover {
-  background: #b8902e;
-}
-
-/* ===== Extra länkar ===== */
-.extra-links {
-  list-style: none;
-  padding: 0;
+  border-top: 1px solid #555;
   margin: 15px 0;
 }
 
-.extra-links li {
-  margin: 8px 0;
-}
-
-.extra-links a {
-  color: #fff;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.extra-links a:hover {
-  text-decoration: underline;
-}
-
-/* ===== Sidebar logo ===== */
-.sidebar-logo {
-  margin-top: 20px;
-  text-align: center;
-  opacity: 0.9;
-}
-
-.sidebar-logo svg {
-  width: 60px;
-  height: 60px;
-  fill: #d4af37;
-}
-
-/* ===== Main Area ===== */
+/* ===== Main content ===== */
 main {
   flex-grow: 1;
-  padding: 40px;
-  background: #f9f9f9;
+  padding: 20px;
   overflow-y: auto;
-}
-
-main h1 {
   text-align: center;
-  color: #d4af37;
-  margin-top: 0;
-  font-size: 2.2em;
 }
 
-main img {
-  max-width: 80%;
+/* Main heading */
+main h1 {
+  color: #d4af37;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+
+/* Banner */
+.banner img {
+  width: 70%;
+  max-width: 700px;
   display: block;
-  margin: 20px auto;
+  margin: 0 auto 20px auto;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
+/* Welcome text */
 main p {
-  max-width: 800px;
-  margin: 20px auto;
-  font-size: 1.1em;
+  max-width: 600px;
+  margin: 10px auto;
   line-height: 1.6;
-  color: #444;
-  text-align: center;
+  color: #333;
 }
