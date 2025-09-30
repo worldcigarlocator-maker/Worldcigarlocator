@@ -1,71 +1,37 @@
-// ===== Supabase init =====
-const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-const SUPABASE_ANON_KEY ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+// ====== Konfigurera Supabase ======
+const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co"; // byt till ditt eget om annorlunda
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // byt till din riktiga anon key
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-async function loadSidebar() {
-  console.log("🚀 Laddar sidomeny...");
+// ====== Bygg sidomenyn ======
+async function buildSidebar() {
+  console.log("🔄 Hämtar kontinenter...");
+
+  const sidebarMenu = document.getElementById("sidebarMenu");
+  sidebarMenu.innerHTML = ""; // rensa om något redan finns
 
   // Hämta kontinenter
-  const { data: continents, error: contError } = await supabase
+  const { data: continents, error } = await supabase
     .from("continents")
-    .select("*");
+    .select("*")
+    .order("name", { ascending: true });
 
-  if (contError) {
-    console.error("Fel vid hämtning av kontinenter:", contError);
+  if (error) {
+    console.error("⚠️ Fel vid hämtning av kontinenter:", error);
+    sidebarMenu.innerHTML = "<li>Fel vid hämtning av data</li>";
     return;
   }
-  console.log("✅ Kontinenter:", continents);
 
-  // Hämta länder
-  const { data: countries, error: countryError } = await supabase
-    .from("countries")
-    .select("*");
+  console.log("✅ Kontinenter hämtade:", continents);
 
-  if (countryError) {
-    console.error("Fel vid hämtning av länder:", countryError);
-    return;
-  }
-  console.log("✅ Länder:", countries);
-
-  // Bygg meny
-  const menu = document.getElementById("sidebarMenu");
-  menu.innerHTML = "";
-
+  // Bygg listan
   continents.forEach(continent => {
-    // skapa en li för kontinenten
     const li = document.createElement("li");
-
-    const btn = document.createElement("button");
-    btn.textContent = continent.name;
-    btn.classList.add("continent-btn");
-
-    // ul för länder
-    const ul = document.createElement("ul");
-    ul.style.display = "none";
-
-    // filtrera länder
-    const relatedCountries = countries.filter(
-      c => c.continent_id === continent.id
-    );
-
-    console.log(`🌍 ${continent.name} ->`, relatedCountries);
-
-    relatedCountries.forEach(country => {
-      const countryLi = document.createElement("li");
-      countryLi.textContent = country.name;
-      ul.appendChild(countryLi);
-    });
-
-    btn.addEventListener("click", () => {
-      ul.style.display = ul.style.display === "none" ? "block" : "none";
-    });
-
-    li.appendChild(btn);
-    li.appendChild(ul);
-    menu.appendChild(li);
+    li.textContent = continent.name;
+    sidebarMenu.appendChild(li);
   });
 }
 
-document.addEventListener("DOMContentLoaded", loadSidebar);
+// Kör när sidan är laddad
+document.addEventListener("DOMContentLoaded", buildSidebar);
