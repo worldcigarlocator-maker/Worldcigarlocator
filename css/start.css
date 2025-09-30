@@ -82,20 +82,23 @@ aside {
   margin: 0;
   padding: 0;
 }
-.country-row {
+country-row,
+.continent-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 8px;              /* lite luft mellan ikon och text */
+  padding: 6px 10px;
   cursor: pointer;
-  padding: 4px 8px;
+  justify-content: flex-start; /* allting till vänster */
 }
 
-.toggle-icon {
-  width: 20px;
-  text-align: center;
+.toggle-icon,
+.continent-toggle {
   font-weight: bold;
   color: #d4af37; /* guld */
-  flex-shrink: 0;
+  margin-left: 0; /* ta bort auto så den inte trycks ut höger */
+  width: 20px;    /* jämn placering */
+  text-align: center;
 
 }
 .country-row:hover {
