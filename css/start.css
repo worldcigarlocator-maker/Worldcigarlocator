@@ -1,4 +1,4 @@
-/* ====== GLOBAL LAYOUT ====== */
+/* ===== Layout ===== */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -6,7 +6,6 @@ body {
   height: 100vh;
 }
 
-/* ====== SIDEBAR ====== */
 aside {
   width: 260px;
   background: #222;
@@ -20,9 +19,10 @@ aside {
 aside h2 {
   margin-top: 0;
   text-align: center;
-  color: #d4af37; /* gold */
+  color: #d4af37;
 }
 
+/* ===== Searchbox ===== */
 .sidebar-search {
   margin-bottom: 15px;
 }
@@ -37,7 +37,7 @@ aside h2 {
 
 #searchBtn {
   width: 100%;
-  padding: 6px;
+  padding: 10px;
   background: #d4af37;
   color: #000;
   border: none;
@@ -50,6 +50,7 @@ aside h2 {
   background: #b8902e;
 }
 
+/* ===== Sidebar Menu ===== */
 #sidebarMenu {
   list-style: none;
   padding: 0;
@@ -62,6 +63,27 @@ aside h2 {
   cursor: pointer;
 }
 
+/* ===== Add Store / Lounge Button ===== */
+.add-store-container {
+  margin-bottom: 15px;
+}
+
+#addStoreBtn {
+  width: 100%;
+  padding: 10px;
+  background: #d4af37;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#addStoreBtn:hover {
+  background: #b8902e;
+}
+
+/* ===== Extra länkar ===== */
 .extra-links {
   list-style: none;
   padding: 0;
@@ -82,6 +104,7 @@ aside h2 {
   text-decoration: underline;
 }
 
+/* ===== Sidebar logo ===== */
 .sidebar-logo {
   margin-top: 20px;
   text-align: center;
@@ -94,23 +117,23 @@ aside h2 {
   fill: #d4af37;
 }
 
-/* ====== MAIN AREA ====== */
+/* ===== Main Area ===== */
 main {
   flex-grow: 1;
   padding: 40px;
   background: #f9f9f9;
   overflow-y: auto;
-  text-align: center; /* centrera allt i main */
 }
 
 main h1 {
-  color: #d4af37; /* guld */
-  font-size: 2.4em;
-  margin: 0 0 20px 0;
+  text-align: center;
+  color: #d4af37;
+  margin-top: 0;
+  font-size: 2.2em;
 }
 
 main img {
-  max-width: 70%;  /* skala ner bilden */
+  max-width: 80%;
   display: block;
   margin: 20px auto;
   border-radius: 8px;
@@ -123,4 +146,5 @@ main p {
   font-size: 1.1em;
   line-height: 1.6;
   color: #444;
+  text-align: center;
 }
