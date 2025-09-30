@@ -1,77 +1,92 @@
-// start.js - debug version
-const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co"; // byt till din
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // byt till din
+// start.js – bygg sidomenyn från Supabase
+
+// ===== Supabase-konfiguration (din publika anon-nyckel) =====
+const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// ===== Hjälpfunktioner =====
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text) e.textContent = text;
+  return e;
+}
 
-console.log("✅ start.js laddat");
-console.log("👉 Supabase URL:", SUPABASE_URL);
+// ===== Ladda kontineneter och bygg meny =====
+async function buildSidebar() {
+  const menu = document.getElementById("sidebarMenu");
+  if (!menu) return;
 
-// 2. Hämta kontinenter
-async function loadContinents() {
-  console.log("🔎 Försöker hämta kontinenter...");
-  const { data, error } = await supabase
+  // Hämta kontinenter i bokstavsordning
+  const { data: continents, error } = await supabase
     .from("continents")
-    .select("id, name");
+    .select("id, name")
+    .order("name", { ascending: true });
 
   if (error) {
-    console.error("❌ Fel vid hämtning av kontinenter:", error);
+    console.error("Error loading continents:", error);
+    menu.innerHTML = `<li style="color:#f56">Failed to load continents</li>`;
     return;
   }
 
-  console.log("🌍 Kontinenter hämtade:", data);
+  menu.innerHTML = "";
+  continents.forEach((cont) => {
+    // <li class="continent">
+    const li = el("li", "continent");
 
-  const menu = document.getElementById("sidebarMenu");
-  if (!menu) {
-    console.warn("⚠️ Hittade inte #sidebarMenu i HTML!");
-    return;
-  }
+    // knappen (rad)
+    const btn = el("button", "continent-btn");
+    const sign = el("span", "sign", "+");
+    const label = el("span", "label", cont.name);
+    btn.append(sign, label);
+    li.appendChild(btn);
 
-  menu.innerHTML = ""; // töm först
+    // underlista för länder
+    const nested = el("ul", "nested");
+    li.appendChild(nested);
 
-  data.forEach(continent => {
-    const li = document.createElement("li");
-    li.textContent = continent.name;
-    li.style.color = "gold";
-    li.style.cursor = "pointer";
-    li.onclick = () => loadCountries(continent.id, li);
+    // toggle + lazy load
+    let loaded = false;
+    btn.addEventListener("click", async () => {
+      if (!loaded) {
+        await loadCountries(cont.id, nested);
+        loaded = true;
+      }
+      const isOpen = nested.classList.toggle("open");
+      sign.textContent = isOpen ? "−" : "+";
+    });
+
     menu.appendChild(li);
   });
 }
 
-// 3. Hämta länder för en kontinent
-async function loadCountries(continentId, liElement) {
-  console.log(`🔎 Försöker hämta länder för continent_id=${continentId}...`);
-
-  const { data, error } = await supabase
+// ===== Hämta länder för en kontinent =====
+async function loadCountries(continentId, containerUl) {
+  // Hämta länder
+  const { data: countries, error } = await supabase
     .from("countries")
-    .select("id, name, flag")
-    .eq("continent_id", continentId);
+    .select("id, name, flag, continent_id")
+    .eq("continent_id", continentId)
+    .order("name", { ascending: true });
 
   if (error) {
-    console.error("❌ Fel vid hämtning av länder:", error);
+    console.error("Error loading countries:", error);
+    containerUl.innerHTML = `<li style="color:#f56">Failed to load countries</li>`;
     return;
   }
 
-  console.log(`🌐 Länder i kontinent ${continentId}:`, data);
-
-  // skapa lista under kontinenten
-  let ul = liElement.querySelector("ul");
-  if (!ul) {
-    ul = document.createElement("ul");
-    liElement.appendChild(ul);
-  }
-  ul.innerHTML = "";
-
-  data.forEach(country => {
-    const li = document.createElement("li");
-    li.textContent = `${country.flag || ""} ${country.name}`;
-    ul.appendChild(li);
+  containerUl.innerHTML = "";
+  countries.forEach((c) => {
+    const li = el("li", "country");
+    const flag = el("span", "flag", c.flag || "");
+    const name = el("span", "name", c.name);
+    li.append(flag, name);
+    containerUl.appendChild(li);
   });
 }
 
-// 4. Starta när sidan laddas
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("🚀 DOMContentLoaded, kör loadContinents()");
-  loadContinents();
-});
+// ===== Start =====
+document.addEventListener("DOMContentLoaded", buildSidebar);
