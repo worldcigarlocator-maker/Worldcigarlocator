@@ -4,150 +4,155 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 
-// ====== Bygg sidomenyn ======
+// ====== Build sidebar ======
 async function buildSidebar() {
   const sidebarMenu = document.getElementById("sidebarMenu");
-  if (!sidebarMenu) {
-    console.error("❌ Hittade inget element med id=sidebarMenu i start.html");
-    return;
-  }
+  sidebarMenu.innerHTML = "";
 
-  // Hämta alla världsdelar
-  const { data: continents, error: contErr } = await supabase
+  // Hämta kontinenter
+  const { data: continents, error } = await supabase
     .from("continents")
     .select("id, name")
     .order("name", { ascending: true });
 
-  if (contErr) {
-    console.error("Fel vid hämtning av världsdelar:", contErr.message);
+  if (error) {
+    console.error("Error loading continents:", error);
     return;
   }
 
-  continents.forEach(continent => {
-    const contSection = document.createElement("div");
-    contSection.classList.add("continent-section");
+  continents.forEach((continent) => {
+    const contSection = document.createElement("li");
 
-    // Header med namn + toggle
+    // Header för kontinent
     const contHeader = document.createElement("div");
-    contHeader.classList.add("continent-header");
+    contHeader.className = "continent-header";
+
+    const leftWrapper = document.createElement("div");
+    leftWrapper.className = "left-wrapper";
+
+    const contToggle = document.createElement("span");
+    contToggle.textContent = "+";
+    contToggle.className = "continent-toggle";
 
     const contName = document.createElement("span");
     contName.textContent = continent.name;
 
-    const contToggle = document.createElement("span");
-    contToggle.textContent = "+"; // stängd från start
-    contToggle.classList.add("continent-toggle");
+    leftWrapper.appendChild(contToggle);
+    leftWrapper.appendChild(contName);
 
-    contHeader.appendChild(contName);
-    contHeader.appendChild(contToggle);
+    contHeader.appendChild(leftWrapper);
 
-    // Lista för länder (gömd från början)
-    const countryList = document.createElement("ul");
-    countryList.classList.add("country-list");
-    countryList.style.display = "none";
+    contSection.appendChild(contHeader);
 
-    contHeader.addEventListener("click", async () => {
-      const visible = countryList.style.display === "block";
-      if (visible) {
-        countryList.style.display = "none";
-        contToggle.textContent = "+";
-      } else {
-        // Om tom – hämta länder
-        if (countryList.childElementCount === 0) {
-          await loadCountries(continent.id, countryList);
-        }
-        countryList.style.display = "block";
-        contToggle.textContent = "–";
+    // Lista för länder
+    const countriesList = document.createElement("ul");
+    countriesList.className = "country-list";
+    contSection.appendChild(countriesList);
+
+    // Toggle expand/collapse
+    contHeader.addEventListener("click", () => {
+      const expanded = countriesList.style.display === "block";
+      countriesList.style.display = expanded ? "none" : "block";
+      contToggle.textContent = expanded ? "+" : "-";
+
+      if (!expanded && countriesList.childElementCount === 0) {
+        loadCountries(continent.id, countriesList);
       }
     });
 
-    contSection.appendChild(contHeader);
-    contSection.appendChild(countryList);
     sidebarMenu.appendChild(contSection);
   });
 }
 
-// ====== Ladda länder för en världsdel ======
-async function loadCountries(continentId, countryList) {
-  const { data: countries, error: countryErr } = await supabase
+// ====== Load countries ======
+async function loadCountries(continentId, container) {
+  const { data: countries, error } = await supabase
     .from("countries")
     .select("id, name, flag, store_count")
     .eq("continent_id", continentId)
     .order("name", { ascending: true });
 
-  if (countryErr) {
-    console.error("Fel vid hämtning av länder:", countryErr.message);
+  if (error) {
+    console.error("Error loading countries:", error);
     return;
   }
 
-  countries.forEach(country => {
+  countries.forEach((country) => {
     const li = document.createElement("li");
-    li.classList.add("country-row");
+    li.className = "country-row";
+
+    const leftWrapper = document.createElement("div");
+    leftWrapper.className = "left-wrapper";
 
     const toggleIcon = document.createElement("span");
-    toggleIcon.classList.add("toggle-icon");
     toggleIcon.textContent = "+";
+    toggleIcon.className = "toggle-icon";
 
-    const flag = document.createElement("img");
-    flag.src = country.flag;   // i Supabase: flag = emoji eller URL
-    flag.alt = "";
-    flag.classList.add("country-flag");
+    const flag = document.createElement("span");
+    flag.textContent = country.flag || "🏳️";
 
     const name = document.createElement("span");
-    name.classList.add("country-name");
     name.textContent = country.name;
 
-    const count = document.createElement("span");
-    count.classList.add("country-count");
-    count.textContent = country.store_count ?? 0;
+    leftWrapper.appendChild(toggleIcon);
+    leftWrapper.appendChild(flag);
+    leftWrapper.appendChild(name);
 
-    li.appendChild(toggleIcon);
-    li.appendChild(flag);
-    li.appendChild(name);
+    const count = document.createElement("span");
+    count.textContent = country.store_count || 0;
+    count.className = "count";
+
+    li.appendChild(leftWrapper);
     li.appendChild(count);
 
-    // Städer-lista
+    // Lista för städer
     const cityList = document.createElement("ul");
-    cityList.classList.add("city-list");
+    cityList.className = "city-list";
+    li.appendChild(cityList);
 
-    li.addEventListener("click", async (e) => {
-      e.stopPropagation(); // hindra bubbla upp till continent
-      const visible = cityList.style.display === "block";
-      if (visible) {
-        cityList.style.display = "none";
-        toggleIcon.textContent = "+";
-      } else {
-        if (cityList.childElementCount === 0) {
-          await loadCities(country.id, cityList);
-        }
-        cityList.style.display = "block";
-        toggleIcon.textContent = "–";
+    li.addEventListener("click", (e) => {
+      if (e.target === count) return; // ignorera klick på count
+      const expanded = cityList.style.display === "block";
+      cityList.style.display = expanded ? "none" : "block";
+      toggleIcon.textContent = expanded ? "+" : "-";
+
+      if (!expanded && cityList.childElementCount === 0) {
+        loadCities(country.id, cityList);
       }
     });
 
-    countryList.appendChild(li);
-    countryList.appendChild(cityList);
+    container.appendChild(li);
   });
 }
 
-// ====== Ladda städer för ett land ======
-async function loadCities(countryId, cityList) {
-  const { data: cities, error: cityErr } = await supabase
+// ====== Load cities ======
+async function loadCities(countryId, container) {
+  const { data: cities, error } = await supabase
     .from("cities")
     .select("id, name, store_count")
     .eq("country_id", countryId)
     .order("name", { ascending: true });
 
-  if (cityErr) {
-    console.error("Fel vid hämtning av städer:", cityErr.message);
+  if (error) {
+    console.error("Error loading cities:", error);
     return;
   }
 
-  cities.forEach(city => {
+  cities.forEach((city) => {
     const li = document.createElement("li");
-    li.classList.add("city-item");
-    li.textContent = `${city.name} (${city.store_count ?? 0})`;
-    cityList.appendChild(li);
+    li.className = "city-row";
+
+    const name = document.createElement("span");
+    name.textContent = city.name;
+
+    const count = document.createElement("span");
+    count.textContent = city.store_count || 0;
+    count.className = "count";
+
+    li.appendChild(name);
+    li.appendChild(count);
+
+    container.appendChild(li);
   });
 }
 
