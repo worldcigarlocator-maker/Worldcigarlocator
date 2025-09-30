@@ -1,110 +1,126 @@
-/* ==== Global layout ==== */
+/* ====== GLOBAL LAYOUT ====== */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   display: flex;
   height: 100vh;
-  background: #f9f9f9;
-  color: #222;
 }
 
-/* ==== Sidebar ==== */
+/* ====== SIDEBAR ====== */
 aside {
-  width: 280px;
-  background: #111;
+  width: 260px;
+  background: #222;
   color: #fff;
   padding: 20px;
-  box-sizing: border-box;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+aside h2 {
+  margin-top: 0;
+  text-align: center;
+  color: #d4af37; /* gold */
+}
+
+.sidebar-search {
+  margin-bottom: 15px;
+}
+
+#searchBox {
+  width: 100%;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-bottom: 6px;
+}
+
+#searchBtn {
+  width: 100%;
+  padding: 6px;
+  background: #d4af37;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#searchBtn:hover {
+  background: #b8902e;
 }
 
 #sidebarMenu {
   list-style: none;
-  margin: 0;
   padding: 0;
-}
-
-/* Continent headers */
-.continent-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 10px;
-  color: #d4af37;        /* guld */
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.left-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.continent-toggle,
-.toggle-icon {
-  font-weight: bold;
-  color: #d4af37;
-  width: 20px;
-  text-align: center;
-}
-
-/* Countries & cities */
-.country-row,
-.city-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 10px;
-  cursor: pointer;
-}
-
-.country-row:hover,
-.city-row:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.count {
-  font-size: 0.9em;
-  color: #aaa;
-}
-
-.country-list,
-.city-list {
-  list-style: none;
   margin: 0;
-  padding-left: 20px;
-  display: none; /* stängda som standard */
+  flex-grow: 1;
 }
 
-/* ==== Main content ==== */
-main {
-  flex: 1;
-  padding: 30px;
-  background: #fff;
-  overflow-y: auto;
+#sidebarMenu li {
+  margin: 6px 0;
+  cursor: pointer;
+}
+
+.extra-links {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0;
+}
+
+.extra-links li {
+  margin: 8px 0;
+}
+
+.extra-links a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.extra-links a:hover {
+  text-decoration: underline;
+}
+
+.sidebar-logo {
+  margin-top: 20px;
   text-align: center;
+  opacity: 0.9;
+}
+
+.sidebar-logo svg {
+  width: 60px;
+  height: 60px;
+  fill: #d4af37;
+}
+
+/* ====== MAIN AREA ====== */
+main {
+  flex-grow: 1;
+  padding: 40px;
+  background: #f9f9f9;
+  overflow-y: auto;
+  text-align: center; /* centrera allt i main */
 }
 
 main h1 {
-  color: #d4af37;
+  color: #d4af37; /* guld */
   font-size: 2.4em;
   margin: 0 0 20px 0;
-  font-weight: bold;
 }
 
-main .banner img {
+main img {
+  max-width: 70%;  /* skala ner bilden */
   display: block;
-  margin: 0 auto 20px auto;
-  max-width: 70%;   /* skala ner */
-  height: auto;
+  margin: 20px auto;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
 main p {
+  max-width: 800px;
+  margin: 20px auto;
   font-size: 1.1em;
   line-height: 1.6;
-  margin: 0 auto;
-  max-width: 700px;
+  color: #444;
 }
