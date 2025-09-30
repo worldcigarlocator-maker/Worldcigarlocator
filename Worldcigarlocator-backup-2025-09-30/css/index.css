@@ -1,0 +1,76 @@
+/* ===== Layout ===== */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.content {
+  text-align: center;
+  max-width: 600px;
+  padding: 20px;
+}
+
+/* ===== Headings ===== */
+h1 {
+  color: #d4af37;   /* Guld */
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 1.2em;
+  color: #444;
+}
+
+/* ===== Banner ===== */
+.banner img {
+  max-width: 70%;
+  margin: 20px auto;
+  display: block;
+  /* borttagit border-radius + box-shadow */
+}
+
+/* ===== Buttons ===== */
+.button-container {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.button {
+  padding: 12px 20px;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background 0.3s, color 0.3s;
+}
+
+.button.over {
+  background: #d4af37;
+  color: #000;
+}
+
+.button.over:hover {
+  background: #b8902e;
+}
+
+.button.under {
+  background: #444;
+  color: #fff;
+}
+
+.button.under:hover {
+  background: #666;
+}
+
+/* ===== Note ===== */
+.note {
+  margin-top: 15px;
+  font-size: 0.9em;
+  color: #555;
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Alla butiker</title>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="css/global.css">
+</head>
+<body>
+  <h1 class="gold">Alla butiker</h1>
+  <div id="storeList">Laddar...</div>
+
+<script>
+  // 🔑 Din Supabase-info
+  const supabaseUrl = "DIN_SUPABASE_URL";
+  const supabaseKey = "DIN_SUPABASE_ANON_KEY";
+  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+  async function loadStores() {
+    // Hämta butiker
+    const { data: stores } = await supabaseClient
+      .from("stores")
+      .select("*")
+      .order("name");
+
+    // Hämta rating-sammanfattning
+    const { data: summaries } = await supabaseClient
+      .from("store_ratings_summary")
+      .select("*");
+
+    const storeList = document.getElementById("storeList");
+    storeList.innerHTML = "";
+
+    if (stores && stores.length > 0) {
+      stores.forEach(store => {
+        const summary = summaries?.find(s => s.store_id === store.id);
+
+        const div = document.createElement("div");
+        div.className = "store-card";
+
+        // Namn (länk till store.html)
+        const name = document.createElement("h2");
+        name.innerHTML = `<a href="store.html?store=${store.id}" class="gold">${store.name}</a>`;
+        div.appendChild(name);
+
+        // Adress
+        if (store.address) {
+          const address = document.createElement("p");
+          address.textContent = store.address;
+          div.appendChild(address);
+        }
+
+        // Extern länk
+        if (store.link) {
+          const link = document.createElement("p");
+          link.innerHTML = `<a href="${store.link}" target="_blank">Besök hemsida</a>`;
+          div.appendChild(link);
+        }
+
+        // Betyg
+        const rating = document.createElement("div");
+        rating.className = "rating";
+        if (summary) {
+          rating.textContent =
+            `⭐ ${summary.average_rating || 0} (${summary.total_ratings} röster, ${summary.total_reviews} recensioner)`;
+        } else {
+          rating.textContent = "⭐ Inga betyg än.";
+        }
+        div.appendChild(rating);
+
+        storeList.appendChild(div);
+      });
+    } else {
+      storeList.textContent = "Inga butiker hittades.";
+    }
+  }
+
+  loadStores();
+</script>
+</body>
+</html>
