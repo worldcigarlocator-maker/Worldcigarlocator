@@ -2,78 +2,64 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/start.css">
+  <link rel="stylesheet" href="css/start.css" />
 </head>
 <body>
-  <!-- ===== SIDEBAR ===== -->
+  <!-- Sidebar -->
   <aside>
-    <div>
-      <h2>WCL</h2>
+    <h2>WCL</h2>
 
-      <!-- Sökfält -->
-      <div class="sidebar-search">
-        <input type="text" id="searchBox" placeholder="Search..." />
-        <button id="searchBtn">Search</button>
-      </div>
-
-      <hr/>
-
-      <!-- Dynamiska kontinenter/countries -->
-      <ul id="sidebarMenu"></ul>
+    <!-- Search box -->
+    <div class="sidebar-search">
+      <input type="text" id="searchInput" placeholder="Search..." />
+      <button id="searchBtn">Search</button>
     </div>
 
-    <div>
-      <!-- Add Store / Lounge-knapp -->
-      <div class="add-store-container">
-        <button id="addStoreBtn">➕ Add Store / Lounge</button>
-      </div>
+    <!-- Dynamic menu (continents, countries, cities) -->
+    <ul id="sidebarMenu" class="sidebar-menu"></ul>
 
-      <hr/>
+    <!-- Divider -->
+    <hr />
 
-      <!-- Extra länkar -->
-      <ul class="extra-links">
-        <li><a href="mailto:support@worldcigarlocator.com">📩 Contact / Support</a></li>
-      </ul>
+    <!-- Add Store as gold button -->
+    <button id="addStoreBtn" class="add-store-btn">+ Add Store / Lounge</button>
 
-      <!-- Logga -->
-      <div class="sidebar-logo">
-        <!-- Enkel cigarr-ikon som SVG -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-          <rect x="8" y="28" width="48" height="8" rx="4" ry="4"/>
-          <circle cx="52" cy="32" r="6" fill="#b87333"/>
-        </svg>
-      </div>
-    </div>
+    <!-- Contact link -->
+    <a href="mailto:support@example.com" class="contact-link">📧 Contact / Support</a>
   </aside>
 
-  <!-- ===== MAIN AREA ===== -->
+  <!-- Main content -->
   <main>
     <h1>World Cigar Locator</h1>
-    <img src="images/paris.jpg" alt="Banner">
+    <div class="banner">
+      <img src="images/paris.jpg" alt="Paris Banner" />
+    </div>
     <p>
-      Welcome to World Cigar Locator – the ultimate place to explore, connect and enjoy the world of premium cigars.  
-      Here you can find lounges, stores and experiences across the globe.  
+      Welcome to World Cigar Locator (WCL), your ultimate guide to finding the
+      best cigar stores and lounges worldwide. Browse by continent, country, or
+      city to discover great places near you.
     </p>
     <p><em>Kind regards // Bakerman</em></p>
   </main>
 
-  <!-- ===== SCRIPTS ===== -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/start.js"></script>
   <script>
-    // Add Store / Lounge-knappen
-    document.getElementById("addStoreBtn").addEventListener("click", (e) => {
-      e.preventDefault();
+    // Simple button handler for now
+    document.getElementById("addStoreBtn").addEventListener("click", () => {
       alert("Add Store / Lounge form coming soon!");
     });
 
-    // Search-knappen
     document.getElementById("searchBtn").addEventListener("click", () => {
-      const query = document.getElementById("searchBox").value.trim();
-      if (!query) return alert("Please type something to search.");
-      alert("Search not implemented yet. You searched for: " + query);
+      const query = document.getElementById("searchInput").value.trim();
+      if (query) {
+        alert("Searching for: " + query);
+      } else {
+        alert("Please enter a search term.");
+      }
     });
   </script>
 </body>
