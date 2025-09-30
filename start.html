@@ -12,23 +12,51 @@
       display: flex;
       min-height: 100vh;
     }
+
+    /* SIDOMENY */
     aside {
       width: 250px;
-      background: #f4f4f4;
+      background: #222;          /* mörk sidebar */
+      color: #fff;
       padding: 20px;
-      border-right: 1px solid #ddd;
+      border-right: 1px solid #444;
     }
+    aside h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      border-bottom: 1px solid #444;
+      padding-bottom: 8px;
+    }
+    aside ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    aside li {
+      margin: 8px 0;
+      cursor: pointer;
+    }
+
+    /* HUVUDINNEHÅLL */
     main {
       flex: 1;
       padding: 20px;
+      background: #f9f9f9;       /* ljus bakgrund i content */
+    }
+    main h1 {
+      text-align: center;
+      margin-bottom: 20px;
     }
     .banner img {
-      max-width: 100%;
+      width: 100%;
       height: auto;
       display: block;
-      margin: 0 auto 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
     }
     .welcome {
+      max-width: 800px;
+      margin: 0 auto;
       text-align: center;
     }
   </style>
@@ -42,13 +70,14 @@
 
   <!-- HUVUDINNEHÅLL -->
   <main>
+    <h1>Welcome to World Cigar Locator</h1>
     <div class="banner">
-      <img src="images/worldmap.svg" alt="World Map" />
+      <img src="images/paris.jpg" alt="Paris Banner" />
     </div>
     <div class="welcome">
-      <h1>Welcome to World Cigar Locator</h1>
-      <p>Find cigar stores and lounges near you across the world.  
-         Use the menu on the left to browse continents and countries.</p>
+      <p>Discover cigar lounges and stores worldwide.  
+         Use the menu to the left to browse by continent and country,  
+         or explore featured cities like Paris.</p>
     </div>
   </main>
 
