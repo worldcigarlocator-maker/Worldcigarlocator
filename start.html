@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>World Cigar Locator</title>
-  <!-- Länka extern CSS -->
   <link rel="stylesheet" href="css/start.css">
 </head>
 <body>
@@ -26,10 +25,15 @@
     </div>
 
     <div>
+      <!-- Add Store / Lounge-knapp -->
+      <div class="add-store-container">
+        <button id="addStoreBtn">➕ Add Store / Lounge</button>
+      </div>
+
       <hr/>
+
       <!-- Extra länkar -->
       <ul class="extra-links">
-        <li><a href="#" id="addStore">➕ Add Store</a></li>
         <li><a href="mailto:support@worldcigarlocator.com">📩 Contact / Support</a></li>
       </ul>
 
@@ -46,7 +50,7 @@
 
   <!-- ===== MAIN AREA ===== -->
   <main>
-    <h1>World Cigar Lounge</h1>
+    <h1>World Cigar Locator</h1>
     <img src="images/paris.jpg" alt="Banner">
     <p>
       Welcome to World Cigar Locator – the ultimate place to explore, connect and enjoy the world of premium cigars.  
@@ -56,15 +60,13 @@
   </main>
 
   <!-- ===== SCRIPTS ===== -->
-  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Din sidebar/start-logik -->
   <script src="js/start.js"></script>
   <script>
-    // Add Store-knappen
-    document.getElementById("addStore").addEventListener("click", (e) => {
+    // Add Store / Lounge-knappen
+    document.getElementById("addStoreBtn").addEventListener("click", (e) => {
       e.preventDefault();
-      alert("Add Store form coming soon!");
+      alert("Add Store / Lounge form coming soon!");
     });
 
     // Search-knappen
