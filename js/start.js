@@ -6,8 +6,6 @@ const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // byt till din riktiga nyckel
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-
-// Ladda kontinenter
 async function loadContinents() {
   console.log("🔎 Hämtar kontinenter...");
   const { data: continents, error } = await supabase
@@ -20,8 +18,6 @@ async function loadContinents() {
     return;
   }
 
-  console.log("🌍 Kontinenter:", continents);
-
   const sidebarMenu = document.getElementById("sidebarMenu");
   sidebarMenu.innerHTML = "";
 
@@ -29,29 +25,24 @@ async function loadContinents() {
     const continentItem = document.createElement("li");
     continentItem.classList.add("continent-item");
 
-    // Kontinent-rubrik
     const header = document.createElement("div");
     header.classList.add("continent-header");
     header.textContent = continent.name;
 
-    // +/- ikon
     const toggle = document.createElement("span");
     toggle.classList.add("toggle-icon");
     toggle.textContent = "+";
     header.prepend(toggle);
 
-    // Lista för länder
     const countryList = document.createElement("ul");
     countryList.classList.add("country-list");
     countryList.style.display = "none";
 
-    // Klicka för att expandera/kollapsa
     header.addEventListener("click", async () => {
       if (countryList.style.display === "none") {
-        // Hämta länder för denna kontinent
         const { data: countries, error: countryError } = await supabase
           .from("countries")
-          .select("*")
+          .select("id, name, flag, stores(count)")
           .eq("continent_id", continent.id)
           .order("name", { ascending: true });
 
@@ -60,16 +51,18 @@ async function loadContinents() {
           return;
         }
 
-        console.log(`🌐 Länder i ${continent.name}:`, countries);
-
         countryList.innerHTML = "";
         countries.forEach(country => {
           const li = document.createElement("li");
           li.classList.add("country-item");
 
+          const count = country.stores?.[0]?.count || 0;
+
           li.innerHTML = `
+            <span class="toggle-placeholder"></span>
             <span class="flag">${country.flag || ""}</span>
             <span class="name">${country.name}</span>
+            <span class="count">${count}</span>
           `;
 
           countryList.appendChild(li);
