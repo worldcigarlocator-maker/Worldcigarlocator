@@ -1,147 +1,17 @@
-/* ===== Layout ===== */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  display: flex;
-  height: 100vh;
-  background: #f9f9f9;
-}
-
-/* ===== Sidebar ===== */
-aside {
-  width: 250px;
-  background: #222;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 20px;
-  box-sizing: border-box;
-
-  /* inga scrollbars */
-  overflow-y: auto;
-  scrollbar-width: none; /* Firefox */
-}
-aside::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
-}
-
-/* Sidebar header */
-aside h2 {
-  color: #d4af37;
-  margin: 0 0 20px 0;
+/* Main title centrerad och i guld */
+.main-title {
   text-align: center;
+  color: #d4af37;   /* guld */
+  font-size: 2.5em;
+  margin: 20px 0;
 }
 
-/* Search */
-.sidebar-search {
-  margin-bottom: 20px;
-}
-.sidebar-search input {
-  width: 100%;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  margin-bottom: 10px;
-}
-.sidebar-search button {
-  width: 100%;
-  padding: 8px;
-  border: none;
-  border-radius: 6px;
-  background: #d4af37;
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-.sidebar-search button:hover {
-  background: #b8902e;
-}
-
-/* Sidebar menu (continents, countries, etc.) */
-.sidebar-menu {
-  flex-grow: 1;
-}
-.sidebar-menu li {
-  list-style: none;
-  margin: 6px 0;
-  cursor: pointer;
-  color: #fff;
-}
-.sidebar-menu li:hover {
-  color: #d4af37;
-}
-
-/* Add Store button */
-.add-store-btn {
+/* Bannerbilden skalad och centrerad */
+.banner {
   display: block;
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  background: #d4af37;
-  color: #000;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  text-align: center;
-  transition: background 0.3s;
-}
-.add-store-btn:hover {
-  background: #b8902e;
-}
-
-/* Contact link (behålls som den är) */
-.contact-link {
-  display: block;
-  margin-top: 15px;
-  text-decoration: none;
-  font-weight: bold;
-  color: #fff;
-}
-.contact-link:hover {
-  color: #d4af37;
-}
-
-/* Divider */
-aside hr {
-  border: none;
-  border-top: 1px solid #555;
-  margin: 15px 0;
-}
-
-/* ===== Main content ===== */
-main {
-  flex-grow: 1;
-  padding: 20px;
-  overflow-y: auto;
-  text-align: center;
-}
-
-/* Main heading */
-main h1 {
-  color: #d4af37;
-  text-align: center;
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 2rem;
-}
-
-/* Banner */
-.banner img {
-  width: 70%;
-  max-width: 700px;
-  display: block;
-  margin: 0 auto 20px auto;
+  max-width: 70%;   /* skala ner till 70% av bredden */
+  height: auto;
+  margin: 0 auto 20px auto;  /* centrerad */
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-/* Welcome text */
-main p {
-  max-width: 600px;
-  margin: 10px auto;
-  line-height: 1.6;
-  color: #333;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
