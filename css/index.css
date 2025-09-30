@@ -31,8 +31,7 @@ h1 {
   max-width: 70%;
   margin: 20px auto;
   display: block;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  /* borttagit border-radius + box-shadow */
 }
 
 /* ===== Buttons ===== */
