@@ -85,7 +85,12 @@ body {
   border-radius: 4px;
   margin-top: 1rem;
   cursor: pointer;
+
+  text-decoration: none;   /* tar bort underline */
+  display: block;          /* gör hela ytan klickbar */
+  text-align: center;      /* centrerar texten */
 }
+
 
 .support-link {
   color: #fff;
