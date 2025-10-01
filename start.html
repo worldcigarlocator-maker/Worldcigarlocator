@@ -5,28 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World Cigar Locator</title>
   <link rel="stylesheet" href="css/start.css">
-  <style>
-    .container { display: flex; height: 100vh; }
-    aside { width: 280px; background: #111; padding: 1rem; color: #eee;
-            overflow-y: auto; border-right: 2px solid gold; }
-    aside h2 { color: gold; }
-    .sidebar-search { margin-bottom: 1rem; }
-    .sidebar-search input {
-      width: calc(100% - 60px); padding: 5px; border: 1px solid gold;
-      background: #000; color: #fff;
-    }
-    .sidebar-search button { padding: 5px 10px; background: gold; border: none; cursor: pointer; }
-    .sidebar-footer { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.5rem; }
-    .gold-btn { background: gold; border: none; padding: 0.5rem; cursor: pointer; border-radius: 5px; }
-    .main { flex: 1; padding: 2rem; background: #000; color: #fff; overflow-y: auto; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
-    .card { background: #1a1a1a; border: 1px solid gold; border-radius: 10px; padding: 1rem; transition: transform 0.2s; }
-    .card:hover { transform: translateY(-4px); }
-    .sidebar strong { color: gold; cursor: pointer; display: block; margin: 0.5rem 0; }
-    .sidebar ul { list-style: none; padding-left: 1rem; }
-    .sidebar li { cursor: pointer; padding: 2px 0; transition: color 0.2s; }
-    .sidebar li:hover { color: gold; }
-  </style>
 </head>
 <body>
   <div class="container">
@@ -53,7 +31,16 @@
     <!-- Main -->
     <main class="main" id="main">
       <h1>World Cigar Locator</h1>
-      <p>Välj ett land eller en stad i menyn →</p>
+      <div class="banner">
+        <img src="images/paris.jpg" alt="Paris">
+      </div>
+      <div class="welcome-text">
+        <p>
+          Welcome to World Cigar Locator. Our mission is to help you find a cigar store, lounge or just the perfect spot for a smoke.
+          Hope it makes it easier to find what you are looking for, wherever you are!
+        </p>
+        <p class="signature">Kind regards // Bakerman</p>
+      </div>
     </main>
   </div>
 
@@ -62,7 +49,7 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
 
   <script>
-    // 🔑 DINA KEYS
+    // 🔑 Dina Supabase keys
     const supabase = window.supabase.createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
