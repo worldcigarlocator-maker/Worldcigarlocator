@@ -9,7 +9,6 @@
       margin: 0;
       font-family: Arial, sans-serif;
       background: #fff;
-      color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -17,19 +16,19 @@
     }
 
     .form-card {
-      background: #c9a227; /* guld */
+      background: #444; /* mörkgrå platta */
       padding: 2rem;
       border-radius: 8px;
       max-width: 500px;
       width: 100%;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      text-align: left;
+      color: #fff;
     }
 
     h1 {
       text-align: center;
       margin-bottom: 1rem;
-      color: #fff;
+      color: #c9a227;
     }
 
     .toggle {
@@ -48,12 +47,12 @@
     }
 
     .toggle-btn.store.active {
-      background: #222;  /* mörkgrå */
+      background: #222;  /* mörkgrå när Store vald */
       color: #fff;
     }
 
     .toggle-btn.lounge.active {
-      background: #c9a227; /* guld */
+      background: #c9a227; /* guld när Lounge vald */
       color: #111;
     }
 
@@ -66,7 +65,6 @@
       display: block;
       margin-bottom: 0.5rem;
       font-weight: bold;
-      color: #fff;
     }
 
     input, select {
@@ -84,7 +82,6 @@
       background: #333;
     }
 
-    /* stjärnor */
     .rating {
       display: flex;
       gap: 5px;
@@ -103,8 +100,8 @@
     }
 
     .save-btn {
-      background: #222;
-      color: #fff;
+      background: #c9a227;
+      color: #111;
       padding: 0.7rem;
       border: none;
       border-radius: 4px;
@@ -115,7 +112,7 @@
     }
 
     .save-btn:hover {
-      background: #444;
+      background: #b08e22;
     }
   </style>
 </head>
@@ -190,7 +187,7 @@
     document.getElementById("storeForm").addEventListener("submit", function(e) {
       e.preventDefault();
       alert(`Saved: ${selectedType}, Rating: ${selectedRating}, Name: ${document.getElementById("name").value}`);
-      // här kopplar vi på Supabase insert senare
+      // Supabase insert kan kopplas här sen
     });
   </script>
 </body>
