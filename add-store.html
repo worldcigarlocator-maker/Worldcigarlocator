@@ -3,124 +3,180 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Add Store / Lounge</title>
+  <title>Add Store / Lounge - World Cigar Locator</title>
   <link rel="stylesheet" href="css/index.css">
   <style>
-    /* Extra styling för formulärsidan */
     body {
-      background-color: #111;
-      color: #f5f5f5;
       font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      background-color: #111;
+      color: #fff;
       margin: 0;
+      padding: 0;
     }
-
-    .form-card {
-      background-color: #1a1a1a;
-      border: 1px solid gold;
+    .form-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 30px;
+      background: #1c1c1c;
       border-radius: 12px;
-      padding: 2rem;
-      max-width: 500px;
-      width: 100%;
-      box-shadow: 0 0 15px rgba(255,215,0,0.2);
+      box-shadow: 0 0 20px rgba(255,215,0,0.2);
     }
-
-    .form-card h2 {
+    h1 {
       text-align: center;
       color: gold;
-      margin-bottom: 1.5rem;
+      margin-bottom: 20px;
     }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
+    label {
       display: block;
-      margin-bottom: 0.5rem;
-      color: #ddd;
+      margin-top: 15px;
+      font-weight: bold;
+      color: gold;
     }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
+    input, select, textarea {
       width: 100%;
-      padding: 0.75rem;
+      padding: 10px;
+      margin-top: 5px;
       border-radius: 8px;
       border: 1px solid #444;
       background: #222;
       color: #fff;
     }
-
-    .form-group textarea {
-      resize: vertical;
+    textarea {
       min-height: 100px;
+      resize: vertical;
     }
-
-    .submit-btn {
-      display: block;
+    button {
+      margin-top: 20px;
+      padding: 12px;
       width: 100%;
-      padding: 1rem;
       background: gold;
       color: #111;
-      font-weight: bold;
       border: none;
       border-radius: 8px;
+      font-weight: bold;
       cursor: pointer;
-      transition: background 0.3s ease;
     }
-
-    .submit-btn:hover {
+    button:hover {
       background: #e6c200;
+    }
+    .success {
+      margin-top: 20px;
+      color: lightgreen;
+      text-align: center;
+    }
+    .error {
+      margin-top: 20px;
+      color: red;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <div class="form-card">
-    <h2>Add Store / Lounge</h2>
-    <form id="addStoreForm">
-      <div class="form-group">
-        <label for="name">Store / Lounge Name</label>
-        <input type="text" id="name" name="name" required />
-      </div>
+  <div class="form-container">
+    <h1>Add Store / Lounge</h1>
+    <form id="storeForm">
+      <label for="name">Store / Lounge Name</label>
+      <input type="text" id="name" required>
 
-      <div class="form-group">
-        <label for="city">City</label>
-        <input type="text" id="city" name="city" required />
-      </div>
+      <label for="city">City</label>
+      <input type="text" id="city" required>
 
-      <div class="form-group">
-        <label for="country">Country</label>
-        <input type="text" id="country" name="country" required />
-      </div>
+      <label for="country">Country</label>
+      <input type="text" id="country" required>
 
-      <div class="form-group">
-        <label for="type">Type</label>
-        <select id="type" name="type" required>
-          <option value="">-- Select --</option>
-          <option value="Store">Store</option>
-          <option value="Lounge">Lounge</option>
-          <option value="Both">Both</option>
-        </select>
-      </div>
+      <label for="type">Type</label>
+      <select id="type" required>
+        <option value="store">Store</option>
+        <option value="lounge">Lounge</option>
+        <option value="both">Both</option>
+      </select>
 
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" name="description"></textarea>
-      </div>
+      <label for="rating">Rating</label>
+      <select id="rating" required>
+        <option value="">Select</option>
+        <option value="1">⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="5">⭐⭐⭐⭐⭐</option>
+      </select>
 
-      <button type="submit" class="submit-btn">Submit</button>
+      <label for="address">Address</label>
+      <input type="text" id="address" placeholder="Search address..." required>
+
+      <label for="description">Description</label>
+      <textarea id="description"></textarea>
+
+      <button type="submit">Submit</button>
+      <div id="message"></div>
     </form>
   </div>
 
+  <!-- Google Maps API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
+
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
   <script>
-    // just test feedback, kopplas senare till databasen
-    document.getElementById("addStoreForm").addEventListener("submit", function(e) {
+    // Supabase config
+    const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let selectedPlace = null;
+
+    // Init autocomplete
+    window.addEventListener("load", () => {
+      const input = document.getElementById("address");
+      if (input && typeof google !== "undefined") {
+        const autocomplete = new google.maps.places.Autocomplete(input);
+        autocomplete.addListener("place_changed", () => {
+          selectedPlace = autocomplete.getPlace();
+          console.log("📍 Place selected:", selectedPlace);
+        });
+      }
+    });
+
+    // Handle form submit
+    document.getElementById("storeForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      alert("Your store/lounge has been submitted! (funktion kopplas senare)");
+      const messageEl = document.getElementById("message");
+      messageEl.innerHTML = "";
+
+      const name = document.getElementById("name").value;
+      const city = document.getElementById("city").value;
+      const country = document.getElementById("country").value;
+      const type = document.getElementById("type").value;
+      const rating = document.getElementById("rating").value;
+      const address = document.getElementById("address").value;
+      const description = document.getElementById("description").value;
+
+      const lat = selectedPlace?.geometry?.location?.lat() || null;
+      const lng = selectedPlace?.geometry?.location?.lng() || null;
+
+      const { data, error } = await supabase
+        .from("stores")
+        .insert([{
+          name,
+          city,
+          country,
+          type,
+          rating,
+          address,
+          description,
+          latitude: lat,
+          longitude: lng
+        }]);
+
+      if (error) {
+        console.error(error);
+        messageEl.innerHTML = "<p class='error'>❌ Error: " + error.message + "</p>";
+      } else {
+        console.log("✅ Store saved:", data);
+        messageEl.innerHTML = "<p class='success'>✅ Store added successfully!</p>";
+        document.getElementById("storeForm").reset();
+      }
     });
   </script>
 </body>
