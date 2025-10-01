@@ -1,29 +1,21 @@
-// cards.js
-
-// Hämta stores från Supabase
-const { createClient } = supabase;
-const supabaseUrl = "DIN_SUPABASE_URL";
-const supabaseKey = "DIN_SUPABASE_ANON_KEY";
-const db = createClient(supabaseUrl, supabaseKey);
-
-async function fetchStores() {
-  const { data, error } = await db.from("stores").select("*");
-  if (error) {
-    console.error("❌ Error fetching stores:", error);
-    return [];
-  }
-  return data;
-}
-
 function renderCards(stores) {
   const grid = document.querySelector(".card-grid");
   grid.innerHTML = "";
 
   stores.forEach(store => {
-    // Thumbnail (Google Maps bild eller fallback)
-    const thumbnail = store.photo_reference
-      ? `<img src="${store.photo_reference}" alt="${store.name}" class="card-img">`
-      : `<img src="img/placeholder.jpg" alt="No image" class="card-img">`;
+    let thumbnail;
+
+    if (store.photo_reference) {
+      // Har Google Maps bild
+      thumbnail = `<img src="${store.photo_reference}" alt="${store.name}" class="card-img">`;
+    } else {
+      // Fallback beroende på typ
+      if (store.type && store.type.toLowerCase() === "lounge") {
+        thumbnail = `<img src="img/lounge.jpg" alt="Lounge" class="card-img">`;
+      } else {
+        thumbnail = `<img src="img/store.png" alt="Store" class="card-img">`;
+      }
+    }
 
     // Rating med stjärnor
     let stars = "";
@@ -31,7 +23,6 @@ function renderCards(stores) {
       stars += i <= store.rating ? "★" : "☆";
     }
 
-    // Kortets HTML
     const card = document.createElement("div");
     card.classList.add("card");
     card.innerHTML = `
@@ -46,9 +37,3 @@ function renderCards(stores) {
     grid.appendChild(card);
   });
 }
-
-// Initiera
-(async () => {
-  const stores = await fetchStores();
-  renderCards(stores);
-})();
