@@ -6,170 +6,147 @@ const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ start.js loaded");
-  loadContinents();
-});
-
-// Ladda kontinenter
+// === Hämta kontinenter ===
 async function loadContinents() {
-  console.log("🔎 Hämtar kontinenter...");
-  const { data, error } = await supabase.from("continents").select("*").order("name");
-
+  console.log("🌍 Hämtar kontinenter...");
+  const { data, error } = await supabase.from("continents").select("*").order("name", { ascending: true });
   if (error) {
-    console.error("❌ Error loading continents:", error);
+    console.error("Fel vid hämtning av kontinenter:", error.message);
     return;
   }
 
-  const menu = document.getElementById("sidebarMenu");
-  menu.innerHTML = ""; // rensa
+  const sidebarMenu = document.getElementById("sidebarMenu");
+  sidebarMenu.innerHTML = ""; // rensa först
 
   data.forEach(continent => {
-    const continentItem = document.createElement("li");
-    continentItem.className = "continent-item";
-
-    const toggle = document.createElement("span");
-    toggle.className = "toggle-icon";
-    toggle.textContent = "+";
-
-    const label = document.createElement("span");
-    label.textContent = continent.name;
-
-    const countriesList = document.createElement("ul");
-    countriesList.className = "country-list";
-    countriesList.style.display = "none";
-
-    continentItem.appendChild(toggle);
-    continentItem.appendChild(label);
-    continentItem.appendChild(countriesList);
-
-    toggle.addEventListener("click", async () => {
-      if (countriesList.style.display === "none") {
-        countriesList.style.display = "block";
-        toggle.textContent = "−";
-        await loadCountries(continent.id, countriesList);
-      } else {
-        countriesList.style.display = "none";
-        toggle.textContent = "+";
-      }
-    });
-
-    menu.appendChild(continentItem);
+    const continentEl = createContinentElement(continent);
+    sidebarMenu.appendChild(continentEl);
   });
 }
 
-// Ladda länder
-async function loadCountries(continentId, container) {
-  container.innerHTML = "⏳ Loading...";
+// === Skapa kontinent-element ===
+function createContinentElement(continent) {
+  const li = document.createElement("li");
+  li.classList.add("continent-item");
+
+  // Toggle ikon
+  const toggleIcon = document.createElement("span");
+  toggleIcon.classList.add("toggle-icon");
+  toggleIcon.textContent = "+";
+
+  // Namn
+  const nameSpan = document.createElement("span");
+  nameSpan.textContent = continent.name;
+
+  // Länder-lista
+  const countryList = document.createElement("ul");
+  countryList.classList.add("country-list");
+
+  // Klick för att toggla
+  li.addEventListener("click", async () => {
+    if (countryList.classList.contains("open")) {
+      countryList.classList.remove("open");
+      toggleIcon.textContent = "+";
+    } else {
+      if (countryList.children.length === 0) {
+        await loadCountriesForContinent(continent.id, countryList);
+      }
+      countryList.classList.add("open");
+      toggleIcon.textContent = "–";
+    }
+  });
+
+  li.appendChild(toggleIcon);
+  li.appendChild(nameSpan);
+  li.appendChild(countryList);
+
+  return li;
+}
+
+// === Hämta länder för en kontinent ===
+async function loadCountriesForContinent(continentId, container) {
+  console.log(`🌎 Hämtar länder för kontinent: ${continentId}`);
   const { data, error } = await supabase
     .from("countries")
-    .select("id, name, flag")
+    .select("*")
     .eq("continent_id", continentId)
-    .order("name");
+    .order("name", { ascending: true });
 
   if (error) {
-    console.error("❌ Error loading countries:", error);
-    container.innerHTML = "<li>Error loading countries</li>";
+    console.error("Fel vid hämtning av länder:", error.message);
     return;
   }
 
-  container.innerHTML = "";
-  for (const country of data) {
-    const countryItem = document.createElement("li");
-    countryItem.className = "country-item";
-
-    const toggle = document.createElement("span");
-    toggle.className = "toggle-icon";
-    toggle.textContent = "+";
-
-    const label = document.createElement("span");
-    label.textContent = `${country.flag} ${country.name}`;
-
-    const count = document.createElement("span");
-    count.className = "store-count";
-    count.textContent = await getStoreCountByCountry(country.id);
-
-    const citiesList = document.createElement("ul");
-    citiesList.className = "city-list";
-    citiesList.style.display = "none";
-
-    countryItem.appendChild(toggle);
-    countryItem.appendChild(label);
-    countryItem.appendChild(count);
-    countryItem.appendChild(citiesList);
-
-    toggle.addEventListener("click", async () => {
-      if (citiesList.style.display === "none") {
-        citiesList.style.display = "block";
-        toggle.textContent = "−";
-        await loadCities(country.id, citiesList);
-      } else {
-        citiesList.style.display = "none";
-        toggle.textContent = "+";
-      }
-    });
-
-    container.appendChild(countryItem);
-  }
+  data.forEach(country => {
+    const countryEl = createCountryElement(country);
+    container.appendChild(countryEl);
+  });
 }
 
-// Ladda städer
-async function loadCities(countryId, container) {
-  container.innerHTML = "⏳ Loading...";
+// === Skapa land-element ===
+function createCountryElement(country) {
+  const li = document.createElement("li");
+  li.classList.add("country-item");
+
+  // Toggle ikon
+  const toggleIcon = document.createElement("span");
+  toggleIcon.classList.add("toggle-icon");
+  toggleIcon.textContent = "+";
+
+  // Flagga + namn
+  const nameSpan = document.createElement("span");
+  nameSpan.textContent = `${country.flag || ""} ${country.name}`;
+
+  // Cities-lista
+  const cityList = document.createElement("ul");
+  cityList.classList.add("city-list");
+
+  // Klick för att toggla
+  li.addEventListener("click", async (e) => {
+    e.stopPropagation(); // stoppa bubbla så inte kontinent också togglar
+    if (cityList.classList.contains("open")) {
+      cityList.classList.remove("open");
+      toggleIcon.textContent = "+";
+    } else {
+      if (cityList.children.length === 0) {
+        await loadCitiesForCountry(country.id, cityList);
+      }
+      cityList.classList.add("open");
+      toggleIcon.textContent = "–";
+    }
+  });
+
+  li.appendChild(toggleIcon);
+  li.appendChild(nameSpan);
+  li.appendChild(cityList);
+
+  return li;
+}
+
+// === Hämta städer för ett land ===
+async function loadCitiesForCountry(countryId, container) {
+  console.log(`🏙️ Hämtar städer för land: ${countryId}`);
   const { data, error } = await supabase
     .from("cities")
-    .select("id, name")
+    .select("*")
     .eq("country_id", countryId)
-    .order("name");
+    .order("name", { ascending: true });
 
   if (error) {
-    console.error("❌ Error loading cities:", error);
-    container.innerHTML = "<li>Error loading cities</li>";
+    console.error("Fel vid hämtning av städer:", error.message);
     return;
   }
 
-  container.innerHTML = "";
-  for (const city of data) {
-    const cityItem = document.createElement("li");
-    cityItem.className = "city-item";
-
-    const label = document.createElement("span");
-    label.textContent = city.name;
-
-    const count = document.createElement("span");
-    count.className = "store-count";
-    count.textContent = await getStoreCountByCity(city.id);
-
-    cityItem.appendChild(label);
-    cityItem.appendChild(count);
-    container.appendChild(cityItem);
-  }
+  data.forEach(city => {
+    const li = document.createElement("li");
+    li.classList.add("city-item");
+    li.textContent = city.name;
+    container.appendChild(li);
+  });
 }
 
-// Hämta antal butiker per land
-async function getStoreCountByCountry(countryId) {
-  const { count, error } = await supabase
-    .from("stores")
-    .select("*", { count: "exact", head: true })
-    .eq("country_id", countryId);
-
-  if (error) {
-    console.error("❌ Error counting stores for country:", error);
-    return "0";
-  }
-  return count;
-}
-
-// Hämta antal butiker per stad
-async function getStoreCountByCity(cityId) {
-  const { count, error } = await supabase
-    .from("stores")
-    .select("*", { count: "exact", head: true })
-    .eq("city_id", cityId);
-
-  if (error) {
-    console.error("❌ Error counting stores for city:", error);
-    return "0";
-  }
-  return count;
-}
+// === Init ===
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("🚀 start.js laddat");
+  loadContinents();
+});
