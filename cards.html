@@ -1,36 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Store Cards Demo</title>
-  <link rel="stylesheet" href="cards.css">
-</head>
-<body>
-  <main class="card-grid">
-    <!-- Exempelcards med dummy-data -->
-    <div class="card">
-      <h2 class="card-title">Cigar Lounge Stockholm</h2>
-      <p class="card-location">Stockholm, Sweden</p>
-      <p class="card-type">Lounge</p>
-      <div class="card-rating">⭐⭐⭐⭐☆</div>
-      <button class="card-btn">View Details</button>
-    </div>
+const dummyStores = [
+  { name: "Cigar Lounge Stockholm", city: "Stockholm", country: "Sweden", type: "Lounge", rating: 4 },
+  { name: "Havana House", city: "Berlin", country: "Germany", type: "Store", rating: 3 },
+  { name: "Barcelona Cigar Club", city: "Barcelona", country: "Spain", type: "Lounge", rating: 5 }
+];
 
-    <div class="card">
-      <h2 class="card-title">Havana House</h2>
-      <p class="card-location">Berlin, Germany</p>
-      <p class="card-type">Store</p>
-      <div class="card-rating">⭐⭐⭐☆☆</div>
-      <button class="card-btn">View Details</button>
-    </div>
+function renderCards() {
+  const grid = document.querySelector(".card-grid");
+  grid.innerHTML = "";
 
-    <div class="card">
-      <h2 class="card-title">Barcelona Cigar Club</h2>
-      <p class="card-location">Barcelona, Spain</p>
-      <p class="card-type">Lounge</p>
-      <div class="card-rating">⭐⭐⭐⭐⭐</div>
+  dummyStores.forEach(store => {
+    const card = document.createElement("div");
+    card.classList.add("card");
+
+    card.innerHTML = `
+      <h2 class="card-title">${store.name}</h2>
+      <p class="card-location">${store.city}, ${store.country}</p>
+      <p class="card-type">${store.type}</p>
+      <div class="card-rating">
+        ${"⭐".repeat(store.rating)}${"☆".repeat(5 - store.rating)}
+      </div>
       <button class="card-btn">View Details</button>
-    </div>
-  </main>
-</body>
-</html>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+renderCards();
