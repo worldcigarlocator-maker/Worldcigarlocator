@@ -21,18 +21,12 @@
       <!-- Sidebar menu (filled by start.js) -->
       <ul id="sidebarMenu"></ul>
 
- <!-- Add Store button -->
-<div class="sidebar-footer">
-  <button id="addStoreBtn" class="gold-btn">Add Store / Lounge</button>
-  <a href="mailto:support@worldcigarlocator.com">Contact / Support</a>
-</div>
-
-<script>
-  document.getElementById("addStoreBtn").addEventListener("click", function() {
-    // här styr du vilken sida knappen ska öppna
-    window.location.href = "add-store.html";
-  });
-</script>
+      <!-- Footer -->
+      <div class="sidebar-footer">
+        <button id="addStoreBtn" class="gold-btn">Add Store / Lounge</button>
+        <a href="mailto:support@worldcigarlocator.com">Contact / Support</a>
+      </div>
+    </aside>
 
     <!-- Main -->
     <main>
@@ -53,5 +47,12 @@
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/start.js"></script>
+
+  <!-- Button redirect script -->
+  <script>
+    document.getElementById("addStoreBtn").addEventListener("click", function() {
+      window.location.href = "add-store.html";
+    });
+  </script>
 </body>
 </html>
