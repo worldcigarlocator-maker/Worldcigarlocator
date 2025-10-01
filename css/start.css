@@ -182,7 +182,7 @@ aside h2{
    ============================== */
 main{
   flex: 1 1 auto;
-  background: var(--main-bg);
+   background-color: #000;
   color: #333;
   padding: 40px;
   overflow-y: auto;
