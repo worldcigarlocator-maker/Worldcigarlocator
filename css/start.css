@@ -125,3 +125,23 @@ body {
 .main-content p {
   line-height: 1.6;
 }
+/* Main content styling */
+.main {
+  flex: 1;
+  background: #fff;
+  padding: 2rem;
+}
+
+.main h1 {
+  color: #d4af37;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.main p {
+  color: #111;
+  text-align: center;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
