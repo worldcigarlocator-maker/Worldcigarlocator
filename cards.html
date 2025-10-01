@@ -1,28 +1,14 @@
-const dummyStores = [
-  { name: "Cigar Lounge Stockholm", city: "Stockholm", country: "Sweden", type: "Lounge", rating: 4 },
-  { name: "Havana House", city: "Berlin", country: "Germany", type: "Store", rating: 3 },
-  { name: "Barcelona Cigar Club", city: "Barcelona", country: "Spain", type: "Lounge", rating: 5 }
-];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cigar Cards</title>
+  <link rel="stylesheet" href="css/cards.css">
+</head>
+<body>
+  <h1>Stores & Lounges</h1>
+  <div class="card-grid"></div>
 
-function renderCards() {
-  const grid = document.querySelector(".card-grid");
-  grid.innerHTML = "";
-
-  dummyStores.forEach(store => {
-    const card = document.createElement("div");
-    card.classList.add("card");
-
-    card.innerHTML = `
-      <h2 class="card-title">${store.name}</h2>
-      <p class="card-location">${store.city}, ${store.country}</p>
-      <p class="card-type">${store.type}</p>
-      <div class="card-rating">
-        ${"⭐".repeat(store.rating)}${"☆".repeat(5 - store.rating)}
-      </div>
-      <button class="card-btn">View Details</button>
-    `;
-    grid.appendChild(card);
-  });
-}
-
-renderCards();
+  <script src="js/cards.js"></script>
+</body>
+</html>
