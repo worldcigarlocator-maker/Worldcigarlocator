@@ -6,38 +6,41 @@
   <link rel="stylesheet" href="css/cards.css">
 </head>
 <body>
+  <h1>Stores & Lounges</h1>
+
   <main>
-    <h1>Stores & Lounges</h1>
-    <div class="card-grid"></div>
+    <div class="card-grid" id="cardGrid">
+      <!-- Kort renderas här via JS -->
+    </div>
   </main>
 
   <script src="js/cards.js"></script>
   <script>
-    // Dummy testdata
+    // Dummy-data för att testa
     const dummyStores = [
       {
+        type: "store",
         name: "Cigar King",
-        type: "Store",
         address: "123 Main Street",
         city: "Stockholm",
         country: "Sweden",
         rating: 4,
         website: "https://example.com",
-        photo_reference: null
+        image: "store.png" // din default-bild
       },
       {
+        type: "lounge",
         name: "Lounge Deluxe",
-        type: "Lounge",
         address: "456 Sunset Blvd",
         city: "Gothenburg",
         country: "Sweden",
         rating: 5,
-        website: "",
-        photo_reference: null
+        website: "https://example.com/lounge",
+        image: "lounge.jpg" // din default-bild
       }
     ];
 
-    // Rendera testdata
+    // Rendera korten
     renderCards(dummyStores);
   </script>
 </body>
