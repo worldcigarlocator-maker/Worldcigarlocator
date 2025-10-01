@@ -1,0 +1,63 @@
+body {
+  background: #f5f5f5;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 2rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.card {
+  background-color: #111;        /* svart card */
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.6);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+}
+
+.card-title {
+  font-size: 1.3rem;
+  margin: 0 0 0.5rem;
+  color: #c9a227;   /* guld */
+}
+
+.card-location, .card-type {
+  font-size: 0.9rem;
+  color: #ddd;
+  margin: 0.2rem 0;
+}
+
+.card-rating {
+  margin: 0.8rem 0;
+  font-size: 1.1rem;
+  color: #c9a227;   /* guld för stjärnor */
+}
+
+.card-btn {
+  background-color: #c9a227;
+  color: #111;
+  font-weight: bold;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.2s ease;
+}
+
+.card-btn:hover {
+  background-color: #e0b93b;
+}
