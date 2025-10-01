@@ -6,7 +6,7 @@ function renderCards(stores) {
     const card = document.createElement("div");
     card.className = "card";
 
-    // Toggle-knappar
+    // Toggle labels
     const toggleHTML = `
       <div class="toggle">
         <span class="${store.type === "store" ? "active" : ""}">Store</span>
@@ -20,14 +20,15 @@ function renderCards(stores) {
       stars += i < store.rating ? "★" : "☆";
     }
 
-    // Innehåll
+    // Bygg kortet
     card.innerHTML = `
       <div class="card-left">
         ${toggleHTML}
+        <h2>${store.name}</h2>
+        <p>${store.address}</p>
+        <p><strong>${store.city}, ${store.country}</strong></p>
+        <p>${store.phone}</p>
         <div class="stars">${stars}</div>
-        <p><strong>Name:</strong> ${store.name}</p>
-        <p><strong>Address:</strong> ${store.address}</p>
-        <p><strong>Phone:</strong> ${store.phone}</p>
         <a href="${store.website}" target="_blank">Visit Website</a>
       </div>
       <div class="card-right">
