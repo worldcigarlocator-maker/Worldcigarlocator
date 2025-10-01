@@ -1,58 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/start.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/start.css">
 </head>
 <body>
   <div class="container">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <h1 class="logo">🌍 WCL</h1>
-      
+      <h2>🌍 WCL</h2>
+
       <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search stores..." />
+        <input type="text" id="searchInput" placeholder="Search stores...">
         <button id="searchBtn">🔍</button>
       </div>
 
-      <ul id="sidebarMenu">
-        <li>Europe</li>
-        <li>North America</li>
-        <li>South America</li>
-        <li>Africa</li>
-        <li>Asia</li>
-        <li>Oceania</li>
-      </ul>
+      <nav class="menu">
+        <ul>
+          <li><button class="continent-btn">+ Africa</button></li>
+          <li><button class="continent-btn">+ Asia</button></li>
+          <li><button class="continent-btn">+ Europe</button></li>
+          <li><button class="continent-btn">+ North America</button></li>
+          <li><button class="continent-btn">+ Oceania</button></li>
+          <li><button class="continent-btn">+ South America</button></li>
+        </ul>
+      </nav>
 
-      <button id="addStoreBtn" class="add-btn">➕ Add Store / Lounge</button>
-      <a href="mailto:support@worldcigarlocator.com" class="support-link">Support</a>
+      <button id="addStoreBtn" class="add-btn">+ Add Store / Lounge</button>
+      <a href="mailto:support@worldcigarlocator.com" class="support-link">📧 Contact / Support</a>
     </aside>
 
-    <!-- Main content -->
-    <main class="main-content">
-      <h2>Welcome to World Cigar Locator</h2>
-      <p>Select a continent from the sidebar or search to find stores and lounges worldwide.</p>
+    <!-- Main -->
+    <main class="main">
+      <h1>Welcome to World Cigar Locator</h1>
+      <img src="images/cigar.jpg" alt="Cigar" class="hero-img">
+      <p><strong>Welcome to World Cigar locator.</strong></p>
+      <p>Our mission is to help you find a cigar store, lounge or just the perfect spot for a smoke.</p>
+      <p><em>Kind regards // Bakerman</em></p>
     </main>
   </div>
 
-  <!-- Supabase SDK -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/start.js"></script>
   <script>
-    // 🔗 Redirect to Add Store form
+    // Add Store button
     document.getElementById("addStoreBtn").addEventListener("click", () => {
       window.location.href = "add-store.html";
     });
 
-    // 🔍 Redirect to search (for now just passes query in URL)
+    // Search button
     document.getElementById("searchBtn").addEventListener("click", () => {
       const q = document.getElementById("searchInput").value.trim();
-      if (!q) {
-        alert("Please enter a search term.");
-        return;
-      }
+      if (!q) return alert("Please enter a search term.");
       window.location.href = "search.html?q=" + encodeURIComponent(q);
     });
   </script>
