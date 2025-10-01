@@ -1,193 +1,127 @@
-:root{
-  --bg: #0f0f10;
-  --sidebar: #1e1e1f;
-  --text: #ffffff;
-  --muted: #b8b8b8;
-  --gold: #d4af37;
-  --gold-darker: #b8902e;
+/* ===== Reset ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* ===== Baslayout ===== */
-*{ box-sizing: border-box; }
-html, body{ height:100%; }
-body{
-  margin:0;
-  display:flex;
-  background:#f7f7f7;
-  color:#222;
-  font-family: Arial, Helvetica, sans-serif;
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  height: 100vh;
+  color: #fff;
+}
+
+/* ===== Container ===== */
+.container {
+  display: flex;
+  width: 100%;
 }
 
 /* ===== Sidebar ===== */
-.sidebar{
-  width:280px;
-  background: var(--sidebar);
-  color: var(--text);
-  padding: 20px;
-  display:flex;
+.sidebar {
+  background-color: #111;
+  color: #fff;
+  width: 250px;
+  min-height: 100vh;
+  padding: 1.5rem 1rem;
+  display: flex;
   flex-direction: column;
-  gap:16px;
-  /* döljer ful scrollbar men tillåter scroll om det blir mycket i listan */
-  overflow-y:auto;
-  scrollbar-width: none;          /* Firefox */
-}
-.sidebar::-webkit-scrollbar{ display:none; }  /* Chrome/Safari/Edge */
-
-.brand{
-  margin:0 0 6px 0;
-  text-align:center;
-  color: var(--gold);
-  letter-spacing: .5px;
+  justify-content: flex-start;
+  border-right: 3px solid #d4af37; /* gold accent */
 }
 
-/* Sök */
-.sidebar-search input{
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #3a3a3c;
-  background:#111;
-  color:#eaeaea;
-  outline: none;
-  margin-bottom:8px;
-}
-.gold-btn{
-  width:100%;
-  padding:10px 12px;
-  border:none;
-  border-radius:8px;
-  background: var(--gold);
-  color:#000;
-  font-weight:700;
-  cursor:pointer;
-}
-.gold-btn:hover{ background: var(--gold-darker); }
-
-/* Meny */
-.menu{
-  list-style:none;
-  margin:8px 0 0;
-  padding:0;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
+.logo {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #d4af37;
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
-.menu .continent{
-  background:#131314;
-  border:1px solid #2a2a2c;
-  border-radius:10px;
-  overflow:hidden;
+/* Search */
+.search-box {
+  display: flex;
+  margin-bottom: 1.5rem;
 }
 
-/* Kontinent-raden (knappen) */
-.continent-btn{
-  width:100%;
-  background:transparent;
-  border:none;
-  color:#fff;
-  padding:12px 14px;
-  text-align:left;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  cursor:pointer;
-}
-.continent-btn .sign{
-  width:20px;
-  text-align:center;
-  font-weight:900;
-  color:#fff;              /* plus/minus till vänster */
-}
-.continent-btn .label{
-  flex:1;
-  font-size:16px;
-}
-.continent-btn:hover{ background:#1b1b1d; }
-
-/* Länderlistan */
-.nested{
-  display:none;           /* stängd från början */
-  background:#0f0f10;
-  padding:8px 6px 10px 36px;
-}
-.nested.open{ display:block; }
-
-.country{
-  color:#eaeaea;
-  padding:6px 0;
-  font-size:15px;
-}
-.country .flag{ margin-right:6px; }
-
-/* Footer i sidomenyn */
-.sidebar-footer{
-  margin-top:auto;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  border-top:1px solid #333;
-  padding-top:12px;
+.search-box input {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px 0 0 4px;
 }
 
-/* Guldig actionknapp */
-.add-store-btn{
-  display:block;
-  width:100%;
-  padding:10px 12px;
-  background: var(--gold);
-  color:#000;
-  border:none;
-  border-radius:8px;
-  font-weight:800;
-  cursor:pointer;
-}
-.add-store-btn:hover{ background: var(--gold-darker); }
-
-/* Kontaktlänk behålls som länk */
-.contact-link{
-  color:#fff;
-  text-decoration:none;
-  font-weight:700;
-}
-.contact-link:hover{ color: var(--gold); }
-
-/* ===== Main ===== */
-.main{
-  flex:1;
-  padding:28px 32px;
-  overflow:auto;
-  background:#f9f9f9;
+.search-box button {
+  background-color: #d4af37;
+  border: none;
+  padding: 0.5rem 0.8rem;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
 }
 
-.title{
-  margin:0 0 16px 0;
-  text-align:center;
-  color: var(--gold);
-  font-size: 2.4rem;
+/* Sidebar menu */
+#sidebarMenu {
+  list-style: none;
+  margin-bottom: 1.5rem;
 }
 
-/* Banner-bilden – lite nedskalad och centrerad */
-.banner{
-  display:block;
-  width:min(820px, 68%);
-  height:auto;
-  margin: 0 auto 18px auto;
-  border-radius:10px;
-  /* ingen ram/skugga för ren look */
+#sidebarMenu li {
+  background-color: #1a1a1a;
+  margin-bottom: 0.5rem;
+  padding: 0.7rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-/* Välkomsttext */
-.welcome{
-  max-width: 760px;
-  margin: 0 auto;
-  text-align:center;
-  color:#333;
-  line-height:1.55;
-  font-size:1.05rem;
+#sidebarMenu li:hover {
+  background-color: #333;
 }
-.welcome .signature{
-  margin-top:10px;
-  color:#555;
-  font-style: italic;
+
+/* Add store button */
+.add-btn {
+  background-color: #d4af37;
+  color: #111;
+  border: none;
+  padding: 0.8rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.add-btn:hover {
+  background-color: #b7952b;
+}
+
+/* Support link */
+.support-link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  display: block;
+  text-align: center;
+}
+
+.support-link:hover {
+  text-decoration: underline;
+}
+
+/* ===== Main Content ===== */
+.main-content {
+  flex: 1;
+  background-color: #fff;
+  color: #111;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.main-content h2 {
+  color: #d4af37;
+  margin-bottom: 1rem;
+}
+
+.main-content p {
+  line-height: 1.6;
 }
