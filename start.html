@@ -10,52 +10,36 @@
   <div class="container">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <h2>🌍 WCL</h2>
+      <h1 class="logo">WCL</h1>
+      <input type="text" placeholder="Search..." class="search-input">
+      <button class="search-btn">Search</button>
 
-      <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search stores...">
-        <button id="searchBtn">🔍</button>
-      </div>
-
-      <nav class="menu">
-        <ul>
-          <li><button class="continent-btn">+ Africa</button></li>
-          <li><button class="continent-btn">+ Asia</button></li>
-          <li><button class="continent-btn">+ Europe</button></li>
-          <li><button class="continent-btn">+ North America</button></li>
-          <li><button class="continent-btn">+ Oceania</button></li>
-          <li><button class="continent-btn">+ South America</button></li>
-        </ul>
+      <nav class="nav">
+        <button class="nav-item">+ Africa</button>
+        <button class="nav-item">+ Asia</button>
+        <button class="nav-item">+ Europe</button>
+        <button class="nav-item">+ North America</button>
+        <button class="nav-item">+ Oceania</button>
+        <button class="nav-item">+ South America</button>
       </nav>
 
-      <button id="addStoreBtn" class="add-btn">+ Add Store / Lounge</button>
-      <a href="mailto:support@worldcigarlocator.com" class="support-link">📧 Contact / Support</a>
+      <button class="add-btn">+ Add Store / Lounge</button>
+      <a href="mailto:support@worldcigarlocator.com" class="support-link">Contact / Support</a>
     </aside>
 
-    <!-- Main -->
+    <!-- Main Content -->
     <main class="main">
-      <h1>Welcome to World Cigar Locator</h1>
-      <img src="images/cigar.jpg" alt="Cigar" class="hero-img">
-      <p><strong>Welcome to World Cigar locator.</strong></p>
-      <p>Our mission is to help you find a cigar store, lounge or just the perfect spot for a smoke.</p>
-      <p><em>Kind regards // Bakerman</em></p>
+      <h2 class="title">World Cigar Locator</h2>
+      <img src="images/paris.jpg" alt="Cigar" class="hero-img">
+      <p class="intro"><strong>Welcome to World Cigar locator.</strong></p>
+      <p class="mission">
+        Our mission is to help you find a cigar store, lounge or just the perfect spot for a smoke.
+      </p>
+      <p class="mission">
+        Hope it makes it easier to find what you are looking for, wherever you are!
+      </p>
+      <p class="signature"><em>Kind regards // Bakerman</em></p>
     </main>
   </div>
-
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // Add Store button
-    document.getElementById("addStoreBtn").addEventListener("click", () => {
-      window.location.href = "add-store.html";
-    });
-
-    // Search button
-    document.getElementById("searchBtn").addEventListener("click", () => {
-      const q = document.getElementById("searchInput").value.trim();
-      if (!q) return alert("Please enter a search term.");
-      window.location.href = "search.html?q=" + encodeURIComponent(q);
-    });
-  </script>
 </body>
 </html>
