@@ -1,194 +1,88 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Add Store / Lounge</title>
-  <link rel="stylesheet" href="css/add-store.css">
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f7f7;
+  margin: 0;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
 
-    .form-card {
-      background: #444; /* mörkgrå platta */
-      padding: 2rem;
-      border-radius: 8px;
-      max-width: 500px;
-      width: 100%;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      color: #fff;
-    }
+.form-card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-width: 600px;
+  width: 100%;
+}
 
-    h1 {
-      text-align: center;
-      margin-bottom: 1rem;
-      color: #c9a227;
-    }
+h1 {
+  color: #c9a227;
+  margin-bottom: 1rem;
+}
 
-    .toggle {
-      display: flex;
-      margin-bottom: 1rem;
-    }
+label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: bold;
+  color: #333;
+}
 
-    .toggle-btn {
-      flex: 1;
-      padding: 0.7rem;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-      border-radius: 4px 4px 0 0;
-      transition: background 0.3s;
-    }
+input, select {
+  width: 100%;
+  padding: 0.6rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
 
-    .toggle-btn.store.active {
-      background: #222;  /* mörkgrå när Store vald */
-      color: #fff;
-    }
+.btn {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  background: #c9a227;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn:hover { background: #b08e22; }
 
-    .toggle-btn.lounge.active {
-      background: #c9a227; /* guld när Lounge vald */
-      color: #111;
-    }
+.toggle {
+  display: flex;
+  margin-bottom: 1rem;
+}
 
-    .toggle-btn:not(.active) {
-      background: #555;
-      color: #fff;
-    }
+.toggle-btn {
+  flex: 1;
+  padding: 0.7rem;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 4px 4px 0 0;
+}
 
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: bold;
-    }
+.toggle-btn.store.active {
+  background: #444;
+  color: #fff;
+}
 
-    input, select {
-      width: 100%;
-      padding: 0.7rem;
-      border: none;
-      border-radius: 4px;
-      background: #222;
-      color: #fff;
-      margin-bottom: 1rem;
-    }
+.toggle-btn.lounge.active {
+  background: #c9a227;
+  color: #111;
+}
 
-    input:focus, select:focus {
-      outline: none;
-      background: #333;
-    }
-
-    .rating {
-      display: flex;
-      gap: 5px;
-      margin-bottom: 1rem;
-    }
-
-    .star {
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: #777;
-      transition: color 0.2s;
-    }
-
-    .star.active {
-      color: #c9a227;
-    }
-
-    .save-btn {
-      background: #c9a227;
-      color: #111;
-      padding: 0.7rem;
-      border: none;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.3s;
-    }
-
-    .save-btn:hover {
-      background: #b08e22;
-    }
-  </style>
-</head>
-<body>
-  <div class="form-card">
-    <h1>Add Store / Lounge</h1>
-
-    <div class="toggle">
-      <button type="button" class="toggle-btn store active" onclick="setType('store')">Store</button>
-      <button type="button" class="toggle-btn lounge" onclick="setType('lounge')">Lounge</button>
-    </div>
-
-    <form id="storeForm">
-      <label for="name">Name</label>
-      <input type="text" id="name" name="name" required>
-
-      <label for="address">Address</label>
-      <input type="text" id="address" name="address" required>
-
-      <label for="phone">Phone</label>
-      <input type="text" id="phone" name="phone">
-
-      <label for="website">Website</label>
-      <input type="url" id="website" name="website">
-
-      <label>Rating</label>
-      <div class="rating" id="rating">
-        <span class="star" data-value="1">&#9733;</span>
-        <span class="star" data-value="2">&#9733;</span>
-        <span class="star" data-value="3">&#9733;</span>
-        <span class="star" data-value="4">&#9733;</span>
-        <span class="star" data-value="5">&#9733;</span>
-      </div>
-
-      <div id="loungeAccess" style="display:none;">
-        <label for="access">Access</label>
-        <select id="access" name="access">
-          <option value="free">Free</option>
-          <option value="members">Members only</option>
-          <option value="temp">Temporary membership</option>
-        </select>
-      </div>
-
-      <button type="submit" class="save-btn">Save</button>
-    </form>
-  </div>
-
-  <script>
-    let selectedType = "store";
-    let selectedRating = 0;
-
-    function setType(type) {
-      selectedType = type;
-      document.querySelector(".toggle-btn.store").classList.toggle("active", type === "store");
-      document.querySelector(".toggle-btn.lounge").classList.toggle("active", type === "lounge");
-      document.getElementById("loungeAccess").style.display = type === "lounge" ? "block" : "none";
-    }
-
-    document.querySelectorAll(".star").forEach(star => {
-      star.addEventListener("click", () => {
-        selectedRating = star.dataset.value;
-        document.querySelectorAll(".star").forEach(s => s.classList.remove("active"));
-        star.classList.add("active");
-        let prev = star.previousElementSibling;
-        while (prev) {
-          prev.classList.add("active");
-          prev = prev.previousElementSibling;
-        }
-      });
-    });
-
-    document.getElementById("storeForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      alert(`Saved: ${selectedType}, Rating: ${selectedRating}, Name: ${document.getElementById("name").value}`);
-      // Supabase insert kan kopplas här sen
-    });
-  </script>
-</body>
-</html>
+.rating {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 1rem;
+}
+.star {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #ccc;
+}
+.star.active {
+  color: #c9a227;
+}
