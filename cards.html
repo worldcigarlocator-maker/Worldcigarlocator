@@ -1,47 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Stores & Lounges</title>
-  <link rel="stylesheet" href="css/cards.css">
-</head>
-<body>
-  <h1>Stores & Lounges</h1>
-
-  <main>
-    <div class="card-grid" id="cardGrid">
-      <!-- Kort renderas här via JS -->
+<div class="card">
+  <div class="card-left">
+    <div class="toggle">
+      <span class="store active">Store</span>
+      <span class="lounge">Lounge</span>
     </div>
-  </main>
+    <div class="stars">★★★★☆</div>
+    <p><strong>Name:</strong> Cigar King</p>
+    <p><strong>Address:</strong> 123 Main Street</p>
+    <p><strong>Phone:</strong> +46 70 123 45 67</p>
+    <a href="https://example.com" target="_blank">Visit Website</a>
+  </div>
 
-  <script src="js/cards.js"></script>
-  <script>
-    // Dummy-data för att testa
-    const dummyStores = [
-      {
-        type: "store",
-        name: "Cigar King",
-        address: "123 Main Street",
-        city: "Stockholm",
-        country: "Sweden",
-        rating: 4,
-        website: "https://example.com",
-        image: "store.png" // din default-bild
-      },
-      {
-        type: "lounge",
-        name: "Lounge Deluxe",
-        address: "456 Sunset Blvd",
-        city: "Gothenburg",
-        country: "Sweden",
-        rating: 5,
-        website: "https://example.com/lounge",
-        image: "lounge.jpg" // din default-bild
-      }
-    ];
-
-    // Rendera korten
-    renderCards(dummyStores);
-  </script>
-</body>
-</html>
+  <div class="card-right">
+    <img src="images/store.png" alt="Store image">
+  </div>
+</div>
