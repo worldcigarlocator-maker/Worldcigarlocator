@@ -1,126 +1,197 @@
-/* ====== ADD STORE PAGE CSS (mörkgrå + guld) ====== */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Store / Lounge</title>
+  <link rel="stylesheet" href="css/add-store.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fff;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-/* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Arial", sans-serif;
-}
+    .form-card {
+      background: #c9a227; /* guld */
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      text-align: left;
+    }
 
-/* Layout */
-body {
-  background-color: #fff; /* vit bakgrund */
-  color: #fff;            /* text vit */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
 
-/* Form container */
-.form-card {
-  background-color: #444; /* mörkgrå platta */
-  padding: 2rem;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
+    .toggle {
+      display: flex;
+      margin-bottom: 1rem;
+    }
 
-/* Headline */
-.form-card h2 {
-  text-align: center;
-  color: #fff;
-  margin-bottom: 1.5rem;
-  font-size: 1.6rem;
-}
+    .toggle-btn {
+      flex: 1;
+      padding: 0.7rem;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 4px 4px 0 0;
+      transition: background 0.3s;
+    }
 
-/* Toggle buttons */
-.toggle-buttons {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-  gap: 1rem;
-}
+    .toggle-btn.store.active {
+      background: #222;  /* mörkgrå */
+      color: #fff;
+    }
 
-.toggle-buttons button {
-  flex: 1;
-  padding: 0.7rem;
-  border: none;
-  background-color: #c9a227; /* guld */
-  color: #111; /* mörk text på guld */
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
+    .toggle-btn.lounge.active {
+      background: #c9a227; /* guld */
+      color: #111;
+    }
 
-.toggle-buttons button.active {
-  background-color: #111; /* svart när vald */
-  color: #fff; /* vit text */
-}
+    .toggle-btn:not(.active) {
+      background: #555;
+      color: #fff;
+    }
 
-/* Labels + Inputs */
-.form-group {
-  margin-bottom: 1.2rem;
-}
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      color: #fff;
+    }
 
-label {
-  display: block;
-  margin-bottom: 0.3rem;
-  font-weight: bold;
-  color: #fff; /* vit text */
-}
+    input, select {
+      width: 100%;
+      padding: 0.7rem;
+      border: none;
+      border-radius: 4px;
+      background: #222;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
 
-input, select, textarea {
-  width: 100%;
-  padding: 0.6rem;
-  border: 1px solid #c9a227; /* guld border */
-  border-radius: 4px;
-  background-color: #222; /* mörk inuti */
-  color: #fff; /* vit text i inputs */
-  font-size: 0.95rem;
-  transition: border 0.2s;
-}
+    input:focus, select:focus {
+      outline: none;
+      background: #333;
+    }
 
-input:focus, select:focus, textarea:focus {
-  border-color: #f1d36f; /* ljusare guld när fokus */
-  outline: none;
-}
+    /* stjärnor */
+    .rating {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 1rem;
+    }
 
-/* Save button */
-button[type="submit"] {
-  width: 100%;
-  padding: 0.9rem;
-  border: none;
-  border-radius: 4px;
-  background-color: #c9a227; /* guld */
-  color: #111; /* mörk text */
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-top: 1rem;
-}
+    .star {
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #777;
+      transition: color 0.2s;
+    }
 
-button[type="submit"]:hover {
-  background-color: #e0b93f; /* lite ljusare guld */
-}
+    .star.active {
+      color: #c9a227;
+    }
 
-/* Rating stars */
-.stars {
-  display: flex;
-  gap: 0.4rem;
-  font-size: 1.4rem;
-  cursor: pointer;
-  margin-top: 0.3rem;
-}
+    .save-btn {
+      background: #222;
+      color: #fff;
+      padding: 0.7rem;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s;
+    }
 
-.stars span {
-  color: #777; /* grå inaktiva */
-  transition: color 0.2s;
-}
+    .save-btn:hover {
+      background: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-card">
+    <h1>Add Store / Lounge</h1>
 
-.stars span.active {
-  color: #c9a227; /* guld när vald */
-}
+    <div class="toggle">
+      <button type="button" class="toggle-btn store active" onclick="setType('store')">Store</button>
+      <button type="button" class="toggle-btn lounge" onclick="setType('lounge')">Lounge</button>
+    </div>
+
+    <form id="storeForm">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="address">Address</label>
+      <input type="text" id="address" name="address" required>
+
+      <label for="phone">Phone</label>
+      <input type="text" id="phone" name="phone">
+
+      <label for="website">Website</label>
+      <input type="url" id="website" name="website">
+
+      <label>Rating</label>
+      <div class="rating" id="rating">
+        <span class="star" data-value="1">&#9733;</span>
+        <span class="star" data-value="2">&#9733;</span>
+        <span class="star" data-value="3">&#9733;</span>
+        <span class="star" data-value="4">&#9733;</span>
+        <span class="star" data-value="5">&#9733;</span>
+      </div>
+
+      <div id="loungeAccess" style="display:none;">
+        <label for="access">Access</label>
+        <select id="access" name="access">
+          <option value="free">Free</option>
+          <option value="members">Members only</option>
+          <option value="temp">Temporary membership</option>
+        </select>
+      </div>
+
+      <button type="submit" class="save-btn">Save</button>
+    </form>
+  </div>
+
+  <script>
+    let selectedType = "store";
+    let selectedRating = 0;
+
+    function setType(type) {
+      selectedType = type;
+      document.querySelector(".toggle-btn.store").classList.toggle("active", type === "store");
+      document.querySelector(".toggle-btn.lounge").classList.toggle("active", type === "lounge");
+      document.getElementById("loungeAccess").style.display = type === "lounge" ? "block" : "none";
+    }
+
+    document.querySelectorAll(".star").forEach(star => {
+      star.addEventListener("click", () => {
+        selectedRating = star.dataset.value;
+        document.querySelectorAll(".star").forEach(s => s.classList.remove("active"));
+        star.classList.add("active");
+        let prev = star.previousElementSibling;
+        while (prev) {
+          prev.classList.add("active");
+          prev = prev.previousElementSibling;
+        }
+      });
+    });
+
+    document.getElementById("storeForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      alert(`Saved: ${selectedType}, Rating: ${selectedRating}, Name: ${document.getElementById("name").value}`);
+      // här kopplar vi på Supabase insert senare
+    });
+  </script>
+</body>
+</html>
