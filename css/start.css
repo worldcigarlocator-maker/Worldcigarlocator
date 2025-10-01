@@ -232,3 +232,64 @@ main::-webkit-scrollbar-thumb{
   background: #3a3a3a;
   border-radius: 6px;
 }
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 280px;
+  background: #111;
+  padding: 1rem;
+  color: #eee;
+  overflow-y: auto;
+  border-right: 2px solid gold;
+}
+
+.sidebar strong {
+  color: gold;
+  cursor: pointer;
+  display: block;
+  margin: 0.5rem 0;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding-left: 1rem;
+}
+
+.sidebar li {
+  cursor: pointer;
+  padding: 2px 0;
+  transition: color 0.2s;
+}
+
+.sidebar li:hover {
+  color: gold;
+}
+
+.main {
+  flex: 1;
+  padding: 2rem;
+  background: #000;
+  color: #fff;
+  overflow-y: auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: #1a1a1a;
+  border: 1px solid gold;
+  border-radius: 10px;
+  padding: 1rem;
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
