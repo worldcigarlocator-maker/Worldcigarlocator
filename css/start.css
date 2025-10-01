@@ -1,4 +1,4 @@
-/* ===== Reset ===== */
+/* Reset */
 * {
   margin: 0;
   padding: 0;
@@ -9,139 +9,114 @@ body {
   font-family: Arial, sans-serif;
   display: flex;
   height: 100vh;
-  color: #fff;
 }
 
-/* ===== Container ===== */
+/* Container */
 .container {
   display: flex;
   width: 100%;
 }
 
-/* ===== Sidebar ===== */
+/* Sidebar */
 .sidebar {
+  width: 250px;
   background-color: #111;
   color: #fff;
-  width: 250px;
-  min-height: 100vh;
-  padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  border-right: 3px solid #d4af37; /* gold accent */
+  padding: 1rem;
+  border-right: 3px solid #d4af37;
 }
 
-.logo {
-  font-size: 1.6rem;
-  font-weight: bold;
+.sidebar h2 {
   color: #d4af37;
-  margin-bottom: 1.5rem;
-  text-align: center;
+  margin-bottom: 1rem;
 }
 
-/* Search */
 .search-box {
   display: flex;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .search-box input {
   flex: 1;
   padding: 0.5rem;
   border: none;
-  border-radius: 4px 0 0 4px;
+  border-radius: 3px 0 0 3px;
 }
 
 .search-box button {
-  background-color: #d4af37;
+  padding: 0.5rem;
   border: none;
-  padding: 0.5rem 0.8rem;
-  border-radius: 0 4px 4px 0;
+  background: #d4af37;
+  border-radius: 0 3px 3px 0;
   cursor: pointer;
 }
 
-/* Sidebar menu */
-#sidebarMenu {
+.menu ul {
   list-style: none;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
-#sidebarMenu li {
-  background-color: #1a1a1a;
-  margin-bottom: 0.5rem;
-  padding: 0.7rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s;
+.menu li {
+  margin: 0.5rem 0;
 }
 
-#sidebarMenu li:hover {
-  background-color: #333;
-}
-
-/* Add store button */
-.add-btn {
-  background-color: #d4af37;
-  color: #111;
+.continent-btn {
+  width: 100%;
+  background: #222;
+  color: #fff;
   border: none;
-  padding: 0.8rem;
-  font-weight: bold;
-  border-radius: 6px;
+  padding: 0.5rem;
+  border-radius: 4px;
   cursor: pointer;
+  text-align: left;
+}
+
+.continent-btn:hover {
+  background: #333;
+}
+
+.add-btn {
+  background: #d4af37;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
   margin-bottom: 1rem;
 }
 
 .add-btn:hover {
-  background-color: #b7952b;
+  background: #b8962f;
 }
 
-/* Support link */
 .support-link {
   color: #fff;
   text-decoration: none;
   font-size: 0.9rem;
-  display: block;
-  text-align: center;
 }
 
 .support-link:hover {
   text-decoration: underline;
 }
 
-/* ===== Main Content ===== */
-.main-content {
-  flex: 1;
-  background-color: #fff;
-  color: #111;
-  padding: 2rem;
-  overflow-y: auto;
-}
-
-.main-content h2 {
-  color: #d4af37;
-  margin-bottom: 1rem;
-}
-
-.main-content p {
-  line-height: 1.6;
-}
-/* Main content styling */
+/* Main */
 .main {
   flex: 1;
   background: #fff;
   padding: 2rem;
+  text-align: center;
 }
 
 .main h1 {
   color: #d4af37;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  text-align: center;
+  margin-bottom: 1.5rem;
 }
 
-.main p {
-  color: #111;
-  text-align: center;
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
+.hero-img {
+  max-width: 400px;
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
 }
