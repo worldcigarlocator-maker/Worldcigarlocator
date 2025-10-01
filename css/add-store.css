@@ -1,54 +1,126 @@
-body {
+/* ====== ADD STORE PAGE CSS ====== */
+
+/* Reset */
+* {
   margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  background: #f9f9f9;
-  color: #333;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Arial", sans-serif;
 }
 
-.page-main {
-  margin-left: 220px; /* sidebar space */
+/* Layout */
+body {
+  background-color: #111;
+  color: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Form container */
+.form-card {
+  background-color: #1a1a1a;
   padding: 2rem;
-}
-
-h1 {
-  color: #b8860b;
-  margin-bottom: 1rem;
-}
-
-form, .google-fetch {
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  margin-bottom: 2rem;
+  border-radius: 8px;
+  width: 100%;
   max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* Headline */
+.form-card h2 {
+  text-align: center;
+  color: #c9a227; /* guld */
+  margin-bottom: 1.5rem;
+  font-size: 1.6rem;
+}
+
+/* Toggle buttons (Store / Lounge) */
+.toggle-buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.toggle-buttons button {
+  flex: 1;
+  padding: 0.7rem;
+  border: 1px solid #87CEFA;
+  background-color: #111;
+  color: #87CEFA;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.toggle-buttons button.active {
+  background-color: #87CEFA; /* markerad = blå */
+  color: #111;
+}
+
+/* Labels + Inputs */
+.form-group {
+  margin-bottom: 1.2rem;
 }
 
 label {
   display: block;
-  margin-top: 1rem;
+  margin-bottom: 0.3rem;
   font-weight: bold;
+  color: #c9a227;
 }
 
-input, select {
+input, select, textarea {
   width: 100%;
-  padding: 0.5rem;
-  margin-top: 0.3rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 0.6rem;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #222;
+  color: #f5f5f5;
+  font-size: 0.95rem;
+  transition: border 0.2s;
 }
 
-button {
-  margin-top: 1.5rem;
-  padding: 0.7rem 1.5rem;
-  background: #b8860b;
+input:focus, select:focus, textarea:focus {
+  border-color: #87CEFA;
+  outline: none;
+}
+
+/* Save button */
+button[type="submit"] {
+  width: 100%;
+  padding: 0.9rem;
   border: none;
-  color: white;
+  border-radius: 4px;
+  background-color: #87CEFA; /* alltid blå */
+  color: #111;
   font-weight: bold;
-  border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
 }
 
-button:hover {
-  background: #d4a017;
+button[type="submit"]:hover {
+  background-color: #5eb6e6; /* mörkare blå */
+}
+
+/* Rating stars */
+.stars {
+  display: flex;
+  gap: 0.4rem;
+  font-size: 1.4rem;
+  cursor: pointer;
+  margin-top: 0.3rem;
+}
+
+.stars span {
+  color: #444;
+  transition: color 0.2s;
+}
+
+.stars span.active {
+  color: #c9a227; /* guld för stjärnor */
 }
