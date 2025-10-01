@@ -21,12 +21,18 @@
       <!-- Sidebar menu (filled by start.js) -->
       <ul id="sidebarMenu"></ul>
 
-      <!-- Add Store button -->
-      <div class="sidebar-footer">
-        <button id="addStoreBtn" class="gold-btn">Add Store / Lounge</button>
-        <a href="mailto:support@worldcigarlocator.com">Contact / Support</a>
-      </div>
-    </aside>
+ <!-- Add Store button -->
+<div class="sidebar-footer">
+  <button id="addStoreBtn" class="gold-btn">Add Store / Lounge</button>
+  <a href="mailto:support@worldcigarlocator.com">Contact / Support</a>
+</div>
+
+<script>
+  document.getElementById("addStoreBtn").addEventListener("click", function() {
+    // här styr du vilken sida knappen ska öppna
+    window.location.href = "add-store.html";
+  });
+</script>
 
     <!-- Main -->
     <main>
