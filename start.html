@@ -1,144 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/start.css">
+  <link rel="stylesheet" href="css/start.css" />
 </head>
 <body>
-  <div class="container">
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-      <h2>WCL</h2>
+  <aside class="sidebar">
+    <h2 class="brand">WCL</h2>
 
-      <!-- Search box -->
-      <div class="sidebar-search">
-        <input type="text" id="searchInput" placeholder="Search..." />
-        <button id="searchBtn">Search</button>
-      </div>
+    <!-- Search -->
+    <div class="sidebar-search">
+      <input type="text" id="searchInput" placeholder="Search..." />
+      <button id="searchBtn" class="gold-btn">Search</button>
+    </div>
 
-      <!-- Sidebar menu -->
-      <div id="sidebarMenu"></div>
+    <!-- Menyn byggs av start.js -->
+    <ul id="sidebarMenu" class="menu"></ul>
 
-      <!-- Footer -->
-      <div class="sidebar-footer">
-        <button id="addStoreBtn" class="gold-btn">Add Store / Lounge</button>
-        <a href="mailto:support@worldcigarlocator.com">Contact / Support</a>
-      </div>
-    </aside>
+    <div class="sidebar-footer">
+      <button id="addStoreBtn" class="add-store-btn">+ Add Store / Lounge</button>
+      <a href="mailto:support@worldcigarlocator.com" class="contact-link">📧 Contact / Support</a>
+    </div>
+  </aside>
 
-    <!-- Main -->
-    <main class="main" id="main">
-      <h1>World Cigar Locator</h1>
-      <div class="banner">
-        <img src="images/paris.jpg" alt="Paris">
-      </div>
-      <div class="welcome-text">
-        <p>
-          Welcome to World Cigar Locator. Our mission is to help you find a cigar store, lounge or just the perfect spot for a smoke.
-          Hope it makes it easier to find what you are looking for, wherever you are!
-        </p>
-        <p class="signature">Kind regards // Bakerman</p>
-      </div>
-    </main>
-  </div>
+  <main class="main">
+    <h1 class="title">World Cigar Locator</h1>
 
-  <!-- Supabase -->
+    <img src="images/paris.jpg" alt="Paris" class="banner" />
+
+    <section class="welcome">
+      <p><strong>Welcome to World Cigar locator.</strong></p>
+      <p>Are mission is to help you find a cigar store, lounge or just the perfect spot for a smoke.</p>
+      <p>Hope it makes it easier to find what you are looking for, wherever you are!</p>
+      <p class="signature">Kind regards // Bakerman</p>
+    </section>
+  </main>
+
+  <!-- Supabase SDK + din kod -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+  <script src="js/start.js"></script>
   <script>
-    // 🔑 Dina Supabase keys
-    const supabase = window.supabase.createClient(
-      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
-    );
-
-    async function loadData() {
-      const { data, error } = await supabase
-        .from("geo_tree_json")
-        .select("hierarchy");
-
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      // renderar ALLA kontinenter
-      data[0].hierarchy.forEach(renderContinent);
-    }
-
-    function renderContinent(continent) {
-      const sidebarMenu = document.getElementById("sidebarMenu");
-
-      const continentDiv = document.createElement("div");
-      continentDiv.innerHTML = `<strong>${continent.continent}</strong> (${continent.store_count})`;
-      continentDiv.addEventListener("click", () => {
-        const stores = continent.countries.flatMap(co => co.cities.flatMap(ci => ci.stores));
-        renderGrid(stores, `Alla stores i ${continent.continent}`);
-      });
-      sidebarMenu.appendChild(continentDiv);
-
-      // Länder
-      continent.countries.forEach(country => {
-        const countryDiv = document.createElement("div");
-        countryDiv.innerHTML = `<strong>${country.country}</strong> (${country.store_count})`;
-
-        countryDiv.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const stores = country.cities.flatMap(c => c.stores);
-          renderGrid(stores, `Alla stores i ${country.country}`);
-        });
-
-        const cityList = document.createElement("ul");
-        country.cities.forEach(city => {
-          const li = document.createElement("li");
-          li.innerHTML = `${city.city} (${city.store_count})`;
-
-          li.addEventListener("click", e => {
-            e.stopPropagation();
-            renderGrid(city.stores, `Stores i ${city.city}`);
-          });
-
-          cityList.appendChild(li);
-        });
-
-        countryDiv.appendChild(cityList);
-        sidebarMenu.appendChild(countryDiv);
-      });
-    }
-
-    function renderGrid(stores, title) {
-      const main = document.getElementById("main");
-      main.innerHTML = `<h2>${title}</h2>`;
-
-      if (!stores || stores.length === 0) {
-        main.innerHTML += "<p>Inga stores här ännu.</p>";
-        return;
-      }
-
-      const grid = document.createElement("div");
-      grid.classList.add("grid");
-
-      stores.forEach(store => {
-        const card = document.createElement("div");
-        card.classList.add("card");
-        card.innerHTML = `
-          <h3>${store.name}</h3>
-          <p>${store.address}</p>
-          <p>⭐ ${store.rating || "No rating"}</p>
-        `;
-        grid.appendChild(card);
-      });
-
-      main.appendChild(grid);
-    }
-
-    document.getElementById("addStoreBtn").addEventListener("click", function() {
-      window.location.href = "add-store.html";
+    // Tillfälliga handlers (så knapparna gör något)
+    document.getElementById("addStoreBtn").addEventListener("click", () => {
+      alert("Add Store / Lounge form coming soon!");
     });
-
-    loadData();
+    document.getElementById("searchBtn").addEventListener("click", () => {
+      const q = document.getElementById("searchInput").value.trim();
+      if (!q) return alert("Please enter a search term.");
+      alert("Search coming soon for: " + q);
+    });
   </script>
 </body>
 </html>
