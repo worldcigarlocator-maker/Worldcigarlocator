@@ -44,9 +44,8 @@
     </main>
   </div>
 
-  <!-- Supabase + Google Maps -->
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
 
   <script>
     // 🔑 Dina Supabase keys
@@ -57,34 +56,36 @@
 
     async function loadData() {
       const { data, error } = await supabase
-        .rpc("geo_tree_json_by_continent", { continent_name: "Europe" });
+        .from("geo_tree_json")
+        .select("hierarchy");
 
       if (error) {
         console.error(error);
         return;
       }
-      renderSidebar(data[0]);
+
+      // renderar ALLA kontinenter
+      data[0].hierarchy.forEach(renderContinent);
     }
 
-    function renderSidebar(root) {
+    function renderContinent(continent) {
       const sidebarMenu = document.getElementById("sidebarMenu");
-      sidebarMenu.innerHTML = "";
 
-      // Kontinent
       const continentDiv = document.createElement("div");
-      continentDiv.innerHTML = `<strong>${root.continent}</strong> (${root.store_count})`;
+      continentDiv.innerHTML = `<strong>${continent.continent}</strong> (${continent.store_count})`;
       continentDiv.addEventListener("click", () => {
-        const stores = root.countries.flatMap(co => co.cities.flatMap(ci => ci.stores));
-        renderGrid(stores, `Alla stores i ${root.continent}`);
+        const stores = continent.countries.flatMap(co => co.cities.flatMap(ci => ci.stores));
+        renderGrid(stores, `Alla stores i ${continent.continent}`);
       });
       sidebarMenu.appendChild(continentDiv);
 
       // Länder
-      root.countries.forEach(country => {
+      continent.countries.forEach(country => {
         const countryDiv = document.createElement("div");
         countryDiv.innerHTML = `<strong>${country.country}</strong> (${country.store_count})`;
 
-        countryDiv.addEventListener("click", () => {
+        countryDiv.addEventListener("click", (e) => {
+          e.stopPropagation();
           const stores = country.cities.flatMap(c => c.stores);
           renderGrid(stores, `Alla stores i ${country.country}`);
         });
