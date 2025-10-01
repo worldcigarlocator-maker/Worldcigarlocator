@@ -1,54 +1,52 @@
-body {
-  margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  background: #f9f9f9;
-  color: #333;
+.form-card {
+  background: #111;
+  color: #f5f5f5;
+  border: 1px solid gold;
+  border-radius: 16px;
+  padding: 20px;
+  max-width: 400px;
+  margin: 20px auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
-.page-main {
-  margin-left: 220px; /* sidebar space */
-  padding: 2rem;
+.form-card h2 {
+  color: gold;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
-h1 {
-  color: #b8860b;
-  margin-bottom: 1rem;
-}
-
-form, .google-fetch {
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  margin-bottom: 2rem;
-  max-width: 500px;
-}
-
-label {
+.form-card label {
   display: block;
-  margin-top: 1rem;
-  font-weight: bold;
+  margin-top: 10px;
+  font-size: 14px;
+  color: gold;
 }
 
-input, select {
+.form-card input,
+.form-card textarea,
+.form-card select {
   width: 100%;
-  padding: 0.5rem;
-  margin-top: 0.3rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background: #222;
+  color: #fff;
 }
 
-button {
-  margin-top: 1.5rem;
-  padding: 0.7rem 1.5rem;
-  background: #b8860b;
+.form-card button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: gold;
+  color: #111;
   border: none;
-  color: white;
+  border-radius: 8px;
   font-weight: bold;
-  border-radius: 5px;
   cursor: pointer;
+  transition: background 0.3s ease;
 }
 
-button:hover {
-  background: #d4a017;
+.form-card button:hover {
+  background: #d4af37;
 }
