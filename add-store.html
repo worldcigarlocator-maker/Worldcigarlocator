@@ -1,163 +1,120 @@
-<main>
-  <div class="form-wrapper">
-    <div class="form-card">
-      <h2>Add Store or Lounge</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Store / Lounge</title>
+  <link rel="stylesheet" href="css/add-store.css">
+</head>
+<body>
+  <div class="form-card">
+    <h2>Add Store / Lounge</h2>
 
-      <!-- Toggle -->
-      <div class="type-toggle">
-        <button type="button" id="storeBtn" class="active">Store</button>
-        <button type="button" id="loungeBtn">Lounge</button>
+    <!-- Toggle -->
+    <div class="toggle-buttons">
+      <button type="button" id="storeBtn" class="active">Store</button>
+      <button type="button" id="loungeBtn">Lounge</button>
+    </div>
+
+    <!-- Form -->
+    <form id="storeForm">
+      <!-- Name -->
+      <div class="form-group">
+        <label for="name">Name *</label>
+        <input type="text" id="name" name="name" required>
       </div>
 
-      <form id="storeForm">
-        <!-- Rating -->
-        <label for="rating">Rating</label>
-        <select id="rating" required>
-          <option value="">Select...</option>
-          <option value="1">★☆☆☆☆</option>
-          <option value="2">★★☆☆☆</option>
-          <option value="3">★★★☆☆</option>
-          <option value="4">★★★★☆</option>
-          <option value="5">★★★★★</option>
-        </select>
+      <!-- Address -->
+      <div class="form-group">
+        <label for="address">Address *</label>
+        <input type="text" id="address" name="address" required>
+      </div>
 
-        <!-- Common fields -->
-        <label for="name">Name</label>
-        <input type="text" id="name" required>
-
-        <label for="address">Address</label>
-        <input type="text" id="address" required>
-
+      <!-- Phone -->
+      <div class="form-group">
         <label for="phone">Phone</label>
-        <input type="tel" id="phone">
+        <input type="text" id="phone" name="phone">
+      </div>
 
-        <label for="url">Website</label>
-        <input type="url" id="url">
+      <!-- Website -->
+      <div class="form-group">
+        <label for="website">Website</label>
+        <input type="url" id="website" name="website">
+      </div>
 
-        <!-- Lounge specific -->
-        <div id="loungeExtra" style="display:none;">
-          <label for="access">Access</label>
-          <select id="access">
-            <option value="free">Free</option>
-            <option value="members">Members only</option>
-            <option value="temporary">Temporary membership</option>
-          </select>
+      <!-- Rating -->
+      <div class="form-group">
+        <label>Rating</label>
+        <div class="stars" id="ratingStars">
+          <span data-value="1">★</span>
+          <span data-value="2">★</span>
+          <span data-value="3">★</span>
+          <span data-value="4">★</span>
+          <span data-value="5">★</span>
         </div>
+        <input type="hidden" id="rating" name="rating" value="0">
+      </div>
 
-        <button type="submit" class="submit-btn">Save</button>
-      </form>
-    </div>
+      <!-- Lounge-only Access -->
+      <div class="form-group" id="accessGroup" style="display:none;">
+        <label for="access">Access</label>
+        <select id="access" name="access">
+          <option value="Free">Free</option>
+          <option value="Members Only">Members Only</option>
+          <option value="Temporary Membership">Temporary Membership</option>
+        </select>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="3"></textarea>
+      </div>
+
+      <!-- Save -->
+      <button type="submit">Save</button>
+    </form>
   </div>
-</main>
 
-<style>
-/* Layout */
-main {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #fff;
-}
+  <script>
+    // Toggle Store/Lounge
+    const storeBtn = document.getElementById("storeBtn");
+    const loungeBtn = document.getElementById("loungeBtn");
+    const accessGroup = document.getElementById("accessGroup");
 
-/* Centered card */
-.form-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
+    storeBtn.addEventListener("click", () => {
+      storeBtn.classList.add("active");
+      loungeBtn.classList.remove("active");
+      accessGroup.style.display = "none";
+    });
 
-.form-card {
-  background: #111;
-  color: #fff;
-  padding: 2rem 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-  width: 100%;
-  max-width: 500px;
-}
+    loungeBtn.addEventListener("click", () => {
+      loungeBtn.classList.add("active");
+      storeBtn.classList.remove("active");
+      accessGroup.style.display = "block";
+    });
 
-.form-card h2 {
-  color: #c9a227;
-  text-align: center;
-  margin-bottom: 1rem;
-}
+    // Rating stars
+    const stars = document.querySelectorAll("#ratingStars span");
+    const ratingInput = document.getElementById("rating");
 
-/* Toggle buttons */
-.type-toggle {
-  display: flex;
-  margin-bottom: 1.5rem;
-  border-radius: 6px;
-  overflow: hidden;
-}
-.type-toggle button {
-  flex: 1;
-  padding: 0.6rem;
-  border: none;
-  background: #333;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.type-toggle button.active {
-  background: #c9a227;
-  color: #111;
-}
+    stars.forEach(star => {
+      star.addEventListener("click", () => {
+        const value = star.getAttribute("data-value");
+        ratingInput.value = value;
 
-/* Inputs */
-label {
-  display: block;
-  margin-top: 1rem;
-  font-weight: bold;
-}
-input, select {
-  width: 100%;
-  padding: 0.6rem;
-  margin-top: 0.3rem;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #222;
-  color: #fff;
-}
-input:focus, select:focus {
-  outline: none;
-  border-color: #c9a227;
-}
+        stars.forEach(s => s.classList.remove("active"));
+        for (let i = 0; i < value; i++) {
+          stars[i].classList.add("active");
+        }
+      });
+    });
 
-/* Save button */
-.submit-btn {
-  margin-top: 1.5rem;
-  width: 100%;
-  padding: 0.8rem;
-  background: #c9a227;
-  color: #111;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.submit-btn:hover {
-  background: #e0b93d;
-}
-</style>
-
-<script>
-const storeBtn = document.getElementById("storeBtn");
-const loungeBtn = document.getElementById("loungeBtn");
-const loungeExtra = document.getElementById("loungeExtra");
-
-storeBtn.addEventListener("click", () => {
-  loungeExtra.style.display = "none";
-  storeBtn.classList.add("active");
-  loungeBtn.classList.remove("active");
-});
-
-loungeBtn.addEventListener("click", () => {
-  loungeExtra.style.display = "block";
-  loungeBtn.classList.add("active");
-  storeBtn.classList.remove("active");
-});
-</script>
+    // Form submit (just a test alert for now)
+    document.getElementById("storeForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      alert("Form submitted! (Supabase integration kommer här)");
+    });
+  </script>
+</body>
+</html>
