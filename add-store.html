@@ -1,183 +1,163 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Add Store / Lounge</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<main>
+  <div class="form-wrapper">
+    <div class="form-card">
+      <h2>Add Store or Lounge</h2>
 
-  <!-- Styling -->
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: #fff;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
+      <!-- Toggle -->
+      <div class="type-toggle">
+        <button type="button" id="storeBtn" class="active">Store</button>
+        <button type="button" id="loungeBtn">Lounge</button>
+      </div>
 
-    .form-container {
-      background-color: #1a1a1a;
-      padding: 2rem;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 600px;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-    }
+      <form id="storeForm">
+        <!-- Rating -->
+        <label for="rating">Rating</label>
+        <select id="rating" required>
+          <option value="">Select...</option>
+          <option value="1">★☆☆☆☆</option>
+          <option value="2">★★☆☆☆</option>
+          <option value="3">★★★☆☆</option>
+          <option value="4">★★★★☆</option>
+          <option value="5">★★★★★</option>
+        </select>
 
-    h1 {
-      color: #FFD700;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
+        <!-- Common fields -->
+        <label for="name">Name</label>
+        <input type="text" id="name" required>
 
-    label {
-      display: block;
-      margin: 0.5rem 0 0.2rem;
-      color: #FFD700;
-    }
+        <label for="address">Address</label>
+        <input type="text" id="address" required>
 
-    input, select, textarea {
-      width: 100%;
-      padding: 0.5rem;
-      border-radius: 6px;
-      border: 1px solid #444;
-      background-color: #222;
-      color: #fff;
-      margin-bottom: 1rem;
-    }
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone">
 
-    textarea {
-      resize: vertical;
-    }
+        <label for="url">Website</label>
+        <input type="url" id="url">
 
-    button {
-      background-color: #FFD700;
-      color: #111;
-      font-weight: bold;
-      padding: 0.75rem 1rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 100%;
-      transition: background-color 0.2s;
-    }
+        <!-- Lounge specific -->
+        <div id="loungeExtra" style="display:none;">
+          <label for="access">Access</label>
+          <select id="access">
+            <option value="free">Free</option>
+            <option value="members">Members only</option>
+            <option value="temporary">Temporary membership</option>
+          </select>
+        </div>
 
-    button:hover {
-      background-color: #e6c200;
-    }
-
-    .success {
-      color: #4CAF50;
-      margin-top: 1rem;
-      text-align: center;
-    }
-
-    .error {
-      color: #f44336;
-      margin-top: 1rem;
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-  <div class="form-container">
-    <h1>Add Store / Lounge</h1>
-    <form id="addStoreForm">
-      <label for="name">Name</label>
-      <input type="text" id="name" required>
-
-      <label for="type">Type</label>
-      <select id="type" required>
-        <option value="store">Store</option>
-        <option value="lounge">Lounge</option>
-        <option value="both">Both</option>
-      </select>
-
-      <label for="rating">Rating</label>
-      <select id="rating" required>
-        <option value="1">⭐</option>
-        <option value="2">⭐⭐</option>
-        <option value="3">⭐⭐⭐</option>
-        <option value="4">⭐⭐⭐⭐</option>
-        <option value="5">⭐⭐⭐⭐⭐</option>
-      </select>
-
-      <label for="address">Address</label>
-      <input type="text" id="address" placeholder="Search address..." required>
-
-      <label for="description">Description</label>
-      <textarea id="description" rows="3"></textarea>
-
-      <button type="submit">Save Store</button>
-    </form>
-    <div id="message"></div>
+        <button type="submit" class="submit-btn">Save</button>
+      </form>
+    </div>
   </div>
+</main>
 
-  <!-- Supabase -->
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
-  <script>
-    // 🔑 Dina Supabase-nycklar (från tidigare)
-    const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp..."; // din riktiga nyckel
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<style>
+/* Layout */
+main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+}
 
-    let selectedPlace = null;
+/* Centered card */
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
 
-    function initAutocomplete() {
-      const input = document.getElementById("address");
-      const autocomplete = new google.maps.places.Autocomplete(input);
+.form-card {
+  background: #111;
+  color: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  width: 100%;
+  max-width: 500px;
+}
 
-      autocomplete.addListener("place_changed", () => {
-        selectedPlace = autocomplete.getPlace();
-        console.log("Selected place:", selectedPlace);
-      });
-    }
+.form-card h2 {
+  color: #c9a227;
+  text-align: center;
+  margin-bottom: 1rem;
+}
 
-    document.getElementById("addStoreForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+/* Toggle buttons */
+.type-toggle {
+  display: flex;
+  margin-bottom: 1.5rem;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.type-toggle button {
+  flex: 1;
+  padding: 0.6rem;
+  border: none;
+  background: #333;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.type-toggle button.active {
+  background: #c9a227;
+  color: #111;
+}
 
-      const name = document.getElementById("name").value;
-      const type = document.getElementById("type").value;
-      const rating = parseInt(document.getElementById("rating").value);
-      const address = document.getElementById("address").value;
-      const description = document.getElementById("description").value;
+/* Inputs */
+label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: bold;
+}
+input, select {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.3rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #222;
+  color: #fff;
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: #c9a227;
+}
 
-      // Extract city + country from Google place if possible
-      let city = null, country = null, lat = null, lng = null;
+/* Save button */
+.submit-btn {
+  margin-top: 1.5rem;
+  width: 100%;
+  padding: 0.8rem;
+  background: #c9a227;
+  color: #111;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.submit-btn:hover {
+  background: #e0b93d;
+}
+</style>
 
-      if (selectedPlace) {
-        lat = selectedPlace.geometry?.location?.lat();
-        lng = selectedPlace.geometry?.location?.lng();
+<script>
+const storeBtn = document.getElementById("storeBtn");
+const loungeBtn = document.getElementById("loungeBtn");
+const loungeExtra = document.getElementById("loungeExtra");
 
-        selectedPlace.address_components.forEach(comp => {
-          if (comp.types.includes("locality")) city = comp.long_name;
-          if (comp.types.includes("country")) country = comp.long_name;
-        });
-      }
+storeBtn.addEventListener("click", () => {
+  loungeExtra.style.display = "none";
+  storeBtn.classList.add("active");
+  loungeBtn.classList.remove("active");
+});
 
-      const { data, error } = await supabase
-        .from("stores")
-        .insert([{
-          name, type, rating, address, description,
-          city, country,
-          latitude: lat, longitude: lng
-        }]);
-
-      const msg = document.getElementById("message");
-      if (error) {
-        msg.innerHTML = `<p class="error">Error: ${error.message}</p>`;
-      } else {
-        msg.innerHTML = `<p class="success">✅ Store saved successfully!</p>`;
-        document.getElementById("addStoreForm").reset();
-      }
-    });
-  </script>
-
-  <!-- Google Maps API -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete" async defer></script>
-</body>
-</html>
+loungeBtn.addEventListener("click", () => {
+  loungeExtra.style.display = "block";
+  loungeBtn.classList.add("active");
+  storeBtn.classList.remove("active");
+});
+</script>
