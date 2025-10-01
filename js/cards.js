@@ -5,23 +5,25 @@ const dummyStores = [
 ];
 
 function renderCards() {
+  console.log("Rendering cards..."); // debug
   const grid = document.querySelector(".card-grid");
+  if (!grid) {
+    console.error("❌ Hittar inte .card-grid");
+    return;
+  }
+
   grid.innerHTML = "";
 
   dummyStores.forEach(store => {
     const card = document.createElement("div");
     card.classList.add("card");
-
     card.innerHTML = `
-      <h3>${store.name}</h3>
+      <h2>${store.name}</h2>
       <p>${store.city}, ${store.country}</p>
       <p><strong>${store.type}</strong></p>
-      <div class="stars">
-        ${"⭐".repeat(store.rating)}${"☆".repeat(5 - store.rating)}
-      </div>
+      <p>${"⭐".repeat(store.rating)}${"☆".repeat(5 - store.rating)}</p>
       <button>View Details</button>
     `;
-
     grid.appendChild(card);
   });
 }
