@@ -1,75 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Add Store - World Cigar Locator</title>
-  <link rel="stylesheet" href="css/add-store.css" />
+.form-card {
+  background: #111;
+  color: #f5f5f5;
+  border: 1px solid gold;
+  border-radius: 16px;
+  padding: 20px;
+  max-width: 400px;
+  margin: 20px auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
 
-  <!-- Google Maps + Places SDK -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
-</head>
-<body>
-  <nav id="sidebarMenu"></nav>
-  <main class="page-main">
-    <h1>Add a Store</h1>
+.form-card h2 {
+  color: gold;
+  margin-bottom: 15px;
+  text-align: center;
+}
 
-    <form id="addStoreForm">
-      <!-- Google Maps URL input -->
-      <div class="form-group">
-        <label for="mapsUrl">Google Maps link:</label>
-        <input type="url" id="mapsUrl" placeholder="Paste a Google Maps URL here" />
-        <button type="button" id="fetchDataBtn">Fetch Data</button>
-      </div>
+.form-card label {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  color: gold;
+}
 
-      <div class="form-group">
-        <label for="name">Store name:</label>
-        <input type="text" id="name" required />
-      </div>
+.form-card input,
+.form-card textarea,
+.form-card select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background: #222;
+  color: #fff;
+}
 
-      <div class="form-group">
-        <label for="address">Address:</label>
-        <input type="text" id="address" required />
-      </div>
+.form-card button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: gold;
+  color: #111;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
 
-      <div class="form-group">
-        <label for="website">Website:</label>
-        <input type="url" id="website" />
-      </div>
-
-      <div class="form-group">
-        <label for="phone">Phone:</label>
-        <input type="text" id="phone" />
-      </div>
-
-      <div class="form-group">
-        <label for="continent">Continent:</label>
-        <select id="continent" required>
-          <option value="">-- Select --</option>
-          <option value="Europe">Europe</option>
-          <option value="North America">North America</option>
-          <option value="South America">South America</option>
-          <option value="Asia">Asia</option>
-          <option value="Africa">Africa</option>
-          <option value="Oceania">Oceania</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="country">Country:</label>
-        <input type="text" id="country" required />
-      </div>
-
-      <div class="form-group">
-        <label for="city">City:</label>
-        <input type="text" id="city" required />
-      </div>
-
-      <button type="submit">Save Store</button>
-    </form>
-  </main>
-
-  <script src="js/sidebar.js"></script>
-  <script src="js/add-store.js"></script>
-</body>
-</html>
+.form-card button:hover {
+  background: #d4af37;
+}
