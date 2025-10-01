@@ -1,31 +1,54 @@
-const dummyStores = [
-  { name: "Cigar Lounge Stockholm", city: "Stockholm", country: "Sweden", type: "Lounge", rating: 4 },
-  { name: "Havana House", city: "Berlin", country: "Germany", type: "Store", rating: 3 },
-  { name: "Barcelona Cigar Club", city: "Barcelona", country: "Spain", type: "Lounge", rating: 5 }
-];
+// cards.js
 
-function renderCards() {
-  console.log("Rendering cards..."); // debug
-  const grid = document.querySelector(".card-grid");
-  if (!grid) {
-    console.error("❌ Hittar inte .card-grid");
-    return;
+// Hämta stores från Supabase
+const { createClient } = supabase;
+const supabaseUrl = "DIN_SUPABASE_URL";
+const supabaseKey = "DIN_SUPABASE_ANON_KEY";
+const db = createClient(supabaseUrl, supabaseKey);
+
+async function fetchStores() {
+  const { data, error } = await db.from("stores").select("*");
+  if (error) {
+    console.error("❌ Error fetching stores:", error);
+    return [];
   }
+  return data;
+}
 
+function renderCards(stores) {
+  const grid = document.querySelector(".card-grid");
   grid.innerHTML = "";
 
-  dummyStores.forEach(store => {
+  stores.forEach(store => {
+    // Thumbnail (Google Maps bild eller fallback)
+    const thumbnail = store.photo_reference
+      ? `<img src="${store.photo_reference}" alt="${store.name}" class="card-img">`
+      : `<img src="img/placeholder.jpg" alt="No image" class="card-img">`;
+
+    // Rating med stjärnor
+    let stars = "";
+    for (let i = 1; i <= 5; i++) {
+      stars += i <= store.rating ? "★" : "☆";
+    }
+
+    // Kortets HTML
     const card = document.createElement("div");
     card.classList.add("card");
     card.innerHTML = `
+      ${thumbnail}
       <h2>${store.name}</h2>
-      <p>${store.city}, ${store.country}</p>
-      <p><strong>${store.type}</strong></p>
-      <p>${"⭐".repeat(store.rating)}${"☆".repeat(5 - store.rating)}</p>
-      <button>View Details</button>
+      <p>${store.address || ""}</p>
+      <p><strong>${store.city || ""}, ${store.country || ""}</strong></p>
+      <div class="rating">${stars}</div>
+      <a href="${store.website || "#"}" target="_blank" class="btn">Visit Website</a>
     `;
+
     grid.appendChild(card);
   });
 }
 
-renderCards();
+// Initiera
+(async () => {
+  const stores = await fetchStores();
+  renderCards(stores);
+})();
