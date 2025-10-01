@@ -2,13 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Cigar Cards</title>
-  <link rel="stylesheet" href="css/cards.css">
+  <title>Stores & Lounges</title>
+  <link rel="stylesheet" href="cards.css">
 </head>
 <body>
-  <h1>Stores & Lounges</h1>
-  <div class="card-grid"></div>
+  <main>
+    <h1>Stores & Lounges</h1>
+    <div class="card-grid"></div>
+  </main>
 
   <script src="js/cards.js"></script>
+  <script>
+    // Dummy testdata
+    const dummyStores = [
+      {
+        name: "Cigar King",
+        type: "Store",
+        address: "123 Main Street",
+        city: "Stockholm",
+        country: "Sweden",
+        rating: 4,
+        website: "https://example.com",
+        photo_reference: null
+      },
+      {
+        name: "Lounge Deluxe",
+        type: "Lounge",
+        address: "456 Sunset Blvd",
+        city: "Gothenburg",
+        country: "Sweden",
+        rating: 5,
+        website: "",
+        photo_reference: null
+      }
+    ];
+
+    // Rendera testdata
+    renderCards(dummyStores);
+  </script>
 </body>
 </html>
