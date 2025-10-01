@@ -1,90 +1,70 @@
-/* Grundlayout för hela sidan */
-body {
-  background: #111;              /* svart bakgrund */
-  color: #fff;                   /* vit text */
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 2rem;
-}
-
-h1 {
-  color: #c9a227;                /* guld */
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-/* Grid som håller ihop alla kort */
-.card-grid {
-  display: flex;
-  flex-direction: column;        /* en per rad */
-  gap: 1.5rem;
-  align-items: center;           /* centrera korten */
-  padding: 2rem;
-  min-height: 100vh;
-}
-
-/* Själva kortet */
 .card {
-  background-color: #111;        /* svart */
-  color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  width: 600px;                  /* fast bredd */
+  background-color: #111;
+  border-radius: 16px;
+  padding: 1rem 1.5rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  align-items: flex-start;
+  gap: 1rem;
+  color: #fff;
+  width: 650px;
+  margin: 1rem auto;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-}
-
-/* Textdelen */
-.card-content {
+/* Vänster sida */
+.card-left {
   flex: 1;
 }
 
-/* Rubriken (namnet) */
-.card h2 {
-  margin: 0 0 0.5rem 0;
-  color: #c9a227;                /* guld */
-  font-size: 1.4rem;
+.toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
-/* Adress och plats */
-.card p {
-  margin: 0.25rem 0;
+.toggle span {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: bold;
+  background: #444;
+  color: #ddd;
+}
+
+.toggle .active {
+  background: #c9a227; /* guld */
+  color: #111;
+}
+
+/* Rating */
+.stars {
+  color: #c9a227;
+  font-size: 1.2rem;
+  margin: 0.3rem 0;
+}
+
+/* Textfält */
+.card-left p {
+  margin: 0.3rem 0;
   font-size: 0.95rem;
 }
 
-/* Länk */
-.card a {
-  display: inline-block;
-  margin-top: 0.5rem;
-  color: #c9a227;                /* guld */
+/* Länken */
+.card-left a {
+  color: #c9a227;
   text-decoration: none;
   font-weight: bold;
 }
 
-.card a:hover {
+.card-left a:hover {
   text-decoration: underline;
 }
 
-/* Stjärnbetyg */
-.card .stars {
-  margin: 0.25rem 0;
-  color: #c9a227;                /* guld */
-  font-size: 1.1rem;
-}
-
-/* Bilden på högersidan */
-.card img {
+/* Höger sida */
+.card-right img {
   width: 150px;
-  height: 100px;
+  height: 150px;
+  border-radius: 8px;
   object-fit: cover;
-  border-radius: 6px;
-  margin-left: 1rem;
+  background: #000;
 }
