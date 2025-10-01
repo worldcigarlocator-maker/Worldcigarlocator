@@ -4,74 +4,188 @@
   <meta charset="UTF-8">
   <title>Add Store / Lounge</title>
   <link rel="stylesheet" href="css/add-store.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .form-card {
+      background: #333;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      width: 400px;
+    }
+    .form-card h1 {
+      color: #c9a227;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border-radius: 5px;
+      border: none;
+      outline: none;
+    }
+    .stars {
+      display: flex;
+      gap: 5px;
+      margin-top: 0.5rem;
+    }
+    .stars span {
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #666;
+    }
+    .stars span.active {
+      color: #c9a227;
+    }
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      background: #c9a227;
+      color: #111;
+      border: none;
+      padding: 0.8rem;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #e6b800;
+    }
+  </style>
 </head>
 <body>
   <div class="form-card">
-    <h1>Add a Store / Lounge</h1>
-
-    <!-- Toggle -->
-    <div class="toggle">
-      <button type="button" class="toggle-btn store active" onclick="setType('store')">Store</button>
-      <button type="button" class="toggle-btn lounge" onclick="setType('lounge')">Lounge</button>
-    </div>
-
-    <!-- Google Maps Link -->
-    <label for="maps">Google Maps link:</label>
-    <input type="url" id="maps" placeholder="Paste a Google Maps URL here">
-    <button type="button" class="btn" onclick="fetchData()">Fetch Data</button>
-
+    <h1>Add Store / Lounge</h1>
     <form id="storeForm">
-      <label for="name">Store name:</label>
+      <label for="name">Name</label>
       <input type="text" id="name" required>
 
-      <label for="address">Address:</label>
-      <input type="text" id="address" required>
+      <label for="address">Address</label>
+      <input type="text" id="address" placeholder="Start typing..." required>
 
-      <label for="website">Website:</label>
-      <input type="url" id="website">
-
-      <label for="phone">Phone:</label>
+      <label for="phone">Phone</label>
       <input type="text" id="phone">
 
-      <label>Rating:</label>
-      <div class="rating" id="rating">
-        <span class="star" data-value="1">&#9733;</span>
-        <span class="star" data-value="2">&#9733;</span>
-        <span class="star" data-value="3">&#9733;</span>
-        <span class="star" data-value="4">&#9733;</span>
-        <span class="star" data-value="5">&#9733;</span>
+      <label for="website">Website</label>
+      <input type="url" id="website">
+
+      <label>Rating</label>
+      <div class="stars" id="ratingStars">
+        <span data-value="1">★</span>
+        <span data-value="2">★</span>
+        <span data-value="3">★</span>
+        <span data-value="4">★</span>
+        <span data-value="5">★</span>
       </div>
 
-      <div id="loungeAccess" style="display:none;">
-        <label for="access">Access:</label>
-        <select id="access">
-          <option value="free">Free</option>
-          <option value="members">Members only</option>
-          <option value="temp">Temporary membership</option>
-        </select>
-      </div>
-
-      <label for="continent">Continent:</label>
-      <select id="continent">
-        <option>-- Select --</option>
-        <option>Africa</option>
-        <option>Asia</option>
-        <option>Europe</option>
-        <option>North America</option>
-        <option>Oceania</option>
-        <option>South America</option>
-      </select>
-
-      <label for="country">Country:</label>
-      <input type="text" id="country">
-
-      <label for="city">City:</label>
-      <input type="text" id="city">
-
-      <button type="submit" class="btn">Save Store</button>
+      <button type="submit">Save</button>
     </form>
   </div>
 
-  <script src="js/add-store.js"></script>
+  <!-- Google Maps API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=DIN_GOOGLE_MAPS_API_KEY&libraries=places"></script>
+  <script>
+    const { createClient } = supabase;
+    const supabaseUrl = "DIN_SUPABASE_URL";
+    const supabaseKey = "DIN_SUPABASE_ANON_KEY";
+    const db = createClient(supabaseUrl, supabaseKey);
+
+    let selectedPlace = null;
+    let selectedRating = 0;
+
+    // Rating stars logic
+    document.querySelectorAll("#ratingStars span").forEach(star => {
+      star.addEventListener("click", () => {
+        selectedRating = parseInt(star.dataset.value);
+        document.querySelectorAll("#ratingStars span").forEach(s => s.classList.remove("active"));
+        for (let i = 0; i < selectedRating; i++) {
+          document.querySelectorAll("#ratingStars span")[i].classList.add("active");
+        }
+      });
+    });
+
+    // Google Autocomplete
+    function initAutocomplete() {
+      const input = document.getElementById("address");
+      const autocomplete = new google.maps.places.Autocomplete(input);
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) return;
+
+        selectedPlace = {
+          address: place.formatted_address,
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+          city: getComponent(place, "locality"),
+          country: getComponent(place, "country"),
+          photo_reference: place.photos && place.photos.length > 0 
+            ? place.photos[0].getUrl({ maxWidth: 400 })
+            : null
+        };
+
+        console.log("📍 Selected place:", selectedPlace);
+      });
+    }
+
+    function getComponent(place, type) {
+      const comp = place.address_components.find(c => c.types.includes(type));
+      return comp ? comp.long_name : null;
+    }
+
+    // Form submit
+    document.getElementById("storeForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const website = document.getElementById("website").value;
+
+      if (!selectedPlace) {
+        alert("Please select an address from Google Maps.");
+        return;
+      }
+
+      const { error } = await db.from("stores").insert({
+        name,
+        phone,
+        website,
+        rating: selectedRating,
+        address: selectedPlace.address,
+        city: selectedPlace.city,
+        country: selectedPlace.country,
+        lat: selectedPlace.lat,
+        lng: selectedPlace.lng,
+        photo_reference: selectedPlace.photo_reference
+      });
+
+      if (error) {
+        console.error(error);
+        alert("❌ Error saving store");
+      } else {
+        alert("✅ Store saved!");
+        document.getElementById("storeForm").reset();
+        selectedRating = 0;
+        document.querySelectorAll("#ratingStars span").forEach(s => s.classList.remove("active"));
+      }
+    });
+
+    window.onload = initAutocomplete;
+  </script>
 </body>
 </html>
