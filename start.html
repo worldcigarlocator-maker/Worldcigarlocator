@@ -1,55 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="css/start.css" />
+  <link rel="stylesheet" href="css/start.css">
 </head>
 <body>
-  <aside class="sidebar">
-    <h2 class="brand">WCL</h2>
+  <!-- Sidebar -->
+  <aside>
+    <h2 class="sidebar-title">WCL</h2>
 
-    <!-- Search -->
     <div class="sidebar-search">
-      <input type="text" id="searchInput" placeholder="Search..." />
-      <button id="searchBtn" class="gold-btn">Search</button>
+      <input type="text" id="searchInput" placeholder="Search...">
+      <button id="searchBtn">Search</button>
     </div>
 
-    <!-- Menyn byggs av start.js -->
-    <ul id="sidebarMenu" class="menu"></ul>
+    <ul id="sidebarMenu"></ul>
 
     <div class="sidebar-footer">
-      <button id="addStoreBtn" class="add-store-btn">+ Add Store / Lounge</button>
-      <a href="mailto:support@worldcigarlocator.com" class="contact-link">📧 Contact / Support</a>
+      <button id="addStoreBtn" class="gold-button">Add Store / Lounge</button>
+      <a href="mailto:support@worldcigarlocator.com" class="contact-link">Contact / Support</a>
     </div>
   </aside>
 
-  <main class="main">
-    <h1 class="title">World Cigar Locator</h1>
+  <!-- Main -->
+  <main>
+    <h1 class="main-title">World Cigar Locator</h1>
+    <img src="images/paris.jpg" alt="Paris Banner" class="banner">
 
-    <img src="images/paris.jpg" alt="Paris" class="banner" />
+    <p class="welcome">
+      Welcome to World Cigar Locator. Our mission is to help you find a cigar store,
+      lounge or just the perfect spot for a smoke. Hope it makes it easier to find what
+      you are looking for, wherever you are!  
+      <br><em>Kind regards // Bakerman</em>
+    </p>
 
-    <section class="welcome">
-      <p><strong>Welcome to World Cigar locator.</strong></p>
-      <p>Are mission is to help you find a cigar store, lounge or just the perfect spot for a smoke.</p>
-      <p>Hope it makes it easier to find what you are looking for, wherever you are!</p>
-      <p class="signature">Kind regards // Bakerman</p>
-    </section>
+    <!-- 🔽 Cards demo -->
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge store">Store</span>
+          <h3>Davidoff Cigar Shop</h3>
+        </div>
+        <p class="address">Kungsgatan 12, Stockholm</p>
+        <p class="phone">+46 8 123 45 67</p>
+        <a href="https://davidoff.com" target="_blank" class="url">davidoff.com</a>
+        <div class="rating">⭐⭐⭐⭐☆</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge lounge">Lounge</span>
+          <h3>Grand Havana Lounge</h3>
+        </div>
+        <p class="address">123 Main Street, Miami</p>
+        <p class="phone">+1 305 123 4567</p>
+        <a href="https://grandhavana.com" target="_blank" class="url">grandhavana.com</a>
+        <div class="rating">⭐⭐⭐⭐⭐</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge store">Store</span>
+          <h3>La Casa del Habano</h3>
+        </div>
+        <p class="address">Calle O'Reilly 39, Havana</p>
+        <p class="phone">+53 7 867 1277</p>
+        <a href="https://lacasadelhabano.com" target="_blank" class="url">lacasadelhabano.com</a>
+        <div class="rating">⭐⭐⭐⭐⭐</div>
+      </div>
+
+    </div>
+    <!-- 🔼 Cards demo -->
+
   </main>
 
-  <!-- Supabase SDK + din kod -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Scripts -->
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <script src="js/start.js"></script>
   <script>
-    // Tillfälliga handlers (så knapparna gör något)
     document.getElementById("addStoreBtn").addEventListener("click", () => {
-      alert("Add Store / Lounge form coming soon!");
+      alert("Add Store form kommer här senare!");
     });
     document.getElementById("searchBtn").addEventListener("click", () => {
-      const q = document.getElementById("searchInput").value.trim();
-      if (!q) return alert("Please enter a search term.");
-      alert("Search coming soon for: " + q);
+      alert("Search kommer här senare!");
     });
   </script>
 </body>
