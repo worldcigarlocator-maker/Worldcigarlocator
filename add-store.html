@@ -1,52 +1,30 @@
-.form-card {
-  background: #111;
-  color: #f5f5f5;
-  border: 1px solid gold;
-  border-radius: 16px;
-  padding: 20px;
-  max-width: 400px;
-  margin: 20px auto;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-}
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Store</title>
+  <link rel="stylesheet" href="add-store.css"> <!-- här länkas din css -->
+</head>
+<body>
+  <div class="form-card">
+    <h2>Lägg till ny store</h2>
+    <form id="storeForm">
+      <label for="title">Titel</label>
+      <input type="text" id="title" name="title" placeholder="Skriv titel..." required>
 
-.form-card h2 {
-  color: gold;
-  margin-bottom: 15px;
-  text-align: center;
-}
+      <label for="description">Beskrivning</label>
+      <textarea id="description" name="description" rows="4" placeholder="Kort beskrivning..." required></textarea>
 
-.form-card label {
-  display: block;
-  margin-top: 10px;
-  font-size: 14px;
-  color: gold;
-}
+      <label for="category">Kategori</label>
+      <select id="category" name="category" required>
+        <option value="">Välj kategori</option>
+        <option value="lounge">Lounge</option>
+        <option value="store">Store</option>
+        <option value="event">Event</option>
+      </select>
 
-.form-card input,
-.form-card textarea,
-.form-card select {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border-radius: 8px;
-  border: 1px solid #444;
-  background: #222;
-  color: #fff;
-}
-
-.form-card button {
-  margin-top: 20px;
-  width: 100%;
-  padding: 12px;
-  background: gold;
-  color: #111;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.form-card button:hover {
-  background: #d4af37;
-}
+      <button type="submit">Spara</button>
+    </form>
+  </div>
+</body>
+</html>
