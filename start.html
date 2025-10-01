@@ -5,11 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>World Cigar Locator</title>
   <link rel="stylesheet" href="css/start.css">
+  <style>
+    .container { display: flex; height: 100vh; }
+    aside { width: 280px; background: #111; padding: 1rem; color: #eee;
+            overflow-y: auto; border-right: 2px solid gold; }
+    aside h2 { color: gold; }
+    .sidebar-search { margin-bottom: 1rem; }
+    .sidebar-search input {
+      width: calc(100% - 60px); padding: 5px; border: 1px solid gold;
+      background: #000; color: #fff;
+    }
+    .sidebar-search button { padding: 5px 10px; background: gold; border: none; cursor: pointer; }
+    .sidebar-footer { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .gold-btn { background: gold; border: none; padding: 0.5rem; cursor: pointer; border-radius: 5px; }
+    .main { flex: 1; padding: 2rem; background: #000; color: #fff; overflow-y: auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .card { background: #1a1a1a; border: 1px solid gold; border-radius: 10px; padding: 1rem; transition: transform 0.2s; }
+    .card:hover { transform: translateY(-4px); }
+    .sidebar strong { color: gold; cursor: pointer; display: block; margin: 0.5rem 0; }
+    .sidebar ul { list-style: none; padding-left: 1rem; }
+    .sidebar li { cursor: pointer; padding: 2px 0; transition: color 0.2s; }
+    .sidebar li:hover { color: gold; }
+  </style>
 </head>
 <body>
   <div class="container">
     <!-- Sidebar -->
-    <aside>
+    <aside class="sidebar" id="sidebar">
       <h2>WCL</h2>
 
       <!-- Search box -->
@@ -18,8 +40,8 @@
         <button id="searchBtn">Search</button>
       </div>
 
-      <!-- Sidebar menu (filled by start.js) -->
-      <ul id="sidebarMenu"></ul>
+      <!-- Sidebar menu -->
+      <div id="sidebarMenu"></div>
 
       <!-- Footer -->
       <div class="sidebar-footer">
@@ -29,30 +51,106 @@
     </aside>
 
     <!-- Main -->
-    <main>
+    <main class="main" id="main">
       <h1>World Cigar Locator</h1>
-      <div class="banner">
-        <img src="images/paris.jpg" alt="Paris">
-      </div>
-      <div class="welcome-text">
-        <p>
-          Welcome to World Cigar Locator. Our mission is to help you find a cigar store, lounge or just the perfect spot for a smoke.
-          Hope it makes it easier to find what you are looking for, wherever you are!
-        </p>
-        <p class="signature">Kind regards // Bakerman</p>
-      </div>
+      <p>Välj ett land eller en stad i menyn →</p>
     </main>
   </div>
 
-  <!-- Scripts -->
+  <!-- Supabase + Google Maps -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/start.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
 
-  <!-- Button redirect script -->
   <script>
+    // 🔑 DINA KEYS
+    const supabase = window.supabase.createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    async function loadData() {
+      const { data, error } = await supabase
+        .rpc("geo_tree_json_by_continent", { continent_name: "Europe" });
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+      renderSidebar(data[0]);
+    }
+
+    function renderSidebar(root) {
+      const sidebarMenu = document.getElementById("sidebarMenu");
+      sidebarMenu.innerHTML = "";
+
+      // Kontinent
+      const continentDiv = document.createElement("div");
+      continentDiv.innerHTML = `<strong>${root.continent}</strong> (${root.store_count})`;
+      continentDiv.addEventListener("click", () => {
+        const stores = root.countries.flatMap(co => co.cities.flatMap(ci => ci.stores));
+        renderGrid(stores, `Alla stores i ${root.continent}`);
+      });
+      sidebarMenu.appendChild(continentDiv);
+
+      // Länder
+      root.countries.forEach(country => {
+        const countryDiv = document.createElement("div");
+        countryDiv.innerHTML = `<strong>${country.country}</strong> (${country.store_count})`;
+
+        countryDiv.addEventListener("click", () => {
+          const stores = country.cities.flatMap(c => c.stores);
+          renderGrid(stores, `Alla stores i ${country.country}`);
+        });
+
+        const cityList = document.createElement("ul");
+        country.cities.forEach(city => {
+          const li = document.createElement("li");
+          li.innerHTML = `${city.city} (${city.store_count})`;
+
+          li.addEventListener("click", e => {
+            e.stopPropagation();
+            renderGrid(city.stores, `Stores i ${city.city}`);
+          });
+
+          cityList.appendChild(li);
+        });
+
+        countryDiv.appendChild(cityList);
+        sidebarMenu.appendChild(countryDiv);
+      });
+    }
+
+    function renderGrid(stores, title) {
+      const main = document.getElementById("main");
+      main.innerHTML = `<h2>${title}</h2>`;
+
+      if (!stores || stores.length === 0) {
+        main.innerHTML += "<p>Inga stores här ännu.</p>";
+        return;
+      }
+
+      const grid = document.createElement("div");
+      grid.classList.add("grid");
+
+      stores.forEach(store => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.innerHTML = `
+          <h3>${store.name}</h3>
+          <p>${store.address}</p>
+          <p>⭐ ${store.rating || "No rating"}</p>
+        `;
+        grid.appendChild(card);
+      });
+
+      main.appendChild(grid);
+    }
+
     document.getElementById("addStoreBtn").addEventListener("click", function() {
       window.location.href = "add-store.html";
     });
+
+    loadData();
   </script>
 </body>
 </html>
