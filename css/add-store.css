@@ -1,4 +1,4 @@
-/* ====== ADD STORE PAGE CSS (vit/ljusgrå version) ====== */
+/* ====== ADD STORE PAGE CSS (mörkgrå + guld) ====== */
 
 /* Reset */
 * {
@@ -11,7 +11,7 @@
 /* Layout */
 body {
   background-color: #fff; /* vit bakgrund */
-  color: #fff;            /* all text vit */
+  color: #fff;            /* text vit */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -20,18 +20,18 @@ body {
 
 /* Form container */
 .form-card {
-  background-color: #e6e6e6; /* ljusgrå platta */
+  background-color: #444; /* mörkgrå platta */
   padding: 2rem;
   border-radius: 8px;
   width: 100%;
   max-width: 500px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* Headline */
 .form-card h2 {
   text-align: center;
-  color: #fff; /* vit text */
+  color: #fff;
   margin-bottom: 1.5rem;
   font-size: 1.6rem;
 }
@@ -47,9 +47,9 @@ body {
 .toggle-buttons button {
   flex: 1;
   padding: 0.7rem;
-  border: 1px solid #87CEFA;
-  background-color: transparent;
-  color: #fff; /* vit text */
+  border: none;
+  background-color: #c9a227; /* guld */
+  color: #111; /* mörk text på guld */
   font-weight: bold;
   cursor: pointer;
   border-radius: 4px;
@@ -57,8 +57,8 @@ body {
 }
 
 .toggle-buttons button.active {
-  background-color: #87CEFA;
-  color: #111; /* mörk text på blå knapp */
+  background-color: #111; /* svart när vald */
+  color: #fff; /* vit text */
 }
 
 /* Labels + Inputs */
@@ -76,16 +76,16 @@ label {
 input, select, textarea {
   width: 100%;
   padding: 0.6rem;
-  border: 1px solid #ccc;
+  border: 1px solid #c9a227; /* guld border */
   border-radius: 4px;
-  background-color: #ccc; /* grå inputs */
-  color: #111; /* mörk text inuti inputs för läsbarhet */
+  background-color: #222; /* mörk inuti */
+  color: #fff; /* vit text i inputs */
   font-size: 0.95rem;
   transition: border 0.2s;
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: #87CEFA;
+  border-color: #f1d36f; /* ljusare guld när fokus */
   outline: none;
 }
 
@@ -95,7 +95,7 @@ button[type="submit"] {
   padding: 0.9rem;
   border: none;
   border-radius: 4px;
-  background-color: #87CEFA;
+  background-color: #c9a227; /* guld */
   color: #111; /* mörk text */
   font-weight: bold;
   cursor: pointer;
@@ -104,7 +104,7 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-  background-color: #5eb6e6;
+  background-color: #e0b93f; /* lite ljusare guld */
 }
 
 /* Rating stars */
@@ -117,10 +117,10 @@ button[type="submit"]:hover {
 }
 
 .stars span {
-  color: #bbb; /* ljusgrå stjärnor inaktiva */
+  color: #777; /* grå inaktiva */
   transition: color 0.2s;
 }
 
 .stars span.active {
-  color: #fff; /* aktiva stjärnor vita */
+  color: #c9a227; /* guld när vald */
 }
