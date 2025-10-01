@@ -1,178 +1,45 @@
-/* ===== Global layout ===== */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  display: flex;
-  height: 100vh;
-  background: #f9f9f9;
-  color: #333;
-}
-
-aside {
-  width: 280px;
-  background: #111;
-  color: #d4af37; /* guld */
-  display: flex;
-  flex-direction: column;
-  padding: 15px;
-  box-sizing: border-box;
-  overflow-y: auto;
-}
-
-main {
-  flex: 1;
-  padding: 30px;
-  text-align: center;
-  background: #fff;
-  overflow-y: auto;
-}
-
-/* ===== Sidebar header ===== */
-aside h2 {
-  margin: 0 0 15px;
-  font-size: 22px;
-  text-align: center;
-  color: #d4af37;
-}
-
-/* ===== Search box ===== */
-.sidebar-search {
-  display: flex;
-  margin-bottom: 15px;
-}
-
-.sidebar-search input {
-  flex: 1;
-  padding: 6px;
-  border: none;
-  border-radius: 4px 0 0 4px;
-}
-
-.sidebar-search button {
-  padding: 6px 10px;
-  border: none;
-  background: #d4af37;
-  color: #111;
-  border-radius: 0 4px 4px 0;
-  cursor: pointer;
-}
-
-/* ===== Sidebar menu ===== */
-#sidebarMenu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-/* ===== Continents ===== */
+/* === Continents (rutor) === */
 .continent-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  background: #222;       /* mörk ruta */
-  border: 1px solid #444; /* tunn ram */
+  background: #222;
+  border: 1px solid #444;
   border-radius: 6px;
   padding: 8px 10px;
   margin-bottom: 8px;
   cursor: pointer;
+  color: #d4af37;
+  font-weight: bold;
 }
 
 .continent-item .toggle-icon {
-  margin-right: 10px;
+  margin-right: 10px; /* lite luft mellan +/- och texten */
   font-weight: bold;
   color: #d4af37;
 }
 
-/* ===== Countries ===== */
+/* === Country lists === */
 .country-list {
   list-style: none;
   padding-left: 20px;
   margin: 6px 0;
+  display: none; /* alltid gömd från start */
 }
 
+.country-list.open {
+  display: block; /* öppnas direkt utan animation */
+}
+
+/* === Country rows === */
 .country-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 4px 6px;
   cursor: pointer;
+  color: #fff;
 }
 
 .country-item:hover {
   background: #333;
-}
-
-.country-item .toggle-icon {
-  margin-right: 8px;
-  color: #aaa;
-}
-
-.store-count {
-  margin-left: auto;
-  color: #d4af37;
-}
-
-/* ===== Cities ===== */
-.city-list {
-  list-style: none;
-  padding-left: 20px;
-  margin: 4px 0;
-}
-
-.city-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 2px 4px;
-  font-size: 14px;
-}
-
-/* ===== Sidebar footer ===== */
-.sidebar-footer {
-  margin-top: auto;
-  padding-top: 15px;
-  border-top: 1px solid #333;
-}
-
-.sidebar-footer button {
-  width: 100%;
-  background: #d4af37;
-  color: #111;
-  border: none;
-  border-radius: 6px;
-  padding: 10px;
-  cursor: pointer;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.sidebar-footer a {
-  color: #d4af37;
-  text-decoration: none;
-  display: block;
-  text-align: center;
-}
-
-/* ===== Main section ===== */
-main h1 {
-  font-size: 28px;
-  margin-bottom: 20px;
-  color: #d4af37;
-}
-
-main img {
-  max-width: 70%;
-  height: auto;
-  margin-bottom: 20px;
-  border-radius: 6px;
-}
-
-main p {
-  font-size: 16px;
-  max-width: 600px;
-  margin: 0 auto 10px;
-}
-
-main p.signature {
-  font-style: italic;
-  color: #555;
 }
