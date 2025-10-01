@@ -1,39 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>World Cigar Locator</title>
-  <link rel="stylesheet" href="start.css">
+  <link rel="stylesheet" href="css/start.css" />
 </head>
 <body>
-  <div class="container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <h1 class="logo">WCL</h1>
-      <input type="text" placeholder="Search...">
-      <button class="btn">Search</button>
+  <aside class="sidebar">
+    <h2 class="brand">WCL</h2>
 
-      <nav>
-        <ul>
-          <li>+ Africa</li>
-          <li>+ Asia</li>
-          <li>+ Europe</li>
-          <li>+ North America</li>
-          <li>+ Oceania</li>
-          <li>+ South America</li>
-        </ul>
-      </nav>
+    <!-- Search -->
+    <div class="sidebar-search">
+      <input type="text" id="searchInput" placeholder="Search..." />
+      <button id="searchBtn" class="gold-btn">Search</button>
+    </div>
 
-      <button class="btn add-store">+ Add Store / Lounge</button>
-      <a href="#">📧 Contact / Support</a>
-    </aside>
+    <!-- Menyn byggs av start.js -->
+    <ul id="sidebarMenu" class="menu"></ul>
 
-    <!-- Main content -->
-    <main class="main-content">
-      <h2>World Cigar Locator</h2>
-      <p>Welcome to WCL. Select a continent from the sidebar to start exploring stores and lounges.</p>
-    </main>
-  </div>
+    <div class="sidebar-footer">
+      <button id="addStoreBtn" class="add-store-btn">+ Add Store / Lounge</button>
+      <a href="mailto:support@worldcigarlocator.com" class="contact-link">📧 Contact / Support</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <h1 class="title">World Cigar Locator</h1>
+
+    <img src="images/paris.jpg" alt="Paris" class="banner" />
+
+    <section class="welcome">
+      <p><strong>Welcome to World Cigar locator.</strong></p>
+      <p>Are mission is to help you find a cigar store, lounge or just the perfect spot for a smoke.</p>
+      <p>Hope it makes it easier to find what you are looking for, wherever you are!</p>
+      <p class="signature">Kind regards // Bakerman</p>
+    </section>
+  </main>
+
+  <!-- Supabase SDK + din kod -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/start.js"></script>
+  <script>
+    // Tillfälliga handlers (så knapparna gör något)
+    document.getElementById("addStoreBtn").addEventListener("click", () => {
+      alert("Add Store / Lounge form coming soon!");
+    });
+    document.getElementById("searchBtn").addEventListener("click", () => {
+      const q = document.getElementById("searchInput").value.trim();
+      if (!q) return alert("Please enter a search term.");
+      alert("Search coming soon for: " + q);
+    });
+  </script>
 </body>
 </html>
