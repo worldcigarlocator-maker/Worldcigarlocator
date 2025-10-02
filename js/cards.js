@@ -22,42 +22,42 @@ const dummyStores = [
 ];
 
 function renderCards(stores) {
-  const container = document.querySelector(".card-grid");
-  container.innerHTML = "";
+  const grid = document.querySelector(".card-grid");
+  grid.innerHTML = "";
 
   stores.forEach(store => {
-    // välj defaultbild beroende på typ
-    let imgSrc = store.type === "lounge" ? "images/lounge.jpeg" : "images/Store.png";
-
-    // stjärnor
-    const stars = "★".repeat(store.rating) + "☆".repeat(5 - store.rating);
+    // 🔑 Rätt filnamn och versaler
+    let imgSrc = store.type === "lounge" 
+      ? "images/lounge.jpeg" 
+      : "images/Store.png";
 
     const card = document.createElement("div");
-    card.className = "card";
+    card.classList.add("card");
 
     card.innerHTML = `
-      <div class="card-content">
-        <div class="toggle">
-          <span class="toggle-btn ${store.type === "store" ? "active" : ""}">Store</span>
-          <span class="toggle-btn ${store.type === "lounge" ? "active" : ""}">Lounge</span>
+      <div class="card-left">
+        <div class="card-type">
+          <span class="toggle ${store.type === "store" ? "active" : ""}">Store</span>
+          <span class="toggle ${store.type === "lounge" ? "active" : ""}">Lounge</span>
         </div>
         <h2>${store.name}</h2>
         <p>${store.address}</p>
         <p><strong>${store.city}, ${store.country}</strong></p>
         <p>${store.phone}</p>
-        <p class="stars">${stars}</p>
+        <div class="rating">
+          ${"★".repeat(store.rating)}${"☆".repeat(5 - store.rating)}
+        </div>
         <a href="${store.website}" target="_blank">Visit Website</a>
       </div>
-      <div class="card-image">
-        <img src="${imgSrc}" 
-             alt="${store.type}" 
-             onerror="this.onerror=null; this.src='${store.type === "lounge" ? "images/lounge.jpeg" : "images/store.png"}';">
+      <div class="card-right">
+        <img src="${imgSrc}" alt="${store.type}" 
+             onerror="this.src='images/lounge.jpeg';">
       </div>
     `;
 
-    container.appendChild(card);
+    grid.appendChild(card);
   });
 }
 
-// rendera dummy-data
+// Rendera test-datan
 renderCards(dummyStores);
