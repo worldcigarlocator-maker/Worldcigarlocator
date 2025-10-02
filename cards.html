@@ -1,91 +1,43 @@
-body {
-  background: #111;
-  color: #fff;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 2rem;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stores & Lounges</title>
+  <link rel="stylesheet" href="css/cards.css">
+</head>
+<body>
+  <h1>Stores & Lounges</h1>
+  <div class="card-grid" id="cardGrid"></div>
 
-h1 {
-  color: #c9a227;
-  margin-bottom: 2rem;
-  text-align: center;
-}
+  <script src="js/cards.js"></script>
+  <script>
+    // Dummy-data för test (byt mot Supabase senare)
+    const dummyStores = [
+      {
+        type: "store",
+        name: "Cigar King",
+        address: "123 Main Street",
+        city: "Stockholm",
+        country: "Sweden",
+        phone: "+46 123 456 789",
+        website: "https://example.com",
+        rating: 4,
+        image: "images/store.png"
+      },
+      {
+        type: "lounge",
+        name: "Lounge Deluxe",
+        address: "456 Sunset Blvd",
+        city: "Gothenburg",
+        country: "Sweden",
+        phone: "+46 987 654 321",
+        website: "https://example.com",
+        rating: 5,
+        image: "images/lounge.jpg"
+      }
+    ];
 
-.card-grid {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-/* Själva kortet */
-.card {
-  background-color: #111;
-  color: #fff;
-  border-radius: 16px;
-  padding: 1rem 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  width: 650px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
-
-/* Vänster sida */
-.card-left {
-  flex: 1;
-}
-
-.toggle {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.toggle span {
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  font-weight: bold;
-  background: #444;
-  color: #ddd;
-}
-
-.toggle .active {
-  background: #c9a227; /* guld */
-  color: #111;
-}
-
-/* Rating */
-.stars {
-  color: #c9a227;
-  font-size: 1.2rem;
-  margin: 0.3rem 0;
-}
-
-/* Textfält */
-.card-left p {
-  margin: 0.3rem 0;
-  font-size: 0.95rem;
-}
-
-/* Länken */
-.card-left a {
-  color: #c9a227;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.card-left a:hover {
-  text-decoration: underline;
-}
-
-/* Höger sida */
-.card-right img {
-  width: 150px;
-  height: 150px;
-  border-radius: 8px;
-  object-fit: cover;
-  background: #000;
-}
+    renderCards(dummyStores);
+  </script>
+</body>
+</html>
