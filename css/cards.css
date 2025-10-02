@@ -1,4 +1,4 @@
-/* ====== Global styles ====== */
+/* Grundlayout */
 body {
   background-color: #111;
   color: #fff;
@@ -13,7 +13,6 @@ h1 {
   margin-bottom: 2rem;
 }
 
-/* ====== Card layout ====== */
 .card-grid {
   display: flex;
   flex-direction: column;
@@ -21,62 +20,79 @@ h1 {
   align-items: center;
 }
 
+/* Kortlayout */
 .card {
   display: flex;
   justify-content: space-between;
-  align-items: center;       /* 🔑 centrera innehåll vertikalt */
+  align-items: center;
   background-color: #1a1a1a;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  width: 800px;
-  max-width: 95%;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  width: 600px;
+  padding: 1rem;
+  gap: 1rem;
 }
 
-/* ====== Content ====== */
 .card-content {
-  flex: 1;
-  margin-right: 1.5rem;
+  flex: 2;
 }
 
-.card-content h2 {
-  margin: 0 0 0.5rem 0;
-  color: #fff;
-}
-
-.card-content p {
-  margin: 0.3rem 0;
-}
-
-/* ====== Stars ====== */
-.stars {
-  color: #c9a227;
-  margin: 0.5rem 0;
-}
-
-/* ====== Links ====== */
-a {
-  color: #c9a227;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-/* ====== Image container ====== */
 .card-image {
+  flex: 1;
   display: flex;
-  align-items: center;     /* 🔑 centrera bilden vertikalt */
+  align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
 .card-image img {
-  width: 180px;
-  height: 180px;
+  width: 140px;
+  height: 140px;
   object-fit: cover;
   border-radius: 8px;
-  margin-top: 10px;        /* 🔑 flytta ner lite */
+}
+
+/* Typ-label */
+.card-type {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.card-type.store {
+  background-color: #c9a227; /* guld */
+  color: #111;
+}
+
+.card-type.lounge {
+  background-color: #3498db; /* blå */
+  color: #fff;
+}
+
+/* Rating */
+.stars {
+  color: #c9a227;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Rubrik & länkar */
+.card h2 {
+  margin: 0.3rem 0;
+  color: #c9a227;
+}
+
+.card p {
+  margin: 0.2rem 0;
+}
+
+.card a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.card a:hover {
+  text-decoration: underline;
 }
