@@ -27,7 +27,7 @@ function renderCards(stores) {
 
   stores.forEach(store => {
     // välj defaultbild beroende på typ
-    let imgSrc = store.type === "lounge" ? "images/lounge.jpeg" : "images/paris.jpg";
+    let imgSrc = store.type === "lounge" ? "images/lounge.jpeg" : "images/Store.png";
 
     // stjärnor
     const stars = "★".repeat(store.rating) + "☆".repeat(5 - store.rating);
