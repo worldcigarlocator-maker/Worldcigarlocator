@@ -6,7 +6,7 @@ function renderCards(stores) {
     const card = document.createElement("div");
     card.className = "card";
 
-    // Toggle labels
+    // Toggle Store / Lounge
     const toggleHTML = `
       <div class="toggle">
         <span class="${store.type === "store" ? "active" : ""}">Store</span>
@@ -14,25 +14,30 @@ function renderCards(stores) {
       </div>
     `;
 
-    // Stjärnor
+    // Rating stars
     let stars = "";
     for (let i = 0; i < 5; i++) {
       stars += i < store.rating ? "★" : "☆";
     }
 
-    // Bygg kortet
+    // Defaultbilder om ingen finns
+    let imgSrc = store.image;
+    if (!imgSrc) {
+      imgSrc = store.type === "lounge" ? "images/lounge.jpg" : "images/store.png";
+    }
+
     card.innerHTML = `
       <div class="card-left">
         ${toggleHTML}
         <h2>${store.name}</h2>
         <p>${store.address}</p>
         <p><strong>${store.city}, ${store.country}</strong></p>
-        <p>${store.phone}</p>
+        ${store.phone ? `<p>${store.phone}</p>` : ""}
         <div class="stars">${stars}</div>
-        <a href="${store.website}" target="_blank">Visit Website</a>
+        ${store.website ? `<a href="${store.website}" target="_blank">Visit Website</a>` : ""}
       </div>
       <div class="card-right">
-        <img src="${store.image}" alt="${store.type}">
+        <img src="${imgSrc}" alt="${store.type}">
       </div>
     `;
 
