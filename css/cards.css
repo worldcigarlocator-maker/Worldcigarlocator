@@ -1,6 +1,5 @@
-/* Global styling */
 body {
-  background: #1a1a1a;
+  background: #111;
   color: #fff;
   font-family: Arial, sans-serif;
   margin: 0;
@@ -13,7 +12,6 @@ h1 {
   text-align: center;
 }
 
-/* Grid för kort */
 .card-grid {
   display: flex;
   flex-direction: column;
@@ -21,18 +19,18 @@ h1 {
   gap: 1.5rem;
 }
 
-/* Kort */
+/* Själva kortet */
 .card {
-  background-color: #1a1a1a;
+  background-color: #1a1a1a; /* mörkare så korten sticker ut mot bakgrunden */
   color: #fff;
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
   width: 650px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
 /* Vänster sida */
@@ -40,15 +38,39 @@ h1 {
   flex: 1;
 }
 
-.card-left h2 {
-  margin: 0.2rem 0;
+.toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.toggle span {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: bold;
+  background: #444;
+  color: #ddd;
+}
+
+.toggle .active {
+  background: #c9a227;
+  color: #111;
+}
+
+/* Rating */
+.stars {
   color: #c9a227;
+  font-size: 1.2rem;
+  margin: 0.3rem 0;
 }
 
+/* Textfält */
 .card-left p {
-  margin: 0.2rem 0;
+  margin: 0.3rem 0;
+  font-size: 0.95rem;
 }
 
+/* Länken */
 .card-left a {
   color: #c9a227;
   text-decoration: none;
@@ -59,39 +81,11 @@ h1 {
   text-decoration: underline;
 }
 
-/* Toggle (Store / Lounge labels) */
-.toggle {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.toggle span {
-  padding: 0.3rem 0.7rem;
-  border-radius: 6px;
-  font-weight: bold;
-  background: #444; /* grå som standard */
-  color: #ddd;
-  font-size: 0.85rem;
-}
-
-.toggle .active {
-  background: #c9a227; /* guld för vald */
-  color: #111;
-}
-
-/* Stjärnor */
-.stars {
-  color: #c9a227;
-  font-size: 1.1rem;
-  margin: 0.3rem 0;
-}
-
-/* Höger sida (bild) */
+/* Höger sida */
 .card-right img {
-  width: 140px;
-  height: 140px;
-  border-radius: 10px;
+  width: 150px;
+  height: 150px;
+  border-radius: 8px;
   object-fit: cover;
   background: #000;
 }
