@@ -1,5 +1,6 @@
+/* ====== Global styles ====== */
 body {
-  background: #111;
+  background-color: #111;
   color: #fff;
   font-family: Arial, sans-serif;
   margin: 0;
@@ -8,91 +9,74 @@ body {
 
 h1 {
   color: #c9a227;
-  margin-bottom: 2rem;
   text-align: center;
+  margin-bottom: 2rem;
 }
 
+/* ====== Card layout ====== */
 .card-grid {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1.5rem;
+  align-items: center;
 }
 
-/* Själva kortet */
 .card {
-  background-color: #1a1a1a; /* mörkare så korten sticker ut mot bakgrunden */
-  color: #fff;
-  border-radius: 16px;
-  padding: 1rem 1.5rem;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  width: 650px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  align-items: center;       /* 🔑 centrera innehåll vertikalt */
+  background-color: #1a1a1a;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  width: 800px;
+  max-width: 95%;
 }
 
-/* Vänster sida */
-.card-left {
+/* ====== Content ====== */
+.card-content {
   flex: 1;
+  margin-right: 1.5rem;
 }
 
-.toggle {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+.card-content h2 {
+  margin: 0 0 0.5rem 0;
+  color: #fff;
 }
 
-.toggle span {
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  font-weight: bold;
-  background: #444;
-  color: #ddd;
+.card-content p {
+  margin: 0.3rem 0;
 }
 
-.toggle .active {
-  background: #c9a227;
-  color: #111;
-}
-
-/* Rating */
+/* ====== Stars ====== */
 .stars {
   color: #c9a227;
-  font-size: 1.2rem;
-  margin: 0.3rem 0;
+  margin: 0.5rem 0;
 }
 
-/* Textfält */
-.card-left p {
-  margin: 0.3rem 0;
-  font-size: 0.95rem;
-}
-
-/* Länken */
-.card-left a {
+/* ====== Links ====== */
+a {
   color: #c9a227;
   text-decoration: none;
   font-weight: bold;
 }
 
-.card-left a:hover {
+a:hover {
   text-decoration: underline;
 }
 
-/* Höger sida */
-.card-right img {
-  width: 150px;
-  height: 150px;
-  border-radius: 8px;
-  object-fit: cover;
-  background: #000;
+/* ====== Image container ====== */
+.card-image {
+  display: flex;
+  align-items: center;     /* 🔑 centrera bilden vertikalt */
+  justify-content: center;
+  flex-shrink: 0;
 }
+
 .card-image img {
-  width: 120px;        /* justera bredden så den inte tar över */
-  height: 120px;       /* kvadratisk */
-  object-fit: cover;   /* beskär snyggt istället för att stretcha */
-  border-radius: 8px;  /* rundade hörn för lite stil */
-  display: block;
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 10px;        /* 🔑 flytta ner lite */
 }
