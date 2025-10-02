@@ -1,22 +1,19 @@
-const dummyStores = [
+// Dummy-data för test
+const stores = [
   {
     type: "store",
-    name: "Cigar King",
+    name: "Cigar Store Example",
     address: "123 Main Street",
-    city: "Stockholm",
-    country: "Sweden",
-    phone: "+46 123 456 789",
+    phone: "+46 70 123 45 67",
     website: "https://example.com",
     rating: 4
   },
   {
     type: "lounge",
-    name: "Lounge Deluxe",
-    address: "456 Sunset Blvd",
-    city: "Gothenburg",
-    country: "Sweden",
-    phone: "+46 987 654 321",
-    website: "https://example.com",
+    name: "Lounge Example",
+    address: "456 Side Road",
+    phone: "+46 70 987 65 43",
+    website: "https://example.org",
     rating: 5
   }
 ];
@@ -26,32 +23,38 @@ function renderCards(stores) {
   grid.innerHTML = "";
 
   stores.forEach(store => {
-    // 🔑 Rätt filnamn och versaler
+    // 🔑 Rätt bildväg (case sensitive på GitHub Pages!)
     let imgSrc = store.type === "lounge" 
       ? "images/lounge.jpeg" 
       : "images/Store.png";
 
+    // Välj fallback beroende på typ
+    let fallbackImg = store.type === "lounge"
+      ? "images/lounge.jpeg"
+      : "images/Store.png";
+
+    // Bygg kortet
     const card = document.createElement("div");
     card.classList.add("card");
 
     card.innerHTML = `
-      <div class="card-left">
-        <div class="card-type">
-          <span class="toggle ${store.type === "store" ? "active" : ""}">Store</span>
-          <span class="toggle ${store.type === "lounge" ? "active" : ""}">Lounge</span>
+      <div class="card-content">
+        <div class="type-toggle">
+          <span class="${store.type === "store" ? "active" : ""}">Store</span>
+          <span class="${store.type === "lounge" ? "active" : ""}">Lounge</span>
         </div>
-        <h2>${store.name}</h2>
-        <p>${store.address}</p>
-        <p><strong>${store.city}, ${store.country}</strong></p>
-        <p>${store.phone}</p>
         <div class="rating">
           ${"★".repeat(store.rating)}${"☆".repeat(5 - store.rating)}
         </div>
+        <h2>${store.name}</h2>
+        <p>${store.address}</p>
+        <p>${store.phone}</p>
         <a href="${store.website}" target="_blank">Visit Website</a>
       </div>
-      <div class="card-right">
-        <img src="${imgSrc}" alt="${store.type}" 
-             onerror="this.src='images/lounge.jpeg';">
+      <div class="card-image">
+        <img src="${imgSrc}" 
+             alt="${store.type}" 
+             onerror="this.onerror=null; this.src='${fallbackImg}';">
       </div>
     `;
 
@@ -59,5 +62,5 @@ function renderCards(stores) {
   });
 }
 
-// Rendera test-datan
-renderCards(dummyStores);
+// Rendera korten
+renderCards(stores);
