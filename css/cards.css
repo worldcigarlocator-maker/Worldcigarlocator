@@ -89,3 +89,10 @@ h1 {
   object-fit: cover;
   background: #000;
 }
+.card-image img {
+  width: 120px;        /* justera bredden så den inte tar över */
+  height: 120px;       /* kvadratisk */
+  object-fit: cover;   /* beskär snyggt istället för att stretcha */
+  border-radius: 8px;  /* rundade hörn för lite stil */
+  display: block;
+}
