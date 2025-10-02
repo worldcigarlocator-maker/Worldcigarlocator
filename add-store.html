@@ -10,6 +10,12 @@
   <main class="form-wrapper">
     <h1>Add Store / Lounge</h1>
 
+    <!-- Google Maps URL -->
+    <label>Google Maps link:
+      <input type="url" id="mapsUrl" placeholder="Paste a Google Maps URL here">
+    </label>
+    <button id="fetchBtn" class="save-btn">Fetch Data</button>
+
     <!-- Store/Lounge Toggle -->
     <div class="toggle-buttons">
       <button id="storeBtn" class="toggle active">Store</button>
@@ -27,7 +33,7 @@
 
     <!-- Form -->
     <form id="storeForm">
-      <label>Store / Lounge name:
+      <label>Name:
         <input type="text" id="name" required>
       </label>
 
