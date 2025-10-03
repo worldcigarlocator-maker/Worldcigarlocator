@@ -3,86 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>World Cigar Locator - Add Store</title>
-  <link rel="stylesheet" href="css/start.css">   <!-- sidebar -->
-  <link rel="stylesheet" href="css/add-store.css"> <!-- form -->
+  <title>Add Store / Lounge</title>
+  <link rel="stylesheet" href="css/add-store.css">
 </head>
 <body>
-  <div class="layout">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <h2>World Cigar Locator</h2>
-      <ul>
-        <li><a href="index.html">🏠 Home</a></li>
-        <li><a href="cards.html">📍 Cards</a></li>
-        <li><a href="add-store.html" class="active">➕ Add Store</a></li>
-      </ul>
-    </aside>
+  <div class="form-wrapper">
+    <h1>Add Store / Lounge</h1>
 
-    <!-- MAIN CONTENT -->
-    <main class="content">
-      <h1>Add Store / Lounge / Other</h1>
+    <form id="storeForm">
+      <label for="mapsUrl">Google Maps link:</label>
+      <input type="url" id="mapsUrl" placeholder="Paste a Google Maps URL here">
+      <button type="button" id="fetchBtn" class="gold-btn">Fetch Data</button>
 
-      <form id="addStoreForm">
+      <div class="toggle-buttons">
+        <button type="button" class="toggle active" data-type="store">Store</button>
+        <button type="button" class="toggle" data-type="lounge">Lounge</button>
+        <button type="button" class="toggle" data-type="other">Other</button>
+      </div>
 
-        <!-- Google Maps URL -->
-        <label for="mapsUrl">Google Maps link (optional)</label>
-        <input type="text" id="mapsUrl" placeholder="Paste Google Maps link here">
-        <p class="note">If filled, name/address/city/country are auto-fetched.</p>
+      <div class="rating">
+        <span data-value="1">★</span>
+        <span data-value="2">★</span>
+        <span data-value="3">★</span>
+        <span data-value="4">★</span>
+        <span data-value="5">★</span>
+      </div>
 
-        <!-- Name -->
-        <label for="name">Name *</label>
-        <input type="text" id="name" required>
+      <label for="name">Name:</label>
+      <input type="text" id="name">
 
-        <!-- Address -->
-        <label for="address">Address</label>
-        <input type="text" id="address">
+      <label for="address">Address:</label>
+      <input type="text" id="address">
 
-        <!-- Website -->
-        <label for="website">Website</label>
-        <input type="url" id="website">
+      <label for="website">Website:</label>
+      <input type="url" id="website">
 
-        <!-- Phone -->
-        <label for="phone">Phone</label>
-        <input type="text" id="phone">
+      <label for="phone">Phone:</label>
+      <input type="text" id="phone">
 
-        <!-- Type -->
-        <label for="type">Type *</label>
-        <select id="type" required>
-          <option value="store">Store</option>
-          <option value="lounge">Lounge</option>
-          <option value="other">Other</option>
-        </select>
+      <label for="continent">Continent:</label>
+      <select id="continent">
+        <option value="">-- Select --</option>
+      </select>
 
-        <!-- Rating -->
-        <label>Rating</label>
-        <div id="rating" class="stars">
-          <span data-value="1">★</span>
-          <span data-value="2">★</span>
-          <span data-value="3">★</span>
-          <span data-value="4">★</span>
-          <span data-value="5">★</span>
-        </div>
+      <label for="country">Country:</label>
+      <select id="country">
+        <option value="">-- Select --</option>
+      </select>
 
-        <!-- Location -->
-        <label for="continent">Continent</label>
-        <select id="continent"></select>
+      <label for="city">City:</label>
+      <select id="city">
+        <option value="">-- Select --</option>
+      </select>
+      <input type="text" id="manualCity" placeholder="Or type a city manually" class="hidden">
 
-        <label for="country">Country</label>
-        <select id="country"></select>
-
-        <label for="city">City</label>
-        <select id="city"></select>
-        <input type="text" id="manualCity" placeholder="Enter city manually if not listed">
-
-        <!-- Save button -->
-        <button type="submit" class="save-btn">💾 Save</button>
-      </form>
-    </main>
+      <button type="submit" class="save-btn">Save</button>
+    </form>
   </div>
 
-  <!-- Scripts -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="js/add-store.js"></script>
 </body>
 </html>
