@@ -6,7 +6,13 @@ const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 // === GOOGLE API KEY ===
 const GOOGLE_API_KEY = "AIzaSyClP5xnMvYaHC1xjHzuTFj3K9tHw0g6O00";
 
-// === STAR RATING INTERACTION ===
+// === DOM elements ===
+const continentSelect = document.getElementById("continent");
+const countrySelect = document.getElementById("country");
+const citySelect = document.getElementById("city");
+const manualCityInput = document.getElementById("manualCity");
+
+// === STAR RATING ===
 document.querySelectorAll('#rating span').forEach(star => {
   star.addEventListener('click', () => {
     const value = parseInt(star.dataset.value);
@@ -15,6 +21,85 @@ document.querySelectorAll('#rating span').forEach(star => {
     });
     document.getElementById('rating').dataset.value = value;
   });
+});
+
+// === LOAD CONTINENTS ===
+async function loadContinents() {
+  let { data, error } = await supabase.from("continents").select("id, name");
+  if (error) {
+    console.error(error);
+    return;
+  }
+  continentSelect.innerHTML = `<option value="">Select continent</option>`;
+  data.forEach(c => {
+    let opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.name;
+    continentSelect.appendChild(opt);
+  });
+}
+
+// === LOAD COUNTRIES BY CONTINENT ===
+async function loadCountries(continentId) {
+  let { data, error } = await supabase.from("countries")
+    .select("id, name")
+    .eq("continent_id", continentId);
+  if (error) {
+    console.error(error);
+    return;
+  }
+  countrySelect.innerHTML = `<option value="">Select country</option>`;
+  data.forEach(c => {
+    let opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.name;
+    countrySelect.appendChild(opt);
+  });
+  citySelect.innerHTML = `<option value="">Select city</option>`;
+}
+
+// === LOAD CITIES BY COUNTRY ===
+async function loadCities(countryId) {
+  let { data, error } = await supabase.from("cities")
+    .select("id, name")
+    .eq("country_id", countryId);
+  if (error) {
+    console.error(error);
+    return;
+  }
+  citySelect.innerHTML = `<option value="">Select city</option>`;
+  data.forEach(c => {
+    let opt = document.createElement("option");
+    opt.value = c.name; // vi sparar city-namn, inte id
+    opt.textContent = c.name;
+    citySelect.appendChild(opt);
+  });
+  // extra val för manuell stad
+  let manualOpt = document.createElement("option");
+  manualOpt.value = "manual";
+  manualOpt.textContent = "✏️ Enter manually";
+  citySelect.appendChild(manualOpt);
+}
+
+// === EVENTS ===
+continentSelect.addEventListener("change", () => {
+  if (continentSelect.value) {
+    loadCountries(continentSelect.value);
+  }
+});
+
+countrySelect.addEventListener("change", () => {
+  if (countrySelect.value) {
+    loadCities(countrySelect.value);
+  }
+});
+
+citySelect.addEventListener("change", () => {
+  if (citySelect.value === "manual") {
+    manualCityInput.style.display = "block";
+  } else {
+    manualCityInput.style.display = "none";
+  }
 });
 
 // === FORM SUBMIT ===
@@ -29,9 +114,12 @@ document.getElementById('addStoreForm').addEventListener('submit', async (e) => 
   const type = document.getElementById('type').value;
   const rating = parseInt(document.getElementById('rating').dataset.value || 0);
 
-  let city = document.getElementById('city').value || document.getElementById('manualCity').value.trim();
-  let country = document.getElementById('country').value;
-  let continent = document.getElementById('continent').value;
+  let continent = continentSelect.value;
+  let country = countrySelect.value;
+  let city = (citySelect.value === "manual")
+    ? manualCityInput.value.trim()
+    : citySelect.value;
+
   let lat = null, lng = null;
 
   // === If Maps URL is provided, fetch from Google ===
@@ -70,6 +158,7 @@ document.getElementById('addStoreForm').addEventListener('submit', async (e) => 
     rating,
     city,
     country,
+    continent,
     latitude: lat,
     longitude: lng,
     status: "pending"
@@ -82,6 +171,7 @@ document.getElementById('addStoreForm').addEventListener('submit', async (e) => 
     alert("Store saved (pending approval)!");
     e.target.reset();
     document.querySelectorAll('#rating span').forEach(s => s.classList.remove('active'));
+    manualCityInput.style.display = "none";
   }
 });
 
@@ -94,3 +184,7 @@ function extractCoordsFromUrl(url) {
   }
   return null;
 }
+
+// === INIT ===
+loadContinents();
+
