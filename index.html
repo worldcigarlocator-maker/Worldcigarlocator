@@ -67,13 +67,17 @@
 <body>
   <div class="overlay">
     <h1>Enter Password</h1>
-    <input type="password" id="passwordInput" placeholder="Password">
-    <button onclick="checkPassword()">Enter</button>
-    <p id="errorMsg" class="error">Wrong password, try again.</p>
+    <!-- Gör det till ett formulär -->
+    <form onsubmit="checkPassword(event)">
+      <input type="password" id="passwordInput" placeholder="Password">
+      <button type="submit">Enter</button>
+      <p id="errorMsg" class="error">Wrong password, try again.</p>
+    </form>
   </div>
 
   <script>
-    function checkPassword() {
+    function checkPassword(event) {
+      event.preventDefault(); // stoppar sidans reload
       const pw = document.getElementById('passwordInput').value;
       if (pw === 'jockefylla') {
         window.location.href = 'start.html';
