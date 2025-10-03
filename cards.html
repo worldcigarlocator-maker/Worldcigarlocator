@@ -3,51 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title>World Cigar Locator - Cards</title>
-  <link rel="stylesheet" href="css/cards.css">
+  <link rel="stylesheet" href="cards.css">
 </head>
 <body>
   <h1>World Cigar Locator</h1>
+
+  <!-- Grid för korten -->
   <div id="cardGrid" class="card-grid"></div>
 
-  <script src="js/cards.js"></script>
-  <script>
-    const dummyStores = [
-      {
-        type: "store",
-        name: "Cigar King",
-        address: "123 Main Street",
-        city: "Stockholm",
-        country: "Sweden",
-        phone: "+46 123 456 789",
-        website: "https://example.com",
-        rating: 4,
-        image: "images/store.png"
-      },
-      {
-        type: "lounge",
-        name: "Lounge Deluxe",
-        address: "456 Sunset Blvd",
-        city: "Gothenburg",
-        country: "Sweden",
-        phone: "+46 987 654 321",
-        website: "https://example.com",
-        rating: 5,
-        image: "images/lounge.jpg"
-      },
-      {
-        type: "other",
-        name: "Cuba Café",
-        address: "Example Road 1",
-        city: "Madrid",
-        country: "Spain",
-        phone: "+34 123 456 789",
-        website: "https://cubacafe.example.com",
-        rating: 3,
-        image: "images/cafe.jpg"
-      }
-    ];
-
-    renderCards(dummyStores);
-  </script>
+  <!-- Ladda in JS -->
+  <script src="cards.js"></script>
 </body>
 </html>
