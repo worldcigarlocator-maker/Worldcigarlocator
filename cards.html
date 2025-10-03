@@ -2,16 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Stores & Lounges</title>
+  <title>World Cigar Locator - Cards</title>
   <link rel="stylesheet" href="css/cards.css">
 </head>
 <body>
-  <h1>Stores & Lounges</h1>
-  <div class="card-grid" id="cardGrid"></div>
+  <h1>World Cigar Locator</h1>
+  <div id="cardGrid" class="card-grid"></div>
 
   <script src="js/cards.js"></script>
   <script>
-    // Dummy-data för test (byt mot Supabase senare)
     const dummyStores = [
       {
         type: "store",
@@ -40,4 +39,15 @@
         name: "Cuba Café",
         address: "Example Road 1",
         city: "Madrid",
-        co
+        country: "Spain",
+        phone: "+34 123 456 789",
+        website: "https://cubacafe.example.com",
+        rating: 3,
+        image: "images/cafe.jpg"
+      }
+    ];
+
+    renderCards(dummyStores);
+  </script>
+</body>
+</html>
