@@ -8,7 +8,7 @@ const dummyStores = [
     phone: "+46 123 456 789",
     website: "https://example.com",
     rating: 4,
-    image: "images/store.png"
+    image: "images/Store.png"
   },
   {
     type: "lounge",
@@ -19,7 +19,7 @@ const dummyStores = [
     phone: "+46 987 654 321",
     website: "https://example.com",
     rating: 5,
-    image: "images/lounge.jpg"
+    image: "images/lounge.jpeg"
   },
   {
     type: "other",
