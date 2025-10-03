@@ -6,94 +6,81 @@ body {
 }
 
 .form-wrapper {
-  max-width: 500px;
+  max-width: 600px;
   margin: 2rem auto;
-  background: #fff;
   padding: 2rem;
-  border-radius: 10px;
+  background: #fff;
+  border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 h1 {
-  color: #c9a227;
   text-align: center;
   margin-bottom: 1.5rem;
-}
-
-/* Toggle */
-.toggle-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.toggle {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-  background: #ddd;
   color: #333;
 }
 
-.toggle.active {
-  background: #c9a227;
-  color: #fff;
-}
-
-/* Rating */
-.rating {
-  text-align: center;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  color: #ccc;
-}
-
-.rating span {
-  cursor: pointer;
-}
-
-.rating span.active {
-  color: #c9a227;
-}
-
-/* Form */
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
+/* Labels + inputs */
 label {
-  font-weight: bold;
-  color: #333;
+  display: block;
+  margin-bottom: 1rem;
+  color: #444;
+  font-weight: 600;
 }
 
 input, select {
   width: 100%;
   padding: 0.6rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  margin-top: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
   font-size: 1rem;
+  box-sizing: border-box;
+}
+
+/* Buttons */
+button {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.8rem 1.2rem;
+  background: goldenrod;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background: darkgoldenrod;
 }
 
 .save-btn {
-  background: #c9a227;
-  color: #fff;
-  padding: 0.7rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+/* Rating stars */
+.rating {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  font-size: 2rem;
   cursor: pointer;
-  font-weight: bold;
 }
 
-.save-btn:hover {
-  background: #b18c1d;
+.rating span {
+  color: #ccc;
+  transition: color 0.2s ease-in-out;
 }
 
+.rating span.active,
+.rating span:hover {
+  color: gold;
+}
+
+/* Hidden sections */
 .hidden {
   display: none;
 }
