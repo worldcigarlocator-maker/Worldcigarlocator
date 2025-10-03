@@ -1,71 +1,93 @@
-const dummyStores = [
-  {
-    type: "store",
-    name: "Cigar King",
-    address: "123 Main Street",
-    city: "Stockholm",
-    country: "Sweden",
-    phone: "+46 123 456 789",
-    website: "https://example.com",
-    rating: 4,
-    image: "images/Store.png"
-  },
-  {
-    type: "lounge",
-    name: "Lounge Deluxe",
-    address: "456 Sunset Blvd",
-    city: "Gothenburg",
-    country: "Sweden",
-    phone: "+46 987 654 321",
-    website: "https://example.com",
-    rating: 5,
-    image: "images/lounge.jpeg"
-  },
-  {
-    type: "other",
-    name: "Cuba Café",
-    address: "Example Road 1",
-    city: "Madrid",
-    country: "Spain",
-    phone: "+34 123 456 789",
-    website: "https://cubacafe.example.com",
-    rating: 3,
-    image: "images/cafe.jpg"
-  }
-];
+// ==== CONFIG ====
+const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+const GOOGLE_API_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ; // <-- lägg in din egen
 
-function renderCards(stores) {
-  const cardGrid = document.getElementById("cardGrid");
-  cardGrid.innerHTML = "";
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  stores.forEach(store => {
-    const badgeClass = store.type.toLowerCase();
-
-    const card = document.createElement("div");
-    card.classList.add("card");
-
-    card.innerHTML = `
-      <div class="card-content">
-        <span class="card-type ${badgeClass}">
-          ${store.type.charAt(0).toUpperCase() + store.type.slice(1)}
-        </span>
-        <div class="stars">
-          ${"★".repeat(store.rating)}${"☆".repeat(5 - store.rating)}
-        </div>
-        <h2>${store.name}</h2>
-        <p>${store.address}, ${store.city}</p>
-        <p>${store.phone || ""}</p>
-        <a href="${store.website}" target="_blank">Visit website</a>
-      </div>
-      <div class="card-image">
-        <img src="${store.image}" alt="${store.name}">
-      </div>
-    `;
-
-    cardGrid.appendChild(card);
+// ==== RATING LOGIC ====
+let selectedRating = null;
+document.querySelectorAll("#rating span").forEach(star => {
+  star.addEventListener("click", () => {
+    selectedRating = parseInt(star.dataset.value);
+    document.querySelectorAll("#rating span").forEach(s => s.classList.remove("active"));
+    star.classList.add("active");
+    let prev = star.previousElementSibling;
+    while (prev) { prev.classList.add("active"); prev = prev.previousElementSibling; }
   });
+});
+
+// ==== HELPER: Extract coords from Maps URL ====
+function extractLatLngFromUrl(url) {
+  const match = url.match(/@([-0-9.]+),([-0-9.]+)/);
+  if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+  return null;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderCards(dummyStores);
+// ==== HELPER: Reverse geocode ====
+async function reverseGeocode(lat, lng) {
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if (data.status !== "OK") return null;
+
+  let city = null, country = null;
+  data.results[0].address_components.forEach(c => {
+    if (c.types.includes("locality")) city = c.long_name;
+    if (c.types.includes("country")) country = c.long_name;
+  });
+  return { city, country, address: data.results[0].formatted_address };
+}
+
+// ==== SUBMIT HANDLER ====
+document.getElementById("storeForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const mapsUrl = document.getElementById("mapsUrl").value;
+  const name = document.getElementById("name").value;
+  const website = document.getElementById("website").value;
+  const phone = document.getElementById("phone").value;
+  const type = document.getElementById("type").value;
+
+  let address = document.getElementById("address").value;
+  let lat = null, lng = null, city = null, country = null;
+
+  if (mapsUrl) {
+    const coords = extractLatLngFromUrl(mapsUrl);
+    if (coords) {
+      lat = coords.lat;
+      lng = coords.lng;
+      const geo = await reverseGeocode(lat, lng);
+      if (geo) {
+        address = geo.address;
+        city = geo.city;
+        country = geo.country;
+        document.getElementById("address").value = address; // autofyll
+      }
+    }
+  }
+
+  // Insert to Supabase
+  const { error } = await supabase.from("stores").insert([{
+    name,
+    address,
+    website,
+    phone,
+    type,
+    rating: selectedRating,
+    lat,
+    lng,
+    city,
+    country,
+    status: "pending"
+  }]);
+
+  if (error) {
+    alert("❌ Error: " + error.message);
+  } else {
+    alert("✅ Store saved (pending review)");
+    document.getElementById("storeForm").reset();
+    selectedRating = null;
+    document.querySelectorAll("#rating span").forEach(s => s.classList.remove("active"));
+  }
 });
