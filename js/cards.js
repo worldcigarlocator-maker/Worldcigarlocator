@@ -1,3 +1,40 @@
+// Dummy data med bilder
+const dummyStores = [
+  {
+    type: "store",
+    name: "Cigar King",
+    address: "123 Main Street",
+    city: "Stockholm",
+    country: "Sweden",
+    phone: "+46 123 456 789",
+    website: "https://example.com",
+    rating: 4,
+    image: "images/store.png"
+  },
+  {
+    type: "lounge",
+    name: "Lounge Deluxe",
+    address: "456 Sunset Blvd",
+    city: "Gothenburg",
+    country: "Sweden",
+    phone: "+46 987 654 321",
+    website: "https://example.com",
+    rating: 5,
+    image: "images/lounge.jpg"
+  },
+  {
+    type: "other",
+    name: "Cuba Café",
+    address: "Example Road 1",
+    city: "Madrid",
+    country: "Spain",
+    phone: "+34 123 456 789",
+    website: "https://cubacafe.example.com",
+    rating: 3,
+    image: "images/cafe.jpg"
+  }
+];
+
 function renderCards(stores) {
   const cardGrid = document.getElementById("cardGrid");
   cardGrid.innerHTML = "";
@@ -36,3 +73,8 @@ function renderCards(stores) {
     cardGrid.appendChild(card);
   });
 }
+
+// Kör direkt när sidan laddas
+document.addEventListener("DOMContentLoaded", () => {
+  renderCards(dummyStores);
+});
