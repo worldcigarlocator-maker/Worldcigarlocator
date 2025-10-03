@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>World Cigar Locator - Add Store</title>
-  <link rel="stylesheet" href="css/start.css">   <!-- sidebar och baslayout -->
-  <link rel="stylesheet" href="css/add-store.css"> <!-- specifik styling för formuläret -->
+  <link rel="stylesheet" href="css/start.css">   <!-- sidebar -->
+  <link rel="stylesheet" href="css/add-store.css"> <!-- form -->
 </head>
 <body>
   <div class="layout">
@@ -57,10 +57,14 @@
         <!-- Rating -->
         <label>Rating</label>
         <div id="rating" class="stars">
-          ★ ★ ★ ★ ★
+          <span data-value="1">★</span>
+          <span data-value="2">★</span>
+          <span data-value="3">★</span>
+          <span data-value="4">★</span>
+          <span data-value="5">★</span>
         </div>
 
-        <!-- Location hierarchy -->
+        <!-- Location -->
         <label for="continent">Continent</label>
         <select id="continent"></select>
 
