@@ -66,7 +66,6 @@ function renderCards(stores) {
   });
 }
 
-// Kör direkt när sidan laddas
 document.addEventListener("DOMContentLoaded", () => {
   renderCards(dummyStores);
 });
