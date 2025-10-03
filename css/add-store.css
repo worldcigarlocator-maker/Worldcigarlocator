@@ -1,8 +1,15 @@
+/* === DARK BACKGROUND === */
+body {
+  background: #111;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #f1f1f1;
+}
+
 /* === FORM WRAPPER === */
 .content {
   padding: 2rem;
   color: #f1f1f1;
-  font-family: Arial, sans-serif;
 }
 
 h1 {
@@ -49,9 +56,14 @@ input::placeholder {
 
 /* === STARS === */
 .stars {
-  font-size: 1.5rem;
-  color: #777;
+  font-size: 1.8rem;
+  color: #555;
   cursor: pointer;
+}
+
+.stars span {
+  margin-right: 5px;
+  transition: color 0.2s;
 }
 
 .stars span.active {
