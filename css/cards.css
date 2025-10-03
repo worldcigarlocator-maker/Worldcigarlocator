@@ -1,103 +1,63 @@
-/* Grundlayout */
-body {
-  background-color: #111;
-  color: #fff;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 2rem;
-}
-
-h1 {
-  color: #c9a227;
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
 .card-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
 }
 
-/* Kortlayout */
 .card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #1a1a1a;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-  width: 600px;
+  background: #111;
+  color: #fff;
   padding: 1rem;
-  gap: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 .card-content {
-  flex: 2;
+  flex: 1;
 }
 
-.card-image {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.card h2 {
+  color: goldenrod;
+  margin: 0.5rem 0;
+}
+
+.stars {
+  color: gold;
+  margin: 0.5rem 0;
 }
 
 .card-image img {
-  width: 140px;
-  height: 140px;
+  width: 120px;
+  height: 120px;
   object-fit: cover;
   border-radius: 8px;
 }
 
-/* Typ-label */
 .card-type {
   display: inline-block;
   padding: 0.3rem 0.6rem;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.85rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
+/* Badges */
 .card-type.store {
-  background-color: #c9a227; /* guld */
-  color: #111;
+  background-color: goldenrod;
+  color: #000;
 }
 
 .card-type.lounge {
-  background-color: #3498db; /* blå */
+  background-color: #3498db;
   color: #fff;
 }
 
 .card-type.other {
   background-color: #ff6f61; /* laxrosa */
   color: #fff;
-}
-
-/* Rating */
-.stars {
-  color: #c9a227;
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-}
-
-/* Rubrik & länkar */
-.card h2 {
-  margin: 0.3rem 0;
-  color: #c9a227;
-}
-
-.card p {
-  margin: 0.2rem 0;
-}
-
-.card a {
-  color: #3498db;
-  text-decoration: none;
-}
-
-.card a:hover {
-  text-decoration: underline;
 }
