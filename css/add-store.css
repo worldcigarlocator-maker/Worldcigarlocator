@@ -1,63 +1,63 @@
-/* === DARK BACKGROUND === */
 body {
-  background: #111;
+  background: #f9f9f9;
   margin: 0;
   font-family: Arial, sans-serif;
-  color: #f1f1f1;
+  color: #222;
 }
 
-/* === FORM WRAPPER === */
+/* MAIN CONTENT */
 .content {
   padding: 2rem;
-  color: #f1f1f1;
 }
 
 h1 {
-  color: gold;
+  color: #333;
   margin-bottom: 1.5rem;
   font-size: 1.8rem;
 }
 
-/* === FORM ELEMENTS === */
+/* FORM */
 form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-width: 500px;
+  max-width: 600px;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 label {
   font-weight: bold;
-  margin-bottom: 0.2rem;
-  color: #ddd;
+  margin-bottom: 0.3rem;
+  color: #333;
 }
 
 input, select {
-  padding: 0.6rem;
-  border: 1px solid #444;
+  padding: 0.7rem;
+  border: 1px solid #ccc;
   border-radius: 6px;
-  background: #222;
-  color: #eee;
+  background: #fff;
+  color: #333;
   font-size: 1rem;
   width: 100%;
 }
 
 input::placeholder {
-  color: #777;
+  color: #999;
 }
 
-/* === NOTE TEXT === */
 .note {
   font-size: 0.85rem;
-  color: #aaa;
+  color: #666;
   margin-top: -0.5rem;
-  margin-bottom: 0.5rem;
 }
 
-/* === STARS === */
+/* STARS */
 .stars {
   font-size: 1.8rem;
-  color: #555;
+  color: #ccc;
   cursor: pointer;
 }
 
@@ -67,13 +67,13 @@ input::placeholder {
 }
 
 .stars span.active {
-  color: gold;
+  color: #f4b400; /* Google gold */
 }
 
-/* === SAVE BUTTON === */
+/* SAVE BUTTON */
 .save-btn {
-  background: gold;
-  color: #000;
+  background: #007bff;
+  color: #fff;
   padding: 0.8rem 1.2rem;
   border: none;
   border-radius: 6px;
@@ -85,5 +85,5 @@ input::placeholder {
 }
 
 .save-btn:hover {
-  background: #e6c200;
+  background: #0056b3;
 }
