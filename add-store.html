@@ -1,90 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add Store / Lounge</title>
-  <link rel="stylesheet" href="css/add-store.css">
+  <title>Lägg till Store</title>
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script type="module" src="./add-store.js"></script>
 </head>
 <body>
-  <main class="form-wrapper">
-    <h1>Add Store / Lounge</h1>
+  <h1>Lägg till ny Store</h1>
 
-    <!-- Google Maps URL -->
-    <label>Google Maps link:
-      <input type="url" id="mapsUrl" placeholder="Paste a Google Maps URL here">
-    </label>
-    <button id="fetchBtn" class="save-btn">Fetch Data</button>
+  <form id="storeForm">
+    <!-- Typ (Store / Lounge) -->
+    <label for="type">Typ</label>
+    <select id="type" name="type" required>
+      <option value="Store">🛍️ Store</option>
+      <option value="Lounge">🛋️ Lounge</option>
+    </select>
 
-    <!-- Store/Lounge Toggle -->
-    <div class="toggle-buttons">
-      <button id="storeBtn" class="toggle active">Store</button>
-      <button id="loungeBtn" class="toggle">Lounge</button>
-    </div>
+    <!-- Namn -->
+    <label for="name">Namn</label>
+    <input type="text" id="name" name="name" required>
+
+    <!-- Maps URL -->
+    <label for="mapsUrl">Google Maps URL</label>
+    <input type="url" id="mapsUrl" name="mapsUrl">
 
     <!-- Rating -->
-    <div class="rating" id="rating">
-      <span data-value="1">★</span>
-      <span data-value="2">★</span>
-      <span data-value="3">★</span>
-      <span data-value="4">★</span>
-      <span data-value="5">★</span>
+    <label>Betyg</label>
+    <div id="ratingStars"></div>
+    <input type="hidden" id="rating" name="rating">
+
+    <!-- Continent -->
+    <label for="continent">Världsdel</label>
+    <select id="continent" name="continent" required>
+      <option value="">Välj världsdel</option>
+      <option value="Europe">Europa</option>
+      <option value="Asia">Asien</option>
+      <option value="Africa">Afrika</option>
+      <option value="North America">Nordamerika</option>
+      <option value="South America">Sydamerika</option>
+      <option value="Oceania">Oceanien</option>
+    </select>
+
+    <!-- Country -->
+    <label for="country">Land</label>
+    <select id="country" name="country" required>
+      <option value="">Välj land</option>
+    </select>
+
+    <!-- City -->
+    <label for="city">Stad</label>
+    <select id="city" name="city" required>
+      <option value="">Välj stad</option>
+    </select>
+
+    <!-- Om manuell stad -->
+    <div id="manualCityWrapper" style="display:none;">
+      <label for="manualCity">Skriv stad</label>
+      <input type="text" id="manualCity" name="manualCity">
     </div>
 
-    <!-- Form -->
-    <form id="storeForm">
-      <label>Name:
-        <input type="text" id="name" required>
-      </label>
-
-      <label>Address:
-        <input type="text" id="address" required>
-      </label>
-
-      <label>Website:
-        <input type="url" id="website">
-      </label>
-
-      <label>Phone:
-        <input type="tel" id="phone">
-      </label>
-
-      <label>Continent:
-        <select id="continent" required>
-          <option value="">-- Select --</option>
-          <option value="Africa">Africa</option>
-          <option value="Asia">Asia</option>
-          <option value="Europe">Europe</option>
-          <option value="North America">North America</option>
-          <option value="Oceania">Oceania</option>
-          <option value="South America">South America</option>
-        </select>
-      </label>
-
-      <label>Country:
-        <input type="text" id="country" required>
-      </label>
-
-      <label>City:
-        <input type="text" id="city" required>
-      </label>
-
-      <!-- Lounge only -->
-      <div id="accessWrapper" class="hidden">
-        <label>Access:
-          <select id="access">
-            <option value="">-- Select --</option>
-            <option value="Free">Free</option>
-            <option value="Members only">Members only</option>
-            <option value="Temporary membership">Temporary membership</option>
-          </select>
-        </label>
-      </div>
-
-      <button type="submit" class="save-btn">Save</button>
-    </form>
-  </main>
-
-  <script src="js/add-store.js"></script>
+    <!-- Submit -->
+    <button type="submit">Spara</button>
+  </form>
 </body>
 </html>
