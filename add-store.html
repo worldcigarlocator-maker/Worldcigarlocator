@@ -3,25 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Add Store / Lounge</title>
+  <title>Add Store - World Cigar Locator</title>
   <link rel="stylesheet" href="css/add-store.css">
 </head>
 <body>
-  <div class="form-wrapper">
-    <h1>Add Store / Lounge</h1>
-
+  <div class="content">
+    <h1>Add Store / Lounge / Other</h1>
+    
     <form id="storeForm">
-      <label for="mapsUrl">Google Maps link:</label>
-      <input type="url" id="mapsUrl" placeholder="Paste a Google Maps URL here">
-      <button type="button" id="fetchBtn" class="gold-btn">Fetch Data</button>
+      <!-- Google Maps URL -->
+      <label for="mapsUrl">Google Maps URL</label>
+      <input type="url" id="mapsUrl" placeholder="Paste Google Maps link here">
 
-      <div class="toggle-buttons">
-        <button type="button" class="toggle active" data-type="store">Store</button>
-        <button type="button" class="toggle" data-type="lounge">Lounge</button>
-        <button type="button" class="toggle" data-type="other">Other</button>
-      </div>
+      <!-- Name -->
+      <label for="name">Name</label>
+      <input type="text" id="name" placeholder="Name">
 
-      <div class="rating">
+      <!-- Address -->
+      <label for="address">Address</label>
+      <input type="text" id="address" placeholder="Street, number">
+
+      <!-- Website -->
+      <label for="website">Website</label>
+      <input type="url" id="website" placeholder="https://">
+
+      <!-- Phone -->
+      <label for="phone">Phone</label>
+      <input type="text" id="phone" placeholder="+46 ...">
+
+      <!-- Type -->
+      <label for="type">Type</label>
+      <select id="type">
+        <option value="store">Store</option>
+        <option value="lounge">Lounge</option>
+        <option value="other">Other</option>
+      </select>
+
+      <!-- Rating -->
+      <label>Rating</label>
+      <div id="rating" class="stars">
         <span data-value="1">★</span>
         <span data-value="2">★</span>
         <span data-value="3">★</span>
@@ -29,38 +49,14 @@
         <span data-value="5">★</span>
       </div>
 
-      <label for="name">Name:</label>
-      <input type="text" id="name">
-
-      <label for="address">Address:</label>
-      <input type="text" id="address">
-
-      <label for="website">Website:</label>
-      <input type="url" id="website">
-
-      <label for="phone">Phone:</label>
-      <input type="text" id="phone">
-
-      <label for="continent">Continent:</label>
-      <select id="continent">
-        <option value="">-- Select --</option>
-      </select>
-
-      <label for="country">Country:</label>
-      <select id="country">
-        <option value="">-- Select --</option>
-      </select>
-
-      <label for="city">City:</label>
-      <select id="city">
-        <option value="">-- Select --</option>
-      </select>
-      <input type="text" id="manualCity" placeholder="Or type a city manually" class="hidden">
-
+      <!-- Save -->
       <button type="submit" class="save-btn">Save</button>
     </form>
+
+    <p class="note">All new entries are saved with status "pending".</p>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="js/add-store.js"></script>
 </body>
 </html>
