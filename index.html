@@ -11,13 +11,23 @@
       font-family: Arial, sans-serif;
       background: #111;
       color: #fff;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Overlay som täcker hela sidan */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #111;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      z-index: 1000;
     }
 
-    .overlay {
+    .overlay-box {
       background: #1a1a1a;
       padding: 2rem;
       border-radius: 12px;
@@ -62,25 +72,53 @@
       font-size: 0.9rem;
       display: none;
     }
+
+    /* Innehållet döljs tills lösenordet är rätt */
+    .locked {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <div class="overlay">
-    <h1>Enter Password</h1>
-    <!-- Gör det till ett formulär -->
-    <form onsubmit="checkPassword(event)">
-      <input type="password" id="passwordInput" placeholder="Password">
-      <button type="submit">Enter</button>
-      <p id="errorMsg" class="error">Wrong password, try again.</p>
-    </form>
+  <!-- Lösenords-overlay -->
+  <div class="overlay" id="passwordOverlay">
+    <div class="overlay-box">
+      <h1>Enter Password</h1>
+      <form onsubmit="checkPassword(event)">
+        <input type="password" id="passwordInput" placeholder="Password">
+        <button type="submit">Enter</button>
+        <p id="errorMsg" class="error">Wrong password, try again.</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Själva sidan (göms först) -->
+  <div class="locked" id="pageContent">
+    <div class="content">
+      <h1>Welcome to World Cigar Locator</h1>
+      <p class="subtitle">Find cigar stores and lounges near you...</p>
+
+      <div class="banner">
+        <img src="images/worldmap.svg" alt="World Map">
+      </div>
+
+      <div class="button-container">
+        <a href="#" onclick="alert('Sorry, you must be 18+ to enter.'); return false;" class="button under">Under 18</a>
+        <a href="start.html" class="button over">Over 18</a>
+      </div>
+
+      <p class="note">You must be 18 years or older to enter this site.</p>
+    </div>
   </div>
 
   <script>
     function checkPassword(event) {
-      event.preventDefault(); // stoppar sidans reload
+      event.preventDefault();
       const pw = document.getElementById('passwordInput').value;
       if (pw === 'jockefylla') {
-        window.location.href = 'start.html';
+        document.getElementById('passwordOverlay').style.display = 'none';
+        document.getElementById('pageContent').style.display = 'block';
+        document.body.style.overflow = 'auto'; // återställ scroll
       } else {
         document.getElementById('errorMsg').style.display = 'block';
       }
