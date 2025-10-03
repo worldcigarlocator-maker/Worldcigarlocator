@@ -1,4 +1,3 @@
-// Dummy data med bilder
 const dummyStores = [
   {
     type: "store",
@@ -40,14 +39,7 @@ function renderCards(stores) {
   cardGrid.innerHTML = "";
 
   stores.forEach(store => {
-    let badgeClass = "";
-    if (store.type === "store") {
-      badgeClass = "store";
-    } else if (store.type === "lounge") {
-      badgeClass = "lounge";
-    } else if (store.type === "other") {
-      badgeClass = "other";
-    }
+    const badgeClass = store.type.toLowerCase();
 
     const card = document.createElement("div");
     card.classList.add("card");
