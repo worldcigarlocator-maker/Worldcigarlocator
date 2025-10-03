@@ -68,4 +68,19 @@
   <div class="overlay">
     <h1>Enter Password</h1>
     <input type="password" id="passwordInput" placeholder="Password">
-    <button onclic
+    <button onclick="checkPassword()">Enter</button>
+    <p id="errorMsg" class="error">Wrong password, try again.</p>
+  </div>
+
+  <script>
+    function checkPassword() {
+      const pw = document.getElementById('passwordInput').value;
+      if (pw === 'jockefylla') {
+        window.location.href = 'start.html';
+      } else {
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>
