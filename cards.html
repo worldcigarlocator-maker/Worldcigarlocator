@@ -3,24 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <title>World Cigar Locator - Cards</title>
-  <link rel="stylesheet" href="css/cards.css">
-  <link rel="stylesheet" href="css/sidebar.css"> <!-- om du har separat css -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/start.css"> <!-- samma sidebar-stil -->
+  <link rel="stylesheet" href="css/cards.css"> <!-- specifik stil för cards -->
 </head>
 <body>
-  <div class="layout">
-    <!-- SIDEBAR -->
+  <div class="container">
+    <!-- Sidebar -->
     <aside class="sidebar">
-      <h2>World Cigar Locator</h2>
-      <ul>
-        <li><a href="index.html">🏠 Home</a></li>
-        <li><a href="cards.html" class="active">📍 Cards</a></li>
-        <li><a href="add-store.html">➕ Add Store</a></li>
-      </ul>
+      <h1 class="logo">WCL</h1>
+      <input type="text" placeholder="Search..." class="search-input">
+      <button class="search-btn">Search</button>
+
+      <nav class="nav">
+        <button class="nav-item">+ Africa</button>
+        <button class="nav-item">+ Asia</button>
+        <button class="nav-item">+ Europe</button>
+        <button class="nav-item">+ North America</button>
+        <button class="nav-item">+ Oceania</button>
+        <button class="nav-item">+ South America</button>
+      </nav>
+
+      <a href="add-store.html" class="add-btn">+ Add Store / Lounge</a>
+      <a href="mailto:support@worldcigarlocator.com" class="support-link">Contact / Support</a>
     </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="content">
-      <h1>Cards</h1>
+    <!-- Main Content -->
+    <main class="main">
+      <h2 class="title">All Stores, Lounges & Others</h2>
       <div id="cardGrid" class="card-grid"></div>
     </main>
   </div>
