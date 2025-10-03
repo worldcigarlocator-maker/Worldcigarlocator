@@ -4,14 +4,27 @@
   <meta charset="UTF-8">
   <title>World Cigar Locator - Cards</title>
   <link rel="stylesheet" href="css/cards.css">
+  <link rel="stylesheet" href="css/sidebar.css"> <!-- om du har separat css -->
 </head>
 <body>
-  <h1>World Cigar Locator</h1>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <h2>World Cigar Locator</h2>
+      <ul>
+        <li><a href="index.html">🏠 Home</a></li>
+        <li><a href="cards.html" class="active">📍 Cards</a></li>
+        <li><a href="add-store.html">➕ Add Store</a></li>
+      </ul>
+    </aside>
 
-  <!-- Här lägger JS in korten -->
-  <div id="cardGrid" class="card-grid"></div>
+    <!-- MAIN CONTENT -->
+    <main class="content">
+      <h1>Cards</h1>
+      <div id="cardGrid" class="card-grid"></div>
+    </main>
+  </div>
 
-  <!-- Ladda in JS från rätt mapp -->
   <script src="js/cards.js"></script>
 </body>
 </html>
