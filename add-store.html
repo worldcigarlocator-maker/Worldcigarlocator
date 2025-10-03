@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Add Store - World Cigar Locator</title>
-  <link rel="stylesheet" href="css/add-store.css" />
+  <title>World Cigar Locator - Add Store</title>
+  <link rel="stylesheet" href="css/start.css">   <!-- sidebar och baslayout -->
+  <link rel="stylesheet" href="css/add-store.css"> <!-- specifik styling för formuläret -->
 </head>
 <body>
   <div class="layout">
-    <!-- SIDEBAR (samma som på dina andra sidor) -->
+    <!-- SIDEBAR -->
     <aside class="sidebar">
       <h2>World Cigar Locator</h2>
       <ul>
@@ -21,102 +22,63 @@
     <!-- MAIN CONTENT -->
     <main class="content">
       <h1>Add Store / Lounge / Other</h1>
-      <form id="storeForm" class="form">
 
-        <!-- === Google Maps URL === -->
-        <div class="form-group">
-          <label for="mapsUrl">Google Maps link (optional)</label>
-          <input type="text" id="mapsUrl" placeholder="Paste Google Maps URL here">
-          <small>If filled, name/address/city/country are auto-fetched.</small>
-        </div>
+      <form id="addStoreForm">
 
-        <!-- === Manual inputs (fallback if no URL) === -->
-        <div class="form-group">
-          <label for="name">Name *</label>
-          <input type="text" id="name" required />
-        </div>
+        <!-- Google Maps URL -->
+        <label for="mapsUrl">Google Maps link (optional)</label>
+        <input type="text" id="mapsUrl" placeholder="Paste Google Maps link here">
+        <p class="note">If filled, name/address/city/country are auto-fetched.</p>
 
-        <div class="form-group">
-          <label for="address">Address</label>
-          <input type="text" id="address" />
-        </div>
+        <!-- Name -->
+        <label for="name">Name *</label>
+        <input type="text" id="name" required>
 
-        <div class="form-group">
-          <label for="website">Website</label>
-          <input type="url" id="website" placeholder="https://..." />
-        </div>
+        <!-- Address -->
+        <label for="address">Address</label>
+        <input type="text" id="address">
 
-        <div class="form-group">
-          <label for="phone">Phone</label>
-          <input type="text" id="phone" />
-        </div>
+        <!-- Website -->
+        <label for="website">Website</label>
+        <input type="url" id="website">
 
-        <div class="form-group">
-          <label for="type">Type *</label>
-          <select id="type" required>
-            <option value="store">Store</option>
-            <option value="lounge">Lounge</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
+        <!-- Phone -->
+        <label for="phone">Phone</label>
+        <input type="text" id="phone">
+
+        <!-- Type -->
+        <label for="type">Type *</label>
+        <select id="type" required>
+          <option value="store">Store</option>
+          <option value="lounge">Lounge</option>
+          <option value="other">Other</option>
+        </select>
 
         <!-- Rating -->
-        <div class="form-group">
-          <label>Rating</label>
-          <div id="rating" class="stars">
-            <span data-value="1">★</span>
-            <span data-value="2">★</span>
-            <span data-value="3">★</span>
-            <span data-value="4">★</span>
-            <span data-value="5">★</span>
-          </div>
+        <label>Rating</label>
+        <div id="rating" class="stars">
+          ★ ★ ★ ★ ★
         </div>
 
-        <!-- Location dropdowns -->
-        <div class="form-group">
-          <label for="continent">Continent</label>
-          <select id="continent">
-            <option value="">-- Select --</option>
-            <option value="Europe">Europe</option>
-            <option value="Asia">Asia</option>
-            <option value="North America">North America</option>
-            <option value="South America">South America</option>
-            <option value="Africa">Africa</option>
-            <option value="Oceania">Oceania</option>
-          </select>
-        </div>
+        <!-- Location hierarchy -->
+        <label for="continent">Continent</label>
+        <select id="continent"></select>
 
-        <div class="form-group">
-          <label for="country">Country</label>
-          <select id="country">
-            <option value="">-- Select --</option>
-          </select>
-        </div>
+        <label for="country">Country</label>
+        <select id="country"></select>
 
-        <div class="form-group">
-          <label for="city">City</label>
-          <select id="city">
-            <option value="">-- Select --</option>
-            <option value="__manual__">✏️ Write manually…</option>
-          </select>
-        </div>
+        <label for="city">City</label>
+        <select id="city"></select>
+        <input type="text" id="manualCity" placeholder="Enter city manually if not listed">
 
-        <!-- Manual city input -->
-        <div id="manualCityWrapper" class="form-group hidden">
-          <label for="manualCity">Manual City Name</label>
-          <input type="text" id="manualCity" />
-        </div>
-
-        <!-- Submit -->
-        <div class="form-group">
-          <button type="submit" class="btn">💾 Save</button>
-        </div>
+        <!-- Save button -->
+        <button type="submit" class="save-btn">💾 Save</button>
       </form>
     </main>
   </div>
 
   <!-- Scripts -->
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
-  <script type="module" src="js/add-store.js"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/add-store.js"></script>
 </body>
 </html>
