@@ -1,138 +1,96 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+// === SUPABASE INIT ===
+const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// === Supabase setup ===
-const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co"; // din url
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // din anon key
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+// === GOOGLE API KEY ===
+const GOOGLE_API_KEY = "AIzaSyClP5xnMvYaHC1xjHzuTFj3K9tHw0g6O00";
 
-// === Google API setup ===
-const GOOGLE_API_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // <-- lägg in din nyckel
-
-// === Form & elements ===
-const form = document.getElementById("storeForm");
-const ratingStars = document.querySelectorAll("#rating span");
-const manualCityWrapper = document.getElementById("manualCityWrapper");
-let selectedRating = null;
-
-// === Rating logic ===
-ratingStars.forEach(star => {
-  star.addEventListener("click", () => {
-    selectedRating = parseInt(star.dataset.value);
-    ratingStars.forEach(s => s.classList.remove("selected"));
-    star.classList.add("selected");
-    star.previousAll?.forEach(p => p.classList.add("selected"));
+// === STAR RATING INTERACTION ===
+document.querySelectorAll('#rating span').forEach(star => {
+  star.addEventListener('click', () => {
+    const value = parseInt(star.dataset.value);
+    document.querySelectorAll('#rating span').forEach(s => {
+      s.classList.toggle('active', parseInt(s.dataset.value) <= value);
+    });
+    document.getElementById('rating').dataset.value = value;
   });
 });
 
-// === Helper: parse Maps URL to lat/lon ===
-function extractCoordsFromUrl(url) {
-  const match = url.match(/@([-.\d]+),([-.\d]+)/);
-  if (match) {
-    return { lat: parseFloat(match[1]), lon: parseFloat(match[2]) };
+// === FORM SUBMIT ===
+document.getElementById('addStoreForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const mapsUrl = document.getElementById('mapsUrl').value.trim();
+  let name = document.getElementById('name').value.trim();
+  let address = document.getElementById('address').value.trim();
+  const website = document.getElementById('website').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const type = document.getElementById('type').value;
+  const rating = parseInt(document.getElementById('rating').dataset.value || 0);
+
+  let city = document.getElementById('city').value || document.getElementById('manualCity').value.trim();
+  let country = document.getElementById('country').value;
+  let continent = document.getElementById('continent').value;
+  let lat = null, lng = null;
+
+  // === If Maps URL is provided, fetch from Google ===
+  if (mapsUrl) {
+    try {
+      const coords = extractCoordsFromUrl(mapsUrl);
+      if (coords) {
+        const geoData = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${coords.lat},${coords.lng}&key=${GOOGLE_API_KEY}`);
+        const data = await geoData.json();
+        if (data.results && data.results.length > 0) {
+          const result = data.results[0];
+          address = result.formatted_address;
+          lat = coords.lat;
+          lng = coords.lng;
+
+          result.address_components.forEach(c => {
+            if (c.types.includes("locality")) city = c.long_name;
+            if (c.types.includes("country")) country = c.long_name;
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Google API error:", err);
+      alert("Failed to fetch data from Google Maps");
+      return;
+    }
   }
-  return null;
-}
 
-// === Google Lookup ===
-async function lookupGoogle(url) {
-  const coords = extractCoordsFromUrl(url);
-  if (!coords) {
-    alert("Could not find coordinates in this URL.");
-    return null;
-  }
-
-  const geoUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${coords.lat},${coords.lon}&key=${GOOGLE_API_KEY}`;
-  const res = await fetch(geoUrl);
-  const data = await res.json();
-
-  if (!data.results || !data.results.length) return null;
-
-  const place = data.results[0];
-  const components = place.address_components;
-
-  let city = "";
-  let country = "";
-  let name = place.formatted_address;
-
-  for (const c of components) {
-    if (c.types.includes("locality")) city = c.long_name;
-    if (c.types.includes("country")) country = c.long_name;
-  }
-
-  return {
+  // === Insert into Supabase ===
+  const { error } = await supabase.from("stores").insert([{
     name,
-    address: place.formatted_address,
+    address,
+    website,
+    phone,
+    type,
+    rating,
     city,
     country,
-    lat: coords.lat,
-    lon: coords.lon
-  };
-}
-
-// === Save to Supabase ===
-async function saveToSupabase(store) {
-  const { error } = await supabase.from("stores").insert([{
-    name: store.name,
-    address: store.address,
-    website: store.website || null,
-    phone: store.phone || null,
-    type: store.type,
-    rating: store.rating || null,
-    continent: store.continent || null,
-    country: store.country,
-    city: store.city,
-    latitude: store.lat,
-    longitude: store.lon,
+    latitude: lat,
+    longitude: lng,
     status: "pending"
   }]);
 
   if (error) {
-    console.error("Supabase error:", error);
-    alert("Error saving store.");
+    console.error(error);
+    alert("Error saving store");
   } else {
-    alert("✅ Store saved (pending review).");
-    form.reset();
+    alert("Store saved (pending approval)!");
+    e.target.reset();
+    document.querySelectorAll('#rating span').forEach(s => s.classList.remove('active'));
   }
-}
-
-// === Submit handler ===
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const mapsUrl = document.getElementById("mapsUrl").value.trim();
-
-  let storeData = {};
-
-  if (mapsUrl) {
-    // === Use Google ===
-    const data = await lookupGoogle(mapsUrl);
-    if (!data) return alert("Could not fetch from Google.");
-    storeData = {
-      ...data,
-      website: document.getElementById("website").value,
-      phone: document.getElementById("phone").value,
-      type: document.getElementById("type").value,
-      rating: selectedRating,
-      continent: document.getElementById("continent").value
-    };
-  } else {
-    // === Use manual ===
-    const cityValue = document.getElementById("city").value;
-    const manualCity = document.getElementById("manualCity").value;
-    storeData = {
-      name: document.getElementById("name").value,
-      address: document.getElementById("address").value,
-      website: document.getElementById("website").value,
-      phone: document.getElementById("phone").value,
-      type: document.getElementById("type").value,
-      rating: selectedRating,
-      continent: document.getElementById("continent").value,
-      country: document.getElementById("country").value,
-      city: cityValue === "__manual__" ? manualCity : cityValue,
-      lat: null,
-      lon: null
-    };
-  }
-
-  await saveToSupabase(storeData);
 });
+
+// === Helper to extract coordinates from Google Maps URL ===
+function extractCoordsFromUrl(url) {
+  const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
+  const match = url.match(regex);
+  if (match) {
+    return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+  }
+  return null;
+}
