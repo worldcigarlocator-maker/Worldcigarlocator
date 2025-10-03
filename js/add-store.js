@@ -1,79 +1,104 @@
+// add-store.js
+import { loadCountries, loadCities } from "./locationService.js";
+
+const supabaseUrl = "https://YOUR_PROJECT.supabase.co";
+const supabaseKey = "YOUR_ANON_KEY";
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
 document.addEventListener("DOMContentLoaded", () => {
-  const storeBtn = document.getElementById("storeBtn");
-  const loungeBtn = document.getElementById("loungeBtn");
-  const accessWrapper = document.getElementById("accessWrapper");
-  const ratingStars = document.querySelectorAll("#rating span");
   const form = document.getElementById("storeForm");
-  const fetchBtn = document.getElementById("fetchBtn");
-  const mapsUrl = document.getElementById("mapsUrl");
+  const continentSelect = document.getElementById("continent");
+  const countrySelect = document.getElementById("country");
+  const citySelect = document.getElementById("city");
+  const manualCityWrapper = document.getElementById("manualCityWrapper");
+  const manualCityInput = document.getElementById("manualCity");
 
-  let type = "store";
-  let rating = 0;
-
-  // Toggle Store / Lounge
-  storeBtn.addEventListener("click", () => {
-    type = "store";
-    storeBtn.classList.add("active");
-    loungeBtn.classList.remove("active");
-    accessWrapper.classList.add("hidden");
+  // Dropdowns
+  continentSelect.addEventListener("change", e => {
+    const continent = e.target.value;
+    if (continent) loadCountries(continent);
   });
 
-  loungeBtn.addEventListener("click", () => {
-    type = "lounge";
-    loungeBtn.classList.add("active");
-    storeBtn.classList.remove("active");
-    accessWrapper.classList.remove("hidden");
+  countrySelect.addEventListener("change", e => {
+    const countryId = e.target.value;
+    if (countryId) loadCities(countryId);
   });
 
-  // Rating stars
-  ratingStars.forEach(star => {
+  citySelect.addEventListener("change", e => {
+    if (e.target.value === "manual") {
+      manualCityWrapper.style.display = "block";
+    } else {
+      manualCityWrapper.style.display = "none";
+    }
+  });
+
+  // Rating stars (enkelt exempel)
+  const ratingStars = document.getElementById("ratingStars");
+  const ratingInput = document.getElementById("rating");
+  for (let i = 1; i <= 5; i++) {
+    const star = document.createElement("span");
+    star.textContent = "⭐";
+    star.style.cursor = "pointer";
     star.addEventListener("click", () => {
-      rating = star.dataset.value;
-      ratingStars.forEach(s => s.classList.remove("active"));
-      for (let i = 0; i < rating; i++) {
-        ratingStars[i].classList.add("active");
-      }
+      ratingInput.value = i;
+      [...ratingStars.children].forEach((s, idx) => {
+        s.style.opacity = idx < i ? "1" : "0.3";
+      });
     });
-  });
-
-  // --- Fetch data from Google Maps link (basic version) ---
-  fetchBtn.addEventListener("click", () => {
-    const url = mapsUrl.value.trim();
-    if (!url) {
-      alert("Please paste a Google Maps link first!");
-      return;
-    }
-
-    // Example: extract "place/NAME" from the Maps URL
-    const nameMatch = url.match(/place\/([^/]+)/);
-    if (nameMatch) {
-      const name = decodeURIComponent(nameMatch[1].replace(/\+/g, " "));
-      document.getElementById("name").value = name;
-    }
-
-    // TODO: Replace with Google Places API for full details
-    alert("Fetched basic data from URL (expand with Google API later)");
-  });
+    ratingStars.appendChild(star);
+  }
 
   // Submit
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async e => {
     e.preventDefault();
 
-    const data = {
-      type,
-      name: document.getElementById("name").value,
-      address: document.getElementById("address").value,
-      website: document.getElementById("website").value,
-      phone: document.getElementById("phone").value,
-      continent: document.getElementById("continent").value,
-      country: document.getElementById("country").value,
-      city: document.getElementById("city").value,
-      access: type === "lounge" ? document.getElementById("access").value : null,
-      rating
-    };
+    const formData = new FormData(form);
+    const type = formData.get("type");
+    const name = formData.get("name");
+    const mapsUrl = formData.get("mapsUrl");
+    const rating = formData.get("rating");
+    const continent = formData.get("continent");
+    const countryId = formData.get("country");
+    let cityId = formData.get("city");
 
-    console.log("Saving...", data);
-    alert("Form submitted! (check console)");
-    // Här kopplar vi in Supabase sen 👌
+    // Om manuell stad
+    if (cityId === "manual") {
+      const manualCity = manualCityInput.value;
+      if (!manualCity) {
+        alert("Skriv in stadens namn");
+        return;
+      }
+      // Lägg till staden i DB
+      const { data: newCity, error } = await supabase
+        .from("cities")
+        .insert([{ name: manualCity, country_id: countryId }])
+        .select()
+        .single();
+      if (error) {
+        alert("Fel vid skapande av stad");
+        console.error(error);
+        return;
+      }
+      cityId = newCity.id;
+    }
+
+    // Spara store
+    const { data, error } = await supabase.from("stores").insert([{
+      type,
+      name,
+      address: mapsUrl || null,
+      rating: rating ? parseInt(rating) : null,
+      city_id: cityId
+    }]);
+
+    if (error) {
+      alert("Fel vid sparande av store");
+      console.error(error);
+    } else {
+      alert("✅ Store sparad!");
+      form.reset();
+      manualCityWrapper.style.display = "none";
+      [...ratingStars.children].forEach(s => s.style.opacity = "1");
+    }
   });
 });
