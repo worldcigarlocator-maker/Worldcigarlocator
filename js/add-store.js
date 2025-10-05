@@ -30,12 +30,16 @@ async function reverseGeocode(lat, lng) {
   const data = await res.json();
   if (data.status !== "OK") return null;
 
-  let city = null, country = null;
+  let city = null, country = null, placeName = null;
   data.results[0].address_components.forEach(c => {
     if (c.types.includes("locality")) city = c.long_name;
     if (c.types.includes("country")) country = c.long_name;
   });
-  return { city, country, address: data.results[0].formatted_address };
+
+  // Försök plocka ut namn
+  placeName = data.results[0].address_components[0]?.long_name || data.results[0].formatted_address;
+
+  return { city, country, address: data.results[0].formatted_address, placeName };
 }
 
 // ==== SUBMIT HANDLER ====
@@ -43,7 +47,7 @@ document.getElementById("storeForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const mapsUrl = document.getElementById("mapsUrl").value;
-  const name = document.getElementById("name").value;
+  let name = document.getElementById("name").value;
   const website = document.getElementById("website").value;
   const phone = document.getElementById("phone").value;
   const type = document.getElementById("type").value;
@@ -62,7 +66,13 @@ document.getElementById("storeForm").addEventListener("submit", async (e) => {
         address = geo.address;
         city = geo.city;
         country = geo.country;
-        document.getElementById("address").value = address; // autofyll
+
+        // Autofyll i formuläret
+        document.getElementById("address").value = address;
+        if (!name && geo.placeName) {
+          document.getElementById("name").value = geo.placeName;
+          name = geo.placeName;
+        }
       }
     }
   }
