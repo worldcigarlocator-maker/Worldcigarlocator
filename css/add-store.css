@@ -93,17 +93,14 @@ textarea {
 
 /* === Save button === */
 .save-btn {
-  width: 100%;
-  background: gold;
+  background: #d4af37;   /* samma guld som på övriga sidan */
+  color: #fff;
   border: none;
-  padding: 10px;
   border-radius: 6px;
   font-weight: bold;
-  color: #fff;
-  font-size: 14px;
-  margin-top: 15px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  padding: 10px 18px;
+  transition: background 0.3s ease;
 }
 
 .save-btn:hover {
