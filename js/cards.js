@@ -3,6 +3,7 @@ const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+
 // === Ladda approved stores ===
 async function loadStores() {
   const { data, error } = await supabase
@@ -17,6 +18,12 @@ async function loadStores() {
   }
 
   renderCards(data);
+}
+
+// === Hjälpfunktion för trunkering ===
+function truncate(text, maxLength) {
+  if (!text) return "";
+  return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
 }
 
 // === Rendera cards ===
@@ -52,11 +59,11 @@ function renderCards(stores) {
     const typeLabel =
       store.type.charAt(0).toUpperCase() + store.type.slice(1).toLowerCase();
 
-    // ✂️ Trunkera namn om för långt
-    let displayName = store.name || "";
-    if (displayName.length > 30) {
-      displayName = displayName.substring(0, 30) + "...";
-    }
+    // ✂️ Trunkering
+    const displayName = truncate(store.name, 30);
+    const displayAddress = truncate(store.address, 40);
+    const cityCountry = [store.city, store.country].filter(Boolean).join(", ");
+    const displayCityCountry = truncate(cityCountry, 35);
 
     // 📦 card HTML
     const card = document.createElement("div");
@@ -65,9 +72,9 @@ function renderCards(stores) {
       <img src="${image}" alt="${store.name}">
       <div class="card-content">
         <span class="card-type ${badgeClass}">${typeLabel}</span>
-        <h2 title="${store.name}">${displayName}</h2>
-        <p>${store.address || ""}</p>
-        <p>${store.city || ""}${store.city && store.country ? ", " : ""}${store.country || ""}</p>
+        <h2 title="${store.name || ""}">${displayName}</h2>
+        <p title="${store.address || ""}">${displayAddress}</p>
+        <p title="${cityCountry}">${displayCityCountry}</p>
         <p>${stars}</p>
         ${store.phone ? `<p>📞 ${store.phone}</p>` : ""}
         ${store.website ? `<p><a href="${store.website}" target="_blank">🌐 Webbplats</a></p>` : ""}
