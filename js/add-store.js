@@ -5,9 +5,6 @@ const GOOGLE_API_KEY = "AIzaSyClP5xnMvYaHC1xjHzuTFj3K9tHw0g6O00"
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
-// Google API key
-const GOOGLE_API_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
-
 // === Stjärnbetyg ===
 let selectedRating = 0;
 document.querySelectorAll("#ratingStars span").forEach(star => {
