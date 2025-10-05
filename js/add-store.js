@@ -16,21 +16,20 @@ document.querySelectorAll("#rating span").forEach(star => {
   });
 });
 
-// ==== HELPER: Extract coords from Maps URL ====
+// ==== HELPERS ====
 function extractLatLngFromUrl(url) {
   const match = url.match(/@([-0-9.]+),([-0-9.]+)/);
   if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
   return null;
 }
 
-// ==== HELPER: Extract Place ID from Maps URL ====
 function extractPlaceIdFromUrl(url) {
   const match = url.match(/placeid=([^&]+)/);
   if (match) return match[1];
   return null;
 }
 
-// ==== HELPER: Geocode (lat/lng → city/country) ====
+// Geocode fallback (lat/lng → adress)
 async function reverseGeocode(lat, lng) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}`;
   const res = await fetch(url);
@@ -50,9 +49,9 @@ async function reverseGeocode(lat, lng) {
   };
 }
 
-// ==== HELPER: Places API (placeid → details) ====
+// Places API (hämtar max info)
 async function getPlaceDetails(placeId) {
-  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_API_KEY}`;
+  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,geometry,website,formatted_phone_number,address_component&key=${GOOGLE_API_KEY}`;
   const res = await fetch(url);
   const data = await res.json();
   if (data.status !== "OK") return null;
@@ -70,7 +69,9 @@ async function getPlaceDetails(placeId) {
     city,
     country,
     lat: r.geometry.location.lat,
-    lng: r.geometry.location.lng
+    lng: r.geometry.location.lng,
+    website: r.website || "",
+    phone: r.formatted_phone_number || ""
   };
 }
 
@@ -80,8 +81,8 @@ document.getElementById("storeForm").addEventListener("submit", async (e) => {
 
   const mapsUrl = document.getElementById("mapsUrl").value;
   let name = document.getElementById("name").value;
-  const website = document.getElementById("website").value;
-  const phone = document.getElementById("phone").value;
+  let website = document.getElementById("website").value;
+  let phone = document.getElementById("phone").value;
   const type = document.getElementById("type").value;
 
   let address = document.getElementById("address").value;
@@ -98,10 +99,14 @@ document.getElementById("storeForm").addEventListener("submit", async (e) => {
       country = details.country;
       lat = details.lat;
       lng = details.lng;
+      website = website || details.website;
+      phone = phone || details.phone;
 
-      // Autofyll i formuläret
-      document.getElementById("name").value = name;
-      document.getElementById("address").value = address;
+      // Autofyll formuläret
+      if (details.name) document.getElementById("name").value = details.name;
+      if (details.address) document.getElementById("address").value = details.address;
+      if (details.website) document.getElementById("website").value = details.website;
+      if (details.phone) document.getElementById("phone").value = details.phone;
     }
   } else if (mapsUrl) {
     // === Annars: försök med lat/lng i URL ===
