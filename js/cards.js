@@ -1,93 +1,67 @@
 // ==== CONFIG ====
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
-const GOOGLE_API_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ; // <-- lägg in din egen
 
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ==== RATING LOGIC ====
-let selectedRating = null;
-document.querySelectorAll("#rating span").forEach(star => {
-  star.addEventListener("click", () => {
-    selectedRating = parseInt(star.dataset.value);
-    document.querySelectorAll("#rating span").forEach(s => s.classList.remove("active"));
-    star.classList.add("active");
-    let prev = star.previousElementSibling;
-    while (prev) { prev.classList.add("active"); prev = prev.previousElementSibling; }
-  });
-});
-
-// ==== HELPER: Extract coords from Maps URL ====
-function extractLatLngFromUrl(url) {
-  const match = url.match(/@([-0-9.]+),([-0-9.]+)/);
-  if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-  return null;
-}
-
-// ==== HELPER: Reverse geocode ====
-async function reverseGeocode(lat, lng) {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}`;
-  const res = await fetch(url);
-  const data = await res.json();
-  if (data.status !== "OK") return null;
-
-  let city = null, country = null;
-  data.results[0].address_components.forEach(c => {
-    if (c.types.includes("locality")) city = c.long_name;
-    if (c.types.includes("country")) country = c.long_name;
-  });
-  return { city, country, address: data.results[0].formatted_address };
-}
-
-// ==== SUBMIT HANDLER ====
-document.getElementById("storeForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const mapsUrl = document.getElementById("mapsUrl").value;
-  const name = document.getElementById("name").value;
-  const website = document.getElementById("website").value;
-  const phone = document.getElementById("phone").value;
-  const type = document.getElementById("type").value;
-
-  let address = document.getElementById("address").value;
-  let lat = null, lng = null, city = null, country = null;
-
-  if (mapsUrl) {
-    const coords = extractLatLngFromUrl(mapsUrl);
-    if (coords) {
-      lat = coords.lat;
-      lng = coords.lng;
-      const geo = await reverseGeocode(lat, lng);
-      if (geo) {
-        address = geo.address;
-        city = geo.city;
-        country = geo.country;
-        document.getElementById("address").value = address; // autofyll
-      }
-    }
-  }
-
-  // Insert to Supabase
-  const { error } = await supabase.from("stores").insert([{
-    name,
-    address,
-    website,
-    phone,
-    type,
-    rating: selectedRating,
-    lat,
-    lng,
-    city,
-    country,
-    status: "pending"
-  }]);
+// ==== HÄMTA STORES ====
+async function loadStores() {
+  const { data, error } = await supabase.from("stores").select("*").eq("status", "pending");
 
   if (error) {
-    alert("❌ Error: " + error.message);
-  } else {
-    alert("✅ Store saved (pending review)");
-    document.getElementById("storeForm").reset();
-    selectedRating = null;
-    document.querySelectorAll("#rating span").forEach(s => s.classList.remove("active"));
+    console.error("Error fetching stores:", error);
+    return [];
   }
+  return data;
+}
+
+// ==== RENDER CARDS ====
+function renderCards(stores) {
+  const grid = document.getElementById("cardGrid");
+  grid.innerHTML = "";
+
+  if (stores.length === 0) {
+    grid.innerHTML = "<p style='color:white'>No stores found.</p>";
+    return;
+  }
+
+  stores.forEach(store => {
+    const card = document.createElement("div");
+    card.classList.add("card");
+
+    // Badge färg beroende på type
+    let badgeClass = "other";
+    if (store.type === "store") badgeClass = "store";
+    if (store.type === "lounge") badgeClass = "lounge";
+
+    card.innerHTML = `
+      <div class="card-header">
+        <h2>${store.name || "Unnamed"}</h2>
+        <span class="card-type ${badgeClass}">${store.type}</span>
+      </div>
+      <p class="address">${store.address || ""}</p>
+      <p class="location">${store.city || ""}, ${store.country || ""}</p>
+      ${store.phone ? `<p class="phone">📞 ${store.phone}</p>` : ""}
+      ${store.website ? `<p class="website"><a href="${store.website}" target="_blank">🌐 Website</a></p>` : ""}
+      <div class="stars">
+        ${renderStars(store.rating)}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ==== RENDER STARS ====
+function renderStars(rating) {
+  let html = "";
+  for (let i = 1; i <= 5; i++) {
+    html += `<span class="${i <= (rating || 0) ? "active" : ""}">★</span>`;
+  }
+  return html;
+}
+
+// ==== INIT ====
+document.addEventListener("DOMContentLoaded", async () => {
+  const stores = await loadStores();
+  renderCards(stores);
 });
