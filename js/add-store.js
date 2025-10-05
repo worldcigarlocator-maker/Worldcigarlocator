@@ -4,167 +4,145 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const GOOGLE_API_KEY = "AIzaSyClP5xnMvYaHC1xjHzuTFj3K9tHw0g6O00"
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-
-// === Stjärnbetyg ===
+// === STAR RATING ===
 let selectedRating = 0;
-document.querySelectorAll("#ratingStars span").forEach(star => {
+document.querySelectorAll(".star").forEach(star => {
   star.addEventListener("click", () => {
-    selectedRating = parseInt(star.dataset.value);
-    document.querySelectorAll("#ratingStars span").forEach(s => {
-      s.classList.toggle("active", parseInt(s.dataset.value) <= selectedRating);
+    selectedRating = star.dataset.value;
+    document.querySelectorAll(".star").forEach(s => {
+      s.classList.toggle("selected", s.dataset.value <= selectedRating);
     });
   });
 });
 
-// === Globala variabler för koordinater ===
-let lat = null;
-let lng = null;
+// === FETCH PLACE DETAILS ===
+async function fetchPlaceDetails(url) {
+  console.log("Analyserar Maps URL:", url);
 
-// === Paste-knapp ===
+  // 1) Försök hitta PlaceID (!1s...)
+  const placeIdMatch = url.match(/!1s([^!]+)!/);
+  if (placeIdMatch) {
+    const placeId = placeIdMatch[1];
+    console.log("Hittade PlaceID:", placeId);
+
+    const resp = await fetch(
+      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_API_KEY}&fields=name,formatted_address,address_component,geometry,international_phone_number,website`
+    );
+    const data = await resp.json();
+    console.log("Places API svar:", data);
+
+    if (data.result) {
+      return {
+        name: data.result.name,
+        address: data.result.formatted_address,
+        city: data.result.address_components?.find(c =>
+          c.types.includes("locality")
+        )?.long_name || "",
+        country: data.result.address_components?.find(c =>
+          c.types.includes("country")
+        )?.long_name || "",
+        phone: data.result.international_phone_number || "",
+        website: data.result.website || "",
+        lat: data.result.geometry?.location.lat || null,
+        lng: data.result.geometry?.location.lng || null,
+      };
+    }
+  }
+
+  // 2) Försök hitta koordinater i länken
+  const coordsMatch = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (coordsMatch) {
+    const lat = parseFloat(coordsMatch[1]);
+    const lng = parseFloat(coordsMatch[2]);
+    console.log("Hittade koordinater:", lat, lng);
+
+    const geoResp = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}`
+    );
+    const geoData = await geoResp.json();
+    console.log("Geocoding svar:", geoData);
+
+    const result = geoData.results[0];
+    return {
+      name: result?.address_components?.[0]?.long_name || "",
+      address: result?.formatted_address || "",
+      city: result?.address_components?.find(c =>
+        c.types.includes("locality")
+      )?.long_name || "",
+      country: result?.address_components?.find(c =>
+        c.types.includes("country")
+      )?.long_name || "",
+      phone: "",
+      website: "",
+      lat,
+      lng,
+    };
+  }
+
+  return null;
+}
+
+// === PASTE BUTTON ===
 document.getElementById("pasteBtn").addEventListener("click", async () => {
-  const mapsUrl = document.getElementById("mapsUrl").value.trim();
+  const pasteBtn = document.getElementById("pasteBtn");
+  const mapsUrl = document.getElementById("mapsUrl").value;
+
   if (!mapsUrl) {
-    alert("Klistra in en Google Maps-länk först!");
+    alert("Klistra in en Google Maps URL först!");
     return;
   }
 
-  const data = await fetchPlaceDetails(mapsUrl);
+  try {
+    // Visa spinner
+    pasteBtn.disabled = true;
+    pasteBtn.innerHTML = `<span class="spinner"></span> Laddar...`;
 
-  if (data) {
-    fillForm(data);
-    markEmptyFields();
-    lat = data.lat || null;
-    lng = data.lng || null;
-    alert("✅ Data hämtad – komplettera gärna där det saknas!");
-  } else {
-    alert("❌ Kunde inte hämta platsdata. Fyll i manuellt.");
+    const placeDetails = await fetchPlaceDetails(mapsUrl);
+
+    if (placeDetails) {
+      document.getElementById("name").value = placeDetails.name || "";
+      document.getElementById("address").value = placeDetails.address || "";
+      document.getElementById("city").value = placeDetails.city || "";
+      document.getElementById("country").value = placeDetails.country || "";
+      document.getElementById("phone").value = placeDetails.phone || "";
+      document.getElementById("website").value = placeDetails.website || "";
+    } else {
+      alert("Kunde inte hämta platsdata. Kontrollera länken.");
+    }
+  } catch (err) {
+    console.error("Fel vid hämtning:", err);
+    alert("Något gick fel. Se konsolen.");
+  } finally {
+    // Återställ knappen
+    pasteBtn.disabled = false;
+    pasteBtn.textContent = "Paste";
   }
 });
 
-// === Spara formuläret ===
-document.getElementById("addStoreForm").addEventListener("submit", async (e) => {
+// === FORM SUBMIT ===
+document.getElementById("storeForm").addEventListener("submit", async e => {
   e.preventDefault();
 
-  const store = {
+  const newStore = {
     name: document.getElementById("name").value,
     address: document.getElementById("address").value,
-    website: document.getElementById("website").value,
-    phone: document.getElementById("phone").value,
-    type: document.getElementById("type").value,
-    rating: selectedRating,
     city: document.getElementById("city").value,
     country: document.getElementById("country").value,
-    lat: lat,   // sparas men visas inte
-    lng: lng,   // sparas men visas inte
-    status: "pending"
+    phone: document.getElementById("phone").value,
+    website: document.getElementById("website").value,
+    type: document.querySelector('input[name="type"]:checked').value,
+    rating: selectedRating ? parseInt(selectedRating) : null,
+    status: "pending",
   };
 
-  const { error } = await supabase.from("stores").insert([store]);
+  console.log("Sparar i Supabase:", newStore);
+
+  const { data, error } = await sb.from("stores").insert([newStore]);
   if (error) {
-    alert("❌ Fel vid sparande: " + error.message);
+    console.error(error);
+    alert("Fel vid sparning!");
   } else {
-    alert("✅ Sparad! Väntar på godkännande.");
+    alert("Butiken sparad som pending.");
     e.target.reset();
-    selectedRating = 0;
-    lat = null;
-    lng = null;
-    document.querySelectorAll("#ratingStars span").forEach(s => s.classList.remove("active"));
   }
 });
-
-// === Fyll i formuläret med Google-data ===
-function fillForm(data) {
-  document.getElementById("name").value = data.name || "";
-  document.getElementById("address").value = data.address || "";
-  document.getElementById("city").value = data.city || "";
-  document.getElementById("country").value = data.country || "";
-  document.getElementById("website").value = data.website || "";
-  document.getElementById("phone").value = data.phone || "";
-
-  // 🔎 Auto-guess type från namnet
-  if (data.name) {
-    const lowerName = data.name.toLowerCase();
-    if (lowerName.includes("lounge")) {
-      document.getElementById("type").value = "lounge";
-    } else if (lowerName.includes("store") || lowerName.includes("cigar") || lowerName.includes("shop")) {
-      document.getElementById("type").value = "store";
-    } else {
-      document.getElementById("type").value = "other";
-    }
-  }
-}
-
-// === Markera tomma fält (grön kant) ===
-function markEmptyFields() {
-  ["name","address","city","country","website","phone"].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el.value) {
-      el.classList.add("highlight");
-    } else {
-      el.classList.remove("highlight");
-    }
-  });
-}
-
-// === Google Places / Geocoding ===
-async function fetchPlaceDetails(mapsUrl) {
-  try {
-    // 1. Leta efter koordinater i URL
-    const coordsMatch = mapsUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-
-    if (coordsMatch) {
-      const latVal = coordsMatch[1];
-      const lngVal = coordsMatch[2];
-
-      const geoUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latVal},${lngVal}&key=${GOOGLE_API_KEY}`;
-      const geoRes = await fetch(geoUrl);
-      const geoData = await geoRes.json();
-
-      if (geoData.results && geoData.results.length > 0) {
-        const result = geoData.results[0];
-        const comps = result.address_components;
-
-        return {
-          name: result.formatted_address.split(",")[0] || "",
-          address: result.formatted_address || "",
-          city: (comps.find(c => c.types.includes("locality")) || {}).long_name || "",
-          country: (comps.find(c => c.types.includes("country")) || {}).long_name || "",
-          website: "",
-          phone: "",
-          lat: latVal,
-          lng: lngVal
-        };
-      }
-    }
-
-    // 2. Om det finns place_id i URL
-    const placeIdMatch = mapsUrl.match(/placeid=([^&]+)/);
-    if (placeIdMatch) {
-      const placeId = placeIdMatch[1];
-
-      const placeUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,international_phone_number,website,address_component,geometry&key=${GOOGLE_API_KEY}`;
-      const placeRes = await fetch(placeUrl);
-      const placeData = await placeRes.json();
-
-      if (placeData.result) {
-        const r = placeData.result;
-        const comps = r.address_components;
-
-        return {
-          name: r.name || "",
-          address: r.formatted_address || "",
-          city: (comps.find(c => c.types.includes("locality")) || {}).long_name || "",
-          country: (comps.find(c => c.types.includes("country")) || {}).long_name || "",
-          website: r.website || "",
-          phone: r.international_phone_number || "",
-          lat: r.geometry?.location?.lat || null,
-          lng: r.geometry?.location?.lng || null
-        };
-      }
-    }
-
-  } catch (err) {
-    console.error("Google fetch error", err);
-  }
-  return null;
-}
