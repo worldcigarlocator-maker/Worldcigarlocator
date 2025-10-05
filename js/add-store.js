@@ -23,23 +23,55 @@ function extractLatLngFromUrl(url) {
   return null;
 }
 
-// ==== HELPER: Reverse geocode ====
+// ==== HELPER: Extract Place ID from Maps URL ====
+function extractPlaceIdFromUrl(url) {
+  const match = url.match(/placeid=([^&]+)/);
+  if (match) return match[1];
+  return null;
+}
+
+// ==== HELPER: Geocode (lat/lng → city/country) ====
 async function reverseGeocode(lat, lng) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}`;
   const res = await fetch(url);
   const data = await res.json();
   if (data.status !== "OK") return null;
 
-  let city = null, country = null, placeName = null;
+  let city = null, country = null;
   data.results[0].address_components.forEach(c => {
     if (c.types.includes("locality")) city = c.long_name;
     if (c.types.includes("country")) country = c.long_name;
   });
 
-  // Försök plocka ut namn
-  placeName = data.results[0].address_components[0]?.long_name || data.results[0].formatted_address;
+  return {
+    address: data.results[0].formatted_address,
+    city,
+    country
+  };
+}
 
-  return { city, country, address: data.results[0].formatted_address, placeName };
+// ==== HELPER: Places API (placeid → details) ====
+async function getPlaceDetails(placeId) {
+  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_API_KEY}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if (data.status !== "OK") return null;
+
+  const r = data.result;
+  let city = null, country = null;
+  r.address_components.forEach(c => {
+    if (c.types.includes("locality")) city = c.long_name;
+    if (c.types.includes("country")) country = c.long_name;
+  });
+
+  return {
+    name: r.name,
+    address: r.formatted_address,
+    city,
+    country,
+    lat: r.geometry.location.lat,
+    lng: r.geometry.location.lng
+  };
 }
 
 // ==== SUBMIT HANDLER ====
@@ -55,8 +87,24 @@ document.getElementById("storeForm").addEventListener("submit", async (e) => {
   let address = document.getElementById("address").value;
   let lat = null, lng = null, city = null, country = null;
 
-  // === Försök hämta från Google om Maps URL finns ===
-  if (mapsUrl) {
+  // === Kolla om URL innehåller Place ID ===
+  let placeId = extractPlaceIdFromUrl(mapsUrl);
+  if (placeId) {
+    const details = await getPlaceDetails(placeId);
+    if (details) {
+      name = name || details.name;
+      address = details.address;
+      city = details.city;
+      country = details.country;
+      lat = details.lat;
+      lng = details.lng;
+
+      // Autofyll i formuläret
+      document.getElementById("name").value = name;
+      document.getElementById("address").value = address;
+    }
+  } else if (mapsUrl) {
+    // === Annars: försök med lat/lng i URL ===
     const coords = extractLatLngFromUrl(mapsUrl);
     if (coords) {
       lat = coords.lat;
@@ -66,13 +114,7 @@ document.getElementById("storeForm").addEventListener("submit", async (e) => {
         address = geo.address;
         city = geo.city;
         country = geo.country;
-
-        // Autofyll i formuläret
         document.getElementById("address").value = address;
-        if (!name && geo.placeName) {
-          document.getElementById("name").value = geo.placeName;
-          name = geo.placeName;
-        }
       }
     }
   }
