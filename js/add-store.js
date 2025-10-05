@@ -51,6 +51,7 @@ document.getElementById("storeForm").addEventListener("submit", async (e) => {
   let address = document.getElementById("address").value;
   let lat = null, lng = null, city = null, country = null;
 
+  // === Försök hämta från Google om Maps URL finns ===
   if (mapsUrl) {
     const coords = extractLatLngFromUrl(mapsUrl);
     if (coords) {
@@ -66,7 +67,19 @@ document.getElementById("storeForm").addEventListener("submit", async (e) => {
     }
   }
 
-  // Insert to Supabase
+  // === Om Google inte hittar stad/land → visa manuella fält ===
+  if (!city || !country) {
+    document.getElementById("manualFields").style.display = "block";
+    city = document.getElementById("manualCity").value || null;
+    country = document.getElementById("manualCountry").value || null;
+
+    if (!city || !country) {
+      alert("⚠️ Google hittade inte stad/land. Fyll i manuellt innan du sparar.");
+      return;
+    }
+  }
+
+  // === Spara i Supabase ===
   const { error } = await supabase.from("stores").insert([{
     name,
     address,
@@ -88,5 +101,6 @@ document.getElementById("storeForm").addEventListener("submit", async (e) => {
     document.getElementById("storeForm").reset();
     selectedRating = null;
     document.querySelectorAll("#rating span").forEach(s => s.classList.remove("active"));
+    document.getElementById("manualFields").style.display = "none";
   }
 });
