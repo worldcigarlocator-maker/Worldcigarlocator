@@ -1,7 +1,7 @@
 /* === Grundlayout === */
 body {
   font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  background: #f3f3f3;
   margin: 0;
   padding: 0;
   display: flex;
@@ -10,24 +10,25 @@ body {
   min-height: 100vh;
 }
 
-/* === Form-box === */
+/* Vit box */
 .form-wrapper {
   background: #fff;
   padding: 30px;
+  margin: 30px;
   border-radius: 10px;
-  box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   width: 100%;
   max-width: 600px;
-  margin-top: 40px;
 }
 
-.form-wrapper h1 {
-  color: #d4af37; /* guld */
+/* Rubrik */
+h1 {
+  color: #d4af37;
   text-align: center;
   margin-bottom: 25px;
 }
 
-/* === Inputs & Labels === */
+/* === Formgrupper === */
 .form-group {
   margin-bottom: 20px;
 }
@@ -36,7 +37,6 @@ body {
   display: block;
   font-weight: bold;
   margin-bottom: 6px;
-  color: #333;
 }
 
 .form-group input,
@@ -46,96 +46,77 @@ body {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 14px;
   box-sizing: border-box;
 }
 
-/* === URL + Paste-knapp i samma rad === */
-.form-group.url-group {
+/* === Google Maps URL + Paste-knapp === */
+.url-row {
   display: flex;
-  gap: 10px;
+  flex-direction: row;
   align-items: center;
+  gap: 10px;
 }
 
-.form-group.url-group label {
-  flex-basis: 100%;
-}
-
-.form-group.url-group input {
+.url-row input {
   flex: 1;
 }
 
-#pasteBtn {
+/* === Knappar === */
+button {
   background-color: #d4af37; /* guld */
-  color: #fff;
+  color: #fff; /* vit text */
   border: none;
-  padding: 10px 16px;
+  padding: 10px 18px;
   border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
   transition: background 0.3s ease;
-  white-space: nowrap;
 }
 
-#pasteBtn:hover {
-  background-color: #b9972f; /* mörkare guld vid hover */
+button:hover {
+  background-color: #b9972f; /* mörkare guld */
 }
 
-/* === Save-knappen === */
+/* Save-knappen längst ner */
 .save-btn {
-  background-color: #d4af37; /* guld */
-  color: #000;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 15px;
-  cursor: pointer;
-  transition: background 0.3s ease;
   width: 100%;
+  margin-top: 15px;
+  padding: 12px;
 }
 
-.save-btn:hover {
-  background-color: #b9972f;
-}
-
-/* === Stjärnor (rating) === */
-.stars {
+/* === Ratingstjärnor === */
+.rating {
   display: flex;
-  gap: 5px;
-  font-size: 24px;
+  gap: 6px;
+  font-size: 22px;
   cursor: pointer;
 }
 
-.stars span {
+.rating span {
   color: #ccc;
-  transition: color 0.2s;
+  transition: color 0.2s ease;
 }
 
-.stars span.selected {
-  color: #d4af37; /* guld */
+.rating span.active,
+.rating span:hover,
+.rating span:hover ~ span {
+  color: #d4af37;
 }
 
-/* === Highlight för tomma autofyll-fält === */
+/* === Highlight för autofyll (tomma fält) === */
 .highlight-empty {
-  border: 2px solid #28a745 !important; /* grön kant */
+  border: 2px solid #3cb371 !important; /* grönt */
 }
 
-/* === Responsiv design === */
+/* === Mobilanpassning === */
 @media (max-width: 600px) {
-  .form-wrapper {
-    padding: 20px;
-    max-width: 95%;
-  }
-
-  .form-group.url-group {
+  .url-row {
     flex-direction: column;
     align-items: stretch;
   }
 
-  #pasteBtn {
+  .url-row button {
     width: 100%;
-    margin-top: 10px;
   }
 }
-
