@@ -39,7 +39,7 @@ input, select, textarea {
   box-sizing: border-box;
 }
 
-/* URL + Paste-knapp på samma rad */
+/* URL + Paste button in one row */
 .url-row {
   display: flex;
   gap: 8px;
@@ -54,9 +54,9 @@ input, select, textarea {
   height: 40px;
 }
 
-/* Gemensam guldknapp */
+/* Gold button */
 button {
-  background: #d4af37;   /* riktig guld */
+  background: #d4af37;   /* proper gold */
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -75,7 +75,18 @@ button:hover {
   margin-top: 15px;
 }
 
-/* Betyg */
+/* Store / Lounge / Other */
+.toggle-group {
+  display: flex;
+  gap: 16px;
+  margin: 14px 0;
+  font-size: 14px;
+}
+.toggle-group label {
+  font-weight: normal;
+}
+
+/* Rating */
 .rating {
   display: flex;
   gap: 6px;
@@ -92,7 +103,7 @@ button:hover {
   color: #d4af37;
 }
 
-/* Responsiv */
+/* Responsive */
 @media (max-width: 600px) {
   .url-row {
     flex-direction: column;
