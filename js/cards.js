@@ -1,15 +1,17 @@
 // ==== CONFIG ====
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
-
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ==== HÄMTA STORES ====
 async function loadStores() {
-  const { data, error } = await supabase.from("stores").select("*").eq("status", "pending");
+  const { data, error } = await supabase
+    .from("stores")
+    .select("*")
+    .eq("status", "pending"); // eller .eq("status", "approved") sen
 
   if (error) {
-    console.error("Error fetching stores:", error);
+    console.error("❌ Error fetching stores:", error.message);
     return [];
   }
   return data;
@@ -20,7 +22,7 @@ function renderCards(stores) {
   const grid = document.getElementById("cardGrid");
   grid.innerHTML = "";
 
-  if (stores.length === 0) {
+  if (!stores || stores.length === 0) {
     grid.innerHTML = "<p style='color:white'>No stores found.</p>";
     return;
   }
@@ -40,7 +42,7 @@ function renderCards(stores) {
         <span class="card-type ${badgeClass}">${store.type}</span>
       </div>
       <p class="address">${store.address || ""}</p>
-      <p class="location">${store.city || ""}, ${store.country || ""}</p>
+      <p class="location">${store.city || ""}${store.city && store.country ? ", " : ""}${store.country || ""}</p>
       ${store.phone ? `<p class="phone">📞 ${store.phone}</p>` : ""}
       ${store.website ? `<p class="website"><a href="${store.website}" target="_blank">🌐 Website</a></p>` : ""}
       <div class="stars">
