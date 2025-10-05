@@ -3,6 +3,7 @@ const GOOGLE_API_KEY = "AIzaSyClP5xnMvYaHC1xjHzuTFj3K9tHw0g6O00; // lägg din ri
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_KEY = "DIN_SUPABASE_KEY_HÄR"; 
 
+
 // Supabase klient
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
