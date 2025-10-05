@@ -6,7 +6,7 @@ const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
 // Google API key
-const GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY";
+const GOOGLE_API_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
 
 // Star rating
 let selectedRating = 0;
