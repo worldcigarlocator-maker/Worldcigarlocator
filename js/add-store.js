@@ -66,13 +66,6 @@ document.getElementById("storeForm").addEventListener("submit", async (e) => {
     }
   }
 
-  // === Fallback if Google didn’t find city/country ===
-  if (!city || !country) {
-    document.getElementById("manualFields").style.display = "block";
-    city = document.getElementById("manualCity").value || null;
-    country = document.getElementById("manualCountry").value || null;
-  }
-
   // Insert to Supabase
   const { error } = await supabase.from("stores").insert([{
     name,
@@ -95,6 +88,5 @@ document.getElementById("storeForm").addEventListener("submit", async (e) => {
     document.getElementById("storeForm").reset();
     selectedRating = null;
     document.querySelectorAll("#rating span").forEach(s => s.classList.remove("active"));
-    document.getElementById("manualFields").style.display = "none";
   }
 });
