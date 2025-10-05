@@ -5,9 +5,9 @@ body {
   background: #f5f5f5;
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* top-start centrerat */
+  align-items: center;   /* 🔥 nu centrerat vertikalt */
   min-height: 100vh;
-  padding: 2rem;
+  padding: 1rem;
   box-sizing: border-box;
 }
 
@@ -19,7 +19,6 @@ body {
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-  margin: auto; /* centrerar vertikalt/horizontellt med flex i body */
 }
 
 /* ====== Headings ====== */
@@ -84,4 +83,30 @@ input:focus, select:focus {
   color: #ccc;
 }
 .rating span {
-  cu
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.rating span.active {
+  color: #f4b400;
+}
+
+/* ====== Save button ====== */
+.save-btn {
+  background: #b8860b;
+  color: #fff;
+  padding: 0.8rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: background 0.2s ease;
+  width: 100%;
+}
+.save-btn:hover {
+  background: #daa520;
+}
+
+/* ====== Helpers ====== */
+.hidden { display: none; }
