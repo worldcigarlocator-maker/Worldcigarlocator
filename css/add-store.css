@@ -1,191 +1,104 @@
-/* =========================
-   Global layout
-   ========================= */
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, sans-serif;
   background: #f4f4f4;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   min-height: 100vh;
   margin: 0;
   padding: 20px;
-  color: #333;
 }
 
-/* =========================
-   Wrapper / Card
-   ========================= */
 .form-wrapper {
   background: #fff;
-  padding: 20px 24px;
+  padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   width: 100%;
-  max-width: 480px;     /* kompakt */
-  margin: auto;
+  max-width: 460px;
 }
 
-/* =========================
-   Headings
-   ========================= */
 h2 {
-  margin: 6px 0 16px;
-  color: #333;
   text-align: center;
-  font-size: 1.45rem;
-  line-height: 1.2;
+  color: #333;
+  margin-bottom: 20px;
 }
 
-/* =========================
-   Labels & Inputs
-   ========================= */
+/* Inputs */
 label {
+  font-weight: bold;
   display: block;
-  margin: 8px 0 6px;
-  font-weight: 700;
-  color: #444;
-  font-size: 14px;
+  margin: 10px 0 4px;
 }
 
-input[type="text"],
-input[type="url"],
-input[type="tel"],
-select,
-textarea {
+input, select, textarea {
   width: 100%;
-  padding: 9px 12px;
-  border: 1px solid #d7d7d7;
-  border-radius: 8px;
-  font-size: 13px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
   box-sizing: border-box;
-  background: #fff;
-  transition: border-color .15s ease, box-shadow .15s ease;
 }
 
-input::placeholder,
-textarea::placeholder {
-  color: #b7b7b7;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  border-color: #d4af37;
-  box-shadow: 0 0 0 3px rgba(212,175,55,0.18);
-}
-
-/* Markering av fält som saknar data efter autofill */
-input.highlight,
-textarea.highlight {
-  border: 2px solid #4CAF50;
-}
-
-/* =========================
-   URL-rad (input + Paste)
-   ========================= */
+/* URL + Paste-knapp på samma rad */
 .url-row {
   display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 8px;
 }
 
-.url-row input[type="text"] {
+.url-row input {
   flex: 1;
-  height: 38px;                 /* styr höjd på raden */
+  height: 40px;
 }
 
-/* =========================
-   Guld-knapp (återanvändbar)
-   ========================= */
-.gold-btn {
-  background: #d4af37;          /* guld */
-  color: #fff;                   /* vit text */
-  border: none;
-  border-radius: 8px;
-  font-weight: 800;
-  cursor: pointer;
-  padding: 10px 16px;
-  font-size: 13px;
-  transition: background .2s ease, opacity .2s ease, transform .02s ease;
-}
-
-.gold-btn:hover { background: #b9972e; }
-.gold-btn:active { transform: translateY(1px); }
-.gold-btn:disabled { opacity: .6; cursor: not-allowed; }
-
-/* Specifikt för Paste – samma höjd som input */
 #pasteBtn {
-  height: 38px;                 /* exakt samma som URL-fältet */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 40px;
 }
 
-/* Spara-knapp i fullbredd */
+/* Gemensam guldknapp */
+button {
+  background: #d4af37;   /* riktig guld */
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #b9972e;
+}
+
 .save-btn {
   width: 100%;
-  margin-top: 14px;
+  margin-top: 15px;
 }
 
-/* =========================
-   Toggle group (Store/Lounge/Other)
-   ========================= */
-.toggle-group {
-  display: flex;
-  gap: 14px;
-  margin: 6px 0 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.toggle-group label {
-  font-weight: 600;
-  color: #444;
-  font-size: 13px;
-}
-
-/* =========================
-   Stjärn-betyg
-   ========================= */
+/* Betyg */
 .rating {
   display: flex;
   gap: 6px;
-  margin: 8px 0 4px;
+  margin-top: 6px;
 }
 
 .rating .star {
-  font-size: 18px;
+  font-size: 20px;
+  color: #ccc;
   cursor: pointer;
-  color: #cfcfcf;
-  transition: color .15s ease, transform .02s ease;
 }
-.rating .star:hover { color: #d4af37; }
-.rating .star.selected { color: #d4af37; }
-.rating .star:active { transform: scale(0.98); }
 
-/* =========================
-   Spinner (för Paste)
-   ========================= */
-.spinner {
-  border: 2px solid rgba(255,255,255,0.35);
-  border-top: 2px solid #fff;
-  border-radius: 50%;
-  width: 14px;
-  height: 14px;
-  display: inline-block;
-  animation: spin .8s linear infinite;
-  margin-right: 6px;
-  vertical-align: middle;
+.rating .star.selected {
+  color: #d4af37;
 }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* =========================
-   Responsiv
-   ========================= */
-@media (max-width: 560px) {
-  .form-wrapper { padding: 18px 18px; border-radius: 10px; max-width: 94vw; }
-  h2 { font-size: 1.35rem; }
-  .url-row { flex-direction: column; gap: 8px; }
-  #pasteBtn { width: 100%; height: 40px; }
+/* Responsiv */
+@media (max-width: 600px) {
+  .url-row {
+    flex-direction: column;
+  }
+
+  #pasteBtn {
+    width: 100%;
+  }
 }
