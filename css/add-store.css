@@ -1,90 +1,60 @@
+/* === Grundlayout === */
 body {
   font-family: Arial, sans-serif;
-  background: #f5f5f5;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
 }
 
+/* === Form-box === */
 .form-wrapper {
-  background: white;
-  padding: 20px 30px;
+  background: #fff;
+  padding: 30px;
   border-radius: 10px;
-  max-width: 600px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
   width: 100%;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  max-width: 600px;
 }
 
-h1 {
-  color: #b8860b;
+.form-wrapper h1 {
+  color: #d4af37; /* guld */
   text-align: center;
+  margin-bottom: 25px;
 }
 
+/* === Inputs & Labels === */
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
-label {
+.form-group label {
   display: block;
-  margin-bottom: 5px;
+  font-weight: bold;
+  margin-bottom: 6px;
   color: #333;
 }
 
-input, select {
+.form-group input,
+.form-group select,
+.form-group textarea {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
   box-sizing: border-box;
 }
 
-.input-with-btn {
-  display: flex;
-  gap: 10px;
-}
-
-.small-btn {
-  padding: 8px 14px;
-  background: #007bff;
-  color: white;
+/* === Knappar === */
+button, .save-btn {
+  background-color: #d4af37; /* guld */
+  color: #000;
   border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.small-btn:hover {
-  background: #0056b3;
-}
-
-.save-btn {
-  width: 100%;
-  padding: 10px;
-  background: #b8860b;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.save-btn:hover {
-  background: #8b6508;
-}
-
-/* Rating stars */
-.rating span {
-  font-size: 24px;
-  cursor: pointer;
-  color: #ccc;
-}
-
-.rating span.active {
-  color: gold;
-}
-
-/* Highlight empty fields after Paste */
-.highlight {
-  border: 2px solid green !important;
-}
-
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-
