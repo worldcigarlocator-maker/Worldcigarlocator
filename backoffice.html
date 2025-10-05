@@ -16,6 +16,10 @@
       text-align: center;
       margin-top: 20px;
     }
+    h2 {
+      margin-top: 40px;
+      color: #ffcc00;
+    }
     .backoffice-container {
       width: 90%;
       max-width: 1000px;
@@ -44,22 +48,23 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    .approve {
-      background: green;
-      color: #fff;
-    }
-    .delete {
-      background: red;
-      color: #fff;
-    }
+    .approve { background: green; color: #fff; }
+    .delete { background: red; color: #fff; }
+    .edit { background: dodgerblue; color: #fff; }
   </style>
 </head>
 <body>
   <h1>Backoffice</h1>
-  <div class="backoffice-container" id="pendingList">
-    <!-- Pending stores kommer hit -->
+  <div class="backoffice-container">
+    <h2>⏳ Pending Stores</h2>
+    <div id="pendingList"></div>
+
+    <h2>📦 Approved Stores (Arkiv)</h2>
+    <div id="approvedList"></div>
   </div>
 
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <script src="js/backoffice.js"></script>
 </body>
 </html>
+
