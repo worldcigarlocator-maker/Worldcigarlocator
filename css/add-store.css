@@ -1,110 +1,121 @@
+/* === Global layout === */
 body {
   font-family: Arial, sans-serif;
-  background: #f4f4f4;
+  background: #f5f5f5;
+  margin: 0;
+  padding: 0;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   min-height: 100vh;
-  margin: 0;
-  padding: 20px;
 }
 
+/* === Form wrapper === */
 .form-wrapper {
   background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 25px 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   width: 100%;
-  max-width: 460px;
+  max-width: 480px;
 }
 
-h2 {
-  text-align: center;
-  color: #333;
+.form-wrapper h1 {
+  font-size: 20px;
   margin-bottom: 20px;
+  color: #333;
+  text-align: center;
 }
 
-/* Inputs */
+/* === Inputs === */
 label {
-  font-weight: bold;
   display: block;
-  margin: 10px 0 4px;
+  font-size: 14px;
+  margin-top: 12px;
+  margin-bottom: 5px;
+  color: #444;
 }
 
-input, select, textarea {
+input[type="text"],
+input[type="url"],
+input[type="number"] {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  font-size: 14px;
   box-sizing: border-box;
 }
 
-/* URL + Paste button in one row */
+/* === URL row with paste button === */
 .url-row {
   display: flex;
   gap: 8px;
+  margin-bottom: 15px;
 }
 
 .url-row input {
   flex: 1;
-  height: 40px;
 }
 
 #pasteBtn {
-  height: 40px;
+  width: 90px;
 }
 
-/* Gold button */
-button {
-  background: #d4af37;   /* proper gold */
+/* === Gold buttons === */
+.gold-btn {
+  background: #d4af37; /* riktig guld */
   color: #fff;
   border: none;
   border-radius: 6px;
-  padding: 10px 16px;
+  padding: 10px 14px;
+  font-size: 14px;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.2s;
 }
 
-button:hover {
-  background: #b9972e;
+.gold-btn:hover {
+  background: #c19e2c; /* mörkare guld vid hover */
 }
 
 .save-btn {
+  margin-top: 18px;
   width: 100%;
-  margin-top: 15px;
 }
 
-/* Store / Lounge / Other */
+/* === Toggle group (Store/Lounge/Other) === */
 .toggle-group {
   display: flex;
-  gap: 16px;
-  margin: 14px 0;
-  font-size: 14px;
-}
-.toggle-group label {
-  font-weight: normal;
-}
-
-/* Rating */
-.rating {
-  display: flex;
-  gap: 6px;
+  gap: 15px;
   margin-top: 6px;
 }
 
-.rating .star {
-  font-size: 20px;
-  color: #ccc;
+.toggle-group label {
+  font-size: 14px;
   cursor: pointer;
 }
 
-.rating .star.selected {
+/* === Star rating === */
+.rating {
+  display: flex;
+  gap: 5px;
+  font-size: 20px;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.star {
+  color: #ccc;
+  transition: color 0.2s;
+}
+
+.star.selected {
   color: #d4af37;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
+/* === Responsive === */
+@media (max-width: 500px) {
   .url-row {
     flex-direction: column;
   }
