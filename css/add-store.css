@@ -1,129 +1,145 @@
-/* === Grundlayout === */
+/* === Global layout === */
 body {
   font-family: Arial, sans-serif;
-  background: #f3f3f3;
-  margin: 0;
-  padding: 0;
+  background: #f4f4f4;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   min-height: 100vh;
+  margin: 0;
+  padding: 20px;
 }
 
-/* Vit box */
+/* === Wrapper === */
 .form-wrapper {
   background: #fff;
-  padding: 30px;
-  margin: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
   width: 100%;
   max-width: 600px;
 }
 
-/* Rubrik */
-h1 {
-  color: #d4af37;
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-/* === Formgrupper === */
-.form-group {
+/* === Headings === */
+h2 {
+  margin-top: 0;
   margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+  font-size: 1.6rem;
 }
 
-.form-group label {
+/* === Labels === */
+label {
   display: block;
+  margin: 12px 0 6px;
   font-weight: bold;
-  margin-bottom: 6px;
+  color: #333;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+/* === Inputs & selects === */
+input[type="text"],
+input[type="url"],
+input[type="tel"],
+select,
+textarea {
   width: 100%;
-  padding: 10px;
+  padding: 10px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  margin-bottom: 12px;
   font-size: 14px;
   box-sizing: border-box;
 }
 
-/* === Google Maps URL + Paste-knapp === */
+/* === URL row with Paste button === */
 .url-row {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
+  gap: 8px;
+  margin-bottom: 15px;
 }
 
-.url-row input {
+.url-row input[type="text"] {
   flex: 1;
 }
 
-/* === Knappar === */
-button {
-  background-color: #d4af37; /* guld */
-  color: #fff; /* vit text */
+#pasteBtn {
+  background: gold;
   border: none;
-  padding: 10px 18px;
+  padding: 10px 16px;
   border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.3s ease;
+  color: white;
+  transition: background 0.2s ease;
 }
 
-button:hover {
-  background-color: #b9972f; /* mörkare guld */
+#pasteBtn:hover {
+  background: #d4af37;
 }
 
-/* Save-knappen längst ner */
-.save-btn {
-  width: 100%;
-  margin-top: 15px;
-  padding: 12px;
-}
-
-/* === Ratingstjärnor === */
-.rating {
-  display: flex;
-  gap: 6px;
-  font-size: 22px;
-  cursor: pointer;
-}
-
-.rating span {
-  color: #ccc;
-  transition: color 0.2s ease;
-}
-
-.rating span.active,
-.rating span:hover,
-.rating span:hover ~ span {
-  color: #d4af37;
-}
-
-/* === Highlight för autofyll (tomma fält) === */
-.highlight-empty {
-  border: 2px solid #3cb371 !important; /* grönt */
-}
-
-/* === Mobilanpassning === */
-@media (max-width: 600px) {
-  .url-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .url-row button {
-    width: 100%;
-  }
-}
-button:disabled {
+#pasteBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* === Save button === */
+.save-btn {
+  width: 100%;
+  background: gold;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  color: white;
+  font-size: 15px;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.save-btn:hover {
+  background: #d4af37;
+}
+
+/* === Toggle group for Store/Lounge/Other === */
+.toggle-group {
+  display: flex;
+  gap: 20px;
+  margin: 8px 0 15px;
+}
+
+.toggle-group label {
+  font-weight: normal;
+  color: #444;
+}
+
+/* === Rating stars === */
+.rating {
+  display: flex;
+  gap: 5px;
+  margin: 10px 0;
+}
+
+.rating .star {
+  font-size: 22px;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.2s;
+}
+
+.rating .star:hover,
+.rating .star.selected {
+  color: gold;
+}
+
+/* === Highlight empty fields after autofill === */
+input.highlight,
+textarea.highlight {
+  border: 2px solid #4CAF50;
+}
+
+/* === Spinner inside Paste button === */
 .spinner {
   border: 2px solid #fff;
   border-top: 2px solid gold;
@@ -135,7 +151,19 @@ button:disabled {
   margin-right: 6px;
   vertical-align: middle;
 }
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* === Responsive === */
+@media (max-width: 600px) {
+  .url-row {
+    flex-direction: column;
+  }
+
+  #pasteBtn {
+    width: 100%;
+  }
 }
