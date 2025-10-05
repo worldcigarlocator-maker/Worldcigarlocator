@@ -8,7 +8,8 @@ const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // Google API key
 const GOOGLE_API_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
 
-// Star rating
+
+// === Stjärnbetyg ===
 let selectedRating = 0;
 document.querySelectorAll("#ratingStars span").forEach(star => {
   star.addEventListener("click", () => {
@@ -19,7 +20,7 @@ document.querySelectorAll("#ratingStars span").forEach(star => {
   });
 });
 
-// Paste button
+// === Paste-knapp ===
 document.getElementById("pasteBtn").addEventListener("click", async () => {
   const mapsUrl = document.getElementById("mapsUrl").value.trim();
   if (!mapsUrl) {
@@ -34,11 +35,11 @@ document.getElementById("pasteBtn").addEventListener("click", async () => {
     markEmptyFields();
     alert("✅ Data hämtad – komplettera gärna där det saknas!");
   } else {
-    alert("Kunde inte hämta data. Fyll i manuellt.");
+    alert("Kunde inte hämta platsdata. Fyll i manuellt.");
   }
 });
 
-// Save form
+// === Spara formuläret ===
 document.getElementById("addStoreForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -65,7 +66,7 @@ document.getElementById("addStoreForm").addEventListener("submit", async (e) => 
   }
 });
 
-// Fill form with Google data
+// === Fyll i formuläret med Google-data ===
 function fillForm(data) {
   document.getElementById("name").value = data.name || "";
   document.getElementById("address").value = data.address || "";
@@ -75,7 +76,7 @@ function fillForm(data) {
   document.getElementById("phone").value = data.phone || "";
 }
 
-// Mark empty fields in green
+// === Markera tomma fält (grön kant) ===
 function markEmptyFields() {
   ["name","address","city","country","website","phone"].forEach(id => {
     const el = document.getElementById(id);
@@ -87,34 +88,61 @@ function markEmptyFields() {
   });
 }
 
-// Google helper
+// === Google Places / Geocoding ===
 async function fetchPlaceDetails(mapsUrl) {
   try {
+    // 1. Försök hitta koordinater
     const coordsMatch = mapsUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-    let lat, lng;
 
     if (coordsMatch) {
-      lat = coordsMatch[1];
-      lng = coordsMatch[2];
+      const lat = coordsMatch[1];
+      const lng = coordsMatch[2];
+
+      const geoUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}`;
+      const geoRes = await fetch(geoUrl);
+      const geoData = await geoRes.json();
+
+      if (geoData.results && geoData.results.length > 0) {
+        const result = geoData.results[0];
+        const comps = result.address_components;
+
+        return {
+          name: result.formatted_address.split(",")[0] || "",
+          address: result.formatted_address || "",
+          city: (comps.find(c => c.types.includes("locality")) || {}).long_name || "",
+          country: (comps.find(c => c.types.includes("country")) || {}).long_name || "",
+          website: "",
+          phone: ""
+        };
+      }
     }
 
-    const geoUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}`;
-    const res = await fetch(geoUrl);
-    const data = await res.json();
+    // 2. Om URL istället innehåller place_id
+    const placeIdMatch = mapsUrl.match(/placeid=([^&]+)/);
+    if (placeIdMatch) {
+      const placeId = placeIdMatch[1];
 
-    if (data.results && data.results[0]) {
-      const result = data.results[0];
-      const comps = result.address_components;
+      const placeUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,international_phone_number,website,address_component&key=${GOOGLE_API_KEY}`;
+      const placeRes = await fetch(placeUrl);
+      const placeData = await placeRes.json();
 
-      return {
-        name: result.formatted_address.split(",")[0],
-        address: result.formatted_address,
-        city: (comps.find(c => c.types.includes("locality")) || {}).long_name,
-        country: (comps.find(c => c.types.includes("country")) || {}).long_name
-      };
+      if (placeData.result) {
+        const r = placeData.result;
+        const comps = r.address_components;
+
+        return {
+          name: r.name || "",
+          address: r.formatted_address || "",
+          city: (comps.find(c => c.types.includes("locality")) || {}).long_name || "",
+          country: (comps.find(c => c.types.includes("country")) || {}).long_name || "",
+          website: r.website || "",
+          phone: r.international_phone_number || ""
+        };
+      }
     }
+
   } catch (err) {
-    console.error(err);
+    console.error("Google fetch error", err);
   }
   return null;
 }
