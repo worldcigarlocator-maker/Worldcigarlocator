@@ -6,7 +6,7 @@ body {
   padding: 0;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   min-height: 100vh;
 }
 
@@ -18,6 +18,7 @@ body {
   box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
   width: 100%;
   max-width: 600px;
+  margin-top: 40px;
 }
 
 .form-wrapper h1 {
@@ -49,12 +50,92 @@ body {
   box-sizing: border-box;
 }
 
-/* === Knappar === */
-button, .save-btn {
+/* === URL + Paste-knapp i samma rad === */
+.form-group.url-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.form-group.url-group label {
+  flex-basis: 100%;
+}
+
+.form-group.url-group input {
+  flex: 1;
+}
+
+#pasteBtn {
+  background-color: #d4af37; /* guld */
+  color: #000;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+}
+
+#pasteBtn:hover {
+  background-color: #b9972f; /* mörkare guld vid hover */
+}
+
+/* === Save-knappen === */
+.save-btn {
   background-color: #d4af37; /* guld */
   color: #000;
   border: none;
   padding: 12px 20px;
   border-radius: 6px;
   font-weight: bold;
-  font-
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: 100%;
+}
+
+.save-btn:hover {
+  background-color: #b9972f;
+}
+
+/* === Stjärnor (rating) === */
+.stars {
+  display: flex;
+  gap: 5px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.stars span {
+  color: #ccc;
+  transition: color 0.2s;
+}
+
+.stars span.selected {
+  color: #d4af37; /* guld */
+}
+
+/* === Highlight för tomma autofyll-fält === */
+.highlight-empty {
+  border: 2px solid #28a745 !important; /* grön kant */
+}
+
+/* === Responsiv design === */
+@media (max-width: 600px) {
+  .form-wrapper {
+    padding: 20px;
+    max-width: 95%;
+  }
+
+  .form-group.url-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #pasteBtn {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
