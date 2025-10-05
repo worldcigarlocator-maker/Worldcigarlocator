@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backoffice - World Cigar Locator</title>
+  <link rel="stylesheet" href="css/cards.css">
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      color: gold;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .backoffice-container {
+      width: 90%;
+      max-width: 1000px;
+      margin: 30px auto;
+    }
+    .card {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card h3 {
+      margin: 0;
+      color: gold;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .approve {
+      background: green;
+      color: #fff;
+    }
+    .delete {
+      background: red;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Backoffice</h1>
+  <div class="backoffice-container" id="pendingList">
+    <!-- Pending stores kommer hit -->
+  </div>
+
+  <script src="js/backoffice.js"></script>
+</body>
+</html>
