@@ -1,70 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Backoffice - World Cigar Locator</title>
-  <link rel="stylesheet" href="css/cards.css">
-  <style>
-    body {
-      background: #111;
-      color: #fff;
-      font-family: Arial, sans-serif;
-    }
-    h1 {
-      color: gold;
-      text-align: center;
-      margin-top: 20px;
-    }
-    h2 {
-      margin-top: 40px;
-      color: #ffcc00;
-    }
-    .backoffice-container {
-      width: 90%;
-      max-width: 1000px;
-      margin: 30px auto;
-    }
-    .card {
-      background: #1e1e1e;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .card h3 {
-      margin: 0;
-      color: gold;
-    }
-    .buttons {
-      display: flex;
-      gap: 10px;
-    }
-    button {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .approve { background: green; color: #fff; }
-    .delete { background: red; color: #fff; }
-    .edit { background: dodgerblue; color: #fff; }
-  </style>
+  <link rel="stylesheet" href="css/backoffice.css">
 </head>
 <body>
-  <h1>Backoffice</h1>
-  <div class="backoffice-container">
-    <h2>⏳ Pending Stores</h2>
-    <div id="pendingList"></div>
+  <div class="container">
+    <h1>Backoffice</h1>
 
-    <h2>📦 Approved Stores (Arkiv)</h2>
-    <div id="approvedList"></div>
+    <section>
+      <h2>Pending Stores</h2>
+      <div id="pending-list"></div>
+    </section>
+
+    <section>
+      <h2>Approved (Arkiv)</h2>
+      <input type="text" id="search" placeholder="🔍 Sök på namn, stad eller land">
+      <div id="approved-list"></div>
+    </section>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h2>Edit Store</h2>
+      <form id="editForm">
+        <input type="hidden" id="edit-id">
+        <label>Namn:</label>
+        <input type="text" id="edit-name" required>
+        <label>Adress:</label>
+        <input type="text" id="edit-address">
+        <label>Stad:</label>
+        <input type="text" id="edit-city">
+        <label>Land:</label>
+        <input type="text" id="edit-country">
+        <label>Telefon:</label>
+        <input type="text" id="edit-phone">
+        <label>Webbplats:</label>
+        <input type="text" id="edit-website">
+        <button type="submit">💾 Spara</button>
+      </form>
+    </div>
   </div>
 
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <script src="js/backoffice.js"></script>
 </body>
 </html>
-
