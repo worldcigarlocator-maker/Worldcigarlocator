@@ -2,53 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Add Store / Lounge / Other</title>
+  <title>Add Store</title>
   <link rel="stylesheet" href="css/add-store.css">
+  <!-- Google Maps JS SDK med Places -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+  <!-- Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <div class="form-wrapper">
-    <h2>Add a new place</h2>
+    <h1>Add Store / Lounge / Other</h1>
 
     <form id="storeForm">
-      <!-- Google Maps URL -->
-      <label for="mapsUrl">Google Maps URL</label>
+      <!-- Maps URL + Paste button -->
       <div class="url-row">
-        <input type="text" id="mapsUrl" placeholder="Paste Google Maps link here">
+        <input type="text" id="mapsUrl" placeholder="Paste Google Maps URL here">
         <button type="button" id="pasteBtn" class="gold-btn">Paste</button>
       </div>
 
-      <!-- Name -->
-      <label for="name">Name</label>
-      <input type="text" id="name" placeholder="Store/Lounge name">
+      <label>Name</label>
+      <input type="text" id="name" required>
 
-      <!-- Address -->
-      <label for="address">Address</label>
-      <input type="text" id="address" placeholder="Address">
+      <label>Address</label>
+      <input type="text" id="address" required>
 
-      <!-- City -->
-      <label for="city">City</label>
-      <input type="text" id="city" placeholder="City">
+      <label>City</label>
+      <input type="text" id="city" required>
 
-      <!-- Country -->
-      <label for="country">Country</label>
-      <input type="text" id="country" placeholder="Country">
+      <label>Country</label>
+      <input type="text" id="country" required>
 
-      <!-- Phone -->
-      <label for="phone">Phone</label>
-      <input type="tel" id="phone" placeholder="Phone number">
+      <label>Phone</label>
+      <input type="text" id="phone">
 
-      <!-- Website -->
-      <label for="website">Website</label>
-      <input type="url" id="website" placeholder="https://...">
+      <label>Website</label>
+      <input type="url" id="website">
 
-      <!-- Type -->
+      <label>Type</label>
       <div class="toggle-group">
         <label><input type="radio" name="type" value="store" checked> Store</label>
         <label><input type="radio" name="type" value="lounge"> Lounge</label>
         <label><input type="radio" name="type" value="other"> Other</label>
       </div>
 
-      <!-- Rating -->
       <label>Rating</label>
       <div class="rating">
         <span class="star" data-value="1">★</span>
@@ -58,12 +54,10 @@
         <span class="star" data-value="5">★</span>
       </div>
 
-      <!-- Save -->
       <button type="submit" class="gold-btn save-btn">Save</button>
     </form>
   </div>
 
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <script src="js/add-store.js"></script>
 </body>
 </html>
