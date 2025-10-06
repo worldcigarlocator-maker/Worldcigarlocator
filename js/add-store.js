@@ -127,3 +127,34 @@ document.getElementById("saveBtn").addEventListener("click", async (e) => {
     currentRating = 0;
   }
 });
+// gör initAutocomplete global så Google kan hitta den
+window.initAutocomplete = function () {
+  const input = document.getElementById("address");
+  if (!input) {
+    console.error("Address input not found");
+    return;
+  }
+
+  const autocomplete = new google.maps.places.Autocomplete(input, {
+    fields: ["address_components", "geometry", "name"],
+    types: ["geocode", "establishment"],
+  });
+
+  autocomplete.addListener("place_changed", function () {
+    const place = autocomplete.getPlace();
+    console.log("Place from autocomplete:", place);
+
+    if (!place.address_components) return;
+
+    // hämta city och country från adresskomponenter
+    let city = "";
+    let country = "";
+    place.address_components.forEach(comp => {
+      if (comp.types.includes("locality")) city = comp.long_name;
+      if (comp.types.includes("country")) country = comp.long_name;
+    });
+
+    document.getElementById("city").value = city || "";
+    document.getElementById("country").value = country || "";
+  });
+};
