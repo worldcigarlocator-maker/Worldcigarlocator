@@ -1,32 +1,70 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Google Maps API Test</title>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
+  <title>Google Maps PlaceID Test</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places" async defer></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input { width: 400px; padding: 8px; }
+    button { padding: 8px 12px; margin-left: 5px; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 5px; }
+  </style>
 </head>
 <body>
-  <h1>Google Maps API Test</h1>
+  <h1>Google Maps API PlaceID Test</h1>
+
+  <input type="text" id="mapsUrl" placeholder="Paste Google Maps URL here">
+  <button id="fetchBtn">Fetch</button>
+
+  <h3>Result:</h3>
+  <pre id="output">No data yet...</pre>
+
   <script>
-    function initTest() {
-      const map = document.createElement("div");
-      const service = new google.maps.places.PlacesService(map);
-
-      const request = {
-        placeId: "ChIJ2a2a8n4XUUYRh5u4z9M8S6k", // Cigarrummet
-        fields: ["name", "formatted_address"]
-      };
-
-      service.getDetails(request, (place, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-          console.log("✅ Place fetched:", place);
-        } else {
-          console.error("❌ Misslyckades:", status);
-        }
-      });
+    function extractPlaceId(url) {
+      // Matcha !1s...! eller place_id:
+      const regex1 = /!1s([^!]+)!/;
+      const regex2 = /placeid=([^&]+)/;
+      const match1 = url.match(regex1);
+      const match2 = url.match(regex2);
+      if (match1) return match1[1];
+      if (match2) return match2[1];
+      return null;
     }
 
-    window.onload = initTest;
+    document.getElementById("fetchBtn").addEventListener("click", () => {
+      const url = document.getElementById("mapsUrl").value.trim();
+      const placeId = extractPlaceId(url);
+      const output = document.getElementById("output");
+
+      if (!placeId) {
+        output.textContent = "❌ Could not extract PlaceID from URL.";
+        return;
+      }
+
+      output.textContent = "🔎 Extracted PlaceID: " + placeId;
+
+      // initiera osynlig karta
+      const mapDiv = document.createElement("div");
+      const map = new google.maps.Map(mapDiv);
+      const service = new google.maps.places.PlacesService(map);
+
+      service.getDetails(
+        {
+          placeId: placeId,
+          fields: ["name", "formatted_address", "geometry", "international_phone_number", "website"]
+        },
+        (place, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK) {
+            console.log("✅ Place data:", place);
+            output.textContent = JSON.stringify(place, null, 2);
+          } else {
+            console.error("❌ Error:", status);
+            output.textContent = "❌ Error: " + status;
+          }
+        }
+      );
+    });
   </script>
 </body>
 </html>
