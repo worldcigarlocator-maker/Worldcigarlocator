@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Google Maps API Key Test</title>
+</head>
+<body>
+  <h1>Google Maps API Key Test</h1>
+  <p>Öppna webbläsarens console (F12) för att se resultatet.</p>
+
+  <!-- Ladda Google Maps JavaScript SDK med din riktiga API-nyckel -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=DIN_API_KEY&libraries=places"></script>
+
+  <script>
+    function initTest() {
+      console.log("✅ Google Maps JS SDK laddad!");
+
+      // Skapa en dummy-map (krävs av PlacesService)
+      const mapDiv = document.createElement("div");
+      const map = new google.maps.Map(mapDiv);
+
+      // Exempel: Cigarrummet
+      const request = {
+        placeId: "ChIJ2a2a8n4XUUYRh5u4z9M8S6k",
+        fields: ["name", "formatted_address"]
+      };
+
+      const service = new google.maps.places.PlacesService(map);
+      service.getDetails(request, (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          console.log("🎉 Det funkar! Här är platsen:", place);
+        } else {
+          console.error("❌ Misslyckades:", status);
+        }
+      });
+    }
+
+    // När hela scriptet är laddat
+    window.onload = initTest;
+  </script>
+</body>
+</html>
