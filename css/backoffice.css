@@ -99,3 +99,14 @@ h1, h2 {
 .save-btn:hover { background: #1976D2; }
 .reject-btn { background: #f44336; color: #fff; }
 .reject-btn:hover { background: #d7372b; }
+
+.search-bar {
+  width: 100%;
+  max-width: 400px;
+  display: block;
+  margin: 0 auto 1.5rem auto;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
