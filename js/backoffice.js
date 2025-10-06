@@ -3,88 +3,127 @@ const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // din anon key här
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// ===== Load stores =====
+// Load stores on start
+document.addEventListener("DOMContentLoaded", loadStores);
+
 async function loadStores() {
-  console.log("Loading stores...");
-
-  // Pending
-  const { data: pending, error: err1 } = await supabase
+  const { data, error } = await supabase
     .from("stores")
     .select("*")
-    .eq("approved", false);
+    .order("id", { ascending: false });
 
-  renderCards(pending, "pendingContainer", true);
-
-  // Approved
-  const { data: approved, error: err2 } = await supabase
-    .from("stores")
-    .select("*")
-    .eq("approved", true);
-
-  renderCards(approved, "approvedContainer", false);
-}
-
-// ===== Render cards =====
-function renderCards(stores, containerId, isPending) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = "";
-
-  if (!stores || stores.length === 0) {
-    container.innerHTML = "<p>No stores found.</p>";
+  if (error) {
+    console.error("Error loading stores:", error);
     return;
   }
+
+  renderCards(data);
+}
+
+function renderCards(stores) {
+  const container = document.getElementById("cards");
+  container.innerHTML = "";
 
   stores.forEach(store => {
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `
+
+    // preview
+    const preview = document.createElement("div");
+    preview.className = "card-preview";
+    preview.innerHTML = `
+      <img src="https://via.placeholder.com/400x200?text=${store.name}" alt="${store.name}">
       <h3>${store.name}</h3>
-      <p><strong>Address:</strong> ${store.address}</p>
-      <p><strong>City:</strong> ${store.city}</p>
-      <p><strong>Country:</strong> ${store.country}</p>
-      <p><strong>Phone:</strong> ${store.phone || "-"}</p>
-      <p><strong>Website:</strong> ${store.website || "-"}</p>
-      <p><strong>Rating:</strong> ${store.rating || 0} ⭐</p>
-      ${isPending ? `
-        <button class="approve-btn" data-id="${store.id}">Approve</button>
-        <button class="reject-btn" data-id="${store.id}">Reject</button>
-      ` : ""}
+      <p>${store.city}, ${store.country}</p>
+      <p>${store.website || ""}</p>
     `;
+
+    // details
+    const details = document.createElement("div");
+    details.className = "card-details";
+    details.innerHTML = `
+      <label>Name</label>
+      <input type="text" value="${store.name}" data-field="name">
+      <label>Address</label>
+      <input type="text" value="${store.address}" data-field="address">
+      <label>City</label>
+      <input type="text" value="${store.city}" data-field="city">
+      <label>Country</label>
+      <input type="text" value="${store.country}" data-field="country">
+      <label>Website</label>
+      <input type="text" value="${store.website || ""}" data-field="website">
+
+      <div class="card-buttons">
+        <button class="approve-btn">Approve</button>
+        <button class="save-btn">Save</button>
+        <button class="reject-btn">Delete</button>
+      </div>
+    `;
+
+    card.appendChild(preview);
+    card.appendChild(details);
+
+    // toggle open
+    preview.addEventListener("click", () => {
+      card.classList.toggle("open");
+    });
+
+    // buttons
+    const approveBtn = details.querySelector(".approve-btn");
+    const saveBtn = details.querySelector(".save-btn");
+    const deleteBtn = details.querySelector(".reject-btn");
+
+    approveBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      approveStore(store.id);
+    });
+    saveBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      saveStore(store.id, details);
+    });
+    deleteBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      deleteStore(store.id);
+    });
+
     container.appendChild(card);
   });
-
-  if (isPending) {
-    document.querySelectorAll(".approve-btn").forEach(btn =>
-      btn.addEventListener("click", () => updateApproval(btn.dataset.id, true))
-    );
-    document.querySelectorAll(".reject-btn").forEach(btn =>
-      btn.addEventListener("click", () => updateApproval(btn.dataset.id, false))
-    );
-  }
 }
 
-// ===== Update approval =====
-async function updateApproval(id, approved) {
-  const { error } = await supabase.from("stores").update({ approved }).eq("id", id);
-  if (error) {
-    console.error("Error updating:", error);
-    alert("Could not update store ❌");
-  } else {
-    loadStores();
-  }
-}
-
-// ===== Search approved =====
-document.getElementById("searchInput").addEventListener("input", async (e) => {
-  const term = e.target.value.toLowerCase();
-  const { data } = await supabase
+async function approveStore(id) {
+  const { error } = await supabase
     .from("stores")
-    .select("*")
-    .eq("approved", true)
-    .or(`name.ilike.%${term}%,city.ilike.%${term}%,country.ilike.%${term}%`);
+    .update({ approved: true })
+    .eq("id", id);
 
-  renderCards(data, "approvedContainer", false);
-});
+  if (error) console.error("Error approving:", error);
+  else loadStores();
+}
 
-// ===== Init =====
-document.addEventListener("DOMContentLoaded", loadStores);
+async function saveStore(id, details) {
+  const inputs = details.querySelectorAll("input");
+  const updateData = {};
+  inputs.forEach(input => {
+    updateData[input.dataset.field] = input.value;
+  });
+
+  const { error } = await supabase
+    .from("stores")
+    .update(updateData)
+    .eq("id", id);
+
+  if (error) console.error("Error saving:", error);
+  else loadStores();
+}
+
+async function deleteStore(id) {
+  if (!confirm("Are you sure you want to delete this store?")) return;
+
+  const { error } = await supabase
+    .from("stores")
+    .delete()
+    .eq("id", id);
+
+  if (error) console.error("Error deleting:", error);
+  else loadStores();
+}
