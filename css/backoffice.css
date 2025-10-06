@@ -1,41 +1,36 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #f9f9f9;
-  padding: 20px;
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
-h1 {
+.card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 15px;
+  width: 250px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card h3 {
+  margin-top: 0;
   color: #b8860b;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  background: #fff;
-}
-
-th, td {
-  padding: 8px;
-  border: 1px solid #ddd;
-}
-
-td[contenteditable="true"] {
-  background: #fefefe;
-}
-
-button {
-  margin: 2px;
-  padding: 5px 10px;
+.card button {
+  margin-right: 5px;
   border: none;
+  padding: 5px 10px;
   cursor: pointer;
 }
 
-.save-btn {
-  background: #ffd700;
+.approve-btn {
+  background: #2ecc71;
+  color: white;
 }
 
-.delete-btn {
+.reject-btn {
   background: #e74c3c;
   color: white;
 }
