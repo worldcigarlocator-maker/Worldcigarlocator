@@ -1,94 +1,96 @@
-/* ====== Global ====== */
+/* ===== Globalt ===== */
 body {
-  font-family: Arial, sans-serif;
-  background: #f9f9f9;         /* ljus bakgrund */
-  color: #222;                 /* mörk text */
+  font-family: 'Roboto', sans-serif;
+  background-color: #f9f9f9;
+  color: #222;
+  margin: 0;
+  padding: 40px;
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  margin: 0;
 }
 
-/* ====== Form wrapper ====== */
-.form-wrapper {
-  background: #fff;            /* vit ruta */
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.1);
-  width: 400px;
-}
-
-/* ====== Rubrik ====== */
 h1 {
+  color: #b8860b; /* guld */
+  margin-bottom: 20px;
   text-align: center;
-  margin-bottom: 1rem;
-  color: #b8860b;              /* guldaktig rubrik */
 }
 
-/* ====== Etiketter ====== */
+/* ===== Form-wrapper ===== */
+.form-wrapper {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 700px;
+}
+
+/* ===== Labels & inputs ===== */
 label {
   display: block;
-  margin-top: 1rem;
+  margin-bottom: 6px;
   font-weight: bold;
 }
 
-/* ====== Inputs ====== */
-input, select {
+input[type="text"],
+input[type="url"],
+input[type="tel"] {
   width: 100%;
-  padding: 0.5rem;
-  margin-top: 0.3rem;
-  border-radius: 6px;
+  padding: 10px;
   border: 1px solid #ccc;
-  background: #fff;
-  color: #222;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
 }
 
-/* ====== Stjärnor ====== */
-.stars {
-  display: flex;
-  gap: 0.3rem;
-  margin-top: 0.5rem;
+input:focus {
+  outline: none;
+  border-color: #b8860b;
+  box-shadow: 0 0 4px rgba(184,134,11,0.4);
 }
 
-.stars span {
-  font-size: 2rem;
-  cursor: pointer;
-  color: #ccc;                 /* grå stjärnor */
-  transition: color 0.2s;
-}
-
-.stars span.selected {
-  color: #b8860b;              /* guld stjärnor */
-}
-
-/* ====== Radio-knappar ====== */
+/* ===== Radio buttons ===== */
 .radio-group {
-  display: flex;               /* på rad */
-  gap: 1rem;
-  margin-top: 0.5rem;
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+  align-items: center;
 }
 
 .radio-group label {
   font-weight: normal;
 }
 
-/* ====== Knapp ====== */
-button {
-  margin-top: 2rem;
-  width: 100%;
-  padding: 0.8rem;
-  background: #b8860b;         /* guldknapp */
+/* ===== Stjärnor ===== */
+.stars {
+  display: flex;
+  gap: 5px;
+  font-size: 24px;
+  margin: 10px 0 20px;
+}
+
+.stars span {
+  cursor: pointer;
+  color: #ccc; /* grå default */
+  transition: color 0.2s;
+}
+
+.stars span.selected {
+  color: #b8860b; /* guld när vald */
+}
+
+/* ===== Knapp ===== */
+button, .save-btn {
+  background-color: #b8860b;
   color: #fff;
+  padding: 10px 20px;
   border: none;
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: 16px;
   cursor: pointer;
-  font-weight: bold;
-  transition: background 0.2s;
+  transition: background 0.3s;
 }
 
-button:hover {
-  background: #a17400;         /* mörkare guld vid hover */
+button:hover, .save-btn:hover {
+  background-color: #d4af37; /* ljusare guld */
 }
-
