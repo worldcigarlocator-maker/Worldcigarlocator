@@ -5,95 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Store</title>
 
-  <!-- CSS inbäddad direkt -->
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #eee;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-
-    .form-wrapper {
-      background: #1e1e1e;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-      width: 400px;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 1rem;
-      color: gold;
-    }
-
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.3rem;
-      border-radius: 6px;
-      border: 1px solid #444;
-      background: #222;
-      color: #eee;
-    }
-
-    .stars {
-      display: flex;
-      gap: 0.3rem;
-      margin-top: 0.5rem;
-    }
-
-    .stars span {
-      font-size: 2rem;
-      cursor: pointer;
-      color: #555;
-      transition: color 0.2s;
-    }
-
-    .stars span.selected {
-      color: gold;
-    }
-
-    .radio-group {
-      margin-top: 0.5rem;
-    }
-    .radio-group label {
-      font-weight: normal;
-      margin-right: 1rem;
-    }
-
-    button {
-      margin-top: 2rem;
-      width: 100%;
-      padding: 0.8rem;
-      background: gold;
-      color: #111;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    button:hover {
-      background: #d4af37;
-    }
-  </style>
+  <!-- CSS -->
+  <link rel="stylesheet" href="/Worldcigarlocator/css/add-store.css">
 
   <!-- Google Maps JavaScript API -->
   <script 
-    src="https://maps.googleapis.com/maps/api/js?key=YOUR-GOOGLE-MAPS-API-KEY&libraries=places" 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete" 
     async defer>
   </script>
 
@@ -145,8 +62,8 @@
 
   <script>
     // 🔑 Supabase konfiguration
-    const supabaseUrl = "https://YOUR-PROJECT-URL.supabase.co";
-    const supabaseKey = "YOUR-ANON-KEY";
+    const supabaseUrl = "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";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     // ⭐ Stjärnlogik
