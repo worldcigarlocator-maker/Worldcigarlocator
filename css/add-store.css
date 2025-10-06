@@ -76,15 +76,12 @@ input:focus {
   user-select: none;
 }
 
-/* Guld när vald */
 .stars span.selected {
-  color: #b8860b;
+  color: #b8860b; /* guld vid klick */
 }
 
-/* Ljusare guld när hover */
-.stars span:hover,
-.stars span.hover {
-  color: #d4af37;
+.stars span:hover {
+  color: #d4af37; /* ljusare guld vid hover */
 }
 
 /* ===== Knapp ===== */
