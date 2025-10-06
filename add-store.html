@@ -12,7 +12,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- Google Maps JavaScript API -->
-  <!-- TODO: Byt ut DIN_GOOGLE_KEY mot din riktiga Google Maps API-nyckel -->
   <script 
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete" 
     async defer>
@@ -23,27 +22,28 @@
 </head>
 <body>
   <div id="form-wrapper" class="form-wrapper">
-    <h1>Lägg till butik</h1>
+    <h1>Add Store</h1>
 
-    <label for="name">Butiksnamn</label>
-    <input type="text" id="name" placeholder="Ex. Cigar Shop AB">
-
-    <label for="address">Adress</label>
-    <div style="display:flex; gap:10px;">
-      <input type="text" id="address" placeholder="Skriv eller klistra in adress">
-      <button id="pasteBtn" type="button">Klistra in Maps-länk</button>
+    <!-- Address + Paste button at top -->
+    <label for="address">Address</label>
+    <div class="address-group">
+      <input type="text" id="address" placeholder="Type or paste address">
+      <button id="pasteBtn" type="button">Paste Maps Link</button>
     </div>
 
-    <label for="city">Stad</label>
+    <label for="name">Store Name</label>
+    <input type="text" id="name" placeholder="Ex. Cigar Shop AB">
+
+    <label for="city">City</label>
     <input type="text" id="city">
 
-    <label for="country">Land</label>
+    <label for="country">Country</label>
     <input type="text" id="country">
 
-    <label for="phone">Telefon</label>
+    <label for="phone">Phone</label>
     <input type="tel" id="phone" placeholder="+46 ...">
 
-    <label for="website">Webbplats</label>
+    <label for="website">Website</label>
     <input type="url" id="website" placeholder="https://...">
 
     <div class="radio-group">
@@ -52,16 +52,15 @@
       <label><input type="radio" name="type" value="other"> Other</label>
     </div>
 
-    <label>Betyg</label>
+    <label>Rating</label>
     <div id="starRating" class="stars">
       <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
     </div>
 
-    <button id="saveBtn" class="save-btn">Spara</button>
+    <button id="saveBtn" class="save-btn">Save</button>
   </div>
 
-  <!-- Din JS -->
-  <!-- TODO: Lägg in dina Supabase-nycklar i js/add-store.js -->
+  <!-- JS -->
   <script src="js/add-store.js" defer></script>
 </body>
 </html>
