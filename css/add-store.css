@@ -1,141 +1,124 @@
-/* Reset & global */
 body {
-  font-family: 'Roboto', sans-serif;
-  background: #f8f8f8;
+  font-family: Arial, sans-serif;
+  background: #f6f6f6;
   margin: 0;
-  padding: 0;
-  color: #333;
+  padding: 20px;
+}
+
+.form-wrapper {
+  max-width: 500px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 1rem;
-  color: #b8860b; /* mörkguld */
+  color: #b8860b;
+  margin-bottom: 20px;
 }
 
-/* Form wrapper */
-.form-wrapper {
-  max-width: 500px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-}
-
-/* Labels & inputs */
 label {
-  margin-top: 1rem;
-  margin-bottom: 0.25rem;
-  font-weight: 500;
+  display: block;
+  margin-top: 12px;
+  font-weight: bold;
+  color: #333;
 }
 
 input[type="text"] {
-  padding: 0.6rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
   width: 100%;
-  box-sizing: border-box;
+  padding: 8px;
+  margin-top: 6px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
 }
 
-input[type="text"]:focus {
-  outline: none;
-  border-color: #b8860b;
-  box-shadow: 0 0 4px rgba(184,134,11,0.5);
-}
-
-/* Radio group */
 .radio-group {
   display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
+  gap: 15px;
+  margin-top: 8px;
 }
 
-.radio-group label {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  cursor: pointer;
-}
-
-/* Stars */
 .stars {
   display: flex;
-  gap: 0.25rem;
-  font-size: 2rem;
+  gap: 5px;
+  font-size: 1.5rem;
   cursor: pointer;
-  user-select: none;
 }
 
 .stars span {
-  color: #ccc; /* grå default */
+  color: #ccc;
   transition: color 0.2s;
 }
 
-.stars span:hover,
-.stars span:hover ~ span {
-  color: #e6c34d; /* ljusguld på hover */
+.stars span.selected,
+.stars span.hover {
+  color: #ffcc00;
 }
 
-.stars span.selected {
-  color: #b8860b; /* mörkguld när vald */
-}
-
-/* Buttons – global */
-button {
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-}
-
-button:active {
-  transform: scale(0.97);
-}
-
-/* Maps link row */
 .maps-link-row {
   display: flex;
-  gap: 0.5rem;
-  align-items: stretch; /* samma höjd */
+  gap: 8px;
+  margin-bottom: 15px;
 }
 
 .maps-link-row input {
   flex: 1;
 }
 
-/* Paste button (ljusare guld) */
-.maps-link-row .paste-btn {
-  background: #e6c34d;
-  color: #fff;
-  padding: 0 1.2rem;
-  border-radius: 8px;
-  font-weight: bold;
+.maps-link-row button {
+  background: #e6c200;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  padding: 8px 12px;
   cursor: pointer;
-  transition: background 0.2s;
-  display: flex;
-  align-items: center; 
-  justify-content: center;
 }
 
-.maps-link-row .paste-btn:hover {
-  background: #d4ad3a;
-}
-
-/* Save button (huvudknapp, mörkguld) */
 .save-btn {
-  background: #b8860b;
-  color: #fff;
+  margin-top: 20px;
   width: 100%;
-  margin-top: 1.5rem;
+  background: #b8860b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 1rem;
+  cursor: pointer;
 }
 
 .save-btn:hover {
-  background: #a0750a;
+  background: #a0780a;
 }
+
+/* Preview */
+.preview img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+/* Toasts */
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.toast {
+  background: #333;
+  color: #fff;
+  padding: 10px 15px;
+  margin-top: 10px;
+  border-radius: 6px;
+  opacity: 0.95;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast.success { background: #2e7d32; }
+.toast.error { background: #c62828; }
