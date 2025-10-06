@@ -1,32 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Backoffice</title>
-  <link rel="stylesheet" href="css/backoffice.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="js/backoffice.js" defer></script>
+  <link rel="stylesheet" href="css/backoffice.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="js/backoffice.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>Backoffice</h1>
 
-    <h2>Pending Stores</h2>
-    <div id="pending-cards" class="cards"></div>
+    <div class="topbar">
+      <div class="view-toggle">
+        <button id="pendingViewBtn" class="toggle-btn active">Pending</button>
+        <button id="archiveViewBtn" class="toggle-btn">Archive</button>
+      </div>
+      <button id="homeBtn" class="home-btn">← Back to Home</button>
+    </div>
 
-    <h2>Approved Stores (Archive)</h2>
-<input 
-  type="text" 
-  id="searchInput" 
-  placeholder="Search by name, city, or country..."
-  class="search-bar"
-/>
-<div id="approved-cards" class="cards"></div>
+    <!-- Archive controls -->
+    <div id="archive-controls" class="archive-controls hidden">
+      <input type="text" id="searchInput" placeholder="Search by name, city, or country..."/>
+      <select id="sortSelect" class="sort-select">
+        <option value="">Sort by…</option>
+        <option value="name-asc">Name (A–Z)</option>
+        <option value="name-desc">Name (Z–A)</option>
+        <option value="city-asc">City (A–Z)</option>
+        <option value="city-desc">City (Z–A)</option>
+        <option value="country-asc">Country (A–Z)</option>
+        <option value="country-desc">Country (Z–A)</option>
+        <option value="rating-asc">Rating (0 → 5)</option>
+        <option value="rating-desc">Rating (5 → 0)</option>
+      </select>
+    </div>
 
-    
-    <h2>Approved Stores (Archive)</h2>
-    <div id="approved-cards" class="cards"></div>
+    <!-- Sections -->
+    <div id="pending-section" class="view-section"></div>
+    <div id="archive-section" class="view-section hidden"></div>
   </div>
 </body>
 </html>
