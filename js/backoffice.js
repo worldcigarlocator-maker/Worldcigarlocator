@@ -3,7 +3,7 @@ const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // din anon key här
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Load stores on start
+
 document.addEventListener("DOMContentLoaded", loadStores);
 
 async function loadStores() {
@@ -17,11 +17,14 @@ async function loadStores() {
     return;
   }
 
-  renderCards(data);
+  const pending = data.filter(s => !s.approved);
+  const approved = data.filter(s => s.approved);
+
+  renderCards(pending, document.getElementById("pending-cards"));
+  renderCards(approved, document.getElementById("approved-cards"));
 }
 
-function renderCards(stores) {
-  const container = document.getElementById("cards");
+function renderCards(stores, container) {
   container.innerHTML = "";
 
   stores.forEach(store => {
@@ -54,9 +57,12 @@ function renderCards(stores) {
       <input type="text" value="${store.website || ""}" data-field="website">
 
       <div class="card-buttons">
-        <button class="approve-btn">Approve</button>
-        <button class="save-btn">Save</button>
-        <button class="reject-btn">Delete</button>
+        ${store.approved 
+          ? `<button class="save-btn">Save</button>
+             <button class="reject-btn">Delete</button>`
+          : `<button class="approve-btn">Approve</button>
+             <button class="save-btn">Save</button>
+             <button class="reject-btn">Delete</button>`}
       </div>
     `;
 
@@ -73,14 +79,18 @@ function renderCards(stores) {
     const saveBtn = details.querySelector(".save-btn");
     const deleteBtn = details.querySelector(".reject-btn");
 
-    approveBtn.addEventListener("click", e => {
-      e.stopPropagation();
-      approveStore(store.id);
-    });
+    if (approveBtn) {
+      approveBtn.addEventListener("click", e => {
+        e.stopPropagation();
+        approveStore(store.id);
+      });
+    }
+
     saveBtn.addEventListener("click", e => {
       e.stopPropagation();
       saveStore(store.id, details);
     });
+
     deleteBtn.addEventListener("click", e => {
       e.stopPropagation();
       deleteStore(store.id);
