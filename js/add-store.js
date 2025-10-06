@@ -1,160 +1,187 @@
-async function saveStore(e) {
-  if (e) e.preventDefault();
-  console.log("Save clicked"); // 
-}
 
 // ===== Supabase Init =====
 const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co"; 
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// ===== Star Rating =====
+// =======================
+// STAR RATING
+// =======================
 let currentRating = 0;
-const stars = document.querySelectorAll('#starRating span');
 
+const stars = document.querySelectorAll("#starRating span");
 stars.forEach((star, index) => {
-  star.addEventListener('click', () => {
+  star.addEventListener("click", () => {
     currentRating = index + 1;
-    stars.forEach(s => s.classList.remove('selected'));
-    for (let i = 0; i < currentRating; i++) {
-      stars[i].classList.add('selected');
-    }
-    console.log("Rating set:", currentRating);
+    updateStars();
   });
 });
+
+function updateStars() {
+  stars.forEach((star, idx) => {
+    star.classList.toggle("selected", idx < currentRating);
+  });
+}
 
 function getRating() {
   return currentRating;
 }
 
-// ===== Google Autocomplete =====
-function initAutocomplete() {
-  const input = document.getElementById("address");
-  const autocomplete = new google.maps.places.Autocomplete(input);
-  autocomplete.setFields(["address_components", "formatted_address"]);
+// =======================
+// GOOGLE AUTOCOMPLETE
+// =======================
+window.initAutocomplete = function () {
+  const addressInput = document.getElementById("address");
+  if (!addressInput) return;
 
-  autocomplete.addListener("place_changed", () => {
-    const place = autocomplete.getPlace();
-    document.getElementById("address").value = place.formatted_address;
-
-    const city = place.address_components.find(c => c.types.includes("locality"));
-    const country = place.address_components.find(c => c.types.includes("country"));
-
-    if (city) document.getElementById("city").value = city.long_name;
-    if (country) document.getElementById("country").value = country.long_name;
+  const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+    types: ["geocode"],
+    fields: ["formatted_address", "address_components", "name"],
   });
-}
-window.initAutocomplete = initAutocomplete;
 
-// ===== Paste Maps Link =====
+  autocomplete.addListener("place_changed", function () {
+    const place = autocomplete.getPlace();
+    if (!place) return;
+
+    document.getElementById("address").value =
+      place.formatted_address || "";
+
+    // Name
+    if (place.name) {
+      document.getElementById("name").value = place.name;
+    }
+
+    // City & Country
+    let city = "";
+    let country = "";
+    if (place.address_components) {
+      place.address_components.forEach((comp) => {
+        if (comp.types.includes("locality")) city = comp.long_name;
+        if (comp.types.includes("country")) country = comp.long_name;
+      });
+    }
+    document.getElementById("city").value = city;
+    document.getElementById("country").value = country;
+  });
+};
+
+// =======================
+// PASTE BUTTON (Google Maps link)
+// =======================
 document.getElementById("pasteBtn").addEventListener("click", async () => {
   try {
     const text = await navigator.clipboard.readText();
     console.log("Clipboard text:", text);
 
-    if (!text.includes("google.com/maps")) {
-      alert("This does not look like a Google Maps link.");
+    let placeQuery = "";
+
+    const placeMatch = text.match(/\/place\/([^/]+)/);
+    if (placeMatch && placeMatch[1]) {
+      placeQuery = decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
+    }
+
+    if (!placeQuery) {
+      alert("Could not extract place from the link.");
       return;
     }
 
-    const url = new URL(text);
-    const query = url.searchParams.get("q");
-    const placeId = url.searchParams.get("query_place_id") || url.searchParams.get("placeid");
+    const service = new google.maps.places.PlacesService(
+      document.createElement("div")
+    );
 
-    if (query) {
-      document.getElementById("address").value = decodeURIComponent(query);
-    }
+    service.findPlaceFromQuery(
+      {
+        query: placeQuery,
+        fields: ["name", "formatted_address", "address_components"],
+      },
+      (results, status) => {
+        if (
+          status === google.maps.places.PlacesServiceStatus.OK &&
+          results[0]
+        ) {
+          const place = results[0];
+          console.log("Place details:", place);
 
-    if (placeId && typeof google !== "undefined") {
-      const service = new google.maps.places.PlacesService(document.createElement("div"));
-      service.getDetails({ placeId, fields: ["name", "formatted_address", "address_components"] }, (place, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
           document.getElementById("name").value = place.name || "";
-          document.getElementById("address").value = place.formatted_address || "";
+          document.getElementById("address").value =
+            place.formatted_address || "";
 
-          const cityComponent = place.address_components.find(c => c.types.includes("locality"));
-          const countryComponent = place.address_components.find(c => c.types.includes("country"));
-
-          if (cityComponent) document.getElementById("city").value = cityComponent.long_name;
-          if (countryComponent) document.getElementById("country").value = countryComponent.long_name;
+          let city = "";
+          let country = "";
+          if (place.address_components) {
+            place.address_components.forEach((comp) => {
+              if (comp.types.includes("locality")) city = comp.long_name;
+              if (comp.types.includes("country")) country = comp.long_name;
+            });
+          }
+          document.getElementById("city").value = city;
+          document.getElementById("country").value = country;
+        } else {
+          console.error("Places lookup failed:", status);
+          alert("Could not fetch place details. Try typing manually.");
         }
-      });
-    }
-
+      }
+    );
   } catch (err) {
     console.error("Clipboard error:", err);
-    alert("Could not read from clipboard. Allow clipboard access in your browser.");
+    alert("Clipboard access not allowed. Paste manually instead.");
   }
 });
 
-// ===== Save Store =====
-document.getElementById("saveBtn").addEventListener("click", async (e) => {
-  e.preventDefault();
-  console.log("Save clicked ✅");
+// =======================
+// SAVE BUTTON
+// =======================
+document.getElementById("saveBtn").addEventListener("click", async () => {
+  console.log("Save clicked");
 
   const name = document.getElementById("name").value.trim();
   const address = document.getElementById("address").value.trim();
   const city = document.getElementById("city").value.trim() || "Unknown";
-  const country = document.getElementById("country").value.trim() || "Unknown";
+  const country =
+    document.getElementById("country").value.trim() || "Unknown";
   const phone = document.getElementById("phone").value.trim();
   const website = document.getElementById("website").value.trim();
-  const type = document.querySelector('input[name="type"]:checked')?.value || "store";
+  const type = document.querySelector("input[name='type']:checked")?.value;
   const rating = getRating();
 
-  console.log("Saving:", { name, address, city, country, phone, website, type, rating });
+  if (!name || !address) {
+    alert("Name and Address are required");
+    return;
+  }
 
-  const { error } = await supabase.from("stores").insert([
-    { name, address, city, country, phone, website, type, rating }
-  ]);
+  const { data, error } = await supabase
+    .from("stores")
+    .insert([
+      {
+        name,
+        address,
+        city,
+        country,
+        phone,
+        website,
+        type,
+        rating,
+        approved: false, // default
+      },
+    ])
+    .select();
 
   if (error) {
-    console.error("Error saving:", error);
-    alert("Could not save store ❌");
+    console.error("Error saving store:", error);
+    alert("Error saving store: " + error.message);
   } else {
-    alert("Store saved! ✅");
+    console.log("Saved:", data);
+    alert("Store saved successfully!");
 
-    // Reset fields
+    // Reset form
     document.getElementById("name").value = "";
     document.getElementById("address").value = "";
     document.getElementById("city").value = "";
     document.getElementById("country").value = "";
     document.getElementById("phone").value = "";
     document.getElementById("website").value = "";
-    document.querySelector('input[name="type"][value="store"]').checked = true;
-
-    // Reset stars
-    stars.forEach(s => s.classList.remove("selected"));
+    document.querySelector("input[name='type'][value='Store']").checked = true;
     currentRating = 0;
+    updateStars();
   }
 });
-// gör initAutocomplete global så Google kan hitta den
-window.initAutocomplete = function () {
-  const input = document.getElementById("address");
-  if (!input) {
-    console.error("Address input not found");
-    return;
-  }
-
-  const autocomplete = new google.maps.places.Autocomplete(input, {
-    fields: ["address_components", "geometry", "name"],
-    types: ["geocode", "establishment"],
-  });
-
-  autocomplete.addListener("place_changed", function () {
-    const place = autocomplete.getPlace();
-    console.log("Place from autocomplete:", place);
-
-    if (!place.address_components) return;
-
-    // hämta city och country från adresskomponenter
-    let city = "";
-    let country = "";
-    place.address_components.forEach(comp => {
-      if (comp.types.includes("locality")) city = comp.long_name;
-      if (comp.types.includes("country")) country = comp.long_name;
-    });
-
-    document.getElementById("city").value = city || "";
-    document.getElementById("country").value = country || "";
-  });
-};
