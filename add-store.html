@@ -1,67 +1,76 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Store</title>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/add-store.css">
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/add-store.css" />
 
   <!-- Google Maps JavaScript API -->
   <script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete" 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ=places&callback=initAutocomplete" 
     async defer>
   </script>
 
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- JS -->
+  <script src="js/add-store.js" defer></script>
 </head>
 <body>
-  <div id="form-wrapper" class="form-wrapper">
+  <div class="form-wrapper">
     <h1>Add Store</h1>
 
-    <!-- Address + Paste button -->
-    <label for="address">Address</label>
-    <div class="address-group">
-      <input type="text" id="address" placeholder="Type or paste address">
+    <!-- Paste button -->
+    <div class="paste-wrapper">
       <button id="pasteBtn" type="button" class="paste-btn">Paste Maps Link</button>
     </div>
 
-    <label for="name">Store Name</label>
-    <input type="text" id="name" placeholder="Ex. Cigar Shop AB">
+    <!-- Store Name -->
+    <label for="name">Store Name:</label>
+    <input id="name" type="text" placeholder="Enter store name" />
 
-    <label for="city">City</label>
-    <input type="text" id="city">
+    <!-- Address -->
+    <label for="address">Address:</label>
+    <input id="address" type="text" placeholder="Enter or paste address" />
 
-    <label for="country">Country</label>
-    <input type="text" id="country">
+    <!-- City -->
+    <label for="city">City:</label>
+    <input id="city" type="text" placeholder="City" />
 
-    <label for="phone">Phone</label>
-    <input type="tel" id="phone" placeholder="+46 ...">
+    <!-- Country -->
+    <label for="country">Country:</label>
+    <input id="country" type="text" placeholder="Country" />
 
-    <label for="website">Website</label>
-    <input type="url" id="website" placeholder="https://...">
+    <!-- Phone -->
+    <label for="phone">Phone:</label>
+    <input id="phone" type="text" placeholder="Phone number" />
 
+    <!-- Website -->
+    <label for="website">Website:</label>
+    <input id="website" type="text" placeholder="https://example.com" />
+
+    <!-- Store type -->
+    <label>Type:</label>
     <div class="radio-group">
-      <label><input type="radio" name="type" value="store" checked> Store</label>
-      <label><input type="radio" name="type" value="lounge"> Lounge</label>
-      <label><input type="radio" name="type" value="other"> Other</label>
+      <label><input type="radio" name="type" value="Store" checked /> Store</label>
+      <label><input type="radio" name="type" value="Lounge" /> Lounge</label>
+      <label><input type="radio" name="type" value="Other" /> Other</label>
     </div>
 
-    <label>Rating</label>
+    <!-- Star rating -->
+    <label>Rating:</label>
     <div id="starRating" class="stars">
       <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
     </div>
 
-    <!-- Save-knapp -->
-    <button id="saveBtn" type="button" class="save-btn">Save</button>
+    <!-- Save button -->
+    <div class="save-wrapper">
+      <button id="saveBtn" type="button" class="save-btn">Save</button>
+    </div>
   </div>
-
-  <!-- JS -->
-  <script src="js/add-store.js" defer></script>
 </body>
 </html>
