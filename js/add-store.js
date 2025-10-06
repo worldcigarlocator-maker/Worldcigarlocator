@@ -1,13 +1,8 @@
-// ===============================
-// 🔑 Supabase konfiguration
-// ===============================
 const supabaseUrl = "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"; // TODO: byt till din riktiga Supabase URL
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // TODO: byt till din riktiga anon key
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// ===============================
-// ⭐ Stjärnlogik
-// ===============================
+// ===== Stjärn-logik =====
 let currentRating = 0;
 const stars = document.querySelectorAll('#starRating span');
 
@@ -25,35 +20,66 @@ function getRating() {
   return currentRating;
 }
 
-// ===============================
-// 📍 Google Maps Autocomplete
-// ===============================
+// ===== Google Autocomplete =====
 function initAutocomplete() {
-  const input = document.getElementById('address');
+  const input = document.getElementById("address");
   const autocomplete = new google.maps.places.Autocomplete(input);
+  autocomplete.setFields(["address_components", "formatted_address"]);
 
-  autocomplete.addListener('place_changed', function () {
+  autocomplete.addListener("place_changed", () => {
     const place = autocomplete.getPlace();
-    let city = "Unknown";
-    let country = "Unknown";
+    document.getElementById("address").value = place.formatted_address;
 
-    if (place.address_components) {
-      place.address_components.forEach(comp => {
-        if (comp.types.includes("locality")) city = comp.long_name;
-        if (comp.types.includes("country")) country = comp.long_name;
-      });
-    }
+    const city = place.address_components.find(c => c.types.includes("locality"));
+    const country = place.address_components.find(c => c.types.includes("country"));
 
-    document.getElementById('city').value = city;
-    document.getElementById('country').value = country;
+    if (city) document.getElementById("city").value = city.long_name;
+    if (country) document.getElementById("country").value = country.long_name;
   });
 }
 window.initAutocomplete = initAutocomplete;
 
-// ===============================
-// 💾 Spara butik
-// ===============================
-async function saveStore(e) {
+// ===== Paste-knapp =====
+document.getElementById("pasteBtn").addEventListener("click", async () => {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (!text.includes("google.com/maps")) {
+      alert("Det här verkar inte vara en Google Maps-länk.");
+      return;
+    }
+
+    const url = new URL(text);
+    const query = url.searchParams.get("q");
+    const placeId = url.searchParams.get("query_place_id") || url.searchParams.get("placeid");
+
+    if (query) {
+      document.getElementById("address").value = decodeURIComponent(query);
+    }
+
+    if (placeId && typeof google !== "undefined") {
+      const service = new google.maps.places.PlacesService(document.createElement("div"));
+      service.getDetails({ placeId: placeId, fields: ["name", "formatted_address", "address_components"] }, (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          document.getElementById("name").value = place.name || "";
+          document.getElementById("address").value = place.formatted_address || "";
+
+          const cityComponent = place.address_components.find(c => c.types.includes("locality"));
+          const countryComponent = place.address_components.find(c => c.types.includes("country"));
+
+          if (cityComponent) document.getElementById("city").value = cityComponent.long_name;
+          if (countryComponent) document.getElementById("country").value = countryComponent.long_name;
+        }
+      });
+    }
+
+  } catch (err) {
+    console.error("Clipboard error:", err);
+    alert("Kunde inte läsa från urklipp. Tillåt åtkomst till urklipp i webbläsaren.");
+  }
+});
+
+// ===== Save-funktion =====
+document.getElementById("saveBtn").addEventListener("click", async (e) => {
   e.preventDefault();
 
   const name = document.getElementById("name").value.trim();
@@ -65,26 +91,17 @@ async function saveStore(e) {
   const type = document.querySelector('input[name="type"]:checked')?.value || "store";
   const rating = getRating();
 
-  const newStore = { name, address, city, country, phone, website, type, rating };
-  console.log("Saving store:", newStore);
-
-  const { data, error } = await supabase.from("stores").insert([newStore]);
+  const { error } = await supabase.from("stores").insert([
+    { name, address, city, country, phone, website, type, rating }
+  ]);
 
   if (error) {
-    console.error("❌ Error saving:", error.message);
-    alert("Kunde inte spara: " + error.message);
+    console.error("Error saving:", error);
+    alert("Kunde inte spara butiken.");
   } else {
-    console.log("✅ Store saved:", data);
     alert("Butiken sparades!");
-
-    // Nollställ formuläret
-    document.getElementById("storeForm").reset();
-    stars.forEach(s => s.classList.remove('selected'));
+    document.querySelector("form")?.reset();
+    stars.forEach(s => s.classList.remove("selected"));
     currentRating = 0;
   }
-}
-
-// ===============================
-// 🎛 Event listeners
-// ===============================
-document.getElementById("saveBtn").addEventListener("click", saveStore);
+});
