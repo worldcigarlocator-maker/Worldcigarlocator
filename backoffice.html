@@ -2,23 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Backoffice - Manage Stores</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backoffice</title>
   <link rel="stylesheet" href="css/backoffice.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="js/backoffice.js" defer></script>
 </head>
 <body>
-  <h1>Backoffice</h1>
-
-  <section>
-    <h2>Pending Approval</h2>
-    <div id="pendingContainer" class="card-container"></div>
-  </section>
-
-  <section>
-    <h2>Approved Stores</h2>
-    <input type="text" id="searchInput" placeholder="Search by name, city or country...">
-    <div id="approvedContainer" class="card-container"></div>
-  </section>
+  <div class="container">
+    <h1>Backoffice</h1>
+    <h2>Pending & Approved Stores</h2>
+    <div id="cards" class="cards"></div>
+  </div>
 </body>
 </html>
