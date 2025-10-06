@@ -1,11 +1,18 @@
 // ==========================
 // Config
 // ==========================
-onst sb = supabase.createClient(
+const sb = supabase.createClient(
   "https://gbxxoeplkzbhsvagnfsr.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
 );
-const GOOGLE_FIELDS = ["name", "formatted_address", "geometry", "international_phone_number", "website"];
+
+const GOOGLE_FIELDS = [
+  "name",
+  "formatted_address",
+  "geometry",
+  "international_phone_number",
+  "website"
+];
 
 // ==========================
 // Rating system
@@ -21,7 +28,7 @@ document.querySelectorAll(".star").forEach((star, index) => {
 });
 
 // ==========================
-// Paste button → hämta details via PlacesService
+// Paste button → getDetails via PlacesService
 // ==========================
 document.getElementById("pasteBtn").addEventListener("click", () => {
   const url = document.getElementById("mapsUrl").value.trim();
@@ -38,8 +45,10 @@ document.getElementById("pasteBtn").addEventListener("click", () => {
 
   console.log("ℹ️ Extracted Place ID:", placeId);
 
-  // Skapa PlacesService
-  const service = new google.maps.places.PlacesService(document.createElement("div"));
+  // Init PlacesService
+  const service = new google.maps.places.PlacesService(
+    document.createElement("div")
+  );
 
   service.getDetails({ placeId, fields: GOOGLE_FIELDS }, (place, status) => {
     if (status === google.maps.places.PlacesServiceStatus.OK) {
@@ -55,7 +64,7 @@ document.getElementById("pasteBtn").addEventListener("click", () => {
 // Helper: Extract Place ID
 // ==========================
 function extractPlaceId(url) {
-  // Matcha !1sXXXX i länken
+  // Matcha !1sXXXX
   const regex = /!1s([^!]+)/;
   const match = url.match(regex);
   if (match) return match[1];
@@ -69,7 +78,7 @@ function extractPlaceId(url) {
 }
 
 // ==========================
-// Autofill formuläret
+// Autofill form
 // ==========================
 function autofillForm(place, placeId) {
   document.getElementById("name").value = place.name || "";
@@ -79,18 +88,19 @@ function autofillForm(place, placeId) {
   document.getElementById("phone").value = place.international_phone_number || "";
   document.getElementById("website").value = place.website || "";
 
-  // Spara även hidden lat/lng + placeId för senare
-  document.getElementById("form-wrapper").dataset.placeId = placeId;
+  // hidden values i dataset
+  const wrapper = document.getElementById("form-wrapper");
+  wrapper.dataset.placeId = placeId;
   if (place.geometry?.location) {
-    document.getElementById("form-wrapper").dataset.lat = place.geometry.location.lat();
-    document.getElementById("form-wrapper").dataset.lng = place.geometry.location.lng();
+    wrapper.dataset.lat = place.geometry.location.lat();
+    wrapper.dataset.lng = place.geometry.location.lng();
   }
 
   console.log("✅ Form filled with:", place);
 }
 
 // ==========================
-// Helpers för city/country
+// Extract city / country
 // ==========================
 function extractCity(address) {
   if (!address) return "";
@@ -109,10 +119,10 @@ function extractCountry(address) {
 document.getElementById("storeForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const formWrapper = document.getElementById("form-wrapper");
-  const placeId = formWrapper.dataset.placeId || null;
-  const lat = formWrapper.dataset.lat || null;
-  const lng = formWrapper.dataset.lng || null;
+  const wrapper = document.getElementById("form-wrapper");
+  const placeId = wrapper.dataset.placeId || null;
+  const lat = wrapper.dataset.lat || null;
+  const lng = wrapper.dataset.lng || null;
 
   const store = {
     name: document.getElementById("name").value,
@@ -138,6 +148,6 @@ document.getElementById("storeForm").addEventListener("submit", async (e) => {
     alert("✅ Store saved successfully!");
     document.getElementById("storeForm").reset();
     selectedRating = 0;
-    document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
+    document.querySelectorAll(".star").forEach((s) => s.classList.remove("selected"));
   }
 });
