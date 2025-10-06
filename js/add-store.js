@@ -1,117 +1,156 @@
-// 🔑 Supabase setup
-const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co; // <-- byt ut
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // <-- byt ut
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Store</title>
 
-// ⭐ Stjärnor klickbara
-const stars = document.querySelectorAll('#starRating span');
+  <!-- CSS (relativ sökväg → funkar lokalt & på Pages) -->
+  <link rel="stylesheet" href="css/add-store.css">
 
-stars.forEach((star, index) => {
-  star.addEventListener('click', () => {
-    stars.forEach(s => s.classList.remove('selected')); // rensa
-    for (let i = 0; i <= index; i++) {
-      stars[i].classList.add('selected'); // markera upp till klickade
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Google Maps JavaScript API -->
+  <script 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete" 
+    async defer>
+  </script>
+
+  <!-- Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* ✅ Minimal styling för stjärnor */
+    .stars span {
+      font-size: 2rem;
+      cursor: pointer;
+      color: #ccc; /* grå från början */
     }
-  });
-});
-
-// Hämta rating
-function getRating() {
-  return document.querySelectorAll('#starRating .selected').length;
-}
-
-// 💾 Spara butik
-async function saveStore(e) {
-  e.preventDefault();
-
-  // Hämta värden från formuläret
-  const name = document.getElementById("storeName").value.trim();
-  const address = document.getElementById("storeAddress").value.trim();
-  const city = document.getElementById("storeCity").value.trim() || "Unknown";
-  const country = document.getElementById("storeCountry").value.trim() || "Unknown";
-  const phone = document.getElementById("storePhone").value.trim();
-  const website = document.getElementById("storeWebsite").value.trim();
-  const type = document.querySelector('input[name="storeType"]:checked')?.value || "Other";
-  let rating = getRating();
-  if (isNaN(rating) || rating < 0 || rating > 5) rating = 0;
-
-  // Skicka till Supabase
-  const { data, error } = await supabase
-    .from("stores")
-    .insert([
-      { name, address, city, country, phone, website, type, rating }
-    ]);
-
-  if (error) {
-    console.error("Error saving:", error.message);
-    alert("❌ Misslyckades att spara: " + error.message);
-  } else {
-    alert("✅ Butiken sparades!");
-    document.getElementById("storeForm").reset();
-
-    // Nollställ stjärnor
-    stars.forEach(s => s.classList.remove("selected"));
-  }
-}
-
-// 🟡 Koppla Save-knappen
-document.getElementById("saveBtn").addEventListener("click", saveStore);
-document.addEventListener('DOMContentLoaded', () => {
-  const starContainer = document.getElementById('starRating');
-  if (!starContainer) {
-    console.warn('⚠️ Hittar inte #starRating i DOM:en.');
-    return;
-  }
-
-  const stars = Array.from(starContainer.querySelectorAll('span'));
-  if (!stars.length) {
-    console.warn('⚠️ Inga <span> inuti #starRating – lägg in 5 stjärnor.');
-  }
-
-  let currentRating = 0;
-
-  function clearStates() {
-    stars.forEach(s => s.classList.remove('hover', 'selected'));
-  }
-  function applySelected(r) {
-    for (let i = 0; i < stars.length; i++) {
-      stars[i].classList.toggle('selected', i < r);
+    .stars span.selected {
+      color: gold; /* gula när markerade */
     }
-  }
-  function applyHover(r) {
-    for (let i = 0; i < stars.length; i++) {
-      stars[i].classList.toggle('hover', i < r);
+  </style>
+</head>
+<body>
+  <div id="form-wrapper" class="form-wrapper">
+    <h1>Add Store</h1>
+
+    <form id="storeForm">
+      <label for="name">Store Name</label>
+      <input type="text" id="name" placeholder="Enter store name" required />
+
+      <label for="address">Address</label>
+      <input type="text" id="address" placeholder="Start typing address" />
+
+      <label for="city">City</label>
+      <input type="text" id="city" placeholder="City" />
+
+      <label for="country">Country</label>
+      <input type="text" id="country" placeholder="Country" />
+
+      <label for="phone">Phone</label>
+      <input type="text" id="phone" placeholder="+46..." />
+
+      <label for="website">Website</label>
+      <input type="text" id="website" placeholder="https://..." />
+
+      <label>Type</label>
+      <div class="radio-group">
+        <label><input type="radio" name="type" value="store" checked /> Store</label>
+        <label><input type="radio" name="type" value="lounge" /> Lounge</label>
+        <label><input type="radio" name="type" value="other" /> Other</label>
+      </div>
+
+      <label>Rating</label>
+      <div id="starRating" class="stars">
+        <span>★</span>
+        <span>★</span>
+        <span>★</span>
+        <span>★</span>
+        <span>★</span>
+      </div>
+
+      <button id="saveBtn">Save</button>
+    </form>
+  </div>
+
+  <script>
+    // 🔑 Supabase konfiguration (byt till dina riktiga keys!)
+    const supabaseUrl = "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";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // ⭐ Stjärnlogik
+    let currentRating = 0;
+    const stars = document.querySelectorAll('#starRating span');
+
+    stars.forEach((star, index) => {
+      star.addEventListener('click', () => {
+        currentRating = index + 1;
+        stars.forEach(s => s.classList.remove('selected'));
+        for (let i = 0; i < currentRating; i++) {
+          stars[i].classList.add('selected');
+        }
+      });
+    });
+
+    function getRating() {
+      return currentRating;
     }
-  }
 
-  // Hover-preview på containern (event delegation)
-  starContainer.addEventListener('mouseover', (e) => {
-    const idx = stars.indexOf(e.target);
-    if (idx >= 0) {
-      clearStates();
-      applyHover(idx + 1);
+    // 📍 Google Maps Autocomplete
+    function initAutocomplete() {
+      const input = document.getElementById('address');
+      const autocomplete = new google.maps.places.Autocomplete(input);
+      autocomplete.addListener('place_changed', function() {
+        const place = autocomplete.getPlace();
+        let city = "Unknown";
+        let country = "Unknown";
+
+        if (place.address_components) {
+          place.address_components.forEach(comp => {
+            if (comp.types.includes("locality")) city = comp.long_name;
+            if (comp.types.includes("country")) country = comp.long_name;
+          });
+        }
+
+        document.getElementById('city').value = city;
+        document.getElementById('country').value = country;
+      });
     }
-  });
+    window.initAutocomplete = initAutocomplete;
 
-  starContainer.addEventListener('mouseout', () => {
-    clearStates();
-    applySelected(currentRating);
-  });
+    // 💾 Save-knapp
+    document.getElementById("saveBtn").addEventListener("click", async (e) => {
+      e.preventDefault();
 
-  // Klick för att spara betyg
-  starContainer.addEventListener('click', (e) => {
-    const idx = stars.indexOf(e.target);
-    if (idx >= 0) {
-      currentRating = idx + 1;
-      clearStates();
-      applySelected(currentRating);
-    }
-  });
+      const name = document.getElementById("name").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const city = document.getElementById("city").value.trim() || "Unknown";
+      const country = document.getElementById("country").value.trim() || "Unknown";
+      const phone = document.getElementById("phone").value.trim();
+      const website = document.getElementById("website").value.trim();
+      const type = document.querySelector('input[name="type"]:checked')?.value || "store";
 
-  // Gör getRating global så save-funktionen kan läsa den
-  window.getRating = () => currentRating;
+      let rating = getRating();
 
-  // Debug (valfritt)
-  // console.log('⭐ Stjärnor hittade:', stars.length);
-});
+      const newStore = { name, address, city, country, phone, website, type, rating };
+      console.log("Saving store:", newStore);
 
+      const { data, error } = await supabase.from("stores").insert([newStore]);
+
+      if (error) {
+        console.error("❌ Error saving:", error.message);
+        alert("Kunde inte spara: " + error.message);
+      } else {
+        console.log("✅ Store saved:", data);
+        alert("Butiken sparades!");
+        document.getElementById("storeForm").reset();
+        stars.forEach(s => s.classList.remove('selected'));
+        currentRating = 0;
+      }
+    });
+  </script>
+</body>
+</html>
