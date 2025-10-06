@@ -1,169 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Backoffice - World Cigar Locator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backoffice – Stores</title>
   <link rel="stylesheet" href="css/backoffice.css">
-  <style>
-    /* 🔒 Overlay login */
-    .overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.9);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-    }
-    .overlay-content {
-      background: #111;
-      padding: 30px;
-      border-radius: 8px;
-      text-align: center;
-      color: gold;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-      width: 300px;
-    }
-    .overlay-content input {
-      padding: 10px;
-      width: 100%;
-      margin-bottom: 15px;
-      border: 1px solid #444;
-      border-radius: 4px;
-      background: #222;
-      color: white;
-    }
-    .overlay-content button {
-      padding: 10px 20px;
-      background: gold;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .overlay-content button:hover {
-      background: #d4af37;
-    }
-    #errorMsg {
-      color: red;
-      margin-top: 10px;
-      display: none;
-    }
-
-    /* Container */
-    .container {
-      max-width: 1000px;
-      margin: 20px auto;
-      padding: 20px;
-    }
-    h1 {
-      color: gold;
-    }
-    #logoutBtn {
-      float:right;
-      background:#d9534f;
-      color:white;
-      border:none;
-      padding:6px 12px;
-      border-radius:4px;
-      cursor:pointer;
-    }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <!-- 🔒 Password overlay -->
-  <div id="passwordOverlay" class="overlay">
-    <div class="overlay-content">
-      <h2>Backoffice Login</h2>
-      <form id="passwordForm">
-        <input type="password" id="passwordInput" placeholder="Enter password" required>
-        <button type="submit">Login</button>
-      </form>
-      <p id="errorMsg">❌ Fel lösenord</p>
-    </div>
+  <div class="wrapper">
+    <h1>Backoffice – Stores</h1>
+    <table id="storesTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Address</th>
+          <th>City</th>
+          <th>Country</th>
+          <th>Phone</th>
+          <th>Website</th>
+          <th>Type</th>
+          <th>Rating</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows will be inserted by JS -->
+      </tbody>
+    </table>
   </div>
-
-  <!-- Hela Backoffice-innehållet -->
-  <div id="backofficeContent" style="display:none;">
-    <div class="container">
-      <h1>
-        Backoffice
-        <button id="logoutBtn">Logga ut</button>
-      </h1>
-
-      <section>
-        <h2>Pending Stores</h2>
-        <div id="pending-list"></div>
-      </section>
-
-      <section>
-        <h2>Approved (Arkiv)</h2>
-        <input type="text" id="search" placeholder="🔍 Sök på namn, stad eller land">
-        <div id="approved-list"></div>
-      </section>
-    </div>
-
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal">
-      <div class="modal-content">
-        <span class="close" id="closeModal">&times;</span>
-        <h2>Edit Store</h2>
-        <form id="editForm">
-          <input type="hidden" id="edit-id">
-          <label>Namn:</label>
-          <input type="text" id="edit-name" required>
-          <label>Adress:</label>
-          <input type="text" id="edit-address">
-          <label>Stad:</label>
-          <input type="text" id="edit-city">
-          <label>Land:</label>
-          <input type="text" id="edit-country">
-          <label>Telefon:</label>
-          <input type="text" id="edit-phone">
-          <label>Webbplats:</label>
-          <input type="text" id="edit-website">
-          <button type="submit">💾 Spara</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
-  <script src="js/backoffice.js"></script>
-  <script>
-    const passwordForm = document.getElementById("passwordForm");
-    const passwordInput = document.getElementById("passwordInput");
-    const errorMsg = document.getElementById("errorMsg");
-    const overlay = document.getElementById("passwordOverlay");
-    const backofficeContent = document.getElementById("backofficeContent");
-
-    // 🔑 Om lösenord redan finns i localStorage → hoppa över overlay
-    if (localStorage.getItem("backofficeAuth") === "ok") {
-      overlay.style.display = "none";
-      backofficeContent.style.display = "block";
-    }
-
-    passwordForm.addEventListener("submit", function(e) {
-      e.preventDefault();
-      if (passwordInput.value === "jockefylla") {
-        localStorage.setItem("backofficeAuth", "ok"); // ✅ Spara
-        overlay.style.display = "none";
-        backofficeContent.style.display = "block";
-      } else {
-        errorMsg.style.display = "block";
-      }
-    });
-
-    // 🔓 Logga ut-knapp
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      localStorage.removeItem("backofficeAuth");
-      backofficeContent.style.display = "none";
-      overlay.style.display = "flex";
-      passwordInput.value = "";
-      errorMsg.style.display = "none";
-    });
-  </script>
+  <script src="js/backoffice.js" defer></script>
 </body>
 </html>
