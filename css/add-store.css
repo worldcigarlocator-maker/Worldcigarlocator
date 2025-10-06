@@ -10,7 +10,7 @@ body {
 h1 {
   text-align: center;
   margin-bottom: 1rem;
-  color: #b8860b; /* gold */
+  color: #b8860b; /* mörkguld */
 }
 
 /* Form wrapper */
@@ -33,7 +33,7 @@ label {
 }
 
 input[type="text"] {
-  padding: 0.5rem;
+  padding: 0.6rem;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
@@ -71,20 +71,20 @@ input[type="text"]:focus {
 }
 
 .stars span {
-  color: #ccc; /* gray default */
+  color: #ccc; /* grå default */
   transition: color 0.2s;
 }
 
 .stars span:hover,
 .stars span:hover ~ span {
-  color: #b8860b80; /* lighter gold on hover */
+  color: #e6c34d; /* ljusguld på hover */
 }
 
 .stars span.selected {
-  color: #b8860b; /* gold when selected */
+  color: #b8860b; /* mörkguld när vald */
 }
 
-/* Buttons */
+/* Buttons – global */
 button {
   padding: 0.6rem 1.2rem;
   border: none;
@@ -99,18 +99,36 @@ button:active {
   transform: scale(0.97);
 }
 
-/* Paste button */
-.paste-btn {
-  background: #ddd;
-  color: #333;
-  margin-bottom: 1rem;
+/* Maps link row */
+.maps-link-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch; /* samma höjd */
 }
 
-.paste-btn:hover {
-  background: #ccc;
+.maps-link-row input {
+  flex: 1;
 }
 
-/* Save button */
+/* Paste button (ljusare guld) */
+.maps-link-row .paste-btn {
+  background: #e6c34d;
+  color: #fff;
+  padding: 0 1.2rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+}
+
+.maps-link-row .paste-btn:hover {
+  background: #d4ad3a;
+}
+
+/* Save button (huvudknapp, mörkguld) */
 .save-btn {
   background: #b8860b;
   color: #fff;
@@ -120,35 +138,4 @@ button:active {
 
 .save-btn:hover {
   background: #a0750a;
-}
-
-/* Layout tweaks */
-.paste-wrapper,
-.save-wrapper {
-  display: flex;
-  justify-content: center;
-}
-/* Maps link row */
-.maps-link-row {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.maps-link-row input {
-  flex: 1;
-}
-
-.maps-link-row .paste-btn {
-  background: #ddd;
-  color: #333;
-  padding: 0.5rem 1rem;
-  height: 100%;            /* samma höjd som input */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.maps-link-row .paste-btn:hover {
-  background: #ccc;
 }
