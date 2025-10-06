@@ -99,3 +99,17 @@ button, .save-btn {
 button:hover, .save-btn:hover {
   background-color: #d4af37; /* ljusare guld */
 }
+.address-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.address-group input {
+  flex: 1;
+}
+
+.address-group button {
+  height: 42px; /* samma som input */
+  white-space: nowrap;
+}
