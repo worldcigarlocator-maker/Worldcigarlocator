@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Store</title>
 
-  <!-- CSS (relativ sökväg → funkar både lokalt & på Pages) -->
+  <!-- CSS (relativ sökväg → funkar lokalt & på Pages) -->
   <link rel="stylesheet" href="css/add-store.css">
 
-  <!-- Google Fonts (valfritt för snyggare text) -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- Google Maps JavaScript API -->
@@ -19,6 +19,18 @@
 
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* ✅ Minimal styling för stjärnor */
+    .stars span {
+      font-size: 2rem;
+      cursor: pointer;
+      color: #ccc; /* grå från början */
+    }
+    .stars span.selected {
+      color: gold; /* gula när markerade */
+    }
+  </style>
 </head>
 <body>
   <div id="form-wrapper" class="form-wrapper">
@@ -52,11 +64,11 @@
 
       <label>Rating</label>
       <div id="starRating" class="stars">
-        <span data-value="1">★</span>
-        <span data-value="2">★</span>
-        <span data-value="3">★</span>
-        <span data-value="4">★</span>
-        <span data-value="5">★</span>
+        <span>★</span>
+        <span>★</span>
+        <span>★</span>
+        <span>★</span>
+        <span>★</span>
       </div>
 
       <button id="saveBtn">Save</button>
@@ -64,23 +76,30 @@
   </div>
 
   <script>
-    // 🔑 Supabase konfiguration
+    // 🔑 Supabase konfiguration (byt till dina riktiga keys!)
     const supabaseUrl = "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";
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     // ⭐ Stjärnlogik
-    document.querySelectorAll('#starRating span').forEach(star => {
+    let currentRating = 0;
+    const stars = document.querySelectorAll('#starRating span');
+
+    stars.forEach((star, index) => {
       star.addEventListener('click', () => {
-        const value = star.dataset.value;
-        document.querySelectorAll('#starRating span').forEach(s => s.classList.remove('selected'));
-        for (let i = 0; i < value; i++) {
-          document.querySelectorAll('#starRating span')[i].classList.add('selected');
+        currentRating = index + 1;
+        stars.forEach(s => s.classList.remove('selected'));
+        for (let i = 0; i < currentRating; i++) {
+          stars[i].classList.add('selected');
         }
       });
     });
 
-    // 📍 Google Maps Autocomplete (på Address)
+    function getRating() {
+      return currentRating;
+    }
+
+    // 📍 Google Maps Autocomplete
     function initAutocomplete() {
       const input = document.getElementById('address');
       const autocomplete = new google.maps.places.Autocomplete(input);
@@ -104,7 +123,7 @@
 
     // 💾 Save-knapp
     document.getElementById("saveBtn").addEventListener("click", async (e) => {
-      e.preventDefault(); // stoppa reload
+      e.preventDefault();
 
       const name = document.getElementById("name").value.trim();
       const address = document.getElementById("address").value.trim();
@@ -114,8 +133,7 @@
       const website = document.getElementById("website").value.trim();
       const type = document.querySelector('input[name="type"]:checked')?.value || "store";
 
-      let rating = document.querySelectorAll("#starRating .selected").length;
-      if (!rating || rating < 0 || rating > 5) rating = 0;
+      let rating = getRating();
 
       const newStore = { name, address, city, country, phone, website, type, rating };
       console.log("Saving store:", newStore);
@@ -129,7 +147,8 @@
         console.log("✅ Store saved:", data);
         alert("Butiken sparades!");
         document.getElementById("storeForm").reset();
-        document.querySelectorAll('#starRating span').forEach(s => s.classList.remove('selected'));
+        stars.forEach(s => s.classList.remove('selected'));
+        currentRating = 0;
       }
     });
   </script>
