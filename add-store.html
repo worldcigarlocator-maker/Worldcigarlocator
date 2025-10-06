@@ -2,82 +2,68 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Add Store</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- CSS -->
+  <title>Add Store</title>
   <link rel="stylesheet" href="css/add-store.css">
 
-  <!-- Google Maps JavaScript API (med Places bibliotek) -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&loading=async" async defer></script>
+  <!-- Google Maps JavaScript API -->
+  <script 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" 
+    async defer>
+  </script>
 
-  <!-- Supabase Client -->
+  <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div class="form-wrapper" id="form-wrapper">
-    <h1>Add a Store</h1>
-    <form id="storeForm">
+  <div id="form-wrapper" class="form-wrapper">
+    <h1>Add Store</h1>
 
-      <!-- Google Maps URL -->
-      <div class="url-row">
-        <input type="text" id="mapsUrl" placeholder="Paste Google Maps URL here">
-        <button type="button" id="pasteBtn" class="gold-btn">Paste</button>
-      </div>
+    <div class="url-row">
+      <input type="text" id="mapsUrl" placeholder="Paste Google Maps URL here">
+      <button type="button" id="pasteBtn" class="gold-btn">Paste</button>
+    </div>
 
-      <!-- Name -->
-      <label for="name">Name</label>
-      <input type="text" id="name" placeholder="Store name">
+    <label for="name">Name</label>
+    <input type="text" id="name">
 
-      <!-- Address -->
-      <label for="address">Address</label>
-      <input type="text" id="address" placeholder="Street address">
+    <label for="address">Address</label>
+    <input type="text" id="address">
 
-      <!-- City -->
-      <label for="city">City</label>
-      <input type="text" id="city" placeholder="City">
+    <label for="city">City</label>
+    <input type="text" id="city">
 
-      <!-- Country -->
-      <label for="country">Country</label>
-      <input type="text" id="country" placeholder="Country">
+    <label for="country">Country</label>
+    <input type="text" id="country">
 
-      <!-- Phone -->
-      <label for="phone">Phone</label>
-      <input type="text" id="phone" placeholder="Phone number">
+    <label for="phone">Phone</label>
+    <input type="text" id="phone">
 
-      <!-- Website -->
-      <label for="website">Website</label>
-      <input type="text" id="website" placeholder="Website URL">
+    <label for="website">Website</label>
+    <input type="text" id="website">
 
-      <!-- Store type -->
-      <div class="type-group">
-        <label>
-          <input type="radio" name="type" value="store" checked> Store
-        </label>
-        <label>
-          <input type="radio" name="type" value="lounge"> Lounge
-        </label>
-        <label>
-          <input type="radio" name="type" value="other"> Other
-        </label>
-      </div>
+    <div class="type-group">
+      <label>Type</label>
+      <label><input type="radio" name="type" value="store" checked> Store</label>
+      <label><input type="radio" name="type" value="lounge"> Lounge</label>
+      <label><input type="radio" name="type" value="other"> Other</label>
+    </div>
 
-      <!-- Rating -->
+    <div class="rating">
       <label>Rating</label>
-      <div class="rating">
-        <span class="star" data-value="1">&#9733;</span>
-        <span class="star" data-value="2">&#9733;</span>
-        <span class="star" data-value="3">&#9733;</span>
-        <span class="star" data-value="4">&#9733;</span>
-        <span class="star" data-value="5">&#9733;</span>
+      <div id="starRating" class="stars">
+        <span data-value="1">&#9733;</span>
+        <span data-value="2">&#9733;</span>
+        <span data-value="3">&#9733;</span>
+        <span data-value="4">&#9733;</span>
+        <span data-value="5">&#9733;</span>
       </div>
+    </div>
 
-      <!-- Save button -->
-      <button type="submit" class="gold-btn save-btn">Save</button>
-    </form>
+    <button type="button" id="saveBtn" class="gold-btn save-btn">Save</button>
   </div>
 
-  <!-- Din egen JS -->
-  <script src="js/add-store.js"></script>
+  <!-- ABSOLUTE path to JS -->
+  <script src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/js/add-store.js"></script>
 </body>
 </html>
