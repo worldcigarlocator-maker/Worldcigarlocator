@@ -56,3 +56,62 @@ async function saveStore(e) {
 
 // 🟡 Koppla Save-knappen
 document.getElementById("saveBtn").addEventListener("click", saveStore);
+document.addEventListener('DOMContentLoaded', () => {
+  const starContainer = document.getElementById('starRating');
+  if (!starContainer) {
+    console.warn('⚠️ Hittar inte #starRating i DOM:en.');
+    return;
+  }
+
+  const stars = Array.from(starContainer.querySelectorAll('span'));
+  if (!stars.length) {
+    console.warn('⚠️ Inga <span> inuti #starRating – lägg in 5 stjärnor.');
+  }
+
+  let currentRating = 0;
+
+  function clearStates() {
+    stars.forEach(s => s.classList.remove('hover', 'selected'));
+  }
+  function applySelected(r) {
+    for (let i = 0; i < stars.length; i++) {
+      stars[i].classList.toggle('selected', i < r);
+    }
+  }
+  function applyHover(r) {
+    for (let i = 0; i < stars.length; i++) {
+      stars[i].classList.toggle('hover', i < r);
+    }
+  }
+
+  // Hover-preview på containern (event delegation)
+  starContainer.addEventListener('mouseover', (e) => {
+    const idx = stars.indexOf(e.target);
+    if (idx >= 0) {
+      clearStates();
+      applyHover(idx + 1);
+    }
+  });
+
+  starContainer.addEventListener('mouseout', () => {
+    clearStates();
+    applySelected(currentRating);
+  });
+
+  // Klick för att spara betyg
+  starContainer.addEventListener('click', (e) => {
+    const idx = stars.indexOf(e.target);
+    if (idx >= 0) {
+      currentRating = idx + 1;
+      clearStates();
+      applySelected(currentRating);
+    }
+  });
+
+  // Gör getRating global så save-funktionen kan läsa den
+  window.getRating = () => currentRating;
+
+  // Debug (valfritt)
+  // console.log('⭐ Stjärnor hittade:', stars.length);
+});
+
