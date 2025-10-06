@@ -5,43 +5,14 @@ body {
   padding: 20px;
 }
 
-.container {
-  max-width: 1200px;
-  margin: auto;
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-/* Topbar */
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.view-toggle {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.toggle-btn {
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  background: #ddd;
-}
-
-.toggle-btn.active {
-  background: #444;
-  color: #fff;
-}
-
+.toggle-btn,
 .home-btn {
   background: #888;
   color: #fff;
@@ -50,61 +21,64 @@ h1 {
   padding: 0.6rem 1.2rem;
   cursor: pointer;
   font-weight: bold;
+  transition: background 0.2s;
+  margin-right: 0.5rem;
 }
+
+.toggle-btn.active {
+  background: #333;
+}
+
+.toggle-btn:hover,
 .home-btn:hover {
   background: #666;
 }
 
-/* Search + Sort */
-.archive-controls {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.archive-controls.hidden {
+.hidden {
   display: none;
 }
 
-#searchInput {
-  flex: 1;
-  padding: 0.6rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.filter-bar,
+.search-sort-bar {
+  margin-bottom: 1rem;
 }
 
-.sort-select {
-  padding: 0.6rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-/* Cards */
-.view-section {
-  display: grid;
+.search-sort-bar {
+  display: flex;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+#searchInput,
+#sortSelect,
+#pendingFilter,
+#archiveFilter {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
 }
 
 .card {
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: relative;
 }
 
 .card h3 {
-  margin: 0 0 0.5rem;
-}
-
-.card p {
-  margin: 0.25rem 0;
+  margin-top: 0;
 }
 
 .card-buttons {
-  margin-top: 1rem;
   display: flex;
   gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .card-buttons button {
@@ -114,16 +88,67 @@ h1 {
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
-  color: #fff;
+  transition: background 0.2s;
 }
 
-.btn-approve { background: #4caf50; }
-.btn-approve:hover { background: #45a049; }
+.btn-approve {
+  background: #4caf50;
+  color: white;
+}
 
-.btn-edit { background: #2196f3; }
-.btn-edit:hover { background: #1976d2; }
+.btn-approve:hover {
+  background: #43a047;
+}
 
-.btn-delete { background: #f44336; }
-.btn-delete:hover { background: #d32f2f; }
+.btn-edit {
+  background: #2196f3;
+  color: white;
+}
 
-.hidden { display: none; }
+.btn-edit:hover {
+  background: #1976d2;
+}
+
+.btn-delete {
+  background: #f44336;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #d32f2f;
+}
+
+/* Badges */
+.card .approved-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #4caf50;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.card .pending-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ff9800;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+/* Stars */
+.stars {
+  color: #ccc;
+  font-size: 1.2rem;
+}
+
+.stars .star-filled {
+  color: gold;
+}
