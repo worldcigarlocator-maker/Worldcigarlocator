@@ -5,14 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Store</title>
 
-  <!-- Absolut länk till CSS på GitHub Pages -->
-  <link rel="stylesheet" href="https://worldcigarlocator-maker.github.io/Worldcigarlocator/css/add-store.css">
+  <!-- Absolut länk till huvud-CSS på GitHub Pages -->
+  <link rel="stylesheet" href="https://worldcigarlocator-maker.github.io/Worldcigarlocator/css/style.css">
 
   <!-- Google Maps JavaScript API -->
-  <script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" 
-    async defer>
-  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" async defer></script>
 
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -22,8 +19,8 @@
     <h1>Add Store</h1>
 
     <div class="url-row">
-      <input type="text" id="mapsUrl" placeholder="Paste Google Maps URL here">
-      <button type="button" id="pasteBtn" class="gold-btn">Paste</button>
+      <input type="text" id="mapsUrl" placeholder="Paste Google Maps URL">
+      <button type="button" id="pasteBtn">Paste</button>
     </div>
 
     <label for="name">Name</label>
@@ -45,27 +42,21 @@
     <input type="text" id="website">
 
     <div class="type-group">
-      <label>Type</label>
-      <label><input type="radio" name="type" value="store" checked> Store</label>
-      <label><input type="radio" name="type" value="lounge"> Lounge</label>
-      <label><input type="radio" name="type" value="other"> Other</label>
+      <label>Type</label><br>
+      <input type="radio" name="type" value="store" checked> Store
+      <input type="radio" name="type" value="lounge"> Lounge
+      <input type="radio" name="type" value="other"> Other
     </div>
 
     <div class="rating">
-      <label>Rating</label>
-      <div id="starRating" class="stars">
-        <span data-value="1">&#9733;</span>
-        <span data-value="2">&#9733;</span>
-        <span data-value="3">&#9733;</span>
-        <span data-value="4">&#9733;</span>
-        <span data-value="5">&#9733;</span>
-      </div>
+      <label>Rating</label><br>
+      ★★★★★
     </div>
 
-    <button type="button" id="saveBtn" class="gold-btn save-btn">Save</button>
+    <button id="saveBtn" class="gold-btn save-btn">Save</button>
   </div>
 
-  <!-- Absolut länk till JS på GitHub Pages -->
+  <!-- Absolut länk till din JS på GitHub Pages -->
   <script src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/js/add-store.js"></script>
 </body>
 </html>
