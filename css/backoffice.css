@@ -5,153 +5,116 @@ body {
   padding: 0;
 }
 
-header {
+.top-bar {
+  background: #222;
+  color: #fff;
+  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #333;
-  color: #fff;
-  padding: 1rem 2rem;
 }
 
-.btn-home {
-  background: #555;
+.top-bar .home-btn {
+  background: #666;
   color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
+  text-decoration: none;
+  padding: 8px 12px;
   border-radius: 6px;
-  cursor: pointer;
 }
-.btn-home:hover {
-  background: #444;
+.top-bar .home-btn:hover {
+  background: #888;
 }
 
-.view-toggle {
-  text-align: center;
-  margin: 1rem;
+section {
+  padding: 20px;
 }
-.view-toggle button {
-  padding: 0.5rem 1rem;
-  margin: 0 0.5rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.view-toggle button.active {
-  background: #333;
-  color: #fff;
+
+h2 {
+  margin-bottom: 10px;
 }
 
 .filter-bar {
+  margin-bottom: 15px;
   display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 1rem;
+  flex-wrap: wrap;
+  gap: 10px;
 }
-.filter-bar input, .filter-bar select {
-  padding: 0.5rem;
+.filter-bar input,
+.filter-bar select {
+  padding: 6px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
-}
-.hidden {
-  display: none;
 }
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
-  gap: 1rem;
-  padding: 1rem;
+  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 }
 
-.card {
+.store-card {
   background: #fff;
-  padding: 1rem;
-  border-radius: 8px;
+  border-radius: 10px;
+  padding: 15px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   position: relative;
   transition: 0.3s;
 }
-.card:hover {
+.store-card:hover {
   transform: translateY(-2px);
 }
 
-.card h3 {
-  margin-top: 0;
-}
-
-.card .stars {
-  color: gold;
-  margin: 0.3rem 0;
-}
-
-.badge {
+.pending-badge,
+.approved-badge,
+.flagged-badge {
   position: absolute;
   top: 10px;
   right: 10px;
-  padding: 0.3rem 0.6rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: bold;
-}
-.badge.approved {
-  background: #4caf50;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
   color: #fff;
 }
-.badge.pending {
-  background: #ff9800;
-  color: #fff;
+.pending-badge { background: orange; }
+.approved-badge { background: green; }
+.flagged-badge { background: red; }
+
+.store-card h3 {
+  margin: 5px 0;
 }
 
-.card-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+.stars {
+  color: #ccc;
 }
-.card-actions button {
+.stars .selected {
+  color: gold;
+}
+
+.button-row {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+.button-row button {
   flex: 1;
+  padding: 6px;
   border: none;
-  padding: 0.4rem;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: bold;
 }
-.btn-approve { background: #4caf50; color: #fff; }
-.btn-edit { background: #2196f3; color: #fff; }
-.btn-delete { background: #f44336; color: #fff; }
-.btn-approve:hover { background: #43a047; }
-.btn-edit:hover { background: #1976d2; }
-.btn-delete:hover { background: #e53935; }
+.approve-btn { background: green; color: #fff; }
+.delete-btn { background: red; color: #fff; }
+.edit-btn { background: blue; color: #fff; }
+.save-edit-btn { background: darkgoldenrod; color: #fff; width: 100%; margin-top: 8px; }
 
-.card-edit-fields {
-  margin-top: 1rem;
+.edit-fields {
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: max-height 0.4s ease, opacity 0.3s ease;
+  gap: 6px;
 }
-.card-edit-fields.show {
-  max-height: 500px;
-  opacity: 1;
-}
-.card-edit-fields input {
-  padding: 0.4rem;
+.edit-fields input {
+  padding: 6px;
   border: 1px solid #ccc;
   border-radius: 6px;
-}
-.card-edit-fields .save-btn {
-  background: #4caf50;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 0.5rem;
-  font-weight: bold;
-  cursor: pointer;
-}
-.card-edit-fields .save-btn:hover {
-  background: #43a047;
 }
