@@ -5,18 +5,32 @@ const sb = supabase.createClient(
   "https://gbxxoeplkzbhsvagnfsr.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
 );
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const GOOGLE_FIELDS = [
-  "name",
-  "formatted_address",
-  "geometry",
-  "international_phone_number",
-  "website"
-];
+// ===========================
+// Hjälpfunktion: extrahera PlaceID från Google Maps-URL
+// ===========================
+function extractPlaceIdFromUrl(url) {
+  const regex = /!1s([^!]+)!/; // lång URL med !1sPLACEID!
+  const match = url.match(regex);
+  if (match && match[1]) {
+    console.log("✅ Extracted PlaceID:", match[1]);
+    return match[1];
+  }
 
-// ==========================
-// Rating system
-// ==========================
+  const qMatch = url.match(/place_id:([^&]+)/); // typ ?q=place_id:XYZ
+  if (qMatch && qMatch[1]) {
+    console.log("✅ Extracted PlaceID:", qMatch[1]);
+    return qMatch[1];
+  }
+
+  console.warn("⚠️ Ingen PlaceID hittad i URL:", url);
+  return null;
+}
+
+// ===========================
+// Stjärnbetyg
+// ===========================
 let selectedRating = 0;
 document.querySelectorAll(".star").forEach((star, index) => {
   star.addEventListener("click", () => {
@@ -27,127 +41,102 @@ document.querySelectorAll(".star").forEach((star, index) => {
   });
 });
 
-// ==========================
-// Paste button → getDetails via PlacesService
-// ==========================
+// ===========================
+// Paste-knapp → hämta platsdata
+// ===========================
 document.getElementById("pasteBtn").addEventListener("click", () => {
   const url = document.getElementById("mapsUrl").value.trim();
-  if (!url) {
-    alert("Please paste a Google Maps URL first.");
-    return;
-  }
+  const placeId = extractPlaceIdFromUrl(url);
 
-  const placeId = extractPlaceId(url);
   if (!placeId) {
-    alert("❌ Could not find Place ID in this URL.");
+    alert("Ingen giltig PlaceID hittades i länken.");
     return;
   }
 
-  console.log("ℹ️ Extracted Place ID:", placeId);
+  // Initiera en "osynlig" karta för PlacesService
+  const mapDiv = document.createElement("div");
+  const map = new google.maps.Map(mapDiv);
+  const service = new google.maps.places.PlacesService(map);
 
-  // Init PlacesService
-  const service = new google.maps.places.PlacesService(
-    document.createElement("div")
-  );
+  service.getDetails(
+    {
+      placeId: placeId,
+      fields: [
+        "name",
+        "formatted_address",
+        "geometry",
+        "international_phone_number",
+        "website",
+        "address_components"
+      ]
+    },
+    (place, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK) {
+        console.log("🎉 Platsdata:", place);
 
-  service.getDetails({ placeId, fields: GOOGLE_FIELDS }, (place, status) => {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      autofillForm(place, placeId);
-    } else {
-      console.error("❌ getDetails error:", status);
-      alert("Google PlacesService failed: " + status);
+        // Autofyll fälten
+        document.getElementById("name").value = place.name || "";
+        document.getElementById("address").value = place.formatted_address || "";
+        document.getElementById("phone").value = place.international_phone_number || "";
+        document.getElementById("website").value = place.website || "";
+
+        // Stad & land
+        if (place.address_components) {
+          const city = place.address_components.find(c => c.types.includes("locality"));
+          const country = place.address_components.find(c => c.types.includes("country"));
+          document.getElementById("city").value = city ? city.long_name : "";
+          document.getElementById("country").value = country ? country.long_name : "";
+        }
+
+        // Koordinater + PlaceID sparas i dataset
+        const formWrapper = document.getElementById("form-wrapper");
+        if (place.geometry && place.geometry.location) {
+          formWrapper.dataset.lat = place.geometry.location.lat();
+          formWrapper.dataset.lng = place.geometry.location.lng();
+        }
+        formWrapper.dataset.placeId = placeId;
+      } else {
+        console.error("❌ Misslyckades att hämta platsinfo:", status);
+      }
     }
-  });
+  );
 });
 
-// ==========================
-// Helper: Extract Place ID
-// ==========================
-function extractPlaceId(url) {
-  // Matcha !1sXXXX
-  const regex = /!1s([^!]+)/;
-  const match = url.match(regex);
-  if (match) return match[1];
-
-  // Matcha placeid=XXXX
-  const regex2 = /placeid=([^&]+)/;
-  const match2 = url.match(regex2);
-  if (match2) return match2[1];
-
-  return null;
-}
-
-// ==========================
-// Autofill form
-// ==========================
-function autofillForm(place, placeId) {
-  document.getElementById("name").value = place.name || "";
-  document.getElementById("address").value = place.formatted_address || "";
-  document.getElementById("city").value = extractCity(place.formatted_address);
-  document.getElementById("country").value = extractCountry(place.formatted_address);
-  document.getElementById("phone").value = place.international_phone_number || "";
-  document.getElementById("website").value = place.website || "";
-
-  // hidden values i dataset
-  const wrapper = document.getElementById("form-wrapper");
-  wrapper.dataset.placeId = placeId;
-  if (place.geometry?.location) {
-    wrapper.dataset.lat = place.geometry.location.lat();
-    wrapper.dataset.lng = place.geometry.location.lng();
-  }
-
-  console.log("✅ Form filled with:", place);
-}
-
-// ==========================
-// Extract city / country
-// ==========================
-function extractCity(address) {
-  if (!address) return "";
-  const parts = address.split(",");
-  return parts.length >= 2 ? parts[parts.length - 2].trim() : "";
-}
-function extractCountry(address) {
-  if (!address) return "";
-  const parts = address.split(",");
-  return parts.length >= 1 ? parts[parts.length - 1].trim() : "";
-}
-
-// ==========================
-// Save to Supabase
-// ==========================
+// ===========================
+// Spara till Supabase
+// ===========================
 document.getElementById("storeForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const wrapper = document.getElementById("form-wrapper");
-  const placeId = wrapper.dataset.placeId || null;
-  const lat = wrapper.dataset.lat || null;
-  const lng = wrapper.dataset.lng || null;
+  const formWrapper = document.getElementById("form-wrapper");
 
-  const store = {
-    name: document.getElementById("name").value,
-    address: document.getElementById("address").value,
-    city: document.getElementById("city").value,
-    country: document.getElementById("country").value,
-    phone: document.getElementById("phone").value,
-    website: document.getElementById("website").value,
-    type: document.querySelector("input[name='type']:checked")?.value || "other",
+  const newStore = {
+    name: document.getElementById("name").value.trim(),
+    address: document.getElementById("address").value.trim(),
+    city: document.getElementById("city").value.trim(),
+    country: document.getElementById("country").value.trim(),
+    phone: document.getElementById("phone").value.trim(),
+    website: document.getElementById("website").value.trim(),
+    type: document.querySelector('input[name="type"]:checked')?.value || "store",
     rating: selectedRating,
     status: "pending",
-    place_id: placeId,
-    lat: lat,
-    lng: lng
+    place_id: formWrapper.dataset.placeId || null,
+    lat: formWrapper.dataset.lat || null,
+    lng: formWrapper.dataset.lng || null
   };
 
-  const { error } = await sb.from("stores").insert([store]);
+  console.log("📤 Sparar till Supabase:", newStore);
+
+  const { data, error } = await sb.from("stores").insert([newStore]);
 
   if (error) {
-    console.error("❌ Supabase insert error:", error);
-    alert("Failed to save store: " + error.message);
+    console.error("❌ Fel vid sparning:", error);
+    alert("Något gick fel, försök igen.");
   } else {
-    alert("✅ Store saved successfully!");
+    console.log("✅ Sparad i Supabase:", data);
+    alert("Platsen sparad som 'pending' i databasen!");
     document.getElementById("storeForm").reset();
     selectedRating = 0;
-    document.querySelectorAll(".star").forEach((s) => s.classList.remove("selected"));
+    document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
   }
 });
