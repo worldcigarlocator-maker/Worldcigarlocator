@@ -1,19 +1,15 @@
 // ===== Supabase Init =====
 const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co"; 
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // din anon key här
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // din anon key här
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Globals
 let pendingStores = [];
 let approvedStores = [];
 
-// Load stores
+// Load data
 async function loadStores() {
   const { data, error } = await supabase.from("stores").select("*").order("id", { ascending: false });
-  if (error) {
-    console.error(error);
-    return;
-  }
+  if (error) { console.error(error); return; }
 
   pendingStores = data.filter(s => !s.approved);
   approvedStores = data.filter(s => s.approved);
@@ -22,7 +18,7 @@ async function loadStores() {
   renderCards(approvedStores, document.getElementById("approved-list"), true);
 }
 
-// Render cards
+// Render store cards
 function renderCards(stores, container, isArchive) {
   container.innerHTML = "";
   stores.forEach(store => {
@@ -30,16 +26,13 @@ function renderCards(stores, container, isArchive) {
     card.className = "store-card";
 
     // Badge
-    let badgeHtml = "";
-    if (store.flagged) {
-      badgeHtml = `<div class="flagged-badge">Illegal 🚫</div>`;
-    } else if (isArchive) {
-      badgeHtml = `<div class="approved-badge">Approved ✅</div>`;
-    } else {
-      badgeHtml = `<div class="pending-badge">Pending ⏳</div>`;
-    }
+    let badgeHtml = store.flagged
+      ? `<div class="flagged-badge">Illegal 🚫</div>`
+      : (isArchive
+          ? `<div class="approved-badge">Approved ✅</div>`
+          : `<div class="pending-badge">Pending ⏳</div>`);
 
-    // Stars (read-only)
+    // Stars
     let starsHtml = "";
     for (let i = 1; i <= 5; i++) {
       starsHtml += `<span class="star ${i <= (store.rating || 0) ? "selected" : ""}">★</span>`;
@@ -62,7 +55,6 @@ function renderCards(stores, container, isArchive) {
       <div class="edit-form"></div>
     `;
 
-    // Buttons
     const approveBtn = card.querySelector(".approve-btn");
     const editBtn = card.querySelector(".edit-btn");
     const deleteBtn = card.querySelector(".delete-btn");
@@ -118,7 +110,21 @@ function toggleEditForm(store, container) {
   });
 }
 
-// Search + filter + sort
+// Pending filter
+document.getElementById("typeFilterPending")?.addEventListener("change", applyPendingFilters);
+function applyPendingFilters() {
+  const type = document.getElementById("typeFilterPending").value;
+
+  let filtered = pendingStores;
+  if (type !== "All") {
+    if (type === "Flagged") filtered = pendingStores.filter(s => s.flagged);
+    else filtered = pendingStores.filter(s => s.type === type);
+  }
+
+  renderCards(filtered, document.getElementById("pending-list"), false);
+}
+
+// Archive filters
 document.getElementById("searchInput")?.addEventListener("input", applyArchiveFilters);
 document.getElementById("typeFilterArchive")?.addEventListener("change", applyArchiveFilters);
 document.getElementById("sortArchive")?.addEventListener("change", applyArchiveFilters);
@@ -134,11 +140,8 @@ function applyArchiveFilters() {
     (s.country || "").toLowerCase().includes(term)
   );
 
-  if (type !== "All") {
-    filtered = filtered.filter(s => s.type === type);
-  }
+  if (type !== "All") filtered = filtered.filter(s => s.type === type);
 
-  // Sorting
   if (sort === "name") filtered.sort((a, b) => a.name.localeCompare(b.name));
   else if (sort === "city") filtered.sort((a, b) => a.city.localeCompare(b.city));
   else if (sort === "country") filtered.sort((a, b) => a.country.localeCompare(b.country));
