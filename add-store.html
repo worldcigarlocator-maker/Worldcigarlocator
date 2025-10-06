@@ -2,77 +2,68 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add Store</title>
-
-  <!-- CSS -->
   <link rel="stylesheet" href="css/add-store.css" />
-
-  <!-- Google Maps API -->
-  <script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete" 
-    async defer>
-  </script>
-
-  <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- JS -->
+  <!-- Google Maps JS API -->
+  <script 
+    src="https://maps.googleapis.com/maps/api/js?key=DIN_GOOGLE_KEY&libraries=places"
+    defer
+  ></script>
   <script src="js/add-store.js" defer></script>
 </head>
 <body>
   <div class="form-wrapper">
     <h1>Add Store</h1>
 
-    <!-- Maps link row -->
-    <label for="mapsLink">Google Maps Link:</label>
+    <!-- Maps link + Add button -->
     <div class="maps-link-row">
-      <input id="mapsLink" type="text" placeholder="Paste or click button" />
-      <button id="pasteBtn" type="button" class="paste-btn">Paste</button>
+      <input type="text" id="mapsLink" placeholder="Paste Google Maps link here" />
+      <button id="addBtn" type="button">Add</button>
     </div>
 
-    <!-- Store Name -->
-    <label for="name">Store Name:</label>
-    <input id="name" type="text" placeholder="Enter store name" />
+    <div id="previewImage" class="preview"></div>
 
-    <!-- Address -->
-    <label for="address">Address:</label>
-    <input id="address" type="text" placeholder="Enter or paste address" />
+    <!-- Store fields -->
+    <label for="name">Store Name</label>
+    <input type="text" id="name" />
 
-    <!-- City -->
-    <label for="city">City:</label>
-    <input id="city" type="text" placeholder="City" />
+    <label for="address">Address</label>
+    <input type="text" id="address" />
 
-    <!-- Country -->
-    <label for="country">Country:</label>
-    <input id="country" type="text" placeholder="Country" />
+    <label for="city">City</label>
+    <input type="text" id="city" />
 
-    <!-- Phone -->
-    <label for="phone">Phone:</label>
-    <input id="phone" type="text" placeholder="Phone number" />
+    <label for="country">Country</label>
+    <input type="text" id="country" />
 
-    <!-- Website -->
-    <label for="website">Website:</label>
-    <input id="website" type="text" placeholder="https://example.com" />
+    <label for="phone">Phone</label>
+    <input type="text" id="phone" />
 
-    <!-- Store type -->
-    <label>Type:</label>
+    <label for="website">Website</label>
+    <input type="text" id="website" />
+
+    <label>Type</label>
     <div class="radio-group">
       <label><input type="radio" name="type" value="Store" checked /> Store</label>
       <label><input type="radio" name="type" value="Lounge" /> Lounge</label>
       <label><input type="radio" name="type" value="Other" /> Other</label>
     </div>
 
-    <!-- Star rating -->
-    <label>Rating:</label>
+    <label>Rating</label>
     <div id="starRating" class="stars">
-      <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+      <span data-value="1">★</span>
+      <span data-value="2">★</span>
+      <span data-value="3">★</span>
+      <span data-value="4">★</span>
+      <span data-value="5">★</span>
     </div>
 
-    <!-- Save button -->
-    <div class="save-wrapper">
-      <button id="saveBtn" type="button" class="save-btn">Save</button>
-    </div>
+    <button id="saveBtn" type="button" class="save-btn">Save</button>
   </div>
+
+  <!-- Toast container -->
+  <div id="toast-container"></div>
 </body>
 </html>
