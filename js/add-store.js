@@ -1,14 +1,14 @@
 // ==========================
-// Config
+// Config – Supabase
 // ==========================
 const sb = supabase.createClient(
   "https://gbxxoeplkzbhsvagnfsr.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
 );
 
-// ===========================
+// ==========================
 // Hjälpfunktion: extrahera PlaceID från Google Maps-URL
-// ===========================
+// ==========================
 function extractPlaceIdFromUrl(url) {
   const regex = /!1s([^!]+)!/; // lång URL med !1sPLACEID!
   const match = url.match(regex);
@@ -27,9 +27,9 @@ function extractPlaceIdFromUrl(url) {
   return null;
 }
 
-// ===========================
+// ==========================
 // Stjärnbetyg
-// ===========================
+// ==========================
 let selectedRating = 0;
 document.querySelectorAll(".star").forEach((star, index) => {
   star.addEventListener("click", () => {
@@ -40,9 +40,9 @@ document.querySelectorAll(".star").forEach((star, index) => {
   });
 });
 
-// ===========================
-// Paste-knapp → hämta platsdata
-// ===========================
+// ==========================
+// Paste-knapp → hämta platsdata via Google PlacesService
+// ==========================
 document.getElementById("pasteBtn").addEventListener("click", () => {
   const url = document.getElementById("mapsUrl").value.trim();
   const placeId = extractPlaceIdFromUrl(url);
@@ -101,9 +101,9 @@ document.getElementById("pasteBtn").addEventListener("click", () => {
   );
 });
 
-// ===========================
+// ==========================
 // Spara till Supabase
-// ===========================
+// ==========================
 document.getElementById("storeForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
