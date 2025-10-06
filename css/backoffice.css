@@ -1,58 +1,41 @@
 body {
-  font-family: "Roboto", sans-serif;
-  background: #f8f8f8;
-  color: #333;
-  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
   padding: 20px;
 }
 
-.wrapper {
-  max-width: 1200px;
-  margin: auto;
-}
-
 h1 {
-  color: goldenrod;
-  margin-bottom: 20px;
+  color: #b8860b;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  margin-top: 20px;
+  background: #fff;
 }
 
 th, td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
+  padding: 8px;
+  border: 1px solid #ddd;
 }
 
-th {
-  background: #fafafa;
-}
-
-input[type="text"], input[type="url"], input[type="tel"], input[type="number"] {
-  width: 100%;
-  padding: 5px;
-  box-sizing: border-box;
-}
-
-select {
-  padding: 5px;
+td[contenteditable="true"] {
+  background: #fefefe;
 }
 
 button {
-  background: goldenrod;
-  border: none;
-  color: white;
-  padding: 6px 12px;
-  cursor: pointer;
-  border-radius: 4px;
   margin: 2px;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
 }
 
-button:hover {
-  background: darkgoldenrod;
+.save-btn {
+  background: #ffd700;
+}
+
+.delete-btn {
+  background: #e74c3c;
+  color: white;
 }
