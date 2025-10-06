@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,9 +8,9 @@
   <!-- CSS -->
   <link rel="stylesheet" href="css/add-store.css" />
 
-  <!-- Google Maps JavaScript API -->
+  <!-- Google Maps API -->
   <script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ=places&callback=initAutocomplete" 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete" 
     async defer>
   </script>
 
@@ -24,9 +24,11 @@
   <div class="form-wrapper">
     <h1>Add Store</h1>
 
-    <!-- Paste button -->
-    <div class="paste-wrapper">
-      <button id="pasteBtn" type="button" class="paste-btn">Paste Maps Link</button>
+    <!-- Maps link row -->
+    <label for="mapsLink">Google Maps Link:</label>
+    <div class="maps-link-row">
+      <input id="mapsLink" type="text" placeholder="Paste or click button" />
+      <button id="pasteBtn" type="button" class="paste-btn">Paste</button>
     </div>
 
     <!-- Store Name -->
