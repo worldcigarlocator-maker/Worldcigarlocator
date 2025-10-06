@@ -3,14 +3,38 @@ const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // din anon key här
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+let approvedStores = [];
 
-document.addEventListener("DOMContentLoaded", loadStores);
+// Toggle views
+document.getElementById("pendingViewBtn").addEventListener("click", () => {
+  document.getElementById("pending-section").classList.remove("hidden");
+  document.getElementById("archive-section").classList.add("hidden");
+  document.getElementById("archive-controls").classList.add("hidden");
 
+  document.getElementById("pendingViewBtn").classList.add("active");
+  document.getElementById("archiveViewBtn").classList.remove("active");
+});
+
+document.getElementById("archiveViewBtn").addEventListener("click", () => {
+  document.getElementById("pending-section").classList.add("hidden");
+  document.getElementById("archive-section").classList.remove("hidden");
+  document.getElementById("archive-controls").classList.remove("hidden");
+
+  document.getElementById("pendingViewBtn").classList.remove("active");
+  document.getElementById("archiveViewBtn").classList.add("active");
+});
+
+// Back to Home
+document.getElementById("homeBtn").addEventListener("click", () => {
+  window.location.href = "index.html"; // Ändra till din startsida
+});
+
+// Load stores
 async function loadStores() {
   const { data, error } = await supabase
     .from("stores")
     .select("*")
-    .order("id", { ascending: false });
+    .order("created_at", { ascending: false }); // senaste först
 
   if (error) {
     console.error("Error loading stores:", error);
@@ -18,122 +42,94 @@ async function loadStores() {
   }
 
   const pending = data.filter(s => !s.approved);
-  const approved = data.filter(s => s.approved);
+  approvedStores = data.filter(s => s.approved);
 
-  renderCards(pending, document.getElementById("pending-cards"));
-  renderCards(approved, document.getElementById("approved-cards"));
+  renderCards(pending, document.getElementById("pending-section"), false);
+  renderFilteredApproved();
 }
 
-function renderCards(stores, container) {
+// Render cards
+function renderCards(stores, container, isArchive) {
   container.innerHTML = "";
-
   stores.forEach(store => {
     const card = document.createElement("div");
     card.className = "card";
-
-    // preview
-    const preview = document.createElement("div");
-    preview.className = "card-preview";
-    preview.innerHTML = `
-      <img src="https://via.placeholder.com/400x200?text=${store.name}" alt="${store.name}">
-      <h3>${store.name}</h3>
-      <p>${store.city}, ${store.country}</p>
-      <p>${store.website || ""}</p>
-    `;
-
-    // details
-    const details = document.createElement("div");
-    details.className = "card-details";
-    details.innerHTML = `
-      <label>Name</label>
-      <input type="text" value="${store.name}" data-field="name">
-      <label>Address</label>
-      <input type="text" value="${store.address}" data-field="address">
-      <label>City</label>
-      <input type="text" value="${store.city}" data-field="city">
-      <label>Country</label>
-      <input type="text" value="${store.country}" data-field="country">
-      <label>Website</label>
-      <input type="text" value="${store.website || ""}" data-field="website">
-
+    card.innerHTML = `
+      <h3>${store.name || "Unnamed"}</h3>
+      <p><strong>City:</strong> ${store.city || "-"}</p>
+      <p><strong>Country:</strong> ${store.country || "-"}</p>
+      <p><strong>Phone:</strong> ${store.phone || "-"}</p>
+      <p><strong>Website:</strong> ${store.website || "-"}</p>
+      <p><strong>Rating:</strong> ${store.rating || 0}</p>
       <div class="card-buttons">
-        ${store.approved 
-          ? `<button class="save-btn">Save</button>
-             <button class="reject-btn">Delete</button>`
-          : `<button class="approve-btn">Approve</button>
-             <button class="save-btn">Save</button>
-             <button class="reject-btn">Delete</button>`}
+        ${!isArchive ? `<button class="btn-approve">Approve</button>` : ""}
+        <button class="btn-edit">Edit</button>
+        <button class="btn-delete">Delete</button>
       </div>
     `;
 
-    card.appendChild(preview);
-    card.appendChild(details);
-
-    // toggle open
-    preview.addEventListener("click", () => {
-      card.classList.toggle("open");
-    });
-
-    // buttons
-    const approveBtn = details.querySelector(".approve-btn");
-    const saveBtn = details.querySelector(".save-btn");
-    const deleteBtn = details.querySelector(".reject-btn");
-
+    const approveBtn = card.querySelector(".btn-approve");
     if (approveBtn) {
-      approveBtn.addEventListener("click", e => {
-        e.stopPropagation();
-        approveStore(store.id);
+      approveBtn.addEventListener("click", async () => {
+        await supabase.from("stores").update({ approved: true }).eq("id", store.id);
+        loadStores();
       });
     }
 
-    saveBtn.addEventListener("click", e => {
-      e.stopPropagation();
-      saveStore(store.id, details);
+    const editBtn = card.querySelector(".btn-edit");
+    editBtn.addEventListener("click", async () => {
+      const newPhone = prompt("Enter new phone:", store.phone || "");
+      if (newPhone !== null) {
+        await supabase.from("stores").update({ phone: newPhone }).eq("id", store.id);
+        loadStores();
+      }
     });
 
-    deleteBtn.addEventListener("click", e => {
-      e.stopPropagation();
-      deleteStore(store.id);
+    const deleteBtn = card.querySelector(".btn-delete");
+    deleteBtn.addEventListener("click", async () => {
+      if (confirm("Delete this store?")) {
+        await supabase.from("stores").delete().eq("id", store.id);
+        loadStores();
+      }
     });
 
     container.appendChild(card);
   });
 }
 
-async function approveStore(id) {
-  const { error } = await supabase
-    .from("stores")
-    .update({ approved: true })
-    .eq("id", id);
+// Search + sort for archive
+document.getElementById("searchInput").addEventListener("input", renderFilteredApproved);
+document.getElementById("sortSelect").addEventListener("change", renderFilteredApproved);
 
-  if (error) console.error("Error approving:", error);
-  else loadStores();
+function renderFilteredApproved() {
+  const query = document.getElementById("searchInput").value.toLowerCase();
+  let filtered = approvedStores.filter(store =>
+    (store.name || "").toLowerCase().includes(query) ||
+    (store.city || "").toLowerCase().includes(query) ||
+    (store.country || "").toLowerCase().includes(query)
+  );
+
+  const sortBy = document.getElementById("sortSelect").value;
+  if (sortBy) {
+    const [field, direction] = sortBy.split("-");
+    filtered.sort((a, b) => {
+      let valA = a[field] || "";
+      let valB = b[field] || "";
+      if (field === "rating") {
+        valA = Number(valA) || 0;
+        valB = Number(valB) || 0;
+        return direction === "asc" ? valA - valB : valB - valA;
+      }
+      valA = valA.toString().toLowerCase();
+      valB = valB.toString().toLowerCase();
+      return direction === "asc"
+        ? valA.localeCompare(valB)
+        : valB.localeCompare(valA);
+    });
+  }
+
+  renderCards(filtered, document.getElementById("archive-section"), true);
 }
 
-async function saveStore(id, details) {
-  const inputs = details.querySelectorAll("input");
-  const updateData = {};
-  inputs.forEach(input => {
-    updateData[input.dataset.field] = input.value;
-  });
-
-  const { error } = await supabase
-    .from("stores")
-    .update(updateData)
-    .eq("id", id);
-
-  if (error) console.error("Error saving:", error);
-  else loadStores();
-}
-
-async function deleteStore(id) {
-  if (!confirm("Are you sure you want to delete this store?")) return;
-
-  const { error } = await supabase
-    .from("stores")
-    .delete()
-    .eq("id", id);
-
-  if (error) console.error("Error deleting:", error);
-  else loadStores();
-}
+// Init
+loadStores();
