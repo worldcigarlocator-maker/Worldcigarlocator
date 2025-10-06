@@ -1,115 +1,130 @@
-/* ===== Globalt ===== */
+/* Reset & global */
 body {
   font-family: 'Roboto', sans-serif;
-  background-color: #f9f9f9;
-  color: #222;
+  background: #f8f8f8;
   margin: 0;
-  padding: 40px;
-  display: flex;
-  justify-content: center;
+  padding: 0;
+  color: #333;
 }
 
 h1 {
-  color: #b8860b; /* guld */
-  margin-bottom: 20px;
   text-align: center;
+  margin-bottom: 1rem;
+  color: #b8860b; /* gold */
 }
 
-/* ===== Form-wrapper ===== */
+/* Form wrapper */
 .form-wrapper {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
   background: #fff;
-  padding: 30px 40px;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  width: 100%;
-  max-width: 700px;
+  display: flex;
+  flex-direction: column;
 }
 
-/* ===== Labels & inputs ===== */
+/* Labels & inputs */
 label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: bold;
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
 }
 
-input[type="text"],
-input[type="url"],
-input[type="tel"] {
+input[type="text"] {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  margin-bottom: 15px;
-  font-size: 14px;
+  box-sizing: border-box;
 }
 
-input:focus {
+input[type="text"]:focus {
   outline: none;
   border-color: #b8860b;
-  box-shadow: 0 0 4px rgba(184,134,11,0.4);
+  box-shadow: 0 0 4px rgba(184,134,11,0.5);
 }
 
-/* ===== Radio buttons ===== */
+/* Radio group */
 .radio-group {
   display: flex;
-  gap: 20px;
-  margin-bottom: 15px;
-  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
 }
 
 .radio-group label {
-  font-weight: normal;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
 }
 
-/* ===== Stjärnor ===== */
+/* Stars */
 .stars {
   display: flex;
-  gap: 5px;
-  font-size: 28px;
-  margin: 10px 0 20px;
-}
-
-.stars span {
+  gap: 0.25rem;
+  font-size: 2rem;
   cursor: pointer;
-  color: #ccc; /* grå default */
-  transition: color 0.2s;
   user-select: none;
 }
 
+.stars span {
+  color: #ccc; /* gray default */
+  transition: color 0.2s;
+}
+
+.stars span:hover,
+.stars span:hover ~ span {
+  color: #b8860b80; /* lighter gold on hover */
+}
+
 .stars span.selected {
-  color: #b8860b; /* guld vid klick */
+  color: #b8860b; /* gold when selected */
 }
 
-.stars span:hover {
-  color: #d4af37; /* ljusare guld vid hover */
-}
-
-/* ===== Knapp ===== */
-button, .save-btn {
-  background-color: #b8860b;
-  color: #fff;
-  padding: 10px 20px;
+/* Buttons */
+button {
+  padding: 0.6rem 1.2rem;
   border: none;
-  border-radius: 6px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.2s, transform 0.1s;
 }
 
-button:hover, .save-btn:hover {
-  background-color: #d4af37; /* ljusare guld */
+button:active {
+  transform: scale(0.97);
 }
-.address-group {
+
+/* Paste button */
+.paste-btn {
+  background: #ddd;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.paste-btn:hover {
+  background: #ccc;
+}
+
+/* Save button */
+.save-btn {
+  background: #b8860b;
+  color: #fff;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.save-btn:hover {
+  background: #a0750a;
+}
+
+/* Layout tweaks */
+.paste-wrapper,
+.save-wrapper {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.address-group input {
-  flex: 1;
-}
-
-.address-group button {
-  height: 42px; /* samma som input */
-  white-space: nowrap;
+  justify-content: center;
 }
