@@ -1,71 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add Store</title>
+/* ====== Global ====== */
+body {
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;         /* ljus bakgrund */
+  color: #222;                 /* mörk text */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
 
-  <!-- ABSOLUTE CSS link -->
-  <link rel="stylesheet" href="https://worldcigarlocator-maker.github.io/Worldcigarlocator/css/add-store.css">
+/* ====== Form wrapper ====== */
+.form-wrapper {
+  background: #fff;            /* vit ruta */
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  width: 400px;
+}
 
-  <!-- Google Maps JavaScript API -->
-  <script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" 
-    async defer>
-  </script>
+/* ====== Rubrik ====== */
+h1 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #b8860b;              /* guldaktig rubrik */
+}
 
-  <!-- Supabase client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
-  <div id="form-wrapper" class="form-wrapper">
-    <h1>Add Store</h1>
+/* ====== Etiketter ====== */
+label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: bold;
+}
 
-    <div class="url-row">
-      <input type="text" id="mapsUrl" placeholder="Paste Google Maps URL here">
-      <button type="button" id="pasteBtn" class="gold-btn">Paste</button>
-    </div>
+/* ====== Inputs ====== */
+input, select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.3rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #222;
+}
 
-    <label for="name">Name</label>
-    <input type="text" id="name">
+/* ====== Stjärnor ====== */
+.stars {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
 
-    <label for="address">Address</label>
-    <input type="text" id="address">
+.stars span {
+  font-size: 2rem;
+  cursor: pointer;
+  color: #ccc;                 /* grå stjärnor */
+  transition: color 0.2s;
+}
 
-    <label for="city">City</label>
-    <input type="text" id="city">
+.stars span.selected {
+  color: #b8860b;              /* guld stjärnor */
+}
 
-    <label for="country">Country</label>
-    <input type="text" id="country">
+/* ====== Radio-knappar ====== */
+.radio-group {
+  display: flex;               /* på rad */
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
 
-    <label for="phone">Phone</label>
-    <input type="text" id="phone">
+.radio-group label {
+  font-weight: normal;
+}
 
-    <label for="website">Website</label>
-    <input type="text" id="website">
+/* ====== Knapp ====== */
+button {
+  margin-top: 2rem;
+  width: 100%;
+  padding: 0.8rem;
+  background: #b8860b;         /* guldknapp */
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
 
-    <div class="type-group">
-      <label>Type</label>
-      <label><input type="radio" name="type" value="store" checked> Store</label>
-      <label><input type="radio" name="type" value="lounge"> Lounge</label>
-      <label><input type="radio" name="type" value="other"> Other</label>
-    </div>
+button:hover {
+  background: #a17400;         /* mörkare guld vid hover */
+}
 
-    <div class="rating">
-      <label>Rating</label>
-      <div id="starRating" class="stars">
-        <span data-value="1">&#9733;</span>
-        <span data-value="2">&#9733;</span>
-        <span data-value="3">&#9733;</span>
-        <span data-value="4">&#9733;</span>
-        <span data-value="5">&#9733;</span>
-      </div>
-    </div>
-
-    <button type="button" id="saveBtn" class="gold-btn save-btn">Save</button>
-  </div>
-
-  <!-- ABSOLUTE path to JS -->
-  <script src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/js/add-store.js"></script>
-</body>
-</html>
