@@ -1,8 +1,9 @@
-const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co"; // TODO: byt till din riktiga Supabase URL
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // TODO: byt till din riktiga anon key
+// ===== Supabase Init =====
+const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co"; 
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// ===== Stjärn-logik =====
+// ===== Star Rating =====
 let currentRating = 0;
 const stars = document.querySelectorAll('#starRating span');
 
@@ -13,6 +14,7 @@ stars.forEach((star, index) => {
     for (let i = 0; i < currentRating; i++) {
       stars[i].classList.add('selected');
     }
+    console.log("Rating set:", currentRating);
   });
 });
 
@@ -39,12 +41,14 @@ function initAutocomplete() {
 }
 window.initAutocomplete = initAutocomplete;
 
-// ===== Paste-knapp =====
+// ===== Paste Maps Link =====
 document.getElementById("pasteBtn").addEventListener("click", async () => {
   try {
     const text = await navigator.clipboard.readText();
+    console.log("Clipboard text:", text);
+
     if (!text.includes("google.com/maps")) {
-      alert("Det här verkar inte vara en Google Maps-länk.");
+      alert("This does not look like a Google Maps link.");
       return;
     }
 
@@ -58,7 +62,7 @@ document.getElementById("pasteBtn").addEventListener("click", async () => {
 
     if (placeId && typeof google !== "undefined") {
       const service = new google.maps.places.PlacesService(document.createElement("div"));
-      service.getDetails({ placeId: placeId, fields: ["name", "formatted_address", "address_components"] }, (place, status) => {
+      service.getDetails({ placeId, fields: ["name", "formatted_address", "address_components"] }, (place, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
           document.getElementById("name").value = place.name || "";
           document.getElementById("address").value = place.formatted_address || "";
@@ -74,13 +78,14 @@ document.getElementById("pasteBtn").addEventListener("click", async () => {
 
   } catch (err) {
     console.error("Clipboard error:", err);
-    alert("Kunde inte läsa från urklipp. Tillåt åtkomst till urklipp i webbläsaren.");
+    alert("Could not read from clipboard. Allow clipboard access in your browser.");
   }
 });
 
-// ===== Save-funktion =====
+// ===== Save Store =====
 document.getElementById("saveBtn").addEventListener("click", async (e) => {
   e.preventDefault();
+  console.log("Save clicked ✅");
 
   const name = document.getElementById("name").value.trim();
   const address = document.getElementById("address").value.trim();
@@ -91,16 +96,28 @@ document.getElementById("saveBtn").addEventListener("click", async (e) => {
   const type = document.querySelector('input[name="type"]:checked')?.value || "store";
   const rating = getRating();
 
+  console.log("Saving:", { name, address, city, country, phone, website, type, rating });
+
   const { error } = await supabase.from("stores").insert([
     { name, address, city, country, phone, website, type, rating }
   ]);
 
   if (error) {
     console.error("Error saving:", error);
-    alert("Kunde inte spara butiken.");
+    alert("Could not save store ❌");
   } else {
-    alert("Butiken sparades!");
-    document.querySelector("form")?.reset();
+    alert("Store saved! ✅");
+
+    // Reset fields
+    document.getElementById("name").value = "";
+    document.getElementById("address").value = "";
+    document.getElementById("city").value = "";
+    document.getElementById("country").value = "";
+    document.getElementById("phone").value = "";
+    document.getElementById("website").value = "";
+    document.querySelector('input[name="type"][value="store"]').checked = true;
+
+    // Reset stars
     stars.forEach(s => s.classList.remove("selected"));
     currentRating = 0;
   }
