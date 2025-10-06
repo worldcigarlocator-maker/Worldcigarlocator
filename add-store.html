@@ -1,17 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Store</title>
 
-  <!-- Huvuddesign -->
-  <link rel="stylesheet" href="https://worldcigarlocator-maker.github.io/Worldcigarlocator/css/style.css">
-  <!-- Sid-specifik design -->
-  <link rel="stylesheet" href="https://worldcigarlocator-maker.github.io/Worldcigarlocator/css/add-store.css">
+  <!-- CSS inbäddad direkt -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .form-wrapper {
+      background: #1e1e1e;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+      width: 400px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: gold;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #222;
+      color: #eee;
+    }
+
+    .stars {
+      display: flex;
+      gap: 0.3rem;
+      margin-top: 0.5rem;
+    }
+
+    .stars span {
+      font-size: 2rem;
+      cursor: pointer;
+      color: #555;
+      transition: color 0.2s;
+    }
+
+    .stars span.selected {
+      color: gold;
+    }
+
+    .radio-group {
+      margin-top: 0.5rem;
+    }
+    .radio-group label {
+      font-weight: normal;
+      margin-right: 1rem;
+    }
+
+    button {
+      margin-top: 2rem;
+      width: 100%;
+      padding: 0.8rem;
+      background: gold;
+      color: #111;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #d4af37;
+    }
+  </style>
 
   <!-- Google Maps JavaScript API -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" async defer></script>
+  <script 
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR-GOOGLE-MAPS-API-KEY&libraries=places" 
+    async defer>
+  </script>
 
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -20,45 +104,114 @@
   <div id="form-wrapper" class="form-wrapper">
     <h1>Add Store</h1>
 
-    <div class="url-row">
-      <input type="text" id="mapsUrl" placeholder="Paste Google Maps URL">
-      <button type="button" id="pasteBtn">Paste</button>
-    </div>
+    <form id="storeForm">
+      <label for="name">Store Name</label>
+      <input type="text" id="name" placeholder="Enter store name" required />
 
-    <label for="name">Name</label>
-    <input type="text" id="name">
+      <label for="address">Address</label>
+      <input type="text" id="address" placeholder="Start typing address" />
 
-    <label for="address">Address</label>
-    <input type="text" id="address">
+      <label for="city">City</label>
+      <input type="text" id="city" placeholder="City" />
 
-    <label for="city">City</label>
-    <input type="text" id="city">
+      <label for="country">Country</label>
+      <input type="text" id="country" placeholder="Country" />
 
-    <label for="country">Country</label>
-    <input type="text" id="country">
+      <label for="phone">Phone</label>
+      <input type="text" id="phone" placeholder="+46..." />
 
-    <label for="phone">Phone</label>
-    <input type="text" id="phone">
+      <label for="website">Website</label>
+      <input type="text" id="website" placeholder="https://..." />
 
-    <label for="website">Website</label>
-    <input type="text" id="website">
+      <label>Type</label>
+      <div class="radio-group">
+        <label><input type="radio" name="type" value="store" checked /> Store</label>
+        <label><input type="radio" name="type" value="lounge" /> Lounge</label>
+        <label><input type="radio" name="type" value="other" /> Other</label>
+      </div>
 
-    <div class="type-group">
-      <label>Type</label><br>
-      <input type="radio" name="type" value="store" checked> Store
-      <input type="radio" name="type" value="lounge"> Lounge
-      <input type="radio" name="type" value="other"> Other
-    </div>
+      <label>Rating</label>
+      <div id="starRating" class="stars">
+        <span data-value="1">★</span>
+        <span data-value="2">★</span>
+        <span data-value="3">★</span>
+        <span data-value="4">★</span>
+        <span data-value="5">★</span>
+      </div>
 
-    <div class="rating">
-      <label>Rating</label><br>
-      ★★★★★
-    </div>
-
-    <button id="saveBtn" class="gold-btn save-btn">Save</button>
+      <button id="saveBtn">Save</button>
+    </form>
   </div>
 
-  <!-- Din JS-fil -->
-  <script src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/js/add-store.js"></script>
+  <script>
+    // 🔑 Supabase konfiguration
+    const supabaseUrl = "https://YOUR-PROJECT-URL.supabase.co";
+    const supabaseKey = "YOUR-ANON-KEY";
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // ⭐ Stjärnlogik
+    document.querySelectorAll('#starRating span').forEach(star => {
+      star.addEventListener('click', () => {
+        const value = star.dataset.value;
+        document.querySelectorAll('#starRating span').forEach(s => s.classList.remove('selected'));
+        for (let i = 0; i < value; i++) {
+          document.querySelectorAll('#starRating span')[i].classList.add('selected');
+        }
+      });
+    });
+
+    // 📍 Google Maps Autocomplete (på Address)
+    function initAutocomplete() {
+      const input = document.getElementById('address');
+      const autocomplete = new google.maps.places.Autocomplete(input);
+      autocomplete.addListener('place_changed', function() {
+        const place = autocomplete.getPlace();
+        let city = "Unknown";
+        let country = "Unknown";
+
+        if (place.address_components) {
+          place.address_components.forEach(comp => {
+            if (comp.types.includes("locality")) city = comp.long_name;
+            if (comp.types.includes("country")) country = comp.long_name;
+          });
+        }
+
+        document.getElementById('city').value = city;
+        document.getElementById('country').value = country;
+      });
+    }
+    window.initAutocomplete = initAutocomplete;
+
+    // 💾 Save-knapp
+    document.getElementById("saveBtn").addEventListener("click", async (e) => {
+      e.preventDefault(); // stoppa reload
+
+      const name = document.getElementById("name").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const city = document.getElementById("city").value.trim() || "Unknown";
+      const country = document.getElementById("country").value.trim() || "Unknown";
+      const phone = document.getElementById("phone").value.trim();
+      const website = document.getElementById("website").value.trim();
+      const type = document.querySelector('input[name="type"]:checked')?.value || "store";
+
+      let rating = document.querySelectorAll("#starRating .selected").length;
+      if (!rating || rating < 0 || rating > 5) rating = 0;
+
+      const newStore = { name, address, city, country, phone, website, type, rating };
+      console.log("Saving store:", newStore);
+
+      const { data, error } = await supabase.from("stores").insert([newStore]);
+
+      if (error) {
+        console.error("❌ Error saving:", error.message);
+        alert("Kunde inte spara: " + error.message);
+      } else {
+        console.log("✅ Store saved:", data);
+        alert("Butiken sparades!");
+        document.getElementById("storeForm").reset();
+        document.querySelectorAll('#starRating span').forEach(s => s.classList.remove('selected'));
+      }
+    });
+  </script>
 </body>
 </html>
