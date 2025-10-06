@@ -33,6 +33,16 @@ th {
   background: #fafafa;
 }
 
+input[type="text"], input[type="url"], input[type="tel"], input[type="number"] {
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+select {
+  padding: 5px;
+}
+
 button {
   background: goldenrod;
   border: none;
@@ -40,6 +50,7 @@ button {
   padding: 6px 12px;
   cursor: pointer;
   border-radius: 4px;
+  margin: 2px;
 }
 
 button:hover {
