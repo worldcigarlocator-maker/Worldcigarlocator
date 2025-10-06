@@ -8,17 +8,17 @@
   <script src="js/backoffice.js" defer></script>
 </head>
 <body>
-  <h1>Manage Stores</h1>
-  <table id="storesTable">
-    <thead>
-      <tr>
-        <th>Name</th><th>Address</th><th>City</th><th>Country</th>
-        <th>Phone</th><th>Website</th><th>Type</th><th>Rating</th><th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="9">Loading...</td></tr>
-    </tbody>
-  </table>
+  <h1>Backoffice</h1>
+
+  <section>
+    <h2>Pending Approval</h2>
+    <div id="pendingContainer" class="card-container"></div>
+  </section>
+
+  <section>
+    <h2>Approved Stores</h2>
+    <input type="text" id="searchInput" placeholder="Search by name, city or country...">
+    <div id="approvedContainer" class="card-container"></div>
+  </section>
 </body>
 </html>
