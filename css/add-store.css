@@ -73,6 +73,7 @@ input:focus {
   cursor: pointer;
   color: #ccc; /* grå default */
   transition: color 0.2s;
+  user-select: none;
 }
 
 /* Guld när vald */
@@ -80,7 +81,8 @@ input:focus {
   color: #b8860b;
 }
 
-/* Guld vid hover-preview */
+/* Ljusare guld när hover */
+.stars span:hover,
 .stars span.hover {
   color: #d4af37;
 }
