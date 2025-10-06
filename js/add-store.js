@@ -1,109 +1,142 @@
-// ==== CONFIG ====
-const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// ==========================
+// Config
+// ==========================
+onst sb = supabase.createClient(
+  "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+);
+const GOOGLE_FIELDS = ["name", "formatted_address", "geometry", "international_phone_number", "website"];
 
+// ==========================
+// Rating system
+// ==========================
 let selectedRating = 0;
-
-// ========================
-// STAR RATING
-// ========================
-document.querySelectorAll(".star").forEach(star => {
+document.querySelectorAll(".star").forEach((star, index) => {
   star.addEventListener("click", () => {
-    selectedRating = parseInt(star.dataset.value);
-    document.querySelectorAll(".star").forEach(s => {
-      s.classList.toggle("selected", parseInt(s.dataset.value) <= selectedRating);
+    selectedRating = index + 1;
+    document.querySelectorAll(".star").forEach((s, i) => {
+      s.classList.toggle("selected", i < selectedRating);
     });
   });
 });
 
-// ========================
-// PASTE BUTTON
-// ========================
+// ==========================
+// Paste button → hämta details via PlacesService
+// ==========================
 document.getElementById("pasteBtn").addEventListener("click", () => {
   const url = document.getElementById("mapsUrl").value.trim();
   if (!url) {
-    alert("Please paste a Google Maps URL.");
+    alert("Please paste a Google Maps URL first.");
     return;
   }
 
-  // Extract Place ID from URL (!1s... or placeid=...)
-  let placeIdMatch = url.match(/!1s([^!]+)!/) || url.match(/placeid=([^&]+)/);
-  if (placeIdMatch) {
-    const placeId = decodeURIComponent(placeIdMatch[1]);
-    fetchPlaceDetails(placeId);
-  } else {
-    alert("Could not extract a Place ID from this URL.");
+  const placeId = extractPlaceId(url);
+  if (!placeId) {
+    alert("❌ Could not find Place ID in this URL.");
+    return;
   }
+
+  console.log("ℹ️ Extracted Place ID:", placeId);
+
+  // Skapa PlacesService
+  const service = new google.maps.places.PlacesService(document.createElement("div"));
+
+  service.getDetails({ placeId, fields: GOOGLE_FIELDS }, (place, status) => {
+    if (status === google.maps.places.PlacesServiceStatus.OK) {
+      autofillForm(place, placeId);
+    } else {
+      console.error("❌ getDetails error:", status);
+      alert("Google PlacesService failed: " + status);
+    }
+  });
 });
 
-// ========================
-// FETCH PLACE DETAILS
-// ========================
-function fetchPlaceDetails(placeId) {
-  const map = new google.maps.Map(document.createElement("div"));
-  const service = new google.maps.places.PlacesService(map);
+// ==========================
+// Helper: Extract Place ID
+// ==========================
+function extractPlaceId(url) {
+  // Matcha !1sXXXX i länken
+  const regex = /!1s([^!]+)/;
+  const match = url.match(regex);
+  if (match) return match[1];
 
-  service.getDetails(
-    {
-      placeId,
-      fields: [
-        "name",
-        "formatted_address",
-        "formatted_phone_number",
-        "website",
-        "geometry",
-        "address_component"
-      ]
-    },
-    (place, status) => {
-      if (status !== google.maps.places.PlacesServiceStatus.OK) {
-        alert("Failed to fetch details: " + status);
-        return;
-      }
+  // Matcha placeid=XXXX
+  const regex2 = /placeid=([^&]+)/;
+  const match2 = url.match(regex2);
+  if (match2) return match2[1];
 
-      // Autofill fields
-      document.getElementById("name").value = place.name || "";
-      document.getElementById("address").value = place.formatted_address || "";
-      document.getElementById("phone").value = place.formatted_phone_number || "";
-      document.getElementById("website").value = place.website || "";
-
-      // City + Country
-      const cityComp = place.address_components.find(c => c.types.includes("locality"));
-      const countryComp = place.address_components.find(c => c.types.includes("country"));
-      document.getElementById("city").value = cityComp ? cityComp.long_name : "";
-      document.getElementById("country").value = countryComp ? countryComp.long_name : "";
-
-      console.log("✅ Autofilled from Places:", place);
-    }
-  );
+  return null;
 }
 
-// ========================
-// SAVE TO SUPABASE
-// ========================
-document.getElementById("storeForm").addEventListener("submit", async e => {
+// ==========================
+// Autofill formuläret
+// ==========================
+function autofillForm(place, placeId) {
+  document.getElementById("name").value = place.name || "";
+  document.getElementById("address").value = place.formatted_address || "";
+  document.getElementById("city").value = extractCity(place.formatted_address);
+  document.getElementById("country").value = extractCountry(place.formatted_address);
+  document.getElementById("phone").value = place.international_phone_number || "";
+  document.getElementById("website").value = place.website || "";
+
+  // Spara även hidden lat/lng + placeId för senare
+  document.getElementById("form-wrapper").dataset.placeId = placeId;
+  if (place.geometry?.location) {
+    document.getElementById("form-wrapper").dataset.lat = place.geometry.location.lat();
+    document.getElementById("form-wrapper").dataset.lng = place.geometry.location.lng();
+  }
+
+  console.log("✅ Form filled with:", place);
+}
+
+// ==========================
+// Helpers för city/country
+// ==========================
+function extractCity(address) {
+  if (!address) return "";
+  const parts = address.split(",");
+  return parts.length >= 2 ? parts[parts.length - 2].trim() : "";
+}
+function extractCountry(address) {
+  if (!address) return "";
+  const parts = address.split(",");
+  return parts.length >= 1 ? parts[parts.length - 1].trim() : "";
+}
+
+// ==========================
+// Save to Supabase
+// ==========================
+document.getElementById("storeForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const data = {
+  const formWrapper = document.getElementById("form-wrapper");
+  const placeId = formWrapper.dataset.placeId || null;
+  const lat = formWrapper.dataset.lat || null;
+  const lng = formWrapper.dataset.lng || null;
+
+  const store = {
     name: document.getElementById("name").value,
     address: document.getElementById("address").value,
     city: document.getElementById("city").value,
     country: document.getElementById("country").value,
     phone: document.getElementById("phone").value,
     website: document.getElementById("website").value,
-    type: document.querySelector('input[name="type"]:checked')?.value || "other",
+    type: document.querySelector("input[name='type']:checked")?.value || "other",
     rating: selectedRating,
-    status: "pending"
+    status: "pending",
+    place_id: placeId,
+    lat: lat,
+    lng: lng
   };
 
-  const { error } = await sb.from("stores").insert([data]);
+  const { error } = await sb.from("stores").insert([store]);
 
   if (error) {
-    alert("❌ Error saving store: " + error.message);
+    console.error("❌ Supabase insert error:", error);
+    alert("Failed to save store: " + error.message);
   } else {
-    alert("✅ Store saved (pending). Check Backoffice to approve.");
-    e.target.reset();
+    alert("✅ Store saved successfully!");
+    document.getElementById("storeForm").reset();
     selectedRating = 0;
     document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
   }
