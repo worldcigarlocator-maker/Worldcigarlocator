@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Google Maps API PlaceID Test</title>
-  <!-- Byt ut API_KEY_HÄR mot din riktiga Google Maps API-nyckel -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=API_AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" async defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" async defer></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     input { width: 400px; padding: 8px; }
@@ -22,26 +21,37 @@
   <pre id="output">No data yet...</pre>
 
   <script>
+    function extractQueryFromUrl(url) {
+      try {
+        // Fångar platsnamnet mellan "/place/" och eventuellt "/"
+        const match = url.match(/\/place\/([^/]+)/);
+        if (match && match[1]) {
+          return decodeURIComponent(match[1].replace(/\+/g, " "));
+        }
+      } catch (e) {}
+      return url; // fallback: använd hela strängen
+    }
+
     document.getElementById("fetchBtn").addEventListener("click", () => {
-      const query = document.getElementById("mapsUrl").value.trim();
+      const url = document.getElementById("mapsUrl").value.trim();
       const output = document.getElementById("output");
 
-      if (!query) {
+      if (!url) {
         output.textContent = "❌ Please paste a Google Maps URL first.";
         return;
       }
 
-      // Initiera en PlacesService
+      const queryText = extractQueryFromUrl(url);
+      output.textContent = "🔍 Searching for: " + queryText;
+
+      // Initiera PlacesService
       const mapDiv = document.createElement("div");
       const map = new google.maps.Map(mapDiv);
       const service = new google.maps.places.PlacesService(map);
 
-      // 1. Hitta PlaceID från söksträngen/URL
+      // 1. Hitta PlaceID
       service.findPlaceFromQuery(
-        {
-          query: query,
-          fields: ["place_id"]
-        },
+        { query: queryText, fields: ["place_id"] },
         (results, status) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && results[0]) {
             const placeId = results[0].place_id;
@@ -58,13 +68,11 @@
                   console.log("✅ Place data:", place);
                   output.textContent = JSON.stringify(place, null, 2);
                 } else {
-                  console.error("❌ Error fetching details:", status);
                   output.textContent = "❌ Error fetching details: " + status;
                 }
               }
             );
           } else {
-            console.error("❌ Could not resolve PlaceID. Status:", status);
             output.textContent = "❌ Could not resolve PlaceID. Status: " + status;
           }
         }
