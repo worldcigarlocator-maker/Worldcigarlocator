@@ -4,16 +4,6 @@ const sb = supabase.createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
 );
 
-// === Stjärnbetyg ===
-let selectedRating = 0;
-document.querySelectorAll(".star").forEach(star => {
-  star.addEventListener("click", () => {
-    selectedRating = star.dataset.value;
-    document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
-    star.classList.add("selected");
-  });
-});
-
 // === Hjälpmetod för att extrahera söktext ur en Google Maps URL ===
 function extractQueryFromUrl(url) {
   try {
@@ -56,16 +46,16 @@ document.getElementById("pasteBtn").addEventListener("click", async () => {
         (place, status) => {
           if (status === google.maps.places.PlacesServiceStatus.OK) {
             // Sätt värden i formuläret
-            document.getElementById("name").value = place.name || "";
-            document.getElementById("address").value = place.formatted_address || "";
-            document.getElementById("phone").value = place.international_phone_number || "";
-            document.getElementById("website").value = place.website || "";
+            document.getElementById("storeName").value = place.name || "";
+            document.getElementById("storeAddress").value = place.formatted_address || "";
+            document.getElementById("storePhone").value = place.international_phone_number || "";
+            document.getElementById("storeWebsite").value = place.website || "";
 
             // Extrahera stad + land från address
             const parts = place.formatted_address.split(",");
             if (parts.length >= 2) {
-              document.getElementById("city").value = parts[parts.length - 2].trim();
-              document.getElementById("country").value = parts[parts.length - 1].trim();
+              document.getElementById("storeCity").value = parts[parts.length - 2].trim();
+              document.getElementById("storeCountry").value = parts[parts.length - 1].trim();
             }
 
             // Spara hidden metadata på wrappern
@@ -88,31 +78,64 @@ document.getElementById("pasteBtn").addEventListener("click", async () => {
   });
 });
 
-// === Spara-knappen ===
-document.getElementById("saveBtn").addEventListener("click", async () => {
+// =============================
+// ⭐ Stjärnor klickbara
+// =============================
+document.querySelectorAll('.stars span').forEach((star, index) => {
+  star.addEventListener('click', () => {
+    // Nollställ alla
+    document.querySelectorAll('.stars span').forEach(s => s.classList.remove('selected'));
+    // Markera fram till klickad stjärna
+    for (let i = 0; i <= index; i++) {
+      document.querySelectorAll('.stars span')[i].classList.add('selected');
+    }
+  });
+});
+
+function getRating() {
+  return document.querySelectorAll('.stars .selected').length;
+}
+
+// =============================
+// 💾 Save-funktion
+// =============================
+async function saveStore(e) {
+  e.preventDefault(); // stoppar reload
+
   const wrapper = document.getElementById("form-wrapper");
 
-  const storeData = {
-    name: document.getElementById("name").value,
-    address: document.getElementById("address").value,
-    city: document.getElementById("city").value,
-    country: document.getElementById("country").value,
-    phone: document.getElementById("phone").value,
-    website: document.getElementById("website").value,
-    type: document.querySelector('input[name="type"]:checked')?.value || "other",
-    rating: selectedRating,
-    status: "pending",
-    place_id: wrapper.dataset.placeId || null,
-    lat: wrapper.dataset.lat || null,
-    lng: wrapper.dataset.lng || null
-  };
+  const name = document.getElementById("storeName").value.trim();
+  const address = document.getElementById("storeAddress").value.trim();
+  const city = document.getElementById("storeCity").value.trim() || "Unknown";
+  const country = document.getElementById("storeCountry").value.trim() || "Unknown";
+  const phone = document.getElementById("storePhone").value.trim();
+  const website = document.getElementById("storeWebsite").value.trim();
+  const type = document.querySelector('input[name="type"]:checked')?.value || "Other";
 
-  const { data, error } = await sb.from("stores").insert([storeData]);
+  // ⭐ Hämta rating
+  let rating = getRating();
+  if (isNaN(rating) || rating < 0 || rating > 5) rating = 0;
+
+  // Skicka till Supabase
+  const { data, error } = await sb
+    .from("stores")
+    .insert([
+      { name, address, city, country, phone, website, type, rating }
+    ]);
 
   if (error) {
-    alert("❌ Error saving: " + error.message);
+    console.error("Error saving:", error);
+    alert("❌ Kunde inte spara: " + error.message);
   } else {
-    alert("✅ Store saved!");
-    console.log("Saved:", data);
+    alert("✅ Store sparad!");
+    document.querySelector("form").reset();
+
+    // Rensa stjärnorna visuellt
+    document.querySelectorAll('.stars span').forEach(s => s.classList.remove('selected'));
   }
-});
+}
+
+// =============================
+// 🔘 Koppla Save-knappen
+// =============================
+document.getElementById("saveBtn").addEventListener("click", saveStore);
