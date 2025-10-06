@@ -1,7 +1,23 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  padding: 20px;
+}
+
+h1 {
+  color: #b8860b;
+}
+
+h2 {
+  margin-top: 30px;
+  color: #333;
+}
+
 .card-container {
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
+  margin-top: 15px;
 }
 
 .card {
@@ -9,7 +25,7 @@
   border: 1px solid #ddd;
   border-radius: 12px;
   padding: 15px;
-  width: 250px;
+  width: 260px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -18,10 +34,16 @@
   color: #b8860b;
 }
 
+.card p {
+  margin: 5px 0;
+}
+
 .card button {
+  margin-top: 10px;
   margin-right: 5px;
   border: none;
-  padding: 5px 10px;
+  padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
