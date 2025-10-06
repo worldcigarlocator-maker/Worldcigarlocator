@@ -1,7 +1,6 @@
 async function saveStore(e) {
   if (e) e.preventDefault();
-  console.log("Save clicked"); // 🔎 Testa
-  ...
+  console.log("Save clicked"); // 
 }
 
 // ===== Supabase Init =====
