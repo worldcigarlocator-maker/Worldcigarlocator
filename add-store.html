@@ -1,63 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add Store</title>
-  <link rel="stylesheet" href="css/add-store.css">
-  <!-- Google Maps JS SDK med Places -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3-abc123XYZ456&libraries=places"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="add-store.css" />
+
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Google Maps JavaScript API (med Places-biblioteket) -->
+  <script 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" 
+    async defer>
+  </script>
 </head>
 <body>
-  <div id="form-wrapper" class="form-wrapper">
-    <h1>Add Store / Lounge / Other</h1>
+  <div class="form-wrapper" id="form-wrapper">
+    <h1>Add a New Store</h1>
 
-    <form id="storeForm">
-      <!-- Maps URL + Paste button -->
-      <div class="url-row">
-        <input type="text" id="mapsUrl" placeholder="Paste Google Maps URL here">
-        <button type="button" id="pasteBtn" class="gold-btn">Paste</button>
-      </div>
+    <!-- Google Maps URL + Paste -->
+    <div class="url-input">
+      <input type="text" id="mapsUrl" placeholder="Paste Google Maps URL here" />
+      <button type="button" id="pasteBtn">Paste</button>
+    </div>
 
-      <label>Name</label>
-      <input type="text" id="name" required>
+    <!-- Name -->
+    <label for="name">Name</label>
+    <input type="text" id="name" />
 
-      <label>Address</label>
-      <input type="text" id="address" required>
+    <!-- Address -->
+    <label for="address">Address</label>
+    <input type="text" id="address" />
 
-      <label>City</label>
-      <input type="text" id="city" required>
+    <!-- City -->
+    <label for="city">City</label>
+    <input type="text" id="city" />
 
-      <label>Country</label>
-      <input type="text" id="country" required>
+    <!-- Country -->
+    <label for="country">Country</label>
+    <input type="text" id="country" />
 
-      <label>Phone</label>
-      <input type="text" id="phone">
+    <!-- Phone -->
+    <label for="phone">Phone</label>
+    <input type="text" id="phone" />
 
-      <label>Website</label>
-      <input type="url" id="website">
+    <!-- Website -->
+    <label for="website">Website</label>
+    <input type="text" id="website" />
 
-      <label>Type</label>
-      <div class="toggle-group">
-        <label><input type="radio" name="type" value="store" checked> Store</label>
-        <label><input type="radio" name="type" value="lounge"> Lounge</label>
-        <label><input type="radio" name="type" value="other"> Other</label>
-      </div>
+    <!-- Type -->
+    <label>Type</label>
+    <div class="toggle-group">
+      <label><input type="radio" name="type" value="store" /> Store</label>
+      <label><input type="radio" name="type" value="lounge" /> Lounge</label>
+      <label><input type="radio" name="type" value="other" /> Other</label>
+    </div>
 
-      <label>Rating</label>
-      <div class="rating">
-        <span class="star" data-value="1">★</span>
-        <span class="star" data-value="2">★</span>
-        <span class="star" data-value="3">★</span>
-        <span class="star" data-value="4">★</span>
-        <span class="star" data-value="5">★</span>
-      </div>
+    <!-- Rating -->
+    <label>Rating</label>
+    <div class="rating">
+      <span class="star" data-value="1">&#9733;</span>
+      <span class="star" data-value="2">&#9733;</span>
+      <span class="star" data-value="3">&#9733;</span>
+      <span class="star" data-value="4">&#9733;</span>
+      <span class="star" data-value="5">&#9733;</span>
+    </div>
 
-      <button type="submit" class="gold-btn save-btn">Save</button>
-    </form>
+    <!-- Save -->
+    <button type="button" id="saveBtn">Save</button>
   </div>
 
-  <script src="js/add-store.js"></script>
+  <!-- Script -->
+  <script src="add-store.js"></script>
 </body>
 </html>
