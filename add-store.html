@@ -1,79 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Add Store</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/add-store.css" />
+  <link rel="stylesheet" href="css/add-store.css">
 
-  <!-- Supabase client -->
+  <!-- Google Maps JavaScript API (med Places bibliotek) -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&loading=async" async defer></script>
+
+  <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Google Maps JavaScript API (med Places-biblioteket) -->
-  <script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" 
-    async defer>
-  </script>
 </head>
 <body>
   <div class="form-wrapper" id="form-wrapper">
-    <h1>Add a New Store</h1>
+    <h1>Add a Store</h1>
+    <form id="storeForm">
 
-    <!-- Google Maps URL + Paste -->
-    <div class="url-input">
-      <input type="text" id="mapsUrl" placeholder="Paste Google Maps URL here" />
-      <button type="button" id="pasteBtn">Paste</button>
-    </div>
+      <!-- Google Maps URL -->
+      <div class="url-row">
+        <input type="text" id="mapsUrl" placeholder="Paste Google Maps URL here">
+        <button type="button" id="pasteBtn" class="gold-btn">Paste</button>
+      </div>
 
-    <!-- Name -->
-    <label for="name">Name</label>
-    <input type="text" id="name" />
+      <!-- Name -->
+      <label for="name">Name</label>
+      <input type="text" id="name" placeholder="Store name">
 
-    <!-- Address -->
-    <label for="address">Address</label>
-    <input type="text" id="address" />
+      <!-- Address -->
+      <label for="address">Address</label>
+      <input type="text" id="address" placeholder="Street address">
 
-    <!-- City -->
-    <label for="city">City</label>
-    <input type="text" id="city" />
+      <!-- City -->
+      <label for="city">City</label>
+      <input type="text" id="city" placeholder="City">
 
-    <!-- Country -->
-    <label for="country">Country</label>
-    <input type="text" id="country" />
+      <!-- Country -->
+      <label for="country">Country</label>
+      <input type="text" id="country" placeholder="Country">
 
-    <!-- Phone -->
-    <label for="phone">Phone</label>
-    <input type="text" id="phone" />
+      <!-- Phone -->
+      <label for="phone">Phone</label>
+      <input type="text" id="phone" placeholder="Phone number">
 
-    <!-- Website -->
-    <label for="website">Website</label>
-    <input type="text" id="website" />
+      <!-- Website -->
+      <label for="website">Website</label>
+      <input type="text" id="website" placeholder="Website URL">
 
-    <!-- Type -->
-    <label>Type</label>
-    <div class="toggle-group">
-      <label><input type="radio" name="type" value="store" /> Store</label>
-      <label><input type="radio" name="type" value="lounge" /> Lounge</label>
-      <label><input type="radio" name="type" value="other" /> Other</label>
-    </div>
+      <!-- Store type -->
+      <div class="type-group">
+        <label>
+          <input type="radio" name="type" value="store" checked> Store
+        </label>
+        <label>
+          <input type="radio" name="type" value="lounge"> Lounge
+        </label>
+        <label>
+          <input type="radio" name="type" value="other"> Other
+        </label>
+      </div>
 
-    <!-- Rating -->
-    <label>Rating</label>
-    <div class="rating">
-      <span class="star" data-value="1">&#9733;</span>
-      <span class="star" data-value="2">&#9733;</span>
-      <span class="star" data-value="3">&#9733;</span>
-      <span class="star" data-value="4">&#9733;</span>
-      <span class="star" data-value="5">&#9733;</span>
-    </div>
+      <!-- Rating -->
+      <label>Rating</label>
+      <div class="rating">
+        <span class="star" data-value="1">&#9733;</span>
+        <span class="star" data-value="2">&#9733;</span>
+        <span class="star" data-value="3">&#9733;</span>
+        <span class="star" data-value="4">&#9733;</span>
+        <span class="star" data-value="5">&#9733;</span>
+      </div>
 
-    <!-- Save -->
-    <button type="button" id="saveBtn">Save</button>
+      <!-- Save button -->
+      <button type="submit" class="gold-btn save-btn">Save</button>
+    </form>
   </div>
 
-  <!-- Script -->
-  <script src="add-store.js"></script>
+  <!-- Din egen JS -->
+  <script src="js/add-store.js"></script>
 </body>
 </html>
