@@ -2,55 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Backoffice</title>
   <link rel="stylesheet" href="css/backoffice.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="js/backoffice.js"></script>
+  <script src="js/backoffice.js" defer></script>
 </head>
 <body>
-  <header>
+  <div class="top-bar">
     <h1>Backoffice</h1>
-    <button id="homeBtn" class="btn-home">🏠 Back to Home</button>
-  </header>
-
-  <div class="view-toggle">
-    <button id="pendingViewBtn" class="active">Pending Stores</button>
-    <button id="archiveViewBtn">Archive</button>
+    <a href="index.html" class="home-btn">⬅ Back to Home</a>
   </div>
 
-  <!-- Pending filter -->
-  <div id="pendingFilter" class="filter-bar">
-    <label for="pendingTypeFilter">Filter:</label>
-    <select id="pendingTypeFilter">
-      <option value="all">All</option>
-      <option value="store">Store</option>
-      <option value="lounge">Lounge</option>
-      <option value="other">Other</option>
-    </select>
-  </div>
+  <!-- Pending Section -->
+  <section>
+    <h2>Pending Stores</h2>
+    <div class="filter-bar">
+      <label for="typeFilterPending">Filter:</label>
+      <select id="typeFilterPending">
+        <option value="All">All</option>
+        <option value="Store">Stores</option>
+        <option value="Lounge">Lounges</option>
+        <option value="Other">Other</option>
+        <option value="Flagged">🚫 Flagged only</option>
+      </select>
+    </div>
+    <div id="pending-list" class="card-grid"></div>
+  </section>
 
-  <!-- Archive search/sort/filter -->
-  <div id="archiveControls" class="filter-bar hidden">
-    <input type="text" id="searchInput" placeholder="Search by name, city, country..." />
-    <select id="sortSelect">
-      <option value="latest">Latest (default)</option>
-      <option value="name">Name</option>
-      <option value="city">City</option>
-      <option value="country">Country</option>
-      <option value="rating">Rating</option>
-    </select>
-    <select id="archiveTypeFilter">
-      <option value="all">All</option>
-      <option value="store">Store</option>
-      <option value="lounge">Lounge</option>
-      <option value="other">Other</option>
-    </select>
-  </div>
-
-  <main>
-    <section id="pendingSection" class="card-grid"></section>
-    <section id="archiveSection" class="card-grid hidden"></section>
-  </main>
+  <!-- Approved Section -->
+  <section>
+    <h2>Approved Stores (Archive)</h2>
+    <div class="filter-bar">
+      <input type="text" id="searchInput" placeholder="Search by name, city, country..." />
+      <select id="typeFilterArchive">
+        <option value="All">All</option>
+        <option value="Store">Stores</option>
+        <option value="Lounge">Lounges</option>
+        <option value="Other">Other</option>
+      </select>
+      <select id="sortArchive">
+        <option value="newest">Newest first</option>
+        <option value="name">Name</option>
+        <option value="city">City</option>
+        <option value="country">Country</option>
+        <option value="rating">Rating</option>
+      </select>
+    </div>
+    <div id="approved-list" class="card-grid"></div>
+  </section>
 </body>
 </html>
