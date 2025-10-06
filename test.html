@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Google Maps PlaceID Test</title>
+  <!-- Byt ut API_KEY_HÄR mot din riktiga nyckel -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" async defer></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
@@ -22,7 +23,6 @@
 
   <script>
     function extractPlaceId(url) {
-      // Matcha !1s...! eller place_id:
       const regex1 = /!1s([^!]+)!/;
       const regex2 = /placeid=([^&]+)/;
       const match1 = url.match(regex1);
@@ -44,7 +44,6 @@
 
       output.textContent = "🔎 Extracted PlaceID: " + placeId;
 
-      // initiera osynlig karta
       const mapDiv = document.createElement("div");
       const map = new google.maps.Map(mapDiv);
       const service = new google.maps.places.PlacesService(map);
