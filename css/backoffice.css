@@ -1,120 +1,125 @@
 body {
   font-family: Arial, sans-serif;
-  background: #f5f5f5;
+  background: #f9f9f9;
   margin: 0;
-  padding: 0;
-}
-
-.top-bar {
-  background: #222;
-  color: #fff;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.top-bar .home-btn {
-  background: #666;
-  color: #fff;
-  text-decoration: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-}
-.top-bar .home-btn:hover {
-  background: #888;
-}
-
-section {
   padding: 20px;
+  color: #333;
 }
 
 h2 {
+  color: #b8860b;
   margin-bottom: 10px;
 }
 
-.filter-bar {
-  margin-bottom: 15px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.filter-bar input,
-.filter-bar select {
-  padding: 6px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-.card-grid {
+.store-list {
   display: grid;
-  gap: 15px;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
 }
 
 .store-card {
   background: #fff;
-  border-radius: 10px;
-  padding: 15px;
+  border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  position: relative;
-  transition: 0.3s;
-}
-.store-card:hover {
-  transform: translateY(-2px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.pending-badge,
-.approved-badge,
-.flagged-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  color: #fff;
+.store-card img.store-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  background: #f3f3f3;
 }
-.pending-badge { background: orange; }
-.approved-badge { background: green; }
-.flagged-badge { background: red; }
 
-.store-card h3 {
-  margin: 5px 0;
+.store-info {
+  padding: 12px;
+  flex-grow: 1;
+}
+
+.store-info h3 {
+  margin: 0 0 6px 0;
+  font-size: 1.1em;
+  color: #222;
+}
+
+.store-info p {
+  margin: 2px 0;
+  font-size: 0.9em;
+  color: #555;
 }
 
 .stars {
+  margin: 6px 0;
   color: #ccc;
 }
-.stars .selected {
-  color: gold;
+
+.stars .active {
+  color: #f5c518;
 }
 
-.button-row {
-  margin-top: 10px;
-  display: flex;
-  gap: 8px;
+.badges {
+  margin-top: 6px;
 }
-.button-row button {
-  flex: 1;
-  padding: 6px;
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 0.75em;
+  border-radius: 12px;
+  margin-right: 5px;
+}
+
+.badge.approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.badge.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.badge.flagged {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.store-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-top: 1px solid #eee;
+}
+
+.store-actions button {
+  padding: 6px 12px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  font-size: 0.9em;
 }
-.approve-btn { background: green; color: #fff; }
-.delete-btn { background: red; color: #fff; }
-.edit-btn { background: blue; color: #fff; }
-.save-edit-btn { background: darkgoldenrod; color: #fff; width: 100%; margin-top: 8px; }
 
-.edit-fields {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.approve-btn {
+  background: #28a745;
+  color: white;
 }
-.edit-fields input {
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+
+.approve-btn:hover {
+  background: #218838;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #c82333;
+}
+
+.empty {
+  font-style: italic;
+  color: #777;
 }
