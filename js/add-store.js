@@ -89,7 +89,7 @@ async function handleAdd() {
 
   console.log("Extracted placeId:", placeId);
 
-  const service = new google.maps.places.PlacesService(document.createElement("div"));
+  const service = new google.maps.places.PlacesService(document.createElement('div'));
   service.getDetails(
     {
       placeId: placeId,
