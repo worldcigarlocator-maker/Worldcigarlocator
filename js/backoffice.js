@@ -3,153 +3,123 @@ const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"; // din anon key här
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-let pendingStores = [];
-let approvedStores = [];
 
-// Load data
-async function loadStores() {
-  const { data, error } = await supabase.from("stores").select("*").order("id", { ascending: false });
-  if (error) { console.error(error); return; }
+// =======================
+// Hämta stores
+// =======================
+async function loadStores(view = "pending") {
+  let query = supabase.from("stores").select("*").order("created_at", { ascending: false });
 
-  pendingStores = data.filter(s => !s.approved);
-  approvedStores = data.filter(s => s.approved);
+  if (view === "pending") {
+    query = query.eq("approved", false);
+  } else if (view === "approved") {
+    query = query.eq("approved", true);
+  }
 
-  renderCards(pendingStores, document.getElementById("pending-list"), false);
-  renderCards(approvedStores, document.getElementById("approved-list"), true);
-}
-
-// Render store cards
-function renderCards(stores, container, isArchive) {
-  container.innerHTML = "";
-  stores.forEach(store => {
-    const card = document.createElement("div");
-    card.className = "store-card";
-
-    // Badge
-    let badgeHtml = store.flagged
-      ? `<div class="flagged-badge">Illegal 🚫</div>`
-      : (isArchive
-          ? `<div class="approved-badge">Approved ✅</div>`
-          : `<div class="pending-badge">Pending ⏳</div>`);
-
-    // Stars
-    let starsHtml = "";
-    for (let i = 1; i <= 5; i++) {
-      starsHtml += `<span class="star ${i <= (store.rating || 0) ? "selected" : ""}">★</span>`;
-    }
-
-    card.innerHTML = `
-      ${badgeHtml}
-      <h3>${store.name || "Unnamed"}</h3>
-      <p>${store.address || ""}</p>
-      <p>${store.city || ""}, ${store.country || ""}</p>
-      <p>📞 ${store.phone || "-"}</p>
-      <p>🌐 ${store.website || "-"}</p>
-      <p>Type: ${store.type || "-"}</p>
-      <div class="stars">${starsHtml}</div>
-      <div class="button-row">
-        ${!isArchive ? `<button class="approve-btn">Approve</button>` : ""}
-        <button class="edit-btn">Edit</button>
-        <button class="delete-btn">Delete</button>
-      </div>
-      <div class="edit-form"></div>
-    `;
-
-    const approveBtn = card.querySelector(".approve-btn");
-    const editBtn = card.querySelector(".edit-btn");
-    const deleteBtn = card.querySelector(".delete-btn");
-    const editForm = card.querySelector(".edit-form");
-
-    if (approveBtn) {
-      approveBtn.addEventListener("click", async () => {
-        await supabase.from("stores").update({ approved: true }).eq("id", store.id);
-        loadStores();
-      });
-    }
-
-    editBtn.addEventListener("click", () => toggleEditForm(store, editForm));
-    deleteBtn.addEventListener("click", async () => {
-      if (confirm("Delete this store?")) {
-        await supabase.from("stores").delete().eq("id", store.id);
-        loadStores();
-      }
-    });
-
-    container.appendChild(card);
-  });
-}
-
-// Toggle inline edit
-function toggleEditForm(store, container) {
-  if (container.innerHTML !== "") {
-    container.innerHTML = "";
+  const { data, error } = await query;
+  if (error) {
+    console.error(error);
     return;
   }
 
-  container.innerHTML = `
-    <div class="edit-fields">
-      <input type="text" id="edit-name-${store.id}" value="${store.name || ""}" placeholder="Name" />
-      <input type="text" id="edit-phone-${store.id}" value="${store.phone || ""}" placeholder="Phone" />
-      <input type="text" id="edit-website-${store.id}" value="${store.website || ""}" placeholder="Website" />
-      <input type="text" id="edit-city-${store.id}" value="${store.city || ""}" placeholder="City" />
-      <input type="text" id="edit-country-${store.id}" value="${store.country || ""}" placeholder="Country" />
-      <button class="save-edit-btn">Save Changes</button>
-    </div>
-  `;
+  renderStores(data, view);
+}
 
-  container.querySelector(".save-edit-btn").addEventListener("click", async () => {
-    const updates = {
-      name: document.getElementById(`edit-name-${store.id}`).value.trim(),
-      phone: document.getElementById(`edit-phone-${store.id}`).value.trim(),
-      website: document.getElementById(`edit-website-${store.id}`).value.trim(),
-      city: document.getElementById(`edit-city-${store.id}`).value.trim(),
-      country: document.getElementById(`edit-country-${store.id}`).value.trim()
-    };
-    await supabase.from("stores").update(updates).eq("id", store.id);
-    loadStores();
+// =======================
+// Rendera stores
+// =======================
+function renderStores(stores, view) {
+  const container = document.getElementById(`${view}-stores`);
+  container.innerHTML = "";
+
+  if (!stores || stores.length === 0) {
+    container.innerHTML = `<p class="empty">No stores in this view</p>`;
+    return;
+  }
+
+  stores.forEach(store => {
+    container.appendChild(renderStoreCard(store, view));
   });
 }
 
-// Pending filter
-document.getElementById("typeFilterPending")?.addEventListener("change", applyPendingFilters);
-function applyPendingFilters() {
-  const type = document.getElementById("typeFilterPending").value;
+// =======================
+// Rendera kort
+// =======================
+function renderStoreCard(store, view) {
+  const card = document.createElement("div");
+  card.className = "store-card";
 
-  let filtered = pendingStores;
-  if (type !== "All") {
-    if (type === "Flagged") filtered = pendingStores.filter(s => s.flagged);
-    else filtered = pendingStores.filter(s => s.type === type);
+  // Bild med fallback
+  let imgUrl;
+  if (store.photo_reference) {
+    imgUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${store.photo_reference}&key=DIN_GOOGLE_KEY`;
+  } else {
+    imgUrl = "img/placeholder.png"; // ✅ fallback
   }
 
-  renderCards(filtered, document.getElementById("pending-list"), false);
+  // Rating stjärnor
+  let stars = "";
+  for (let i = 0; i < 5; i++) {
+    stars += `<span class="star ${i < (store.rating || 0) ? "active" : ""}">★</span>`;
+  }
+
+  card.innerHTML = `
+    <img src="${imgUrl}" alt="Store image" class="store-image">
+    <div class="store-info">
+      <h3>${store.name || "Unnamed"}</h3>
+      <p>${store.address || ""}</p>
+      <p>${store.city || ""}, ${store.country || ""}</p>
+      <div class="stars">${stars}</div>
+      <div class="badges">
+        ${store.approved ? `<span class="badge approved">Approved</span>` : `<span class="badge pending">Pending</span>`}
+        ${store.flagged ? `<span class="badge flagged">🚫 Flagged</span>` : ""}
+      </div>
+    </div>
+    <div class="store-actions">
+      ${view === "pending" ? `<button class="approve-btn">Approve</button>` : ""}
+      <button class="delete-btn">Delete</button>
+    </div>
+  `;
+
+  // Event listeners
+  if (view === "pending") {
+    card.querySelector(".approve-btn").addEventListener("click", () => approveStore(store.id));
+  }
+  card.querySelector(".delete-btn").addEventListener("click", () => deleteStore(store.id));
+
+  return card;
 }
 
-// Archive filters
-document.getElementById("searchInput")?.addEventListener("input", applyArchiveFilters);
-document.getElementById("typeFilterArchive")?.addEventListener("change", applyArchiveFilters);
-document.getElementById("sortArchive")?.addEventListener("change", applyArchiveFilters);
-
-function applyArchiveFilters() {
-  const term = document.getElementById("searchInput").value.toLowerCase();
-  const type = document.getElementById("typeFilterArchive").value;
-  const sort = document.getElementById("sortArchive").value;
-
-  let filtered = approvedStores.filter(s =>
-    (s.name || "").toLowerCase().includes(term) ||
-    (s.city || "").toLowerCase().includes(term) ||
-    (s.country || "").toLowerCase().includes(term)
-  );
-
-  if (type !== "All") filtered = filtered.filter(s => s.type === type);
-
-  if (sort === "name") filtered.sort((a, b) => a.name.localeCompare(b.name));
-  else if (sort === "city") filtered.sort((a, b) => a.city.localeCompare(b.city));
-  else if (sort === "country") filtered.sort((a, b) => a.country.localeCompare(b.country));
-  else if (sort === "rating") filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-  else if (sort === "newest") filtered.sort((a, b) => b.id - a.id);
-
-  renderCards(filtered, document.getElementById("approved-list"), true);
+// =======================
+// Approve
+// =======================
+async function approveStore(id) {
+  const { error } = await supabase.from("stores").update({ approved: true }).eq("id", id);
+  if (error) {
+    console.error(error);
+  } else {
+    loadStores("pending");
+    loadStores("approved");
+  }
 }
 
+// =======================
+// Delete
+// =======================
+async function deleteStore(id) {
+  const { error } = await supabase.from("stores").delete().eq("id", id);
+  if (error) {
+    console.error(error);
+  } else {
+    loadStores("pending");
+    loadStores("approved");
+  }
+}
+
+// =======================
 // Init
-loadStores();
+// =======================
+document.addEventListener("DOMContentLoaded", () => {
+  loadStores("pending");
+  loadStores("approved");
+});
