@@ -1,66 +1,56 @@
+/* ===== Reset & Body ===== */
 body {
   font-family: Arial, sans-serif;
-  background: #f6f6f6;
+  background-color: #f9f9f9;
   margin: 0;
-  padding: 20px;
+  padding: 0;
 }
 
+/* ===== Form Wrapper ===== */
 .form-wrapper {
-  max-width: 500px;
-  margin: 0 auto;
-  background: #fff;
+  max-width: 480px;
+  margin: 40px auto;
   padding: 25px;
+  background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 h1 {
   text-align: center;
-  color: #b8860b;
+  color: #444;
   margin-bottom: 20px;
 }
 
+/* ===== Labels & Inputs ===== */
 label {
+  font-weight: bold;
   display: block;
   margin-top: 12px;
-  font-weight: bold;
+  margin-bottom: 5px;
   color: #333;
 }
 
 input[type="text"] {
   width: 100%;
-  padding: 8px;
-  margin-top: 6px;
+  padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 14px;
+  margin-bottom: 10px;
 }
 
-.radio-group {
-  display: flex;
-  gap: 15px;
-  margin-top: 8px;
+input[type="text"]:focus {
+  border-color: #d4af37;
+  outline: none;
+  box-shadow: 0 0 4px #d4af37;
 }
 
-.stars {
-  display: flex;
-  gap: 5px;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
-.stars span {
-  color: #ccc;
-  transition: color 0.2s;
-}
-
-.stars span.selected,
-.stars span.hover {
-  color: #ffcc00;
-}
-
+/* ===== Maps Link + Add Button Row ===== */
 .maps-link-row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 15px;
 }
 
@@ -69,56 +59,107 @@ input[type="text"] {
 }
 
 .maps-link-row button {
-  background: #e6c200;
+  padding: 10px 15px;
+  background-color: #f1e4b8;
+  color: #333;
   border: none;
-  border-radius: 6px;
-  color: white;
-  padding: 8px 12px;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: bold;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
 }
 
-.save-btn {
-  margin-top: 20px;
-  width: 100%;
-  background: #b8860b;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px;
-  font-size: 1rem;
+.maps-link-row button:hover {
+  background-color: #e6cf6c;
+}
+
+/* ===== Radio Buttons ===== */
+.radio-group {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  color: #444;
+}
+
+.radio-group label {
+  font-weight: normal;
+}
+
+/* ===== Star Rating ===== */
+.stars {
+  font-size: 26px;
+  color: #ccc;
   cursor: pointer;
+  user-select: none;
+  margin: 15px 0;
+}
+
+.stars span.hover {
+  color: #f5d76e;
+}
+
+.stars span.selected {
+  color: #d4af37;
+}
+
+/* ===== Preview Image ===== */
+.preview img {
+  max-width: 100%;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+/* ===== Save Button ===== */
+.save-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #d4af37;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.2s ease;
 }
 
 .save-btn:hover {
-  background: #a0780a;
+  background-color: #b8962e;
 }
 
-/* Preview */
-.preview img {
-  max-width: 100%;
-  border-radius: 8px;
-  margin: 10px 0;
-}
-
-/* Toasts */
+/* ===== Toasts ===== */
 #toast-container {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 9999;
+  z-index: 2000;
 }
 
 .toast {
-  background: #333;
-  color: #fff;
-  padding: 10px 15px;
+  padding: 12px 18px;
   margin-top: 10px;
-  border-radius: 6px;
-  opacity: 0.95;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  animation: fadeInOut 3s forwards;
 }
 
-.toast.success { background: #2e7d32; }
-.toast.error { background: #c62828; }
+.toast.success {
+  background-color: #4caf50;
+}
+
+.toast.error {
+  background-color: #e74c3c;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(20px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(20px); }
+}
