@@ -34,7 +34,7 @@ function renderCards(stores) {
     // Bildlogik
     let imageUrl;
     if (store.photo_reference) {
-      imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${store.photo_reference}&key=DIN_GOOGLE_KEY`;
+      imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${store.photo_reference}&key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ`;
     } else {
       if (store.type === "store") {
         imageUrl = "images/Store.png";
