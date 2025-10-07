@@ -4,6 +4,10 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 
+let selectedRating = 0;
+let lastPlaceId = null;
+let lastPhotoReference = null;
+
 // =========================
 // Toast helper
 // =========================
@@ -19,7 +23,6 @@ function showToast(message, type = "info") {
 // =========================
 // Star rating
 // =========================
-let selectedRating = 0;
 document.querySelectorAll("#starRating span").forEach(star => {
   star.addEventListener("click", () => {
     selectedRating = parseInt(star.getAttribute("data-value"));
@@ -51,10 +54,15 @@ function fillFormFromPlace(place) {
   document.getElementById("city").value = city;
   document.getElementById("country").value = country;
 
-  // visa bild om den finns
+  // spara placeId
+  lastPlaceId = place.place_id || null;
+
+  // visa + spara photo_reference om den finns
+  lastPhotoReference = null;
   const photoPreview = document.getElementById("photoPreview");
   photoPreview.innerHTML = "";
   if (place.photos && place.photos.length > 0) {
+    lastPhotoReference = place.photos[0].photo_reference;
     const img = document.createElement("img");
     img.src = place.photos[0].getUrl({ maxWidth: 400, maxHeight: 300 });
     photoPreview.appendChild(img);
@@ -71,13 +79,8 @@ async function handleAdd() {
     return;
   }
 
-  const match = link.match(/\/place\/.*\/(@|data=)?!3d.*!4d.*\/?([^\/?]+)?/);
   const placeIdMatch = link.match(/!1s([^!]+)!/);
-
-  let placeId = null;
-  if (placeIdMatch) {
-    placeId = decodeURIComponent(placeIdMatch[1]);
-  }
+  let placeId = placeIdMatch ? decodeURIComponent(placeIdMatch[1]) : null;
 
   if (!placeId) {
     showToast("Could not extract Place ID from link", "error");
@@ -86,12 +89,11 @@ async function handleAdd() {
 
   console.log("Extracted placeId:", placeId);
 
-  // FIX: PlacesService kräver ett DOM-element
   const service = new google.maps.places.PlacesService(document.createElement("div"));
   service.getDetails(
     {
       placeId: placeId,
-      fields: ["name", "formatted_address", "address_components", "geometry", "photos"]
+      fields: ["place_id", "name", "formatted_address", "address_components", "geometry", "photos"]
     },
     (place, status) => {
       if (status === google.maps.places.PlacesServiceStatus.OK) {
@@ -133,6 +135,8 @@ async function saveStore() {
       website,
       type,
       rating: selectedRating,
+      place_id: lastPlaceId,
+      photo_reference: lastPhotoReference,
       approved: false,
       flagged: false
     }
@@ -145,6 +149,9 @@ async function saveStore() {
     showToast("Store submitted for review", "success");
     document.querySelector("form")?.reset?.();
     document.getElementById("photoPreview").innerHTML = "";
+    selectedRating = 0;
+    lastPlaceId = null;
+    lastPhotoReference = null;
   }
 }
 
@@ -163,5 +170,4 @@ function initAutocomplete() {
   });
 }
 
-// Gör funktionen global så callback=initAutocomplete hittar den
 window.initAutocomplete = initAutocomplete;
