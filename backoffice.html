@@ -2,54 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Backoffice</title>
-  <link rel="stylesheet" href="css/backoffice.css" />
+  <link rel="stylesheet" href="backoffice.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/backoffice.js" defer></script>
 </head>
 <body>
-  <div class="top-bar">
-    <h1>Backoffice</h1>
-    <a href="index.html" class="home-btn">⬅ Back to Home</a>
-  </div>
+  <h1>Backoffice</h1>
 
-  <!-- Pending Section -->
   <section>
     <h2>Pending Stores</h2>
-    <div class="filter-bar">
-      <label for="typeFilterPending">Filter:</label>
-      <select id="typeFilterPending">
-        <option value="All">All</option>
-        <option value="Store">Stores</option>
-        <option value="Lounge">Lounges</option>
-        <option value="Other">Other</option>
-        <option value="Flagged">🚫 Flagged only</option>
-      </select>
-    </div>
-    <div id="pending-list" class="card-grid"></div>
+    <div id="pending-stores" class="store-list"></div>
   </section>
 
-  <!-- Approved Section -->
   <section>
     <h2>Approved Stores (Archive)</h2>
-    <div class="filter-bar">
-      <input type="text" id="searchInput" placeholder="Search by name, city, country..." />
-      <select id="typeFilterArchive">
-        <option value="All">All</option>
-        <option value="Store">Stores</option>
-        <option value="Lounge">Lounges</option>
-        <option value="Other">Other</option>
-      </select>
-      <select id="sortArchive">
-        <option value="newest">Newest first</option>
-        <option value="name">Name</option>
-        <option value="city">City</option>
-        <option value="country">Country</option>
-        <option value="rating">Rating</option>
-      </select>
-    </div>
-    <div id="approved-list" class="card-grid"></div>
+    <div id="approved-stores" class="store-list"></div>
   </section>
+
+  <script src="backoffice.js"></script>
 </body>
 </html>
