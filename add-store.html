@@ -1,64 +1,49 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Store</title>
   <link rel="stylesheet" href="css/add-store.css" />
-
-  <!-- Google Maps JavaScript API -->
-  <script 
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete"
-  async defer>
-</script>
-
-    async defer>
-  </script>
-
-  <!-- Supabase client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <div class="form-wrapper">
     <h1>Add Store</h1>
 
-    <!-- Maps Link Input -->
+    <!-- Google Maps link + Add button -->
     <div class="maps-link-row">
-      <input type="text" id="mapsLink" placeholder="Paste Google Maps link here" />
-      <button type="button" id="addBtn" class="btn">Add</button>
+      <input type="text" id="mapsLink" placeholder="Paste Google Maps link here">
+      <button id="addBtn" class="btn-add">Add</button>
     </div>
 
-    <!-- Preview Image -->
-    <div id="previewImage" class="preview"></div>
+    <!-- Store fields -->
+    <label for="name">Store Name</label>
+    <input type="text" id="name" placeholder="Store name">
 
-    <!-- Store Info -->
-    <label>Store Name*</label>
-    <input type="text" id="name" placeholder="Store name" />
+    <label for="address">Address</label>
+    <input type="text" id="address" placeholder="Street address">
 
-    <label>Address*</label>
-    <input type="text" id="address" placeholder="Street address" />
+    <label for="city">City</label>
+    <input type="text" id="city" placeholder="City">
 
-    <label>City*</label>
-    <input type="text" id="city" placeholder="City" />
+    <label for="country">Country</label>
+    <input type="text" id="country" placeholder="Country">
 
-    <label>Country*</label>
-    <input type="text" id="country" placeholder="Country" />
+    <label for="phone">Phone</label>
+    <input type="text" id="phone" placeholder="Phone number">
 
-    <label>Phone</label>
-    <input type="text" id="phone" placeholder="Phone number" />
+    <label for="website">Website</label>
+    <input type="text" id="website" placeholder="Website URL">
 
-    <label>Website</label>
-    <input type="text" id="website" placeholder="Website URL" />
-
-    <!-- Store Type -->
+    <!-- Store type -->
     <div class="radio-group">
-      <label><input type="radio" name="type" value="store" checked /> Store</label>
-      <label><input type="radio" name="type" value="lounge" /> Lounge</label>
-      <label><input type="radio" name="type" value="other" /> Other</label>
+      <label><input type="radio" name="type" value="store"> Store</label>
+      <label><input type="radio" name="type" value="lounge"> Lounge</label>
+      <label><input type="radio" name="type" value="other"> Other</label>
     </div>
 
-    <!-- Rating -->
-    <div id="starRating" class="stars">
+    <!-- Star rating -->
+    <div class="star-rating" id="starRating">
       <span data-value="1">★</span>
       <span data-value="2">★</span>
       <span data-value="3">★</span>
@@ -66,14 +51,26 @@
       <span data-value="5">★</span>
     </div>
 
-    <!-- Save Button -->
-    <button type="button" id="saveBtn" class="save-btn">Save</button>
+    <!-- Image preview -->
+    <div id="photoPreview"></div>
+
+    <!-- Save button -->
+    <button id="saveBtn" class="btn-save">Save</button>
   </div>
 
   <!-- Toast container -->
   <div id="toast-container"></div>
 
-  <!-- Custom Script -->
-  <script src="js/add-store.js" defer></script>
+  <!-- Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Your JS -->
+  <script src="js/add-store.js"></script>
+
+  <!-- Google Maps API (IMPORTANT: replace DIN_GOOGLE_KEY) -->
+  <script 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete"
+    async defer>
+  </script>
 </body>
 </html>
