@@ -71,7 +71,7 @@ function renderStoreCard(store, view) {
       <p>${store.city || ""}, ${store.country || ""}</p>
       <div class="stars">${stars}</div>
       <div class="badges">
-        ${store.approved ? `<span class="badge approved">Approved</span>` : `<span class="badge pending">Pending</span>`}
+        ${store.approved ? `<span class="badge approved">Approved ✅</span>` : `<span class="badge pending">Pending ⏳</span>`}
         ${store.flagged ? `<span class="badge flagged">🚫 Flagged</span>` : ""}
       </div>
     </div>
