@@ -112,9 +112,10 @@ input[type="text"]:focus {
   border: 1px solid #ddd;
 }
 
-/* ===== Save Button ===== */
-.save-btn {
-  width: 100%;
+/* ===== Buttons (Add + Save) ===== */
+button, 
+.save-btn,
+.maps-link-row button {
   padding: 12px;
   background-color: #d4af37;
   color: #fff;
@@ -123,12 +124,19 @@ input[type="text"]:focus {
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  margin-top: 20px;
   transition: background-color 0.2s ease;
 }
 
-.save-btn:hover {
+button:hover,
+.save-btn:hover,
+.maps-link-row button:hover {
   background-color: #b8962e;
+}
+
+/* Gör Save full bredd */
+.save-btn {
+  width: 100%;
+  margin-top: 20px;
 }
 
 /* ===== Toasts ===== */
