@@ -2,30 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Radio Button Test</title>
+  <title>Radio Badge Test</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 2rem;
+      background: #f6f6f6;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      color: #b8860b;
     }
 
     .radio-group {
       display: flex;
-      gap: 2rem;              /* Avstånd mellan alternativen */
-    }
-
-    .radio-group label {
-      display: inline-flex;
-      align-items: center;    /* Centrerar knapp + text */
-      gap: 0.5rem;            /* Avstånd mellan knapp och text */
-      cursor: pointer;
-      line-height: 1;
+      gap: 1rem;
     }
 
     .radio-group input[type="radio"] {
-      margin: 0;
-      transform: scale(1.2);  /* Lite större cirklar */
-      vertical-align: middle; /* Ser till att knappen och texten hamnar i linje */
+      display: none; /* Dölj de vanliga cirklarna */
+    }
+
+    .radio-group span {
+      padding: 0.5rem 1.2rem;
+      border: 2px solid #b8860b;
+      border-radius: 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #b8860b;
+      background: #fff;
+      font-weight: bold;
+    }
+
+    .radio-group span:hover {
+      background: #f9f2e4;
+    }
+
+    .radio-group input[type="radio"]:checked + span {
+      background: #b8860b;
+      color: #fff;
     }
   </style>
 </head>
