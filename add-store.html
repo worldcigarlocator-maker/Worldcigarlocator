@@ -5,66 +5,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Store</title>
   <link rel="stylesheet" href="css/add-store.css">
+
+  <!-- Google Maps JavaScript API -->
+  <script 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"
+    async defer>
+  </script>
+
+  <!-- Google Maps Place Autocomplete Element -->
+  <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library@0.6.13/dist/index.min.js"></script>
+
+  <!-- Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div class="form-wrapper">
+  <div id="form-wrapper" class="form-wrapper">
     <h1>Add Store</h1>
+    <form id="add-store-form">
+      
+      <!-- Store Name -->
+      <label for="store-name">Store Name</label>
+      <input type="text" id="store-name" name="store-name" placeholder="Enter store name" required>
+      
+      <!-- Google Autocomplete -->
+      <label for="place">Address</label>
+      <gmpx-place-autocomplete
+        id="place"
+        placeholder="Search for address"
+        class="autocomplete-input"
+      ></gmpx-place-autocomplete>
 
-    <!-- Google Autocomplete -->
-    <label for="autocomplete">Add with Google</label>
-    <gmpx-place-autocomplete id="autocomplete"></gmpx-place-autocomplete>
+      <!-- Rating -->
+      <label>Rating</label>
+      <div class="stars">
+        <span class="star" data-value="1">★</span>
+        <span class="star" data-value="2">★</span>
+        <span class="star" data-value="3">★</span>
+        <span class="star" data-value="4">★</span>
+        <span class="star" data-value="5">★</span>
+      </div>
 
-    <!-- Store Details -->
-    <label for="name">Store Name</label>
-    <input type="text" id="name" placeholder="Enter store name">
+      <!-- Type -->
+      <label>Type</label>
+      <div class="radio-group">
+        <label><input type="radio" name="type" value="Store"> Store</label>
+        <label><input type="radio" name="type" value="Lounge"> Lounge</label>
+        <label><input type="radio" name="type" value="Other"> Other</label>
+      </div>
 
-    <label for="address">Address</label>
-    <input type="text" id="address" placeholder="Enter address">
-
-    <label for="city">City</label>
-    <input type="text" id="city" placeholder="Enter city">
-
-    <label for="country">Country</label>
-    <input type="text" id="country" placeholder="Enter country">
-
-    <label for="phone">Phone</label>
-    <input type="text" id="phone" placeholder="Enter phone number">
-
-    <label for="website">Website</label>
-    <input type="text" id="website" placeholder="Enter website">
-
-    <!-- Store Type -->
-    <div class="radio-group">
-      <label><input type="radio" name="type" value="store"> Store</label>
-      <label><input type="radio" name="type" value="lounge"> Lounge</label>
-      <label><input type="radio" name="type" value="other"> Other</label>
-    </div>
-
-    <!-- Rating -->
-    <label>Rating</label>
-    <div class="rating">
-      <span class="star" data-value="1">★</span>
-      <span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span>
-      <span class="star" data-value="4">★</span>
-      <span class="star" data-value="5">★</span>
-    </div>
-
-    <!-- Preview Image -->
-    <img id="preview-image" class="preview-image" style="display:none;" alt="Preview">
-
-    <!-- Save Button -->
-    <button id="save-btn" class="btn-save">Save</button>
+      <button type="submit" class="btn-submit">Add Store</button>
+    </form>
   </div>
 
-  <!-- Toasts -->
-  <div id="toast-container"></div>
-
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/add-store.js"></script>
-  <script async
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places">
+  <script>
+    // Rating stars
+    let selectedRating = 0;
+    document.querySelectorAll(".star").forEach(star => {
+      star.addEventListener("click", () => {
+        selectedRating = parseInt(star.dataset.value);
+        document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
+        for (let i = 0; i < selectedRating; i++) {
+          document.querySelectorAll(".star")[i].classList.add("selected");
+        }
+      });
+    });
   </script>
 </body>
 </html>
