@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Radio Button Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 2rem;              /* Avstånd mellan alternativen */
+    }
+
+    .radio-group label {
+      display: inline-flex;
+      align-items: center;    /* Centrerar knapp + text */
+      gap: 0.5rem;            /* Avstånd mellan knapp och text */
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .radio-group input[type="radio"] {
+      margin: 0;
+      transform: scale(1.2);  /* Lite större cirklar */
+      vertical-align: middle; /* Ser till att knappen och texten hamnar i linje */
+    }
+  </style>
+</head>
+<body>
+  <h2>Store Type</h2>
+  <div class="radio-group">
+    <label>
+      <input type="radio" name="store-type" value="store">
+      <span>Store</span>
+    </label>
+    <label>
+      <input type="radio" name="store-type" value="lounge">
+      <span>Lounge</span>
+    </label>
+    <label>
+      <input type="radio" name="store-type" value="other">
+      <span>Other</span>
+    </label>
+  </div>
+</body>
+</html>
