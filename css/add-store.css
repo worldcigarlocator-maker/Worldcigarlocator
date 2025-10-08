@@ -1,20 +1,21 @@
 /* === Global reset & body === */
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Segoe UI", Roboto, sans-serif;
   background: #fafafa;
   margin: 0;
   padding: 2rem;
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  color: #333;
 }
 
 /* === Wrapper === */
 .form-wrapper {
   background: #fff;
   padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
   width: 420px;
 }
 
@@ -22,6 +23,7 @@ h1 {
   text-align: center;
   margin-bottom: 1.5rem;
   color: #b8860b; /* guldton */
+  font-weight: 700;
 }
 
 /* === Inputs & labels === */
@@ -29,8 +31,8 @@ label {
   display: block;
   margin-top: 1rem;
   margin-bottom: 0.3rem;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #444;
 }
 
 input[type="text"],
@@ -39,9 +41,18 @@ input[type="tel"] {
   width: 100%;
   padding: 10px;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   box-sizing: border-box;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="url"]:focus,
+input[type="tel"]:focus {
+  border: 1px solid #d4af37;
+  box-shadow: 0 0 6px rgba(212,175,55,0.5);
+  outline: none;
 }
 
 /* === Autocomplete row (input + Add button) === */
@@ -57,53 +68,84 @@ input[type="tel"] {
 
 /* === Buttons === */
 button {
-  padding: 10px 16px;
+  padding: 10px 18px;
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: 10px;
+  font-size: 15px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  font-weight: bold;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
+/* Add-knappen – ljusare guld */
 #add-btn {
-  background: #e5c469; /* ljus guld */
+  background: linear-gradient(135deg, #f7d87c, #e5c469);
   color: #fff;
 }
 #add-btn:hover {
-  background: #d4af37; /* mörkare guld */
+  background: linear-gradient(135deg, #f0c93a, #d4af37);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 
+/* Save-knappen – stark mörkguld */
 .save-btn {
   margin-top: 1.5rem;
   width: 100%;
-  background: #d4af37; /* stark guld */
+  background: linear-gradient(135deg, #d4af37, #b8860b);
   color: #fff;
-  font-weight: bold;
 }
 .save-btn:hover {
-  background: #c19e34;
+  background: linear-gradient(135deg, #c19e34, #a07500);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
 }
 
-/* === Radio group === */
+/* === Radio group (Store / Lounge / Other) === */
 .radio-group {
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
 }
 
+.radio-group input[type="radio"] {
+  display: none;
+}
+
 .radio-group label {
-  font-weight: normal;
+  padding: 8px 14px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: #fafafa;
+}
+
+.radio-group input[type="radio"]:checked + label {
+  border-color: #d4af37;
+  background: linear-gradient(135deg, #f7d87c, #e5c469);
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.radio-group label:hover {
+  border-color: #d4af37;
 }
 
 /* === Stars === */
 .stars {
   margin-top: 1rem;
-  font-size: 24px;
+  font-size: 26px;
   color: #ccc;
   cursor: pointer;
 }
 .stars span {
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.stars span:hover {
+  transform: scale(1.2);
 }
 .stars span.active {
   color: #d4af37;
@@ -115,8 +157,8 @@ button {
   height: 200px;
   object-fit: cover;
   margin-top: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   display: none; /* dold tills JS visar bild */
 }
 
@@ -131,11 +173,12 @@ button {
 .toast {
   padding: 12px 20px;
   margin-top: 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   color: #fff;
   background: #333;
   opacity: 0.95;
   animation: fadeIn 0.3s ease;
+  font-weight: 500;
 }
 
 .toast.success { background: #4caf50; } /* grön */
