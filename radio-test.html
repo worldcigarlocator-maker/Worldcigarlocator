@@ -7,13 +7,10 @@
     body {
       font-family: Arial, sans-serif;
       padding: 2rem;
-      background: #f6f6f6;
+      background: #f7f7f7;
     }
 
-    h2 {
-      margin-bottom: 1rem;
-      color: #b8860b;
-    }
+    h2 { margin-bottom: 1rem; }
 
     .radio-group {
       display: flex;
@@ -21,46 +18,14 @@
     }
 
     .radio-group input[type="radio"] {
-      display: none; /* Dölj de vanliga cirklarna */
+      display: none; /* göm vanliga cirkeln */
     }
 
     .radio-group span {
       padding: 0.5rem 1.2rem;
-      border: 2px solid #b8860b;
       border-radius: 20px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       cursor: pointer;
-      transition: all 0.2s ease;
-      color: #b8860b;
-      background: #fff;
-      font-weight: bold;
-    }
+      font-weight:
 
-    .radio-group span:hover {
-      background: #f9f2e4;
-    }
-
-    .radio-group input[type="radio"]:checked + span {
-      background: #b8860b;
-      color: #fff;
-    }
-  </style>
-</head>
-<body>
-  <h2>Store Type</h2>
-  <div class="radio-group">
-    <label>
-      <input type="radio" name="store-type" value="store">
-      <span>Store</span>
-    </label>
-    <label>
-      <input type="radio" name="store-type" value="lounge">
-      <span>Lounge</span>
-    </label>
-    <label>
-      <input type="radio" name="store-type" value="other">
-      <span>Other</span>
-    </label>
-  </div>
-</body>
-</html>
+      
