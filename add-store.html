@@ -10,18 +10,17 @@
   <div class="form-wrapper">
     <h1>Add Store</h1>
 
-    <!-- Google Maps input + Add button -->
+    <!-- Autocomplete + Add button i samma rad -->
     <div class="autocomplete-row">
-      <input type="text" id="maps-link" placeholder="Paste Google Maps link or search" />
-      <button id="add-btn">Add</button>
+      <gmpx-place-autocomplete id="place-autocomplete" placeholder="Search or paste Google Maps link here"></gmpx-place-autocomplete>
+      <button id="add-btn" type="button">Add</button>
     </div>
 
-    <!-- Preview image -->
-    <img id="preview-image" class="preview-image" style="display:none;" />
+    <!-- Preview Image -->
+    <img id="preview-image" class="preview-image" style="display:none;" alt="Preview">
 
-    <!-- Store form -->
     <label>Store Name</label>
-    <input type="text" id="store-name">
+    <input type="text" id="name">
 
     <label>Address</label>
     <input type="text" id="address">
@@ -41,15 +40,18 @@
     <div class="radio-group">
       <label><input type="radio" name="type" value="store" checked> Store</label>
       <label><input type="radio" name="type" value="lounge"> Lounge</label>
-      <label><input type="radio" name="type" value="cafe"> Other</label>
+      <label><input type="radio" name="type" value="other"> Other</label>
     </div>
 
-    <!-- Star rating -->
-    <div id="star-rating" class="stars">
-      ★★★★★
+    <div class="star-rating" id="star-rating">
+      <span data-value="1">★</span>
+      <span data-value="2">★</span>
+      <span data-value="3">★</span>
+      <span data-value="4">★</span>
+      <span data-value="5">★</span>
     </div>
 
-    <button id="save-btn" class="save-btn">Save</button>
+    <button id="save-btn" type="button">Save</button>
   </div>
 
   <!-- Toast container -->
@@ -58,10 +60,11 @@
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Google Maps API -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete" async defer></script>
-
-  <!-- Custom JS -->
+  <!-- Google Maps JavaScript API med nya element -->
+  <script 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&v=weekly" 
+    async defer>
+  </script>
   <script src="js/add-store.js"></script>
 </body>
 </html>
