@@ -19,7 +19,6 @@ function showToast(msg, type="success") {
 
 // ⭐ Star rating setup
 const starContainer = document.getElementById("star-rating");
-starContainer.innerHTML = ""; // nollställ
 for (let i = 1; i <= 5; i++) {
   const star = document.createElement("span");
   star.classList.add("star");
@@ -35,16 +34,6 @@ for (let i = 1; i <= 5; i++) {
   starContainer.appendChild(star);
 }
 
-}
-document.querySelectorAll("#star-rating span").forEach(star => {
-  star.addEventListener("click", e => {
-    selectedRating = parseInt(e.target.dataset.val);
-    document.querySelectorAll("#star-rating span").forEach((s, idx) => {
-      s.classList.toggle("active", idx < selectedRating);
-    });
-  });
-});
-
 // 📷 Preview helper
 function setPreview(url) {
   const img = document.getElementById("preview-image");
@@ -57,8 +46,8 @@ function setPreview(url) {
   }
 }
 
-// ➕ Add button → fill form
-document.getElementById("addBtn").addEventListener("click", () => {
+// ➕ Add button → Google + Supabase insert
+document.getElementById("addBtn").addEventListener("click", async () => {
   const autocompleteEl = document.getElementById("place-autocomplete");
   const place = autocompleteEl.getPlace();
 
@@ -67,6 +56,7 @@ document.getElementById("addBtn").addEventListener("click", () => {
     return;
   }
 
+  // Fyll i fälten från Google Place
   document.getElementById("store-name").value = place.displayName || "";
   document.getElementById("store-address").value = place.formattedAddress || "";
 
@@ -81,23 +71,20 @@ document.getElementById("addBtn").addEventListener("click", () => {
   document.getElementById("store-phone").value = place.internationalPhoneNumber || "";
   document.getElementById("store-website").value = place.websiteUri || "";
 
-  // Save lat/lng
+  // Lat/Lng
   lastLat = place.location?.lat() || null;
   lastLng = place.location?.lng() || null;
 
+  // Bild
   if (place.photos && place.photos.length > 0) {
     setPreview(place.photos[0].getURI({maxWidth:400}));
   } else {
     setPreview(null);
   }
-});
 
-// 💾 Save button → Supabase insert
-document.getElementById("saveBtn").addEventListener("click", async () => {
+  // 📥 Spara till Supabase
   const name = document.getElementById("store-name").value;
   const address = document.getElementById("store-address").value;
-  const city = document.getElementById("store-city").value;
-  const country = document.getElementById("store-country").value;
   const phone = document.getElementById("store-phone").value;
   const website = document.getElementById("store-website").value;
   const type = document.querySelector("input[name='store-type']:checked")?.value;
@@ -125,6 +112,6 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     selectedRating = 0;
     lastLat = null;
     lastLng = null;
-    document.querySelectorAll("#star-rating span").forEach(s=>s.classList.remove("active"));
+    document.querySelectorAll(".star").forEach(s=>s.classList.remove("selected"));
   }
 });
