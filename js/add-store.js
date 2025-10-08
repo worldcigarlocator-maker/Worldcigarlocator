@@ -19,12 +19,22 @@ function showToast(msg, type="success") {
 
 // ⭐ Star rating setup
 const starContainer = document.getElementById("star-rating");
-starContainer.innerHTML = "";
+starContainer.innerHTML = ""; // nollställ
 for (let i = 1; i <= 5; i++) {
-  const span = document.createElement("span");
-  span.textContent = "★";
-  span.dataset.val = i;
-  starContainer.appendChild(span);
+  const star = document.createElement("span");
+  star.classList.add("star");
+  star.dataset.value = i;
+  star.innerHTML = "★";
+  star.addEventListener("click", () => {
+    selectedRating = i;
+    document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
+    for (let j = 0; j < i; j++) {
+      document.querySelectorAll(".star")[j].classList.add("selected");
+    }
+  });
+  starContainer.appendChild(star);
+}
+
 }
 document.querySelectorAll("#star-rating span").forEach(star => {
   star.addEventListener("click", e => {
