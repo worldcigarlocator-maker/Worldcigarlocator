@@ -5,6 +5,8 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 
 let selectedRating = 0;
+let lastLat = null;
+let lastLng = null;
 
 // Toast helper
 function showToast(msg, type="success") {
@@ -53,52 +55,3 @@ document.getElementById("addBtn").addEventListener("click", () => {
   document.getElementById("store-address").value = place.formattedAddress || "";
 
   let city="", country="";
-  place.addressComponents?.forEach(c=>{
-    if (c.types.includes("locality")) city = c.longText;
-    if (c.types.includes("country")) country = c.longText;
-  });
-  document.getElementById("store-city").value = city;
-  document.getElementById("store-country").value = country;
-
-  document.getElementById("store-phone").value = place.internationalPhoneNumber || "";
-  document.getElementById("store-website").value = place.websiteUri || "";
-
-  if (place.photos && place.photos.length > 0) {
-    setPreview(place.photos[0].getURI({maxWidth:400}));
-  } else {
-    setPreview(null);
-  }
-});
-
-// Save button → Supabase insert
-document.getElementById("saveBtn").addEventListener("click", async () => {
-  const name = document.getElementById("store-name").value;
-  const address = document.getElementById("store-address").value;
-  const city = document.getElementById("store-city").value;
-  const country = document.getElementById("store-country").value;
-  const phone = document.getElementById("store-phone").value;
-  const website = document.getElementById("store-website").value;
-  const type = document.querySelector("input[name='store-type']:checked")?.value;
-
-  if (!name || !address || !city || !country) {
-    showToast("Please fill required fields", "error");
-    return;
-  }
-
-  const { error } = await supabase.from("stores").insert([{
-    name, address, city, country, phone, website,
-    type, rating: selectedRating,
-    approved: false
-  }]);
-
-  if (error) {
-    console.error(error);
-    showToast("Error saving store", "error");
-  } else {
-    showToast("Store saved!", "success");
-    document.querySelector("form")?.reset?.();
-    setPreview(null);
-    selectedRating = 0;
-    document.querySelectorAll("#star-rating span").forEach(s=>s.classList.remove("active"));
-  }
-});
