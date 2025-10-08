@@ -2,113 +2,128 @@
 .form-wrapper {
   max-width: 600px;
   margin: 2rem auto;
-  background: #fff;
   padding: 2rem;
-  border-radius: 1rem;
+  background: #fff;
+  border-radius: 16px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   font-family: Arial, sans-serif;
   color: #333;
 }
 
-/* Rubrik */
+/* Heading */
 .form-wrapper h1 {
   text-align: center;
+  color: #b8860b; /* guld */
   margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-  color: #bfa14a; /* guld */
+}
+
+/* Labels */
+form label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: bold;
+  color: #444;
 }
 
 /* Inputs */
-.form-wrapper label {
-  font-weight: bold;
-  display: block;
-  margin-top: 1rem;
-  margin-bottom: 0.3rem;
-}
-
-.form-wrapper input, 
-.form-wrapper select {
+form input,
+gmpx-place-autocomplete {
   width: 100%;
   padding: 0.6rem;
-  border-radius: 0.5rem;
+  margin-top: 0.3rem;
   border: 1px solid #ccc;
+  border-radius: 8px;
   font-size: 1rem;
 }
 
-.form-wrapper input:focus {
-  border-color: #bfa14a;
-  outline: none;
-  box-shadow: 0 0 3px rgba(191,161,74,0.6);
-}
-
-/* Radio group inline */
+/* Radio group */
 .radio-group {
   display: flex;
-  gap: 1rem;
-  margin: 1rem 0;
+  gap: 2rem;
+  margin: 0.5rem 0 1rem 0;
 }
 
 .radio-group label {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.5rem;
   font-weight: normal;
   cursor: pointer;
 }
 
-/* Buttons */
-button {
-  margin-top: 1.5rem;
-  padding: 0.8rem 1.2rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.2s;
+.radio-group input[type="radio"] {
+  margin: 0;
+  transform: scale(1.2);
 }
 
-#addBtn {
-  background: #e6c200;
-  color: #fff;
-}
-
-#addBtn:hover {
-  background: #cfa700;
-}
-
-#saveBtn {
-  background: #333;
-  color: #fff;
-  margin-left: 0.5rem;
-}
-
-#saveBtn:hover {
-  background: #000;
-}
-
-/* Star rating */
+/* Stars */
 .star-rating {
   display: flex;
   gap: 0.5rem;
-  margin: 1rem 0;
+  margin: 0.5rem 0 1rem 0;
 }
 
-.star-rating span {
+.star {
   font-size: 1.8rem;
-  cursor: pointer;
   color: #ccc;
+  cursor: pointer;
   transition: color 0.2s;
 }
 
-.star-rating span.active {
-  color: #e6c200;
+.star.selected {
+  color: #b8860b; /* guld */
 }
 
 /* Preview image */
 #preview-image {
   display: none;
-  margin-top: 1rem;
-  max-width: 100%;
-  border-radius: 0.5rem;
-  box-shadow: 0
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  margin: 1rem 0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Button */
+.btn-container {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+button {
+  background: #b8860b;
+  color: #fff;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #a37408;
+}
+
+/* Toasts */
+#toast-container {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.toast {
+  background: #333;
+  color: #fff;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  opacity: 0.95;
+}
+.toast.success { background: #28a745; }
+.toast.error { background: #dc3545; }
