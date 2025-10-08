@@ -1,79 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Store</title>
-  <link rel="stylesheet" href="css/add-store.css" />
-
-  <!-- Google Maps Web Components -->
-  <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
-
-  <!-- Supabase client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="css/add-store.css">
 </head>
 <body>
   <div class="form-wrapper">
     <h1>Add Store</h1>
-
-    <form id="store-form" onsubmit="return false;">
-      <!-- Google autocomplete -->
-      <label for="place-autocomplete">Search with Google</label>
-      <gmpx-place-autocomplete id="place-autocomplete" placeholder="Search for a place"></gmpx-place-autocomplete>
-
-      <!-- Store fields -->
-      <label for="store-name">Store Name *</label>
-      <input type="text" id="store-name" required />
-
-      <label for="store-address">Address *</label>
-      <input type="text" id="store-address" required />
-
-      <label for="store-city">City *</label>
-      <input type="text" id="store-city" required />
-
-      <label for="store-country">Country *</label>
-      <input type="text" id="store-country" required />
-
-      <label for="store-phone">Phone</label>
-      <input type="text" id="store-phone" />
-
-      <label for="store-website">Website</label>
-      <input type="url" id="store-website" />
-
-      <!-- Store type radios -->
-      <label>Store Type</label>
+    
+    <!-- Store Type -->
+    <div class="form-section">
+      <label for="store-type">Store Type</label>
       <div class="radio-group">
         <label>
-          <input type="radio" name="store-type" value="store" />
+          <input type="radio" name="store-type" value="store">
           <span>Store</span>
         </label>
         <label>
-          <input type="radio" name="store-type" value="lounge" />
+          <input type="radio" name="store-type" value="lounge">
           <span>Lounge</span>
         </label>
         <label>
-          <input type="radio" name="store-type" value="other" />
+          <input type="radio" name="store-type" value="other">
           <span>Other</span>
         </label>
       </div>
+    </div>
 
-      <!-- Rating -->
-      <label>Rating</label>
-      <div id="star-rating" class="star-rating"></div>
-
-      <!-- Preview image -->
-      <img id="preview-image" alt="Preview" />
-
-      <!-- EN knapp -->
-      <div class="btn-container">
-        <button type="button" id="addBtn">Add Store</button>
+    <!-- Rating -->
+    <div class="form-section">
+      <label for="rating">Rating</label>
+      <div id="rating" class="rating">
+        <span class="star" data-value="1">★</span>
+        <span class="star" data-value="2">★</span>
+        <span class="star" data-value="3">★</span>
+        <span class="star" data-value="4">★</span>
+        <span class="star" data-value="5">★</span>
       </div>
-    </form>
+    </div>
+
+    <!-- Button -->
+    <button type="button" id="addBtn">Add Store</button>
   </div>
 
-  <!-- Toasts -->
+  <!-- Toast container -->
   <div id="toast-container"></div>
 
+  <!-- JS -->
   <script src="js/add-store.js"></script>
 </body>
 </html>
