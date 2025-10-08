@@ -44,13 +44,16 @@
       <label>Store Type</label>
       <div class="radio-group">
         <label>
-          <input type="radio" name="store-type" value="store" /> Store
+          <input type="radio" name="store-type" value="store" />
+          <span>Store</span>
         </label>
         <label>
-          <input type="radio" name="store-type" value="lounge" /> Lounge
+          <input type="radio" name="store-type" value="lounge" />
+          <span>Lounge</span>
         </label>
         <label>
-          <input type="radio" name="store-type" value="other" /> Other
+          <input type="radio" name="store-type" value="other" />
+          <span>Other</span>
         </label>
       </div>
 
@@ -61,10 +64,9 @@
       <!-- Preview image -->
       <img id="preview-image" alt="Preview" />
 
-      <!-- Buttons -->
-      <div>
-        <button type="button" id="addBtn">Add with Google</button>
-        <button type="button" id="saveBtn">Save to Supabase</button>
+      <!-- EN knapp -->
+      <div class="btn-container">
+        <button type="button" id="addBtn">Add Store</button>
       </div>
     </form>
   </div>
@@ -75,4 +77,3 @@
   <script src="js/add-store.js"></script>
 </body>
 </html>
-
