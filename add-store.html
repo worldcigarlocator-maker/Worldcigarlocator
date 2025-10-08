@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Store</title>
-  <link rel="stylesheet" href="css/add-store.css">
+  <link rel="stylesheet" href="css/add-store.css" />
 </head>
 <body>
   <div class="form-wrapper">
@@ -12,54 +12,58 @@
 
     <!-- Google Maps link input -->
     <div class="maps-input-row">
-      <input type="text" id="mapsLink" placeholder="Paste Google Maps link here" />
-      <button id="addBtn">Add</button>
+      <input id="maps-link" type="text" placeholder="Paste Google Maps link here" />
+      <button id="add-btn">Add</button>
     </div>
 
-    <!-- Image preview -->
-    <img id="preview-image" alt="Preview" />
+    <!-- Preview image -->
+    <img id="preview-image" alt="Preview" style="display: none;" />
 
-    <!-- Store form -->
-    <label for="storeName">Store Name</label>
-    <input type="text" id="storeName" />
+    <!-- Store details -->
+    <label>Store Name</label>
+    <input id="store-name" type="text"/>
 
-    <label for="address">Address</label>
-    <input type="text" id="address" />
+    <label>Address</label>
+    <input id="address" type="text"/>
 
-    <label for="city">City</label>
-    <input type="text" id="city" />
+    <label>City</label>
+    <input id="city" type="text"/>
 
-    <label for="country">Country</label>
-    <input type="text" id="country" />
+    <label>Country</label>
+    <input id="country" type="text"/>
 
-    <label for="phone">Phone</label>
-    <input type="tel" id="phone" />
+    <label>Phone</label>
+    <input id="phone" type="text"/>
 
-    <label for="website">Website</label>
-    <input type="url" id="website" />
+    <label>Website</label>
+    <input id="website" type="text"/>
 
-    <div class="radio-group">
-      <label><input type="radio" name="type" value="store" checked /> Store</label>
-      <label><input type="radio" name="type" value="lounge" /> Lounge</label>
-      <label><input type="radio" name="type" value="other" /> Other</label>
+    <!-- Type -->
+    <div class="type-row">
+      <label><input type="radio" name="type" value="store" checked/> Store</label>
+      <label><input type="radio" name="type" value="lounge"/> Lounge</label>
+      <label><input type="radio" name="type" value="other"/> Other</label>
     </div>
 
-    <div class="stars" id="starRating">
-      <span class="star" data-value="1">&#9733;</span>
-      <span class="star" data-value="2">&#9733;</span>
-      <span class="star" data-value="3">&#9733;</span>
-      <span class="star" data-value="4">&#9733;</span>
-      <span class="star" data-value="5">&#9733;</span>
+    <!-- Rating -->
+    <div class="stars" id="star-rating">
+      <span data-value="1">★</span>
+      <span data-value="2">★</span>
+      <span data-value="3">★</span>
+      <span data-value="4">★</span>
+      <span data-value="5">★</span>
     </div>
 
-    <button id="saveBtn">Save</button>
+    <!-- Save button -->
+    <button id="save-btn">Save</button>
   </div>
 
   <!-- Toast container -->
   <div id="toast-container"></div>
 
-  <!-- Supabase client -->
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
   <!-- Google Maps API -->
   <script 
