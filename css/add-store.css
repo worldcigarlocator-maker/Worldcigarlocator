@@ -68,38 +68,40 @@ input[type="tel"]:focus {
 
 /* === Buttons === */
 button {
-  padding: 10px 18px;
   border: none;
-  border-radius: 10px;
-  font-size: 15px;
+  padding: 0.9rem 1.4rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
-  font-weight: bold;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-/* Add-knappen – ljusare guld */
+/* Add-knappen – lite mindre men samma starka guld */
 #add-btn {
-  background: linear-gradient(135deg, #f7d87c, #e5c469);
-  color: #fff;
-}
-#add-btn:hover {
-  background: linear-gradient(135deg, #f0c93a, #d4af37);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-}
-
-/* Save-knappen – stark mörkguld */
-.save-btn {
-  margin-top: 1.5rem;
-  width: 100%;
   background: linear-gradient(135deg, #d4af37, #b8860b);
   color: #fff;
+  padding: 0.7rem 1.1rem; /* mindre än Save */
+  font-size: 0.9rem;
 }
-.save-btn:hover {
+#add-btn:hover {
   background: linear-gradient(135deg, #c19e34, #a07500);
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 10px rgba(212,175,55,0.4);
+}
+
+/* Save-knappen – större, tydlig huvudknapp */
+#save-btn {
+  background: linear-gradient(135deg, #d4af37, #b8860b);
+  color: #fff;
+  padding: 1rem 1.6rem;
+  font-size: 1rem;
+  width: 100%;
+}
+#save-btn:hover {
+  background: linear-gradient(135deg, #c19e34, #a07500);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(212,175,55,0.5);
 }
 
 /* === Radio group (Store / Lounge / Other) === */
