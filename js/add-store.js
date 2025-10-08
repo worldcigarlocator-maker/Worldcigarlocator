@@ -33,7 +33,7 @@ function fillFormFromPlace(place) {
 
   const preview = document.getElementById("preview-image");
   if (lastPhotoReference) {
-    preview.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${lastPhotoReference}&key=DIN_GOOGLE_KEY`;
+    preview.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${lastPhotoReference}&key=YOUR_GOOGLE_KEY`;
     preview.style.display = "block";
   } else {
     preview.style.display = "none";
@@ -62,7 +62,7 @@ document.getElementById("save-btn").addEventListener("click", async () => {
   const type = document.querySelector("input[name='type']:checked")?.value || null;
 
   if (!name || !address || !city || !country) {
-    showToast("Fyll i alla obligatoriska fält.", "error");
+    showToast("Please fill in all required fields.", "error");
     return;
   }
 
@@ -83,10 +83,9 @@ document.getElementById("save-btn").addEventListener("click", async () => {
 
   if (error) {
     console.error(error);
-    showToast("Fel vid sparande!", "error");
+    showToast("Error while saving!", "error");
   } else {
-    showToast("Butiken sparades för granskning ✅");
-    document.querySelector("form")?.reset?.();
+    showToast("Store saved for review ✅");
   }
 });
 
