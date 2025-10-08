@@ -111,3 +111,15 @@ button:hover {
 }
 .toast.success { background: #28a745; }
 .toast.error { background: #dc3545; }
+
+gmpx-place-autocomplete {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #fff;
+  box-sizing: border-box;
+}
