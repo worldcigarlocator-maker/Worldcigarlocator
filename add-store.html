@@ -2,53 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Store</title>
   <link rel="stylesheet" href="css/add-store.css">
+  <!-- Google Maps Web Component -->
+  <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <div class="form-wrapper">
     <h1>Add Store</h1>
-    
-    <!-- Store Type -->
-    <div class="form-section">
-      <label for="store-type">Store Type</label>
-      <div class="radio-group">
-        <label>
-          <input type="radio" name="store-type" value="store">
-          <span>Store</span>
-        </label>
-        <label>
-          <input type="radio" name="store-type" value="lounge">
-          <span>Lounge</span>
-        </label>
-        <label>
-          <input type="radio" name="store-type" value="other">
-          <span>Other</span>
-        </label>
+    <form id="storeForm">
+      
+      <!-- Store Name -->
+      <div class="form-section">
+        <label for="storeName">Store Name</label>
+        <input type="text" id="storeName" name="storeName" required>
       </div>
-    </div>
 
-    <!-- Rating -->
-    <div class="form-section">
-      <label for="rating">Rating</label>
-      <div id="rating" class="rating">
-        <span class="star" data-value="1">★</span>
-        <span class="star" data-value="2">★</span>
-        <span class="star" data-value="3">★</span>
-        <span class="star" data-value="4">★</span>
-        <span class="star" data-value="5">★</span>
+      <!-- Address with Google Autocomplete -->
+      <div class="form-section">
+        <label for="storeAddress">Address</label>
+        <gmpx-place-autocomplete id="storeAddress" placeholder="Search address..."></gmpx-place-autocomplete>
       </div>
-    </div>
 
-    <!-- Button -->
-    <button type="button" id="addBtn">Add Store</button>
+      <!-- City -->
+      <div class="form-section">
+        <label for="city">City</label>
+        <input type="text" id="city" name="city">
+      </div>
+
+      <!-- Country -->
+      <div class="form-section">
+        <label for="country">Country</label>
+        <input type="text" id="country" name="country">
+      </div>
+
+      <!-- Phone -->
+      <div class="form-section">
+        <label for="phone">Phone</label>
+        <input type="text" id="phone" name="phone">
+      </div>
+
+      <!-- Website -->
+      <div class="form-section">
+        <label for="website">Website</label>
+        <input type="url" id="website" name="website">
+      </div>
+
+      <!-- Store Type -->
+      <div class="form-section">
+        <label>Store Type</label>
+        <div class="radio-group">
+          <label><input type="radio" name="store-type" value="store"><span>Store</span></label>
+          <label><input type="radio" name="store-type" value="lounge"><span>Lounge</span></label>
+          <label><input type="radio" name="store-type" value="other"><span>Other</span></label>
+        </div>
+      </div>
+
+      <!-- Rating -->
+      <div class="form-section">
+        <label>Rating</label>
+        <div id="rating" class="rating">
+          <span class="star" data-value="1">★</span>
+          <span class="star" data-value="2">★</span>
+          <span class="star" data-value="3">★</span>
+          <span class="star" data-value="4">★</span>
+          <span class="star" data-value="5">★</span>
+        </div>
+      </div>
+
+      <!-- Preview image from Google -->
+      <div class="form-section">
+        <img id="previewImage" style="max-width:100%; display:none; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1);" />
+      </div>
+
+      <button type="submit" id="addBtn">Add Store</button>
+    </form>
   </div>
 
-  <!-- Toast container -->
   <div id="toast-container"></div>
 
-  <!-- JS -->
   <script src="js/add-store.js"></script>
 </body>
 </html>
