@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -8,11 +8,11 @@
 </head>
 <body>
   <div class="form-wrapper">
-    <h1>Lägg till ny butik</h1>
+    <h1>Add Store</h1>
 
     <!-- Google Autocomplete -->
     <div class="form-group">
-      <label for="autocomplete">Sök butik eller plats</label>
+      <label for="autocomplete">Search store or place</label>
       <gmpx-place-autocomplete id="autocomplete"></gmpx-place-autocomplete>
     </div>
 
@@ -21,38 +21,38 @@
 
     <!-- Store info -->
     <div class="form-group">
-      <label for="name">Butiksnamn</label>
-      <input type="text" id="name" placeholder="Namn"/>
+      <label for="name">Store name</label>
+      <input type="text" id="name" placeholder="Name"/>
     </div>
 
     <div class="form-group">
-      <label for="address">Adress</label>
-      <input type="text" id="address" placeholder="Adress"/>
+      <label for="address">Address</label>
+      <input type="text" id="address" placeholder="Address"/>
     </div>
 
     <div class="form-group">
-      <label for="city">Stad</label>
-      <input type="text" id="city" placeholder="Stad"/>
+      <label for="city">City</label>
+      <input type="text" id="city" placeholder="City"/>
     </div>
 
     <div class="form-group">
-      <label for="country">Land</label>
-      <input type="text" id="country" placeholder="Land"/>
+      <label for="country">Country</label>
+      <input type="text" id="country" placeholder="Country"/>
     </div>
 
     <div class="form-group">
-      <label for="phone">Telefon</label>
+      <label for="phone">Phone</label>
       <input type="text" id="phone" placeholder="+46..."/>
     </div>
 
     <div class="form-group">
-      <label for="website">Webbplats</label>
+      <label for="website">Website</label>
       <input type="url" id="website" placeholder="https://"/>
     </div>
 
     <!-- Store type -->
     <div class="form-group">
-      <label>Typ</label>
+      <label>Type</label>
       <div class="radio-group">
         <label><input type="radio" name="type" value="store"/> Store</label>
         <label><input type="radio" name="type" value="lounge"/> Lounge</label>
@@ -62,7 +62,7 @@
 
     <!-- Rating -->
     <div class="form-group">
-      <label>Betyg</label>
+      <label>Rating</label>
       <div class="stars" id="star-container">
         <span class="star" data-value="1">★</span>
         <span class="star" data-value="2">★</span>
@@ -73,7 +73,7 @@
     </div>
 
     <!-- Save -->
-    <button id="save-btn" class="btn-save">Spara</button>
+    <button id="save-btn" class="btn-save">Save</button>
   </div>
 
   <!-- Toast container -->
@@ -82,13 +82,13 @@
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Google Maps API (ny) -->
+  <!-- Google Maps API -->
   <script 
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&v=weekly" 
     async defer>
   </script>
 
-  <!-- Vår logik -->
+  <!-- Custom JS -->
   <script src="js/add-store.js"></script>
 </body>
 </html>
