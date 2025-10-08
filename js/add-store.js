@@ -4,30 +4,64 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 
-let selectedRating = 0;
-let lastPlaceId = null;
-let lastPhotoReference = null;
-
-// Toast helper
-function showToast(message, type = "success") {
-  const container = document.getElementById("toast-container");
-  const toast = document.createElement("div");
-  toast.className = `toast ${type}`;
-  toast.innerText = message;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+// ⭐ Rating logic
+let currentRating = 0;
+document.getElementById("star-container").innerHTML = "";
+for (let i = 1; i <= 5; i++) {
+  const star = document.createElement("span");
+  star.textContent = "★";
+  star.classList.add("star");
+  star.addEventListener("mouseover", () => highlightStars(i));
+  star.addEventListener("click", () => setRating(i));
+  document.getElementById("star-container").appendChild(star);
+}
+function highlightStars(r) {
+  document.querySelectorAll(".star").forEach((s, i) =>
+    s.style.color = i < r ? "gold" : "#ccc"
+  );
+}
+function setRating(r) {
+  currentRating = r;
+  highlightStars(r);
 }
 
-// Fill form from PlaceResult
+// 🔎 Autocomplete
+let autocomplete;
+window.initMap = function() {
+  const input = document.getElementById("maps-input");
+  autocomplete = new google.maps.places.Autocomplete(input, {
+    fields: ["place_id", "name", "formatted_address", "geometry", "address_components", "photos"]
+  });
+  autocomplete.addListener("place_changed", () => {
+    const place = autocomplete.getPlace();
+    if (!place.place_id) return;
+    fillFormFromPlace(place);
+  });
+};
+window.addEventListener("load", () => {
+  if (typeof google !== "undefined") window.initMap();
+});
+
+// 📋 Add button (parse Maps link)
+document.getElementById("add-btn").addEventListener("click", () => {
+  const link = document.getElementById("maps-input").value.trim();
+  if (link.includes("google.com/maps")) {
+    const match = link.match(/place\/.*?\/(@|data=)?/);
+    if (match) {
+      showToast("Parsing link...", "info");
+      // Förenklad: här kan du extrahera place_id om du vill
+    } else {
+      showToast("Invalid Google Maps link", "error");
+    }
+  }
+});
+
+// 📝 Fill form
 function fillFormFromPlace(place) {
-  if (!place) return;
   document.getElementById("name").value = place.name || "";
   document.getElementById("address").value = place.formatted_address || "";
-  document.getElementById("phone").value = place.formatted_phone_number || "";
-  document.getElementById("website").value = place.website || "";
 
-  let city = "";
-  let country = "";
+  let city = "", country = "";
   if (place.address_components) {
     place.address_components.forEach(c => {
       if (c.types.includes("locality")) city = c.long_name;
@@ -37,57 +71,16 @@ function fillFormFromPlace(place) {
   document.getElementById("city").value = city;
   document.getElementById("country").value = country;
 
-  lastPlaceId = place.place_id || null;
-  lastPhotoReference = (place.photos && place.photos.length > 0) 
-    ? place.photos[0].photo_reference 
-    : null;
-
-  const img = document.getElementById("preview-image");
-  if (lastPhotoReference) {
-    img.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${lastPhotoReference}&key=DIN_GOOGLE_KEY`;
-    img.style.display = "block";
+  const imgEl = document.getElementById("preview-image");
+  if (place.photos && place.photos.length > 0) {
+    imgEl.src = place.photos[0].getUrl({maxWidth: 400});
+    imgEl.style.display = "block";
   } else {
-    img.style.display = "none";
+    imgEl.style.display = "none";
   }
 }
 
-// Handle Add button → parse Maps link manually
-document.getElementById("add-btn").addEventListener("click", () => {
-  const input = document.getElementById("place-autocomplete");
-  const val = input.value.trim();
-  if (!val) return showToast("Please enter a Google Maps link or search", "error");
-
-  // Extract place ID from link
-  const match = val.match(/place\/.*?\/(.*?)\?/) || val.match(/placeid=(.*)/);
-  if (!match) return showToast("Invalid Google Maps link", "error");
-
-  const placeId = match[1];
-  const service = new google.maps.places.PlacesService(document.createElement("div"));
-  service.getDetails({ placeId, fields: ["name","formatted_address","address_components","formatted_phone_number","website","place_id","photos"] }, (place, status) => {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      fillFormFromPlace(place);
-    } else {
-      showToast("Failed to fetch place details", "error");
-    }
-  });
-});
-
-// Handle autocomplete (new API element)
-window.addEventListener("DOMContentLoaded", () => {
-  const el = document.getElementById("place-autocomplete");
-  el.addEventListener("gmpx-placechange", () => {
-    const place = el.value;
-    // Get details via PlacesService
-    const service = new google.maps.places.PlacesService(document.createElement("div"));
-    service.getDetails({ placeId: place.id, fields: ["name","formatted_address","address_components","formatted_phone_number","website","place_id","photos"] }, (res, status) => {
-      if (status === google.maps.places.PlacesServiceStatus.OK) {
-        fillFormFromPlace(res);
-      }
-    });
-  });
-});
-
-// Save button
+// 💾 Save store
 document.getElementById("save-btn").addEventListener("click", async () => {
   const name = document.getElementById("name").value.trim();
   const address = document.getElementById("address").value.trim();
@@ -95,37 +88,30 @@ document.getElementById("save-btn").addEventListener("click", async () => {
   const country = document.getElementById("country").value.trim();
   const phone = document.getElementById("phone").value.trim();
   const website = document.getElementById("website").value.trim();
-  const type = document.querySelector('input[name="type"]:checked').value;
+  const type = document.querySelector("input[name='type']:checked")?.value || null;
 
-  if (!name || !address || !city || !country) {
-    return showToast("Please fill in all required fields", "error");
+  if (!name || !address || !city || !country || !type) {
+    showToast("Please fill required fields", "error");
+    return;
   }
 
   const { error } = await supabase.from("stores").insert([{
-    name, address, city, country, phone, website, type,
-    rating: selectedRating,
-    place_id: lastPlaceId,
-    photo_reference: lastPhotoReference,
-    approved: false,
-    flagged: false
+    name, address, city, country, phone, website, type, rating: currentRating, approved: false
   }]);
 
   if (error) {
     showToast("Error saving store", "error");
-    console.error(error);
   } else {
-    showToast("Store saved for review!", "success");
-    document.querySelector("form")?.reset();
-    document.getElementById("preview-image").style.display = "none";
+    showToast("Store saved (pending approval)", "success");
+    document.querySelector("form")?.reset?.();
   }
 });
 
-// Rating stars
-document.querySelectorAll("#star-rating span").forEach(star => {
-  star.addEventListener("click", () => {
-    selectedRating = parseInt(star.dataset.value);
-    document.querySelectorAll("#star-rating span").forEach(s => {
-      s.classList.toggle("active", parseInt(s.dataset.value) <= selectedRating);
-    });
-  });
-});
+// 🔔 Toast
+function showToast(msg, type="info") {
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  document.getElementById("toast-container").appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
