@@ -7,14 +7,18 @@ const supabase = window.supabase.createClient(
 
 let selectedRating = 0;
 
-// ⭐ Rating stars
-document.querySelectorAll(".star").forEach(star => {
+// ⭐ Rating stars with hover + click
+const stars = document.querySelectorAll(".star");
+stars.forEach((star, index) => {
+  star.addEventListener("mouseover", () => {
+    stars.forEach((s, i) => s.classList.toggle("hover", i <= index));
+  });
+  star.addEventListener("mouseout", () => {
+    stars.forEach(s => s.classList.remove("hover"));
+  });
   star.addEventListener("click", () => {
-    selectedRating = parseInt(star.dataset.value);
-    document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
-    for (let i = 0; i < selectedRating; i++) {
-      document.querySelectorAll(".star")[i].classList.add("selected");
-    }
+    selectedRating = index + 1;
+    stars.forEach((s, i) => s.classList.toggle("selected", i < selectedRating));
   });
 });
 
@@ -85,7 +89,7 @@ document.getElementById("storeForm").addEventListener("submit", async (e) => {
   } else {
     showToast("Store saved successfully!");
     document.getElementById("storeForm").reset();
-    document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
+    stars.forEach(s => s.classList.remove("selected"));
     selectedRating = 0;
     document.getElementById("previewImage").style.display = "none";
   }
