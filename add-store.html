@@ -2,67 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Store</title>
-  <link rel="stylesheet" href="css/add-store.css" />
-
-  <!-- Google Maps JavaScript API -->
-  <script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" 
-    async defer>
-  </script>
+  <link rel="stylesheet" href="css/add-store.css"/>
 </head>
 <body>
   <div class="form-wrapper">
     <h1>Add Store</h1>
 
-    <form id="store-form">
-      <!-- Store name -->
-      <label for="name">Store Name</label>
-      <input type="text" id="name" placeholder="Enter store name" required />
-
-      <!-- Address with Google Autocomplete -->
-      <label for="place">Address</label>
+    <!-- Autocomplete row -->
+    <div class="autocomplete-row">
       <gmpx-place-autocomplete
-        id="place"
-        placeholderattribute="Search for address"
-      ></gmpx-place-autocomplete>
+        id="place-autocomplete"
+        placeholder="Search for a store">
+      </gmpx-place-autocomplete>
+      <button id="addBtn">Add</button>
+    </div>
 
-      <!-- Rating -->
-      <label>Rating</label>
-      <div class="stars">
-        <span class="star" data-value="1">★</span>
-        <span class="star" data-value="2">★</span>
-        <span class="star" data-value="3">★</span>
-        <span class="star" data-value="4">★</span>
-        <span class="star" data-value="5">★</span>
-      </div>
+    <!-- Preview -->
+    <img id="preview-image" class="preview" alt="Preview" style="display:none;"/>
 
-      <!-- Type -->
-      <label>Type</label>
-      <div class="radio-group">
-        <label><input type="radio" name="type" value="store" required /> Store</label>
-        <label><input type="radio" name="type" value="lounge" /> Lounge</label>
-        <label><input type="radio" name="type" value="other" /> Other</label>
-      </div>
+    <!-- Store fields -->
+    <label>Store Name</label>
+    <input type="text" id="store-name"/>
 
-      <!-- Submit -->
-      <button type="submit" class="btn-submit">Add Store</button>
-    </form>
+    <label>Address</label>
+    <input type="text" id="store-address"/>
+
+    <label>City</label>
+    <input type="text" id="store-city"/>
+
+    <label>Country</label>
+    <input type="text" id="store-country"/>
+
+    <label>Phone</label>
+    <input type="text" id="store-phone"/>
+
+    <label>Website</label>
+    <input type="text" id="store-website"/>
+
+    <!-- Store type -->
+    <div class="radio-group">
+      <label><input type="radio" name="store-type" value="store" checked/> Store</label>
+      <label><input type="radio" name="store-type" value="lounge"/> Lounge</label>
+      <label><input type="radio" name="store-type" value="other"/> Other</label>
+    </div>
+
+    <!-- Rating -->
+    <div class="star-rating" id="star-rating">
+      ★★★★★
+    </div>
+
+    <!-- Save button -->
+    <button id="saveBtn" class="save">Save</button>
   </div>
 
-  <script>
-    // Rating stars
-    let selectedRating = 0;
-    document.querySelectorAll(".star").forEach(star => {
-      star.addEventListener("click", () => {
-        selectedRating = parseInt(star.dataset.value);
-        document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
-        for (let i = 0; i < selectedRating; i++) {
-          document.querySelectorAll(".star")[i].classList.add("selected");
-        }
-      });
-    });
-  </script>
+  <!-- Toast container -->
+  <div id="toast-container"></div>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Google Maps API -->
+ <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" async defer></script>
+  <!-- Custom JS -->
+  <script src="js/add-store.js"></script>
 </body>
 </html>
+
