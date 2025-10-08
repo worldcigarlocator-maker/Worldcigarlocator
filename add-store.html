@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Store</title>
   <link rel="stylesheet" href="css/add-store.css" />
 
   <!-- Google Maps Web Components -->
   <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
+
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -15,57 +16,63 @@
   <div class="form-wrapper">
     <h1>Add Store</h1>
 
-    <!-- Google Autocomplete -->
-    <label for="place-autocomplete">Search Address</label>
-    <gmpx-place-autocomplete
-      id="place-autocomplete"
-      placeholder="Search for address"
-    ></gmpx-place-autocomplete>
-    <button id="addBtn" type="button">Add</button>
+    <form id="store-form" onsubmit="return false;">
+      <!-- Google autocomplete -->
+      <label for="place-autocomplete">Search with Google</label>
+      <gmpx-place-autocomplete id="place-autocomplete" placeholder="Search for a place"></gmpx-place-autocomplete>
 
-    <form id="store-form">
-      <label for="store-name">Store Name</label>
+      <!-- Store fields -->
+      <label for="store-name">Store Name *</label>
       <input type="text" id="store-name" required />
 
-      <label for="store-address">Address</label>
+      <label for="store-address">Address *</label>
       <input type="text" id="store-address" required />
 
-      <label for="store-city">City</label>
+      <label for="store-city">City *</label>
       <input type="text" id="store-city" required />
 
-      <label for="store-country">Country</label>
+      <label for="store-country">Country *</label>
       <input type="text" id="store-country" required />
 
       <label for="store-phone">Phone</label>
       <input type="text" id="store-phone" />
 
       <label for="store-website">Website</label>
-      <input type="text" id="store-website" />
+      <input type="url" id="store-website" />
 
-      <img id="preview-image" class="preview" style="display:none" />
+      <!-- Store type radios -->
+      <label>Store Type</label>
+      <div class="radio-group">
+        <label>
+          <input type="radio" name="store-type" value="store" /> Store
+        </label>
+        <label>
+          <input type="radio" name="store-type" value="lounge" /> Lounge
+        </label>
+        <label>
+          <input type="radio" name="store-type" value="other" /> Other
+        </label>
+      </div>
 
-   <div class="radio-group">
-  <label>
-    <input type="radio" name="store-type" value="store"> Store
-  </label>
-  <label>
-    <input type="radio" name="store-type" value="lounge"> Lounge
-  </label>
-  <label>
-    <input type="radio" name="store-type" value="other"> Other
-  </label>
-</div>
-
+      <!-- Rating -->
       <label>Rating</label>
-      <div id="star-rating" class="star-rating">★★★★★</div>
+      <div id="star-rating" class="star-rating"></div>
 
-      <button type="button" id="saveBtn" class="save">Save Store</button>
+      <!-- Preview image -->
+      <img id="preview-image" alt="Preview" />
+
+      <!-- Buttons -->
+      <div>
+        <button type="button" id="addBtn">Add with Google</button>
+        <button type="button" id="saveBtn">Save to Supabase</button>
+      </div>
     </form>
   </div>
 
+  <!-- Toasts -->
   <div id="toast-container"></div>
 
-  <!-- Main JS -->
   <script src="js/add-store.js"></script>
 </body>
 </html>
+
