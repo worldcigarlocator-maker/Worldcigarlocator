@@ -1,3 +1,27 @@
+/* Endast styling för Google Place Autocomplete */
+gmpx-place-autocomplete::part(container) {
+  display: block;
+  width: 100%;
+  border: 2px solid #FFD700; /* samma guld som de andra */
+  border-radius: 8px;
+  background-color: #333;    /* matchar dina inputs */
+  box-sizing: border-box;
+}
+
+gmpx-place-autocomplete::part(input) {
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 1rem;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: white;
+}
+
+gmpx-place-autocomplete::part(input)::placeholder {
+  color: #ccc;
+}
+
 body {
   font-family: Arial, sans-serif;
   background-color: #111;
