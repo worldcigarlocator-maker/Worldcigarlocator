@@ -1,54 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Store</title>
   <link rel="stylesheet" href="css/add-store.css">
-
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Google Maps JavaScript API (replace with your key) -->
-  <script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" 
-    async defer>
-  </script>
-
-  <!-- Google Maps Extended Components -->
-  <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library@0.6.10"></script>
 </head>
 <body>
   <div class="form-wrapper">
     <h1>Add Store</h1>
 
-    <!-- Google autocomplete -->
+    <!-- Google Autocomplete -->
     <label for="autocomplete">Add with Google</label>
-    <gmpx-place-autocomplete
-      id="autocomplete"
-      placeholder="Search by name or address"
-    ></gmpx-place-autocomplete>
+    <gmpx-place-autocomplete id="autocomplete"></gmpx-place-autocomplete>
 
-    <!-- Store details -->
+    <!-- Store Details -->
     <label for="name">Store Name</label>
-    <input type="text" id="name" placeholder="Store name">
+    <input type="text" id="name" placeholder="Enter store name">
 
     <label for="address">Address</label>
-    <input type="text" id="address" placeholder="Street address">
+    <input type="text" id="address" placeholder="Enter address">
 
     <label for="city">City</label>
-    <input type="text" id="city" placeholder="City">
+    <input type="text" id="city" placeholder="Enter city">
 
     <label for="country">Country</label>
-    <input type="text" id="country" placeholder="Country">
+    <input type="text" id="country" placeholder="Enter country">
 
     <label for="phone">Phone</label>
-    <input type="text" id="phone" placeholder="Phone number">
+    <input type="text" id="phone" placeholder="Enter phone number">
 
     <label for="website">Website</label>
-    <input type="text" id="website" placeholder="Website URL">
+    <input type="text" id="website" placeholder="Enter website">
 
-    <!-- Store type -->
+    <!-- Store Type -->
     <div class="radio-group">
       <label><input type="radio" name="type" value="store"> Store</label>
       <label><input type="radio" name="type" value="lounge"> Lounge</label>
@@ -56,24 +41,30 @@
     </div>
 
     <!-- Rating -->
+    <label>Rating</label>
     <div class="rating">
-      <span data-value="1">★</span>
-      <span data-value="2">★</span>
-      <span data-value="3">★</span>
-      <span data-value="4">★</span>
-      <span data-value="5">★</span>
+      <span class="star" data-value="1">★</span>
+      <span class="star" data-value="2">★</span>
+      <span class="star" data-value="3">★</span>
+      <span class="star" data-value="4">★</span>
+      <span class="star" data-value="5">★</span>
     </div>
 
-    <!-- Image preview -->
-    <img id="preview-image" class="preview-image" style="display:none;" />
+    <!-- Preview Image -->
+    <img id="preview-image" class="preview-image" style="display:none;" alt="Preview">
 
-    <!-- Save button -->
-    <button id="save-btn" class="save-btn">Save</button>
+    <!-- Save Button -->
+    <button id="save-btn" class="btn-save">Save</button>
   </div>
 
-  <!-- Toast -->
-  <div id="toast" class="toast"></div>
+  <!-- Toasts -->
+  <div id="toast-container"></div>
 
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/add-store.js"></script>
+  <script async
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places">
+  </script>
 </body>
 </html>
