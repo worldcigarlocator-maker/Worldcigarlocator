@@ -1,157 +1,167 @@
-/* Global */
-body {
-  font-family: Arial, sans-serif;
-  background: #fafafa;
+/* ===== Global Reset ===== */
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: "Arial", sans-serif;
 }
 
-.form-wrapper {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 25px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-h1 {
+body {
+  background: #f8f8f8;
   color: #333;
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  padding: 30px;
 }
 
-/* Inputs & Google field */
-input, gmpx-place-autocomplete {
-  display: block;
-  width: 100% !important;
-  padding: 10px 12px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
+/* ===== Form Wrapper ===== */
+.form-wrapper {
   background: #fff;
-  box-sizing: border-box;
-  cursor: text;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 420px;
 }
 
-input:focus, gmpx-place-autocomplete:focus-within {
+.form-wrapper h1 {
+  text-align: center;
+  color: #d4af37;
+  margin-bottom: 25px;
+}
+
+/* ===== Labels ===== */
+label {
+  display: block;
+  font-weight: bold;
+  margin: 12px 0 6px;
+}
+
+/* ===== Inputs ===== */
+input[type="text"],
+input[type="url"],
+input[type="tel"],
+gmpx-place-autocomplete {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+input:focus,
+gmpx-place-autocomplete:focus {
   border-color: #d4af37;
   outline: none;
-  box-shadow: 0 0 6px rgba(212,175,55,0.5);
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.5);
 }
 
-/* Radio buttons */
-.radio-group {
-  margin: 15px 0;
-}
-.radio-group label {
-  margin-right: 15px;
-  cursor: pointer;
-}
-
-/* Rating stars */
-.rating {
-  font-size: 1.5rem;
-  margin: 15px 0;
-  color: #ccc;
-}
-.rating span {
-  cursor: pointer;
-  transition: color 0.2s, transform 0.2s;
-}
-.rating span:hover {
-  transform: scale(1.2);
-}
-.rating span.active {
-  color: #d4af37;
-}
-
-/* Preview image */
-.preview-image {
-  width: 100%;
-  max-height: 250px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  display: none;
-}
-
-/* Buttons */
-button {
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.save-btn {
-  background: linear-gradient(135deg, #d4af37, #b7950b);
-  color: white;
-  font-weight: bold;
-  width: 100%;
-}
-.save-btn:hover {
-  background: linear-gradient(135deg, #b7950b, #d4af37);
-}
-
-/* Toast */
-.toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #333;
-  color: #fff;
-  padding: 12px 18px;
-  border-radius: 6px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s;
-}
-.toast.show {
-  opacity: 1;
-}
-/* Gör autocomplete-fönstret lika snyggt som andra inputs */
-gmpx-place-autocomplete {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  margin-bottom: 15px;
-  box-sizing: border-box;
-}
-
-/* Stjärnor */
-.rating {
-  display: flex;
-  gap: 5px;
-  font-size: 2rem;
-  cursor: pointer;
-  margin: 10px 0;
-}
-.rating span {
-  color: #ccc;
-  transition: color 0.2s, transform 0.2s;
-}
-.rating span.active {
-  color: gold;
-}
-.rating span:hover {
-  transform: scale(1.2);
-  color: goldenrod;
-}
-
-/* Radio-knappar i rad */
+/* ===== Radio Buttons ===== */
 .radio-group {
   display: flex;
   gap: 15px;
-  margin: 15px 0;
+  margin: 10px 0 20px 0;
 }
+
 .radio-group label {
   display: flex;
   align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.radio-group input[type="radio"] {
+  accent-color: #d4af37; /* guld */
+  cursor: pointer;
+}
+
+/* ===== Rating Stars ===== */
+.rating {
+  font-size: 28px;
+  margin: 10px 0 20px;
+  display: flex;
   gap: 5px;
+}
+
+.star {
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.3s, transform 0.2s;
+}
+
+.star:hover {
+  transform: scale(1.2);
+  color: #d4af37;
+}
+
+.star.selected {
+  color: #d4af37;
+}
+
+/* ===== Preview Image ===== */
+.preview-image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin: 15px 0;
+  display: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* ===== Save Button ===== */
+.btn-save {
+  background: linear-gradient(135deg, #d4af37, #b8860b);
+  color: white;
+  border: none;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 10px;
+  transition: background 0.3s ease, transform 0.2s;
+}
+
+.btn-save:hover {
+  background: linear-gradient(135deg, #b8860b, #d4af37);
+  transform: translateY(-2px);
+}
+
+/* ===== Toast Notifications ===== */
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9999;
+}
+
+.toast {
+  background: #333;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+.toast.success {
+  background: #28a745;
+}
+
+.toast.error {
+  background: #dc3545;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
