@@ -190,3 +190,22 @@ button {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 0.95; transform: translateY(0); }
 }
+/* Google autocomplete field styling */
+.google-input {
+  display: block;
+  width: 100% !important;   /* gör lika bred som övriga inputs */
+  box-sizing: border-box;
+  padding: 10px 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #fff;
+  cursor: text;
+}
+
+.google-input:focus {
+  border-color: #d4af37; /* guld */
+  outline: none;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.5);
+}
