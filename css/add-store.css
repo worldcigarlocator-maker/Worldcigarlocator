@@ -1,101 +1,74 @@
-body {
-  font-family: Arial, sans-serif;
-  background-color: #111;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Store</title>
+  <link rel="stylesheet" href="css/add-store.css">
 
-.form-wrapper {
-  background-color: #222;
-  padding: 2rem;
-  border-radius: 12px;
-  width: 400px;
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-}
+  <!-- Google Maps JavaScript API -->
+  <script 
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"
+    async defer>
+  </script>
 
-h1 {
-  text-align: center;
-  color: gold;
-  margin-bottom: 1.5rem;
-}
+  <!-- Google Maps Place Autocomplete Element -->
+  <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library@0.6.13/dist/index.min.js"></script>
 
-label {
-  display: block;
-  margin: 1rem 0 0.5rem;
-  font-weight: bold;
-  color: gold;
-}
+  <!-- Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div id="form-wrapper" class="form-wrapper">
+    <h1>Add Store</h1>
+    <form id="add-store-form">
+      
+      <!-- Store Name -->
+      <label for="store-name">Store Name</label>
+      <input type="text" id="store-name" name="store-name" placeholder="Enter store name" required>
+      
+      <!-- Google Autocomplete -->
+      <label for="place">Address</label>
+      <gmpx-place-autocomplete
+        id="place"
+        placeholder="Search for address"
+        class="autocomplete-input"
+      ></gmpx-place-autocomplete>
 
-input[type="text"],
-gmpx-place-autocomplete {
-  width: 100%;
-  padding: 0.7rem;
-  border: 2px solid gold;
-  border-radius: 8px;
-  background-color: #333;
-  color: white;
-  font-size: 1rem;
-  outline: none;
-  box-sizing: border-box;
-}
+      <!-- Rating -->
+      <label>Rating</label>
+      <div class="stars">
+        <span class="star" data-value="1">★</span>
+        <span class="star" data-value="2">★</span>
+        <span class="star" data-value="3">★</span>
+        <span class="star" data-value="4">★</span>
+        <span class="star" data-value="5">★</span>
+      </div>
 
-input[type="text"]::placeholder,
-gmpx-place-autocomplete::part(input)::placeholder {
-  color: #ccc;
-}
+      <!-- Type -->
+      <label>Type</label>
+      <div class="radio-group">
+        <label><input type="radio" name="type" value="Store"> Store</label>
+        <label><input type="radio" name="type" value="Lounge"> Lounge</label>
+        <label><input type="radio" name="type" value="Other"> Other</label>
+      </div>
 
-gmpx-place-autocomplete::part(input) {
-  all: unset;
-  width: 100%;
-  padding: 0.7rem;
-  font-size: 1rem;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: white;
-}
+      <button type="submit" class="btn-submit">Add Store</button>
+    </form>
+  </div>
 
-.stars {
-  display: flex;
-  gap: 5px;
-  font-size: 1.5rem;
-  cursor: pointer;
-  margin-top: 0.5rem;
-}
-
-.star {
-  color: #666;
-  transition: color 0.2s;
-}
-
-.star:hover,
-.star.selected {
-  color: gold;
-}
-
-.radio-group {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.btn-submit {
-  width: 100%;
-  padding: 0.8rem;
-  background-color: gold;
-  color: #111;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 1.5rem;
-  font-size: 1rem;
-  transition: background 0.2s;
-}
-
-.btn-submit:hover {
-  background-color: #e6c200;
-}
+  <script>
+    // Rating stars
+    let selectedRating = 0;
+    document.querySelectorAll(".star").forEach(star => {
+      star.addEventListener("click", () => {
+        selectedRating = parseInt(star.dataset.value);
+        document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
+        for (let i = 0; i < selectedRating; i++) {
+          document.querySelectorAll(".star")[i].classList.add("selected");
+        }
+      });
+    });
+  </script>
+</body>
+</html>
