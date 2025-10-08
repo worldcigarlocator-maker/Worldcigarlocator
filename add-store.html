@@ -4,77 +4,70 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add Store</title>
-  <link rel="stylesheet" href="css/add-store.css" />
+  <link rel="stylesheet" href="add-store.css" />
 </head>
 <body>
   <div class="form-wrapper">
     <h1>Add Store</h1>
 
-    <!-- Google Maps link + Add -->
-    <div class="maps-link-row">
+    <!-- Google Maps link input -->
+    <div class="maps-input-row">
       <input type="text" id="mapsLink" placeholder="Paste Google Maps link here" />
-      <button id="addBtn" class="btn-add">Add</button>
+      <button id="addBtn">Add</button>
     </div>
 
-    <!-- NEW Autocomplete input -->
-    <gmpx-place-autocomplete
-      id="autocomplete"
-      placeholder="Search address..."
-      style="width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;">
-    </gmpx-place-autocomplete>
+    <!-- Image preview -->
+    <img id="preview-image" alt="Preview" />
 
-    <!-- Form fields -->
-    <label>Store Name</label>
-    <input type="text" id="name" />
+    <!-- Store form -->
+    <label for="storeName">Store Name</label>
+    <input type="text" id="storeName" />
 
-    <label>Address</label>
+    <label for="address">Address</label>
     <input type="text" id="address" />
 
-    <label>City</label>
+    <label for="city">City</label>
     <input type="text" id="city" />
 
-    <label>Country</label>
+    <label for="country">Country</label>
     <input type="text" id="country" />
 
-    <label>Phone</label>
-    <input type="text" id="phone" />
+    <label for="phone">Phone</label>
+    <input type="tel" id="phone" />
 
-    <label>Website</label>
-    <input type="text" id="website" />
+    <label for="website">Website</label>
+    <input type="url" id="website" />
 
-    <!-- Store type -->
     <div class="radio-group">
       <label><input type="radio" name="type" value="store" checked /> Store</label>
       <label><input type="radio" name="type" value="lounge" /> Lounge</label>
       <label><input type="radio" name="type" value="other" /> Other</label>
     </div>
 
-    <!-- Star rating -->
-    <div id="rating" class="stars">
-      ★★★★★
+    <div class="stars" id="starRating">
+      <span class="star" data-value="1">&#9733;</span>
+      <span class="star" data-value="2">&#9733;</span>
+      <span class="star" data-value="3">&#9733;</span>
+      <span class="star" data-value="4">&#9733;</span>
+      <span class="star" data-value="5">&#9733;</span>
     </div>
 
-    <!-- Image preview -->
-    <div id="photoPreview" style="margin-top:15px;"></div>
-
-    <!-- Save button -->
-    <button id="saveBtn" class="btn-save">Save</button>
+    <button id="saveBtn">Save</button>
   </div>
 
   <!-- Toast container -->
   <div id="toast-container"></div>
 
-  <!-- Supabase -->
+  <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- ✅ Correct Google Maps API -->
+  <!-- Google Maps API -->
   <script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&v=weekly" 
-    async 
-    defer>
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ=places"
+    async defer>
   </script>
 
-  <!-- Custom JS -->
-  <script src="js/add-store.js"></script>
+  <!-- Our script -->
+  <script src="add-store.js"></script>
 </body>
 </html>
