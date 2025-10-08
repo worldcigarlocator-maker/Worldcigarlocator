@@ -8,7 +8,7 @@ body {
 }
 
 h1 {
-  color: #b8860b; /* guld */
+  color: #b8860b;
   margin-bottom: 20px;
 }
 
@@ -46,15 +46,37 @@ input:focus {
   box-shadow: 0 0 4px rgba(184, 134, 11, 0.4);
 }
 
+/* === Google maps input row === */
+.maps-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.maps-input-row input {
+  flex: 1;
+}
+
+#addBtn {
+  background: #daa520;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+#addBtn:hover {
+  background: #b8860b;
+}
+
 /* === Radio buttons === */
 .radio-group {
   display: flex;
   gap: 15px;
   margin: 10px 0 15px;
-}
-
-.radio-group label {
-  font-weight: normal;
 }
 
 /* === Stars === */
@@ -71,36 +93,20 @@ input:focus {
 
 .star:hover,
 .star.selected {
-  color: #b8860b; /* guld */
+  color: #b8860b;
 }
 
-/* === Buttons === */
-button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s;
-}
-
-/* Add-knappen */
-#addBtn {
-  background: #daa520; /* lite ljusare guld */
-  color: #fff;
-  margin-left: 8px;
-}
-
-#addBtn:hover {
-  background: #b8860b;
-}
-
-/* Save-knappen */
+/* === Save button === */
 #saveBtn {
-  background: #b8860b; /* stark guld */
+  background: #b8860b;
   color: #fff;
   width: 100%;
   margin-top: 20px;
+  border: none;
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  font-size: 16px;
 }
 
 #saveBtn:hover {
@@ -112,9 +118,9 @@ button {
   max-width: 100%;
   height: auto;
   border-radius: 8px;
-  margin-top: 10px;
+  margin: 10px 0;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  display: none; /* alltid dold från start – logik visar den i JS */
+  display: none; /* syns bara om JS visar den */
 }
 
 /* === Toast notifications === */
@@ -130,10 +136,5 @@ button {
   z-index: 9999;
 }
 
-.toast.success {
-  background: #4caf50;
-}
-
-.toast.error {
-  background: #e74c3c;
-}
+.toast.success { background: #4caf50; }
+.toast.error { background: #e74c3c; }
