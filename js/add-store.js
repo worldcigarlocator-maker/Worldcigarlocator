@@ -17,19 +17,25 @@ function showToast(msg, type="success") {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// Star rating setup
-const stars = document.getElementById("star-rating").textContent.trim().split("");
-document.getElementById("star-rating").innerHTML = stars.map((s,i) => `<span data-val="${i+1}">★</span>`).join("");
+// ⭐ Star rating setup
+const starContainer = document.getElementById("star-rating");
+starContainer.innerHTML = "";
+for (let i = 1; i <= 5; i++) {
+  const span = document.createElement("span");
+  span.textContent = "★";
+  span.dataset.val = i;
+  starContainer.appendChild(span);
+}
 document.querySelectorAll("#star-rating span").forEach(star => {
   star.addEventListener("click", e => {
-    selectedRating = e.target.dataset.val;
-    document.querySelectorAll("#star-rating span").forEach((s,idx)=>{
+    selectedRating = parseInt(e.target.dataset.val);
+    document.querySelectorAll("#star-rating span").forEach((s, idx) => {
       s.classList.toggle("active", idx < selectedRating);
     });
   });
 });
 
-// Preview helper
+// 📷 Preview helper
 function setPreview(url) {
   const img = document.getElementById("preview-image");
   if (url) {
@@ -41,7 +47,7 @@ function setPreview(url) {
   }
 }
 
-// Add button → fill form from Google place
+// ➕ Add button → fill form
 document.getElementById("addBtn").addEventListener("click", () => {
   const autocompleteEl = document.getElementById("place-autocomplete");
   const place = autocompleteEl.getPlace();
@@ -55,3 +61,60 @@ document.getElementById("addBtn").addEventListener("click", () => {
   document.getElementById("store-address").value = place.formattedAddress || "";
 
   let city="", country="";
+  place.addressComponents?.forEach(c=>{
+    if (c.types.includes("locality")) city = c.longText;
+    if (c.types.includes("country")) country = c.longText;
+  });
+  document.getElementById("store-city").value = city;
+  document.getElementById("store-country").value = country;
+
+  document.getElementById("store-phone").value = place.internationalPhoneNumber || "";
+  document.getElementById("store-website").value = place.websiteUri || "";
+
+  // Save lat/lng
+  lastLat = place.location?.lat() || null;
+  lastLng = place.location?.lng() || null;
+
+  if (place.photos && place.photos.length > 0) {
+    setPreview(place.photos[0].getURI({maxWidth:400}));
+  } else {
+    setPreview(null);
+  }
+});
+
+// 💾 Save button → Supabase insert
+document.getElementById("saveBtn").addEventListener("click", async () => {
+  const name = document.getElementById("store-name").value;
+  const address = document.getElementById("store-address").value;
+  const city = document.getElementById("store-city").value;
+  const country = document.getElementById("store-country").value;
+  const phone = document.getElementById("store-phone").value;
+  const website = document.getElementById("store-website").value;
+  const type = document.querySelector("input[name='store-type']:checked")?.value;
+
+  if (!name || !address || !city || !country) {
+    showToast("Please fill required fields", "error");
+    return;
+  }
+
+  const { error } = await supabase.from("stores").insert([{
+    name, address, city, country, phone, website,
+    type, rating: selectedRating,
+    latitude: lastLat,
+    longitude: lastLng,
+    approved: false
+  }]);
+
+  if (error) {
+    console.error(error);
+    showToast("Error saving store", "error");
+  } else {
+    showToast("Store saved!", "success");
+    document.querySelector("form")?.reset?.();
+    setPreview(null);
+    selectedRating = 0;
+    lastLat = null;
+    lastLng = null;
+    document.querySelectorAll("#star-rating span").forEach(s=>s.classList.remove("active"));
+  }
+});
