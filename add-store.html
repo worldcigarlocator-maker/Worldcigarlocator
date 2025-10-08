@@ -5,71 +5,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Store</title>
   <link rel="stylesheet" href="css/add-store.css" />
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Google Maps JavaScript API -->
+  <script 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" 
+    async 
+    defer>
+  </script>
+
+  <!-- Google Maps Web Components (för gmpx-place-autocomplete) -->
+  <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library@0.6.10"></script>
 </head>
 <body>
   <div class="form-wrapper">
     <h1>Add Store</h1>
 
-    <!-- Google Autocomplete -->
-    <div class="form-group">
-      <label for="autocomplete">Search store or place</label>
-      <gmpx-place-autocomplete id="autocomplete"></gmpx-place-autocomplete>
-    </div>
+    <!-- ✅ Autocomplete fältet -->
+    <label for="autocomplete">Search store or place</label>
+    <gmpx-place-autocomplete
+      id="autocomplete"
+      placeholder="Search store or place"
+      style="display:block; width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; margin-bottom:15px;"
+    ></gmpx-place-autocomplete>
 
     <!-- Preview image -->
-    <img id="preview-image" class="preview-image" style="display:none;" alt="Preview"/>
+    <img id="preview-image" class="preview-image" alt="Preview" style="display:none"/>
 
-    <!-- Store info -->
-    <div class="form-group">
-      <label for="name">Store name</label>
-      <input type="text" id="name" placeholder="Name"/>
-    </div>
+    <!-- Store fields -->
+    <label for="store-name">Store name</label>
+    <input type="text" id="store-name" placeholder="Name" />
 
-    <div class="form-group">
-      <label for="address">Address</label>
-      <input type="text" id="address" placeholder="Address"/>
-    </div>
+    <label for="address">Address</label>
+    <input type="text" id="address" placeholder="Address" />
 
-    <div class="form-group">
-      <label for="city">City</label>
-      <input type="text" id="city" placeholder="City"/>
-    </div>
+    <label for="city">City</label>
+    <input type="text" id="city" placeholder="City" />
 
-    <div class="form-group">
-      <label for="country">Country</label>
-      <input type="text" id="country" placeholder="Country"/>
-    </div>
+    <label for="country">Country</label>
+    <input type="text" id="country" placeholder="Country" />
 
-    <div class="form-group">
-      <label for="phone">Phone</label>
-      <input type="text" id="phone" placeholder="+46..."/>
-    </div>
+    <label for="phone">Phone</label>
+    <input type="text" id="phone" placeholder="+46..." />
 
-    <div class="form-group">
-      <label for="website">Website</label>
-      <input type="url" id="website" placeholder="https://"/>
-    </div>
+    <label for="website">Website</label>
+    <input type="text" id="website" placeholder="https://" />
 
-    <!-- Store type -->
-    <div class="form-group">
-      <label>Type</label>
-      <div class="radio-group">
-        <label><input type="radio" name="type" value="store"/> Store</label>
-        <label><input type="radio" name="type" value="lounge"/> Lounge</label>
-        <label><input type="radio" name="type" value="other"/> Other</label>
-      </div>
+    <!-- Type -->
+    <label>Type</label>
+    <div class="radio-group">
+      <label><input type="radio" name="type" value="store" checked/> Store</label>
+      <label><input type="radio" name="type" value="lounge"/> Lounge</label>
+      <label><input type="radio" name="type" value="other"/> Other</label>
     </div>
 
     <!-- Rating -->
-    <div class="form-group">
-      <label>Rating</label>
-      <div class="stars" id="star-container">
-        <span class="star" data-value="1">★</span>
-        <span class="star" data-value="2">★</span>
-        <span class="star" data-value="3">★</span>
-        <span class="star" data-value="4">★</span>
-        <span class="star" data-value="5">★</span>
-      </div>
+    <label>Rating</label>
+    <div id="rating" class="star-rating">
+      <span data-value="1">★</span>
+      <span data-value="2">★</span>
+      <span data-value="3">★</span>
+      <span data-value="4">★</span>
+      <span data-value="5">★</span>
     </div>
 
     <!-- Save -->
@@ -78,15 +77,6 @@
 
   <!-- Toast container -->
   <div id="toast-container"></div>
-
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Google Maps API -->
-  <script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&v=weekly" 
-    async defer>
-  </script>
 
   <!-- Custom JS -->
   <script src="js/add-store.js"></script>
