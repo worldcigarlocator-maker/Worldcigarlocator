@@ -1,54 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Store</title>
-  <link rel="stylesheet" href="css/add-store.css">
+  <link rel="stylesheet" href="css/add-store.css" />
 </head>
 <body>
   <div class="form-wrapper">
-    <h1>Add Store</h1>
+    <h1>Lägg till ny butik</h1>
 
-    <!-- Input + Add button -->
-    <div class="autocomplete-row">
-      <input id="maps-input" type="text" placeholder="Paste Google Maps link or search...">
-      <button id="add-btn">Add</button>
+    <!-- Google Autocomplete -->
+    <div class="form-group">
+      <label for="autocomplete">Sök butik eller plats</label>
+      <gmpx-place-autocomplete id="autocomplete"></gmpx-place-autocomplete>
     </div>
 
-    <div class="preview-wrapper">
-      <img id="preview-image" class="preview-image" style="display:none;">
+    <!-- Preview image -->
+    <img id="preview-image" class="preview-image" style="display:none;" alt="Preview"/>
+
+    <!-- Store info -->
+    <div class="form-group">
+      <label for="name">Butiksnamn</label>
+      <input type="text" id="name" placeholder="Namn"/>
     </div>
 
-    <label for="name">Store Name</label>
-    <input type="text" id="name">
-
-    <label for="address">Address</label>
-    <input type="text" id="address">
-
-    <label for="city">City</label>
-    <input type="text" id="city">
-
-    <label for="country">Country</label>
-    <input type="text" id="country">
-
-    <label for="phone">Phone</label>
-    <input type="text" id="phone">
-
-    <label for="website">Website</label>
-    <input type="text" id="website">
-
-    <div class="radio-group">
-      <label><input type="radio" name="type" value="store"> Store</label>
-      <label><input type="radio" name="type" value="lounge"> Lounge</label>
-      <label><input type="radio" name="type" value="other"> Other</label>
+    <div class="form-group">
+      <label for="address">Adress</label>
+      <input type="text" id="address" placeholder="Adress"/>
     </div>
 
-    <div class="stars" id="star-container">
-      ★★★★★
+    <div class="form-group">
+      <label for="city">Stad</label>
+      <input type="text" id="city" placeholder="Stad"/>
     </div>
 
-    <button id="save-btn" class="save-btn">Save</button>
+    <div class="form-group">
+      <label for="country">Land</label>
+      <input type="text" id="country" placeholder="Land"/>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Telefon</label>
+      <input type="text" id="phone" placeholder="+46..."/>
+    </div>
+
+    <div class="form-group">
+      <label for="website">Webbplats</label>
+      <input type="url" id="website" placeholder="https://"/>
+    </div>
+
+    <!-- Store type -->
+    <div class="form-group">
+      <label>Typ</label>
+      <div class="radio-group">
+        <label><input type="radio" name="type" value="store"/> Store</label>
+        <label><input type="radio" name="type" value="lounge"/> Lounge</label>
+        <label><input type="radio" name="type" value="other"/> Other</label>
+      </div>
+    </div>
+
+    <!-- Rating -->
+    <div class="form-group">
+      <label>Betyg</label>
+      <div class="stars" id="star-container">
+        <span class="star" data-value="1">★</span>
+        <span class="star" data-value="2">★</span>
+        <span class="star" data-value="3">★</span>
+        <span class="star" data-value="4">★</span>
+        <span class="star" data-value="5">★</span>
+      </div>
+    </div>
+
+    <!-- Save -->
+    <button id="save-btn" class="btn-save">Spara</button>
   </div>
 
   <!-- Toast container -->
@@ -57,13 +82,13 @@
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Google Maps API -->
+  <!-- Google Maps API (ny) -->
   <script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&v=weekly" 
     async defer>
   </script>
 
-  <!-- Custom JS -->
+  <!-- Vår logik -->
   <script src="js/add-store.js"></script>
 </body>
 </html>
