@@ -47,14 +47,9 @@ gmpx-place-autocomplete {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-weight: normal;
   cursor: pointer;
 }
 
-.radio-group input[type="radio"] {
-  margin: 0;
-  transform: scale(1.2);
-}
 
 /* Stars */
 .star-rating {
