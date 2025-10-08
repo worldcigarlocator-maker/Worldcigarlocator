@@ -4,67 +4,53 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Store</title>
-  <link rel="stylesheet" href="css/add-store.css" />
+  <link rel="stylesheet" href="css/add-store.css">
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Google Maps JavaScript API -->
-  <script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places" 
-    async 
-    defer>
-  </script>
-
-  <!-- Google Maps Web Components (för gmpx-place-autocomplete) -->
+  <!-- Google Maps Extended Components -->
   <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library@0.6.10"></script>
 </head>
 <body>
   <div class="form-wrapper">
     <h1>Add Store</h1>
 
-    <!-- ✅ Autocomplete fältet -->
-<label for="autocomplete">Add with Google</label>
-<gmpx-place-autocomplete
-  id="autocomplete"
-  placeholder="Search by name or address"
-  style="width:100%; display:block;"
-></gmpx-place-autocomplete>
+    <!-- Google autocomplete -->
+    <label for="autocomplete">Add with Google</label>
+    <gmpx-place-autocomplete
+      id="autocomplete"
+      placeholder="Search by name or address"
+    ></gmpx-place-autocomplete>
 
-
-    <!-- Preview image -->
-    <img id="preview-image" class="preview-image" alt="Preview" style="display:none"/>
-
-    <!-- Store fields -->
-    <label for="store-name">Store name</label>
-    <input type="text" id="store-name" placeholder="Name" />
+    <!-- Store details -->
+    <label for="name">Store Name</label>
+    <input type="text" id="name" placeholder="Store name">
 
     <label for="address">Address</label>
-    <input type="text" id="address" placeholder="Address" />
+    <input type="text" id="address" placeholder="Street address">
 
     <label for="city">City</label>
-    <input type="text" id="city" placeholder="City" />
+    <input type="text" id="city" placeholder="City">
 
     <label for="country">Country</label>
-    <input type="text" id="country" placeholder="Country" />
+    <input type="text" id="country" placeholder="Country">
 
     <label for="phone">Phone</label>
-    <input type="text" id="phone" placeholder="+46..." />
+    <input type="text" id="phone" placeholder="Phone number">
 
     <label for="website">Website</label>
-    <input type="text" id="website" placeholder="https://" />
+    <input type="text" id="website" placeholder="Website URL">
 
-    <!-- Type -->
-    <label>Type</label>
+    <!-- Store type -->
     <div class="radio-group">
-      <label><input type="radio" name="type" value="store" checked/> Store</label>
-      <label><input type="radio" name="type" value="lounge"/> Lounge</label>
-      <label><input type="radio" name="type" value="other"/> Other</label>
+      <label><input type="radio" name="type" value="store"> Store</label>
+      <label><input type="radio" name="type" value="lounge"> Lounge</label>
+      <label><input type="radio" name="type" value="other"> Other</label>
     </div>
 
     <!-- Rating -->
-    <label>Rating</label>
-    <div id="rating" class="star-rating">
+    <div class="rating">
       <span data-value="1">★</span>
       <span data-value="2">★</span>
       <span data-value="3">★</span>
@@ -72,14 +58,16 @@
       <span data-value="5">★</span>
     </div>
 
-    <!-- Save -->
-    <button id="save-btn" class="btn-save">Save</button>
+    <!-- Image preview -->
+    <img id="preview-image" class="preview-image" style="display:none;" />
+
+    <!-- Save button -->
+    <button id="save-btn" class="save-btn">Save</button>
   </div>
 
-  <!-- Toast container -->
-  <div id="toast-container"></div>
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
 
-  <!-- Custom JS -->
   <script src="js/add-store.js"></script>
 </body>
 </html>
