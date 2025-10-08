@@ -1,38 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add Store</title>
-  <link rel="stylesheet" href="css/add-store.css">
+  <link rel="stylesheet" href="add-store.css" />
 
   <!-- Google Maps JavaScript API -->
   <script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places" 
     async defer>
   </script>
-
-  <!-- Google Maps Place Autocomplete Element -->
-  <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library@0.6.13/dist/index.min.js"></script>
-
-  <!-- Supabase client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div id="form-wrapper" class="form-wrapper">
+  <div class="form-wrapper">
     <h1>Add Store</h1>
-    <form id="add-store-form">
-      
-      <!-- Store Name -->
-      <label for="store-name">Store Name</label>
-      <input type="text" id="store-name" name="store-name" placeholder="Enter store name" required>
-      
-      <!-- Google Autocomplete -->
+
+    <form id="store-form">
+      <!-- Store name -->
+      <label for="name">Store Name</label>
+      <input type="text" id="name" placeholder="Enter store name" required />
+
+      <!-- Address with Google Autocomplete -->
       <label for="place">Address</label>
-     <gmpx-place-autocomplete
-  id="place"
-  placeholderattribute="Search for address"
-></gmpx-place-autocomplete>
+      <gmpx-place-autocomplete
+        id="place"
+        placeholderattribute="Search for address"
+      ></gmpx-place-autocomplete>
 
       <!-- Rating -->
       <label>Rating</label>
@@ -47,11 +41,12 @@
       <!-- Type -->
       <label>Type</label>
       <div class="radio-group">
-        <label><input type="radio" name="type" value="Store"> Store</label>
-        <label><input type="radio" name="type" value="Lounge"> Lounge</label>
-        <label><input type="radio" name="type" value="Other"> Other</label>
+        <label><input type="radio" name="type" value="store" required /> Store</label>
+        <label><input type="radio" name="type" value="lounge" /> Lounge</label>
+        <label><input type="radio" name="type" value="other" /> Other</label>
       </div>
 
+      <!-- Submit -->
       <button type="submit" class="btn-submit">Add Store</button>
     </form>
   </div>
