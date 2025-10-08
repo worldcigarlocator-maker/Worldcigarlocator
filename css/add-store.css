@@ -1,46 +1,43 @@
 /* Wrapper */
-.form-wrapper {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+body {
   font-family: Arial, sans-serif;
+  background: #fff;
   color: #333;
+  margin: 0;
+  padding: 2rem;
 }
 
-/* Heading */
-.form-wrapper h1 {
+.form-wrapper {
+  max-width: 500px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+h1 {
   text-align: center;
-  color: #b8860b; /* guld */
+  margin-bottom: 1.5rem;
+  color: #b8860b;
+}
+
+/* Sections */
+.form-section {
   margin-bottom: 1.5rem;
 }
 
-/* Labels (endast direkta labels i form) */
-form > label {
-  display: block;
-  margin-top: 1rem;
+label {
   font-weight: bold;
-  color: #444;
+  display: block;
+  margin-bottom: 0.5rem;
 }
 
-/* Inputs */
-form input,
-gmpx-place-autocomplete {
-  width: 100%;
-  padding: 0.6rem;
-  margin-top: 0.3rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-
-/* Radio group */
+/* Radio buttons */
 .radio-group {
   display: flex;
   gap: 2rem;
-  margin: 0.5rem 0 1rem 0;
+  margin-top: 0.5rem;
 }
 
 .radio-group label {
@@ -52,54 +49,40 @@ gmpx-place-autocomplete {
 }
 
 .radio-group input[type="radio"] {
-  transform: scale(1.2);
   margin: 0;
+  transform: scale(1.2);
 }
 
-/* Stars */
-.star-rating {
+/* Rating stars */
+.rating {
   display: flex;
   gap: 0.5rem;
-  margin: 0.5rem 0 1rem 0;
 }
 
 .star {
-  font-size: 1.8rem;
-  color: #ccc;
+  font-size: 2rem;
   cursor: pointer;
+  color: #ccc;
   transition: color 0.2s;
 }
 
-.star.selected {
-  color: #b8860b; /* guld */
-}
-
-/* Preview image */
-#preview-image {
-  display: none;
-  width: 100%;
-  max-height: 200px;
-  object-fit: cover;
-  margin: 1rem 0;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+.star.selected,
+.star:hover {
+  color: #b8860b;
 }
 
 /* Button */
-.btn-container {
-  text-align: center;
-  margin-top: 1.5rem;
-}
-
 button {
+  display: block;
+  width: 100%;
+  padding: 0.8rem;
   background: #b8860b;
-  color: #fff;
-  padding: 0.7rem 1.5rem;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
+  color: #fff;
   font-size: 1rem;
   font-weight: bold;
+  cursor: pointer;
   transition: background 0.3s;
 }
 
@@ -127,40 +110,3 @@ button:hover {
 }
 .toast.success { background: #28a745; }
 .toast.error { background: #dc3545; }
-/* Radio buttons */
-.radio-group {
-  display: flex;
-  gap: 2rem; /* avstånd mellan alternativen */
-  margin: 1rem 0;
-}
-
-.radio-group label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  font-weight: normal;
-}
-
-.radio-group input[type="radio"] {
-  margin: 0;
-  transform: scale(1.2);
-}
-
-/* Rating stars */
-#rating {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.star {
-  font-size: 2rem;
-  cursor: pointer;
-  color: #ccc;
-  transition: color 0.2s;
-}
-
-.star.selected,
-.star:hover {
-  color: #b8860b; /* guld */
-}
