@@ -17,8 +17,8 @@
   margin-bottom: 1.5rem;
 }
 
-/* Labels */
-form label {
+/* Labels (endast direkta labels i form) */
+form > label {
   display: block;
   margin-top: 1rem;
   font-weight: bold;
@@ -47,9 +47,14 @@ gmpx-place-autocomplete {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-weight: normal;
   cursor: pointer;
 }
 
+.radio-group input[type="radio"] {
+  transform: scale(1.2);
+  margin: 0;
+}
 
 /* Stars */
 .star-rating {
