@@ -4,117 +4,112 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 
-// === State ===
-let selectedRating = 0;
-let lastPlaceId = null;
-let lastPhotoReference = null;
-
-// === Toast helper ===
-function showToast(message, type = "info") {
-  const toast = document.createElement("div");
-  toast.className = `toast ${type}`;
-  toast.innerText = message;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
 // === Star rating ===
+let selectedRating = 0;
 document.querySelectorAll(".star").forEach(star => {
   star.addEventListener("click", () => {
-    selectedRating = parseInt(star.getAttribute("data-value"));
+    selectedRating = parseInt(star.dataset.value);
     document.querySelectorAll(".star").forEach(s => {
-      s.classList.toggle("selected", parseInt(s.getAttribute("data-value")) <= selectedRating);
+      s.classList.toggle("selected", s.dataset.value <= selectedRating);
     });
   });
 });
 
-// === Fyll formulär från Google Place ===
-function fillFormFromPlace(place) {
-  if (!place) return;
+// === Global vars for Google Place ===
+let lastPlaceId = null;
+let lastPhotoReference = null;
 
-  document.getElementById("name").value = place.name || "";
+// === Toast ===
+function showToast(message, type = "success") {
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.innerText = message;
+  document.getElementById("toast-container").appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// === Fill form with place data ===
+function fillFormFromPlace(place) {
+  document.getElementById("storeName").value = place.name || "";
   document.getElementById("address").value = place.formatted_address || "";
 
-  // City & country från address_components
+  let city = "", country = "";
   if (place.address_components) {
-    const cityComp = place.address_components.find(c => c.types.includes("locality"));
-    const countryComp = place.address_components.find(c => c.types.includes("country"));
-    document.getElementById("city").value = cityComp ? cityComp.long_name : "";
-    document.getElementById("country").value = countryComp ? countryComp.long_name : "";
+    for (const comp of place.address_components) {
+      if (comp.types.includes("locality")) city = comp.long_name;
+      if (comp.types.includes("country")) country = comp.long_name;
+    }
   }
+  document.getElementById("city").value = city;
+  document.getElementById("country").value = country;
 
-  // Phone / website
   document.getElementById("phone").value = place.formatted_phone_number || "";
   document.getElementById("website").value = place.website || "";
 
-  // Photo
+  lastPlaceId = place.place_id || null;
+  lastPhotoReference = null;
+
   const img = document.getElementById("preview-image");
   if (place.photos && place.photos.length > 0) {
     const photoUrl = place.photos[0].getUrl({ maxWidth: 400 });
     img.src = photoUrl;
-    img.style.display = "block";   // 👉 visa
+    img.style.display = "block";
     lastPhotoReference = place.photos[0].photo_reference;
   } else {
-    img.src = "";
-    img.style.display = "none";    // 👉 dölj helt
-    lastPhotoReference = null;
+    img.removeAttribute("src");
+    img.style.display = "none";
   }
-
-  lastPlaceId = place.place_id || null;
 }
 
-// === Parse Maps-länk (Add-knappen) ===
+// === Parse Maps link ===
 document.getElementById("addBtn").addEventListener("click", async () => {
   const link = document.getElementById("mapsLink").value.trim();
   if (!link) return showToast("Please paste a Google Maps link", "error");
 
-  let placeId = null;
-  const match = link.match(/!1s([^!]+)/);
-  if (match) placeId = match[1];
+  const placeIdMatch = link.match(/place\/.*\/(.*)\//) || link.match(/placeid=([^&]+)/);
+  let placeId = placeIdMatch ? placeIdMatch[1] : null;
+
   if (!placeId) {
-    showToast("Could not extract place ID from link", "error");
-    return;
+    return showToast("Could not extract Place ID", "error");
   }
 
   const service = new google.maps.places.PlacesService(document.createElement("div"));
-  service.getDetails({ placeId, fields: ["place_id","name","formatted_address","address_components","formatted_phone_number","website","photos"] },
+  service.getDetails({ placeId, fields: ["name","formatted_address","address_components","formatted_phone_number","website","place_id","photos"] },
     (place, status) => {
       if (status === google.maps.places.PlacesServiceStatus.OK) {
         fillFormFromPlace(place);
       } else {
-        console.error("PlacesService error:", status);
         showToast("Failed to fetch place details", "error");
       }
-    });
+    }
+  );
 });
 
 // === Save store ===
 document.getElementById("saveBtn").addEventListener("click", async () => {
-  // Kontrollfråga
-  if (!confirm("Have you checked that everything is correct?")) return;
+  const name = document.getElementById("storeName").value.trim();
+  const address = document.getElementById("address").value.trim();
+  const city = document.getElementById("city").value.trim();
+  const country = document.getElementById("country").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const website = document.getElementById("website").value.trim();
+  const type = document.querySelector("input[name='type']:checked").value;
 
-  const store = {
-    name: document.getElementById("name").value.trim(),
-    address: document.getElementById("address").value.trim(),
-    city: document.getElementById("city").value.trim(),
-    country: document.getElementById("country").value.trim(),
-    phone: document.getElementById("phone").value.trim(),
-    website: document.getElementById("website").value.trim(),
-    type: document.querySelector('input[name="type"]:checked')?.value || "other",
-    rating: selectedRating || null,
-    approved: false,
-    flagged: false,
-    flag_reason: null,
-    place_id: lastPlaceId,
-    photo_reference: lastPhotoReference
-  };
+  if (!name || !address || !city || !country) {
+    return showToast("Please fill in all required fields", "error");
+  }
 
-  const { error } = await supabase.from("stores").insert([store]);
+  const { error } = await supabase.from("stores").insert([{
+    name, address, city, country, phone, website,
+    type, rating: selectedRating, place_id: lastPlaceId, photo_reference: lastPhotoReference,
+    approved: false
+  }]);
+
   if (error) {
     console.error(error);
     showToast("Error saving store", "error");
   } else {
-    showToast("Store submitted for review ✅", "success");
+    showToast("Store saved for review ✅", "success");
     resetForm();
   }
 });
@@ -122,32 +117,16 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
 // === Reset form ===
 function resetForm() {
   document.getElementById("mapsLink").value = "";
-  ["name","address","city","country","phone","website"].forEach(id => {
-    document.getElementById(id).value = "";
-  });
-
-  document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
+  document.getElementById("storeName").value = "";
+  document.getElementById("address").value = "";
+  document.getElementById("city").value = "";
+  document.getElementById("country").value = "";
+  document.getElementById("phone").value = "";
+  document.getElementById("website").value = "";
+  document.querySelector("input[name='type'][value='store']").checked = true;
   selectedRating = 0;
-
+  document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
   const img = document.getElementById("preview-image");
-  img.src = "";
+  img.removeAttribute("src");
   img.style.display = "none";
-
-  lastPlaceId = null;
-  lastPhotoReference = null;
 }
-
-// === Autocomplete ===
-function initAutocomplete() {
-  const autocompleteInput = document.querySelector("gmpx-place-autocomplete");
-  if (!autocompleteInput) return;
-
-  autocompleteInput.addEventListener("gmpx-placechange", () => {
-    const place = autocompleteInput.value;
-    if (autocompleteInput.getPlace) {
-      const p = autocompleteInput.getPlace();
-      fillFormFromPlace(p);
-    }
-  });
-}
-window.initAutocomplete = initAutocomplete;
