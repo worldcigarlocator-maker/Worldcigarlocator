@@ -221,6 +221,16 @@ input[value="other"]:checked + span {
   margin-top: 2rem;
   margin-bottom: 0.5rem;
   color: #b8860b;   /* guld */
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: bold;
+  text-align: left;
+}
+
+.black-heading {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #000;      /* svart */
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-align: left;
 }
