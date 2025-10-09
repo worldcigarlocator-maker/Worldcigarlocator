@@ -2,16 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Radio Badge Test</title>
+  <title>Radio + Autocomplete Test</title>
+  <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 2rem;
+      background: #f7f7f7;
     }
 
+    h2 {
+      margin-top: 2rem;
+    }
+
+    /* === Autocomplete input === */
+    gmpx-place-autocomplete {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.6rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      background: #fff;
+    }
+
+    /* === Radio badges === */
     .radio-group {
       display: flex;
       gap: 1rem;
+      margin-top: 0.5rem;
     }
 
     .radio-group input[type="radio"] {
@@ -59,7 +80,10 @@
   </style>
 </head>
 <body>
-  <h2>Välj Store Type</h2>
+  <h2>Autocomplete Test</h2>
+  <gmpx-place-autocomplete placeholder="Enter address"></gmpx-place-autocomplete>
+
+  <h2>Store Type</h2>
   <div class="radio-group">
     <label>
       <input type="radio" name="store-type" value="store">
