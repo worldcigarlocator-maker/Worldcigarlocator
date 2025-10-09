@@ -17,11 +17,13 @@
     <h1>Add Store</h1>
 
     <form id="storeForm">
+
+      <!-- Google autocomplete -->
+      <h2 class="gold-heading">Add with Google</h2>
+      <gmpx-place-autocomplete id="address" placeholder="Enter address"></gmpx-place-autocomplete>
+
       <label for="name">Store Name</label>
       <input type="text" id="name" name="name" required>
-
-      <label for="address">Address</label>
-      <gmpx-place-autocomplete id="address" placeholder="Enter address"></gmpx-place-autocomplete>
 
       <label for="city">City</label>
       <input type="text" id="city" name="city">
@@ -36,7 +38,7 @@
       <input type="text" id="website" name="website">
 
       <!-- Store Type badges -->
-      <label>Store Type</label>
+      <h2 class="gold-heading">Add Store / Lounge / Other</h2>
       <div class="radio-group">
         <label>
           <input type="radio" name="store-type" value="store">
@@ -53,16 +55,18 @@
       </div>
 
       <!-- Rating -->
-      <label>Rating</label>
+      <h2 class="gold-heading">Rating</h2>
       <div id="rating" class="rating"></div>
 
       <!-- Image preview -->
+      <h2 class="gold-heading">Preview</h2>
       <div id="imagePreview"></div>
 
       <button type="submit" id="addBtn">Add Store</button>
     </form>
   </div>
 
+  <!-- Toast container -->
   <div id="toast-container"></div>
 
   <script src="js/add-store.js"></script>
