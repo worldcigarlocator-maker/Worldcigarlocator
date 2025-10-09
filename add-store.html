@@ -22,7 +22,11 @@
 
       <!-- Google autocomplete -->
       <h2 class="black-heading">Add with Google</h2>
-      <gmpx-place-autocomplete id="address" placeholder="Enter address"></gmpx-place-autocomplete>
+      <gmpx-place-autocomplete
+        id="address"
+        placeholder="Enter address"
+        apikey="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ">
+      </gmpx-place-autocomplete>
 
       <label for="name">Store Name</label>
       <input type="text" id="name" name="name" required>
@@ -39,7 +43,7 @@
       <label for="website">Website</label>
       <input type="text" id="website" name="website">
 
-      <!-- Store Type badges (utan rubrik) -->
+      <!-- Store Type badges -->
       <div class="radio-group">
         <label>
           <input type="radio" name="store-type" value="store">
