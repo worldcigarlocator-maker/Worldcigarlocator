@@ -155,3 +155,65 @@ gmpx-place-autocomplete {
   border-radius: 6px;
   font-size: 1rem;
 }
+/* === Autocomplete input === */
+gmpx-place-autocomplete {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.6rem;
+  margin-top: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #fff;
+}
+
+/* === Radio badges === */
+.radio-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.radio-group input[type="radio"] {
+  display: none; /* göm vanliga cirklar */
+}
+
+.radio-group span {
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* Store = blå */
+input[value="store"] + span {
+  border: 2px solid #007bff;
+  color: #007bff;
+}
+input[value="store"]:checked + span {
+  background: #007bff;
+  color: #fff;
+}
+
+/* Lounge = grön */
+input[value="lounge"] + span {
+  border: 2px solid #28a745;
+  color: #28a745;
+}
+input[value="lounge"]:checked + span {
+  background: #28a745;
+  color: #fff;
+}
+
+/* Other = orange */
+input[value="other"] + span {
+  border: 2px solid #ff8c00;
+  color: #ff8c00;
+}
+input[value="other"]:checked + span {
+  background: #ff8c00;
+  color: #fff;
+}
