@@ -145,3 +145,13 @@ input[value="other"]:checked + span {
   border-radius: 8px;
   margin-top: 1rem;
 }
+gmpx-place-autocomplete {
+  display: block;          /* Gör den till block-element */
+  width: 100%;             /* Full bredd */
+  box-sizing: border-box;  /* Så padding + border räknas rätt */
+  padding: 0.6rem;         /* Samma padding som inputs */
+  margin-top: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
