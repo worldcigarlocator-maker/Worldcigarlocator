@@ -2,89 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Store</title>
   <link rel="stylesheet" href="css/add-store.css">
-  <!-- Google Maps Web Component -->
+
+  <!-- Google Maps Web Components -->
   <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
-  <!-- Supabase -->
+
+  <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div class="form-wrapper">
+  <div id="form-wrapper" class="form-wrapper">
     <h1>Add Store</h1>
+
     <form id="storeForm">
-      
-      <!-- Store Name -->
-      <div class="form-section">
-        <label for="storeName">Store Name</label>
-        <input type="text" id="storeName" name="storeName" required>
-      </div>
+      <label for="name">Store Name</label>
+      <input type="text" id="name" name="name" required>
 
-      <!-- Address with Google Autocomplete -->
-      <div class="form-section">
-        <label for="storeAddress">Address</label>
-        <gmpx-place-autocomplete id="storeAddress" placeholder="Search address..."></gmpx-place-autocomplete>
-      </div>
+      <label for="address">Address</label>
+      <gmpx-place-autocomplete id="address" placeholder="Enter address"></gmpx-place-autocomplete>
 
-      <!-- City -->
-      <div class="form-section">
-        <label for="city">City</label>
-        <input type="text" id="city" name="city">
-      </div>
+      <label for="city">City</label>
+      <input type="text" id="city" name="city">
 
-      <!-- Country -->
-      <div class="form-section">
-        <label for="country">Country</label>
-        <input type="text" id="country" name="country">
-      </div>
+      <label for="country">Country</label>
+      <input type="text" id="country" name="country">
 
-      <!-- Phone -->
-      <div class="form-section">
-        <label for="phone">Phone</label>
-        <input type="text" id="phone" name="phone">
-      </div>
+      <label for="phone">Phone</label>
+      <input type="text" id="phone" name="phone">
 
-      <!-- Website -->
-      <div class="form-section">
-        <label for="website">Website</label>
-        <input type="url" id="website" name="website">
-      </div>
+      <label for="website">Website</label>
+      <input type="text" id="website" name="website">
 
-      <!-- Store Type -->
-      <div class="form-section">
-        <label>Store Type</label>
-        <div class="radio-group">
-          <label>
-            <input type="radio" name="store-type" value="store">
-            <span>Store</span>
-          </label>
-          <label>
-            <input type="radio" name="store-type" value="lounge">
-            <span>Lounge</span>
-          </label>
-          <label>
-            <input type="radio" name="store-type" value="other">
-            <span>Other</span>
-          </label>
-        </div>
+      <!-- Store Type badges -->
+      <label>Store Type</label>
+      <div class="radio-group">
+        <label>
+          <input type="radio" name="store-type" value="store">
+          <span>Store</span>
+        </label>
+        <label>
+          <input type="radio" name="store-type" value="lounge">
+          <span>Lounge</span>
+        </label>
+        <label>
+          <input type="radio" name="store-type" value="other">
+          <span>Other</span>
+        </label>
       </div>
 
       <!-- Rating -->
-      <div class="form-section">
-        <label>Rating</label>
-        <div id="rating" class="rating">
-          <span class="star" data-value="1">★</span>
-          <span class="star" data-value="2">★</span>
-          <span class="star" data-value="3">★</span>
-          <span class="star" data-value="4">★</span>
-          <span class="star" data-value="5">★</span>
-        </div>
-      </div>
+      <label>Rating</label>
+      <div id="rating" class="rating"></div>
 
-      <!-- Preview image -->
-      <div class="form-section">
-        <img id="previewImage" style="max-width:100%; display:none; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1);" />
-      </div>
+      <!-- Image preview -->
+      <div id="imagePreview"></div>
 
       <button type="submit" id="addBtn">Add Store</button>
     </form>
