@@ -4,8 +4,7 @@ const supabaseUrl = "https://https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4Y";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-
-// Globala variabler
+// Variabler
 let selectedRating = 0;
 let selectedLat = null;
 let selectedLng = null;
@@ -20,7 +19,7 @@ function showToast(message, type = "success") {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// ⭐ Rating stars
+// ⭐ Stjärnor (rating)
 const ratingEl = document.getElementById("rating");
 for (let i = 1; i <= 5; i++) {
   const star = document.createElement("span");
@@ -28,14 +27,13 @@ for (let i = 1; i <= 5; i++) {
   star.innerHTML = "★";
   star.dataset.value = i;
 
-  // Hover-effekt
+  // Hover
   star.addEventListener("mouseover", () => {
     document.querySelectorAll(".star").forEach(s => s.classList.remove("hover"));
     for (let j = 0; j < i; j++) {
       document.querySelectorAll(".star")[j].classList.add("hover");
     }
   });
-
   star.addEventListener("mouseout", () => {
     document.querySelectorAll(".star").forEach(s => s.classList.remove("hover"));
   });
@@ -59,6 +57,8 @@ autocompleteEl.addEventListener("gmpx-placechange", () => {
   const place = autocompleteEl.getPlace();
   if (!place) return;
 
+  console.log("PLACE:", place); // Debug i konsolen
+
   // Fyll fälten
   document.getElementById("name").value = place.displayName || "";
   document.getElementById("phone").value = place.formattedPhoneNumber || "";
@@ -77,7 +77,7 @@ autocompleteEl.addEventListener("gmpx-placechange", () => {
     document.getElementById("imagePreview").innerHTML = "";
   }
 
-  // Spara koordinater (osynligt)
+  // Koordinater
   selectedLat = place.location?.lat() || null;
   selectedLng = place.location?.lng() || null;
 });
