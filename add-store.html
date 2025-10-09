@@ -14,12 +14,14 @@
 </head>
 <body>
   <div id="form-wrapper" class="form-wrapper">
-    <h1>Add Store</h1>
+
+    <!-- Huvudrubrik -->
+    <h1 class="gold-heading">Add Store / Lounge / Other</h1>
 
     <form id="storeForm">
 
       <!-- Google autocomplete -->
-      <h2 class="gold-heading">Add with Google</h2>
+      <h2 class="black-heading">Add with Google</h2>
       <gmpx-place-autocomplete id="address" placeholder="Enter address"></gmpx-place-autocomplete>
 
       <label for="name">Store Name</label>
@@ -37,8 +39,7 @@
       <label for="website">Website</label>
       <input type="text" id="website" name="website">
 
-      <!-- Store Type badges -->
-      <h2 class="gold-heading">Add Store / Lounge / Other</h2>
+      <!-- Store Type badges (utan rubrik) -->
       <div class="radio-group">
         <label>
           <input type="radio" name="store-type" value="store">
