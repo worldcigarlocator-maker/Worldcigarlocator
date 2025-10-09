@@ -1,79 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Store</title>
-  <link rel="stylesheet" href="css/add-store.css">
+  <link rel="stylesheet" href="css/add-store.css" />
 
   <!-- Google Maps Web Components -->
   <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
-
-  <!-- Supabase client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div id="form-wrapper" class="form-wrapper">
-
-    <!-- Huvudrubrik -->
+  <div class="form-wrapper">
     <h1 class="gold-heading">Add Store / Lounge / Other</h1>
 
-    <form id="storeForm">
+    <!-- Add with Google -->
+    <h2 class="black-heading">Add with Google</h2>
+    <gmpx-place-autocomplete
+      id="address"
+      placeholder="Enter address"
+      apikey="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ">
+    </gmpx-place-autocomplete>
 
-      <!-- Google autocomplete -->
-      <h2 class="black-heading">Add with Google</h2>
-      <gmpx-place-autocomplete
-        id="address"
-        placeholder="Enter address"
-        apikey="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ">
-      </gmpx-place-autocomplete>
+    <!-- Store form -->
+    <div class="form-section">
+      <label>Store Name</label>
+      <input type="text" id="name" />
+    </div>
 
-      <label for="name">Store Name</label>
-      <input type="text" id="name" name="name" required>
+    <div class="form-section">
+      <label>City</label>
+      <input type="text" id="city" />
+    </div>
 
-      <label for="city">City</label>
-      <input type="text" id="city" name="city">
+    <div class="form-section">
+      <label>Country</label>
+      <input type="text" id="country" />
+    </div>
 
-      <label for="country">Country</label>
-      <input type="text" id="country" name="country">
+    <div class="form-section">
+      <label>Phone</label>
+      <input type="text" id="phone" />
+    </div>
 
-      <label for="phone">Phone</label>
-      <input type="text" id="phone" name="phone">
+    <div class="form-section">
+      <label>Website</label>
+      <input type="text" id="website" />
+    </div>
 
-      <label for="website">Website</label>
-      <input type="text" id="website" name="website">
-
-      <!-- Store Type badges -->
+    <!-- Store Type -->
+    <div class="form-section">
       <div class="radio-group">
         <label>
           <input type="radio" name="store-type" value="store">
-          <span>Store</span>
+          <span class="badge store">Store</span>
         </label>
         <label>
           <input type="radio" name="store-type" value="lounge">
-          <span>Lounge</span>
+          <span class="badge lounge">Lounge</span>
         </label>
         <label>
           <input type="radio" name="store-type" value="other">
-          <span>Other</span>
+          <span class="badge other">Other</span>
         </label>
       </div>
+    </div>
 
-      <!-- Rating -->
-      <h2 class="gold-heading">Rating</h2>
-      <div id="rating" class="rating"></div>
+    <!-- Rating -->
+    <h2 class="gold-heading">Rating</h2>
+    <div id="rating" class="rating"></div>
 
-      <!-- Image preview -->
-      <h2 class="gold-heading">Preview</h2>
-      <div id="imagePreview"></div>
+    <!-- Preview -->
+    <h2 class="gold-heading">Preview</h2>
+    <div id="preview"></div>
 
-      <button type="submit" id="addBtn">Add Store</button>
-    </form>
+    <!-- Submit -->
+    <button id="addBtn">Add Store</button>
   </div>
 
   <!-- Toast container -->
   <div id="toast-container"></div>
 
-  <script type="module" src="js/add-store.js"></script>
+  <!-- Supabase + JS as modules -->
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+
+    // Initiera Supabase globalt
+    window.supabase = createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    // Importera ditt eget script
+    import "./js/add-store.js";
+  </script>
 </body>
 </html>
