@@ -2,15 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Minimal Google Autocomplete Test</title>
+  <title>Autocomplete Test</title>
 </head>
 <body>
-  <input id="autocomplete" type="text" placeholder="Type an address..." />
+  <h2>Google Places Autocomplete – Minimal Test</h2>
+  <input id="autocomplete" type="text" placeholder="Type an address..." style="width:300px; padding:8px;"/>
 
-  <!-- Load Google Maps JS API with Places library -->
+  <pre id="log" style="margin-top:20px; background:#f4f4f4; padding:10px;"></pre>
+
+  <!-- ✅ Enda scriptet du behöver -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
   <script>
+    function log(msg) {
+      const pre = document.getElementById("log");
+      pre.textContent += msg + "\n";
+      console.log(msg);
+    }
+
     function initAutocomplete() {
+      log("Init started...");
       const input = document.getElementById("autocomplete");
       const autocomplete = new google.maps.places.Autocomplete(input, {
         fields: ["name", "formatted_address", "geometry"],
@@ -18,10 +28,18 @@
 
       autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
-        console.log("PLACE OBJECT:", place);
-        alert(`Selected: ${place.name}\n${place.formatted_address}`);
+        log("Selected place:");
+        log(JSON.stringify(place, null, 2));
+
+        alert(
+          "Name: " + (place.name || "") +
+          "\nAddress: " + (place.formatted_address || "") +
+          (place.geometry ? "\nLat: " + place.geometry.location.lat() + 
+          "\nLng: " + place.geometry.location.lng() : "")
+        );
       });
     }
+
     window.onload = initAutocomplete;
   </script>
 </body>
