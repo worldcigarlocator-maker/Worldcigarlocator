@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Autocomplete Test</title>
-  <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
+  <script src="https://unpkg.com/@googlemaps/extended-component-library/dist/loader.js"></script>
   <style>
     body { font-family: Arial, sans-serif; padding: 2rem; }
     gmpx-place-autocomplete {
@@ -37,7 +37,6 @@
     autocompleteEl.addEventListener("gmpx-placechange", () => {
       const place = autocompleteEl.getPlace();
       if (!place) return;
-
       output.innerHTML = `
         <strong>Name:</strong> ${place.displayName?.text || "N/A"} <br>
         <strong>Address:</strong> ${place.formattedAddress || "N/A"} <br>
