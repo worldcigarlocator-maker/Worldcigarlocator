@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Google Autocomplete Test</title>
+
+  <!-- Google Maps Web Components -->
+  <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      padding: 2rem;
+    }
+    h1 {
+      color: #b8860b;
+      margin-bottom: 1rem;
+    }
+    gmpx-place-autocomplete {
+      display: block;
+      width: 100%;
+      padding: 0.7rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      margin-bottom: 1rem;
+    }
+    #output {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #333;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Autocomplete Test</h1>
+
+  <gmpx-place-autocomplete
+    id="address"
+    apikey="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"
+    placeholder="Type an address...">
+  </gmpx-place-autocomplete>
+
+  <div id="output">Välj en plats för att se data här...</div>
+
+  <script>
+    const autocompleteEl = document.getElementById("address");
+    const output = document.getElementById("output");
+
+    autocompleteEl.addEventListener("gmpx-placechange", () => {
+      const place = autocompleteEl.getPlace();
+      console.log(place); // Debug i console
+      if (!place) {
+        output.textContent = "Inget resultat.";
+        return;
+      }
+      output.innerHTML = `
+        <strong>Name:</strong> ${place.displayName || "-"} <br/>
+        <strong>Address:</strong> ${place.formattedAddress || "-"} <br/>
+        <strong>Lat:</strong> ${place.location?.lat()} <br/>
+        <strong>Lng:</strong> ${place.location?.lng()}
+      `;
+    });
+  </script>
+</body>
+</html>
