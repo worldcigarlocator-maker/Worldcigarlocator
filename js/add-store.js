@@ -1,132 +1,141 @@
 
   // Init Supabase
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+
 const supabaseUrl = "https://https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4Y";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Variabler
+
+// ---- Star rating ----
 let selectedRating = 0;
+const ratingContainer = document.getElementById("rating");
+if (ratingContainer) {
+  ratingContainer.innerHTML = "";
+  for (let i = 1; i <= 5; i++) {
+    const star = document.createElement("span");
+    star.classList.add("star");
+    star.textContent = "★";
+    star.dataset.value = i;
+    star.addEventListener("click", () => {
+      selectedRating = i;
+      document.querySelectorAll(".star").forEach((s, idx) => {
+        s.classList.toggle("selected", idx < i);
+      });
+    });
+    ratingContainer.appendChild(star);
+  }
+}
+
+// ---- Google Autocomplete ----
 let selectedLat = null;
 let selectedLng = null;
+let selectedPlaceId = null;
+let selectedPhotoRef = null;
 
-// Toast-funktion
-function showToast(message, type = "success") {
-  const container = document.getElementById("toast-container");
-  const toast = document.createElement("div");
-  toast.className = `toast ${type}`;
-  toast.innerText = message;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-// ⭐ Stjärnor (rating)
-const ratingEl = document.getElementById("rating");
-for (let i = 1; i <= 5; i++) {
-  const star = document.createElement("span");
-  star.classList.add("star");
-  star.innerHTML = "★";
-  star.dataset.value = i;
-
-  // Hover
-  star.addEventListener("mouseover", () => {
-    document.querySelectorAll(".star").forEach(s => s.classList.remove("hover"));
-    for (let j = 0; j < i; j++) {
-      document.querySelectorAll(".star")[j].classList.add("hover");
-    }
-  });
-  star.addEventListener("mouseout", () => {
-    document.querySelectorAll(".star").forEach(s => s.classList.remove("hover"));
-  });
-
-  // Klick
-  star.addEventListener("click", () => {
-    selectedRating = i;
-    document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
-    for (let j = 0; j < i; j++) {
-      document.querySelectorAll(".star")[j].classList.add("selected");
-    }
-  });
-
-  ratingEl.appendChild(star);
-}
-
-// 📍 Google Autocomplete
 const autocompleteEl = document.getElementById("address");
 
-autocompleteEl.addEventListener("gmpx-placechange", () => {
-  const place = autocompleteEl.getPlace();
-  if (!place) return;
+if (autocompleteEl) {
+  autocompleteEl.addEventListener("gmpx-placechange", () => {
+    const place = autocompleteEl.getPlace();
+    if (!place) return;
 
-  console.log("PLACE:", place); // Debug i konsolen
+    // Plocka fält
+    document.getElementById("name").value = place.displayName || "";
+    document.getElementById("phone").value = place.formattedPhoneNumber || "";
+    document.getElementById("website").value = place.websiteUri || "";
 
-  // Fyll fälten
-  document.getElementById("name").value = place.displayName || "";
-  document.getElementById("phone").value = place.formattedPhoneNumber || "";
-  document.getElementById("website").value = place.websiteUri || "";
+    // Addresskomponenter
+    let city = "";
+    let country = "";
+    if (place.addressComponents) {
+      for (const comp of place.addressComponents) {
+        if (comp.types.includes("locality")) city = comp.longText;
+        if (comp.types.includes("country")) country = comp.longText;
+      }
+    }
+    document.getElementById("city").value = city;
+    document.getElementById("country").value = country;
 
-  const cityComp = place.addressComponents?.find(c => c.types.includes("locality"));
-  const countryComp = place.addressComponents?.find(c => c.types.includes("country"));
-  document.getElementById("city").value = cityComp?.longText || "";
-  document.getElementById("country").value = countryComp?.longText || "";
+    // Lat/Lng
+    if (place.location) {
+      selectedLat = place.location.lat();
+      selectedLng = place.location.lng();
+    }
 
-  // Preview-bild
-  if (place.photos && place.photos.length > 0) {
-    const photoUrl = place.photos[0].getURI({ maxHeight: 200 });
-    document.getElementById("imagePreview").innerHTML = `<img src="${photoUrl}" alt="Preview">`;
-  } else {
-    document.getElementById("imagePreview").innerHTML = "";
-  }
+    selectedPlaceId = place.id || null;
 
-  // Koordinater
-  selectedLat = place.location?.lat() || null;
-  selectedLng = place.location?.lng() || null;
-});
+    // Preview-bild
+    const preview = document.getElementById("preview");
+    if (place.photos && place.photos.length > 0) {
+      const url = place.photos[0].getURI({ maxHeight: 200 });
+      preview.innerHTML = `<img src="${url}" alt="Preview">`;
+      selectedPhotoRef = place.photos[0].name || null;
+    } else {
+      preview.innerHTML = "";
+      selectedPhotoRef = null;
+    }
+  });
+}
 
-// 🚀 Form-submit
-const form = document.getElementById("storeForm");
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+// ---- Toast helper ----
+function showToast(msg, type = "success") {
+  const container = document.getElementById("toast-container");
+  if (!container) return;
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
 
-  const name = document.getElementById("name").value.trim();
-  const address = document.getElementById("address").value.trim();
-  const city = document.getElementById("city").value.trim();
-  const country = document.getElementById("country").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const website = document.getElementById("website").value.trim();
-  const type = document.querySelector('input[name="store-type"]:checked')?.value || null;
+// ---- Submit ----
+const form = document.getElementById("store-form");
+if (form) {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  if (!name || !address || !type) {
-    showToast("Please fill in required fields", "error");
-    return;
-  }
+    const name = document.getElementById("name").value.trim();
+    const address = document.getElementById("address").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const country = document.getElementById("country").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const website = document.getElementById("website").value.trim();
+    const type = form.querySelector("input[name='store-type']:checked")?.value;
 
-  const { error } = await supabase.from("stores").insert([{
-    name,
-    address,
-    city,
-    country,
-    phone,
-    website,
-    type,
-    rating: selectedRating,
-    latitude: selectedLat,
-    longitude: selectedLng,
-    approved: false
-  }]);
+    if (!name || !address || !city || !country || !type || !selectedRating) {
+      showToast("Please fill in all required fields.", "error");
+      return;
+    }
 
-  if (error) {
-    showToast("Error saving store: " + error.message, "error");
-  } else {
-    showToast("Store saved successfully!", "success");
-    form.reset();
-    document.getElementById("imagePreview").innerHTML = "";
-    selectedRating = 0;
-    selectedLat = null;
-    selectedLng = null;
+    const { error } = await supabase.from("stores").insert([
+      {
+        name,
+        address,
+        city,
+        country,
+        type,
+        rating: selectedRating,
+        phone,
+        website,
+        latitude: selectedLat,
+        longitude: selectedLng,
+        place_id: selectedPlaceId,
+        photo_reference: selectedPhotoRef,
+        approved: false,
+        flagged: false
+      }
+    ]);
 
-    // Rensa stjärnor
-    document.querySelectorAll(".star").forEach(s => {
-      s.classList.remove("selected", "hover");
-    });
-  }
-});
+    if (error) {
+      console.error(error);
+      showToast("Error saving store.", "error");
+    } else {
+      showToast("Store added successfully!", "success");
+      form.reset();
+      document.getElementById("preview").innerHTML = "";
+      selectedRating = 0;
+      document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
+    }
+  });
+}
