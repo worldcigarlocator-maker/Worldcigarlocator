@@ -2,25 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Google Autocomplete Test</title>
-
-  <!-- Google Maps Web Components -->
+  <title>Autocomplete Test</title>
   <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
-
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f8f8f8;
       padding: 2rem;
+      background: #f9f9f9;
     }
+
     h1 {
-      color: #b8860b;
+      font-size: 1.4rem;
       margin-bottom: 1rem;
+      color: #333;
     }
+
     gmpx-place-autocomplete {
       display: block;
       width: 100%;
+      max-width: 500px;
       padding: 0.7rem;
       border: 1px solid #ccc;
       border-radius: 6px;
@@ -28,45 +28,44 @@
       box-sizing: border-box;
       margin-bottom: 1rem;
     }
+
     #output {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      color: #333;
-      background: #fff;
       padding: 1rem;
+      background: white;
+      border: 1px solid #ddd;
       border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 500px;
     }
   </style>
 </head>
 <body>
-  <h1>Autocomplete Test</h1>
+  <h1>Google Autocomplete Test</h1>
 
+  <!-- Autocomplete input -->
   <gmpx-place-autocomplete
-    id="address"
-    apikey="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"
-    placeholder="Type an address...">
+    id="autocomplete"
+    placeholder="Type an address..."
+    apikey="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ">
   </gmpx-place-autocomplete>
 
-  <div id="output">Välj en plats för att se data här...</div>
+  <!-- Output -->
+  <div id="output">Select a place to see details here...</div>
 
   <script>
-    const autocompleteEl = document.getElementById("address");
+    const autocompleteEl = document.getElementById("autocomplete");
     const output = document.getElementById("output");
 
     autocompleteEl.addEventListener("gmpx-placechange", () => {
       const place = autocompleteEl.getPlace();
-      console.log(place); // Debug i console
-      if (!place) {
-        output.textContent = "Inget resultat.";
-        return;
-      }
+      if (!place) return;
+
       output.innerHTML = `
-        <strong>Name:</strong> ${place.displayName || "-"} <br/>
-        <strong>Address:</strong> ${place.formattedAddress || "-"} <br/>
-        <strong>Lat:</strong> ${place.location?.lat()} <br/>
-        <strong>Lng:</strong> ${place.location?.lng()}
+        <strong>Name:</strong> ${place.displayName?.text || "N/A"} <br>
+        <strong>Address:</strong> ${place.formattedAddress || "N/A"} <br>
+        <strong>Lat:</strong> ${place.location?.lat || "N/A"} <br>
+        <strong>Lng:</strong> ${place.location?.lng || "N/A"}
       `;
+      console.log(place);
     });
   </script>
 </body>
