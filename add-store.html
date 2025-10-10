@@ -1,180 +1,96 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #f8f8f8;
-  margin: 0;
-  padding: 2rem;
-  display: flex;
-  justify-content: center;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Store</title>
+  <link rel="stylesheet" href="css/add-store.css">
+</head>
+<body>
+  <div class="form-wrapper">
+    <!-- Huvudrubrik -->
+    <h1 class="gold-heading">Add Store / Lounge / Other</h1>
 
-.form-wrapper {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  max-width: 600px;
-  width: 100%;
-}
+    <!-- Add with Google -->
+    <h2 class="black-heading">Add with Google</h2>
+    <div class="form-section">
+      <gmpx-place-autocomplete id="address" apikey="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"></gmpx-place-autocomplete>
+    </div>
 
-h1.gold-heading {
-  text-align: center;
-  color: #b8860b;
-  margin-bottom: 1.5rem;
-}
+    <!-- Namn -->
+    <div class="form-section">
+      <label for="name">Store Name</label>
+      <input type="text" id="name" placeholder="Enter store name">
+    </div>
 
-h2.gold-heading {
-  color: #b8860b;
-  font-size: 1.1rem;
-  margin: 1.2rem 0 0.5rem;
-}
+    <!-- Stad -->
+    <div class="form-section">
+      <label for="city">City</label>
+      <input type="text" id="city" placeholder="Enter city">
+    </div>
 
-h2.black-heading {
-  color: #333;
-  font-size: 1.1rem;
-  margin: 1.2rem 0 0.5rem;
-}
+    <!-- Land -->
+    <div class="form-section">
+      <label for="country">Country</label>
+      <input type="text" id="country" placeholder="Enter country">
+    </div>
 
-.form-section {
-  margin-bottom: 1rem;
-}
+    <!-- Telefon -->
+    <div class="form-section">
+      <label for="phone">Phone</label>
+      <input type="text" id="phone" placeholder="Enter phone number">
+    </div>
 
-label {
-  font-weight: bold;
-  display: block;
-  margin-bottom: 0.4rem;
-}
+    <!-- Website -->
+    <div class="form-section">
+      <label for="website">Website</label>
+      <input type="text" id="website" placeholder="Enter website URL">
+    </div>
 
-input[type="text"] {
-  width: 100%;
-  padding: 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
-  box-sizing: border-box;
-}
+    <!-- Store type badges -->
+    <h2 class="gold-heading">Store Type</h2>
+    <div class="form-section radio-group">
+      <label>
+        <input type="radio" name="store-type" value="store">
+        <span class="badge store">Store</span>
+      </label>
+      <label>
+        <input type="radio" name="store-type" value="lounge">
+        <span class="badge lounge">Lounge</span>
+      </label>
+      <label>
+        <input type="radio" name="store-type" value="other">
+        <span class="badge other">Other</span>
+      </label>
+    </div>
 
-gmpx-place-autocomplete {
-  display: block;
-  width: 100%;
-  padding: 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
-  box-sizing: border-box;
-  margin-bottom: 1rem;
-}
+    <!-- Rating -->
+    <h2 class="gold-heading">Rating</h2>
+    <div class="form-section rating" id="rating"></div>
 
-/* Badge radio buttons */
-.radio-group {
-  display: flex;
-  gap: 1rem;
-}
+    <!-- Preview -->
+    <h2 class="gold-heading">Preview</h2>
+    <div class="form-section" id="preview"></div>
 
-.radio-group input[type="radio"] {
-  display: none; /* göm cirklarna */
-}
+    <!-- Submit -->
+    <button id="submitBtn">Add Store</button>
+  </div>
 
-.badge {
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s;
-}
+  <!-- Toast container -->
+  <div id="toast-container"></div>
 
-/* Store = blå */
-.badge.store {
-  border-color: #007bff;
-  color: #007bff;
-}
-.radio-group input[type="radio"]:checked + .store {
-  background: #007bff;
-  color: #fff;
-}
+  <!-- Scripts -->
+  <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
 
-/* Lounge = grön */
-.badge.lounge {
-  border-color: #28a745;
-  color: #28a745;
-}
-.radio-group input[type="radio"]:checked + .lounge {
-  background: #28a745;
-  color: #fff;
-}
+    // Initiera Supabase
+    const supabase = createClient("https://gbxxoeplkzbhsvagnfsr.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4");
 
-/* Other = orange */
-.badge.other {
-  border-color: #ff8c00;
-  color: #ff8c00;
-}
-.radio-group input[type="radio"]:checked + .other {
-  background: #ff8c00;
-  color: #fff;
-}
+    // Exportera till global scope så add-store.js kan använda det
+    window.supabase = supabase;
 
-/* Rating stars */
-.rating {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.star {
-  font-size: 2rem;
-  cursor: pointer;
-  color: #ccc;
-  transition: color 0.2s;
-}
-.star:hover,
-.star.hover {
-  color: #daa520;
-}
-.star.selected {
-  color: #b8860b;
-}
-
-/* Preview */
-#preview img {
-  max-width: 100%;
-  border-radius: 6px;
-  margin-top: 0.5rem;
-}
-
-/* Button */
-button {
-  margin-top: 1.5rem;
-  width: 100%;
-  padding: 0.9rem;
-  background: #b8860b;
-  color: #fff;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background 0.2s;
-}
-button:hover {
-  background: #a37408;
-}
-
-/* Toasts */
-#toast-container {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.toast {
-  background: #333;
-  color: #fff;
-  padding: 0.8rem 1.2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  opacity: 0.95;
-}
-.toast.success { background: #28a745; }
-.toast.error { background: #dc3545; }
+    // Importera din egen JS
+    import "./js/add-store.js";
+  </script>
+</body>
+</html>
