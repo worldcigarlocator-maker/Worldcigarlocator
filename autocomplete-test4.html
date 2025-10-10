@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Autocomplete Test 4 - Badges</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background: #f4f4f4;
+    }
+    .form-section {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 0.3rem;
+    }
+    input {
+      padding: 0.5rem;
+      width: 300px;
+      margin-bottom: 0.5rem;
+    }
+    /* ⭐ stjärnor */
+    .star {
+      font-size: 2rem;
+      color: #ccc;
+      cursor: pointer;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .star:hover {
+      color: #FFD700;
+      transform: scale(1.2);
+    }
+    .star.selected {
+      color: #FFD700;
+      text-shadow: 0 0 10px rgba(255,215,0,0.6);
+    }
+    /* 🔹 Badges */
+    .badge-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .badge-group input[type="radio"] {
+      display: none;
+    }
+    .badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    /* olika färger */
+    .badge.store { border-color: #007bff; color: #007bff; }
+    .badge.lounge { border-color: #28a74
