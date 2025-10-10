@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autocomplete Test 3 – Stars</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    label { display:block; margin-top: 1rem; font-weight:bold; }
+    input { width:100%; padding:0.5rem; margin-top:0.25rem; }
+
+    /* Stjärnor */
+    .stars { display: flex; gap: 0.5rem; margin-top: 1rem; cursor: pointer; }
+    .star { font-size: 2rem; color: #ccc; transition: color 0.2s, transform 0.2s; }
+    .star:hover { transform: scale(1.2); }
+    .star.selected { color: #FFD700; }
+  </style>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
+</head>
+<body>
+  <h2>Autocomplete Test 3 – Stars</h2>
+
+  <!-- Autocomplete -->
+  <label>Search</label>
+  <input id="autocomplete" type="text" placeholder="Type an address...">
+
+  <!-- Inputs -->
+  <label>Store Name</label>
+  <input id="name">
+
+  <label>Address</label>
+  <input id="address">
+
+  <label>City</label>
+  <input id="city">
+
+  <label>Country</label>
+  <input id="country">
+
+  <label>Phone</label>
+  <input id="phone">
+
+  <label>Website</label>
+  <input id="website">
+
+  <!-- Rating -->
+  <label>Rating</label>
+  <div class="stars" id="stars"></div>
+  <input type="hidden" id="rating">
+
+  <script>
+    function getCityFromComponents(components) {
+      for (const comp of components) {
+        if (comp.types.includes("locality")) return comp.long_name;
+        if (comp.types.includes("postal_town")) return comp.long_name;
+        if (comp.types.includes("administrative_area_level_2")) return comp.long_name;
+        if (comp.types.includes("sublocality")) return comp.long_name;
+      }
+      return "";
+    }
+
+    function initAutocomplete() {
+      const autocomplete = new google.maps.places.Autocomplete(
+        document.getElementById("autocomplete"),
+        { types: ["establishment"], fields: ["address_components", "geometry", "n_]()
