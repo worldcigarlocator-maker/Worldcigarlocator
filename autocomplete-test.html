@@ -1,22 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Autocomplete Test</title>
+  <meta charset="UTF-8" />
+  <title>Autocomplete Test (loader.js)</title>
+  <!-- ✅ Viktigt: använd loadern, inte paketroten -->
   <script src="https://unpkg.com/@googlemaps/extended-component-library/dist/loader.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 2rem; }
+    body { font-family: Arial, sans-serif; padding: 2rem; background: #f9f9f9; }
+    h1 { margin-bottom: 1rem; color: #333; }
     gmpx-place-autocomplete {
-      display: block;
-      width: 100%;
-      max-width: 500px;
-      padding: 0.7rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1rem;
-      box-sizing: border-box;
-      margin-bottom: 1rem;
+      display:block; width:100%; max-width:500px; box-sizing:border-box;
+      padding:0.7rem; border:1px solid #ccc; border-radius:6px; font-size:1rem; margin-bottom:1rem;
     }
+    #output { max-width:500px; background:#fff; border:1px solid #ddd; border-radius:6px; padding:1rem; }
   </style>
 </head>
 <body>
@@ -31,20 +27,3 @@
   <div id="output">Select a place to see details here...</div>
 
   <script>
-    const autocompleteEl = document.getElementById("autocomplete");
-    const output = document.getElementById("output");
-
-    autocompleteEl.addEventListener("gmpx-placechange", () => {
-      const place = autocompleteEl.getPlace();
-      if (!place) return;
-      output.innerHTML = `
-        <strong>Name:</strong> ${place.displayName?.text || "N/A"} <br>
-        <strong>Address:</strong> ${place.formattedAddress || "N/A"} <br>
-        <strong>Lat:</strong> ${place.location?.lat || "N/A"} <br>
-        <strong>Lng:</strong> ${place.location?.lng || "N/A"}
-      `;
-      console.log(place);
-    });
-  </script>
-</body>
-</html>
