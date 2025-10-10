@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Autocomplete Test – Step 2</title>
+  <title>Autocomplete Test 2 – Autofyll med City Fix</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -21,7 +21,7 @@
   </style>
 </head>
 <body>
-  <h2>Google Places Autocomplete – Step 2 (Autofyll)</h2>
+  <h2>Google Places Autocomplete – Test 2 (Autofyll med City)</h2>
 
   <!-- Autocomplete fält -->
   <label for="autocomplete">Add with Google</label>
@@ -72,12 +72,14 @@
         document.getElementById("storeName").value = place.name || "";
         document.getElementById("address").value = place.formatted_address || "";
 
-        // City och country från address_components
+        // City och country från address_components (smartare parser)
         let city = "";
         let country = "";
         if (place.address_components) {
           place.address_components.forEach(c => {
             if (c.types.includes("locality")) city = c.long_name;
+            if (c.types.includes("postal_town")) city = c.long_name; // UK
+            if (c.types.includes("administrative_area_level_2") && !city) city = c.long_name;
             if (c.types.includes("country")) country = c.long_name;
           });
         }
