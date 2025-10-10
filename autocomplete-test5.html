@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Autocomplete Test 5 - Preview Image</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+    }
+
+    .form-wrapper {
+      background: #fff;
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #b8860b;
+      text-align: center;
+    }
+
+    .form-section {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 0.3rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    /* ⭐ Stjärnor */
+    .star {
+      font-size: 2rem;
+      color: #ccc;
+      cursor: pointer;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .star:hover {
+      color: #FFD700;
+      transform: scale(1.2);
+    }
+    .star.selected {
+      color: #FFD700;
+      text-shadow: 0 0 10px rgba(255,215,0,0.6);
+    }
+
+    /* 🔹 Badges */
+    .badge-group {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+    .badge-group input[type="radio"] {
+      display: none;
+    }
+    .badge {
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    .badge.store { border-color: #007bff; color: #007bff; }
+    .badge.lounge { border-color: #28a745; color: #28a745; }
+    .badge.other { border-color: #fd7e14; color: #fd7e14; }
+    .badge-group input[type="radio"]:checked + .badge.store { background: #007bff; color: #fff; }
+    .badge-group input[type="radio"]:checked + .badge.lounge { background: #28a745; color: #fff; }
+    .badge-group input[type="radio"]:checked + .badge.other { background: #fd7e14; color: #fff; }
+
+    /* 🖼️ Preview image */
+    #preview {
+      text-align: center;
+      margin-top: 1rem;
+    }
+    #preview img {
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+  <div class="form-wrapper">
+    <h2>Autocomplete Test 5 - Preview Image</h2>
+
+    <div class="form-section">
+      <label for="autocomplete">Add with Google</label>
+      <input id="autocomplete" type="text" placeholder="Type an address" />
+    </div>
+
+    <div class="form-section">
+      <label>Store Name</label>
+      <input id="name" type="text" />
+    </div>
+
+    <div class="form-section">
+      <label>Address</label>
+      <input id="address" type="text" />
+    </div>
+
+    <div class="form-section">
+      <label>City</label>
+      <input id="city" type="text" />
+    </div>
+
+    <div class="form-section">
+      <label>Country</label>
+      <input id="country" type="text" />
+    </div>
+
+    <div class="form-section">
+      <label>Phone</label>
+      <input id="phone" type="text" />
+    </div>
+
+    <div class="form-section">
+      <label>Website</label>
+      <input id="website" type="text" />
+    </div>
+
+    <div class="form-section">
+      <div class="badge-group">
+        <input type="radio" id="type-store" name="type" value="store">
+        <label class="badge store" for="type-store">Store</label>
+
+        <input type="radio" id="type-lounge" name="type" value="lounge">
+        <label class="badge lounge" for="type-lounge">Lounge</label>
+
+        <input type="radio" id="type-other" name="type" value="other">
+        <label class="badge other" for="type-other">Other</label>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <label>Rating</label>
+      <div id="stars"></div>
+      <input type="hidden" id="rating">
+    </div>
+
+    <div id="preview"></div>
+  </div>
+
+  <script>
+    let autocomplete;
+
+    function initAutocomplete() {
+      const input = document.getElementById("autocomplete");
+      autocomplete = new google.maps.places.Autocomplete(input, { types: ["establishment"] });
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        if (!place.address_components) return;
+
+        document.getElementById("name").value = place.name || "";
+        document.getElementById("address").value = place.formatted_address || "";
+        document.getElementById("phone").value = place.formatted_phone_number || "";
+        document.getElementById("website").value = place.website || "";
+        document.getElementById("city").value = getCity(place.address_components);
+        document.getElementById("country").value = getCountry(place.address_components);
+
+        // 🖼️ Preview image
+        const preview = document.getElementById("preview");
+        if (place.photos && place.photos.length > 0) {
+          const url = place.photos[0].getUrl({maxWidth: 500});
+          preview.innerHTML = `<img src="${url}" alt="Preview">`;
+        } else {
+          preview.innerHTML = "";
+        }
+      });
+    }
+
+    function getCity(components) {
+      let city = "";
+      components.forEach(c => {
+        if (c.types.includes("locality")) city = c.long_name;
+        if (c.types.includes("postal_town")) city = c.long_name;
+        if (c.types.includes("administrative_area_level_3") && !city) city = c.long_name;
+        if (c.types.includes("administrative_area_level_2") && !city) city = c.long_name;
+      });
+      return city;
+    }
+
+    function getCountry(components) {
+      const c = components.find(c => c.types.includes("country"));
+      return c ? c.long_name : "";
+    }
+
+    function initStars() {
+      const container = document.getElementById("stars");
+      const hiddenInput = document.getElementById("rating");
+      let selected = 0;
+
+      for (let i = 1; i <= 5; i++) {
+        const span = document.createElement("span");
+        span.textContent = "★";
+        span.classList.add("star");
+        span.dataset.value = i;
+
+        span.addEventListener("click", () => {
+          selected = i;
+          hiddenInput.value = selected;
+
+          document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
+          for (let j = 0; j < selected; j++) {
+            document.querySelectorAll(".star")[j].classList.add("selected");
+          }
+        });
+
+        container.appendChild(span);
+      }
+    }
+
+    window.addEventListener("load", () => {
+      initAutocomplete();
+      initStars();
+    });
+  </script>
+</body>
+</html>
