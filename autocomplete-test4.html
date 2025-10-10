@@ -1,28 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Autocomplete Test 4 - Badges</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 2rem;
       background: #f4f4f4;
+      padding: 2rem;
     }
+
+    .form-wrapper {
+      background: #fff;
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #b8860b;
+      text-align: center;
+    }
+
     .form-section {
       margin-bottom: 1rem;
     }
+
     label {
       display: block;
       font-weight: bold;
       margin-bottom: 0.3rem;
     }
+
     input {
-      padding: 0.5rem;
-      width: 300px;
-      margin-bottom: 0.5rem;
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
     }
-    /* ⭐ stjärnor */
+
+    /* ⭐ Stjärnor */
     .star {
       font-size: 2rem;
       color: #ccc;
@@ -37,106 +58,100 @@
       color: #FFD700;
       text-shadow: 0 0 10px rgba(255,215,0,0.6);
     }
+
     /* 🔹 Badges */
     .badge-group {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
     }
     .badge-group input[type="radio"] {
       display: none;
     }
     .badge {
-      padding: 0.4rem 0.8rem;
-      border-radius: 12px;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
       border: 2px solid transparent;
       cursor: pointer;
       font-weight: bold;
+      transition: all 0.2s;
     }
-    /* olika färger */
     .badge.store { border-color: #007bff; color: #007bff; }
     .badge.lounge { border-color: #28a745; color: #28a745; }
     .badge.other { border-color: #fd7e14; color: #fd7e14; }
-    /* vald */
-    .badge-group input[type="radio"]:checked + .badge {
-      color: #fff;
-    }
-    .badge-group input[type="radio"]:checked + .badge.store { background: #007bff; }
-    .badge-group input[type="radio"]:checked + .badge.lounge { background: #28a745; }
-    .badge-group input[type="radio"]:checked + .badge.other { background: #fd7e14; }
+    .badge-group input[type="radio"]:checked + .badge.store { background: #007bff; color: #fff; }
+    .badge-group input[type="radio"]:checked + .badge.lounge { background: #28a745; color: #fff; }
+    .badge-group input[type="radio"]:checked + .badge.other { background: #fd7e14; color: #fff; }
   </style>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
 </head>
 <body>
-  <h2>Autocomplete Test 4 - Badges</h2>
+  <div class="form-wrapper">
+    <h2>Autocomplete Test 4 - Badges</h2>
 
-  <div class="form-section">
-    <label for="autocomplete">Add with Google</label>
-    <input id="autocomplete" type="text" placeholder="Type an address" />
-  </div>
-
-  <div class="form-section">
-    <label>Store Name</label>
-    <input id="name" type="text" />
-  </div>
-
-  <div class="form-section">
-    <label>Address</label>
-    <input id="address" type="text" />
-  </div>
-
-  <div class="form-section">
-    <label>City</label>
-    <input id="city" type="text" />
-  </div>
-
-  <div class="form-section">
-    <label>Country</label>
-    <input id="country" type="text" />
-  </div>
-
-  <div class="form-section">
-    <label>Phone</label>
-    <input id="phone" type="text" />
-  </div>
-
-  <div class="form-section">
-    <label>Website</label>
-    <input id="website" type="text" />
-  </div>
-
-  <div class="form-section">
-    <label>Type</label>
-    <div class="badge-group">
-      <input type="radio" id="type-store" name="type" value="store" />
-      <label class="badge store" for="type-store">Store</label>
-
-      <input type="radio" id="type-lounge" name="type" value="lounge" />
-      <label class="badge lounge" for="type-lounge">Lounge</label>
-
-      <input type="radio" id="type-other" name="type" value="other" />
-      <label class="badge other" for="type-other">Other</label>
+    <div class="form-section">
+      <label for="autocomplete">Add with Google</label>
+      <input id="autocomplete" type="text" placeholder="Type an address" />
     </div>
-  </div>
 
-  <div class="form-section">
-    <label>Rating</label>
-    <div id="stars"></div>
-    <input type="hidden" id="rating" />
+    <div class="form-section">
+      <label>Store Name</label>
+      <input id="name" type="text" />
+    </div>
+
+    <div class="form-section">
+      <label>Address</label>
+      <input id="address" type="text" />
+    </div>
+
+    <div class="form-section">
+      <label>City</label>
+      <input id="city" type="text" />
+    </div>
+
+    <div class="form-section">
+      <label>Country</label>
+      <input id="country" type="text" />
+    </div>
+
+    <div class="form-section">
+      <label>Phone</label>
+      <input id="phone" type="text" />
+    </div>
+
+    <div class="form-section">
+      <label>Website</label>
+      <input id="website" type="text" />
+    </div>
+
+    <div class="form-section">
+      <div class="badge-group">
+        <input type="radio" id="type-store" name="type" value="store">
+        <label class="badge store" for="type-store">Store</label>
+
+        <input type="radio" id="type-lounge" name="type" value="lounge">
+        <label class="badge lounge" for="type-lounge">Lounge</label>
+
+        <input type="radio" id="type-other" name="type" value="other">
+        <label class="badge other" for="type-other">Other</label>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <label>Rating</label>
+      <div id="stars"></div>
+      <input type="hidden" id="rating">
+    </div>
   </div>
 
   <script>
     let autocomplete;
 
     function initAutocomplete() {
-      autocomplete = new google.maps.places.Autocomplete(
-        document.getElementById("autocomplete"),
-        { types: ["establishment"] }
-      );
+      const input = document.getElementById("autocomplete");
+      autocomplete = new google.maps.places.Autocomplete(input, { types: ["establishment"] });
 
       autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
-        console.log("Place:", place);
-
         if (!place.address_components) return;
 
         document.getElementById("name").value = place.name || "";
@@ -144,13 +159,13 @@
         document.getElementById("phone").value = place.formatted_phone_number || "";
         document.getElementById("website").value = place.website || "";
 
-        // city & country
-        document.getElementById("city").value = getCityFromComponents(place.address_components);
-        document.getElementById("country").value = getCountryFromComponents(place.address_components);
+        // City & country
+        document.getElementById("city").value = getCity(place.address_components);
+        document.getElementById("country").value = getCountry(place.address_components);
       });
     }
 
-    function getCityFromComponents(components) {
+    function getCity(components) {
       let city = "";
       components.forEach(c => {
         if (c.types.includes("locality")) city = c.long_name;
@@ -161,17 +176,13 @@
       return city;
     }
 
-    function getCountryFromComponents(components) {
-      let country = "";
-      components.forEach(c => {
-        if (c.types.includes("country")) country = c.long_name;
-      });
-      return country;
+    function getCountry(components) {
+      const c = components.find(c => c.types.includes("country"));
+      return c ? c.long_name : "";
     }
 
-    // ⭐ stjärnor
     function initStars() {
-      const starsContainer = document.getElementById("stars");
+      const container = document.getElementById("stars");
       const hiddenInput = document.getElementById("rating");
       let selected = 0;
 
@@ -185,21 +196,20 @@
           selected = i;
           hiddenInput.value = selected;
 
-          document.querySelectorAll(".star").forEach(star => star.classList.remove("selected"));
+          document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
           for (let j = 0; j < selected; j++) {
             document.querySelectorAll(".star")[j].classList.add("selected");
           }
-          console.log("Rating set to:", selected);
         });
 
-        starsContainer.appendChild(span);
+        container.appendChild(span);
       }
     }
 
-    window.onload = () => {
+    window.addEventListener("load", () => {
       initAutocomplete();
       initStars();
-    };
+    });
   </script>
 </body>
 </html>
