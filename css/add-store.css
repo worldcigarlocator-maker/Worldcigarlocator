@@ -1,236 +1,64 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #f7f7f7;
-  margin: 0;
-  padding: 0;
-}
-
-.form-wrapper {
-  max-width: 500px;
-  margin: 2rem auto;
-  background: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: #333;
-}
-
-label {
+/* Autocomplete ser ut som övriga inputs */
+gmpx-place-autocomplete {
   display: block;
-  margin-top: 1rem;
-  font-weight: bold;
-}
-
-input[type="text"], gmpx-place-autocomplete {
   width: 100%;
-  padding: 0.6rem;
-  margin-top: 0.3rem;
+  padding: 0.7rem;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 1rem;
+  margin-top: 0.3rem;
   box-sizing: border-box;
 }
 
-/* Button */
-button {
-  display: block;
-  width: 100%;
-  margin-top: 1.5rem;
-  padding: 0.8rem;
+/* Badges som knappar */
+.radio-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.radio-group input[type="radio"] {
+  display: none;
+}
+
+.radio-group span {
+  padding: 0.4rem 1.2rem;
+  border: 2px solid #b8860b;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  color: #b8860b;
+  background: #fff;
+}
+
+.radio-group span:hover {
+  background: #fff7e0;
+}
+
+.radio-group input[type="radio"]:checked + span {
   background: #b8860b;
   color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-button:hover {
-  background: #a37408;
 }
 
-/* Toasts */
-#toast-container {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.toast {
-  background: #333;
-  color: #fff;
-  padding: 0.8rem 1.2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  opacity: 0.95;
-}
-.toast.success { background: #28a745; }
-.toast.error { background: #dc3545; }
-
-/* Rating stars */
-.rating {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.3rem;
-}
+/* Stjärnor */
 .star {
-  font-size: 2rem;
+  font-size: 1.6rem;
   cursor: pointer;
   color: #ccc;
-  transition: color 0.2s;
+  transition: color 0.2s, transform 0.2s;
 }
-.star:hover,
-.star.hover {
-  color: #daa520;
+
+.star:hover {
+  color: #ffcc00;
+  transform: scale(1.2);
 }
+
 .star.selected {
-  color: #b8860b;
+  color: #ffcc00;
 }
 
-/* Store Type badges */
-.radio-group {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-.radio-group input[type="radio"] {
-  display: none; /* göm cirklarna */
-}
-.radio-group span {
-  padding: 0.5rem 1.2rem;
-  border-radius: 20px;
-  font-size: 0.95rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-/* Store = blå */
-input[value="store"] + span {
-  border: 2px solid #007bff;
-  color: #007bff;
-}
-input[value="store"]:checked + span {
-  background: #007bff;
-  color: #fff;
-}
-/* Lounge = grön */
-input[value="lounge"] + span {
-  border: 2px solid #28a745;
-  color: #28a745;
-}
-input[value="lounge"]:checked + span {
-  background: #28a745;
-  color: #fff;
-}
-/* Other = orange */
-input[value="other"] + span {
-  border: 2px solid #ff8c00;
-  color: #ff8c00;
-}
-input[value="other"]:checked + span {
-  background: #ff8c00;
-  color: #fff;
-}
-
-/* Image preview */
-#imagePreview img {
-  max-width: 100%;
-  border-radius: 8px;
-  margin-top: 1rem;
-}
-gmpx-place-autocomplete {
-  display: block;          /* Gör den till block-element */
-  width: 100%;             /* Full bredd */
-  box-sizing: border-box;  /* Så padding + border räknas rätt */
-  padding: 0.6rem;         /* Samma padding som inputs */
-  margin-top: 0.3rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
-}
-/* === Autocomplete input === */
-gmpx-place-autocomplete {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0.6rem;
-  margin-top: 0.3rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
-  background: #fff;
-}
-
-/* === Radio badges === */
-.radio-group {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.radio-group input[type="radio"] {
-  display: none; /* göm vanliga cirklar */
-}
-
-.radio-group span {
-  padding: 0.5rem 1.2rem;
-  border-radius: 20px;
-  font-size: 0.95rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-/* Store = blå */
-input[value="store"] + span {
-  border: 2px solid #007bff;
-  color: #007bff;
-}
-input[value="store"]:checked + span {
-  background: #007bff;
-  color: #fff;
-}
-
-/* Lounge = grön */
-input[value="lounge"] + span {
-  border: 2px solid #28a745;
-  color: #28a745;
-}
-input[value="lounge"]:checked + span {
-  background: #28a745;
-  color: #fff;
-}
-
-/* Other = orange */
-input[value="other"] + span {
-  border: 2px solid #ff8c00;
-  color: #ff8c00;
-}
-input[value="other"]:checked + span {
-  background: #ff8c00;
-  color: #fff;
-}
-.gold-heading {
-  margin-top: 2rem;
-  margin-bottom: 0.5rem;
-  color: #b8860b;   /* guld */
-  font-size: 1.4rem;
-  font-weight: bold;
-  text-align: left;
-}
-
-.black-heading {
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-  color: #000;      /* svart */
-  font-size: 1.1rem;
-  font-weight: bold;
-  text-align: left;
+/* Sektioner får mer luft */
+.form-section {
+  margin-bottom: 1.5rem;
 }
