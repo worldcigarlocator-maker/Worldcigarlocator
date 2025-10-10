@@ -1,90 +1,209 @@
+/* === Grundlayout === */
 body {
   font-family: Arial, sans-serif;
-  background: #f4f4f4;
-  padding: 20px;
-}
-
-.container {
-  max-width: 900px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.store-card {
-  border: 1px solid #ddd;
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-}
-
-.actions button {
-  margin-right: 10px;
-  cursor: pointer;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-}
-
-.actions button:hover {
-  opacity: 0.8;
-}
-
-/* Modal styling */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
-}
-
-.modal-content {
-  background: #fff;
-  margin: 10% auto;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 500px;
-}
-
-.close {
-  float: right;
-  font-size: 24px;
-  cursor: pointer;
-}
-/* 🔒 Overlay login */
-.overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.85);
+  background: #f8f8f8;
+  margin: 0;
+  padding: 2rem;
   display: flex;
   justify-content: center;
-  align-items: center;
-  z-index: 2000;
 }
 
-.overlay-content {
+.form-wrapper {
   background: #fff;
-  padding: 30px;
-  border-radius: 8px;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-width: 600px;
+  width: 100%;
+}
+
+/* === Rubriker === */
+h1.gold-heading {
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  color: #b8860b;
+  margin-bottom: 2rem;
 }
 
-.overlay-content input {
-  padding: 10px;
-  width: 200px;
-  margin-bottom: 10px;
+h2.gold-heading {
+  color: #b8860b;
+  font-size: 1.1rem;
+  margin: 1.5rem 0 0.5rem;
 }
 
-.overlay-content button {
-  padding: 10px 20px;
-  background: gold;
-  border: none;
-  border-radius: 4px;
+h2.black-heading {
+  color: #333;
+  font-size: 1.1rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+/* === Form-sektioner === */
+.form-section {
+  margin-bottom: 1.2rem;
+}
+
+label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+/* === Inputs === */
+input[type="text"] {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+/* === Google autocomplete fält === */
+gmpx-place-autocomplete {
+  display: block;
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+
+/* === Badge-radio === */
+.radio-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.radio-group input[type="radio"] {
+  display: none; /* göm cirklarna */
+}
+
+.badge {
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  border: 2px solid transparent;
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
+
+/* Store = blå */
+.badge.store {
+  border-color: #007bff;
+  color: #007bff;
+}
+.radio-group input[type="radio"]:checked + .store {
+  background: #007bff;
+  color: #fff;
+}
+.badge.store:hover {
+  background: #e6f0ff;
+}
+
+/* Lounge = grön */
+.badge.lounge {
+  border-color: #28a745;
+  color: #28a745;
+}
+.radio-group input[type="radio"]:checked + .lounge {
+  background: #28a745;
+  color: #fff;
+}
+.badge.lounge:hover {
+  background: #e9f9ee;
+}
+
+/* Other = orange */
+.badge.other {
+  border-color: #ff8c00;
+  color: #ff8c00;
+}
+.radio-group input[type="radio"]:checked + .other {
+  background: #ff8c00;
+  color: #fff;
+}
+.badge.other:hover {
+  background: #fff1e0;
+}
+
+/* === Rating-stjärnor === */
+.rating {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.star {
+  font-size: 2.2rem;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.star:hover,
+.star.hover {
+  color: #ffcc00;
+  transform: scale(1.15);
+}
+
+.star.selected {
+  color: #b8860b;
+}
+
+/* === Preview === */
+#preview img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* === Knapp === */
+button {
+  margin-top: 1.5rem;
+  width: 100%;
+  padding: 0.9rem;
+  background: #b8860b;
+  color: #fff;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s, transform 0.1s;
+}
+
+button:hover {
+  background: #a37408;
+  transform: translateY(-2px);
+}
+
+/* === Toasts === */
+#toast-container {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 1000;
+}
+
+.toast {
+  background: #333;
+  color: #fff;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  opacity: 0.95;
+  font-size: 0.9rem;
+}
+
+.toast.success {
+  background: #28a745;
+}
+
+.toast.error {
+  background: #dc3545;
+}
+
