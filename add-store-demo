@@ -95,7 +95,7 @@
     <gmpx-place-autocomplete
       id="address"
       placeholder="Enter address"
-      apikey="YOUR_GOOGLE_API_KEY">
+      apikey="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ">
     </gmpx-place-autocomplete>
 
     <div class="form-section">
@@ -144,8 +144,8 @@
 
     // 🔑 Supabase setup
     const supabase = createClient(
-      "https://YOUR_PROJECT.supabase.co",
-      "YOUR_PUBLIC_ANON_KEY"
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
     // ⭐ Rating
