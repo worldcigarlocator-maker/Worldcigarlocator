@@ -62,4 +62,54 @@
     function initAutocomplete() {
       const autocomplete = new google.maps.places.Autocomplete(
         document.getElementById("autocomplete"),
-        { types: ["establishment"], fields: ["address_components", "geometry", "n_]()
+        { types: ["establishment"], fields: ["address_components", "geometry", "name", "formatted_address", "international_phone_number", "website"] }
+      );
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        console.log(place);
+
+        document.getElementById("name").value = place.name || "";
+        document.getElementById("address").value = place.formatted_address || "";
+        document.getElementById("city").value = getCityFromComponents(place.address_components || []);
+        const countryComp = (place.address_components || []).find(c => c.types.includes("country"));
+        document.getElementById("country").value = countryComp ? countryComp.long_name : "";
+        document.getElementById("phone").value = place.international_phone_number || "";
+        document.getElementById("website").value = place.website || "";
+      });
+    }
+
+    // ⭐ stjärnor
+    function initStars() {
+      const starsContainer = document.getElementById("stars");
+      const hiddenInput = document.getElementById("rating");
+      let selected = 0;
+
+      for (let i = 1; i <= 5; i++) {
+        const span = document.createElement("span");
+        span.textContent = "★";
+        span.classList.add("star");
+        span.dataset.value = i;
+
+        span.addEventListener("click", () => {
+          selected = i;
+          hiddenInput.value = selected;
+
+          document.querySelectorAll(".star").forEach(star => star.classList.remove("selected"));
+          for (let j = 0; j < selected; j++) {
+            document.querySelectorAll(".star")[j].classList.add("selected");
+          }
+          console.log("Rating set to:", selected);
+        });
+
+        starsContainer.appendChild(span);
+      }
+    }
+
+    window.onload = () => {
+      initAutocomplete();
+      initStars();
+    };
+  </script>
+</body>
+</html>
