@@ -5,18 +5,7 @@
   <title>Autocomplete Test</title>
   <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-      background: #f9f9f9;
-    }
-
-    h1 {
-      font-size: 1.4rem;
-      margin-bottom: 1rem;
-      color: #333;
-    }
-
+    body { font-family: Arial, sans-serif; padding: 2rem; }
     gmpx-place-autocomplete {
       display: block;
       width: 100%;
@@ -28,27 +17,17 @@
       box-sizing: border-box;
       margin-bottom: 1rem;
     }
-
-    #output {
-      padding: 1rem;
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      max-width: 500px;
-    }
   </style>
 </head>
 <body>
   <h1>Google Autocomplete Test</h1>
 
-  <!-- Autocomplete input -->
   <gmpx-place-autocomplete
     id="autocomplete"
     placeholder="Type an address..."
     apikey="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ">
   </gmpx-place-autocomplete>
 
-  <!-- Output -->
   <div id="output">Select a place to see details here...</div>
 
   <script>
