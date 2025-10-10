@@ -1,100 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Autocomplete Test 2 – Autofyll med City Fix</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autocomplete Test 2</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-    input {
-      width: 300px;
-      padding: 8px;
-      margin-top: 4px;
-    }
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    label { display:block; margin-top: 1rem; font-weight:bold; }
+    input { width:100%; padding:0.5rem; margin-top:0.25rem; }
   </style>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
 </head>
 <body>
-  <h2>Google Places Autocomplete – Test 2 (Autofyll med City)</h2>
+  <h2>Autocomplete Test 2</h2>
+  <label>Search</label>
+  <input id="autocomplete" type="text" placeholder="Type an address...">
 
-  <!-- Autocomplete fält -->
-  <label for="autocomplete">Add with Google</label>
-  <input id="autocomplete" type="text" placeholder="Type an address..." />
+  <label>Store Name</label>
+  <input id="name">
 
-  <!-- Vanliga fält -->
-  <label for="storeName">Store Name</label>
-  <input id="storeName" type="text" />
+  <label>Address</label>
+  <input id="address">
 
-  <label for="address">Address</label>
-  <input id="address" type="text" />
+  <label>City</label>
+  <input id="city">
 
-  <label for="city">City</label>
-  <input id="city" type="text" />
+  <label>Country</label>
+  <input id="country">
 
-  <label for="country">Country</label>
-  <input id="country" type="text" />
+  <label>Phone</label>
+  <input id="phone">
 
-  <label for="phone">Phone</label>
-  <input id="phone" type="text" />
+  <label>Website</label>
+  <input id="website">
 
-  <label for="website">Website</label>
-  <input id="website" type="text" />
-
-  <pre id="log" style="margin-top:20px; background:#f4f4f4; padding:10px;"></pre>
-
-  <!-- Google Places API -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
   <script>
-    function log(msg) {
-      const pre = document.getElementById("log");
-      pre.textContent += msg + "\n";
-      console.log(msg);
-    }
-
-    function initAutocomplete() {
-      const input = document.getElementById("autocomplete");
-      const autocomplete = new google.maps.places.Autocomplete(input, {
-        fields: ["name", "formatted_address", "geometry", "address_components", "international_phone_number", "website"],
-      });
-
-      autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        log("Selected place:");
-        log(JSON.stringify(place, null, 2));
-
-        // Fyll i fält
-        document.getElementById("storeName").value = place.name || "";
-        document.getElementById("address").value = place.formatted_address || "";
-
-        // City och country från address_components (smartare parser)
-        let city = "";
-        let country = "";
-        if (place.address_components) {
-          place.address_components.forEach(c => {
-            if (c.types.includes("locality")) city = c.long_name;
-            if (c.types.includes("postal_town")) city = c.long_name; // UK
-            if (c.types.includes("administrative_area_level_2") && !city) city = c.long_name;
-            if (c.types.includes("country")) country = c.long_name;
-          });
-        }
-        document.getElementById("city").value = city;
-        document.getElementById("country").value = country;
-
-        // Phone & website
-        document.getElementById("phone").value = place.international_phone_number || "";
-        document.getElementById("website").value = place.website || "";
-
-        alert("Autofyll klart för: " + place.name);
-      });
-    }
-
-    window.onload = initAutocomplete;
-  </script>
-</body>
-</html>
+    function getCit
