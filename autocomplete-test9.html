@@ -101,11 +101,11 @@ function renderCards(stores){
 
     // 🖼️ Default-bild beroende på typ
     let img=s.photo_url;
-    if(!img){
-      if(s.type==="store")img="images/Store.png";
-      else if(s.type==="lounge")img="images/Lounge.jpeg";
-      else img="images/Cafe.jpg";
-    }
+  if(!img){
+  if(s.type==="store") img="images/store.png";
+  else if(s.type==="lounge") img="images/lounge.jpeg";
+  else img="images/cafe.jpg";
+}
 
     const stars=s.rating?("★".repeat(s.rating)+"☆".repeat(5-s.rating)):"☆☆☆☆☆";
     const statusClass=s.approved?"approved":s.flagged?"flagged":"pending";
