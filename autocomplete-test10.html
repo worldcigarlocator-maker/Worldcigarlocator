@@ -34,10 +34,7 @@
       font-weight: bold;
       transition: background 0.2s;
     }
-
-    .add-btn:hover {
-      background: #a37408;
-    }
+    .add-btn:hover { background: #a37408; }
 
     .grid {
       display: grid;
@@ -56,33 +53,15 @@
       transition: transform 0.2s, box-shadow 0.2s;
       animation: fadeIn 0.5s ease;
     }
-
     .card:hover {
       transform: translateY(-4px);
       box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     }
+    .card img { width: 100%; height: 180px; object-fit: cover; }
 
-    .card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-    }
-
-    .card-content {
-      padding: 1rem;
-    }
-
-    .card h2 {
-      font-size: 1.2rem;
-      margin: 0 0 0.4rem;
-      color: #333;
-    }
-
-    .card p {
-      margin: 0.2rem 0;
-      color: #555;
-      font-size: 0.95rem;
-    }
+    .card-content { padding: 1rem; }
+    .card h2 { font-size: 1.2rem; margin: 0 0 0.4rem; color: #333; }
+    .card p { margin: 0.2rem 0; color: #555; font-size: 0.95rem; }
 
     .card-type {
       display: inline-block;
@@ -92,42 +71,33 @@
       font-weight: bold;
       color: #fff;
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 10px; left: 10px;
       text-transform: capitalize;
     }
-
     .card-type.store { background: #007bff; }
     .card-type.lounge { background: #28a745; }
     .card-type.other { background: #ff8c00; }
 
     .status-badge {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 10px; right: 10px;
       padding: 0.3rem 0.7rem;
       border-radius: 6px;
       font-size: 0.8rem;
       font-weight: bold;
       color: #fff;
     }
-
     .status-approved { background: #28a745; }
     .status-pending { background: #ffc107; color: #333; }
     .status-flagged { background: #dc3545; }
 
-    .stars {
-      color: #b8860b;
-      font-size: 1.1rem;
-      margin-top: 0.5rem;
-    }
+    .stars { color: #b8860b; font-size: 1.1rem; margin-top: 0.5rem; }
 
     .actions {
       display: flex;
       gap: 0.5rem;
       margin-top: 0.8rem;
     }
-
     .actions button {
       flex: 1;
       border: none;
@@ -138,11 +108,7 @@
       color: #fff;
       transition: opacity 0.2s;
     }
-
-    .actions button:hover {
-      opacity: 0.8;
-    }
-
+    .actions button:hover { opacity: 0.8; }
     .approve { background: #28a745; }
     .delete { background: #dc3545; }
 
@@ -157,7 +123,6 @@
       align-items: center;
       z-index: 10;
     }
-
     .overlay.active { display: flex; }
 
     .popup {
@@ -168,24 +133,21 @@
       max-width: 500px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-
-    .popup h2 {
-      color: #b8860b;
-      margin-top: 0;
-      margin-bottom: 1rem;
-    }
-
+    .popup h2 { color: #b8860b; margin-top: 0; margin-bottom: 1rem; }
     .popup input {
-      width: 100%;
-      padding: 0.6rem;
+      width: 100%; padding: 0.6rem;
       margin-bottom: 0.8rem;
       border-radius: 6px;
       border: 1px solid #ccc;
       font-size: 1rem;
     }
-
+    .popup .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
     .popup button {
-      width: 100%;
+      flex: 1;
       background: #b8860b;
       color: white;
       border: none;
@@ -193,10 +155,9 @@
       padding: 0.9rem;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 0.5rem;
     }
-
     .popup button:hover { background: #a37408; }
+    #cancelBtn { background: #ccc; color: #333; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -222,16 +183,20 @@
       <input type="text" id="country" placeholder="Country">
       <input type="text" id="phone" placeholder="Phone">
       <input type="text" id="website" placeholder="Website">
-      <button id="saveBtn">Save Store</button>
+      <div class="btn-row">
+        <button id="saveBtn">Save Store</button>
+        <button id="cancelBtn">Cancel</button>
+      </div>
     </div>
   </div>
 
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-    const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
 
     const container = document.getElementById("cardGrid");
     const popup = document.getElementById("popup");
@@ -306,6 +271,11 @@
     document.getElementById("addBtn").addEventListener("click", () => popup.classList.add("active"));
     popup.addEventListener("click", e => { if (e.target === popup) popup.classList.remove("active"); });
 
+    document.getElementById("cancelBtn").addEventListener("click", () => {
+      popup.classList.remove("active");
+      document.querySelectorAll(".popup input").forEach(i => i.value = "");
+    });
+
     document.getElementById("saveBtn").addEventListener("click", async () => {
       const name = document.getElementById("name").value.trim();
       const address = document.getElementById("address").value.trim();
@@ -318,14 +288,14 @@
 
       const type = prompt("Type? (store / lounge / other)", "other") || "other";
 
-const { error } = await supabase.from("stores").insert([{
-  name, address, city, country, phone, website, type, rating: 0, approved: false
-}]);
-
+      const { error } = await supabase.from("stores").insert([{
+        name, address, city, country, phone, website, type, rating: 0, approved: false
+      }]);
 
       if (error) console.error(error);
       else {
         popup.classList.remove("active");
+        document.querySelectorAll(".popup input").forEach(i => i.value = "");
         loadStores();
       }
     });
