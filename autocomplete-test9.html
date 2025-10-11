@@ -3,100 +3,115 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>World Cigar Locator – Test 9 (Fixed)</title>
+  <title>Test 9 – Store Cards with Fallback Images</title>
+
+  <!-- Google Maps Web Components -->
+  <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f7f7f7;
-      margin: 0;
+      background: #f8f8f8;
       padding: 2rem;
     }
 
     h1 {
-      text-align: center;
       color: #b8860b;
+      text-align: center;
       margin-bottom: 2rem;
     }
 
-    .card-grid {
+    #cardGrid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 1.5rem;
-      max-width: 1200px;
-      margin: 0 auto;
     }
 
     .card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
       transition: transform 0.2s ease;
     }
 
-    .card:hover { transform: translateY(-4px); }
+    .card:hover {
+      transform: translateY(-4px);
+    }
 
     .card img {
       width: 100%;
-      height: 180px;
+      height: 160px;
       object-fit: cover;
-      background: #eee;
     }
 
-    .card-content { padding: 1rem 1.2rem; }
+    .card-content {
+      padding: 1rem;
+    }
 
     .card-type {
       display: inline-block;
-      padding: 0.2rem 0.7rem;
+      padding: 0.3rem 0.8rem;
       border-radius: 12px;
-      color: #fff;
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: bold;
+      color: #fff;
       margin-bottom: 0.5rem;
-      text-transform: capitalize;
     }
 
-    .card-type.store { background: #007bff; }
-    .card-type.lounge { background: #28a745; }
-    .card-type.other { background: #ff8c00; }
+    .card-type.store {
+      background-color: #007bff;
+    }
+    .card-type.lounge {
+      background-color: #28a745;
+    }
+    .card-type.other {
+      background-color: #ff8c00;
+    }
 
-    .card h2 { font-size: 1.1rem; margin: 0.3rem 0; color: #333; }
-    .card p { margin: 0.2rem 0; color: #555; font-size: 0.9rem; }
+    .stars {
+      color: #b8860b;
+      font-size: 1.1rem;
+    }
 
-    .stars { color: #b8860b; font-size: 1.1rem; margin: 0.4rem 0; }
+    .card-content a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .card-content a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
-  <h1>Business Preview (Test 9)</h1>
-  <div id="cardGrid" class="card-grid"></div>
+  <h1>World Cigar Locator – Test 9</h1>
+  <div id="cardGrid"></div>
 
-  <!-- ✅ Supabase standalone build -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.4/dist/umd/supabase.min.js"></script>
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-  <script>
-    // 🟡 Supabase init
-    const supabase = window.supabase.createClient(
+    // ✅ Supabase init
+    const supabase = createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
+    // 🔹 Load all stores
     async function loadStores() {
-      const { data, error } = await supabase
-        .from("stores")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("stores").select("*").order("created_at", { ascending: false });
 
       if (error) {
-        console.error("Supabase error:", error);
+        console.error("Error loading stores:", error.message);
         return;
       }
 
-      renderCards(data || []);
+      renderCards(data);
     }
 
+    // 🖼️ Render function with smart fallbacks
     function renderCards(stores) {
       const container = document.getElementById("cardGrid");
       container.innerHTML = "";
@@ -107,25 +122,26 @@
       }
 
       stores.forEach((store) => {
+        const type = (store.type || "other").toLowerCase();
+
+        // Fallback per type (all lowercase filenames)
         let img = store.image;
         if (!img) {
-          if (store.type === "store") img = "images/Store.png";
-          else if (store.type === "lounge") img = "images/Lounge.jpeg";
-          else img = "images/Cafe.jpg";
+          if (type === "store") img = "images/store.jpg";
+          else if (type === "lounge") img = "images/lounge.jpg";
+          else img = "images/cafe.jpg";
         }
 
         const stars = store.rating
           ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
           : "☆☆☆☆☆";
 
-        const badge = store.type || "other";
-
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
-          <img src="${img}" alt="${store.name || 'No image'}" onerror="this.src='images/Store.png'">
+          <img src="${img}" alt="${store.name || "No image"}" onerror="this.src='images/store.jpg'">
           <div class="card-content">
-            <span class="card-type ${badge}">${store.type || "Other"}</span>
+            <span class="card-type ${type}">${store.type || "Other"}</span>
             <h2>${store.name || "Unnamed"}</h2>
             <p>${store.address || ""}</p>
             <p>${store.city || ""}, ${store.country || ""}</p>
@@ -134,12 +150,12 @@
             ${store.website ? `<p><a href="${store.website}" target="_blank">🌐 Website</a></p>` : ""}
           </div>
         `;
-
         container.appendChild(card);
       });
     }
 
-    document.addEventListener("DOMContentLoaded", loadStores);
+    // 🚀 Start
+    loadStores();
   </script>
 </body>
 </html>
