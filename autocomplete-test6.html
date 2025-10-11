@@ -7,6 +7,7 @@
   let selectedLat = null;
   let selectedLng = null;
   let selectedPlaceId = null;
+  let photoUrl = null;
 
   function initAutocomplete() {
     const input = document.getElementById("autocomplete");
@@ -29,11 +30,13 @@
         selectedLng = place.geometry.location.lng();
       }
 
+      // 📸 Hämta bild
       const preview = document.getElementById("preview");
       if (place.photos && place.photos.length > 0) {
-        const url = place.photos[0].getUrl({ maxWidth: 500 });
-        preview.innerHTML = `<img src="${url}" alt="Preview">`;
+        photoUrl = place.photos[0].getUrl({ maxWidth: 600 });
+        preview.innerHTML = `<img src="${photoUrl}" alt="Preview">`;
       } else {
+        photoUrl = null;
         preview.innerHTML = "";
       }
     });
@@ -70,7 +73,7 @@
         selected = i;
         hiddenInput.value = selected;
         document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
-        for (let j = 0; j < selected; j++) document.querySelectorAll(".star")[j].classList.add("selected");
+        for (let j = 0; j < i; j++) document.querySelectorAll(".star")[j].classList.add("selected");
       });
 
       container.appendChild(span);
@@ -110,12 +113,15 @@
       }
     }
 
+    // 💾 Spara till Supabase inklusive photo_url
     const { error } = await supabase.from("stores").insert([{
       name, address, city, country, phone, website,
       type, rating,
-      latitude: selectedLat, longitude: selectedLng,
+      latitude: selectedLat,
+      longitude: selectedLng,
       approved: false,
-      place_id: selectedPlaceId
+      place_id: selectedPlaceId,
+      photo_url: photoUrl
     }]);
 
     if (error) {
@@ -141,6 +147,10 @@
     document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
     document.getElementById("rating").value = "";
     document.getElementById("preview").innerHTML = "";
+    selectedPlaceId = null;
+    selectedLat = null;
+    selectedLng = null;
+    photoUrl = null;
   }
 
   function showToast(msg, type = "success") {
