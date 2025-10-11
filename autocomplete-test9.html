@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Test 9 – Store Cards with Fallback Images</title>
+  <title>World Cigar Locator – Test 9 (Fixed Images)</title>
 
   <!-- Google Maps Web Components -->
   <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
@@ -101,7 +101,10 @@
 
     // 🔹 Load all stores
     async function loadStores() {
-      const { data, error } = await supabase.from("stores").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("stores")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Error loading stores:", error.message);
@@ -122,21 +125,23 @@
       }
 
       stores.forEach((store) => {
+        // 🔠 Normalize type (handles spaces and uppercase)
         const type = (store.type || "other").trim().toLowerCase();
 
-let img;
-switch (type) {
-  case "store":
-    img = "images/store.jpg";
-    break;
-  case "lounge":
-    img = "images/lounge.jpg";
-    break;
-  case "other":
-  default:
-    img = "images/cafe.jpg";
-    break;
-}
+        // 🖼️ Smart fallback based on normalized type
+        let img;
+        switch (type) {
+          case "store":
+            img = "images/store.jpg";
+            break;
+          case "lounge":
+            img = "images/lounge.jpg";
+            break;
+          case "other":
+          default:
+            img = "images/cafe.jpg";
+            break;
+        }
 
         const stars = store.rating
           ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
