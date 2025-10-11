@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Store / Lounge / Other</title>
 
   <!-- Google Maps Web Components -->
@@ -209,14 +209,11 @@
 
   <div id="toast-container"></div>
 
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-    // 🔑 Supabase
-    const supabase = createClient(
-      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
-    );
+  <script>
+    // 🔑 Supabase setup
+    const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     // ⭐ Rating
     const ratingEl = document.getElementById("rating");
@@ -246,30 +243,8 @@
     let lat = null, lng = null;
 
     autocompleteEl.addEventListener("gmpx-placechange", () => {
-      const place = autocompleteEl.getPlace();
-      if (!place) return;
-
-      document.getElementById("name").value = place.displayName || "";
-      document.getElementById("address").value = place.formattedAddress || "";
-      document.getElementById("phone").value = place.internationalPhoneNumber || "";
-      document.getElementById("website").value = place.websiteUri || "";
-
-      const city = place.addressComponents?.find(c => c.types.includes("locality"));
-      const country = place.addressComponents?.find(c => c.types.includes("country"));
-      document.getElementById("city").value = city?.longText || "";
-      document.getElementById("country").value = country?.longText || "";
-
-      if (place.location) {
-        lat = place.location.lat();
-        lng = place.location.lng();
-      }
-
-      if (place.photos && place.photos.length > 0) {
-        const url = place.photos[0].getURI({maxHeight:200});
-        document.getElementById("preview").innerHTML = `<img src="${url}" />`;
-      } else {
-        document.getElementById("preview").innerHTML = "";
-      }
+      const place = autocompleteEl.value;
+      console.log("Selected place:", place);
     });
 
     // 💾 Save
@@ -290,7 +265,7 @@
 
       const { error } = await supabase.from("stores").insert([{
         name, address, city, country, phone, website, type, rating,
-        latitude: lat, longitude: lng, approved: false
+        approved: false
       }]);
 
       if (error) {
@@ -309,7 +284,6 @@
       document.querySelectorAll("input").forEach(i => i.value = "");
       document.querySelectorAll("input[name='type']").forEach(r => r.checked = false);
       document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
-      document.getElementById("preview").innerHTML = "";
       selectedRating = 0;
     }
 
