@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World Cigar Locator – Test 9</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Cigar Locator – Test 9 (Fixed)</title>
 
   <style>
     body {
-      font-family: 'Inter', sans-serif;
-      background: #f6f6f6;
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
       margin: 0;
       padding: 2rem;
     }
@@ -31,16 +30,14 @@
     .card {
       background: #fff;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       overflow: hidden;
       display: flex;
       flex-direction: column;
       transition: transform 0.2s ease;
     }
 
-    .card:hover {
-      transform: translateY(-4px);
-    }
+    .card:hover { transform: translateY(-4px); }
 
     .card img {
       width: 100%;
@@ -49,9 +46,7 @@
       background: #eee;
     }
 
-    .card-content {
-      padding: 1rem 1.2rem;
-    }
+    .card-content { padding: 1rem 1.2rem; }
 
     .card-type {
       display: inline-block;
@@ -68,48 +63,26 @@
     .card-type.lounge { background: #28a745; }
     .card-type.other { background: #ff8c00; }
 
-    .card h2 {
-      font-size: 1.1rem;
-      margin: 0.3rem 0;
-      color: #333;
-    }
+    .card h2 { font-size: 1.1rem; margin: 0.3rem 0; color: #333; }
+    .card p { margin: 0.2rem 0; color: #555; font-size: 0.9rem; }
 
-    .card p {
-      margin: 0.2rem 0;
-      color: #555;
-      font-size: 0.9rem;
-    }
-
-    .stars {
-      color: #b8860b;
-      font-size: 1.1rem;
-      margin: 0.4rem 0;
-    }
-
-    .card a {
-      color: #007bff;
-      text-decoration: none;
-    }
-
-    .card a:hover {
-      text-decoration: underline;
-    }
+    .stars { color: #b8860b; font-size: 1.1rem; margin: 0.4rem 0; }
   </style>
 </head>
 <body>
   <h1>Business Preview (Test 9)</h1>
-
   <div id="cardGrid" class="card-grid"></div>
 
-  <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+  <!-- ✅ Supabase standalone build -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.4/dist/umd/supabase.min.js"></script>
 
-    const supabase = createClient(
+  <script>
+    // 🟡 Supabase init
+    const supabase = window.supabase.createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
-    // === Load stores ===
     async function loadStores() {
       const { data, error } = await supabase
         .from("stores")
@@ -117,60 +90,55 @@
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("Error fetching stores:", error);
+        console.error("Supabase error:", error);
         return;
       }
 
-      renderCards(data);
+      renderCards(data || []);
     }
 
-    // === Render cards ===
     function renderCards(stores) {
       const container = document.getElementById("cardGrid");
       container.innerHTML = "";
 
+      if (!stores.length) {
+        container.innerHTML = "<p style='text-align:center;'>No stores found.</p>";
+        return;
+      }
+
       stores.forEach((store) => {
-        try {
-          // 🖼️ Fallback image
-          let img = store.image;
-          if (!img) {
-            if (store.type === "store") img = "images/Store.png";
-            else if (store.type === "lounge") img = "images/Lounge.jpeg";
-            else img = "images/Cafe.jpg";
-          }
-
-          // ⭐ Rating
-          const stars = store.rating
-            ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
-            : "☆☆☆☆☆";
-
-          // 🏷️ Badge color
-          let badgeClass = store.type || "other";
-
-          // 🧾 HTML
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
-            <img src="${img}" alt="${store.name || 'No image'}" onerror="this.src='images/Store.png'">
-            <div class="card-content">
-              <span class="card-type ${badgeClass}">${store.type || "Other"}</span>
-              <h2>${store.name || "Unnamed"}</h2>
-              <p>${store.address || ""}</p>
-              <p>${store.city || ""}, ${store.country || ""}</p>
-              <div class="stars">${stars}</div>
-              ${store.phone ? `<p>📞 ${store.phone}</p>` : ""}
-              ${store.website ? `<p><a href="${store.website}" target="_blank">🌐 Website</a></p>` : ""}
-            </div>
-          `;
-
-          container.appendChild(card);
-        } catch (err) {
-          console.error("Error rendering store:", err);
+        let img = store.image;
+        if (!img) {
+          if (store.type === "store") img = "images/Store.png";
+          else if (store.type === "lounge") img = "images/Lounge.jpeg";
+          else img = "images/Cafe.jpg";
         }
+
+        const stars = store.rating
+          ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
+          : "☆☆☆☆☆";
+
+        const badge = store.type || "other";
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${img}" alt="${store.name || 'No image'}" onerror="this.src='images/Store.png'">
+          <div class="card-content">
+            <span class="card-type ${badge}">${store.type || "Other"}</span>
+            <h2>${store.name || "Unnamed"}</h2>
+            <p>${store.address || ""}</p>
+            <p>${store.city || ""}, ${store.country || ""}</p>
+            <div class="stars">${stars}</div>
+            ${store.phone ? `<p>📞 ${store.phone}</p>` : ""}
+            ${store.website ? `<p><a href="${store.website}" target="_blank">🌐 Website</a></p>` : ""}
+          </div>
+        `;
+
+        container.appendChild(card);
       });
     }
 
-    // === Init ===
     document.addEventListener("DOMContentLoaded", loadStores);
   </script>
 </body>
