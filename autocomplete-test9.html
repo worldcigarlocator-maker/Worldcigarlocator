@@ -100,11 +100,16 @@ function renderCards(stores){
     card.className="card";
 
     // 🖼️ Default-bild beroende på typ
-if(!img){
-  if(s.type==="store") img="images/Store.png";
-  else if(s.type==="lounge") img="images/lounge.jpeg";
-  else img="images/cafe.jpg";
+if (!img) {
+  try {
+    if (s.type === "store") img = "images/Store.png";
+    else if (s.type === "lounge") img = "images/Lounge.jpeg";
+    else img = "images/Cafe.jpg";
+  } catch {
+    img = "images/Store.png";
+  }
 }
+
 
 
     const stars=s.rating?("★".repeat(s.rating)+"☆".repeat(5-s.rating)):"☆☆☆☆☆";
