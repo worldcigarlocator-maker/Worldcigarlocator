@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test 7 – Backoffice Preview</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6f6f6;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: #b8860b;
+      margin-bottom: 2rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
+      position: relative;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .badge.store { background: #007bff; }
+    .badge.lounge { background: #28a745; }
+    .badge.other { background: #ff8c00; }
+
+    .pending {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #dc3545;
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    .card h3 {
+      margin: 0.5rem 0;
+      color: #333;
+    }
+
+    .card p {
+      margin: 0.2rem 0;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    .stars {
+      color: #b8860b;
+      margin-top: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Backoffice Preview (Test 7)</h1>
+  <div id="cards" class="grid"></div>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function loadStores() {
+      const { data, error } = await supabase
+        .from("stores")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching stores:", error);
+        document.getElementById("cards").innerHTML = "<p>Could not load data.</p>";
+        return;
+      }
+
+      renderCards(data);
+    }
+
+    function renderCards(stores) {
+      const container = document.getElementById("cards");
+      container.innerHTML = "";
+
+      stores.forEach(store => {
+        const div = document.createElement("div");
+        div.className = "card";
+
+        const stars = "★".repeat(store.rating || 0) + "☆".repeat(5 - (store.rating || 0));
+        const badgeClass = store.type || "other";
+        const approved = store.approved === true;
+
+        div.innerHTML = `
+          <span class="badge ${badgeClass}">${store.type || "Other"}</span>
+          ${!approved ? `<span class="pending">Pending</span>` : ""}
+          <h3>${store.name || "Unnamed"}</h3>
+          <p>${store.address || ""}</p>
+          <p>${store.city || ""}, ${store.country || ""}</p>
+          <div class="stars">${stars}</div>
+          ${store.phone ? `<p>📞 ${store.phone}</p>` : ""}
+          ${store.website ? `<p><a href="${store.website}" target="_blank">🌐 Website</a></p>` : ""}
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", loadStores);
+  </script>
+</body>
+</html>
