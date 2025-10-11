@@ -3,48 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>World Cigar Locator – Test 9 (Fixed Images)</title>
-
-  <!-- Google Maps Web Components -->
-  <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
-
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>World Cigar Locator – Test 9</title>
 
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f8f8f8;
+      margin: 0;
       padding: 2rem;
     }
 
     h1 {
-      color: #b8860b;
       text-align: center;
+      color: #b8860b;
       margin-bottom: 2rem;
     }
 
-    #cardGrid {
+    .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 1.5rem;
+      max-width: 1200px;
+      margin: auto;
     }
 
     .card {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       overflow: hidden;
-      transition: transform 0.2s ease;
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: fadeIn 0.6s ease forwards;
+      position: relative;
     }
 
     .card:hover {
       transform: translateY(-4px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     }
 
     .card img {
       width: 100%;
-      height: 160px;
+      height: 180px;
       object-fit: cover;
     }
 
@@ -52,54 +52,82 @@
       padding: 1rem;
     }
 
+    .card h2 {
+      font-size: 1.2rem;
+      margin: 0 0 0.4rem;
+      color: #333;
+    }
+
+    .card p {
+      margin: 0.2rem 0;
+      color: #555;
+      font-size: 0.95rem;
+    }
+
     .card-type {
       display: inline-block;
       padding: 0.3rem 0.8rem;
-      border-radius: 12px;
+      border-radius: 20px;
       font-size: 0.8rem;
       font-weight: bold;
       color: #fff;
-      margin-bottom: 0.5rem;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      text-transform: capitalize;
     }
 
-    .card-type.store {
-      background-color: #007bff;
+    .card-type.store { background: #007bff; }
+    .card-type.lounge { background: #28a745; }
+    .card-type.other { background: #ff8c00; }
+
+    .status-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #fff;
     }
-    .card-type.lounge {
-      background-color: #28a745;
-    }
-    .card-type.other {
-      background-color: #ff8c00;
-    }
+
+    .status-approved { background: #28a745; }
+    .status-pending { background: #ffc107; color: #333; }
+    .status-flagged { background: #dc3545; }
 
     .stars {
       color: #b8860b;
       font-size: 1.1rem;
+      margin-top: 0.5rem;
     }
 
-    .card-content a {
+    a {
       color: #007bff;
       text-decoration: none;
     }
-    .card-content a:hover {
+
+    a:hover {
       text-decoration: underline;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <h1>World Cigar Locator – Test 9</h1>
-  <div id="cardGrid"></div>
+  <h1>World Cigar Locator — Test 9</h1>
+  <div id="cardGrid" class="grid"></div>
 
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-    // ✅ Supabase init
-    const supabase = createClient(
-      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
-    );
+    const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // 🔹 Load all stores
     async function loadStores() {
       const { data, error } = await supabase
         .from("stores")
@@ -107,68 +135,63 @@
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("Error loading stores:", error.message);
+        console.error("❌ Error loading stores:", error);
         return;
       }
 
       renderCards(data);
     }
 
-    // 🖼️ Render function with smart fallbacks
-  function renderCards(stores) {
-  const container = document.getElementById("cardGrid");
-  container.innerHTML = "";
+    function renderCards(stores) {
+      const container = document.getElementById("cardGrid");
+      container.innerHTML = "";
 
-  console.log("Fetched stores:", stores); // 👈 lägg till denna rad
+      if (!stores || stores.length === 0) {
+        container.innerHTML = "<p style='text-align:center;color:#666;'>No stores found.</p>";
+        return;
+      }
 
-  if (!stores.length) {
-    container.innerHTML = "<p style='text-align:center;'>No stores found.</p>";
-    return;
-  }
-
-
-      stores.forEach((store) => {
-        // 🔠 Normalize type (handles spaces and uppercase)
-        const type = (store.type || "other").trim().toLowerCase();
-
-        // 🖼️ Smart fallback based on normalized type
-        let img;
-        switch (type) {
-          case "store":
-            img = "images/store.jpg";
-            break;
-          case "lounge":
-            img = "images/lounge.jpg";
-            break;
-          case "other":
-          default:
-            img = "images/cafe.jpg";
-            break;
+      stores.forEach(store => {
+        // fallback-bild beroende på typ
+        let image = store.image;
+        if (!image) {
+          if (store.type === "store") image = "images/store.jpg";
+          else if (store.type === "lounge") image = "images/lounge.jpg";
+          else image = "images/cafe.jpg";
         }
 
         const stars = store.rating
           ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
-          : "☆☆☆☆☆";
+          : "No rating";
+
+        // typ badge
+        const typeClass = store.type ? store.type.toLowerCase() : "other";
+
+        // status
+        let statusHTML = "";
+        if (store.flagged) statusHTML = `<span class="status-badge status-flagged">Flagged</span>`;
+        else if (!store.approved) statusHTML = `<span class="status-badge status-pending">Pending</span>`;
+        else statusHTML = `<span class="status-badge status-approved">Approved</span>`;
 
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
-          <img src="${img}" alt="${store.name || "No image"}" onerror="this.src='images/store.jpg'">
+          <img src="${image}" alt="${store.name || "Store"}">
+          <span class="card-type ${typeClass}">${store.type || "Other"}</span>
+          ${statusHTML}
           <div class="card-content">
-            <span class="card-type ${type}">${store.type || "Other"}</span>
-            <h2>${store.name || "Unnamed"}</h2>
+            <h2>${store.name || "Unnamed Store"}</h2>
             <p>${store.address || ""}</p>
-            <p>${store.city || ""}, ${store.country || ""}</p>
-            <div class="stars">${stars}</div>
+            <p>${store.city || ""}${store.city && store.country ? ", " : ""}${store.country || ""}</p>
             ${store.phone ? `<p>📞 ${store.phone}</p>` : ""}
-            ${store.website ? `<p><a href="${store.website}" target="_blank">🌐 Website</a></p>` : ""}
+            ${store.website ? `<p><a href="${store.website}" target="_blank">🌐 Visit Website</a></p>` : ""}
+            <p class="stars">${stars}</p>
           </div>
         `;
         container.appendChild(card);
       });
     }
 
-    // 🚀 Start
     loadStores();
   </script>
 </body>
