@@ -316,9 +316,12 @@
 
       if (!name || !address || !city || !country) return alert("Please fill all required fields");
 
-      const { error } = await supabase.from("stores").insert([{
-        name, address, city, country, phone, website, type: "store", rating: 0, approved: false
-      }]);
+      const type = prompt("Type? (store / lounge / other)", "other") || "other";
+
+const { error } = await supabase.from("stores").insert([{
+  name, address, city, country, phone, website, type, rating: 0, approved: false
+}]);
+
 
       if (error) console.error(error);
       else {
