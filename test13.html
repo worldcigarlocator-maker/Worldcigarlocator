@@ -233,8 +233,7 @@ const rating = selectedRating;
 if (type === "store") type = "Store";
 if (type === "lounge") type = "Lounge";
 if (type === "other") type = "Other";
-
-      if (!name || !address || !city || !country || !["store","lounge","other"].includes(type)) {
+if (!name || !address || !city || !country || !["Store","Lounge","Other"].includes(type)) {
         showToast("Please fill in all required fields", "error");
         return;
       }
