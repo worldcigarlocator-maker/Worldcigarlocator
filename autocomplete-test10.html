@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Cigar Locator – Test 10</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: #b8860b;
+      margin-bottom: 2rem;
+    }
+
+    .top-bar {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .add-btn {
+      background: #b8860b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+
+    .add-btn:hover {
+      background: #a37408;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 1rem;
+    }
+
+    .card h2 {
+      font-size: 1.2rem;
+      margin: 0 0 0.4rem;
+      color: #333;
+    }
+
+    .card p {
+      margin: 0.2rem 0;
+      color: #555;
+      font-size: 0.95rem;
+    }
+
+    .card-type {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #fff;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      text-transform: capitalize;
+    }
+
+    .card-type.store { background: #007bff; }
+    .card-type.lounge { background: #28a745; }
+    .card-type.other { background: #ff8c00; }
+
+    .status-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .status-approved { background: #28a745; }
+    .status-pending { background: #ffc107; color: #333; }
+    .status-flagged { background: #dc3545; }
+
+    .stars {
+      color: #b8860b;
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+    }
+
+    .actions button {
+      flex: 1;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #fff;
+      transition: opacity 0.2s;
+    }
+
+    .actions button:hover {
+      opacity: 0.8;
+    }
+
+    .approve { background: #28a745; }
+    .delete { background: #dc3545; }
+
+    /* popup */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .overlay.active { display: flex; }
+
+    .popup {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .popup h2 {
+      color: #b8860b;
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+
+    .popup input {
+      width: 100%;
+      padding: 0.6rem;
+      margin-bottom: 0.8rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    .popup button {
+      width: 100%;
+      background: #b8860b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+
+    .popup button:hover { background: #a37408; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>World Cigar Locator – Test 10</h1>
+  <div class="top-bar">
+    <button class="add-btn" id="addBtn">➕ Add Store</button>
+  </div>
+
+  <div id="cardGrid" class="grid"></div>
+
+  <!-- Popup form -->
+  <div class="overlay" id="popup">
+    <div class="popup">
+      <h2>Add Store</h2>
+      <input type="text" id="name" placeholder="Store name">
+      <input type="text" id="address" placeholder="Address">
+      <input type="text" id="city" placeholder="City">
+      <input type="text" id="country" placeholder="Country">
+      <input type="text" id="phone" placeholder="Phone">
+      <input type="text" id="website" placeholder="Website">
+      <button id="saveBtn">Save Store</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const container = document.getElementById("cardGrid");
+    const popup = document.getElementById("popup");
+
+    async function loadStores() {
+      const { data, error } = await supabase
+        .from("stores")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("❌ Error loading stores:", error);
+        return;
+      }
+      renderCards(data);
+    }
+
+    function renderCards(stores) {
+      container.innerHTML = "";
+
+      stores.forEach(store => {
+        let image = store.image;
+        if (!image) {
+          if (store.type === "store") image = "images/store.jpg";
+          else if (store.type === "lounge") image = "images/lounge.jpg";
+          else image = "images/cafe.jpg";
+        }
+
+        const stars = store.rating
+          ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
+          : "No rating";
+
+        let statusHTML = "";
+        if (store.flagged) statusHTML = `<span class="status-badge status-flagged">Flagged</span>`;
+        else if (!store.approved) statusHTML = `<span class="status-badge status-pending">Pending</span>`;
+        else statusHTML = `<span class="status-badge status-approved">Approved</span>`;
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${image}" alt="${store.name || "Store"}">
+          <span class="card-type ${store.type || "other"}">${store.type || "Other"}</span>
+          ${statusHTML}
+          <div class="card-content">
+            <h2>${store.name || "Unnamed Store"}</h2>
+            <p>${store.address || ""}</p>
+            <p>${store.city || ""}, ${store.country || ""}</p>
+            ${store.phone ? `<p>📞 ${store.phone}</p>` : ""}
+            ${store.website ? `<p><a href="${store.website}" target="_blank">🌐 Website</a></p>` : ""}
+            <p class="stars">${stars}</p>
+            <div class="actions">
+              <button class="approve">Approve</button>
+              <button class="delete">Delete</button>
+            </div>
+          </div>
+        `;
+
+        card.querySelector(".approve").addEventListener("click", async () => {
+          await supabase.from("stores").update({ approved: true }).eq("id", store.id);
+          loadStores();
+        });
+
+        card.querySelector(".delete").addEventListener("click", async () => {
+          await supabase.from("stores").delete().eq("id", store.id);
+          loadStores();
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    document.getElementById("addBtn").addEventListener("click", () => popup.classList.add("active"));
+    popup.addEventListener("click", e => { if (e.target === popup) popup.classList.remove("active"); });
+
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      const name = document.getElementById("name").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const city = document.getElementById("city").value.trim();
+      const country = document.getElementById("country").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const website = document.getElementById("website").value.trim();
+
+      if (!name || !address || !city || !country) return alert("Please fill all required fields");
+
+      const { error } = await supabase.from("stores").insert([{
+        name, address, city, country, phone, website, type: "store", rating: 0, approved: false
+      }]);
+
+      if (error) console.error(error);
+      else {
+        popup.classList.remove("active");
+        loadStores();
+      }
+    });
+
+    loadStores();
+  </script>
+</body>
+</html>
