@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Store (Test 12b)</title>
+
+  <!-- Google Maps JavaScript API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places"></script>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      display: flex;
+      justify-content: center;
+      padding: 2rem;
+      margin: 0;
+    }
+    .form-wrapper {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      color: #b8860b;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1rem;
+      margin-bottom: 0.4rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    /* Rating stars */
+    .rating {
+      display: flex;
+      gap: 0.4rem;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+    .star {
+      font-size: 2rem;
+      color: #ccc;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .star:hover,
+    .star.hover { color: #daa520; }
+    .star.selected { color: #b8860b; }
+
+    /* Radio badges */
+    .radio-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+    .radio-group input[type="radio"] { display: none; }
+    .badge {
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: bold;
+    }
+    .badge.store { border-color: #007bff; color: #007bff; }
+    .badge.lounge { border-color: #28a745; color: #28a745; }
+    .badge.other { border-color: #ff8c00; color: #ff8c00; }
+    input[type="radio"]:checked + .store { background:#007bff; color:white; }
+    input[type="radio"]:checked + .lounge { background:#28a745; color:white; }
+    input[type="radio"]:checked + .other { background:#ff8c00; color:white; }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    button {
+      flex: 1;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: #fff;
+      transition: background 0.2s;
+    }
+    #saveBtn { background: #b8860b; }
+    #saveBtn:hover { background: #a37408; }
+    #cancelBtn { background: #999; }
+
+    /* Toasts */
+    #toast-container {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .toast {
+      background: #333;
+      color: #fff;
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      opacity: 0.95;
+    }
+    .toast.success { background: #28a745; }
+    .toast.error { background: #dc3545; }
+  </style>
+</head>
+<body>
+  <div class="form-wrapper">
+    <h1>Add Store / Lounge / Other</h1>
+
+    <label>Add with Google</label>
+    <input id="autocomplete" type="text" placeholder="Search for a place" />
+
+    <label>Store Name</label>
+    <input type="text" id="name" />
+
+    <label>Address</label>
+    <input type="text" id="address" />
+
+    <label>City</label>
+    <input type="text" id="city" />
+
+    <label>Country</label>
+    <input type="text" id="country" />
+
+    <label>Phone</label>
+    <input type="text" id="phone" />
+
+    <label>Website</label>
+    <input type="url" id="website" />
+
+    <div class="radio-group">
+      <label><input type="radio" name="type" value="store"><span class="badge store">Store</span></label>
+      <label><input type="radio" name="type" value="lounge"><span class="badge lounge">Lounge</span></label>
+      <label><input type="radio" name="type" value="other"><span class="badge other">Other</span></label>
+    </div>
+
+    <div class="rating" id="rating"></div>
+
+    <div class="btn-row">
+      <button id="saveBtn">Save Store</button>
+      <button id="cancelBtn">Cancel</button>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script>
+    // Supabase
+    const supabase = window.supabase.createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    // Google Autocomplete
+    let autocomplete;
+    function initAutocomplete() {
+      const input = document.getElementById("autocomplete");
+      autocomplete = new google.maps.places.Autocomplete(input, {
+        fields: ["address_components", "formatted_address", "geometry", "name", "international_phone_number", "website"]
+      });
+      autocomplete.addListener("place_changed", fillInAddress);
+    }
+
+    function fillInAddress() {
+      const place = autocomplete.getPlace();
+      if (!place) return;
+      document.getElementById("name").value = place.name || "";
+      document.getElementById("address").value = place.formatted_address || "";
+      const city = place.address_components?.find(c => c.types.includes("locality"));
+      const country = place.address_components?.find(c => c.types.includes("country"));
+      document.getElementById("city").value = city?.long_name || "";
+      document.getElementById("country").value = country?.long_name || "";
+      document.getElementById("phone").value = place.international_phone_number || "";
+      document.getElementById("website").value = place.website || "";
+    }
+
+    window.addEventListener("load", initAutocomplete);
+
+    // ⭐ Rating stars
+    const ratingEl = document.getElementById("rating");
+    let selectedRating = 0;
+    for (let i = 1; i <= 5; i++) {
+      const star = document.createElement("span");
+      star.textContent = "★";
+      star.classList.add("star");
+      star.dataset.value = i;
+      star.addEventListener("click", () => {
+        selectedRating = i;
+        document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
+        for (let j = 0; j < i; j++) document.querySelectorAll(".star")[j].classList.add("selected");
+      });
+      ratingEl.appendChild(star);
+    }
+
+    // Save button
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      const name = document.getElementById("name").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const city = document.getElementById("city").value.trim();
+      const country = document.getElementById("country").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const website = document.getElementById("website").value.trim();
+      const type = document.querySelector("input[name='type']:checked")?.value;
+      const rating = selectedRating;
+
+      if (!name || !address || !city || !country || !type) {
+        showToast("Please fill in all required fields", "error");
+        return;
+      }
+
+      const { error } = await supabase.from("stores").insert([{
+        name, address, city, country, phone, website, type, rating, approved: false
+      }]);
+
+      if (error) {
+        console.error(error);
+        showToast("Error saving store", "error");
+      } else {
+        showToast("Store saved successfully!", "success");
+        resetForm();
+      }
+    });
+
+    document.getElementById("cancelBtn").addEventListener("click", resetForm);
+    function resetForm() {
+      document.querySelectorAll("input").forEach(i => i.value = "");
+      document.querySelectorAll("input[name='type']").forEach(r => r.checked = false);
+      document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
+      selectedRating = 0;
+    }
+
+    // Toast
+    function showToast(msg, type="success") {
+      const div = document.createElement("div");
+      div.className = `toast ${type}`;
+      div.textContent = msg;
+      document.getElementById("toast-container").appendChild(div);
+      setTimeout(() => div.remove(), 3000);
+    }
+  </script>
+</body>
+</html>
