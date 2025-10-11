@@ -122,15 +122,21 @@
       }
 
       stores.forEach((store) => {
-        const type = (store.type || "other").toLowerCase();
+        const type = (store.type || "other").trim().toLowerCase();
 
-        // Fallback per type (all lowercase filenames)
-        let img = store.image;
-        if (!img) {
-          if (type === "store") img = "images/store.jpg";
-          else if (type === "lounge") img = "images/lounge.jpg";
-          else img = "images/cafe.jpg";
-        }
+let img;
+switch (type) {
+  case "store":
+    img = "images/store.jpg";
+    break;
+  case "lounge":
+    img = "images/lounge.jpg";
+    break;
+  case "other":
+  default:
+    img = "images/cafe.jpg";
+    break;
+}
 
         const stars = store.rating
           ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
