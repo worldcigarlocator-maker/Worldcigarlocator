@@ -226,8 +226,13 @@
       const country = document.getElementById("country").value.trim();
       const phone = document.getElementById("phone").value.trim();
       const website = document.getElementById("website").value.trim();
-      const type = (document.querySelector("input[name='type']:checked")?.value || "").trim().toLowerCase();
-      const rating = selectedRating;
+      let type = (document.querySelector("input[name='type']:checked")?.value || "").trim();
+const rating = selectedRating;
+
+// Gör första bokstaven versal så Supabase accepterar värdet
+if (type === "store") type = "Store";
+if (type === "lounge") type = "Lounge";
+if (type === "other") type = "Other";
 
       if (!name || !address || !city || !country || !["store","lounge","other"].includes(type)) {
         showToast("Please fill in all required fields", "error");
