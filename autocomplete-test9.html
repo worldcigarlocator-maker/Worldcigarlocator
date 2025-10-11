@@ -115,14 +115,17 @@
     }
 
     // 🖼️ Render function with smart fallbacks
-    function renderCards(stores) {
-      const container = document.getElementById("cardGrid");
-      container.innerHTML = "";
+  function renderCards(stores) {
+  const container = document.getElementById("cardGrid");
+  container.innerHTML = "";
 
-      if (!stores.length) {
-        container.innerHTML = "<p style='text-align:center;'>No stores found.</p>";
-        return;
-      }
+  console.log("Fetched stores:", stores); // 👈 lägg till denna rad
+
+  if (!stores.length) {
+    container.innerHTML = "<p style='text-align:center;'>No stores found.</p>";
+    return;
+  }
+
 
       stores.forEach((store) => {
         // 🔠 Normalize type (handles spaces and uppercase)
