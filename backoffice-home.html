@@ -112,15 +112,14 @@
 <body>
   <h1>Backoffice – Stores Overview</h1>
 
-<div class="filters">
-  <button data-filter="all" class="active">All</button>
-  <button data-filter="approved">Approved</button>
-  <button data-filter="pending">Pending</button>
-  <button data-filter="flagged">Flagged</button>
-  <button data-filter="trash">Trash</button>
-  <button onclick="window.location.href='backoffice-business.html'">Business</button>
-</div>
-
+  <div class="filters">
+    <button data-filter="all" class="active">All</button>
+    <button data-filter="approved">Approved</button>
+    <button data-filter="pending">Pending</button>
+    <button data-filter="flagged">Flagged</button>
+    <button data-filter="trash">Trash</button>
+    <button onclick="window.location.href='backoffice-business.html'">Business</button>
+  </div>
 
   <div class="grid" id="storeGrid"></div>
 
@@ -135,13 +134,28 @@
     let allStores = [];
 
     async function loadStores() {
-      const { data, error } = await supabase.from("stores").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("stores")
+        .select("*")
+        .order("created_at", { ascending: false });
       if (error) {
         console.error("❌ Supabase error:", error);
         return;
       }
       allStores = data;
       renderCards(data);
+    }
+
+    async function updateStatus(id, status) {
+      const { error } = await supabase.from("stores").update({ status }).eq("id", id);
+      if (error) console.error("❌ Update error:", error);
+      else loadStores();
+    }
+
+    async function approveStore(id) {
+      const { error } = await supabase.from("stores").update({ approved: true, status: "approved" }).eq("id", id);
+      if (error) console.error("❌ Approve error:", error);
+      else loadStores();
     }
 
     function renderCards(stores) {
@@ -157,7 +171,9 @@
         else if (store.type?.toLowerCase() === "store") imgSrc = "images/store.jpg";
         else if (store.type?.toLowerCase() === "lounge") imgSrc = "images/lounge.jpg";
 
-        const stars = store.rating ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating) : "☆☆☆☆☆";
+        const stars = store.rating
+          ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
+          : "☆☆☆☆☆";
 
         const card = document.createElement("div");
         card.className = "card";
@@ -169,19 +185,33 @@
             <p>${store.address || ""}</p>
             <p>${store.city || ""}, ${store.country || ""}</p>
             <div class="rating">${stars}</div>
-            <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
+            <div class="status">${store.approved ? "✅ Approved" : store.status === "trash" ? "🗑️ Trash" : "⏳ Pending"}</div>
             <div class="date">${new Date(store.created_at).toLocaleDateString()}</div>
             <div class="actions">
-              <button class="approve">Approve</button>
-              <button class="delete">Delete</button>
+              ${store.status === "trash" 
+                ? `<button class="restore">Restore</button>`
+                : `
+                  <button class="approve">Approve</button>
+                  <button class="delete">Delete</button>
+                `}
             </div>
           </div>
         `;
+
+        // Event handlers
+        const approveBtn = card.querySelector(".approve");
+        const deleteBtn = card.querySelector(".delete");
+        const restoreBtn = card.querySelector(".restore");
+
+        if (approveBtn) approveBtn.addEventListener("click", () => approveStore(store.id));
+        if (deleteBtn) deleteBtn.addEventListener("click", () => updateStatus(store.id, "trash"));
+        if (restoreBtn) restoreBtn.addEventListener("click", () => updateStatus(store.id, "pending"));
+
         grid.appendChild(card);
       });
     }
 
-    // Filter
+    // Filterfunktion
     document.querySelectorAll(".filters button[data-filter]").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".filters button").forEach(b => b.classList.remove("active"));
@@ -190,8 +220,9 @@
         const filter = btn.dataset.filter;
         if (filter === "all") renderCards(allStores);
         else if (filter === "approved") renderCards(allStores.filter(s => s.approved));
-        else if (filter === "pending") renderCards(allStores.filter(s => !s.approved));
+        else if (filter === "pending") renderCards(allStores.filter(s => s.status === "pending" && !s.approved));
         else if (filter === "flagged") renderCards(allStores.filter(s => s.flagged));
+        else if (filter === "trash") renderCards(allStores.filter(s => s.status === "trash"));
       });
     });
 
