@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Backoffice – World Cigar Locator</title>
 
-  <!-- ✅ UMD-version som funkar i Chrome & Safari -->
+  <!-- ✅ UMD-version -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -19,7 +19,32 @@
     h1 {
       text-align: center;
       color: #b8860b;
+      margin-bottom: 1rem;
+    }
+
+    /* 🔍 Filter */
+    .filters {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
       margin-bottom: 1.5rem;
+    }
+
+    .filters button {
+      background: #fff;
+      border: 1px solid #b8860b;
+      color: #b8860b;
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+
+    .filters button.active,
+    .filters button:hover {
+      background: #b8860b;
+      color: #fff;
     }
 
     .grid {
@@ -38,9 +63,7 @@
       transition: transform 0.15s;
     }
 
-    .card:hover {
-      transform: scale(1.01);
-    }
+    .card:hover { transform: scale(1.01); }
 
     .card img {
       width: 100%;
@@ -48,10 +71,7 @@
       object-fit: cover;
     }
 
-    .card-content {
-      padding: 1rem;
-      flex: 1;
-    }
+    .card-content { padding: 1rem; flex: 1; }
 
     .badge {
       display: inline-block;
@@ -68,75 +88,101 @@
     .other { background: #ff8c00; }
     .flagged { background: #dc3545 !important; }
 
-    .rating {
-      color: #b8860b;
-      margin-top: 0.3rem;
+    .rating { color: #b8860b; margin-top: 0.3rem; }
+
+    .status { font-size: 0.85rem; color: #666; margin-top: 0.3rem; }
+
+    .date { font-size: 0.75rem; color: #999; margin-top: 0.3rem; }
+
+    /* ⚙️ Admin buttons */
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.8rem;
+      gap: 0.3rem;
     }
 
-    .status {
-      font-size: 0.85rem;
-      color: #666;
-      margin-top: 0.3rem;
+    .actions button {
+      flex: 1;
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      color: #fff;
+      font-weight: bold;
     }
 
-    .date {
-      font-size: 0.75rem;
-      color: #999;
-      margin-top: 0.3rem;
-    }
+    .approve { background: #28a745; }
+    .approve:hover { background: #218838; }
 
-    p { margin: 0.2rem 0; }
+    .edit { background: #007bff; }
+    .edit:hover { background: #0069d9; }
+
+    .delete { background: #dc3545; }
+    .delete:hover { background: #c82333; }
   </style>
 </head>
 <body>
   <h1>Backoffice – Stores Overview</h1>
+
+  <!-- 🔍 Filters -->
+  <div class="filters">
+    <button data-filter="all" class="active">All</button>
+    <button data-filter="approved">Approved</button>
+    <button data-filter="pending">Pending</button>
+    <button data-filter="flagged">Flagged</button>
+  </div>
+
   <div class="grid" id="storeGrid"></div>
 
   <script>
-    // ✅ Supabase setup (UMD)
+    // ✅ Supabase setup
     const supabase = window.supabase.createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
-    async function loadStores() {
+    let allStores = [];
+
+    async function loadStores(filter = "all") {
       const { data, error } = await supabase
         .from("stores")
         .select("*")
         .order("created_at", { ascending: false });
-
-      console.log("📦 Supabase data:", data);
-      console.log("⚠️ Supabase error:", error);
 
       if (error) {
         document.getElementById("storeGrid").innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
         return;
       }
 
-      if (!data || data.length === 0) {
-        document.getElementById("storeGrid").innerHTML = `<p>No stores found.</p>`;
-        return;
-      }
-
-      renderCards(data);
+      allStores = data;
+      renderCards(filter === "all" ? data : data.filter(store => {
+        if (filter === "flagged") return store.flagged;
+        if (filter === "approved") return store.approved === true;
+        if (filter === "pending") return store.approved === false;
+        return true;
+      }));
     }
 
     function renderCards(stores) {
       const grid = document.getElementById("storeGrid");
       grid.innerHTML = "";
 
+      if (!stores.length) {
+        grid.innerHTML = "<p>No stores match this filter.</p>";
+        return;
+      }
+
       stores.forEach(store => {
         const badgeClass = store.type ? store.type.toLowerCase() : "other";
         const badgeText = badgeClass.charAt(0).toUpperCase() + badgeClass.slice(1);
 
         let imgSrc = "images/cafe.jpg";
-        if (store.photo_reference) {
-          imgSrc = store.photo_reference;
-        } else if (badgeClass === "store") {
-          imgSrc = "images/store.jpg";
-        } else if (badgeClass === "lounge") {
-          imgSrc = "images/lounge.jpg";
-        }
+        if (store.photo_reference) imgSrc = store.photo_reference;
+        else if (badgeClass === "store") imgSrc = "images/store.jpg";
+        else if (badgeClass === "lounge") imgSrc = "images/lounge.jpg";
 
         const stars = store.rating
           ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
@@ -156,11 +202,66 @@
             <div class="rating">${stars}</div>
             <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
             <div class="date">${store.created_at ? new Date(store.created_at).toLocaleDateString() : ""}</div>
+            <div class="actions">
+              <button class="approve">Approve</button>
+              <button class="edit">Edit</button>
+              <button class="delete">Delete</button>
+            </div>
           </div>
         `;
+
+        // ⚙️ Action handlers
+        card.querySelector(".approve").addEventListener("click", async () => approveStore(store.id));
+        card.querySelector(".delete").addEventListener("click", async () => deleteStore(store.id));
+        card.querySelector(".edit").addEventListener("click", () => editStore(store));
+
         grid.appendChild(card);
       });
     }
+
+    // 🟢 Approve
+    async function approveStore(id) {
+      const { error } = await supabase
+        .from("stores")
+        .update({ approved: true })
+        .eq("id", id);
+      if (error) alert("Error approving store: " + error.message);
+      else loadStores(currentFilter);
+    }
+
+    // 🔵 Edit (prompt for quick edit)
+    async function editStore(store) {
+      const newName = prompt("Edit name:", store.name || "");
+      if (!newName) return;
+      const { error } = await supabase
+        .from("stores")
+        .update({ name: newName })
+        .eq("id", store.id);
+      if (error) alert("Error editing store: " + error.message);
+      else loadStores(currentFilter);
+    }
+
+    // 🔴 Delete
+    async function deleteStore(id) {
+      if (!confirm("Are you sure you want to delete this store?")) return;
+      const { error } = await supabase
+        .from("stores")
+        .delete()
+        .eq("id", id);
+      if (error) alert("Error deleting store: " + error.message);
+      else loadStores(currentFilter);
+    }
+
+    // 🔁 Filters
+    let currentFilter = "all";
+    document.querySelectorAll(".filters button").forEach(btn => {
+      btn.addEventListener("click", e => {
+        document.querySelectorAll(".filters button").forEach(b => b.classList.remove("active"));
+        e.target.classList.add("active");
+        currentFilter = e.target.dataset.filter;
+        loadStores(currentFilter);
+      });
+    });
 
     loadStores();
   </script>
