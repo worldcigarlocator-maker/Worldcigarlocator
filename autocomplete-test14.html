@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add Store / Lounge / Other</title>
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -41,22 +40,6 @@
       box-sizing: border-box;
       margin-bottom: 1rem;
     }
-
-    .rating {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: center;
-      margin: 1rem 0;
-    }
-    .star {
-      font-size: 2rem;
-      cursor: pointer;
-      color: #ccc;
-      transition: color 0.2s;
-    }
-    .star:hover, .star.hover { color: #daa520; }
-    .star.selected { color: #b8860b; }
-
     .radio-group {
       display: flex;
       gap: 1rem;
@@ -79,7 +62,25 @@
     .other { border-color: #ff8c00; color: #ff8c00; }
     input[type="radio"]:checked + .other { background:#ff8c00; color:#fff; }
 
-    #preview { margin-top: 1rem; text-align: center; }
+    .rating {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+    .star {
+      font-size: 2rem;
+      cursor: pointer;
+      color: #ccc;
+      transition: color 0.2s;
+    }
+    .star:hover, .star.hover { color: #daa520; }
+    .star.selected { color: #b8860b; }
+
+    #preview {
+      margin-top: 1rem;
+      text-align: center;
+    }
     #preview img {
       max-width: 100%;
       border-radius: 8px;
@@ -178,12 +179,12 @@
     );
   </script>
 
-  <!-- App & Google logic -->
+  <!-- App logic -->
   <script>
     let selectedPlace = {};
     let selectedRating = 0;
 
-    window.addEventListener("DOMContentLoaded", ()=>{
+    window.addEventListener("DOMContentLoaded", () => {
       const rating=document.getElementById("rating");
       for(let i=1;i<=5;i++){
         const s=document.createElement("span");
@@ -216,34 +217,23 @@
       const country=document.getElementById("country").value.trim();
       const phone=document.getElementById("phone").value.trim();
       const website=document.getElementById("website").value.trim();
-      let type=(document.querySelector("input[name='type']:checked")?.value||"").toLowerCase();
+      const selectedRadio = document.querySelector("input[name='type']:checked");
+      if (!selectedRadio) {
+        showToast("Please select a type (Store / Lounge / Other)", "error");
+        return;
+      }
+      const type = selectedRadio.value.trim().toLowerCase();
 
-      if(!name||!address||!city||!country||!type||selectedRating===0){
+      if(!name||!address||!city||!country){
         showToast("Please fill in all required fields","error");
-        return;
-      }
-
-      if(!["store","lounge","other"].includes(type)){
-        showToast("Invalid type selected","error");
-        return;
-      }
-
-      const { data: existing } = await supabase
-        .from("stores")
-        .select("id")
-        .eq("name", name)
-        .eq("city", city);
-
-      if (existing && existing.length > 0) {
-        showToast("This store already exists!", "error");
         return;
       }
 
       const { error } = await supabase.from("stores").insert([{
         name, address, city, country, phone, website, type,
         rating: selectedRating, approved: false,
-        latitude: selectedPlace.lat, longitude: selectedPlace.lng,
-        image: selectedPlace.photo || null
+        lat: selectedPlace.lat || null, lng: selectedPlace.lng || null,
+        photo_reference: selectedPlace.photo || null
       }]);
 
       if (error) {
@@ -300,6 +290,7 @@
         document.getElementById("preview").innerHTML=`<img src="${imgSrc}" alt="Preview">`;
       });
     }
+
     window.initAutocomplete=initAutocomplete;
   </script>
 
