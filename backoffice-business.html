@@ -7,98 +7,33 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f8f8f8;
-      margin: 0;
-      padding: 2rem;
-      color: #333;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-    h1 {
-      color: #b8860b;
-      margin: 0;
-    }
-    nav button {
-      background: #fff;
-      border: 2px solid #b8860b;
-      color: #b8860b;
-      border-radius: 20px;
-      padding: 0.5rem 1.2rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-left: 0.5rem;
-    }
-    nav button:hover {
-      background: #b8860b;
-      color: #fff;
-    }
+    body {font-family:Arial, sans-serif;background:#f8f8f8;margin:0;padding:2rem;color:#333;}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;}
+    h1{color:#b8860b;margin:0;}
+    nav button{background:#fff;border:2px solid #b8860b;color:#b8860b;
+      border-radius:20px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;
+      transition:all 0.2s;margin-left:0.5rem;}
+    nav button:hover{background:#b8860b;color:#fff;}
 
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .stat-card {
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      padding: 1rem;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .stat-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    }
-    .stat-card h2 {
-      color: #b8860b;
-      margin: 0.5rem 0;
-    }
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:1rem;margin-bottom:1.5rem;}
+    .stat-card{background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.1);
+      padding:1rem;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s;}
+    .stat-card:hover{transform:translateY(-4px);box-shadow:0 4px 10px rgba(0,0,0,0.15);}
+    .stat-card h2{color:#b8860b;margin:0.5rem 0;}
 
-    .chart-container {
-      margin-top: 1.5rem;
-      display: none;
-    }
+    .chart-controls{text-align:center;margin:1rem 0;}
+    .chart-controls button{background:#b8860b;color:white;border:none;
+      padding:0.6rem 1.2rem;border-radius:8px;font-weight:bold;cursor:pointer;margin:0 0.5rem;}
+    .chart-controls button:hover{opacity:.9;}
 
-    canvas {
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      padding: 1rem;
-      margin-top: 1rem;
-    }
+    .chart-container{margin-top:1.5rem;display:none;}
+    canvas{background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.1);
+      padding:1rem;margin-top:1rem;}
 
-    .deleted-section {
-      margin-top: 3rem;
-    }
-    .deleted-section h2 {
-      color: #b8860b;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    th, td {
-      padding: 0.8rem;
-      border-bottom: 1px solid #eee;
-      text-align: left;
-    }
-    th {
-      background: #f1f1f1;
-      color: #555;
-    }
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;}
+    th,td{padding:0.8rem;border-bottom:1px solid #eee;text-align:left;}
+    th{background:#f1f1f1;color:#555;}
   </style>
 </head>
 <body>
@@ -112,23 +47,20 @@
 
   <div class="stats" id="statsContainer"></div>
 
+  <div class="chart-controls">
+    <button id="toggleChart">Show Chart</button>
+    <button id="exportCsv">Export CSV</button>
+  </div>
+
   <div class="chart-container" id="chartContainer">
     <h2 id="chartTitle" style="color:#b8860b;">Stores Created Over Time</h2>
     <canvas id="chart" height="120"></canvas>
   </div>
 
-  <div style="text-align:center;margin-top:1rem;">
-    <button id="toggleChart" style="background:#b8860b;color:white;border:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:bold;cursor:pointer;">
-      Show Chart
-    </button>
-  </div>
-
-  <div class="deleted-section" id="deletedSection" style="display:none;">
-    <h2>🗑️ Recently Deleted Stores</h2>
+  <div id="deletedSection" style="display:none;margin-top:2rem;">
+    <h2 style="color:#b8860b;">🗑️ Recently Deleted Stores</h2>
     <table id="deletedTable">
-      <thead>
-        <tr><th>Name</th><th>Deleted At</th></tr>
-      </thead>
+      <thead><tr><th>Name</th><th>Deleted At</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
@@ -141,24 +73,22 @@
     );
 
     let allData = [];
+    let currentFilter = "all";
     let chart;
 
     async function loadBusinessStats() {
       const { data, error } = await supabase.from("stores").select("*");
-      if (error) {
-        console.error(error);
-        return;
-      }
+      if (error) { console.error(error); return; }
 
       allData = data;
       const total = data.length;
-      const approved = data.filter(s => s.approved).length;
-      const pending = data.filter(s => s.status === "pending").length;
-      const flagged = data.filter(s => s.flagged).length;
-      const storeCount = data.filter(s => s.type === "store").length;
-      const loungeCount = data.filter(s => s.type === "lounge").length;
-      const otherCount = data.filter(s => s.type === "other").length;
-      const avgRating = data.reduce((sum, s) => sum + (s.rating || 0), 0) / (data.length || 1);
+      const approved = data.filter(s=>s.approved).length;
+      const pending = data.filter(s=>s.status==="pending").length;
+      const flagged = data.filter(s=>s.flagged).length;
+      const storeCount = data.filter(s=>s.type==="store").length;
+      const loungeCount = data.filter(s=>s.type==="lounge").length;
+      const otherCount = data.filter(s=>s.type==="other").length;
+      const avgRating = data.reduce((sum,s)=>sum+(s.rating||0),0)/(data.length||1);
 
       document.getElementById("statsContainer").innerHTML = `
         <div class="stat-card" onclick="updateChart('all')"><h2>${total}</h2><p>Total Locations</p></div>
@@ -168,76 +98,87 @@
         <div class="stat-card"><h2>${avgRating.toFixed(1)}</h2><p>Avg Rating</p></div>
         <div class="stat-card" onclick="updateChart('store')"><h2>${storeCount}</h2><p>Stores</p></div>
         <div class="stat-card" onclick="updateChart('lounge')"><h2>${loungeCount}</h2><p>Lounges</p></div>
-        <div class="stat-card" onclick="updateChart('other')"><h2>${otherCount}</h2><p>Other</p></div>
-      `;
+        <div class="stat-card" onclick="updateChart('other')"><h2>${otherCount}</h2><p>Other</p></div>`;
     }
 
     window.updateChart = function(filter) {
-      const chartContainer = document.getElementById("chartContainer");
-      chartContainer.style.display = "block";
+      currentFilter = filter;
+      const container = document.getElementById("chartContainer");
+      container.style.display = "block";
       document.getElementById("toggleChart").innerText = "Hide Chart";
-
-      let filtered;
-      let title = "Stores Created Over Time";
-
-      switch(filter) {
-        case "approved": filtered = allData.filter(s => s.approved); title = "Approved Over Time"; break;
-        case "pending": filtered = allData.filter(s => s.status === "pending"); title = "Pending Over Time"; break;
-        case "flagged": filtered = allData.filter(s => s.flagged); title = "Flagged Over Time"; break;
-        case "store": filtered = allData.filter(s => s.type === "store"); title = "Stores Created Over Time"; break;
-        case "lounge": filtered = allData.filter(s => s.type === "lounge"); title = "Lounges Created Over Time"; break;
-        case "other": filtered = allData.filter(s => s.type === "other"); title = "Other Created Over Time"; break;
-        default: filtered = allData; title = "All Locations Over Time"; break;
-      }
-
+      const {title,filtered} = getFilteredData(filter);
       document.getElementById("chartTitle").innerText = title;
       renderChart(filtered);
     };
 
-    function renderChart(data) {
-      const grouped = {};
-      data.forEach(s => {
-        const date = new Date(s.created_at).toLocaleDateString();
-        grouped[date] = (grouped[date] || 0) + 1;
-      });
-      const labels = Object.keys(grouped);
-      const values = Object.values(grouped);
-      const ctx = document.getElementById("chart");
-
-      if (chart) chart.destroy();
-      chart = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels,
-          datasets: [{
-            label: "Count",
-            data: values,
-            borderColor: "#b8860b",
-            backgroundColor: "rgba(184,134,11,0.2)",
-            fill: true,
-            tension: 0.3
-          }]
-        },
-        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-      });
+    function getFilteredData(filter){
+      let filtered, title;
+      switch(filter){
+        case "approved": filtered=allData.filter(s=>s.approved); title="Approved Over Time"; break;
+        case "pending": filtered=allData.filter(s=>s.status==="pending"); title="Pending Over Time"; break;
+        case "flagged": filtered=allData.filter(s=>s.flagged); title="Flagged Over Time"; break;
+        case "store": filtered=allData.filter(s=>s.type==="store"); title="Stores Created Over Time"; break;
+        case "lounge": filtered=allData.filter(s=>s.type==="lounge"); title="Lounges Created Over Time"; break;
+        case "other": filtered=allData.filter(s=>s.type==="other"); title="Other Created Over Time"; break;
+        default: filtered=allData; title="All Locations Over Time"; break;
+      }
+      return {filtered,title};
     }
 
-    document.getElementById("toggleChart").addEventListener("click", () => {
-      const container = document.getElementById("chartContainer");
-      const btn = document.getElementById("toggleChart");
-      const visible = container.style.display === "block";
-      container.style.display = visible ? "none" : "block";
-      btn.innerText = visible ? "Show Chart" : "Hide Chart";
+    function renderChart(data){
+      const grouped={};
+      data.forEach(s=>{
+        const date=new Date(s.created_at).toLocaleDateString();
+        grouped[date]=(grouped[date]||0)+1;
+      });
+      const labels=Object.keys(grouped);
+      const values=Object.values(grouped);
+      const ctx=document.getElementById("chart");
+      if(chart) chart.destroy();
+      chart=new Chart(ctx,{type:"line",
+        data:{labels,datasets:[{label:"Count",data:values,
+          borderColor:"#b8860b",backgroundColor:"rgba(184,134,11,0.2)",
+          fill:true,tension:0.3}]},
+        options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+    }
+
+    document.getElementById("toggleChart").addEventListener("click",()=>{
+      const c=document.getElementById("chartContainer");
+      const b=document.getElementById("toggleChart");
+      const visible=c.style.display==="block";
+      c.style.display=visible?"none":"block";
+      b.innerText=visible?"Show Chart":"Hide Chart";
     });
 
-    async function loadTrashLog() {
-      document.getElementById("deletedSection").style.display = "block";
-      const { data, error } = await supabase.from("trash_log").select("*").order("deleted_at", { ascending: false });
-      if (error) return console.error(error);
-      const tbody = document.querySelector("#deletedTable tbody");
-      tbody.innerHTML = data.length
-        ? data.map(row => `<tr><td>${row.store_name}</td><td>${new Date(row.deleted_at).toLocaleString()}</td></tr>`).join("")
-        : `<tr><td colspan="2">No deleted items found</td></tr>`;
+    document.getElementById("exportCsv").addEventListener("click",()=>{
+      const {filtered,title}=getFilteredData(currentFilter);
+      if(!filtered.length){alert("No data to export.");return;}
+      const csv=convertToCSV(filtered);
+      const blob=new Blob([csv],{type:"text/csv"});
+      const url=URL.createObjectURL(blob);
+      const link=document.createElement("a");
+      link.href=url;
+      const date=new Date().toISOString().split("T")[0];
+      link.download=`${currentFilter}-${date}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+
+    function convertToCSV(data){
+      const headers=Object.keys(data[0]);
+      const rows=data.map(o=>headers.map(h=>JSON.stringify(o[h]??"")).join(","));
+      return headers.join(",")+"\n"+rows.join("\n");
+    }
+
+    async function loadTrashLog(){
+      const sec=document.getElementById("deletedSection");
+      sec.style.display="block";
+      const {data,error}=await supabase.from("trash_log").select("*").order("deleted_at",{ascending:false});
+      if(error)return console.error(error);
+      const tbody=document.querySelector("#deletedTable tbody");
+      tbody.innerHTML=data.length
+        ?data.map(r=>`<tr><td>${r.store_name}</td><td>${new Date(r.deleted_at).toLocaleString()}</td></tr>`).join("")
+        :`<tr><td colspan="2">No deleted items found</td></tr>`;
     }
 
     loadBusinessStats();
