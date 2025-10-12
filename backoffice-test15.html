@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Backoffice – World Cigar Locator</title>
+  <title>Backoffice Debug – World Cigar Locator</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body {
@@ -58,10 +58,7 @@
     .store { background: #007bff; }
     .lounge { background: #28a745; }
     .other { background: #ff8c00; }
-
-    .flagged {
-      background: #dc3545 !important;
-    }
+    .flagged { background: #dc3545 !important; }
 
     .rating {
       color: #b8860b;
@@ -82,7 +79,7 @@
   </style>
 </head>
 <body>
-  <h1>Backoffice – Stores Overview</h1>
+  <h1>Backoffice Debug – Stores Overview</h1>
   <div class="grid" id="storeGrid"></div>
 
   <script type="module">
@@ -96,12 +93,19 @@
     async function loadStores() {
       const { data, error } = await supabase
         .from("stores")
-        .select("id, name, address, city, country, type, rating, approved, flagged, created_at, photo_reference")
+        .select("*")
         .order("created_at", { ascending: false });
 
+      console.log("📦 Supabase data:", data);
+      console.log("⚠️ Supabase error:", error);
+
       if (error) {
-        console.error(error);
-        document.getElementById("storeGrid").innerHTML = "<p>Failed to load data.</p>";
+        document.getElementById("storeGrid").innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        document.getElementById("storeGrid").innerHTML = `<p>No stores found.</p>`;
         return;
       }
 
@@ -115,9 +119,8 @@
       stores.forEach(store => {
         let badgeClass = store.type ? store.type.toLowerCase() : "other";
         let badgeText = badgeClass.charAt(0).toUpperCase() + badgeClass.slice(1);
-        let imgSrc = "images/cafe.jpg"; // default fallback
+        let imgSrc = "images/cafe.jpg";
 
-        // 🖼️ Bildval: Google-foto > fallback per typ
         if (store.photo_reference) {
           imgSrc = store.photo_reference;
         } else if (badgeClass === "store") {
@@ -126,15 +129,18 @@
           imgSrc = "images/lounge.jpg";
         }
 
-        // ⭐ rating
-        const stars = store.rating ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating) : "☆☆☆☆☆";
+        const stars = store.rating
+          ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
+          : "☆☆☆☆☆";
 
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
           <img src="${imgSrc}" alt="${store.name}">
           <div class="card-content">
-            <span class="badge ${store.flagged ? 'flagged' : badgeClass}">${store.flagged ? 'Flagged' : badgeText}</span>
+            <span class="badge ${store.flagged ? 'flagged' : badgeClass}">
+              ${store.flagged ? 'Flagged' : badgeText}
+            </span>
             <h3>${store.name || "Unnamed"}</h3>
             <p>${store.address || ""}</p>
             <p>${store.city || ""}, ${store.country || ""}</p>
