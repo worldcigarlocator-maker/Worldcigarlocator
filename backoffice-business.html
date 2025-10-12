@@ -44,7 +44,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 1rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
     .stat-card {
       background: #fff;
@@ -52,10 +52,21 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       padding: 1rem;
       text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
     .stat-card h2 {
       color: #b8860b;
       margin: 0.5rem 0;
+    }
+
+    .chart-container {
+      margin-top: 1.5rem;
+      display: none;
     }
 
     canvas {
@@ -63,6 +74,7 @@
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       padding: 1rem;
+      margin-top: 1rem;
     }
 
     .deleted-section {
@@ -100,7 +112,16 @@
 
   <div class="stats" id="statsContainer"></div>
 
-  <canvas id="chart" height="120"></canvas>
+  <div class="chart-container" id="chartContainer">
+    <h2 id="chartTitle" style="color:#b8860b;">Stores Created Over Time</h2>
+    <canvas id="chart" height="120"></canvas>
+  </div>
+
+  <div style="text-align:center;margin-top:1rem;">
+    <button id="toggleChart" style="background:#b8860b;color:white;border:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:bold;cursor:pointer;">
+      Show Chart
+    </button>
+  </div>
 
   <div class="deleted-section" id="deletedSection" style="display:none;">
     <h2>🗑️ Recently Deleted Stores</h2>
@@ -119,6 +140,9 @@
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
+    let allData = [];
+    let chart;
+
     async function loadBusinessStats() {
       const { data, error } = await supabase.from("stores").select("*");
       if (error) {
@@ -126,31 +150,49 @@
         return;
       }
 
+      allData = data;
       const total = data.length;
       const approved = data.filter(s => s.approved).length;
       const pending = data.filter(s => s.status === "pending").length;
       const flagged = data.filter(s => s.flagged).length;
-
       const storeCount = data.filter(s => s.type === "store").length;
       const loungeCount = data.filter(s => s.type === "lounge").length;
       const otherCount = data.filter(s => s.type === "other").length;
-
-      const avgRating =
-        data.reduce((sum, s) => sum + (s.rating || 0), 0) / (data.length || 1);
+      const avgRating = data.reduce((sum, s) => sum + (s.rating || 0), 0) / (data.length || 1);
 
       document.getElementById("statsContainer").innerHTML = `
-        <div class="stat-card"><h2>${total}</h2><p>Total Locations</p></div>
-        <div class="stat-card"><h2>${approved}</h2><p>Approved</p></div>
-        <div class="stat-card"><h2>${pending}</h2><p>Pending</p></div>
-        <div class="stat-card"><h2>${flagged}</h2><p>Flagged</p></div>
+        <div class="stat-card" onclick="updateChart('all')"><h2>${total}</h2><p>Total Locations</p></div>
+        <div class="stat-card" onclick="updateChart('approved')"><h2>${approved}</h2><p>Approved</p></div>
+        <div class="stat-card" onclick="updateChart('pending')"><h2>${pending}</h2><p>Pending</p></div>
+        <div class="stat-card" onclick="updateChart('flagged')"><h2>${flagged}</h2><p>Flagged</p></div>
         <div class="stat-card"><h2>${avgRating.toFixed(1)}</h2><p>Avg Rating</p></div>
-        <div class="stat-card"><h2>${storeCount}</h2><p>Stores</p></div>
-        <div class="stat-card"><h2>${loungeCount}</h2><p>Lounges</p></div>
-        <div class="stat-card"><h2>${otherCount}</h2><p>Other</p></div>
+        <div class="stat-card" onclick="updateChart('store')"><h2>${storeCount}</h2><p>Stores</p></div>
+        <div class="stat-card" onclick="updateChart('lounge')"><h2>${loungeCount}</h2><p>Lounges</p></div>
+        <div class="stat-card" onclick="updateChart('other')"><h2>${otherCount}</h2><p>Other</p></div>
       `;
-
-      renderChart(data);
     }
+
+    window.updateChart = function(filter) {
+      const chartContainer = document.getElementById("chartContainer");
+      chartContainer.style.display = "block";
+      document.getElementById("toggleChart").innerText = "Hide Chart";
+
+      let filtered;
+      let title = "Stores Created Over Time";
+
+      switch(filter) {
+        case "approved": filtered = allData.filter(s => s.approved); title = "Approved Over Time"; break;
+        case "pending": filtered = allData.filter(s => s.status === "pending"); title = "Pending Over Time"; break;
+        case "flagged": filtered = allData.filter(s => s.flagged); title = "Flagged Over Time"; break;
+        case "store": filtered = allData.filter(s => s.type === "store"); title = "Stores Created Over Time"; break;
+        case "lounge": filtered = allData.filter(s => s.type === "lounge"); title = "Lounges Created Over Time"; break;
+        case "other": filtered = allData.filter(s => s.type === "other"); title = "Other Created Over Time"; break;
+        default: filtered = allData; title = "All Locations Over Time"; break;
+      }
+
+      document.getElementById("chartTitle").innerText = title;
+      renderChart(filtered);
+    };
 
     function renderChart(data) {
       const grouped = {};
@@ -158,16 +200,17 @@
         const date = new Date(s.created_at).toLocaleDateString();
         grouped[date] = (grouped[date] || 0) + 1;
       });
-
       const labels = Object.keys(grouped);
       const values = Object.values(grouped);
+      const ctx = document.getElementById("chart");
 
-      new Chart(document.getElementById("chart"), {
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
         type: "line",
         data: {
           labels,
           datasets: [{
-            label: "Stores Created Over Time",
+            label: "Count",
             data: values,
             borderColor: "#b8860b",
             backgroundColor: "rgba(184,134,11,0.2)",
@@ -175,22 +218,22 @@
             tension: 0.3
           }]
         },
-        options: {
-          plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true } }
-        }
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
       });
     }
 
+    document.getElementById("toggleChart").addEventListener("click", () => {
+      const container = document.getElementById("chartContainer");
+      const btn = document.getElementById("toggleChart");
+      const visible = container.style.display === "block";
+      container.style.display = visible ? "none" : "block";
+      btn.innerText = visible ? "Show Chart" : "Hide Chart";
+    });
+
     async function loadTrashLog() {
       document.getElementById("deletedSection").style.display = "block";
-
       const { data, error } = await supabase.from("trash_log").select("*").order("deleted_at", { ascending: false });
-      if (error) {
-        console.error("Error loading trash log:", error);
-        return;
-      }
-
+      if (error) return console.error(error);
       const tbody = document.querySelector("#deletedTable tbody");
       tbody.innerHTML = data.length
         ? data.map(row => `<tr><td>${row.store_name}</td><td>${new Date(row.deleted_at).toLocaleString()}</td></tr>`).join("")
