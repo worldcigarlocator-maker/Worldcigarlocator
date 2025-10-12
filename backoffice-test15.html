@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Backoffice – World Cigar Locator</title>
 
-  <!-- ✅ UMD-version -->
+  <!-- ✅ Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -22,7 +22,7 @@
       margin-bottom: 1rem;
     }
 
-    /* 🔍 Filter */
+    /* Filters */
     .filters {
       display: flex;
       justify-content: center;
@@ -47,6 +47,7 @@
       color: #fff;
     }
 
+    /* Grid */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -94,7 +95,6 @@
 
     .date { font-size: 0.75rem; color: #999; margin-top: 0.3rem; }
 
-    /* ⚙️ Admin buttons */
     .actions {
       display: flex;
       justify-content: space-between;
@@ -122,12 +122,93 @@
 
     .delete { background: #dc3545; }
     .delete:hover { background: #c82333; }
+
+    /* 🪶 Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal h2 {
+      margin-top: 0;
+      color: #b8860b;
+    }
+
+    .modal label {
+      display: block;
+      font-weight: bold;
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+    }
+
+    .modal input, .modal select {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-top: 0.3rem;
+      font-size: 0.95rem;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+      gap: 0.5rem;
+    }
+
+    .save-btn, .cancel-btn {
+      flex: 1;
+      padding: 0.6rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+
+    .save-btn {
+      background: #b8860b;
+    }
+    .save-btn:hover { background: #a37408; }
+
+    .cancel-btn {
+      background: #aaa;
+    }
+    .cancel-btn:hover { background: #888; }
   </style>
 </head>
 <body>
   <h1>Backoffice – Stores Overview</h1>
 
-  <!-- 🔍 Filters -->
   <div class="filters">
     <button data-filter="all" class="active">All</button>
     <button data-filter="approved">Approved</button>
@@ -137,33 +218,58 @@
 
   <div class="grid" id="storeGrid"></div>
 
+  <!-- ✨ Edit Modal -->
+  <div id="modalOverlay" class="modal-overlay">
+    <div class="modal">
+      <h2>Edit Store</h2>
+      <label>Name</label>
+      <input id="editName" type="text"/>
+
+      <label>City</label>
+      <input id="editCity" type="text"/>
+
+      <label>Country</label>
+      <input id="editCountry" type="text"/>
+
+      <label>Type</label>
+      <select id="editType">
+        <option value="store">Store</option>
+        <option value="lounge">Lounge</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label>Rating</label>
+      <input id="editRating" type="number" min="0" max="5"/>
+
+      <div class="modal-buttons">
+        <button class="save-btn" id="saveEdit">Save</button>
+        <button class="cancel-btn" id="cancelEdit">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // ✅ Supabase setup
     const supabase = window.supabase.createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
     let allStores = [];
+    let currentFilter = "all";
+    let currentEditId = null;
 
     async function loadStores(filter = "all") {
-      const { data, error } = await supabase
-        .from("stores")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        document.getElementById("storeGrid").innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
-        return;
-      }
+      const { data, error } = await supabase.from("stores").select("*").order("created_at", { ascending: false });
+      if (error) return console.error(error);
 
       allStores = data;
-      renderCards(filter === "all" ? data : data.filter(store => {
+      const filtered = filter === "all" ? data : data.filter(store => {
         if (filter === "flagged") return store.flagged;
         if (filter === "approved") return store.approved === true;
         if (filter === "pending") return store.approved === false;
         return true;
-      }));
+      });
+      renderCards(filtered);
     }
 
     function renderCards(stores) {
@@ -184,9 +290,7 @@
         else if (badgeClass === "store") imgSrc = "images/store.jpg";
         else if (badgeClass === "lounge") imgSrc = "images/lounge.jpg";
 
-        const stars = store.rating
-          ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
-          : "☆☆☆☆☆";
+        const stars = store.rating ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating) : "☆☆☆☆☆";
 
         const card = document.createElement("div");
         card.className = "card";
@@ -210,50 +314,66 @@
           </div>
         `;
 
-        // ⚙️ Action handlers
         card.querySelector(".approve").addEventListener("click", async () => approveStore(store.id));
         card.querySelector(".delete").addEventListener("click", async () => deleteStore(store.id));
-        card.querySelector(".edit").addEventListener("click", () => editStore(store));
+        card.querySelector(".edit").addEventListener("click", () => openEditModal(store));
 
         grid.appendChild(card);
       });
     }
 
-    // 🟢 Approve
     async function approveStore(id) {
-      const { error } = await supabase
-        .from("stores")
-        .update({ approved: true })
-        .eq("id", id);
+      const { error } = await supabase.from("stores").update({ approved: true }).eq("id", id);
       if (error) alert("Error approving store: " + error.message);
       else loadStores(currentFilter);
     }
 
-    // 🔵 Edit (prompt for quick edit)
-    async function editStore(store) {
-      const newName = prompt("Edit name:", store.name || "");
-      if (!newName) return;
-      const { error } = await supabase
-        .from("stores")
-        .update({ name: newName })
-        .eq("id", store.id);
-      if (error) alert("Error editing store: " + error.message);
-      else loadStores(currentFilter);
-    }
-
-    // 🔴 Delete
     async function deleteStore(id) {
       if (!confirm("Are you sure you want to delete this store?")) return;
-      const { error } = await supabase
-        .from("stores")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("stores").delete().eq("id", id);
       if (error) alert("Error deleting store: " + error.message);
       else loadStores(currentFilter);
     }
 
-    // 🔁 Filters
-    let currentFilter = "all";
+    // 🟡 Modal logic
+    const overlay = document.getElementById("modalOverlay");
+    const saveBtn = document.getElementById("saveEdit");
+    const cancelBtn = document.getElementById("cancelEdit");
+
+    function openEditModal(store) {
+      currentEditId = store.id;
+      overlay.classList.add("active");
+
+      document.getElementById("editName").value = store.name || "";
+      document.getElementById("editCity").value = store.city || "";
+      document.getElementById("editCountry").value = store.country || "";
+      document.getElementById("editType").value = store.type || "other";
+      document.getElementById("editRating").value = store.rating || 0;
+    }
+
+    cancelBtn.addEventListener("click", () => {
+      overlay.classList.remove("active");
+      currentEditId = null;
+    });
+
+    saveBtn.addEventListener("click", async () => {
+      const updated = {
+        name: document.getElementById("editName").value.trim(),
+        city: document.getElementById("editCity").value.trim(),
+        country: document.getElementById("editCountry").value.trim(),
+        type: document.getElementById("editType").value.trim(),
+        rating: parseInt(document.getElementById("editRating").value) || 0
+      };
+
+      const { error } = await supabase.from("stores").update(updated).eq("id", currentEditId);
+      if (error) alert("Error saving changes: " + error.message);
+      else {
+        overlay.classList.remove("active");
+        loadStores(currentFilter);
+      }
+    });
+
+    // Filters
     document.querySelectorAll(".filters button").forEach(btn => {
       btn.addEventListener("click", e => {
         document.querySelectorAll(".filters button").forEach(b => b.classList.remove("active"));
