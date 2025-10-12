@@ -42,7 +42,6 @@
       margin-bottom: 1rem;
     }
 
-    /* Rating */
     .rating {
       display: flex;
       gap: 0.5rem;
@@ -55,24 +54,16 @@
       color: #ccc;
       transition: color 0.2s;
     }
-    .star:hover,
-    .star.hover {
-      color: #daa520;
-    }
-    .star.selected {
-      color: #b8860b;
-    }
+    .star:hover, .star.hover { color: #daa520; }
+    .star.selected { color: #b8860b; }
 
-    /* Radio badges */
     .radio-group {
       display: flex;
       gap: 1rem;
       margin-top: 0.5rem;
       justify-content: center;
     }
-    .radio-group input[type="radio"] {
-      display: none;
-    }
+    .radio-group input[type="radio"] { display: none; }
     .badge {
       padding: 0.4rem 1rem;
       border-radius: 20px;
@@ -88,18 +79,13 @@
     .other { border-color: #ff8c00; color: #ff8c00; }
     input[type="radio"]:checked + .other { background:#ff8c00; color:#fff; }
 
-    /* Image preview */
-    #preview {
-      margin-top: 1rem;
-      text-align: center;
-    }
+    #preview { margin-top: 1rem; text-align: center; }
     #preview img {
       max-width: 100%;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
-    /* Buttons */
     .btns {
       display: flex;
       gap: 1rem;
@@ -120,7 +106,6 @@
     #cancelBtn { background: #aaa; color: #fff; }
     #cancelBtn:hover { background: #888; }
 
-    /* Toasts */
     #toast-container {
       position: fixed;
       bottom: 1rem;
@@ -184,7 +169,6 @@
 
   <div id="toast-container"></div>
 
-  <!-- Supabase -->
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
@@ -196,7 +180,7 @@
     let selectedPlace = {};
     let selectedRating = 0;
 
-    // ⭐ Rating setup
+    // ⭐ Rating
     const ratingEl = document.getElementById("rating");
     for (let i = 1; i <= 5; i++) {
       const star = document.createElement("span");
@@ -218,7 +202,6 @@
       ratingEl.appendChild(star);
     }
 
-    // Save
     document.getElementById("saveBtn").addEventListener("click", async () => {
       const name = document.getElementById("name").value.trim();
       const address = document.getElementById("addr").value.trim();
@@ -248,7 +231,7 @@
         name, address, city, country, phone, website, type,
         rating: selectedRating, approved: false,
         latitude: selectedPlace.lat, longitude: selectedPlace.lng,
-        photo_reference: selectedPlace.photo || null
+        image: selectedPlace.photo || null
       }]);
 
       if (error) {
@@ -260,7 +243,6 @@
       }
     });
 
-    // Cancel
     document.getElementById("cancelBtn").addEventListener("click", clearForm);
 
     function clearForm() {
@@ -281,7 +263,7 @@
       setTimeout(() => div.remove(), 3000);
     }
 
-    // ✅ Google Autocomplete init + city fix + image preview
+    // ✅ Google Autocomplete
     function initAutocomplete() {
       const input = document.getElementById("address");
       const autocomplete = new google.maps.places.Autocomplete(input, {
@@ -295,7 +277,6 @@
         document.getElementById("name").value = place.name || "";
         document.getElementById("addr").value = place.formatted_address || "";
 
-        // 🩵 FIX för city som inte alltid är "locality"
         let cityComponent = place.address_components?.find(c => c.types.includes("locality"));
         if (!cityComponent) {
           cityComponent = place.address_components?.find(c =>
@@ -330,7 +311,6 @@
     window.initAutocomplete = initAutocomplete;
   </script>
 
-  <!-- Google Maps API -->
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete"
     async defer>
