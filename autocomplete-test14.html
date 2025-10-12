@@ -235,8 +235,15 @@
         return;
       }
 
+      const typeValue = selectedType.toLowerCase();
+      if (!["store","lounge","other"].includes(typeValue)) {
+        showToast("Invalid store type","error");
+        return;
+      }
+
       const { error } = await supabase.from("stores").insert([{
-        name, address, city, country, phone, website, type: selectedType,
+        name, address, city, country, phone, website,
+        type: typeValue,
         rating: selectedRating, approved: false,
         lat: selectedPlace.lat || null, lng: selectedPlace.lng || null,
         photo_reference: selectedPlace.photo || null
