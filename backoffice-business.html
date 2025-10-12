@@ -6,6 +6,7 @@
   <title>Business Dashboard – World Cigar Locator</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     body {font-family:Arial, sans-serif;background:#f8f8f8;margin:0;padding:2rem;color:#333;}
     header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;}
@@ -22,10 +23,18 @@
     .stat-card:hover{transform:translateY(-4px);box-shadow:0 4px 10px rgba(0,0,0,0.15);}
     .stat-card h2{color:#b8860b;margin:0.5rem 0;}
 
-    .chart-controls{text-align:center;margin:1rem 0;}
+    .chart-controls{text-align:center;margin:1rem 0;position:relative;}
     .chart-controls button{background:#b8860b;color:white;border:none;
       padding:0.6rem 1.2rem;border-radius:8px;font-weight:bold;cursor:pointer;margin:0 0.5rem;}
     .chart-controls button:hover{opacity:.9;}
+    .dropdown{position:relative;display:inline-block;}
+    .dropdown-content{display:none;position:absolute;left:50%;transform:translateX(-50%);
+      background-color:#fff;min-width:160px;box-shadow:0 2px 6px rgba(0,0,0,0.1);
+      border-radius:8px;z-index:1;text-align:left;}
+    .dropdown-content button{background:none;border:none;color:#333;
+      padding:0.6rem 1rem;width:100%;text-align:left;cursor:pointer;}
+    .dropdown-content button:hover{background:#f0f0f0;}
+    .dropdown:hover .dropdown-content{display:block;}
 
     .chart-container{margin-top:1.5rem;display:none;}
     canvas{background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.1);
@@ -49,7 +58,13 @@
 
   <div class="chart-controls">
     <button id="toggleChart">Show Chart</button>
-    <button id="exportCsv">Export CSV</button>
+    <div class="dropdown">
+      <button>Export ▼</button>
+      <div class="dropdown-content">
+        <button id="exportCsv">📄 Export CSV</button>
+        <button id="exportExcel">📘 Export Excel</button>
+      </div>
+    </div>
   </div>
 
   <div class="chart-container" id="chartContainer">
@@ -151,7 +166,7 @@
     });
 
     document.getElementById("exportCsv").addEventListener("click",()=>{
-      const {filtered,title}=getFilteredData(currentFilter);
+      const {filtered}=getFilteredData(currentFilter);
       if(!filtered.length){alert("No data to export.");return;}
       const csv=convertToCSV(filtered);
       const blob=new Blob([csv],{type:"text/csv"});
@@ -162,6 +177,16 @@
       link.download=`${currentFilter}-${date}.csv`;
       link.click();
       URL.revokeObjectURL(url);
+    });
+
+    document.getElementById("exportExcel").addEventListener("click",()=>{
+      const {filtered}=getFilteredData(currentFilter);
+      if(!filtered.length){alert("No data to export.");return;}
+      const ws=XLSX.utils.json_to_sheet(filtered);
+      const wb=XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb,ws,"Data");
+      const date=new Date().toISOString().split("T")[0];
+      XLSX.writeFile(wb,`${currentFilter}-${date}.xlsx`);
     });
 
     function convertToCSV(data){
