@@ -183,6 +183,7 @@
   <script>
     let selectedPlace = {};
     let selectedRating = 0;
+    let selectedType = "";
 
     window.addEventListener("DOMContentLoaded", () => {
       const rating=document.getElementById("rating");
@@ -199,6 +200,13 @@
 
       document.getElementById("cancelBtn").addEventListener("click", clearForm);
       document.getElementById("saveBtn").addEventListener("click", saveStore);
+
+      document.querySelectorAll("input[name='type']").forEach(radio=>{
+        radio.addEventListener("change",()=>{
+          selectedType=radio.value;
+          updatePreview();
+        });
+      });
     });
 
     function clearForm(){
@@ -206,7 +214,7 @@
       document.querySelectorAll("input[type='radio']").forEach(r=>r.checked=false);
       document.querySelectorAll(".star").forEach(s=>s.classList.remove("selected","hover"));
       document.getElementById("preview").innerHTML="";
-      selectedRating=0;
+      selectedRating=0; selectedType="";
       showToast("Form cleared","success");
     }
 
@@ -217,20 +225,18 @@
       const country=document.getElementById("country").value.trim();
       const phone=document.getElementById("phone").value.trim();
       const website=document.getElementById("website").value.trim();
-      const selectedRadio = document.querySelector("input[name='type']:checked");
-      if (!selectedRadio) {
-        showToast("Please select a type (Store / Lounge / Other)", "error");
+
+      if(!selectedType){
+        showToast("Please select a type (Store / Lounge / Other)","error");
         return;
       }
-      const type = selectedRadio.value.trim().toLowerCase();
-
       if(!name||!address||!city||!country){
         showToast("Please fill in all required fields","error");
         return;
       }
 
       const { error } = await supabase.from("stores").insert([{
-        name, address, city, country, phone, website, type,
+        name, address, city, country, phone, website, type: selectedType,
         rating: selectedRating, approved: false,
         lat: selectedPlace.lat || null, lng: selectedPlace.lng || null,
         photo_reference: selectedPlace.photo || null
@@ -252,6 +258,20 @@
       t.textContent=msg;
       c.appendChild(t);
       setTimeout(()=>t.remove(),3000);
+    }
+
+    function updatePreview() {
+      let imgSrc = "";
+      if (selectedPlace.photo) {
+        imgSrc = selectedPlace.photo;
+      } else if (selectedType === "store") {
+        imgSrc = "images/store.jpg";
+      } else if (selectedType === "lounge") {
+        imgSrc = "images/lounge.jpg";
+      } else {
+        imgSrc = "images/cafe.jpg";
+      }
+      document.getElementById("preview").innerHTML = `<img src="${imgSrc}" alt="Preview">`;
     }
 
     function initAutocomplete(){
@@ -280,14 +300,10 @@
         selectedPlace={
           lat:place.geometry?.location?.lat()||null,
           lng:place.geometry?.location?.lng()||null,
-          photo:(place.photos&&place.photos.length>0)?place.photos[0].getUrl({maxWidth:400}):null
+          photo:(place.photos&&place.photos.length>0)?place.photos[0].getUrl({maxWidth:800}):null
         };
 
-        const imgSrc=selectedPlace.photo ||
-          (document.querySelector("input[name='type']:checked")?.value==="store"?"images/store.jpg":
-           document.querySelector("input[name='type']:checked")?.value==="lounge"?"images/lounge.jpg":"images/cafe.jpg");
-
-        document.getElementById("preview").innerHTML=`<img src="${imgSrc}" alt="Preview">`;
+        updatePreview();
       });
     }
 
