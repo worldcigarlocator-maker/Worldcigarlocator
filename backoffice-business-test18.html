@@ -3,110 +3,231 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Business Dashboard – World Cigar Locator</title>
+  <title>Trash – World Cigar Locator</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #f8f8f8; margin: 0; padding: 2rem; color: #333; }
-    nav { text-align: center; margin-bottom: 2rem; }
-    nav a { color: #b8860b; text-decoration: none; margin: 0 1rem; font-weight: bold; }
-    nav a:hover { text-decoration: underline; }
+    :root{
+      --gold:#b8860b;
+      --gold-dark:#a37408;
+      --bg:#f8f8f8;
+      --card:#ffffff;
+      --text:#333;
+      --muted:#666;
+      --danger:#dc3545;
+      --primary:#007bff;
+    }
+    *{box-sizing:border-box}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text);}
+    nav{text-align:center;margin-bottom:2rem;}
+    nav a{color:var(--gold);text-decoration:none;margin:0 1rem;font-weight:bold}
+    nav a:hover{text-decoration:underline}
+    h1{color:var(--gold);text-align:center;margin:0 0 1rem}
 
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 1rem; margin-bottom: 2rem; }
-    .kpi-card { background:#fff; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); padding:1rem; text-align:center; }
-    .kpi-card h2 { color:#b8860b; margin:0; font-size:1.6rem; }
-    .kpi-card p { margin:0.3rem 0 0; font-size:0.9rem; color:#666; }
+    .mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
 
-    .mini-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; }
-    .mini-card { background:#fff; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); padding:1rem; }
-    .mini-card h3 { margin:0 0 0.3rem; color:#333; }
-    .mini-card p { margin:0.2rem 0; font-size:0.9rem; color:#555; }
-    .actions { margin-top:0.8rem; display:flex; gap:0.5rem; }
-    .actions button { flex:1; border:none; border-radius:6px; padding:0.4rem; font-weight:bold; cursor:pointer; color:#fff; }
-    .approve{background:#28a745;} .flag{background:#ff8c00;} .delete{background:#dc3545;}
-    .restore{background:#007bff;}
-    .actions button:hover{opacity:0.9;}
+    .mini-card{
+      background:var(--card);
+      border-radius:12px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.08);
+      padding:1rem;
+      display:flex;flex-direction:column;gap:.35rem;
+      position:relative;
+    }
+    .mini-card h3{margin:.1rem 0 .2rem;font-size:1.05rem}
+    .meta{color:var(--muted);font-size:.9rem}
+    .row{display:flex;gap:.6rem;flex-wrap:wrap}
+    .badge{
+      display:inline-block;padding:.2rem .55rem;border-radius:10px;
+      background:#eee;font-size:.75rem;color:#444;
+    }
+    .badge.flagged{background:#ffebe4;color:#c13b00}
+    .badge.approved{background:#e8f7ee;color:#1f7a3e}
+    .badge.pending{background:#fff6e5;color:#9a6a00}
 
-    .toast{position:fixed;bottom:1rem;right:1rem;background:#333;color:#fff;padding:0.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.2);opacity:0.95;}
+    /* Progress */
+    .progress-wrap{margin-top:.5rem}
+    .progress-top{display:flex;justify-content:space-between;align-items:baseline;font-size:.85rem;color:var(--muted);margin-bottom:.25rem}
+    .bar{
+      width:100%;height:10px;border-radius:999px;background:#eee;overflow:hidden;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
+    }
+    .fill{
+      height:100%;
+      background:linear-gradient(90deg,var(--gold),var(--gold-dark));
+      width:0%;
+      transition:width .4s ease;
+    }
+
+    .actions{margin-top:.7rem;display:flex;gap:.5rem}
+    .actions button{
+      flex:1;border:none;border-radius:8px;padding:.5rem .6rem;cursor:pointer;
+      font-weight:bold;color:#fff;transition:filter .15s;
+    }
+    .restore{background:var(--primary)}
+    .delete{background:var(--danger)}
+    .actions button:hover{filter:brightness(.95)}
+
+    /* Toast */
+    .toast{
+      position:fixed;right:1rem;bottom:1rem;background:#333;color:#fff;
+      padding:.8rem 1rem;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2);opacity:.95;
+    }
+
+    /* Empty state */
+    .empty{
+      text-align:center;color:var(--muted);padding:2rem;background:#fff;border-radius:12px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.05);
+    }
   </style>
 </head>
 <body>
   <nav>
     <a href="backoffice-test15g.html">🏠 Home</a>
-    <a href="#">✅ Approved</a>
-    <a href="#">⏳ Pending</a>
-    <a href="#">🚩 Flagged</a>
-    <a href="backoffice-business-test18.html"><strong>💼 Business</strong></a>
-    <a href="backoffice-trash.html">🗑️ Trash</a>
+    <a href="backoffice-business-test18.html">💼 Business</a>
+    <a href="backoffice-trash-test19.html"><strong>🗑️ Trash</strong></a>
   </nav>
 
-  <h1 style="text-align:center;color:#b8860b;">Business Dashboard</h1>
-  <div class="kpi-grid" id="kpiGrid"></div>
-  <div class="mini-grid" id="topStoresGrid"></div>
-
-  <div id="toast"></div>
+  <h1>Trash (kept for 48 hours)</h1>
+  <div class="mini-grid" id="trashGrid"></div>
+  <div id="toast" aria-live="polite"></div>
 
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
     const supabase = createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
-    async function loadData() {
-      const { data, error } = await supabase.from("stores").select("*").eq("deleted", false);
-      if (error) return console.error(error);
-      const total = data.length;
-      const approved = data.filter(s=>s.approved).length;
-      const flagged = data.filter(s=>s.flagged).length;
-      const avg = (data.reduce((a,s)=>a+(s.rating||0),0)/total).toFixed(1);
-      document.getElementById("kpiGrid").innerHTML = `
-        <div class="kpi-card"><h2>${total}</h2><p>Total</p></div>
-        <div class="kpi-card"><h2>${approved}</h2><p>Approved</p></div>
-        <div class="kpi-card"><h2>${flagged}</h2><p>Flagged</p></div>
-        <div class="kpi-card"><h2>${avg}</h2><p>Average Rating</p></div>
+    const GRID = document.getElementById("trashGrid");
+    const TOAST = document.getElementById("toast");
+    const WINDOW_MS = 48 * 60 * 60 * 1000; // 48h
+
+    /** Load all soft-deleted stores */
+    async function loadTrash(){
+      const { data, error } = await supabase
+        .from("stores")
+        .select("*")
+        .eq("deleted", true)
+        .order("deleted_at", { ascending: false });
+
+      if (error){ console.error(error); showToast("Error loading trash"); return; }
+
+      GRID.innerHTML = "";
+      if (!data || data.length === 0){
+        GRID.innerHTML = `<div class="empty">Trash is empty. Deleted items appear here for 48 hours.</div>`;
+        return;
+      }
+
+      data.forEach(store => GRID.appendChild(renderCard(store)));
+    }
+
+    /** Create a mini card with progress bar */
+    function renderCard(store){
+      const card = document.createElement("div");
+      card.className = "mini-card";
+
+      const deletedAt = store.deleted_at ? new Date(store.deleted_at) : null;
+
+      card.innerHTML = `
+        <h3>${escapeHtml(store.name || "Unnamed")}</h3>
+        <div class="row">
+          <span class="badge">${escapeHtml(store.city || "Unknown")}, ${escapeHtml(store.country || "Unknown")}</span>
+          ${store.flagged ? `<span class="badge flagged">Flagged</span>` : ""}
+          ${store.approved ? `<span class="badge approved">Approved</span>` : `<span class="badge pending">Pending</span>`}
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-top">
+            <span>Retention</span>
+            <span class="timeleft">—</span>
+          </div>
+          <div class="bar"><div class="fill"></div></div>
+        </div>
+
+        <div class="actions">
+          <button class="restore">♻️ Restore</button>
+          <button class="delete">🗑️ Delete permanently</button>
+        </div>
       `;
 
-      const grid=document.getElementById("topStoresGrid");
-      grid.innerHTML="";
-      data.sort((a,b)=>(b.rating||0)-(a.rating||0)).slice(0,10).forEach(store=>{
-        const card=document.createElement("div");
-        card.className="mini-card";
-        card.innerHTML=`
-          <h3>${store.name}</h3>
-          <p>${store.city}, ${store.country}</p>
-          <p>⭐ ${store.rating||0}</p>
-          <div class="actions">
-            <button class="approve">Approve</button>
-            <button class="flag">Flag</button>
-            <button class="delete">Delete</button>
-          </div>`;
-        card.querySelector(".approve").onclick=()=>updateStore(store.id,{approved:true,status:"approved"});
-        card.querySelector(".flag").onclick=()=>updateStore(store.id,{flagged:true});
-        card.querySelector(".delete").onclick=()=>softDelete(store.id);
-        grid.appendChild(card);
-      });
+      const fill = card.querySelector(".fill");
+      const timeLeftEl = card.querySelector(".timeleft");
+
+      // updater
+      function updateProgress(){
+        if (!deletedAt){ fill.style.width = "0%"; timeLeftEl.textContent = "expired"; return; }
+        const now = Date.now();
+        const elapsed = now - deletedAt.getTime();
+        const remaining = Math.max(0, WINDOW_MS - elapsed);
+        const pct = Math.max(0, Math.min(100, (remaining / WINDOW_MS) * 100));
+
+        fill.style.width = pct.toFixed(2) + "%";
+        timeLeftEl.textContent = formatRemaining(remaining);
+
+        // if expired, remove visually
+        if (remaining <= 0){
+          // Noterar: DB-autopurge kan vara fördröjd; vi döljer kortet direkt.
+          card.style.opacity = 0.5;
+          timeLeftEl.textContent = "expired";
+        }
+      }
+      updateProgress();
+      const interval = setInterval(updateProgress, 30000); // 30s
+      // stop timer om kortet tas bort
+      card.addEventListener("DOMNodeRemoved", () => clearInterval(interval));
+
+      // Restore
+      card.querySelector(".restore").onclick = async () => {
+        const { error } = await supabase
+          .from("stores")
+          .update({ deleted:false, deleted_at:null })
+          .eq("id", store.id);
+
+        if (error){ console.error(error); showToast("Restore failed"); return; }
+        showToast("Restored");
+        card.remove();
+        if (!GRID.children.length) GRID.innerHTML = `<div class="empty">Trash is empty. Deleted items appear here for 48 hours.</div>`;
+      };
+
+      // Permanent delete
+      card.querySelector(".delete").onclick = async () => {
+        if (!confirm("Delete permanently? This cannot be undone.")) return;
+        const { error } = await supabase.from("stores").delete().eq("id", store.id);
+        if (error){ console.error(error); showToast("Delete failed"); return; }
+        showToast("Deleted permanently");
+        card.remove();
+        if (!GRID.children.length) GRID.innerHTML = `<div class="empty">Trash is empty. Deleted items appear here for 48 hours.</div>`;
+      };
+
+      return card;
     }
 
-    async function updateStore(id,update){
-      const {error}=await supabase.from("stores").update(update).eq("id",id);
-      if(error)console.error(error);
-      showToast("Updated!"); loadData();
-    }
-    async function softDelete(id){
-      if(!confirm("Move to Trash?"))return;
-      const {error}=await supabase.from("stores").update({deleted:true,deleted_at:new Date().toISOString()}).eq("id",id);
-      if(error)console.error(error);
-      showToast("Moved to Trash!"); loadData();
+    function formatRemaining(ms){
+      if (ms <= 0) return "expired";
+      const totalSec = Math.floor(ms/1000);
+      const d = Math.floor(totalSec / 86400);
+      const h = Math.floor((totalSec % 86400) / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      if (d > 0) return `~${d}d ${h}h`;
+      if (h > 0) return `~${h}h ${m}m`;
+      return `${m}m`;
     }
 
     function showToast(msg){
-      const t=document.createElement("div");
-      t.className="toast"; t.textContent=msg;
+      const t = document.createElement("div");
+      t.className = "toast"; t.textContent = msg;
       document.body.appendChild(t);
-      setTimeout(()=>t.remove(),2500);
+      setTimeout(()=>t.remove(), 2200);
     }
 
-    loadData();
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, c => (
+        { "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]
+      ));
+    }
+
+    loadTrash();
   </script>
 </body>
 </html>
