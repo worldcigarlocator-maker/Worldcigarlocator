@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Business Overview – World Cigar Locator</title>
+  <title>Business Dashboard – World Cigar Locator</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,88 +14,103 @@
       padding: 2rem;
       color: #333;
     }
-    h1 {
-      text-align: center;
-      color: #b8860b;
-      margin-bottom: 1.5rem;
-    }
-    nav {
-      text-align: center;
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 2rem;
     }
-    nav a {
+    h1 {
       color: #b8860b;
-      font-weight: bold;
-      text-decoration: none;
-      margin: 0 1rem;
+      margin: 0;
     }
-    nav a:hover { text-decoration: underline; }
+    nav button {
+      background: #fff;
+      border: 2px solid #b8860b;
+      color: #b8860b;
+      border-radius: 20px;
+      padding: 0.5rem 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 0.5rem;
+    }
+    nav button:hover {
+      background: #b8860b;
+      color: #fff;
+    }
 
     .stats {
-      display: flex;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 1rem;
-      flex-wrap: wrap;
       margin-bottom: 2rem;
     }
-    .stat-box {
+    .stat-card {
       background: #fff;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      padding: 1rem 2rem;
+      padding: 1rem;
       text-align: center;
-      min-width: 150px;
     }
-    .stat-number {
-      font-size: 2rem;
+    .stat-card h2 {
       color: #b8860b;
-      font-weight: bold;
+      margin: 0.5rem 0;
     }
 
+    canvas {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
+    }
+
+    .deleted-section {
+      margin-top: 3rem;
+    }
+    .deleted-section h2 {
+      color: #b8860b;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
       background: #fff;
       border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       overflow: hidden;
     }
     th, td {
-      text-align: left;
       padding: 0.8rem;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #eee;
+      text-align: left;
     }
     th {
-      background: #b8860b;
-      color: #fff;
-    }
-    tr:hover {
       background: #f1f1f1;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <nav>
-    <a href="backoffice-home.html">← Backoffice Home</a>
-  </nav>
+  <header>
+    <h1>Business Dashboard</h1>
+    <nav>
+      <button onclick="window.location.href='backoffice-home.html'">Home</button>
+      <button onclick="loadTrashLog()">Deleted History</button>
+    </nav>
+  </header>
 
-  <h1>Business Overview</h1>
+  <div class="stats" id="statsContainer"></div>
 
-  <div class="stats" id="stats"></div>
+  <canvas id="chart" height="120"></canvas>
 
-  <table id="businessTable">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>City</th>
-        <th>Country</th>
-        <th>Type</th>
-        <th>Rating</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="deleted-section" id="deletedSection" style="display:none;">
+    <h2>🗑️ Recently Deleted Stores</h2>
+    <table id="deletedTable">
+      <thead>
+        <tr><th>Name</th><th>Deleted At</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -103,52 +119,85 @@
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
-    async function loadBusinessData() {
+    async function loadBusinessStats() {
       const { data, error } = await supabase.from("stores").select("*");
       if (error) {
         console.error(error);
         return;
       }
 
-      const stats = {
-        total: data.length,
-        approved: data.filter(s => s.approved).length,
-        pending: data.filter(s => !s.approved).length,
-        flagged: data.filter(s => s.flagged).length,
-        lounges: data.filter(s => s.type === "Lounge").length,
-        stores: data.filter(s => s.type === "Store").length,
-        other: data.filter(s => s.type === "Other").length
-      };
+      const total = data.length;
+      const approved = data.filter(s => s.approved).length;
+      const pending = data.filter(s => s.status === "pending").length;
+      const flagged = data.filter(s => s.flagged).length;
 
-      // Render stats
-      document.getElementById("stats").innerHTML = `
-        <div class="stat-box"><div class="stat-number">${stats.total}</div><div>Total</div></div>
-        <div class="stat-box"><div class="stat-number">${stats.approved}</div><div>Approved</div></div>
-        <div class="stat-box"><div class="stat-number">${stats.pending}</div><div>Pending</div></div>
-        <div class="stat-box"><div class="stat-number">${stats.flagged}</div><div>Flagged</div></div>
-        <div class="stat-box"><div class="stat-number">${stats.stores}</div><div>Stores</div></div>
-        <div class="stat-box"><div class="stat-number">${stats.lounges}</div><div>Lounges</div></div>
-        <div class="stat-box"><div class="stat-number">${stats.other}</div><div>Other</div></div>
+      const storeCount = data.filter(s => s.type === "store").length;
+      const loungeCount = data.filter(s => s.type === "lounge").length;
+      const otherCount = data.filter(s => s.type === "other").length;
+
+      const avgRating =
+        data.reduce((sum, s) => sum + (s.rating || 0), 0) / (data.length || 1);
+
+      document.getElementById("statsContainer").innerHTML = `
+        <div class="stat-card"><h2>${total}</h2><p>Total Locations</p></div>
+        <div class="stat-card"><h2>${approved}</h2><p>Approved</p></div>
+        <div class="stat-card"><h2>${pending}</h2><p>Pending</p></div>
+        <div class="stat-card"><h2>${flagged}</h2><p>Flagged</p></div>
+        <div class="stat-card"><h2>${avgRating.toFixed(1)}</h2><p>Avg Rating</p></div>
+        <div class="stat-card"><h2>${storeCount}</h2><p>Stores</p></div>
+        <div class="stat-card"><h2>${loungeCount}</h2><p>Lounges</p></div>
+        <div class="stat-card"><h2>${otherCount}</h2><p>Other</p></div>
       `;
 
-      // Render table
-      const tbody = document.querySelector("#businessTable tbody");
-      tbody.innerHTML = "";
-      data.forEach(store => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${store.name || "Unnamed"}</td>
-          <td>${store.city || ""}</td>
-          <td>${store.country || ""}</td>
-          <td>${store.type || ""}</td>
-          <td>${store.rating ?? "-"}</td>
-          <td>${store.approved ? "✅ Approved" : "⏳ Pending"}</td>
-        `;
-        tbody.appendChild(tr);
+      renderChart(data);
+    }
+
+    function renderChart(data) {
+      const grouped = {};
+      data.forEach(s => {
+        const date = new Date(s.created_at).toLocaleDateString();
+        grouped[date] = (grouped[date] || 0) + 1;
+      });
+
+      const labels = Object.keys(grouped);
+      const values = Object.values(grouped);
+
+      new Chart(document.getElementById("chart"), {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            label: "Stores Created Over Time",
+            data: values,
+            borderColor: "#b8860b",
+            backgroundColor: "rgba(184,134,11,0.2)",
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
       });
     }
 
-    loadBusinessData();
+    async function loadTrashLog() {
+      document.getElementById("deletedSection").style.display = "block";
+
+      const { data, error } = await supabase.from("trash_log").select("*").order("deleted_at", { ascending: false });
+      if (error) {
+        console.error("Error loading trash log:", error);
+        return;
+      }
+
+      const tbody = document.querySelector("#deletedTable tbody");
+      tbody.innerHTML = data.length
+        ? data.map(row => `<tr><td>${row.store_name}</td><td>${new Date(row.deleted_at).toLocaleString()}</td></tr>`).join("")
+        : `<tr><td colspan="2">No deleted items found</td></tr>`;
+    }
+
+    loadBusinessStats();
   </script>
 </body>
 </html>
