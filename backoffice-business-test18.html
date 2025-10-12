@@ -2,94 +2,143 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Trash – World Cigar Locator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Business Dashboard – World Cigar Locator</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root{
-      --gold:#b8860b;
-      --gold-dark:#a37408;
-      --bg:#f8f8f8;
-      --card:#ffffff;
-      --text:#333;
-      --muted:#666;
-      --danger:#dc3545;
-      --primary:#007bff;
+    :root {
+      --gold: #b8860b;
+      --gold-dark: #a37408;
+      --bg: #f8f8f8;
+      --card: #ffffff;
+      --muted: #666;
+      --text: #333;
     }
-    *{box-sizing:border-box}
-    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text);}
-    nav{text-align:center;margin-bottom:2rem;}
-    nav a{color:var(--gold);text-decoration:none;margin:0 1rem;font-weight:bold}
-    nav a:hover{text-decoration:underline}
-    h1{color:var(--gold);text-align:center;margin:0 0 1rem}
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 2rem;
+      color: var(--text);
+    }
+    nav {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    nav a {
+      color: var(--gold);
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: bold;
+    }
+    nav a:hover { text-decoration: underline; }
 
-    .mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
-
-    .mini-card{
-      background:var(--card);
-      border-radius:12px;
-      box-shadow:0 2px 8px rgba(0,0,0,0.08);
-      padding:1rem;
-      display:flex;flex-direction:column;gap:.35rem;
-      position:relative;
-    }
-    .mini-card h3{margin:.1rem 0 .2rem;font-size:1.05rem}
-    .meta{color:var(--muted);font-size:.9rem}
-    .row{display:flex;gap:.6rem;flex-wrap:wrap}
-    .badge{
-      display:inline-block;padding:.2rem .55rem;border-radius:10px;
-      background:#eee;font-size:.75rem;color:#444;
-    }
-    .badge.flagged{background:#ffebe4;color:#c13b00}
-    .badge.approved{background:#e8f7ee;color:#1f7a3e}
-    .badge.pending{background:#fff6e5;color:#9a6a00}
-
-    /* Progress */
-    .progress-wrap{margin-top:.5rem}
-    .progress-top{display:flex;justify-content:space-between;align-items:baseline;font-size:.85rem;color:var(--muted);margin-bottom:.25rem}
-    .bar{
-      width:100%;height:10px;border-radius:999px;background:#eee;overflow:hidden;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
-    }
-    .fill{
-      height:100%;
-      background:linear-gradient(90deg,var(--gold),var(--gold-dark));
-      width:0%;
-      transition:width .4s ease;
+    h1 {
+      text-align: center;
+      color: var(--gold);
+      margin-bottom: 2rem;
     }
 
-    .actions{margin-top:.7rem;display:flex;gap:.5rem}
-    .actions button{
-      flex:1;border:none;border-radius:8px;padding:.5rem .6rem;cursor:pointer;
-      font-weight:bold;color:#fff;transition:filter .15s;
+    /* Cards grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
     }
-    .restore{background:var(--primary)}
-    .delete{background:var(--danger)}
-    .actions button:hover{filter:brightness(.95)}
+    .stat-card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 1rem;
+      text-align: center;
+    }
+    .stat-card h2 {
+      color: var(--gold-dark);
+      font-size: 2rem;
+      margin: 0.3rem 0;
+    }
+    .stat-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
 
-    /* Toast */
-    .toast{
-      position:fixed;right:1rem;bottom:1rem;background:#333;color:#fff;
-      padding:.8rem 1rem;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2);opacity:.95;
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
-
-    /* Empty state */
-    .empty{
-      text-align:center;color:var(--muted);padding:2rem;background:#fff;border-radius:12px;
-      box-shadow:0 2px 8px rgba(0,0,0,0.05);
+    th, td {
+      text-align: left;
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid #eee;
     }
+    th {
+      background: #f3f3f3;
+      color: var(--gold-dark);
+    }
+    tr:hover {
+      background: #faf7f0;
+    }
+    .status {
+      font-weight: bold;
+      color: var(--muted);
+    }
+    .approved { color: #28a745; }
+    .flagged { color: #dc3545; }
+    .pending { color: #a37408; }
   </style>
 </head>
 <body>
   <nav>
     <a href="backoffice-test15g.html">🏠 Home</a>
-    <a href="backoffice-business-test18.html">💼 Business</a>
-    <a href="backoffice-trash-test19.html"><strong>🗑️ Trash</strong></a>
+    <a href="backoffice-business-test18.html"><strong>💼 Business</strong></a>
+    <a href="backoffice-trash-test19.html">🗑️ Trash</a>
   </nav>
 
-  <h1>Trash (kept for 48 hours)</h1>
-  <div class="mini-grid" id="trashGrid"></div>
-  <div id="toast" aria-live="polite"></div>
+  <h1>Business Dashboard</h1>
+
+  <!-- Top Statistics -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h2 id="totalCount">–</h2>
+      <p>Total Stores</p>
+    </div>
+    <div class="stat-card">
+      <h2 id="approvedCount">–</h2>
+      <p>Approved</p>
+    </div>
+    <div class="stat-card">
+      <h2 id="flaggedCount">–</h2>
+      <p>Flagged</p>
+    </div>
+    <div class="stat-card">
+      <h2 id="deletedCount">–</h2>
+      <p>Deleted</p>
+    </div>
+  </div>
+
+  <!-- Top rated table -->
+  <h2 style="color:var(--gold-dark); margin-bottom:1rem;">Top Rated Locations</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>City</th>
+        <th>Country</th>
+        <th>Rating</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="topTable"></tbody>
+  </table>
 
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -99,135 +148,52 @@
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
-    const GRID = document.getElementById("trashGrid");
-    const TOAST = document.getElementById("toast");
-    const WINDOW_MS = 48 * 60 * 60 * 1000; // 48h
+    const totalEl = document.getElementById("totalCount");
+    const approvedEl = document.getElementById("approvedCount");
+    const flaggedEl = document.getElementById("flaggedCount");
+    const deletedEl = document.getElementById("deletedCount");
+    const topTable = document.getElementById("topTable");
 
-    /** Load all soft-deleted stores */
-    async function loadTrash(){
-      const { data, error } = await supabase
-        .from("stores")
-        .select("*")
-        .eq("deleted", true)
-        .order("deleted_at", { ascending: false });
+    async function loadStats() {
+      const { data, error } = await supabase.from("stores").select("*");
+      if (error) return console.error(error);
 
-      if (error){ console.error(error); showToast("Error loading trash"); return; }
+      const total = data.length;
+      const approved = data.filter(s => s.approved).length;
+      const flagged = data.filter(s => s.flagged).length;
+      const deleted = data.filter(s => s.deleted).length;
 
-      GRID.innerHTML = "";
-      if (!data || data.length === 0){
-        GRID.innerHTML = `<div class="empty">Trash is empty. Deleted items appear here for 48 hours.</div>`;
-        return;
-      }
+      totalEl.textContent = total;
+      approvedEl.textContent = approved;
+      flaggedEl.textContent = flagged;
+      deletedEl.textContent = deleted;
 
-      data.forEach(store => GRID.appendChild(renderCard(store)));
+      const top = data
+        .filter(s => s.rating)
+        .sort((a, b) => b.rating - a.rating)
+        .slice(0, 10);
+
+      topTable.innerHTML = top.map(s => `
+        <tr>
+          <td>${escapeHtml(s.name || "–")}</td>
+          <td>${escapeHtml(s.type || "–")}</td>
+          <td>${escapeHtml(s.city || "–")}</td>
+          <td>${escapeHtml(s.country || "–")}</td>
+          <td>${s.rating || 0}</td>
+          <td class="status ${s.flagged ? "flagged" : s.approved ? "approved" : "pending"}">
+            ${s.flagged ? "Flagged" : s.approved ? "Approved" : "Pending"}
+          </td>
+        </tr>
+      `).join("");
     }
 
-    /** Create a mini card with progress bar */
-    function renderCard(store){
-      const card = document.createElement("div");
-      card.className = "mini-card";
-
-      const deletedAt = store.deleted_at ? new Date(store.deleted_at) : null;
-
-      card.innerHTML = `
-        <h3>${escapeHtml(store.name || "Unnamed")}</h3>
-        <div class="row">
-          <span class="badge">${escapeHtml(store.city || "Unknown")}, ${escapeHtml(store.country || "Unknown")}</span>
-          ${store.flagged ? `<span class="badge flagged">Flagged</span>` : ""}
-          ${store.approved ? `<span class="badge approved">Approved</span>` : `<span class="badge pending">Pending</span>`}
-        </div>
-
-        <div class="progress-wrap">
-          <div class="progress-top">
-            <span>Retention</span>
-            <span class="timeleft">—</span>
-          </div>
-          <div class="bar"><div class="fill"></div></div>
-        </div>
-
-        <div class="actions">
-          <button class="restore">♻️ Restore</button>
-          <button class="delete">🗑️ Delete permanently</button>
-        </div>
-      `;
-
-      const fill = card.querySelector(".fill");
-      const timeLeftEl = card.querySelector(".timeleft");
-
-      // updater
-      function updateProgress(){
-        if (!deletedAt){ fill.style.width = "0%"; timeLeftEl.textContent = "expired"; return; }
-        const now = Date.now();
-        const elapsed = now - deletedAt.getTime();
-        const remaining = Math.max(0, WINDOW_MS - elapsed);
-        const pct = Math.max(0, Math.min(100, (remaining / WINDOW_MS) * 100));
-
-        fill.style.width = pct.toFixed(2) + "%";
-        timeLeftEl.textContent = formatRemaining(remaining);
-
-        // if expired, remove visually
-        if (remaining <= 0){
-          // Noterar: DB-autopurge kan vara fördröjd; vi döljer kortet direkt.
-          card.style.opacity = 0.5;
-          timeLeftEl.textContent = "expired";
-        }
-      }
-      updateProgress();
-      const interval = setInterval(updateProgress, 30000); // 30s
-      // stop timer om kortet tas bort
-      card.addEventListener("DOMNodeRemoved", () => clearInterval(interval));
-
-      // Restore
-      card.querySelector(".restore").onclick = async () => {
-        const { error } = await supabase
-          .from("stores")
-          .update({ deleted:false, deleted_at:null })
-          .eq("id", store.id);
-
-        if (error){ console.error(error); showToast("Restore failed"); return; }
-        showToast("Restored");
-        card.remove();
-        if (!GRID.children.length) GRID.innerHTML = `<div class="empty">Trash is empty. Deleted items appear here for 48 hours.</div>`;
-      };
-
-      // Permanent delete
-      card.querySelector(".delete").onclick = async () => {
-        if (!confirm("Delete permanently? This cannot be undone.")) return;
-        const { error } = await supabase.from("stores").delete().eq("id", store.id);
-        if (error){ console.error(error); showToast("Delete failed"); return; }
-        showToast("Deleted permanently");
-        card.remove();
-        if (!GRID.children.length) GRID.innerHTML = `<div class="empty">Trash is empty. Deleted items appear here for 48 hours.</div>`;
-      };
-
-      return card;
-    }
-
-    function formatRemaining(ms){
-      if (ms <= 0) return "expired";
-      const totalSec = Math.floor(ms/1000);
-      const d = Math.floor(totalSec / 86400);
-      const h = Math.floor((totalSec % 86400) / 3600);
-      const m = Math.floor((totalSec % 3600) / 60);
-      if (d > 0) return `~${d}d ${h}h`;
-      if (h > 0) return `~${h}h ${m}m`;
-      return `${m}m`;
-    }
-
-    function showToast(msg){
-      const t = document.createElement("div");
-      t.className = "toast"; t.textContent = msg;
-      document.body.appendChild(t);
-      setTimeout(()=>t.remove(), 2200);
-    }
-
-    function escapeHtml(s){
-      return String(s).replace(/[&<>"']/g, c => (
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, c => (
         { "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]
       ));
     }
 
-    loadTrash();
+    loadStats();
   </script>
 </body>
 </html>
