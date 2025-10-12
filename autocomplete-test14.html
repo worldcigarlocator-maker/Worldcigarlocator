@@ -169,50 +169,62 @@
 
   <div id="toast-container"></div>
 
+  <!-- Supabase -->
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
-    const supabase = createClient(
+    window.supabase = createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
+  </script>
 
+  <!-- App & Google logic -->
+  <script>
     let selectedPlace = {};
     let selectedRating = 0;
 
-    // ⭐ Rating
-    const ratingEl = document.getElementById("rating");
-    for (let i = 1; i <= 5; i++) {
-      const star = document.createElement("span");
-      star.textContent = "★";
-      star.classList.add("star");
-      star.dataset.value = i;
-      star.addEventListener("mouseover", () => {
-        document.querySelectorAll(".star").forEach(s => s.classList.remove("hover"));
-        for (let j = 0; j < i; j++) document.querySelectorAll(".star")[j].classList.add("hover");
-      });
-      star.addEventListener("mouseout", () => {
-        document.querySelectorAll(".star").forEach(s => s.classList.remove("hover"));
-      });
-      star.addEventListener("click", () => {
-        selectedRating = i;
-        document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
-        for (let j = 0; j < i; j++) document.querySelectorAll(".star")[j].classList.add("selected");
-      });
-      ratingEl.appendChild(star);
+    window.addEventListener("DOMContentLoaded", ()=>{
+      const rating=document.getElementById("rating");
+      for(let i=1;i<=5;i++){
+        const s=document.createElement("span");
+        s.textContent="★"; s.classList.add("star");
+        s.addEventListener("mouseover",()=>{document.querySelectorAll(".star").forEach(st=>st.classList.remove("hover"));
+          for(let j=0;j<i;j++)document.querySelectorAll(".star")[j].classList.add("hover");});
+        s.addEventListener("mouseout",()=>document.querySelectorAll(".star").forEach(st=>st.classList.remove("hover")));
+        s.addEventListener("click",()=>{selectedRating=i;document.querySelectorAll(".star").forEach(st=>st.classList.remove("selected"));
+          for(let j=0;j<i;j++)document.querySelectorAll(".star")[j].classList.add("selected");});
+        rating.appendChild(s);
+      }
+
+      document.getElementById("cancelBtn").addEventListener("click", clearForm);
+      document.getElementById("saveBtn").addEventListener("click", saveStore);
+    });
+
+    function clearForm(){
+      document.querySelectorAll("input").forEach(i=>i.value="");
+      document.querySelectorAll("input[type='radio']").forEach(r=>r.checked=false);
+      document.querySelectorAll(".star").forEach(s=>s.classList.remove("selected","hover"));
+      document.getElementById("preview").innerHTML="";
+      selectedRating=0;
+      showToast("Form cleared","success");
     }
 
-    document.getElementById("saveBtn").addEventListener("click", async () => {
-      const name = document.getElementById("name").value.trim();
-      const address = document.getElementById("addr").value.trim();
-      const city = document.getElementById("city").value.trim();
-      const country = document.getElementById("country").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const website = document.getElementById("website").value.trim();
-      const type = (document.querySelector("input[name='type']:checked")?.value || "").toLowerCase();
+    async function saveStore(){
+      const name=document.getElementById("name").value.trim();
+      const address=document.getElementById("addr").value.trim();
+      const city=document.getElementById("city").value.trim();
+      const country=document.getElementById("country").value.trim();
+      const phone=document.getElementById("phone").value.trim();
+      const website=document.getElementById("website").value.trim();
+      let type=(document.querySelector("input[name='type']:checked")?.value||"").toLowerCase();
 
-      if (!name || !address || !city || !country || !type || selectedRating === 0) {
-        showToast("Please fill all fields and rating", "error");
+      if(!name||!address||!city||!country||!type||selectedRating===0){
+        showToast("Please fill in all required fields","error");
+        return;
+      }
+
+      if(!["store","lounge","other"].includes(type)){
+        showToast("Invalid type selected","error");
         return;
       }
 
@@ -241,79 +253,56 @@
         showToast("Store added successfully!", "success");
         clearForm();
       }
-    });
-
-    document.getElementById("cancelBtn").addEventListener("click", clearForm);
-
-    function clearForm() {
-      document.querySelectorAll("input").forEach(i => i.value = "");
-      document.querySelectorAll("input[type='radio']").forEach(r => r.checked = false);
-      document.querySelectorAll(".star").forEach(s => s.classList.remove("selected", "hover"));
-      document.getElementById("preview").innerHTML = "";
-      selectedRating = 0;
-      showToast("Form cleared", "success");
     }
 
-    function showToast(msg, type = "success") {
-      const container = document.getElementById("toast-container");
-      const div = document.createElement("div");
-      div.className = `toast ${type}`;
-      div.textContent = msg;
-      container.appendChild(div);
-      setTimeout(() => div.remove(), 3000);
+    function showToast(msg,type="success"){
+      const c=document.getElementById("toast-container");
+      const t=document.createElement("div");
+      t.className=`toast ${type}`;
+      t.textContent=msg;
+      c.appendChild(t);
+      setTimeout(()=>t.remove(),3000);
     }
 
-    // ✅ Google Autocomplete
-    function initAutocomplete() {
-      const input = document.getElementById("address");
-      const autocomplete = new google.maps.places.Autocomplete(input, {
-        fields: ["address_components", "geometry", "name", "formatted_address", "international_phone_number", "website", "photos"],
+    function initAutocomplete(){
+      const input=document.getElementById("address");
+      const autocomplete=new google.maps.places.Autocomplete(input,{
+        fields:["address_components","geometry","name","formatted_address","international_phone_number","website","photos"]
       });
 
-      autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        if (!place) return;
+      autocomplete.addListener("place_changed",()=>{
+        const place=autocomplete.getPlace();
+        if(!place)return;
 
-        document.getElementById("name").value = place.name || "";
-        document.getElementById("addr").value = place.formatted_address || "";
+        document.getElementById("name").value=place.name||"";
+        document.getElementById("addr").value=place.formatted_address||"";
 
-        let cityComponent = place.address_components?.find(c => c.types.includes("locality"));
-        if (!cityComponent) {
-          cityComponent = place.address_components?.find(c =>
-            c.types.includes("postal_town") ||
-            c.types.includes("administrative_area_level_2")
-          );
+        let city=place.address_components?.find(c=>c.types.includes("locality"));
+        if(!city){
+          city=place.address_components?.find(c=>c.types.includes("postal_town")||c.types.includes("administrative_area_level_2"));
         }
-        const countryComponent = place.address_components?.find(c => c.types.includes("country"));
+        const country=place.address_components?.find(c=>c.types.includes("country"));
+        document.getElementById("city").value=city?.long_name||"";
+        document.getElementById("country").value=country?.long_name||"";
+        document.getElementById("phone").value=place.international_phone_number||"";
+        document.getElementById("website").value=place.website||"";
 
-        document.getElementById("city").value = cityComponent?.long_name || "";
-        document.getElementById("country").value = countryComponent?.long_name || "";
-        document.getElementById("phone").value = place.international_phone_number || "";
-        document.getElementById("website").value = place.website || "";
-
-        selectedPlace = {
-          lat: place.geometry?.location?.lat() || null,
-          lng: place.geometry?.location?.lng() || null,
-          photo: (place.photos && place.photos.length > 0) ? place.photos[0].getUrl({maxWidth:400}) : null
+        selectedPlace={
+          lat:place.geometry?.location?.lat()||null,
+          lng:place.geometry?.location?.lng()||null,
+          photo:(place.photos&&place.photos.length>0)?place.photos[0].getUrl({maxWidth:400}):null
         };
 
-        const imgSrc = selectedPlace.photo ||
-          (document.querySelector("input[name='type']:checked")?.value === "store"
-            ? "images/store.jpg"
-            : document.querySelector("input[name='type']:checked")?.value === "lounge"
-            ? "images/lounge.jpg"
-            : "images/cafe.jpg");
+        const imgSrc=selectedPlace.photo ||
+          (document.querySelector("input[name='type']:checked")?.value==="store"?"images/store.jpg":
+           document.querySelector("input[name='type']:checked")?.value==="lounge"?"images/lounge.jpg":"images/cafe.jpg");
 
-        document.getElementById("preview").innerHTML = `<img src="${imgSrc}" alt="Preview">`;
+        document.getElementById("preview").innerHTML=`<img src="${imgSrc}" alt="Preview">`;
       });
     }
-
-    window.initAutocomplete = initAutocomplete;
+    window.initAutocomplete=initAutocomplete;
   </script>
 
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete"
-    async defer>
-  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete" async defer></script>
 </body>
 </html>
