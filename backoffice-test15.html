@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Backoffice Debug – World Cigar Locator</title>
+  <title>Backoffice – World Cigar Locator</title>
+
+  <!-- ✅ UMD-version som funkar i Chrome & Safari -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -32,6 +35,11 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      transition: transform 0.15s;
+    }
+
+    .card:hover {
+      transform: scale(1.01);
     }
 
     .card img {
@@ -66,29 +74,30 @@
     }
 
     .status {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: #666;
       margin-top: 0.3rem;
     }
 
     .date {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       color: #999;
       margin-top: 0.3rem;
     }
+
+    p { margin: 0.2rem 0; }
   </style>
 </head>
 <body>
-  <h1>Backoffice Debug – Stores Overview</h1>
+  <h1>Backoffice – Stores Overview</h1>
   <div class="grid" id="storeGrid"></div>
 
-  <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-
-    // Supabase init
-    const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-    const supabase = createClient(supabaseUrl, supabaseKey);
+  <script>
+    // ✅ Supabase setup (UMD)
+    const supabase = window.supabase.createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
 
     async function loadStores() {
       const { data, error } = await supabase
@@ -117,10 +126,10 @@
       grid.innerHTML = "";
 
       stores.forEach(store => {
-        let badgeClass = store.type ? store.type.toLowerCase() : "other";
-        let badgeText = badgeClass.charAt(0).toUpperCase() + badgeClass.slice(1);
-        let imgSrc = "images/cafe.jpg";
+        const badgeClass = store.type ? store.type.toLowerCase() : "other";
+        const badgeText = badgeClass.charAt(0).toUpperCase() + badgeClass.slice(1);
 
+        let imgSrc = "images/cafe.jpg";
         if (store.photo_reference) {
           imgSrc = store.photo_reference;
         } else if (badgeClass === "store") {
@@ -143,10 +152,10 @@
             </span>
             <h3>${store.name || "Unnamed"}</h3>
             <p>${store.address || ""}</p>
-            <p>${store.city || ""}, ${store.country || ""}</p>
+            <p>${store.city || ""}${store.city && store.country ? ", " : ""}${store.country || ""}</p>
             <div class="rating">${stars}</div>
             <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
-            <div class="date">${new Date(store.created_at).toLocaleDateString()}</div>
+            <div class="date">${store.created_at ? new Date(store.created_at).toLocaleDateString() : ""}</div>
           </div>
         `;
         grid.appendChild(card);
