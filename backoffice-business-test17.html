@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Business Dashboard – World Cigar Locator</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+
+    nav {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    nav a {
+      color: #b8860b;
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .kpi-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
+      text-align: center;
+    }
+    .kpi-card h2 {
+      color: #b8860b;
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    .kpi-card p {
+      margin: 0.3rem 0 0;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .section-title {
+      color: #b8860b;
+      font-size: 1.2rem;
+      margin: 1.5rem 0 1rem;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .mini-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 1rem;
+    }
+    .mini-card h3 {
+      margin: 0 0 0.3rem;
+      color: #333;
+    }
+    .mini-card p {
+      margin: 0.2rem 0;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .actions {
+      margin-top: 0.8rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .actions button {
+      flex: 1;
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: #fff;
+    }
+    .approve { background: #28a745; }
+    .flag { background: #ff8c00; }
+    .delete { background: #dc3545; }
+    .actions button:hover { opacity: 0.9; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background: #b8860b;
+      color: #fff;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+    }
+
+    .export-buttons {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .export-buttons button {
+      background: #b8860b;
+      border: none;
+      color: #fff;
+      font-weight: bold;
+      padding: 0.8rem 1.4rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .export-buttons button:hover {
+      background: #a37408;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: #333;
+      color: #fff;
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      opacity: 0.95;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="backoffice-test15g.html">🏠 Home</a>
+    <a href="#">✅ Approved</a>
+    <a href="#">⏳ Pending</a>
+    <a href="#">🚩 Flagged</a>
+    <a href="backoffice-business-test17.html"><strong>💼 Business</strong></a>
+  </nav>
+
+  <h1 style="text-align:center;color:#b8860b;">Business Dashboard</h1>
+
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="section-title">🏆 Top 10 Highest Rated Stores</div>
+  <div class="mini-grid" id="topStoresGrid"></div>
+
+  <div class="section-title">🌍 Top 10 Countries by Store Count</div>
+  <table id="countryTable">
+    <thead>
+      <tr><th>Country</th><th>Stores</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="export-buttons">
+    <button id="exportCsv">Export CSV</button>
+    <button id="exportJson">Export JSON</button>
+  </div>
+
+  <div id="toast"></div>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const supabase = createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    async function loadBusinessData() {
+      const { data, error } = await supabase.from("stores").select("*");
+      if (error) return console.error("❌ Supabase error:", error);
+
+      // === KPI ===
+      const total = data.length;
+      const approved = data.filter(s => s.approved).length;
+      const flagged = data.filter(s => s.flagged).length;
+      const avgRating = (data.reduce((a,s)=>a+(s.rating||0),0)/total).toFixed(1);
+      const countries = [...new Set(data.map(s=>s.country))].length;
+      document.getElementById("kpiGrid").innerHTML = `
+        <div class="kpi-card"><h2>${total}</h2><p>Total Stores</p></div>
+        <div class="kpi-card"><h2>${approved}</h2><p>Approved</p></div>
+        <div class="kpi-card"><h2>${flagged}</h2><p>Flagged</p></div>
+        <div class="kpi-card"><h2>${avgRating}</h2><p>Average Rating</p></div>
+        <div class="kpi-card"><h2>${countries}</h2><p>Countries</p></div>
+      `;
+
+      // === Top Rated ===
+      const topStores = [...data]
+        .sort((a,b)=>(b.rating||0)-(a.rating||0))
+        .slice(0,10);
+      const grid = document.getElementById("topStoresGrid");
+      grid.innerHTML = "";
+      topStores.forEach(store=>{
+        const card = document.createElement("div");
+        card.className = "mini-card";
+        card.innerHTML = `
+          <h3>${store.name || "Unnamed"}</h3>
+          <p>${store.city || ""}, ${store.country || ""}</p>
+          <p>⭐ ${store.rating || 0}</p>
+          <div class="actions">
+            <button class="approve">Approve</button>
+            <button class="flag">Flag</button>
+            <button class="delete">Delete</button>
+          </div>
+        `;
+
+        // === Action handlers ===
+        card.querySelector(".approve").onclick = async ()=>{
+          await updateStore(store.id, { approved: true, status: "approved" });
+          showToast("Store approved!");
+        };
+        card.querySelector(".flag").onclick = async ()=>{
+          await updateStore(store.id, { flagged: true, flag_reason: "manual" });
+          showToast("Store flagged!");
+        };
+        card.querySelector(".delete").onclick = async ()=>{
+          if (confirm("Delete this store?")) {
+            await supabase.from("stores").delete().eq("id", store.id);
+            showToast("Store deleted!");
+          }
+        };
+
+        grid.appendChild(card);
+      });
+
+      // === Top Countries ===
+      const countryMap = {};
+      data.forEach(s => {
+        if (!s.country) return;
+        countryMap[s.country] = (countryMap[s.country] || 0) + 1;
+      });
+      const topCountries = Object.entries(countryMap)
+        .sort((a,b)=>b[1]-a[1])
+        .slice(0,10);
+      const tbody = document.querySelector("#countryTable tbody");
+      tbody.innerHTML = topCountries.map(([c,n])=>`<tr><td>${c}</td><td>${n}</td></tr>`).join("");
+
+      document.getElementById("exportCsv").onclick = ()=>exportData(data,"csv");
+      document.getElementById("exportJson").onclick = ()=>exportData(data,"json");
+    }
+
+    async function updateStore(id, updates) {
+      const { error } = await supabase.from("stores").update(updates).eq("id", id);
+      if (error) console.error(error);
+      loadBusinessData();
+    }
+
+    function exportData(data, type) {
+      if(type==="json"){
+        const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+        downloadFile(blob,"stores.json");
+      } else {
+        const csv = [
+          Object.keys(data[0]).join(","),
+          ...data.map(r=>Object.values(r).map(v=>`"${v??''}"`).join(","))
+        ].join("\n");
+        const blob = new Blob([csv],{type:"text/csv"});
+        downloadFile(blob,"stores.csv");
+      }
+    }
+    function downloadFile(blob,filename){
+      const a=document.createElement("a");
+      a.href=URL.createObjectURL(blob);
+      a.download=filename;
+      a.click();
+    }
+
+    function showToast(msg) {
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(()=>toast.remove(), 2500);
+    }
+
+    loadBusinessData();
+  </script>
+</body>
+</html>
