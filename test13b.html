@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Store / Lounge / Other</title>
 
-  <!-- Google Maps Web Components -->
-  <script src="https://unpkg.com/@googlemaps/extended-component-library@0.6.16"></script>
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -44,18 +41,17 @@
       box-sizing: border-box;
       margin-bottom: 1rem;
     }
-    gmpx-place-autocomplete {
-      display: block;
-      width: 100%;
-      padding: 0.6rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      box-sizing: border-box;
+
+    /* Radio badges */
+    .radio-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+      justify-content: center;
     }
-    .radio-group { display: flex; gap: 1rem; margin-top: 0.5rem; justify-content: center; }
-    .radio-group input[type="radio"] { display: none; }
+    .radio-group input[type="radio"] {
+      display: none;
+    }
     .badge {
       padding: 0.4rem 1rem;
       border-radius: 20px;
@@ -71,6 +67,7 @@
     .other { border-color: #ff8c00; color: #ff8c00; }
     input[type="radio"]:checked + .other { background:#ff8c00; color:#fff; }
 
+    /* Buttons */
     .btns {
       display: flex;
       gap: 1rem;
@@ -91,6 +88,7 @@
     #cancelBtn { background: #aaa; color: #fff; }
     #cancelBtn:hover { background: #888; }
 
+    /* Toasts */
     #toast-container {
       position: fixed;
       bottom: 1rem;
@@ -116,11 +114,7 @@
     <h1>Add Store / Lounge / Other</h1>
 
     <label>Add with Google</label>
-    <gmpx-place-autocomplete
-      id="address"
-      placeholder="Enter address"
-      apikey="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ">
-    </gmpx-place-autocomplete>
+    <input id="address" placeholder="Search with Google" type="text" />
 
     <label>Store Name</label>
     <input type="text" id="name"/>
@@ -154,7 +148,7 @@
 
   <div id="toast-container"></div>
 
-  <!-- Supabase + logic -->
+  <!-- Supabase -->
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
@@ -163,33 +157,10 @@
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
-    const saveBtn = document.getElementById("saveBtn");
-    const cancelBtn = document.getElementById("cancelBtn");
-    const autocompleteEl = document.getElementById("address");
-
     let selectedPlace = {};
 
-    autocompleteEl.addEventListener("gmpx-placechange", () => {
-      const place = autocompleteEl.getPlace();
-      if (!place) return;
-
-      document.getElementById("name").value = place.displayName || "";
-      document.getElementById("addr").value = place.formattedAddress || "";
-      const city = place.addressComponents?.find(c => c.types.includes("locality"));
-      const country = place.addressComponents?.find(c => c.types.includes("country"));
-      document.getElementById("city").value = city?.longText || "";
-      document.getElementById("country").value = country?.longText || "";
-      document.getElementById("phone").value = place.formattedPhoneNumber || "";
-      document.getElementById("website").value = place.websiteUri || "";
-
-      selectedPlace = {
-        lat: place.location?.lat() || null,
-        lng: place.location?.lng() || null
-      };
-    });
-
     // Save button
-    saveBtn.addEventListener("click", async () => {
+    document.getElementById("saveBtn").addEventListener("click", async () => {
       const name = document.getElementById("name").value.trim();
       const address = document.getElementById("addr").value.trim();
       const city = document.getElementById("city").value.trim();
@@ -203,7 +174,7 @@
         return;
       }
 
-      // Kolla dubblett
+      // Prevent duplicates
       const { data: existing } = await supabase
         .from("stores")
         .select("id")
@@ -216,17 +187,9 @@
       }
 
       const { error } = await supabase.from("stores").insert([{
-        name,
-        address,
-        city,
-        country,
-        phone,
-        website,
-        type,
-        rating: 0,
-        approved: false,
-        latitude: selectedPlace.lat,
-        longitude: selectedPlace.lng
+        name, address, city, country, phone, website, type,
+        rating: 0, approved: false,
+        latitude: selectedPlace.lat, longitude: selectedPlace.lng
       }]);
 
       if (error) {
@@ -234,22 +197,18 @@
         showToast("Failed to add store", "error");
       } else {
         showToast("Store added successfully!", "success");
-        document.querySelector("form")?.reset();
-        document.querySelectorAll("input[type='radio']").forEach(r => r.checked = false);
+        clearForm();
       }
     });
 
     // Cancel button
-    cancelBtn.addEventListener("click", () => {
-      document.getElementById("name").value = "";
-      document.getElementById("addr").value = "";
-      document.getElementById("city").value = "";
-      document.getElementById("country").value = "";
-      document.getElementById("phone").value = "";
-      document.getElementById("website").value = "";
+    document.getElementById("cancelBtn").addEventListener("click", clearForm);
+
+    function clearForm() {
+      document.querySelectorAll("input").forEach(i => i.value = "");
       document.querySelectorAll("input[type='radio']").forEach(r => r.checked = false);
       showToast("Form cleared", "success");
-    });
+    }
 
     function showToast(msg, type = "success") {
       const container = document.getElementById("toast-container");
@@ -259,6 +218,43 @@
       container.appendChild(div);
       setTimeout(() => div.remove(), 3000);
     }
+
+    // ✅ Google Autocomplete init
+    let autocomplete;
+    function initAutocomplete() {
+      const input = document.getElementById("address");
+      autocomplete = new google.maps.places.Autocomplete(input, {
+        fields: ["address_components", "geometry", "name", "formatted_address", "international_phone_number", "website"],
+      });
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        if (!place) return;
+
+        document.getElementById("name").value = place.name || "";
+        document.getElementById("addr").value = place.formatted_address || "";
+
+        const city = place.address_components?.find(c => c.types.includes("locality"));
+        const country = place.address_components?.find(c => c.types.includes("country"));
+        document.getElementById("city").value = city?.long_name || "";
+        document.getElementById("country").value = country?.long_name || "";
+        document.getElementById("phone").value = place.international_phone_number || "";
+        document.getElementById("website").value = place.website || "";
+
+        selectedPlace = {
+          lat: place.geometry?.location?.lat() || null,
+          lng: place.geometry?.location?.lng() || null
+        };
+      });
+    }
+
+    window.initAutocomplete = initAutocomplete;
+  </script>
+
+  <!-- Google Maps API -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete"
+    async defer>
   </script>
 </body>
 </html>
