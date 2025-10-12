@@ -281,7 +281,7 @@
       setTimeout(() => div.remove(), 3000);
     }
 
-    // ✅ Google Autocomplete init + image preview
+    // ✅ Google Autocomplete init + city fix + image preview
     function initAutocomplete() {
       const input = document.getElementById("address");
       const autocomplete = new google.maps.places.Autocomplete(input, {
@@ -295,10 +295,18 @@
         document.getElementById("name").value = place.name || "";
         document.getElementById("addr").value = place.formatted_address || "";
 
-        const city = place.address_components?.find(c => c.types.includes("locality"));
-        const country = place.address_components?.find(c => c.types.includes("country"));
-        document.getElementById("city").value = city?.long_name || "";
-        document.getElementById("country").value = country?.long_name || "";
+        // 🩵 FIX för city som inte alltid är "locality"
+        let cityComponent = place.address_components?.find(c => c.types.includes("locality"));
+        if (!cityComponent) {
+          cityComponent = place.address_components?.find(c =>
+            c.types.includes("postal_town") ||
+            c.types.includes("administrative_area_level_2")
+          );
+        }
+        const countryComponent = place.address_components?.find(c => c.types.includes("country"));
+
+        document.getElementById("city").value = cityComponent?.long_name || "";
+        document.getElementById("country").value = countryComponent?.long_name || "";
         document.getElementById("phone").value = place.international_phone_number || "";
         document.getElementById("website").value = place.website || "";
 
