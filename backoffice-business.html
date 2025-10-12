@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Business Overview – World Cigar Locator</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #b8860b;
+      margin-bottom: 1.5rem;
+    }
+    nav {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    nav a {
+      color: #b8860b;
+      font-weight: bold;
+      text-decoration: none;
+      margin: 0 1rem;
+    }
+    nav a:hover { text-decoration: underline; }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .stat-box {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1rem 2rem;
+      text-align: center;
+      min-width: 150px;
+    }
+    .stat-number {
+      font-size: 2rem;
+      color: #b8860b;
+      font-weight: bold;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.8rem;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #b8860b;
+      color: #fff;
+    }
+    tr:hover {
+      background: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="backoffice-home.html">← Backoffice Home</a>
+  </nav>
+
+  <h1>Business Overview</h1>
+
+  <div class="stats" id="stats"></div>
+
+  <table id="businessTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>City</th>
+        <th>Country</th>
+        <th>Type</th>
+        <th>Rating</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const supabase = createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    async function loadBusinessData() {
+      const { data, error } = await supabase.from("stores").select("*");
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      const stats = {
+        total: data.length,
+        approved: data.filter(s => s.approved).length,
+        pending: data.filter(s => !s.approved).length,
+        flagged: data.filter(s => s.flagged).length,
+        lounges: data.filter(s => s.type === "Lounge").length,
+        stores: data.filter(s => s.type === "Store").length,
+        other: data.filter(s => s.type === "Other").length
+      };
+
+      // Render stats
+      document.getElementById("stats").innerHTML = `
+        <div class="stat-box"><div class="stat-number">${stats.total}</div><div>Total</div></div>
+        <div class="stat-box"><div class="stat-number">${stats.approved}</div><div>Approved</div></div>
+        <div class="stat-box"><div class="stat-number">${stats.pending}</div><div>Pending</div></div>
+        <div class="stat-box"><div class="stat-number">${stats.flagged}</div><div>Flagged</div></div>
+        <div class="stat-box"><div class="stat-number">${stats.stores}</div><div>Stores</div></div>
+        <div class="stat-box"><div class="stat-number">${stats.lounges}</div><div>Lounges</div></div>
+        <div class="stat-box"><div class="stat-number">${stats.other}</div><div>Other</div></div>
+      `;
+
+      // Render table
+      const tbody = document.querySelector("#businessTable tbody");
+      tbody.innerHTML = "";
+      data.forEach(store => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${store.name || "Unnamed"}</td>
+          <td>${store.city || ""}</td>
+          <td>${store.country || ""}</td>
+          <td>${store.type || ""}</td>
+          <td>${store.rating ?? "-"}</td>
+          <td>${store.approved ? "✅ Approved" : "⏳ Pending"}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    loadBusinessData();
+  </script>
+</body>
+</html>
