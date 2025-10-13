@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Backoffice — Business Analytics (Final)</title>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root { --gold:#b8860b; --gold-dark:#a37408; --bg:#f8f8f8; --card:#ffffff; --muted:#666; --text:#333; }
+    *{box-sizing:border-box}
+    body{font-family:Arial, sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text)}
+    h1{color:var(--gold);text-align:center;margin:0 0 1.25rem}
+    nav{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:0 0 1.5rem}
+    nav button, nav a{
+      background:#fff;border:2px solid var(--gold);color:var(--gold);padding:.55rem .9rem;
+      border-radius:10px;font-weight:700;cursor:pointer;text-decoration:none
+    }
+    nav button:hover, nav a:hover{background:var(--gold);color:#fff}
+
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin-bottom:1.25rem}
+    .stat-card{background:var(--card);border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:1rem;text-align:center}
+    .stat-card h2{color:var(--gold-dark);font-size:2rem;margin:.1rem 0 .25rem}
+    .stat-card p{margin:0;color:var(--muted);font-size:.92rem}
+
+    .panel{background:var(--card);border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:1rem;margin-bottom:1rem}
+    .row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+    .spacer{flex:1}
+    .btn{background:#fff;border:2px solid var(--gold);color:var(--gold);padding:.5rem .8rem;border-radius:10px;font-weight:700;cursor:pointer}
+    .btn:hover{background:var(--gold);color:#fff}
+    .btn.active{background:var(--gold);color:#fff}
+    .select{border:2px solid var(--gold);border-radius:10px;padding:.45rem .6rem;color:var(--gold);background:#fff;font-weight:700}
+
+    .chart-title{color:var(--gold-dark);font-weight:700;text-align:center;margin:.75rem 0 0}
+    .chart-wrap{position:relative;padding:1rem}
+    .fade{opacity:1;transition:opacity .4s ease}
+    .fade.hidden{opacity:0}
+
+    .table-wrap{background:var(--card);border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:.85rem 1rem;border-bottom:1px solid #eee;text-align:left}
+    th{background:#f3f3f3;color:var(--gold-dark);cursor:pointer;user-select:none}
+    tr:hover{background:#faf7f0}
+    .status{font-weight:700}
+    .approved{color:#28a745}.flagged{color:#dc3545}.pending{color:#a37408}
+
+    .export-bar{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}
+    .export-bar button{background:var(--gold);color:#fff;border:none;padding:.6rem .9rem;border-radius:10px;font-weight:700;cursor:pointer}
+    .export-bar button.secondary{background:#fff;color:var(--gold);border:2px solid var(--gold)}
+    .export-bar button:hover{opacity:.92}
+  </style>
+</head>
+<body>
+  <h1>World Cigar Locator — Backoffice</h1>
+
+  <nav>
+    <a href="backoffice-home.html">Home</a>
+    <a href="backoffice-home.html#approved">Approved</a>
+    <a href="backoffice-home.html#pending">Pending</a>
+    <a href="backoffice-home.html#flagged">Flagged</a>
+    <a href="backoffice-home.html#trash">Trash</a>
+    <a href="backoffice-business-analytics-final.html">Business</a>
+    <a href="backoffice-addstore-final.html">Add Store</a>
+    <a href="backoffice-home.html">Back to Home</a>
+  </nav>
+
+  <div class="stats-grid">
+    <div class="stat-card"><h2 id="kpiTotal">–</h2><p>Total Locations</p></div>
+    <div class="stat-card"><h2 id="kpiApproved">–</h2><p>Approved</p></div>
+    <div class="stat-card"><h2 id="kpiFlagged">–</h2><p>Flagged</p></div>
+    <div class="stat-card"><h2 id="kpiDeleted">–</h2><p>Deleted</p></div>
+    <div class="stat-card"><h2 id="kpiViews">–</h2><p>Views</p></div>
+    <div class="stat-card"><h2 id="kpiClicks">–</h2><p>Link Clicks</p></div>
+    <div class="stat-card"><h2 id="kpiNewMonth">–</h2><p>New This Month</p></div>
+  </div>
+
+  <div class="panel">
+    <div class="row" style="margin-bottom:.5rem">
+      <button class="btn active" data-filter="all">All</button>
+      <button class="btn" data-filter="approved">Approved</button>
+      <button class="btn" data-filter="pending">Pending</button>
+      <button class="btn" data-filter="flagged">Flagged</button>
+      <button class="btn" data-filter="deleted">Deleted</button>
+      <div class="spacer"></div>
+      <button class="btn active" id="btnCountry">Performance per Country</button>
+      <button class="btn" id="btnType">Performance per Type</button>
+      <button class="btn" id="btnNewCards">New Cards per Country</button>
+      <select class="select" id="periodSelect">
+        <option value="7">Last 7 Days</option>
+        <option value="30" selected>Last 30 Days</option>
+        <option value="365">Last 12 Months</option>
+      </select>
+      <button class="btn" id="toggleCharts">Show Charts</button>
+    </div>
+    <div class="chart-title" id="chartTitle">Performance per Country</div>
+    <div class="chart-wrap">
+      <canvas id="chartCanvas" class="fade hidden" height="120"></canvas>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="storesTable">
+      <thead>
+        <tr>
+          <th data-sort="name">Name</th>
+          <th data-sort="country">Country</th>
+          <th data-sort="types">Type</th>
+          <th data-sort="views">Views</th>
+          <th data-sort="clicks">Link Clicks</th>
+          <th data-sort="ctr">CTR (%)</th>
+          <th data-sort="rating">Rating</th>
+          <th data-sort="status">Status</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="export-bar">
+    <button id="expAllCsv">Export ALL → CSV</button>
+    <button id="expAllXlsx" class="secondary">Export ALL → Excel</button>
+    <button id="expFilteredCsv">Export FILTERED → CSV</button>
+    <button id="expFilteredXlsx" class="secondary">Export FILTERED → Excel</button>
+    <button id="expGrowthCsv">Export GROWTH DATA → CSV</button>
+  </div>
+
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+  const supabase = createClient(
+    "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+  );
+
+  const gold = "#b8860b", blue="#007bff", green="#28a745", orange="#ff8c00";
+
+  const kpi = {
+    total: document.getElementById("kpiTotal"),
+    approved: document.getElementById("kpiApproved"),
+    flagged: document.getElementById("kpiFlagged"),
+    deleted: document.getElementById("kpiDeleted"),
+    views: document.getElementById("kpiViews"),
+    clicks: document.getElementById("kpiClicks"),
+    newMonth: document.getElementById("kpiNewMonth"),
+  };
+
+  const tableBody = document.getElementById("tableBody");
+  const chartTitle = document.getElementById("chartTitle");
+  const canvas = document.getElementById("chartCanvas");
+  const ctx = canvas.getContext("2d");
+  const toggleChartsBtn = document.getElementById("toggleCharts");
+  const btnCountry = document.getElementById("btnCountry");
+  const btnType = document.getElementById("btnType");
+  const btnNew = document.getElementById("btnNewCards");
+  const periodSelect = document.getElementById("periodSelect");
+  const filterBtns = Array.from(document.querySelectorAll('[data-filter]'));
+  const chartButtons = [btnCountry, btnType, btnNew];
+
+  let allStores = [];
+  let currentFilter = "all";
+  let currentChart = "country";
+  let chartInstance = null;
+  let chartsVisible = false;
+
+  await loadData();
+  renderKPIs();
+  renderTable();
+
+  function normalize(s){
+    return {
+      ...s,
+      views: Number(s.views || 0),
+      link_clicks: Number(s.link_clicks || 0),
+      rating: Number(s.rating || 0),
+      types: Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []),
+      statusNorm: s.status || (s.approved ? "approved" : "pending"),
+      created_at: s.created_at
+    };
+  }
+
+  async function loadData(){
+    const { data, error } = await supabase.from("stores").select("*");
+    if (error) { allStores=[]; return; }
+    allStores = (data || []).map(normalize);
+  }
+
+  function renderKPIs(){
+    const total = allStores.length;
+    const approved = allStores.filter(s => !!s.approved).length;
+    const flagged = allStores.filter(s => !!s.flagged).length;
+    const deleted = allStores.filter(s => s.status === "deleted").length;
+    const views = allStores.reduce((sum,s)=>sum+(s.views||0),0);
+    const clicks = allStores.reduce((sum,s)=>sum+(s.link_clicks||0),0);
+    const cutoff = daysAgo(30);
+    const newMonth = allStores.filter(s => new Date(s.created_at)>=cutoff).length;
+
+    kpi.total.textContent = total;
+    kpi.approved.textContent = approved;
+    kpi.flagged.textContent = flagged;
+    kpi.deleted.textContent = deleted;
+    kpi.views.textContent = views;
+    kpi.clicks.textContent = clicks;
+    kpi.newMonth.textContent = newMonth;
+  }
+
+  function filtered(){
+    if (currentFilter === "approved") return allStores.filter(s => !!s.approved && s.status !== "deleted");
+    if (currentFilter === "pending")  return allStores.filter(s => !s.approved && s.status !== "deleted");
+    if (currentFilter === "flagged")  return allStores.filter(s => !!s.flagged && s.status !== "deleted");
+    if (currentFilter === "deleted")  return allStores.filter(s => s.status === "deleted");
+    return allStores.slice();
+  }
+
+  function renderTable(){
+    const rows = filtered().slice().sort((a,b)=> (b.rating||0)-(a.rating||0)).slice(0,300);
+    tableBody.innerHTML = rows.map(s=>{
+      const typesStr = s.types && s.types.length ? s.types.join(" & ") : (s.type || "–");
+      const views = s.views||0;
+      const clicks = s.link_clicks||0;
+      const ctr = views>0 ? ((clicks/views)*100).toFixed(1) : "0.0";
+      const statusClass = s.flagged ? "flagged" : s.approved ? "approved" : (s.status==="deleted" ? "" : "pending");
+      const statusText = s.flagged ? "Flagged" : s.approved ? "Approved" : (s.status==="deleted" ? "Deleted" : "Pending");
+      return `
+        <tr>
+          <td>${esc(s.name||"–")}</td>
+          <td>${esc(s.country||"–")}</td>
+          <td>${esc(typesStr)}</td>
+          <td>${views}</td>
+          <td>${clicks}</td>
+          <td>${ctr}</td>
+          <td>${s.rating||0}</td>
+          <td class="status ${statusClass}">${statusText}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function buildAggCountry(){
+    const data = filtered();
+    const map = new Map();
+    for (const s of data){
+      const c = (s.country||"Unknown").trim();
+      if (!map.get(c)) map.set(c,{stores:0,views:0,clicks:0});
+      const o = map.get(c);
+      o.stores += 1;
+      o.views  += s.views||0;
+      o.clicks += s.link_clicks||0;
+    }
+    const arr = Array.from(map.entries()).sort((a,b)=> (b[1].stores + b[1].views + b[1].clicks) - (a[1].stores + a[1].views + a[1].clicks)).slice(0,20);
+    return {
+      labels: arr.map(e=>e[0]),
+      stores: arr.map(e=>e[1].stores),
+      views:  arr.map(e=>e[1].views),
+      clicks: arr.map(e=>e[1].clicks),
+    };
+  }
+
+  function buildAggType(){
+    const data = filtered();
+    const map = new Map();
+    for (const s of data){
+      const types = (s.types && s.types.length) ? s.types : (s.type ? [s.type] : ["other"]);
+      for (const tRaw of types){
+        const t = tRaw.toLowerCase();
+        if (!map.get(t)) map.set(t,{stores:0,views:0,clicks:0});
+        const o = map.get(t);
+        o.stores += 1;
+        o.views  += s.views||0;
+        o.clicks += s.link_clicks||0;
+      }
+    }
+    const arr = Array.from(map.entries()).sort((a,b)=> (b[1].stores + b[1].views + b[1].clicks) - (a[1].stores + a[1].views + a[1].clicks));
+    return {
+      labels: arr.map(e=>cap(e[0])),
+      stores: arr.map(e=>e[1].stores),
+      views:  arr.map(e=>e[1].views),
+      clicks: arr.map(e=>e[1].clicks),
+    };
+  }
+
+  function buildGrowthCountry(days){
+    const cutoff = daysAgo(days);
+    const data = filtered().filter(s => new Date(s.created_at) >= cutoff);
+    const map = new Map();
+    for (const s of data){
+      const c = (s.country||"Unknown").trim();
+      map.set(c,(map.get(c)||0)+1);
+    }
+    const arr = Array.from(map.entries()).sort((a,b)=>b[1]-a[1]).slice(0,20);
+    return { labels: arr.map(e=>e[0]), values: arr.map(e=>e[1]) };
+  }
+
+  function renderChart(){
+    const fadeOut = ()=> canvas.classList.add("hidden");
+    const fadeIn  = ()=> canvas.classList.remove("hidden");
+
+    fadeOut();
+    setTimeout(()=> {
+      if (chartInstance){ chartInstance.destroy(); chartInstance = null; }
+
+      if (currentChart === "country"){
+        const agg = buildAggCountry();
+        chartTitle.textContent = "Performance per Country";
+        chartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: agg.labels,
+            datasets: [
+              { label: 'Stores', data: agg.stores, backgroundColor: gold },
+              { label: 'Views',  data: agg.views,  backgroundColor: blue },
+              { label: 'Clicks', data: agg.clicks, backgroundColor: green }
+            ]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } },
+            plugins: { legend: { position: 'top' } }
+          }
+        });
+      } else if (currentChart === "type"){
+        const agg = buildAggType();
+        chartTitle.textContent = "Performance per Type";
+        chartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: agg.labels,
+            datasets: [
+              { label: 'Stores', data: agg.stores, backgroundColor: gold },
+              { label: 'Views',  data: agg.views,  backgroundColor: blue },
+              { label: 'Clicks', data: agg.clicks, backgroundColor: green }
+            ]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } },
+            plugins: { legend: { position: 'top' } }
+          }
+        });
+      } else {
+        const days = Number(periodSelect.value||30);
+        const growth = buildGrowthCountry(days);
+        chartTitle.textContent = "New Cards per Country";
+        chartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: growth.labels,
+            datasets: [
+              { label: 'New Cards', data: growth.values, borderColor: orange, backgroundColor: orange, fill:false, tension:.25 }
+            ]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } },
+            plugins: { legend: { position: 'top' } }
+          }
+        });
+      }
+
+      fadeIn();
+    }, 200);
+  }
+
+  function daysAgo(n){
+    const d = new Date(); d.setDate(d.getDate()-n); return d;
+  }
+  function esc(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function cap(s){ return s ? (s.charAt(0).toUpperCase()+s.slice(1)) : s; }
+
+  filterBtns.forEach(b=>{
+    b.addEventListener("click", ()=>{
+      filterBtns.forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      currentFilter = b.dataset.filter;
+      renderTable();
+      if (chartsVisible) renderChart();
+    });
+  });
+
+  chartButtons.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      chartButtons.forEach(x=>x.classList.remove("active"));
+      btn.classList.add("active");
+      if (btn === btnCountry) currentChart = "country";
+      if (btn === btnType) currentChart = "type";
+      if (btn === btnNew) currentChart = "new";
+      if (chartsVisible) renderChart();
+    });
+  });
+
+  periodSelect.addEventListener("change", ()=>{
+    if (currentChart === "new" && chartsVisible) renderChart();
+  });
+
+  toggleChartsBtn.addEventListener("click", ()=>{
+    chartsVisible = !chartsVisible;
+    toggleChartsBtn.textContent = chartsVisible ? "Hide Charts" : "Show Charts";
+    canvas.classList.toggle("hidden", !chartsVisible);
+    if (chartsVisible) renderChart();
+  });
+
+  let sortKey=null, sortDir=1;
+  Array.from(document.querySelectorAll('#storesTable thead th')).forEach(th=>{
+    th.addEventListener('click', ()=>{
+      const key = th.dataset.sort;
+      if (!key) return;
+      if (sortKey === key) sortDir *= -1; else { sortKey=key; sortDir=1; }
+      const rows = Array.from(tableBody.querySelectorAll('tr'));
+      const idxMap = { name:0, country:1, types:2, views:3, clicks:4, ctr:5, rating:6, status:7 };
+      rows.sort((a,b)=>{
+        const A = a.children[idxMap[key]].textContent.trim();
+        const B = b.children[idxMap[key]].textContent.trim();
+        const aNum = parseFloat(A), bNum = parseFloat(B);
+        if (!isNaN(aNum) && !isNaN(bNum)) return (aNum - bNum)*sortDir;
+        return A.localeCompare(B)*sortDir;
+      });
+      rows.forEach(r=>tableBody.appendChild(r));
+    });
+  });
+
+  document.getElementById("expAllCsv").addEventListener("click", ()=> exportCSV(allStores, "stores_all.csv"));
+  document.getElementById("expAllXlsx").addEventListener("click", ()=> exportXLSX(allStores, "stores_all.xlsx"));
+  document.getElementById("expFilteredCsv").addEventListener("click", ()=> exportCSV(filtered(), `stores_${currentFilter}.csv`));
+  document.getElementById("expFilteredXlsx").addEventListener("click", ()=> exportXLSX(filtered(), `stores_${currentFilter}.xlsx`));
+  document.getElementById("expGrowthCsv").addEventListener("click", ()=>{
+    const days = Number(periodSelect.value||30);
+    const growth = buildGrowthCountry(days);
+    const rows = growth.labels.map((c,i)=>({ country:c, new_cards:growth.values[i], period_days:days }));
+    exportCSVRows(rows, `growth_by_country_${days}d.csv`);
+  });
+
+  function exportCSV(rows, filename){
+    const data = rows.map(s=>({
+      id: s.id,
+      name: s.name||"",
+      country: s.country||"",
+      types: (s.types && s.types.length ? s.types.join(" & ") : (s.type||"")),
+      views: s.views||0,
+      link_clicks: s.link_clicks||0,
+      ctr_percent: (s.views>0 ? ((s.link_clicks||0)/s.views*100).toFixed(1) : "0.0"),
+      rating: s.rating||0,
+      approved: !!s.approved,
+      flagged: !!s.flagged,
+      status: s.status||"",
+      created_at: s.created_at||""
+    }));
+    exportCSVRows(data, filename);
+  }
+  function exportCSVRows(data, filename){
+    const headers = Object.keys(data[0] || {notice:"no data"});
+    const csv = [headers.join(",")]
+      .concat(data.map(r=>headers.map(h=>csvEsc(r[h])).join(",")))
+      .join("\n");
+    downloadBlob(new Blob([csv], {type:"text/csv;charset=utf-8;"}), filename);
+  }
+  function csvEsc(v){
+    const s = String(v ?? "");
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+  }
+  function exportXLSX(rows, filename){
+    const data = rows.map(s=>({
+      id: s.id,
+      name: s.name||"",
+      country: s.country||"",
+      types: (s.types && s.types.length ? s.types.join(" & ") : (s.type||"")),
+      views: s.views||0,
+      link_clicks: s.link_clicks||0,
+      ctr_percent: (s.views>0 ? ((s.link_clicks||0)/s.views*100).toFixed(1) : "0.0"),
+      rating: s.rating||0,
+      approved: !!s.approved,
+      flagged: !!s.flagged,
+      status: s.status||"",
+      created_at: s.created_at||""
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "stores");
+    XLSX.writeFile(wb, filename);
+  }
+  function downloadBlob(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+</script>
+</body>
+</html>
