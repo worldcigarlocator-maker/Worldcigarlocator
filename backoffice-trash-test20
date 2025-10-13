@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backoffice Trash – Test20</title>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #b8860b;
+      margin-bottom: 1.5rem;
+    }
+
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: .6rem;
+      margin-bottom: 1.5rem;
+    }
+    .top-bar button {
+      background: #b8860b;
+      color: #fff;
+      border: none;
+      padding: .6rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .top-bar button:hover { background: #a37408; }
+    .top-bar .secondary {
+      background: #fff;
+      color: #b8860b;
+      border: 2px solid #b8860b;
+    }
+    .top-bar .secondary:hover {
+      background: #b8860b;
+      color: #fff;
+    }
+
+    .meta-row { text-align: center; margin-bottom: 1rem; color: #666; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .card-content { padding: 1rem; flex: 1; }
+
+    .badges {
+      display: flex;
+      gap: .4rem;
+      flex-wrap: wrap;
+      margin-bottom: .4rem;
+    }
+    .badge {
+      display: inline-block;
+      padding: .25rem .7rem;
+      border-radius: 12px;
+      font-size: .8rem;
+      font-weight: bold;
+      color: #fff;
+    }
+    .store { background: #007bff; }
+    .lounge { background: #28a745; }
+    .other { background: #ff8c00; }
+    .flagged { background: #dc3545 !important; }
+
+    .rating { color: #b8860b; margin-top: .3rem; }
+    .date { font-size: .75rem; color: #999; margin-top: .3rem; }
+    .access-line { color: #28a745; font-size: .85rem; margin: .3rem 0; font-weight: 600; }
+
+    .trash-status { font-size: .9rem; margin-top: .4rem; }
+    .time-remaining { color: #b8860b; }
+    .expired { color: #dc3545; }
+
+    .btn-row {
+      display: flex;
+      gap: .5rem;
+      padding: 0 1rem 1rem;
+    }
+    .btn-row button {
+      flex: 1;
+      padding: .55rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .restore { background: #28a745; color: #fff; }
+    .restore:hover { background: #218838; }
+    .perma-delete { background: #dc3545; color: #fff; }
+    .perma-delete:hover { background: #c82333; }
+
+    #toast-container {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      z-index: 9999;
+    }
+    .toast {
+      background: #333;
+      color: #fff;
+      padding: .8rem 1.2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.2);
+      opacity: .98;
+    }
+    .toast.success { background: #28a745; }
+    .toast.error { background: #dc3545; }
+    .toast.info { background: #b8860b; }
+  </style>
+</head>
+<body>
+  <h1>Backoffice Trash</h1>
+
+  <div class="top-bar">
+    <button class="secondary" onclick="window.location.href='backoffice-home-test20.html'">🏠 Home</button>
+    <button class="secondary" onclick="window.location.href='backoffice-business-test20.html'">💼 Business</button>
+  </div>
+
+  <div class="meta-row" id="metaRow">🗑️ Deleted items (48h auto-delete window)</div>
+  <div class="grid" id="storeGrid"></div>
+  <div id="toast-container"></div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+    const supabase = createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    const grid = document.getElementById("storeGrid");
+
+    async function loadTrash() {
+      const { data, error } = await supabase
+        .from("stores")
+        .select("*")
+        .eq("status", "deleted")
+        .order("deleted_until", { ascending: true });
+
+      grid.innerHTML = "";
+      if (error) {
+        grid.innerHTML = `<p style="color:#dc3545;">Error loading trash: ${error.message}</p>`;
+        return;
+      }
+      if (!data || data.length === 0) {
+        grid.innerHTML = `<p>Trash is empty.</p>`;
+        return;
+      }
+
+      data.forEach(renderCardTrash);
+    }
+
+    function decorateBasics(store) {
+      const types = Array.isArray(store.types) && store.types.length > 0
+        ? store.types.map(t => t.toLowerCase())
+        : store.type ? [store.type.toLowerCase()] : ["other"];
+
+      const badgesHtml = types
+        .map(t => `<span class="badge ${t}">${t.charAt(0).toUpperCase()+t.slice(1)}</span>`)
+        .join(" ");
+
+      let imgSrc = store.photo_reference || "images/cafe.jpg";
+      if (types.includes("store")) imgSrc = "images/store.jpg";
+      if (types.includes("lounge")) imgSrc = "images/lounge.jpg";
+
+      const starsHtml = store.rating
+        ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
+        : "☆☆☆☆☆";
+
+      let accessLine = "";
+      if (types.includes("lounge") && store.access) {
+        const a = store.access;
+        const text = a === "members" ? "🔒 Members Only" :
+                     a === "temporary" ? "⏳ Temporary Members" :
+                     "🌐 Public Access";
+        accessLine = `<div class="access-line">${text}</div>`;
+      }
+
+      return { badgesHtml, imgSrc, starsHtml, accessLine };
+    }
+
+    function renderCardTrash(store) {
+      const { badgesHtml, imgSrc, starsHtml, accessLine } = decorateBasics(store);
+      const now = Date.now();
+      const until = store.deleted_until ? new Date(store.deleted_until).getTime() : 0;
+      const diffMs = until - now;
+      const diffH = Math.ceil(diffMs / (1000 * 60 * 60));
+      const isExpired = diffH <= 0;
+      const remaining = isExpired ? "Expired" : `${diffH}h remaining`;
+
+      const statusHtml = `<div class="trash-status ${isExpired ? "expired" : "time-remaining"}">${remaining}</div>`;
+
+      const actionsHtml = isExpired
+        ? `<button class="perma-delete" onclick="permanentDelete('${store.id}')">Delete Permanently</button>`
+        : `<button class="restore" onclick="restoreStore('${store.id}')">Restore</button>`;
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${imgSrc}" alt="${store.name}">
+        <div class="card-content">
+          <div class="badges">${store.flagged ? '<span class="badge flagged">Flagged</span>' : ''}${badgesHtml}</div>
+          <h3>${store.name || "Unnamed"}</h3>
+          <p>${store.address || ""}</p>
+          <p>${store.city || ""}, ${store.country || ""}</p>
+          ${accessLine}
+          <div class="rating">${starsHtml}</div>
+          ${statusHtml}
+          <div class="date">Deleted: ${new Date(store.deleted_until).toLocaleString()}</div>
+        </div>
+        <div class="btn-row">${actionsHtml}</div>
+      `;
+      grid.appendChild(card);
+    }
+
+    window.restoreStore = async function(id) {
+      const { error } = await supabase.from("stores").update({ status: "pending", deleted_until: null }).eq("id", id);
+      if (error) showToast("Failed to restore", "error");
+      else { showToast("Store restored successfully!", "success"); loadTrash(); }
+    };
+
+    window.permanentDelete = async function(id) {
+      const { error } = await supabase.from("stores").delete().eq("id", id);
+      if (error) showToast("Failed to delete permanently", "error");
+      else { showToast("Store permanently deleted", "success"); loadTrash(); }
+    };
+
+    function showToast(msg, type = "success") {
+      const c = document.getElementById("toast-container");
+      const t = document.createElement("div");
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    }
+
+    loadTrash();
+  </script>
+</body>
+</html>
