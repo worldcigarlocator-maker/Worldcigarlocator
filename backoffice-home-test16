@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Backoffice Home – World Cigar Locator</title>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #b8860b;
+      margin-bottom: 2rem;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .top-bar button {
+      background: #b8860b;
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .top-bar button:hover {
+      background: #a37408;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 1rem;
+      flex: 1;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .store { background: #007bff; }
+    .lounge { background: #28a745; }
+    .other { background: #ff8c00; }
+    .flagged { background: #dc3545 !important; }
+
+    .rating {
+      color: #b8860b;
+      margin-top: 0.3rem;
+    }
+
+    .status {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.3rem;
+    }
+
+    .date {
+      font-size: 0.7rem;
+      color: #999;
+      margin-top: 0.3rem;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 1rem 1rem;
+      gap: 0.5rem;
+    }
+
+    .btn-row button {
+      flex: 1;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .approve { background: #28a745; color: #fff; }
+    .approve:hover { background: #218838; }
+    .flag { background: #ff8c00; color: #fff; }
+    .flag:hover { background: #e67e00; }
+    .delete { background: #dc3545; color: #fff; }
+    .delete:hover { background: #c82333; }
+  </style>
+</head>
+<body>
+  <h1>Backoffice Home</h1>
+
+  <div class="top-bar">
+    <button onclick="loadStores()">🏠 Home</button>
+    <button onclick="window.location.href='backoffice-business-test18.html'">📊 Business</button>
+    <button onclick="loadPending()">⏳ Pending</button>
+    <button onclick="loadFlagged()">🚩 Flagged</button>
+    <button onclick="loadApproved()">✅ Approved</button>
+    <button onclick="loadTrash()">🗑️ Trash</button>
+  </div>
+
+  <div class="grid" id="storeGrid"></div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+    const supabase = createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    async function loadStores(filter = {}) {
+      let query = supabase.from("stores").select("*").order("created_at", { ascending: false });
+      if (filter.flagged) query = query.eq("flagged", true);
+      if (filter.approved !== undefined) query = query.eq("approved", filter.approved);
+      if (filter.status) query = query.eq("status", filter.status);
+
+      const { data, error } = await query;
+      const grid = document.getElementById("storeGrid");
+      grid.innerHTML = "";
+
+      if (error) {
+        grid.innerHTML = `<p style="color:red;">Error loading stores: ${error.message}</p>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        grid.innerHTML = `<p>No stores found.</p>`;
+        return;
+      }
+
+      data.forEach(store => {
+        let badgeClass = store.type ? store.type.toLowerCase() : "other";
+        let badgeText = badgeClass.charAt(0).toUpperCase() + badgeClass.slice(1);
+        let imgSrc = "images/cafe.jpg";
+
+        if (store.photo_reference) imgSrc = store.photo_reference;
+        else if (badgeClass === "store") imgSrc = "images/store.jpg";
+        else if (badgeClass === "lounge") imgSrc = "images/lounge.jpg";
+
+        const stars = store.rating
+          ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
+          : "☆☆☆☆☆";
+
+        let accessLine = "";
+        if (store.type?.toLowerCase() === "lounge" && store.access) {
+          const accessText = store.access === "members" ? "🔒 Members Only"
+                            : store.access === "temporary" ? "⏳ Temporary Members"
+                            : "🌐 Public Access";
+          accessLine = `<p style="color:#b8860b; font-size:0.85rem; margin:0.2rem 0;">${accessText}</p>`;
+        }
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${imgSrc}" alt="${store.name}">
+          <div class="card-content">
+            <span class="badge ${store.flagged ? 'flagged' : badgeClass}">
+              ${store.flagged ? 'Flagged' : badgeText}
+            </span>
+            <h3>${store.name || "Unnamed"}</h3>
+            <p>${store.address || ""}</p>
+            <p>${store.city || ""}, ${store.country || ""}</p>
+            ${accessLine}
+            <div class="rating">${stars}</div>
+            <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
+            <div class="date">${new Date(store.created_at).toLocaleDateString()}</div>
+          </div>
+          <div class="btn-row">
+            <button class="approve" onclick="updateStatus('${store.id}', true)">Approve</button>
+            <button class="flag" onclick="toggleFlag('${store.id}', ${store.flagged})">Flag</button>
+            <button class="delete" onclick="softDelete('${store.id}')">Delete</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    async function updateStatus(id, approved) {
+      await supabase.from("stores").update({ approved }).eq("id", id);
+      loadStores();
+    }
+
+    async function toggleFlag(id, flagged) {
+      await supabase.from("stores").update({ flagged: !flagged }).eq("id", id);
+      loadStores();
+    }
+
+    async function softDelete(id) {
+      const deletedUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+      await supabase.from("stores").update({ status: "deleted", deleted_until: deletedUntil }).eq("id", id);
+      loadStores();
+    }
+
+    function loadFlagged() { loadStores({ flagged: true }); }
+    function loadPending() { loadStores({ approved: false }); }
+    function loadApproved() { loadStores({ approved: true }); }
+    function loadTrash() { loadStores({ status: "deleted" }); }
+
+    loadStores();
+  </script>
+</body>
+</html>
