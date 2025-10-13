@@ -350,10 +350,22 @@
             ]
           },
           options: {
-            responsive: true,
-            scales: { y: { beginAtZero: true } },
-            plugins: { legend: { position: 'top' } }
-          }
+  responsive: true,
+  scales: {
+    x: {
+      grid: { display: false },
+      barPercentage: 0.4,        // ← gör staplarna smalare
+      categoryPercentage: 0.5    // ← ger luft mellan grupperna
+    },
+    y: {
+      beginAtZero: true,
+      grid: { color: "#eee" }
+    }
+  },
+  plugins: {
+    legend: { position: 'top' }
+  }
+}
         });
       }
 
