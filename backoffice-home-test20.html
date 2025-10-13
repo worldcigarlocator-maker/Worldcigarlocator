@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Backoffice Home – Test20</title>
+  <title>Backoffice Home – Test21</title>
   <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
   <style>
     body { font-family: Arial, sans-serif; background:#f8f8f8; margin:0; padding:2rem; color:#333; }
@@ -58,7 +58,7 @@
     <button onclick="route('pending')">⏳ Pending</button>
     <button onclick="route('flagged')">🚩 Flagged</button>
     <button onclick="route('trash')">🗑️ Trash</button>
-    <button class="secondary" onclick="window.location.href='backoffice-business-final.html'">📊 Business</button>
+    <button class="secondary" onclick="window.location.href='backoffice-business-test20.html'">📊 Business</button>
   </div>
 
   <div class="meta-row" id="metaRow"></div>
@@ -110,30 +110,35 @@
     }
 
     function decorateBasics(store) {
-      // Combine new multi-type + old single type
       const types = Array.isArray(store.types) && store.types.length > 0
         ? store.types.map(t => t.toLowerCase())
         : store.type ? [store.type.toLowerCase()] : ["other"];
 
-      const badgesHtml = types.map(t => `<span class="badge ${t}">${t.charAt(0).toUpperCase()+t.slice(1)}</span>`).join(" ");
+      const badgesHtml = types
+        .map(t => `<span class="badge ${t}">${t.charAt(0).toUpperCase()+t.slice(1)}</span>`)
+        .join(" ");
 
-      // Pick image by priority
-      let imgSrc = store.photo_reference || "images/cafe.jpg";
-      if (types.includes("store")) imgSrc = "images/store.jpg";
-      if (types.includes("lounge")) imgSrc = "images/lounge.jpg";
+      // ✅ Bildlogik – Google-bild prioriteras, annars lounge/store/cafe
+      let imgSrc = "images/cafe.jpg";
+      if (store.photo_reference) {
+        imgSrc = store.photo_reference; // Google-bild vinner alltid
+      } else if (types.includes("lounge")) {
+        imgSrc = "images/lounge.jpg";
+      } else if (types.includes("store")) {
+        imgSrc = "images/store.jpg";
+      }
 
-      // Rating stars
       const starsHtml = store.rating
         ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
         : "☆☆☆☆☆";
 
-      // Lounge Access line
       let accessLine = "";
       if (types.includes("lounge") && store.access) {
-        const a = store.access;
-        const text = a === "members" ? "🔒 Members Only" :
-                     a === "temporary" ? "⏳ Temporary Members" :
-                     "🌐 Public Access";
+        const a = store.access.toLowerCase();
+        const text =
+          a === "members" ? "🔒 Members Only" :
+          a === "temporary" ? "⏳ Temporary Members" :
+          a === "public" ? "🌐 Public Access" : "";
         accessLine = `<div class="access-line">${text}</div>`;
       }
 
@@ -168,21 +173,6 @@
       grid.appendChild(card);
     }
 
-    // --- other functions same as before (trash, actions, etc.) ---
-    async function loadTrash() {
-      const { data, error } = await supabase.from("stores").select("*").eq("status", "deleted");
-      grid.innerHTML = "";
-      if (error) {
-        grid.innerHTML = `<p style="color:#dc3545;">Error loading trash: ${error.message}</p>`;
-        return;
-      }
-      if (!data || data.length === 0) {
-        grid.innerHTML = `<p>Trash is empty.</p>`;
-        return;
-      }
-      data.forEach(renderCardActive);
-    }
-
     window.updateStatus = async function(id, approved) {
       const { error } = await supabase.from("stores").update({ approved }).eq("id", id);
       if (error) showToast("Failed to update status", "error");
@@ -211,7 +201,6 @@
       setTimeout(() => t.remove(), 3000);
     }
 
-    // Init
     route("home");
   </script>
 </body>
