@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Backoffice Home – World Cigar Locator (v18)</title>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f8f8f8; margin: 0; padding: 2rem; color:#333; }
+    h1 { text-align: center; color: #b8860b; margin-bottom: 1.5rem; }
+
+    .top-bar { display:flex; flex-wrap: wrap; justify-content:center; gap: .6rem; margin-bottom: 1.5rem; }
+    .top-bar button {
+      background: #b8860b; color:#fff; border:none; padding:.6rem 1rem; border-radius:8px; cursor:pointer; font-weight:bold;
+    }
+    .top-bar button:hover { background:#a37408; }
+    .top-bar .secondary { background:#fff; color:#b8860b; border:2px solid #b8860b; }
+    .top-bar .secondary:hover { background:#b8860b; color:#fff; }
+
+    .meta-row { text-align:center; margin-bottom:1rem; color:#666; }
+
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.2rem; }
+
+    .card { background:#fff; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.1); overflow:hidden; display:flex; flex-direction:column; }
+    .card img { width:100%; height:180px; object-fit:cover; }
+    .card-content { padding:1rem; flex:1; }
+    .badge { display:inline-block; padding:.3rem .8rem; border-radius:12px; font-size:.8rem; font-weight:bold; color:#fff; margin-bottom:.5rem; }
+    .store { background:#007bff; }
+    .lounge { background:#28a745; }
+    .other { background:#ff8c00; }
+    .flagged { background:#dc3545 !important; }
+
+    .rating { color:#b8860b; margin-top:.3rem; }
+    .status { font-size:.85rem; color:#666; margin-top:.3rem; }
+    .date { font-size:.75rem; color:#999; margin-top:.3rem; }
+
+    .access-line { color:#b8860b; font-size:.85rem; margin:.2rem 0; }
+
+    .btn-row { display:flex; gap:.5rem; padding:0 1rem 1rem; }
+    .btn-row button { flex:1; padding:.55rem; border:none; border-radius:8px; cursor:pointer; font-weight:bold; }
+    .approve { background:#28a745; color:#fff; }
+    .approve:hover { background:#218838; }
+    .flag { background:#ff8c00; color:#fff; }
+    .flag:hover { background:#e67e00; }
+    .soft-delete { background:#dc3545; color:#fff; }
+    .soft-delete:hover { background:#c82333; }
+
+    /* Trash action buttons */
+    .restore { background:#28a745; color:#fff; }
+    .restore:hover { background:#218838; }
+    .perma-delete { background:#dc3545; color:#fff; }
+    .perma-delete:hover { background:#c82333; }
+
+    .trash-status { font-size:.9rem; margin-top:.4rem; }
+    .time-remaining { color:#b8860b; }  /* gold */
+    .expired { color:#dc3545; }         /* red */
+
+    /* Toasts */
+    #toast-container { position: fixed; bottom: 1rem; right: 1rem; display:flex; flex-direction:column; gap:.5rem; z-index:9999; }
+    .toast { background:#333; color:#fff; padding:.8rem 1.2rem; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.2); opacity:.98; }
+    .toast.success { background:#28a745; }
+    .toast.error { background:#dc3545; }
+    .toast.info { background:#b8860b; }
+  </style>
+</head>
+<body>
+  <h1>Backoffice Home</h1>
+
+  <div class="top-bar">
+    <button class="secondary" onclick="route('home')">Home</button>
+    <button onclick="route('approved')">✅ Approved</button>
+    <button onclick="route('pending')">⏳ Pending</button>
+    <button onclick="route('flagged')">🚩 Flagged</button>
+    <button onclick="route('trash')">🗑️ Trash</button>
+    <button class="secondary" onclick="window.location.href='backoffice-business-test18.html'">📊 Business</button>
+  </div>
+
+  <div class="meta-row" id="metaRow"></div>
+
+  <div class="grid" id="storeGrid"></div>
+
+  <div id="toast-container"></div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+    const supabase = createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    const grid = document.getElementById("storeGrid");
+    const metaRow = document.getElementById("metaRow");
+    let currentView = "home";
+    let trashInterval = null;
+
+    // ---------- Router ----------
+    window.route = function(view) {
+      currentView = view;
+      metaRow.textContent = "";
+      grid.innerHTML = "";
+      if (trashInterval) { clearInterval(trashInterval); trashInterval = null; }
+
+      if (view === "home") loadStores({ excludeDeleted: true, title: "All active locations" });
+      if (view === "approved") loadStores({ approved: true, title: "Approved" });
+      if (view === "pending") loadStores({ approved: false, title: "Pending" });
+      if (view === "flagged") loadStores({ flagged: true, title: "Flagged" });
+      if (view === "trash") {
+        loadTrash();
+        // Auto-refresh Trash every 60 seconds
+        trashInterval = setInterval(loadTrash, 60000);
+      }
+    };
+
+    // ---------- Data loaders ----------
+    async function loadStores(opts = {}) {
+      let query = supabase.from("stores").select("*").order("created_at", { ascending: false });
+
+      if (opts.excludeDeleted) {
+        // Show only not deleted
+        query = query.or("status.is.null,status.neq.deleted");
+      }
+      if (opts.approved === true) query = query.eq("approved", true).or("status.is.null,status.neq.deleted");
+      if (opts.approved === false) query = query.eq("approved", false).or("status.is.null,status.neq.deleted");
+      if (opts.flagged) query = query.eq("flagged", true).or("status.is.null,status.neq.deleted");
+
+      const { data, error } = await query;
+      grid.innerHTML = "";
+
+      if (opts.title) metaRow.textContent = opts.title;
+
+      if (error) {
+        grid.innerHTML = `<p style="color:#dc3545;">Error loading stores: ${error.message}</p>`;
+        return;
+      }
+      if (!data || data.length === 0) {
+        grid.innerHTML = `<p>No stores found.</p>`;
+        return;
+      }
+
+      data.forEach(renderCardActive);
+    }
+
+    async function loadTrash() {
+      // Items considered trashed if status = 'deleted' AND deleted_until is set
+      const { data, error } = await supabase
+        .from("stores")
+        .select("*")
+        .eq("status", "deleted")
+        .not("deleted_until", "is", null)
+        .order("deleted_until", { ascending: true });
+
+      grid.innerHTML = "";
+      if (error) {
+        metaRow.textContent = "Trash";
+        grid.innerHTML = `<p style="color:#dc3545;">Error loading trash: ${error.message}</p>`;
+        return;
+      }
+
+      const count = (data || []).length;
+      metaRow.textContent = `🗑️ ${count} item${count === 1 ? "" : "s"} in Trash (auto-refreshing every 60s)`;
+
+      if (!data || data.length === 0) {
+        grid.innerHTML = `<p>Trash is empty.</p>`;
+        return;
+      }
+
+      data.forEach(renderCardTrash);
+    }
+
+    // ---------- Renderers ----------
+    function renderCardActive(store) {
+      const { badgeClass, badgeText, imgSrc, starsHtml, accessLine } = decorateStore(store);
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${imgSrc}" alt="${store.name}">
+        <div class="card-content">
+          <span class="badge ${store.flagged ? 'flagged' : badgeClass}">
+            ${store.flagged ? 'Flagged' : badgeText}
+          </span>
+          <h3>${store.name || "Unnamed"}</h3>
+          <p>${store.address || ""}</p>
+          <p>${store.city || ""}, ${store.country || ""}</p>
+          ${accessLine}
+          <div class="rating">${starsHtml}</div>
+          <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
+          <div class="date">${new Date(store.created_at).toLocaleDateString()}</div>
+        </div>
+        <div class="btn-row">
+          <button class="approve" onclick="updateStatus('${store.id}', true)">Approve</button>
+          <button class="flag" onclick="toggleFlag('${store.id}', ${!!store.flagged})">${store.flagged ? "Unflag" : "Flag"}</button>
+          <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
+        </div>
+      `;
+      grid.appendChild(card);
+    }
+
+    function renderCardTrash(store) {
+      const { badgeClass, badgeText, imgSrc, starsHtml, accessLine, remainingText, isExpired } = decorateTrash(store);
+
+      const actionsHtml = isExpired
+        ? `<button class="perma-delete" onclick="permanentDelete('${store.id}')">Delete Permanently</button>`
+        : `<button class="restore" onclick="restoreStore('${store.id}')">Restore</button>`;
+
+      const statusHtml = isExpired
+        ? `<div class="trash-status expired">🔥 Expired</div>`
+        : `<div class="trash-status time-remaining">⏰ ${remainingText} remaining</div>`;
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${imgSrc}" alt="${store.name}">
+        <div class="card-content">
+          <span class="badge ${store.flagged ? 'flagged' : badgeClass}">
+            ${store.flagged ? 'Flagged' : badgeText}
+          </span>
+          <h3>${store.name || "Unnamed"}</h3>
+          <p>${store.address || ""}</p>
+          <p>${store.city || ""}, ${store.country || ""}</p>
+          ${accessLine}
+          <div class="rating">${starsHtml}</div>
+          ${statusHtml}
+          <div class="date">Deleted window ends: ${store.deleted_until ? new Date(store.deleted_until).toLocaleString() : "-"}</div>
+        </div>
+        <div class="btn-row">
+          ${actionsHtml}
+        </div>
+      `;
+      grid.appendChild(card);
+    }
+
+    // ---------- Decorators ----------
+    function decorateStore(store) {
+      const badgeClass = (store.type || "other").toLowerCase();
+      const badgeText = badgeClass.charAt(0).toUpperCase() + badgeClass.slice(1);
+
+      let imgSrc = "images/cafe.jpg";
+      if (store.photo_reference) imgSrc = store.photo_reference;
+      else if (badgeClass === "store") imgSrc = "images/store.jpg";
+      else if (badgeClass === "lounge") imgSrc = "images/lounge.jpg";
+
+      const starsHtml = store.rating
+        ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
+        : "☆☆☆☆☆";
+
+      let accessLine = "";
+      if (badgeClass === "lounge" && store.access) {
+        const accessText = store.access === "members" ? "🔒 Members Only"
+                        : store.access === "temporary" ? "⏳ Temporary Members"
+                        : "🌐 Public Access";
+        accessLine = `<div class="access-line">${accessText}</div>`;
+      }
+
+      return { badgeClass, badgeText, imgSrc, starsHtml, accessLine };
+    }
+
+    function decorateTrash(store) {
+      const base = decorateStore(store);
+
+      const now = Date.now();
+      const until = store.deleted_until ? new Date(store.deleted_until).getTime() : 0;
+      const diffMs = until - now;
+      const diffH = Math.ceil(diffMs / (1000 * 60 * 60));
+      const isExpired = diffH <= 0;
+      const remainingText = isExpired ? "0h" : `${diffH}h`;
+
+      return { ...base, remainingText, isExpired };
+    }
+
+    // ---------- Actions ----------
+    window.updateStatus = async function(id, approved) {
+      const { error } = await supabase.from("stores").update({ approved }).eq("id", id);
+      if (error) showToast("Failed to update status", "error");
+      else { showToast("Status updated", "success"); reloadCurrent(); }
+    };
+
+    window.toggleFlag = async function(id, flagged) {
+      const { error } = await supabase.from("stores").update({ flagged: !flagged }).eq("id", id);
+      if (error) showToast("Failed to toggle flag", "error");
+      else { showToast(flagged ? "Unflagged" : "Flagged", "success"); reloadCurrent(); }
+    };
+
+    window.softDelete = async function(id) {
+      const deletedUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+      const { error } = await supabase.from("stores").update({ status: "deleted", deleted_until: deletedUntil }).eq("id", id);
+      if (error) showToast("Failed to move to Trash", "error");
+      else { showToast("Moved to Trash (48h restore window)", "success"); reloadCurrent(); }
+    };
+
+    window.restoreStore = async function(id) {
+      const { error } = await supabase.from("stores").update({ status: "pending", deleted_until: null }).eq("id", id);
+      if (error) showToast("Failed to restore", "error");
+      else { showToast("Store restored successfully!", "success"); route("home"); }
+    };
+
+    window.permanentDelete = async function(id) {
+      const { error } = await supabase.from("stores").delete().eq("id", id);
+      if (error) showToast("Failed to delete permanently", "error");
+      else { showToast("Store permanently deleted", "success"); reloadCurrent(); }
+    };
+
+    function reloadCurrent() {
+      if (currentView === "home") loadStores({ excludeDeleted: true, title: "All active locations" });
+      if (currentView === "approved") loadStores({ approved: true, title: "Approved" });
+      if (currentView === "pending") loadStores({ approved: false, title: "Pending" });
+      if (currentView === "flagged") loadStores({ flagged: true, title: "Flagged" });
+      if (currentView === "trash") loadTrash();
+    }
+
+    // ---------- Toast ----------
+    function showToast(msg, type="success") {
+      const c = document.getElementById("toast-container");
+      const t = document.createElement("div");
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    }
+
+    // Init
+    route("home");
+  </script>
+</body>
+</html>
