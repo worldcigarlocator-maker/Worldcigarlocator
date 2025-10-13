@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Business Dashboard – Test22</title>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root { --gold:#b8860b; --gold-dark:#a37408; --bg:#f8f8f8; --card:#fff; --muted:#666; --text:#333; }
+    *{box-sizing:border-box}
+    body{font-family:Arial, sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text)}
+    nav{text-align:center;margin-bottom:2rem}
+    nav a, nav button{
+      color:var(--gold); background:#fff; border:2px solid var(--gold);
+      text-decoration:none; margin:.25rem .35rem; font-weight:bold; padding:.45rem .8rem; border-radius:8px; cursor:pointer
+    }
+    nav a:hover, nav button:hover{background:var(--gold); color:#fff}
+
+    h1{text-align:center;color:var(--gold);margin:1.2rem 0 1.6rem}
+
+    /* KPI cards */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem}
+    .stat-card{background:var(--card);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:1rem;text-align:center}
+    .stat-card h2{color:var(--gold-dark);font-size:1.9rem;margin:.2rem 0}
+    .stat-card p{margin:0;color:var(--muted);font-size:.9rem}
+
+    /* Chart section */
+    .chart-wrap{background:var(--card);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:1rem;margin-bottom:1.5rem;display:none}
+    .chart-controls{display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0 1rem}
+    .pill{padding:.35rem .7rem;border-radius:999px;border:2px solid var(--gold);background:#fff;color:var(--gold);font-weight:bold;cursor:pointer}
+    .pill.active, .pill:hover{background:var(--gold);color:#fff}
+    .chart-title{color:var(--gold-dark);font-weight:bold;margin:.25rem 0 .5rem}
+
+    /* Table */
+    .table-wrap{background:var(--card);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    th, td{padding:.8rem 1rem;border-bottom:1px solid #eee;text-align:left}
+    th{background:#f3f3f3;color:var(--gold-dark);cursor:pointer;user-select:none}
+    tr:hover{background:#faf7f0}
+    .status{font-weight:bold}
+    .approved{color:#28a745}.flagged{color:#dc3545}.pending{color:#a37408}
+    .muted{color:var(--muted);font-size:.9rem}
+
+    /* Exports */
+    .export-bar{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}
+    .export-bar button{
+      background:var(--gold); color:#fff; border:none; padding:.6rem .9rem; border-radius:8px; font-weight:bold; cursor:pointer
+    }
+    .export-bar button.secondary{background:#fff;color:var(--gold);border:2px solid var(--gold)}
+    .export-bar button:hover{opacity:.9}
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="backoffice-home-test23.html">🏠 Home</a>
+    <a href="backoffice-business-test22.html"><strong>📊 Business</strong></a>
+    <a href="backoffice-trash-test20.html">🗑️ Trash</a>
+    <button onclick="location.href='test19.html'">➕ Add Store</button>
+  </nav>
+
+  <h1>Business Dashboard</h1>
+
+  <!-- KPIs -->
+  <div class="stats-grid">
+    <div class="stat-card"><h2 id="totalCount">–</h2><p>Total Locations</p></div>
+    <div class="stat-card"><h2 id="approvedCount">–</h2><p>Approved</p></div>
+    <div class="stat-card"><h2 id="flaggedCount">–</h2><p>Flagged</p></div>
+    <div class="stat-card"><h2 id="deletedCount">–</h2><p>Deleted</p></div>
+    <div class="stat-card"><h2 id="viewsCount">–</h2><p>Total Views</p></div>
+  </div>
+
+  <!-- Show/Hide charts -->
+  <div style="text-align:center;margin-bottom:1rem;">
+    <button id="toggleChartBtn" class="pill">Show Charts</button>
+  </div>
+
+  <div id="chartSection" class="chart-wrap">
+    <div class="chart-controls">
+      <!-- status filters -->
+      <span class="pill active" data-filter="all">All</span>
+      <span class="pill" data-filter="approved">Approved</span>
+      <span class="pill" data-filter="pending">Pending</span>
+      <span class="pill" data-filter="flagged">Flagged</span>
+      <span class="pill" data-filter="deleted">Deleted</span>
+      <span class="muted" style="margin-left:auto">View:</span>
+      <!-- metric selector -->
+      <span class="pill active" data-metric="stores-country">Stores per Country</span>
+      <span class="pill" data-metric="views-country">Views per Country</span>
+      <span class="pill" data-metric="views-type">Views per Type</span>
+    </div>
+    <div class="chart-title" id="chartTitle">Stores per Country — All</div>
+    <canvas id="bizChart" height="110"></canvas>
+  </div>
+
+  <!-- Top table -->
+  <div class="table-wrap">
+    <table id="storesTable">
+      <thead>
+        <tr>
+          <th data-sort="name">Name</th>
+          <th data-sort="types">Types</th>
+          <th data-sort="city">City</th>
+          <th data-sort="country">Country</th>
+          <th data-sort="rating">Rating</th>
+          <th data-sort="views">Views</th>
+          <th data-sort="status">Status</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Exports -->
+  <div class="export-bar">
+    <button id="exportAllCsv">Export ALL → CSV</button>
+    <button id="exportAllXlsx" class="secondary">Export ALL → Excel</button>
+    <button id="exportFilteredCsv">Export FILTERED → CSV</button>
+    <button id="exportFilteredXlsx" class="secondary">Export FILTERED → Excel</button>
+  </div>
+
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+  const supabase = createClient(
+    "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+  );
+
+  // State
+  let allStores = [];
+  let currentFilter = "all"; // all | approved | pending | flagged | deleted
+  let currentMetric = "stores-country"; // stores-country | views-country | views-type
+  let chart; // Chart.js instance
+
+  // UI els
+  const totalEl = document.getElementById("totalCount");
+  const approvedEl = document.getElementById("approvedCount");
+  const flaggedEl = document.getElementById("flaggedCount");
+  const deletedEl = document.getElementById("deletedCount");
+  const viewsEl = document.getElementById("viewsCount");
+  const tableBody = document.getElementById("tableBody");
+  const chartWrap = document.getElementById("chartSection");
+  const chartTitle = document.getElementById("chartTitle");
+  const toggleChartBtn = document.getElementById("toggleChartBtn");
+  const ctx = document.getElementById("bizChart");
+
+  // Load data
+  await loadData();
+  renderKPIs();
+  renderTable();
+  // chart hidden by default
+
+  async function loadData(){
+    const { data, error } = await supabase.from("stores").select("*");
+    if (error) { console.error(error); allStores = []; return; }
+    // Normalize
+    allStores = (data || []).map(s => ({
+      ...s,
+      views: Number(s.views || 0),
+      types: Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []),
+      statusNorm: s.status || (s.approved ? "approved" : "pending")
+    }));
+  }
+
+  function renderKPIs(){
+    const total = allStores.length;
+    const approved = allStores.filter(s => !!s.approved).length;
+    const flagged = allStores.filter(s => !!s.flagged).length;
+    const deleted = allStores.filter(s => s.status === "deleted").length;
+    const views = allStores.reduce((sum, s) => sum + (s.views || 0), 0);
+
+    totalEl.textContent = total;
+    approvedEl.textContent = approved;
+    flaggedEl.textContent = flagged;
+    deletedEl.textContent = deleted;
+    viewsEl.textContent = views;
+  }
+
+  function filtered(){
+    switch(currentFilter){
+      case "approved": return allStores.filter(s => !!s.approved && s.status !== "deleted");
+      case "pending":  return allStores.filter(s => !s.approved && s.status !== "deleted");
+      case "flagged":  return allStores.filter(s => !!s.flagged && s.status !== "deleted");
+      case "deleted":  return allStores.filter(s => s.status === "deleted");
+      default:         return allStores.slice(); // all
+    }
+  }
+
+  function renderTable(){
+    const rows = filtered()
+      .sort((a,b)=> (b.rating||0) - (a.rating||0)) // default sort by rating desc
+      .slice(0, 200); // keep table fast
+
+    tableBody.innerHTML = rows.map(s => {
+      const typesStr = (s.types && s.types.length) ? s.types.join(" & ") : (s.type || "–");
+      const statusClass = s.flagged ? "flagged" : s.approved ? "approved" : s.status === "deleted" ? "" : "pending";
+      const statusText = s.flagged ? "Flagged" : s.approved ? "Approved" : (s.status === "deleted" ? "Deleted" : "Pending");
+      return `
+        <tr>
+          <td>${escapeHtml(s.name || "–")}</td>
+          <td>${escapeHtml(typesStr)}</td>
+          <td>${escapeHtml(s.city || "–")}</td>
+          <td>${escapeHtml(s.country || "–")}</td>
+          <td>${s.rating || 0}</td>
+          <td>${s.views || 0}</td>
+          <td class="status ${statusClass}">${statusText}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function buildAgg(metric){
+    const data = filtered();
+    if (metric === "stores-country"){
+      // count per country
+      const map = new Map();
+      for (const s of data){
+        const key = (s.country || "Unknown").trim();
+        map.set(key, (map.get(key)||0) + 1);
+      }
+      return sortAgg(map);
+    }
+    if (metric === "views-country"){
+      const map = new Map();
+      for (const s of data){
+        const key = (s.country || "Unknown").trim();
+        map.set(key, (map.get(key)||0) + (s.views||0));
+      }
+      return sortAgg(map);
+    }
+    if (metric === "views-type"){
+      const map = new Map();
+      for (const s of data){
+        const types = (s.types && s.types.length) ? s.types : (s.type ? [s.type] : ["other"]);
+        const v = (s.views || 0);
+        for (const t of types){
+          const key = t.toLowerCase();
+          map.set(key, (map.get(key)||0) + v);
+        }
+      }
+      return sortAgg(map);
+    }
+    return { labels:[], values:[] };
+  }
+
+  function sortAgg(map){
+    const entries = Array.from(map.entries()).sort((a,b)=> b[1]-a[1]).slice(0, 20);
+    return { labels: entries.map(e=>e[0]), values: entries.map(e=>e[1]) };
+  }
+
+  function renderChart(){
+    const { labels, values } = buildAgg(currentMetric);
+    const titleMetric =
+      currentMetric === "stores-country" ? "Stores per Country" :
+      currentMetric === "views-country"  ? "Views per Country" :
+      "Views per Type";
+    const title = `${titleMetric} — ${labelForFilter(currentFilter)}`;
+    chartTitle.textContent = title;
+
+    if (chart){ chart.destroy(); }
+    chart = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ label: title, data: values }] },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false }, tooltip: { enabled: true }, title: { display:false } },
+        scales: {
+          x: { ticks: { maxRotation: 45, minRotation: 0 } },
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  function labelForFilter(f){
+    return f === "all" ? "All" :
+           f === "approved" ? "Approved" :
+           f === "pending" ? "Pending" :
+           f === "flagged" ? "Flagged" : "Deleted";
+  }
+
+  // Show/Hide charts
+  toggleChartBtn.addEventListener("click", ()=>{
+    const showing = chartWrap.style.display !== "none" && chartWrap.style.display !== "";
+    if (showing){
+      chartWrap.style.display = "none";
+      toggleChartBtn.textContent = "Show Charts";
+    } else {
+      chartWrap.style.display = "block";
+      toggleChartBtn.textContent = "Hide Charts";
+      renderChart();
+    }
+  });
+
+  // Status filter pills
+  document.querySelectorAll('.chart-controls .pill[data-filter]').forEach(p=>{
+    p.addEventListener('click', ()=>{
+      document.querySelectorAll('.chart-controls .pill[data-filter]').forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+      currentFilter = p.dataset.filter;
+      renderTable();
+      if (chartWrap.style.display === "block") renderChart();
+    });
+  });
+
+  // Metric pills
+  document.querySelectorAll('.chart-controls .pill[data-metric]').forEach(p=>{
+    p.addEventListener('click', ()=>{
+      document.querySelectorAll('.chart-controls .pill[data-metric]').forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+      currentMetric = p.dataset.metric;
+      if (chartWrap.style.display === "block") renderChart();
+    });
+  });
+
+  // Sorting
+  let sortKey = null, sortDir = 1;
+  document.querySelectorAll('#storesTable thead th').forEach(th=>{
+    th.addEventListener('click', ()=>{
+      const key = th.dataset.sort;
+      if (!key) return;
+      if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; }
+      const rows = Array.from(tableBody.querySelectorAll('tr'));
+      rows.sort((r1,r2)=>{
+        const a = val(r1, key), b = val(r2, key);
+        if (!isNaN(parseFloat(a)) && !isNaN(parseFloat(b))) return (parseFloat(a)-parseFloat(b))*sortDir;
+        return String(a).localeCompare(String(b)) * sortDir;
+      });
+      rows.forEach(r=>tableBody.appendChild(r));
+    });
+  });
+  function val(tr, key){
+    const tds = tr.querySelectorAll('td');
+    const map = { name:0, types:1, city:2, country:3, rating:4, views:5, status:6 };
+    return tds[map[key]].textContent.trim();
+  }
+
+  // Exports
+  document.getElementById("exportAllCsv").addEventListener("click", ()=> exportCSV(allStores, "stores_all.csv"));
+  document.getElementById("exportFilteredCsv").addEventListener("click", ()=> exportCSV(filtered(), `stores_${currentFilter}.csv`));
+  document.getElementById("exportAllXlsx").addEventListener("click", ()=> exportXLSX(allStores, "stores_all.xlsx"));
+  document.getElementById("exportFilteredXlsx").addEventListener("click", ()=> exportXLSX(filtered(), `stores_${currentFilter}.xlsx`));
+
+  function exportCSV(rows, filename){
+    const data = rows.map(s=>({
+      id: s.id,
+      name: s.name||"",
+      types: (s.types && s.types.length ? s.types.join(" & ") : (s.type||"")),
+      city: s.city||"",
+      country: s.country||"",
+      rating: s.rating||0,
+      views: s.views||0,
+      approved: !!s.approved,
+      flagged: !!s.flagged,
+      status: s.status||""
+    }));
+    const headers = Object.keys(data[0] || {notice:"no data"});
+    const csv = [headers.join(",")]
+      .concat(data.map(r=>headers.map(h=>csvEscape(r[h])).join(",")))
+      .join("\n");
+    downloadBlob(new Blob([csv], {type:"text/csv;charset=utf-8;"}), filename);
+  }
+  function csvEscape(v){
+    const s = String(v ?? "");
+    if (/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+    return s;
+  }
+  function exportXLSX(rows, filename){
+    const data = rows.map(s=>({
+      id: s.id,
+      name: s.name||"",
+      types: (s.types && s.types.length ? s.types.join(" & ") : (s.type||"")),
+      city: s.city||"",
+      country: s.country||"",
+      rating: s.rating||0,
+      views: s.views||0,
+      approved: !!s.approved,
+      flagged: !!s.flagged,
+      status: s.status||""
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "stores");
+    XLSX.writeFile(wb, filename);
+  }
+  function downloadBlob(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+</script>
+</body>
+</html>
