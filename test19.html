@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test19 – Multi-type System</title>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: white;
+      color: #333;
+      padding: 30px;
+    }
+
+    h1 {
+      color: gold;
+      margin-bottom: 20px;
+    }
+
+    .type-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .type-btn {
+      background: white;
+      color: gold;
+      border: 2px solid gold;
+      border-radius: 10px;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .type-btn.active {
+      background: gold;
+      color: white;
+    }
+
+    #lounge-options {
+      margin-top: 8px;
+      padding: 10px;
+      border-left: 3px solid gold;
+      font-size: 0.9rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      border: 1px solid gold;
+      border-radius: 8px;
+      width: 250px;
+      margin-bottom: 10px;
+    }
+
+    .add-btn {
+      background: gold;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .add-btn:hover {
+      opacity: 0.8;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Test19 – Multi-type Store / Lounge / Other</h1>
+
+  <div>
+    <input id="nameInput" type="text" placeholder="Namn" />
+  </div>
+
+  <div class="type-buttons">
+    <button class="type-btn" data-type="Store">Store</button>
+    <button class="type-btn" data-type="Lounge">Lounge</button>
+    <button class="type-btn" data-type="Other">Other</button>
+  </div>
+
+  <div id="lounge-options" class="hidden">
+    <p><strong>Lounge-alternativ:</strong></p>
+    <label><input type="radio" name="loungeAccess" value="Öppen"> Öppen</label><br>
+    <label><input type="radio" name="loungeAccess" value="Tillfälligt medlemskap"> Tillfälligt medlemskap</label><br>
+    <label><input type="radio" name="loungeAccess" value="Endast medlemmar"> Endast medlemmar</label>
+  </div>
+
+  <button id="addButton" class="add-btn">Add</button>
+
+  <div id="message"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // --- Supabase init ---
+    const supabaseUrl = "https://YOUR_PROJECT.supabase.co";  // 🟡 Lägg in din URL
+    const supabaseKey = "YOUR_SUPABASE_ANON_KEY";            // 🟡 Lägg in din API-nyckel
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // --- Elements ---
+    const typeButtons = document.querySelectorAll(".type-btn");
+    const loungeOptions = document.getElementById("lounge-options");
+    const addButton = document.getElementById("addButton");
+    const messageBox = document.getElementById("message");
+    const nameInput = document.getElementById("nameInput");
+
+    let selectedTypes = [];
+
+    // --- Toggle knappar ---
+    typeButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const type = btn.dataset.type;
+        btn.classList.toggle("active");
+
+        if (btn.classList.contains("active")) {
+          selectedTypes.push(type);
+        } else {
+          selectedTypes = selectedTypes.filter(t => t !== type);
+        }
+
+        // Visa eller dölj Lounge-alternativ
+        if (selectedTypes.includes("Lounge")) {
+          loungeOptions.classList.remove("hidden");
+        } else {
+          loungeOptions.classList.add("hidden");
+        }
+      });
+    });
+
+    // --- Add-knapp ---
+    addButton.addEventListener("click", async () => {
+      messageBox.textContent = "";
+
+      const name = nameInput.value.trim();
+      if (!name) {
+        messageBox.textContent = "⚠️ Ange ett namn.";
+        return;
+      }
+
+      if (selectedTypes.length === 0) {
+        messageBox.textContent = "⚠️ Välj minst en typ (Store / Lounge / Other).";
+        return;
+      }
+
+      let loungeAccess = null;
+      if (selectedTypes.includes("Lounge")) {
+        const checkedRadio = document.querySelector('input[name="loungeAccess"]:checked');
+        if (checkedRadio) loungeAccess = checkedRadio.value;
+      }
+
+      const data = {
+        name,
+        types: selectedTypes,
+        lounge_access: loungeAccess,
+        created_at: new Date().toISOString()
+      };
+
+      try {
+        const { error } = await supabase.from("locations").insert([data]);
+        if (error) {
+          if (error.message.includes("duplicate")) {
+            messageBox.textContent = "⚠️ Posten finns redan (dubblett).";
+          } else {
+            messageBox.textContent = "❌ Fel vid sparning: " + error.message;
+          }
+        } else {
+          messageBox.textContent = "✅ Sparat!";
+          nameInput.value = "";
+          selectedTypes = [];
+          typeButtons.forEach(b => b.classList.remove("active"));
+          loungeOptions.classList.add("hidden");
+          document.querySelectorAll('input[name="loungeAccess"]').forEach(r => r.checked = false);
+        }
+      } catch (err) {
+        messageBox.textContent = "❌ Ett oväntat fel uppstod: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
