@@ -1,195 +1,360 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Test19 – Multi-type System</title>
-
+  <title>Test19 – Multi-Type Add</title>
   <style>
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: white;
-      color: #333;
-      padding: 30px;
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
     }
-
+    .form-wrapper {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      width: 100%;
+    }
     h1 {
-      color: gold;
-      margin-bottom: 20px;
+      text-align: center;
+      color: #b8860b;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      margin-bottom: 1rem;
     }
 
     .type-buttons {
       display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 1rem;
+      justify-content: center;
+      margin: 1rem 0;
     }
-
     .type-btn {
-      background: white;
-      color: gold;
-      border: 2px solid gold;
-      border-radius: 10px;
-      padding: 6px 14px;
+      padding: 0.5rem 1.2rem;
+      border-radius: 20px;
+      border: 2px solid;
       cursor: pointer;
+      font-weight: bold;
       transition: all 0.2s ease;
-      font-weight: 500;
     }
+    .type-btn.store { border-color: #007bff; color: #007bff; }
+    .type-btn.lounge { border-color: #28a745; color: #28a745; }
+    .type-btn.other { border-color: #ff8c00; color: #ff8c00; }
 
-    .type-btn.active {
-      background: gold;
-      color: white;
-    }
+    .type-btn.active.store { background: #007bff; color: #fff; }
+    .type-btn.active.lounge { background: #28a745; color: #fff; }
+    .type-btn.active.other { background: #ff8c00; color: #fff; }
 
-    #lounge-options {
-      margin-top: 8px;
-      padding: 10px;
-      border-left: 3px solid gold;
-      font-size: 0.9rem;
-    }
-
-    .hidden {
+    .lounge-options {
       display: none;
-    }
-
-    input[type="text"] {
-      padding: 8px;
-      border: 1px solid gold;
+      margin-top: 1rem;
+      background: #f0f0f0;
+      padding: 1rem;
       border-radius: 8px;
-      width: 250px;
-      margin-bottom: 10px;
+    }
+    .lounge-options h3 {
+      margin-top: 0;
+      color: #28a745;
     }
 
-    .add-btn {
-      background: gold;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 20px;
+    .rating {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+    .star {
+      font-size: 2rem;
       cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s ease;
+      color: #ccc;
+      transition: color 0.2s;
+    }
+    .star:hover, .star.hover { color: #daa520; }
+    .star.selected { color: #b8860b; }
+
+    #preview {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    #preview img {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
-    .add-btn:hover {
-      opacity: 0.8;
+    .btns {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
     }
+    button {
+      flex: 1;
+      padding: 0.9rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #saveBtn { background: #b8860b; color: #fff; }
+    #saveBtn:hover { background: #a37408; }
+    #cancelBtn { background: #aaa; color: #fff; }
+    #cancelBtn:hover { background: #888; }
 
-    #message {
-      margin-top: 15px;
-      font-weight: 500;
+    #toast-container {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
+    .toast {
+      background: #333;
+      color: #fff;
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      opacity: 0.95;
+    }
+    .toast.success { background: #28a745; }
+    .toast.error { background: #dc3545; }
   </style>
 </head>
 <body>
+  <div class="form-wrapper">
+    <h1>Add Store / Lounge / Other</h1>
 
-  <h1>Test19 – Multi-type Store / Lounge / Other</h1>
+    <label>Add with Google</label>
+    <input id="address" placeholder="Search with Google" type="text" />
 
-  <div>
-    <input id="nameInput" type="text" placeholder="Namn" />
+    <label>Store Name</label>
+    <input type="text" id="name"/>
+
+    <label>Address</label>
+    <input type="text" id="addr"/>
+
+    <label>City</label>
+    <input type="text" id="city"/>
+
+    <label>Country</label>
+    <input type="text" id="country"/>
+
+    <label>Phone</label>
+    <input type="text" id="phone"/>
+
+    <label>Website</label>
+    <input type="text" id="website"/>
+
+    <div class="type-buttons">
+      <button class="type-btn store" data-type="store">Store</button>
+      <button class="type-btn lounge" data-type="lounge">Lounge</button>
+      <button class="type-btn other" data-type="other">Other</button>
+    </div>
+
+    <div class="lounge-options" id="loungeOptions">
+      <h3>Lounge Access</h3>
+      <label><input type="radio" name="access" value="public"> Open to Public</label>
+      <label><input type="radio" name="access" value="temporary"> Temporary Members</label>
+      <label><input type="radio" name="access" value="members"> Members Only</label>
+    </div>
+
+    <div class="rating" id="rating"></div>
+    <div id="preview"></div>
+
+    <div class="btns">
+      <button id="saveBtn">Save Store</button>
+      <button id="cancelBtn">Cancel</button>
+    </div>
   </div>
 
-  <div class="type-buttons">
-    <button class="type-btn" data-type="Store">Store</button>
-    <button class="type-btn" data-type="Lounge">Lounge</button>
-    <button class="type-btn" data-type="Other">Other</button>
-  </div>
+  <div id="toast-container"></div>
 
-  <div id="lounge-options" class="hidden">
-    <p><strong>Lounge-alternativ:</strong></p>
-    <label><input type="radio" name="loungeAccess" value="Öppen"> Öppen</label><br>
-    <label><input type="radio" name="loungeAccess" value="Tillfälligt medlemskap"> Tillfälligt medlemskap</label><br>
-    <label><input type="radio" name="loungeAccess" value="Endast medlemmar"> Endast medlemmar</label>
-  </div>
+  <!-- Supabase -->
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+    window.supabase = createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+  </script>
 
-  <button id="addButton" class="add-btn">Add</button>
-
-  <div id="message"></div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // --- Supabase init ---
-    const supabaseUrl = "https://YOUR_PROJECT.supabase.co";  // 🟡 Lägg in din URL
-    const supabaseKey = "YOUR_SUPABASE_ANON_KEY";            // 🟡 Lägg in din API-nyckel
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-    // --- Elements ---
-    const typeButtons = document.querySelectorAll(".type-btn");
-    const loungeOptions = document.getElementById("lounge-options");
-    const addButton = document.getElementById("addButton");
-    const messageBox = document.getElementById("message");
-    const nameInput = document.getElementById("nameInput");
-
+    let selectedPlace = {};
+    let selectedRating = 0;
     let selectedTypes = [];
 
-    // --- Toggle knappar ---
-    typeButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const type = btn.dataset.type;
-        btn.classList.toggle("active");
+    window.addEventListener("DOMContentLoaded", () => {
+      initRating();
+      document.getElementById("cancelBtn").addEventListener("click", clearForm);
+      document.getElementById("saveBtn").addEventListener("click", saveStore);
 
-        if (btn.classList.contains("active")) {
-          selectedTypes.push(type);
-        } else {
-          selectedTypes = selectedTypes.filter(t => t !== type);
-        }
+      document.querySelectorAll(".type-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const type = btn.dataset.type;
+          btn.classList.toggle("active");
 
-        // Visa eller dölj Lounge-alternativ
-        if (selectedTypes.includes("Lounge")) {
-          loungeOptions.classList.remove("hidden");
-        } else {
-          loungeOptions.classList.add("hidden");
-        }
+          if (btn.classList.contains("active")) {
+            selectedTypes.push(type);
+          } else {
+            selectedTypes = selectedTypes.filter(t => t !== type);
+          }
+
+          document.getElementById("loungeOptions").style.display =
+            selectedTypes.includes("lounge") ? "block" : "none";
+
+          updatePreview();
+        });
       });
     });
 
-    // --- Add-knapp ---
-    addButton.addEventListener("click", async () => {
-      messageBox.textContent = "";
-
-      const name = nameInput.value.trim();
-      if (!name) {
-        messageBox.textContent = "⚠️ Ange ett namn.";
-        return;
+    function initRating() {
+      const rating = document.getElementById("rating");
+      for (let i = 1; i <= 5; i++) {
+        const s = document.createElement("span");
+        s.textContent = "★";
+        s.classList.add("star");
+        s.addEventListener("mouseover", () => {
+          document.querySelectorAll(".star").forEach(st => st.classList.remove("hover"));
+          for (let j = 0; j < i; j++) document.querySelectorAll(".star")[j].classList.add("hover");
+        });
+        s.addEventListener("mouseout", () =>
+          document.querySelectorAll(".star").forEach(st => st.classList.remove("hover"))
+        );
+        s.addEventListener("click", () => {
+          selectedRating = i;
+          document.querySelectorAll(".star").forEach(st => st.classList.remove("selected"));
+          for (let j = 0; j < i; j++) document.querySelectorAll(".star")[j].classList.add("selected");
+        });
+        rating.appendChild(s);
       }
+    }
+
+    function clearForm() {
+      document.querySelectorAll("input[type='text']").forEach(i => i.value = "");
+      document.querySelectorAll(".type-btn").forEach(btn => btn.classList.remove("active"));
+      selectedTypes = [];
+      selectedRating = 0;
+      document.querySelectorAll(".star").forEach(s => s.classList.remove("selected", "hover"));
+      document.querySelectorAll("input[name='access']").forEach(r => r.checked = false);
+      document.getElementById("preview").innerHTML = "";
+      document.getElementById("loungeOptions").style.display = "none";
+      showToast("Form cleared", "success");
+    }
+
+    async function saveStore() {
+      const name = document.getElementById("name").value.trim();
+      const address = document.getElementById("addr").value.trim();
+      const city = document.getElementById("city").value.trim();
+      const country = document.getElementById("country").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const website = document.getElementById("website").value.trim();
+      const access = document.querySelector("input[name='access']:checked")?.value || null;
 
       if (selectedTypes.length === 0) {
-        messageBox.textContent = "⚠️ Välj minst en typ (Store / Lounge / Other).";
+        showToast("Please select at least one type", "error");
+        return;
+      }
+      if (!name || !address || !city || !country) {
+        showToast("Please fill in all required fields", "error");
         return;
       }
 
-      let loungeAccess = null;
-      if (selectedTypes.includes("Lounge")) {
-        const checkedRadio = document.querySelector('input[name="loungeAccess"]:checked');
-        if (checkedRadio) loungeAccess = checkedRadio.value;
-      }
+      const { error } = await supabase.from("stores").insert([{
+        name, address, city, country, phone, website, access,
+        types: selectedTypes, rating: selectedRating, approved: false,
+        lat: selectedPlace.lat || null, lng: selectedPlace.lng || null,
+        photo_reference: selectedPlace.photo || null
+      }]);
 
-      const data = {
-        name,
-        types: selectedTypes,
-        lounge_access: loungeAccess,
-        created_at: new Date().toISOString()
-      };
-
-      try {
-        const { error } = await supabase.from("locations").insert([data]);
-        if (error) {
-          if (error.message.includes("duplicate")) {
-            messageBox.textContent = "⚠️ Posten finns redan (dubblett).";
-          } else {
-            messageBox.textContent = "❌ Fel vid sparning: " + error.message;
-          }
-        } else {
-          messageBox.textContent = "✅ Sparat!";
-          nameInput.value = "";
-          selectedTypes = [];
-          typeButtons.forEach(b => b.classList.remove("active"));
-          loungeOptions.classList.add("hidden");
-          document.querySelectorAll('input[name="loungeAccess"]').forEach(r => r.checked = false);
-        }
-      } catch (err) {
-        messageBox.textContent = "❌ Ett oväntat fel uppstod: " + err.message;
+      if (error) {
+        console.error(error);
+        showToast("Failed to add store", "error");
+      } else {
+        showToast("Store added successfully!", "success");
+        clearForm();
+        setTimeout(() => {
+          window.location.href = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/backoffice-home.html";
+        }, 3000);
       }
-    });
+    }
+
+    function showToast(msg, type = "success") {
+      const c = document.getElementById("toast-container");
+      const t = document.createElement("div");
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    }
+
+    function updatePreview() {
+      let imgSrc = "";
+      if (selectedPlace.photo) {
+        imgSrc = selectedPlace.photo;
+      } else if (selectedTypes.includes("lounge")) {
+        imgSrc = "images/lounge.jpg";
+      } else if (selectedTypes.includes("store")) {
+        imgSrc = "images/store.jpg";
+      } else {
+        imgSrc = "images/cafe.jpg";
+      }
+      document.getElementById("preview").innerHTML = `<img src="${imgSrc}" alt="Preview">`;
+    }
+
+    function initAutocomplete() {
+      const input = document.getElementById("address");
+      const autocomplete = new google.maps.places.Autocomplete(input, {
+        fields: ["address_components", "geometry", "name", "formatted_address", "international_phone_number", "website", "photos"]
+      });
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        if (!place) return;
+
+        document.getElementById("name").value = place.name || "";
+        document.getElementById("addr").value = place.formatted_address || "";
+
+        let city = place.address_components?.find(c => c.types.includes("locality"));
+        if (!city) city = place.address_components?.find(c => c.types.includes("postal_town") || c.types.includes("administrative_area_level_2"));
+        const country = place.address_components?.find(c => c.types.includes("country"));
+        document.getElementById("city").value = city?.long_name || "";
+        document.getElementById("country").value = country?.long_name || "";
+        document.getElementById("phone").value = place.international_phone_number || "";
+        document.getElementById("website").value = place.website || "";
+
+        selectedPlace = {
+          lat: place.geometry?.location?.lat() || null,
+          lng: place.geometry?.location?.lng() || null,
+          photo: (place.photos && place.photos.length > 0) ? place.photos[0].getUrl({ maxWidth: 800 }) : null
+        };
+
+        updatePreview();
+      });
+    }
+
+    window.initAutocomplete = initAutocomplete;
   </script>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete" async defer></script>
 </body>
 </html>
