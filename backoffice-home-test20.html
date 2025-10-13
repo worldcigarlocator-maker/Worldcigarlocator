@@ -2,217 +2,209 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Backoffice Home – Test20</title>
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Business Dashboard – World Cigar Locator</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: Arial, sans-serif; background:#f8f8f8; margin:0; padding:2rem; color:#333; }
-    h1 { text-align:center; color:#b8860b; margin-bottom:1.5rem; }
-    .top-bar { display:flex; flex-wrap:wrap; justify-content:center; gap:.6rem; margin-bottom:1.5rem; }
-    .top-bar button { background:#b8860b; color:#fff; border:none; padding:.6rem 1rem; border-radius:8px; cursor:pointer; font-weight:bold; }
-    .top-bar button:hover { background:#a37408; }
-    .top-bar .secondary { background:#fff; color:#b8860b; border:2px solid #b8860b; }
-    .top-bar .secondary:hover { background:#b8860b; color:#fff; }
+    :root {
+      --gold: #b8860b;
+      --gold-dark: #a37408;
+      --bg: #f8f8f8;
+      --card: #ffffff;
+      --muted: #666;
+      --text: #333;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 2rem;
+      color: var(--text);
+    }
+    nav {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    nav a {
+      color: var(--gold);
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: bold;
+    }
+    nav a:hover { text-decoration: underline; }
 
-    .meta-row { text-align:center; margin-bottom:1rem; color:#666; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1.2rem; }
+    h1 {
+      text-align: center;
+      color: var(--gold);
+      margin-bottom: 2rem;
+    }
 
-    .card { background:#fff; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.1); overflow:hidden; display:flex; flex-direction:column; }
-    .card img { width:100%; height:180px; object-fit:cover; }
-    .card-content { padding:1rem; flex:1; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 1rem;
+      text-align: center;
+    }
+    .stat-card h2 {
+      color: var(--gold-dark);
+      font-size: 2rem;
+      margin: 0.3rem 0;
+    }
+    .stat-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
 
-    .badges { display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.4rem; }
-    .badge { display:inline-block; padding:.25rem .7rem; border-radius:12px; font-size:.8rem; font-weight:bold; color:#fff; }
-    .store { background:#007bff; }
-    .lounge { background:#28a745; }
-    .other { background:#ff8c00; }
-    .flagged { background:#dc3545 !important; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    th, td {
+      text-align: left;
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background: #f3f3f3;
+      color: var(--gold-dark);
+    }
+    tr:hover { background: #faf7f0; }
+    .status { font-weight: bold; color: var(--muted); }
+    .approved { color: #28a745; }
+    .flagged { color: #dc3545; }
+    .pending { color: #a37408; }
 
-    .rating { color:#b8860b; margin-top:.3rem; }
-    .status { font-size:.85rem; color:#666; margin-top:.3rem; }
-    .date { font-size:.75rem; color:#999; margin-top:.3rem; }
-    .access-line { color:#28a745; font-size:.85rem; margin:.3rem 0; font-weight:600; }
-
-    .btn-row { display:flex; gap:.5rem; padding:0 1rem 1rem; }
-    .btn-row button { flex:1; padding:.55rem; border:none; border-radius:8px; cursor:pointer; font-weight:bold; }
-    .approve { background:#28a745; color:#fff; }
-    .approve:hover { background:#218838; }
-    .flag { background:#ff8c00; color:#fff; }
-    .flag:hover { background:#e67e00; }
-    .soft-delete { background:#dc3545; color:#fff; }
-    .soft-delete:hover { background:#c82333; }
-
-    #toast-container { position:fixed; bottom:1rem; right:1rem; display:flex; flex-direction:column; gap:.5rem; z-index:9999; }
-    .toast { background:#333; color:#fff; padding:.8rem 1.2rem; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.2); opacity:.98; }
-    .toast.success { background:#28a745; }
-    .toast.error { background:#dc3545; }
-    .toast.info { background:#b8860b; }
+    .access {
+      font-size: 0.8rem;
+      color: #28a745;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <h1>Backoffice Home</h1>
+  <nav>
+    <a href="backoffice-home-test20.html">🏠 Home</a>
+    <a href="backoffice-business-test20.html"><strong>💼 Business</strong></a>
+    <a href="backoffice-trash-test20.html">🗑️ Trash</a>
+  </nav>
 
-  <div class="top-bar">
-    <button class="secondary" onclick="route('home')">Home</button>
-    <button onclick="route('approved')">✅ Approved</button>
-    <button onclick="route('pending')">⏳ Pending</button>
-    <button onclick="route('flagged')">🚩 Flagged</button>
-    <button onclick="route('trash')">🗑️ Trash</button>
-    <button class="secondary" onclick="window.location.href='backoffice-business-final.html'">📊 Business</button>
+  <h1>Business Dashboard</h1>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h2 id="totalCount">–</h2>
+      <p>Total Locations</p>
+    </div>
+    <div class="stat-card">
+      <h2 id="approvedCount">–</h2>
+      <p>Approved</p>
+    </div>
+    <div class="stat-card">
+      <h2 id="flaggedCount">–</h2>
+      <p>Flagged</p>
+    </div>
+    <div class="stat-card">
+      <h2 id="deletedCount">–</h2>
+      <p>Deleted</p>
+    </div>
   </div>
 
-  <div class="meta-row" id="metaRow"></div>
-  <div class="grid" id="storeGrid"></div>
-  <div id="toast-container"></div>
+  <h2 style="color:var(--gold-dark); margin-bottom:1rem;">Top Rated Locations</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Types</th>
+        <th>City</th>
+        <th>Country</th>
+        <th>Rating</th>
+        <th>Access</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="topTable"></tbody>
+  </table>
 
   <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
     const supabase = createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
-    const grid = document.getElementById("storeGrid");
-    const metaRow = document.getElementById("metaRow");
-    let currentView = "home";
+    const totalEl = document.getElementById("totalCount");
+    const approvedEl = document.getElementById("approvedCount");
+    const flaggedEl = document.getElementById("flaggedCount");
+    const deletedEl = document.getElementById("deletedCount");
+    const topTable = document.getElementById("topTable");
 
-    window.route = function(view) {
-      currentView = view;
-      metaRow.textContent = "";
-      grid.innerHTML = "";
-      if (view === "home") loadStores({ excludeDeleted: true, title: "All active locations" });
-      if (view === "approved") loadStores({ approved: true, title: "Approved" });
-      if (view === "pending") loadStores({ approved: false, title: "Pending" });
-      if (view === "flagged") loadStores({ flagged: true, title: "Flagged" });
-      if (view === "trash") loadTrash();
-    };
+    async function loadStats() {
+      const { data, error } = await supabase.from("stores").select("*");
+      if (error) return console.error(error);
 
-    async function loadStores(opts = {}) {
-      let query = supabase.from("stores").select("*").order("created_at", { ascending: false });
-      if (opts.excludeDeleted) query = query.or("status.is.null,status.neq.deleted");
-      if (opts.approved === true) query = query.eq("approved", true);
-      if (opts.approved === false) query = query.eq("approved", false);
-      if (opts.flagged) query = query.eq("flagged", true);
+      const total = data.length;
+      const approved = data.filter(s => s.approved).length;
+      const flagged = data.filter(s => s.flagged).length;
+      const deleted = data.filter(s => s.status === "deleted").length;
 
-      const { data, error } = await query;
-      grid.innerHTML = "";
-      if (opts.title) metaRow.textContent = opts.title;
+      totalEl.textContent = total;
+      approvedEl.textContent = approved;
+      flaggedEl.textContent = flagged;
+      deletedEl.textContent = deleted;
 
-      if (error) {
-        grid.innerHTML = `<p style="color:#dc3545;">Error loading stores: ${error.message}</p>`;
-        return;
-      }
-      if (!data || data.length === 0) {
-        grid.innerHTML = `<p>No stores found.</p>`;
-        return;
-      }
-      data.forEach(renderCardActive);
+      const top = data
+        .filter(s => s.rating)
+        .sort((a, b) => b.rating - a.rating)
+        .slice(0, 10);
+
+      topTable.innerHTML = top.map(s => {
+        const types = Array.isArray(s.types) && s.types.length > 0
+          ? s.types.join(" & ")
+          : (s.type || "–");
+
+        const accessText = s.access
+          ? s.access === "members" ? "🔒 Members" :
+            s.access === "temporary" ? "⏳ Temporary" :
+            "🌐 Public"
+          : "";
+
+        return `
+          <tr>
+            <td>${escapeHtml(s.name || "–")}</td>
+            <td>${escapeHtml(types)}</td>
+            <td>${escapeHtml(s.city || "–")}</td>
+            <td>${escapeHtml(s.country || "–")}</td>
+            <td>${s.rating || 0}</td>
+            <td class="access">${accessText}</td>
+            <td class="status ${s.flagged ? "flagged" : s.approved ? "approved" : "pending"}">
+              ${s.flagged ? "Flagged" : s.approved ? "Approved" : "Pending"}
+            </td>
+          </tr>
+        `;
+      }).join("");
     }
 
-    function decorateBasics(store) {
-      // Combine new multi-type + old single type
-      const types = Array.isArray(store.types) && store.types.length > 0
-        ? store.types.map(t => t.toLowerCase())
-        : store.type ? [store.type.toLowerCase()] : ["other"];
-
-      const badgesHtml = types.map(t => `<span class="badge ${t}">${t.charAt(0).toUpperCase()+t.slice(1)}</span>`).join(" ");
-
-      // Pick image by priority
-      let imgSrc = store.photo_reference || "images/cafe.jpg";
-      if (types.includes("store")) imgSrc = "images/store.jpg";
-      if (types.includes("lounge")) imgSrc = "images/lounge.jpg";
-
-      // Rating stars
-      const starsHtml = store.rating
-        ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
-        : "☆☆☆☆☆";
-
-      // Lounge Access line
-      let accessLine = "";
-      if (types.includes("lounge") && store.access) {
-        const a = store.access;
-        const text = a === "members" ? "🔒 Members Only" :
-                     a === "temporary" ? "⏳ Temporary Members" :
-                     "🌐 Public Access";
-        accessLine = `<div class="access-line">${text}</div>`;
-      }
-
-      return { badgesHtml, imgSrc, starsHtml, accessLine };
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, c => (
+        { "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]
+      ));
     }
 
-    function renderCardActive(store) {
-      const { badgesHtml, imgSrc, starsHtml, accessLine } = decorateBasics(store);
-
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <img src="${imgSrc}" alt="${store.name}">
-        <div class="card-content">
-          <div class="badges">
-            ${store.flagged ? '<span class="badge flagged">Flagged</span>' : ''}${badgesHtml}
-          </div>
-          <h3>${store.name || "Unnamed"}</h3>
-          <p>${store.address || ""}</p>
-          <p>${store.city || ""}, ${store.country || ""}</p>
-          ${accessLine}
-          <div class="rating">${starsHtml}</div>
-          <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
-          <div class="date">${new Date(store.created_at).toLocaleDateString()}</div>
-        </div>
-        <div class="btn-row">
-          <button class="approve" onclick="updateStatus('${store.id}', true)">Approve</button>
-          <button class="flag" onclick="toggleFlag('${store.id}', ${!!store.flagged})">${store.flagged ? "Unflag" : "Flag"}</button>
-          <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
-        </div>
-      `;
-      grid.appendChild(card);
-    }
-
-    // --- other functions same as before (trash, actions, etc.) ---
-    async function loadTrash() {
-      const { data, error } = await supabase.from("stores").select("*").eq("status", "deleted");
-      grid.innerHTML = "";
-      if (error) {
-        grid.innerHTML = `<p style="color:#dc3545;">Error loading trash: ${error.message}</p>`;
-        return;
-      }
-      if (!data || data.length === 0) {
-        grid.innerHTML = `<p>Trash is empty.</p>`;
-        return;
-      }
-      data.forEach(renderCardActive);
-    }
-
-    window.updateStatus = async function(id, approved) {
-      const { error } = await supabase.from("stores").update({ approved }).eq("id", id);
-      if (error) showToast("Failed to update status", "error");
-      else { showToast("Status updated", "success"); route(currentView); }
-    };
-
-    window.toggleFlag = async function(id, flagged) {
-      const { error } = await supabase.from("stores").update({ flagged: !flagged }).eq("id", id);
-      if (error) showToast("Failed to toggle flag", "error");
-      else { showToast(flagged ? "Unflagged" : "Flagged", "success"); route(currentView); }
-    };
-
-    window.softDelete = async function(id) {
-      const deletedUntil = new Date(Date.now() + 48*60*60*1000).toISOString();
-      const { error } = await supabase.from("stores").update({ status:"deleted", deleted_until:deletedUntil }).eq("id", id);
-      if (error) showToast("Failed to move to Trash", "error");
-      else { showToast("Moved to Trash (48h restore window)", "success"); route(currentView); }
-    };
-
-    function showToast(msg, type="success") {
-      const c = document.getElementById("toast-container");
-      const t = document.createElement("div");
-      t.className = `toast ${type}`;
-      t.textContent = msg;
-      c.appendChild(t);
-      setTimeout(() => t.remove(), 3000);
-    }
-
-    // Init
-    route("home");
+    loadStats();
   </script>
 </body>
 </html>
