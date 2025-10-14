@@ -1,482 +1,218 @@
-<!-- Backoffice Card Test v2 | Excel Style | Auto Counters | 2025-10-14 -->
+<!-- Backoffice Card Test V2 | 2025-10-14 | Fixed country/continent count + debug -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Backoffice — Card Test v2</title>
+  <title>Backoffice — Card Test V2</title>
   <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
   <style>
-    :root{
-      --primary:#2f78c4; --primary-dark:#2466a8;
-      --success:#1d8348; --warning:#b36e00; --danger:#c0392b;
-      --bg:#f5f6f8; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
-      --gold:#b8860b;
-      --radius:10px; --pad:.65rem; --gap:.65rem; --shadow:0 1px 3px rgba(0,0,0,.06);
-      --base:11px;
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f6f8;
+      margin: 0;
+      padding: 1.2rem;
+      color: #1f2937;
     }
-    *{box-sizing:border-box}
-    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:1.2rem;color:var(--text);font-size:var(--base)}
-    h1{margin:0 0 .9rem;text-align:center;color:#2b2b2b;font-weight:800;font-size:1.35rem}
-    /* Top bar */
-    .top-bar{display:flex;justify-content:center;align-items:center;gap:.45rem;flex-wrap:wrap;margin-bottom:.9rem}
-    .top-bar button{
-      background:#fff;border:1.4px solid var(--primary);color:var(--primary);
-      padding:.38rem .6rem;border-radius:8px;font-weight:800;cursor:pointer
+
+    h1 {
+      text-align: center;
+      color: #2f78c4;
+      font-size: 1.4rem;
     }
-    .top-bar button:hover{background:var(--primary);color:#fff}
-    .top-bar button.active{background:var(--primary);color:#fff;border-color:transparent}
-    .top-bar .add{border-color:#6c757d;color:#1f2937}
-    .top-bar .add:hover{background:#1f2937;color:#fff}
-    /* Summary row */
-    .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.6rem;margin:.2rem 0 .9rem}
-    .chip-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:.65rem}
-    .chip-title{font-weight:800;color:#111827;margin:0 0 .45rem}
-    .chips{display:flex;gap:.4rem;flex-wrap:wrap}
-    .chip{background:#eef5fb;border:1px solid #d8e7f9;color:#0f3d68;border-radius:999px;padding:.18rem .55rem;font-weight:800}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:var(--gap)}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden}
-    .thumb{width:100%;height:170px;object-fit:cover;background:#f3f4f6}
-    .card-content{padding:var(--pad);flex:1}
-    .badges{display:flex;gap:.35rem;flex-wrap:wrap;margin:0 0 .35rem}
-    .badge{display:inline-block;padding:.22rem .6rem;border-radius:999px;font-weight:800;color:#fff}
-    .badge.store{background:#007bff}.badge.lounge{background:#28a745}.badge.other{background:#ff8c00}.badge.flag{background:#c0392b}
-    .small{color:var(--muted)} .rating{color:var(--gold);margin-top:.25rem;font-weight:800}
-    .btn-row{display:flex;gap:.45rem;padding:0 var(--pad) var(--pad)}
-    .btn{flex:1;background:#fff;border:1.4px solid var(--primary);color:var(--primary);
-      padding:.44rem .6rem;border-radius:8px;font-weight:800;cursor:pointer;text-align:center}
-    .btn:hover{background:var(--primary);color:#fff}
-    .btn.approve{border-color:var(--success);color:var(--success)}
-    .btn.approve:hover{background:var(--success);color:#fff}
-    .btn.flag{border-color:#ff8c00;color:#ff8c00}
-    .btn.flag:hover{background:#ff8c00;color:#fff}
-    .btn.delete{border-color:var(--danger);color:var(--danger)}
-    .btn.delete:hover{background:var(--danger);color:#fff}
-    .btn.restore{border-color:var(--success);color:var(--success)}
-    .btn.restore:hover{background:var(--success);color:#fff}
-    /* Toasts */
-    #toast-container{position:fixed;right:1rem;bottom:1rem;display:flex;flex-direction:column;gap:.45rem;z-index:9999}
-    .toast{background:#333;color:#fff;padding:.65rem .9rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
-    .toast.success{background:var(--success)} .toast.error{background:var(--danger)} .toast.info{background:var(--primary)}
-    /* Modal */
-    .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:9998;padding:1rem}
-    .modal{width:620px;max-width:95vw;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);overflow:hidden}
-    .modal header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:.75rem 1rem}
-    .modal header h3{margin:0;font-size:1.05rem}
-    .modal .body{padding:1rem}
-    .modal .footer{display:flex;gap:.5rem;justify-content:flex-end;border-top:1px solid var(--border);padding:.75rem 1rem}
-    label{display:block;font-weight:800;margin:.1rem 0 .25rem}
-    input[type="text"],input[type="url"],input[type="tel"]{width:100%;padding:.45rem .6rem;border:1.3px solid var(--primary);border-radius:8px}
-    .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem}
-    .full{grid-column:1 / -1}
-    .type-group{display:flex;gap:.4rem;flex-wrap:wrap}
-    .type-pill{border:1.3px solid var(--primary);border-radius:999px;padding:.26rem .6rem;font-weight:800;cursor:pointer;color:var(--primary)}
-    .type-pill.active{background:var(--primary);color:#fff}
-    .stars{display:flex;gap:.35rem}.star{font-size:1.2rem;color:#d1d5db;cursor:pointer}.star.on{color:var(--gold)}
-    .access-group{display:flex;gap:.7rem;align-items:center}
-    .close{background:#fff;border:1px solid #bbb;border-radius:8px;padding:.35rem .6rem;font-weight:800;cursor:pointer}
-    .primary{border-color:var(--success);color:var(--success)} .primary:hover{background:var(--success);color:#fff}
+
+    .top-bar {
+      display: flex;
+      justify-content: center;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    button {
+      background: white;
+      border: 1.4px solid #2f78c4;
+      border-radius: 7px;
+      padding: .4rem .8rem;
+      font-weight: 700;
+      color: #2f78c4;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2f78c4;
+      color: white;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin-top: .5rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: #333;
+      color: white;
+      padding: .6rem 1rem;
+      border-radius: 6px;
+      opacity: 0;
+      transition: opacity .3s;
+      z-index: 1000;
+    }
+    .toast.show {opacity: 1;}
+    .toast.error {background: #c0392b;}
+    .toast.success {background: #1d8348;}
   </style>
 </head>
 <body>
-  <h1>Backoffice — Home (Card Test v2)</h1>
-
+  <h1>Backoffice — Card Test V2</h1>
   <div class="top-bar">
-    <button class="active" data-view="home">Home</button>
-    <button data-view="approved">Approved</button>
-    <button data-view="pending">Pending</button>
-    <button data-view="flagged">Flagged</button>
-    <button data-view="trash">Trash</button>
-    <button onclick="window.location.href='backoffice-business-analytics-final.html'">Business</button>
-    <button class="add" id="openAdd">+ Add Store</button>
+    <button onclick="reloadCurrent()">Reload</button>
   </div>
 
-  <!-- Summary -->
-  <div class="summary">
-    <div class="chip-card">
-      <div class="chip-title">Approved by Continent</div>
-      <div class="chips" id="chipsContinents"></div>
-    </div>
-    <div class="chip-card">
-      <div class="chip-title">Approved by Country</div>
-      <div class="chips" id="chipsCountries"></div>
-    </div>
-  </div>
+  <div id="storeGrid"></div>
 
-  <div class="grid" id="storeGrid"></div>
-  <div id="toast-container"></div>
-
-  <!-- Add Store Modal -->
-  <div class="backdrop" id="addBackdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addTitle">
-      <header>
-        <h3 id="addTitle">Add Store / Lounge / Other</h3>
-        <button class="close" id="closeAdd">Close</button>
-      </header>
-      <div class="body">
-        <label>Search with Google</label>
-        <input id="as_address" type="text" placeholder="Search address or place"/>
-
-        <div class="form-grid" style="margin-top:.6rem">
-          <div class="full">
-            <label>Store Name</label>
-            <input id="as_name" type="text"/>
-          </div>
-          <div class="full">
-            <label>Address</label>
-            <input id="as_addr" type="text"/>
-          </div>
-          <div>
-            <label>City</label>
-            <input id="as_city" type="text"/>
-          </div>
-          <div>
-            <label>Country</label>
-            <input id="as_country" type="text"/>
-          </div>
-          <div>
-            <label>Phone</label>
-            <input id="as_phone" type="tel"/>
-          </div>
-          <div>
-            <label>Website</label>
-            <input id="as_website" type="url"/>
-          </div>
-
-          <div class="full">
-            <label>Types</label>
-            <div class="type-group" id="as_types">
-              <span class="type-pill" data-type="store">Store</span>
-              <span class="type-pill" data-type="lounge">Lounge</span>
-              <span class="type-pill" data-type="other">Other</span>
-            </div>
-          </div>
-
-          <div class="full" id="as_access_wrap" style="display:none;">
-            <label>Lounge Access</label>
-            <div class="access-group" id="as_access">
-              <label><input type="radio" name="as_access" value="public"> Public</label>
-              <label><input type="radio" name="as_access" value="temporary"> Temporary</label>
-              <label><input type="radio" name="as_access" value="members"> Members Only</label>
-            </div>
-          </div>
-
-          <div class="full">
-            <label>Rating</label>
-            <div class="stars" id="as_stars">
-              <span class="star" data-v="1">★</span>
-              <span class="star" data-v="2">★</span>
-              <span class="star" data-v="3">★</span>
-              <span class="star" data-v="4">★</span>
-              <span class="star" data-v="5">★</span>
-            </div>
-          </div>
-
-          <div class="full">
-            <label>Preview</label>
-            <div id="as_preview" class="small" style="border:1px dashed #ddd;padding:.55rem;border-radius:8px">
-              Will show selected photo or default based on type.
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="footer">
-        <button class="close" id="cancelAdd">Cancel</button>
-        <button class="close primary" id="saveAdd">Save Store</button>
-      </div>
-    </div>
-  </div>
+  <div id="toast" class="toast"></div>
 
   <script type="module">
-    /* ========== Supabase ========= */
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-    const supabase = createClient(
-      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
-    );
+    const supabaseUrl = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    const supabaseKey = "public-anon-key";
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const grid = document.getElementById("storeGrid");
-    let currentView = "home";
+    const storeGrid = document.getElementById("storeGrid");
+    const toast = document.getElementById("toast");
 
-    document.querySelectorAll(".top-bar button[data-view]").forEach(b=>{
-      b.addEventListener("click",()=>{
-        document.querySelectorAll(".top-bar button").forEach(x=>x.classList.remove("active"));
-        b.classList.add("active");
-        route(b.dataset.view);
-      });
-    });
-
-    route("home");
-    loadSummary();
-
-    /* ========== Routing & Loaders ========== */
-    async function route(view){
-      currentView = view;
-      grid.innerHTML = "";
-      let q = supabase.from("stores").select("*").order("created_at",{ascending:false});
-      if (view === "approved") q = q.eq("approved", true);
-      if (view === "pending")  q = q.eq("approved", false).or("status.eq.pending,status.is.null");
-      if (view === "flagged")  q = q.eq("flagged", true);
-      if (view === "trash")    q = q.eq("status","deleted");
-      const { data, error } = await q;
-      if (error){ showToast(error.message,"error"); return; }
-      if (!data || !data.length){ grid.innerHTML = `<p>No stores found</p>`; return; }
-      data.forEach(renderCard);
+    function showToast(msg, type="success") {
+      toast.textContent = msg;
+      toast.className = `toast show ${type}`;
+      setTimeout(() => toast.className = "toast", 4000);
     }
 
-    async function loadSummary(){
-      // Continents
-      const { data: cont } = await supabase.from("continent_store_counts").select("continent,store_count").order("continent");
-      const contWrap = document.getElementById("chipsContinents");
-      contWrap.innerHTML = (cont||[]).filter(r=>Number(r.store_count)>0).map(r=>`<span class="chip">${r.continent}: ${r.store_count}</span>`).join("") || "<span class='small'>No data</span>";
-      // Countries
-      const { data: cnt } = await supabase.from("country_store_counts").select("country,store_count").order("country");
-      const ctryWrap = document.getElementById("chipsCountries");
-      ctryWrap.innerHTML = (cnt||[]).filter(r=>Number(r.store_count)>0).map(r=>`<span class="chip">${r.country}: ${r.store_count}</span>`).join("") || "<span class='small'>No data</span>";
+    // ---------- Load Cards ----------
+    async function loadStores() {
+      const { data, error } = await supabase.from("stores").select("*").limit(20);
+      if (error) return showToast("Failed to load stores", "error");
+      renderCards(data);
     }
 
-    /* ========== Render Card ========== */
-    function badgeList(s){
-      const t = Array.isArray(s.types) ? s.types.map(x=>String(x).toLowerCase()) : (s.type?[s.type.toLowerCase()]:[]);
-      return t.length ? t : ["other"];
-    }
-    function imageFor(s){
-      if (s.photo_reference) return s.photo_reference;
-      const b = badgeList(s);
-      if (b.includes("store")) return "images/store.jpg";
-      if (b.includes("lounge")) return "images/lounge.jpg";
-      return "images/cafe.jpg";
-    }
-    function stars(n){ n = Number(n||0); return "★".repeat(n) + "☆".repeat(5-n); }
-    function esc(str){ return String(str??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-    function renderCard(s){
-      const card = document.createElement("div"); card.className="card";
-      card.innerHTML = `
-        <img class="thumb" src="${imageFor(s)}" alt="${esc(s.name||'')}">
-        <div class="card-content">
-          <div class="badges">
-            ${s.flagged ? '<span class="badge flag">Flagged</span>' : ''}
-            ${badgeList(s).map(b=>`<span class="badge ${b}">${b[0].toUpperCase()+b.slice(1)}</span>`).join("")}
+    function renderCards(stores) {
+      storeGrid.innerHTML = "";
+      stores.forEach(s => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <strong>${s.name}</strong><br>
+          ${s.city}, ${s.country}<br>
+          <em>${s.type || "—"}</em>
+          <div class="actions">
+            <button onclick="updateStatus('${s.id}', true)">Approve</button>
+            <button onclick="updateStatus('${s.id}', false)">Unapprove</button>
+            <button onclick="toggleFlag('${s.id}', ${s.flagged})">${s.flagged ? "Unflag" : "Flag"}</button>
+            <button onclick="softDelete('${s.id}')">Delete</button>
           </div>
-          <h3 style="margin:.1rem 0 .25rem">${esc(s.name||"Unnamed")}</h3>
-          <div class="small">${esc(s.address||"")}</div>
-          <div class="small">${esc(s.city||"")}${s.city?', ':''}${esc(s.country||"")}</div>
-          <div class="rating">${stars(s.rating||0)}</div>
-          <div class="small" style="margin-top:.25rem">${s.approved ? "✅ Approved" : (s.status==="deleted" ? "🗑️ Deleted" : "⏳ Pending")}</div>
-        </div>
-      `;
-
-      const row = document.createElement("div"); row.className="btn-row";
-      if (s.status === "deleted"){
-        row.innerHTML = `
-          <button class="btn restore">Restore</button>
-          <button class="btn delete">Delete</button>
         `;
-        row.querySelector(".restore").onclick = ()=>restoreStore(s.id);
-        row.querySelector(".delete").onclick  = ()=>permanentDelete(s.id);
-      } else {
-        row.innerHTML = `
-          <button class="btn approve">Approve</button>
-          <button class="btn flag">${s.flagged?"Unflag":"Flag"}</button>
-          <button class="btn delete">Delete</button>
-        `;
-        row.querySelector(".approve").onclick = ()=>approveStore(s.id);
-        row.querySelector(".flag").onclick    = ()=>toggleFlag(s.id, s.flagged);
-        row.querySelector(".delete").onclick  = ()=>softDelete(s.id);
-      }
-      card.appendChild(row);
-      grid.appendChild(card);
+        storeGrid.appendChild(card);
+      });
     }
 
-    /* ========== Counters helper ========== */
-    async function updateStoreCounts(country, continent, delta){
-      // Country
-      if (country){
-        const { data: c } = await supabase.from("country_store_counts").select("id, store_count, continent").eq("country", country).maybeSingle();
-        if (c){
-          const next = Math.max(0, (c.store_count||0) + delta);
-          await supabase.from("country_store_counts").update({ store_count: next, continent: c.continent || continent || null }).eq("id", c.id);
-        } else if (delta > 0){
-          await supabase.from("country_store_counts").insert({ country, continent: continent||null, store_count: delta });
+    /* ---------- Actions ---------- */
+    async function updateStatus(id, approved) {
+      try {
+        // 1️⃣ Fetch store
+        const { data: store, error: fetchError } = await supabase
+          .from("stores")
+          .select("id, country, continent, status")
+          .eq("id", id)
+          .single();
+
+        if (fetchError) throw fetchError;
+
+        // 2️⃣ Update store status
+        const { error: updateError } = await supabase
+          .from("stores")
+          .update({
+            approved,
+            status: approved ? "approved" : "pending",
+            approved_at: approved ? new Date().toISOString() : null
+          })
+          .eq("id", id);
+
+        if (updateError) throw updateError;
+
+        // 3️⃣ Update counters
+        if (approved) {
+          await updateStoreCounts(store.country, store.continent, +1);
         }
+
+        showToast("✅ Store approved and counts updated", "success");
+        reloadCurrent();
+      } catch (err) {
+        console.error("❌ updateStatus error:", err);
+        showToast(err.message, "error");
       }
-      // Continent
-      if (continent){
-        const { data: k } = await supabase.from("continent_store_counts").select("id, store_count").eq("continent", continent).maybeSingle();
-        if (k){
-          const next = Math.max(0, (k.store_count||0) + delta);
-          await supabase.from("continent_store_counts").update({ store_count: next }).eq("id", k.id);
-        } else if (delta > 0){
-          await supabase.from("continent_store_counts").insert({ continent, store_count: delta });
-        }
-      }
-      await loadSummary();
     }
 
-    /* ========== Actions ========== */
-    async function approveStore(id){
-      // fetch store (to avoid double counting)
-      const { data: s, error: fe } = await supabase.from("stores").select("approved, country, continent").eq("id", id).single();
-      if (fe){ showToast("Failed to fetch store","error"); return; }
-      const already = !!s.approved;
-
-      const { error } = await supabase.from("stores")
-        .update({ approved: true, status: "approved" })
+    async function toggleFlag(id, flagged) {
+      const { error } = await supabase
+        .from("stores")
+        .update({ flagged: !flagged })
         .eq("id", id);
-      if (error){ showToast(error.message,"error"); return; }
-
-      if (!already) await updateStoreCounts(s.country, s.continent, +1);
-      showToast("Approved & counters updated","success");
-      route(currentView);
+      if (error) showToast("Failed to toggle flag", "error");
+      else showToast(flagged ? "Unflagged" : "Flagged", "success");
     }
 
-    async function toggleFlag(id, flagged){
-      const { error } = await supabase.from("stores").update({ flagged: !flagged }).eq("id", id);
-      if (error){ showToast(error.message,"error"); return; }
-      showToast(flagged ? "Unflagged" : "Flagged","success");
-      route(currentView);
+    async function softDelete(id) {
+      const deletedUntil = new Date(Date.now() + 48*60*60*1000).toISOString();
+      const { error } = await supabase
+        .from("stores")
+        .update({ status:"deleted", deleted_until:deletedUntil })
+        .eq("id", id);
+      if (error) showToast("Failed to delete", "error");
+      else showToast("Moved to Trash", "success");
     }
 
-    async function softDelete(id){
-      // If approved → decrement counters
-      const { data: s } = await supabase.from("stores").select("approved,country,continent").eq("id", id).single();
-      if (s?.approved) await updateStoreCounts(s.country, s.continent, -1);
-      const { error } = await supabase.from("stores").update({ status:"deleted" }).eq("id", id);
-      if (error){ showToast(error.message,"error"); return; }
-      showToast("Moved to Trash","success");
-      route("trash");
+    // 🔁 Update counts via RPC
+    async function updateStoreCounts(country, continent, delta) {
+      try {
+        await supabase.rpc("increment_store_count", {
+          target_table: "country_store_counts",
+          target_key: "country",
+          target_value: country,
+          delta
+        });
+
+        await supabase.rpc("increment_store_count", {
+          target_table: "continent_store_counts",
+          target_key: "continent",
+          target_value: continent,
+          delta
+        });
+
+        console.log(`✅ Counts updated for ${country} / ${continent}`);
+      } catch (err) {
+        console.error("❌ updateStoreCounts error:", err);
+        showToast("Failed to update counts", "error");
+      }
     }
 
-    async function restoreStore(id){
-      const { error } = await supabase.from("stores").update({ status:"pending", approved:false }).eq("id", id);
-      if (error){ showToast(error.message,"error"); return; }
-      showToast("Restored (Pending)","success");
-      route("pending");
+    function reloadCurrent() {
+      loadStores();
     }
 
-    async function permanentDelete(id){
-      const { error } = await supabase.from("stores").delete().eq("id", id);
-      if (error){ showToast(error.message,"error"); return; }
-      showToast("Deleted permanently","success");
-      route("trash");
-    }
-
-    /* ========== Toast ========== */
-    function showToast(msg,type="success"){
-      const c=document.getElementById("toast-container");
-      const t=document.createElement("div"); t.className=`toast ${type}`; t.textContent=msg; c.appendChild(t);
-      setTimeout(()=>t.remove(),2600);
-    }
-
-    /* ========== Add Store Modal ========== */
-    const backdrop = document.getElementById("addBackdrop");
-    document.getElementById("openAdd").onclick = ()=>backdrop.style.display="flex";
-    document.getElementById("closeAdd").onclick = ()=>backdrop.style.display="none";
-    document.getElementById("cancelAdd").onclick = ()=>backdrop.style.display="none";
-
-    let as_state = { lat:null, lng:null, photo:null, continent:null };
-    let as_rating = 0;
-
-    document.getElementById("as_types").addEventListener("click",(e)=>{
-      const pill = e.target.closest(".type-pill"); if(!pill) return;
-      pill.classList.toggle("active");
-      const hasLounge = Array.from(document.querySelectorAll("#as_types .type-pill.active")).some(x=>x.dataset.type==="lounge");
-      document.getElementById("as_access_wrap").style.display = hasLounge ? "block": "none";
-      updateAddPreview();
-    });
-    document.querySelectorAll("#as_stars .star").forEach(st=>{
-      st.addEventListener("click", ()=>{
-        as_rating = Number(st.dataset.v);
-        document.querySelectorAll("#as_stars .star").forEach(s2=>s2.classList.toggle("on", Number(s2.dataset.v) <= as_rating));
-      });
-    });
-
-    function updateAddPreview(){
-      const types = Array.from(document.querySelectorAll("#as_types .type-pill.active")).map(x=>x.dataset.type);
-      let src = as_state.photo || (types.includes("store") ? "images/store.jpg" : types.includes("lounge") ? "images/lounge.jpg" : "images/cafe.jpg");
-      document.getElementById("as_preview").innerHTML = `<img src="${src}" alt="preview" style="max-width:100%;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.15)">`;
-    }
-
-    document.getElementById("saveAdd").onclick = saveNewStore;
-    async function saveNewStore(){
-      const name = document.getElementById("as_name").value.trim();
-      const address = document.getElementById("as_addr").value.trim();
-      const city = document.getElementById("as_city").value.trim();
-      const country = document.getElementById("as_country").value.trim();
-      const phone = document.getElementById("as_phone").value.trim();
-      const website = document.getElementById("as_website").value.trim();
-      const types = Array.from(document.querySelectorAll("#as_types .type-pill.active")).map(x=>x.dataset.type);
-      const access = document.querySelector("#as_access input[name='as_access']:checked")?.value || null;
-
-      if (!name || !address || !city || !country){ showToast("Please fill required fields","error"); return; }
-      if (!types.length){ showToast("Select at least one type","error"); return; }
-
-      const payload = {
-        name, address, city, country, phone, website, access,
-        types, rating: as_rating, approved:false, status:"pending",
-        lat: as_state.lat, lng: as_state.lng, photo_reference: as_state.photo, continent: as_state.continent || null
-      };
-
-      const { error } = await supabase.from("stores").insert([payload]);
-      if (error){ showToast(error.message,"error"); return; }
-      showToast("Store added","success");
-      backdrop.style.display="none";
-      route("home");
-    }
-
-    /* ========== Google Places Autocomplete ========== */
-    window.initAddAutocomplete = function(){
-      const input = document.getElementById("as_address");
-      const ac = new google.maps.places.Autocomplete(input,{
-        fields:["address_components","geometry","name","formatted_address","international_phone_number","website","photos","place_id"],
-      });
-      ac.addListener("place_changed", ()=>{
-        const p = ac.getPlace(); if(!p) return;
-        document.getElementById("as_name").value = p.name || "";
-        document.getElementById("as_addr").value = p.formatted_address || "";
-        const comps = p.address_components || [];
-        let city = comps.find(c=>c.types.includes("locality")) || comps.find(c=>c.types.includes("postal_town")) || comps.find(c=>c.types.includes("administrative_area_level_2"));
-        let country = comps.find(c=>c.types.includes("country"));
-        document.getElementById("as_city").value = city?.long_name || "";
-        document.getElementById("as_country").value = country?.long_name || "";
-        document.getElementById("as_phone").value = p.international_phone_number || "";
-        document.getElementById("as_website").value = p.website || "";
-        as_state = {
-          lat: p.geometry?.location?.lat() || null,
-          lng: p.geometry?.location?.lng() || null,
-          photo: (p.photos && p.photos.length>0) ? p.photos[0].getUrl({maxWidth:800}) : null,
-          continent: guessContinent(country?.short_name || country?.long_name || "")
-        };
-        updateAddPreview();
-      });
-    };
-
-    function guessContinent(codeOrName){
-      const m = {
-        SE:"Europe", NO:"Europe", DK:"Europe", FI:"Europe", DE:"Europe", FR:"Europe", ES:"Europe", IT:"Europe", NL:"Europe", BE:"Europe", PT:"Europe", PL:"Europe", IE:"Europe", GB:"Europe",
-        US:"North America", CA:"North America", MX:"North America",
-        BR:"South America", AR:"South America", CL:"South America", CO:"South America", PE:"South America",
-        ZA:"Africa", NG:"Africa", EG:"Africa", MA:"Africa", KE:"Africa",
-        CN:"Asia", JP:"Asia", KR:"Asia", IN:"Asia", SG:"Asia", TH:"Asia", AE:"Asia", SA:"Asia", TR:"Asia",
-        AU:"Oceania", NZ:"Oceania"
-      };
-      if (!codeOrName) return null;
-      const up = codeOrName.toUpperCase();
-      if (m[up]) return m[up];
-      const name = codeOrName.toLowerCase();
-      if (name.includes("united states") || name==="usa") return "North America";
-      if (name.includes("canada")) return "North America";
-      if (["sweden","norway","germany","france","spain","italy","netherlands","belgium","portugal","poland","ireland","united kingdom","uk","england"].some(x=>name.includes(x))) return "Europe";
-      if (["brazil","argentina","chile","colombia","peru"].some(x=>name.includes(x))) return "South America";
-      if (["south africa","nigeria","egypt","morocco","kenya"].some(x=>name.includes(x))) return "Africa";
-      if (["china","japan","india","singapore","thailand","turkey","saudi"].some(x=>name.includes(x))) return "Asia";
-      if (["australia","new zealand"].some(x=>name.includes(x))) return "Oceania";
-      return null;
-    }
+    // Init
+    loadStores();
   </script>
-
-  <!-- Google Maps Places -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAddAutocomplete" async defer></script>
 </body>
 </html>
