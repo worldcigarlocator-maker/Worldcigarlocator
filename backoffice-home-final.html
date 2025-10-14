@@ -466,10 +466,23 @@
     }
 
     /* ---------- Actions ---------- */
-    async function updateStatus(id, approved){
-      const { error } = await supabase.from("stores").update({ approved }).eq("id", id);
-      if (error) showToast("Failed to update status","error"); else { showToast("Status updated","success"); reloadCurrent(); }
-    }
+  async function updateStatus(id, approved) {
+  const { error } = await supabase
+    .from("stores")
+    .update({
+      approved,
+      approved_at: new Date().toISOString()   // 🕒 sätter tid för godkännande
+    })
+    .eq("id", id);
+
+  if (error) {
+    showToast("Failed to update status", "error");
+  } else {
+    showToast(approved ? "Approved & linked to region" : "Status updated", "success");
+    reloadCurrent(); // 🔄 laddar om korten
+  }
+}
+
     async function toggleFlag(id, flagged){
       const { error } = await supabase.from("stores").update({ flagged: !flagged }).eq("id", id);
       if (error) showToast("Failed to toggle flag","error"); else { showToast(flagged?"Unflagged":"Flagged","success"); reloadCurrent(); }
