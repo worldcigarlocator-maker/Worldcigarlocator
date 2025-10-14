@@ -128,41 +128,46 @@
     }
 
     /* ---------- Actions ---------- */
-    async function updateStatus(id, approved) {
-      try {
-        // 1️⃣ Fetch store
-        const { data: store, error: fetchError } = await supabase
-          .from("stores")
-          .select("id, country, continent, status")
-          .eq("id", id)
-          .single();
+/* ---------- Actions ---------- */
+async function updateStatus(id, approved) {
+  try {
+    // 1️⃣ Fetch the store record
+    const { data: store, error: fetchError } = await supabase
+      .from("stores")
+      .select("id, country, continent, status")
+      .eq("id", id)
+      .single();
 
-        if (fetchError) throw fetchError;
+    if (fetchError) throw fetchError;
 
-        // 2️⃣ Update store status
-        const { error: updateError } = await supabase
-          .from("stores")
-          .update({
-            approved,
-            status: approved ? "approved" : "pending",
-            approved_at: approved ? new Date().toISOString() : null
-          })
-          .eq("id", id);
+    // 2️⃣ Update approval status
+    const { error: updateError } = await supabase
+      .from("stores")
+      .update({
+        approved,
+        status: approved ? "approved" : "pending",
+        approved_at: approved ? new Date().toISOString() : null
+      })
+      .eq("id", id);
 
-        if (updateError) throw updateError;
+    if (updateError) throw updateError;
 
-        // 3️⃣ Update counters
-        if (approved) {
-          await updateStoreCounts(store.country, store.continent, +1);
-        }
-
-        showToast("✅ Store approved and counts updated", "success");
-        reloadCurrent();
-      } catch (err) {
-        console.error("❌ updateStatus error:", err);
-        showToast(err.message, "error");
-      }
+    // 3️⃣ Update store counts
+    if (approved) {
+      await updateStoreCounts(store.country, store.continent, +1);
+    } else {
+      await updateStoreCounts(store.country, store.continent, -1);
     }
+
+    showToast("✅ Store status updated successfully", "success");
+    reloadCurrent();
+
+  } catch (err) {
+    console.error("❌ updateStatus full error:", err);
+    showToast(`Error: ${err.message || err}`, "error");
+  }
+}
+
 
     async function toggleFlag(id, flagged) {
       const { error } = await supabase
