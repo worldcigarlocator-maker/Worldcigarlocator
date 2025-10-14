@@ -1,0 +1,228 @@
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    const supabase = createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    const grid = document.getElementById("storeGrid");
+    const metaRow = document.getElementById("metaRow");
+    let currentView = "home";
+
+    /* ---------- ROUTER ---------- */
+    async function route(view) {
+      currentView = view;
+      metaRow.textContent = "";
+      grid.innerHTML = "";
+      if (view === "home") loadStores({ excludeDeleted:true, title:"All active locations" });
+      if (view === "approved") loadStores({ approved:true, title:"Approved" });
+      if (view === "pending") loadStores({ approved:false, title:"Pending" });
+      if (view === "flagged") loadStores({ flagged:true, title:"Flagged" });
+      if (view === "trash") loadTrash();
+    }
+
+    /* ---------- LOAD STORES ---------- */
+    async function loadStores(opts = {}) {
+      let query = supabase.from("stores").select("*").order("created_at", { ascending:false });
+      if (opts.excludeDeleted) query = query.or("status.is.null,status.neq.deleted");
+      if (opts.approved === true) query = query.eq("approved", true);
+      if (opts.approved === false) query = query.eq("approved", false);
+      if (opts.flagged) query = query.eq("flagged", true);
+
+      const { data, error } = await query;
+      if (error) { grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
+      if (!data?.length) { grid.innerHTML = `<p>No stores found.</p>`; return; }
+
+      metaRow.textContent = opts.title || "";
+      data.forEach(renderCard);
+    }
+
+    async function loadTrash() {
+      const { data, error } = await supabase.from("stores").select("*").eq("status", "deleted");
+      if (error) { grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
+      if (!data?.length) { grid.innerHTML = `<p>Trash is empty.</p>`; return; }
+      metaRow.textContent = "Trash (48h auto-delete)";
+      data.forEach(renderCardTrash);
+    }
+
+    /* ---------- RENDER ---------- */
+    function decorate(store) {
+      const types = Array.isArray(store.types) ? store.types.map(t => t.toLowerCase()) : [store.type || "other"];
+      const badges = types.map(t => `<span class="badge ${t}">${t}</span>`).join(" ");
+      let img = store.photo_reference || (types.includes("lounge") ? "images/lounge.jpg" : types.includes("store") ? "images/store.jpg" : "images/other.jpg");
+      const stars = store.rating ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating) : "☆☆☆☆☆";
+      let access = "";
+      if (types.includes("lounge") && store.access) {
+        const text = store.access === "members" ? "🔒 Members only" :
+                     store.access === "temporary" ? "⏳ Temporary members" : "🌐 Public access";
+        access = `<div class='access-line'>${text}</div>`;
+      }
+      return { badges, img, stars, access };
+    }
+
+    function renderCard(store) {
+      const { badges, img, stars, access } = decorate(store);
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${img}" alt="${store.name}">
+        <div class="card-content">
+          <div class="badges">${store.flagged ? '<span class="badge flagged">Flagged</span>' : ''}${badges}</div>
+          <h3>${store.name || "Unnamed"}</h3>
+          <p>${store.address || ""}</p>
+          <p>${store.city || ""}, ${store.country || ""}</p>
+          ${access}
+          <div class="rating">${stars}</div>
+          <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
+          <div class="date">${new Date(store.created_at).toLocaleDateString()}</div>
+        </div>
+        <div class="btn-row">
+          <button class="approve" onclick="updateStatus('${store.id}', ${!store.approved})">${store.approved ? "Unapprove" : "Approve"}</button>
+          <button class="flag" onclick="toggleFlag('${store.id}', ${!!store.flagged})">${store.flagged ? "Unflag" : "Flag"}</button>
+          <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
+        </div>`;
+      grid.appendChild(card);
+    }
+
+    function renderCardTrash(store) {
+      const { badges, img } = decorate(store);
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${img}" alt="${store.name}">
+        <div class="card-content">
+          <div class="badges">${badges}</div>
+          <h3>${store.name}</h3>
+          <p>${store.city}, ${store.country}</p>
+          <div class="status">Deleted until: ${store.deleted_until ? new Date(store.deleted_until).toLocaleString() : "-"}</div>
+        </div>
+        <div class="btn-row">
+          <button class="approve" onclick="restoreStore('${store.id}')">Restore</button>
+          <button class="soft-delete" onclick="permanentDelete('${store.id}')">Delete permanently</button>
+        </div>`;
+      grid.appendChild(card);
+    }
+
+    /* ---------- ACTIONS ---------- */
+    async function updateStatus(id, approved) {
+      try {
+        console.log("🔹 updateStatus triggered:", id, approved);
+        const { data: store, error: fetchError } = await supabase
+          .from("stores")
+          .select("country, continent")
+          .eq("id", id)
+          .single();
+        if (fetchError) throw fetchError;
+
+        const { error: updateError } = await supabase
+          .from("stores")
+          .update({
+            approved,
+            status: approved ? "approved" : "pending",
+            approved_at: approved ? new Date().toISOString() : null
+          })
+          .eq("id", id);
+        if (updateError) throw updateError;
+
+        await updateStoreCounts(store.country, store.continent, approved ? +1 : -1);
+        showToast(approved ? "✅ Store approved" : "⏳ Approval removed", "success");
+        reloadCurrent();
+      } catch (err) {
+        console.error("❌ updateStatus error:", err);
+        showToast(`Error: ${err.message}`, "error");
+      }
+    }
+
+    async function updateStoreCounts(country, continent, delta) {
+      try {
+        if (!country || !continent) return console.warn("⚠️ Missing country/continent");
+        await supabase.rpc("increment_store_count", {
+          target_table: "country_store_counts",
+          target_key: "country",
+          target_value: country,
+          delta
+        });
+        await supabase.rpc("increment_store_count", {
+          target_table: "continent_store_counts",
+          target_key: "continent",
+          target_value: continent,
+          delta
+        });
+        console.log(`✅ Counts updated for ${country} (${delta > 0 ? "added" : "removed"})`);
+      } catch (err) {
+        console.error("❌ updateStoreCounts error:", err);
+      }
+    }
+
+    async function toggleFlag(id, flagged) {
+      try {
+        const { error } = await supabase.from("stores").update({ flagged: !flagged }).eq("id", id);
+        if (error) throw error;
+        showToast(flagged ? "🚫 Unflagged" : "🚩 Flagged", "success");
+        reloadCurrent();
+      } catch (err) {
+        console.error("❌ toggleFlag error:", err);
+        showToast("Failed to toggle flag", "error");
+      }
+    }
+
+    async function softDelete(id) {
+      try {
+        const deletedUntil = new Date(Date.now() + 48*60*60*1000).toISOString();
+        const { error } = await supabase.from("stores").update({ status:"deleted", deleted_until:deletedUntil }).eq("id", id);
+        if (error) throw error;
+        showToast("🗑️ Moved to Trash (48h)", "success");
+        reloadCurrent();
+      } catch (err) {
+        console.error("❌ softDelete error:", err);
+        showToast("Failed to delete", "error");
+      }
+    }
+
+    async function restoreStore(id) {
+      try {
+        const { error } = await supabase.from("stores").update({ status:"pending", deleted_until:null }).eq("id", id);
+        if (error) throw error;
+        showToast("♻️ Store restored", "success");
+        route("home");
+      } catch (err) {
+        console.error("❌ restoreStore error:", err);
+        showToast("Failed to restore", "error");
+      }
+    }
+
+    async function permanentDelete(id) {
+      try {
+        const { error } = await supabase.from("stores").delete().eq("id", id);
+        if (error) throw error;
+        showToast("💀 Permanently deleted", "success");
+        reloadCurrent();
+      } catch (err) {
+        console.error("❌ permanentDelete error:", err);
+        showToast("Failed to delete permanently", "error");
+      }
+    }
+
+    function reloadCurrent() { route(currentView); }
+
+    function showToast(msg, type="info") {
+      const c=document.getElementById("toast-container");
+      const t=document.createElement("div");
+      t.className=`toast ${type}`;
+      t.textContent=msg;
+      c.appendChild(t);
+      setTimeout(()=>t.remove(),3000);
+    }
+
+    // 🔗 Expose functions globally for HTML buttons
+    window.route = route;
+    window.updateStatus = updateStatus;
+    window.toggleFlag = toggleFlag;
+    window.softDelete = softDelete;
+    window.restoreStore = restoreStore;
+    window.permanentDelete = permanentDelete;
+
+    // Init
+    route("home");
+  </script>
