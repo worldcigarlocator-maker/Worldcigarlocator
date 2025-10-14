@@ -1,3 +1,4 @@
+<!-- Analytics Final 2025-10-14 | Compact Excel Style | -45% scale | Minimize Panel | Export Dropdown -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,91 +10,97 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root{
-      /* Excel-inspired palette */
-      --primary:#2f78c4;      /* buttons/lines */
+      /* Excel-inspired palette (no gold in analytics) */
+      --primary:#2f78c4;      /* primary buttons/accents */
       --primary-dark:#2466a8;
-      --accent:#1d8348;       /* active KPI green */
-      --accent-light:#28a745;
-      --bg:#f8f8f8;
+      --accent:#28a745;       /* active KPI green */
+      --bg:#f5f6f8;
       --card:#ffffff;
-      --text:#222;
-      --muted:#666;
-      --border:#e5e5e5;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --table-border:#dddddd;
     }
     *{box-sizing:border-box}
-    /* 35% compact: base font down from ~16px → ~10.5px */
-    body{font-family:Arial, sans-serif;background:var(--bg);margin:0;padding:1.3rem;color:var(--text);font-size:11px;}
+    /* ~45% compact vs. typical 16px → ~9-10px base */
+    body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padding:1.1rem;color:var(--text);font-size:10px;line-height:1.35}
 
-    h1{color:#2b2b2b;text-align:center;margin:0 0 .9rem;font-size:1.45rem}
+    h1{color:#2b2b2b;text-align:center;margin:0 0 .8rem;font-size:1.35rem;font-weight:800}
 
     /* Top bar with Home + Search */
-    nav{display:flex;justify-content:center;align-items:center;gap:.45rem;flex-wrap:wrap;margin:0 0 .9rem}
+    nav{display:flex;justify-content:center;align-items:center;gap:.4rem;flex-wrap:wrap;margin:0 0 .8rem}
     nav a{
-      background:#fff;border:1.6px solid var(--primary);color:var(--primary);
-      padding:.35rem .55rem;border-radius:8px;font-weight:700;text-decoration:none;font-size:.95rem
+      background:#fff;border:1.4px solid var(--primary);color:var(--primary);
+      padding:.32rem .5rem;border-radius:7px;font-weight:800;text-decoration:none;font-size:.9rem
     }
     nav a:hover{background:var(--primary);color:#fff}
     #searchInput{
-      padding:.38rem .6rem;border:1.6px solid var(--primary);border-radius:8px;font-size:.95rem;max-width:280px;width:100%;
+      padding:.34rem .55rem;border:1.4px solid var(--primary);border-radius:7px;font-size:.9rem;max-width:270px;width:100%;
     }
-    #searchInput:focus{outline:none;box-shadow:0 0 4px rgba(47,120,196,.35)}
+    #searchInput:focus{outline:none;box-shadow:0 0 4px rgba(47,120,196,.32)}
 
-    /* KPI grid — compact */
-    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.7rem;margin-bottom:.9rem}
+    /* KPI grid — compact & clickable */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.6rem;margin-bottom:.8rem}
     .stat-card{
-      background:var(--card);border:1px solid var(--border);border-radius:10px;
-      box-shadow:0 1px 4px rgba(0,0,0,.06);padding:.7rem;text-align:center;cursor:pointer;
-      transition:transform .12s, box-shadow .12s, background .12s, color .12s
+      background:var(--card);border:1px solid var(--border);border-radius:9px;
+      box-shadow:0 1px 3px rgba(0,0,0,.05);padding:.6rem;text-align:center;cursor:pointer;
+      transition:transform .08s, box-shadow .08s, background .08s, color .08s
     }
-    .stat-card:hover{transform:translateY(-2px);box-shadow:0 3px 10px rgba(0,0,0,.1)}
-    .stat-card.active{background:var(--accent-light);color:#fff;border-color:transparent}
-    .stat-card h2{margin:.05rem 0 .15rem;font-size:1.45rem;color:inherit}
-    .stat-card p{margin:0;color:inherit;opacity:.9;font-size:.95rem}
+    .stat-card:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .stat-card.active{background:var(--accent);color:#fff;border-color:transparent}
+    .stat-card h2{margin:.02rem 0 .12rem;font-size:1.35rem;color:inherit}
+    .stat-card p{margin:0;color:inherit;opacity:.92;font-size:.9rem}
 
     /* Panels and controls */
-    .panel{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:.7rem;margin-bottom:.7rem}
-    .row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;justify-content:center}
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:9px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:.6rem;margin-bottom:.6rem}
+    .row{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;justify-content:center}
 
     .btn{
-      background:#fff;border:1.6px solid var(--primary);color:var(--primary);
-      padding:.38rem .6rem;border-radius:8px;font-weight:700;cursor:pointer;font-size:.95rem
+      background:#fff;border:1.4px solid var(--primary);color:var(--primary);
+      padding:.34rem .55rem;border-radius:7px;font-weight:800;cursor:pointer;font-size:.9rem
     }
     .btn:hover{background:var(--primary);color:#fff}
     .btn.active{background:var(--primary);color:#fff}
 
-    /* Primary action: Show/Hide in blue block style */
+    /* Primary action: Show/Hide with chevron */
     #toggleCharts{
       background:var(--primary);color:#fff;border:none;
-      padding:.42rem .7rem;border-radius:8px;font-weight:800
+      padding:.38rem .62rem;border-radius:7px;font-weight:900
     }
     #toggleCharts:hover{background:var(--primary-dark);color:#fff}
 
     .select{
-      border:1.6px solid var(--primary);border-radius:8px;padding:.35rem .55rem;
-      color:var(--primary);background:#fff;font-weight:700;font-size:.95rem
+      border:1.4px solid var(--primary);border-radius:7px;padding:.32rem .5rem;
+      color:var(--primary);background:#fff;font-weight:800;font-size:.9rem
     }
 
-    .chart-title{color:#2b2b2b;font-weight:800;text-align:center;margin:.45rem 0 0;font-size:1.05rem}
-    .chart-wrap{position:relative;padding:.6rem}
-    /* No animations → static */
+    .chart-title{color:#2b2b2b;font-weight:900;text-align:center;margin:.4rem 0 0;font-size:1rem}
+    .chart-wrap{position:relative;padding:.5rem}
+
+    /* Minimize behavior */
+    #chartsPanel.minimized{height:40px;overflow:hidden;transition:height .2s ease}
+    #chartsPanel:not(.minimized){transition:height .2s ease}
 
     /* Table */
-    .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:.6rem .7rem;border-bottom:1px solid #eee;text-align:left;font-size:.95rem}
-    th{background:#f3f3f3;color:#333;cursor:pointer;user-select:none}
+    .table-wrap{background:var(--card);border:1px solid var(--table-border);border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow:hidden}
+    table{width:100%;border-collapse:collapse;table-layout:fixed}
+    th,td{padding:.5rem .55rem;border-bottom:1px solid #eee;text-align:left;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    th{background:#f3f4f6;color:#333;cursor:pointer;user-select:none}
     tr:hover{background:#f9fafb}
     td.num{text-align:center}
-    .status{font-weight:700}
-    .approved{color:#1d8348}.flagged{color:#c0392b}.pending{color:#bd8b00}
 
-    /* Export bar */
-    .export-bar{display:flex;flex-wrap:wrap;gap:.5rem;margin:.7rem 0;justify-content:center}
-    .export-bar button{
-      background:var(--primary);color:#fff;border:none;padding:.42rem .7rem;border-radius:8px;font-weight:700;cursor:pointer;font-size:.95rem
-    }
-    .export-bar button.secondary{background:#fff;color:var(--primary);border:1.6px solid var(--primary)}
-    .export-bar button:hover{opacity:.96}
+    /* Narrower columns (~20% of previous typical widths) */
+    th:nth-child(1), td:nth-child(1){width:18%} /* Name */
+    th:nth-child(2), td:nth-child(2){width:11%} /* Country */
+    th:nth-child(3), td:nth-child(3){width:12%} /* Type */
+    th:nth-child(4), td:nth-child(4){width:11%} /* Views */
+    th:nth-child(5), td:nth-child(5){width:12%} /* Clicks */
+    th:nth-child(6), td:nth-child(6){width:11%} /* CTR */
+    th:nth-child(7), td:nth-child(7){width:8%}  /* Rating */
+    th:nth-child(8), td:nth-child(8){width:12%} /* Status */
+
+    .status{font-weight:800}
+    .approved{color:#1d8348}.flagged{color:#c0392b}.pending{color:#b36e00}
   </style>
 </head>
 <body>
@@ -117,10 +124,10 @@
     <div class="stat-card" data-kpi="newmonth"><h2 id="kpiNewMonth">–</h2><p>New This Month</p></div>
   </div>
 
-  <!-- CHARTS PANEL -->
-  <div class="panel">
-    <div class="row" style="margin-bottom:.4rem">
-      <button class="btn" id="toggleCharts">Show Charts</button>
+  <!-- CHARTS PANEL (minimizable) -->
+  <div class="panel" id="chartsPanel">
+    <div class="row" style="margin-bottom:.35rem">
+      <button class="btn" id="toggleCharts">Hide Charts ▴</button>
       <select class="select" id="periodSelect">
         <option value="7">Last 7 Days</option>
         <option value="30" selected>Last 30 Days</option>
@@ -129,10 +136,19 @@
       <button class="btn active" id="btnCountry">Performance per Country</button>
       <button class="btn" id="btnType">Performance per Type</button>
       <button class="btn" id="btnNewCards">New Cards per Country</button>
+      <!-- Export dropdown LAST -->
+      <select class="select" id="exportSelect" title="Export">
+        <option value="">Export Data…</option>
+        <option value="allCsv">Export ALL → CSV</option>
+        <option value="allXlsx">Export ALL → Excel</option>
+        <option value="filteredCsv">Export FILTERED → CSV</option>
+        <option value="filteredXlsx">Export FILTERED → Excel</option>
+        <option value="growthCsv">Export GROWTH DATA → CSV</option>
+      </select>
     </div>
     <div class="chart-title" id="chartTitle">Performance per Country</div>
-    <div class="chart-wrap">
-      <canvas id="chartCanvas" height="85"></canvas>
+    <div class="chart-wrap" id="chartWrap">
+      <canvas id="chartCanvas" height="75"></canvas>
     </div>
   </div>
 
@@ -153,15 +169,6 @@
       </thead>
       <tbody id="tableBody"></tbody>
     </table>
-  </div>
-
-  <!-- EXPORT -->
-  <div class="export-bar">
-    <button id="expAllCsv">Export ALL → CSV</button>
-    <button id="expAllXlsx" class="secondary">Export ALL → Excel</button>
-    <button id="expFilteredCsv">Export FILTERED → CSV</button>
-    <button id="expFilteredXlsx" class="secondary">Export FILTERED → Excel</button>
-    <button id="expGrowthCsv">Export GROWTH DATA → CSV</button>
   </div>
 
 <script type="module">
@@ -192,14 +199,17 @@
 
   const tableBody = document.getElementById("tableBody");
   const chartTitle = document.getElementById("chartTitle");
+  const chartWrap = document.getElementById("chartWrap");
   const canvas = document.getElementById("chartCanvas");
   const ctx = canvas.getContext("2d");
 
+  const chartsPanel = document.getElementById("chartsPanel");
   const toggleChartsBtn = document.getElementById("toggleCharts");
   const btnCountry = document.getElementById("btnCountry");
   const btnType = document.getElementById("btnType");
   const btnNew = document.getElementById("btnNewCards");
   const periodSelect = document.getElementById("periodSelect");
+  const exportSelect = document.getElementById("exportSelect");
   const kpiGrid = document.getElementById("kpiGrid");
   const searchInput = document.getElementById("searchInput");
 
@@ -208,13 +218,13 @@
   let currentSortMode = "none";      // none, views, clicks, ctr
   let currentChart = "country";      // country, type, new
   let chartInstance = null;
-  let chartsVisible = false;         // start hidden
+  let chartsVisible = true;          // start OPEN
   let searchQuery = "";
 
   await loadData();
   renderKPIs();
   renderTable();
-  // charts hidden until toggled; canvas remains but empty
+  renderChart();
 
   function normalize(s){
     return {
@@ -254,7 +264,7 @@
     kpiEls.flagged.textContent = flagged;
     kpiEls.deleted.textContent = deleted;
     kpiEls.newMonth.textContent = newMonth;
-    // "Top" labels already set for views/clicks/ctr as these are sorters, not counts
+    // "Top" labels remain for views/clicks/ctr (they are sort actions)
   }
 
   function applySearch(arr){
@@ -291,7 +301,7 @@
   }
 
   function renderTable(){
-    const rows = filtered().slice(0,500);
+    const rows = filtered().slice(0,600);
     tableBody.innerHTML = rows.map(s=>{
       const typesStr = s.types && s.types.length ? s.types.join(" & ") : (s.type || "–");
       const views = s.views||0;
@@ -409,7 +419,7 @@
             { label: 'Stores', data: agg.stores, backgroundColor: cStores },
             { label: 'Views',  data: agg.views,  backgroundColor: cViews },
             { label: 'Clicks', data: agg.clicks, backgroundColor: cClicks }
-          ]
+            ]
         },
         options: {
           responsive: true,
@@ -444,7 +454,7 @@
   function esc(str){ return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function cap(s){ return s ? (s.charAt(0).toUpperCase()+s.slice(1)) : s; }
 
-  // Chart controls
+  // Chart view buttons
   [btnCountry, btnType, btnNew].forEach(btn=>{
     btn.addEventListener("click", ()=>{
       [btnCountry, btnType, btnNew].forEach(x=>x.classList.remove("active"));
@@ -456,10 +466,18 @@
     });
   });
   periodSelect.addEventListener("change", ()=> { if (currentChart === "new") renderChart(); });
+
+  // Minimize / Expand with chevrons
   toggleChartsBtn.addEventListener("click", ()=>{
     chartsVisible = !chartsVisible;
-    toggleChartsBtn.textContent = chartsVisible ? "Hide Charts" : "Show Charts";
-    renderChart();
+    if (chartsVisible){
+      toggleChartsBtn.textContent = "Hide Charts ▴";
+      chartsPanel.classList.remove("minimized");
+      renderChart();
+    } else {
+      toggleChartsBtn.textContent = "Show Charts ▾";
+      chartsPanel.classList.add("minimized");
+    }
   });
 
   // KPI click logic (filters/sorts)
@@ -517,18 +535,24 @@
     });
   });
 
-  // Exports
-  document.getElementById("expAllCsv").addEventListener("click", ()=> exportCSV(allStores, "stores_all.csv"));
-  document.getElementById("expAllXlsx").addEventListener("click", ()=> exportXLSX(allStores, "stores_all.xlsx"));
-  document.getElementById("expFilteredCsv").addEventListener("click", ()=> exportCSV(filtered(), `stores_filtered.csv`));
-  document.getElementById("expFilteredXlsx").addEventListener("click", ()=> exportXLSX(filtered(), `stores_filtered.xlsx`));
-  document.getElementById("expGrowthCsv").addEventListener("click", ()=>{
-    const days = Number(periodSelect.value||30);
-    const growth = buildGrowthCountry(days);
-    const rows = growth.labels.map((c,i)=>({ country:c, new_cards:growth.values[i], period_days:days }));
-    exportCSVRows(rows, `growth_by_country_${days}d.csv`);
+  // Export dropdown
+  exportSelect.addEventListener("change", (e)=>{
+    const val = e.target.value;
+    if (!val) return;
+    if (val === "allCsv") exportCSV(allStores, "stores_all.csv");
+    if (val === "allXlsx") exportXLSX(allStores, "stores_all.xlsx");
+    if (val === "filteredCsv") exportCSV(filtered(), "stores_filtered.csv");
+    if (val === "filteredXlsx") exportXLSX(filtered(), "stores_filtered.xlsx");
+    if (val === "growthCsv") {
+      const days = Number(periodSelect.value||30);
+      const growth = buildGrowthCountry(days);
+      const rows = growth.labels.map((c,i)=>({ country:c, new_cards:growth.values[i], period_days:days }));
+      exportCSVRows(rows, `growth_by_country_${days}d.csv`);
+    }
+    e.target.value = "";
   });
 
+  /* Export helpers */
   function exportCSV(rows, filename){
     const data = rows.map(s=>({
       id: s.id,
