@@ -1,664 +1,290 @@
-<!-- Backoffice Home Final v2 | Excel Style + Add Store Modal + Geo Counters | 2025-10-14 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Backoffice — Home (Final v2)</title>
+  <title>Backoffice — Home (Final)</title>
   <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
   <style>
-    :root{
-      --primary:#2f78c4; --primary-dark:#2466a8;
-      --success:#1d8348; --warning:#b36e00; --danger:#c0392b;
-      --bg:#f5f6f8; --card:#fff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
-      --gold:#b8860b; --gold-dark:#a37408;
-      --base-font:10.5px; --radius:10px; --gap:.6rem; --pad:.65rem; --shadow:0 1px 3px rgba(0,0,0,.06);
+    :root {
+      /* Excel-inspired clean UI (no gold, except from frontend data) */
+      --primary:#2f78c4;
+      --primary-dark:#2466a8;
+      --success:#1d8348;
+      --warning:#b36e00;
+      --danger:#c0392b;
+      --bg:#f5f6f8;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#e5e7eb;
     }
+
     *{box-sizing:border-box}
-    body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padding:1.1rem;color:var(--text);font-size:var(--base-font);line-height:1.35}
-    h1{margin:0 0 .9rem;text-align:center;font-weight:800;color:#2b2b2b;font-size:1.35rem}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text);}
+    h1{text-align:center;margin-bottom:1.5rem;color:var(--primary-dark);}
 
-    /* Top bar */
-    .top-bar{display:flex;justify-content:center;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.9rem}
+    .top-bar{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem;}
     .top-bar button{
-      background:#fff;border:1.4px solid var(--primary);color:var(--primary);
-      padding:.34rem .55rem;border-radius:7px;font-weight:800;cursor:pointer;font-size:.92rem
+      background:var(--primary);color:#fff;border:none;padding:.6rem 1rem;
+      border-radius:8px;cursor:pointer;font-weight:bold;font-size:.9rem;
     }
-    .top-bar button:hover{background:var(--primary);color:#fff}
-    .top-bar button.active{background:var(--primary);color:#fff;border-color:transparent}
-    .top-bar .add{border-color:#6c757d;color:#1f2937}
-    .top-bar .add:hover{background:#1f2937;color:#fff}
+    .top-bar button.secondary{background:#fff;color:var(--primary);border:2px solid var(--primary);}
+    .top-bar button:hover{background:var(--primary-dark);color:#fff;}
 
-    .meta-row{ text-align:center; color:var(--muted); margin-bottom:.6rem; font-size:.95rem;}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:var(--gap)}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
-    .thumb{width:100%;height:160px;object-fit:cover;background:#f3f4f6}
-    .card-content{padding:var(--pad);flex:1}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;}
+    .card{
+      background:var(--card);border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,0.1);
+      overflow:hidden;display:flex;flex-direction:column;
+    }
+    .card img{width:100%;height:180px;object-fit:cover;}
+    .card-content{padding:1rem;flex:1;}
 
-    .badges{display:flex;gap:.35rem;flex-wrap:wrap;margin:0 0 .35rem}
-    .badge{display:inline-block;padding:.2rem .55rem;border-radius:999px;font-size:.85rem;font-weight:800;color:#fff}
-    .badge.store{background:#007bff}
-    .badge.lounge{background:#28a745}
-    .badge.other{background:#ff8c00}
-    .badge.flag{background:#c0392b}
-    .rating{color:var(--gold);margin-top:.25rem;font-weight:800}
-    .access-line{color:var(--gold);font-size:.92rem;margin:.15rem 0}
-    .small{color:var(--muted);font-size:.9rem}
-    .date{font-size:.85rem;color:#9ca3af;margin-top:.25rem}
+    .badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem;}
+    .badge{
+      display:inline-block;padding:.25rem .7rem;border-radius:12px;font-size:.8rem;
+      font-weight:bold;color:#fff;
+    }
+    .store{background:#007bff;}
+    .lounge{background:#28a745;}
+    .other{background:#ff8c00;}
+    .flagged{background:#dc3545!important;}
 
-    .btn-row{display:flex;gap:.4rem;padding:0 var(--pad) var(--pad)}
-    .btn{flex:1;background:#fff;border:1.4px solid var(--primary);color:var(--primary);
-      padding:.42rem .55rem;border-radius:7px;font-weight:800;cursor:pointer;font-size:.92rem;text-align:center}
-    .btn:hover{background:var(--primary);color:#fff}
-    .btn.approve{border-color:var(--success);color:var(--success)}
-    .btn.approve:hover{background:var(--success);color:#fff}
-    .btn.flag{border-color:#ff8c00;color:#ff8c00}
-    .btn.flag:hover{background:#ff8c00;color:#fff}
-    .btn.delete{border-color:var(--danger);color:var(--danger)}
-    .btn.delete:hover{background:var(--danger);color:#fff}
-    .btn.restore{border-color:var(--success);color:var(--success)}
-    .btn.restore:hover{background:var(--success);color:#fff}
-    .btn.save{border-color:var(--success);color:var(--success)}
-    .btn.save:hover{background:var(--success);color:#fff}
-    .btn.cancel{border-color:var(--muted);color:#374151}
-    .btn.cancel:hover{background:#374151;color:#fff}
+    .rating{color:#b8860b;margin-top:.3rem;}
+    .status{font-size:.85rem;color:var(--muted);margin-top:.3rem;}
+    .date{font-size:.75rem;color:#999;margin-top:.3rem;}
+    .access-line{color:var(--primary-dark);font-size:.85rem;margin:.2rem 0;}
 
-    .edit-wrap{margin-top:.5rem;padding:var(--pad);background:#f9fafb;border:1px solid var(--border);border-radius:8px}
-    .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem}
-    .form-grid .full{grid-column:1 / -1}
-    label{font-weight:800;font-size:.85rem;color:#374151;margin-bottom:.15rem;display:block}
-    input[type="text"],input[type="url"],input[type="tel"]{width:100%;padding:.42rem .55rem;border:1.4px solid var(--primary);border-radius:7px;font-size:.92rem}
-    .type-group,.access-group,.stars{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
-    .type-pill{display:inline-flex;gap:.35rem;align-items:center;border:1.4px solid var(--primary);padding:.28rem .55rem;border-radius:999px;cursor:pointer;font-weight:800;color:var(--primary);user-select:none}
-    .type-pill.active{background:var(--primary);color:#fff}
-    .star{font-size:1.15rem;cursor:pointer;color:#d1d5db}
-    .star.on{color:var(--gold)}
-    .access-group input{margin-right:.25rem}
+    .btn-row{display:flex;gap:.5rem;padding:0 1rem 1rem;}
+    .btn-row button{flex:1;padding:.55rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold;}
+    .approve{background:var(--success);color:#fff;}
+    .flag{background:#ff8c00;color:#fff;}
+    .soft-delete{background:var(--danger);color:#fff;}
+    .approve:hover{background:#166f3e;}
+    .flag:hover{background:#d97706;}
+    .soft-delete:hover{background:#a83228;}
 
-    .trash-status{font-size:.92rem;margin-top:.35rem}
-    .time-remaining{color:var(--warning)} .expired{color:var(--danger)}
-    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.45rem;z-index:9999}
-    .toast{background:#333;color:#fff;padding:.6rem .9rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
-    .toast.success{background:var(--success)} .toast.error{background:var(--danger)} .toast.info{background:var(--primary)}
-
-    /* ===== Modal (Add Store) ===== */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:9998;padding:1rem}
-    .modal{width:600px;max-width:95vw;background:#fff;border-radius:12px;border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.18);overflow:hidden}
-    .modal header{padding:.75rem 1rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-    .modal header h3{margin:0;font-size:1.05rem;color:#2b2b2b}
-    .modal .close{background:#fff;border:1px solid #bbb;border-radius:8px;padding:.3rem .6rem;font-weight:800;cursor:pointer}
-    .modal .body{padding:1rem}
-    .modal .footer{padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;gap:.5rem;justify-content:flex-end}
-    .modal .footer .primary{border-color:var(--success);color:var(--success)}
-    .modal .footer .primary:hover{background:var(--success);color:#fff}
+    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999;}
+    .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+    .toast.success{background:#28a745;}
+    .toast.error{background:#dc3545;}
+    .toast.info{background:#2f78c4;}
   </style>
 </head>
 <body>
-  <h1>Backoffice — Home</h1>
+  <h1>Backoffice Home</h1>
 
-  <!-- Top navigation -->
   <div class="top-bar">
-    <button class="active" data-view="home">Home</button>
-    <button data-view="approved">Approved</button>
-    <button data-view="pending">Pending</button>
-    <button data-view="flagged">Flagged</button>
-    <button data-view="trash">Trash</button>
-    <button onclick="window.location.href='backoffice-business-analytics-final.html'">Business</button>
-    <button class="add" id="openAddBtn">+ Add Store</button>
+    <button class="secondary" onclick="route('home')">Home</button>
+    <button onclick="route('approved')">Approved</button>
+    <button onclick="route('pending')">Pending</button>
+    <button onclick="route('flagged')">Flagged</button>
+    <button onclick="route('trash')">Trash</button>
+    <button onclick="window.location.href='backoffice-business-final.html'">Business</button>
+    <button onclick="window.location.href='add-store.html'">Add Store</button>
   </div>
 
-  <div class="meta-row" id="metaRow"></div>
-  <div class="grid" id="storeGrid"></div>
+  <div id="metaRow" style="text-align:center;color:var(--muted);margin-bottom:1rem;"></div>
+  <div id="storeGrid" class="grid"></div>
   <div id="toast-container"></div>
 
-  <!-- ===== Add Store Modal (frontend copy, compact) ===== -->
-  <div class="modal-backdrop" id="addBackdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addTitle">
-      <header>
-        <h3 id="addTitle">Add Store / Lounge / Other</h3>
-        <button class="close" id="closeAddBtn">Close</button>
-      </header>
-      <div class="body">
-        <!-- Autocomplete -->
-        <label>Search with Google</label>
-        <input id="as_address" type="text" placeholder="Search address or place"/>
-
-        <div class="form-grid" style="margin-top:.6rem">
-          <div class="full">
-            <label>Store Name</label>
-            <input id="as_name" type="text"/>
-          </div>
-          <div class="full">
-            <label>Address</label>
-            <input id="as_addr" type="text"/>
-          </div>
-          <div>
-            <label>City</label>
-            <input id="as_city" type="text"/>
-          </div>
-          <div>
-            <label>Country</label>
-            <input id="as_country" type="text"/>
-          </div>
-          <div>
-            <label>Phone</label>
-            <input id="as_phone" type="tel"/>
-          </div>
-          <div>
-            <label>Website</label>
-            <input id="as_website" type="url"/>
-          </div>
-
-          <div class="full">
-            <label>Types</label>
-            <div class="type-group" id="as_types">
-              <span class="type-pill" data-type="store">Store</span>
-              <span class="type-pill" data-type="lounge">Lounge</span>
-              <span class="type-pill" data-type="other">Other</span>
-            </div>
-          </div>
-
-          <div class="full" id="as_access_wrap" style="display:none;">
-            <label>Lounge Access</label>
-            <div class="access-group" id="as_access">
-              <label><input type="radio" name="as_access" value="public"> Public</label>
-              <label><input type="radio" name="as_access" value="temporary"> Temporary</label>
-              <label><input type="radio" name="as_access" value="members"> Members Only</label>
-            </div>
-          </div>
-
-          <div class="full">
-            <label>Rating</label>
-            <div class="stars" id="as_stars">
-              <span class="star" data-v="1">★</span>
-              <span class="star" data-v="2">★</span>
-              <span class="star" data-v="3">★</span>
-              <span class="star" data-v="4">★</span>
-              <span class="star" data-v="5">★</span>
-            </div>
-          </div>
-
-          <div class="full">
-            <label>Preview</label>
-            <div id="as_preview" class="small" style="border:1px dashed #ddd;padding:.5rem;border-radius:8px">
-              Will show selected photo or default based on type.
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="footer">
-        <button class="close" id="cancelAddBtn">Cancel</button>
-        <button class="close primary" id="saveAddBtn">Save Store</button>
-      </div>
-    </div>
-  </div>
-
   <script type="module">
-    /* ---------- Supabase Client ---------- */
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
     const supabase = createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
-    /* ---------- State & Routing ---------- */
     const grid = document.getElementById("storeGrid");
     const metaRow = document.getElementById("metaRow");
     let currentView = "home";
 
-    document.querySelectorAll(".top-bar button[data-view]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        document.querySelectorAll(".top-bar button").forEach(b=>b.classList.remove("active"));
-        btn.classList.add("active");
-        route(btn.dataset.view);
-      });
-    });
-
-    route("home");
-
-    async function route(view){
+    // ---------- ROUTER ----------
+    window.route = async function(view) {
       currentView = view;
       metaRow.textContent = "";
       grid.innerHTML = "";
-
-      if (view === "home") loadStores({ excludeDeleted:true, title:"All Active Locations" });
+      if (view === "home") loadStores({ excludeDeleted:true, title:"All active locations" });
       if (view === "approved") loadStores({ approved:true, title:"Approved" });
       if (view === "pending") loadStores({ approved:false, title:"Pending" });
       if (view === "flagged") loadStores({ flagged:true, title:"Flagged" });
       if (view === "trash") loadTrash();
-    }
+    };
 
-    /* ---------- Loaders ---------- */
-    async function loadStores(opts={}){
-      let query = supabase.from("stores").select("*").order("created_at", { ascending:false });
+    // ---------- LOAD STORES ----------
+    async function loadStores(opts = {}) {
+      let query = supabase.from("stores").select("*").order("created_at", { ascending: false });
       if (opts.excludeDeleted) query = query.or("status.is.null,status.neq.deleted");
-      if (opts.approved === true) query = query.eq("approved", true).or("status.is.null,status.neq.deleted");
-      if (opts.approved === false) query = query.eq("approved", false).or("status.is.null,status.neq.deleted");
-      if (opts.flagged) query = query.eq("flagged", true).or("status.is.null,status.neq.deleted");
-
+      if (opts.approved === true) query = query.eq("approved", true);
+      if (opts.approved === false) query = query.eq("approved", false);
+      if (opts.flagged) query = query.eq("flagged", true);
       const { data, error } = await query;
-      grid.innerHTML = "";
+      if (error) { grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
+      if (!data || !data.length) { grid.innerHTML = `<p>No stores found.</p>`; return; }
       metaRow.textContent = opts.title || "";
-
-      if (error){ grid.innerHTML = `<p style="color:#c0392b">Error loading stores: ${error.message}</p>`; return; }
-      if (!data || !data.length){ grid.innerHTML = `<p>No stores found.</p>`; return; }
-      data.forEach(s=>renderCard(s, false));
+      data.forEach(renderCard);
     }
 
-    async function loadTrash(){
-      const { data, error } = await supabase
-        .from("stores").select("*")
-        .eq("status", "deleted")
-        .not("deleted_until","is", null)
-        .order("deleted_until", { ascending:true });
-
-      grid.innerHTML = "";
-      if (error){ metaRow.textContent="Trash"; grid.innerHTML = `<p style="color:#c0392b">Error loading trash: ${error.message}</p>`; return; }
-      const count = (data||[]).length;
-      metaRow.textContent = `Trash — ${count} item${count===1?"":"s"}`;
-      if (!count){ grid.innerHTML = `<p>Trash is empty.</p>`; return; }
-      data.forEach(s=>renderCard(s, true));
+    async function loadTrash() {
+      const { data, error } = await supabase.from("stores").select("*").eq("status", "deleted");
+      if (error) { grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
+      if (!data || !data.length) { grid.innerHTML = `<p>Trash is empty.</p>`; return; }
+      metaRow.textContent = "Trash (48h auto-delete)";
+      data.forEach(renderCardTrash);
     }
 
-    /* ---------- Helpers ---------- */
-    function esc(str){ return String(str ?? "").replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-    function stars(n){ n = Number(n||0); return "★".repeat(n) + "☆".repeat(5-n); }
-    function cap(s){ return s ? (s[0].toUpperCase()+s.slice(1)) : s; }
-    function goldAccess(a){ if(!a) return ""; const txt = a==="members"?"🔒 Members Only": a==="temporary"?"⏳ Temporary Members":"🌐 Public Access"; return `<div class="access-line">${txt}</div>`; }
-
-    function badgeList(store){
-      const types = Array.isArray(store.types) ? store.types.map(t=>String(t).toLowerCase()) : (store.type?[store.type.toLowerCase()]:[]);
-      return types.length ? types : ["other"];
-    }
-    function pickImage(store){
-      if (store.photo_reference) return store.photo_reference;
-      const b = badgeList(store);
-      if (b.includes("store")) return "images/store.jpg";
-      if (b.includes("lounge")) return "images/lounge.jpg";
-      return "images/cafe.jpg";
-    }
-    function showToast(msg, type="success"){
-      const c = document.getElementById("toast-container");
-      const t = document.createElement("div");
-      t.className = `toast ${type}`;
-      t.textContent = msg;
-      c.appendChild(t);
-      setTimeout(()=> t.remove(), 2600);
+    // ---------- RENDER ----------
+    function decorate(store) {
+      const types = Array.isArray(store.types) ? store.types.map(t => t.toLowerCase()) : [store.type || "other"];
+      const badges = types.map(t => `<span class="badge ${t}">${t}</span>`).join(" ");
+      let img = store.photo_reference || (types.includes("lounge") ? "images/lounge.jpg" : types.includes("store") ? "images/store.jpg" : "images/other.jpg");
+      const stars = store.rating ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating) : "☆☆☆☆☆";
+      let access = "";
+      if (types.includes("lounge") && store.access) {
+        const text = store.access === "members" ? "🔒 Members only" :
+                     store.access === "temporary" ? "⏳ Temporary members" : "🌐 Public access";
+        access = `<div class='access-line'>${text}</div>`;
+      }
+      return { badges, img, stars, access };
     }
 
-    /* ---------- Card Rendering ---------- */
-    function renderCard(store, isTrash){
+    function renderCard(store) {
+      const { badges, img, stars, access } = decorate(store);
       const card = document.createElement("div");
       card.className = "card";
-      card.dataset.id = store.id;
-      card.innerHTML = `<img class="thumb" src="${pickImage(store)}" alt="${esc(store.name||'')}"/>`;
-
-      const content = document.createElement("div");
-      content.className = "card-content";
-      card.appendChild(content);
-
-      const types = badgeList(store);
-      const badges = document.createElement("div");
-      badges.className = "badges";
-      if (store.flagged) badges.innerHTML += `<span class="badge flag">Flagged</span>`;
-      badges.innerHTML += types.map(t=>`<span class="badge ${esc(t)}">${esc(cap(t))}</span>`).join(" ");
-      content.appendChild(badges);
-
-      const name = document.createElement("h3");
-      name.style.margin = ".1rem 0 .25rem";
-      name.textContent = store.name || "Unnamed";
-      content.appendChild(name);
-
-      content.innerHTML += `
-        <div class="small">${esc(store.address||"")}</div>
-        <div class="small">${esc(store.city||"")}${store.city?", ":""}${esc(store.country||"")}</div>
-        ${types.includes("lounge") && store.access ? goldAccess(store.access) : ""}
-        <div class="rating">${stars(store.rating||0)}</div>
-        <div class="small">${store.approved ? "✅ Approved" : (store.status==="deleted" ? "🗑️ In Trash" : "⏳ Pending")}</div>
-        <div class="date">${store.created_at ? new Date(store.created_at).toLocaleDateString() : ""}</div>
-      `;
-
-      const row = document.createElement("div");
-      row.className = "btn-row";
-      if (isTrash){
-        const now = Date.now();
-        const until = store.deleted_until ? new Date(store.deleted_until).getTime() : 0;
-        const diffH = Math.ceil((until - now)/(1000*60*60));
-        const statusHtml = diffH<=0 ? `<div class="trash-status expired">🔥 Expired</div>`
-                                    : `<div class="trash-status time-remaining">⏰ ${diffH}h remaining</div>`;
-        content.innerHTML += statusHtml;
-
-        const restore = btn("Restore","restore",()=>restoreStore(store.id));
-        const perma   = btn("Delete","delete",()=>permanentDelete(store.id));
-        row.appendChild(restore); row.appendChild(perma);
-      } else {
-        const approve = btn("Approve","approve",()=>updateStatus(store.id,true));
-        const flagBtn = btn(store.flagged?"Unflag":"Flag","flag",()=>toggleFlag(store.id, !!store.flagged));
-        const edit    = btn("Edit","",()=>enterEdit(card, store));
-        const del     = btn("Delete","delete",()=>softDelete(store.id));
-        row.append(approve, flagBtn, edit, del);
-      }
-      card.appendChild(row);
+      card.innerHTML = `
+        <img src="${img}" alt="${store.name}">
+        <div class="card-content">
+          <div class="badges">${store.flagged ? '<span class="badge flagged">Flagged</span>' : ''}${badges}</div>
+          <h3>${store.name || "Unnamed"}</h3>
+          <p>${store.address || ""}</p>
+          <p>${store.city || ""}, ${store.country || ""}</p>
+          ${access}
+          <div class="rating">${stars}</div>
+          <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
+          <div class="date">${new Date(store.created_at).toLocaleDateString()}</div>
+        </div>
+        <div class="btn-row">
+          <button class="approve" onclick="updateStatus('${store.id}', ${!store.approved})">${store.approved ? "Unapprove" : "Approve"}</button>
+          <button class="flag" onclick="toggleFlag('${store.id}', ${!!store.flagged})">${store.flagged ? "Unflag" : "Flag"}</button>
+          <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
+        </div>`;
       grid.appendChild(card);
     }
 
-    function btn(text, cls, onClick){
-      const b = document.createElement("button");
-      b.className = `btn ${cls}`; b.textContent = text; b.onclick = onClick; return b;
-    }
-
-    /* ---------- Inline Edit ---------- */
-    function enterEdit(card, store){
-      const content = card.querySelector(".card-content");
-      const row = card.querySelector(".btn-row");
-      content.innerHTML = "";
-
-      const types = badgeList(store);
-      const loungeSelected = types.includes("lounge");
-
-      const title = document.createElement("h3");
-      title.style.margin = ".1rem 0 .5rem";
-      title.textContent = `Edit: ${store.name || "Unnamed"}`;
-      content.appendChild(title);
-
-      const editWrap = document.createElement("div");
-      editWrap.className = "edit-wrap";
-      editWrap.innerHTML = `
-        <div class="form-grid">
-          <div><label>Name</label><input type="text" id="e_name" value="${esc(store.name||"")}"></div>
-          <div><label>Phone</label><input type="tel" id="e_phone" value="${esc(store.phone||"")}"></div>
-          <div class="full"><label>Address</label><input type="text" id="e_address" value="${esc(store.address||"")}"></div>
-          <div><label>City</label><input type="text" id="e_city" value="${esc(store.city||"")}"></div>
-          <div><label>Country</label><input type="text" id="e_country" value="${esc(store.country||"")}"></div>
-          <div class="full"><label>Website</label><input type="url" id="e_website" value="${esc(store.website||"")}"></div>
-          <div class="full">
-            <label>Types</label>
-            <div class="type-group" id="e_types">
-              ${["store","lounge","other"].map(t=>`<span class="type-pill ${types.includes(t)?"active":""}" data-type="${t}">${cap(t)}</span>`).join("")}
-            </div>
-          </div>
-          <div class="full">
-            <label>Rating</label>
-            <div class="stars" id="e_stars">${[1,2,3,4,5].map(i=>`<span class="star ${i <= (store.rating||0) ? "on":""}" data-v="${i}">★</span>`).join("")}</div>
-          </div>
-          <div class="full" id="e_access_wrap" style="${loungeSelected?'':'display:none;'}">
-            <label>Lounge Access</label>
-            <div class="access-group" id="e_access">
-              <label><input type="radio" name="access" value="public" ${store.access==="public"?"checked":""}/> Public</label>
-              <label><input type="radio" name="access" value="temporary" ${store.access==="temporary"?"checked":""}/> Temporary</label>
-              <label><input type="radio" name="access" value="members" ${store.access==="members"?"checked":""}/> Members Only</label>
-            </div>
-          </div>
+    function renderCardTrash(store) {
+      const { badges, img } = decorate(store);
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${img}" alt="${store.name}">
+        <div class="card-content">
+          <div class="badges">${badges}</div>
+          <h3>${store.name}</h3>
+          <p>${store.city}, ${store.country}</p>
+          <div class="status">Deleted until: ${store.deleted_until ? new Date(store.deleted_until).toLocaleString() : "-"}</div>
+        </div>
+        <div class="btn-row">
+          <button class="approve" onclick="restoreStore('${store.id}')">Restore</button>
+          <button class="soft-delete" onclick="permanentDelete('${store.id}')">Delete permanently</button>
         </div>`;
-      content.appendChild(editWrap);
-
-      row.innerHTML = "";
-      const save = btn("Save","save",()=>saveEdit(card, store));
-      const cancel = btn("Cancel","cancel",()=>reloadCurrent());
-      row.append(save,cancel);
-
-      const typeWrap = editWrap.querySelector("#e_types");
-      typeWrap.querySelectorAll(".type-pill").forEach(p=>{
-        p.addEventListener("click", ()=>{
-          p.classList.toggle("active");
-          const hasLounge = Array.from(typeWrap.querySelectorAll(".type-pill.active")).some(x=>x.dataset.type==="lounge");
-          editWrap.querySelector("#e_access_wrap").style.display = hasLounge ? "block":"none";
-        });
-      });
-      editWrap.querySelectorAll("#e_stars .star").forEach(st=>{
-        st.addEventListener("click", ()=>{
-          const v = Number(st.dataset.v);
-          editWrap.querySelectorAll("#e_stars .star").forEach(s2=>s2.classList.toggle("on", Number(s2.dataset.v) <= v));
-        });
-      });
+      grid.appendChild(card);
     }
 
-    async function saveEdit(card, store){
-      const name = card.querySelector("#e_name").value.trim();
-      const phone = card.querySelector("#e_phone").value.trim();
-      const address = card.querySelector("#e_address").value.trim();
-      const city = card.querySelector("#e_city").value.trim();
-      const country = card.querySelector("#e_country").value.trim();
-      const website = card.querySelector("#e_website").value.trim();
-      const types = Array.from(card.querySelectorAll("#e_types .type-pill.active")).map(x=>x.dataset.type);
-      const rating = Array.from(card.querySelectorAll("#e_stars .star.on")).length;
-      const access = card.querySelector("#e_access input[name='access']:checked")?.value || null;
+    /* ---------- ACTIONS (Final Clean Version) ---------- */
 
-      const payload = { name, phone, address, city, country, website, rating, access, types };
-      if (!types.length) { payload.type = store.type || "other"; payload.types = null; }
-
-      const { error } = await supabase.from("stores").update(payload).eq("id", store.id);
-      if (error){ console.error(error); showToast("Update failed.","error"); return; }
-      showToast("Store updated successfully!","success");
-      reloadCurrent();
-    }
-
-    /* ---------- Geo counters helpers ---------- */
-    async function incContinent(continent){
-      if(!continent) return;
-      const { data } = await supabase.from("continents").select("id, store_count").eq("name", continent).maybeSingle();
-      if (data) {
-        await supabase.from("continents").update({ store_count: (data.store_count||0)+1 }).eq("id", data.id);
-      } else {
-        await supabase.from("continents").insert({ name: continent, store_count: 1 });
-      }
-    }
-    async function incCountry(country, continent){
-      if(!country) return;
-      const { data } = await supabase.from("countries").select("id, store_count, continent").eq("name", country).maybeSingle();
-      if (data) {
-        await supabase.from("countries").update({
-          store_count: (data.store_count||0)+1,
-          continent: data.continent || continent || null
-        }).eq("id", data.id);
-      } else {
-        await supabase.from("countries").insert({ name: country, continent: continent || null, store_count: 1 });
-      }
-    }
-    async function incCity(city, country){
-      if(!city || !country) return;
-      const { data } = await supabase.from("cities").select("id, store_count").eq("name", city).eq("country", country).maybeSingle();
-      if (data) {
-        await supabase.from("cities").update({ store_count: (data.store_count||0)+1 }).eq("id", data.id);
-      } else {
-        await supabase.from("cities").insert({ name: city, country, store_count: 1 });
-      }
-    }
-
-    /* ---------- Actions ---------- */
     async function updateStatus(id, approved) {
-      const { error } = await supabase
-        .from("stores")
-        .update({ approved, approved_at: new Date().toISOString(), status: approved ? "approved" : "pending" })
-        .eq("id", id);
-
-      if (error) {
-        console.error(error);
-        showToast("Failed to update status", "error");
-      } else {
-        if (approved){
-          // fetch store to get geo fields (continent/country/city)
-          const { data: s } = await supabase.from("stores").select("continent,country,city").eq("id", id).single();
-          if (s){
-            await incContinent(s.continent);
-            await incCountry(s.country, s.continent);
-            await incCity(s.city, s.country);
-          }
-        }
-        showToast(approved ? "Approved & linked to region" : "Status updated", "success");
-        setTimeout(()=>reloadCurrent(), 450);
+      try {
+        const { data: store, error: fetchError } = await supabase.from("stores").select("id, country, continent").eq("id", id).single();
+        if (fetchError) throw fetchError;
+        const { error: updateError } = await supabase.from("stores").update({
+          approved,
+          status: approved ? "approved" : "pending",
+          approved_at: approved ? new Date().toISOString() : null
+        }).eq("id", id);
+        if (updateError) throw updateError;
+        await updateStoreCounts(store.country, store.continent, approved ? +1 : -1);
+        showToast(approved ? "✅ Store approved" : "⏳ Approval removed", "success");
+        reloadCurrent();
+      } catch (err) {
+        console.error("❌ updateStatus error:", err);
+        showToast(`Failed to update status: ${err.message}`, "error");
       }
     }
 
-    async function toggleFlag(id, flagged){
-      const { error } = await supabase.from("stores").update({ flagged: !flagged }).eq("id", id);
-      if (error) { console.error(error); showToast("Failed to toggle flag","error"); }
-      else { showToast(flagged?"Unflagged":"Flagged","success"); setTimeout(()=>reloadCurrent(), 500); }
+    async function updateStoreCounts(country, continent, delta) {
+      try {
+        if (!country || !continent) return;
+        await supabase.rpc("increment_store_count", { target_table:"country_store_counts", target_key:"country", target_value:country, delta });
+        await supabase.rpc("increment_store_count", { target_table:"continent_store_counts", target_key:"continent", target_value:continent, delta });
+        console.log(`✅ Counts updated for ${country}`);
+      } catch (err) {
+        console.error("❌ updateStoreCounts error:", err);
+      }
     }
 
-    async function softDelete(id){
-      const deletedUntil = new Date(Date.now() + 48*60*60*1000).toISOString();
-      const { error } = await supabase.from("stores").update({
-        status:"deleted", deleted:true, deleted_until:deletedUntil || null
-      }).eq("id", id);
-      if (error) { console.error(error); showToast("Failed to move to Trash","error"); }
-      else { showToast("Moved to Trash (48h restore window)","success"); setTimeout(()=>reloadCurrent(), 400); }
-    }
-    async function restoreStore(id){
-      const { error } = await supabase.from("stores").update({ status:"pending", deleted:false, deleted_until:null }).eq("id", id);
-      if (error) { console.error(error); showToast("Failed to restore","error"); }
-      else { showToast("Restored successfully","success"); setTimeout(()=>route("home"), 400); }
-    }
-    async function permanentDelete(id){
-      const { error } = await supabase.from("stores").delete().eq("id", id);
-      if (error) { console.error(error); showToast("Failed to delete permanently","error"); }
-      else { showToast("Store permanently deleted","success"); setTimeout(()=>reloadCurrent(), 400); }
-    }
-    function reloadCurrent(){ route(currentView); }
-
-    /* ---------- Add Store Modal (frontend parity) ---------- */
-    const addBackdrop = document.getElementById("addBackdrop");
-    const openAddBtn  = document.getElementById("openAddBtn");
-    const closeAddBtn = document.getElementById("closeAddBtn");
-    const cancelAddBtn= document.getElementById("cancelAddBtn");
-    const saveAddBtn  = document.getElementById("saveAddBtn");
-
-    let as_selected = { lat:null,lng:null,photo:null,continent:null };
-    let as_rating = 0;
-
-    function openAddModal(){ addBackdrop.style.display="flex"; }
-    function closeAddModal(){
-      addBackdrop.style.display="none";
-      // reset
-      ["as_address","as_name","as_addr","as_city","as_country","as_phone","as_website"].forEach(id=>document.getElementById(id).value="");
-      document.querySelectorAll("#as_types .type-pill").forEach(p=>p.classList.remove("active"));
-      document.querySelectorAll("#as_stars .star").forEach(s=>s.classList.remove("on"));
-      document.getElementById("as_access_wrap").style.display="none";
-      document.getElementById("as_preview").innerHTML="Will show selected photo or default based on type.";
-      as_selected = { lat:null,lng:null,photo:null,continent:null }; as_rating=0;
+    async function toggleFlag(id, flagged) {
+      try {
+        const { error } = await supabase.from("stores").update({ flagged: !flagged }).eq("id", id);
+        if (error) throw error;
+        showToast(flagged ? "🚫 Unflagged" : "🚩 Flagged", "success");
+        reloadCurrent();
+      } catch (err) {
+        console.error("❌ toggleFlag error:", err);
+        showToast("Failed to toggle flag", "error");
+      }
     }
 
-    openAddBtn.addEventListener("click", openAddModal);
-    closeAddBtn.addEventListener("click", closeAddModal);
-    cancelAddBtn.addEventListener("click", closeAddModal);
-
-    // types toggle
-    document.getElementById("as_types").addEventListener("click",(e)=>{
-      const pill = e.target.closest(".type-pill"); if(!pill) return;
-      pill.classList.toggle("active");
-      const hasLounge = Array.from(document.querySelectorAll("#as_types .type-pill.active")).some(x=>x.dataset.type==="lounge");
-      document.getElementById("as_access_wrap").style.display = hasLounge ? "block":"none";
-      updateAddPreview();
-    });
-
-    // stars
-    document.querySelectorAll("#as_stars .star").forEach(st=>{
-      st.addEventListener("click", ()=>{
-        const v = Number(st.dataset.v); as_rating = v;
-        document.querySelectorAll("#as_stars .star").forEach(s2=>s2.classList.toggle("on", Number(s2.dataset.v) <= v));
-      });
-    });
-
-    function updateAddPreview(){
-      const types = Array.from(document.querySelectorAll("#as_types .type-pill.active")).map(x=>x.dataset.type);
-      let src = as_selected.photo || (types.includes("store") ? "images/store.jpg" : types.includes("lounge") ? "images/lounge.jpg" : "images/cafe.jpg");
-      document.getElementById("as_preview").innerHTML = `<img src="${src}" alt="preview" style="max-width:100%;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.15)">`;
+    async function softDelete(id) {
+      try {
+        const deletedUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+        const { error } = await supabase.from("stores").update({ status:"deleted", deleted_until:deletedUntil }).eq("id", id);
+        if (error) throw error;
+        showToast("🗑️ Moved to Trash (48h)", "success");
+        reloadCurrent();
+      } catch (err) {
+        console.error("❌ softDelete error:", err);
+        showToast("Failed to move to Trash", "error");
+      }
     }
 
-    // Save new store
-    saveAddBtn.addEventListener("click", saveNewStore);
-    async function saveNewStore(){
-      const name = document.getElementById("as_name").value.trim();
-      const address = document.getElementById("as_addr").value.trim();
-      const city = document.getElementById("as_city").value.trim();
-      const country = document.getElementById("as_country").value.trim();
-      const phone = document.getElementById("as_phone").value.trim();
-      const website = document.getElementById("as_website").value.trim();
-      const types = Array.from(document.querySelectorAll("#as_types .type-pill.active")).map(x=>x.dataset.type);
-      const access = document.querySelector("#as_access input[name='as_access']:checked")?.value || null;
-
-      if (!types.length){ showToast("Please select at least one type","error"); return; }
-      if (!name || !address || !city || !country){ showToast("Please fill required fields","error"); return; }
-
-      const payload = {
-        name, address, city, country, phone, website, access,
-        types, rating: as_rating, approved:false, status:"pending",
-        lat: as_selected.lat, lng: as_selected.lng,
-        photo_reference: as_selected.photo,
-        continent: as_selected.continent || null
-      };
-
-      const { error } = await supabase.from("stores").insert([payload]);
-      if (error){ console.error(error); showToast("Failed to add store","error"); return; }
-
-      showToast("Store added successfully!","success");
-      closeAddModal();
-      reloadCurrent();
+    async function restoreStore(id) {
+      try {
+        const { error } = await supabase.from("stores").update({ status:"pending", deleted_until:null }).eq("id", id);
+        if (error) throw error;
+        showToast("♻️ Store restored", "success");
+        route("home");
+      } catch (err) {
+        console.error("❌ restoreStore error:", err);
+        showToast("Failed to restore", "error");
+      }
     }
 
-    /* ---------- Google Places Autocomplete (modal) ---------- */
-    window.initAddAutocomplete = function(){
-      const input = document.getElementById("as_address");
-      const ac = new google.maps.places.Autocomplete(input,{
-        fields:["address_components","geometry","name","formatted_address","international_phone_number","website","photos","place_id"],
-      });
-      ac.addListener("place_changed", ()=>{
-        const p = ac.getPlace(); if(!p) return;
-        document.getElementById("as_name").value = p.name || "";
-        document.getElementById("as_addr").value = p.formatted_address || "";
-        const comps = p.address_components || [];
-        let city = comps.find(c=>c.types.includes("locality")) || comps.find(c=>c.types.includes("postal_town")) || comps.find(c=>c.types.includes("administrative_area_level_2"));
-        let country = comps.find(c=>c.types.includes("country"));
-        document.getElementById("as_city").value = city?.long_name || "";
-        document.getElementById("as_country").value = country?.long_name || "";
-        document.getElementById("as_phone").value = p.international_phone_number || "";
-        document.getElementById("as_website").value = p.website || "";
-        as_selected = {
-          lat: p.geometry?.location?.lat() || null,
-          lng: p.geometry?.location?.lng() || null,
-          photo: (p.photos && p.photos.length>0) ? p.photos[0].getUrl({maxWidth:800}) : null,
-          continent: guessContinent(country?.short_name || country?.long_name || "")
-        };
-        updateAddPreview();
-      });
-    };
-
-    // Very light continent guesser (alpha-2 → continent) – can be extended
-    function guessContinent(countryCodeOrName){
-      const m = {
-        // EU selection (examples)
-        SE:"Europe", NO:"Europe", DK:"Europe", FI:"Europe", DE:"Europe", FR:"Europe", ES:"Europe", IT:"Europe", NL:"Europe", BE:"Europe", PT:"Europe", PL:"Europe", IE:"Europe", GB:"Europe",
-        US:"North America", CA:"North America", MX:"North America",
-        BR:"South America", AR:"South America", CL:"South America", CO:"South America", PE:"South America",
-        ZA:"Africa", NG:"Africa", EG:"Africa", MA:"Africa", KE:"Africa",
-        CN:"Asia", JP:"Asia", KR:"Asia", IN:"Asia", SG:"Asia", TH:"Asia", AE:"Asia", SA:"Asia", TR:"Asia",
-        AU:"Oceania", NZ:"Oceania"
-      };
-      if (!countryCodeOrName) return null;
-      const up = countryCodeOrName.toUpperCase();
-      if (m[up]) return m[up];
-      // fallback best-effort by name
-      const name = countryCodeOrName.toLowerCase();
-      if (name.includes("united states") || name==="usa") return "North America";
-      if (name.includes("canada")) return "North America";
-      if (name.includes("sweden") || name.includes("norway") || name.includes("germany") || name.includes("france") || name.includes("spain") || name.includes("italy")) return "Europe";
-      if (name.includes("brazil") || name.includes("argentina") || name.includes("chile")) return "South America";
-      if (name.includes("south africa") || name.includes("nigeria") || name.includes("egypt") || name.includes("morocco") || name.includes("kenya")) return "Africa";
-      if (name.includes("china") || name.includes("japan") || name.includes("india") || name.includes("singapore") || name.includes("thailand") || name.includes("turkey") || name.includes("saudi")) return "Asia";
-      if (name.includes("australia") || name.includes("new zealand")) return "Oceania";
-      return null;
+    async function permanentDelete(id) {
+      try {
+        const { error } = await supabase.from("stores").delete().eq("id", id);
+        if (error) throw error;
+        showToast("💀 Permanently deleted", "success");
+        reloadCurrent();
+      } catch (err) {
+        console.error("❌ permanentDelete error:", err);
+        showToast("Failed to delete permanently", "error");
+      }
     }
-  </script>
 
-  <!-- Google Maps Places (for Add Store modal) -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAddAutocomplete" async defer></script>
+    function reloadCurrent() { route(currentView); }
 
-  <script>
-    // Simple non-module handlers for modal buttons (kept outside module)
-    const addBackdrop = document.getElementById("addBackdrop");
-    document.getElementById("openAddBtn").addEventListener("click", ()=> addBackdrop.style.display="flex");
-    document.getElementById("closeAddBtn").addEventListener("click", ()=> addBackdrop.style.display="none");
-    document.getElementById("cancelAddBtn").addEventListener("click", ()=> addBackdrop.style.display="none");
+    function showToast(msg,type="info") {
+      const c=document.getElementById("toast-container");
+      const t=document.createElement("div");
+      t.className=`toast ${type}`;
+      t.textContent=msg;
+      c.appendChild(t);
+      setTimeout(()=>t.remove(),3000);
+    }
+
+    // Init
+    route("home");
   </script>
 </body>
 </html>
