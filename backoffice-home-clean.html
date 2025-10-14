@@ -1,0 +1,146 @@
+<!-- Backoffice Home CLEAN 2025-10-14 | Stable Base -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Backoffice — Home Clean</title>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
+  <style>
+    body{font-family:Arial, sans-serif;background:#f5f6f8;margin:0;padding:2rem;color:#1f2937}
+    h1{text-align:center;color:#2f78c4;margin-bottom:1.5rem}
+    .top-bar{display:flex;justify-content:center;flex-wrap:wrap;gap:.6rem;margin-bottom:1.5rem}
+    .top-bar button{background:#2f78c4;color:#fff;border:none;padding:.6rem 1rem;border-radius:8px;cursor:pointer;font-weight:bold}
+    .top-bar button:hover{background:#2466a8}
+    .top-bar .secondary{background:#fff;color:#2f78c4;border:2px solid #2f78c4}
+    .top-bar .secondary:hover{background:#2f78c4;color:#fff}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
+    .card{background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1);overflow:hidden;display:flex;flex-direction:column}
+    .card img{width:100%;height:160px;object-fit:cover}
+    .card-content{padding:1rem;flex:1}
+    .badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem}
+    .badge{padding:.25rem .7rem;border-radius:12px;font-size:.8rem;font-weight:bold;color:#fff}
+    .store{background:#007bff}.lounge{background:#28a745}.other{background:#ff8c00}.flagged{background:#dc3545!important}
+    .rating{color:#2f78c4;margin-top:.3rem}.status{font-size:.85rem;color:#666;margin-top:.3rem}.date{font-size:.75rem;color:#999;margin-top:.3rem}
+    .btn-row{display:flex;gap:.4rem;padding:0 1rem 1rem}
+    .btn-row button{flex:1;padding:.55rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
+    .approve{background:#28a745;color:#fff}.approve:hover{background:#218838}
+    .flag{background:#ff8c00;color:#fff}.flag:hover{background:#e67e00}
+    .soft-delete{background:#dc3545;color:#fff}.soft-delete:hover{background:#c82333}
+    .restore{background:#28a745;color:#fff}.restore:hover{background:#218838}
+    .perma-delete{background:#dc3545;color:#fff}.perma-delete:hover{background:#c82333}
+    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999}
+    .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.95}
+    .toast.success{background:#28a745}.toast.error{background:#dc3545}.toast.info{background:#2f78c4}
+  </style>
+</head>
+<body>
+  <h1>Backoffice Home (Clean)</h1>
+
+  <div class="top-bar">
+    <button class="secondary" onclick="route('home')">Home</button>
+    <button onclick="route('approved')">Approved</button>
+    <button onclick="route('pending')">Pending</button>
+    <button onclick="route('flagged')">Flagged</button>
+    <button onclick="route('trash')">Trash</button>
+    <button class="secondary" onclick="window.location.href='backoffice-business-final.html'">Business</button>
+    <button class="secondary" onclick="window.location.href='add-store.html'">Add Store</button>
+  </div>
+
+  <div id="metaRow" style="text-align:center;margin-bottom:1rem;color:#666;"></div>
+  <div class="grid" id="storeGrid"></div>
+  <div id="toast-container"></div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+    const supabase = createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    const grid = document.getElementById("storeGrid");
+    const metaRow = document.getElementById("metaRow");
+    let currentView = "home";
+
+    window.route = async function(view){
+      currentView = view;
+      metaRow.textContent = "";
+      grid.innerHTML = "";
+      console.log(`📦 Loading view: ${view}`);
+
+      let query = supabase.from("stores").select("*").order("created_at",{ascending:false});
+
+      if(view==="approved") query = query.eq("approved",true);
+      if(view==="pending") query = query.eq("approved",false);
+      if(view==="flagged") query = query.eq("flagged",true);
+      if(view==="trash") query = query.eq("status","deleted");
+      if(view==="home") query = query.or("status.is.null,status.neq.deleted");
+
+      const { data, error } = await query;
+      if(error){ console.error(error); grid.innerHTML=`<p>Error loading data</p>`; return; }
+      if(!data || data.length===0){ grid.innerHTML=`<p>No stores found</p>`; return; }
+
+      metaRow.textContent = `${data.length} results`;
+      data.forEach(renderCard);
+    };
+
+    function renderCard(store){
+      const card = document.createElement("div");
+      card.className="card";
+      const badge = store.flagged ? `<span class='badge flagged'>Flagged</span>` : `<span class='badge ${store.type||'other'}'>${store.type||'Other'}</span>`;
+      card.innerHTML=`
+        <img src="${store.photo_reference||'images/store.jpg'}" alt="${store.name}">
+        <div class="card-content">
+          <div class="badges">${badge}</div>
+          <h3>${store.name||'Unnamed'}</h3>
+          <p>${store.city||''}, ${store.country||''}</p>
+          <div class="rating">${store.rating ? "★".repeat(store.rating)+"☆".repeat(5-store.rating) : "☆☆☆☆☆"}</div>
+          <div class="status">${store.approved?"✅ Approved":"⏳ Pending"}</div>
+          <div class="date">${new Date(store.created_at).toLocaleDateString()}</div>
+        </div>
+        <div class="btn-row">
+          <button class="approve" onclick="updateStatus('${store.id}', ${!store.approved})">${store.approved?"Unapprove":"Approve"}</button>
+          <button class="flag" onclick="toggleFlag('${store.id}', ${!!store.flagged})">${store.flagged?"Unflag":"Flag"}</button>
+          <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
+        </div>
+      `;
+      grid.appendChild(card);
+    }
+
+    // ✅ Working Actions
+    window.updateStatus = async function(id, approved){
+      console.log("🔹 updateStatus triggered:", id, approved);
+      const { error } = await supabase.from("stores").update({ approved }).eq("id", id);
+      if(error){ console.error(error); showToast("Failed to update status","error"); }
+      else{ showToast("Status updated","success"); route(currentView); }
+    };
+
+    window.toggleFlag = async function(id, flagged){
+      console.log("🔹 toggleFlag triggered:", id, flagged);
+      const { error } = await supabase.from("stores").update({ flagged: !flagged }).eq("id", id);
+      if(error){ console.error(error); showToast("Failed to toggle flag","error"); }
+      else{ showToast(flagged?"Unflagged":"Flagged","success"); route(currentView); }
+    };
+
+    window.softDelete = async function(id){
+      console.log("🔹 softDelete triggered:", id);
+      const deletedUntil = new Date(Date.now()+48*60*60*1000).toISOString();
+      const { error } = await supabase.from("stores").update({ status:"deleted", deleted_until:deletedUntil }).eq("id", id);
+      if(error){ console.error(error); showToast("Failed to move to Trash","error"); }
+      else{ showToast("Moved to Trash","success"); route(currentView); }
+    };
+
+    function showToast(msg,type="success"){
+      const c=document.getElementById("toast-container");
+      const t=document.createElement("div");
+      t.className=`toast ${type}`;
+      t.textContent=msg;
+      c.appendChild(t);
+      setTimeout(()=>t.remove(),3000);
+    }
+
+    route("home");
+  </script>
+</body>
+</html>
