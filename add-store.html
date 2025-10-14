@@ -1,96 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Add Store</title>
-  <link rel="stylesheet" href="css/add-store.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Store — Backoffice</title>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
+  <style>
+    :root {
+      --primary:#2f78c4;
+      --primary-dark:#2466a8;
+      --success:#1d8348;
+      --danger:#c0392b;
+      --bg:#f5f6f8;
+      --card:#ffffff;
+      --text:#1f2937;
+      --border:#e5e7eb;
+    }
+
+    *{box-sizing:border-box}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text);}
+    h1{text-align:center;margin-bottom:1.5rem;color:var(--primary-dark);}
+
+    form{
+      max-width:700px;margin:0 auto;background:var(--card);padding:1.5rem;
+      border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.1);
+    }
+    label{font-weight:bold;display:block;margin-top:1rem;font-size:.9rem;}
+    input,select,textarea{
+      width:100%;padding:.6rem;border:1.4px solid var(--border);border-radius:8px;
+      font-size:.9rem;margin-top:.4rem;
+    }
+    textarea{resize:vertical;min-height:80px;}
+    .inline{display:flex;gap:.8rem;}
+    .inline > div{flex:1;}
+    .actions{display:flex;justify-content:space-between;gap:.6rem;margin-top:1.5rem;}
+    button{
+      flex:1;padding:.75rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold;
+      font-size:.95rem;
+    }
+    button.submit{background:var(--success);color:#fff;}
+    button.cancel{background:#fff;color:var(--primary);border:2px solid var(--primary);}
+    button.submit:hover{background:#166f3e;}
+    button.cancel:hover{background:var(--primary-dark);color:#fff;}
+
+    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999;}
+    .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+    .toast.success{background:#28a745;}
+    .toast.error{background:#dc3545;}
+    .toast.info{background:#2f78c4;}
+  </style>
 </head>
 <body>
-  <div class="form-wrapper">
-    <!-- Huvudrubrik -->
-    <h1 class="gold-heading">Add Store / Lounge / Other</h1>
+  <h1>Add Store</h1>
 
-    <!-- Add with Google -->
-    <h2 class="black-heading">Add with Google</h2>
-    <div class="form-section">
-      <gmpx-place-autocomplete id="address" apikey="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"></gmpx-place-autocomplete>
+  <form id="storeForm">
+    <div class="inline">
+      <div>
+        <label>Store name *</label>
+        <input type="text" name="name" required placeholder="e.g. The Cigar Lounge"/>
+      </div>
+      <div>
+        <label>Type *</label>
+        <select name="type" required>
+          <option value="store">Store</option>
+          <option value="lounge">Lounge</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
     </div>
 
-    <!-- Namn -->
-    <div class="form-section">
-      <label for="name">Store Name</label>
-      <input type="text" id="name" placeholder="Enter store name">
+    <label>Address</label>
+    <input type="text" name="address" placeholder="Street and number"/>
+
+    <div class="inline">
+      <div>
+        <label>City *</label>
+        <input type="text" name="city" required placeholder="City name"/>
+      </div>
+      <div>
+        <label>Country *</label>
+        <input type="text" name="country" required placeholder="Country"/>
+      </div>
     </div>
 
-    <!-- Stad -->
-    <div class="form-section">
-      <label for="city">City</label>
-      <input type="text" id="city" placeholder="Enter city">
+    <div class="inline">
+      <div>
+        <label>Continent *</label>
+        <select name="continent" required>
+          <option value="">Select continent</option>
+          <option value="Europe">Europe</option>
+          <option value="Asia">Asia</option>
+          <option value="Africa">Africa</option>
+          <option value="North America">North America</option>
+          <option value="South America">South America</option>
+          <option value="Oceania">Oceania</option>
+        </select>
+      </div>
+      <div>
+        <label>Access</label>
+        <select name="access">
+          <option value="">—</option>
+          <option value="public">Public</option>
+          <option value="temporary">Temporary membership</option>
+          <option value="members">Members only</option>
+        </select>
+      </div>
     </div>
 
-    <!-- Land -->
-    <div class="form-section">
-      <label for="country">Country</label>
-      <input type="text" id="country" placeholder="Enter country">
+    <div class="inline">
+      <div>
+        <label>Latitude</label>
+        <input type="number" step="any" name="latitude" placeholder="e.g. 59.33258"/>
+      </div>
+      <div>
+        <label>Longitude</label>
+        <input type="number" step="any" name="longitude" placeholder="e.g. 18.0649"/>
+      </div>
     </div>
 
-    <!-- Telefon -->
-    <div class="form-section">
-      <label for="phone">Phone</label>
-      <input type="text" id="phone" placeholder="Enter phone number">
+    <label>Description</label>
+    <textarea name="description" placeholder="Short description..."></textarea>
+
+    <label>Website</label>
+    <input type="url" name="website" placeholder="https://"/>
+
+    <label>Phone</label>
+    <input type="text" name="phone" placeholder="+46 70 123 45 67"/>
+
+    <div class="actions">
+      <button type="button" class="cancel" onclick="window.location.href='backoffice-home-final.html'">Cancel</button>
+      <button type="submit" class="submit">Add Store</button>
     </div>
+  </form>
 
-    <!-- Website -->
-    <div class="form-section">
-      <label for="website">Website</label>
-      <input type="text" id="website" placeholder="Enter website URL">
-    </div>
-
-    <!-- Store type badges -->
-    <h2 class="gold-heading">Store Type</h2>
-    <div class="form-section radio-group">
-      <label>
-        <input type="radio" name="store-type" value="store">
-        <span class="badge store">Store</span>
-      </label>
-      <label>
-        <input type="radio" name="store-type" value="lounge">
-        <span class="badge lounge">Lounge</span>
-      </label>
-      <label>
-        <input type="radio" name="store-type" value="other">
-        <span class="badge other">Other</span>
-      </label>
-    </div>
-
-    <!-- Rating -->
-    <h2 class="gold-heading">Rating</h2>
-    <div class="form-section rating" id="rating"></div>
-
-    <!-- Preview -->
-    <h2 class="gold-heading">Preview</h2>
-    <div class="form-section" id="preview"></div>
-
-    <!-- Submit -->
-    <button id="submitBtn">Add Store</button>
-  </div>
-
-  <!-- Toast container -->
   <div id="toast-container"></div>
 
-  <!-- Scripts -->
-  <script src="https://unpkg.com/@googlemaps/extended-component-library"></script>
   <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+    const supabase = createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
 
-    // Initiera Supabase
-    const supabase = createClient("https://gbxxoeplkzbhsvagnfsr.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4");
+    const form = document.getElementById("storeForm");
 
-    // Exportera till global scope så add-store.js kan använda det
-    window.supabase = supabase;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = Object.fromEntries(new FormData(form).entries());
+      formData.rating = 0;
+      formData.approved = false;
+      formData.flagged = false;
+      formData.deleted = false;
+      formData.created_at = new Date().toISOString();
 
-    // Importera din egen JS
-    import "./js/add-store.js";
+      try {
+        const { error } = await supabase.from("stores").insert([formData]);
+        if (error) throw error;
+        showToast("✅ Store added successfully", "success");
+        setTimeout(() => window.location.href = "backoffice-home-final.html", 1000);
+      } catch (err) {
+        console.error("❌ Insert error:", err);
+        showToast("Failed to add store: " + err.message, "error");
+      }
+    });
+
+    function showToast(msg,type="info"){
+      const c=document.getElementById("toast-container");
+      const t=document.createElement("div");
+      t.className=`toast ${type}`;
+      t.textContent=msg;
+      c.appendChild(t);
+      setTimeout(()=>t.remove(),3000);
+    }
   </script>
 </body>
 </html>
