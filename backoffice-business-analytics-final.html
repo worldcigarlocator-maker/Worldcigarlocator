@@ -1,62 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Backoffice — Business Analytics (Final)</title>
   <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
-    :root { --gold:#b8860b; --gold-dark:#a37408; --bg:#f8f8f8; --card:#ffffff; --muted:#666; --text:#333; }
+    :root{
+      /* Excel-inspired palette */
+      --primary:#2f78c4;      /* buttons/lines */
+      --primary-dark:#2466a8;
+      --accent:#1d8348;       /* active KPI green */
+      --accent-light:#28a745;
+      --bg:#f8f8f8;
+      --card:#ffffff;
+      --text:#222;
+      --muted:#666;
+      --border:#e5e5e5;
+    }
     *{box-sizing:border-box}
-    body{font-family:Arial, sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text)}
-    h1{color:var(--gold);text-align:center;margin:0 0 1.25rem}
-    nav{display:flex;justify-content:center;margin:0 0 1.5rem}
+    /* 35% compact: base font down from ~16px → ~10.5px */
+    body{font-family:Arial, sans-serif;background:var(--bg);margin:0;padding:1.3rem;color:var(--text);font-size:11px;}
+
+    h1{color:#2b2b2b;text-align:center;margin:0 0 .9rem;font-size:1.45rem}
+
+    /* Top bar with Home + Search */
+    nav{display:flex;justify-content:center;align-items:center;gap:.45rem;flex-wrap:wrap;margin:0 0 .9rem}
     nav a{
-      background:#fff;border:2px solid var(--gold);color:var(--gold);padding:.55rem .9rem;
-      border-radius:10px;font-weight:700;cursor:pointer;text-decoration:none
+      background:#fff;border:1.6px solid var(--primary);color:var(--primary);
+      padding:.35rem .55rem;border-radius:8px;font-weight:700;text-decoration:none;font-size:.95rem
     }
-    nav a:hover{background:var(--gold);color:#fff}
-
-    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1.1rem;margin-bottom:1.25rem}
-    .stat-card{background:var(--card);border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:1rem;text-align:center;cursor:pointer;transition:transform .18s, box-shadow .18s, background .18s, color .18s}
-    .stat-card:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(184,134,11,.25)}
-    .stat-card.active{background:var(--gold);color:#fff}
-    .stat-card h2{color:inherit;font-size:2rem;margin:.1rem 0 .25rem}
-    .stat-card p{margin:0;color:inherit;opacity:.85;font-size:1rem}
-
-    .panel{background:var(--card);border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:1rem;margin-bottom:1rem}
-    .row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center}
-    .btn{background:#fff;border:2px solid var(--gold);color:var(--gold);padding:.5rem .8rem;border-radius:10px;font-weight:700;cursor:pointer}
-    .btn:hover{background:var(--gold);color:#fff}
-    .btn.active{background:var(--gold);color:#fff}
-    .select{border:2px solid var(--gold);border-radius:10px;padding:.45rem .6rem;color:var(--gold);background:#fff;font-weight:700}
-    .chart-title{color:var(--gold-dark);font-weight:700;text-align:center;margin:.75rem 0 0}
-    .chart-wrap{position:relative;padding:1rem}
-    .fade{opacity:1;transition:opacity .4s ease}
-    .fade.hidden{opacity:0}
-
-    .controls-bar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;margin:.5rem 0 0}
+    nav a:hover{background:var(--primary);color:#fff}
     #searchInput{
-      width:100%;max-width:320px;padding:.6rem 1rem;border:2px solid var(--gold);
-      border-radius:10px;font-size:1rem
+      padding:.38rem .6rem;border:1.6px solid var(--primary);border-radius:8px;font-size:.95rem;max-width:280px;width:100%;
     }
-    #searchInput:focus{outline:none;box-shadow:0 0 6px rgba(184,134,11,.35)}
+    #searchInput:focus{outline:none;box-shadow:0 0 4px rgba(47,120,196,.35)}
 
-    .table-wrap{background:var(--card);border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:hidden}
+    /* KPI grid — compact */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.7rem;margin-bottom:.9rem}
+    .stat-card{
+      background:var(--card);border:1px solid var(--border);border-radius:10px;
+      box-shadow:0 1px 4px rgba(0,0,0,.06);padding:.7rem;text-align:center;cursor:pointer;
+      transition:transform .12s, box-shadow .12s, background .12s, color .12s
+    }
+    .stat-card:hover{transform:translateY(-2px);box-shadow:0 3px 10px rgba(0,0,0,.1)}
+    .stat-card.active{background:var(--accent-light);color:#fff;border-color:transparent}
+    .stat-card h2{margin:.05rem 0 .15rem;font-size:1.45rem;color:inherit}
+    .stat-card p{margin:0;color:inherit;opacity:.9;font-size:.95rem}
+
+    /* Panels and controls */
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:.7rem;margin-bottom:.7rem}
+    .row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;justify-content:center}
+
+    .btn{
+      background:#fff;border:1.6px solid var(--primary);color:var(--primary);
+      padding:.38rem .6rem;border-radius:8px;font-weight:700;cursor:pointer;font-size:.95rem
+    }
+    .btn:hover{background:var(--primary);color:#fff}
+    .btn.active{background:var(--primary);color:#fff}
+
+    /* Primary action: Show/Hide in blue block style */
+    #toggleCharts{
+      background:var(--primary);color:#fff;border:none;
+      padding:.42rem .7rem;border-radius:8px;font-weight:800
+    }
+    #toggleCharts:hover{background:var(--primary-dark);color:#fff}
+
+    .select{
+      border:1.6px solid var(--primary);border-radius:8px;padding:.35rem .55rem;
+      color:var(--primary);background:#fff;font-weight:700;font-size:.95rem
+    }
+
+    .chart-title{color:#2b2b2b;font-weight:800;text-align:center;margin:.45rem 0 0;font-size:1.05rem}
+    .chart-wrap{position:relative;padding:.6rem}
+    /* No animations → static */
+
+    /* Table */
+    .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden}
     table{width:100%;border-collapse:collapse}
-    th,td{padding:.95rem 1rem;border-bottom:1px solid #eee;text-align:left}
-    th{background:#f3f3f3;color:#444;cursor:pointer;user-select:none}
-    tr:hover{background:#faf7f0}
+    th,td{padding:.6rem .7rem;border-bottom:1px solid #eee;text-align:left;font-size:.95rem}
+    th{background:#f3f3f3;color:#333;cursor:pointer;user-select:none}
+    tr:hover{background:#f9fafb}
     td.num{text-align:center}
     .status{font-weight:700}
-    .approved{color:#28a745}.flagged{color:#dc3545}.pending{color:#a37408}
+    .approved{color:#1d8348}.flagged{color:#c0392b}.pending{color:#bd8b00}
 
-    .export-bar{display:flex;flex-wrap:wrap;gap:.75rem;margin:1rem 0;justify-content:center}
-    .export-bar button{background:var(--gold);color:#fff;border:none;padding:.6rem .9rem;border-radius:10px;font-weight:700;cursor:pointer}
-    .export-bar button.secondary{background:#fff;color:var(--gold);border:2px solid var(--gold)}
-    .export-bar button:hover{opacity:.92}
+    /* Export bar */
+    .export-bar{display:flex;flex-wrap:wrap;gap:.5rem;margin:.7rem 0;justify-content:center}
+    .export-bar button{
+      background:var(--primary);color:#fff;border:none;padding:.42rem .7rem;border-radius:8px;font-weight:700;cursor:pointer;font-size:.95rem
+    }
+    .export-bar button.secondary{background:#fff;color:var(--primary);border:1.6px solid var(--primary)}
+    .export-bar button:hover{opacity:.96}
   </style>
 </head>
 <body>
@@ -64,44 +101,42 @@
 
   <nav>
     <a href="backoffice-home.html">Home</a>
+    <input id="searchInput" placeholder="Search by name, city or country..." />
   </nav>
 
+  <!-- KPI CARDS (clickable filters/sorts) -->
   <div class="stats-grid" id="kpiGrid">
     <div class="stat-card" data-kpi="all"><h2 id="kpiTotal">–</h2><p>Total Locations</p></div>
     <div class="stat-card" data-kpi="approved"><h2 id="kpiApproved">–</h2><p>Approved</p></div>
     <div class="stat-card" data-kpi="pending"><h2 id="kpiPending">–</h2><p>Pending</p></div>
     <div class="stat-card" data-kpi="flagged"><h2 id="kpiFlagged">–</h2><p>Flagged</p></div>
     <div class="stat-card" data-kpi="deleted"><h2 id="kpiDeleted">–</h2><p>Deleted</p></div>
-    <div class="stat-card" data-kpi="views"><h2 id="kpiViews">–</h2><p>Most Views</p></div>
-    <div class="stat-card" data-kpi="clicks"><h2 id="kpiClicks">–</h2><p>Most Clicks</p></div>
-    <div class="stat-card" data-kpi="ctr"><h2 id="kpiCtr">–</h2><p>Top CTR</p></div>
+    <div class="stat-card" data-kpi="views"><h2 id="kpiViews">Top</h2><p>Most Views</p></div>
+    <div class="stat-card" data-kpi="clicks"><h2 id="kpiClicks">Top</h2><p>Most Clicks</p></div>
+    <div class="stat-card" data-kpi="ctr"><h2 id="kpiCtr">Top</h2><p>Top CTR</p></div>
     <div class="stat-card" data-kpi="newmonth"><h2 id="kpiNewMonth">–</h2><p>New This Month</p></div>
   </div>
 
+  <!-- CHARTS PANEL -->
   <div class="panel">
-    <div class="row" style="margin-bottom:.5rem">
-      <button class="btn active" id="btnCountry">Performance per Country</button>
-      <button class="btn" id="btnType">Performance per Type</button>
-      <button class="btn" id="btnNewCards">New Cards per Country</button>
+    <div class="row" style="margin-bottom:.4rem">
+      <button class="btn" id="toggleCharts">Show Charts</button>
       <select class="select" id="periodSelect">
         <option value="7">Last 7 Days</option>
         <option value="30" selected>Last 30 Days</option>
         <option value="365">Last 12 Months</option>
       </select>
-      <button class="btn" id="toggleCharts">Show Charts</button>
+      <button class="btn active" id="btnCountry">Performance per Country</button>
+      <button class="btn" id="btnType">Performance per Type</button>
+      <button class="btn" id="btnNewCards">New Cards per Country</button>
     </div>
     <div class="chart-title" id="chartTitle">Performance per Country</div>
     <div class="chart-wrap">
-      <canvas id="chartCanvas" class="fade hidden" height="120"></canvas>
+      <canvas id="chartCanvas" height="85"></canvas>
     </div>
   </div>
 
-  <div class="panel">
-    <div class="controls-bar">
-      <input id="searchInput" placeholder="Search by name, city or country..." />
-    </div>
-  </div>
-
+  <!-- TABLE -->
   <div class="table-wrap">
     <table id="storesTable">
       <thead>
@@ -120,6 +155,7 @@
     </table>
   </div>
 
+  <!-- EXPORT -->
   <div class="export-bar">
     <button id="expAllCsv">Export ALL → CSV</button>
     <button id="expAllXlsx" class="secondary">Export ALL → Excel</button>
@@ -136,7 +172,7 @@
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
   );
 
-  // Excel-inspired palette
+  // Excel palette for charts
   const cStores = "#2f78c4";   // blue
   const cViews  = "#72c472";   // light green
   const cClicks = "#1d8348";   // dark green
@@ -158,6 +194,7 @@
   const chartTitle = document.getElementById("chartTitle");
   const canvas = document.getElementById("chartCanvas");
   const ctx = canvas.getContext("2d");
+
   const toggleChartsBtn = document.getElementById("toggleCharts");
   const btnCountry = document.getElementById("btnCountry");
   const btnType = document.getElementById("btnType");
@@ -171,12 +208,13 @@
   let currentSortMode = "none";      // none, views, clicks, ctr
   let currentChart = "country";      // country, type, new
   let chartInstance = null;
-  let chartsVisible = false;
+  let chartsVisible = false;         // start hidden
   let searchQuery = "";
 
   await loadData();
   renderKPIs();
   renderTable();
+  // charts hidden until toggled; canvas remains but empty
 
   function normalize(s){
     return {
@@ -207,8 +245,6 @@
     const pending = allStores.filter(s => !s.approved && s.status !== "deleted").length;
     const flagged = allStores.filter(s => !!s.flagged).length;
     const deleted = allStores.filter(s => s.status === "deleted").length;
-    const views = allStores.reduce((sum,s)=>sum+(s.views||0),0);
-    const clicks = allStores.reduce((sum,s)=>sum+(s.link_clicks||0),0);
     const cutoff = daysAgo(30);
     const newMonth = allStores.filter(s => new Date(s.created_at)>=cutoff).length;
 
@@ -217,10 +253,8 @@
     kpiEls.pending.textContent = pending;
     kpiEls.flagged.textContent = flagged;
     kpiEls.deleted.textContent = deleted;
-    kpiEls.views.textContent = "Top";
-    kpiEls.clicks.textContent = "Top";
-    kpiEls.ctr.textContent = "Top";
     kpiEls.newMonth.textContent = newMonth;
+    // "Top" labels already set for views/clicks/ctr as these are sorters, not counts
   }
 
   function applySearch(arr){
@@ -257,7 +291,7 @@
   }
 
   function renderTable(){
-    const rows = filtered().slice(0,400);
+    const rows = filtered().slice(0,500);
     tableBody.innerHTML = rows.map(s=>{
       const typesStr = s.types && s.types.length ? s.types.join(" & ") : (s.type || "–");
       const views = s.views||0;
@@ -339,84 +373,78 @@
   }
 
   function renderChart(){
-    const fadeOut = ()=> canvas.classList.add("hidden");
-    const fadeIn  = ()=> canvas.classList.remove("hidden");
+    if (!chartsVisible) return;
+    if (chartInstance){ chartInstance.destroy(); chartInstance = null; }
 
-    fadeOut();
-    setTimeout(()=> {
-      if (chartInstance){ chartInstance.destroy(); chartInstance = null; }
-
-      if (currentChart === "country"){
-        const agg = buildAggCountry();
-        chartTitle.textContent = "Performance per Country";
-        chartInstance = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: agg.labels,
-            datasets: [
-              { label: 'Stores', data: agg.stores, backgroundColor: cStores },
-              { label: 'Views',  data: agg.views,  backgroundColor: cViews },
-              { label: 'Clicks', data: agg.clicks, backgroundColor: cClicks }
-            ]
+    if (currentChart === "country"){
+      const agg = buildAggCountry();
+      chartTitle.textContent = "Performance per Country";
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: agg.labels,
+          datasets: [
+            { label: 'Stores', data: agg.stores, backgroundColor: cStores },
+            { label: 'Views',  data: agg.views,  backgroundColor: cViews },
+            { label: 'Clicks', data: agg.clicks, backgroundColor: cClicks }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { grid:{display:false}, barPercentage:0.4, categoryPercentage:0.5 },
+            y: { beginAtZero:true, grid:{color:"#eee"} }
           },
-          options: {
-            responsive: true,
-            scales: {
-              x: { grid:{display:false}, barPercentage:0.4, categoryPercentage:0.5 },
-              y: { beginAtZero:true, grid:{color:"#eee"} }
-            },
-            plugins: { legend: { position: 'top' } }
-          }
-        });
-      } else if (currentChart === "type"){
-        const agg = buildAggType();
-        chartTitle.textContent = "Performance per Type";
-        chartInstance = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: agg.labels,
-            datasets: [
-              { label: 'Stores', data: agg.stores, backgroundColor: cStores },
-              { label: 'Views',  data: agg.views,  backgroundColor: cViews },
-              { label: 'Clicks', data: agg.clicks, backgroundColor: cClicks }
-            ]
+          plugins: { legend: { position: 'top' } }
+        }
+      });
+    } else if (currentChart === "type"){
+      const agg = buildAggType();
+      chartTitle.textContent = "Performance per Type";
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: agg.labels,
+          datasets: [
+            { label: 'Stores', data: agg.stores, backgroundColor: cStores },
+            { label: 'Views',  data: agg.views,  backgroundColor: cViews },
+            { label: 'Clicks', data: agg.clicks, backgroundColor: cClicks }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { grid:{display:false}, barPercentage:0.4, categoryPercentage:0.5 },
+            y: { beginAtZero:true, grid:{color:"#eee"} }
           },
-          options: {
-            responsive: true,
-            scales: {
-              x: { grid:{display:false}, barPercentage:0.4, categoryPercentage:0.5 },
-              y: { beginAtZero:true, grid:{color:"#eee"} }
-            },
-            plugins: { legend: { position: 'top' } }
-          }
-        });
-      } else {
-        const days = Number(periodSelect.value||30);
-        const growth = buildGrowthCountry(days);
-        chartTitle.textContent = "New Cards per Country";
-        chartInstance = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: growth.labels,
-            datasets: [
-              { label: 'New Cards', data: growth.values, borderColor: cNew, backgroundColor: cNew, fill:false, tension:.25 }
-            ]
-          },
-          options: {
-            responsive: true,
-            scales: { y: { beginAtZero: true, grid:{color:"#eee"} }, x:{ grid:{display:false} } },
-            plugins: { legend: { position: 'top' } }
-          }
-        });
-      }
-      fadeIn();
-    }, 200);
+          plugins: { legend: { position: 'top' } }
+        }
+      });
+    } else {
+      const days = Number(periodSelect.value||30);
+      const growth = buildGrowthCountry(days);
+      chartTitle.textContent = "New Cards per Country";
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: growth.labels,
+          datasets: [
+            { label: 'New Cards', data: growth.values, borderColor: cNew, backgroundColor: cNew, fill:false, tension:.25 }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true, grid:{color:"#eee"} }, x:{ grid:{display:false} } },
+          plugins: { legend: { position: 'top' } }
+        }
+      });
+    }
   }
 
   function esc(str){ return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function cap(s){ return s ? (s.charAt(0).toUpperCase()+s.slice(1)) : s; }
 
-  // Chart buttons
+  // Chart controls
   [btnCountry, btnType, btnNew].forEach(btn=>{
     btn.addEventListener("click", ()=>{
       [btnCountry, btnType, btnNew].forEach(x=>x.classList.remove("active"));
@@ -424,20 +452,17 @@
       if (btn === btnCountry) currentChart = "country";
       if (btn === btnType) currentChart = "type";
       if (btn === btnNew) currentChart = "new";
-      if (chartsVisible) renderChart();
+      renderChart();
     });
   });
-
-  periodSelect.addEventListener("change", ()=> { if (currentChart === "new" && chartsVisible) renderChart(); });
-
+  periodSelect.addEventListener("change", ()=> { if (currentChart === "new") renderChart(); });
   toggleChartsBtn.addEventListener("click", ()=>{
     chartsVisible = !chartsVisible;
     toggleChartsBtn.textContent = chartsVisible ? "Hide Charts" : "Show Charts";
-    canvas.classList.toggle("hidden", !chartsVisible);
-    if (chartsVisible) renderChart();
+    renderChart();
   });
 
-  // KPI click logic
+  // KPI click logic (filters/sorts)
   const kpiCards = Array.from(kpiGrid.querySelectorAll(".stat-card"));
   kpiCards.forEach(card=>{
     card.addEventListener("click", ()=>{
@@ -461,18 +486,18 @@
         if (k === "ctr"){ currentFilter="all"; currentSortMode="ctr"; }
       }
       renderTable();
-      if (chartsVisible) renderChart();
+      renderChart();
     });
   });
 
-  // Search
+  // Search (top bar)
   searchInput.addEventListener("input", ()=>{
     searchQuery = searchInput.value.trim();
     renderTable();
-    if (chartsVisible) renderChart();
+    renderChart();
   });
 
-  // Table sorting (click headers)
+  // Table sorting (by header click)
   let sortKey=null, sortDir=1;
   Array.from(document.querySelectorAll('#storesTable thead th')).forEach(th=>{
     th.addEventListener('click', ()=>{
