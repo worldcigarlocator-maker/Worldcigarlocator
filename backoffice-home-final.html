@@ -465,44 +465,99 @@
       reloadCurrent();
     }
 
-    /* ---------- Actions ---------- */
-  async function updateStatus(id, approved) {
-  const { error } = await supabase
-    .from("stores")
-    .update({
-      approved,
-      approved_at: new Date().toISOString()   // 🕒 sätter tid för godkännande
-    })
-    .eq("id", id);
+     /* ---------- Actions ---------- */
 
-  if (error) {
-    showToast("Failed to update status", "error");
-  } else {
-    showToast(approved ? "Approved & linked to region" : "Status updated", "success");
-    reloadCurrent(); // 🔄 laddar om korten
-  }
-}
+    async function updateStatus(id, approved) {
+      const { error } = await supabase
+        .from("stores")
+        .update({
+          approved,
+          approved_at: new Date().toISOString(), // 🕒 sätter tid för godkännande
+        })
+        .eq("id", id);
 
-    async function toggleFlag(id, flagged){
-      const { error } = await supabase.from("stores").update({ flagged: !flagged }).eq("id", id);
-      if (error) showToast("Failed to toggle flag","error"); else { showToast(flagged?"Unflagged":"Flagged","success"); reloadCurrent(); }
+      if (error) {
+        console.error(error);
+        showToast("Failed to update status", "error");
+      } else {
+        showToast(
+          approved ? "Approved & linked to region" : "Status updated",
+          "success"
+        );
+        setTimeout(() => reloadCurrent(), 400); // liten delay så UI hinner uppdatera
+      }
     }
-    async function softDelete(id){
-      // 48h restore window
-      const deletedUntil = new Date(Date.now() + 48*60*60*1000).toISOString();
-      const { error } = await supabase.from("stores").update({ status:"deleted", deleted_until:deletedUntil }).eq("id", id);
-      if (error) showToast("Failed to move to Trash","error"); else { showToast("Moved to Trash (48h)","success"); reloadCurrent(); }
+
+    async function toggleFlag(id, flagged) {
+      const { error } = await supabase
+        .from("stores")
+        .update({ flagged: !flagged })
+        .eq("id", id);
+
+      if (error) {
+        console.error(error);
+        showToast("Failed to toggle flag", "error");
+      } else {
+        showToast(flagged ? "Unflagged" : "Flagged", "success");
+        setTimeout(() => reloadCurrent(), 500); // 🔄 delay för att hämta ny flag-status
+      }
     }
-    async function restoreStore(id){
-      const { error } = await supabase.from("stores").update({ status:"pending", deleted_until:null }).eq("id", id);
-      if (error) showToast("Failed to restore","error"); else { showToast("Restored","success"); route("home"); }
+
+    async function softDelete(id) {
+      const deletedUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+      const { error } = await supabase
+        .from("stores")
+        .update({
+          status: "deleted",
+          deleted: true, // säkerhetsflagga
+          deleted_until: deletedUntil || null,
+        })
+        .eq("id", id);
+
+      if (error) {
+        console.error(error);
+        showToast("Failed to move to Trash", "error");
+      } else {
+        showToast("Moved to Trash (48h restore window)", "success");
+        setTimeout(() => reloadCurrent(), 400);
+      }
     }
-    async function permanentDelete(id){
+
+    async function restoreStore(id) {
+      const { error } = await supabase
+        .from("stores")
+        .update({
+          status: "pending",
+          deleted: false,
+          deleted_until: null,
+        })
+        .eq("id", id);
+
+      if (error) {
+        console.error(error);
+        showToast("Failed to restore", "error");
+      } else {
+        showToast("Restored successfully", "success");
+        setTimeout(() => route("home"), 400);
+      }
+    }
+
+    async function permanentDelete(id) {
       const { error } = await supabase.from("stores").delete().eq("id", id);
-      if (error) showToast("Failed to delete permanently","error"); else { showToast("Deleted permanently","success"); reloadCurrent(); }
+
+      if (error) {
+        console.error(error);
+        showToast("Failed to delete permanently", "error");
+      } else {
+        showToast("Store permanently deleted", "success");
+        setTimeout(() => reloadCurrent(), 400);
+      }
     }
 
-    function reloadCurrent(){ route(currentView); }
+    function reloadCurrent() {
+      route(currentView);
+    }
+
   </script>
 </body>
 </html>
