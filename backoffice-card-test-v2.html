@@ -127,17 +127,17 @@
       });
     }
 
-    /* ---------- Actions ---------- */
-/* ---------- Actions ---------- */
+/* ---------- ACTIONS (Final Clean Version) ---------- */
+
+// ✅ Approve / Unapprove
 async function updateStatus(id, approved) {
   try {
-    // 1️⃣ Fetch the store record
+    // 1️⃣ Fetch store info (for region linkage)
     const { data: store, error: fetchError } = await supabase
       .from("stores")
-      .select("id, country, continent, status")
+      .select("id, country, continent")
       .eq("id", id)
       .single();
-
     if (fetchError) throw fetchError;
 
     // 2️⃣ Update approval status
@@ -149,75 +149,121 @@ async function updateStatus(id, approved) {
         approved_at: approved ? new Date().toISOString() : null
       })
       .eq("id", id);
-
     if (updateError) throw updateError;
 
-    // 3️⃣ Update store counts
-    if (approved) {
-      await updateStoreCounts(store.country, store.continent, +1);
-    } else {
-      await updateStoreCounts(store.country, store.continent, -1);
-    }
+    // 3️⃣ Update region counters
+    await updateStoreCounts(store.country, store.continent, approved ? +1 : -1);
 
-    showToast("✅ Store status updated successfully", "success");
+    showToast(approved ? "✅ Store approved" : "⏳ Approval removed", "success");
     reloadCurrent();
-
   } catch (err) {
-    console.error("❌ updateStatus full error:", err);
-    showToast(`Error: ${err.message || err}`, "error");
+    console.error("❌ updateStatus error:", err);
+    showToast(`Failed to update status: ${err.message}`, "error");
   }
 }
 
+// 🔁 Update region counters (countries + continents)
+async function updateStoreCounts(country, continent, delta) {
+  try {
+    if (!country || !continent) return;
 
-    async function toggleFlag(id, flagged) {
-      const { error } = await supabase
-        .from("stores")
-        .update({ flagged: !flagged })
-        .eq("id", id);
-      if (error) showToast("Failed to toggle flag", "error");
-      else showToast(flagged ? "Unflagged" : "Flagged", "success");
-    }
+    // Update country counts
+    await supabase.rpc("increment_store_count", {
+      target_table: "country_store_counts",
+      target_key: "country",
+      target_value: country,
+      delta
+    });
 
-    async function softDelete(id) {
-      const deletedUntil = new Date(Date.now() + 48*60*60*1000).toISOString();
-      const { error } = await supabase
-        .from("stores")
-        .update({ status:"deleted", deleted_until:deletedUntil })
-        .eq("id", id);
-      if (error) showToast("Failed to delete", "error");
-      else showToast("Moved to Trash", "success");
-    }
+    // Update continent counts
+    await supabase.rpc("increment_store_count", {
+      target_table: "continent_store_counts",
+      target_key: "continent",
+      target_value: continent,
+      delta
+    });
 
-    // 🔁 Update counts via RPC
-    async function updateStoreCounts(country, continent, delta) {
-      try {
-        await supabase.rpc("increment_store_count", {
-          target_table: "country_store_counts",
-          target_key: "country",
-          target_value: country,
-          delta
-        });
+    console.log(`✅ Region counts updated for ${country} (${delta > 0 ? "added" : "removed"})`);
+  } catch (err) {
+    console.error("❌ updateStoreCounts error:", err);
+  }
+}
 
-        await supabase.rpc("increment_store_count", {
-          target_table: "continent_store_counts",
-          target_key: "continent",
-          target_value: continent,
-          delta
-        });
+// 🚩 Flag / Unflag
+async function toggleFlag(id, flagged) {
+  try {
+    const { error } = await supabase
+      .from("stores")
+      .update({ flagged: !flagged })
+      .eq("id", id);
+    if (error) throw error;
 
-        console.log(`✅ Counts updated for ${country} / ${continent}`);
-      } catch (err) {
-        console.error("❌ updateStoreCounts error:", err);
-        showToast("Failed to update counts", "error");
-      }
-    }
+    showToast(flagged ? "🚫 Unflagged" : "🚩 Flagged", "success");
+    reloadCurrent();
+  } catch (err) {
+    console.error("❌ toggleFlag error:", err);
+    showToast("Failed to toggle flag", "error");
+  }
+}
 
-    function reloadCurrent() {
-      loadStores();
-    }
+// 🗑️ Soft Delete (moves to Trash for 48h)
+async function softDelete(id) {
+  try {
+    const deletedUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+    const { error } = await supabase
+      .from("stores")
+      .update({ status: "deleted", deleted_until: deletedUntil })
+      .eq("id", id);
+    if (error) throw error;
 
-    // Init
-    loadStores();
-  </script>
+    showToast("🗑️ Moved to Trash (48h)", "success");
+    reloadCurrent();
+  } catch (err) {
+    console.error("❌ softDelete error:", err);
+    showToast("Failed to move to Trash", "error");
+  }
+}
+
+// ♻️ Restore from Trash
+async function restoreStore(id) {
+  try {
+    const { error } = await supabase
+      .from("stores")
+      .update({ status: "pending", deleted_until: null })
+      .eq("id", id);
+    if (error) throw error;
+
+    showToast("♻️ Store restored", "success");
+    route("home");
+  } catch (err) {
+    console.error("❌ restoreStore error:", err);
+    showToast("Failed to restore store", "error");
+  }
+}
+
+// 💀 Permanent Delete
+async function permanentDelete(id) {
+  try {
+    const { error } = await supabase.from("stores").delete().eq("id", id);
+    if (error) throw error;
+
+    showToast("💀 Permanently deleted", "success");
+    reloadCurrent();
+  } catch (err) {
+    console.error("❌ permanentDelete error:", err);
+    showToast("Failed to delete permanently", "error");
+  }
+}
+
+// 🔄 Reload current view
+function reloadCurrent() {
+  route(currentView);
+}
+
+
+   // Init
+route("home");
+</script>
 </body>
 </html>
+
