@@ -213,16 +213,24 @@
       }
     }
 
-    async function softDelete(id) {
-      try {
-        const deletedUntil = new Date(Date.now() + 48*60*60*1000).toISOString();
-        const { error } = await supabase.from("stores").update({ status:"deleted", deleted_until:deletedUntil }).eq("id", id);
-        if (error) throw error;
-        showToast("🗑️ Moved to Trash (48h)", "success");
-        reloadCurrent();
-      } catch (err) {
-        console.error("❌ softDelete error:", err);
-        showToast("Failed to delete", "error");
+   async function softDelete(id) {
+  try {
+    const deletedUntil = new Date(Date.now() + 48*60*60*1000).toISOString();
+    const { error } = await supabase
+      .from("stores")
+      .update({
+        status: "deleted",
+        deleted: true,
+        deleted_until: deletedUntil
+      })
+      .eq("id", id);
+    if (error) throw error;
+
+    showToast("🗑️ Moved to Trash (48h)", "success");
+    reloadCurrent();
+  } catch (err) {
+    console.error("❌ softDelete error:", err);
+    showToast("Failed to move to Trash", "error");
       }
     }
 
