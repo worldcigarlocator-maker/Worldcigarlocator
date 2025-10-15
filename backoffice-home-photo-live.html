@@ -1,0 +1,258 @@
+<!-- ✅ Backoffice Home — LIVE Google Photos | 2025-10-15 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Backoffice — Home (Photo Live)</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --primary:#2f78c4;--primary-dark:#2466a8;--success:#1d8348;
+      --warning:#b36e00;--danger:#c0392b;--bg:#f5f6f8;
+      --card:#fff;--text:#1f2937;--muted:#6b7280;--border:#e5e7eb;
+    }
+    *{box-sizing:border-box}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);
+         margin:0;padding:2rem;color:var(--text);}
+    h1{text-align:center;margin-bottom:1.5rem;color:var(--primary-dark);}
+    .top-bar{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem}
+    .top-bar button{background:var(--primary);color:#fff;border:none;
+      padding:.6rem 1rem;border-radius:8px;cursor:pointer;font-weight:bold;font-size:.9rem}
+    .top-bar button.secondary{background:#fff;color:var(--primary);border:2px solid var(--primary)}
+    .top-bar button:hover{background:var(--primary-dark);color:#fff}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem}
+    .card{background:var(--card);border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);
+      overflow:hidden;display:flex;flex-direction:column}
+    .card img{width:100%;height:180px;object-fit:cover;transition:opacity .3s ease}
+    .card-content{padding:1rem;flex:1}
+    .badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem}
+    .badge{display:inline-block;padding:.25rem .7rem;border-radius:12px;font-size:.8rem;
+      font-weight:bold;color:#fff}
+    .store{background:#007bff}.lounge{background:#28a745}.other{background:#ff8c00}
+    .flagged{background:#dc3545!important}
+    .rating{color:#b8860b;margin-top:.3rem}
+    .status{font-size:.85rem;color:var(--muted);margin-top:.3rem}
+    .date{font-size:.75rem;color:#999;margin-top:.3rem}
+    .access-line{color:var(--primary-dark);font-size:.85rem;margin:.2rem 0}
+    .btn-row{display:flex;gap:.5rem;padding:0 1rem 1rem}
+    .btn-row button{flex:1;padding:.55rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
+    .approve{background:var(--success);color:#fff}
+    .flag{background:#ff8c00;color:#fff}
+    .soft-delete{background:var(--danger);color:#fff}
+    .approve:hover{background:#166f3e}.flag:hover{background:#d97706}.soft-delete:hover{background:#a83228}
+    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999}
+    .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.97}
+    .toast.success{background:#28a745}.toast.error{background:#dc3545}.toast.info{background:#2f78c4}
+  </style>
+</head>
+<body>
+  <h1>Backoffice Home</h1>
+
+  <div class="top-bar">
+    <button class="secondary" onclick="route('home')">Home</button>
+    <button onclick="route('approved')">Approved</button>
+    <button onclick="route('pending')">Pending</button>
+    <button onclick="route('flagged')">Flagged</button>
+    <button onclick="route('trash')">Trash</button>
+    <button onclick="window.location.href='backoffice-business-final.html'">Business</button>
+  </div>
+
+  <div id="metaRow" style="text-align:center;color:var(--muted);margin-bottom:1rem;"></div>
+  <div id="storeGrid" class="grid"></div>
+  <div id="toast-container"></div>
+
+  <script>
+    /* ---------- Supabase ---------- */
+    const supabase = window.supabase.createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    const grid = document.getElementById("storeGrid");
+    const metaRow = document.getElementById("metaRow");
+    let currentView = "home";
+
+    async function route(view){
+      currentView = view;
+      metaRow.textContent=""; grid.innerHTML="";
+      if(view==="home")     await loadStores({excludeDeleted:true,title:"All active locations"});
+      if(view==="approved") await loadStores({approved:true,title:"Approved"});
+      if(view==="pending")  await loadStores({approved:false,title:"Pending"});
+      if(view==="flagged")  await loadStores({flagged:true,title:"Flagged"});
+      if(view==="trash")    await loadTrash();
+    }
+
+    async function loadStores(opts={}){
+      let q = supabase.from("stores").select("*").order("created_at",{ascending:false});
+      if(opts.excludeDeleted) q=q.eq("deleted",false);
+      if(opts.approved===true) q=q.eq("approved",true).eq("deleted",false);
+      if(opts.approved===false) q=q.eq("approved",false).eq("deleted",false);
+      if(opts.flagged) q=q.eq("flagged",true).eq("deleted",false);
+      const {data,error}=await q;
+      if(error){grid.innerHTML=`<p style="color:red;">${error.message}</p>`;return;}
+      if(!data?.length){grid.innerHTML="<p>No stores found.</p>";return;}
+      metaRow.textContent=opts.title||""; data.forEach(renderCard);
+    }
+
+    async function loadTrash(){
+      const {data,error}=await supabase.from("stores").select("*").eq("deleted",true).order("deleted_until",{ascending:true});
+      if(error){grid.innerHTML=`<p style="color:red;">${error.message}</p>`;return;}
+      if(!data?.length){grid.innerHTML="<p>Trash is empty.</p>";return;}
+      metaRow.textContent="Trash (48h auto-delete)";
+      data.forEach(renderCardTrash);
+    }
+
+    /* ---------- Google Photo helper ---------- */
+    const GOOGLE_KEY="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+
+    async function fetchPhoto(placeId){
+      try{
+        const { Place } = await google.maps.importLibrary("places");
+        const p = new Place({ id:placeId, fields:["photos"] });
+        await p.fetchFields();
+        const photoUrl = p.photos?.[0]?.getUrl({maxWidth:400}) || null;
+        return photoUrl;
+      }catch(e){
+        console.warn("Photo fetch failed for",placeId,e);
+        return null;
+      }
+    }
+
+    function decorate(store){
+      const types = Array.isArray(store.types)?store.types.map(t=>t.toLowerCase()):[(store.type||"other").toLowerCase()];
+      const badges = types.map(t=>`<span class="badge ${t}">${t}</span>`).join("");
+      const stars = store.rating? "★".repeat(store.rating)+"☆".repeat(5-store.rating):"☆☆☆☆☆";
+      let access="";
+      if(types.includes("lounge")&&store.access){
+        const text = store.access==="members"?"🔒 Members only":
+                     store.access==="temporary"?"⏳ Temporary members":"🌐 Public access";
+        access=`<div class="access-line">${text}</div>`;
+      }
+      return {types,badges,stars,access};
+    }
+
+    async function renderCard(store){
+      const {types,badges,stars,access}=decorate(store);
+      const card=document.createElement("div");
+      card.className="card";
+      const imgEl=document.createElement("img");
+      imgEl.alt=store.name||"";
+      imgEl.style.opacity="0";
+
+      let fallback="images/other.jpg";
+      if(types.includes("lounge")) fallback="images/lounge.jpg";
+      else if(types.includes("store")) fallback="images/store.jpg";
+
+      let imgSrc=fallback;
+      if(store.place_id){
+        const photo=await fetchPhoto(store.place_id);
+        if(photo) imgSrc=photo;
+      }
+      imgEl.src=imgSrc;
+      imgEl.onload=()=>imgEl.style.opacity="1";
+      imgEl.onerror=()=>imgEl.src=fallback;
+
+      card.appendChild(imgEl);
+      card.innerHTML+=`
+        <div class="card-content">
+          <div class="badges">${store.flagged?'<span class="badge flagged">Flagged</span>':''}${badges}</div>
+          <h3>${store.name||"Unnamed"}</h3>
+          <p>${store.address||""}</p>
+          <p>${store.city||""}, ${store.country||""}</p>
+          ${access}
+          <div class="rating">${stars}</div>
+          <div class="status">${store.approved?"✅ Approved":"⏳ Pending"}</div>
+          <div class="date">${store.created_at?new Date(store.created_at).toLocaleDateString():""}</div>
+        </div>
+        <div class="btn-row">
+          <button class="approve" onclick="updateStatus('${store.id}',${!store.approved})">${store.approved?"Unapprove":"Approve"}</button>
+          <button class="flag" onclick="toggleFlag('${store.id}',${!!store.flagged})">${store.flagged?"Unflag":"Flag"}</button>
+          <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
+        </div>`;
+      grid.appendChild(card);
+    }
+
+    function renderCardTrash(store){
+      const {types,badges}=decorate(store);
+      const card=document.createElement("div");
+      card.className="card";
+      const fallback=types.includes("lounge")?"images/lounge.jpg":
+                     types.includes("store")?"images/store.jpg":"images/other.jpg";
+      card.innerHTML=`
+        <img src="${fallback}" alt="${store.name}">
+        <div class="card-content">
+          <div class="badges">${badges}</div>
+          <h3>${store.name||"Unnamed"}</h3>
+          <p>${store.city||""}, ${store.country||""}</p>
+          <div class="status">Deleted until: ${store.deleted_until?new Date(store.deleted_until).toLocaleString():"-"}</div>
+        </div>
+        <div class="btn-row">
+          <button class="approve" onclick="restoreStore('${store.id}')">Restore</button>
+          <button class="soft-delete" onclick="permanentDelete('${store.id}')">Delete permanently</button>
+        </div>`;
+      grid.appendChild(card);
+    }
+
+    /* ---------- Actions ---------- */
+    async function updateStatus(id,approved){
+      try{
+        const {error}=await supabase.from("stores")
+          .update({approved,status:approved?"approved":"pending",approved_at:approved?new Date().toISOString():null})
+          .eq("id",id);
+        if(error)throw error;
+        showToast(approved?"✅ Store approved":"⏳ Approval removed","success");
+        reloadCurrent();
+      }catch(e){console.error(e);showToast("Update failed","error");}
+    }
+
+    async function toggleFlag(id,flagged){
+      try{
+        const {error}=await supabase.from("stores").update({flagged:!flagged}).eq("id",id);
+        if(error)throw error;
+        showToast(flagged?"🚫 Unflagged":"🚩 Flagged","success");
+        reloadCurrent();
+      }catch(e){console.error(e);showToast("Toggle failed","error");}
+    }
+
+    async function softDelete(id){
+      try{
+        const delUntil=new Date(Date.now()+48*60*60*1000).toISOString();
+        const {error}=await supabase.from("stores").update({deleted:true,deleted_until:delUntil}).eq("id",id);
+        if(error)throw error;showToast("🗑️ Moved to Trash","success");reloadCurrent();
+      }catch(e){console.error(e);showToast("Delete failed","error");}
+    }
+
+    async function restoreStore(id){
+      const {error}=await supabase.from("stores").update({deleted:false,deleted_until:null}).eq("id",id);
+      if(error)return showToast("Restore failed","error");
+      showToast("♻️ Restored","success");route("home");
+    }
+
+    async function permanentDelete(id){
+      const {error}=await supabase.from("stores").delete().eq("id",id);
+      if(error)return showToast("Delete failed","error");
+      showToast("💀 Permanently deleted","success");reloadCurrent();
+    }
+
+    function reloadCurrent(){route(currentView);}
+    function showToast(msg,type="info"){
+      const c=document.getElementById("toast-container");
+      const t=document.createElement("div");t.className=`toast ${type}`;t.textContent=msg;
+      c.appendChild(t);setTimeout(()=>t.remove(),3000);
+    }
+
+    /* ---------- Init ---------- */
+    route("home");
+  </script>
+
+  <!-- ✅ Google Maps JS Loader (new async style) -->
+  <script>
+    (g=>{
+      var h=document.createElement("script");
+      h.src=`https://maps.googleapis.com/maps/api/js?key=${g}&libraries=places&loading=async`;
+      h.async=true;document.head.appendChild(h);
+    })("AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ");
+  </script>
+</body>
+</html>
