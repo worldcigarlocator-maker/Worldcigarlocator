@@ -425,68 +425,86 @@ function photoUrlFromRef(photoRef) {
     }
 
     // Google Places Autocomplete + Details to extract photo_reference
-    let placesService = null;
-    function initPlaces(){
-      const input = document.getElementById("gAddress");
-      const ac = new google.maps.places.Autocomplete(input, {
-        fields:["place_id","address_components","geometry","name","formatted_address","international_phone_number","website","photos"]
-      });
+let placesService = null;
 
-      // PlacesService (no map needed)
-      placesService = new google.maps.places.PlacesService(document.createElement('div'));
+function initPlaces() {
+  const input = document.getElementById("gAddress");
 
-      ac.addListener("place_changed", ()=>{
-        const place = ac.getPlace();
-        if (!place) return;
+  // Autocomplete — nya API-fält
+  const ac = new google.maps.places.Autocomplete(input, {
+    fields: [
+      "place_id",
+      "address_components",
+      "geometry",
+      "name",
+      "formatted_address",
+      "international_phone_number",
+      "website",
+      "photos"
+    ]
+  });
 
-        // Fill basics from Autocomplete result
-        document.getElementById("name").value = place.name || "";
-        document.getElementById("addr").value = place.formatted_address || "";
+  // Skapa PlacesService (utan karta)
+  placesService = new google.maps.places.PlacesService(document.createElement("div"));
 
-        // City/country best effort
-        let city = place.address_components?.find(c=>c.types.includes("locality"))
-               || place.address_components?.find(c=>c.types.includes("postal_town"))
-               || place.address_components?.find(c=>c.types.includes("administrative_area_level_2"));
-        let country = place.address_components?.find(c=>c.types.includes("country"));
+  ac.addListener("place_changed", () => {
+    const place = ac.getPlace();
+    if (!place) return;
 
-        document.getElementById("city").value = city?.long_name || "";
-        document.getElementById("country").value = country?.long_name || "";
-        document.getElementById("phone").value = place.international_phone_number || "";
-        document.getElementById("website").value = place.website || "";
+    // Fyll i fält från Autocomplete
+    document.getElementById("name").value = place.name || "";
+    document.getElementById("addr").value = place.formatted_address || "";
 
-        selected.lat = place.geometry?.location?.lat() || null;
-        selected.lng = place.geometry?.location?.lng() || null;
-        selected.place_id = place.place_id || null;
-        selected.photoRef = null; // will attempt via details below
+    // Stad och land
+    let city = place.address_components?.find(c => c.types.includes("locality"))
+            || place.address_components?.find(c => c.types.includes("postal_town"))
+            || place.address_components?.find(c => c.types.includes("administrative_area_level_2"));
+    let country = place.address_components?.find(c => c.types.includes("country"));
 
-        // Try to get a stable photo_reference via Places Details
-        if (selected.place_id){
-          placesService.getDetails({
-            placeId: selected.place_id,
-            fields: ["photos"]
-          }, (res, status)=>{
-            if (status === google.maps.places.PlacesServiceStatus.OK && res?.photos?.length){
-              // In Details response, photo objects expose photo_reference
-              // @ts-ignore (the field is available even if not typed)
-              selected.photoRef = res.photos[0].photo_reference || null;
-            } else if (place.photos?.length){
-              // Fallback: sometimes Autocomplete photos also include photo_reference
-              // @ts-ignore
-              selected.photoRef = place.photos[0].photo_reference || null;
+    document.getElementById("city").value = city?.long_name || "";
+    document.getElementById("country").value = country?.long_name || "";
+    document.getElementById("phone").value = place.international_phone_number || "";
+    document.getElementById("website").value = place.website || "";
+
+    // Grunddata till vårt objekt
+    selected.lat = place.geometry?.location?.lat() || null;
+    selected.lng = place.geometry?.location?.lng() || null;
+    selected.place_id = place.place_id || null;
+    selected.photoRef = null;
+
+    // 🔍 Hämta photo_reference korrekt via Place Details
+    if (selected.place_id) {
+      placesService.getDetails(
+        { placeId: selected.place_id, fields: ["photos"] },
+        (res, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && res?.photos?.length) {
+            const firstPhoto = res.photos[0];
+            if (firstPhoto.photo_reference) {
+              // ✅ Klassisk photo_reference (korrekt format)
+              selected.photoRef = firstPhoto.photo_reference;
+            } else {
+              // 🆕 Nya API ger ibland bara getUrl() → inget photo_reference
+              selected.photoRef = null;
             }
-            updatePreview();
-          });
-        } else {
-          // As last resort try from Autocomplete object (may not have reference)
-          if (place.photos?.length){
-            // @ts-ignore
-            selected.photoRef = place.photos[0].photo_reference || null;
+          } else if (place.photos?.length) {
+            // Fallback: ta från Autocomplete-resultatet
+            const firstPhoto = place.photos[0];
+            selected.photoRef = firstPhoto.photo_reference || null;
           }
           updatePreview();
         }
-      });
+      );
+    } else {
+      // Sista fallback: försök från Autocomplete direkt
+      if (place.photos?.length) {
+        selected.photoRef = place.photos[0].photo_reference || null;
+      }
+      updatePreview();
     }
-    window.initPlaces = initPlaces; // callback for Google script
+  });
+}
+
+window.initPlaces = initPlaces; // callback för Google-scriptet
 
     async function saveStore(){
       try{
