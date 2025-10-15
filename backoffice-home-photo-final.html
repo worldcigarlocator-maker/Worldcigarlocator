@@ -5,7 +5,6 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Backoffice — Home (Photo Final)</title>
-  <!-- Global Supabase v2 (no module) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
@@ -92,37 +91,15 @@
           <label>Search (Google)</label>
           <input id="gAddress" type="text" placeholder="Start typing a place…" />
         </div>
-
-        <div>
-          <label>Store Name</label>
-          <input id="name" type="text" />
-        </div>
-        <div>
-          <label>Phone</label>
-          <input id="phone" type="tel" />
-        </div>
+        <div><label>Store Name</label><input id="name" type="text"/></div>
+        <div><label>Phone</label><input id="phone" type="tel"/></div>
+        <div style="grid-column:1/-1"><label>Address</label><input id="addr" type="text"/></div>
+        <div><label>City</label><input id="city" type="text"/></div>
+        <div><label>Country</label><input id="country" type="text"/></div>
+        <div style="grid-column:1/-1"><label>Website</label><input id="website" type="url" placeholder="https://…"/></div>
 
         <div style="grid-column:1/-1">
-          <label>Address</label>
-          <input id="addr" type="text" />
-        </div>
-
-        <div>
-          <label>City</label>
-          <input id="city" type="text" />
-        </div>
-        <div>
-          <label>Country</label>
-          <input id="country" type="text" />
-        </div>
-
-        <div style="grid-column:1/-1">
-          <label>Website</label>
-          <input id="website" type="url" placeholder="https://…" />
-        </div>
-
-        <div style="grid-column:1/-1">
-          <label>Categories (multi-select)</label>
+          <label>Categories</label>
           <div class="type-row" id="typeRow">
             <span class="chip" data-type="store">Store</span>
             <span class="chip" data-type="lounge">Lounge</span>
@@ -154,425 +131,163 @@
     </div>
   </div>
 
-  <script>
-    /* ---------- Supabase ---------- */
-    const supabase = window.supabase.createClient(
-      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
-    );
+<script>
+/* ---------- Supabase ---------- */
+const supabase = window.supabase.createClient(
+  "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+);
 
-    const grid = document.getElementById("storeGrid");
-    const metaRow = document.getElementById("metaRow");
-    let currentView = "home";
+const grid=document.getElementById("storeGrid");
+const metaRow=document.getElementById("metaRow");
+let currentView="home";
 
-    /* ---------- Router ---------- */
-    async function route(view){
-      currentView = view;
-      metaRow.textContent = "";
-      grid.innerHTML = "";
-
-      if (view === "home")     await loadStores({ excludeDeleted:true, title:"All active locations" });
-      if (view === "approved") await loadStores({ approved:true,  title:"Approved" });
-      if (view === "pending")  await loadStores({ approved:false, title:"Pending" });
-      if (view === "flagged")  await loadStores({ flagged:true,   title:"Flagged" });
-      if (view === "trash")    await loadTrash();
-    }
-
-    /* ---------- Data loaders ---------- */
-    async function loadStores(opts = {}){
-      let q = supabase.from("stores").select("*").order("created_at",{ascending:false});
-
-      if (opts.excludeDeleted) q = q.eq("deleted", false);
-      if (opts.approved === true)  q = q.eq("approved", true).eq("deleted", false);
-      if (opts.approved === false) q = q.eq("approved", false).eq("deleted", false);
-      if (opts.flagged)            q = q.eq("flagged", true).eq("deleted", false);
-
-      const { data, error } = await q;
-      if (error){ grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
-      if (!data?.length){ grid.innerHTML = `<p>No stores found.</p>`; return; }
-
-      metaRow.textContent = opts.title || "";
-      data.forEach(renderCard);
-    }
-
-    async function loadTrash(){
-      const { data, error } = await supabase
-        .from("stores")
-        .select("*")
-        .eq("deleted", true)
-        .order("deleted_until",{ascending:true});
-      if (error){ grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
-      if (!data?.length){ grid.innerHTML = `<p>Trash is empty.</p>`; return; }
-      metaRow.textContent = "Trash (48h auto-delete)";
-      data.forEach(renderCardTrash);
-    }
-
-    /* ---------- Photo helper ---------- */
-/* ---------- Photo helper ---------- */
-/* ---------- Photo helper ---------- */
-function photoUrlFromRef(photoRef) {
-  // Om inget photo_reference finns → visa standardbild direkt
-  if (!photoRef) return "images/store.jpg";
-
-  const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // din aktiva nyckel
-  const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
-  return url;
+/* ---------- Router ---------- */
+async function route(view){
+  currentView=view;
+  metaRow.textContent="";
+  grid.innerHTML="";
+  if(view==="home")await loadStores({excludeDeleted:true,title:"All active locations"});
+  if(view==="approved")await loadStores({approved:true,title:"Approved"});
+  if(view==="pending")await loadStores({approved:false,title:"Pending"});
+  if(view==="flagged")await loadStores({flagged:true,title:"Flagged"});
+  if(view==="trash")await loadTrash();
 }
 
-    /* ---------- Render helpers ---------- */
-    function decorate(store){
-      const types = Array.isArray(store.types) ? store.types.map(t=>String(t).toLowerCase()) : [ (store.type||"other").toLowerCase() ];
-      const badges = types.map(t=>`<span class="badge ${t}">${t}</span>`).join(" ");
+/* ---------- Loaders ---------- */
+async function loadStores(opts={}){
+  let q=supabase.from("stores").select("*").order("created_at",{ascending:false});
+  if(opts.excludeDeleted)q=q.eq("deleted",false);
+  if(opts.approved===true)q=q.eq("approved",true).eq("deleted",false);
+  if(opts.approved===false)q=q.eq("approved",false).eq("deleted",false);
+  if(opts.flagged)q=q.eq("flagged",true).eq("deleted",false);
+  const {data,error}=await q;
+  if(error){grid.innerHTML=`<p style="color:red;">${error.message}</p>`;return;}
+  if(!data?.length){grid.innerHTML=`<p>No stores found.</p>`;return;}
+  metaRow.textContent=opts.title||"";
+  data.forEach(renderCard);
+}
+async function loadTrash(){
+  const {data,error}=await supabase.from("stores").select("*").eq("deleted",true).order("deleted_until",{ascending:true});
+  if(error){grid.innerHTML=`<p style="color:red;">${error.message}</p>`;return;}
+  if(!data?.length){grid.innerHTML=`<p>Trash is empty.</p>`;return;}
+  metaRow.textContent="Trash (48h auto-delete)";
+  data.forEach(renderCardTrash);
+}
 
-      let img = "images/other.jpg";
-      const photoByRef = store.photo_reference ? photoUrlFromRef(store.photo_reference) : null;
-      if (photoByRef) img = photoByRef;
-      else if (types.includes("lounge")) img = "images/lounge.jpg";
-      else if (types.includes("store"))  img = "images/store.jpg";
+/* ---------- Photo helper ---------- */
+function photoUrlFromRef(photoRef){
+  if(!photoRef)return"images/store.jpg";
+  const key="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+  return`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
+}
 
-      const stars = store.rating ? "★".repeat(store.rating) + "☆".repeat(5-store.rating) : "☆☆☆☆☆";
+/* ---------- Render helpers ---------- */
+function decorate(store){
+  const types=Array.isArray(store.types)?store.types.map(t=>String(t).toLowerCase()):[(store.type||"other").toLowerCase()];
+  const badges=types.map(t=>`<span class="badge ${t}">${t}</span>`).join(" ");
+  let img="images/other.jpg";
+  const photoByRef=store.photo_reference?photoUrlFromRef(store.photo_reference):null;
+  if(photoByRef)img=photoByRef;else if(types.includes("lounge"))img="images/lounge.jpg";else if(types.includes("store"))img="images/store.jpg";
+  const stars=store.rating?"★".repeat(store.rating)+"☆".repeat(5-store.rating):"☆☆☆☆☆";
+  let access="";
+  if(types.includes("lounge")&&store.access){
+    const text=store.access==="members"?"🔒 Members only":store.access==="temporary"?"⏳ Temporary members":"🌐 Public access";
+    access=`<div class="access-line">${text}</div>`;
+  }
+  return{badges,img,stars,access};
+}
 
-      let access = "";
-      if (types.includes("lounge") && store.access){
-        const text = store.access === "members"   ? "🔒 Members only"
-                  : store.access === "temporary" ? "⏳ Temporary members"
-                  : "🌐 Public access";
-        access = `<div class="access-line">${text}</div>`;
-      }
-      return { badges, img, stars, access };
-    }
+/* ---------- Preview ---------- */
+function updatePreview(){
+  const pv=document.getElementById("preview");
+  pv.innerHTML=`<div style="padding:1rem;color:#888;">⏳ Hämtar bild...</div>`;
+  let img="images/other.jpg";
+  if(selected.photoRef){
+    const u=photoUrlFromRef(selected.photoRef);
+    if(u)img=u;
+  }else if(selected.types.has("lounge"))img="images/lounge.jpg";
+  else if(selected.types.has("store"))img="images/store.jpg";
+  setTimeout(()=>{pv.innerHTML=`<img src="${img}" alt="Preview" onerror="this.onerror=null; this.src='images/store.jpg';">`;},300);
+}
 
-    function renderCard(store){
-      const { badges, img, stars, access } = decorate(store);
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <img src="${img}" alt="${store.name||""}"
-             onerror="this.onerror=null; this.src='images/store.jpg';">
-        <div class="card-content">
-          <div class="badges">${store.flagged?'<span class="badge flagged">Flagged</span>':''}${badges}</div>
-          <h3>${store.name || "Unnamed"}</h3>
-          <p>${store.address || ""}</p>
-          <p>${store.city || ""}, ${store.country || ""}</p>
-          ${access}
-          <div class="rating">${stars}</div>
-          <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
-          <div class="date">${store.created_at ? new Date(store.created_at).toLocaleDateString() : ""}</div>
-        </div>
-        <div class="btn-row">
-          <button class="approve" onclick="updateStatus('${store.id}', ${!store.approved})">${store.approved ? "Unapprove" : "Approve"}</button>
-          <button class="flag" onclick="toggleFlag('${store.id}', ${!!store.flagged})">${store.flagged ? "Unflag" : "Flag"}</button>
-          <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
-        </div>`;
-      grid.appendChild(card);
-    }
+/* ---------- Google Places ---------- */
+let placesService=null;
+function initPlaces(){
+  const input=document.getElementById("gAddress");
+  const ac=new google.maps.places.Autocomplete(input,{fields:["place_id","address_components","geometry","name","formatted_address","international_phone_number","website","photos"]});
+  placesService=new google.maps.places.PlacesService(document.createElement("div"));
+  ac.addListener("place_changed",()=>{
+    const place=ac.getPlace(); if(!place)return;
+    document.getElementById("name").value=place.name||"";
+    document.getElementById("addr").value=place.formatted_address||"";
+    let city=place.address_components?.find(c=>c.types.includes("locality"))||place.address_components?.find(c=>c.types.includes("postal_town"))||place.address_components?.find(c=>c.types.includes("administrative_area_level_2"));
+    let country=place.address_components?.find(c=>c.types.includes("country"));
+    document.getElementById("city").value=city?.long_name||"";
+    document.getElementById("country").value=country?.long_name||"";
+    document.getElementById("phone").value=place.international_phone_number||"";
+    document.getElementById("website").value=place.website||"";
+    selected.lat=place.geometry?.location?.lat()||null;
+    selected.lng=place.geometry?.location?.lng()||null;
+    selected.place_id=place.place_id||null;
+    selected.photoRef=null;
 
-    function renderCardTrash(store){
-      const { badges, img } = decorate(store);
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <img src="${img}" alt="${store.name||""}"
-             onerror="this.onerror=null; this.src='images/store.jpg';">
-        <div class="card-content">
-          <div class="badges">${badges}</div>
-          <h3>${store.name || "Unnamed"}</h3>
-          <p>${store.city || ""}, ${store.country || ""}</p>
-          <div class="status">Deleted until: ${store.deleted_until ? new Date(store.deleted_until).toLocaleString() : "-"}</div>
-        </div>
-        <div class="btn-row">
-          <button class="approve" onclick="restoreStore('${store.id}')">Restore</button>
-          <button class="soft-delete" onclick="permanentDelete('${store.id}')">Delete permanently</button>
-        </div>`;
-      grid.appendChild(card);
-    }
-
-    /* ---------- Actions ---------- */
-    async function updateStatus(id, approved){
-      try{
-        const { error } = await supabase
-          .from("stores")
-          .update({
-            approved,
-            status: approved ? "approved" : "pending",
-            approved_at: approved ? new Date().toISOString() : null
-          })
-          .eq("id", id);
-        if (error) throw error;
-        showToast(approved ? "✅ Store approved" : "⏳ Approval removed","success");
-        reloadCurrent();
-      }catch(err){
-        console.error("❌ updateStatus error:", err);
-        showToast(`Error: ${err.message}`,"error");
-      }
-    }
-
-    async function toggleFlag(id, flagged){
-      try{
-        const { error } = await supabase.from("stores").update({ flagged: !flagged }).eq("id", id);
-        if (error) throw error;
-        showToast(flagged ? "🚫 Unflagged" : "🚩 Flagged","success");
-        reloadCurrent();
-      }catch(err){
-        console.error("❌ toggleFlag error:", err);
-        showToast("Failed to toggle flag","error");
-      }
-    }
-
-    // Soft delete → only uses deleted + deleted_until (inte status → undviker CHECK-constraint)
-    async function softDelete(id){
-      try{
-        const deletedUntil = new Date(Date.now() + 48*60*60*1000).toISOString();
-        const { error } = await supabase
-          .from("stores")
-          .update({ deleted:true, deleted_until:deletedUntil })
-          .eq("id", id);
-        if (error) throw error;
-        showToast("🗑️ Moved to Trash (48h)","success");
-        reloadCurrent();
-      }catch(err){
-        console.error("❌ softDelete error:", err);
-        showToast(`Failed to delete: ${err.message}`,"error");
-      }
-    }
-
-    async function restoreStore(id){
-      try{
-        const { error } = await supabase
-          .from("stores")
-          .update({ deleted:false, deleted_until:null })
-          .eq("id", id);
-        if (error) throw error;
-        showToast("♻️ Restored","success");
-        route("home");
-      }catch(err){
-        console.error("❌ restoreStore error:", err);
-        showToast(`Failed to restore: ${err.message}`,"error");
-      }
-    }
-
-    async function permanentDelete(id){
-      try{
-        const { error } = await supabase.from("stores").delete().eq("id", id);
-        if (error) throw error;
-        showToast("💀 Permanently deleted","success");
-        reloadCurrent();
-      }catch(err){
-        console.error("❌ permanentDelete error:", err);
-        showToast("Failed to delete permanently","error");
-      }
-    }
-
-    function reloadCurrent(){ route(currentView); }
-    function showToast(msg,type="info"){
-      const c=document.getElementById("toast-container");
-      const t=document.createElement("div");
-      t.className=`toast ${type}`;
-      t.textContent=msg;
-      c.appendChild(t);
-      setTimeout(()=>t.remove(),3000);
-    }
-
-    /* ---------- Add Store Modal & Google Places ---------- */
-    let selected = {
-      types: new Set(), rating: 0, lat: null, lng: null, photoRef: null, place_id: null
-    };
-
-    function openAddModal(){ document.getElementById("addModal").style.display="flex"; }
-    function closeAddModal(){ document.getElementById("addModal").style.display="none"; }
-
-    // Toggle chips
-    (function initChips(){
-      const row = document.getElementById("typeRow");
-      row.addEventListener("click",(e)=>{
-        const chip = e.target.closest(".chip");
-        if (!chip) return;
-        const t = chip.dataset.type;
-        if (chip.classList.contains("active")){
-          chip.classList.remove("active");
-          selected.types.delete(t);
-        } else {
-          chip.classList.add("active");
-          selected.types.add(t);
+    if(selected.place_id){
+      placesService.getDetails({placeId:selected.place_id,fields:["photos"]},(res,status)=>{
+        if(status===google.maps.places.PlacesServiceStatus.OK&&res?.photos?.length){
+          const firstPhoto=res.photos[0];
+          if(firstPhoto.photo_reference)selected.photoRef=firstPhoto.photo_reference;else selected.photoRef=null;
+        }else if(place.photos?.length){
+          const firstPhoto=place.photos[0];
+          selected.photoRef=firstPhoto.photo_reference||null;
         }
-        // Show access if Lounge selected
-        document.getElementById("accessBox").style.display = selected.types.has("lounge") ? "block" : "none";
         updatePreview();
       });
-    })();
-
-    // Stars
-    (function initStars(){
-      const stars = document.getElementById("stars");
-      stars.addEventListener("click",(e)=>{
-        const v = +e.target.dataset.v;
-        if (!v) return;
-        selected.rating = v;
-        [...stars.children].forEach((el,i)=> el.classList.toggle("sel", i < v));
-      });
-    })();
-
-    // Build preview image
-    function updatePreview(){
-      const pv = document.getElementById("preview");
-      let img = "images/other.jpg";
-      if (selected.photoRef){
-        const u = photoUrlFromRef(selected.photoRef);
-        if (u) img = u;
-      } else if (selected.types.has("lounge")) img = "images/lounge.jpg";
-      else if (selected.types.has("store")) img = "images/store.jpg";
-      pv.innerHTML = `<img src="${img}" alt="Preview" onerror="this.onerror=null; this.src='images/store.jpg';">`;
-    }
-
-   // Google Places Autocomplete + Details to extract photo_reference
-let placesService = null;
-
-function initPlaces() {
-  const input = document.getElementById("gAddress");
-
-  // Autocomplete — nya API-fält
-  const ac = new google.maps.places.Autocomplete(input, {
-    fields: [
-      "place_id",
-      "address_components",
-      "geometry",
-      "name",
-      "formatted_address",
-      "international_phone_number",
-      "website",
-      "photos"
-    ]
-  });
-
-  // Skapa PlacesService (utan karta)
-  placesService = new google.maps.places.PlacesService(document.createElement("div"));
-
-  ac.addListener("place_changed", () => {
-    const place = ac.getPlace();
-    if (!place) return;
-
-    // Fyll i fält från Autocomplete
-    document.getElementById("name").value = place.name || "";
-    document.getElementById("addr").value = place.formatted_address || "";
-
-    // Stad och land
-    let city = place.address_components?.find(c => c.types.includes("locality"))
-            || place.address_components?.find(c => c.types.includes("postal_town"))
-            || place.address_components?.find(c => c.types.includes("administrative_area_level_2"));
-    let country = place.address_components?.find(c => c.types.includes("country"));
-
-    document.getElementById("city").value = city?.long_name || "";
-    document.getElementById("country").value = country?.long_name || "";
-    document.getElementById("phone").value = place.international_phone_number || "";
-    document.getElementById("website").value = place.website || "";
-
-    // Grunddata till vårt objekt
-    selected.lat = place.geometry?.location?.lat() || null;
-    selected.lng = place.geometry?.location?.lng() || null;
-    selected.place_id = place.place_id || null;
-    selected.photoRef = null;
-
-    // 🔍 Hämta photo_reference korrekt via Place Details
-    if (selected.place_id) {
-      placesService.getDetails(
-        { placeId: selected.place_id, fields: ["photos"] },
-        (res, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && res?.photos?.length) {
-            const firstPhoto = res.photos[0];
-            if (firstPhoto.photo_reference) {
-              // ✅ Klassisk photo_reference (korrekt format)
-              selected.photoRef = firstPhoto.photo_reference;
-            } else {
-              // 🆕 Nya API ger ibland bara getUrl() → inget photo_reference
-              selected.photoRef = null;
-            }
-          } else if (place.photos?.length) {
-            // Fallback: ta från Autocomplete-resultatet
-            const firstPhoto = place.photos[0];
-            selected.photoRef = firstPhoto.photo_reference || null;
-          }
-          updatePreview();
-        }
-      );
-       } else {
-      // Sista fallback: försök från Autocomplete direkt
-      if (place.photos?.length) {
-        const firstPhoto = place.photos[0];
-        selected.photoRef = firstPhoto.photo_reference || null;
+    }else{
+      if(place.photos?.length){
+        const firstPhoto=place.photos[0];
+        selected.photoRef=firstPhoto.photo_reference||null;
       }
       updatePreview();
     }
   });
 }
+window.initPlaces=initPlaces;
 
-window.initPlaces = initPlaces; // callback för Google-scriptet
+/* ---------- Save ---------- */
+async function saveStore(){
+  try{
+    const name=document.getElementById("name").value.trim();
+    const address=document.getElementById("addr").value.trim();
+    const city=document.getElementById("city").value.trim();
+    const country=document.getElementById("country").value.trim();
+    const phone=document.getElementById("phone").value.trim();
+    const website=document.getElementById("website").value.trim();
+    const access=document.querySelector("input[name='access']:checked")?.value||null;
+    if(!name||!address||!city||!country){showToast("Please fill all required fields","error");return;}
+    if(selected.types.size===0){showToast("Pick at least one category","error");return;}
+    const typesArr=Array.from(selected.types);
+    const payload={name,address,city,country,phone,website,type:typesArr[0]||null,types:typesArr,access,rating:selected.rating||0,approved:false,lat:selected.lat,lng:selected.lng,photo_reference:selected.photoRef,place_id:selected.place_id||null,deleted:false,status:"pending"};
+    const {error}=await supabase.from("stores").insert([payload]);
+    if(error)throw error;
+    showToast("✅ Store added (pending)","success");
+    closeAddModal();
+    ["gAddress","name","addr","city","country","phone","website"].forEach(id=>document.getElementById(id).value="");
+    document.querySelectorAll("input[name='access']").forEach(r=>r.checked=false);
+    document.getElementById("accessBox").style.display="none";
+    selected={types:new Set(),rating:0,lat:null,lng:null,photoRef:null,place_id:null};
+    updatePreview();
+    route("pending");
+  }catch(err){
+    console.error("❌ saveStore error:",err);
+    showToast(`Failed to add store: ${err.message}`,"error");
+  }
+}
 
-    async function saveStore(){
-      try{
-        const name = document.getElementById("name").value.trim();
-        const address = document.getElementById("addr").value.trim();
-        const city = document.getElementById("city").value.trim();
-        const country = document.getElementById("country").value.trim();
-        const phone = document.getElementById("phone").value.trim();
-        const website = document.getElementById("website").value.trim();
-        const access = document.querySelector("input[name='access']:checked")?.value || null;
+/* ---------- Init ---------- */
+route("home");
+</script>
 
-        if (!name || !address || !city || !country){
-          showToast("Please fill all required fields (name, address, city, country)","error");
-          return;
-        }
-        if (selected.types.size === 0){
-          showToast("Pick at least one category (Store/Lounge/Other)","error");
-          return;
-        }
-
-        const typesArr = Array.from(selected.types);
-        // primary type for compatibility
-        const primaryType = typesArr[0] || null;
-
-        const payload = {
-          name, address, city, country, phone, website,
-          type: primaryType,
-          types: typesArr,
-          access,
-          rating: selected.rating || 0,
-          approved: false,
-          lat: selected.lat, lng: selected.lng,
-          photo_reference: selected.photoRef,
-          place_id: selected.place_id || null,
-          deleted: false,
-          status: "pending"
-        };
-
-        const { error } = await supabase.from("stores").insert([payload]);
-        if (error) throw error;
-
-        showToast("✅ Store added (pending)","success");
-        closeAddModal();
-        // Clear simple fields
-        ["gAddress","name","addr","city","country","phone","website"].forEach(id=>document.getElementById(id).value="");
-        document.querySelectorAll("input[name='access']").forEach(r=>r.checked=false);
-        document.getElementById("accessBox").style.display="none";
-        selected = { types:new Set(), rating:0, lat:null, lng:null, photoRef:null, place_id:null };
-        updatePreview();
-        // Reload list
-        route("pending");
-      }catch(err){
-        console.error("❌ saveStore error:", err);
-        showToast(`Failed to add store: ${err.message}`,"error");
-      }
-    }
-
-    /* ---------- Init ---------- */
-    route("home");
-  </script>
-
-  <!-- ✅ Load Google Maps Places (World Cigar Locator key) -->
-  <!-- Enabled for Places API + Maps JavaScript API -->
-  <!-- Allowed referrers:
-       https://worldcigarlocator-maker.github.io/*
-       https://*.github.io/* -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAyDCr9J_7sC0x5vP3Q7lQAI5hSw7Fy7Jk&libraries=places&callback=initPlaces"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAyDCr9J_7sC0x5vP3Q7lQAI5hSw7Fy7Jk&libraries=places&callback=initPlaces"></script>
 </body>
 </html>
-
