@@ -209,16 +209,13 @@
 
     /* ---------- Photo helper ---------- */
 /* ---------- Photo helper ---------- */
+/* ---------- Photo helper ---------- */
 function photoUrlFromRef(photoRef) {
+  // Om inget photo_reference finns → visa standardbild direkt
   if (!photoRef) return "images/store.jpg";
 
-  const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // ← byt till din nyckel
+  const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // din aktiva nyckel
   const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
-
-  // fallback om bilden inte laddas
-  const img = new Image();
-  img.src = url;
-  img.onerror = () => (img.src = "images/store.jpg");
   return url;
 }
 
