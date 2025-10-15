@@ -1,0 +1,14 @@
+name: Refresh Photos Nightly
+on:
+  schedule:
+    - cron: "0 3 * * *"   # Kör varje natt kl 03:00 (svensk tid)
+  workflow_dispatch:       # Gör det möjligt att köra manuellt från GitHub också
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Supabase Edge Function
+        run: |
+          curl -X POST "https://gbxxoeplkzbhsvagnfsr.supabase.co/functions/v1/refresh-photos" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
