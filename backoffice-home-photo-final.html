@@ -424,7 +424,7 @@ function photoUrlFromRef(photoRef) {
       pv.innerHTML = `<img src="${img}" alt="Preview" onerror="this.onerror=null; this.src='images/store.jpg';">`;
     }
 
-    // Google Places Autocomplete + Details to extract photo_reference
+   // Google Places Autocomplete + Details to extract photo_reference
 let placesService = null;
 
 function initPlaces() {
@@ -494,10 +494,11 @@ function initPlaces() {
           updatePreview();
         }
       );
-    } else {
+       } else {
       // Sista fallback: försök från Autocomplete direkt
       if (place.photos?.length) {
-        selected.photoRef = place.photos[0].photo_reference || null;
+        const firstPhoto = place.photos[0];
+        selected.photoRef = firstPhoto.photo_reference || null;
       }
       updatePreview();
     }
