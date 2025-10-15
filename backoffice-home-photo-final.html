@@ -176,11 +176,20 @@ async function loadTrash(){
 }
 
 /* ---------- Photo helper ---------- */
-function photoUrlFromRef(photoRef){
-  if(!photoRef)return"images/store.jpg";
-  const key="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
-  return`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
+function photoUrlFromRef(photoRef) {
+  if (!photoRef) return "images/store.jpg";
+
+  const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+
+  // 🧠 Ny kontroll: om värdet redan är en URL, använd den direkt
+  if (photoRef.startsWith("http")) {
+    return photoRef;
+  }
+
+  // Annars skapa korrekt photo-reference URL
+  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
 }
+
 
 /* ---------- Render helpers ---------- */
 function decorate(store){
