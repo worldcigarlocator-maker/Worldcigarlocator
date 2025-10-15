@@ -208,11 +208,12 @@
     }
 
     /* ---------- Photo helper ---------- */
-    function photoUrlFromRef(photoRef){
-      if (!photoRef) return null;
-      const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // 🔁 REPLACE with your Maps/Places API key (HTTP referrer allowed for GitHub Pages)
-      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
-    }
+function photoUrlFromRef(photoRef) {
+  if (!photoRef) return null;
+  const key = "DIN_API_KEY";
+  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
+}
+
 
     /* ---------- Render helpers ---------- */
     function decorate(store){
