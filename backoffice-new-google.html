@@ -1,0 +1,397 @@
+<!-- ✅ Backoffice NEW (Google Photos + Edit) | 2025-10-15 -->
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Backoffice — New (Google)</title>
+  <!-- Supabase v2 (no module) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --primary:#2f78c4; --primary-dark:#2466a8;
+      --success:#1d8348; --warning:#b36e00; --danger:#c0392b;
+      --bg:#f5f6f8; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
+    }
+    *{box-sizing:border-box}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text);}
+    h1{text-align:center;margin-bottom:1.5rem;color:var(--primary-dark);}
+
+    .top-bar{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem}
+    .top-bar button{background:var(--primary);color:#fff;border:none;padding:.6rem 1rem;border-radius:8px;cursor:pointer;font-weight:bold;font-size:.9rem}
+    .top-bar button.secondary{background:#fff;color:var(--primary);border:2px solid var(--primary)}
+    .top-bar button:hover{background:var(--primary-dark);color:#fff}
+
+    #metaRow{text-align:center;color:var(--muted);margin-bottom:1rem}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem}
+    .card{background:var(--card);border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);overflow:hidden;display:flex;flex-direction:column}
+    .card img{width:100%;height:180px;object-fit:cover}
+    .card-content{padding:1rem;flex:1}
+    .badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem}
+    .badge{display:inline-block;padding:.25rem .7rem;border-radius:12px;font-size:.8rem;font-weight:bold;color:#fff}
+    .store{background:#007bff}.lounge{background:#28a745}.other{background:#ff8c00}.flagged{background:#dc3545!important}
+    .rating{color:#b8860b;margin-top:.3rem}
+    .status{font-size:.85rem;color:var(--muted);margin-top:.3rem}
+    .date{font-size:.75rem;color:#999;margin-top:.3rem}
+    .access-line{color:var(--primary-dark);font-size:.85rem;margin:.2rem 0}
+    .btn-row{display:flex;gap:.5rem;padding:0 1rem 1rem}
+    .btn-row button{flex:1;padding:.55rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
+    .approve{background:var(--success);color:#fff}
+    .flag{background:#ff8c00;color:#fff}
+    .edit{background:#6b7280;color:#fff}
+    .soft-delete{background:var(--danger);color:#fff}
+    .approve:hover{background:#166f3e}.flag:hover{background:#d97706}.edit:hover{background:#50555c}.soft-delete:hover{background:#a83228}
+
+    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999}
+    .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.97}
+    .toast.success{background:#28a745}.toast.error{background:#dc3545}.toast.info{background:#2f78c4}
+
+    /* Modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:9998}
+    .modal{background:#fff;width:min(920px,92vw);max-height:92vh;overflow:auto;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:1rem 1.2rem}
+    .modal h2{margin:.2rem 0 1rem;color:#333}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+    .form-grid label{font-weight:bold;font-size:.9rem}
+    .form-grid input[type="text"], .form-grid input[type="tel"], .form-grid input[type="url"]{
+      width:100%;padding:.55rem;border:1px solid #ccc;border-radius:6px;font-size:.95rem;
+    }
+    .modal-actions{display:flex;gap:.6rem;margin-top:1rem;justify-content:flex-end}
+    .btn{padding:.7rem 1rem;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
+    .btn.primary{background:var(--primary);color:#fff}
+    .btn.secondary{background:#e5e7eb;color:#111}
+  </style>
+</head>
+<body>
+  <h1>Backoffice — New (Google)</h1>
+
+  <div class="top-bar">
+    <button class="secondary" onclick="route('home')">Home</button>
+    <button onclick="route('approved')">Approved</button>
+    <button onclick="route('pending')">Pending</button>
+    <button onclick="route('flagged')">Flagged</button>
+    <button onclick="route('trash')">Trash</button>
+  </div>
+
+  <div id="metaRow"></div>
+  <div id="storeGrid" class="grid"></div>
+  <div id="toast-container"></div>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal">
+      <h2>Edit Store</h2>
+      <div class="form-grid">
+        <div style="grid-column:1/-1">
+          <label>Store Name</label>
+          <input id="e_name" type="text"/>
+        </div>
+        <div style="grid-column:1/-1">
+          <label>Address</label>
+          <input id="e_addr" type="text"/>
+        </div>
+        <div>
+          <label>City</label>
+          <input id="e_city" type="text"/>
+        </div>
+        <div>
+          <label>Country</label>
+          <input id="e_country" type="text"/>
+        </div>
+        <div>
+          <label>Phone</label>
+          <input id="e_phone" type="tel"/>
+        </div>
+        <div>
+          <label>Website</label>
+          <input id="e_website" type="url" placeholder="https://…"/>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary" onclick="closeEditModal()">Cancel</button>
+        <button class="btn primary" onclick="saveEditedStore()">Save changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ---------- Supabase ---------- */
+    const supabase = window.supabase.createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    const grid = document.getElementById("storeGrid");
+    const metaRow = document.getElementById("metaRow");
+    let currentView = "home";
+    let editId = null;
+
+    /* ---------- Router ---------- */
+    async function route(view){
+      currentView = view;
+      metaRow.textContent = "";
+      grid.innerHTML = "";
+
+      if (view === "home")     await loadStores({ excludeDeleted:true, title:"All active locations" });
+      if (view === "approved") await loadStores({ approved:true,  title:"Approved" });
+      if (view === "pending")  await loadStores({ approved:false, title:"Pending" });
+      if (view === "flagged")  await loadStores({ flagged:true,   title:"Flagged" });
+      if (view === "trash")    await loadTrash();
+    }
+
+    /* ---------- Data loaders ---------- */
+    async function loadStores(opts = {}){
+      let q = supabase.from("stores").select("*").order("created_at",{ascending:false});
+      if (opts.excludeDeleted) q = q.eq("deleted", false);
+      if (opts.approved === true)  q = q.eq("approved", true).eq("deleted", false);
+      if (opts.approved === false) q = q.eq("approved", false).eq("deleted", false);
+      if (opts.flagged)            q = q.eq("flagged", true).eq("deleted", false);
+
+      const { data, error } = await q;
+      if (error){ grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
+      if (!data?.length){ grid.innerHTML = `<p>No stores found.</p>`; return; }
+
+      metaRow.textContent = opts.title || "";
+      data.forEach(renderCard);
+    }
+
+    async function loadTrash(){
+      const { data, error } = await supabase
+        .from("stores")
+        .select("*")
+        .eq("deleted", true)
+        .order("deleted_until",{ascending:true});
+      if (error){ grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
+      if (!data?.length){ grid.innerHTML = `<p>Trash is empty.</p>`; return; }
+      metaRow.textContent = "Trash (48h auto-delete)";
+      data.forEach(renderCardTrash);
+    }
+
+    /* ---------- Photo helper ---------- */
+    function photoUrlFromRef(photoRef) {
+      if (!photoRef) return "images/store.jpg";
+      const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // din aktiva key
+      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
+    }
+
+    /* ---------- Render helpers ---------- */
+    function decorate(store){
+      const types = Array.isArray(store.types) ? store.types.map(t=>String(t).toLowerCase()) : [ (store.type||"other").toLowerCase() ];
+      const badges = types.map(t=>`<span class="badge ${t}">${t}</span>`).join(" ");
+
+      let img = "images/other.jpg";
+      const photoByRef = store.photo_reference ? photoUrlFromRef(store.photo_reference) : null;
+      if (photoByRef) img = photoByRef;
+      else if (types.includes("lounge")) img = "images/lounge.jpg";
+      else if (types.includes("store"))  img = "images/store.jpg";
+
+      const stars = store.rating ? "★".repeat(store.rating) + "☆".repeat(5-store.rating) : "☆☆☆☆☆";
+
+      let access = "";
+      if (types.includes("lounge") && store.access){
+        const text = store.access === "members"   ? "🔒 Members only"
+                  : store.access === "temporary" ? "⏳ Temporary members"
+                  : "🌐 Public access";
+        access = `<div class="access-line">${text}</div>`;
+      }
+      return { badges, img, stars, access };
+    }
+
+    function renderCard(store){
+      const { badges, img, stars, access } = decorate(store);
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${img}" alt="${store.name||""}"
+             onerror="this.onerror=null; this.src='images/store.jpg';">
+        <div class="card-content">
+          <div class="badges">${store.flagged?'<span class="badge flagged">Flagged</span>':''}${badges}</div>
+          <h3>${store.name || "Unnamed"}</h3>
+          <p>${store.address || ""}</p>
+          <p>${store.city || ""}, ${store.country || ""}</p>
+          ${access}
+          <div class="rating">${stars}</div>
+          <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
+          <div class="date">${store.created_at ? new Date(store.created_at).toLocaleDateString() : ""}</div>
+        </div>
+        <div class="btn-row">
+          <button class="approve" onclick="updateStatus('${store.id}', ${!store.approved})">${store.approved ? "Unapprove" : "Approve"}</button>
+          <button class="flag" onclick="toggleFlag('${store.id}', ${!!store.flagged})">${store.flagged ? "Unflag" : "Flag"}</button>
+          <button class="edit" onclick="openEditModal('${store.id}')">Edit</button>
+          <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
+        </div>`;
+      grid.appendChild(card);
+    }
+
+    function renderCardTrash(store){
+      const { badges, img } = decorate(store);
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${img}" alt="${store.name||""}"
+             onerror="this.onerror=null; this.src='images/store.jpg';">
+        <div class="card-content">
+          <div class="badges">${badges}</div>
+          <h3>${store.name || "Unnamed"}</h3>
+          <p>${store.city || ""}, ${store.country || ""}</p>
+          <div class="status">Deleted until: ${store.deleted_until ? new Date(store.deleted_until).toLocaleString() : "-"}</div>
+        </div>
+        <div class="btn-row">
+          <button class="approve" onclick="restoreStore('${store.id}')">Restore</button>
+          <button class="soft-delete" onclick="permanentDelete('${store.id}')">Delete permanently</button>
+        </div>`;
+      grid.appendChild(card);
+    }
+
+    /* ---------- Actions ---------- */
+    async function updateStatus(id, approved){
+      try{
+        const { error } = await supabase
+          .from("stores")
+          .update({
+            approved,
+            status: approved ? "approved" : "pending",
+            approved_at: approved ? new Date().toISOString() : null
+          })
+          .eq("id", id);
+        if (error) throw error;
+        showToast(approved ? "✅ Store approved" : "⏳ Approval removed","success");
+        reloadCurrent();
+      }catch(err){
+        console.error("❌ updateStatus error:", err);
+        showToast(`Error: ${err.message}`,"error");
+      }
+    }
+
+    async function toggleFlag(id, flagged){
+      try{
+        // 1) Försök normal uppdatering
+        const target = !flagged;
+        const { error } = await supabase.from("stores").update({ flagged: target }).eq("id", id);
+        if (error) throw error;
+
+        // 2) Hämta om raden för att VERIFIERA att flaggan verkligen ändrats
+        const { data, error: err2 } = await supabase.from("stores").select("id, name, flagged").eq("id", id).maybeSingle();
+        if (err2) throw err2;
+
+        if (data && data.flagged === target){
+          showToast(target ? "🚩 Flagged" : "🚫 Unflagged","success");
+        } else {
+          // Kunde inte ändra (troligen trigger/blacklist). Informera tydligt.
+          showToast("⚠️ Kunde inte unflagga — sannolikt auto-blacklist/trigger. Vi lägger in en force-override senare.","error");
+        }
+        reloadCurrent();
+      }catch(err){
+        console.error("❌ toggleFlag error:", err);
+        showToast("Failed to toggle flag","error");
+      }
+    }
+
+    // Soft delete (Trash)
+    async function softDelete(id){
+      try{
+        const deletedUntil = new Date(Date.now() + 48*60*60*1000).toISOString();
+        const { error } = await supabase
+          .from("stores")
+          .update({ deleted:true, deleted_until:deletedUntil })
+          .eq("id", id);
+        if (error) throw error;
+        showToast("🗑️ Moved to Trash (48h)","success");
+        reloadCurrent();
+      }catch(err){
+        console.error("❌ softDelete error:", err);
+        showToast(`Failed to delete: ${err.message}`,"error");
+      }
+    }
+
+    async function restoreStore(id){
+      try{
+        const { error } = await supabase
+          .from("stores")
+          .update({ deleted:false, deleted_until:null })
+          .eq("id", id);
+        if (error) throw error;
+        showToast("♻️ Restored","success");
+        route("home");
+      }catch(err){
+        console.error("❌ restoreStore error:", err);
+        showToast(`Failed to restore: ${err.message}`,"error");
+      }
+    }
+
+    async function permanentDelete(id){
+      try{
+        const { error } = await supabase.from("stores").delete().eq("id", id);
+        if (error) throw error;
+        showToast("💀 Permanently deleted","success");
+        reloadCurrent();
+      }catch(err){
+        console.error("❌ permanentDelete error:", err);
+        showToast("Failed to delete permanently","error");
+      }
+    }
+
+    /* ---------- Edit Modal ---------- */
+    async function openEditModal(id){
+      try{
+        const { data, error } = await supabase.from("stores").select("*").eq("id", id).maybeSingle();
+        if (error || !data){ showToast("Kunde inte ladda posten","error"); return; }
+
+        editId = id;
+        document.getElementById("e_name").value    = data.name    || "";
+        document.getElementById("e_addr").value    = data.address || "";
+        document.getElementById("e_city").value    = data.city    || "";
+        document.getElementById("e_country").value = data.country || "";
+        document.getElementById("e_phone").value   = data.phone   || "";
+        document.getElementById("e_website").value = data.website || "";
+
+        document.getElementById("editModal").style.display = "flex";
+      }catch(err){
+        console.error("❌ openEditModal error:", err);
+        showToast("Kunde inte öppna Edit","error");
+      }
+    }
+
+    function closeEditModal(){
+      document.getElementById("editModal").style.display = "none";
+      editId = null;
+    }
+
+    async function saveEditedStore(){
+      if (!editId){ closeEditModal(); return; }
+      try{
+        const payload = {
+          name:    document.getElementById("e_name").value.trim(),
+          address: document.getElementById("e_addr").value.trim(),
+          city:    document.getElementById("e_city").value.trim(),
+          country: document.getElementById("e_country").value.trim(),
+          phone:   document.getElementById("e_phone").value.trim(),
+          website: document.getElementById("e_website").value.trim(),
+          updated_at: new Date().toISOString()
+        };
+        const { error } = await supabase.from("stores").update(payload).eq("id", editId);
+        if (error) throw error;
+        showToast("✅ Store updated","success");
+        closeEditModal();
+        reloadCurrent();
+      }catch(err){
+        console.error("❌ saveEditedStore error:", err);
+        showToast("Misslyckades att spara","error");
+      }
+    }
+
+    /* ---------- Utils ---------- */
+    function reloadCurrent(){ route(currentView); }
+    function showToast(msg,type="info"){
+      const c=document.getElementById("toast-container");
+      const t=document.createElement("div");
+      t.className=`toast ${type}`;
+      t.textContent=msg;
+      c.appendChild(t);
+      setTimeout(()=>t.remove(),3200);
+    }
+
+    /* ---------- Init ---------- */
+    route("home");
+  </script>
+</body>
+</html>
