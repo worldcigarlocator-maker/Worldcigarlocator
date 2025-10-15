@@ -1,19 +1,15 @@
-name: Refresh Photos Nightly
+name: 🧠 Manual Photo Refresh
 
 on:
-  schedule:
-    - cron: "0 3 * * *"  # kör varje dag kl 03:00 svensk tid (01:00 UTC)
-  workflow_dispatch:     # gör att du även kan köra manuellt
+  workflow_dispatch:  # Gör att du kan köra det manuellt
 
 jobs:
-  run-refresh:
+  run-refresh-photos:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Invoke Supabase Edge Function
+      - name: Run Supabase Edge Function (refresh-photos)
         run: |
-          curl -X POST \
-            "${{ secrets.SUPABASE_URL }}/functions/v1/refresh-photos" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
-            -H "Content-Type: application/json" \
-            -d '{}'
+          curl -X POST "https://gbxxoeplkzbhsvagnfsr.supabase.co/functions/v1/refresh-photos" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{}'
