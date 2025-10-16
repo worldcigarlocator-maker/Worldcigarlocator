@@ -145,24 +145,92 @@
       metaRow.textContent="Trash (48h auto-delete)"; data.forEach(renderCardTrash);
     }
 
-    /* ---------- Photo helper ---------- */
-/* ---------- Photo helper (slutlig version) ---------- */
-function photoUrlFromRef(photoRef) {
-  if (!photoRef) return "images/store.jpg";
+       /* ---------- Photo helper ---------- */
+    function photoUrlFromRef(photoRef) {
+      if (!photoRef) return "images/store.jpg";
 
-  // 🔍 Om det redan är en fullständig URL (börjar med http)
-  // då ska vi INTE lägga till "maps.googleapis.com/..." igen
-  if (photoRef.startsWith("http")) {
-    console.log("🟡 Direkt URL upptäckt → använder som den är:", photoRef);
-    return photoRef;
-  }
+      // 🟡 Om det redan är en fullständig URL (börjar med http)
+      if (photoRef.startsWith("http")) {
+        return photoRef;
+      }
 
-  // 🧩 Annars bygg den klassiska Google Photo URL
-  const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // använd din Browser Key, inte Server Key
-  const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
-  console.log("🟢 Skapar Google Photo URL:", url);
-  return url;
-}
+      // 🧩 Annars bygg klassisk Google Photo URL via din Browser API key
+      const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // använd din Browser Key
+      const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
+      return url;
+    }
+
+    /* ---------- Render helpers ---------- */
+    function decorate(store) {
+      const types = Array.isArray(store.types)
+        ? store.types.map(t => String(t).toLowerCase())
+        : [ (store.type || "other").toLowerCase() ];
+
+      const badges = types.map(t => `<span class="badge ${t}">${t}</span>`).join(" ");
+
+      // 🖼️ Bildlogik – prioriterar i ordning:
+      // 1. photo_url (från Supabase / refresh-funktionen)
+      // 2. photo_reference (byggs till en Google-länk)
+      // 3. fallback-bild beroende på typ
+      let img = "images/other.jpg";
+
+      if (store.photo_url) {
+        img = store.photo_url;
+      } else if (store.photo_reference) {
+        img = photoUrlFromRef(store.photo_reference);
+      } else if (types.includes("lounge")) {
+        img = "images/lounge.jpg";
+      } else if (types.includes("store")) {
+        img = "images/store.jpg";
+      }
+
+      const stars = store.rating
+        ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
+        : "☆☆☆☆☆";
+
+      let access = "";
+      if (types.includes("lounge") && store.access) {
+        const text =
+          store.access === "members"   ? "🔒 Members only" :
+          store.access === "temporary" ? "⏳ Temporary members" :
+          "🌐 Public access";
+        access = `<div class="access-line">${text}</div>`;
+      }
+
+      return { badges, img, stars, access };
+    }
+
+    function renderCard(store){
+      const { badges, img, stars, access } = decorate(store);
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${img}" alt="${store.name || ""}"
+             onerror="this.onerror=null; this.src='images/store.jpg';">
+        <div class="card-content">
+          <div class="badges">
+            ${store.flagged ? '<span class="badge flagged">Flagged</span>' : ''}${badges}
+          </div>
+          <h3>${store.name || "Unnamed"}</h3>
+          <p>${store.address || ""}</p>
+          <p>${store.city || ""}, ${store.country || ""}</p>
+          ${access}
+          <div class="rating">${stars}</div>
+          <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
+          <div class="date">${store.created_at ? new Date(store.created_at).toLocaleDateString() : ""}</div>
+        </div>
+        <div class="btn-row">
+          <button class="approve" onclick="updateStatus('${store.id}', ${!store.approved})">
+            ${store.approved ? "Unapprove" : "Approve"}
+          </button>
+          <button class="flag" onclick="toggleFlag('${store.id}', ${!!store.flagged})">
+            ${store.flagged ? "Unflag" : "Flag"}
+          </button>
+          <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
+          <button class="flag" onclick="openEditModal('${store.id}')">Edit</button>
+        </div>`;
+      grid.appendChild(card);
+    }
 
     /* ---------- Render helpers ---------- */
     function decorate(store){
