@@ -146,11 +146,11 @@
     }
 
     /* ---------- Photo helper ---------- */
-    function photoUrlFromRef(photoRef){
-      if(!photoRef)return "images/store.jpg";
-      const key="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // ← byt till din browser key
-      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
-    }
+ function photoUrlFromRef(photoRef){
+  if(!photoRef)return "images/store.jpg";
+  const key="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // ← byt till din browser key
+  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
+}
 
     /* ---------- Render helpers ---------- */
     function decorate(store){
