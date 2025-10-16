@@ -146,10 +146,22 @@
     }
 
     /* ---------- Photo helper ---------- */
- function photoUrlFromRef(photoRef){
-  if(!photoRef)return "images/store.jpg";
-  const key="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // ← byt till din browser key
-  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
+/* ---------- Photo helper (slutlig version) ---------- */
+function photoUrlFromRef(photoRef) {
+  if (!photoRef) return "images/store.jpg";
+
+  // 🔍 Om det redan är en fullständig URL (börjar med http)
+  // då ska vi INTE lägga till "maps.googleapis.com/..." igen
+  if (photoRef.startsWith("http")) {
+    console.log("🟡 Direkt URL upptäckt → använder som den är:", photoRef);
+    return photoRef;
+  }
+
+  // 🧩 Annars bygg den klassiska Google Photo URL
+  const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // använd din Browser Key, inte Server Key
+  const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
+  console.log("🟢 Skapar Google Photo URL:", url);
+  return url;
 }
 
     /* ---------- Render helpers ---------- */
