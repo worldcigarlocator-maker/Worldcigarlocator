@@ -145,7 +145,7 @@
       metaRow.textContent="Trash (48h auto-delete)"; data.forEach(renderCardTrash);
     }
 
-       /* ---------- Photo helper ---------- */
+         /* ---------- Photo helper ---------- */
     function photoUrlFromRef(photoRef) {
       if (!photoRef) return "images/store.jpg";
 
@@ -228,67 +228,6 @@
           </button>
           <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
           <button class="flag" onclick="openEditModal('${store.id}')">Edit</button>
-        </div>`;
-      grid.appendChild(card);
-    }
-
-    /* ---------- Render helpers ---------- */
-    function decorate(store){
-      const types=Array.isArray(store.types)?store.types.map(t=>t.toLowerCase()):[(store.type||"other").toLowerCase()];
-      const badges=types.map(t=>`<span class="badge ${t}">${t}</span>`).join(" ");
-      let img=store.photo_url||null;
-      if(!img&&store.photo_reference)img=photoUrlFromRef(store.photo_reference);
-      if(!img){if(types.includes("lounge"))img="images/lounge.jpg";else if(types.includes("store"))img="images/store.jpg";else img="images/other.jpg";}
-      const stars=store.rating?"★".repeat(store.rating)+"☆".repeat(5-store.rating):"☆☆☆☆☆";
-      let access="";
-      if(types.includes("lounge")&&store.access){
-        const text=store.access==="members"?"🔒 Members only":store.access==="temporary"?"⏳ Temporary members":"🌐 Public access";
-        access=`<div class="access-line">${text}</div>`;
-      }
-      return{badges,img,stars,access};
-    }
-
-    function renderCard(store){
-      const{badges,img,stars,access}=decorate(store);
-      const card=document.createElement("div");
-      card.className="card";
-      card.innerHTML=`
-        <img src="${img}" alt="${store.name||''}"
-          onerror="console.warn('Photo failed:',this.src);this.onerror=null;this.src='images/store.jpg';">
-        <div class="card-content">
-          <div class="badges">${store.flagged?'<span class="badge flagged">Flagged</span>':''}${badges}</div>
-          <h3>${store.name||"Unnamed"}</h3>
-          <p>${store.address||""}</p>
-          <p>${store.city||""}, ${store.country||""}</p>
-          ${access}
-          <div class="rating">${stars}</div>
-          <div class="status">${store.approved?"✅ Approved":"⏳ Pending"}</div>
-          <div class="date">${store.created_at?new Date(store.created_at).toLocaleDateString():""}</div>
-        </div>
-        <div class="btn-row">
-          <button class="approve" onclick="updateStatus('${store.id}',${!store.approved})">${store.approved?"Unapprove":"Approve"}</button>
-          <button class="flag" onclick="toggleFlag('${store.id}',${!!store.flagged})">${store.flagged?"Unflag":"Flag"}</button>
-          <button class="edit" onclick="openEditModal('${store.id}')">Edit</button>
-          <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
-        </div>`;
-      grid.appendChild(card);
-    }
-
-    function renderCardTrash(store){
-      const{badges,img}=decorate(store);
-      const card=document.createElement("div");
-      card.className="card";
-      card.innerHTML=`
-        <img src="${img}" alt="${store.name||''}">
-        <div class="card-content">
-          <div class="badges">${badges}</div>
-          <h3>${store.name||"Unnamed"}</h3>
-          <p>${store.city||""}, ${store.country||""}</p>
-          <div class="status">Deleted until: ${store.deleted_until?new Date(store.deleted_until).toLocaleString():"-"}</div>
-        </div>
-        <div class="btn-row">
-          <button class="approve" onclick="restoreStore('${store.id}')">Restore</button>
-          <button class="soft-delete" onclick="permanentDelete('${store.id}')">Delete permanently</button>
         </div>`;
       grid.appendChild(card);
     }
