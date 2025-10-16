@@ -217,6 +217,10 @@
           ${access}
           <div class="rating">${stars}</div>
           <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
+<div class="date">
+  📅 Added: ${store.created_at ? new Date(store.created_at).toLocaleString("sv-SE", { dateStyle: "medium", timeStyle: "short" }) : "-"}<br>
+  🔁 Updated: ${store.updated_at ? new Date(store.updated_at).toLocaleString("sv-SE", { dateStyle: "medium", timeStyle: "short" }) : "-"}
+</div>
           <div class="date">${store.created_at ? new Date(store.created_at).toLocaleDateString() : ""}</div>
         </div>
         <div class="btn-row">
