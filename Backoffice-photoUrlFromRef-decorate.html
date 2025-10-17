@@ -1,0 +1,52 @@
+/* ---------- Photo helper ---------- */
+function photoUrlFromRef(store) {
+  // ✅ 1. Om direkt photo_url finns (Edge-funktion redan gjort jobbet)
+  if (store.photo_url && store.photo_url.startsWith("http")) {
+    return store.photo_url;
+  }
+
+  // ✅ 2. Om photo_reference saknas helt → fallback
+  if (!store.photo_reference) {
+    if (store.type === "lounge") return "images/lounge.jpg";
+    if (store.type === "store")  return "images/store.jpg";
+    return "images/other.jpg";
+  }
+
+  // ✅ 3. Om det redan är en full URL (t.ex. PhotoService.GetPhoto)
+  if (store.photo_reference.startsWith("http")) {
+    return store.photo_reference;
+  }
+
+  // ✅ 4. Annars — tolkas som Google Photo Reference (kort ID)
+  const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // din Browser API key
+  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(store.photo_reference)}&key=${key}`;
+}
+
+/* ---------- Render helpers ---------- */
+function decorate(store) {
+  const types = Array.isArray(store.types)
+    ? store.types.map(t => t.toLowerCase())
+    : [ (store.type || "other").toLowerCase() ];
+
+  const badges = types.map(t => `<span class="badge ${t}">${t}</span>`).join(" ");
+
+  // 🟡 Ny bildlogik (tryggare oavsett datakälla)
+  const img = photoUrlFromRef(store);
+
+  const stars = store.rating
+    ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
+    : "☆☆☆☆☆";
+
+  let access = "";
+  if (types.includes("lounge") && store.access) {
+    const text =
+      store.access === "members"
+        ? "🔒 Members only"
+        : store.access === "temporary"
+        ? "⏳ Temporary members"
+        : "🌐 Public access";
+    access = `<div class="access-line">${text}</div>`;
+  }
+
+  return { badges, img, stars, access };
+}
