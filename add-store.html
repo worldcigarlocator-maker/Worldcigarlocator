@@ -220,7 +220,6 @@
           selectedType = radio.value;
           document.getElementById("accessOptions").style.display =
             selectedType === "lounge" ? "block" : "none";
-          updatePreviewFromRef(null);
         });
       });
     });
@@ -255,7 +254,8 @@
         rating: selectedRating, approved: false,
         lat: selectedPlace.lat || null, lng: selectedPlace.lng || null,
         place_id: selectedPlace.place_id || null,
-        photo_reference: selectedPlace.photo_reference || null
+        photo_reference: selectedPlace.photo_reference || null,
+        photo_url: selectedPlace.photo_url || null
       }]);
 
       if (error) {
@@ -276,14 +276,10 @@
       setTimeout(() => t.remove(), 3000);
     }
 
-    function updatePreviewFromRef(photoRef) {
+    function updatePreview(imgUrl) {
       const pv = document.getElementById("preview");
-      let img = "images/other.jpg";
-      if (photoRef) {
-        const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
-        img = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
-      }
-      pv.innerHTML = `<img src="${img}" alt="Preview">`;
+      const src = imgUrl || "images/other.jpg";
+      pv.innerHTML = `<img src="${src}" alt="Preview">`;
     }
 
     function initAutocomplete() {
@@ -330,19 +326,24 @@
           lat: place.geometry?.location?.lat() || null,
           lng: place.geometry?.location?.lng() || null,
           place_id: place.place_id,
-          photo_reference: null
+          photo_reference: null,
+          photo_url: null
         };
 
         if (place.photos?.length > 0) {
-          selectedPlace.photo_reference = place.photos[0].photo_reference;
-          updatePreviewFromRef(selectedPlace.photo_reference);
+          const photo = place.photos[0];
+          if (photo.photo_reference) selectedPlace.photo_reference = photo.photo_reference;
+          selectedPlace.photo_url = photo.getUrl({ maxWidth: 800 });
+          updatePreview(selectedPlace.photo_url);
         } else {
           service.getDetails({ placeId: place.place_id, fields: ["photos"] }, (res, status) => {
             if (status === google.maps.places.PlacesServiceStatus.OK && res?.photos?.length) {
-              selectedPlace.photo_reference = res.photos[0].photo_reference;
-              updatePreviewFromRef(selectedPlace.photo_reference);
+              const photo = res.photos[0];
+              if (photo.photo_reference) selectedPlace.photo_reference = photo.photo_reference;
+              selectedPlace.photo_url = photo.getUrl({ maxWidth: 800 });
+              updatePreview(selectedPlace.photo_url);
             } else {
-              updatePreviewFromRef(null);
+              updatePreview(null);
             }
           });
         }
