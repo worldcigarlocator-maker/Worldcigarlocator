@@ -1,15 +1,13 @@
-<!-- ✅ Backoffice Home FINAL-STABLE (GH compatible) | 2025-10-15 -->
+<!-- ✅ Backoffice Home (Updated for photo_url support) | 2025-10-17 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Backoffice — Home (Final Stable)</title>
-  <!-- Global (non-module) Supabase v2 for GitHub Pages -->
+  <title>Backoffice — Home (Updated)</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      /* Excel-inspired clean UI (no gold, except data badges/stars) */
       --primary:#2f78c4;
       --primary-dark:#2466a8;
       --success:#1d8348;
@@ -25,7 +23,6 @@
     *{box-sizing:border-box}
     body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text);}
     h1{text-align:center;margin-bottom:1.5rem;color:var(--primary-dark);}
-
     .top-bar{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem;}
     .top-bar button{
       background:var(--primary);color:#fff;border:none;padding:.6rem 1rem;
@@ -41,7 +38,6 @@
     }
     .card img{width:100%;height:180px;object-fit:cover;}
     .card-content{padding:1rem;flex:1;}
-
     .badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem;}
     .badge{
       display:inline-block;padding:.25rem .7rem;border-radius:12px;font-size:.8rem;
@@ -91,7 +87,6 @@
   <div id="toast-container"></div>
 
   <script>
-    /* ---------- Supabase (global) ---------- */
     const supabase = window.supabase.createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
@@ -101,7 +96,6 @@
     const metaRow = document.getElementById("metaRow");
     let currentView = "home";
 
-    /* ---------- Router ---------- */
     async function route(view) {
       currentView = view;
       metaRow.textContent = "";
@@ -114,13 +108,9 @@
       if (view === "trash")    await loadTrash();
     }
 
-    /* ---------- Data loaders ---------- */
     async function loadStores(opts = {}) {
       let query = supabase.from("stores").select("*").order("created_at", { ascending:false });
-
-      // Exkludera rader som är i papperskorg
       if (opts.excludeDeleted) query = query.eq("deleted", false);
-
       if (opts.approved === true)  query = query.eq("approved", true).eq("deleted", false);
       if (opts.approved === false) query = query.eq("approved", false).eq("deleted", false);
       if (opts.flagged)            query = query.eq("flagged", true).eq("deleted", false);
@@ -134,36 +124,43 @@
     }
 
     async function loadTrash() {
-      const { data, error } = await supabase
-        .from("stores")
-        .select("*")
-        .eq("deleted", true)
-        .order("deleted_until", { ascending:true });
-
+      const { data, error } = await supabase.from("stores").select("*").eq("deleted", true).order("deleted_until", { ascending:true });
       if (error) { grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
       if (!data?.length) { grid.innerHTML = `<p>Trash is empty.</p>`; return; }
-
       metaRow.textContent = "Trash (48h auto-delete)";
       data.forEach(renderCardTrash);
     }
 
-    /* ---------- Render helpers ---------- */
+    function photoUrlFromStore(store) {
+      // 🟢 1. Direkt photo_url (bästa)
+      if (store.photo_url && store.photo_url.startsWith("http")) {
+        return store.photo_url;
+      }
+      // 🟡 2. Bygg från photo_reference om det finns
+      if (store.photo_reference && store.photo_reference.length < 200) {
+        const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+        return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${encodeURIComponent(store.photo_reference)}&key=${key}`;
+      }
+      // 🔴 3. Fallback beroende på typ
+      if (store.type?.toLowerCase() === "lounge") return "images/lounge.jpg";
+      if (store.type?.toLowerCase() === "store")  return "images/store.jpg";
+      return "images/other.jpg";
+    }
+
     function decorate(store) {
-      const types = Array.isArray(store.types) ? store.types.map(t => t.toLowerCase()) : [ (store.type || "other").toLowerCase() ];
+      const types = Array.isArray(store.types)
+        ? store.types.map(t => t.toLowerCase())
+        : [ (store.type || "other").toLowerCase() ];
       const badges = types.map(t => `<span class="badge ${t}">${t}</span>`).join(" ");
-
-      let img = "images/other.jpg";
-      if (store.photo_reference) img = store.photo_reference;
-      else if (types.includes("lounge")) img = "images/lounge.jpg";
-      else if (types.includes("store"))  img = "images/store.jpg";
-
+      const img = photoUrlFromStore(store);
       const stars = store.rating ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating) : "☆☆☆☆☆";
 
       let access = "";
       if (types.includes("lounge") && store.access) {
-        const text = store.access === "members"   ? "🔒 Members only"
-                  : store.access === "temporary" ? "⏳ Temporary members"
-                  : "🌐 Public access";
+        const text =
+          store.access === "members"   ? "🔒 Members only" :
+          store.access === "temporary" ? "⏳ Temporary members" :
+          "🌐 Public access";
         access = `<div class="access-line">${text}</div>`;
       }
       return { badges, img, stars, access };
@@ -174,7 +171,7 @@
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
-        <img src="${img}" alt="${store.name}">
+        <img src="${img}" alt="${store.name || ""}" onerror="this.src='images/store.jpg'">
         <div class="card-content">
           <div class="badges">
             ${store.flagged ? '<span class="badge flagged">Flagged</span>' : ''}${badges}
@@ -185,7 +182,10 @@
           ${access}
           <div class="rating">${stars}</div>
           <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
-          <div class="date">${store.created_at ? new Date(store.created_at).toLocaleDateString() : ""}</div>
+          <div class="date">
+            📅 Added: ${store.created_at ? new Date(store.created_at).toLocaleString("sv-SE",{dateStyle:"medium",timeStyle:"short"}) : "-"}<br>
+            🔁 Updated: ${store.updated_at ? new Date(store.updated_at).toLocaleString("sv-SE",{dateStyle:"medium",timeStyle:"short"}) : "-"}
+          </div>
         </div>
         <div class="btn-row">
           <button class="approve" onclick="updateStatus('${store.id}', ${!store.approved})">
@@ -194,9 +194,7 @@
           <button class="flag" onclick="toggleFlag('${store.id}', ${!!store.flagged})">
             ${store.flagged ? "Unflag" : "Flag"}
           </button>
-          <button class="soft-delete" onclick="softDelete('${store.id}')">
-            Delete
-          </button>
+          <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
         </div>`;
       grid.appendChild(card);
     }
@@ -220,107 +218,46 @@
       grid.appendChild(card);
     }
 
-    /* ---------- Actions ---------- */
-
-    // Approve / Unapprove (DB trigger uppdaterar countries.store_count)
+    // ✅ Status actions (unchanged)
     async function updateStatus(id, approved) {
-      try {
-        const { error } = await supabase
-          .from("stores")
-          .update({
-            approved,
-            status: approved ? "approved" : "pending",
-            approved_at: approved ? new Date().toISOString() : null
-          })
-          .eq("id", id);
-        if (error) throw error;
-
-        showToast(approved ? "✅ Store approved" : "⏳ Approval removed", "success");
-        reloadCurrent();
-      } catch (err) {
-        console.error("❌ updateStatus error:", err);
-        showToast(`Error: ${err.message}`, "error");
-      }
+      const { error } = await supabase.from("stores")
+        .update({ approved, status: approved ? "approved" : "pending", approved_at: approved ? new Date().toISOString() : null })
+        .eq("id", id);
+      if (error) return showToast(error.message, "error");
+      showToast(approved ? "✅ Store approved" : "⏳ Approval removed", "success");
+      reloadCurrent();
     }
 
-    // Flag / Unflag
     async function toggleFlag(id, flagged) {
-      try {
-        const { error } = await supabase
-          .from("stores")
-          .update({ flagged: !flagged })
-          .eq("id", id);
-        if (error) throw error;
-
-        showToast(flagged ? "🚫 Unflagged" : "🚩 Flagged", "success");
-        reloadCurrent();
-      } catch (err) {
-        console.error("❌ toggleFlag error:", err);
-        showToast("Failed to toggle flag", "error");
-      }
+      const { error } = await supabase.from("stores").update({ flagged: !flagged }).eq("id", id);
+      if (error) return showToast(error.message, "error");
+      showToast(flagged ? "🚫 Unflagged" : "🚩 Flagged", "success");
+      reloadCurrent();
     }
 
-    // Soft delete (Trash) — använder endast deleted + deleted_until (inte status)
     async function softDelete(id) {
-      try {
-        const deletedUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
-        const { error } = await supabase
-          .from("stores")
-          .update({
-            deleted: true,
-            deleted_until: deletedUntil
-          })
-          .eq("id", id);
-        if (error) throw error;
-
-        showToast("🗑️ Moved to Trash (48h)", "success");
-        reloadCurrent();
-      } catch (err) {
-        console.error("❌ softDelete error:", err);
-        showToast(`Failed to delete: ${err.message}`, "error");
-      }
+      const deletedUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+      const { error } = await supabase.from("stores").update({ deleted: true, deleted_until: deletedUntil }).eq("id", id);
+      if (error) return showToast(error.message, "error");
+      showToast("🗑️ Moved to Trash (48h)", "success");
+      reloadCurrent();
     }
 
-    // Restore from Trash
     async function restoreStore(id) {
-      try {
-        const { error } = await supabase
-          .from("stores")
-          .update({
-            deleted: false,
-            deleted_until: null
-          })
-          .eq("id", id);
-        if (error) throw error;
-
-        showToast("♻️ Restored", "success");
-        route("home");
-      } catch (err) {
-        console.error("❌ restoreStore error:", err);
-        showToast(`Failed to restore: ${err.message}`, "error");
-      }
+      const { error } = await supabase.from("stores").update({ deleted: false, deleted_until: null }).eq("id", id);
+      if (error) return showToast(error.message, "error");
+      showToast("♻️ Restored", "success");
+      route("home");
     }
 
-    // Permanent delete
     async function permanentDelete(id) {
-      try {
-        const { error } = await supabase
-          .from("stores")
-          .delete()
-          .eq("id", id);
-        if (error) throw error;
-
-        showToast("💀 Permanently deleted", "success");
-        reloadCurrent();
-      } catch (err) {
-        console.error("❌ permanentDelete error:", err);
-        showToast("Failed to delete permanently", "error");
-      }
+      const { error } = await supabase.from("stores").delete().eq("id", id);
+      if (error) return showToast(error.message, "error");
+      showToast("💀 Permanently deleted", "success");
+      reloadCurrent();
     }
 
-    /* ---------- Utilities ---------- */
     function reloadCurrent(){ route(currentView); }
-
     function showToast(msg,type="info"){
       const c=document.getElementById("toast-container");
       const t=document.createElement("div");
@@ -330,7 +267,6 @@
       setTimeout(()=>t.remove(),3000);
     }
 
-    // Init
     route("home");
   </script>
 </body>
