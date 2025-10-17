@@ -1,18 +1,58 @@
-name: 🔁 Run Refresh Photos (03:00 & 15:00 daily)
+name: 🌍 Refresh Google Photos (v4 Global)
 
 on:
-  workflow_dispatch:  # Du kan fortfarande köra manuellt
   schedule:
-    - cron: "0 2,13 * * *"  # Kör 03:00 & 15:00 svensk tid (02 & 13 UTC)
+    - cron: "0 3 * * *"   # 03:00 UTC – Europe
+    - cron: "0 6 * * *"   # 06:00 UTC – Asia
+    - cron: "0 9 * * *"   # 09:00 UTC – Africa
+    - cron: "0 12 * * *"  # 12:00 UTC – North America
+    - cron: "0 15 * * *"  # 15:00 UTC – South America
+    - cron: "0 18 * * *"  # 18:00 UTC – Oceania / fallback
+  workflow_dispatch:       # Gör att du kan köra manuellt i Actions-fliken
 
 jobs:
-  run-refresh-photos:
+  refresh-photos:
     runs-on: ubuntu-latest
+    env:
+      BASE_URL: "https://gbxxoeplkzbhsvagnfsr.supabase.co/functions/v1/refresh-photos"
+      AUTH: "Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
 
     steps:
-      - name: Run Supabase Edge Function (refresh-photos)
+      - name: 🚀 Europe batch
         run: |
-          curl -X POST "https://gbxxoeplkzbhsvagnfsr.supabase.co/functions/v1/refresh-photos" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
-            -H "Content-Type: application/json" \
-            -d '{}'
+          echo "Running Europe batch..."
+          curl -s -X POST "$BASE_URL?region=europe&limit=1200" \
+            -H "Authorization: $AUTH" -H "Content-Type: application/json" || true
+
+      - name: 🌏 Asia batch
+        run: |
+          echo "Running Asia batch..."
+          curl -s -X POST "$BASE_URL?region=asia&limit=1200" \
+            -H "Authorization: $AUTH" -H "Content-Type: application/json" || true
+
+      - name: 🌍 Africa batch
+        run: |
+          echo "Running Africa batch..."
+          curl -s -X POST "$BASE_URL?region=africa&limit=1200" \
+            -H "Authorization: $AUTH" -H "Content-Type: application/json" || true
+
+      - name: 🇺🇸 North America batch
+        run: |
+          echo "Running North America batch..."
+          curl -s -X POST "$BASE_URL?region=united%20states&limit=1200" \
+            -H "Authorization: $AUTH" -H "Content-Type: application/json" || true
+
+      - name: 🇧🇷 South America batch
+        run: |
+          echo "Running South America batch..."
+          curl -s -X POST "$BASE_URL?region=south%20america&limit=1200" \
+            -H "Authorization: $AUTH" -H "Content-Type: application/json" || true
+
+      - name: 🇦🇺 Oceania batch
+        run: |
+          echo "Running Oceania batch..."
+          curl -s -X POST "$BASE_URL?region=australia&limit=1200" \
+            -H "Authorization: $AUTH" -H "Content-Type: application/json" || true
+
+      - name: ✅ Summary
+        run: echo "All regions processed."
