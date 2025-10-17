@@ -1,177 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Add Store — Backoffice</title>
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Store / Lounge / Other</title>
   <style>
-    :root {
-      --primary:#2f78c4;
-      --primary-dark:#2466a8;
-      --success:#1d8348;
-      --danger:#c0392b;
-      --bg:#f5f6f8;
-      --card:#ffffff;
-      --text:#1f2937;
-      --border:#e5e7eb;
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+    }
+    .form-wrapper {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      color: #b8860b;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      margin-bottom: 1rem;
+    }
+    .radio-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+      justify-content: center;
+    }
+    .radio-group input[type="radio"] { display: none; }
+    .badge {
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .store { border-color: #007bff; color: #007bff; }
+    input[type="radio"]:checked + .store { background:#007bff; color:#fff; }
+    .lounge { border-color: #28a745; color: #28a745; }
+    input[type="radio"]:checked + .lounge { background:#28a745; color:#fff; }
+    .other { border-color: #ff8c00; color: #ff8c00; }
+    input[type="radio"]:checked + .other { background:#ff8c00; color:#fff; }
+
+    .rating {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+    .star {
+      font-size: 2rem;
+      cursor: pointer;
+      color: #ccc;
+      transition: color 0.2s;
+    }
+    .star:hover, .star.hover { color: #daa520; }
+    .star.selected { color: #b8860b; }
+
+    #preview {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    #preview img {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
-    *{box-sizing:border-box}
-    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text);}
-    h1{text-align:center;margin-bottom:1.5rem;color:var(--primary-dark);}
+    .btns {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    button {
+      flex: 1;
+      padding: 0.9rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #saveBtn { background: #b8860b; color: #fff; }
+    #saveBtn:hover { background: #a37408; }
+    #cancelBtn { background: #aaa; color: #fff; }
+    #cancelBtn:hover { background: #888; }
 
-    form{
-      max-width:700px;margin:0 auto;background:var(--card);padding:1.5rem;
-      border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.1);
+    #toast-container {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
-    label{font-weight:bold;display:block;margin-top:1rem;font-size:.9rem;}
-    input,select,textarea{
-      width:100%;padding:.6rem;border:1.4px solid var(--border);border-radius:8px;
-      font-size:.9rem;margin-top:.4rem;
+    .toast {
+      background: #333;
+      color: #fff;
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      opacity: 0.95;
     }
-    textarea{resize:vertical;min-height:80px;}
-    .inline{display:flex;gap:.8rem;}
-    .inline > div{flex:1;}
-    .actions{display:flex;justify-content:space-between;gap:.6rem;margin-top:1.5rem;}
-    button{
-      flex:1;padding:.75rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold;
-      font-size:.95rem;
-    }
-    button.submit{background:var(--success);color:#fff;}
-    button.cancel{background:#fff;color:var(--primary);border:2px solid var(--primary);}
-    button.submit:hover{background:#166f3e;}
-    button.cancel:hover{background:var(--primary-dark);color:#fff;}
-
-    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999;}
-    .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);}
-    .toast.success{background:#28a745;}
-    .toast.error{background:#dc3545;}
-    .toast.info{background:#2f78c4;}
+    .toast.success { background: #28a745; }
+    .toast.error { background: #dc3545; }
   </style>
 </head>
 <body>
-  <h1>Add Store</h1>
+  <div class="form-wrapper">
+    <h1>Add Store / Lounge / Other</h1>
 
-  <form id="storeForm">
-    <div class="inline">
-      <div>
-        <label>Store name *</label>
-        <input type="text" name="name" required placeholder="e.g. The Cigar Lounge"/>
-      </div>
-      <div>
-        <label>Type *</label>
-        <select name="type" required>
-          <option value="store">Store</option>
-          <option value="lounge">Lounge</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-    </div>
+    <label>Add with Google</label>
+    <input id="address" placeholder="Search with Google" type="text" />
+
+    <label>Store Name</label>
+    <input type="text" id="name"/>
 
     <label>Address</label>
-    <input type="text" name="address" placeholder="Street and number"/>
+    <input type="text" id="addr"/>
 
-    <div class="inline">
-      <div>
-        <label>City *</label>
-        <input type="text" name="city" required placeholder="City name"/>
-      </div>
-      <div>
-        <label>Country *</label>
-        <input type="text" name="country" required placeholder="Country"/>
-      </div>
-    </div>
+    <label>City</label>
+    <input type="text" id="city"/>
 
-    <div class="inline">
-      <div>
-        <label>Continent *</label>
-        <select name="continent" required>
-          <option value="">Select continent</option>
-          <option value="Europe">Europe</option>
-          <option value="Asia">Asia</option>
-          <option value="Africa">Africa</option>
-          <option value="North America">North America</option>
-          <option value="South America">South America</option>
-          <option value="Oceania">Oceania</option>
-        </select>
-      </div>
-      <div>
-        <label>Access</label>
-        <select name="access">
-          <option value="">—</option>
-          <option value="public">Public</option>
-          <option value="temporary">Temporary membership</option>
-          <option value="members">Members only</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="inline">
-      <div>
-        <label>Latitude</label>
-        <input type="number" step="any" name="latitude" placeholder="e.g. 59.33258"/>
-      </div>
-      <div>
-        <label>Longitude</label>
-        <input type="number" step="any" name="longitude" placeholder="e.g. 18.0649"/>
-      </div>
-    </div>
-
-    <label>Description</label>
-    <textarea name="description" placeholder="Short description..."></textarea>
-
-    <label>Website</label>
-    <input type="url" name="website" placeholder="https://"/>
+    <label>Country</label>
+    <input type="text" id="country"/>
 
     <label>Phone</label>
-    <input type="text" name="phone" placeholder="+46 70 123 45 67"/>
+    <input type="text" id="phone"/>
 
-    <div class="actions">
-      <button type="button" class="cancel" onclick="window.location.href='backoffice-home-final.html'">Cancel</button>
-      <button type="submit" class="submit">Add Store</button>
+    <label>Website</label>
+    <input type="text" id="website"/>
+
+    <div class="radio-group">
+      <label><input type="radio" name="type" value="store"><span class="badge store">Store</span></label>
+      <label><input type="radio" name="type" value="lounge"><span class="badge lounge">Lounge</span></label>
+      <label><input type="radio" name="type" value="other"><span class="badge other">Other</span></label>
     </div>
-  </form>
+
+    <div id="accessOptions" style="display:none; margin-top:1rem;">
+      <label>Access type (for lounges):</label>
+      <div class="radio-group">
+        <label><input type="radio" name="access" value="public"><span class="badge store">Public</span></label>
+        <label><input type="radio" name="access" value="temporary"><span class="badge other">Temporary</span></label>
+        <label><input type="radio" name="access" value="members"><span class="badge lounge">Members Only</span></label>
+      </div>
+    </div>
+
+    <div class="rating" id="rating"></div>
+
+    <div id="preview"></div>
+
+    <div class="btns">
+      <button id="saveBtn">Save Store</button>
+      <button id="cancelBtn">Cancel</button>
+    </div>
+  </div>
 
   <div id="toast-container"></div>
 
+  <!-- Supabase -->
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-    const supabase = createClient(
+    window.supabase = createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
+  </script>
 
-    const form = document.getElementById("storeForm");
+  <script>
+    let selectedPlace = {};
+    let selectedRating = 0;
+    let selectedType = "";
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const formData = Object.fromEntries(new FormData(form).entries());
-      formData.rating = 0;
-      formData.approved = false;
-      formData.flagged = false;
-      formData.deleted = false;
-      formData.created_at = new Date().toISOString();
-
-      try {
-        const { error } = await supabase.from("stores").insert([formData]);
-        if (error) throw error;
-        showToast("✅ Store added successfully", "success");
-        setTimeout(() => window.location.href = "backoffice-home-final.html", 1000);
-      } catch (err) {
-        console.error("❌ Insert error:", err);
-        showToast("Failed to add store: " + err.message, "error");
+    window.addEventListener("DOMContentLoaded", () => {
+      const rating = document.getElementById("rating");
+      for (let i = 1; i <= 5; i++) {
+        const s = document.createElement("span");
+        s.textContent = "★";
+        s.classList.add("star");
+        s.addEventListener("mouseover", () => {
+          document.querySelectorAll(".star").forEach(st => st.classList.remove("hover"));
+          for (let j = 0; j < i; j++) document.querySelectorAll(".star")[j].classList.add("hover");
+        });
+        s.addEventListener("mouseout", () => document.querySelectorAll(".star").forEach(st => st.classList.remove("hover")));
+        s.addEventListener("click", () => {
+          selectedRating = i;
+          document.querySelectorAll(".star").forEach(st => st.classList.remove("selected"));
+          for (let j = 0; j < i; j++) document.querySelectorAll(".star")[j].classList.add("selected");
+        });
+        rating.appendChild(s);
       }
+
+      document.getElementById("cancelBtn").addEventListener("click", clearForm);
+      document.getElementById("saveBtn").addEventListener("click", saveStore);
+
+      document.querySelectorAll("input[name='type']").forEach(radio => {
+        radio.addEventListener("change", () => {
+          selectedType = radio.value;
+          document.getElementById("accessOptions").style.display =
+            selectedType === "lounge" ? "block" : "none";
+          updatePreview();
+        });
+      });
     });
 
-    function showToast(msg,type="info"){
-      const c=document.getElementById("toast-container");
-      const t=document.createElement("div");
-      t.className=`toast ${type}`;
-      t.textContent=msg;
-      c.appendChild(t);
-      setTimeout(()=>t.remove(),3000);
+    function clearForm() {
+      document.querySelectorAll("input").forEach(i => i.value = "");
+      document.querySelectorAll("input[type='radio']").forEach(r => r.checked = false);
+      document.querySelectorAll(".star").forEach(s => s.classList.remove("selected", "hover"));
+      document.getElementById("preview").innerHTML = "";
+      selectedRating = 0;
+      selectedType = "";
+      showToast("Form cleared", "success");
     }
+
+    async function saveStore() {
+      const name = document.getElementById("name").value.trim();
+      const address = document.getElementById("addr").value.trim();
+      const city = document.getElementById("city").value.trim();
+      const country = document.getElementById("country").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const website = document.getElementById("website").value.trim();
+      const access = document.querySelector("input[name='access']:checked")?.value || null;
+
+      if (!selectedType) return showToast("Please select a type", "error");
+      if (!name || !address || !city || !country)
+        return showToast("Please fill in all required fields", "error");
+
+      const { error } = await supabase.from("stores").insert([{
+        name, address, city, country, phone, website,
+        type: selectedType.toLowerCase(),
+        access,
+        rating: selectedRating, approved: false,
+        lat: selectedPlace.lat || null, lng: selectedPlace.lng || null,
+        place_id: selectedPlace.place_id || null,
+        photo_reference: selectedPlace.photo_reference || null
+      }]);
+
+      if (error) {
+        console.error(error);
+        showToast("Failed to add store", "error");
+      } else {
+        showToast("✅ Store added successfully!", "success");
+        clearForm();
+      }
+    }
+
+    function showToast(msg, type = "success") {
+      const c = document.getElementById("toast-container");
+      const t = document.createElement("div");
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    }
+
+    function updatePreviewFromRef(photoRef) {
+      const pv = document.getElementById("preview");
+      let img = "images/other.jpg";
+      if (photoRef) {
+        const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+        img = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${encodeURIComponent(photoRef)}&key=${key}`;
+      }
+      pv.innerHTML = `<img src="${img}" alt="Preview">`;
+    }
+
+    function initAutocomplete() {
+      const input = document.getElementById("address");
+      const autocomplete = new google.maps.places.Autocomplete(input, {
+        fields: ["place_id", "address_components", "geometry", "name", "formatted_address", "international_phone_number", "website", "photos"]
+      });
+
+      const service = new google.maps.places.PlacesService(document.createElement("div"));
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        if (!place) return;
+
+        document.getElementById("name").value = place.name || "";
+        document.getElementById("addr").value = place.formatted_address || "";
+
+        let city = place.address_components?.find(c => c.types.includes("locality"));
+        if (!city) {
+          city = place.address_components?.find(c => c.types.includes("postal_town") || c.types.includes("administrative_area_level_2"));
+        }
+        const country = place.address_components?.find(c => c.types.includes("country"));
+        document.getElementById("city").value = city?.long_name || "";
+        document.getElementById("country").value = country?.long_name || "";
+        document.getElementById("phone").value = place.international_phone_number || "";
+        document.getElementById("website").value = place.website || "";
+
+        selectedPlace = {
+          lat: place.geometry?.location?.lat() || null,
+          lng: place.geometry?.location?.lng() || null,
+          place_id: place.place_id || null,
+          photo_reference: null
+        };
+
+        if (selectedPlace.place_id) {
+          service.getDetails({ placeId: selectedPlace.place_id, fields: ["photos"] }, (res, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && res?.photos?.length) {
+              selectedPlace.photo_reference = res.photos[0].photo_reference || null;
+              updatePreviewFromRef(selectedPlace.photo_reference);
+            } else {
+              updatePreviewFromRef(null);
+            }
+          });
+        } else {
+          updatePreviewFromRef(null);
+        }
+      });
+    }
+
+    window.initAutocomplete = initAutocomplete;
   </script>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete" async defer></script>
 </body>
 </html>
