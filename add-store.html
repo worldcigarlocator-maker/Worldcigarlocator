@@ -220,7 +220,7 @@
           selectedType = radio.value;
           document.getElementById("accessOptions").style.display =
             selectedType === "lounge" ? "block" : "none";
-          updatePreview();
+          updatePreviewFromRef(null);
         });
       });
     });
@@ -289,21 +289,36 @@
     function initAutocomplete() {
       const input = document.getElementById("address");
       const autocomplete = new google.maps.places.Autocomplete(input, {
-        fields: ["place_id", "address_components", "geometry", "name", "formatted_address", "international_phone_number", "website", "photos"]
+        fields: [
+          "place_id",
+          "geometry",
+          "name",
+          "formatted_address",
+          "address_components",
+          "international_phone_number",
+          "website",
+          "photos"
+        ],
+        types: ["establishment"]
       });
 
       const service = new google.maps.places.PlacesService(document.createElement("div"));
 
       autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
-        if (!place) return;
+        if (!place || !place.place_id) {
+          showToast("⚠️ Could not load place details. Try again.", "error");
+          return;
+        }
 
         document.getElementById("name").value = place.name || "";
         document.getElementById("addr").value = place.formatted_address || "";
 
         let city = place.address_components?.find(c => c.types.includes("locality"));
         if (!city) {
-          city = place.address_components?.find(c => c.types.includes("postal_town") || c.types.includes("administrative_area_level_2"));
+          city = place.address_components?.find(c =>
+            c.types.includes("postal_town") || c.types.includes("administrative_area_level_2")
+          );
         }
         const country = place.address_components?.find(c => c.types.includes("country"));
         document.getElementById("city").value = city?.long_name || "";
@@ -314,21 +329,22 @@
         selectedPlace = {
           lat: place.geometry?.location?.lat() || null,
           lng: place.geometry?.location?.lng() || null,
-          place_id: place.place_id || null,
+          place_id: place.place_id,
           photo_reference: null
         };
 
-        if (selectedPlace.place_id) {
-          service.getDetails({ placeId: selectedPlace.place_id, fields: ["photos"] }, (res, status) => {
+        if (place.photos?.length > 0) {
+          selectedPlace.photo_reference = place.photos[0].photo_reference;
+          updatePreviewFromRef(selectedPlace.photo_reference);
+        } else {
+          service.getDetails({ placeId: place.place_id, fields: ["photos"] }, (res, status) => {
             if (status === google.maps.places.PlacesServiceStatus.OK && res?.photos?.length) {
-              selectedPlace.photo_reference = res.photos[0].photo_reference || null;
+              selectedPlace.photo_reference = res.photos[0].photo_reference;
               updatePreviewFromRef(selectedPlace.photo_reference);
             } else {
               updatePreviewFromRef(null);
             }
           });
-        } else {
-          updatePreviewFromRef(null);
         }
       });
     }
