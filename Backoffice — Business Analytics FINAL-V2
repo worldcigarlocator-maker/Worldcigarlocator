@@ -1,0 +1,190 @@
+<!-- ✅ Backoffice — Business Analytics FINAL-V2 | 2025-10-17 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Backoffice — Business Analytics (Final V2)</title>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root{
+      --primary:#2f78c4;
+      --primary-dark:#2466a8;
+      --accent:#28a745;
+      --bg:#f5f6f8;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --table-border:#dddddd;
+    }
+    *{box-sizing:border-box}
+    body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padding:1.1rem;color:var(--text);font-size:10px;line-height:1.35}
+
+    h1{text-align:center;margin:0 0 .8rem;font-size:1.35rem;font-weight:800;color:#2b2b2b}
+
+    nav{display:flex;justify-content:center;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem}
+    nav a, nav button{
+      background:#fff;border:1.4px solid var(--primary);color:var(--primary);
+      padding:.35rem .6rem;border-radius:7px;font-weight:800;font-size:.9rem;
+      text-decoration:none;cursor:pointer;transition:.2s;
+    }
+    nav a:hover, nav button:hover{background:var(--primary);color:#fff}
+    #forceBtn{background:#fff;color:var(--primary);}
+    #forceBtn:hover{background:var(--primary-dark);color:#fff}
+
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.6rem;margin-bottom:.8rem}
+    .stat-card{
+      background:var(--card);border:1px solid var(--border);border-radius:9px;
+      box-shadow:0 1px 3px rgba(0,0,0,.05);padding:.6rem;text-align:center;cursor:pointer;
+      transition:transform .08s, box-shadow .08s, background .08s, color .08s
+    }
+    .stat-card:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .stat-card.active{background:var(--accent);color:#fff;border-color:transparent}
+    .stat-card h2{margin:.02rem 0 .12rem;font-size:1.35rem;color:inherit}
+    .stat-card p{margin:0;opacity:.92;font-size:.9rem}
+
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:9px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:.6rem;margin-bottom:.6rem}
+    .row{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;justify-content:center}
+    .btn{background:#fff;border:1.4px solid var(--primary);color:var(--primary);
+      padding:.34rem .55rem;border-radius:7px;font-weight:800;cursor:pointer;font-size:.9rem}
+    .btn:hover{background:var(--primary);color:#fff}
+    .btn.active{background:var(--primary);color:#fff}
+    .select{border:1.4px solid var(--primary);border-radius:7px;padding:.32rem .5rem;
+      color:var(--primary);background:#fff;font-weight:800;font-size:.9rem}
+    .chart-title{text-align:center;font-weight:900;margin:.4rem 0 0;font-size:1rem}
+    .chart-wrap{padding:.5rem}
+    #chartsPanel.minimized{height:40px;overflow:hidden;transition:height .2s ease}
+
+    .table-wrap{background:var(--card);border:1px solid var(--table-border);border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow:hidden}
+    table{width:100%;border-collapse:collapse;table-layout:fixed}
+    th,td{padding:.5rem .55rem;border-bottom:1px solid #eee;text-align:left;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    th{background:#f3f4f6;color:#333;cursor:pointer}
+    tr:hover{background:#f9fafb}
+    .status{font-weight:800}
+    .approved{color:#1d8348}.flagged{color:#c0392b}.pending{color:#b36e00}
+
+    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.4rem;z-index:9999}
+    .toast{background:#333;color:#fff;padding:.7rem 1rem;border-radius:8px;font-weight:bold;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.95}
+    .toast.success{background:#28a745;}
+  </style>
+</head>
+<body>
+  <h1>World Cigar Locator — Business Analytics</h1>
+
+  <nav>
+    <a href="backoffice-home-final.html">Home</a>
+    <a href="backoffice-business-analytics-final-v2.html"><strong>Business</strong></a>
+    <a href="backoffice-trash.html">Trash</a>
+    <button id="forceBtn">↻ Force Update</button>
+  </nav>
+
+  <div class="stats-grid" id="kpiGrid"></div>
+  <div class="panel" id="chartsPanel">
+    <div class="row" style="margin-bottom:.35rem">
+      <button class="btn" id="toggleCharts">Hide Charts ▴</button>
+      <select class="select" id="periodSelect">
+        <option value="7">Last 7 Days</option>
+        <option value="30" selected>Last 30 Days</option>
+        <option value="365">Last 12 Months</option>
+      </select>
+      <button class="btn active" id="btnCountry">Performance per Country</button>
+      <button class="btn" id="btnType">Performance per Type</button>
+      <button class="btn" id="btnNewCards">New Cards per Country</button>
+    </div>
+    <div class="chart-title" id="chartTitle">Performance per Country</div>
+    <div class="chart-wrap"><canvas id="chartCanvas" height="75"></canvas></div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="storesTable">
+      <thead>
+        <tr>
+          <th>Name</th><th>Country</th><th>Type</th><th>Views</th><th>Clicks</th><th>CTR (%)</th><th>Rating</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    const supabase = createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    const kpiGrid = document.getElementById("kpiGrid");
+    const tableBody = document.getElementById("tableBody");
+    const toastContainer = document.getElementById("toast-container");
+    let allStores = [];
+
+    // Load initial data
+    await loadData();
+    renderKPIs();
+    renderTable();
+
+    async function loadData(force = false){
+      const { data, error } = await supabase.from("stores").select("*");
+      if(error){ showToast("❌ Failed to load data","error"); return; }
+      allStores = data || [];
+      renderKPIs();
+      renderTable();
+      if(force) showToast("✅ Data refreshed successfully!","success");
+    }
+
+    function renderKPIs(){
+      const total = allStores.length;
+      const approved = allStores.filter(s=>s.approved).length;
+      const pending = allStores.filter(s=>!s.approved && !s.deleted).length;
+      const flagged = allStores.filter(s=>s.flagged).length;
+      const deleted = allStores.filter(s=>s.deleted).length;
+      const kpiHTML = `
+        <div class="stat-card"><h2>${total}</h2><p>Total</p></div>
+        <div class="stat-card"><h2>${approved}</h2><p>Approved</p></div>
+        <div class="stat-card"><h2>${pending}</h2><p>Pending</p></div>
+        <div class="stat-card"><h2>${flagged}</h2><p>Flagged</p></div>
+        <div class="stat-card"><h2>${deleted}</h2><p>Deleted</p></div>`;
+      kpiGrid.innerHTML = kpiHTML;
+    }
+
+    function renderTable(){
+      const rows = allStores.slice(0,500);
+      tableBody.innerHTML = rows.map(s=>{
+        const ctr = s.views>0 ? ((s.link_clicks||0)/s.views*100).toFixed(1) : "0.0";
+        return `
+          <tr>
+            <td>${s.name||"-"}</td>
+            <td>${s.country||"-"}</td>
+            <td>${s.type||"-"}</td>
+            <td>${s.views||0}</td>
+            <td>${s.link_clicks||0}</td>
+            <td>${ctr}</td>
+            <td>${s.rating||0}</td>
+            <td>${s.flagged?"Flagged":s.approved?"Approved":s.deleted?"Deleted":"Pending"}</td>
+          </tr>`;
+      }).join("");
+    }
+
+    function showToast(msg,type="success"){
+      const t=document.createElement("div");
+      t.className=`toast ${type}`;
+      t.textContent=msg;
+      toastContainer.appendChild(t);
+      setTimeout(()=>t.remove(),3000);
+    }
+
+    // Force Update Button
+    document.getElementById("forceBtn").addEventListener("click",async()=>{
+      if(confirm("Are you sure you want to force update? This may trigger API calls and consume quota.")){
+        await loadData(true);
+      }
+    });
+  </script>
+</body>
+</html>
