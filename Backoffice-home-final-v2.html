@@ -1,107 +1,111 @@
-<!-- ✅ Backoffice Home FINAL-v2 (GH compatible) | Stable Image Handling -->
+<!-- Backoffice Home FINAL-V3 (GH compatible) | 2025-10-17 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Backoffice — Home (v2 Stable Image Handling)</title>
-  <!-- Global Supabase (non-module, for GH Pages) -->
+  <title>Backoffice — Home (FINAL-V3)</title>
+  <!-- Supabase v2 (non-module, funkar på GitHub Pages) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root {
-      --primary:#2f78c4;
-      --primary-dark:#2466a8;
-      --success:#1d8348;
-      --warning:#b36e00;
-      --danger:#c0392b;
-      --bg:#f5f6f8;
-      --card:#ffffff;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --border:#e5e7eb;
+    :root{
+      --primary:#2f78c4; --primary-dark:#2466a8;
+      --success:#1d8348; --warning:#b36e00; --danger:#c0392b;
+      --bg:#f5f6f8; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
     }
-
     *{box-sizing:border-box}
     body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text);}
-    h1{text-align:center;margin-bottom:1.5rem;color:var(--primary-dark);}
+    h1{text-align:center;margin-bottom:1.2rem;color:var(--primary-dark);}
 
-    .top-bar{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem;}
-    .top-bar button{
-      background:var(--primary);color:#fff;border:none;padding:.6rem 1rem;
-      border-radius:8px;cursor:pointer;font-weight:bold;font-size:.9rem;
+    /* Top bar (alfabetisk ordning) */
+    .top-bar{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+    .top-bar a,.top-bar button{
+      background:#fff;color:var(--primary);border:2px solid var(--primary);
+      padding:.55rem .9rem;border-radius:8px;cursor:pointer;font-weight:bold;font-size:.9rem;text-decoration:none
     }
-    .top-bar button.secondary{background:#fff;color:var(--primary);border:2px solid var(--primary);}
-    .top-bar button:hover{background:var(--primary-dark);color:#fff;}
+    .top-bar a:hover,.top-bar button:hover{background:var(--primary);color:#fff}
 
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;}
-    .card{
-      background:var(--card);border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,0.1);
-      overflow:hidden;display:flex;flex-direction:column;
-    }
-    .card img{width:100%;height:180px;object-fit:cover;}
-    .card-content{padding:1rem;flex:1;}
+    #metaRow{text-align:center;color:var(--muted);margin-bottom:1rem}
 
-    .badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem;}
-    .badge{
-      display:inline-block;padding:.25rem .7rem;border-radius:12px;font-size:.8rem;
-      font-weight:bold;color:#fff;
-    }
-    .store{background:#007bff;}
-    .lounge{background:#28a745;}
-    .other{background:#ff8c00;}
-    .flagged{background:#dc3545!important;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem}
+    .card{background:var(--card);border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);overflow:hidden;display:flex;flex-direction:column;border:1px solid var(--border)}
+    .card img{width:100%;height:190px;object-fit:cover;background:#eee}
+    .card-content{padding:1rem;flex:1}
 
-    .rating{color:#b8860b;margin-top:.3rem;}
-    .status{font-size:.85rem;color:var(--muted);margin-top:.3rem;}
-    .date{font-size:.75rem;color:#999;margin-top:.3rem;}
-    .access-line{color:var(--primary-dark);font-size:.85rem;margin:.2rem 0;}
+    .badges{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.35rem}
+    .badge{display:inline-block;padding:.2rem .6rem;border-radius:12px;font-size:.75rem;font-weight:bold;color:#fff}
+    .store{background:#007bff}.lounge{background:#28a745}.other{background:#ff8c00}.flagged{background:#dc3545!important}
 
-    .btn-row{display:flex;gap:.5rem;padding:0 1rem 1rem;}
-    .btn-row button{flex:1;padding:.55rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold;}
-    .approve{background:var(--success);color:#fff;}
-    .flag{background:#ff8c00;color:#fff;}
-    .soft-delete{background:var(--danger);color:#fff;}
-    .approve:hover{background:#166f3e;}
-    .flag:hover{background:#d97706;}
-    .soft-delete:hover{background:#a83228;}
+    .rating{color:#b8860b;margin:.25rem 0}
+    .status{font-size:.85rem;color:var(--muted)}
+    .date{font-size:.75rem;color:#9aa; margin-top:.25rem}
 
-    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999;}
-    .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.97;}
-    .toast.success{background:#28a745;}
-    .toast.error{background:#dc3545;}
-    .toast.info{background:#2f78c4;}
+    .btn-row{display:flex;gap:.5rem;padding:.8rem 1rem 1rem}
+    .btn{flex:1;padding:.55rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
+    .btn-approve{background:var(--success);color:#fff}
+    .btn-delete{background:var(--danger);color:#fff}
+    .btn-edit{background:#6b7280;color:#fff}
+    .btn-flag{background:#ff8c00;color:#fff}
+    .btn:hover{filter:brightness(.95)}
+
+    /* Inline edit (expander) */
+    .edit-wrap{border-top:1px dashed var(--border);padding:1rem;background:#fafbff}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+    .row label{font-weight:bold;font-size:.85rem}
+    .row input,.row select{width:100%;padding:.5rem;border:1px solid #ccc;border-radius:6px;font-size:.95rem}
+    .chips{display:flex;gap:.4rem;flex-wrap:wrap;margin:.4rem 0}
+    .chip{border:1px solid var(--border);padding:.3rem .6rem;border-radius:14px;cursor:pointer;user-select:none}
+    .chip.active{background:#eef6ff;border-color:#bcd7ff;color:#145b99}
+    .access-box{display:none;background:#f8fafc;border:1px dashed #cfe1ff;padding:.6rem .7rem;border-radius:8px;margin-top:.4rem}
+    .stars{display:flex;gap:.2rem;font-size:1.4rem;cursor:pointer;color:#ccc}
+    .stars .sel{color:#b8860b}
+
+    .edit-actions{display:flex;gap:.5rem;margin-top:.8rem}
+    .edit-actions .btn{flex:1}
+    .btn-save{background:var(--primary);color:#fff}
+    .btn-cancel{background:#e5e7eb;color:#111}
+
+    /* Toasts */
+    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999}
+    .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.97}
+    .toast.success{background:#28a745}.toast.error{background:#dc3545}.toast.info{background:#2f78c4}
   </style>
 </head>
 <body>
   <h1>Backoffice Home</h1>
 
+  <!-- Alfabetisk ordning: Add Store, Approved, Business, Flagged, Home, Pending, Trash -->
   <div class="top-bar">
-    <button class="secondary" onclick="route('home')">Home</button>
+    <a href="add-store.html">Add Store</a>
     <button onclick="route('approved')">Approved</button>
-    <button onclick="route('pending')">Pending</button>
+    <a href="backoffice-business-analytics-final.html">Business</a>
     <button onclick="route('flagged')">Flagged</button>
+    <button onclick="route('home')">Home</button>
+    <button onclick="route('pending')">Pending</button>
     <button onclick="route('trash')">Trash</button>
-    <button onclick="window.location.href='backoffice-analytics-final-v2.html'">Business</button>
-    <button onclick="window.location.href='add-store.html'">Add Store</button>
   </div>
 
-  <div id="metaRow" style="text-align:center;color:var(--muted);margin-bottom:1rem;"></div>
+  <div id="metaRow"></div>
   <div id="storeGrid" class="grid"></div>
   <div id="toast-container"></div>
 
   <script>
+    /* ---------- Konfiguration ---------- */
+    const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    // Använd BARA browser key här (inte server key)
+    const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+
     /* ---------- Supabase ---------- */
-    const supabase = window.supabase.createClient(
-      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
-    );
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const grid = document.getElementById("storeGrid");
     const metaRow = document.getElementById("metaRow");
     let currentView = "home";
+    let editingId = null; // endast ett kort åt gången
 
     /* ---------- Router ---------- */
-    async function route(view) {
+    async function route(view){
       currentView = view;
       metaRow.textContent = "";
       grid.innerHTML = "";
@@ -114,87 +118,82 @@
     }
 
     /* ---------- Data loaders ---------- */
-    async function loadStores(opts = {}) {
-      let query = supabase.from("stores").select("*").order("created_at", { ascending:false });
-      if (opts.excludeDeleted) query = query.eq("deleted", false);
-      if (opts.approved === true)  query = query.eq("approved", true).eq("deleted", false);
-      if (opts.approved === false) query = query.eq("approved", false).eq("deleted", false);
-      if (opts.flagged)            query = query.eq("flagged", true).eq("deleted", false);
+    async function loadStores(opts = {}){
+      let q = supabase.from("stores").select("*").order("created_at",{ascending:false});
 
-      const { data, error } = await query;
-      if (error) { grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
-      if (!data?.length) { grid.innerHTML = `<p>No stores found.</p>`; return; }
+      if (opts.excludeDeleted) q = q.eq("deleted", false);
+      if (opts.approved === true)  q = q.eq("approved", true).eq("deleted", false);
+      if (opts.approved === false) q = q.eq("approved", false).eq("deleted", false);
+      if (opts.flagged)            q = q.eq("flagged", true).eq("deleted", false);
+
+      const { data, error } = await q;
+      if (error){ grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
+      if (!data?.length){ grid.innerHTML = `<p>No stores found.</p>`; return; }
 
       metaRow.textContent = opts.title || "";
       data.forEach(renderCard);
     }
 
-    async function loadTrash() {
+    async function loadTrash(){
       const { data, error } = await supabase
         .from("stores")
         .select("*")
         .eq("deleted", true)
-        .order("deleted_until", { ascending:true });
+        .order("deleted_until",{ascending:true});
 
-      if (error) { grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
-      if (!data?.length) { grid.innerHTML = `<p>Trash is empty.</p>`; return; }
+      if (error){ grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
+      if (!data?.length){ grid.innerHTML = `<p>Trash is empty.</p>`; return; }
 
       metaRow.textContent = "Trash (48h auto-delete)";
       data.forEach(renderCardTrash);
     }
 
-    /* ---------- Stable Image Handling ---------- */
-    function photoUrlFromRef(store) {
-      if (store.photo_url && store.photo_url.startsWith("http")) {
-        return store.photo_url;
-      }
-      if (!store.photo_reference) {
-        if (store.type === "lounge") return "images/lounge.jpg";
-        if (store.type === "store")  return "images/store.jpg";
-        return "images/other.jpg";
-      }
-      if (store.photo_reference.startsWith("http")) {
-        return store.photo_reference;
-      }
-      const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
-      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(store.photo_reference)}&key=${key}`;
+    /* ---------- Foto-hjälp ---------- */
+    function photoUrlFromRef(photoRef){
+      if (!photoRef) return "images/store.jpg";
+      // om redan full URL
+      if (String(photoRef).startsWith("http")) return photoRef;
+      // annars bygg klassiska photo-endpointen
+      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${encodeURIComponent(photoRef)}&key=${GOOGLE_BROWSER_KEY}`;
     }
 
     /* ---------- Render helpers ---------- */
-    function decorate(store) {
-      const types = Array.isArray(store.types)
-        ? store.types.map(t => t.toLowerCase())
-        : [ (store.type || "other").toLowerCase() ];
+    function decorate(store){
+      const types = Array.isArray(store.types) ? store.types.map(t=>String(t).toLowerCase()) : [ (store.type||"other").toLowerCase() ];
+      const badges = types.map(t=>`<span class="badge ${t}">${t}</span>`).join(" ");
 
-      const badges = types.map(t => `<span class="badge ${t}">${t}</span>`).join(" ");
-      const img = photoUrlFromRef(store);
+      // bild-prio: photo_url -> (http)photo_reference -> reference->URL -> fallback
+      let img = "images/other.jpg";
+      if (store.photo_url) img = store.photo_url;
+      else if (store.photo_reference) img = photoUrlFromRef(store.photo_reference);
+      else if (types.includes("lounge")) img = "images/lounge.jpg";
+      else if (types.includes("store"))  img = "images/store.jpg";
 
-      const stars = store.rating
-        ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating)
-        : "☆☆☆☆☆";
+      const stars = store.rating ? "★".repeat(store.rating) + "☆".repeat(5-store.rating) : "☆☆☆☆☆";
 
       let access = "";
-      if (types.includes("lounge") && store.access) {
-        const text =
-          store.access === "members"   ? "🔒 Members only" :
-          store.access === "temporary" ? "⏳ Temporary members" :
-          "🌐 Public access";
+      if (types.includes("lounge") && store.access){
+        const text = store.access === "members"   ? "🔒 Members only"
+                  : store.access === "temporary" ? "⏳ Temporary members"
+                  : "🌐 Public access";
         access = `<div class="access-line">${text}</div>`;
       }
-
-      return { badges, img, stars, access };
+      return { badges, img, stars, access, types };
     }
 
-    function renderCard(store) {
-      const { badges, img, stars, access } = decorate(store);
+    function renderCard(store){
+      const { badges, img, stars, access, types } = decorate(store);
       const card = document.createElement("div");
       card.className = "card";
-      card.innerHTML = `
-        <img src="${img}" alt="${store.name || ""}"
+      card.dataset.id = store.id;
+
+      // normal vy
+      const normal = `
+        <img src="${img}" alt="${store.name||""}"
              onerror="this.onerror=null; this.src='images/store.jpg';">
         <div class="card-content">
           <div class="badges">
-            ${store.flagged ? '<span class="badge flagged">Flagged</span>' : ''}${badges}
+            ${store.flagged?'<span class="badge flagged">Flagged</span>':''}${badges}
           </div>
           <h3>${store.name || "Unnamed"}</h3>
           <p>${store.address || ""}</p>
@@ -203,28 +202,74 @@
           <div class="rating">${stars}</div>
           <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
           <div class="date">
-            📅 Added: ${store.created_at ? new Date(store.created_at).toLocaleString("sv-SE", { dateStyle: "medium", timeStyle: "short" }) : "-"}<br>
-            🔁 Updated: ${store.updated_at ? new Date(store.updated_at).toLocaleString("sv-SE", { dateStyle: "medium", timeStyle: "short" }) : "-"}
+            📅 Added: ${store.created_at ? new Date(store.created_at).toLocaleDateString() : "-"}<br>
+            🔁 Updated: ${store.updated_at ? new Date(store.updated_at).toLocaleDateString() : "-"}
           </div>
         </div>
         <div class="btn-row">
-          <button class="approve" onclick="updateStatus('${store.id}', ${!store.approved})">
-            ${store.approved ? "Unapprove" : "Approve"}
-          </button>
-          <button class="flag" onclick="toggleFlag('${store.id}', ${!!store.flagged})">
-            ${store.flagged ? "Unflag" : "Flag"}
-          </button>
-          <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
-        </div>`;
+          <button class="btn btn-approve" onclick="updateStatus('${store.id}', ${!store.approved})">${store.approved ? "Approve (Un)" : "Approve"}</button>
+          <button class="btn btn-delete"  onclick="softDelete('${store.id}')">Delete</button>
+          <button class="btn btn-edit"    onclick="toggleEdit('${store.id}')">Edit</button>
+          <button class="btn btn-flag"    onclick="toggleFlag('${store.id}', ${!!store.flagged})">${store.flagged ? "Flag (Un)" : "Flag"}</button>
+        </div>
+      `;
+
+      // edit vy (expander)
+      const loungeAccess = (types.includes("lounge") || (store.type||"").toLowerCase()==="lounge");
+      const chipsHTML = `
+        <div class="chips" data-edit-chips>
+          ${["store","lounge","other"].map(t=>`
+            <span class="chip ${ (Array.isArray(store.types) ? store.types.map(x=>String(x).toLowerCase()) : [(store.type||"other").toLowerCase()]).includes(t) ? "active":"" }" data-type="${t}">${t[0].toUpperCase()+t.slice(1)}</span>
+          `).join("")}
+        </div>
+      `;
+      const starsHTML = `
+        <div class="stars" data-edit-stars>
+          ${[1,2,3,4,5].map(i=>`<span data-v="${i}" class="${(store.rating||0)>=i?"sel":""}">★</span>`).join("")}
+        </div>
+      `;
+      const edit = `
+        <div class="edit-wrap" id="edit-${store.id}" style="display:none">
+          <div class="row">
+            <div><label>Name</label><input id="e_${store.id}_name" type="text" value="${esc(store.name||"")}"></div>
+            <div><label>Phone</label><input id="e_${store.id}_phone" type="text" value="${esc(store.phone||"")}"></div>
+            <div style="grid-column:1/-1"><label>Address</label><input id="e_${store.id}_addr" type="text" value="${esc(store.address||"")}"></div>
+            <div><label>City</label><input id="e_${store.id}_city" type="text" value="${esc(store.city||"")}"></div>
+            <div><label>Country</label><input id="e_${store.id}_country" type="text" value="${esc(store.country||"")}"></div>
+            <div style="grid-column:1/-1"><label>Website</label><input id="e_${store.id}_website" type="url" value="${esc(store.website||"")}"></div>
+            <div style="grid-column:1/-1">
+              <label>Type(s)</label>
+              ${chipsHTML}
+              <div class="access-box" id="e_${store.id}_accessBox" style="${loungeAccess?'display:block':'display:none'}">
+                <label style="display:block;margin-bottom:.35rem;">Lounge access</label>
+                <label><input type="radio" name="e_${store.id}_access" value="public" ${store.access==="public"?"checked":""}> Public</label>&nbsp;&nbsp;
+                <label><input type="radio" name="e_${store.id}_access" value="temporary" ${store.access==="temporary"?"checked":""}> Temporary</label>&nbsp;&nbsp;
+                <label><input type="radio" name="e_${store.id}_access" value="members" ${store.access==="members"?"checked":""}> Members only</label>
+              </div>
+            </div>
+            <div style="grid-column:1/-1">
+              <label>Rating</label>
+              ${starsHTML}
+            </div>
+          </div>
+          <div class="edit-actions">
+            <button class="btn btn-save" onclick="saveEditedStore('${store.id}')">Save</button>
+            <button class="btn btn-cancel" onclick="toggleEdit('${store.id}', true)">Cancel</button>
+          </div>
+        </div>
+      `;
+
+      card.innerHTML = normal + edit;
       grid.appendChild(card);
     }
 
-    function renderCardTrash(store) {
+    function renderCardTrash(store){
       const { badges, img } = decorate(store);
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
-        <img src="${img}" alt="${store.name}">
+        <img src="${img}" alt="${store.name||""}"
+             onerror="this.onerror=null; this.src='images/store.jpg';">
         <div class="card-content">
           <div class="badges">${badges}</div>
           <h3>${store.name || "Unnamed"}</h3>
@@ -232,99 +277,197 @@
           <div class="status">Deleted until: ${store.deleted_until ? new Date(store.deleted_until).toLocaleString() : "-"}</div>
         </div>
         <div class="btn-row">
-          <button class="approve" onclick="restoreStore('${store.id}')">Restore</button>
-          <button class="soft-delete" onclick="permanentDelete('${store.id}')">Delete permanently</button>
+          <button class="btn btn-delete" onclick="permanentDelete('${store.id}')">Delete permanently</button>
+          <button class="btn btn-approve" onclick="restoreStore('${store.id}')">Restore</button>
         </div>`;
       grid.appendChild(card);
     }
 
     /* ---------- Actions ---------- */
-    async function updateStatus(id, approved) {
-      try {
+    async function updateStatus(id, approved){
+      try{
         const { error } = await supabase
           .from("stores")
           .update({
             approved,
             status: approved ? "approved" : "pending",
-            approved_at: approved ? new Date().toISOString() : null
+            approved_at: approved ? new Date().toISOString() : null,
+            updated_at: new Date().toISOString()
           })
           .eq("id", id);
         if (error) throw error;
-        showToast(approved ? "✅ Store approved" : "⏳ Approval removed", "success");
+        showToast(approved ? "✅ Store approved" : "⏳ Approval removed","success");
         reloadCurrent();
-      } catch (err) {
+      }catch(err){
         console.error("updateStatus error:", err);
-        showToast(`Error: ${err.message}`, "error");
+        showToast(`Error: ${err.message}`,"error");
       }
     }
 
-    async function toggleFlag(id, flagged) {
-      try {
-        const { error } = await supabase
-          .from("stores")
-          .update({ flagged: !flagged })
-          .eq("id", id);
+    async function toggleFlag(id, flagged){
+      try{
+        const { error } = await supabase.from("stores").update({
+          flagged: !flagged,
+          updated_at: new Date().toISOString()
+        }).eq("id", id);
         if (error) throw error;
-        showToast(flagged ? "🚫 Unflagged" : "🚩 Flagged", "success");
+        showToast(flagged ? "🚫 Unflagged" : "🚩 Flagged","success");
         reloadCurrent();
-      } catch (err) {
+      }catch(err){
         console.error("toggleFlag error:", err);
-        showToast("Failed to toggle flag", "error");
+        showToast("Failed to toggle flag","error");
       }
     }
 
-    async function softDelete(id) {
-      try {
-        const deletedUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+    async function softDelete(id){
+      if (!confirm("Are you sure you want to move this card to Trash for 48h?")) return;
+      try{
+        const deletedUntil = new Date(Date.now() + 48*60*60*1000).toISOString();
         const { error } = await supabase
           .from("stores")
-          .update({ deleted: true, deleted_until: deletedUntil })
+          .update({ deleted:true, deleted_until:deletedUntil, status:"deleted", updated_at:new Date().toISOString() })
           .eq("id", id);
         if (error) throw error;
-        showToast("🗑️ Moved to Trash (48h)", "success");
+        showToast("🗑️ Moved to Trash (48h)","success");
         reloadCurrent();
-      } catch (err) {
+      }catch(err){
         console.error("softDelete error:", err);
-        showToast(`Failed to delete: ${err.message}`, "error");
+        showToast(`Failed to delete: ${err.message}`,"error");
       }
     }
 
-    async function restoreStore(id) {
-      try {
+    async function restoreStore(id){
+      try{
         const { error } = await supabase
           .from("stores")
-          .update({ deleted: false, deleted_until: null })
+          .update({ deleted:false, deleted_until:null, status:"pending", updated_at:new Date().toISOString() })
           .eq("id", id);
         if (error) throw error;
-        showToast("♻️ Restored", "success");
+        showToast("♻️ Restored","success");
         route("home");
-      } catch (err) {
+      }catch(err){
         console.error("restoreStore error:", err);
-        showToast(`Failed to restore: ${err.message}`, "error");
+        showToast(`Failed to restore: ${err.message}`,"error");
       }
     }
 
-    async function permanentDelete(id) {
-      try {
+    async function permanentDelete(id){
+      if (!confirm("This will delete the card permanently. Continue?")) return;
+      try{
         const { error } = await supabase.from("stores").delete().eq("id", id);
         if (error) throw error;
-        showToast("💀 Permanently deleted", "success");
+        showToast("💀 Permanently deleted","success");
         reloadCurrent();
-      } catch (err) {
+      }catch(err){
         console.error("permanentDelete error:", err);
-        showToast("Failed to delete permanently", "error");
+        showToast("Failed to delete permanently","error");
       }
     }
 
-    /* ---------- Utilities ---------- */
+    /* ---------- Inline Edit ---------- */
+    function toggleEdit(id, cancelOnly=false){
+      // stäng ev. annan edit
+      if (editingId && editingId !== id){
+        const prev = document.getElementById(`edit-${editingId}`);
+        if (prev) prev.style.display = "none";
+      }
+      const wrap = document.getElementById(`edit-${id}`);
+      if (!wrap) return;
+
+      if (cancelOnly){
+        wrap.style.display = "none";
+        editingId = null;
+        return;
+      }
+
+      const isOpen = wrap.style.display === "block";
+      wrap.style.display = isOpen ? "none" : "block";
+      editingId = isOpen ? null : id;
+
+      if (!isOpen){
+        // init chips + access + stars interaktion
+        const chipWrap = wrap.querySelector('[data-edit-chips]');
+        const accessBox = wrap.querySelector(`#e_${id}_accessBox`);
+        chipWrap.addEventListener('click', (e)=>{
+          const chip = e.target.closest('.chip'); if (!chip) return;
+          chip.classList.toggle('active');
+          const hasLounge = Array.from(chipWrap.querySelectorAll('.chip.active'))
+                                 .some(c=>c.dataset.type==="lounge");
+          accessBox.style.display = hasLounge ? "block":"none";
+        }, { once:false });
+
+        const stars = wrap.querySelector('[data-edit-stars]');
+        stars.addEventListener('click',(e)=>{
+          const v = +e.target.dataset.v; if(!v) return;
+          [...stars.children].forEach((el,i)=> el.classList.toggle("sel", i < v));
+          stars.dataset.value = v;
+        });
+        // init dataset value från befintliga sel
+        const initV = [...stars.children].filter(x=>x.classList.contains('sel')).length;
+        stars.dataset.value = initV || 0;
+      }
+    }
+
+    async function saveEditedStore(id){
+      const wrap = document.getElementById(`edit-${id}`);
+      if (!wrap) return;
+
+      const getVal = (sel)=> (wrap.querySelector(sel)?.value || "").trim();
+      const name    = getVal(`#e_${id}_name`);
+      const address = getVal(`#e_${id}_addr`);
+      const city    = getVal(`#e_${id}_city`);
+      const country = getVal(`#e_${id}_country`);
+      const phone   = getVal(`#e_${id}_phone`);
+      const website = getVal(`#e_${id}_website`);
+
+      // chips → types
+      const activeChips = Array.from(wrap.querySelectorAll('[data-edit-chips] .chip.active')).map(c=>c.dataset.type);
+      const typesArr = activeChips.length ? activeChips : ["other"];
+      const primaryType = typesArr[0];
+
+      // access (endast när lounge aktiv)
+      const loungeOn = typesArr.includes("lounge");
+      const access = loungeOn ? (wrap.querySelector(`input[name="e_${id}_access"]:checked`)?.value || "public") : null;
+
+      // rating
+      const stars = wrap.querySelector('[data-edit-stars]');
+      const rating = Number(stars?.dataset?.value || 0);
+
+      // Bygg payload
+      const payload = {
+        name, address, city, country, phone, website,
+        type: primaryType, types: typesArr, access, rating,
+        updated_at: new Date().toISOString()
+      };
+
+      try{
+        const { error } = await supabase.from("stores").update(payload).eq("id", id);
+        if (error) throw error;
+        showToast("✅ Updated","success");
+        toggleEdit(id,true);
+        reloadCurrent();
+      }catch(err){
+        console.error("saveEditedStore error:", err);
+        showToast(`Failed to save: ${err.message}`,"error");
+      }
+    }
+
+    /* ---------- Utils ---------- */
     function reloadCurrent(){ route(currentView); }
+
     function showToast(msg,type="info"){
       const c=document.getElementById("toast-container");
       const t=document.createElement("div");
       t.className=`toast ${type}`;
       t.textContent=msg;
       c.appendChild(t);
-      setTimeout(()=>t.remove(),3000);
+      setTimeout(()=>t.remove(),3200);
+    }
+
+    function esc(str){
+      return String(str).replace(/[&<>"']/g, c => (
+        {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+      ));
     }
 
     // Init
