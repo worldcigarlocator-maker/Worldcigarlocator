@@ -1,4 +1,4 @@
-<!-- approved.html | 2025-10-18 | Approved Dashboard with grouping, edit & full controls -->
+<!-- approved.html | 2025-10-18 | Two-level accordion: Country → City -->
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -24,10 +24,8 @@
     body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text);}
     h1{text-align:center;margin-bottom:1rem;color:var(--primary-dark);}
     .topbar{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem;}
-    .btn{
-      background:#fff;border:1.6px solid var(--primary);color:var(--primary);
-      padding:.5rem .8rem;border-radius:8px;font-weight:800;cursor:pointer;
-    }
+    .btn{background:#fff;border:1.6px solid var(--primary);color:var(--primary);
+      padding:.5rem .8rem;border-radius:8px;font-weight:800;cursor:pointer;}
     .btn.primary{background:var(--primary);color:#fff;border:none;}
     .btn:hover{filter:brightness(.95);}
     input[type="text"]{
@@ -35,16 +33,22 @@
       padding:.6rem;border:1.5px solid var(--primary);border-radius:8px;font-size:1rem;
     }
 
-    .section{margin-bottom:1.5rem;}
-    .section h2{margin:.3rem 0;color:var(--primary-dark);}
-    .subsection{margin-left:1rem;}
-    .subsection h3{margin:.2rem 0;color:var(--muted);}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;margin-top:.5rem;}
-    .card{
-      background:var(--card);border:1px solid var(--border);border-radius:10px;
-      box-shadow:0 2px 6px rgba(0,0,0,0.08);overflow:hidden;cursor:pointer;
-      transition:all .2s ease;
+    .accordion-country,.accordion-city{
+      background:var(--primary);color:#fff;padding:.6rem 1rem;
+      margin-top:.6rem;border-radius:8px;font-weight:800;cursor:pointer;
+      display:flex;justify-content:space-between;align-items:center;
     }
+    .accordion-country span,.accordion-city span{font-weight:bold;}
+    .accordion-country:hover,.accordion-city:hover{filter:brightness(1.1);}
+    .accordion-country.open,.accordion-city.open{background:var(--primary-dark);}
+    .accordion-city{background:#468dc9;margin-left:1rem;}
+
+    .section{margin-bottom:1rem;}
+    .subsection{margin-left:1rem;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;margin-top:.6rem;}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:10px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.08);overflow:hidden;cursor:pointer;transition:all .2s ease;}
     .card:hover{transform:scale(1.02);}
     .card.expanded{grid-column:1/-1;cursor:auto;}
     .card img{width:100%;height:180px;object-fit:cover;}
@@ -75,6 +79,7 @@
     .edit{background:var(--primary-dark);color:#fff;}
     .cancel{background:#999;color:#fff;}
     .save{background:var(--primary);color:#fff;}
+
     #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999;}
     .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);}
     .toast.success{background:#28a745;}
@@ -90,7 +95,6 @@
   </div>
 
   <input type="text" id="searchInput" placeholder="Sök efter namn, stad eller land..."/>
-
   <div id="content"></div>
   <div id="toast-container"></div>
 
@@ -137,17 +141,44 @@
       Object.keys(map).sort().forEach(country=>{
         const sec=document.createElement("div");
         sec.className="section";
-        sec.innerHTML=`<h2>${country}</h2>`;
+
+        const countryHeader=document.createElement("div");
+        countryHeader.className="accordion-country";
+        countryHeader.innerHTML=`<span>${country}</span><span>▼</span>`;
+        const cityContainer=document.createElement("div");
+        cityContainer.style.display="none";
+
+        countryHeader.addEventListener("click",()=>{
+          const open=cityContainer.style.display==="none";
+          cityContainer.style.display=open?"block":"none";
+          countryHeader.classList.toggle("open",open);
+          countryHeader.querySelector("span:last-child").textContent=open?"▲":"▼";
+        });
+
         Object.keys(map[country]).sort().forEach(city=>{
-          const sub=document.createElement("div");
-          sub.className="subsection";
-          sub.innerHTML=`<h3>${city||'–'}</h3>`;
+          const citySec=document.createElement("div");
+          const cityHeader=document.createElement("div");
+          cityHeader.className="accordion-city";
+          cityHeader.innerHTML=`<span>${city||"–"}</span><span>▼</span>`;
           const grid=document.createElement("div");
           grid.className="grid";
+          grid.style.display="none";
           map[country][city].forEach(store=>grid.appendChild(renderCard(store)));
-          sub.appendChild(grid);
-          sec.appendChild(sub);
+
+          cityHeader.addEventListener("click",()=>{
+            const open=grid.style.display==="none";
+            grid.style.display=open?"grid":"none";
+            cityHeader.classList.toggle("open",open);
+            cityHeader.querySelector("span:last-child").textContent=open?"▲":"▼";
+          });
+
+          citySec.appendChild(cityHeader);
+          citySec.appendChild(grid);
+          cityContainer.appendChild(citySec);
         });
+
+        sec.appendChild(countryHeader);
+        sec.appendChild(cityContainer);
         content.appendChild(sec);
       });
     }
