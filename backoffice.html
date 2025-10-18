@@ -1,10 +1,11 @@
-<!-- ✅ Backoffice Home (Updated for photo_url support) | 2025-10-17 -->
+
+<!-- backoffice.html | 2025-10-18 | Stable with Edit+Save + Approved link -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Backoffice — Home (Updated)</title>
+  <title>Backoffice — Home</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -19,10 +20,9 @@
       --muted:#6b7280;
       --border:#e5e7eb;
     }
-
     *{box-sizing:border-box}
     body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text);}
-    h1{text-align:center;margin-bottom:1.5rem;color:var(--primary-dark);}
+    h1{text-align:center;margin-bottom:1.2rem;color:var(--primary-dark);}
     .top-bar{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem;}
     .top-bar button{
       background:var(--primary);color:#fff;border:none;padding:.6rem 1rem;
@@ -30,38 +30,38 @@
     }
     .top-bar button.secondary{background:#fff;color:var(--primary);border:2px solid var(--primary);}
     .top-bar button:hover{background:var(--primary-dark);color:#fff;}
-
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;}
     .card{
       background:var(--card);border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,0.1);
-      overflow:hidden;display:flex;flex-direction:column;
+      overflow:hidden;display:flex;flex-direction:column;transition:all .25s ease;
     }
+    .card.expanded{transform:scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,0.2);}
     .card img{width:100%;height:180px;object-fit:cover;}
     .card-content{padding:1rem;flex:1;}
     .badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem;}
-    .badge{
-      display:inline-block;padding:.25rem .7rem;border-radius:12px;font-size:.8rem;
-      font-weight:bold;color:#fff;
-    }
+    .badge{display:inline-block;padding:.25rem .7rem;border-radius:12px;font-size:.8rem;font-weight:bold;color:#fff;}
     .store{background:#007bff;}
     .lounge{background:#28a745;}
     .other{background:#ff8c00;}
     .flagged{background:#dc3545!important;}
-
     .rating{color:#b8860b;margin-top:.3rem;}
     .status{font-size:.85rem;color:var(--muted);margin-top:.3rem;}
     .date{font-size:.75rem;color:#999;margin-top:.3rem;}
     .access-line{color:var(--primary-dark);font-size:.85rem;margin:.2rem 0;}
-
+    .details{font-size:.85rem;color:var(--text);line-height:1.4;display:none;margin-top:.4rem;}
+    .card.expanded .details{display:block;}
+    .details input{width:100%;margin:.25rem 0;padding:.3rem .4rem;border:1px solid #ccc;border-radius:6px;}
     .btn-row{display:flex;gap:.5rem;padding:0 1rem 1rem;}
     .btn-row button{flex:1;padding:.55rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold;}
     .approve{background:var(--success);color:#fff;}
+    .delete{background:var(--danger);color:#fff;}
+    .edit{background:var(--primary-dark);color:#fff;}
     .flag{background:#ff8c00;color:#fff;}
-    .soft-delete{background:var(--danger);color:#fff;}
+    .save{background:var(--primary);color:#fff;margin-top:.4rem;}
     .approve:hover{background:#166f3e;}
     .flag:hover{background:#d97706;}
-    .soft-delete:hover{background:#a83228;}
-
+    .delete:hover{background:#a83228;}
+    .edit:hover{background:#1e4e7a;}
     #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999;}
     .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.97;}
     .toast.success{background:#28a745;}
@@ -70,17 +70,16 @@
   </style>
 </head>
 <body>
-  <h1>Backoffice Home</h1>
+  <h1>Backoffice</h1>
 
   <div class="top-bar">
-  <button class="secondary" onclick="route('home')">Home</button>
-  <button onclick="route('approved')">Approved</button>
-  <button onclick="route('pending')">Pending</button>
-  <button onclick="route('flagged')">Flagged</button>
-  <button onclick="route('trash')">Trash</button>
-  <button onclick="window.location.href='analytics.html'">Analytics</button>
-  <button onclick="window.location.href='add-store.html'">Add Store</button>
-</div>
+    <button onclick="route('pending')" class="secondary">Pending (Default)</button>
+    <button onclick="window.location.href='approved.html'">Approved</button>
+    <button onclick="route('flagged')">Flagged</button>
+    <button onclick="route('trash')">Trash</button>
+    <button onclick="window.location.href='add-store-backoffice.html'">Add Store</button>
+    <button onclick="window.location.href='backoffice-analytics-final-v2.html'">Analytics</button>
+  </div>
 
   <div id="metaRow" style="text-align:center;color:var(--muted);margin-bottom:1rem;"></div>
   <div id="storeGrid" class="grid"></div>
@@ -94,180 +93,124 @@
 
     const grid = document.getElementById("storeGrid");
     const metaRow = document.getElementById("metaRow");
-    let currentView = "home";
+    let currentView = "pending";
 
-    async function route(view) {
+    async function route(view){
       currentView = view;
       metaRow.textContent = "";
       grid.innerHTML = "";
-
-      if (view === "home")     await loadStores({ excludeDeleted:true, title:"All active locations" });
-      if (view === "approved") await loadStores({ approved:true,  title:"Approved" });
-      if (view === "pending")  await loadStores({ approved:false, title:"Pending" });
-      if (view === "flagged")  await loadStores({ flagged:true,   title:"Flagged" });
-      if (view === "trash")    await loadTrash();
+      if(view==="pending")  await loadStores({approved:false,title:"⏳ Pending"});
+      if(view==="flagged")  await loadStores({flagged:true,title:"🚩 Flagged"});
+      if(view==="trash")    await loadTrash();
     }
 
-    async function loadStores(opts = {}) {
-      let query = supabase.from("stores").select("*").order("created_at", { ascending:false });
-      if (opts.excludeDeleted) query = query.eq("deleted", false);
-      if (opts.approved === true)  query = query.eq("approved", true).eq("deleted", false);
-      if (opts.approved === false) query = query.eq("approved", false).eq("deleted", false);
-      if (opts.flagged)            query = query.eq("flagged", true).eq("deleted", false);
-
-      const { data, error } = await query;
-      if (error) { grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
-      if (!data?.length) { grid.innerHTML = `<p>No stores found.</p>`; return; }
-
-      metaRow.textContent = opts.title || "";
+    async function loadStores(opts={}){
+      let query = supabase.from("stores").select("*").order("created_at",{ascending:false});
+      if(opts.approved===false) query=query.eq("approved",false).eq("deleted",false);
+      if(opts.flagged)          query=query.eq("flagged",true).eq("deleted",false);
+      const {data,error}=await query;
+      if(error){grid.innerHTML=`<p style="color:red;">${error.message}</p>`;return;}
+      if(!data?.length){grid.innerHTML=`<p>Inga resultat.</p>`;return;}
+      metaRow.textContent=opts.title||"";
       data.forEach(renderCard);
     }
 
-    async function loadTrash() {
-      const { data, error } = await supabase.from("stores").select("*").eq("deleted", true).order("deleted_until", { ascending:true });
-      if (error) { grid.innerHTML = `<p style="color:red;">${error.message}</p>`; return; }
-      if (!data?.length) { grid.innerHTML = `<p>Trash is empty.</p>`; return; }
-      metaRow.textContent = "Trash (48h auto-delete)";
-      data.forEach(renderCardTrash);
+    async function loadTrash(){
+      const {data,error}=await supabase.from("stores").select("*").eq("deleted",true);
+      if(error){grid.innerHTML=`<p style="color:red;">${error.message}</p>`;return;}
+      if(!data?.length){grid.innerHTML=`<p>Papperskorgen är tom.</p>`;return;}
+      metaRow.textContent="🗑️ Trash (48h auto-delete)";
+      data.forEach(renderCard);
     }
 
-    function photoUrlFromStore(store) {
-      // 🟢 1. Direkt photo_url (bästa)
-      if (store.photo_url && store.photo_url.startsWith("http")) {
-        return store.photo_url;
-      }
-      // 🟡 2. Bygg från photo_reference om det finns
-      if (store.photo_reference && store.photo_reference.length < 200) {
-        const key = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
-        return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${encodeURIComponent(store.photo_reference)}&key=${key}`;
-      }
-      // 🔴 3. Fallback beroende på typ
-      if (store.type?.toLowerCase() === "lounge") return "images/lounge.jpg";
-      if (store.type?.toLowerCase() === "store")  return "images/store.jpg";
-      return "images/other.jpg";
-    }
+    function renderCard(store){
+      const card=document.createElement("div");
+      card.className="card";
+      const badges = Array.isArray(store.types)
+        ? store.types.map(t=>`<span class="badge ${t}">${t}</span>`).join(" ")
+        : `<span class="badge ${store.type}">${store.type}</span>`;
+      const img = store.photo_url || store.photo_reference || "images/store.jpg";
+      const stars = store.rating ? "★".repeat(store.rating)+"☆".repeat(5-store.rating) : "☆☆☆☆☆";
+      const access = store.type==="lounge" && store.access
+        ? `<div class='access-line'>${store.access==="members"?"🔒 Members only":store.access==="temporary"?"⏳ Temporary members":"🌐 Public access"}</div>`
+        : "";
 
-    function decorate(store) {
-      const types = Array.isArray(store.types)
-        ? store.types.map(t => t.toLowerCase())
-        : [ (store.type || "other").toLowerCase() ];
-      const badges = types.map(t => `<span class="badge ${t}">${t}</span>`).join(" ");
-      const img = photoUrlFromStore(store);
-      const stars = store.rating ? "★".repeat(store.rating) + "☆".repeat(5 - store.rating) : "☆☆☆☆☆";
-
-      let access = "";
-      if (types.includes("lounge") && store.access) {
-        const text =
-          store.access === "members"   ? "🔒 Members only" :
-          store.access === "temporary" ? "⏳ Temporary members" :
-          "🌐 Public access";
-        access = `<div class="access-line">${text}</div>`;
-      }
-      return { badges, img, stars, access };
-    }
-
-    function renderCard(store) {
-      const { badges, img, stars, access } = decorate(store);
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <img src="${img}" alt="${store.name || ""}" onerror="this.src='images/store.jpg'">
+      card.innerHTML=`
+        <img src="${img}" alt="${store.name||""}" onerror="this.src='images/store.jpg'">
         <div class="card-content">
-          <div class="badges">
-            ${store.flagged ? '<span class="badge flagged">Flagged</span>' : ''}${badges}
-          </div>
-          <h3>${store.name || "Unnamed"}</h3>
-          <p>${store.address || ""}</p>
-          <p>${store.city || ""}, ${store.country || ""}</p>
+          <div class="badges">${store.flagged?'<span class="badge flagged">Flagged</span>':''}${badges}</div>
+          <h3>${store.name||"Unnamed"}</h3>
+          <p>${store.city||""}, ${store.country||""}</p>
           ${access}
           <div class="rating">${stars}</div>
-          <div class="status">${store.approved ? "✅ Approved" : "⏳ Pending"}</div>
-          <div class="date">
-            📅 Added: ${store.created_at ? new Date(store.created_at).toLocaleString("sv-SE",{dateStyle:"medium",timeStyle:"short"}) : "-"}<br>
-            🔁 Updated: ${store.updated_at ? new Date(store.updated_at).toLocaleString("sv-SE",{dateStyle:"medium",timeStyle:"short"}) : "-"}
+          <div class="status">${store.approved?"✅ Approved":"⏳ Pending"}</div>
+          <div class="date">📅 ${store.created_at?new Date(store.created_at).toLocaleDateString("sv-SE"):"-"}</div>
+
+          <div class="details">
+            <label>Namn</label>
+            <input value="${store.name||""}" id="name-${store.id}">
+            <label>Telefon</label>
+            <input value="${store.phone||""}" id="phone-${store.id}">
+            <label>Webbplats</label>
+            <input value="${store.website||""}" id="web-${store.id}">
+            <button class="save" onclick="saveChanges('${store.id}')">💾 Save Changes</button>
           </div>
         </div>
         <div class="btn-row">
-          <button class="approve" onclick="updateStatus('${store.id}', ${!store.approved})">
-            ${store.approved ? "Unapprove" : "Approve"}
-          </button>
-          <button class="flag" onclick="toggleFlag('${store.id}', ${!!store.flagged})">
-            ${store.flagged ? "Unflag" : "Flag"}
-          </button>
-          <button class="soft-delete" onclick="softDelete('${store.id}')">Delete</button>
+          <button class="approve" onclick="updateStatus('${store.id}',${!store.approved})">${store.approved?"Unapprove":"Approve"}</button>
+          <button class="delete" onclick="softDelete('${store.id}')">Delete</button>
+          <button class="edit" onclick="toggleExpand(this)">Edit</button>
+          <button class="flag" onclick="toggleFlag('${store.id}',${!!store.flagged})">${store.flagged?"Unflag":"Flag"}</button>
         </div>`;
       grid.appendChild(card);
     }
 
-    function renderCardTrash(store) {
-      const { badges, img } = decorate(store);
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <img src="${img}" alt="${store.name}">
-        <div class="card-content">
-          <div class="badges">${badges}</div>
-          <h3>${store.name || "Unnamed"}</h3>
-          <p>${store.city || ""}, ${store.country || ""}</p>
-          <div class="status">Deleted until: ${store.deleted_until ? new Date(store.deleted_until).toLocaleString() : "-"}</div>
-        </div>
-        <div class="btn-row">
-          <button class="approve" onclick="restoreStore('${store.id}')">Restore</button>
-          <button class="soft-delete" onclick="permanentDelete('${store.id}')">Delete permanently</button>
-        </div>`;
-      grid.appendChild(card);
+    function toggleExpand(btn){
+      const card=btn.closest(".card");
+      card.classList.toggle("expanded");
     }
 
-    // ✅ Status actions (unchanged)
-    async function updateStatus(id, approved) {
-      const { error } = await supabase.from("stores")
-        .update({ approved, status: approved ? "approved" : "pending", approved_at: approved ? new Date().toISOString() : null })
-        .eq("id", id);
-      if (error) return showToast(error.message, "error");
-      showToast(approved ? "✅ Store approved" : "⏳ Approval removed", "success");
-      reloadCurrent();
+    async function saveChanges(id){
+      const name=document.getElementById(`name-${id}`).value.trim();
+      const phone=document.getElementById(`phone-${id}`).value.trim();
+      const website=document.getElementById(`web-${id}`).value.trim();
+      const {error}=await supabase.from("stores").update({name,phone,website,updated_at:new Date().toISOString()}).eq("id",id);
+      if(error)return showToast(error.message,"error");
+      showToast("💾 Saved successfully","success");
+      route(currentView);
     }
 
-    async function toggleFlag(id, flagged) {
-      const { error } = await supabase.from("stores").update({ flagged: !flagged }).eq("id", id);
-      if (error) return showToast(error.message, "error");
-      showToast(flagged ? "🚫 Unflagged" : "🚩 Flagged", "success");
-      reloadCurrent();
+    async function updateStatus(id,approved){
+      const {error}=await supabase.from("stores").update({approved,status:approved?"approved":"pending"}).eq("id",id);
+      if(error)return showToast(error.message,"error");
+      showToast(approved?"✅ Approved":"⏳ Unapproved","success");
+      route(currentView);
     }
 
-    async function softDelete(id) {
-      const deletedUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
-      const { error } = await supabase.from("stores").update({ deleted: true, deleted_until: deletedUntil }).eq("id", id);
-      if (error) return showToast(error.message, "error");
-      showToast("🗑️ Moved to Trash (48h)", "success");
-      reloadCurrent();
+    async function toggleFlag(id,flagged){
+      const {error}=await supabase.from("stores").update({flagged:!flagged}).eq("id",id);
+      if(error)return showToast(error.message,"error");
+      showToast(flagged?"🚫 Unflagged":"🚩 Flagged","success");
+      route(currentView);
     }
 
-    async function restoreStore(id) {
-      const { error } = await supabase.from("stores").update({ deleted: false, deleted_until: null }).eq("id", id);
-      if (error) return showToast(error.message, "error");
-      showToast("♻️ Restored", "success");
-      route("home");
+    async function softDelete(id){
+      const delUntil=new Date(Date.now()+48*60*60*1000).toISOString();
+      const {error}=await supabase.from("stores").update({deleted:true,deleted_until:delUntil}).eq("id",id);
+      if(error)return showToast(error.message,"error");
+      showToast("🗑️ Moved to Trash","success");
+      route(currentView);
     }
 
-    async function permanentDelete(id) {
-      const { error } = await supabase.from("stores").delete().eq("id", id);
-      if (error) return showToast(error.message, "error");
-      showToast("💀 Permanently deleted", "success");
-      reloadCurrent();
-    }
-
-    function reloadCurrent(){ route(currentView); }
     function showToast(msg,type="info"){
       const c=document.getElementById("toast-container");
       const t=document.createElement("div");
-      t.className=`toast ${type}`;
-      t.textContent=msg;
+      t.className=`toast ${type}`;t.textContent=msg;
       c.appendChild(t);
       setTimeout(()=>t.remove(),3000);
     }
 
-    route("home");
+    route("pending");
   </script>
 </body>
 </html>
