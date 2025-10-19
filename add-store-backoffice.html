@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Add / Edit Store — Backoffice</title>
+  <title>Add Store — Backoffice</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
@@ -17,6 +17,7 @@
     .btn{background:#fff;border:1.6px solid var(--primary);color:var(--primary);padding:.5rem .8rem;border-radius:8px;font-weight:800;cursor:pointer}
     .btn.primary{background:var(--primary);color:#fff;border:none}
     .btn:hover{filter:brightness(.95)}
+    .btn.danger{background:#c0392b;color:#fff;border:none}
     .wrap{max-width:950px;margin:0 auto}
     h1{text-align:center;margin:.2rem 0 1rem;color:#2b2b2b}
     .card{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:1rem}
@@ -26,7 +27,7 @@
     input[type="text"],input[type="tel"],input[type="url"]{
       width:100%;padding:.6rem;border:1px solid #ccc;border-radius:8px;font-size:.95rem
     }
-    .chip-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+    .radio-row,.chip-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
     .chip{border:1px solid var(--border);padding:.35rem .7rem;border-radius:16px;cursor:pointer;user-select:none}
     .chip.active{background:#eef6ff;border-color:#bcd7ff;color:#145b99}
     .access-box{display:none;background:#f8fafc;border:1px dashed #cfe1ff;padding:.6rem .7rem;border-radius:8px}
@@ -48,14 +49,16 @@
       <button class="btn" onclick="window.location.href='backoffice.html'">← Tillbaka till Home</button>
     </div>
 
-    <h1 id="formTitle">Lägg till plats (Backoffice)</h1>
+    <h1>Lägg till plats (Backoffice)</h1>
 
     <div class="card">
       <div class="grid">
         <div class="full">
           <label>Sök med Google</label>
           <input id="gAddress" type="text" placeholder="Börja skriva ett ställe…"/>
-          <div class="muted" style="margin-top:.3rem">Tips: välj i listan — fälten fylls automatiskt, inkl. foto.</div>
+          <div class="muted" style="margin-top:.3rem">
+            Tips: Välj i listan — fälten fylls automatiskt, inkl. foto.
+          </div>
         </div>
 
         <div><label>Namn</label><input id="name" type="text"/></div>
@@ -68,7 +71,7 @@
         <div class="full">
           <label>Kategori</label>
           <div class="chip-row" id="typeRow">
-            <span class="chip" data-type="store">Store</span>
+            <span class="chip active" data-type="store">Store</span>
             <span class="chip" data-type="lounge">Lounge</span>
             <span class="chip" data-type="other">Other</span>
           </div>
@@ -96,109 +99,135 @@
             </div>
             <button class="btn" id="testPhotoBtn" type="button">Testa Google-bild</button>
           </div>
-          <div id="preview" style="margin-top:.6rem"><img src="images/store.jpg" alt="Preview" /></div>
+          <div id="preview" style="margin-top:.6rem">
+            <img src="images/store.jpg" alt="Preview" />
+          </div>
         </div>
 
         <div class="full" style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:.4rem">
           <button class="btn" type="button" onclick="resetForm()">Rensa</button>
-          <button class="btn primary" type="button" id="saveBtn" onclick="saveStore()">Spara</button>
+          <button class="btn primary" type="button" onclick="saveStore()">Spara</button>
         </div>
       </div>
     </div>
   </div>
+
   <div id="toast-container"></div>
 
   <script>
+    /* ---------- Konfig ---------- */
     const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
-    const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const params = new URLSearchParams(window.location.search);
-    const editId = params.get("edit");
+    const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
 
-    const sel = { type:"store", access:null, rating:null, lat:null, lng:null, place_id:null, photo_ref:null, photo_url:null };
-    let isEdit = false;
+    const sel = { type: "store", access: null, rating: null, lat:null, lng:null, place_id:null, photo_ref:null, photo_url:null };
 
-    window.addEventListener("DOMContentLoaded", ()=>{ initUI(); if(editId) loadExisting(editId); });
+    /* ---------- UI ---------- */
+    document.querySelectorAll("#typeRow .chip").forEach(ch=>{
+      ch.addEventListener("click",()=>{
+        document.querySelectorAll("#typeRow .chip").forEach(c=>c.classList.remove("active"));
+        ch.classList.add("active");
+        sel.type = ch.dataset.type;
+        document.getElementById("accessBox").style.display = sel.type==="lounge" ? "block" : "none";
+        updatePreview();
+      });
+    });
+    document.querySelectorAll("input[name='access']").forEach(r=>r.addEventListener("change",()=>sel.access=r.value));
+    const stars=document.getElementById("stars");
+    stars.addEventListener("click",e=>{
+      const v=+e.target.dataset.v;
+      if(!v)return;
+      sel.rating=v;
+      [...stars.children].forEach((el,i)=>el.classList.toggle("sel",i<v));
+    });
+    document.getElementById("forceDefault").addEventListener("change",updatePreview);
+    document.getElementById("testPhotoBtn").addEventListener("click",()=>{
+      if(sel.photo_ref){sel.photo_url=photoUrlFromRef(sel.photo_ref);updatePreview(true);showToast("Försöker ladda Google-bild…","info");}
+      else showToast("Ingen Google-fotoreferens hittad ännu.","error");
+    });
 
-    function initUI(){
-      document.querySelectorAll("#typeRow .chip").forEach(c=>{
-        c.addEventListener("click",()=>{
-          document.querySelectorAll("#typeRow .chip").forEach(x=>x.classList.remove("active"));
-          c.classList.add("active"); sel.type=c.dataset.type;
-          document.getElementById("accessBox").style.display = sel.type==="lounge"?"block":"none";
-          updatePreview();
-        });
-      });
-      document.querySelectorAll("input[name='access']").forEach(r=>r.addEventListener("change",()=>sel.access=r.value));
-      document.getElementById("forceDefault").addEventListener("change", updatePreview);
-      const stars=document.getElementById("stars");
-      stars.addEventListener("click",e=>{
-        const v=+e.target.dataset.v;if(!v)return;sel.rating=v;[...stars.children].forEach((el,i)=>el.classList.toggle("sel",i<v));
-      });
-      document.getElementById("testPhotoBtn").addEventListener("click",()=>{
-        if(sel.photo_ref){ sel.photo_url=photoUrlFromRef(sel.photo_ref); updatePreview(true); showToast("Försöker ladda Google-bild…","info"); }
-        else showToast("Ingen Google-fotoreferens ännu.","error");
-      });
+    function photoUrlFromRef(ref){
+      if(!ref)return null;
+      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(ref)}&key=${GOOGLE_BROWSER_KEY}`;
     }
-
-    async function loadExisting(id){
-      const { data, error } = await supabase.from("stores").select("*").eq("id", id).single();
-      if(error||!data){ showToast("Kunde inte ladda posten","error"); return; }
-      isEdit = true;
-      document.getElementById("formTitle").textContent = "Redigera plats";
-      document.getElementById("saveBtn").textContent = "Uppdatera";
-      document.getElementById("name").value = data.name||"";
-      document.getElementById("addr").value = data.address||"";
-      document.getElementById("city").value = data.city||"";
-      document.getElementById("country").value = data.country||"";
-      document.getElementById("phone").value = data.phone||"";
-      document.getElementById("website").value = data.website||"";
-      sel.type = data.type||"store";
-      sel.access = data.access||null;
-      sel.rating = data.rating||null;
-      sel.lat = data.lat; sel.lng = data.lng;
-      sel.place_id = data.place_id; sel.photo_ref = data.photo_reference; sel.photo_url = data.photo_url;
-      document.querySelectorAll("#typeRow .chip").forEach(c=>c.classList.toggle("active",c.dataset.type===sel.type));
-      document.getElementById("accessBox").style.display = sel.type==="lounge"?"block":"none";
-      if(sel.access){ document.querySelector(`input[name='access'][value='${sel.access}']`)?.click(); }
-      if(sel.rating){ [...document.getElementById("stars").children].forEach((el,i)=>el.classList.toggle("sel",i<sel.rating)); }
-      updatePreview();
-      showToast("Redigeringsläge","info");
+    function currentImageUrl(){
+      if(document.getElementById("forceDefault").checked)return "images/store.jpg";
+      if(sel.photo_url?.startsWith("http"))return sel.photo_url;
+      if(sel.photo_ref)return photoUrlFromRef(sel.photo_ref);
+      return sel.type==="lounge"?"images/lounge.jpg":"images/store.jpg";
     }
-
-    function photoUrlFromRef(ref){ return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(ref)}&key=${GOOGLE_BROWSER_KEY}`; }
-    function currentImageUrl(){ if(document.getElementById("forceDefault").checked)return"images/store.jpg"; if(sel.photo_url?.startsWith("http"))return sel.photo_url; if(sel.photo_ref)return photoUrlFromRef(sel.photo_ref); return"images/store.jpg"; }
-    function updatePreview(){ document.getElementById("preview").innerHTML=`<img src="${currentImageUrl()}" alt="Preview" onerror="this.src='images/store.jpg'">`; }
+    function updatePreview(log=false){
+      const img=currentImageUrl();
+      if(log)console.log("Preview:",img);
+      document.getElementById("preview").innerHTML=`<img src="${img}" onerror="this.onerror=null;this.src='images/store.jpg';">`;
+    }
+    function resetForm(){
+      ["gAddress","name","addr","city","country","phone","website"].forEach(id=>document.getElementById(id).value="");
+      document.getElementById("forceDefault").checked=false;
+      document.querySelector('#typeRow .chip[data-type="store"]').click();
+      sel.access=sel.rating=sel.lat=sel.lng=sel.place_id=sel.photo_ref=sel.photo_url=null;
+      updatePreview();showToast("Formulär rensat","success");
+    }
+    function showToast(msg,type="info"){
+      const c=document.getElementById("toast-container");
+      const t=document.createElement("div");t.className=`toast ${type}`;t.textContent=msg;c.appendChild(t);
+      setTimeout(()=>t.remove(),3000);
+    }
 
     async function saveStore(){
-      const payload = {
-        name:document.getElementById("name").value.trim(),
-        address:document.getElementById("addr").value.trim(),
-        city:document.getElementById("city").value.trim(),
-        country:document.getElementById("country").value.trim(),
-        phone:document.getElementById("phone").value.trim(),
-        website:document.getElementById("website").value.trim(),
-        type:sel.type, types:[sel.type], access:sel.access,
-        rating:sel.rating??null, lat:sel.lat, lng:sel.lng,
-        place_id:sel.place_id, photo_reference:sel.photo_ref, photo_url:sel.photo_url
-      };
-      if(!payload.name||!payload.address||!payload.city||!payload.country){showToast("Fyll i namn, adress, stad och land.","error");return;}
-
-      if(isEdit){
-        const { error } = await supabase.from("stores").update(payload).eq("id", editId);
-        if(error){showToast("Fel vid uppdatering","error");return;}
-        showToast("✅ Uppdaterad","success");
-      }else{
-        payload.approved=false;payload.status="pending";
-        const { error } = await supabase.from("stores").insert([payload]);
-        if(error){showToast("Fel vid sparning","error");return;}
-        showToast("✅ Sparad","success");
-      }
+      try{
+        const name=document.getElementById("name").value.trim();
+        const address=document.getElementById("addr").value.trim();
+        const city=document.getElementById("city").value.trim();
+        const country=document.getElementById("country").value.trim();
+        const phone=document.getElementById("phone").value.trim();
+        const website=document.getElementById("website").value.trim();
+        if(!name||!address||!city||!country){showToast("Fyll i namn, adress, stad och land.","error");return;}
+        const forceDefault=document.getElementById("forceDefault").checked;
+        const payload={
+          name,address,city,country,phone,website,
+          type:sel.type,types:[sel.type],access:sel.access,
+          rating:sel.rating??null,approved:false,status:"pending",
+          lat:sel.lat,lng:sel.lng,place_id:sel.place_id,
+          photo_reference:forceDefault?null:sel.photo_ref,
+          photo_url:forceDefault?null:sel.photo_url,deleted:false
+        };
+        const{error}=await supabase.from("stores").insert([payload]);
+        if(error)throw error;
+        showToast("✅ Sparad","success");resetForm();
+      }catch(err){console.error(err);showToast("Fel vid spara: "+err.message,"error");}
     }
+  </script>
 
-    function resetForm(){document.querySelectorAll("input").forEach(i=>i.value="");document.getElementById("forceDefault").checked=false;sel.type="store";sel.access=null;sel.rating=null;sel.lat=sel.lng=null;updatePreview();showToast("Formulär rensat","success");}
-    function showToast(msg,type="info"){const c=document.getElementById("toast-container");const t=document.createElement("div");t.className=`toast ${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
+  <!-- ✅ Google Autocomplete FIX -->
+  <script>
+    window.initAutocomplete = function(){
+      const input=document.getElementById("gAddress");
+      const ac=new google.maps.places.Autocomplete(input,{
+        fields:["place_id","address_components","geometry","name","formatted_address","international_phone_number","website","photos"]
+      });
+      const placesService=new google.maps.places.PlacesService(document.createElement("div"));
+      ac.addListener("place_changed",()=>{
+        const place=ac.getPlace();
+        if(!place)return;
+        document.getElementById("name").value=place.name||"";
+        document.getElementById("addr").value=place.formatted_address||"";
+        const city=place.address_components?.find(c=>c.types.includes("locality"))||
+                   place.address_components?.find(c=>c.types.includes("postal_town"));
+        const country=place.address_components?.find(c=>c.types.includes("country"));
+        document.getElementById("city").value=city?.long_name||"";
+        document.getElementById("country").value=country?.long_name||"";
+        document.getElementById("phone").value=place.international_phone_number||"";
+        document.getElementById("website").value=place.website||"";
+        sel.lat=place.geometry?.location?.lat()||null;
+        sel.lng=place.geometry?.location?.lng()||null;
+        sel.place_id=place.place_id||null;
+        sel.photo_ref=place.photos?.[0]?.photo_reference||null;
+        sel.photo_url=place.photos?.[0]?.getUrl({maxWidth:800})||null;
+        updatePreview(true);
+      });
+    };
   </script>
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete"></script>
 </body>
