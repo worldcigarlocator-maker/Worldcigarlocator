@@ -1,324 +1,215 @@
-<!-- approved.html | 2025-10-18 | Two-level accordion: Country → City -->
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Approved — Backoffice</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Approved Locations — Backoffice</title>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
   <style>
     :root {
-      --primary:#2f78c4;
-      --primary-dark:#2466a8;
-      --success:#1d8348;
-      --warning:#b36e00;
-      --danger:#c0392b;
-      --bg:#f5f6f8;
-      --card:#ffffff;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --border:#e5e7eb;
-      --gold:#b8860b;
+      --primary:#2f78c4; --primary-dark:#2466a8;
+      --accent:#28a745; --bg:#f5f6f8; --card:#fff;
+      --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
     }
-    *{box-sizing:border-box}
-    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:2rem;color:var(--text);}
-    h1{text-align:center;margin-bottom:1rem;color:var(--primary-dark);}
-    .topbar{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem;}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);padding:1.2rem;color:var(--text)}
+    h1{text-align:center;font-size:1.5rem;margin-bottom:1rem}
+    .topbar{display:flex;justify-content:center;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
     .btn{background:#fff;border:1.6px solid var(--primary);color:var(--primary);
-      padding:.5rem .8rem;border-radius:8px;font-weight:800;cursor:pointer;}
-    .btn.primary{background:var(--primary);color:#fff;border:none;}
-    .btn:hover{filter:brightness(.95);}
-    input[type="text"]{
-      width:100%;max-width:400px;margin:0 auto 1rem;display:block;
-      padding:.6rem;border:1.5px solid var(--primary);border-radius:8px;font-size:1rem;
-    }
+         padding:.5rem .8rem;border-radius:8px;font-weight:800;cursor:pointer}
+    .btn:hover{background:var(--primary);color:#fff}
 
-    .accordion-country,.accordion-city{
-      background:var(--primary);color:#fff;padding:.6rem 1rem;
-      margin-top:.6rem;border-radius:8px;font-weight:800;cursor:pointer;
-      display:flex;justify-content:space-between;align-items:center;
+    /* --- Search Autocomplete --- */
+    .autocomplete-wrapper{position:relative;max-width:400px;margin:0 auto 1rem}
+    #searchInput{width:100%;padding:.6rem;border:1.4px solid var(--primary);border-radius:8px;font-size:.95rem}
+    .autocomplete-list{
+      position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ccc;
+      border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1);
+      z-index:1000;max-height:180px;overflow-y:auto;
     }
-    .accordion-country span,.accordion-city span{font-weight:bold;}
-    .accordion-country:hover,.accordion-city:hover{filter:brightness(1.1);}
-    .accordion-country.open,.accordion-city.open{background:var(--primary-dark);}
-    .accordion-city{background:#468dc9;margin-left:1rem;}
+    .autocomplete-list div{padding:.5rem .7rem;cursor:pointer;border-bottom:1px solid #eee}
+    .autocomplete-list div:hover{background:#f2f6fc;}
 
-    .section{margin-bottom:1rem;}
-    .subsection{margin-left:1rem;}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;margin-top:.6rem;}
+    /* --- Grouping --- */
+    h2.section{margin-top:1.4rem;font-size:1.2rem;color:var(--primary-dark);border-bottom:2px solid var(--primary);padding-bottom:.2rem}
+    h3.subsection{margin:.8rem 0 .4rem;font-size:1rem;color:var(--accent)}
 
-    .card{background:var(--card);border:1px solid var(--border);border-radius:10px;
-      box-shadow:0 2px 6px rgba(0,0,0,0.08);overflow:hidden;cursor:pointer;transition:all .2s ease;}
-    .card:hover{transform:scale(1.02);}
-    .card.expanded{grid-column:1/-1;cursor:auto;}
-    .card img{width:100%;height:180px;object-fit:cover;}
-    .card-content{padding:1rem;}
-    .badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem;}
-    .badge{display:inline-block;padding:.25rem .7rem;border-radius:12px;font-size:.8rem;font-weight:bold;color:#fff;}
-    .store{background:#007bff;}
-    .lounge{background:#28a745;}
-    .other{background:#ff8c00;}
-    .flagged{background:#dc3545!important;}
-    .rating{color:var(--gold);margin-top:.3rem;}
-    .status{font-size:.85rem;color:var(--muted);margin-top:.3rem;}
-    .details{display:none;margin-top:.5rem;}
-    .card.expanded .details{display:block;}
-    .details label{display:block;font-weight:bold;font-size:.85rem;margin-top:.3rem;}
-    .details input,.details select{
-      width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;margin-bottom:.3rem;font-size:.9rem;
+    /* --- Cards --- */
+    .card{
+      background:var(--card);border:1px solid var(--border);border-radius:10px;
+      padding:.7rem;margin-bottom:.6rem;box-shadow:0 1px 3px rgba(0,0,0,.05);
+      transition:all .25s ease-in-out;cursor:pointer;
     }
-    .stars{display:flex;gap:.3rem;font-size:1.3rem;cursor:pointer;color:#ccc;margin:.2rem 0;}
-    .stars .sel{color:var(--gold);}
-    .btn-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem;}
-    .btn-row button{
-      flex:1;padding:.55rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold;
-    }
-    .approve{background:var(--success);color:#fff;}
-    .flag{background:#ff8c00;color:#fff;}
-    .delete{background:var(--danger);color:#fff;}
-    .edit{background:var(--primary-dark);color:#fff;}
-    .cancel{background:#999;color:#fff;}
-    .save{background:var(--primary);color:#fff;}
+    .card:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+    .card.expanded{background:#eef6ff;border-color:#bcd7ff;}
+    .card-header{display:flex;align-items:center;gap:.7rem}
+    .card-header img{width:60px;height:60px;object-fit:cover;border-radius:6px}
+    .card-header h4{font-size:1rem;margin:0;flex:1}
 
-    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999;}
-    .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);}
-    .toast.success{background:#28a745;}
-    .toast.error{background:#dc3545;}
-    .toast.info{background:#2f78c4;}
+    .details{display:none;margin-top:.6rem;font-size:.9rem;color:#333}
+    .card.expanded .details{display:block}
+    .details a{color:var(--primary);text-decoration:none;font-weight:600}
+    .details a:hover{text-decoration:underline}
+
+    .actions{margin-top:.6rem;display:flex;gap:.4rem;flex-wrap:wrap}
+    .btn.small{font-size:.8rem;padding:.3rem .6rem}
+    .btn.danger{border:none;background:#c0392b;color:#fff}
+    .btn.edit{border:none;background:#b8860b;color:#fff}
+    .btn.flag{border:none;background:#b36e00;color:#fff}
+
+    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999}
+    .toast{background:#333;color:#fff;padding:.7rem 1rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.97}
+    .toast.success{background:#28a745}.toast.error{background:#dc3545}.toast.info{background:#2f78c4}
   </style>
 </head>
 <body>
+  <div class="topbar">
+    <button class="btn" onclick="window.location.href='backoffice.html'">← Tillbaka till Home</button>
+  </div>
   <h1>Approved Locations</h1>
 
-  <div class="topbar">
-    <button class="btn" onclick="window.location.href='backoffice.html'">← Backoffice Home</button>
+  <div class="autocomplete-wrapper">
+    <input id="searchInput" type="text" placeholder="Sök efter namn, stad eller land...">
+    <div id="autocomplete-list" class="autocomplete-list"></div>
   </div>
 
-  <input type="text" id="searchInput" placeholder="Sök efter namn, stad eller land..."/>
   <div id="content"></div>
   <div id="toast-container"></div>
 
-  <script>
-    const supabase = window.supabase.createClient(
-      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
-    );
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+  const supabase = createClient(
+    "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+  );
 
-    const content=document.getElementById("content");
-    const searchInput=document.getElementById("searchInput");
-    let allData=[];
+  const content = document.getElementById("content");
+  const searchInput = document.getElementById("searchInput");
+  const listEl = document.getElementById("autocomplete-list");
+  let allStores = [];
 
-    searchInput.addEventListener("input",renderFiltered);
-    loadData();
+  await loadData();
+  renderAll();
 
-    async function loadData(){
-      const {data,error}=await supabase.from("stores").select("*").eq("approved",true).eq("deleted",false);
-      if(error){content.innerHTML=`<p style='color:red;'>${error.message}</p>`;return;}
-      allData=data||[];
-      renderFiltered();
-    }
+  async function loadData(){
+    const { data, error } = await supabase.from("stores").select("*").eq("approved", true).neq("status","deleted");
+    if(error){ console.error(error); showToast("Kunde inte hämta data","error"); return; }
+    allStores = data;
+  }
 
-    function renderFiltered(){
-      const q=searchInput.value.toLowerCase();
-      const filtered=allData.filter(s=>
-        (s.name||"").toLowerCase().includes(q)||
-        (s.city||"").toLowerCase().includes(q)||
-        (s.country||"").toLowerCase().includes(q)
-      );
-      renderGrouped(filtered);
-    }
+  function groupBy(arr, keyFn){
+    return arr.reduce((acc,item)=>{
+      const key = keyFn(item) || "Övrigt";
+      if(!acc[key]) acc[key]=[];
+      acc[key].push(item);
+      return acc;
+    },{});
+  }
 
-    function renderGrouped(data){
-      content.innerHTML="";
-      const map={};
-      for(const s of data){
-        const c=(s.country||"Unknown").trim();
-        const city=(s.city||"").trim();
-        if(!map[c]) map[c]={};
-        if(!map[c][city]) map[c][city]=[];
-        map[c][city].push(s);
-      }
-      Object.keys(map).sort().forEach(country=>{
-        const sec=document.createElement("div");
-        sec.className="section";
+  function renderAll(){
+    const byCountry = groupBy(allStores, s => s.country);
+    content.innerHTML = "";
 
-        const countryHeader=document.createElement("div");
-        countryHeader.className="accordion-country";
-        countryHeader.innerHTML=`<span>${country}</span><span>▼</span>`;
-        const cityContainer=document.createElement("div");
-        cityContainer.style.display="none";
+    for(const [country, list] of Object.entries(byCountry).sort()){
+      const h2 = document.createElement("h2");
+      h2.textContent = country;
+      h2.className = "section";
+      content.appendChild(h2);
 
-        countryHeader.addEventListener("click",()=>{
-          const open=cityContainer.style.display==="none";
-          cityContainer.style.display=open?"block":"none";
-          countryHeader.classList.toggle("open",open);
-          countryHeader.querySelector("span:last-child").textContent=open?"▲":"▼";
-        });
+      const byCity = groupBy(list, s => s.city);
+      for(const [city, items] of Object.entries(byCity).sort()){
+        const h3 = document.createElement("h3");
+        h3.textContent = city;
+        h3.className = "subsection";
+        content.appendChild(h3);
 
-        Object.keys(map[country]).sort().forEach(city=>{
-          const citySec=document.createElement("div");
-          const cityHeader=document.createElement("div");
-          cityHeader.className="accordion-city";
-          cityHeader.innerHTML=`<span>${city||"–"}</span><span>▼</span>`;
-          const grid=document.createElement("div");
-          grid.className="grid";
-          grid.style.display="none";
-          map[country][city].forEach(store=>grid.appendChild(renderCard(store)));
-
-          cityHeader.addEventListener("click",()=>{
-            const open=grid.style.display==="none";
-            grid.style.display=open?"grid":"none";
-            cityHeader.classList.toggle("open",open);
-            cityHeader.querySelector("span:last-child").textContent=open?"▲":"▼";
+        for(const s of items.sort((a,b)=>a.name.localeCompare(b.name))){
+          const card = document.createElement("div");
+          card.className = "card";
+          card.dataset.id = s.id;
+          card.innerHTML = `
+            <div class="card-header">
+              <img src="${s.photo_url || 'images/store.jpg'}" onerror="this.src='images/store.jpg'"/>
+              <h4>${s.name}</h4>
+            </div>
+            <div class="details">
+              <div><b>Adress:</b> ${s.address || '–'}</div>
+              <div><b>Telefon:</b> ${s.phone || '–'}</div>
+              <div><b>Website:</b> ${s.website ? `<a href="${s.website}" target="_blank">${s.website}</a>` : '–'}</div>
+              <div><b>Typ:</b> ${s.type || '–'} ${s.access ? `(${s.access})` : ''}</div>
+              <div><b>Rating:</b> ${s.rating || '–'}</div>
+              <div class="actions">
+                <button class="btn small edit" onclick="editStore('${s.id}')">Edit</button>
+                <button class="btn small flag" onclick="flagStore('${s.id}')">Flag</button>
+                <button class="btn small danger" onclick="deleteStore('${s.id}')">Delete</button>
+              </div>
+            </div>
+          `;
+          card.addEventListener("click",e=>{
+            if(e.target.closest("button")) return;
+            card.classList.toggle("expanded");
           });
+          content.appendChild(card);
+        }
+      }
+    }
+  }
 
-          citySec.appendChild(cityHeader);
-          citySec.appendChild(grid);
-          cityContainer.appendChild(citySec);
-        });
+  /* --- Autocomplete Search --- */
+  searchInput.addEventListener("input",()=>{
+    const q = searchInput.value.toLowerCase();
+    listEl.innerHTML = "";
+    if(q.length < 2) return;
+    const matches = allStores.filter(s =>
+      (s.name && s.name.toLowerCase().includes(q)) ||
+      (s.city && s.city.toLowerCase().includes(q)) ||
+      (s.country && s.country.toLowerCase().includes(q))
+    ).slice(0,10);
 
-        sec.appendChild(countryHeader);
-        sec.appendChild(cityContainer);
-        content.appendChild(sec);
+    matches.forEach(m=>{
+      const div = document.createElement("div");
+      div.textContent = `${m.name} (${m.city}, ${m.country})`;
+      div.addEventListener("click",()=>{
+        searchInput.value = m.name;
+        listEl.innerHTML = "";
+        highlightStore(m.id);
       });
-    }
+      listEl.appendChild(div);
+    });
+  });
 
-    function renderCard(store){
-      const card=document.createElement("div");
-      card.className="card";
-      const badges=Array.isArray(store.types)
-        ? store.types.map(t=>`<span class='badge ${t}'>${t}</span>`).join(" ")
-        : `<span class='badge ${store.type}'>${store.type}</span>`;
-      const img=store.photo_url||store.photo_reference||"images/store.jpg";
-      const stars=store.rating ? "★".repeat(store.rating)+"☆".repeat(5-store.rating) : "☆☆☆☆☆";
-      const access=store.type==="lounge"&&store.access
-        ? `<div class='access-line'>${store.access==="members"?"🔒 Members only":store.access==="temporary"?"⏳ Temporary":"🌐 Public"}</div>`:"";
+  function highlightStore(id){
+    const el = document.querySelector(`.card[data-id='${id}']`);
+    if(el){
+      el.scrollIntoView({behavior:"smooth", block:"center"});
+      el.classList.add("expanded");
+      showToast("Visar: "+el.querySelector("h4").textContent,"info");
+    } else showToast("Hittades inte","error");
+  }
 
-      card.innerHTML=`
-        <img src="${img}" onerror="this.src='images/store.jpg'" alt="${store.name}">
-        <div class='card-content'>
-          <div class='badges'>${store.flagged?"<span class='badge flagged'>Flagged</span>":""}${badges}</div>
-          <h3>${store.name||"Unnamed"}</h3>
-          <p>${store.address||""}</p>
-          <p>${store.city||""}, ${store.country||""}</p>
-          ${access}
-          <div class='rating'>${stars}</div>
-          <div class='status'>✅ Approved</div>
+  /* --- Actions --- */
+  window.editStore = async (id)=>{
+    window.location.href = `add-store-backoffice.html?edit=${id}`;
+  }
+  window.flagStore = async (id)=>{
+    await supabase.from("stores").update({flagged:true}).eq("id",id);
+    showToast("Flaggad","info");
+  }
+  window.deleteStore = async (id)=>{
+    const ok = confirm("Vill du verkligen ta bort?");
+    if(!ok) return;
+    await supabase.from("stores").update({status:"deleted"}).eq("id",id);
+    showToast("Borttagen","error");
+  }
 
-          <div class='details'>
-            <label>Namn</label><input id='name-${store.id}' value='${store.name||""}'>
-            <label>Adress</label><input id='addr-${store.id}' value='${store.address||""}'>
-            <label>Stad</label><input id='city-${store.id}' value='${store.city||""}'>
-            <label>Land</label><input id='country-${store.id}' value='${store.country||""}'>
-            <label>Telefon</label><input id='phone-${store.id}' value='${store.phone||""}'>
-            <label>Webbplats</label><input id='web-${store.id}' value='${store.website||""}'>
-            <label>Typ</label>
-            <select id='type-${store.id}'>
-              <option value='store' ${store.type==='store'?'selected':''}>Store</option>
-              <option value='lounge' ${store.type==='lounge'?'selected':''}>Lounge</option>
-              <option value='other' ${store.type==='other'?'selected':''}>Other</option>
-            </select>
-            <div id='access-${store.id}' style='${store.type==='lounge'?'':'display:none;'}'>
-              <label>Lounge access</label>
-              <select id='accessVal-${store.id}'>
-                <option value='public' ${store.access==='public'?'selected':''}>Public</option>
-                <option value='temporary' ${store.access==='temporary'?'selected':''}>Temporary</option>
-                <option value='members' ${store.access==='members'?'selected':''}>Members</option>
-              </select>
-            </div>
-            <label>Rating</label>
-            <div class='stars' id='stars-${store.id}'>
-              ${[1,2,3,4,5].map(i=>`<span data-v='${i}' ${store.rating>=i?"class='sel'":""}>★</span>`).join("")}
-            </div>
-            <div class='btn-row'>
-              <button class='save' onclick='saveChanges("${store.id}")'>💾 Save</button>
-              <button class='cancel' onclick='toggleExpand(this,true)'>✖ Cancel</button>
-              <button class='approve' onclick='updateStatus("${store.id}",false)'>Unapprove</button>
-              <button class='flag' onclick='toggleFlag("${store.id}",${!!store.flagged})'>${store.flagged?"Unflag":"Flag"}</button>
-              <button class='delete' onclick='softDelete("${store.id}")'>Delete</button>
-            </div>
-          </div>
-        </div>`;
-      card.addEventListener("click",(e)=>{
-        if(e.target.closest("button")||e.target.closest("input")||e.target.closest("select"))return;
-        card.classList.toggle("expanded");
-      });
-
-      const starsDiv=card.querySelector(`#stars-${store.id}`);
-      starsDiv.querySelectorAll("span").forEach(span=>{
-        span.addEventListener("click",()=>{
-          const v=parseInt(span.dataset.v);
-          store.rating=v;
-          starsDiv.querySelectorAll("span").forEach(s=>s.classList.toggle("sel",parseInt(s.dataset.v)<=v));
-        });
-      });
-
-      card.querySelector(`#type-${store.id}`).addEventListener("change",(e)=>{
-        const val=e.target.value;
-        const accDiv=card.querySelector(`#access-${store.id}`);
-        accDiv.style.display=val==="lounge"?"block":"none";
-      });
-
-      return card;
-    }
-
-    function toggleExpand(btn,cancel=false){
-      const card=btn.closest(".card");
-      if(cancel) card.classList.remove("expanded");
-      else card.classList.toggle("expanded");
-    }
-
-    async function saveChanges(id){
-      const name=document.getElementById(`name-${id}`).value.trim();
-      const address=document.getElementById(`addr-${id}`).value.trim();
-      const city=document.getElementById(`city-${id}`).value.trim();
-      const country=document.getElementById(`country-${id}`).value.trim();
-      const phone=document.getElementById(`phone-${id}`).value.trim();
-      const website=document.getElementById(`web-${id}`).value.trim();
-      const type=document.getElementById(`type-${id}`).value;
-      const access=type==="lounge"?document.getElementById(`accessVal-${id}`).value:null;
-      const stars=document.querySelectorAll(`#stars-${id} span.sel`).length;
-      const rating=stars||null;
-
-      const {error}=await supabase.from("stores")
-        .update({name,address,city,country,phone,website,type,access,rating,updated_at:new Date().toISOString()})
-        .eq("id",id);
-      if(error)return showToast(error.message,"error");
-      showToast("💾 Saved","success");
-      loadData();
-    }
-
-    async function updateStatus(id,approved){
-      const {error}=await supabase.from("stores")
-        .update({approved,status:approved?"approved":"pending"})
-        .eq("id",id);
-      if(error)return showToast(error.message,"error");
-      showToast(approved?"✅ Approved":"⏳ Unapproved","success");
-      loadData();
-    }
-
-    async function toggleFlag(id,flagged){
-      const {error}=await supabase.from("stores").update({flagged:!flagged}).eq("id",id);
-      if(error)return showToast(error.message,"error");
-      showToast(flagged?"🚫 Unflagged":"🚩 Flagged","success");
-      loadData();
-    }
-
-    async function softDelete(id){
-      const delUntil=new Date(Date.now()+48*60*60*1000).toISOString();
-      const {error}=await supabase.from("stores").update({deleted:true,deleted_until:delUntil}).eq("id",id);
-      if(error)return showToast(error.message,"error");
-      showToast("🗑️ Moved to Trash","success");
-      loadData();
-    }
-
-    function showToast(msg,type="info"){
-      const c=document.getElementById("toast-container");
-      const t=document.createElement("div");
-      t.className=`toast ${type}`;t.textContent=msg;
-      c.appendChild(t);
-      setTimeout(()=>t.remove(),3000);
-    }
-  </script>
+  function showToast(msg,type="info"){
+    const c=document.getElementById("toast-container");
+    const t=document.createElement("div");
+    t.className=`toast ${type}`;
+    t.textContent=msg;
+    c.appendChild(t);
+    setTimeout(()=>t.remove(),3000);
+  }
+</script>
 </body>
 </html>
