@@ -1,471 +1,441 @@
-<!-- approved.html — Approved list (continent grouping, autocomplete, expandable edit) -->
+<!-- approved.html — Approved list with Region/Land groups, State column (USA), inline edit -->
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Backoffice — Approved</title>
+  <title>Approved — Backoffice</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
       --primary:#2f78c4; --primary-dark:#2466a8;
-      --success:#1d8348; --warning:#b36e00; --danger:#c0392b;
       --bg:#f5f6f8; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
+      --green:#1d8348; --red:#c0392b; --row:#f9fafb;
     }
     *{box-sizing:border-box}
-    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:1.1rem;color:var(--text);font-size:14px}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:1rem;color:var(--text)}
     h1{margin:.2rem 0 1rem;text-align:center;color:#2b2b2b}
-
-    .topbar{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-bottom:.8rem}
-    .btn{background:#fff;border:1.6px solid var(--primary);color:var(--primary);padding:.45rem .7rem;border-radius:8px;font-weight:800;cursor:pointer}
-    .btn:hover{filter:brightness(.96)}
+    .topbar{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:.6rem}
+    .btn{background:#fff;color:var(--primary);border:1.6px solid var(--primary);padding:.45rem .7rem;border-radius:8px;font-weight:800;cursor:pointer}
+    .btn:hover{background:var(--primary);color:#fff}
     .btn.primary{background:var(--primary);color:#fff;border:none}
-    .btn.danger{background:var(--danger);color:#fff;border:none}
-    .btn.success{background:var(--success);color:#fff;border:none}
-    .btn.warn{background:#ff8c00;color:#fff;border:none}
+    .btn.danger{background:var(--red);color:#fff;border:none}
+    .searchbar{display:flex;justify-content:center;margin:.4rem 0 .8rem}
+    .searchbar input{width:min(900px,92%);padding:.55rem .7rem;border:1.6px solid var(--primary);border-radius:8px;font-weight:700}
 
-    .toolbar{display:flex;gap:.6rem;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:.8rem}
-    .searchWrap{position:relative}
-    #search{padding:.5rem .7rem;border:1.4px solid var(--primary);border-radius:8px;min-width:280px}
-    .ac-list{position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.08);z-index:10;max-height:220px;overflow:auto;display:none}
-    .ac-item{padding:.45rem .6rem;cursor:pointer}
-    .ac-item:hover{background:#f3f4f6}
-
-    .section{margin:1rem auto;max-width:1200px}
-    .section>h2{margin:.6rem 0 .4rem;color:#2b2b2b;border-left:6px solid var(--primary);padding-left:.5rem}
-
-    .table{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden}
-    .row{display:grid;grid-template-columns:46px 1.1fr .9fr .9fr 1fr .8fr .7fr 130px;gap:.6rem;align-items:center;padding:.45rem .6rem;border-bottom:1px solid #eee}
-    .row.header{background:#f3f4f6;font-weight:800}
-    .row:hover{background:#fafafa}
-    .cell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .thumb{width:40px;height:40px;border-radius:6px;object-fit:cover;background:#ddd}
-
-    .expand{background:#fbfbfd;border-top:1px dashed #e3e5e8;padding:.7rem .9rem}
-    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:.7rem}
-    .form-grid .full{grid-column:1/-1}
-    label{font-weight:700;font-size:.9rem}
-    input[type="text"],input[type="tel"],input[type="url"]{
-      width:100%;padding:.55rem;border:1px solid #ccc;border-radius:8px;font-size:.95rem
+    /* Group headers */
+    .region{margin:1rem auto;max-width:1200px}
+    .region h2{
+      margin:.8rem 0 .4rem;font-size:1.3rem;border-left:6px solid var(--primary);
+      padding-left:.5rem;display:flex;align-items:center;gap:.5rem
     }
-    .chip-row{display:flex;gap:.45rem;flex-wrap:wrap}
-    .chip{border:1px solid var(--border);padding:.3rem .65rem;border-radius:16px;cursor:pointer;user-select:none}
-    .chip.active{background:#eef6ff;border-color:#bcd7ff;color:#145b99}
-    .access{display:none;background:#f8fafc;border:1px dashed #cfe1ff;padding:.5rem;border-radius:8px}
-    .muted{color:var(--muted);font-size:.86rem}
+    .country-h{
+      margin:.4rem 0 .3rem;font-size:1.05rem;color:#223;
+      display:flex;align-items:center;gap:.5rem;font-weight:800
+    }
+    .pill{background:#e9f3ff;color:#1a5ea0;border:1px solid #bcd7ff;border-radius:999px;padding:.08rem .5rem;font-size:.8rem;font-weight:800}
 
-    .actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem}
-    .right{margin-left:auto}
+    /* Table */
+    .table{width:100%;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff}
+    table{width:100%;border-collapse:collapse;table-layout:fixed}
+    th,td{padding:.55rem .6rem;border-bottom:1px solid #f0f0f0;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;font-size:.92rem}
+    th{background:#f3f4f6;color:#333;text-align:left}
+    tr:hover{background:var(--row)}
+    td.center{text-align:center}
+    .thumb{width:58px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #eee}
+    .type-badges{display:flex;gap:.3rem;flex-wrap:wrap}
+    .chip{border:1px solid #cfe1ff;border-radius:999px;padding:.1rem .45rem;font-size:.8rem;color:#1a5ea0;background:#eef6ff}
+    .row-actions{display:flex;gap:.4rem;justify-content:flex-end}
 
-    #toast-container{position:fixed;right:1rem;bottom:1rem;display:flex;flex-direction:column;gap:.45rem;z-index:9999}
-    .toast{background:#333;color:#fff;padding:.7rem 1rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
-    .toast.success{background:#28a745}.toast.error{background:#dc3545}.toast.info{background:#2f78c4}
-    @media (max-width:1100px){ .row{grid-template-columns:46px 1.2fr 1fr .9fr .9fr .9fr .8fr 130px} }
-    @media (max-width:900px){ .row{grid-template-columns:46px 1.6fr 1.1fr .9fr 1fr 140px; } .hide-sm{display:none} }
+    /* Expand row */
+    tr.expand td{background:#fbfdff}
+    .exp-wrap{padding:.8rem .4rem}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+    .grid .full{grid-column:1/-1}
+    .field{display:flex;flex-direction:column;gap:.25rem}
+    .field input,.field select{padding:.5rem;border:1px solid #ccc;border-radius:8px}
+    .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+    .chip-toggle{padding:.25rem .6rem;border-radius:999px;border:1px solid #bbb;cursor:pointer}
+    .chip-toggle.active{background:#2f78c4;color:#fff;border-color:#2f78c4}
+    .muted{color:var(--muted);font-size:.85rem}
+    .exp-actions{display:flex;gap:.5rem;justify-content:flex-end;margin-top:.4rem}
+    .access-row{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+    .hide{display:none}
+
+    /* Toast */
+    #toast{position:fixed;right:1rem;bottom:1rem;display:flex;flex-direction:column;gap:.45rem;z-index:9999}
+    .toast{background:#333;color:#fff;padding:.65rem .9rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+    .toast.ok{background:#1d8348}.toast.err{background:#c0392b}.toast.info{background:#2f78c4}
   </style>
 </head>
 <body>
   <h1>Approved — Backoffice</h1>
 
   <div class="topbar">
-    <button class="btn" onclick="window.location.href='backoffice.html'">← Tillbaka till Home</button>
+    <button class="btn" onclick="location.href='backoffice.html'">← Tillbaka till Home</button>
+    <button class="btn" onclick="location.reload()">↻ Ladda om</button>
   </div>
 
-  <div class="toolbar">
-    <div class="searchWrap">
-      <input id="search" type="text" placeholder="Sök (namn, stad, land)…"/>
-      <div id="acList" class="ac-list"></div>
+  <div class="searchbar">
+    <input id="q" placeholder="Sök (namn, land, state, stad) …" />
+  </div>
+
+  <div id="wrap"></div>
+  <div id="toast"></div>
+
+<script>
+/* -------- Supabase -------- */
+const supabase = window.supabase.createClient(
+  "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+);
+
+/* -------- Konfig -------- */
+const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+
+/* Världsdelkarta */
+const REGION_MAP = {
+  "Sweden":"Europa","Norway":"Europa","Denmark":"Europa","Finland":"Europa","Iceland":"Europa",
+  "United Kingdom":"Europa","Ireland":"Europa","Germany":"Europa","France":"Europa","Spain":"Europa","Italy":"Europa",
+  "Netherlands":"Europa","Belgium":"Europa","Portugal":"Europa","Austria":"Europa","Switzerland":"Europa","Poland":"Europa",
+  "Czechia":"Europa","Czech Republic":"Europa","Hungary":"Europa","Greece":"Europa","Turkey":"Europa",
+  "USA":"Nordamerika","United States":"Nordamerika","Canada":"Nordamerika","Mexico":"Nordamerika",
+  "Brazil":"Sydamerika","Argentina":"Sydamerika","Chile":"Sydamerika","Colombia":"Sydamerika","Peru":"Sydamerika",
+  "Australia":"Oceanien","New Zealand":"Oceanien",
+  "South Africa":"Afrika","Morocco":"Afrika","Egypt":"Afrika","Kenya":"Afrika","Nigeria":"Afrika",
+  "Thailand":"Asien","Malaysia":"Asien","Japan":"Asien","China":"Asien","India":"Asien","Singapore":"Asien","UAE":"Asien","United Arab Emirates":"Asien","Indonesia":"Asien","Philippines":"Asien","Vietnam":"Asien","Hong Kong":"Asien","Taiwan":"Asien","South Korea":"Asien","Saudi Arabia":"Asien","Qatar":"Asien"
+};
+
+/* -------- State -------- */
+const wrap = document.getElementById('wrap');
+const q = document.getElementById('q');
+let allApproved = [];
+let filtered = [];
+
+/* Bildhjälpare */
+function photoFrom(store){
+  if (store.photo_url && store.photo_url.startsWith("http")) return store.photo_url;
+  if (store.photo_reference && !store.photo_reference.startsWith("http")){
+    return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${encodeURIComponent(store.photo_reference)}&key=${GOOGLE_BROWSER_KEY}`;
+  }
+  if (Array.isArray(store.types) && store.types.includes("lounge")) return "images/lounge.jpg";
+  if ((store.type||"").toLowerCase()==="lounge") return "images/lounge.jpg";
+  if (Array.isArray(store.types) && store.types.includes("store")) return "images/store.jpg";
+  return "images/other.jpg";
+}
+
+/* Toast */
+function toast(msg,type='info'){
+  const c=document.getElementById('toast');
+  const t=document.createElement('div');
+  t.className=`toast ${type==='ok'?'ok':type==='err'?'err':'info'}`;
+  t.textContent=msg;
+  c.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+/* Region/land helpers */
+function regionOf(country){
+  return REGION_MAP[country?.trim()] || "Övriga";
+}
+function normalizeTypes(s){
+  if (Array.isArray(s.types)) return s.types;
+  if (s.type) return [String(s.type).toLowerCase()];
+  return [];
+}
+function typePills(types){
+  return types.map(t=>`<span class="chip">${t}</span>`).join(" ");
+}
+
+/* Sökning */
+q.addEventListener('input', ()=>{
+  const val = q.value.trim().toLowerCase();
+  if (!val){ filtered = [...allApproved]; render(); return; }
+  filtered = allApproved.filter(s=>{
+    return (s.name||"").toLowerCase().includes(val)
+        || (s.country||"").toLowerCase().includes(val)
+        || (s.city||"").toLowerCase().includes(val)
+        || (s.state||"").toLowerCase().includes(val);
+  });
+  render();
+});
+
+/* Ladda data */
+(async function load(){
+  const { data, error } = await supabase
+    .from('stores')
+    .select('*')
+    .eq('approved', true)
+    .order('name', { ascending:true });
+
+  if (error){
+    console.error(error);
+    toast("Fel vid laddning (API-nyckel?)","err");
+    wrap.innerHTML = `<p style="color:#c0392b;text-align:center">Kunde inte ladda approved.</p>`;
+    return;
+  }
+
+  allApproved = (data||[]).map(s=>({
+    ...s,
+    types: normalizeTypes(s),
+    country: s.country || "",
+    state: (s.state || s.admin_area || s.region || ""), // mjuk fallback
+    region: regionOf(s.country||"")
+  }));
+  filtered = [...allApproved];
+  render();
+})();
+
+/* Render */
+function render(){
+  // Gruppera: region → land
+  const byRegion = new Map();
+  for (const s of filtered){
+    if (!byRegion.has(s.region)) byRegion.set(s.region, new Map());
+    const byCountry = byRegion.get(s.region);
+    const key = s.country || "Unknown";
+    if (!byCountry.has(key)) byCountry.set(key, []);
+    byCountry.get(key).push(s);
+  }
+
+  // Sortera regioner alfabetiskt, länder inom region alfabetiskt
+  const regions = Array.from(byRegion.entries()).sort((a,b)=>a[0].localeCompare(b[0]));
+  let html = "";
+
+  for (const [regionName, countries] of regions){
+    // totals
+    const regionCount = Array.from(countries.values()).reduce((acc,arr)=>acc+arr.length,0);
+
+    html += `<section class="region">
+      <h2>${regionName} <span class="pill">${regionCount}</span></h2>`;
+
+    const sortedCountries = Array.from(countries.entries()).sort((a,b)=>a[0].localeCompare(b[0]));
+
+    for (const [countryName, rows] of sortedCountries){
+      html += `<div class="country-h">🇺🇳 ${countryName} <span class="pill">${rows.length}</span></div>
+      <div class="table">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:70px">Bild</th>
+              <th style="width:22%">Namn</th>
+              <th style="width:12%">Land</th>
+              <th style="width:12%">State</th>
+              <th style="width:16%">Stad</th>
+              <th style="width:24%">Adress</th>
+              <th style="width:13%">Telefon</th>
+              <th style="width:10%">Typ</th>
+              <th style="width:14%">Åtgärder</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+      for (const s of rows){
+        const img = photoFrom(s);
+        const types = normalizeTypes(s);
+        const typeTxt = types.join(', ') || (s.type||"");
+        const showState = (s.country==="USA" || s.country==="United States");
+        html += `
+          <tr data-id="${s.id}">
+            <td><img class="thumb" src="${img}" alt="" onerror="this.onerror=null;this.src='images/store.jpg'"></td>
+            <td title="${esc(s.name||'')}">${esc(s.name||"")}</td>
+            <td>${esc(s.country||"")}</td>
+            <td>${showState ? esc(s.state||"") : ""}</td>
+            <td>${esc(s.city||"")}</td>
+            <td title="${esc(s.address||'')}">${esc(s.address||"")}</td>
+            <td>${esc(s.phone||"")}</td>
+            <td><div class="type-badges">${typePills(types)}</div></td>
+            <td class="row-actions">
+              <button class="btn" onclick="toggleExpand('${s.id}')">Visa / Redigera</button>
+            </td>
+          </tr>
+          <tr id="exp-${s.id}" class="expand hide"><td colspan="9">
+            ${expandEditor(s)}
+          </td></tr>`;
+      }
+
+      html += `</tbody></table></div>`;
+    }
+
+    html += `</section>`;
+  }
+
+  wrap.innerHTML = html;
+}
+
+/* Expand editor markup */
+function expandEditor(s){
+  const types = normalizeTypes(s);
+  const isLounge = types.includes('lounge');
+
+  return `
+    <div class="exp-wrap">
+      <div class="grid">
+        <div class="field">
+          <label>Namn</label>
+          <input id="nm-${s.id}" value="${esc(s.name||"")}" />
+        </div>
+        <div class="field">
+          <label>Telefon</label>
+          <input id="ph-${s.id}" value="${esc(s.phone||"")}" />
+        </div>
+
+        <div class="field full">
+          <label>Adress</label>
+          <input id="ad-${s.id}" value="${esc(s.address||"")}" />
+        </div>
+
+        <div class="field">
+          <label>Stad</label>
+          <input id="ct-${s.id}" value="${esc(s.city||"")}" />
+        </div>
+        <div class="field">
+          <label>Land</label>
+          <input id="co-${s.id}" value="${esc(s.country||"")}" />
+        </div>
+
+        <div class="field">
+          <label>State (USA)</label>
+          <input id="st-${s.id}" value="${esc(s.state||"")}" placeholder="t.ex. New York" />
+        </div>
+        <div class="field">
+          <label>Webbplats</label>
+          <input id="wb-${s.id}" value="${esc(s.website||"")}" />
+        </div>
+
+        <div class="field full">
+          <label>Typer</label>
+          <div class="chips" id="tp-${s.id}">
+            ${chipToggle('store', types.includes('store'))}
+            ${chipToggle('lounge', types.includes('lounge'))}
+            ${chipToggle('other', types.includes('other'))}
+          </div>
+          <div class="muted">Välj en eller flera.</div>
+        </div>
+
+        <div class="field full ${isLounge?'':'hide'}" id="accwrap-${s.id}">
+          <label>Lounge access</label>
+          <div class="access-row" id="ac-${s.id}">
+            ${radio('public','Öppen för alla', s.access==='public')}
+            ${radio('temporary','Tillfälliga medlemmar', s.access==='temporary')}
+            ${radio('members','Endast medlemmar', s.access==='members')}
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Foto-URL</label>
+          <input id="pu-${s.id}" value="${esc(s.photo_url||"")}" placeholder="(valfri) Direktlänk till bild" />
+        </div>
+        <div class="field">
+          <label>Photo reference</label>
+          <input id="pr-${s.id}" value="${esc(s.photo_reference||"")}" placeholder="(valfri) Google photo_reference" />
+        </div>
+
+        <div class="field full muted">
+          place_id: ${esc(s.place_id||"-")}
+        </div>
+
+        <div class="field full exp-actions">
+          <button class="btn" onclick="toggleExpand('${s.id}')">Avbryt</button>
+          <button class="btn primary" onclick="saveRow('${s.id}')">Spara</button>
+        </div>
+      </div>
     </div>
-    <button class="btn" id="clearSearch">Rensa</button>
-  </div>
+  `;
+}
 
-  <div id="container"></div>
+function chipToggle(val, active){
+  return `<span class="chip-toggle ${active?'active':''}" data-v="${val}" onclick="toggleType(this)">${val}</span>`;
+}
+function radio(value,label,checked){
+  return `<label><input type="radio" name="acc-${Math.random().toString(36).slice(2)}" data-v="${value}" ${checked?'checked':''} onclick="setAccess(this)"/> ${label}</label>`;
+}
 
-  <div id="toast-container"></div>
+/* Expand toggle */
+function toggleExpand(id){
+  const row = document.getElementById(`exp-${id}`);
+  if (!row) return;
+  row.classList.toggle('hide');
 
-  <script>
-    /* --------- Supabase --------- */
-    const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // säkerställ lounge access-sektionen följer typer
+  syncAccessVisibility(id);
+}
 
-    /* --------- State --------- */
-    let all = [];
-    let filtered = [];
-    let expandedId = null;
+/* Typ & access styrning */
+function toggleType(el){
+  el.classList.toggle('active');
+  const rowId = el.closest('.chips').id.split('tp-')[1];
+  syncAccessVisibility(rowId);
+}
+function syncAccessVisibility(id){
+  const chips = Array.from(document.querySelectorAll(`#tp-${id} .chip-toggle.active`)).map(x=>x.dataset.v);
+  const hasLounge = chips.includes('lounge');
+  const box = document.getElementById(`accwrap-${id}`);
+  if (box) box.classList.toggle('hide', !hasLounge);
+}
+function setAccess(radioEl){
+  // handled on save by reading checked input in container
+}
 
-    /* --------- Continents mapping (snabb & enkel) --------- */
-    const continentMap = {
-      // Europa
-      "Sweden":"Europa","Norway":"Europa","Denmark":"Europa","Finland":"Europa","Iceland":"Europa","United Kingdom":"Europa","Ireland":"Europa",
-      "Germany":"Europa","Netherlands":"Europa","Belgium":"Europa","France":"Europa","Spain":"Europa","Portugal":"Europa","Italy":"Europa","Greece":"Europa",
-      "Poland":"Europa","Czechia":"Europa","Austria":"Europa","Switzerland":"Europa","Hungary":"Europa","Romania":"Europa","Bulgaria":"Europa","Croatia":"Europa",
-      "Serbia":"Europa","Slovakia":"Europa","Slovenia":"Europa","Estonia":"Europa","Latvia":"Europa","Lithuania":"Europa","Ukraine":"Europa",
-      // Nordamerika
-      "USA":"Nordamerika","United States":"Nordamerika","Canada":"Nordamerika","Mexico":"Nordamerika",
-      // Sydamerika
-      "Brazil":"Sydamerika","Argentina":"Sydamerika","Chile":"Sydamerika","Peru":"Sydamerika","Colombia":"Sydamerika","Uruguay":"Sydamerika","Paraguay":"Sydamerika","Bolivia":"Sydamerika","Ecuador":"Sydamerika","Venezuela":"Sydamerika",
-      // Asien
-      "Japan":"Asien","China":"Asien","India":"Asien","Thailand":"Asien","Malaysia":"Asien","Singapore":"Asien","South Korea":"Asien","United Arab Emirates":"Asien","Saudi Arabia":"Asien","Qatar":"Asien","Israel":"Asien","Turkey":"Asien","Vietnam":"Asien","Indonesia":"Asien","Philippines":"Asien","Taiwan":"Asien","Hong Kong":"Asien",
-      // Afrika
-      "South Africa":"Afrika","Egypt":"Afrika","Morocco":"Afrika","Tunisia":"Afrika","Kenya":"Afrika","Nigeria":"Afrika","Ghana":"Afrika","Ethiopia":"Afrika",
-      // Oceanien
-      "Australia":"Oceanien","New Zealand":"Oceanien"
+/* Spara rad */
+async function saveRow(id){
+  try{
+    const name = gval(`nm-${id}`);
+    const phone = gval(`ph-${id}`);
+    const address = gval(`ad-${id}`);
+    const city = gval(`ct-${id}`);
+    const country = gval(`co-${id}`);
+    const state = gval(`st-${id}`);
+    const website = gval(`wb-${id}`);
+    const photo_url = gval(`pu-${id}`) || null;
+    const photo_reference = gval(`pr-${id}`) || null;
+
+    const types = Array.from(document.querySelectorAll(`#tp-${id} .chip-toggle.active`)).map(x=>x.dataset.v);
+    // access om lounge vald
+    let access = null;
+    if (types.includes('lounge')){
+      const acWrap = document.getElementById(`accwrap-${id}`);
+      const chosen = acWrap ? acWrap.querySelector('input[type="radio"]:checked') : null;
+      access = chosen ? chosen.getAttribute('data-v') : null;
+    }
+
+    const payload = {
+      name, phone, address, city, country, state, website,
+      types, type: types[0] || null,
+      access,
+      photo_url, photo_reference
     };
-    function continentOf(country){
-      return continentMap[country] || "Övriga";
+
+    const { error } = await supabase.from('stores').update(payload).eq('id', id);
+    if (error) throw error;
+
+    toast("Sparat!","ok");
+    // uppdatera lokalt och rendera om snabbt
+    const idx = allApproved.findIndex(x=>x.id===id);
+    if (idx>-1){
+      allApproved[idx] = { ...allApproved[idx], ...payload };
+      allApproved[idx].region = regionOf(allApproved[idx].country||"");
     }
+    // återskapa filtered utifrån sök
+    const val = q.value.trim().toLowerCase();
+    filtered = val ? allApproved.filter(s =>
+      (s.name||"").toLowerCase().includes(val)
+      || (s.country||"").toLowerCase().includes(val)
+      || (s.city||"").toLowerCase().includes(val)
+      || (s.state||"").toLowerCase().includes(val)
+    ) : [...allApproved];
 
-    /* --------- Photo helper --------- */
-    const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
-    function photoUrlFromRef(ref){
-      if(!ref) return null;
-      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${encodeURIComponent(ref)}&key=${GOOGLE_BROWSER_KEY}`;
-    }
-    function bestThumb(s){
-      if (s.photo_url && s.photo_url.startsWith("http")) return s.photo_url;
-      if (s.photo_reference && !s.photo_reference.startsWith("http")) return photoUrlFromRef(s.photo_reference);
-      if ((s.photo_reference||"").startsWith("http")) return s.photo_reference;
-      const types = (Array.isArray(s.types) ? s.types : [s.type||"other"]).map(t=>String(t).toLowerCase());
-      if (types.includes("lounge")) return "images/lounge.jpg";
-      if (types.includes("store"))  return "images/store.jpg";
-      return "images/other.jpg";
-    }
+    render();
+  }catch(err){
+    console.error(err);
+    toast("Kunde inte spara","err");
+  }
+}
 
-    /* --------- Load --------- */
-    async function load(){
-      const { data, error } = await supabase
-        .from("stores")
-        .select("*")
-        .eq("approved", true)
-        .eq("deleted", false);
+/* Utils */
+function gval(id){ return (document.getElementById(id)?.value || "").trim(); }
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
 
-      if (error){ toast(error.message,"error"); return; }
-
-      // normalize & sort
-      all = (data||[]).map(s => ({
-        ...s,
-        name: s.name || "",
-        city: s.city || "",
-        country: s.country || "",
-        types: Array.isArray(s.types) ? s.types : (s.type ? [s.type] : ["other"]),
-        continent: continentOf(s.country||"")
-      }));
-
-      all.sort((a,b)=>{
-        // continent → country → city → name
-        const cA = a.continent.localeCompare(b.continent);
-        if (cA !== 0) return cA;
-        const co = (a.country||"").localeCompare(b.country||"");
-        if (co !== 0) return co;
-        const ci = (a.city||"").localeCompare(b.city||"");
-        if (ci !== 0) return ci;
-        return (a.name||"").localeCompare(b.name||"");
-      });
-
-      filtered = all.slice();
-      render();
-      buildSuggestions();
-    }
-
-    /* --------- Search + autocomplete --------- */
-    const searchEl = document.getElementById("search");
-    const acList = document.getElementById("acList");
-    const clearBtn = document.getElementById("clearSearch");
-    let acItems = [];
-
-    function buildSuggestions(){
-      const set = new Set();
-      for (const s of all){
-        if (s.name) set.add(s.name);
-        if (s.city) set.add(s.city);
-        if (s.country) set.add(s.country);
-      }
-      acItems = Array.from(set).sort().slice(0, 1000);
-    }
-
-    searchEl.addEventListener("input", ()=>{
-      const q = searchEl.value.trim().toLowerCase();
-      if (!q){ acList.style.display="none"; filtered = all.slice(); render(); return; }
-      const matches = acItems.filter(x => x.toLowerCase().includes(q)).slice(0,10);
-      acList.innerHTML = matches.map(m=>`<div class="ac-item">${escapeHtml(m)}</div>`).join("");
-      acList.style.display = matches.length ? "block" : "none";
-
-      filtered = all.filter(s =>
-        (s.name||"").toLowerCase().includes(q) ||
-        (s.city||"").toLowerCase().includes(q) ||
-        (s.country||"").toLowerCase().includes(q)
-      );
-      render();
-    });
-    acList.addEventListener("click",(e)=>{
-      const it = e.target.closest(".ac-item");
-      if (!it) return;
-      searchEl.value = it.textContent;
-      acList.style.display="none";
-      const q = searchEl.value.trim().toLowerCase();
-      filtered = all.filter(s =>
-        (s.name||"").toLowerCase().includes(q) ||
-        (s.city||"").toLowerCase().includes(q) ||
-        (s.country||"").toLowerCase().includes(q)
-      );
-      render();
-    });
-    document.addEventListener("click",(e)=>{
-      if (!e.target.closest(".searchWrap")) acList.style.display="none";
-    });
-    clearBtn.addEventListener("click",()=>{
-      searchEl.value = "";
-      filtered = all.slice();
-      render();
-    });
-
-    /* --------- Render --------- */
-    const container = document.getElementById("container");
-
-    function render(){
-      container.innerHTML = "";
-      const byContinent = groupBy(filtered, x=>x.continent);
-
-      for (const [cont, items] of byContinent){
-        const section = document.createElement("div");
-        section.className = "section";
-        section.innerHTML = `
-          <h2>${escapeHtml(cont)}</h2>
-          <div class="table">
-            <div class="row header">
-              <div class="cell hide-sm">Bild</div>
-              <div class="cell">Namn</div>
-              <div class="cell">Land</div>
-              <div class="cell">Stad</div>
-              <div class="cell hide-sm">Adress</div>
-              <div class="cell hide-sm">Telefon</div>
-              <div class="cell">Typ</div>
-              <div class="cell">Åtgärder</div>
-            </div>
-          </div>
-        `;
-        container.appendChild(section);
-
-        const table = section.querySelector(".table");
-
-        items.forEach(s=>{
-          const row = document.createElement("div");
-          row.className = "row";
-          row.dataset.id = s.id;
-
-          const img = bestThumb(s);
-          const typeLabel = (s.types && s.types.length) ? s.types.join(" & ") : (s.type || "other");
-
-          row.innerHTML = `
-            <div class="cell hide-sm"><img class="thumb" src="${img}" onerror="this.onerror=null;this.src='images/store.jpg'"/></div>
-            <div class="cell">${escapeHtml(s.name||"—")}</div>
-            <div class="cell">${escapeHtml(s.country||"—")}</div>
-            <div class="cell">${escapeHtml(s.city||"—")}</div>
-            <div class="cell hide-sm">${escapeHtml(s.address||"")}</div>
-            <div class="cell hide-sm">${escapeHtml(s.phone||"")}</div>
-            <div class="cell">${escapeHtml(typeLabel)}</div>
-            <div class="cell">
-              <button class="btn" data-expander="1">Visa / Redigera</button>
-            </div>
-          `;
-          table.appendChild(row);
-
-          const exp = document.createElement("div");
-          exp.className = "expand";
-          exp.style.display = (expandedId === s.id) ? "block" : "none";
-          exp.innerHTML = buildEditorHtml(s);
-          table.appendChild(exp);
-
-          // Handlers
-          row.querySelector('[data-expander]').addEventListener('click', ()=>{
-            // stäng ev. annat
-            const open = container.querySelectorAll(".expand");
-            open.forEach(x => x.style.display="none");
-            if (expandedId === s.id){
-              expandedId = null;
-              return;
-            }
-            expandedId = s.id;
-            exp.style.display = "block";
-          });
-
-          wireEditor(exp, s);
-        });
-      }
-    }
-
-    function buildEditorHtml(s){
-      const isLounge = (Array.isArray(s.types) ? s.types : [s.type||"other"]).includes("lounge");
-      const accessVal = s.access || "";
-      const typeSet = new Set((Array.isArray(s.types)?s.types:[s.type||"other"]).map(t=>String(t).toLowerCase()));
-
-      const loungeAccess = `
-        <div id="accBox" class="access" style="${typeSet.has('lounge')?'display:block':'display:none'}">
-          <label style="display:block;margin-bottom:.35rem;">Lounge access</label>
-          <label><input type="radio" name="e_access_${s.id}" value="public" ${accessVal==='public'?'checked':''}> Öppen för alla</label>&nbsp;&nbsp;
-          <label><input type="radio" name="e_access_${s.id}" value="temporary" ${accessVal==='temporary'?'checked':''}> Tillfälliga medlemmar</label>&nbsp;&nbsp;
-          <label><input type="radio" name="e_access_${s.id}" value="members" ${accessVal==='members'?'checked':''}> Endast medlemmar</label>
-        </div>
-      `;
-
-      return `
-        <div class="form-grid">
-          <div>
-            <label>Namn</label>
-            <input type="text" id="e_name" value="${escVal(s.name)}"/>
-          </div>
-          <div>
-            <label>Telefon</label>
-            <input type="tel" id="e_phone" value="${escVal(s.phone)}"/>
-          </div>
-          <div class="full">
-            <label>Adress</label>
-            <input type="text" id="e_address" value="${escVal(s.address)}"/>
-          </div>
-          <div>
-            <label>Stad</label>
-            <input type="text" id="e_city" value="${escVal(s.city)}"/>
-          </div>
-          <div>
-            <label>Land</label>
-            <input type="text" id="e_country" value="${escVal(s.country)}"/>
-          </div>
-          <div class="full">
-            <label>Webbplats</label>
-            <input type="url" id="e_website" value="${escVal(s.website)}"/>
-          </div>
-
-          <div class="full">
-            <label>Kategori</label>
-            <div class="chip-row" id="e_types">
-              <span class="chip ${typeSet.has('store')?'active':''}" data-t="store">Store</span>
-              <span class="chip ${typeSet.has('lounge')?'active':''}" data-t="lounge">Lounge</span>
-              <span class="chip ${typeSet.has('other')?'active':''}" data-t="other">Other</span>
-            </div>
-            ${loungeAccess}
-          </div>
-
-          <div class="full muted">
-            ID: ${s.id} • Created: ${s.created_at ? new Date(s.created_at).toLocaleString("sv-SE") : "-"} • Updated: ${s.updated_at ? new Date(s.updated_at).toLocaleString("sv-SE") : "-"}
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="btn warn" data-flag="${!s.flagged}">${s.flagged ? "Unflag" : "Flag"}</button>
-          <button class="btn" data-approve="0">Unapprove</button>
-          <button class="btn danger" data-delete="1">Delete (Trash)</button>
-          <div class="right"></div>
-          <button class="btn" data-cancel="1">Avbryt</button>
-          <button class="btn success" data-save="1">Spara</button>
-        </div>
-      `;
-    }
-
-    function wireEditor(root, s){
-      // typchips
-      const chips = root.querySelectorAll("#e_types .chip");
-      const accBox = root.querySelector("#accBox");
-      const typeSet = new Set((Array.isArray(s.types)?s.types:[s.type||"other"]).map(t=>String(t).toLowerCase()));
-
-      chips.forEach(ch=>{
-        ch.addEventListener("click", ()=>{
-          const t = ch.dataset.t;
-          if (ch.classList.contains("active")){
-            ch.classList.remove("active");
-            typeSet.delete(t);
-          }else{
-            ch.classList.add("active");
-            typeSet.add(t);
-          }
-          // visa access om lounge vald
-          accBox.style.display = typeSet.has("lounge") ? "block" : "none";
-        });
-      });
-
-      // Avbryt
-      root.querySelector("[data-cancel]").addEventListener("click", ()=>{
-        expandedId = null;
-        root.style.display = "none";
-      });
-
-      // Flag toggle
-      root.querySelector("[data-flag]").addEventListener("click", async (e)=>{
-        const next = e.target.getAttribute("data-flag")==="true";
-        const { error } = await supabase.from("stores").update({ flagged: next }).eq("id", s.id);
-        if (error){ toast(error.message,"error"); return; }
-        toast(next?"🚩 Flagged":"🚫 Unflagged","success");
-        await load();
-      });
-
-      // Unapprove
-      root.querySelector("[data-approve]").addEventListener("click", async ()=>{
-        const { error } = await supabase.from("stores").update({
-          approved:false,
-          status:"pending",
-          approved_at:null
-        }).eq("id", s.id);
-        if (error){ toast(error.message,"error"); return; }
-        toast("⏳ Moved to Pending","success");
-        await load();
-      });
-
-      // Delete → Trash
-      root.querySelector("[data-delete]").addEventListener("click", async ()=>{
-        const delUntil = new Date(Date.now()+48*60*60*1000).toISOString();
-        const { error } = await supabase.from("stores").update({
-          deleted:true, deleted_until: delUntil
-        }).eq("id", s.id);
-        if (error){ toast(error.message,"error"); return; }
-        toast("🗑️ Flyttad till Trash (48h)","success");
-        await load();
-      });
-
-      // Spara (allt utom rating)
-      root.querySelector("[data-save]").addEventListener("click", async ()=>{
-        const payload = {
-          name:      root.querySelector("#e_name").value.trim(),
-          phone:     root.querySelector("#e_phone").value.trim(),
-          address:   root.querySelector("#e_address").value.trim(),
-          city:      root.querySelector("#e_city").value.trim(),
-          country:   root.querySelector("#e_country").value.trim(),
-          website:   root.querySelector("#e_website").value.trim(),
-          types:     Array.from(typeSet),
-          type:      Array.from(typeSet)[0] || "other",
-          access:    typeSet.has("lounge") ? (root.querySelector(`input[name="e_access_${s.id}"]:checked`)?.value || null) : null,
-          updated_at: new Date().toISOString()
-        };
-
-        const { error } = await supabase.from("stores").update(payload).eq("id", s.id);
-        if (error){ toast(error.message,"error"); return; }
-        toast("✅ Sparad","success");
-        await load();
-      });
-    }
-
-    /* --------- Utils --------- */
-    function groupBy(arr, fn){
-      const m = new Map();
-      for (const x of arr){
-        const k = fn(x);
-        if (!m.has(k)) m.set(k, []);
-        m.get(k).push(x);
-      }
-      return m;
-    }
-    function escapeHtml(str){
-      return String(str||"").replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-    }
-    function escVal(v){ return (v??"").toString().replace(/"/g,'&quot;'); }
-    function toast(msg,type="info"){
-      const c=document.getElementById("toast-container");
-      const t=document.createElement("div");
-      t.className=`toast ${type}`; t.textContent=msg; c.appendChild(t);
-      setTimeout(()=>t.remove(),3200);
-    }
-
-    // go
-    load();
-  </script>
+</script>
 </body>
 </html>
