@@ -1,441 +1,506 @@
-<!-- approved.html — Approved list with Region/Land groups, State column (USA), inline edit -->
+<!-- approved.html — Backoffice Approved (hierarki + global sök + inline edit + pagination) -->
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Approved — Backoffice</title>
+  <title>Backoffice — Approved</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
       --primary:#2f78c4; --primary-dark:#2466a8;
       --bg:#f5f6f8; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
-      --green:#1d8348; --red:#c0392b; --row:#f9fafb;
+      --pill:#e8f1fb; --pilltext:#1a5fa5; --danger:#c0392b; --success:#1d8348; --warning:#b36e00;
     }
     *{box-sizing:border-box}
-    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:1rem;color:var(--text)}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:1rem;color:var(--text);font-size:14px}
     h1{margin:.2rem 0 1rem;text-align:center;color:#2b2b2b}
-    .topbar{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:.6rem}
-    .btn{background:#fff;color:var(--primary);border:1.6px solid var(--primary);padding:.45rem .7rem;border-radius:8px;font-weight:800;cursor:pointer}
-    .btn:hover{background:var(--primary);color:#fff}
+    .topbar{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+    .btn{background:#fff;border:1.6px solid var(--primary);color:var(--primary);padding:.45rem .8rem;border-radius:8px;font-weight:800;cursor:pointer}
     .btn.primary{background:var(--primary);color:#fff;border:none}
-    .btn.danger{background:var(--red);color:#fff;border:none}
-    .searchbar{display:flex;justify-content:center;margin:.4rem 0 .8rem}
-    .searchbar input{width:min(900px,92%);padding:.55rem .7rem;border:1.6px solid var(--primary);border-radius:8px;font-weight:700}
-
-    /* Group headers */
-    .region{margin:1rem auto;max-width:1200px}
-    .region h2{
-      margin:.8rem 0 .4rem;font-size:1.3rem;border-left:6px solid var(--primary);
-      padding-left:.5rem;display:flex;align-items:center;gap:.5rem
-    }
-    .country-h{
-      margin:.4rem 0 .3rem;font-size:1.05rem;color:#223;
-      display:flex;align-items:center;gap:.5rem;font-weight:800
-    }
-    .pill{background:#e9f3ff;color:#1a5ea0;border:1px solid #bcd7ff;border-radius:999px;padding:.08rem .5rem;font-size:.8rem;font-weight:800}
-
-    /* Table */
-    .table{width:100%;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff}
-    table{width:100%;border-collapse:collapse;table-layout:fixed}
-    th,td{padding:.55rem .6rem;border-bottom:1px solid #f0f0f0;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;font-size:.92rem}
-    th{background:#f3f4f6;color:#333;text-align:left}
-    tr:hover{background:var(--row)}
-    td.center{text-align:center}
-    .thumb{width:58px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #eee}
-    .type-badges{display:flex;gap:.3rem;flex-wrap:wrap}
-    .chip{border:1px solid #cfe1ff;border-radius:999px;padding:.1rem .45rem;font-size:.8rem;color:#1a5ea0;background:#eef6ff}
-    .row-actions{display:flex;gap:.4rem;justify-content:flex-end}
-
-    /* Expand row */
-    tr.expand td{background:#fbfdff}
-    .exp-wrap{padding:.8rem .4rem}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
-    .grid .full{grid-column:1/-1}
-    .field{display:flex;flex-direction:column;gap:.25rem}
-    .field input,.field select{padding:.5rem;border:1px solid #ccc;border-radius:8px}
-    .chips{display:flex;gap:.35rem;flex-wrap:wrap}
-    .chip-toggle{padding:.25rem .6rem;border-radius:999px;border:1px solid #bbb;cursor:pointer}
-    .chip-toggle.active{background:#2f78c4;color:#fff;border-color:#2f78c4}
-    .muted{color:var(--muted);font-size:.85rem}
-    .exp-actions{display:flex;gap:.5rem;justify-content:flex-end;margin-top:.4rem}
-    .access-row{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
-    .hide{display:none}
-
-    /* Toast */
-    #toast{position:fixed;right:1rem;bottom:1rem;display:flex;flex-direction:column;gap:.45rem;z-index:9999}
-    .toast{background:#333;color:#fff;padding:.65rem .9rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
-    .toast.ok{background:#1d8348}.toast.err{background:#c0392b}.toast.info{background:#2f78c4}
+    .btn:hover{filter:brightness(.96)}
+    .wrap{max-width:1100px;margin:0 auto}
+    .searchbar{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem}
+    .input{border:1.6px solid var(--primary);border-radius:8px;padding:.45rem .7rem;min-width:260px}
+    .muted{color:var(--muted)}
+    .section{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:.6rem}
+    .section-header{display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;cursor:pointer;user-select:none}
+    .section-header:hover{background:#f8fbff}
+    .chev{font-weight:900;color:var(--primary-dark)}
+    .pill{background:var(--pill);color:var(--pilltext);padding:.15rem .5rem;border-radius:999px;font-weight:800;font-size:.8rem}
+    .section-body{padding:.3rem .8rem .8rem;display:none}
+    .section-body.open{display:block}
+    .country-row{display:flex;justify-content:space-between;align-items:center;padding:.45rem .6rem;border:1px solid var(--border);border-radius:8px;margin:.35rem 0;background:#fff;cursor:pointer}
+    .country-row:hover{background:#f9fbff}
+    .country-title{display:flex;align-items:center;gap:.5rem}
+    table{width:100%;border-collapse:collapse;margin-top:.5rem}
+    th,td{border-bottom:1px solid #eee;padding:.5rem .4rem;text-align:left}
+    th{background:#f3f4f6;font-weight:800}
+    td.num{text-align:center}
+    .actions{display:flex;gap:.35rem;flex-wrap:wrap}
+    .tag{display:inline-block;padding:.18rem .5rem;border-radius:999px;background:#eef2f7;color:#334155;font-size:.78rem;font-weight:700}
+    .imgthumb{width:52px;height:38px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb}
+    .row-edit{background:#fcfdfd}
+    .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+    .edit-grid .full{grid-column:1/-1}
+    input[type="text"],input[type="url"],input[type="tel"]{width:100%;padding:.5rem;border:1px solid #ccc;border-radius:8px}
+    .chips{display:flex;gap:.4rem;flex-wrap:wrap}
+    .chip{border:1px solid var(--border);padding:.25rem .6rem;border-radius:14px;cursor:pointer}
+    .chip.active{background:#eef6ff;border-color:#bcd7ff;color:#145b99}
+    .paging{display:flex;gap:.35rem;align-items:center;justify-content:flex-end;margin-top:.4rem}
+    .paging button{padding:.28rem .5rem;border:1px solid var(--primary);background:#fff;color:var(--primary);border-radius:6px;font-weight:800;cursor:pointer}
+    .paging .muted{font-size:.86rem}
+    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999}
+    .toast{background:#333;color:#fff;padding:.7rem 1rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.97}
+    .toast.success{background:#28a745}.toast.error{background:#dc3545}.toast.info{background:#2f78c4}
   </style>
 </head>
 <body>
-  <h1>Approved — Backoffice</h1>
+  <div class="wrap">
+    <div class="topbar">
+      <button class="btn" onclick="window.location.href='backoffice.html'">← Tillbaka till Home</button>
+      <button class="btn" onclick="window.location.href='add-store-backoffice.html'">+ Lägg till Store</button>
+    </div>
 
-  <div class="topbar">
-    <button class="btn" onclick="location.href='backoffice.html'">← Tillbaka till Home</button>
-    <button class="btn" onclick="location.reload()">↻ Ladda om</button>
+    <h1>Godkända platser (Approved)</h1>
+
+    <div class="searchbar">
+      <input id="search" class="input" type="text" placeholder="Sök i alla platser: namn / stad / land / state / website…"/>
+      <button class="btn" onclick="doSearch()">Sök</button>
+      <button class="btn" onclick="clearSearch()">Rensa</button>
+      <span class="muted" id="searchMeta"></span>
+    </div>
+
+    <!-- Hierarki-render här -->
+    <div id="hierarchy"></div>
   </div>
 
-  <div class="searchbar">
-    <input id="q" placeholder="Sök (namn, land, state, stad) …" />
-  </div>
+  <div id="toast-container"></div>
 
-  <div id="wrap"></div>
-  <div id="toast"></div>
+  <script>
+    /* ---------- Supabase ---------- */
+    const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<script>
-/* -------- Supabase -------- */
-const supabase = window.supabase.createClient(
-  "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
-);
+    /* ---------- State ---------- */
+    let all = [];            // alla approved (ej deleted)
+    let searchQ = "";
+    const PAGE_SIZE = 50;
 
-/* -------- Konfig -------- */
-const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+    /* ---------- Helpers ---------- */
+    const continentMap = (()=> {
+      // Nycklar i lowercase (länder i fulltext). Ta med de vanligaste; resten → "Övriga"
+      const EU = ["sweden","norway","denmark","finland","iceland","germany","france","spain","italy","portugal","netherlands","belgium","luxembourg","ireland","austria","poland","czech republic","czechia","hungary","slovakia","slovenia","croatia","estonia","latvia","lithuania","romania","bulgaria","greece","malta","cyprus","switzerland","united kingdom","england","scotland","wales","northern ireland","serbia","bosnia","albania","kosovo","north macedonia","montenegro","moldova","ukraine","belarus","andorra","monaco","liechtenstein","san marino","vatican city"];
+      const NA = ["united states","usa","canada","mexico"];
+      const SA = ["brazil","argentina","chile","peru","colombia","uruguay","paraguay","bolivia","ecuador","venezuela","guyana","suriname"];
+      const AS = ["japan","china","taiwan","south korea","korea","thailand","vietnam","laos","cambodia","myanmar","singapore","malaysia","indonesia","philippines","india","pakistan","sri lanka","maldives","nepal","bangladesh","mongolia","kazakhstan","uzbekistan","kyrgyzstan","tajikistan","turkmenistan","saudi arabia","uae","united arab emirates","qatar","bahrain","kuwait","oman","iran","iraq","israel","jordan","lebanon","turkey","georgia","armenia","azerbaijan"];
+      const AF = ["south africa","egypt","morocco","algeria","tunisia","libya","kenya","tanzania","ethiopia","nigeria","ghana","ivory coast","côte d’ivoire","senegal","uganda","rwanda","botswana","namibia","zimbabwe","zambia","angola","cameroon","democratic republic of the congo"];
+      const OC = ["australia","new zealand","fiji","papua new guinea","samoa","tonga"];
+      const map = new Map();
+      EU.forEach(c=>map.set(c,"Europa"));
+      NA.forEach(c=>map.set(c,"Nordamerika"));
+      SA.forEach(c=>map.set(c,"Sydamerika"));
+      AS.forEach(c=>map.set(c,"Asien"));
+      AF.forEach(c=>map.set(c,"Afrika"));
+      OC.forEach(c=>map.set(c,"Oceanien"));
+      return map;
+    })();
 
-/* Världsdelkarta */
-const REGION_MAP = {
-  "Sweden":"Europa","Norway":"Europa","Denmark":"Europa","Finland":"Europa","Iceland":"Europa",
-  "United Kingdom":"Europa","Ireland":"Europa","Germany":"Europa","France":"Europa","Spain":"Europa","Italy":"Europa",
-  "Netherlands":"Europa","Belgium":"Europa","Portugal":"Europa","Austria":"Europa","Switzerland":"Europa","Poland":"Europa",
-  "Czechia":"Europa","Czech Republic":"Europa","Hungary":"Europa","Greece":"Europa","Turkey":"Europa",
-  "USA":"Nordamerika","United States":"Nordamerika","Canada":"Nordamerika","Mexico":"Nordamerika",
-  "Brazil":"Sydamerika","Argentina":"Sydamerika","Chile":"Sydamerika","Colombia":"Sydamerika","Peru":"Sydamerika",
-  "Australia":"Oceanien","New Zealand":"Oceanien",
-  "South Africa":"Afrika","Morocco":"Afrika","Egypt":"Afrika","Kenya":"Afrika","Nigeria":"Afrika",
-  "Thailand":"Asien","Malaysia":"Asien","Japan":"Asien","China":"Asien","India":"Asien","Singapore":"Asien","UAE":"Asien","United Arab Emirates":"Asien","Indonesia":"Asien","Philippines":"Asien","Vietnam":"Asien","Hong Kong":"Asien","Taiwan":"Asien","South Korea":"Asien","Saudi Arabia":"Asien","Qatar":"Asien"
-};
+    function getContinent(country){
+      const key = String(country||"").trim().toLowerCase();
+      return continentMap.get(key) || "Övriga";
+    }
 
-/* -------- State -------- */
-const wrap = document.getElementById('wrap');
-const q = document.getElementById('q');
-let allApproved = [];
-let filtered = [];
+    function showToast(msg,type="info"){
+      const c=document.getElementById("toast-container");
+      const t=document.createElement("div");
+      t.className=`toast ${type}`; t.textContent=msg;
+      c.appendChild(t);
+      setTimeout(()=>t.remove(),3200);
+    }
 
-/* Bildhjälpare */
-function photoFrom(store){
-  if (store.photo_url && store.photo_url.startsWith("http")) return store.photo_url;
-  if (store.photo_reference && !store.photo_reference.startsWith("http")){
-    return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${encodeURIComponent(store.photo_reference)}&key=${GOOGLE_BROWSER_KEY}`;
-  }
-  if (Array.isArray(store.types) && store.types.includes("lounge")) return "images/lounge.jpg";
-  if ((store.type||"").toLowerCase()==="lounge") return "images/lounge.jpg";
-  if (Array.isArray(store.types) && store.types.includes("store")) return "images/store.jpg";
-  return "images/other.jpg";
-}
+    function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c])); }
 
-/* Toast */
-function toast(msg,type='info'){
-  const c=document.getElementById('toast');
-  const t=document.createElement('div');
-  t.className=`toast ${type==='ok'?'ok':type==='err'?'err':'info'}`;
-  t.textContent=msg;
-  c.appendChild(t);
-  setTimeout(()=>t.remove(),3000);
-}
+    /* ---------- Load ---------- */
+    (async function init(){
+      const { data, error } = await supabase
+        .from("stores")
+        .select("*")
+        .eq("approved", true)
+        .eq("deleted", false)
+        .order("country", {ascending:true})
+        .order("city", {ascending:true})
+        .order("name", {ascending:true});
 
-/* Region/land helpers */
-function regionOf(country){
-  return REGION_MAP[country?.trim()] || "Övriga";
-}
-function normalizeTypes(s){
-  if (Array.isArray(s.types)) return s.types;
-  if (s.type) return [String(s.type).toLowerCase()];
-  return [];
-}
-function typePills(types){
-  return types.map(t=>`<span class="chip">${t}</span>`).join(" ");
-}
+      if (error) { showToast(error.message,"error"); return; }
 
-/* Sökning */
-q.addEventListener('input', ()=>{
-  const val = q.value.trim().toLowerCase();
-  if (!val){ filtered = [...allApproved]; render(); return; }
-  filtered = allApproved.filter(s=>{
-    return (s.name||"").toLowerCase().includes(val)
-        || (s.country||"").toLowerCase().includes(val)
-        || (s.city||"").toLowerCase().includes(val)
-        || (s.state||"").toLowerCase().includes(val);
-  });
-  render();
-});
+      // normalisera typer och säkerställ state
+      all = (data||[]).map(s => ({
+        ...s,
+        types: Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []),
+        state: s.state || s.region || s.admin_area || null,
+      }));
 
-/* Ladda data */
-(async function load(){
-  const { data, error } = await supabase
-    .from('stores')
-    .select('*')
-    .eq('approved', true)
-    .order('name', { ascending:true });
+      renderHierarchy();
+    })();
 
-  if (error){
-    console.error(error);
-    toast("Fel vid laddning (API-nyckel?)","err");
-    wrap.innerHTML = `<p style="color:#c0392b;text-align:center">Kunde inte ladda approved.</p>`;
-    return;
-  }
+    /* ---------- Search ---------- */
+    function doSearch(){
+      searchQ = document.getElementById("search").value.trim();
+      renderHierarchy();
+    }
+    function clearSearch(){
+      document.getElementById("search").value = "";
+      searchQ = "";
+      renderHierarchy();
+    }
 
-  allApproved = (data||[]).map(s=>({
-    ...s,
-    types: normalizeTypes(s),
-    country: s.country || "",
-    state: (s.state || s.admin_area || s.region || ""), // mjuk fallback
-    region: regionOf(s.country||"")
-  }));
-  filtered = [...allApproved];
-  render();
-})();
+    function matchesSearch(s){
+      if (!searchQ) return true;
+      const q = searchQ.toLowerCase();
+      return [
+        s.name, s.city, s.country, s.state, s.address, s.website
+      ].some(v => (v||"").toLowerCase().includes(q));
+    }
 
-/* Render */
-function render(){
-  // Gruppera: region → land
-  const byRegion = new Map();
-  for (const s of filtered){
-    if (!byRegion.has(s.region)) byRegion.set(s.region, new Map());
-    const byCountry = byRegion.get(s.region);
-    const key = s.country || "Unknown";
-    if (!byCountry.has(key)) byCountry.set(key, []);
-    byCountry.get(key).push(s);
-  }
+    /* ---------- Group & Render ---------- */
+    function groupData(rows){
+      // om global sök → filtrera först
+      const src = searchQ ? rows.filter(matchesSearch) : rows;
 
-  // Sortera regioner alfabetiskt, länder inom region alfabetiskt
-  const regions = Array.from(byRegion.entries()).sort((a,b)=>a[0].localeCompare(b[0]));
-  let html = "";
+      const byContinent = new Map();
+      for (const s of src){
+        const cont = getContinent(s.country);
+        if (!byContinent.has(cont)) byContinent.set(cont, new Map());
+        const byCountry = byContinent.get(cont);
+        const cc = (s.country||"Unknown").trim();
+        if (!byCountry.has(cc)) byCountry.set(cc, []);
+        byCountry.get(cc).push(s);
+      }
+      // sortera länder alfabetiskt inom kontinent
+      for (const [cont, cmap] of byContinent){
+        const sorted = new Map([...cmap.entries()].sort((a,b)=>a[0].localeCompare(b[0])));
+        byContinent.set(cont, sorted);
+      }
+      return byContinent;
+    }
 
-  for (const [regionName, countries] of regions){
-    // totals
-    const regionCount = Array.from(countries.values()).reduce((acc,arr)=>acc+arr.length,0);
+    function renderHierarchy(){
+      const root = document.getElementById("hierarchy");
+      root.innerHTML = "";
 
-    html += `<section class="region">
-      <h2>${regionName} <span class="pill">${regionCount}</span></h2>`;
+      const grouped = groupData(all);
 
-    const sortedCountries = Array.from(countries.entries()).sort((a,b)=>a[0].localeCompare(b[0]));
+      // visa sökmeta
+      const totalShown = searchQ ? [...grouped.values()].reduce((acc, cmap)=>acc + [...cmap.values()].reduce((x,arr)=>x+arr.length,0),0) : all.length;
+      const meta = document.getElementById("searchMeta");
+      meta.textContent = searchQ ? `Visar ${totalShown} matchningar` : `Totalt ${all.length} godkända`;
 
-    for (const [countryName, rows] of sortedCountries){
-      html += `<div class="country-h">🇺🇳 ${countryName} <span class="pill">${rows.length}</span></div>
-      <div class="table">
+      for (const [continent, countries] of grouped){
+        const sec = document.createElement("div");
+        sec.className = "section";
+
+        const contCount = [...countries.values()].reduce((acc, arr)=>acc+arr.length,0);
+        sec.innerHTML = `
+          <div class="section-header" onclick="this.nextElementSibling.classList.toggle('open')">
+            <div class="chev">▸</div>
+            <div style="font-weight:900">${esc(continent)}</div>
+            <span class="pill">${contCount}</span>
+          </div>
+          <div class="section-body"></div>
+        `;
+        root.appendChild(sec);
+
+        const body = sec.querySelector(".section-body");
+        for (const [countryName, rows] of countries){
+          // land-rad
+          const cDiv = document.createElement("div");
+          cDiv.className = "country-row";
+          const count = rows.length;
+          cDiv.innerHTML = `
+            <div class="country-title">
+              <div class="chev">▸</div>
+              <div style="font-weight:800">${esc(countryName)}</div>
+              <span class="pill">${count}</span>
+            </div>
+            <div class="muted">${esc(continent)}</div>
+          `;
+          body.appendChild(cDiv);
+
+          // tabellcontainer (gömd tills klick)
+          const tableWrap = document.createElement("div");
+          tableWrap.style.display = "none";
+          body.appendChild(tableWrap);
+
+          // paging state
+          let page = 1;
+          const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+
+          cDiv.addEventListener("click", ()=>{
+            const open = tableWrap.style.display === "block";
+            tableWrap.style.display = open ? "none" : "block";
+            // render första gången/vid öppning
+            if (!open) renderCountryTable(rows, tableWrap, countryName, ()=>{ /* no-op */ }, page, totalPages);
+          });
+        }
+      }
+    }
+
+    function renderCountryTable(rows, wrap, countryName, onChange, page=1, totalPages=1){
+      const start = (page-1)*PAGE_SIZE;
+      const slice = rows.slice(start, start+PAGE_SIZE);
+
+      wrap.innerHTML = `
         <table>
           <thead>
             <tr>
-              <th style="width:70px">Bild</th>
-              <th style="width:22%">Namn</th>
-              <th style="width:12%">Land</th>
-              <th style="width:12%">State</th>
-              <th style="width:16%">Stad</th>
-              <th style="width:24%">Adress</th>
-              <th style="width:13%">Telefon</th>
-              <th style="width:10%">Typ</th>
-              <th style="width:14%">Åtgärder</th>
+              <th>Bild</th>
+              <th>Namn</th>
+              <th>Stad</th>
+              <th>State</th>
+              <th>Typer</th>
+              <th>Website</th>
+              <th class="num">Betyg</th>
+              <th>Åtgärder</th>
             </tr>
           </thead>
-          <tbody>`;
+          <tbody></tbody>
+        </table>
+        <div class="paging">
+          <button ${page<=1?'disabled':''} data-act="prev">◀</button>
+          <span class="muted">Sida ${page}/${totalPages}</span>
+          <button ${page>=totalPages?'disabled':''} data-act="next">▶</button>
+        </div>
+      `;
 
-      for (const s of rows){
-        const img = photoFrom(s);
-        const types = normalizeTypes(s);
-        const typeTxt = types.join(', ') || (s.type||"");
-        const showState = (s.country==="USA" || s.country==="United States");
-        html += `
-          <tr data-id="${s.id}">
-            <td><img class="thumb" src="${img}" alt="" onerror="this.onerror=null;this.src='images/store.jpg'"></td>
-            <td title="${esc(s.name||'')}">${esc(s.name||"")}</td>
-            <td>${esc(s.country||"")}</td>
-            <td>${showState ? esc(s.state||"") : ""}</td>
-            <td>${esc(s.city||"")}</td>
-            <td title="${esc(s.address||'')}">${esc(s.address||"")}</td>
-            <td>${esc(s.phone||"")}</td>
-            <td><div class="type-badges">${typePills(types)}</div></td>
-            <td class="row-actions">
-              <button class="btn" onclick="toggleExpand('${s.id}')">Visa / Redigera</button>
-            </td>
-          </tr>
-          <tr id="exp-${s.id}" class="expand hide"><td colspan="9">
-            ${expandEditor(s)}
-          </td></tr>`;
+      const tbody = wrap.querySelector("tbody");
+      slice.forEach(s => tbody.appendChild(renderRow(s)));
+
+      // paging händelser
+      const prevBtn = wrap.querySelector('button[data-act="prev"]');
+      const nextBtn = wrap.querySelector('button[data-act="next"]');
+      prevBtn?.addEventListener("click", ()=>{
+        if (page>1){ renderCountryTable(rows, wrap, countryName, onChange, page-1, totalPages); }
+      });
+      nextBtn?.addEventListener("click", ()=>{
+        if (page<totalPages){ renderCountryTable(rows, wrap, countryName, onChange, page+1, totalPages); }
+      });
+    }
+
+    function imgUrl(s){
+      if (s.photo_url && s.photo_url.startsWith("http")) return s.photo_url;
+      if (s.photo_reference && !s.photo_reference.startsWith("http")){
+        // klassisk Place Photo-länk, kräver browser key i frontend — här visar vi bara som är
+        return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${encodeURIComponent(s.photo_reference)}`;
       }
-
-      html += `</tbody></table></div>`;
+      // fallback beroende på typ
+      const types = Array.isArray(s.types)?s.types.map(x=>String(x).toLowerCase()):[];
+      if (types.includes("lounge")) return "images/lounge.jpg";
+      if (types.includes("store")) return "images/store.jpg";
+      return "images/other.jpg";
     }
 
-    html += `</section>`;
-  }
+    function renderRow(s){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><img class="imgthumb" src="${imgUrl(s)}" alt="" onerror="this.onerror=null;this.src='images/store.jpg'"></td>
+        <td>${esc(s.name||"–")}</td>
+        <td>${esc(s.city||"–")}</td>
+        <td>${esc(s.state||"")}</td>
+        <td>${esc((s.types&&s.types.length?s.types.join(" & "):(s.type||"–")))}</td>
+        <td><a href="${esc(s.website||'#')}" target="_blank">${s.website? 'Öppna' : '—'}</a></td>
+        <td class="num">${s.rating??0}</td>
+        <td class="actions">
+          <button class="btn" data-act="view">Visa</button>
+          <button class="btn" data-act="edit">Redigera</button>
+          <button class="btn" data-act="flag">${s.flagged?'Unflag':'Flag'}</button>
+          <button class="btn" data-act="unapprove">Unapprove</button>
+          <button class="btn" data-act="trash" style="border-color:var(--danger);color:var(--danger)">Trash</button>
+        </td>
+      `;
 
-  wrap.innerHTML = html;
-}
+      // edit-/view-rad under
+      const trEdit = document.createElement("tr");
+      trEdit.className="row-edit";
+      trEdit.style.display="none";
+      const td = document.createElement("td");
+      td.colSpan = 8;
+      td.innerHTML = renderEditFormHTML(s);
+      trEdit.appendChild(td);
 
-/* Expand editor markup */
-function expandEditor(s){
-  const types = normalizeTypes(s);
-  const isLounge = types.includes('lounge');
+      // handlers
+      tr.querySelector('[data-act="view"]').addEventListener("click", ()=>{
+        trEdit.style.display = trEdit.style.display==="none" ? "table-row" : "none";
+        // visa-läge (disable inputs)
+        setFormValues(td, s, true);
+      });
 
-  return `
-    <div class="exp-wrap">
-      <div class="grid">
-        <div class="field">
-          <label>Namn</label>
-          <input id="nm-${s.id}" value="${esc(s.name||"")}" />
-        </div>
-        <div class="field">
-          <label>Telefon</label>
-          <input id="ph-${s.id}" value="${esc(s.phone||"")}" />
-        </div>
+      tr.querySelector('[data-act="edit"]').addEventListener("click", ()=>{
+        trEdit.style.display = "table-row";
+        setFormValues(td, s, false);
+      });
 
-        <div class="field full">
-          <label>Adress</label>
-          <input id="ad-${s.id}" value="${esc(s.address||"")}" />
-        </div>
+      tr.querySelector('[data-act="flag"]').addEventListener("click", async ()=>{
+        const { error } = await supabase.from("stores").update({ flagged: !s.flagged }).eq("id", s.id);
+        if (error) return showToast(error.message,"error");
+        s.flagged = !s.flagged;
+        showToast(s.flagged?"🚩 Flagged":"🚫 Unflagged","success");
+        // uppdatera knapptext
+        tr.querySelector('[data-act="flag"]').textContent = s.flagged? "Unflag":"Flag";
+      });
 
-        <div class="field">
-          <label>Stad</label>
-          <input id="ct-${s.id}" value="${esc(s.city||"")}" />
-        </div>
-        <div class="field">
-          <label>Land</label>
-          <input id="co-${s.id}" value="${esc(s.country||"")}" />
-        </div>
+      tr.querySelector('[data-act="unapprove"]').addEventListener("click", async ()=>{
+        const { error } = await supabase.from("stores")
+          .update({ approved:false, status:"pending", approved_at:null })
+          .eq("id", s.id);
+        if (error) return showToast(error.message,"error");
+        showToast("⏳ Flyttad till Pending","success");
+        // ta bort raden ur vyn
+        tr.remove(); trEdit.remove();
+        // ta bort i minnet också
+        const idx = all.findIndex(x=>x.id===s.id);
+        if (idx>-1) all.splice(idx,1);
+      });
 
-        <div class="field">
-          <label>State (USA)</label>
-          <input id="st-${s.id}" value="${esc(s.state||"")}" placeholder="t.ex. New York" />
-        </div>
-        <div class="field">
-          <label>Webbplats</label>
-          <input id="wb-${s.id}" value="${esc(s.website||"")}" />
-        </div>
+      tr.querySelector('[data-act="trash"]').addEventListener("click", async ()=>{
+        const deletedUntil = new Date(Date.now()+48*60*60*1000).toISOString();
+        const { error } = await supabase.from("stores")
+          .update({ deleted:true, deleted_until:deletedUntil })
+          .eq("id", s.id);
+        if (error) return showToast(error.message,"error");
+        showToast("🗑️ Flyttad till Trash (48h)","success");
+        tr.remove(); trEdit.remove();
+        const idx = all.findIndex(x=>x.id===s.id);
+        if (idx>-1) all.splice(idx,1);
+      });
 
-        <div class="field full">
-          <label>Typer</label>
-          <div class="chips" id="tp-${s.id}">
-            ${chipToggle('store', types.includes('store'))}
-            ${chipToggle('lounge', types.includes('lounge'))}
-            ${chipToggle('other', types.includes('other'))}
+      // spara/avbryt inne i edit-raden
+      td.querySelector('[data-act="cancel"]').addEventListener("click", ()=>{
+        trEdit.style.display="none";
+      });
+      td.querySelector('[data-act="save"]').addEventListener("click", async ()=>{
+        const payload = readFormValues(td, s);
+        const { error } = await supabase.from("stores").update(payload).eq("id", s.id);
+        if (error) return showToast(error.message,"error");
+        Object.assign(s, payload); // uppdatera i minnet
+        showToast("✅ Sparat","success");
+        // uppdatera primärraden snabbt
+        tr.children[1].textContent = s.name || "–";
+        tr.children[2].textContent = s.city || "–";
+        tr.children[3].textContent = s.state || "";
+        tr.children[4].textContent = (s.types && s.types.length ? s.types.join(" & ") : (s.type||"–"));
+        tr.children[5].innerHTML = s.website ? `<a href="${esc(s.website)}" target="_blank">Öppna</a>` : "—";
+        tr.children[6].textContent = s.rating ?? 0;
+        tr.querySelector("img.imgthumb").src = imgUrl(s);
+      });
+
+      const frag = document.createDocumentFragment();
+      frag.appendChild(tr);
+      frag.appendChild(trEdit);
+      return frag;
+    }
+
+    function renderEditFormHTML(s){
+      return `
+        <div class="edit-grid">
+          <div>
+            <label>Namn</label>
+            <input type="text" data-f="name" />
           </div>
-          <div class="muted">Välj en eller flera.</div>
-        </div>
+          <div>
+            <label>Telefon</label>
+            <input type="tel" data-f="phone" />
+          </div>
+          <div class="full">
+            <label>Adress</label>
+            <input type="text" data-f="address" />
+          </div>
+          <div>
+            <label>Stad</label>
+            <input type="text" data-f="city" />
+          </div>
+          <div>
+            <label>State (om tillämpligt)</label>
+            <input type="text" data-f="state" />
+          </div>
+          <div>
+            <label>Land</label>
+            <input type="text" data-f="country" />
+          </div>
+          <div class="full">
+            <label>Webbplats</label>
+            <input type="url" data-f="website" />
+          </div>
 
-        <div class="field full ${isLounge?'':'hide'}" id="accwrap-${s.id}">
-          <label>Lounge access</label>
-          <div class="access-row" id="ac-${s.id}">
-            ${radio('public','Öppen för alla', s.access==='public')}
-            ${radio('temporary','Tillfälliga medlemmar', s.access==='temporary')}
-            ${radio('members','Endast medlemmar', s.access==='members')}
+          <div class="full">
+            <label>Kategorier (multival)</label>
+            <div class="chips" data-f="types">
+              ${["store","lounge","other"].map(t=>`<span class="chip" data-v="${t}">${t}</span>`).join("")}
+            </div>
+            <div class="muted">Klicka för att toggla; minst 1 rekommenderas.</div>
+          </div>
+
+          <div class="full">
+            <label>Bild-URL (lämna tom för att behålla)</label>
+            <input type="url" data-f="photo_url" placeholder="https://…"/>
+            <div class="muted">Om tomt och det finns photo_reference används Google-foto; annars fallback per typ.</div>
+          </div>
+
+          <div class="full" style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.4rem">
+            <button class="btn" data-act="cancel" type="button">Avbryt</button>
+            <button class="btn primary" data-act="save" type="button">Spara</button>
           </div>
         </div>
-
-        <div class="field">
-          <label>Foto-URL</label>
-          <input id="pu-${s.id}" value="${esc(s.photo_url||"")}" placeholder="(valfri) Direktlänk till bild" />
-        </div>
-        <div class="field">
-          <label>Photo reference</label>
-          <input id="pr-${s.id}" value="${esc(s.photo_reference||"")}" placeholder="(valfri) Google photo_reference" />
-        </div>
-
-        <div class="field full muted">
-          place_id: ${esc(s.place_id||"-")}
-        </div>
-
-        <div class="field full exp-actions">
-          <button class="btn" onclick="toggleExpand('${s.id}')">Avbryt</button>
-          <button class="btn primary" onclick="saveRow('${s.id}')">Spara</button>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function chipToggle(val, active){
-  return `<span class="chip-toggle ${active?'active':''}" data-v="${val}" onclick="toggleType(this)">${val}</span>`;
-}
-function radio(value,label,checked){
-  return `<label><input type="radio" name="acc-${Math.random().toString(36).slice(2)}" data-v="${value}" ${checked?'checked':''} onclick="setAccess(this)"/> ${label}</label>`;
-}
-
-/* Expand toggle */
-function toggleExpand(id){
-  const row = document.getElementById(`exp-${id}`);
-  if (!row) return;
-  row.classList.toggle('hide');
-
-  // säkerställ lounge access-sektionen följer typer
-  syncAccessVisibility(id);
-}
-
-/* Typ & access styrning */
-function toggleType(el){
-  el.classList.toggle('active');
-  const rowId = el.closest('.chips').id.split('tp-')[1];
-  syncAccessVisibility(rowId);
-}
-function syncAccessVisibility(id){
-  const chips = Array.from(document.querySelectorAll(`#tp-${id} .chip-toggle.active`)).map(x=>x.dataset.v);
-  const hasLounge = chips.includes('lounge');
-  const box = document.getElementById(`accwrap-${id}`);
-  if (box) box.classList.toggle('hide', !hasLounge);
-}
-function setAccess(radioEl){
-  // handled on save by reading checked input in container
-}
-
-/* Spara rad */
-async function saveRow(id){
-  try{
-    const name = gval(`nm-${id}`);
-    const phone = gval(`ph-${id}`);
-    const address = gval(`ad-${id}`);
-    const city = gval(`ct-${id}`);
-    const country = gval(`co-${id}`);
-    const state = gval(`st-${id}`);
-    const website = gval(`wb-${id}`);
-    const photo_url = gval(`pu-${id}`) || null;
-    const photo_reference = gval(`pr-${id}`) || null;
-
-    const types = Array.from(document.querySelectorAll(`#tp-${id} .chip-toggle.active`)).map(x=>x.dataset.v);
-    // access om lounge vald
-    let access = null;
-    if (types.includes('lounge')){
-      const acWrap = document.getElementById(`accwrap-${id}`);
-      const chosen = acWrap ? acWrap.querySelector('input[type="radio"]:checked') : null;
-      access = chosen ? chosen.getAttribute('data-v') : null;
+      `;
     }
 
-    const payload = {
-      name, phone, address, city, country, state, website,
-      types, type: types[0] || null,
-      access,
-      photo_url, photo_reference
-    };
+    function setFormValues(container, s, viewOnly=false){
+      container.querySelector('[data-f="name"]').value    = s.name||"";
+      container.querySelector('[data-f="phone"]').value   = s.phone||"";
+      container.querySelector('[data-f="address"]').value = s.address||"";
+      container.querySelector('[data-f="city"]').value    = s.city||"";
+      container.querySelector('[data-f="state"]').value   = s.state||"";
+      container.querySelector('[data-f="country"]').value = s.country||"";
+      container.querySelector('[data-f="website"]').value = s.website||"";
+      container.querySelector('[data-f="photo_url"]').value = s.photo_url||"";
 
-    const { error } = await supabase.from('stores').update(payload).eq('id', id);
-    if (error) throw error;
+      // typer
+      const chips = container.querySelectorAll('[data-f="types"] .chip');
+      const set = new Set((s.types && s.types.length ? s.types : (s.type?[s.type]:[])).map(x=>String(x).toLowerCase()));
+      chips.forEach(ch=>{
+        const v = ch.dataset.v;
+        ch.classList.toggle("active", set.has(v));
+        ch.onclick = ()=>{
+          if (viewOnly) return;
+          ch.classList.toggle("active");
+        };
+      });
 
-    toast("Sparat!","ok");
-    // uppdatera lokalt och rendera om snabbt
-    const idx = allApproved.findIndex(x=>x.id===id);
-    if (idx>-1){
-      allApproved[idx] = { ...allApproved[idx], ...payload };
-      allApproved[idx].region = regionOf(allApproved[idx].country||"");
+      // disable inputs i visa-läge
+      container.querySelectorAll("input").forEach(inp => inp.disabled = viewOnly);
+      container.querySelector('[data-act="save"]').style.display = viewOnly ? "none" : "inline-block";
     }
-    // återskapa filtered utifrån sök
-    const val = q.value.trim().toLowerCase();
-    filtered = val ? allApproved.filter(s =>
-      (s.name||"").toLowerCase().includes(val)
-      || (s.country||"").toLowerCase().includes(val)
-      || (s.city||"").toLowerCase().includes(val)
-      || (s.state||"").toLowerCase().includes(val)
-    ) : [...allApproved];
 
-    render();
-  }catch(err){
-    console.error(err);
-    toast("Kunde inte spara","err");
-  }
-}
+    function readFormValues(container, old){
+      const get = sel => container.querySelector(sel).value.trim();
+      const chips = Array.from(container.querySelectorAll('[data-f="types"] .chip.active')).map(ch=>ch.dataset.v);
 
-/* Utils */
-function gval(id){ return (document.getElementById(id)?.value || "").trim(); }
-function esc(s){ return String(s).replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
-
-</script>
+      const payload = {
+        name: get('[data-f="name"]') || null,
+        phone: get('[data-f="phone"]') || null,
+        address: get('[data-f="address"]') || null,
+        city: get('[data-f="city"]') || null,
+        country: get('[data-f="country"]') || null,
+        website: get('[data-f="website"]') || null,
+        state: get('[data-f="state"]') || null,
+        types: chips.length ? chips : old.types,        // behåll om tomt
+        type: (chips[0] || old.type || null),           // primär typ = första
+        photo_url: (get('[data-f="photo_url"]') || null),
+        updated_at: new Date().toISOString()
+      };
+      return payload;
+    }
+  </script>
 </body>
 </html>
