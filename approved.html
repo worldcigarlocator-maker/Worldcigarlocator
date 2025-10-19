@@ -1,187 +1,158 @@
+<!-- approved.html | Backoffice Approved list with expand + edit -->
 <!DOCTYPE html>
 <html lang="sv">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Approved Stores — Backoffice</title>
+  <title>Approved — Backoffice</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f6f8fa;
-      color: #222;
-      margin: 0;
-      padding: 1.5rem;
+    :root{
+      --primary:#2f78c4; --primary-dark:#2466a8;
+      --success:#1d8348; --warning:#b36e00; --danger:#c0392b;
+      --bg:#f5f6f8; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
     }
-    h1 {
-      text-align: center;
-      margin-bottom: 1rem;
-      color: #2c3e50;
-    }
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-      gap: .6rem;
-    }
-    .btn {
-      background: #fff;
-      border: 1.6px solid #2f78c4;
-      color: #2f78c4;
-      padding: .5rem .9rem;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background .2s;
-    }
-    .btn:hover { background: #2f78c4; color: #fff; }
-    .search {
-      flex: 1;
-      min-width: 200px;
-      padding: .6rem .8rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
-      gap: 1rem;
-    }
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      border: 1px solid #e0e0e0;
-      box-shadow: 0 1px 5px rgba(0,0,0,.08);
-      overflow: hidden;
-      transition: all .25s;
-    }
-    .card.expanded { grid-column: span 2; }
-    .card img { width: 100%; height: 180px; object-fit: cover; }
-    .card-content { padding: .8rem 1rem; }
-    .title { font-weight: bold; font-size: 1.1rem; margin-bottom: .3rem; color: #2f78c4; }
-    .info { font-size: .9rem; color: #555; line-height: 1.3; }
-    .actions { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .7rem; }
-    .btn.small { padding: .35rem .7rem; font-size: .85rem; }
-    .btn.danger { border-color: #c0392b; color: #c0392b; }
-    .btn.danger:hover { background: #c0392b; color: #fff; }
-    .btn.flag { border-color: #f39c12; color: #f39c12; }
-    .btn.flag:hover { background: #f39c12; color: #fff; }
-    .expanded-details {
-      background: #f9fafb;
-      border-top: 1px solid #e0e0e0;
-      padding: .8rem 1rem;
-      font-size: .9rem;
-      color: #333;
-    }
-    #toast-container {
-      position: fixed; bottom: 1rem; right: 1rem;
-      display: flex; flex-direction: column; gap: .5rem; z-index: 9999;
-    }
-    .toast {
-      background: #333; color: #fff;
-      padding: .7rem 1rem; border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,.2);
-      opacity: .95;
-    }
-    .toast.success { background: #28a745; }
-    .toast.error { background: #dc3545; }
-    .toast.info { background: #2f78c4; }
+    *{box-sizing:border-box}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:1rem;color:var(--text);}
+    h1{text-align:center;color:var(--primary-dark);margin:1rem 0;}
+    .topbar{display:flex;justify-content:center;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap;}
+    .btn{background:#fff;border:1.6px solid var(--primary);color:var(--primary);padding:.5rem .9rem;border-radius:8px;font-weight:800;cursor:pointer;}
+    .btn:hover{background:var(--primary);color:#fff;}
+    .btn.danger{background:var(--danger);color:#fff;border:none;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;}
+    .card{background:var(--card);border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);overflow:hidden;transition:all .2s;}
+    .card img{width:100%;height:180px;object-fit:cover;}
+    .card-content{padding:1rem;}
+    .badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.3rem;}
+    .badge{padding:.25rem .7rem;border-radius:12px;font-size:.8rem;font-weight:bold;color:#fff;}
+    .store{background:#007bff}.lounge{background:#28a745}.other{background:#ff8c00}.flagged{background:#dc3545!important;}
+    .rating{color:#b8860b;margin-top:.3rem;}
+    .expand{cursor:pointer;color:var(--primary-dark);font-size:.9rem;text-align:right;font-weight:bold;}
+    .expand:hover{text-decoration:underline;}
+    .edit-panel{display:none;background:#f9fafc;border-top:1px solid var(--border);padding:1rem;}
+    label{display:block;font-weight:bold;font-size:.9rem;margin-top:.5rem;}
+    input[type="text"],input[type="url"],input[type="tel"]{width:100%;padding:.5rem;border:1px solid #ccc;border-radius:6px;}
+    .btn-row{display:flex;gap:.5rem;margin-top:.8rem;}
+    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999;}
+    .toast{background:#333;color:#fff;padding:.8rem 1rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.95;}
+    .toast.success{background:#28a745}.toast.error{background:#dc3545}.toast.info{background:#2f78c4}
   </style>
 </head>
 <body>
   <div class="topbar">
-    <button class="btn" onclick="window.location.href='backoffice.html'">← Tillbaka</button>
-    <input id="searchBox" class="search" type="text" placeholder="Sök (namn, stad, land)..." />
-    <button class="btn" onclick="window.location.reload()">🔄 Uppdatera</button>
+    <button class="btn" onclick="window.location.href='backoffice.html'">← Tillbaka till Home</button>
   </div>
-
-  <h1>Approved Stores</h1>
+  <h1>Approved Locations</h1>
   <div id="storeGrid" class="grid"></div>
   <div id="toast-container"></div>
 
   <script>
-  const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-</script>
+    /* ---------- Supabase ---------- */
+    const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let allStores = [];
+    const grid = document.getElementById("storeGrid");
 
-    async function loadStores() {
-      const { data, error } = await supabase.from("stores").select("*").eq("approved", true).order("name");
-      if (error) { showToast("Fel vid laddning", "error"); console.error(error); return; }
-      allStores = data || [];
-      renderStores(allStores);
-    }
+    loadApproved();
 
-    function renderStores(list) {
-      const grid = document.getElementById("storeGrid");
-      grid.innerHTML = "";
-      if (!list.length) {
-        grid.innerHTML = "<p>Inga approved stores ännu.</p>";
+    async function loadApproved(){
+      const { data, error } = await supabase
+        .from("stores")
+        .select("*")
+        .eq("approved", true)
+        .eq("deleted", false)
+        .order("name", { ascending:true });
+
+      if(error){
+        console.error(error);
+        grid.innerHTML = `<p style='color:red;'>${error.message}</p>`;
         return;
       }
+      if(!data?.length){
+        grid.innerHTML = `<p>Inga godkända platser ännu.</p>`;
+        return;
+      }
+      grid.innerHTML = "";
+      data.forEach(renderCard);
+    }
 
-      for (const s of list) {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <img src="${s.photo_url || 'images/store.jpg'}" alt="photo">
-          <div class="card-content">
-            <div class="title">${s.name || "Okänt namn"}</div>
-            <div class="info">${s.city || ""}, ${s.country || ""}</div>
-            <div class="info">${s.address || ""}</div>
-            <div class="actions">
-              <button class="btn small" onclick="toggleDetails('${s.id}')">Visa</button>
-              <button class="btn small" onclick="editStore('${s.id}')">Edit</button>
-              <button class="btn small flag" onclick="flagStore('${s.id}')">Flag</button>
-              <button class="btn small danger" onclick="deleteStore('${s.id}')">Delete</button>
+    function renderCard(store){
+      const types = Array.isArray(store.types)?store.types:[store.type||"other"];
+      const badges = types.map(t=>`<span class="badge ${t}">${t}</span>`).join(" ");
+      const img = store.photo_url || store.photo_reference || "images/store.jpg";
+      const stars = store.rating? "★".repeat(store.rating)+"☆".repeat(5-store.rating):"☆☆☆☆☆";
+
+      const div=document.createElement("div");
+      div.className="card";
+      div.innerHTML=`
+        <img src="${img}" alt="${store.name}">
+        <div class="card-content">
+          <div class="badges">${store.flagged?'<span class="badge flagged">Flagged</span>':''}${badges}</div>
+          <h3>${store.name}</h3>
+          <p>${store.address||""}</p>
+          <p>${store.city||""}, ${store.country||""}</p>
+          <div class="rating">${stars}</div>
+          <div class="expand" onclick="toggleEdit('${store.id}', this)">✎ Redigera</div>
+          <div class="edit-panel" id="edit-${store.id}">
+            <label>Namn</label><input type="text" id="name-${store.id}" value="${store.name||''}">
+            <label>Adress</label><input type="text" id="addr-${store.id}" value="${store.address||''}">
+            <label>Stad</label><input type="text" id="city-${store.id}" value="${store.city||''}">
+            <label>Land</label><input type="text" id="country-${store.id}" value="${store.country||''}">
+            <label>Telefon</label><input type="tel" id="phone-${store.id}" value="${store.phone||''}">
+            <label>Webbplats</label><input type="url" id="web-${store.id}" value="${store.website||''}">
+            <div class="btn-row">
+              <button class="btn" onclick="saveEdit('${store.id}')">💾 Spara</button>
+              <button class="btn danger" onclick="cancelEdit('${store.id}')">Avbryt</button>
             </div>
           </div>
-          <div id="details-${s.id}" class="expanded-details" style="display:none;">
-            <b>Telefon:</b> ${s.phone || "-"}<br>
-            <b>Webb:</b> ${s.website ? `<a href="${s.website}" target="_blank">${s.website}</a>` : "-"}<br>
-            <b>Rating:</b> ${s.rating || "–"}<br>
-            <b>Typ:</b> ${s.type || "okänd"}<br>
-            <b>Access:</b> ${s.access || "-"}
-          </div>
-        `;
-        grid.appendChild(card);
+        </div>`;
+      grid.appendChild(div);
+    }
+
+    function toggleEdit(id, el){
+      const panel=document.getElementById(`edit-${id}`);
+      const open=panel.style.display==="block";
+      document.querySelectorAll(".edit-panel").forEach(p=>p.style.display="none");
+      document.querySelectorAll(".expand").forEach(e=>e.textContent="✎ Redigera");
+      if(!open){
+        panel.style.display="block";
+        el.textContent="▲ Stäng redigering";
+      }else{
+        panel.style.display="none";
+        el.textContent="✎ Redigera";
       }
     }
 
-    function toggleDetails(id){
-      const el = document.getElementById(`details-${id}`);
-      el.style.display = el.style.display === "none" ? "block" : "none";
+    async function saveEdit(id){
+      try{
+        const name=document.getElementById(`name-${id}`).value.trim();
+        const addr=document.getElementById(`addr-${id}`).value.trim();
+        const city=document.getElementById(`city-${id}`).value.trim();
+        const country=document.getElementById(`country-${id}`).value.trim();
+        const phone=document.getElementById(`phone-${id}`).value.trim();
+        const website=document.getElementById(`web-${id}`).value.trim();
+
+        const { error } = await supabase
+          .from("stores")
+          .update({ name, address:addr, city, country, phone, website })
+          .eq("id", id);
+        if(error) throw error;
+
+        showToast("✅ Uppdaterad","success");
+        loadApproved();
+      }catch(err){
+        console.error(err);
+        showToast("Kunde inte spara ändring","error");
+      }
     }
 
-    function editStore(id) {
-      console.log("Opening edit for:", id);
-      window.location.href = `add-store-backoffice.html?edit=${encodeURIComponent(id)}`;
-    }
-    window.editStore = editStore;
-
-    async function flagStore(id) {
-      const ok = confirm("Flagga detta inlägg?");
-      if (!ok) return;
-      const { error } = await supabase.from("stores").update({ flagged: true }).eq("id", id);
-      if (error) { showToast("Fel vid flaggning", "error"); return; }
-      showToast("Flaggad", "success");
-      loadStores();
+    function cancelEdit(id){
+      document.getElementById(`edit-${id}`).style.display="none";
+      document.querySelector(`.expand[onclick*="${id}"]`).textContent="✎ Redigera";
     }
 
-    async function deleteStore(id) {
-      const ok = confirm("Ta bort detta inlägg permanent?");
-      if (!ok) return;
-      const { error } = await supabase.from("stores").delete().eq("id", id);
-      if (error) { showToast("Fel vid borttagning", "error"); return; }
-      showToast("Raderad", "success");
-      loadStores();
-    }
-
-    function showToast(msg, type="info") {
+    function showToast(msg,type="info"){
       const c=document.getElementById("toast-container");
       const t=document.createElement("div");
       t.className=`toast ${type}`;
@@ -189,19 +160,6 @@
       c.appendChild(t);
       setTimeout(()=>t.remove(),3000);
     }
-
-    // Sökfunktion (live-filter)
-    document.getElementById("searchBox").addEventListener("input", (e)=>{
-      const q = e.target.value.toLowerCase();
-      const filtered = allStores.filter(s=>
-        (s.name||"").toLowerCase().includes(q) ||
-        (s.city||"").toLowerCase().includes(q) ||
-        (s.country||"").toLowerCase().includes(q)
-      );
-      renderStores(filtered);
-    });
-
-    loadStores();
   </script>
 </body>
 </html>
