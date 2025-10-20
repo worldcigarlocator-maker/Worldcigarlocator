@@ -1,11 +1,9 @@
-// start.js – unified sidebar (continents → countries → states)
-// -------------------------------------------------------------
+// start.js — full dynamic hierarchy + count system
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Helper
 function el(tag, cls, text) {
   const e = document.createElement(tag);
   if (cls) e.className = cls;
@@ -45,17 +43,18 @@ async function buildSidebar() {
         loaded = true;
       }
       toggleList(countriesList, contBtn);
+      showFilteredCount("continent", cont.name, cont.name);
     });
 
     menu.appendChild(contLi);
   }
 }
 
-// === Load countries for a continent ===
+// === Load countries ===
 async function loadCountries(continentId, container) {
   const { data: countries, error } = await supabase
     .from("countries")
-    .select("id, name, continent_id")
+    .select("id, name")
     .eq("continent_id", continentId)
     .order("name", { ascending: true });
 
@@ -66,31 +65,32 @@ async function loadCountries(continentId, container) {
 
   container.innerHTML = "";
   for (const country of countries) {
-    const countryBtn = makeButton(country.name, "country-item");
+    const btn = makeButton(country.name, "country-item");
     const li = el("li");
-    li.appendChild(countryBtn);
+    li.appendChild(btn);
 
     const statesList = el("ul", "nested");
     li.appendChild(statesList);
 
     let loaded = false;
-    countryBtn.addEventListener("click", async () => {
+    btn.addEventListener("click", async () => {
       if (!loaded) {
         await loadStates(country.id, statesList);
         loaded = true;
       }
-      toggleList(statesList, countryBtn);
+      toggleList(statesList, btn);
+      showFilteredCount("country", country.name, country.name);
     });
 
     container.appendChild(li);
   }
 }
 
-// === Load states for a country ===
+// === Load states ===
 async function loadStates(countryId, container) {
   const { data: states, error } = await supabase
     .from("states")
-    .select("id, name, country_id")
+    .select("id, name")
     .eq("country_id", countryId)
     .order("name", { ascending: true });
 
@@ -106,14 +106,18 @@ async function loadStates(countryId, container) {
   }
 
   for (const st of states) {
-    const stateBtn = makeButton(st.name, "state-item");
+    const btn = makeButton(st.name, "state-item");
     const li = el("li");
-    li.appendChild(stateBtn);
+    li.appendChild(btn);
     container.appendChild(li);
+
+    btn.addEventListener("click", () =>
+      showFilteredCount("state", st.name, st.name)
+    );
   }
 }
 
-// === Utility: make button and arrow ===
+// === Utility ===
 function makeButton(label, cls) {
   const btn = el("button", cls);
   const text = el("span", "label", label);
@@ -122,11 +126,40 @@ function makeButton(label, cls) {
   return btn;
 }
 
-// === Utility: toggle nested lists ===
 function toggleList(list, btn) {
   const isOpen = list.classList.toggle("open");
   const arrow = btn.querySelector(".arrow");
   if (arrow) arrow.style.transform = isOpen ? "rotate(90deg)" : "rotate(0)";
 }
 
-document.addEventListener("DOMContentLoaded", buildSidebar);
+// === Count functions ===
+async function loadGlobalCount() {
+  const countBox = document.getElementById("countBox");
+  const { count, error } = await supabase
+    .from("stores")
+    .select("*", { count: "exact", head: true })
+    .eq("approved", true)
+    .eq("deleted", false);
+  countBox.textContent = error
+    ? "⚠️ Unable to load count"
+    : `🌍 Total approved cigar spots: ${count}`;
+}
+
+async function showFilteredCount(field, value, label) {
+  const countBox = document.getElementById("countBox");
+  const { count, error } = await supabase
+    .from("stores")
+    .select("*", { count: "exact", head: true })
+    .eq(field, value)
+    .eq("approved", true)
+    .eq("deleted", false);
+  countBox.textContent = error
+    ? "⚠️ Unable to load count"
+    : `${count} store${count === 1 ? "" : "s"} in ${label}`;
+}
+
+// === Init ===
+document.addEventListener("DOMContentLoaded", () => {
+  buildSidebar();
+  loadGlobalCount();
+});
