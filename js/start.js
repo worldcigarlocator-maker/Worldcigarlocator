@@ -1,4 +1,4 @@
-// start.js — World Cigar Locator (Frontend View + Back Button + Startpage)
+// start.js — World Cigar Locator (Frontend View + Sidebar + Gold Cards + Rating)
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
@@ -14,7 +14,9 @@ const startContent = main.innerHTML;
 
 // --- Helpers ---
 function esc(s) {
-  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  return String(s ?? "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
 }
 
 function getContinent(country) {
@@ -159,13 +161,22 @@ function renderStores(country, state, stores) {
     const img = s.photo_url || "images/store.jpg";
     card.innerHTML = `
       <img src="${esc(img)}" alt="${esc(s.name)}" onerror="this.src='images/store.jpg'">
-      <h3>${esc(s.name || "Unnamed")}</h3>
-      <p>${esc(s.city || "")}${s.state ? ", " + esc(s.state) : ""}</p>
-      <p><strong>${(s.types && s.types.length) ? s.types.join(" & ") : s.type || ""}</strong></p>
-      ${s.website ? `<a href="${esc(s.website)}" target="_blank">Visit website</a>` : ""}
+      <div class="store-card-content">
+        <h3>${esc(s.name || "Unnamed")}</h3>
+        <div class="store-rating">${renderStars(s.rating)}</div>
+        <p>${esc(s.city || "")}${s.state ? ", " + esc(s.state) : ""}</p>
+        <p><strong>${(s.types && s.types.length) ? s.types.join(" & ") : s.type || ""}</strong></p>
+        ${s.website ? `<a href="${esc(s.website)}" target="_blank">Visit website</a>` : ""}
+      </div>
     `;
     grid.appendChild(card);
   });
+}
+
+// --- Render stars ---
+function renderStars(rating) {
+  const r = Math.round(rating || 0);
+  return "★".repeat(r) + "☆".repeat(5 - r);
 }
 
 // --- Start ---
