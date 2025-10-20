@@ -1,4 +1,4 @@
-<!-- add-store-backoffice.html | Backoffice Add Form (Excel-look) with Google Autocomplete + Multi-type + Photo Picker -->
+<!-- add-store-backoffice.html | Backoffice Add Form (Excel-look) with Global State + Photo Picker -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,6 +69,7 @@
         <div><label>Phone</label><input id="phone" type="tel" /></div>
         <div class="full"><label>Address</label><input id="addr" type="text" /></div>
         <div><label>City</label><input id="city" type="text" /></div>
+        <div><label>State / Region</label><input id="state" type="text" /></div>
         <div><label>Country</label><input id="country" type="text" /></div>
         <div class="full"><label>Website</label><input id="website" type="url" placeholder="https://…" /></div>
 
@@ -120,11 +121,11 @@
 
   <script>
     const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
     const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const sel = { types: [], access: null, rating: null, lat:null, lng:null, place_id:null, photos:[], photo_index:0 };
+    const sel = { types: [], access: null, rating: null, lat:null, lng:null, place_id:null, photos:[], photo_index:0, state:null };
 
     document.querySelectorAll("#typeRow .chip").forEach(chip=>{
       chip.addEventListener("click",()=>{
@@ -174,10 +175,10 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     document.getElementById("next-photo").onclick = ()=>{ if(sel.photos.length){ sel.photo_index=(sel.photo_index+1)%sel.photos.length; updatePhoto(); }};
 
     function resetForm(){
-      ["gAddress","name","addr","city","country","phone","website"].forEach(id=>document.getElementById(id).value="");
+      ["gAddress","name","addr","city","state","country","phone","website"].forEach(id=>document.getElementById(id).value="");
       document.querySelectorAll("#typeRow .chip").forEach(c=>c.classList.remove("active"));
       document.getElementById("forceDefault").checked=false;
-      sel.types=[]; sel.access=null; sel.rating=null; sel.lat=null; sel.lng=null; sel.place_id=null; sel.photos=[]; sel.photo_index=0;
+      sel.types=[]; sel.access=null; sel.rating=null; sel.lat=null; sel.lng=null; sel.place_id=null; sel.photos=[]; sel.photo_index=0; sel.state=null;
       document.getElementById("accessBox").style.display="none";
       [...stars.children].forEach(el=>el.classList.remove("sel"));
       updatePhoto();
@@ -188,6 +189,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       const name=document.getElementById("name").value.trim();
       const address=document.getElementById("addr").value.trim();
       const city=document.getElementById("city").value.trim();
+      const state=document.getElementById("state").value.trim()||sel.state||null;
       const country=document.getElementById("country").value.trim();
       const phone=document.getElementById("phone").value.trim();
       const website=document.getElementById("website").value.trim();
@@ -195,7 +197,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       if(!name||!address||!city||!country){ showToast("Fill required fields","error"); return; }
       const force=document.getElementById("forceDefault").checked;
       const payload={
-        name,address,city,country,phone,website,
+        name,address,city,state,country,phone,website,
         type: sel.types[0]||null,
         types: sel.types.length?sel.types:null,
         access,
@@ -218,17 +220,24 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
         const place=ac.getPlace(); if(!place)return;
         document.getElementById("name").value=place.name||"";
         document.getElementById("addr").value=place.formatted_address||"";
-        const city=place.address_components?.find(c=>c.types.includes("locality"))||place.address_components?.find(c=>c.types.includes("postal_town"))||place.address_components?.find(c=>c.types.includes("administrative_area_level_2"));
-        const country=place.address_components?.find(c=>c.types.includes("country"));
+
+        const comps=place.address_components||[];
+        const city=comps.find(c=>c.types.includes("locality")||c.types.includes("postal_town")||c.types.includes("administrative_area_level_2"));
+        const state=comps.find(c=>c.types.includes("administrative_area_level_1"));
+        const country=comps.find(c=>c.types.includes("country"));
+
         document.getElementById("city").value=city?.long_name||"";
+        document.getElementById("state").value=state?.long_name||"";
         document.getElementById("country").value=country?.long_name||"";
+
+        sel.state=state?.long_name||null;
         document.getElementById("phone").value=place.international_phone_number||"";
         document.getElementById("website").value=place.website||"";
         sel.lat=place.geometry?.location?.lat()||null;
         sel.lng=place.geometry?.location?.lng()||null;
         sel.place_id=place.place_id||null;
-        sel.photos = place.photos || [];
-        sel.photo_index = 0;
+        sel.photos=place.photos||[];
+        sel.photo_index=0;
         updatePhoto();
       });
     }
