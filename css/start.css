@@ -139,3 +139,69 @@ body {
   margin-top: 1rem;
   font-style: italic;
 }
+/* ===== Dynamic sidebar (white & gold) ===== */
+.continent { margin-bottom: .4rem; }
+
+.continent-btn {
+  width: 100%;
+  background: #222;
+  color: #fff;
+  border: none;
+  padding: .5rem .7rem;
+  border-radius: 6px;
+  text-align: left;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: .95rem;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  transition: background .25s ease;
+}
+.continent-btn:hover { background: #333; }
+
+.continent-btn .arrow {
+  display: inline-block;
+  transition: transform .25s ease;
+  color: #c9a227;
+  font-size: 1rem;
+}
+
+.nested {
+  display: none;
+  padding-left: 1rem;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.nested.show {
+  display: block;
+  opacity: 1;
+  animation: fadeIn .4s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.country-item {
+  color: #eee;
+  background: #181818;
+  margin: .3rem 0;
+  padding: .4rem .6rem;
+  border-radius: 4px;
+  font-size: .9rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  cursor: pointer;
+}
+.country-item:hover {
+  background: #292929;
+  color: #c9a227;
+}
+
+.loading {
+  color: #999;
+  font-size: .85rem;
+  padding: .3rem 0;
+}
