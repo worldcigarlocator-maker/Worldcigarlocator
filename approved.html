@@ -1,30 +1,32 @@
-<!-- approved.html — Backoffice Approved (dynamic continent totals with global state hierarchy) -->
+<!-- approved.html — Backoffice Approved v3 (global state hierarchy + chevrons + dynamic totals + inline edit/actions) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Backoffice — Approved</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root {
+    :root{
       --primary:#2f78c4; --primary-dark:#2466a8;
       --bg:#f5f6f8; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
       --pill:#e8f1fb; --pilltext:#1a5fa5; --danger:#c0392b; --success:#1d8348;
     }
     *{box-sizing:border-box}
     body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:1rem;color:var(--text);font-size:14px}
-    h1{text-align:center;margin:0 0 1rem;color:#2b2b2b}
-    .wrap{max-width:1100px;margin:0 auto}
-    .topbar{display:flex;justify-content:center;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
-    .btn{background:#fff;border:1.6px solid var(--primary);color:var(--primary);padding:.45rem .8rem;border-radius:8px;font-weight:800;cursor:pointer;transition:filter .2s}
+    h1{margin:0 0 1rem;text-align:center;color:#2b2b2b}
+    .topbar{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+    .btn{background:#fff;border:1.6px solid var(--primary);color:var(--primary);padding:.45rem .8rem;border-radius:8px;font-weight:800;cursor:pointer}
     .btn.primary{background:var(--primary);color:#fff;border:none}
-    .btn:hover{filter:brightness(.95)}
-    .searchbar{display:flex;gap:.5rem;justify-content:center;margin-bottom:1rem;flex-wrap:wrap}
+    .btn[disabled]{opacity:.5;cursor:not-allowed}
+    .btn:hover{filter:brightness(.96)}
+    .wrap{max-width:1100px;margin:0 auto}
+    .searchbar{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem}
     .input{border:1.6px solid var(--primary);border-radius:8px;padding:.45rem .7rem;min-width:260px}
     .muted{color:var(--muted)}
+
     .section{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:.6rem}
-    .section-header{display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;cursor:pointer;user-select:none;transition:background .2s}
+    .section-header{display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;cursor:pointer;user-select:none}
     .section-header:hover{background:#f8fbff}
     .chev{font-weight:900;color:var(--primary-dark);transition:transform .25s ease}
     .section-header.open .chev{transform:rotate(90deg)}
@@ -33,17 +35,30 @@
     .section-body.open{display:block}
     .continent-summary{font-weight:600;color:var(--muted);margin:.3rem 0 .8rem 2rem;font-size:.9rem;}
 
-    .row{display:flex;justify-content:space-between;align-items:center;padding:.45rem .6rem;border:1px solid var(--border);border-radius:8px;margin:.35rem 0;background:#fff;cursor:pointer;transition:background .15s}
+    .row{display:flex;justify-content:space-between;align-items:center;padding:.45rem .6rem;border:1px solid var(--border);border-radius:8px;margin:.35rem 0;background:#fff;cursor:pointer}
     .row:hover{background:#f9fbff}
     .row-title{display:flex;align-items:center;gap:.5rem}
-    .indent-1{margin-left:1.2rem}
+    .indent-1{margin-left:1.25rem}
     .indent-2{margin-left:2.0rem}
-    .indent-3{margin-left:2.8rem}
+    .indent-3{margin-left:2.75rem}
 
     table{width:100%;border-collapse:collapse;margin-top:.5rem}
-    th,td{border-bottom:1px solid #eee;padding:.5rem;text-align:left}
+    th,td{border-bottom:1px solid #eee;padding:.5rem .4rem;text-align:left}
     th{background:#f3f4f6;font-weight:800}
     td.num{text-align:center}
+
+    .actions{display:flex;gap:.35rem;flex-wrap:wrap}
+    .row-edit{background:#fcfdfd}
+    .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+    .edit-grid .full{grid-column:1/-1}
+    input[type="text"],input[type="url"],input[type="tel"]{width:100%;padding:.5rem;border:1px solid #ccc;border-radius:8px}
+    .chips{display:flex;gap:.4rem;flex-wrap:wrap}
+    .chip{border:1px solid var(--border);padding:.25rem .6rem;border-radius:14px;cursor:pointer}
+    .chip.active{background:#eef6ff;border-color:#bcd7ff;color:#145b99}
+
+    .paging{display:flex;gap:.35rem;align-items:center;justify-content:flex-end;margin-top:.4rem}
+    .paging button{padding:.28rem .5rem;border:1px solid var(--primary);background:#fff;color:var(--primary);border-radius:6px;font-weight:800;cursor:pointer}
+    .paging .muted{font-size:.86rem}
 
     #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999}
     .toast{background:#333;color:#fff;padding:.7rem 1rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.97}
@@ -72,127 +87,295 @@
   <div id="toast-container"></div>
 
   <script>
+    /* ---------- Supabase ---------- */
     const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    /* ---------- State ---------- */
     let all = [];
     let searchQ = "";
+    const PAGE_SIZE = 50;
 
-    function showToast(msg,type="info"){
-      const c=document.getElementById("toast-container");
-      const t=document.createElement("div");
-      t.className=`toast ${type}`;t.textContent=msg;c.appendChild(t);
-      setTimeout(()=>t.remove(),3200);
+    /* ---------- Helpers ---------- */
+    function showToast(msg,type="info"){const c=document.getElementById("toast-container");const t=document.createElement("div");t.className=`toast ${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3200);} 
+    function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+
+    function getContinent(country){
+      const c=String(country||"").trim().toLowerCase();
+      if(["sweden","sverige","germany","italy","france","spain","norway","norge","finland","suomi","denmark","danmark","netherlands","belgium","austria","poland","czech republic","czechia"].includes(c))return "Europe";
+      if(["united states","usa","canada","mexico","mexiko"].includes(c))return "North America";
+      if(["brazil","argentina","chile","peru","colombia","uruguay","paraguay"].includes(c))return "South America";
+      if(["china","japan","india","thailand","malaysia","singapore","israel","turkey"].includes(c))return "Asia";
+      if(["south africa","sydafrika","nigeria","kenya","morocco"].includes(c))return "Africa";
+      if(["australia","australien","new zealand","nya zeeland","fiji"].includes(c))return "Oceania";
+      return "Other";
     }
 
-    function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
-
+    /* ---------- Load ---------- */
     (async function init(){
-      const {data,error}=await supabase.from("stores").select("*").eq("approved",true).eq("deleted",false);
-      if(error){showToast(error.message,"error");return;}
-      all=data||[];
+      const { data, error } = await supabase
+        .from("stores")
+        .select("*")
+        .eq("approved", true)
+        .eq("deleted", false);
+      if (error) { showToast(error.message, "error"); return; }
+      all = (data||[]).map(s=>({
+        ...s,
+        types: Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []),
+        state: s.state || s.region || s.admin_area || null,
+      }));
       renderHierarchy();
     })();
 
-    function doSearch(){searchQ=document.getElementById("search").value.trim();renderHierarchy();}
-    function clearSearch(){document.getElementById("search").value="";searchQ="";renderHierarchy();}
+    /* ---------- Search ---------- */
+    function doSearch(){ searchQ = document.getElementById("search").value.trim(); renderHierarchy(); }
+    function clearSearch(){ document.getElementById("search").value = ""; searchQ = ""; renderHierarchy(); }
+    function matchesSearch(s){ if(!searchQ) return true; const q=searchQ.toLowerCase(); return [s.name,s.city,s.state,s.country,s.website].some(v=> (v||"").toLowerCase().includes(q)); }
 
-    function matchesSearch(s){
-      if(!searchQ)return true;
-      const q=searchQ.toLowerCase();
-      return [s.name,s.city,s.state,s.country,s.website].some(v=>(v||"").toLowerCase().includes(q));
-    }
-
+    /* ---------- Group (Continent → Country → State → City) ---------- */
     function groupData(rows){
-      const src=searchQ?rows.filter(matchesSearch):rows;
-      const byContinent=new Map();
+      const src = searchQ ? rows.filter(matchesSearch) : rows;
+      const byContinent = new Map();
       for(const s of src){
-        const cont=s.continent||getContinent(s.country);
-        if(!byContinent.has(cont))byContinent.set(cont,new Map());
-        const byCountry=byContinent.get(cont);
-        const cc=(s.country||"Unknown").trim();
-        if(!byCountry.has(cc))byCountry.set(cc,new Map());
-        const byState=byCountry.get(cc);
-        const st=(s.state||"–").trim();
-        if(!byState.has(st))byState.set(st,new Map());
-        const city=(s.city||"Unknown").trim();
-        if(!byState.get(st).has(city))byState.get(st).set(city,[]);
+        const cont = s.continent || getContinent(s.country);
+        if(!byContinent.has(cont)) byContinent.set(cont, new Map());
+        const byCountry = byContinent.get(cont);
+        const cc = (s.country||"Unknown").trim();
+        if(!byCountry.has(cc)) byCountry.set(cc, new Map());
+        const byState = byCountry.get(cc);
+        const st = (s.state||"–").trim();
+        if(!byState.has(st)) byState.set(st, new Map());
+        const city = (s.city||"Unknown").trim();
+        if(!byState.get(st).has(city)) byState.get(st).set(city, []);
         byState.get(st).get(city).push(s);
       }
       return byContinent;
     }
 
-    function getContinent(country){
-      const c=String(country||"").toLowerCase();
-      if(["sweden","germany","italy","france","spain","norway","finland","denmark"].includes(c))return"Europe";
-      if(["united states","canada","mexico"].includes(c))return"North America";
-      if(["brazil","argentina","chile"].includes(c))return"South America";
-      if(["china","japan","india","thailand"].includes(c))return"Asia";
-      if(["south africa","nigeria","kenya"].includes(c))return"Africa";
-      if(["australia","new zealand"].includes(c))return"Oceania";
-      return"Other";
-    }
-
+    /* ---------- Render ---------- */
     function renderHierarchy(){
-      const root=document.getElementById("hierarchy");root.innerHTML="";
-      const grouped=groupData(all);
-      for(const [continent,countries]of grouped){
-        const contCount=[...countries.values()].reduce((a,c)=>a+[...c.values()].reduce((b,s)=>b+[...s.values()].reduce((d,e)=>d+e.length,0),0),0);
-        const sec=document.createElement("div");
-        sec.className="section";
-        sec.innerHTML=`<div class='section-header'><div class='chev'>▸</div><div style='font-weight:900'>${esc(continent)}</div><span class='pill'>${contCount}</span></div><div class='section-body'></div><div class='continent-summary'>Total in ${esc(continent)}: ${contCount} stores</div>`;
-        root.appendChild(sec);
-        const header=sec.querySelector(".section-header"),body=sec.querySelector(".section-body");
-        header.addEventListener("click",()=>{body.classList.toggle("open");header.classList.toggle("open");if(body.classList.contains("open"))renderCountries(countries,body);else body.innerHTML="";});
-      }
-      document.getElementById("searchMeta").textContent = searchQ ? `Filtered view: ${all.filter(matchesSearch).length} results` : `Total: ${all.length} stores`;
-    }
+      const root = document.getElementById("hierarchy"); root.innerHTML = "";
+      const grouped = groupData(all);
+      const totalShown = searchQ ? all.filter(matchesSearch).length : all.length;
+      document.getElementById("searchMeta").textContent = searchQ ? `Filtered: ${totalShown} results` : `Total: ${totalShown} stores`;
 
-    function renderCountries(countries,wrap){
-      wrap.innerHTML="";
-      for(const [countryName,states]of countries){
-        const count=[...states.values()].reduce((a,c)=>a+[...c.values()].reduce((b,e)=>b+e.length,0),0);
-        const row=document.createElement("div");
-        row.className="row indent-1";
-        row.innerHTML=`<div class='row-title'><div class='chev'>▸</div><div style='font-weight:800'>${esc(countryName)}</div><span class='pill'>${count}</span></div>`;
-        wrap.appendChild(row);
-        const levelWrap=document.createElement("div");levelWrap.style.display="none";wrap.appendChild(levelWrap);
-        row.addEventListener("click",()=>{const open=levelWrap.style.display==="block";levelWrap.style.display=open?"none":"block";row.querySelector(".chev").style.transform=open?"rotate(0deg)":"rotate(90deg)";if(!open)renderStates(states,levelWrap,countryName);});
+      for(const [continent, countries] of grouped){
+        const contCount = [...countries.values()].reduce((a,c)=> a + [...c.values()].reduce((b,s)=> b + [...s.values()].reduce((d,e)=> d + e.length, 0), 0), 0);
+        const sec = document.createElement("div"); sec.className = "section";
+        sec.innerHTML = `
+          <div class="section-header"><div class="chev">▸</div><div style="font-weight:900">${esc(continent)}</div><span class="pill">${contCount}</span></div>
+          <div class="section-body"></div>
+          <div class="continent-summary">Total in ${esc(continent)}: ${contCount} stores</div>
+        `;
+        const header = sec.querySelector('.section-header');
+        const body = sec.querySelector('.section-body');
+        header.addEventListener('click',()=>{ body.classList.toggle('open'); header.classList.toggle('open'); if(body.classList.contains('open')) renderCountries(countries, body); else body.innerHTML=''; });
+        document.getElementById('hierarchy').appendChild(sec);
       }
     }
 
-    function renderStates(states,wrap,countryName){
-      wrap.innerHTML="";
-      for(const [stateName,cities]of states){
-        const count=[...cities.values()].reduce((a,b)=>a+b.length,0);
-        const sRow=document.createElement("div");sRow.className="row indent-2";
-        sRow.innerHTML=`<div class='row-title'><div class='chev'>▸</div><div style='font-weight:800'>${esc(stateName==="–"?"(No State)":stateName)}</div><span class='pill'>${count}</span></div>`;
-        wrap.appendChild(sRow);
-        const cityWrap=document.createElement("div");cityWrap.style.display="none";wrap.appendChild(cityWrap);
-        sRow.addEventListener("click",()=>{const open=cityWrap.style.display==="block";cityWrap.style.display=open?"none":"block";sRow.querySelector(".chev").style.transform=open?"rotate(0deg)":"rotate(90deg)";if(!open)renderCities(cities,cityWrap,countryName,stateName);});
+    function renderCountries(countries, wrap){
+      wrap.innerHTML = "";
+      for(const [countryName, states] of countries){
+        const count = [...states.values()].reduce((a,c)=> a + [...c.values()].reduce((b,e)=> b + e.length, 0), 0);
+        const row = document.createElement('div'); row.className = 'row indent-1';
+        row.innerHTML = `<div class='row-title'><div class='chev'>▸</div><div style='font-weight:800'>${esc(countryName)}</div><span class='pill'>${count}</span></div>`;
+        const levelWrap = document.createElement('div'); levelWrap.style.display='none';
+        row.addEventListener('click',()=>{ const open = levelWrap.style.display==='block'; levelWrap.style.display = open? 'none':'block'; row.querySelector('.chev').style.transform=open? 'rotate(0deg)':'rotate(90deg)'; if(!open) renderStates(states, levelWrap, countryName); });
+        wrap.appendChild(row); wrap.appendChild(levelWrap);
       }
     }
 
-    function renderCities(cities,wrap,countryName,stateName){
-      wrap.innerHTML="";
-      for(const [cityName,stores]of cities){
-        const ctRow=document.createElement("div");ctRow.className="row indent-3";
-        ctRow.innerHTML=`<div class='row-title'><div class='chev'>▸</div><div style='font-weight:800'>${esc(cityName)}</div><span class='pill'>${stores.length}</span></div>`;
-        wrap.appendChild(ctRow);
-        const tableWrap=document.createElement("div");tableWrap.style.display="none";wrap.appendChild(tableWrap);
-        ctRow.addEventListener("click",()=>{const open=tableWrap.style.display==="block";tableWrap.style.display=open?"none":"block";ctRow.querySelector(".chev").style.transform=open?"rotate(0deg)":"rotate(90deg)";if(!open)renderStoreTable(stores,tableWrap);});
+    function renderStates(states, wrap, countryName){
+      wrap.innerHTML = "";
+      for(const [stateName, cities] of states){
+        const count = [...cities.values()].reduce((a,b)=> a + b.length, 0);
+        const sRow = document.createElement('div'); sRow.className = 'row indent-2';
+        sRow.innerHTML = `<div class='row-title'><div class='chev'>▸</div><div style='font-weight:800'>${esc(stateName==='–'?'(No State)':stateName)}</div><span class='pill'>${count}</span></div>`;
+        const cityWrap = document.createElement('div'); cityWrap.style.display='none';
+        sRow.addEventListener('click',()=>{ const open = cityWrap.style.display==='block'; cityWrap.style.display=open?'none':'block'; sRow.querySelector('.chev').style.transform=open?'rotate(0deg)':'rotate(90deg)'; if(!open) renderCities(cities, cityWrap, countryName, stateName); });
+        wrap.appendChild(sRow); wrap.appendChild(cityWrap);
       }
     }
 
-    function renderStoreTable(stores,wrap){
-      wrap.innerHTML=`<table><thead><tr><th>Name</th><th>City</th><th>State</th><th>Country</th><th>Types</th><th>Website</th><th class='num'>Rating</th></tr></thead><tbody></tbody></table>`;
-      const tbody=wrap.querySelector("tbody");
-      for(const s of stores){
-        const tr=document.createElement("tr");
-        tr.innerHTML=`<td>${esc(s.name||"–")}</td><td>${esc(s.city||"–")}</td><td>${esc(s.state||"")}</td><td>${esc(s.country||"–")}</td><td>${esc((s.types&&s.types.length?s.types.join(" & "):(s.type||"–")))}</td><td>${s.website?`<a href='${esc(s.website)}' target='_blank'>Open</a>`:'—'}</td><td class='num'>${s.rating??0}</td>`;
-        tbody.appendChild(tr);
+    function renderCities(cities, wrap, countryName, stateName){
+      wrap.innerHTML = "";
+      for(const [cityName, stores] of cities){
+        const ctRow = document.createElement('div'); ctRow.className = 'row indent-3';
+        ctRow.innerHTML = `<div class='row-title'><div class='chev'>▸</div><div style='font-weight:800'>${esc(cityName)}</div><span class='pill'>${stores.length}</span></div>`;
+        const tableWrap = document.createElement('div'); tableWrap.style.display='none';
+        ctRow.addEventListener('click',()=>{ const open = tableWrap.style.display==='block'; tableWrap.style.display=open?'none':'block'; ctRow.querySelector('.chev').style.transform=open?'rotate(0deg)':'rotate(90deg)'; if(!open) renderStoreTable(stores, tableWrap); });
+        wrap.appendChild(ctRow); wrap.appendChild(tableWrap);
       }
+    }
+
+    /* ---------- Store table with actions + inline edit ---------- */
+    function renderStoreTable(rows, wrap){
+      const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      renderStoreTablePage(rows, wrap, 1, totalPages);
+    }
+
+    function renderStoreTablePage(rows, wrap, page=1, totalPages=1){
+      const start = (page-1)*PAGE_SIZE;
+      const slice = rows.slice(start, start+PAGE_SIZE);
+      wrap.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>City</th>
+              <th>State</th>
+              <th>Country</th>
+              <th>Types</th>
+              <th>Website</th>
+              <th class="num">Rating</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="paging">
+          <button ${page<=1?'disabled':''} data-act="prev">◀</button>
+          <span class="muted">Page ${page}/${totalPages}</span>
+          <button ${page>=totalPages?'disabled':''} data-act="next">▶</button>
+        </div>
+      `;
+      const tbody = wrap.querySelector('tbody');
+      slice.forEach(s => tbody.appendChild(renderRow(s)));
+      const prevBtn = wrap.querySelector('button[data-act="prev"]');
+      const nextBtn = wrap.querySelector('button[data-act="next"]');
+      prevBtn?.addEventListener('click', ()=>{ if(page>1) renderStoreTablePage(rows, wrap, page-1, totalPages); });
+      nextBtn?.addEventListener('click', ()=>{ if(page<totalPages) renderStoreTablePage(rows, wrap, page+1, totalPages); });
+    }
+
+    function renderRow(s){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${esc(s.name||'–')}</td>
+        <td>${esc(s.city||'–')}</td>
+        <td>${esc(s.state||'')}</td>
+        <td>${esc(s.country||'–')}</td>
+        <td>${esc((s.types&&s.types.length?s.types.join(' & '):(s.type||'–')))}</td>
+        <td>${s.website? `<a href="${esc(s.website)}" target="_blank">Open</a>` : '—'}</td>
+        <td class="num">${s.rating??0}</td>
+        <td class="actions">
+          <button class="btn" data-act="view">View</button>
+          <button class="btn" data-act="edit">Edit</button>
+          <button class="btn" data-act="flag">${s.flagged?'Unflag':'Flag'}</button>
+          <button class="btn" data-act="unapprove">Unapprove</button>
+          <button class="btn" data-act="trash" style="border-color:var(--danger);color:var(--danger)">Trash</button>
+        </td>
+      `;
+
+      const trEdit = document.createElement('tr');
+      trEdit.className = 'row-edit';
+      trEdit.style.display = 'none';
+      const td = document.createElement('td'); td.colSpan = 8; td.innerHTML = renderEditFormHTML(s); trEdit.appendChild(td);
+
+      // actions
+      tr.querySelector('[data-act="view"]').addEventListener('click', ()=>{ trEdit.style.display = trEdit.style.display==='none' ? 'table-row' : 'none'; setFormValues(td, s, true); });
+      tr.querySelector('[data-act="edit"]').addEventListener('click', ()=>{ trEdit.style.display = 'table-row'; setFormValues(td, s, false); });
+      tr.querySelector('[data-act="flag"]').addEventListener('click', async ()=>{
+        const { error } = await supabase.from('stores').update({ flagged: !s.flagged }).eq('id', s.id);
+        if(error) return showToast(error.message, 'error');
+        s.flagged = !s.flagged; showToast(s.flagged? '🚩 Flagged':'🚫 Unflagged', 'success');
+        tr.querySelector('[data-act="flag"]').textContent = s.flagged? 'Unflag':'Flag';
+      });
+      tr.querySelector('[data-act="unapprove"]').addEventListener('click', async ()=>{
+        const { error } = await supabase.from('stores').update({ approved:false, status:'pending', approved_at:null }).eq('id', s.id);
+        if(error) return showToast(error.message, 'error');
+        showToast('⏳ Moved to Pending', 'success');
+        tr.remove(); trEdit.remove();
+        const idx = all.findIndex(x=>x.id===s.id); if(idx>-1) all.splice(idx,1);
+      });
+      tr.querySelector('[data-act="trash"]').addEventListener('click', async ()=>{
+        const deletedUntil = new Date(Date.now()+48*60*60*1000).toISOString();
+        const { error } = await supabase.from('stores').update({ deleted:true, deleted_until:deletedUntil }).eq('id', s.id);
+        if(error) return showToast(error.message, 'error');
+        showToast('🗑️ Moved to Trash (48h)', 'success');
+        tr.remove(); trEdit.remove();
+        const idx = all.findIndex(x=>x.id===s.id); if(idx>-1) all.splice(idx,1);
+      });
+
+      // edit row buttons
+      td.querySelector('[data-act="cancel"]').addEventListener('click', ()=>{ trEdit.style.display='none'; });
+      td.querySelector('[data-act="save"]').addEventListener('click', async ()=>{
+        const payload = readFormValues(td, s);
+        const { error } = await supabase.from('stores').update(payload).eq('id', s.id);
+        if(error) return showToast(error.message, 'error');
+        Object.assign(s, payload);
+        showToast('✅ Saved', 'success');
+        // refresh visible cells
+        tr.children[0].textContent = s.name || '–';
+        tr.children[1].textContent = s.city || '–';
+        tr.children[2].textContent = s.state || '';
+        tr.children[3].textContent = s.country || '–';
+        tr.children[4].textContent = (s.types && s.types.length ? s.types.join(' & ') : (s.type||'–'));
+        tr.children[5].innerHTML = s.website ? `<a href="${esc(s.website)}" target="_blank">Open</a>` : '—';
+        tr.children[6].textContent = s.rating ?? 0;
+      });
+
+      const frag = document.createDocumentFragment();
+      frag.appendChild(tr); frag.appendChild(trEdit); return frag;
+    }
+
+    function renderEditFormHTML(s){
+      return `
+        <div class="edit-grid">
+          <div><label>Name</label><input type="text" data-f="name" /></div>
+          <div><label>Phone</label><input type="tel" data-f="phone" /></div>
+          <div class="full"><label>Address</label><input type="text" data-f="address" /></div>
+          <div><label>City</label><input type="text" data-f="city" /></div>
+          <div><label>State / Region</label><input type="text" data-f="state" /></div>
+          <div><label>Country</label><input type="text" data-f="country" /></div>
+          <div class="full"><label>Website</label><input type="url" data-f="website" /></div>
+          <div class="full"><label>Categories (multi)</label>
+            <div class="chips" data-f="types">${["store","lounge","other"].map(t=>`<span class="chip" data-v="${t}">${t}</span>`).join("")}</div>
+            <div class="muted">Click to toggle; keep at least one.</div>
+          </div>
+          <div class="full"><label>Photo URL</label><input type="url" data-f="photo_url" placeholder="https://…"/></div>
+          <div class="full" style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.4rem">
+            <button class="btn" data-act="cancel" type="button">Cancel</button>
+            <button class="btn primary" data-act="save" type="button">Save</button>
+          </div>
+        </div>`;
+    }
+
+    function setFormValues(container, s, viewOnly=false){
+      container.querySelector('[data-f="name"]').value = s.name||"";
+      container.querySelector('[data-f="phone"]').value = s.phone||"";
+      container.querySelector('[data-f="address"]').value = s.address||"";
+      container.querySelector('[data-f="city"]').value = s.city||"";
+      container.querySelector('[data-f="state"]').value = s.state||"";
+      container.querySelector('[data-f="country"]').value = s.country||"";
+      container.querySelector('[data-f="website"]').value = s.website||"";
+      container.querySelector('[data-f="photo_url"]').value = s.photo_url||"";
+      // chips
+      const chips = container.querySelectorAll('[data-f="types"] .chip');
+      const set = new Set((s.types && s.types.length ? s.types : (s.type?[s.type]:[])).map(x=>String(x).toLowerCase()));
+      chips.forEach(ch=>{ const v=ch.dataset.v; ch.classList.toggle('active', set.has(v)); ch.onclick = ()=>{ if(viewOnly) return; ch.classList.toggle('active'); }; });
+      // disable inputs in view mode
+      container.querySelectorAll('input').forEach(inp=> inp.disabled = viewOnly);
+      container.querySelector('[data-act="save"]').style.display = viewOnly ? 'none' : 'inline-block';
+    }
+
+    function readFormValues(container, old){
+      const get = sel => container.querySelector(sel).value.trim();
+      const chips = Array.from(container.querySelectorAll('[data-f="types"] .chip.active')).map(ch=>ch.dataset.v);
+      return {
+        name: get('[data-f="name"]') || null,
+        phone: get('[data-f="phone"]') || null,
+        address: get('[data-f="address"]') || null,
+        city: get('[data-f="city"]') || null,
+        state: get('[data-f="state"]') || null,
+        country: get('[data-f="country"]') || null,
+        website: get('[data-f="website"]') || null,
+        types: chips.length ? chips : old.types,
+        type: (chips[0] || old.type || null),
+        photo_url: (get('[data-f="photo_url']') || null),
+        updated_at: new Date().toISOString()
+      };
     }
   </script>
 </body>
