@@ -1,75 +1,182 @@
+<!-- add-store-backoffice.html | Backoffice Add Form with Google Autocomplete + Photo Preview -->
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Store — Backoffice</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root{
+    :root {
       --primary:#2f78c4; --primary-dark:#2466a8;
       --bg:#f5f6f8; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
       --green:#28a745; --warning:#b36e00;
     }
     *{box-sizing:border-box}
-    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:1.2rem;color:var(--text);}
-    .topbar{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
-    .btn{background:#fff;border:1.6px solid var(--primary);color:var(--primary);padding:.5rem .8rem;border-radius:8px;font-weight:800;cursor:pointer}
-    .btn.primary{background:var(--primary);color:#fff;border:none}
-    .btn:hover{filter:brightness(.95)}
-    .btn.danger{background:#c0392b;color:#fff;border:none}
-    .wrap{max-width:950px;margin:0 auto}
-    h1{text-align:center;margin:.2rem 0 1rem;color:#2b2b2b}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:1rem}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
-    .full{grid-column:1/-1}
-    label{font-weight:bold;font-size:.92rem}
-    input[type="text"],input[type="tel"],input[type="url"]{
-      width:100%;padding:.6rem;border:1px solid #ccc;border-radius:8px;font-size:.95rem
+    body {
+      font-family:Arial,Helvetica,sans-serif;
+      background:var(--bg);
+      margin:0;
+      padding:1.2rem;
+      color:var(--text);
     }
-    .radio-row,.chip-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
-    .chip{border:1px solid var(--border);padding:.35rem .7rem;border-radius:16px;cursor:pointer;user-select:none}
-    .chip.active{background:#eef6ff;border-color:#bcd7ff;color:#145b99}
-    .access-box{display:none;background:#f8fafc;border:1px dashed #cfe1ff;padding:.6rem .7rem;border-radius:8px}
-    .stars{display:flex;gap:.35rem;font-size:1.6rem;cursor:pointer;color:#ccc}
-    .stars .sel{color:#b8860b}
-    .row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
-    .muted{color:var(--muted);font-size:.86rem}
-    #preview{background:#fafafa;border:1px dashed #ddd;border-radius:10px;padding:.6rem;text-align:center}
-    #preview img{max-width:100%;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
-    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999}
-    .toast{background:#333;color:#fff;padding:.7rem 1rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.97}
-    .toast.success{background:#28a745}.toast.error{background:#dc3545}.toast.info{background:#2f78c4}
-    @media (max-width:900px){ .grid{grid-template-columns:1fr} }
+
+    .topbar {
+      display:flex;
+      justify-content:center;
+      gap:.5rem;
+      flex-wrap:wrap;
+      margin-bottom:1rem;
+    }
+    .btn {
+      background:#fff;
+      border:1.6px solid var(--primary);
+      color:var(--primary);
+      padding:.5rem .8rem;
+      border-radius:8px;
+      font-weight:800;
+      cursor:pointer;
+      transition:filter .15s;
+    }
+    .btn.primary { background:var(--primary); color:#fff; border:none; }
+    .btn:hover { filter:brightness(.95); }
+    .btn.danger { background:#c0392b; color:#fff; border:none; }
+
+    .wrap { max-width:950px; margin:0 auto; }
+    h1 { text-align:center; margin:.2rem 0 1rem; color:#2b2b2b; }
+
+    .card {
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      box-shadow:0 1px 4px rgba(0,0,0,.06);
+      padding:1rem;
+    }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+    .full { grid-column:1/-1; }
+
+    label { font-weight:bold; font-size:.92rem; }
+    input[type="text"], input[type="tel"], input[type="url"] {
+      width:100%;
+      padding:.6rem;
+      border:1px solid #ccc;
+      border-radius:8px;
+      font-size:.95rem;
+    }
+
+    .chip-row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+    .chip {
+      border:1px solid var(--border);
+      padding:.35rem .7rem;
+      border-radius:16px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .chip.active {
+      background:#eef6ff;
+      border-color:#bcd7ff;
+      color:#145b99;
+    }
+
+    .access-box {
+      display:none;
+      background:#f8fafc;
+      border:1px dashed #cfe1ff;
+      padding:.6rem .7rem;
+      border-radius:8px;
+    }
+
+    .stars { display:flex; gap:.35rem; font-size:1.6rem; cursor:pointer; color:#ccc; }
+    .stars .sel { color:#b8860b; }
+
+    .row { display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; }
+    .muted { color:var(--muted); font-size:.86rem; }
+
+    #preview {
+      background:#fafafa;
+      border:1px dashed #ddd;
+      border-radius:10px;
+      padding:.6rem;
+      text-align:center;
+    }
+    #preview img {
+      max-width:100%;
+      border-radius:8px;
+      box-shadow:0 1px 4px rgba(0,0,0,.12);
+    }
+
+    #toast-container {
+      position:fixed;
+      bottom:1rem;
+      right:1rem;
+      display:flex;
+      flex-direction:column;
+      gap:.5rem;
+      z-index:9999;
+    }
+    .toast {
+      background:#333;
+      color:#fff;
+      padding:.7rem 1rem;
+      border-radius:8px;
+      box-shadow:0 2px 6px rgba(0,0,0,.2);
+      opacity:.97;
+    }
+    .toast.success{background:#28a745;}
+    .toast.error{background:#dc3545;}
+    .toast.info{background:#2f78c4;}
+
+    @media (max-width:900px){ .grid{grid-template-columns:1fr;} }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="topbar">
-      <button class="btn" onclick="window.location.href='backoffice.html'">← Tillbaka till Home</button>
+      <button class="btn" onclick="window.location.href='backoffice.html'">← Back to Home</button>
     </div>
 
-    <h1>Lägg till plats (Backoffice)</h1>
+    <h1>Add Store (Backoffice)</h1>
 
     <div class="card">
       <div class="grid">
         <div class="full">
-          <label>Sök med Google</label>
-          <input id="gAddress" type="text" placeholder="Börja skriva ett ställe…"/>
+          <label>Search with Google</label>
+          <input id="gAddress" type="text" placeholder="Start typing a place…" />
           <div class="muted" style="margin-top:.3rem">
-            Tips: Välj i listan — fälten fylls automatiskt, inkl. foto.
+            Tip: Select from list — fields will auto-fill, including photo.
           </div>
         </div>
 
-        <div><label>Namn</label><input id="name" type="text"/></div>
-        <div><label>Telefon</label><input id="phone" type="tel"/></div>
-        <div class="full"><label>Adress</label><input id="addr" type="text"/></div>
-        <div><label>Stad</label><input id="city" type="text"/></div>
-        <div><label>Land</label><input id="country" type="text"/></div>
-        <div class="full"><label>Webbplats</label><input id="website" type="url" placeholder="https://…"/></div>
+        <div>
+          <label>Name</label>
+          <input id="name" type="text" />
+        </div>
+        <div>
+          <label>Phone</label>
+          <input id="phone" type="tel" />
+        </div>
 
         <div class="full">
-          <label>Kategori</label>
+          <label>Address</label>
+          <input id="addr" type="text" />
+        </div>
+
+        <div>
+          <label>City</label>
+          <input id="city" type="text" />
+        </div>
+        <div>
+          <label>Country</label>
+          <input id="country" type="text" />
+        </div>
+
+        <div class="full">
+          <label>Website</label>
+          <input id="website" type="url" placeholder="https://…" />
+        </div>
+
+        <div class="full">
+          <label>Category</label>
           <div class="chip-row" id="typeRow">
             <span class="chip active" data-type="store">Store</span>
             <span class="chip" data-type="lounge">Lounge</span>
@@ -78,15 +185,15 @@
         </div>
 
         <div id="accessBox" class="access-box full">
-          <label style="display:block;margin-bottom:.35rem;">Lounge access</label>
-          <label><input type="radio" name="access" value="public"> Öppen för alla</label>&nbsp;&nbsp;
-          <label><input type="radio" name="access" value="temporary"> Tillfälliga medlemmar</label>&nbsp;&nbsp;
-          <label><input type="radio" name="access" value="members"> Endast medlemmar</label>
+          <label style="display:block;margin-bottom:.35rem;">Lounge Access</label>
+          <label><input type="radio" name="access" value="public"> Public</label>&nbsp;&nbsp;
+          <label><input type="radio" name="access" value="temporary"> Temporary</label>&nbsp;&nbsp;
+          <label><input type="radio" name="access" value="members"> Members only</label>
         </div>
 
         <div class="full">
-          <label>Rating (valfri)</label>
-          <div id="stars" class="stars" aria-label="Rating">
+          <label>Rating (optional)</label>
+          <div id="stars" class="stars">
             <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
           </div>
         </div>
@@ -94,10 +201,10 @@
         <div class="full">
           <div class="row" style="justify-content:space-between;align-items:center">
             <div class="row">
-              <label><input type="checkbox" id="forceDefault"> Använd standardbild</label>
-              <span class="muted">Visar <code>images/store.jpg</code> och sparar utan Google-foto.</span>
+              <label><input type="checkbox" id="forceDefault"> Use default image</label>
+              <span class="muted">Displays <code>images/store.jpg</code> and skips Google photo.</span>
             </div>
-            <button class="btn" id="testPhotoBtn" type="button">Testa Google-bild</button>
+            <button class="btn" id="testPhotoBtn" type="button">Test Google Photo</button>
           </div>
           <div id="preview" style="margin-top:.6rem">
             <img src="images/store.jpg" alt="Preview" />
@@ -105,8 +212,8 @@
         </div>
 
         <div class="full" style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:.4rem">
-          <button class="btn" type="button" onclick="resetForm()">Rensa</button>
-          <button class="btn primary" type="button" onclick="saveStore()">Spara</button>
+          <button class="btn" type="button" onclick="resetForm()">Clear</button>
+          <button class="btn primary" type="button" onclick="saveStore()">Save</button>
         </div>
       </div>
     </div>
@@ -115,106 +222,137 @@
   <div id="toast-container"></div>
 
   <script>
-    /* ---------- Konfig ---------- */
+    /* ---------- Config ---------- */
     const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
     const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
 
-    const sel = { type: "store", access: null, rating: null, lat:null, lng:null, place_id:null, photo_ref:null, photo_url:null };
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const sel = {
+      type: "store", access: null, rating: null,
+      lat: null, lng: null, place_id: null,
+      photo_ref: null, photo_url: null
+    };
 
     /* ---------- UI ---------- */
-    document.querySelectorAll("#typeRow .chip").forEach(ch=>{
-      ch.addEventListener("click",()=>{
+    document.getElementById("testPhotoBtn").addEventListener("click",()=>{
+      if(sel.photo_ref){
+        sel.photo_url=photoUrlFromRef(sel.photo_ref);
+        updatePreview(true);
+      } else showToast("No Google photo reference found","error");
+    });
+
+    document.getElementById("forceDefault").addEventListener("change", updatePreview);
+
+    (function initChips(){
+      const row=document.getElementById("typeRow");
+      row.addEventListener("click",e=>{
+        const chip=e.target.closest(".chip"); if(!chip)return;
         document.querySelectorAll("#typeRow .chip").forEach(c=>c.classList.remove("active"));
-        ch.classList.add("active");
-        sel.type = ch.dataset.type;
+        chip.classList.add("active");
+        sel.type=chip.dataset.type;
         document.getElementById("accessBox").style.display = sel.type==="lounge" ? "block" : "none";
         updatePreview();
       });
-    });
-    document.querySelectorAll("input[name='access']").forEach(r=>r.addEventListener("change",()=>sel.access=r.value));
-    const stars=document.getElementById("stars");
-    stars.addEventListener("click",e=>{
-      const v=+e.target.dataset.v;
-      if(!v)return;
-      sel.rating=v;
-      [...stars.children].forEach((el,i)=>el.classList.toggle("sel",i<v));
-    });
-    document.getElementById("forceDefault").addEventListener("change",updatePreview);
-    document.getElementById("testPhotoBtn").addEventListener("click",()=>{
-      if(sel.photo_ref){sel.photo_url=photoUrlFromRef(sel.photo_ref);updatePreview(true);showToast("Försöker ladda Google-bild…","info");}
-      else showToast("Ingen Google-fotoreferens hittad ännu.","error");
-    });
+    })();
+
+    (function initAccess(){
+      document.querySelectorAll("input[name='access']").forEach(r=>{
+        r.addEventListener("change",()=>sel.access=r.value);
+      });
+    })();
+
+    (function initStars(){
+      const stars=document.getElementById("stars");
+      stars.addEventListener("click",e=>{
+        const v=+e.target.dataset.v; if(!v)return;
+        sel.rating=v;
+        [...stars.children].forEach((el,i)=>el.classList.toggle("sel",i<v));
+      });
+    })();
 
     function photoUrlFromRef(ref){
       if(!ref)return null;
       return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(ref)}&key=${GOOGLE_BROWSER_KEY}`;
     }
+
     function currentImageUrl(){
       if(document.getElementById("forceDefault").checked)return "images/store.jpg";
       if(sel.photo_url?.startsWith("http"))return sel.photo_url;
       if(sel.photo_ref)return photoUrlFromRef(sel.photo_ref);
-      return sel.type==="lounge"?"images/lounge.jpg":"images/store.jpg";
+      if(sel.type==="lounge")return "images/lounge.jpg";
+      if(sel.type==="store")return "images/store.jpg";
+      return "images/other.jpg";
     }
-    function updatePreview(log=false){
-      const img=currentImageUrl();
-      if(log)console.log("Preview:",img);
-      document.getElementById("preview").innerHTML=`<img src="${img}" onerror="this.onerror=null;this.src='images/store.jpg';">`;
+
+    function updatePreview(){
+      const pv=document.getElementById("preview");
+      pv.innerHTML=`<img src="${currentImageUrl()}" onerror="this.src='images/store.jpg'">`;
     }
+
+    function showToast(msg,type="info"){
+      const c=document.getElementById("toast-container");
+      const t=document.createElement("div");
+      t.className=`toast ${type}`;
+      t.textContent=msg;
+      c.appendChild(t);
+      setTimeout(()=>t.remove(),3200);
+    }
+
     function resetForm(){
       ["gAddress","name","addr","city","country","phone","website"].forEach(id=>document.getElementById(id).value="");
       document.getElementById("forceDefault").checked=false;
-      document.querySelector('#typeRow .chip[data-type="store"]').click();
-      sel.access=sel.rating=sel.lat=sel.lng=sel.place_id=sel.photo_ref=sel.photo_url=null;
-      updatePreview();showToast("Formulär rensat","success");
-    }
-    function showToast(msg,type="info"){
-      const c=document.getElementById("toast-container");
-      const t=document.createElement("div");t.className=`toast ${type}`;t.textContent=msg;c.appendChild(t);
-      setTimeout(()=>t.remove(),3000);
+      document.querySelectorAll("#typeRow .chip").forEach(c=>c.classList.remove("active"));
+      document.querySelector('#typeRow .chip[data-type="store"]').classList.add("active");
+      sel.type="store"; sel.access=null; sel.rating=null;
+      sel.lat=sel.lng=null; sel.place_id=null; sel.photo_ref=null; sel.photo_url=null;
+      document.getElementById("accessBox").style.display="none";
+      [...document.getElementById("stars").children].forEach(el=>el.classList.remove("sel"));
+      updatePreview();
+      showToast("Form cleared","success");
     }
 
     async function saveStore(){
-      try{
-        const name=document.getElementById("name").value.trim();
-        const address=document.getElementById("addr").value.trim();
-        const city=document.getElementById("city").value.trim();
-        const country=document.getElementById("country").value.trim();
-        const phone=document.getElementById("phone").value.trim();
-        const website=document.getElementById("website").value.trim();
-        if(!name||!address||!city||!country){showToast("Fyll i namn, adress, stad och land.","error");return;}
-        const forceDefault=document.getElementById("forceDefault").checked;
-        const payload={
-          name,address,city,country,phone,website,
-          type:sel.type,types:[sel.type],access:sel.access,
-          rating:sel.rating??null,approved:false,status:"pending",
-          lat:sel.lat,lng:sel.lng,place_id:sel.place_id,
-          photo_reference:forceDefault?null:sel.photo_ref,
-          photo_url:forceDefault?null:sel.photo_url,deleted:false
-        };
-        const{error}=await supabase.from("stores").insert([payload]);
-        if(error)throw error;
-        showToast("✅ Sparad","success");resetForm();
-      }catch(err){console.error(err);showToast("Fel vid spara: "+err.message,"error");}
-    }
-  </script>
+      const name=document.getElementById("name").value.trim();
+      const address=document.getElementById("addr").value.trim();
+      const city=document.getElementById("city").value.trim();
+      const country=document.getElementById("country").value.trim();
+      const phone=document.getElementById("phone").value.trim();
+      const website=document.getElementById("website").value.trim();
+      const access=sel.type==="lounge"?(document.querySelector("input[name='access']:checked")?.value||null):null;
 
-  <!-- ✅ Google Autocomplete FIX -->
-  <script>
-    window.initAutocomplete = function(){
+      if(!name||!address||!city||!country){ showToast("Fill required fields","error"); return; }
+
+      const forceDefault=document.getElementById("forceDefault").checked;
+      const payload={
+        name,address,city,country,phone,website,
+        type:sel.type,types:[sel.type],access,
+        rating:sel.rating??null,approved:false,status:"pending",
+        lat:sel.lat,lng:sel.lng,place_id:sel.place_id,
+        photo_reference:forceDefault?null:sel.photo_ref,
+        photo_url:forceDefault?null:sel.photo_url,deleted:false
+      };
+
+      const {error}=await supabase.from("stores").insert([payload]);
+      if(error) showToast("Error saving","error");
+      else { showToast("Saved successfully","success"); resetForm(); }
+    }
+
+    /* ---------- Google Places ---------- */
+    function initAutocomplete(){
       const input=document.getElementById("gAddress");
       const ac=new google.maps.places.Autocomplete(input,{
         fields:["place_id","address_components","geometry","name","formatted_address","international_phone_number","website","photos"]
       });
-      const placesService=new google.maps.places.PlacesService(document.createElement("div"));
+      const ps=new google.maps.places.PlacesService(document.createElement("div"));
       ac.addListener("place_changed",()=>{
-        const place=ac.getPlace();
-        if(!place)return;
+        const place=ac.getPlace(); if(!place)return;
         document.getElementById("name").value=place.name||"";
         document.getElementById("addr").value=place.formatted_address||"";
-        const city=place.address_components?.find(c=>c.types.includes("locality"))||
-                   place.address_components?.find(c=>c.types.includes("postal_town"));
+        const city=place.address_components?.find(c=>c.types.includes("locality"))
+          ||place.address_components?.find(c=>c.types.includes("postal_town"))
+          ||place.address_components?.find(c=>c.types.includes("administrative_area_level_2"));
         const country=place.address_components?.find(c=>c.types.includes("country"));
         document.getElementById("city").value=city?.long_name||"";
         document.getElementById("country").value=country?.long_name||"";
@@ -223,12 +361,24 @@
         sel.lat=place.geometry?.location?.lat()||null;
         sel.lng=place.geometry?.location?.lng()||null;
         sel.place_id=place.place_id||null;
-        sel.photo_ref=place.photos?.[0]?.photo_reference||null;
-        sel.photo_url=place.photos?.[0]?.getUrl({maxWidth:800})||null;
-        updatePreview(true);
+        if(place.photos?.length){
+          try{sel.photo_url=place.photos[0].getUrl({maxWidth:800});}catch{}
+        }
+        if(sel.place_id){
+          ps.getDetails({placeId:sel.place_id,fields:["photos"]},(res,status)=>{
+            if(status===google.maps.places.PlacesServiceStatus.OK&&res?.photos?.length){
+              sel.photo_ref=res.photos[0].photo_reference;
+              sel.photo_url=photoUrlFromRef(sel.photo_ref);
+            }
+            updatePreview();
+          });
+        } else updatePreview();
       });
-    };
+    }
+    window.initAutocomplete=initAutocomplete;
   </script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete"></script>
+
+  <!-- ✅ Force English output globally -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&language=en&callback=initAutocomplete"></script>
 </body>
 </html>
