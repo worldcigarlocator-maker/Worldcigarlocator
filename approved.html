@@ -1,4 +1,4 @@
-<!-- approved.html — Backoffice Approved (hierarki + global sök + inline edit + pagination) -->
+<!-- approved.html — Backoffice Approved (hierarki + global sök + inline edit + pagination) v2 -->
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -18,6 +18,7 @@
     .topbar{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
     .btn{background:#fff;border:1.6px solid var(--primary);color:var(--primary);padding:.45rem .8rem;border-radius:8px;font-weight:800;cursor:pointer}
     .btn.primary{background:var(--primary);color:#fff;border:none}
+    .btn[disabled]{opacity:.5;cursor:not-allowed}
     .btn:hover{filter:brightness(.96)}
     .wrap{max-width:1100px;margin:0 auto}
     .searchbar{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem}
@@ -30,16 +31,19 @@
     .pill{background:var(--pill);color:var(--pilltext);padding:.15rem .5rem;border-radius:999px;font-weight:800;font-size:.8rem}
     .section-body{padding:.3rem .8rem .8rem;display:none}
     .section-body.open{display:block}
-    .country-row{display:flex;justify-content:space-between;align-items:center;padding:.45rem .6rem;border:1px solid var(--border);border-radius:8px;margin:.35rem 0;background:#fff;cursor:pointer}
-    .country-row:hover{background:#f9fbff}
-    .country-title{display:flex;align-items:center;gap:.5rem}
+    .row{display:flex;justify-content:space-between;align-items:center;padding:.45rem .6rem;border:1px solid var(--border);border-radius:8px;margin:.35rem 0;background:#fff;cursor:pointer}
+    .row:hover{background:#f9fbff}
+    .row-title{display:flex;align-items:center;gap:.5rem}
+    .indent-1{margin-left:1.25rem}
+    .indent-2{margin-left:2.0rem}
+    .indent-3{margin-left:2.75rem}
+
     table{width:100%;border-collapse:collapse;margin-top:.5rem}
     th,td{border-bottom:1px solid #eee;padding:.5rem .4rem;text-align:left}
     th{background:#f3f4f6;font-weight:800}
     td.num{text-align:center}
     .actions{display:flex;gap:.35rem;flex-wrap:wrap}
     .tag{display:inline-block;padding:.18rem .5rem;border-radius:999px;background:#eef2f7;color:#334155;font-size:.78rem;font-weight:700}
-    .imgthumb{width:52px;height:38px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb}
     .row-edit{background:#fcfdfd}
     .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
     .edit-grid .full{grid-column:1/-1}
@@ -89,27 +93,40 @@
     const PAGE_SIZE = 50;
 
     /* ---------- Helpers ---------- */
+    // Continenter ska visas på engelska
+    const CONTINENTS = {
+      EUROPE: "Europe",
+      NORTH_AMERICA: "North America",
+      SOUTH_AMERICA: "South America",
+      ASIA: "Asia",
+      AFRICA: "Africa",
+      OCEANIA: "Oceania",
+      OTHER: "Other"
+    };
+
+    const northAmericaCountries = new Set(["united states","usa","canada","mexico"]);
+
     const continentMap = (()=> {
-      // Nycklar i lowercase (länder i fulltext). Ta med de vanligaste; resten → "Övriga"
+      // Lowercase country keys → English continent names
       const EU = ["sweden","norway","denmark","finland","iceland","germany","france","spain","italy","portugal","netherlands","belgium","luxembourg","ireland","austria","poland","czech republic","czechia","hungary","slovakia","slovenia","croatia","estonia","latvia","lithuania","romania","bulgaria","greece","malta","cyprus","switzerland","united kingdom","england","scotland","wales","northern ireland","serbia","bosnia","albania","kosovo","north macedonia","montenegro","moldova","ukraine","belarus","andorra","monaco","liechtenstein","san marino","vatican city"];
       const NA = ["united states","usa","canada","mexico"];
       const SA = ["brazil","argentina","chile","peru","colombia","uruguay","paraguay","bolivia","ecuador","venezuela","guyana","suriname"];
       const AS = ["japan","china","taiwan","south korea","korea","thailand","vietnam","laos","cambodia","myanmar","singapore","malaysia","indonesia","philippines","india","pakistan","sri lanka","maldives","nepal","bangladesh","mongolia","kazakhstan","uzbekistan","kyrgyzstan","tajikistan","turkmenistan","saudi arabia","uae","united arab emirates","qatar","bahrain","kuwait","oman","iran","iraq","israel","jordan","lebanon","turkey","georgia","armenia","azerbaijan"];
-      const AF = ["south africa","egypt","morocco","algeria","tunisia","libya","kenya","tanzania","ethiopia","nigeria","ghana","ivory coast","côte d’ivoire","senegal","uganda","rwanda","botswana","namibia","zimbabwe","zambia","angola","cameroon","democratic republic of the congo"];
+      const AF = ["south africa","egypt","morocco","algeria","tunisia","libya","kenya","tanzania","ethiopia","nigeria","ghana","ivory coast","côte d’ivoire","cote d'ivoire","senegal","uganda","rwanda","botswana","namibia","zimbabwe","zambia","angola","cameroon","democratic republic of the congo"];
       const OC = ["australia","new zealand","fiji","papua new guinea","samoa","tonga"];
       const map = new Map();
-      EU.forEach(c=>map.set(c,"Europa"));
-      NA.forEach(c=>map.set(c,"Nordamerika"));
-      SA.forEach(c=>map.set(c,"Sydamerika"));
-      AS.forEach(c=>map.set(c,"Asien"));
-      AF.forEach(c=>map.set(c,"Afrika"));
-      OC.forEach(c=>map.set(c,"Oceanien"));
+      EU.forEach(c=>map.set(c, CONTINENTS.EUROPE));
+      NA.forEach(c=>map.set(c, CONTINENTS.NORTH_AMERICA));
+      SA.forEach(c=>map.set(c, CONTINENTS.SOUTH_AMERICA));
+      AS.forEach(c=>map.set(c, CONTINENTS.ASIA));
+      AF.forEach(c=>map.set(c, CONTINENTS.AFRICA));
+      OC.forEach(c=>map.set(c, CONTINENTS.OCEANIA));
       return map;
     })();
 
     function getContinent(country){
       const key = String(country||"").trim().toLowerCase();
-      return continentMap.get(key) || "Övriga";
+      return continentMap.get(key) || CONTINENTS.OTHER;
     }
 
     function showToast(msg,type="info"){
@@ -130,6 +147,7 @@
         .eq("approved", true)
         .eq("deleted", false)
         .order("country", {ascending:true})
+        .order("state", {ascending:true})
         .order("city", {ascending:true})
         .order("name", {ascending:true});
 
@@ -216,10 +234,10 @@
         for (const [countryName, rows] of countries){
           // land-rad
           const cDiv = document.createElement("div");
-          cDiv.className = "country-row";
+          cDiv.className = "row";
           const count = rows.length;
           cDiv.innerHTML = `
-            <div class="country-title">
+            <div class="row-title">
               <div class="chev">▸</div>
               <div style="font-weight:800">${esc(countryName)}</div>
               <span class="pill">${count}</span>
@@ -228,26 +246,131 @@
           `;
           body.appendChild(cDiv);
 
-          // tabellcontainer (gömd tills klick)
-          const tableWrap = document.createElement("div");
-          tableWrap.style.display = "none";
-          body.appendChild(tableWrap);
-
-          // paging state
-          let page = 1;
-          const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+          // container för nästa nivå (state/city) — göms tills klick
+          const levelWrap = document.createElement("div");
+          levelWrap.style.display = "none";
+          body.appendChild(levelWrap);
 
           cDiv.addEventListener("click", ()=>{
-            const open = tableWrap.style.display === "block";
-            tableWrap.style.display = open ? "none" : "block";
-            // render första gången/vid öppning
-            if (!open) renderCountryTable(rows, tableWrap, countryName, ()=>{ /* no-op */ }, page, totalPages);
+            const open = levelWrap.style.display === "block";
+            levelWrap.style.display = open ? "none" : "block";
+            if (!open) renderCountryLevel(rows, levelWrap, countryName);
           });
         }
       }
     }
 
-    function renderCountryTable(rows, wrap, countryName, onChange, page=1, totalPages=1){
+    function renderCountryLevel(rows, wrap, countryName){
+      wrap.innerHTML = "";
+
+      const isNA = northAmericaCountries.has(String(countryName).toLowerCase());
+      if (isNA){
+        // Group: State -> City -> Stores
+        const byState = new Map();
+        for (const s of rows){
+          const st = (s.state||"Unknown").trim();
+          if (!byState.has(st)) byState.set(st, new Map());
+          const byCity = byState.get(st);
+          const city = (s.city||"Unknown").trim();
+          if (!byCity.has(city)) byCity.set(city, []);
+          byCity.get(city).push(s);
+        }
+        // Sort states alphabetically
+        const sortedStates = [...byState.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
+        for (const [stateName, cityMap] of sortedStates){
+          const stateCount = [...cityMap.values()].reduce((acc,arr)=>acc+arr.length,0);
+          const sRow = document.createElement("div");
+          sRow.className = "row indent-1";
+          sRow.innerHTML = `
+            <div class="row-title">
+              <div class="chev">▸</div>
+              <div style="font-weight:800">${esc(stateName)}</div>
+              <span class="pill">${stateCount}</span>
+            </div>
+            <div class="muted">${esc(countryName)}</div>
+          `;
+          wrap.appendChild(sRow);
+
+          const cityWrap = document.createElement("div");
+          cityWrap.style.display = "none";
+          wrap.appendChild(cityWrap);
+
+          sRow.addEventListener("click", ()=>{
+            const open = cityWrap.style.display === "block";
+            cityWrap.style.display = open ? "none" : "block";
+            if (!open) renderCityLevel(cityMap, cityWrap, countryName, stateName);
+          });
+        }
+      } else {
+        // Group: City -> Stores
+        const byCity = new Map();
+        for (const s of rows){
+          const city = (s.city||"Unknown").trim();
+          if (!byCity.has(city)) byCity.set(city, []);
+          byCity.get(city).push(s);
+        }
+        const sortedCities = [...byCity.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
+        for (const [cityName, stores] of sortedCities){
+          const ctRow = document.createElement("div");
+          ctRow.className = "row indent-1";
+          ctRow.innerHTML = `
+            <div class="row-title">
+              <div class="chev">▸</div>
+              <div style="font-weight:800">${esc(cityName)}</div>
+              <span class="pill">${stores.length}</span>
+            </div>
+            <div class="muted">${esc(countryName)}</div>
+          `;
+          wrap.appendChild(ctRow);
+
+          const tableWrap = document.createElement("div");
+          tableWrap.style.display = "none";
+          wrap.appendChild(tableWrap);
+
+          ctRow.addEventListener("click", ()=>{
+            const open = tableWrap.style.display === "block";
+            tableWrap.style.display = open ? "none" : "block";
+            if (!open) renderStoreTable(stores, tableWrap, countryName, null, cityName);
+          });
+        }
+      }
+    }
+
+    function renderCityLevel(cityMap, wrap, countryName, stateName){
+      wrap.innerHTML = "";
+      const sortedCities = [...cityMap.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
+      for (const [cityName, stores] of sortedCities){
+        const ctRow = document.createElement("div");
+        ctRow.className = "row indent-2";
+        ctRow.innerHTML = `
+          <div class="row-title">
+            <div class="chev">▸</div>
+            <div style="font-weight:800">${esc(cityName)}</div>
+            <span class="pill">${stores.length}</span>
+          </div>
+          <div class="muted">${esc(stateName)}</div>
+        `;
+        wrap.appendChild(ctRow);
+
+        const tableWrap = document.createElement("div");
+        tableWrap.style.display = "none";
+        wrap.appendChild(tableWrap);
+
+        ctRow.addEventListener("click", ()=>{
+          const open = tableWrap.style.display === "block";
+          tableWrap.style.display = open ? "none" : "block";
+          if (!open) renderStoreTable(stores, tableWrap, countryName, stateName, cityName);
+        });
+      }
+    }
+
+    function renderStoreTable(rows, wrap, countryName, stateName, cityName){
+      const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      const startPage = 1;
+      renderStoreTablePage(rows, wrap, startPage, totalPages);
+    }
+
+    function renderStoreTablePage(rows, wrap, page=1, totalPages=1){
       const start = (page-1)*PAGE_SIZE;
       const slice = rows.slice(start, start+PAGE_SIZE);
 
@@ -255,10 +378,10 @@
         <table>
           <thead>
             <tr>
-              <th>Bild</th>
               <th>Namn</th>
               <th>Stad</th>
               <th>State</th>
+              <th>Land</th>
               <th>Typer</th>
               <th>Website</th>
               <th class="num">Betyg</th>
@@ -281,35 +404,22 @@
       const prevBtn = wrap.querySelector('button[data-act="prev"]');
       const nextBtn = wrap.querySelector('button[data-act="next"]');
       prevBtn?.addEventListener("click", ()=>{
-        if (page>1){ renderCountryTable(rows, wrap, countryName, onChange, page-1, totalPages); }
+        if (page>1){ renderStoreTablePage(rows, wrap, page-1, totalPages); }
       });
       nextBtn?.addEventListener("click", ()=>{
-        if (page<totalPages){ renderCountryTable(rows, wrap, countryName, onChange, page+1, totalPages); }
+        if (page<totalPages){ renderStoreTablePage(rows, wrap, page+1, totalPages); }
       });
-    }
-
-    function imgUrl(s){
-      if (s.photo_url && s.photo_url.startsWith("http")) return s.photo_url;
-      if (s.photo_reference && !s.photo_reference.startsWith("http")){
-        // klassisk Place Photo-länk, kräver browser key i frontend — här visar vi bara som är
-        return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${encodeURIComponent(s.photo_reference)}`;
-      }
-      // fallback beroende på typ
-      const types = Array.isArray(s.types)?s.types.map(x=>String(x).toLowerCase()):[];
-      if (types.includes("lounge")) return "images/lounge.jpg";
-      if (types.includes("store")) return "images/store.jpg";
-      return "images/other.jpg";
     }
 
     function renderRow(s){
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><img class="imgthumb" src="${imgUrl(s)}" alt="" onerror="this.onerror=null;this.src='images/store.jpg'"></td>
         <td>${esc(s.name||"–")}</td>
         <td>${esc(s.city||"–")}</td>
         <td>${esc(s.state||"")}</td>
+        <td>${esc(s.country||"–")}</td>
         <td>${esc((s.types&&s.types.length?s.types.join(" & "):(s.type||"–")))}</td>
-        <td><a href="${esc(s.website||'#')}" target="_blank">${s.website? 'Öppna' : '—'}</a></td>
+        <td>${s.website? `<a href="${esc(s.website)}" target="_blank">Öppna</a>` : '—'}</td>
         <td class="num">${s.rating??0}</td>
         <td class="actions">
           <button class="btn" data-act="view">Visa</button>
@@ -386,13 +496,13 @@
         Object.assign(s, payload); // uppdatera i minnet
         showToast("✅ Sparat","success");
         // uppdatera primärraden snabbt
-        tr.children[1].textContent = s.name || "–";
-        tr.children[2].textContent = s.city || "–";
-        tr.children[3].textContent = s.state || "";
+        tr.children[0].textContent = s.name || "–";           // Namn
+        tr.children[1].textContent = s.city || "–";           // Stad
+        tr.children[2].textContent = s.state || "";           // State
+        tr.children[3].textContent = s.country || "–";        // Land
         tr.children[4].textContent = (s.types && s.types.length ? s.types.join(" & ") : (s.type||"–"));
         tr.children[5].innerHTML = s.website ? `<a href="${esc(s.website)}" target="_blank">Öppna</a>` : "—";
         tr.children[6].textContent = s.rating ?? 0;
-        tr.querySelector("img.imgthumb").src = imgUrl(s);
       });
 
       const frag = document.createDocumentFragment();
@@ -444,7 +554,7 @@
           <div class="full">
             <label>Bild-URL (lämna tom för att behålla)</label>
             <input type="url" data-f="photo_url" placeholder="https://…"/>
-            <div class="muted">Om tomt och det finns photo_reference används Google-foto; annars fallback per typ.</div>
+            <div class="muted">Används på andra vyer; här visas inga bilder.</div>
           </div>
 
           <div class="full" style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.4rem">
