@@ -1,53 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>World Cigar Locator</title>
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/start.css" />
-
-  <!-- Supabase Client -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/start.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 <body>
   <div class="container">
     <!-- Sidebar -->
     <aside class="sidebar">
       <h1 class="logo">WCL</h1>
-
-      <!-- Search (placeholder for future) -->
-      <input type="text" placeholder="Search..." class="search-input" />
+      <input type="text" placeholder="Search..." class="search-input">
       <button class="search-btn">Search</button>
 
-      <!-- Dynamic menu -->
-      <nav class="nav"></nav>
+      <ul id="sidebarMenu" class="nav"></ul>
 
       <a href="add-store.html" class="add-btn">+ Add Store / Lounge</a>
-      <a href="mailto:support@worldcigarlocator.com" class="support-link">
-        Contact / Support
-      </a>
+      <a href="mailto:support@worldcigarlocator.com" class="support-link">Contact / Support</a>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main content -->
     <main class="main">
       <h2 class="title">World Cigar Locator</h2>
-      <img src="images/paris.jpg" alt="Cigar" class="hero-img" />
+      <div id="countBox" class="count-bar">Loading total count...</div>
+      <img src="images/paris.jpg" alt="Cigar" class="hero-img">
 
       <p class="intro"><strong>Welcome to World Cigar Locator.</strong></p>
-      <p class="mission">
-        Our mission is to help you find a cigar store, lounge or just the perfect spot for a smoke.
-      </p>
-      <p class="mission">
-        We hope it makes it easier to find what you are looking for, wherever you are in the world.
-      </p>
+      <p class="mission">Our mission is to help you find a cigar store, lounge, or just the perfect spot for a smoke.</p>
+      <p class="mission">We hope it makes it easier to find what you are looking for, wherever you are!</p>
       <p class="signature"><em>Kind regards // Bakerman</em></p>
     </main>
   </div>
 
-  <!-- JavaScript -->
   <script src="js/start.js"></script>
 </body>
 </html>
