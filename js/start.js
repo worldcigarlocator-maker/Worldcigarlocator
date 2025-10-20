@@ -1,10 +1,11 @@
-// start.js — World Cigar Locator (Frontend View)
+// start.js — World Cigar Locator (Frontend View + Back Button)
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let allStores = [];
+let navHistory = []; // 👈 track navigation (for back button)
 const main = document.querySelector(".main");
 const nav = document.querySelector(".nav");
 
@@ -120,21 +121,48 @@ function renderStates(container, country, states) {
     btn.className = "nav-item sub2";
     btn.textContent = state === "–" ? "(No state)" : state;
     container.appendChild(btn);
-    btn.addEventListener("click", () => renderStores(country, state, stores));
+    btn.addEventListener("click", () => {
+      navHistory.push(() => renderStates(container, country, states)); // 👈 save "back"
+      renderStores(country, state, stores);
+    });
   }
 }
 
 // --- Render stores in main ---
 function renderStores(country, state, stores) {
   main.innerHTML = `
+    <button class="back-btn">← Back</button>
     <h2 style="color:#b8860b;">${esc(country)} ${state && state !== "–" ? "— " + esc(state) : ""}</h2>
     <p>${stores.length} cigar location${stores.length === 1 ? "" : "s"} found</p>
     <div class="store-grid"></div>
   `;
+
+  const backBtn = main.querySelector(".back-btn");
+  backBtn.addEventListener("click", () => {
+    if (navHistory.length > 0) {
+      const prev = navHistory.pop();
+      prev();
+    } else {
+      main.innerHTML = `<p style="color:#999;">Select a continent to browse cigar locations.</p>`;
+    }
+  });
 
   const grid = main.querySelector(".store-grid");
 
   stores.forEach(s => {
     const card = document.createElement("div");
     card.className = "store-card";
-    const img = s.photo_url || "images/store._
+    const img = s.photo_url || "images/store.jpg";
+    card.innerHTML = `
+      <img src="${esc(img)}" alt="${esc(s.name)}" onerror="this.src='images/store.jpg'">
+      <h3>${esc(s.name || "Unnamed")}</h3>
+      <p>${esc(s.city || "")}${s.state ? ", " + esc(s.state) : ""}</p>
+      <p><strong>${(s.types && s.types.length) ? s.types.join(" & ") : s.type || ""}</strong></p>
+      ${s.website ? `<a href="${esc(s.website)}" target="_blank">Visit website</a>` : ""}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// --- Start ---
+document.addEventListener("DOMContentLoaded", loadStores);
