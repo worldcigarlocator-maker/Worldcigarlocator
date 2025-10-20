@@ -184,34 +184,68 @@
       updatePhoto();
       showToast("Form cleared","success");
     }
+async function saveStore(){
+  const name=document.getElementById("name").value.trim();
+  const address=document.getElementById("addr").value.trim();
+  const city=document.getElementById("city").value.trim();
+  const state=document.getElementById("state").value.trim()||sel.state||null;
+  const country=document.getElementById("country").value.trim();
+  const phone=document.getElementById("phone").value.trim();
+  const website=document.getElementById("website").value.trim();
+  const access=sel.types.includes("lounge")?(document.querySelector("input[name='access']:checked")?.value||null):null;
+  
+  if(!name||!address||!city||!country){ 
+    showToast("⚠️ Please fill in all required fields","error"); 
+    return; 
+  }
 
-    async function saveStore(){
-      const name=document.getElementById("name").value.trim();
-      const address=document.getElementById("addr").value.trim();
-      const city=document.getElementById("city").value.trim();
-      const state=document.getElementById("state").value.trim()||sel.state||null;
-      const country=document.getElementById("country").value.trim();
-      const phone=document.getElementById("phone").value.trim();
-      const website=document.getElementById("website").value.trim();
-      const access=sel.types.includes("lounge")?(document.querySelector("input[name='access']:checked")?.value||null):null;
-      if(!name||!address||!city||!country){ showToast("Fill required fields","error"); return; }
-      const force=document.getElementById("forceDefault").checked;
-      const payload={
-        name,address,city,state,country,phone,website,
-        type: sel.types[0]||null,
-        types: sel.types.length?sel.types:null,
-        access,
-        rating: sel.rating??null,
-        approved:false,status:"pending",
-        lat:sel.lat,lng:sel.lng,place_id:sel.place_id,
-        photo_reference:force?null:sel.photo_reference||null,
-        photo_url:force?null:sel.photo_url||null,
-        deleted:false
-      };
-      const {error}=await supabase.from("stores").insert([payload]);
-      if(error) showToast(error.message||"Error saving","error");
-      else { showToast("Saved successfully","success"); resetForm(); }
-    }
+  // 🔒 Check if store already exists (before saving)
+  const { data: existing, error: checkError } = await supabase
+    .from("stores")
+    .select("id")
+    .eq("name", name)
+    .eq("city", city)
+    .eq("country", country)
+    .eq("deleted", false)
+    .limit(1);
+
+  if (checkError) {
+    console.error("Check error:", checkError);
+    showToast("⚠️ Could not verify duplicates","error");
+    return;
+  }
+
+  if (existing && existing.length > 0) {
+    showToast("⚠️ This store already exists in the database!", "error");
+    return;
+  }
+
+  const force=document.getElementById("forceDefault").checked;
+  const payload={
+    name,address,city,state,country,phone,website,
+    type: sel.types[0]||null,
+    types: sel.types.length?sel.types:null,
+    access,
+    rating: sel.rating??null,
+    approved:false,status:"pending",
+    lat:sel.lat,lng:sel.lng,place_id:sel.place_id,
+    photo_reference:force?null:sel.photo_reference||null,
+    photo_url:force?null:sel.photo_url||null,
+    deleted:false
+  };
+
+  // 🪣 Insert into Supabase
+  const { error } = await supabase.from("stores").insert([payload]);
+  if (error) {
+    console.error(error);
+    showToast("❌ Error saving store","error");
+    return;
+  }
+
+  showToast("✅ Store saved successfully","success");
+  resetForm();
+}
+
 
     function initAutocomplete(){
       const input=document.getElementById("gAddress");
