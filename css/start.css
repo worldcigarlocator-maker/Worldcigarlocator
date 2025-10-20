@@ -332,3 +332,72 @@ body {
   font-size: 1.1rem;
   margin: .3rem 0;
 }
+/* === Sidebar hierarchy styling fix === */
+.continent-btn,
+.country-btn,
+.state-btn {
+  width: 100%;
+  background: #222;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  text-align: left;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.25s ease;
+  margin-bottom: 0.3rem;
+}
+
+.continent-btn:hover,
+.country-btn:hover,
+.state-btn:hover {
+  background: #333;
+  color: #c9a227;
+}
+
+/* arrow icons */
+.arrow {
+  color: #c9a227;
+  font-size: 1rem;
+  transition: transform 0.25s ease;
+}
+.open > .arrow {
+  transform: rotate(90deg);
+}
+
+/* nested sections */
+.nested {
+  display: none;
+  padding-left: 1rem;
+}
+.nested.open {
+  display: block;
+}
+
+/* === Main (right side) dark mode === */
+.main {
+  flex: 1;
+  padding: 2rem;
+  background-color: #000;   /* 🔥 dark background */
+  color: #fff;              /* white text */
+  text-align: center;
+}
+
+.title {
+  color: #c9a227;
+}
+
+.mission, .intro, .signature {
+  color: #eee;
+}
+
+/* images with soft border */
+.hero-img {
+  border: 2px solid #c9a227;
+  border-radius: 10px;
+}
