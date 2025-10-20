@@ -1,6 +1,6 @@
-<!-- backoffice.html | 2025-10-18 | Full edit + cancel + alphabetical top bar -->
+<!-- backoffice.html | 2025-10-20 | English version + search bar (Pending) + instant updates + improved toast -->
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -38,6 +38,43 @@
     }
     .top-bar button.secondary{background:#fff;color:var(--primary);border:2px solid var(--primary);}
     .top-bar button:hover{background:var(--primary-dark);color:#fff;}
+
+    /* 🔍 NEW: Search bar styling */
+    .searchbar {
+      display:none; /* visible only in Pending */
+      justify-content:center;
+      gap:.5rem;
+      margin-bottom:1rem;
+      flex-wrap:wrap;
+    }
+    .searchbar input {
+      border:1.6px solid var(--primary);
+      border-radius:8px;
+      padding:.45rem .7rem;
+      min-width:260px;
+    }
+    .searchbar button {
+      background:var(--primary);
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      padding:.45rem .8rem;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    .searchbar button.clear {
+      background:#fff;
+      color:var(--primary);
+      border:1.6px solid var(--primary);
+    }
+    .searchbar button:hover {filter:brightness(.96);}
+
+    .count-text {
+      text-align:center;
+      color:var(--muted);
+      margin-bottom:1rem;
+      font-size:.9rem;
+    }
 
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;}
     .card{
@@ -77,11 +114,14 @@
     .edit:hover{background:#1e4e7a;}
     .save{background:var(--primary);color:#fff;margin-top:.4rem;}
     .cancel{background:#999;color:#fff;margin-top:.4rem;}
+
+    /* 🍞 UPDATED: Unified toast system */
     #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999;}
-    .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.97;}
+    .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.97;animation:fadein .3s ease;}
     .toast.success{background:#28a745;}
     .toast.error{background:#dc3545;}
     .toast.info{background:#2f78c4;}
+    @keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
   </style>
 </head>
 <body>
@@ -96,48 +136,74 @@
     <button onclick="route('trash')">Trash</button>
   </div>
 
-  <div id="metaRow" style="text-align:center;color:var(--muted);margin-bottom:1rem;"></div>
+  <!-- 🔍 NEW: Search bar (visible only in Pending) -->
+  <div class="searchbar" id="searchBar">
+    <input id="searchInput" type="text" placeholder="Search by name, city, country, or type...">
+    <button onclick="doSearch()">Search</button>
+    <button class="clear" onclick="clearSearch()">Clear</button>
+  </div>
+
+  <!-- 🔢 NEW: Dynamic result count -->
+  <div class="count-text" id="countText"></div>
+
   <div id="storeGrid" class="grid"></div>
   <div id="toast-container"></div>
 
   <script>
+    /* ---------- Supabase ---------- */
     const supabase = window.supabase.createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
     const grid=document.getElementById("storeGrid");
-    const metaRow=document.getElementById("metaRow");
+    const countText=document.getElementById("countText");
+    const searchBar=document.getElementById("searchBar");
+    const searchInput=document.getElementById("searchInput");
     let currentView="pending";
+    let allStores=[]; // store all pending for live filter
+    let searchQuery="";
 
     async function route(view){
       currentView=view;
-      metaRow.textContent="";
       grid.innerHTML="";
+      countText.textContent="";
+      searchBar.style.display = (view==="pending") ? "flex" : "none"; // 🔍 show search only for pending
       if(view==="pending") await loadStores({approved:false,title:"⏳ Pending"});
       if(view==="flagged") await loadStores({flagged:true,title:"🚩 Flagged"});
       if(view==="trash") await loadTrash();
     }
 
+    /* ---------- Load stores ---------- */
     async function loadStores(opts={}){
       let query=supabase.from("stores").select("*").order("created_at",{ascending:false});
       if(opts.approved===false) query=query.eq("approved",false).eq("deleted",false);
       if(opts.flagged) query=query.eq("flagged",true).eq("deleted",false);
       const {data,error}=await query;
-      if(error){grid.innerHTML=`<p style='color:red;'>${error.message}</p>`;return;}
-      if(!data?.length){grid.innerHTML=`<p>Inga resultat.</p>`;return;}
-      metaRow.textContent=opts.title||"";
-      data.forEach(renderCard);
+      if(error){showToast(error.message,"error");return;}
+      allStores=data||[];
+      renderFiltered();
     }
 
-    async function loadTrash(){
-      const {data,error}=await supabase.from("stores").select("*").eq("deleted",true);
-      if(error){grid.innerHTML=`<p style='color:red;'>${error.message}</p>`;return;}
-      if(!data?.length){grid.innerHTML=`<p>Papperskorgen är tom.</p>`;return;}
-      metaRow.textContent="🗑️ Trash (48h auto-delete)";
-      data.forEach(renderCard);
+    /* ---------- Live filtering + search ---------- */
+    function doSearch(){ searchQuery=searchInput.value.trim().toLowerCase(); renderFiltered(); }
+    function clearSearch(){ searchInput.value=""; searchQuery=""; renderFiltered(); }
+    searchInput.addEventListener("keypress",e=>{ if(e.key==="Enter") doSearch(); });
+
+    function renderFiltered(){
+      const list = searchQuery
+        ? allStores.filter(s=>
+            [s.name,s.city,s.country,s.type].some(v=>(v||"").toLowerCase().includes(searchQuery))
+          )
+        : allStores;
+      grid.innerHTML="";
+      countText.textContent = (currentView==="pending")
+        ? `${list.length} pending store${list.length===1?"":"s"} found`
+        : "";
+      list.forEach(renderCard);
     }
 
+    /* ---------- Card rendering ---------- */
     function renderCard(store){
       const card=document.createElement("div");
       card.className="card";
@@ -158,16 +224,16 @@
           ${access}
           <div class='rating'>${stars}</div>
           <div class='status'>${store.approved?"✅ Approved":"⏳ Pending"}</div>
-          <div class='date'>📅 ${store.created_at?new Date(store.created_at).toLocaleDateString("sv-SE"):"-"}</div>
+          <div class='date'>📅 ${store.created_at?new Date(store.created_at).toLocaleDateString("en-US"):"-"}</div>
 
           <div class='details'>
-            <label>Namn</label><input id='name-${store.id}' value='${store.name||""}'>
-            <label>Adress</label><input id='addr-${store.id}' value='${store.address||""}'>
-            <label>Stad</label><input id='city-${store.id}' value='${store.city||""}'>
-            <label>Land</label><input id='country-${store.id}' value='${store.country||""}'>
-            <label>Telefon</label><input id='phone-${store.id}' value='${store.phone||""}'>
-            <label>Webbplats</label><input id='web-${store.id}' value='${store.website||""}'>
-            <label>Typ</label>
+            <label>Name</label><input id='name-${store.id}' value='${store.name||""}'>
+            <label>Address</label><input id='addr-${store.id}' value='${store.address||""}'>
+            <label>City</label><input id='city-${store.id}' value='${store.city||""}'>
+            <label>Country</label><input id='country-${store.id}' value='${store.country||""}'>
+            <label>Phone</label><input id='phone-${store.id}' value='${store.phone||""}'>
+            <label>Website</label><input id='web-${store.id}' value='${store.website||""}'>
+            <label>Type</label>
             <select id='type-${store.id}'>
               <option value='store' ${store.type==='store'?'selected':''}>Store</option>
               <option value='lounge' ${store.type==='lounge'?'selected':''}>Lounge</option>
@@ -185,7 +251,7 @@
             <div class='stars' id='stars-${store.id}'>
               ${[1,2,3,4,5].map(i=>`<span data-v='${i}' ${store.rating>=i?"class='sel'":""}>★</span>`).join("")}
             </div>
-            <button class='save' onclick='saveChanges("${store.id}")'>💾 Save Changes</button>
+            <button class='save' onclick='saveChanges("${store.id}")'>💾 Save</button>
             <button class='cancel' onclick='toggleExpand(this,true)'>✖ Cancel</button>
           </div>
         </div>
@@ -197,7 +263,7 @@
         </div>`;
       grid.appendChild(card);
 
-      // Star listeners
+      // ⭐ Star listeners
       const starsDiv=card.querySelector(`#stars-${store.id}`);
       starsDiv.querySelectorAll("span").forEach(span=>{
         span.addEventListener("click",()=>{
@@ -207,7 +273,7 @@
         });
       });
 
-      // Type change to toggle access box
+      // Toggle lounge access box
       card.querySelector(`#type-${store.id}`).addEventListener("change",(e)=>{
         const val=e.target.value;
         const accDiv=card.querySelector(`#access-${store.id}`);
@@ -221,6 +287,7 @@
       else card.classList.toggle("expanded");
     }
 
+    /* ---------- Save / Approve / Flag / Delete with instant refresh ---------- */
     async function saveChanges(id){
       const name=document.getElementById(`name-${id}`).value.trim();
       const address=document.getElementById(`addr-${id}`).value.trim();
@@ -230,15 +297,16 @@
       const website=document.getElementById(`web-${id}`).value.trim();
       const type=document.getElementById(`type-${id}`).value;
       const access=type==="lounge"?document.getElementById(`accessVal-${id}`).value:null;
-      const stars=document.querySelectorAll(`#stars-${id} span.sel`).length;
-      const rating=stars||null;
+      const rating=document.querySelectorAll(`#stars-${id} span.sel`).length||null;
 
       const {error}=await supabase.from("stores")
         .update({name,address,city,country,phone,website,type,access,rating,updated_at:new Date().toISOString()})
         .eq("id",id);
       if(error) return showToast(error.message,"error");
       showToast("💾 Saved successfully","success");
-      route(currentView);
+      // 🔄 Update local store instantly without reload
+      const s=allStores.find(x=>x.id===id);
+      if(s){Object.assign(s,{name,address,city,country,phone,website,type,access,rating}); renderFiltered();}
     }
 
     async function updateStatus(id,approved){
@@ -247,35 +315,9 @@
         .eq("id",id);
       if(error)return showToast(error.message,"error");
       showToast(approved?"✅ Approved":"⏳ Unapproved","success");
-      route(currentView);
+      const idx=allStores.findIndex(x=>x.id===id);
+      if(idx>-1){allStores.splice(idx,1);renderFiltered();}
     }
 
     async function toggleFlag(id,flagged){
-      const {error}=await supabase.from("stores").update({flagged:!flagged}).eq("id",id);
-      if(error)return showToast(error.message,"error");
-      showToast(flagged?"🚫 Unflagged":"🚩 Flagged","success");
-      route(currentView);
-    }
-
-    async function softDelete(id){
-      const delUntil=new Date(Date.now()+48*60*60*1000).toISOString();
-      const {error}=await supabase.from("stores")
-        .update({deleted:true,deleted_until:delUntil})
-        .eq("id",id);
-      if(error)return showToast(error.message,"error");
-      showToast("🗑️ Moved to Trash","success");
-      route(currentView);
-    }
-
-    function showToast(msg,type="info"){
-      const c=document.getElementById("toast-container");
-      const t=document.createElement("div");
-      t.className=`toast ${type}`;t.textContent=msg;
-      c.appendChild(t);
-      setTimeout(()=>t.remove(),3000);
-    }
-
-    route("pending");
-  </script>
-</body>
-</html>
+      const {error}=await supabase.from("stores").update({flagged
