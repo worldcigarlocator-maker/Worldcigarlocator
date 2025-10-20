@@ -1,13 +1,13 @@
-// start.js – bygg sidomenyn från Supabase
+// start.js – Dynamic sidebar for approved stores (World Cigar Locator)
 
-// ===== Supabase-konfiguration (din publika anon-nyckel) =====
+// ===== Supabase Config =====
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ===== Hjälpfunktioner =====
+// ===== Helpers =====
 function el(tag, cls, text) {
   const e = document.createElement(tag);
   if (cls) e.className = cls;
@@ -15,78 +15,100 @@ function el(tag, cls, text) {
   return e;
 }
 
-// ===== Ladda kontineneter och bygg meny =====
+function getContinent(country) {
+  const c = (country || "").toLowerCase();
+  if (["sweden", "germany", "italy", "france", "spain", "norway", "finland", "denmark", "netherlands", "belgium", "austria", "poland", "czech republic", "czechia"].includes(c)) return "Europe";
+  if (["united states", "usa", "canada", "mexico"].includes(c)) return "North America";
+  if (["brazil", "argentina", "chile", "colombia", "peru"].includes(c)) return "South America";
+  if (["china", "japan", "india", "thailand", "malaysia", "israel", "singapore"].includes(c)) return "Asia";
+  if (["south africa", "nigeria", "kenya", "morocco"].includes(c)) return "Africa";
+  if (["australia", "new zealand", "fiji"].includes(c)) return "Oceania";
+  return "Other";
+}
+
+// ===== Build Sidebar =====
 async function buildSidebar() {
-  const menu = document.getElementById("sidebarMenu");
+  const menu = document.querySelector(".nav");
   if (!menu) return;
 
-  // Hämta kontinenter i bokstavsordning
-  const { data: continents, error } = await supabase
-    .from("continents")
-    .select("id, name")
-    .order("name", { ascending: true });
+  menu.innerHTML = "<p style='color:#ccc;text-align:center;'>Loading...</p>";
+
+  const { data, error } = await supabase
+    .from("stores")
+    .select("name, city, state, country, approved, deleted")
+    .eq("approved", true)
+    .eq("deleted", false);
 
   if (error) {
-    console.error("Error loading continents:", error);
-    menu.innerHTML = `<li style="color:#f56">Failed to load continents</li>`;
+    console.error(error);
+    menu.innerHTML = `<p style="color:#f56;text-align:center;">Failed to load stores</p>`;
     return;
   }
 
+  // Group data → Continent → Country → City
+  const grouped = {};
+  data.forEach((s) => {
+    const cont = getContinent(s.country);
+    if (!grouped[cont]) grouped[cont] = {};
+    if (!grouped[cont][s.country]) grouped[cont][s.country] = {};
+    if (!grouped[cont][s.country][s.city]) grouped[cont][s.country][s.city] = [];
+    grouped[cont][s.country][s.city].push(s.name);
+  });
+
+  // Build HTML tree
   menu.innerHTML = "";
-  continents.forEach((cont) => {
-    // <li class="continent">
-    const li = el("li", "continent");
+  Object.entries(grouped).forEach(([continent, countries]) => {
+    const contBtn = el("button", "nav-item");
+    contBtn.textContent = `+ ${continent}`;
+    const contList = el("div", "nested");
+    contList.style.display = "none";
 
-    // knappen (rad)
-    const btn = el("button", "continent-btn");
-    const sign = el("span", "sign", "+");
-    const label = el("span", "label", cont.name);
-    btn.append(sign, label);
-    li.appendChild(btn);
-
-    // underlista för länder
-    const nested = el("ul", "nested");
-    li.appendChild(nested);
-
-    // toggle + lazy load
-    let loaded = false;
-    btn.addEventListener("click", async () => {
-      if (!loaded) {
-        await loadCountries(cont.id, nested);
-        loaded = true;
-      }
-      const isOpen = nested.classList.toggle("open");
-      sign.textContent = isOpen ? "−" : "+";
+    contBtn.addEventListener("click", () => {
+      const open = contList.style.display === "block";
+      contList.style.display = open ? "none" : "block";
+      contBtn.textContent = (open ? "+ " : "− ") + continent;
     });
 
-    menu.appendChild(li);
+    // Countries
+    Object.entries(countries).forEach(([country, cities]) => {
+      const cBtn = el("button", "nav-item country-btn", `› ${country}`);
+      cBtn.style.marginLeft = "1rem";
+      const cList = el("div", "nested");
+      cList.style.display = "none";
+
+      cBtn.addEventListener("click", () => {
+        const open = cList.style.display === "block";
+        cList.style.display = open ? "none" : "block";
+      });
+
+      // Cities
+      Object.entries(cities).forEach(([city, stores]) => {
+        const cityBtn = el("button", "nav-item city-btn", `• ${city}`);
+        cityBtn.style.marginLeft = "2rem";
+        const storeList = el("div", "nested");
+        storeList.style.display = "none";
+
+        cityBtn.addEventListener("click", () => {
+          const open = storeList.style.display === "block";
+          storeList.style.display = open ? "none" : "block";
+        });
+
+        // Stores
+        stores.forEach((store) => {
+          const sBtn = el("button", "nav-item store-btn", store);
+          sBtn.style.marginLeft = "3rem";
+          storeList.appendChild(sBtn);
+        });
+
+        cList.append(cityBtn, storeList);
+      });
+
+      contList.append(cBtn, cList);
+    });
+
+    menu.append(contBtn, contList);
   });
 }
 
-// ===== Hämta länder för en kontinent =====
-async function loadCountries(continentId, containerUl) {
-  // Hämta länder
-  const { data: countries, error } = await supabase
-    .from("countries")
-    .select("id, name, flag, continent_id")
-    .eq("continent_id", continentId)
-    .order("name", { ascending: true });
-
-  if (error) {
-    console.error("Error loading countries:", error);
-    containerUl.innerHTML = `<li style="color:#f56">Failed to load countries</li>`;
-    return;
-  }
-
-  containerUl.innerHTML = "";
-  countries.forEach((c) => {
-    const li = el("li", "country");
-    const flag = el("span", "flag", c.flag || "");
-    const name = el("span", "name", c.name);
-    li.append(flag, name);
-    containerUl.appendChild(li);
-  });
-}
-
-// ===== Start =====
+// ===== Init =====
 document.addEventListener("DOMContentLoaded", buildSidebar);
