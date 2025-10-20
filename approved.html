@@ -373,7 +373,7 @@
         website: get('[data-f="website"]') || null,
         types: chips.length ? chips : old.types,
         type: (chips[0] || old.type || null),
-        photo_url: (get('[data-f="photo_url']') || null),
+        photo_url: (get('[data-f="photo_url"]') || null),
         updated_at: new Date().toISOString()
       };
     }
