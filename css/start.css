@@ -275,3 +275,10 @@ body {
   background: #b8860b;
   color: #fff;
 }
+/* === Rating stars (frontend) === */
+.store-rating {
+  color: #b8860b;
+  font-size: 1.2rem;
+  margin: 0.3rem 0;
+  letter-spacing: 1px;
+}
