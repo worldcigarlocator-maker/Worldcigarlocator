@@ -206,57 +206,72 @@ body {
   padding: .3rem 0;
 }
 /* ===== Store grid (right side) ===== */
+/* ===== Frontend store cards (refined white & gold style) ===== */
 .store-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+  justify-items: center;
 }
+
 .store-card {
   background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 0.8rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,.08);
-  transition: transform .2s ease, box-shadow .2s ease;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  max-width: 300px;
+  width: 100%;
 }
+
 .store-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 10px rgba(0,0,0,.1);
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
+
 .store-card img {
   width: 100%;
-  height: 140px;
+  height: 180px;
   object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
+  border-bottom: 3px solid #b8860b;
 }
+
+.store-card-content {
+  padding: 1rem 1.2rem;
+  text-align: center;
+}
+
 .store-card h3 {
   color: #111;
-  font-size: 1rem;
-  margin-bottom: 0.3rem;
+  font-size: 1.1rem;
+  margin: 0.4rem 0 0.2rem;
 }
+
+.store-card p {
+  color: #444;
+  font-size: 0.9rem;
+  margin: 0.2rem 0;
+}
+
+.store-card strong {
+  color: #b8860b;
+  font-weight: bold;
+}
+
 .store-card a {
+  display: inline-block;
+  margin-top: 0.6rem;
   color: #b8860b;
   font-weight: bold;
   text-decoration: none;
+  border: 1.5px solid #b8860b;
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  transition: all 0.2s ease;
 }
-.store-card a:hover { text-decoration: underline; }
 
-/* nested buttons */
-.nav-item.sub { background:#1b1b1b; margin-left:.5rem; font-size:.9rem; }
-.nav-item.sub2 { background:#2a2a2a; margin-left:1rem; font-size:.85rem; }
-
-.back-btn {
-  background: none;
-  border: none;
-  color: #b8860b;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
-  text-align: left;
-}
-.back-btn:hover {
-  text-decoration: underline;
+.store-card a:hover {
+  background: #b8860b;
+  color: #fff;
 }
