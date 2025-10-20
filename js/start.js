@@ -1,13 +1,16 @@
-// start.js — World Cigar Locator (Frontend View + Back Button)
+// start.js — World Cigar Locator (Frontend View + Back Button + Startpage)
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let allStores = [];
-let navHistory = []; // 👈 track navigation (for back button)
+let navHistory = [];
 const main = document.querySelector(".main");
 const nav = document.querySelector(".nav");
+
+// --- Save the original start screen ---
+const startContent = main.innerHTML;
 
 // --- Helpers ---
 function esc(s) {
@@ -48,7 +51,8 @@ async function loadStores() {
   }));
 
   buildSidebar();
-  main.innerHTML = `<p style="color:#999;">Select a continent to browse cigar locations.</p>`;
+  // ✅ Show the original start page again
+  main.innerHTML = startContent;
 }
 
 // --- Group data ---
@@ -122,7 +126,7 @@ function renderStates(container, country, states) {
     btn.textContent = state === "–" ? "(No state)" : state;
     container.appendChild(btn);
     btn.addEventListener("click", () => {
-      navHistory.push(() => renderStates(container, country, states)); // 👈 save "back"
+      navHistory.push(() => renderStates(container, country, states));
       renderStores(country, state, stores);
     });
   }
@@ -143,7 +147,7 @@ function renderStores(country, state, stores) {
       const prev = navHistory.pop();
       prev();
     } else {
-      main.innerHTML = `<p style="color:#999;">Select a continent to browse cigar locations.</p>`;
+      main.innerHTML = startContent; // ✅ Return to welcome page
     }
   });
 
