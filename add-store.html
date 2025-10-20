@@ -158,17 +158,7 @@
       <label><input type="radio" name="type" value="other"><span class="badge other">Other</span></label>
     </div>
 
-    <div id="accessOptions" style="display:none; margin-top:1rem;">
-      <label>Access type (for lounges):</label>
-      <div class="radio-group">
-        <label><input type="radio" name="access" value="public"><span class="badge store">Public</span></label>
-        <label><input type="radio" name="access" value="temporary"><span class="badge other">Temporary</span></label>
-        <label><input type="radio" name="access" value="members"><span class="badge lounge">Members Only</span></label>
-      </div>
-    </div>
-
     <div class="rating" id="rating"></div>
-
     <div id="preview"></div>
 
     <div class="btns">
@@ -184,175 +174,111 @@
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
     window.supabase = createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
     );
   </script>
 
+  <!-- App logic -->
   <script>
     let selectedPlace = {};
     let selectedRating = 0;
     let selectedType = "";
 
     window.addEventListener("DOMContentLoaded", () => {
-      const rating = document.getElementById("rating");
-      for (let i = 1; i <= 5; i++) {
-        const s = document.createElement("span");
-        s.textContent = "★";
-        s.classList.add("star");
-        s.addEventListener("mouseover", () => {
-          document.querySelectorAll(".star").forEach(st => st.classList.remove("hover"));
-          for (let j = 0; j < i; j++) document.querySelectorAll(".star")[j].classList.add("hover");
-        });
-        s.addEventListener("mouseout", () => document.querySelectorAll(".star").forEach(st => st.classList.remove("hover")));
-        s.addEventListener("click", () => {
-          selectedRating = i;
-          document.querySelectorAll(".star").forEach(st => st.classList.remove("selected"));
-          for (let j = 0; j < i; j++) document.querySelectorAll(".star")[j].classList.add("selected");
-        });
+      const rating=document.getElementById("rating");
+      for(let i=1;i<=5;i++){
+        const s=document.createElement("span");
+        s.textContent="★"; s.classList.add("star");
+        s.addEventListener("mouseover",()=>{document.querySelectorAll(".star").forEach(st=>st.classList.remove("hover"));
+          for(let j=0;j<i;j++)document.querySelectorAll(".star")[j].classList.add("hover");});
+        s.addEventListener("mouseout",()=>document.querySelectorAll(".star").forEach(st=>st.classList.remove("hover")));
+        s.addEventListener("click",()=>{selectedRating=i;document.querySelectorAll(".star").forEach(st=>st.classList.remove("selected"));
+          for(let j=0;j<i;j++)document.querySelectorAll(".star")[j].classList.add("selected");});
         rating.appendChild(s);
       }
 
       document.getElementById("cancelBtn").addEventListener("click", clearForm);
       document.getElementById("saveBtn").addEventListener("click", saveStore);
-
-      document.querySelectorAll("input[name='type']").forEach(radio => {
-        radio.addEventListener("change", () => {
-          selectedType = radio.value;
-          document.getElementById("accessOptions").style.display =
-            selectedType === "lounge" ? "block" : "none";
-        });
-      });
     });
 
-    function clearForm() {
-      document.querySelectorAll("input").forEach(i => i.value = "");
-      document.querySelectorAll("input[type='radio']").forEach(r => r.checked = false);
-      document.querySelectorAll(".star").forEach(s => s.classList.remove("selected", "hover"));
-      document.getElementById("preview").innerHTML = "";
-      selectedRating = 0;
-      selectedType = "";
-      showToast("Form cleared", "success");
+    function clearForm(){
+      document.querySelectorAll("input").forEach(i=>i.value="");
+      document.querySelectorAll("input[type='radio']").forEach(r=>r.checked=false);
+      document.querySelectorAll(".star").forEach(s=>s.classList.remove("selected","hover"));
+      document.getElementById("preview").innerHTML="";
+      selectedRating=0; selectedType="";
+      showToast("Form cleared","success");
     }
 
-    async function saveStore() {
-      const name = document.getElementById("name").value.trim();
-      const address = document.getElementById("addr").value.trim();
-      const city = document.getElementById("city").value.trim();
-      const country = document.getElementById("country").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const website = document.getElementById("website").value.trim();
-      const access = document.querySelector("input[name='access']:checked")?.value || null;
+    async function saveStore(){
+      const name=document.getElementById("name").value.trim();
+      const address=document.getElementById("addr").value.trim();
+      const city=document.getElementById("city").value.trim();
+      const country=document.getElementById("country").value.trim();
+      const phone=document.getElementById("phone").value.trim();
+      const website=document.getElementById("website").value.trim();
 
-      if (!selectedType) return showToast("Please select a type", "error");
-      if (!name || !address || !city || !country)
-        return showToast("Please fill in all required fields", "error");
+      if(!name||!address||!city||!country){
+        showToast("Please fill in all required fields","error");
+        return;
+      }
 
       const { error } = await supabase.from("stores").insert([{
         name, address, city, country, phone, website,
-        type: selectedType.toLowerCase(),
-        access,
-        rating: selectedRating, approved: false,
-        lat: selectedPlace.lat || null, lng: selectedPlace.lng || null,
-        place_id: selectedPlace.place_id || null,
-        photo_reference: selectedPlace.photo_reference || null,
-        photo_url: selectedPlace.photo_url || null
+        rating:selectedRating,
+        lat:selectedPlace.lat||null,
+        lng:selectedPlace.lng||null,
+        photo_reference:selectedPlace.photo||null
       }]);
-
-      if (error) {
-        console.error(error);
-        showToast("Failed to add store", "error");
-      } else {
-        showToast("✅ Store added successfully!", "success");
-        clearForm();
-      }
+      if(error){ showToast("Error saving","error"); }
+      else{ showToast("Saved successfully!","success"); clearForm(); }
     }
 
-    function showToast(msg, type = "success") {
-      const c = document.getElementById("toast-container");
-      const t = document.createElement("div");
-      t.className = `toast ${type}`;
-      t.textContent = msg;
+    function showToast(msg,type="success"){
+      const c=document.getElementById("toast-container");
+      const t=document.createElement("div");
+      t.className=`toast ${type}`;
+      t.textContent=msg;
       c.appendChild(t);
-      setTimeout(() => t.remove(), 3000);
+      setTimeout(()=>t.remove(),3000);
     }
 
-    function updatePreview(imgUrl) {
-      const pv = document.getElementById("preview");
-      const src = imgUrl || "images/other.jpg";
-      pv.innerHTML = `<img src="${src}" alt="Preview">`;
-    }
-
-    function initAutocomplete() {
-      const input = document.getElementById("address");
-      const autocomplete = new google.maps.places.Autocomplete(input, {
-        fields: [
-          "place_id",
-          "geometry",
-          "name",
-          "formatted_address",
-          "address_components",
-          "international_phone_number",
-          "website",
-          "photos"
-        ],
-        types: ["establishment"]
+    function initAutocomplete(){
+      const input=document.getElementById("address");
+      const autocomplete=new google.maps.places.Autocomplete(input,{
+        fields:["address_components","geometry","name","formatted_address","international_phone_number","website","photos"]
       });
 
-      const service = new google.maps.places.PlacesService(document.createElement("div"));
+      autocomplete.addListener("place_changed",()=>{
+        const place=autocomplete.getPlace();
+        if(!place)return;
 
-      autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        if (!place || !place.place_id) {
-          showToast("⚠️ Could not load place details. Try again.", "error");
-          return;
-        }
+        document.getElementById("name").value=place.name||"";
+        document.getElementById("addr").value=place.formatted_address||"";
 
-        document.getElementById("name").value = place.name || "";
-        document.getElementById("addr").value = place.formatted_address || "";
+        const city=place.address_components?.find(c=>c.types.includes("locality"))
+            || place.address_components?.find(c=>c.types.includes("postal_town"))
+            || place.address_components?.find(c=>c.types.includes("administrative_area_level_2"));
+        const country=place.address_components?.find(c=>c.types.includes("country"));
+        document.getElementById("city").value=city?.long_name||"";
+        document.getElementById("country").value=country?.long_name||"";
+        document.getElementById("phone").value=place.international_phone_number||"";
+        document.getElementById("website").value=place.website||"";
 
-        let city = place.address_components?.find(c => c.types.includes("locality"));
-        if (!city) {
-          city = place.address_components?.find(c =>
-            c.types.includes("postal_town") || c.types.includes("administrative_area_level_2")
-          );
-        }
-        const country = place.address_components?.find(c => c.types.includes("country"));
-        document.getElementById("city").value = city?.long_name || "";
-        document.getElementById("country").value = country?.long_name || "";
-        document.getElementById("phone").value = place.international_phone_number || "";
-        document.getElementById("website").value = place.website || "";
-
-        selectedPlace = {
-          lat: place.geometry?.location?.lat() || null,
-          lng: place.geometry?.location?.lng() || null,
-          place_id: place.place_id,
-          photo_reference: null,
-          photo_url: null
+        selectedPlace={
+          lat:place.geometry?.location?.lat()||null,
+          lng:place.geometry?.location?.lng()||null,
+          photo:(place.photos&&place.photos.length>0)?place.photos[0].getUrl({maxWidth:800}):null
         };
 
-        if (place.photos?.length > 0) {
-          const photo = place.photos[0];
-          if (photo.photo_reference) selectedPlace.photo_reference = photo.photo_reference;
-          selectedPlace.photo_url = photo.getUrl({ maxWidth: 800 });
-          updatePreview(selectedPlace.photo_url);
-        } else {
-          service.getDetails({ placeId: place.place_id, fields: ["photos"] }, (res, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && res?.photos?.length) {
-              const photo = res.photos[0];
-              if (photo.photo_reference) selectedPlace.photo_reference = photo.photo_reference;
-              selectedPlace.photo_url = photo.getUrl({ maxWidth: 800 });
-              updatePreview(selectedPlace.photo_url);
-            } else {
-              updatePreview(null);
-            }
-          });
-        }
+        document.getElementById("preview").innerHTML =
+          `<img src="${selectedPlace.photo || 'images/store.jpg'}" alt="Preview">`;
       });
     }
-
-    window.initAutocomplete = initAutocomplete;
+    window.initAutocomplete=initAutocomplete;
   </script>
 
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete" async defer></script>
+  <!-- ✅ Force English output -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&language=en&callback=initAutocomplete"></script>
 </body>
 </html>
