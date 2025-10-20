@@ -321,3 +321,49 @@
 
     async function toggleFlag(id,flagged){
       const {error}=await supabase.from("stores").update({flagged
+      const {error}=await supabase.from("stores").update({flagged:!flagged}).eq("id",id);
+      if(error) return showToast(error.message,"error");
+      showToast(flagged?"🚫 Unflagged":"🚩 Flagged","success");
+      const s=allStores.find(x=>x.id===id);
+      if(s) s.flagged=!flagged;
+      renderFiltered();
+    }
+
+    async function softDelete(id){
+      const delUntil=new Date(Date.now()+48*60*60*1000).toISOString();
+      const {error}=await supabase.from("stores")
+        .update({deleted:true,deleted_until:delUntil})
+        .eq("id",id);
+      if(error)return showToast(error.message,"error");
+      showToast("🗑️ Moved to Trash","success");
+      const idx=allStores.findIndex(x=>x.id===id);
+      if(idx>-1){allStores.splice(idx,1);renderFiltered();}
+    }
+
+    /* ---------- Toast helper ---------- */
+    function showToast(msg,type="info"){
+      const c=document.getElementById("toast-container");
+      const t=document.createElement("div");
+      t.className=`toast ${type}`;
+      t.textContent=msg;
+      c.appendChild(t);
+      setTimeout(()=>t.remove(),3000);
+    }
+
+    /* ---------- Load trash ---------- */
+    async function loadTrash(){
+      const {data,error}=await supabase.from("stores").select("*").eq("deleted",true);
+      if(error){showToast(error.message,"error");return;}
+      allStores=data||[];
+      renderFiltered();
+      countText.textContent=`${allStores.length} trashed store${allStores.length===1?"":"s"}`;
+    }
+
+    // ✅ Make route() globally available for buttons in top bar
+    window.route = route;
+
+    // 🔄 Start in Pending mode
+    route("pending");
+  </script>
+</body>
+</html>
