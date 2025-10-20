@@ -209,76 +209,124 @@
       selectedRating=0; selectedType="";
       showToast("Form cleared","success");
     }
+<script>
+  let selectedPlace = {};
+  let selectedRating = null;
 
-    async function saveStore(){
-      const name=document.getElementById("name").value.trim();
-      const address=document.getElementById("addr").value.trim();
-      const city=document.getElementById("city").value.trim();
-      const country=document.getElementById("country").value.trim();
-      const phone=document.getElementById("phone").value.trim();
-      const website=document.getElementById("website").value.trim();
+  // === Save Store ===
+  async function saveStore() {
+    const name = document.getElementById("name").value.trim();
+    const address = document.getElementById("addr").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const state = document.getElementById("state").value.trim() || null;
+    const country = document.getElementById("country").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const website = document.getElementById("website").value.trim();
 
-      if(!name||!address||!city||!country){
-        showToast("Please fill in all required fields","error");
-        return;
+    // ⚠️ Kontrollera obligatoriska fält
+    if (!name || !address || !city || !country) {
+      showToast("⚠️ Please fill in all required fields", "error");
+      return;
+    }
+
+    // 🪣 Försök spara till Supabase
+    const { error } = await supabase.from("stores").insert([{
+      name,
+      address,
+      city,
+      state,
+      country,
+      phone,
+      website,
+      rating: selectedRating,
+      lat: selectedPlace.lat || null,
+      lng: selectedPlace.lng || null,
+      photo_reference: selectedPlace.photo || null,
+      approved: false,
+      status: "pending",
+      deleted: false
+    }]);
+
+    // ⚠️ Hantera fel (inklusive dubbletter)
+    if (error) {
+      console.error("Insert error:", error);
+      if (error.message.includes("unique_store_location_active")) {
+        showToast("⚠️ This store already exists in the system!", "error");
+      } else {
+        showToast("❌ Error saving store", "error");
       }
-
-      const { error } = await supabase.from("stores").insert([{
-        name, address, city, country, phone, website,
-        rating:selectedRating,
-        lat:selectedPlace.lat||null,
-        lng:selectedPlace.lng||null,
-        photo_reference:selectedPlace.photo||null
-      }]);
-      if(error){ showToast("Error saving","error"); }
-      else{ showToast("Saved successfully!","success"); clearForm(); }
+      return;
     }
 
-    function showToast(msg,type="success"){
-      const c=document.getElementById("toast-container");
-      const t=document.createElement("div");
-      t.className=`toast ${type}`;
-      t.textContent=msg;
-      c.appendChild(t);
-      setTimeout(()=>t.remove(),3000);
-    }
+    // ✅ Lyckat
+    showToast("✅ Store saved successfully!", "success");
+    clearForm();
+  }
 
-    function initAutocomplete(){
-      const input=document.getElementById("address");
-      const autocomplete=new google.maps.places.Autocomplete(input,{
-        fields:["address_components","geometry","name","formatted_address","international_phone_number","website","photos"]
-      });
+  // === Toast-funktion ===
+  function showToast(msg, type = "success") {
+    const c = document.getElementById("toast-container");
+    const t = document.createElement("div");
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
 
-      autocomplete.addListener("place_changed",()=>{
-        const place=autocomplete.getPlace();
-        if(!place)return;
+  // === Google Autocomplete ===
+  function initAutocomplete() {
+    const input = document.getElementById("address");
+    const autocomplete = new google.maps.places.Autocomplete(input, {
+      fields: [
+        "address_components",
+        "geometry",
+        "name",
+        "formatted_address",
+        "international_phone_number",
+        "website",
+        "photos"
+      ],
+    });
 
-        document.getElementById("name").value=place.name||"";
-        document.getElementById("addr").value=place.formatted_address||"";
+    autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+      if (!place) return;
 
-        const city=place.address_components?.find(c=>c.types.includes("locality"))
-            || place.address_components?.find(c=>c.types.includes("postal_town"))
-            || place.address_components?.find(c=>c.types.includes("administrative_area_level_2"));
-        const country=place.address_components?.find(c=>c.types.includes("country"));
-        document.getElementById("city").value=city?.long_name||"";
-        document.getElementById("country").value=country?.long_name||"";
-        document.getElementById("phone").value=place.international_phone_number||"";
-        document.getElementById("website").value=place.website||"";
+      document.getElementById("name").value = place.name || "";
+      document.getElementById("addr").value = place.formatted_address || "";
 
-        selectedPlace={
-          lat:place.geometry?.location?.lat()||null,
-          lng:place.geometry?.location?.lng()||null,
-          photo:(place.photos&&place.photos.length>0)?place.photos[0].getUrl({maxWidth:800}):null
-        };
+      const comps = place.address_components || [];
+      const city =
+        comps.find(c => c.types.includes("locality")) ||
+        comps.find(c => c.types.includes("postal_town")) ||
+        comps.find(c => c.types.includes("administrative_area_level_2"));
+      const state = comps.find(c => c.types.includes("administrative_area_level_1"));
+      const country = comps.find(c => c.types.includes("country"));
 
-        document.getElementById("preview").innerHTML =
-          `<img src="${selectedPlace.photo || 'images/store.jpg'}" alt="Preview">`;
-      });
-    }
-    window.initAutocomplete=initAutocomplete;
-  </script>
+      document.getElementById("city").value = city?.long_name || "";
+      document.getElementById("state").value = state?.long_name || "";
+      document.getElementById("country").value = country?.long_name || "";
+      document.getElementById("phone").value = place.international_phone_number || "";
+      document.getElementById("website").value = place.website || "";
 
-  <!-- ✅ Force English output -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&language=en&callback=initAutocomplete"></script>
-</body>
-</html>
+      selectedPlace = {
+        lat: place.geometry?.location?.lat() || null,
+        lng: place.geometry?.location?.lng() || null,
+        photo:
+          place.photos && place.photos.length > 0
+            ? place.photos[0].getUrl({ maxWidth: 800 })
+            : null,
+      };
+
+      document.getElementById("preview").innerHTML = `
+        <img src="${selectedPlace.photo || 'images/store.jpg'}" alt="Preview">
+      `;
+    });
+  }
+
+  window.initAutocomplete = initAutocomplete;
+</script>
+
+<!-- ✅ Google Maps API -->
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&language=en&callback=initAutocomplete"></script>
+  
