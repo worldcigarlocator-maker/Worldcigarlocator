@@ -19,7 +19,7 @@ async function buildSidebar() {
 
   // ✅ Get distinct continents from approved stores
   const { data, error } = await supabase
-    .from("stores")
+    .from("stores_public")
     .select("continent, country, state")
     .eq("approved", true)
     .eq("deleted", false);
