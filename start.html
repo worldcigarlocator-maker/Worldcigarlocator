@@ -11,18 +11,15 @@
 </head>
 <body>
   <div class="container">
-    <!-- Sidebar (dark) -->
+    <!-- Sidebar -->
     <aside class="sidebar">
       <h1 class="logo">WCL</h1>
-
-      <!-- Hierarchy Menu -->
       <ul id="sidebarMenu" class="nav"></ul>
-
       <a href="add-store.html" class="add-btn">+ Add Store / Lounge</a>
       <a href="mailto:support@worldcigarlocator.com" class="support-link">Contact / Support</a>
     </aside>
 
-    <!-- Main (white) -->
+    <!-- Main -->
     <main class="main">
       <h2 class="title">World Cigar Locator</h2>
       <p class="subtitle">We help you find a cigar wherever you are.</p>
@@ -34,13 +31,12 @@
         <button id="clearBtn" class="btn outline">Clear</button>
       </div>
 
-      <!-- Dynamic heading above cards -->
+      <!-- Heading + Show All -->
       <div id="resultHeading" class="result-heading">Latest 20 worldwide</div>
+      <button id="showAllBtn" class="btn outline" style="display:none;">Show All</button>
 
       <!-- Cards grid -->
       <div id="storeGrid" class="store-grid"></div>
-
-      <!-- Toasts -->
       <div id="toast-container"></div>
     </main>
   </div>
