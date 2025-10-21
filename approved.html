@@ -1,4 +1,4 @@
-<!-- approved.html — Backoffice Approved v4.1 -->
+<!-- approved.html — Backoffice Approved v5 (continent dropdown + save feedback) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,6 +24,7 @@
     .searchbar{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem}
     .input{border:1.6px solid var(--primary);border-radius:8px;padding:.45rem .7rem;min-width:260px}
     .muted{color:var(--muted)}
+
     .section{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:.6rem}
     .section-header{display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;cursor:pointer;user-select:none}
     .section-header:hover{background:#f8fbff}
@@ -33,29 +34,35 @@
     .section-body{padding:.3rem .8rem .8rem;display:none}
     .section-body.open{display:block}
     .continent-summary{font-weight:600;color:var(--muted);margin:.3rem 0 .8rem 2rem;font-size:.9rem}
+
     .row{display:flex;justify-content:space-between;align-items:center;padding:.45rem .6rem;border:1px solid var(--border);border-radius:8px;margin:.35rem 0;background:#fff;cursor:pointer}
     .row:hover{background:#f9fbff}
     .row-title{display:flex;align-items:center;gap:.5rem}
     .indent-1{margin-left:1.25rem}
     .indent-2{margin-left:2.0rem}
     .indent-3{margin-left:2.75rem}
+
     table{width:100%;border-collapse:collapse;margin-top:.5rem}
     th,td{border-bottom:1px solid #eee;padding:.5rem .4rem;text-align:left}
     th{background:#f3f4f6;font-weight:800}
     td.num{text-align:center}
+
     .actions{display:flex;gap:.35rem;flex-wrap:wrap}
     .row-edit{background:#fcfdfd}
     .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
     .edit-grid .full{grid-column:1/-1}
-    input[type="text"],input[type="url"],input[type="tel"]{width:100%;padding:.5rem;border:1px solid #ccc;border-radius:8px}
+    input[type="text"],input[type="url"],input[type="tel"],select{width:100%;padding:.5rem;border:1px solid #ccc;border-radius:8px}
     .chips{display:flex;gap:.4rem;flex-wrap:wrap}
     .chip{border:1px solid var(--border);padding:.25rem .6rem;border-radius:14px;cursor:pointer}
     .chip.active{background:#eef6ff;border-color:#bcd7ff;color:#145b99}
+    .save-success{background:var(--success)!important;color:#fff!important;}
+
     .paging{display:flex;gap:.35rem;align-items:center;justify-content:flex-end;margin-top:.4rem}
     .paging button{padding:.28rem .5rem;border:1px solid var(--primary);background:#fff;color:var(--primary);border-radius:6px;font-weight:800;cursor:pointer}
     .paging .muted{font-size:.86rem}
+
     .photo-picker{display:flex;gap:.5rem;align-items:center}
-    .photo-thumb{width:180px;height:120px;object-fit:cover;border-radius:8px;border:1px solid var(--border);background:#111}
+    .photo-thumb{width:180px;height:120px;object-fit:cover;border-radius:8px;border:1px solid var(--border);background:#fff}
     .photo-nav{border:1px solid var(--primary);background:#fff;color:var(--primary);border-radius:6px;padding:.25rem .55rem;cursor:pointer}
   </style>
 </head>
@@ -65,54 +72,222 @@
       <button class="btn" onclick="window.location.href='backoffice.html'">← Back to Home</button>
       <button class="btn" onclick="window.location.href='add-store-backoffice.html'">+ Add Store</button>
     </div>
+
     <h1>Approved Stores</h1>
+
     <div class="searchbar">
       <input id="search" class="input" type="text" placeholder="Search: name / city / state / country / website…"/>
       <button class="btn" onclick="doSearch()">Search</button>
       <button class="btn" onclick="clearSearch()">Clear</button>
       <span class="muted" id="searchMeta"></span>
     </div>
+
     <div id="hierarchy"></div>
   </div>
+
   <div id="toast-container"></div>
 
-<script>
-const SUPABASE_URL="https://gbxxoeplkzbhsvagnfsr.supabase.co";
-const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-const GOOGLE_BROWSER_KEY="AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
-const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let all=[];let searchQ="";const PAGE_SIZE=50;
-function showToast(msg,type="info"){const c=document.getElementById("toast-container");const t=document.createElement("div");t.className=`toast ${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3200);}
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
-function getContinent(country){const c=String(country||"").trim().toLowerCase();if(["sweden","germany","italy","france","spain","norway","finland","denmark","netherlands","belgium","austria","poland","czech republic"].includes(c))return"Europe";if(["united states","usa","canada","mexico"].includes(c))return"North America";if(["brazil","argentina","chile","peru","colombia"].includes(c))return"South America";if(["china","japan","india","thailand","malaysia","singapore","israel","turkey"].includes(c))return"Asia";if(["south africa","nigeria","kenya","morocco"].includes(c))return"Africa";if(["australia","new zealand","fiji"].includes(c))return"Oceania";return"Other";}
-function googlePhotoUrlFromRef(ref){return ref?`https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(ref)}&key=${GOOGLE_BROWSER_KEY}`:null;}
-(async function init(){const{data,error}=await supabase.from("stores").select("*").eq("approved",true).eq("deleted",false);if(error){showToast(error.message,"error");return;}all=(data||[]).map(s=>({...s,types:Array.isArray(s.types)?s.types:(s.type?[s.type]:[]),state:s.state||null}));renderHierarchy();})();
-function doSearch(){searchQ=document.getElementById("search").value.trim();renderHierarchy();}
-function clearSearch(){document.getElementById("search").value="";searchQ="";renderHierarchy();}
-document.getElementById("search").addEventListener("keypress",e=>{if(e.key==="Enter")doSearch();});
-function matchesSearch(s){if(!searchQ)return true;const q=searchQ.toLowerCase();return[s.name,s.city,s.state,s.country,s.website].some(v=>(v||"").toLowerCase().includes(q));}
-function groupData(rows){const src=searchQ?rows.filter(matchesSearch):rows;const byContinent=new Map();for(const s of src){const cont=s.continent||getContinent(s.country);if(!byContinent.has(cont))byContinent.set(cont,new Map());const byCountry=byContinent.get(cont);const cc=(s.country||"Unknown").trim();if(!byCountry.has(cc))byCountry.set(cc,new Map());const byState=byCountry.get(cc);const st=(s.state||"–").trim();if(!byState.has(st))byState.set(st,new Map());const city=(s.city||"Unknown").trim();if(!byState.get(st).has(city))byState.get(st).set(city,[]);byState.get(st).get(city).push(s);}return byContinent;}
-function renderHierarchy(){const root=document.getElementById("hierarchy");root.innerHTML="";const grouped=groupData(all);const totalShown=searchQ?all.filter(matchesSearch).length:all.length;document.getElementById("searchMeta").textContent=searchQ?`Filtered: ${totalShown}`:`Total: ${totalShown}`;for(const[continent,countries]of grouped){const contCount=[...countries.values()].reduce((a,c)=>a+[...c.values()].reduce((b,s)=>b+[...s.values()].reduce((d,e)=>d+e.length,0),0),0);const sec=document.createElement("div");sec.className="section";sec.innerHTML=`<div class="section-header"><div class="chev">▸</div><div style="font-weight:900">${esc(continent)}</div><span class="pill">${contCount}</span></div><div class="section-body"></div><div class="continent-summary">Total in ${esc(continent)}: ${contCount}</div>`;const header=sec.querySelector(".section-header"),body=sec.querySelector(".section-body");header.addEventListener("click",()=>{body.classList.toggle("open");header.classList.toggle("open");if(body.classList.contains("open"))renderCountries(countries,body);else body.innerHTML="";});root.appendChild(sec);}}
-function renderCountries(countries,wrap){wrap.innerHTML="";for(const[countryName,states]of countries){const count=[...states.values()].reduce((a,c)=>a+[...c.values()].reduce((b,e)=>b+e.length,0),0);const row=document.createElement("div");row.className="row indent-1";row.innerHTML=`<div class='row-title'><div class='chev'>▸</div><div style='font-weight:800'>${esc(countryName)}</div><span class='pill'>${count}</span></div>`;const levelWrap=document.createElement("div");levelWrap.style.display="none";row.addEventListener("click",()=>{const open=levelWrap.style.display==="block";levelWrap.style.display=open?"none":"block";row.querySelector(".chev").style.transform=open?"rotate(0deg)":"rotate(90deg)";if(!open)renderStates(states,levelWrap,countryName);});wrap.appendChild(row);wrap.appendChild(levelWrap);}}
-function renderStates(states,wrap,countryName){wrap.innerHTML="";for(const[stateName,cities]of states){const count=[...cities.values()].reduce((a,b)=>a+b.length,0);const sRow=document.createElement("div");sRow.className="row indent-2";sRow.innerHTML=`<div class='row-title'><div class='chev'>▸</div><div style='font-weight:800'>${esc(stateName==="–"?"(No State)":stateName)}</div><span class='pill'>${count}</span></div>`;const cityWrap=document.createElement("div");cityWrap.style.display="none";sRow.addEventListener("click",()=>{const open=cityWrap.style.display==="block";cityWrap.style.display=open?"none":"block";sRow.querySelector(".chev").style.transform=open?"rotate(0deg)":"rotate(90deg)";if(!open)renderCities(cities,cityWrap,countryName,stateName);});wrap.appendChild(sRow);wrap.appendChild(cityWrap);}}
-function renderCities(cities,wrap,countryName,stateName){wrap.innerHTML="";for(const[cityName,stores]of cities){const ctRow=document.createElement("div");ctRow.className="row indent-3";ctRow.innerHTML=`<div class='row-title'><div class='chev'>▸</div><div style='font-weight:800'>${esc(cityName)}</div><span class='pill'>${stores.length}</span></div>`;const tableWrap=document.createElement("div");tableWrap.style.display="none";ctRow.addEventListener("click",()=>{const open=tableWrap.style.display==="block";tableWrap.style.display=open?"none":"block";ctRow.querySelector(".chev").style.transform=open?"rotate(0deg)":"rotate(90deg)";if(!open)renderStoreTable(stores,tableWrap);});wrap.appendChild(ctRow);wrap.appendChild(tableWrap);}}
-function renderStoreTable(rows,wrap){const totalPages=Math.max(1,Math.ceil(rows.length/PAGE_SIZE));renderStoreTablePage(rows,wrap,1,totalPages);}
-function renderStoreTablePage(rows,wrap,page=1,totalPages=1){const start=(page-1)*PAGE_SIZE;const slice=rows.slice(start,start+PAGE_SIZE);wrap.innerHTML=`<table><thead><tr><th>Name</th><th>City</th><th>State</th><th>Country</th><th>Types</th><th>Website</th><th class="num">Rating</th><th>Actions</th></tr></thead><tbody></tbody></table><div class="paging"><button ${page<=1?"disabled":""} data-act="prev">◀</button><span class="muted">Page ${page}/${totalPages}</span><button ${page>=totalPages?"disabled":""} data-act="next">▶</button></div>`;const tbody=wrap.querySelector("tbody");slice.forEach(s=>tbody.appendChild(renderRow(s)));const prevBtn=wrap.querySelector('button[data-act="prev"]');const nextBtn=wrap.querySelector('button[data-act="next"]');prevBtn?.addEventListener("click",()=>{if(page>1)renderStoreTablePage(rows,wrap,page-1,totalPages);});nextBtn?.addEventListener("click",()=>{if(page<totalPages)renderStoreTablePage(rows,wrap,page+1,totalPages);});}
-function fallbackImageByType(types){const t=(Array.isArray(types)?types:[]).map(x=>String(x).toLowerCase());if(t.includes("lounge"))return"images/lounge.jpg";if(t.includes("store"))return"images/store.jpg";return"images/other.jpg";}
-function renderRow(s){const tr=document.createElement("tr");tr.innerHTML=`<td>${esc(s.name||"–")}</td><td>${esc(s.city||"–")}</td><td>${esc(s.state||"")}</td><td>${esc(s.country||"–")}</td><td>${esc((s.types&&s.types.length?s.types.join(" & "):(s.type||"–")))}</td><td>${s.website?`<a href="${esc(s.website)}" target="_blank">Open</a>`:"—"}</td><td class="num">${s.rating??0}</td><td class="actions"><button class="btn" data-act="view">View</button><button class="btn" data-act="edit">Edit</button><button class="btn" data-act="flag">${s.flagged?"Unflag":"Flag"}</button><button class="btn" data-act="unapprove">Unapprove</button><button class="btn" data-act="trash" style="border-color:var(--danger);color:var(--danger)">Trash</button></td>`;const trEdit=document.createElement("tr");trEdit.className="row-edit";trEdit.style.display="none";const td=document.createElement("td");td.colSpan=8;td.innerHTML=renderEditFormHTML(s);trEdit.appendChild(td);
-const photos=[];if(s.photo_url)photos.push(s.photo_url);if(s.photo_reference)photos.push(googlePhotoUrlFromRef(s.photo_reference));photos.push(fallbackImageByType(s.types));let pIndex=0;function updateThumb(){const img=td.querySelector("[data-f='thumb']");if(!img)return;img.src=photos[(pIndex+photos.length)%photos.length];td.querySelector("[data-f='photo_url']").value=img.src;}
-tr.querySelector("[data-act='view']").addEventListener("click",()=>{trEdit.style.display=trEdit.style.display==="none"?"table-row":"none";setFormValues(td,s,true);updateThumb();});
-tr.querySelector("[data-act='edit']").addEventListener("click",()=>{trEdit.style.display="table-row";setFormValues(td,s,false);updateThumb();});
-tr.querySelector("[data-act='flag']").addEventListener("click",async()=>{const{error}=await supabase.from("stores").update({flagged:!s.flagged}).eq("id",s.id);if(error)return showToast(error.message,"error");s.flagged=!s.flagged;showToast(s.flagged?"🚩 Flagged":"🚫 Unflagged","success");tr.querySelector("[data-act='flag']").textContent=s.flagged?"Unflag":"Flag";});
-tr.querySelector("[data-act='unapprove']").addEventListener("click",async()=>{const{error}=await supabase.from("stores").update({approved:false,status:"pending",approved_at:null}).eq("id",s.id);if(error)return showToast(error.message,"error");showToast("⏳ Moved to Pending","success");tr.remove();trEdit.remove();const idx=all.findIndex(x=>x.id===s.id);if(idx>-1)all.splice(idx,1);});
-tr.querySelector("[data-act='trash']").addEventListener("click",async()=>{const deletedUntil=new Date(Date.now()+48*60*60*1000).toISOString();const{error}=await supabase.from("stores").update({deleted:true,deleted_until:deletedUntil}).eq("id",s.id);if(error)return showToast(error.message,"error");showToast("🗑️ Moved to Trash (48h)","success");tr.remove();trEdit.remove();const idx=all.findIndex(x=>x.id===s.id);if(idx>-1)all.splice(idx,1);});
-td.querySelector("[data-act='cancel']").addEventListener("click",()=>{trEdit.style.display="none";});
-td.querySelector("[data-act='save']").addEventListener("click",async()=>{const btnSave=td.querySelector("[data-act='save']");btnSave.textContent="Saving…";const payload=readFormValues(td,s);const{error}=await supabase.from("stores").update(payload).eq("id",s.id);if(error){showToast(error.message,"error");btnSave.textContent="Save";return;}Object.assign(s,payload);showToast("✅ Saved","success");btnSave.textContent="✅ Saved!";setTimeout(()=>btnSave.textContent="💾 Save",2000);tr.children[0].textContent=s.name||"–";tr.children[1].textContent=s.city||"–";tr.children[2].textContent=s.state||"";tr.children[3].textContent=s.country||"–";tr.children[4].textContent=(s.types&&s.types.length?s.types.join(" & "):(s.type||"–"));tr.children[5].innerHTML=s.website?`<a href="${esc(s.website)}" target="_blank">Open</a>`:"—";tr.children[6].textContent=s.rating??0;});
-const prevBtn=td.querySelector("[data-act='prev-photo']");const nextBtn=td.querySelector("[data-act='next-photo']");prevBtn?.addEventListener("click",()=>{pIndex=(pIndex-1+photos.length)%photos.length;updateThumb();});nextBtn?.addEventListener("click",()=>{pIndex=(pIndex+1)%photos.length;updateThumb();});
-const frag=document.createDocumentFragment();frag.appendChild(tr);frag.appendChild(trEdit);return frag;}
-function renderEditFormHTML(s){const current=s.photo_url||googlePhotoUrlFromRef(s.photo_reference)||fallbackImageByType(s.types);return`<div class="edit-grid"><div class="full"><label>Image preview</label><div class="photo-picker"><button class="photo-nav" type="button" data-act="prev-photo">◀</button><img class="photo-thumb" data-f="thumb" src="${esc(current)}" onerror="this.src='images/store.jpg'"/><button class="photo-nav" type="button" data-act="next-photo">▶</button></div></div><div><label>Name</label><input type="text" data-f="name" /></div><div><label>Phone</label><input type="tel" data-f="phone" /></div><div class="full"><label>Address</label><input type="text" data-f="address" /></div><div><label>City</label><input type="text" data-f="city" /></div><div><label>State / Region</label><input type="text" data-f="state" /></div><div><label>Continent</label><input type="text" data-f="continent" /></div><div><label>Country</label><input type="text" data-f="country" /></div><div class="full"><label>Website</label><input type="url" data-f="website" /></div><div class="full"><label>Categories (multi)</label><div class="chips" data-f="types">${["store","lounge","other"].map(t=>`<span class="chip" data-v="${t}">${t}</span>`).join("")}</div><div class="muted">Click to toggle; keep at least one.</div></div><div class="full"><label>Photo URL</label><input type="url" data-f="photo_url" value="${esc(current)}" placeholder="https://…"/></div><div class="full" style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.4rem"><button class="btn" data-act="cancel" type="button">Cancel</button><button class="btn primary" data-act="save" type="button">💾 Save</button></div></div>`;}
-function setFormValues(container,s,viewOnly=false){container.querySelector("[data-f='name']").value=s.name||"";container.querySelector("[data-f='phone']").value=s.phone||"";container.querySelector("[data-f='address']").value=s.address||"";container.querySelector("[data-f='city']").value=s.city||"";container.querySelector("[data-f='state']").value=s.state||"";container.querySelector("[data-f='country']").value=s.country||"";container.querySelector("[data-f='continent']").value=s.continent||getContinent(s.country)||"";container.querySelector("[data-f='website']").value=s.website||"";container.querySelector("[data-f='photo_url']").value=s.photo_url||googlePhotoUrlFromRef(s.photo_reference)||fallbackImageByType(s.types);const chips=container.querySelectorAll("[data-f='types'] .chip");const set=new Set((s.types&&s.types.length?s.types:(s.type?[s.type]:[])).map(x=>String(x).toLowerCase()));chips.forEach(ch=>{const v=ch.dataset.v;ch.classList.toggle("active",set.has(v));ch.onclick=()=>{if(viewOnly)return;ch.classList.toggle("active");};});container.querySelectorAll("input").forEach(inp=>inp.disabled=viewOnly);container.querySelector("[data-act='save']").style.display=viewOnly?"none":"inline-block";}
-function readFormValues(container,old){const get=sel=>container.querySelector(sel).value.trim();const chips=Array.from(container.querySelectorAll("[data-f='types'] .chip.active")).map(ch=>ch.dataset.v);return{name:get("[data-f='name']")||null,phone:get("[data-f='phone']")||null,address:get("[data-f='address']")||null,city:get("[data-f='city']")||null,state:get("[data-f='state']")||null,country:get("[data-f='country']")||null,continent:get("[data-f='continent']")||getContinent(get("[data-f='country']"))||null,website:get("[data-f='website']")||null,types:chips.length?chips:old.types,type:(chips[0]||old.type||null),photo_url:(get("[data-f='photo_url']")||null),updated_at:new Date().toISOString()};}
-</script>
+  <script>
+    const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let all = [];
+    let searchQ = "";
+    const PAGE_SIZE = 50;
+
+    const continents = ["Europe","North America","South America","Asia","Africa","Oceania","Other"];
+
+    function showToast(msg,type="info"){const c=document.getElementById("toast-container");const t=document.createElement("div");t.className=`toast ${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
+    function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+
+    function getContinent(country){
+      const c=String(country||"").trim().toLowerCase();
+      if(["sweden","germany","italy","france","spain","norway","finland","denmark","netherlands","belgium","austria","poland","czech republic"].includes(c))return "Europe";
+      if(["united states","usa","canada","mexico"].includes(c))return "North America";
+      if(["brazil","argentina","chile","peru","colombia"].includes(c))return "South America";
+      if(["china","japan","india","thailand","malaysia","singapore","israel","turkey"].includes(c))return "Asia";
+      if(["south africa","nigeria","kenya","morocco"].includes(c))return "Africa";
+      if(["australia","new zealand","fiji"].includes(c))return "Oceania";
+      return "Other";
+    }
+    function googlePhotoUrlFromRef(ref){return ref?`https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(ref)}&key=${GOOGLE_BROWSER_KEY}`:null;}
+
+    (async function init(){
+      const { data, error } = await supabase.from("stores").select("*").eq("approved", true).eq("deleted", false);
+      if(error){showToast(error.message,"error");return;}
+      all = (data||[]).map(s=>({...s,types:Array.isArray(s.types)?s.types:(s.type?[s.type]:[])}));
+      renderHierarchy();
+    })();
+
+    function doSearch(){searchQ=document.getElementById("search").value.trim();renderHierarchy();}
+    function clearSearch(){document.getElementById("search").value="";searchQ="";renderHierarchy();}
+    document.getElementById("search").addEventListener("keypress",e=>{if(e.key==="Enter")doSearch();});
+    function matchesSearch(s){if(!searchQ)return true;const q=searchQ.toLowerCase();return[s.name,s.city,s.state,s.country,s.website].some(v=>(v||"").toLowerCase().includes(q));}
+
+    function groupData(rows){
+      const src = searchQ ? rows.filter(matchesSearch) : rows;
+      const byContinent = new Map();
+      for(const s of src){
+        const cont = s.continent || getContinent(s.country);
+        if(!byContinent.has(cont))byContinent.set(cont,new Map());
+        const byCountry = byContinent.get(cont);
+        const cc = (s.country||"Unknown").trim();
+        if(!byCountry.has(cc))byCountry.set(cc,new Map());
+        const byState = byCountry.get(cc);
+        const st = (s.state||"–").trim();
+        if(!byState.has(st))byState.set(st,new Map());
+        const city = (s.city||"Unknown").trim();
+        if(!byState.get(st).has(city))byState.get(st).set(city,[]);
+        byState.get(st).get(city).push(s);
+      }
+      return byContinent;
+    }
+
+    function renderHierarchy(){
+      const root=document.getElementById("hierarchy");root.innerHTML="";
+      const grouped=groupData(all);
+      const totalShown=searchQ?all.filter(matchesSearch).length:all.length;
+      document.getElementById("searchMeta").textContent=searchQ?`Filtered: ${totalShown}`:`Total: ${totalShown}`;
+      for(const[continent,countries]of grouped){
+        const contCount=[...countries.values()].reduce((a,c)=>a+[...c.values()].reduce((b,s)=>b+[...s.values()].reduce((d,e)=>d+e.length,0),0),0);
+        const sec=document.createElement("div");sec.className="section";
+        sec.innerHTML=`<div class="section-header"><div class="chev">▸</div><div style="font-weight:900">${esc(continent)}</div><span class="pill">${contCount}</span></div><div class="section-body"></div>`;
+        const header=sec.querySelector(".section-header");const body=sec.querySelector(".section-body");
+        header.addEventListener("click",()=>{body.classList.toggle("open");header.classList.toggle("open");if(body.classList.contains("open"))renderCountries(countries,body);else body.innerHTML="";});
+        root.appendChild(sec);
+      }
+    }
+
+    function renderCountries(countries,wrap){
+      wrap.innerHTML="";
+      for(const[countryName,states]of countries){
+        const count=[...states.values()].reduce((a,c)=>a+[...c.values()].reduce((b,e)=>b+e.length,0),0);
+        const row=document.createElement("div");row.className="row indent-1";
+        row.innerHTML=`<div class='row-title'><div class='chev'>▸</div><div style='font-weight:800'>${esc(countryName)}</div><span class='pill'>${count}</span></div>`;
+        const levelWrap=document.createElement("div");levelWrap.style.display="none";
+        row.addEventListener("click",()=>{const open=levelWrap.style.display==="block";levelWrap.style.display=open?"none":"block";row.querySelector(".chev").style.transform=open?"rotate(0deg)":"rotate(90deg)";if(!open)renderStates(states,levelWrap,countryName);});
+        wrap.appendChild(row);wrap.appendChild(levelWrap);
+      }
+    }
+
+    function renderStates(states,wrap,countryName){
+      wrap.innerHTML="";
+      for(const[stateName,cities]of states){
+        const count=[...cities.values()].reduce((a,b)=>a+b.length,0);
+        const sRow=document.createElement("div");sRow.className="row indent-2";
+        sRow.innerHTML=`<div class='row-title'><div class='chev'>▸</div><div style='font-weight:800'>${esc(stateName==="–"?"(No State)":stateName)}</div><span class='pill'>${count}</span></div>`;
+        const cityWrap=document.createElement("div");cityWrap.style.display="none";
+        sRow.addEventListener("click",()=>{const open=cityWrap.style.display==="block";cityWrap.style.display=open?"none":"block";sRow.querySelector(".chev").style.transform=open?"rotate(0deg)":"rotate(90deg)";if(!open)renderCities(cities,cityWrap,countryName,stateName);});
+        wrap.appendChild(sRow);wrap.appendChild(cityWrap);
+      }
+    }
+
+    function renderCities(cities,wrap,countryName,stateName){
+      wrap.innerHTML="";
+      for(const[cityName,stores]of cities){
+        const ctRow=document.createElement("div");ctRow.className="row indent-3";
+        ctRow.innerHTML=`<div class='row-title'><div class='chev'>▸</div><div style='font-weight:800'>${esc(cityName)}</div><span class='pill'>${stores.length}</span></div>`;
+        const tableWrap=document.createElement("div");tableWrap.style.display="none";
+        ctRow.addEventListener("click",()=>{const open=tableWrap.style.display==="block";tableWrap.style.display=open?"none":"block";ctRow.querySelector(".chev").style.transform=open?"rotate(0deg)":"rotate(90deg)";if(!open)renderStoreTable(stores,tableWrap);});
+        wrap.appendChild(ctRow);wrap.appendChild(tableWrap);
+      }
+    }
+
+    function renderStoreTable(rows,wrap){
+      const totalPages=Math.max(1,Math.ceil(rows.length/PAGE_SIZE));
+      renderStoreTablePage(rows,wrap,1,totalPages);
+    }
+
+    function renderStoreTablePage(rows,wrap,page=1,totalPages=1){
+      const start=(page-1)*PAGE_SIZE;
+      const slice=rows.slice(start,start+PAGE_SIZE);
+      wrap.innerHTML=`<table><thead><tr><th>Name</th><th>City</th><th>State</th><th>Country</th><th>Continent</th><th>Types</th><th>Website</th><th class='num'>Rating</th><th>Actions</th></tr></thead><tbody></tbody></table><div class='paging'><button ${page<=1?'disabled':''} data-act='prev'>◀</button><span class='muted'>Page ${page}/${totalPages}</span><button ${page>=totalPages?'disabled':''} data-act='next'>▶</button></div>`;
+      const tbody=wrap.querySelector("tbody");
+      slice.forEach(s=>tbody.appendChild(renderRow(s)));
+      wrap.querySelector("[data-act='prev']")?.addEventListener("click",()=>{if(page>1)renderStoreTablePage(rows,wrap,page-1,totalPages);});
+      wrap.querySelector("[data-act='next']")?.addEventListener("click",()=>{if(page<totalPages)renderStoreTablePage(rows,wrap,page+1,totalPages);});
+    }
+
+    function fallbackImageByType(types){
+      const t=(Array.isArray(types)?types:[]).map(x=>String(x).toLowerCase());
+      if(t.includes("lounge"))return"images/lounge.jpg";
+      if(t.includes("store"))return"images/store.jpg";
+      return"images/other.jpg";
+    }
+
+    function renderRow(s){
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td>${esc(s.name||"–")}</td><td>${esc(s.city||"–")}</td><td>${esc(s.state||"")}</td><td>${esc(s.country||"–")}</td><td>${esc(s.continent||getContinent(s.country))}</td><td>${esc((s.types&&s.types.length?s.types.join(" & "):(s.type||"–")))}</td><td>${s.website?`<a href='${esc(s.website)}' target='_blank'>Open</a>`:"—"}</td><td class='num'>${s.rating??0}</td><td class='actions'><button class='btn' data-act='edit'>Edit</button></td>`;
+      const trEdit=document.createElement("tr");
+      trEdit.className="row-edit";trEdit.style.display="none";
+      const td=document.createElement("td");td.colSpan=9;td.innerHTML=renderEditFormHTML(s);trEdit.appendChild(td);
+
+      tr.querySelector("[data-act='edit']").addEventListener("click",()=>{trEdit.style.display=trEdit.style.display==="none"?"table-row":"none";setFormValues(td,s,false);});
+
+      td.querySelector("[data-act='cancel']").addEventListener("click",()=>{trEdit.style.display="none";});
+      td.querySelector("[data-act='save']").addEventListener("click",async()=>{
+        const payload=readFormValues(td,s);
+        const{error}=await supabase.from("stores").update(payload).eq("id",s.id);
+        if(error)return showToast(error.message,"error");
+        Object.assign(s,payload);
+        showToast("✅ Saved","success");
+        const btn=td.querySelector("[data-act='save']");
+        btn.textContent="✅ Saved!";btn.classList.add("save-success");
+        setTimeout(()=>{btn.textContent="Save";btn.classList.remove("save-success");},2000);
+        tr.children[0].textContent=s.name||"–";
+        tr.children[1].textContent=s.city||"–";
+        tr.children[2].textContent=s.state||"";
+        tr.children[3].textContent=s.country||"–";
+        tr.children[4].textContent=s.continent||getContinent(s.country);
+      });
+      const frag=document.createDocumentFragment();
+      frag.appendChild(tr);frag.appendChild(trEdit);return frag;
+    }
+
+    function renderEditFormHTML(s){
+      const current=s.photo_url||googlePhotoUrlFromRef(s.photo_reference)||fallbackImageByType(s.types);
+      return`<div class='edit-grid'>
+        <div><label>Name</label><input type='text' data-f='name'/></div>
+        <div><label>Phone</label><input type='tel' data-f='phone'/></div>
+        <div class='full'><label>Address</label><input type='text' data-f='address'/></div>
+        <div><label>City</label><input type='text' data-f='city'/></div>
+        <div><label>State / Region</label><input type='text' data-f='state'/></div>
+        <div><label>Country</label><input type='text' data-f='country'/></div>
+        <div><label>Continent</label><select data-f='continent'>${continents.map(c=>`<option value='${c}'>${c}</option>`).join("")}</select></div>
+        <div class='full'><label>Website</label><input type='url' data-f='website'/></div>
+        <div class='full'><label>Photo URL</label><input type='url' data-f='photo_url' value='${esc(current)}'/></div>
+        <div class='full' style='display:flex;gap:.5rem;justify-content:flex-end;margin-top:.4rem'><button class='btn' data-act='cancel'>Cancel</button><button class='btn primary' data-act='save'>Save</button></div>
+      </div>`;
+    }
+
+    function setFormValues(c,s){
+      c.querySelector("[data-f='name']").value=s.name||"";
+      c.querySelector("[data-f='phone']").value=s.phone||"";
+      c.querySelector("[data-f='address']").value=s.address||"";
+      c.querySelector("[data-f='city']").value=s.city||"";
+      c.querySelector("[data-f='state']").value=s.state||"";
+      c.querySelector("[data-f='country']").value=s.country||"";
+      c.querySelector("[data-f='website']").value=s.website||"";
+      c.querySelector("[data-f='photo_url']").value=s.photo_url||"";
+      const sel=c.querySelector("[data-f='continent']");
+      sel.value=s.continent||getContinent(s.country);
+    }
+
+    function readFormValues(c,old){
+      return{
+        name:c.querySelector("[data-f='name']").value.trim()||null,
+        phone:c.querySelector("[data-f='phone']").value.trim()||null,
+        address:c.querySelector("[data-f='address']").value.trim()||null,
+        city:c.querySelector("[data-f='city']").value.trim()||null,
+        state:c.querySelector("[data-f='state']").value.trim()||null,
+        country:c.querySelector("[data-f='country']").value.trim()||null,
+        continent:c.querySelector("[data-f='continent']").value||getContinent(old.country),
+        website:c.querySelector("[data-f='website']").value.trim()||null,
+        photo_url:c.querySelector("[data-f='photo_url']").value.trim()||null,
+        updated_at:new Date().toISOString()
+      };
+    }
+  </script>
 </body>
 </html>
