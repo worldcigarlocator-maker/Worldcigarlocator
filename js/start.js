@@ -193,3 +193,7 @@ function renderStores(stores, container) {
 
   container.appendChild(grid);
 }
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ start.js loaded, building sidebar...");
+  buildSidebar();
+});
