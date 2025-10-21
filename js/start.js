@@ -118,7 +118,7 @@ async function renderStores(field, value) {
   grid.innerHTML = `<p style="color:#999;">Loading...</p>`;
 
   const { data, error } = await supabase
-    .from("stores")
+    .from("stores_public")
     .select("id, name, city, country, type, phone, website, photo_url, photo_reference")
     .eq(field, value)
     .eq("approved", true)
