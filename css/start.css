@@ -1,203 +1,112 @@
-/* ============================================================
-   start.css — World Cigar Locator (Frontend Final v3)
-   ============================================================ */
+/* ==== Reset & base ==== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root{
+  --gold:#b8860b;
+  --gold-dark:#a37408;
+  --sidebar:#111;
+  --sidebar-2:#181818;
+  --sidebar-3:#222;
+  --white:#fff;
+  --text:#111;
+  --muted:#666;
+  --card:#111;
+  --card-2:#0d0d0d;
+  --border:#2a2a2a;
+  --accent:#c9a227;
+  --link:#f0c55a;
+}
+html,body{height:100%}
+body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:var(--text);}
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #111;
-  color: #fff;
-  display: flex;
+/* ==== Layout ==== */
+.container{display:flex;min-height:100vh}
+
+/* ==== Sidebar (dark) ==== */
+.sidebar{
+  width:260px;background:var(--sidebar);color:#fff;padding:1rem;border-right:3px solid var(--accent);
+  display:flex;flex-direction:column;gap:1rem;
+}
+.logo{color:var(--accent);text-align:center;font-size:1.5rem;font-weight:800}
+
+.nav{list-style:none;display:flex;flex-direction:column;gap:.5rem}
+
+/* Continent / Country / City buttons */
+.line{
+  width:100%; background:var(--sidebar-3); color:#fff; border:1px solid #1a1a1a;
+  padding:.5rem .6rem; border-radius:8px; text-align:left; cursor:pointer; display:flex; align-items:center; gap:.5rem;
+  font-weight:700; font-size:.95rem; transition:background .2s ease, color .2s ease;
+}
+.line:hover{ background:#2b2b2b; }
+.line.open{ background:#333; }
+
+.arrow{ display:inline-block; transition:transform .22s ease; color:var(--accent) }
+.pill{
+  margin-left:auto; background:#222; border:1px solid #333; color:#ddd; padding:.1rem .45rem; border-radius:999px;
+  font-size:.78rem; font-weight:800; min-width:28px; text-align:center;
+}
+.label{ flex:1; text-align:left }
+
+/* Nesting containers */
+.nested{ display:none; padding-left:.6rem; }
+.nested.show{ display:block; animation:fadeIn .25s ease; }
+@keyframes fadeIn {from{opacity:0;transform:translateY(-3px)} to{opacity:1;transform:translateY(0)}}
+
+/* Country / City rows use same .line style but smaller */
+.line.country{ background:var(--sidebar-2); }
+.line.city{ background:#151515; font-weight:700; }
+.line.country.open{ background:#242424 }
+.line.city.open{ background:#1b1b1b }
+.line .label{ font-size:.92rem }
+.line.city .label{ font-size:.9rem }
+
+/* Sidebar actions */
+.add-btn{
+  background:var(--accent);color:#111;font-weight:800;border:none;padding:.7rem;border-radius:8px;cursor:pointer;
+  text-decoration:none;display:block;text-align:center;
+}
+.add-btn:hover{filter:brightness(.95)}
+.support-link{color:#ddd;text-decoration:none;text-align:center}
+.support-link:hover{color:var(--accent)}
+
+/* ==== Main (white) ==== */
+.main{flex:1;padding:2rem 2rem 3rem;background:#fff;}
+.title{color:var(--gold);font-size:2rem;margin-bottom:.25rem}
+.subtitle{color:#333;margin-bottom:1rem}
+
+/* Search */
+.searchbar{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem}
+.searchbar input{
+  flex:1; min-width:240px; padding:.55rem .7rem; border:1.6px solid var(--gold); border-radius:8px; font-size:.95rem;
+}
+.btn{
+  background:var(--gold); color:#fff; border:none; padding:.55rem .9rem; border-radius:8px; cursor:pointer; font-weight:800;
+}
+.btn:hover{ background:var(--gold-dark) }
+.btn.outline{ background:#fff; color:var(--gold); border:1.6px solid var(--gold) }
+
+/* Heading */
+.result-heading{font-weight:800;color:#333;margin:.25rem 0 1rem}
+
+/* ==== Cards grid (dark cards on white) ==== */
+.store-grid{
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  gap:1rem;
 }
 
-.container {
-  display: flex;
-  width: 100%;
+/* Consistent-height card */
+.store-card{
+  background:var(--card); border:1px solid var(--border); border-radius:12px; color:#eee;
+  display:flex; flex-direction:column; overflow:hidden;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.store-card:hover{ transform:translateY(-3px); box-shadow:0 6px 14px rgba(0,0,0,.25); }
+
+.store-img{
+  width:100%; height:160px; object-fit:cover; background:#000;
 }
 
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  background: #181818;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.logo {
-  color: #b8860b;
-  font-size: 2rem;
-  text-align: center;
-  margin-bottom: 0.5rem;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: none;
-}
-
-.search-btn {
-  margin-top: 0.3rem;
-  background: #b8860b;
-  color: #fff;
-  border: none;
-  padding: 0.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.nav {
-  list-style: none;
-  padding-left: 0;
-  margin-top: 0.5rem;
-}
-
-.continent-btn,
-.country-btn,
-.city-btn {
-  background: #222;
-  border: none;
-  color: #fff;
-  padding: 0.4rem 0.6rem;
-  margin-bottom: 3px;
-  text-align: left;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  border-radius: 6px;
-}
-
-.continent-btn:hover,
-.country-btn:hover,
-.city-btn:hover {
-  background: #2c2c2c;
-}
-
-.arrow {
-  margin-right: 6px;
-}
-
-.pill {
-  background: #b8860b;
-  color: #000;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 0.8rem;
-}
-
-.nested {
-  list-style: none;
-  padding-left: 1rem;
-  display: none;
-}
-
-.nested.show {
-  display: block;
-}
-
-/* Main */
-.main {
-  flex: 1;
-  padding: 2rem;
-  overflow-y: auto;
-}
-
-.title {
-  color: #b8860b;
-  font-size: 2rem;
-  margin-top: 0;
-}
-
-.hero-img {
-  width: 100%;
-  border-radius: 10px;
-  margin-bottom: 1.5rem;
-}
-
-/* Cards */
-.store-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: flex-start;
-  margin-bottom: 50px;
-}
-
-.store-card {
-  background: #111;
-  color: #fff;
-  border-radius: 14px;
-  overflow: hidden;
-  width: 260px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-.store-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 5px 18px rgba(0,0,0,0.5);
-}
-
-.card-top {
-  position: relative;
-}
-
-.card-img {
-  width: 100%;
-  height: 160px;
-  object-fit: cover;
-  border-bottom: 2px solid #b8860b;
-}
-
-.type-badge {
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
-  background: #b8860b;
-  color: #000;
-  font-weight: bold;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 0.8rem;
-}
-
-.card-content {
-  padding: 10px 12px 14px;
-  text-align: left;
-}
-
-.card-title {
-  font-size: 1.1rem;
-  color: #fff;
-  margin: 6px 0 4px;
-}
-
-.rating-stars {
-  color: #b8860b;
-  font-size: 1.1rem;
-  letter-spacing: 1px;
-  margin-bottom: 6px;
-}
-
-.card-info {
-  color: #ccc;
-  font-size: 0.9rem;
-  margin: 2px 0;
-}
-
-.card-info a {
-  color: #b8860b;
-  text-decoration: none;
-}
-
-.card-info a:hover {
-  text-decoration: underline;
-}
+/* Content zones with fixed min-heights to align rows */
+.card-body{ padding:.8rem; display:flex; flex-direction:column; gap:.45rem; }
+.title-wrap{
+  min-height:2.8em; /* ~2 lines */
+  display:-webkit-box; -webkit-line
