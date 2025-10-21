@@ -116,3 +116,10 @@ ul.nested.show {
   border-radius: 6px;
   margin-bottom: 8px;
 }
+.nested {
+  display: none;
+  padding-left: 1rem;
+}
+.nested.show {
+  display: block;
+}
