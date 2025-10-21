@@ -1,112 +1,53 @@
-/* ==== Reset & base ==== */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-:root{
-  --gold:#b8860b;
-  --gold-dark:#a37408;
-  --sidebar:#111;
-  --sidebar-2:#181818;
-  --sidebar-3:#222;
-  --white:#fff;
-  --text:#111;
-  --muted:#666;
-  --card:#111;
-  --card-2:#0d0d0d;
-  --border:#2a2a2a;
-  --accent:#c9a227;
-  --link:#f0c55a;
-}
-html,body{height:100%}
-body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:var(--text);}
-
-/* ==== Layout ==== */
-.container{display:flex;min-height:100vh}
-
-/* ==== Sidebar (dark) ==== */
-.sidebar{
-  width:260px;background:var(--sidebar);color:#fff;padding:1rem;border-right:3px solid var(--accent);
-  display:flex;flex-direction:column;gap:1rem;
-}
-.logo{color:var(--accent);text-align:center;font-size:1.5rem;font-weight:800}
-
-.nav{list-style:none;display:flex;flex-direction:column;gap:.5rem}
-
-/* Continent / Country / City buttons */
-.line{
-  width:100%; background:var(--sidebar-3); color:#fff; border:1px solid #1a1a1a;
-  padding:.5rem .6rem; border-radius:8px; text-align:left; cursor:pointer; display:flex; align-items:center; gap:.5rem;
-  font-weight:700; font-size:.95rem; transition:background .2s ease, color .2s ease;
-}
-.line:hover{ background:#2b2b2b; }
-.line.open{ background:#333; }
-
-.arrow{ display:inline-block; transition:transform .22s ease; color:var(--accent) }
-.pill{
-  margin-left:auto; background:#222; border:1px solid #333; color:#ddd; padding:.1rem .45rem; border-radius:999px;
-  font-size:.78rem; font-weight:800; min-width:28px; text-align:center;
-}
-.label{ flex:1; text-align:left }
-
-/* Nesting containers */
-.nested{ display:none; padding-left:.6rem; }
-.nested.show{ display:block; animation:fadeIn .25s ease; }
-@keyframes fadeIn {from{opacity:0;transform:translateY(-3px)} to{opacity:1;transform:translateY(0)}}
-
-/* Country / City rows use same .line style but smaller */
-.line.country{ background:var(--sidebar-2); }
-.line.city{ background:#151515; font-weight:700; }
-.line.country.open{ background:#242424 }
-.line.city.open{ background:#1b1b1b }
-.line .label{ font-size:.92rem }
-.line.city .label{ font-size:.9rem }
-
-/* Sidebar actions */
-.add-btn{
-  background:var(--accent);color:#111;font-weight:800;border:none;padding:.7rem;border-radius:8px;cursor:pointer;
-  text-decoration:none;display:block;text-align:center;
-}
-.add-btn:hover{filter:brightness(.95)}
-.support-link{color:#ddd;text-decoration:none;text-align:center}
-.support-link:hover{color:var(--accent)}
-
-/* ==== Main (white) ==== */
-.main{flex:1;padding:2rem 2rem 3rem;background:#fff;}
-.title{color:var(--gold);font-size:2rem;margin-bottom:.25rem}
-.subtitle{color:#333;margin-bottom:1rem}
-
-/* Search */
-.searchbar{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem}
-.searchbar input{
-  flex:1; min-width:240px; padding:.55rem .7rem; border:1.6px solid var(--gold); border-radius:8px; font-size:.95rem;
-}
-.btn{
-  background:var(--gold); color:#fff; border:none; padding:.55rem .9rem; border-radius:8px; cursor:pointer; font-weight:800;
-}
-.btn:hover{ background:var(--gold-dark) }
-.btn.outline{ background:#fff; color:var(--gold); border:1.6px solid var(--gold) }
-
-/* Heading */
-.result-heading{font-weight:800;color:#333;margin:.25rem 0 1rem}
-
-/* ==== Cards grid (dark cards on white) ==== */
-.store-grid{
-  display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
-  gap:1rem;
+/* === Card layout refinement === */
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.9rem;
+  flex-grow: 1;
 }
 
-/* Consistent-height card */
-.store-card{
-  background:var(--card); border:1px solid var(--border); border-radius:12px; color:#eee;
-  display:flex; flex-direction:column; overflow:hidden;
-  transition:transform .18s ease, box-shadow .18s ease;
-}
-.store-card:hover{ transform:translateY(-3px); box-shadow:0 6px 14px rgba(0,0,0,.25); }
-
-.store-img{
-  width:100%; height:160px; object-fit:cover; background:#000;
+.title-wrap {
+  min-height: 2.8em; /* always two lines reserved */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* Content zones with fixed min-heights to align rows */
-.card-body{ padding:.8rem; display:flex; flex-direction:column; gap:.45rem; }
-.title-wrap{
-  min-height:2.8em; /* ~2 lines */
-  display:-webkit-box; -webkit-line
+.card-title {
+  font-size: 1rem;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.rating-stars {
+  color: var(--accent);
+  font-size: 1.05rem;
+}
+
+.card-info {
+  font-size: 0.9rem;
+  color: #ccc;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.type-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #111;
+}
+
+.card-top {
+  position: relative;
+}
+
+.store-card {
+  height: 360px; /* fixed to align all cards neatly */
+}
