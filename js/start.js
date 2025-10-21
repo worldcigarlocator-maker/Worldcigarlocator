@@ -1,5 +1,5 @@
 /* ============================================================
-   start.js — World Cigar Locator (Frontend)
+   start.js — World Cigar Locator (Frontend, no DB continent field)
    ============================================================ */
 
 // === Supabase-konfiguration (Publik, endast läsning) ===
@@ -28,6 +28,18 @@ function esc(str) {
     })[c]);
 }
 
+// === Automatisk kontinent-identifiering ===
+function getContinentFromCountry(country) {
+  const c = (country || "").toLowerCase();
+  if (["sweden","germany","france","italy","spain","norway","finland","denmark","netherlands","belgium","austria","switzerland","poland","czech republic","czechia"].includes(c)) return "Europe";
+  if (["united states","usa","canada","mexico","cuba","dominican republic"].includes(c)) return "North America";
+  if (["brazil","argentina","chile","peru","colombia","uruguay","paraguay"].includes(c)) return "South America";
+  if (["china","japan","india","thailand","malaysia","singapore","israel","turkey","vietnam","indonesia"].includes(c)) return "Asia";
+  if (["south africa","nigeria","kenya","morocco","egypt","ghana"].includes(c)) return "Africa";
+  if (["australia","new zealand","fiji"].includes(c)) return "Oceania";
+  return "Other";
+}
+
 // === Bygg vänstermeny (kontinent → land → stad) ===
 async function buildSidebar() {
   const menu = document.getElementById("sidebarMenu");
@@ -35,10 +47,10 @@ async function buildSidebar() {
 
   menu.innerHTML = `<li style="color:#999">Loading…</li>`;
 
-  // Hämta unika kontinenter med count
+  // Hämta alla godkända butiker från stores_public
   const { data: stores, error } = await supabase
     .from("stores_public")
-    .select("id, name, city, country, continent, approved, deleted")
+    .select("id, name, city, country, type, phone, website, photo_url, photo_reference")
     .eq("approved", true)
     .eq("deleted", false);
 
@@ -51,7 +63,7 @@ async function buildSidebar() {
   // Gruppera data: kontinent → land → stad
   const grouped = {};
   for (const s of stores) {
-    const cont = s.continent || "Other";
+    const cont = getContinentFromCountry(s.country);
     if (!grouped[cont]) grouped[cont] = {};
     const ctry = s.country || "Unknown";
     if (!grouped[cont][ctry]) grouped[cont][ctry] = {};
@@ -157,25 +169,18 @@ function renderStores(stores, container) {
   const grid = el("div", "store-grid");
   stores.forEach((s) => {
     const card = el("div", "store-card");
-    const img = el("img");
-    img.src = s.photo_url
+    const imgSrc = s.photo_url
       ? s.photo_url
       : s.photo_reference
       ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${s.photo_reference}&key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ`
       : "images/store.jpg";
-    const title = el("h3", "", s.name || "Unnamed");
-    const city = el("p", "", `${s.city || "Unknown"}, ${s.country || ""}`);
-    const type = el("p", "", s.type ? s.type.toUpperCase() : "");
-    const link = s.website
-      ? `<a href="${esc(s.website)}" target="_blank">Visit website</a>`
-      : "";
 
     card.innerHTML = `
-      <img src="${img.src}" alt="store">
+      <img src="${imgSrc}" alt="store">
       <h3>${esc(s.name)}</h3>
       <p>${esc(s.city || "Unknown")}, ${esc(s.country || "")}</p>
       <p style="color:#b8860b;font-weight:bold;">${esc(s.type || "")}</p>
-      ${link}
+      ${s.website ? `<a href="${esc(s.website)}" target="_blank">Visit website</a>` : ""}
     `;
     grid.appendChild(card);
   });
