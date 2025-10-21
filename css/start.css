@@ -293,3 +293,18 @@ body {
   right: 20px;
   z-index: 9999;
 }
+.badge-row {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.type-badge-inline {
+  font-weight: 800;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
