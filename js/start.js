@@ -1,12 +1,14 @@
 /* ============================================================
-   start.js — Fix: cards show in main + city sort by count
+   start.js — World Cigar Locator (Frontend Final v3)
    ============================================================ */
 
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+/* ---------- Hjälpfunktioner ---------- */
 function el(tag, cls, text) {
   const e = document.createElement(tag);
   if (cls) e.className = cls;
@@ -25,6 +27,7 @@ function esc(str) {
     })[c]);
 }
 
+/* ---------- Automatisk kontinentidentifiering ---------- */
 function getContinentFromCountry(country) {
   const c = (country || "").toLowerCase();
   if (["sweden","germany","france","italy","spain","norway","finland","denmark","netherlands","belgium","austria","switzerland","poland","czech republic","czechia"].includes(c)) return "Europe";
@@ -36,6 +39,7 @@ function getContinentFromCountry(country) {
   return "Other";
 }
 
+/* ---------- Bygg vänstermeny ---------- */
 async function buildSidebar() {
   const menu = document.getElementById("sidebarMenu");
   if (!menu) return;
@@ -44,7 +48,7 @@ async function buildSidebar() {
 
   const { data: stores, error } = await supabase
     .from("stores_public")
-    .select("id, name, city, country, type, phone, website, photo_url, photo_reference")
+    .select("id, name, city, country, type, phone, website, rating, photo_url, photo_reference")
     .eq("approved", true)
     .eq("deleted", false);
 
@@ -102,7 +106,7 @@ async function buildSidebar() {
 function renderCountries(countries, container) {
   container.innerHTML = "";
   Object.entries(countries)
-    .sort(([a], [b]) => a.localeCompare(b)) // 🇸🇪 Sort countries A–Z
+    .sort(([a], [b]) => a.localeCompare(b))
     .forEach(([country, cities]) => {
       const li = el("li", "country-item");
       const btn = el("button", "country-btn");
@@ -134,10 +138,8 @@ function renderCountries(countries, container) {
 
 function renderCities(cities, container) {
   container.innerHTML = "";
-
-  // 🏙️ Sort by number of stores (descending)
   Object.entries(cities)
-    .sort(([, storesA], [, storesB]) => storesB.length - storesA.length)
+    .sort(([, a], [, b]) => b.length - a.length) // 🏙️ Sort by count
     .forEach(([city, stores]) => {
       const li = el("li", "city-item");
       const btn = el("button", "city-btn");
@@ -147,7 +149,6 @@ function renderCities(cities, container) {
       btn.append(arrow, label, badge);
       li.appendChild(btn);
 
-      // ❗️Vi visar butikerna i MAIN — inte i sidomenyn
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         document.querySelector(".main").scrollIntoView({ behavior: "smooth" });
@@ -158,12 +159,12 @@ function renderCities(cities, container) {
     });
 }
 
-/* === Butiker visas i MAIN === */
+/* ---------- Kort i MAIN ---------- */
 function renderStores(stores) {
   const grid = document.getElementById("storeGrid");
   if (!grid) return;
-
   grid.innerHTML = "";
+
   stores.forEach((s) => {
     const card = el("div", "store-card");
     const imgSrc = s.photo_url
@@ -172,12 +173,27 @@ function renderStores(stores) {
       ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${s.photo_reference}&key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ`
       : "images/store.jpg";
 
+    let badgeColor = "#b8860b";
+    if ((s.type || "").toLowerCase().includes("lounge")) badgeColor = "#28a745";
+    if ((s.type || "").toLowerCase().includes("other")) badgeColor = "#ff8c00";
+
+    const rating = Math.round(Number(s.rating) || 0);
+    const stars = Array.from({ length: 5 })
+      .map((_, i) => (i < rating ? "★" : "☆"))
+      .join("");
+
     card.innerHTML = `
-      <img src="${imgSrc}" alt="store">
-      <h3>${esc(s.name)}</h3>
-      <p>${esc(s.city || "Unknown")}, ${esc(s.country || "")}</p>
-      <p style="color:#b8860b;font-weight:bold;">${esc(s.type || "")}</p>
-      ${s.website ? `<a href="${esc(s.website)}" target="_blank">Visit website</a>` : ""}
+      <div class="card-top">
+        <img src="${imgSrc}" alt="${esc(s.name)}" class="card-img">
+        <span class="type-badge" style="background:${badgeColor}">${esc(s.type || "Store")}</span>
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">${esc(s.name)}</h3>
+        <div class="rating-stars">${stars}</div>
+        <p class="card-info"><strong>📍</strong> ${esc(s.city || "Unknown")}, ${esc(s.country || "")}</p>
+        ${s.phone ? `<p class="card-info"><strong>📞</strong> ${esc(s.phone)}</p>` : ""}
+        ${s.website ? `<p class="card-info"><strong>🌐</strong> <a href="${esc(s.website)}" target="_blank">${esc(s.website)}</a></p>` : ""}
+      </div>
     `;
     grid.appendChild(card);
   });
@@ -185,6 +201,7 @@ function renderStores(stores) {
   console.log(`📦 Rendered ${stores.length} stores in main`);
 }
 
+/* ---------- Init ---------- */
 document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ start.js loaded, building sidebar...");
   buildSidebar();
