@@ -1,12 +1,11 @@
 /* ============================================================
-   start.js — World Cigar Locator (Frontend, no DB continent field)
+   start.js — World Cigar Locator (Frontend, connected to stores_public)
    ============================================================ */
 
-// === Supabase-konfiguration (Publik, endast läsning) ===
+// === Supabase-konfiguration ===
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // === Hjälpfunktioner ===
@@ -40,14 +39,17 @@ function getContinentFromCountry(country) {
   return "Other";
 }
 
-// === Bygg vänstermeny (kontinent → land → stad) ===
+// === Bygg vänstermeny ===
 async function buildSidebar() {
   const menu = document.getElementById("sidebarMenu");
-  if (!menu) return;
+  if (!menu) {
+    console.error("❌ Hittade inte #sidebarMenu!");
+    return;
+  }
 
+  console.log("🚀 Laddar butiker från Supabase...");
   menu.innerHTML = `<li style="color:#999">Loading…</li>`;
 
-  // Hämta alla godkända butiker från stores_public
   const { data: stores, error } = await supabase
     .from("stores_public")
     .select("id, name, city, country, type, phone, website, photo_url, photo_reference")
@@ -55,12 +57,18 @@ async function buildSidebar() {
     .eq("deleted", false);
 
   if (error) {
-    console.error("Error loading stores:", error);
+    console.error("❌ Error loading stores:", error);
     menu.innerHTML = `<li style="color:#f56">Failed to load data</li>`;
     return;
   }
 
-  // Gruppera data: kontinent → land → stad
+  console.log(`✅ ${stores.length} stores loaded`);
+  if (!stores.length) {
+    menu.innerHTML = `<li style="color:#aaa">No approved stores found</li>`;
+    return;
+  }
+
+  // === Gruppera data ===
   const grouped = {};
   for (const s of stores) {
     const cont = getContinentFromCountry(s.country);
@@ -72,7 +80,7 @@ async function buildSidebar() {
     grouped[cont][ctry][city].push(s);
   }
 
-  // Rendera kontinenter
+  // === Bygg kontinentlistan ===
   menu.innerHTML = "";
   Object.entries(grouped)
     .sort(([a], [b]) => a.localeCompare(b))
@@ -89,13 +97,14 @@ async function buildSidebar() {
 
       const nested = el("ul", "nested");
       li.appendChild(nested);
-
       let loaded = false;
-      btn.addEventListener("click", async () => {
+
+      btn.addEventListener("click", () => {
         const isOpen = nested.classList.toggle("show");
         arrow.style.transform = isOpen ? "rotate(90deg)" : "rotate(0deg)";
         btn.style.background = isOpen ? "#333" : "#222";
-        if (!loaded) {
+        if (isOpen && !loaded) {
+          console.log(`🌍 Rendering countries for ${continent}`);
           renderCountries(countries, nested);
           loaded = true;
         }
@@ -105,7 +114,7 @@ async function buildSidebar() {
     });
 }
 
-// === Rendera länder ===
+// === Länder ===
 function renderCountries(countries, container) {
   container.innerHTML = "";
   Object.entries(countries)
@@ -122,14 +131,15 @@ function renderCountries(countries, container) {
 
       const nested = el("ul", "nested");
       li.appendChild(nested);
-
       let loaded = false;
+
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const isOpen = nested.classList.toggle("show");
         arrow.style.transform = isOpen ? "rotate(90deg)" : "rotate(0deg)";
         btn.style.background = isOpen ? "#333" : "#222";
-        if (!loaded && isOpen) {
+        if (isOpen && !loaded) {
+          console.log(`🗺️ Rendering cities in ${country}`);
           renderCities(cities, nested);
           loaded = true;
         }
@@ -139,7 +149,7 @@ function renderCountries(countries, container) {
     });
 }
 
-// === Rendera städer ===
+// === Städer ===
 function renderCities(cities, container) {
   container.innerHTML = "";
   Object.entries(cities)
@@ -161,14 +171,17 @@ function renderCities(cities, container) {
         const isOpen = nested.classList.toggle("show");
         arrow.style.transform = isOpen ? "rotate(90deg)" : "rotate(0deg)";
         btn.style.background = isOpen ? "#292929" : "#181818";
-        if (isOpen) renderStores(stores, nested);
+        if (isOpen) {
+          console.log(`🏙️ Rendering stores in ${city}`);
+          renderStores(stores, nested);
+        }
       });
 
       container.appendChild(li);
     });
 }
 
-// === Rendera butikskort ===
+// === Butikskort ===
 function renderStores(stores, container) {
   container.innerHTML = "";
   const grid = el("div", "store-grid");
@@ -193,6 +206,8 @@ function renderStores(stores, container) {
 
   container.appendChild(grid);
 }
+
+// === Init ===
 document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ start.js loaded, building sidebar...");
   buildSidebar();
