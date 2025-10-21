@@ -112,22 +112,24 @@ function renderCountries(countries, container) {
     .sort(([a], [b]) => a.localeCompare(b))
     .forEach(([country, cities]) => {
       const li = el("li", "country-item");
+      const btn = el("button", "country-btn");
       const arrow = el("span", "arrow", "▶");
       const label = el("span", "label", country);
       const count = Object.values(cities).reduce((a, b) => a + b.length, 0);
       const badge = el("span", "pill", count);
-      li.append(arrow, label, badge);
+      btn.append(arrow, label, badge);
+      li.appendChild(btn);
 
       const nested = el("ul", "nested");
       li.appendChild(nested);
 
       let loaded = false;
-      li.addEventListener("click", (e) => {
+      btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const isOpen = nested.classList.toggle("show");
         arrow.style.transform = isOpen ? "rotate(90deg)" : "rotate(0deg)";
-        li.style.background = isOpen ? "#292929" : "#181818";
-        if (!loaded) {
+        btn.style.background = isOpen ? "#333" : "#222";
+        if (!loaded && isOpen) {
           renderCities(cities, nested);
           loaded = true;
         }
@@ -143,20 +145,22 @@ function renderCities(cities, container) {
   Object.entries(cities)
     .sort(([a], [b]) => a.localeCompare(b))
     .forEach(([city, stores]) => {
-      const li = el("li", "country-item");
+      const li = el("li", "city-item");
+      const btn = el("button", "city-btn");
       const arrow = el("span", "arrow", "▶");
       const label = el("span", "label", city);
       const badge = el("span", "pill", stores.length);
-      li.append(arrow, label, badge);
+      btn.append(arrow, label, badge);
+      li.appendChild(btn);
 
       const nested = el("ul", "nested");
       li.appendChild(nested);
 
-      li.addEventListener("click", (e) => {
+      btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const isOpen = nested.classList.toggle("show");
         arrow.style.transform = isOpen ? "rotate(90deg)" : "rotate(0deg)";
-        li.style.background = isOpen ? "#292929" : "#181818";
+        btn.style.background = isOpen ? "#292929" : "#181818";
         if (isOpen) renderStores(stores, nested);
       });
 
@@ -166,7 +170,9 @@ function renderCities(cities, container) {
 
 // === Rendera butikskort ===
 function renderStores(stores, container) {
+  container.innerHTML = "";
   const grid = el("div", "store-grid");
+
   stores.forEach((s) => {
     const card = el("div", "store-card");
     const imgSrc = s.photo_url
@@ -184,9 +190,6 @@ function renderStores(stores, container) {
     `;
     grid.appendChild(card);
   });
-  container.innerHTML = "";
+
   container.appendChild(grid);
 }
-
-// === Init ===
-document.addEventListener("DOMContentLoaded", buildSidebar);
