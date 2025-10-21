@@ -19,10 +19,13 @@ async function buildSidebar() {
 
   // ✅ Get distinct continents from approved stores
   const { data, error } = await supabase
-    .from("stores_public")
-    .select("continent, country, state")
+    .from("stores")
+    .select("id, name, city, country, type, phone, website, photo_url, photo_reference")
+    .eq(field, value)
     .eq("approved", true)
-    .eq("deleted", false);
+    .eq("deleted", false)
+    .order("name");
+
 
   if (error || !data) {
     menu.innerHTML = `<li style="color:#f56;">Failed to load</li>`;
