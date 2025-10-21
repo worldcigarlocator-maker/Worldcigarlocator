@@ -1,215 +1,203 @@
 /* ============================================================
-   start.css — World Cigar Locator (Frontend sidebar styling)
+   start.css — World Cigar Locator (Frontend Final v3)
    ============================================================ */
 
 body {
   margin: 0;
-  background: #000;
+  font-family: Arial, sans-serif;
+  background: #111;
   color: #fff;
-  font-family: "Inter", sans-serif;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
 }
 
 .container {
   display: flex;
   width: 100%;
-  min-height: 100vh;
 }
 
-/* === Sidebar === */
+/* Sidebar */
 .sidebar {
-  width: 280px;
-  background: #111;
-  color: #fff;
-  padding: 20px;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+  width: 260px;
+  background: #181818;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 }
 
 .logo {
   color: #b8860b;
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
-  text-align: left;
-  letter-spacing: 1px;
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
 }
 
 .search-input {
   width: 100%;
-  padding: 8px;
-  border-radius: 6px;
+  padding: 0.5rem;
+  border-radius: 8px;
   border: none;
-  outline: none;
-  margin-bottom: 8px;
 }
 
 .search-btn {
+  margin-top: 0.3rem;
   background: #b8860b;
-  color: #000;
+  color: #fff;
   border: none;
-  padding: 8px;
-  font-weight: bold;
-  border-radius: 6px;
+  padding: 0.5rem;
+  border-radius: 8px;
   cursor: pointer;
-  width: 100%;
-  margin-bottom: 15px;
-}
-.search-btn:hover {
-  background: #daa520;
 }
 
-/* === Hierarchy menu === */
 .nav {
   list-style: none;
   padding-left: 0;
-  margin: 0;
-  flex-grow: 1;
-  overflow-y: auto;
+  margin-top: 0.5rem;
 }
 
-.nav li {
-  margin: 3px 0;
-}
-
-/* Kontinent, Land, Stad knappar */
 .continent-btn,
 .country-btn,
 .city-btn {
-  width: 100%;
-  text-align: left;
   background: #222;
   border: none;
   color: #fff;
-  padding: 8px 10px;
-  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  margin-bottom: 3px;
+  text-align: left;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  font-weight: bold;
-  transition: background 0.2s;
+  border-radius: 6px;
 }
 
 .continent-btn:hover,
 .country-btn:hover,
 .city-btn:hover {
-  background: #333;
-}
-
-.label {
-  flex-grow: 1;
-  text-align: left;
+  background: #2c2c2c;
 }
 
 .arrow {
-  margin-right: 10px;
-  font-size: 0.9rem;
-  transition: transform 0.2s ease;
+  margin-right: 6px;
 }
 
 .pill {
   background: #b8860b;
   color: #000;
-  border-radius: 50%;
-  min-width: 22px;
-  text-align: center;
-  font-weight: bold;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
   font-size: 0.8rem;
-  padding: 2px 5px;
 }
 
-/* === Hierarchy indentation === */
-.country-item {
-  margin-left: 12px;
-}
-
-.city-item {
-  margin-left: 24px;
-}
-
-/* === Expand / collapse behavior === */
 .nested {
-  display: none;
+  list-style: none;
   padding-left: 1rem;
+  display: none;
 }
+
 .nested.show {
   display: block;
 }
 
-/* === Add & Support Links === */
-.add-btn,
-.support-link {
-  color: #b8860b;
-  text-decoration: none;
-  font-size: 0.9rem;
-  margin-top: 10px;
-}
-.add-btn:hover,
-.support-link:hover {
-  text-decoration: underline;
+/* Main */
+.main {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
 }
 
-/* === Main content === */
-.main {
-  flex-grow: 1;
-  padding: 30px;
-  background: #fff;
-  color: #000;
-  text-align: center;
+.title {
+  color: #b8860b;
+  font-size: 2rem;
+  margin-top: 0;
 }
 
 .hero-img {
   width: 100%;
-  max-width: 900px;
   border-radius: 10px;
-  margin-top: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
 }
 
-/* === Store Grid === */
+/* Cards */
 .store-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-  margin-top: 20px;
-  justify-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: flex-start;
+  margin-bottom: 50px;
 }
 
 .store-card {
-  background: #fafafa;
-  border-radius: 10px;
-  padding: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 240px;
-  text-align: center;
+  background: #111;
+  color: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  width: 260px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .store-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 5px 18px rgba(0,0,0,0.5);
 }
 
-.store-card img {
+.card-top {
+  position: relative;
+}
+
+.card-img {
   width: 100%;
   height: 160px;
   object-fit: cover;
-  border-radius: 8px;
+  border-bottom: 2px solid #b8860b;
 }
 
-.store-card h3 {
-  margin: 8px 0 4px;
-  font-size: 1rem;
-}
-
-.store-card a {
-  color: #b8860b;
+.type-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: #b8860b;
+  color: #000;
   font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.card-content {
+  padding: 10px 12px 14px;
+  text-align: left;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  color: #fff;
+  margin: 6px 0 4px;
+}
+
+.rating-stars {
+  color: #b8860b;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.card-info {
+  color: #ccc;
+  font-size: 0.9rem;
+  margin: 2px 0;
+}
+
+.card-info a {
+  color: #b8860b;
   text-decoration: none;
 }
-.store-card a:hover {
+
+.card-info a:hover {
   text-decoration: underline;
 }
