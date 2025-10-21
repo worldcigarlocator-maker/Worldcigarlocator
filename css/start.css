@@ -1,125 +1,215 @@
-/* === Hierarki-styling (vänsterställd, mörk/guld design) === */
+/* ============================================================
+   start.css — World Cigar Locator (Frontend sidebar styling)
+   ============================================================ */
+
+body {
+  margin: 0;
+  background: #000;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.container {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* === Sidebar === */
+.sidebar {
+  width: 280px;
+  background: #111;
+  color: #fff;
+  padding: 20px;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  color: #b8860b;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  text-align: left;
+  letter-spacing: 1px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  margin-bottom: 8px;
+}
+
+.search-btn {
+  background: #b8860b;
+  color: #000;
+  border: none;
+  padding: 8px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 15px;
+}
+.search-btn:hover {
+  background: #daa520;
+}
+
+/* === Hierarchy menu === */
+.nav {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.nav li {
+  margin: 3px 0;
+}
+
+/* Kontinent, Land, Stad knappar */
 .continent-btn,
 .country-btn,
 .city-btn {
+  width: 100%;
+  text-align: left;
+  background: #222;
+  border: none;
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  background: #222;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-bottom: 6px;
-  text-align: left;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  font-weight: 600;
-}
-
-/* === Vänsterställd text === */
-.continent-btn .label,
-.country-btn .label,
-.city-btn .label {
-  flex: 1;
-  text-align: left;
-  padding-left: 8px;
-}
-
-/* === Pilar till vänster === */
-.arrow {
-  width: 20px;
-  display: inline-block;
-  text-align: center;
-  transition: transform 0.2s;
-  color: gold;
-}
-
-/* === Antals-badge till höger === */
-.pill {
-  background: gold;
-  color: #000;
-  border-radius: 12px;
-  padding: 2px 8px;
-  font-size: 0.85em;
   font-weight: bold;
-  margin-left: 6px;
+  transition: background 0.2s;
 }
 
-/* === Hover / aktiv === */
 .continent-btn:hover,
 .country-btn:hover,
 .city-btn:hover {
   background: #333;
 }
 
-.continent-btn:focus,
-.country-btn:focus,
-.city-btn:focus {
-  outline: none;
-}
-
-/* === Nästlade listor (hierarki) === */
-ul.nested {
-  list-style: none;
-  margin: 4px 0 4px 20px;
-  padding: 0;
-  display: none;
-  position: relative;
-}
-
-/* === Guldlinje till vänster om undernivåer === */
-ul.nested::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 8px;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(to bottom, gold 0%, rgba(255, 215, 0, 0.1) 100%);
-  opacity: 0.4;
-  border-radius: 2px;
-}
-
-/* === När nivån är öppen === */
-ul.nested.show {
-  display: block;
-}
-
-/* === Store grid === */
-.store-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 10px;
-  margin: 10px 0;
-}
-
-.store-card {
-  background: #181818;
-  color: #fff;
-  border-radius: 10px;
-  padding: 10px;
+.label {
+  flex-grow: 1;
   text-align: left;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-  transition: transform 0.2s;
 }
 
-.store-card:hover {
-  transform: scale(1.03);
+.arrow {
+  margin-right: 10px;
+  font-size: 0.9rem;
+  transition: transform 0.2s ease;
 }
 
-.store-card img {
-  width: 100%;
-  height: 140px;
-  object-fit: cover;
-  border-radius: 6px;
-  margin-bottom: 8px;
+.pill {
+  background: #b8860b;
+  color: #000;
+  border-radius: 50%;
+  min-width: 22px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.8rem;
+  padding: 2px 5px;
 }
+
+/* === Hierarchy indentation === */
+.country-item {
+  margin-left: 12px;
+}
+
+.city-item {
+  margin-left: 24px;
+}
+
+/* === Expand / collapse behavior === */
 .nested {
   display: none;
   padding-left: 1rem;
 }
 .nested.show {
   display: block;
+}
+
+/* === Add & Support Links === */
+.add-btn,
+.support-link {
+  color: #b8860b;
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+.add-btn:hover,
+.support-link:hover {
+  text-decoration: underline;
+}
+
+/* === Main content === */
+.main {
+  flex-grow: 1;
+  padding: 30px;
+  background: #fff;
+  color: #000;
+  text-align: center;
+}
+
+.hero-img {
+  width: 100%;
+  max-width: 900px;
+  border-radius: 10px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+/* === Store Grid === */
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+  justify-items: center;
+}
+
+.store-card {
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 240px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.store-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.store-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.store-card h3 {
+  margin: 8px 0 4px;
+  font-size: 1rem;
+}
+
+.store-card a {
+  color: #b8860b;
+  font-weight: bold;
+  text-decoration: none;
+}
+.store-card a:hover {
+  text-decoration: underline;
 }
