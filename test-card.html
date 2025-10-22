@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WCL – Stående kort v2</title>
+  <title>WCL – Stående kort (Final)</title>
   <style>
     :root {
       --green: #28a745;
@@ -41,8 +41,8 @@
     .top {
       position: relative;
       display: flex;
-      align-items: center; /* 🟢 centrera badges/stjärnor vertikalt mot bilden */
-      padding: 1rem 1.4rem;
+      align-items: center;
+      padding: 1rem 1.8rem 1rem 1.6rem; /* ⚖️ balanserad spacing */
       gap: 1.4rem;
     }
 
@@ -71,8 +71,8 @@
 
     .badges {
       display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
+      flex-direction: column; /* vertikal stapling */
+      gap: 0.4rem;
     }
 
     .badge {
@@ -91,6 +91,7 @@
       color: var(--gold);
       font-size: 1.15rem;
       letter-spacing: 1px;
+      margin-top: 0.4rem;
     }
 
     /* === Titel === */
@@ -98,7 +99,7 @@
       font-size: 1.3rem;
       font-weight: 800;
       text-align: left;
-      margin: 1.5rem 1.4rem 0.5rem 1.4rem; /* 👈 du hade 1.5rem – behåller */
+      margin: 1.5rem 1.4rem 0.5rem 1.4rem; /* din justering */
       color: #fff;
     }
 
@@ -106,8 +107,8 @@
     .info {
       display: flex;
       flex-direction: column;
-      gap: 0.7rem; /* mer luft mellan rader */
-      padding: 1.2rem 1.4rem;
+      gap: 0.7rem;
+      padding: 1.2rem 1.6rem; /* ⚖️ samma vänster/höger spacing som top */
       margin-top: 0.3rem;
     }
 
@@ -173,8 +174,6 @@
       <p>🏠 Kungsgatan 55</p>
       <p>📞 +46 8 21 59 34</p>
       <p class="membership public">👥 Public</p>
-      <!-- <p class="membership membership-only">👥 Membership</p> -->
-      <!-- <p class="membership members-only">🚫 Members Only</p> -->
       <p>🌐 <a href="#">www.cigarrummet.se</a></p>
 
       <button class="review-btn">★ Review & Rate</button>
