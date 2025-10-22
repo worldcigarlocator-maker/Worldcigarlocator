@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WCL – Stående kort test</title>
+  <title>WCL – Stående kort (tweaked)</title>
   <style>
     :root {
       --green: #28a745;
@@ -24,8 +24,8 @@
     }
 
     .store-card {
-      width: 320px;               /* 👈 lite smalare */
-      min-height: 520px;          /* 👈 stående proportion */
+      width: 320px;
+      min-height: 540px;
       background: var(--card);
       color: var(--text);
       border-radius: 16px;
@@ -36,13 +36,13 @@
       border: 1px solid #222;
     }
 
-    /* === Bildsektion === */
+    /* === Bild + badges === */
     .top {
       position: relative;
       display: flex;
       align-items: flex-start;
-      padding: 1rem;
-      gap: 1rem;
+      padding: 1rem 1.4rem; /* mer luft */
+      gap: 1.4rem;
     }
 
     .img-box {
@@ -64,13 +64,13 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
+      gap: 0.8rem; /* lite mer mellan badges och stjärnor */
+      margin-left: 0.6rem; /* skjuter ut mer åt höger */
     }
 
     .badges {
       display: flex;
-      gap: 0.4rem;
+      gap: 0.5rem;
       flex-wrap: wrap;
     }
 
@@ -79,7 +79,7 @@
       font-size: 0.8rem;
       color: #fff;
       border-radius: 6px;
-      padding: 0.3rem 0.6rem;
+      padding: 0.35rem 0.65rem;
       text-transform: uppercase;
     }
 
@@ -92,7 +92,7 @@
 
     .rating {
       color: var(--gold);
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       letter-spacing: 1px;
     }
 
@@ -101,7 +101,7 @@
       font-size: 1.3rem;
       font-weight: 800;
       text-align: left;
-      margin: 0.5rem 1rem 0 1rem;
+      margin: 0.8rem 1.4rem 0 1.4rem; /* lite längre ner */
       color: #fff;
     }
 
@@ -109,16 +109,16 @@
     .info {
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
-      padding: 1rem;
-      margin-top: 0.2rem;
+      gap: 0.6rem; /* ⬆️ mer luft mellan raderna */
+      padding: 1.2rem 1.4rem;
+      margin-top: 0.3rem;
     }
 
     .info p {
       margin: 0;
-      font-size: 0.95rem;
+      font-size: 0.96rem;
       color: var(--muted);
-      line-height: 1.4;
+      line-height: 1.5; /* ⬆️ ökad radavstånd */
     }
 
     .membership {
@@ -174,3 +174,4 @@
   </div>
 </body>
 </html>
+
