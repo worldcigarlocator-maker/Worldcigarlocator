@@ -6,58 +6,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Backoffice — Business Analytics (V3)</title>
 
-  <!-- ✅ Non-module Supabase + Chart.js + XLSX (works on GitHub Pages) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
-    :root {
-      --primary:#2f78c4; --primary-dark:#2466a8;
-      --accent:#28a745; --bg:#f5f6f8; --card:#fff;
-      --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
-    }
+    :root { --primary:#2f78c4; --primary-dark:#2466a8; --accent:#28a745; --bg:#f5f6f8; --card:#fff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;}
     *{box-sizing:border-box;}
     body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:1.2rem;color:var(--text);font-size:10px;}
-
     h1{text-align:center;margin:0 0 1rem;color:#2b2b2b;font-weight:800;font-size:1.4rem;}
-
     nav{display:flex;justify-content:center;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;}
-    nav a,nav button{
-      background:#fff;border:1.4px solid var(--primary);color:var(--primary);
-      padding:.35rem .6rem;border-radius:7px;font-weight:800;text-decoration:none;font-size:.9rem;cursor:pointer;
-    }
+    nav a,nav button{background:#fff;border:1.4px solid var(--primary);color:var(--primary);padding:.35rem .6rem;border-radius:7px;font-weight:800;text-decoration:none;font-size:.9rem;cursor:pointer;}
     nav a:hover,nav button:hover{background:var(--primary);color:#fff;}
-
     .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.5rem;margin-bottom:.8rem;}
-    .stat-card{
-      background:var(--card);border:1px solid var(--border);border-radius:9px;
-      box-shadow:0 1px 3px rgba(0,0,0,.05);padding:.6rem;text-align:center;cursor:pointer;
-      transition:transform .1s, box-shadow .1s;
-    }
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:9px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:.6rem;text-align:center;cursor:pointer;transition:transform .1s, box-shadow .1s;}
     .stat-card:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.1);}
     .stat-card.active{background:var(--accent);color:#fff;}
     .stat-card h2{margin:.05rem 0;font-size:1.3rem;font-weight:800;}
     .stat-card p{margin:0;font-size:.9rem;opacity:.9;}
-
     .panel{background:var(--card);border:1px solid var(--border);border-radius:9px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:.6rem;margin-bottom:.8rem;}
     .row{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;align-items:center;}
-    .btn{
-      background:#fff;border:1.4px solid var(--primary);color:var(--primary);
-      padding:.35rem .6rem;border-radius:7px;font-weight:800;font-size:.9rem;cursor:pointer;
-    }
+    .btn{background:#fff;border:1.4px solid var(--primary);color:var(--primary);padding:.35rem .6rem;border-radius:7px;font-weight:800;font-size:.9rem;cursor:pointer;}
     .btn:hover{background:var(--primary);color:#fff;}
     .btn.active{background:var(--primary);color:#fff;}
     #toggleCharts{background:var(--primary);color:#fff;border:none;}
     #toggleCharts:hover{background:var(--primary-dark);}
-    .select{
-      border:1.4px solid var(--primary);border-radius:7px;padding:.32rem .5rem;
-      color:var(--primary);background:#fff;font-weight:800;font-size:.9rem;
-    }
+    .select{border:1.4px solid var(--primary);border-radius:7px;padding:.32rem .5rem;color:var(--primary);background:#fff;font-weight:800;font-size:.9rem;}
     .chart-title{text-align:center;font-weight:900;font-size:1rem;margin:.4rem 0;}
     .chart-wrap{padding:.5rem;}
     #chartsPanel.minimized{height:40px;overflow:hidden;}
-
     table{width:100%;border-collapse:collapse;table-layout:fixed;}
     th,td{padding:.5rem;border-bottom:1px solid #eee;text-align:left;font-size:.9rem;}
     th{background:#f3f4f6;color:#333;cursor:pointer;}
@@ -77,7 +54,6 @@
     <a href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">↑ Top</a>
   </nav>
 
-  <!-- KPI -->
   <div class="stats-grid" id="kpiGrid">
     <div class="stat-card" data-kpi="all"><h2 id="kpiTotal">–</h2><p>Total Locations</p></div>
     <div class="stat-card" data-kpi="approved"><h2 id="kpiApproved">–</h2><p>Approved</p></div>
@@ -85,12 +61,11 @@
     <div class="stat-card" data-kpi="flagged"><h2 id="kpiFlagged">–</h2><p>Flagged</p></div>
     <div class="stat-card" data-kpi="deleted"><h2 id="kpiDeleted">–</h2><p>Deleted</p></div>
     <div class="stat-card" data-kpi="views"><h2 id="kpiViews">Top</h2><p>Most Views</p></div>
-    <div class="stat-card" data-kpi="clicks"><h2 id="kpiClicks">Top</p><p>Most Clicks</p></div>
+    <div class="stat-card" data-kpi="clicks"><h2 id="kpiClicks">Top</h2><p>Most Clicks</p></div>
     <div class="stat-card" data-kpi="ctr"><h2 id="kpiCtr">Top</h2><p>Top CTR</p></div>
     <div class="stat-card" data-kpi="newmonth"><h2 id="kpiNewMonth">–</h2><p>New This Month</p></div>
   </div>
 
-  <!-- Charts -->
   <div class="panel" id="chartsPanel">
     <div class="row">
       <button class="btn" id="toggleCharts">Hide Charts ▴</button>
@@ -107,7 +82,6 @@
     <div class="chart-wrap"><canvas id="chartCanvas" height="70"></canvas></div>
   </div>
 
-  <!-- Table -->
   <div class="panel">
     <input id="searchInput" placeholder="Search..." style="padding:.4rem;border:1px solid var(--primary);border-radius:7px;font-size:.9rem;width:200px;margin-bottom:.6rem;">
     <table id="storesTable">
@@ -129,20 +103,15 @@
   </div>
 
   <script>
-    /* ---------- INIT ---------- */
     const supabase = window.supabase.createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
     let allStores=[], currentFilter="all", currentChart="country", chartInstance=null, chartsVisible=true;
-    const ctx = document.getElementById("chartCanvas").getContext("2d");
-    const kpiEls = {
-      total:kpiTotal, approved:kpiApproved, pending:kpiPending,
-      flagged:kpiFlagged, deleted:kpiDeleted, newMonth:kpiNewMonth
-    };
+    const ctx=document.getElementById("chartCanvas").getContext("2d");
+    const kpiEls={ total:kpiTotal, approved:kpiApproved, pending:kpiPending, flagged:kpiFlagged, deleted:kpiDeleted, newMonth:kpiNewMonth };
 
-    /* ---------- Country→Continent (196) ---------- */
     function continentFromCountry(country){
       if(!country) return "Other";
       const c=country.trim().toLowerCase();
@@ -150,7 +119,7 @@
       return m[c]||"Other";
     }
 
-    /* ---------- Load Data ---------- */
+    // Load + enrich
     loadData();
     async function loadData(){
       const { data, error } = await supabase.from("stores").select("*");
@@ -163,8 +132,8 @@
         continent: s.continent || continentFromCountry(s.country)
       }));
 
-      // 🛠 Uppdatera saknad continent till DB (bara de som saknar)
-      const toUpdate = allStores.filter(s=>!s.continent || s.continent==="Other").filter(s=>s.country);
+      // update missing continent back to DB (only if we can resolve)
+      const toUpdate = allStores.filter(s=>(!s.continent||s.continent==="Other") && s.country);
       for(const s of toUpdate){
         const cont = continentFromCountry(s.country);
         if(cont && cont!=="Other"){
@@ -175,13 +144,9 @@
         }
       }
 
-      renderKPIs();
-      renderTable();
-      renderChart();
-      updateTopKpis();
+      renderKPIs(); renderTable(); renderChart(); updateTopKpis();
     }
 
-    /* ---------- KPIs ---------- */
     function renderKPIs(){
       const total=allStores.length;
       const approved=allStores.filter(s=>s.approved).length;
@@ -190,7 +155,6 @@
       const deleted=allStores.filter(s=>s.deleted).length;
       const monthCut=new Date();monthCut.setDate(monthCut.getDate()-30);
       const newMonth=allStores.filter(s=>s.created_at && new Date(s.created_at)>=monthCut).length;
-
       kpiEls.total.textContent=total;
       kpiEls.approved.textContent=approved;
       kpiEls.pending.textContent=pending;
@@ -200,16 +164,14 @@
     }
 
     function updateTopKpis(){
-      // Top views/clicks/ctr labels
-      const topViews = [...allStores].sort((a,b)=>b.views-a.views)[0];
-      const topClicks = [...allStores].sort((a,b)=>b.link_clicks-a.link_clicks)[0];
-      const topCtr = [...allStores].filter(s=>s.views>0).sort((a,b)=> (b.link_clicks/b.views) - (a.link_clicks/a.views))[0];
+      const topViews=[...allStores].sort((a,b)=>b.views-a.views)[0];
+      const topClicks=[...allStores].sort((a,b)=>b.link_clicks-a.link_clicks)[0];
+      const topCtr=[...allStores].filter(s=>s.views>0).sort((a,b)=> (b.link_clicks/b.views)-(a.link_clicks/a.views))[0];
       if(document.getElementById("kpiViews")) kpiViews.textContent = topViews?.name || "Top";
       if(document.getElementById("kpiClicks")) kpiClicks.textContent = topClicks?.name || "Top";
       if(document.getElementById("kpiCtr")) kpiCtr.textContent = topCtr?.name || "Top";
     }
 
-    /* ---------- Filters + Search ---------- */
     function filtered(){
       let arr=[...allStores];
       if(currentFilter==="approved")arr=arr.filter(s=>s.approved);
@@ -221,10 +183,9 @@
       return arr;
     }
 
-    /* ---------- Table ---------- */
     function renderTable(){
       const tb=document.getElementById("tableBody");
-      const rows = filtered().slice(0,800).map(s=>{
+      const rows = filtered().slice(0,600).map(s=>{
         const ctr = s.views>0 ? ((s.link_clicks/s.views)*100).toFixed(1) : "0.0";
         const status = s.flagged?"flagged":s.approved?"approved":s.deleted?"deleted":"pending";
         const label  = s.flagged?"Flagged":s.approved?"Approved":s.deleted?"Deleted":"Pending";
@@ -243,7 +204,6 @@
       tb.innerHTML = rows || `<tr><td colspan="9" style="text-align:center;color:#777;">No rows</td></tr>`;
     }
 
-    /* ---------- Charts ---------- */
     function buildAgg(byKey){
       const m=new Map();
       filtered().forEach(s=>{
@@ -256,37 +216,32 @@
     }
 
     function renderChart(){
-      if(chartInstance){ chartInstance.destroy(); }
-      const mode = currentChart;
-      let agg;
-      if(mode==="country")   agg = buildAgg("country");
-      else if(mode==="continent") agg = buildAgg("continent");
-      else /* type */        agg = buildAgg("type");
-
+      if(chartInstance){chartInstance.destroy();}
+      const mode=currentChart;
+      let agg = mode==="country" ? buildAgg("country")
+              : mode==="continent" ? buildAgg("continent")
+              : buildAgg("type");
       chartInstance=new Chart(ctx,{
         type:'bar',
         data:{labels:agg.labels,datasets:[{label:'Locations',data:agg.counts,backgroundColor:"#2f78c4"}]},
         options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
       });
-      chartTitle.textContent = `Performance per ${mode.charAt(0).toUpperCase()+mode.slice(1)}`;
+      chartTitle.textContent=`Performance per ${mode.charAt(0).toUpperCase()+mode.slice(1)}`;
     }
 
-    /* ---------- Helpers ---------- */
     function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
-    /* ---------- Events ---------- */
     document.getElementById("searchInput").addEventListener("input",()=>{ renderTable(); renderChart(); });
-
     document.querySelectorAll(".stat-card").forEach(card=>{
       card.addEventListener("click",()=>{
         document.querySelectorAll(".stat-card").forEach(c=>c.classList.remove("active"));
         card.classList.add("active");
-        currentFilter = card.dataset.kpi==="all" ? "all" : card.dataset.kpi;
+        currentFilter=card.dataset.kpi==="all"?"all":card.dataset.kpi;
         renderTable(); renderChart();
       });
     });
 
-    const toggleBtn = document.getElementById("toggleCharts");
+    const toggleBtn=document.getElementById("toggleCharts");
     toggleBtn?.addEventListener("click",()=>{
       chartsVisible=!chartsVisible;
       const p=document.getElementById("chartsPanel");
@@ -296,26 +251,15 @@
 
     document.getElementById("btnCountry").addEventListener("click",()=>{ 
       document.querySelectorAll(".row .btn").forEach(b=>b.classList.remove("active"));
-      btnCountry.classList.add("active");
-      currentChart="country"; renderChart(); 
+      btnCountry.classList.add("active"); currentChart="country"; renderChart(); 
     });
     document.getElementById("btnContinent").addEventListener("click",()=>{ 
       document.querySelectorAll(".row .btn").forEach(b=>b.classList.remove("active"));
-      btnContinent.classList.add("active");
-      currentChart="continent"; renderChart(); 
+      btnContinent.classList.add("active"); currentChart="continent"; renderChart(); 
     });
     document.getElementById("btnType").addEventListener("click",()=>{ 
       document.querySelectorAll(".row .btn").forEach(b=>b.classList.remove("active"));
-      btnType.classList.add("active");
-      currentChart="type"; renderChart(); 
-    });
-
-    // If you had a refresh/edge function button by id "runRefreshBtn" earlier:
-    const runRefreshBtn = document.getElementById("runRefreshBtn");
-    runRefreshBtn?.addEventListener("click",()=>{
-      if(confirm("Are you sure you want to force refresh of all photo URLs?\n(This uses Google API quota.)")){
-        alert("✅ Refresh placeholder — actual Edge Function not triggered in GH version.");
-      }
+      btnType.classList.add("active"); currentChart="type"; renderChart(); 
     });
   </script>
 </body>
