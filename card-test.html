@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WCL – Card Design Test</title>
+  <style>
+    body {
+      background: #fff;
+      color: #111;
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .store-card {
+      background: #111;
+      color: #eee;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      width: 340px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+    }
+
+    .top {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .img-box {
+      width: 120px;
+      height: 120px;
+      background: #000;
+      border: 1px solid #333;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      font-weight: 800;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .badges {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      padding: 0.25rem 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .badge.store { background: #28a745; }  /* green */
+    .badge.lounge { background: #007bff; } /* blue */
+
+    .rating {
+      color: #f0c55a;
+      font-size: 1rem;
+      margin-top: 0.2rem;
+    }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-top: 0.4rem;
+    }
+
+    .info p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #ddd;
+      line-height: 1.3;
+    }
+
+    .title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #fff;
+      margin-top: 0.3rem;
+    }
+
+    .membership {
+      font-size: 0.8rem;
+      color: #c9a227;
+      font-weight: 700;
+      margin-top: 0.2rem;
+    }
+
+    a {
+      color: #f0c55a;
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="store-card">
+    <div class="top">
+      <div class="img-box">Bild</div>
+      <div>
+        <div class="badges">
+          <span class="badge store">Store</span>
+          <span class="badge lounge">Lounge</span>
+        </div>
+        <div class="rating">★★★★★</div>
+      </div>
+    </div>
+    <div class="title">Cigarrummet</div>
+    <div class="info">
+      <p><strong>📍</strong> Sweden, Stockholm</p>
+      <p><strong>🏠</strong> Kungsgatan 55</p>
+      <p><strong>📞</strong> +46 8 21 59 34</p>
+      <p class="membership"><strong>👥</strong> Public / Membership</p>
+      <p><strong>🌐</strong> <a href="#">www.cigarrummet.se</a></p>
+    </div>
+  </div>
+</body>
+</html>
