@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WCL – Card Design Test</title>
+  <title>WCL – Card Design Test v2</title>
   <style>
     body {
       background: #fff;
@@ -20,39 +20,51 @@
       color: #eee;
       border: 1px solid #2a2a2a;
       border-radius: 12px;
-      width: 340px;
-      padding: 1rem;
+      width: 380px;       /* lite bredare */
+      height: 180px;      /* lägre kort = mer rektangulärt */
+      padding: 0.8rem 1rem;
       display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
-    }
-
-    .top {
-      display: flex;
-      align-items: flex-start;
       gap: 1rem;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+      align-items: center; /* centrera vertikalt */
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
 
+    .store-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    }
+
+    /* ===== Bilden ===== */
     .img-box {
-      width: 120px;
-      height: 120px;
+      width: 140px;    /* större bild */
+      height: 140px;
       background: #000;
       border: 1px solid #333;
-      border-radius: 8px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #666;
       font-weight: 800;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       flex-shrink: 0;
     }
 
-    .badges {
+    /* ===== Infozon ===== */
+    .info-block {
+      flex: 1;
       display: flex;
+      flex-direction: column;
+      justify-content: center;
       gap: 0.4rem;
-      flex-wrap: wrap;
+    }
+
+    .badge-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.2rem;
     }
 
     .badge {
@@ -64,41 +76,40 @@
       text-transform: uppercase;
     }
 
-    .badge.store { background: #28a745; }  /* green */
-    .badge.lounge { background: #007bff; } /* blue */
+    .badge.store { background: #28a745; }
+    .badge.lounge { background: #007bff; }
 
     .rating {
       color: #f0c55a;
       font-size: 1rem;
-      margin-top: 0.2rem;
+      letter-spacing: 1px;
+    }
+
+    .title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
     }
 
     .info {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
-      margin-top: 0.4rem;
+      gap: 0.15rem;
+      margin-top: 0.2rem;
     }
 
     .info p {
       margin: 0;
-      font-size: 0.9rem;
-      color: #ddd;
-      line-height: 1.3;
-    }
-
-    .title {
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: #fff;
-      margin-top: 0.3rem;
+      font-size: 0.85rem;
+      color: #ccc;
+      line-height: 1.2;
     }
 
     .membership {
       font-size: 0.8rem;
       color: #c9a227;
       font-weight: 700;
-      margin-top: 0.2rem;
+      margin-top: 0.15rem;
     }
 
     a {
@@ -111,23 +122,22 @@
 </head>
 <body>
   <div class="store-card">
-    <div class="top">
-      <div class="img-box">Bild</div>
-      <div>
-        <div class="badges">
-          <span class="badge store">Store</span>
-          <span class="badge lounge">Lounge</span>
-        </div>
-        <div class="rating">★★★★★</div>
+    <div class="img-box">Bild</div>
+
+    <div class="info-block">
+      <div class="badge-row">
+        <span class="badge store">Store</span>
+        <span class="badge lounge">Lounge</span>
+        <span class="rating">★★★★★</span>
       </div>
-    </div>
-    <div class="title">Cigarrummet</div>
-    <div class="info">
-      <p><strong>📍</strong> Sweden, Stockholm</p>
-      <p><strong>🏠</strong> Kungsgatan 55</p>
-      <p><strong>📞</strong> +46 8 21 59 34</p>
-      <p class="membership"><strong>👥</strong> Public / Membership</p>
-      <p><strong>🌐</strong> <a href="#">www.cigarrummet.se</a></p>
+      <div class="title">Cigarrummet</div>
+      <div class="info">
+        <p><strong>📍</strong> Sweden, Stockholm</p>
+        <p><strong>🏠</strong> Kungsgatan 55</p>
+        <p><strong>📞</strong> +46 8 21 59 34</p>
+        <p class="membership"><strong>👥</strong> Public / Membership</p>
+        <p><strong>🌐</strong> <a href="#">www.cigarrummet.se</a></p>
+      </div>
     </div>
   </div>
 </body>
