@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WCL – Kort (balanserad v2)</title>
+  <title>WCL – Kort (balanserad v3)</title>
   <style>
     :root {
       --green: #28a745;
@@ -41,7 +41,7 @@
     .top {
       position: relative;
       display: flex;
-      align-items: center;
+      align-items: flex-end; /* 🔽 flyttar ner badges/stjärnor något */
       padding: 1rem 1.8rem 1rem 1.6rem; /* balanserad spacing */
       gap: 1.4rem;
     }
@@ -67,7 +67,7 @@
       justify-content: center;
       gap: 0.6rem;
       margin-left: 0.6rem;
-      padding-right: 0.5rem; /* 🟢 Mer luft mot högerkanten */
+      padding-right: 0.5rem; /* extra luft mot höger */
     }
 
     .badges {
@@ -93,7 +93,7 @@
       color: var(--gold);
       font-size: 1.1rem;
       letter-spacing: 1px;
-      margin-top: 0.3rem;
+      margin-top: 0.45rem; /* 🔽 lite mer luft ovanför stjärnorna */
     }
 
     /* === Titel === */
@@ -101,7 +101,7 @@
       font-size: 1.3rem;
       font-weight: 800;
       text-align: left;
-      margin: 1.5rem 1.4rem 0.5rem 1.4rem;
+      margin: 1.5rem 1.6rem 0.5rem 1.6rem; /* 🟢 inriktat exakt med infon */
       color: #fff;
     }
 
@@ -164,8 +164,8 @@
         <div class="badges">
           <span class="badge store">Store</span>
           <span class="badge lounge">Lounge</span>
-          <span class="rating">★★★★★</span>
         </div>
+        <div class="rating">★★★★★</div>
       </div>
     </div>
 
