@@ -1,371 +1,322 @@
-<!-- backoffice.html | 2025-10-20 | English version + search bar (Pending) + instant updates + improved toast -->
+<!-- Backoffice — Business Analytics V3 (Continent Integration) | 2025-10-22 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Backoffice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backoffice — Business Analytics (V3)</title>
+
+  <!-- ✅ Non-module Supabase + Chart.js + XLSX (works on GitHub Pages) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <style>
     :root {
-      --primary:#2f78c4;
-      --primary-dark:#2466a8;
-      --success:#1d8348;
-      --warning:#b36e00;
-      --danger:#c0392b;
-      --bg:#f5f6f8;
-      --card:#ffffff;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --border:#e5e7eb;
-      --gold:#b8860b;
+      --primary:#2f78c4; --primary-dark:#2466a8;
+      --accent:#28a745; --bg:#f5f6f8; --card:#fff;
+      --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
     }
-    *{box-sizing:border-box}
-    body{
-      font-family:Arial,Helvetica,sans-serif;
-      background:var(--bg);
-      margin:0;
-      padding:2rem;
-      color:var(--text);
-    }
-    h1{text-align:center;margin-bottom:1.2rem;color:var(--primary-dark);}
-    .top-bar{
-      display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem;
-    }
-    .top-bar button{
-      background:var(--primary);color:#fff;border:none;padding:.6rem 1rem;
-      border-radius:8px;cursor:pointer;font-weight:bold;font-size:.9rem;
-    }
-    .top-bar button.secondary{background:#fff;color:var(--primary);border:2px solid var(--primary);}
-    .top-bar button:hover{background:var(--primary-dark);color:#fff;}
+    *{box-sizing:border-box;}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:1.2rem;color:var(--text);font-size:10px;}
 
-    /* 🔍 NEW: Search bar styling */
-    .searchbar {
-      display:none; /* visible only in Pending */
-      justify-content:center;
-      gap:.5rem;
-      margin-bottom:1rem;
-      flex-wrap:wrap;
-    }
-    .searchbar input {
-      border:1.6px solid var(--primary);
-      border-radius:8px;
-      padding:.45rem .7rem;
-      min-width:260px;
-    }
-    .searchbar button {
-      background:var(--primary);
-      color:#fff;
-      border:none;
-      border-radius:8px;
-      padding:.45rem .8rem;
-      font-weight:bold;
-      cursor:pointer;
-    }
-    .searchbar button.clear {
-      background:#fff;
-      color:var(--primary);
-      border:1.6px solid var(--primary);
-    }
-    .searchbar button:hover {filter:brightness(.96);}
+    h1{text-align:center;margin:0 0 1rem;color:#2b2b2b;font-weight:800;font-size:1.4rem;}
 
-    .count-text {
-      text-align:center;
-      color:var(--muted);
-      margin-bottom:1rem;
-      font-size:.9rem;
+    nav{display:flex;justify-content:center;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;}
+    nav a,nav button{
+      background:#fff;border:1.4px solid var(--primary);color:var(--primary);
+      padding:.35rem .6rem;border-radius:7px;font-weight:800;text-decoration:none;font-size:.9rem;cursor:pointer;
     }
+    nav a:hover,nav button:hover{background:var(--primary);color:#fff;}
 
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;}
-    .card{
-      background:var(--card);border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,0.1);
-      overflow:hidden;display:flex;flex-direction:column;transition:all .25s ease;
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.5rem;margin-bottom:.8rem;}
+    .stat-card{
+      background:var(--card);border:1px solid var(--border);border-radius:9px;
+      box-shadow:0 1px 3px rgba(0,0,0,.05);padding:.6rem;text-align:center;cursor:pointer;
+      transition:transform .1s, box-shadow .1s;
     }
-    .card.expanded{transform:scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,0.2);}
-    .card img{width:100%;height:180px;object-fit:cover;}
-    .card-content{padding:1rem;flex:1;}
-    .badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem;}
-    .badge{display:inline-block;padding:.25rem .7rem;border-radius:12px;font-size:.8rem;font-weight:bold;color:#fff;}
-    .store{background:#007bff;}
-    .lounge{background:#28a745;}
-    .other{background:#ff8c00;}
-    .flagged{background:#dc3545!important;}
-    .rating{color:var(--gold);margin-top:.3rem;}
-    .status{font-size:.85rem;color:var(--muted);margin-top:.3rem;}
-    .date{font-size:.75rem;color:#999;margin-top:.3rem;}
-    .access-line{color:var(--primary-dark);font-size:.85rem;margin:.2rem 0;}
-    .details{display:none;margin-top:.4rem;}
-    .card.expanded .details{display:block;}
-    .details label{font-weight:bold;font-size:.85rem;margin-top:.3rem;display:block;}
-    .details input,.details select{
-      width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;margin-bottom:.3rem;font-size:.9rem;
-    }
-    .stars{display:flex;gap:.3rem;font-size:1.3rem;cursor:pointer;color:#ccc;margin:.2rem 0;}
-    .stars .sel{color:var(--gold);}
-    .btn-row{display:flex;gap:.5rem;padding:0 1rem 1rem;}
-    .btn-row button{flex:1;padding:.55rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold;}
-    .approve{background:var(--success);color:#fff;}
-    .delete{background:var(--danger);color:#fff;}
-    .edit{background:var(--primary-dark);color:#fff;}
-    .flag{background:#ff8c00;color:#fff;}
-    .approve:hover{background:#166f3e;}
-    .flag:hover{background:#d97706;}
-    .delete:hover{background:#a83228;}
-    .edit:hover{background:#1e4e7a;}
-    .save{background:var(--primary);color:#fff;margin-top:.4rem;}
-    .cancel{background:#999;color:#fff;margin-top:.4rem;}
+    .stat-card:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.1);}
+    .stat-card.active{background:var(--accent);color:#fff;}
+    .stat-card h2{margin:.05rem 0;font-size:1.3rem;font-weight:800;}
+    .stat-card p{margin:0;font-size:.9rem;opacity:.9;}
 
-    /* 🍞 UPDATED: Unified toast system */
-    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999;}
-    .toast{background:#333;color:#fff;padding:.8rem 1.2rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.97;animation:fadein .3s ease;}
-    .toast.success{background:#28a745;}
-    .toast.error{background:#dc3545;}
-    .toast.info{background:#2f78c4;}
-    @keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:9px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:.6rem;margin-bottom:.8rem;}
+    .row{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;align-items:center;}
+    .btn{
+      background:#fff;border:1.4px solid var(--primary);color:var(--primary);
+      padding:.35rem .6rem;border-radius:7px;font-weight:800;font-size:.9rem;cursor:pointer;
+    }
+    .btn:hover{background:var(--primary);color:#fff;}
+    .btn.active{background:var(--primary);color:#fff;}
+    #toggleCharts{background:var(--primary);color:#fff;border:none;}
+    #toggleCharts:hover{background:var(--primary-dark);}
+    .select{
+      border:1.4px solid var(--primary);border-radius:7px;padding:.32rem .5rem;
+      color:var(--primary);background:#fff;font-weight:800;font-size:.9rem;
+    }
+    .chart-title{text-align:center;font-weight:900;font-size:1rem;margin:.4rem 0;}
+    .chart-wrap{padding:.5rem;}
+    #chartsPanel.minimized{height:40px;overflow:hidden;}
+
+    table{width:100%;border-collapse:collapse;table-layout:fixed;}
+    th,td{padding:.5rem;border-bottom:1px solid #eee;text-align:left;font-size:.9rem;}
+    th{background:#f3f4f6;color:#333;cursor:pointer;}
+    tr:hover{background:#f9fafb;}
+    td.num{text-align:center;}
+    .status{font-weight:800;}
+    .approved{color:#1d8348}.flagged{color:#c0392b}.pending{color:#b36e00}.deleted{color:#777}
   </style>
 </head>
 <body>
-  <h1>Backoffice</h1>
+  <h1>World Cigar Locator — Business Analytics</h1>
 
-  <div class="top-bar">
-    <button onclick="window.location.href='add-store-backoffice.html'">Add Store</button>
-    <button onclick="window.location.href='backoffice-analytics-final-v2.html'">Analytics</button>
-    <button onclick="window.location.href='approved.html'">Approved</button>
-    <button onclick="route('flagged')">Flagged</button>
-    <button onclick="route('pending')" class="secondary">Pending</button>
-    <button onclick="route('trash')">Trash</button>
+  <nav>
+    <a href="backoffice.html"><strong>Home</strong></a>
+    <a href="add-store-backoffice.html">Add Store</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">↑ Top</a>
+  </nav>
+
+  <!-- KPI -->
+  <div class="stats-grid" id="kpiGrid">
+    <div class="stat-card" data-kpi="all"><h2 id="kpiTotal">–</h2><p>Total Locations</p></div>
+    <div class="stat-card" data-kpi="approved"><h2 id="kpiApproved">–</h2><p>Approved</p></div>
+    <div class="stat-card" data-kpi="pending"><h2 id="kpiPending">–</h2><p>Pending</p></div>
+    <div class="stat-card" data-kpi="flagged"><h2 id="kpiFlagged">–</h2><p>Flagged</p></div>
+    <div class="stat-card" data-kpi="deleted"><h2 id="kpiDeleted">–</h2><p>Deleted</p></div>
+    <div class="stat-card" data-kpi="views"><h2 id="kpiViews">Top</h2><p>Most Views</p></div>
+    <div class="stat-card" data-kpi="clicks"><h2 id="kpiClicks">Top</p><p>Most Clicks</p></div>
+    <div class="stat-card" data-kpi="ctr"><h2 id="kpiCtr">Top</h2><p>Top CTR</p></div>
+    <div class="stat-card" data-kpi="newmonth"><h2 id="kpiNewMonth">–</h2><p>New This Month</p></div>
   </div>
 
-  <!-- 🔍 NEW: Search bar (visible only in Pending) -->
-  <div class="searchbar" id="searchBar">
-    <input id="searchInput" type="text" placeholder="Search by name, city, country, or type...">
-    <button onclick="doSearch()">Search</button>
-    <button class="clear" onclick="clearSearch()">Clear</button>
+  <!-- Charts -->
+  <div class="panel" id="chartsPanel">
+    <div class="row">
+      <button class="btn" id="toggleCharts">Hide Charts ▴</button>
+      <select class="select" id="periodSelect">
+        <option value="7">Last 7 Days</option>
+        <option value="30" selected>Last 30 Days</option>
+        <option value="365">Last 12 Months</option>
+      </select>
+      <button class="btn active" id="btnCountry">By Country</button>
+      <button class="btn" id="btnContinent">By Continent</button>
+      <button class="btn" id="btnType">By Type</button>
+    </div>
+    <div class="chart-title" id="chartTitle">Performance per Country</div>
+    <div class="chart-wrap"><canvas id="chartCanvas" height="70"></canvas></div>
   </div>
 
-  <!-- 🔢 NEW: Dynamic result count -->
-  <div class="count-text" id="countText"></div>
-
-  <div id="storeGrid" class="grid"></div>
-  <div id="toast-container"></div>
+  <!-- Table -->
+  <div class="panel">
+    <input id="searchInput" placeholder="Search..." style="padding:.4rem;border:1px solid var(--primary);border-radius:7px;font-size:.9rem;width:200px;margin-bottom:.6rem;">
+    <table id="storesTable">
+      <thead>
+        <tr>
+          <th data-sort="name">Name</th>
+          <th data-sort="country">Country</th>
+          <th data-sort="continent">Continent</th>
+          <th data-sort="type">Type</th>
+          <th data-sort="views">Views</th>
+          <th data-sort="clicks">Clicks</th>
+          <th data-sort="ctr">CTR (%)</th>
+          <th data-sort="rating">Rating</th>
+          <th data-sort="status">Status</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
 
   <script>
-    /* ---------- Supabase ---------- */
+    /* ---------- INIT ---------- */
     const supabase = window.supabase.createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
     );
 
-    const grid=document.getElementById("storeGrid");
-    const countText=document.getElementById("countText");
-    const searchBar=document.getElementById("searchBar");
-    const searchInput=document.getElementById("searchInput");
-    let currentView="pending";
-    let allStores=[]; // store all pending for live filter
-    let searchQuery="";
+    let allStores=[], currentFilter="all", currentChart="country", chartInstance=null, chartsVisible=true;
+    const ctx = document.getElementById("chartCanvas").getContext("2d");
+    const kpiEls = {
+      total:kpiTotal, approved:kpiApproved, pending:kpiPending,
+      flagged:kpiFlagged, deleted:kpiDeleted, newMonth:kpiNewMonth
+    };
 
-    async function route(view){
-      currentView=view;
-      grid.innerHTML="";
-      countText.textContent="";
-      searchBar.style.display = (view==="pending") ? "flex" : "none"; // 🔍 show search only for pending
-      if(view==="pending") await loadStores({approved:false,title:"⏳ Pending"});
-      if(view==="flagged") await loadStores({flagged:true,title:"🚩 Flagged"});
-      if(view==="trash") await loadTrash();
+    /* ---------- Country→Continent (196) ---------- */
+    function continentFromCountry(country){
+      if(!country) return "Other";
+      const c=country.trim().toLowerCase();
+      const m={"afghanistan":"Asia","albania":"Europe","algeria":"Africa","andorra":"Europe","angola":"Africa","antigua and barbuda":"North America","argentina":"South America","armenia":"Asia","australia":"Oceania","austria":"Europe","azerbaijan":"Asia","bahamas":"North America","bahrain":"Asia","bangladesh":"Asia","barbados":"North America","belarus":"Europe","belgium":"Europe","belize":"North America","benin":"Africa","bhutan":"Asia","bolivia":"South America","bosnia and herzegovina":"Europe","botswana":"Africa","brazil":"South America","brunei":"Asia","bulgaria":"Europe","burkina faso":"Africa","burundi":"Africa","cabo verde":"Africa","cambodia":"Asia","cameroon":"Africa","canada":"North America","central african republic":"Africa","chad":"Africa","chile":"South America","china":"Asia","colombia":"South America","comoros":"Africa","congo":"Africa","democratic republic of the congo":"Africa","costa rica":"North America","croatia":"Europe","cuba":"North America","cyprus":"Asia","czech republic":"Europe","czechia":"Europe","denmark":"Europe","djibouti":"Africa","dominica":"North America","dominican republic":"North America","ecuador":"South America","egypt":"Africa","el salvador":"North America","equatorial guinea":"Africa","eritrea":"Africa","estonia":"Europe","eswatini":"Africa","ethiopia":"Africa","fiji":"Oceania","finland":"Europe","france":"Europe","gabon":"Africa","gambia":"Africa","georgia":"Asia","germany":"Europe","ghana":"Africa","greece":"Europe","grenada":"North America","guatemala":"North America","guinea":"Africa","guinea-bissau":"Africa","guyana":"South America","haiti":"North America","honduras":"North America","hungary":"Europe","iceland":"Europe","india":"Asia","indonesia":"Asia","iran":"Asia","iraq":"Asia","ireland":"Europe","israel":"Asia","italy":"Europe","ivory coast":"Africa","jamaica":"North America","japan":"Asia","jordan":"Asia","kazakhstan":"Asia","kenya":"Africa","kiribati":"Oceania","kosovo":"Europe","kuwait":"Asia","kyrgyzstan":"Asia","laos":"Asia","latvia":"Europe","lebanon":"Asia","lesotho":"Africa","liberia":"Africa","libya":"Africa","liechtenstein":"Europe","lithuania":"Europe","luxembourg":"Europe","madagascar":"Africa","malawi":"Africa","malaysia":"Asia","maldives":"Asia","mali":"Africa","malta":"Europe","marshall islands":"Oceania","mauritania":"Africa","mauritius":"Africa","mexico":"North America","micronesia":"Oceania","moldova":"Europe","monaco":"Europe","mongolia":"Asia","montenegro":"Europe","morocco":"Africa","mozambique":"Africa","myanmar":"Asia","namibia":"Africa","nauru":"Oceania","nepal":"Asia","netherlands":"Europe","new zealand":"Oceania","nicaragua":"North America","niger":"Africa","nigeria":"Africa","north korea":"Asia","north macedonia":"Europe","norway":"Europe","oman":"Asia","pakistan":"Asia","palau":"Oceania","palestine":"Asia","panama":"North America","papua new guinea":"Oceania","paraguay":"South America","peru":"South America","philippines":"Asia","poland":"Europe","portugal":"Europe","qatar":"Asia","romania":"Europe","russia":"Europe","rwanda":"Africa","saint kitts and nevis":"North America","saint lucia":"North America","saint vincent and the grenadines":"North America","samoa":"Oceania","san marino":"Europe","sao tome and principe":"Africa","saudi arabia":"Asia","senegal":"Africa","serbia":"Europe","seychelles":"Africa","sierra leone":"Africa","singapore":"Asia","slovakia":"Europe","slovenia":"Europe","solomon islands":"Oceania","somalia":"Africa","south africa":"Africa","south korea":"Asia","south sudan":"Africa","spain":"Europe","sri lanka":"Asia","sudan":"Africa","suriname":"South America","sweden":"Europe","switzerland":"Europe","syria":"Asia","taiwan":"Asia","tajikistan":"Asia","tanzania":"Africa","thailand":"Asia","timor-leste":"Asia","togo":"Africa","tonga":"Oceania","trinidad and tobago":"North America","tunisia":"Africa","turkey":"Asia","turkmenistan":"Asia","tuvalu":"Oceania","uganda":"Africa","ukraine":"Europe","united arab emirates":"Asia","united kingdom":"Europe","united states":"North America","usa":"North America","uruguay":"South America","uzbekistan":"Asia","vanuatu":"Oceania","vatican city":"Europe","venezuela":"South America","vietnam":"Asia","yemen":"Asia","zambia":"Africa","zimbabwe":"Africa"};
+      return m[c]||"Other";
     }
 
-    /* ---------- Load stores ---------- */
-    async function loadStores(opts={}){
-      let query=supabase.from("stores").select("*").order("created_at",{ascending:false});
-      if(opts.approved===false) query=query.eq("approved",false).eq("deleted",false);
-      if(opts.flagged) query=query.eq("flagged",true).eq("deleted",false);
-      const {data,error}=await query;
-      if(error){showToast(error.message,"error");return;}
-      allStores=data||[];
-      renderFiltered();
+    /* ---------- Load Data ---------- */
+    loadData();
+    async function loadData(){
+      const { data, error } = await supabase.from("stores").select("*");
+      if(error){console.error(error);return;}
+      allStores=(data||[]).map(s=>({
+        ...s,
+        views:+(s.views||0),
+        link_clicks:+(s.link_clicks||0),
+        rating:+(s.rating||0),
+        continent: s.continent || continentFromCountry(s.country)
+      }));
+
+      // 🛠 Uppdatera saknad continent till DB (bara de som saknar)
+      const toUpdate = allStores.filter(s=>!s.continent || s.continent==="Other").filter(s=>s.country);
+      for(const s of toUpdate){
+        const cont = continentFromCountry(s.country);
+        if(cont && cont!=="Other"){
+          try{
+            await supabase.from("stores").update({continent:cont}).eq("id", s.id);
+            s.continent = cont;
+          }catch(e){ console.warn("Update continent failed for", s.id, e); }
+        }
+      }
+
+      renderKPIs();
+      renderTable();
+      renderChart();
+      updateTopKpis();
     }
 
-    /* ---------- Live filtering + search ---------- */
-    function doSearch(){ searchQuery=searchInput.value.trim().toLowerCase(); renderFiltered(); }
-    function clearSearch(){ searchInput.value=""; searchQuery=""; renderFiltered(); }
-    searchInput.addEventListener("keypress",e=>{ if(e.key==="Enter") doSearch(); });
+    /* ---------- KPIs ---------- */
+    function renderKPIs(){
+      const total=allStores.length;
+      const approved=allStores.filter(s=>s.approved).length;
+      const pending=allStores.filter(s=>!s.approved && !s.deleted).length;
+      const flagged=allStores.filter(s=>s.flagged).length;
+      const deleted=allStores.filter(s=>s.deleted).length;
+      const monthCut=new Date();monthCut.setDate(monthCut.getDate()-30);
+      const newMonth=allStores.filter(s=>s.created_at && new Date(s.created_at)>=monthCut).length;
 
-    function renderFiltered(){
-      const list = searchQuery
-        ? allStores.filter(s=>
-            [s.name,s.city,s.country,s.type].some(v=>(v||"").toLowerCase().includes(searchQuery))
-          )
-        : allStores;
-      grid.innerHTML="";
-      countText.textContent = (currentView==="pending")
-        ? `${list.length} pending store${list.length===1?"":"s"} found`
-        : "";
-      list.forEach(renderCard);
+      kpiEls.total.textContent=total;
+      kpiEls.approved.textContent=approved;
+      kpiEls.pending.textContent=pending;
+      kpiEls.flagged.textContent=flagged;
+      kpiEls.deleted.textContent=deleted;
+      kpiEls.newMonth.textContent=newMonth;
     }
 
-    /* ---------- Card rendering ---------- */
-    function renderCard(store){
-      const card=document.createElement("div");
-      card.className="card";
-      const badges=Array.isArray(store.types)
-        ? store.types.map(t=>`<span class='badge ${t}'>${t}</span>`).join(" ")
-        : `<span class='badge ${store.type}'>${store.type}</span>`;
-      const img=store.photo_url||store.photo_reference||"images/store.jpg";
-      const stars=store.rating ? "★".repeat(store.rating)+"☆".repeat(5-store.rating) : "☆☆☆☆☆";
-      const access=store.type==="lounge"&&store.access
-        ? `<div class='access-line'>${store.access==="members"?"🔒 Members only":store.access==="temporary"?"⏳ Temporary members":"🌐 Public access"}</div>`:"";
+    function updateTopKpis(){
+      // Top views/clicks/ctr labels
+      const topViews = [...allStores].sort((a,b)=>b.views-a.views)[0];
+      const topClicks = [...allStores].sort((a,b)=>b.link_clicks-a.link_clicks)[0];
+      const topCtr = [...allStores].filter(s=>s.views>0).sort((a,b)=> (b.link_clicks/b.views) - (a.link_clicks/a.views))[0];
+      if(document.getElementById("kpiViews")) kpiViews.textContent = topViews?.name || "Top";
+      if(document.getElementById("kpiClicks")) kpiClicks.textContent = topClicks?.name || "Top";
+      if(document.getElementById("kpiCtr")) kpiCtr.textContent = topCtr?.name || "Top";
+    }
 
-      card.innerHTML=`
-        <img src="${img}" alt="${store.name||""}" onerror="this.src='images/store.jpg'">
-        <div class='card-content'>
-          <div class='badges'>${store.flagged?"<span class='badge flagged'>Flagged</span>":""}${badges}</div>
-          <h3>${store.name||"Unnamed"}</h3>
-          <p>${store.city||""}, ${store.country||""}</p>
-          ${access}
-          <div class='rating'>${stars}</div>
-          <div class='status'>${store.approved?"✅ Approved":"⏳ Pending"}</div>
-          <div class='date'>📅 ${store.created_at?new Date(store.created_at).toLocaleDateString("en-US"):"-"}</div>
+    /* ---------- Filters + Search ---------- */
+    function filtered(){
+      let arr=[...allStores];
+      if(currentFilter==="approved")arr=arr.filter(s=>s.approved);
+      if(currentFilter==="pending")arr=arr.filter(s=>!s.approved && !s.deleted);
+      if(currentFilter==="flagged")arr=arr.filter(s=>s.flagged);
+      if(currentFilter==="deleted")arr=arr.filter(s=>s.deleted);
+      const q=(document.getElementById("searchInput").value||"").toLowerCase();
+      if(q)arr=arr.filter(s=>(s.name||"").toLowerCase().includes(q)||(s.city||"").toLowerCase().includes(q)||(s.country||"").toLowerCase().includes(q)||(s.continent||"").toLowerCase().includes(q));
+      return arr;
+    }
 
-          <div class='details'>
-            <label>Name</label><input id='name-${store.id}' value='${store.name||""}'>
-            <label>Address</label><input id='addr-${store.id}' value='${store.address||""}'>
-            <label>City</label><input id='city-${store.id}' value='${store.city||""}'>
-            <label>Country</label><input id='country-${store.id}' value='${store.country||""}'>
-            <label>Phone</label><input id='phone-${store.id}' value='${store.phone||""}'>
-            <label>Website</label><input id='web-${store.id}' value='${store.website||""}'>
-            <label>Type</label>
-            <select id='type-${store.id}'>
-              <option value='store' ${store.type==='store'?'selected':''}>Store</option>
-              <option value='lounge' ${store.type==='lounge'?'selected':''}>Lounge</option>
-              <option value='other' ${store.type==='other'?'selected':''}>Other</option>
-            </select>
-            <div id='access-${store.id}' style='${store.type==='lounge'?'':'display:none;'}'>
-              <label>Lounge access</label>
-              <select id='accessVal-${store.id}'>
-                <option value='public' ${store.access==='public'?'selected':''}>Public</option>
-                <option value='temporary' ${store.access==='temporary'?'selected':''}>Temporary</option>
-                <option value='members' ${store.access==='members'?'selected':''}>Members only</option>
-              </select>
-            </div>
-            <label>Rating</label>
-            <div class='stars' id='stars-${store.id}'>
-              ${[1,2,3,4,5].map(i=>`<span data-v='${i}' ${store.rating>=i?"class='sel'":""}>★</span>`).join("")}
-            </div>
-            <button class='save' onclick='saveChanges("${store.id}")'>💾 Save</button>
-            <button class='cancel' onclick='toggleExpand(this,true)'>✖ Cancel</button>
-          </div>
-        </div>
-        <div class='btn-row'>
-          <button class='approve' onclick='updateStatus("${store.id}",${!store.approved})'>${store.approved?"Unapprove":"Approve"}</button>
-          <button class='delete' onclick='softDelete("${store.id}")'>Delete</button>
-          <button class='edit' onclick='toggleExpand(this)'>Edit</button>
-          <button class='flag' onclick='toggleFlag("${store.id}",${!!store.flagged})'>${store.flagged?"Unflag":"Flag"}</button>
-        </div>`;
-      grid.appendChild(card);
+    /* ---------- Table ---------- */
+    function renderTable(){
+      const tb=document.getElementById("tableBody");
+      const rows = filtered().slice(0,800).map(s=>{
+        const ctr = s.views>0 ? ((s.link_clicks/s.views)*100).toFixed(1) : "0.0";
+        const status = s.flagged?"flagged":s.approved?"approved":s.deleted?"deleted":"pending";
+        const label  = s.flagged?"Flagged":s.approved?"Approved":s.deleted?"Deleted":"Pending";
+        return `<tr>
+          <td>${esc(s.name||"–")}</td>
+          <td>${esc(s.country||"–")}</td>
+          <td>${esc(s.continent||"–")}</td>
+          <td>${esc(s.type||"–")}</td>
+          <td class="num">${s.views}</td>
+          <td class="num">${s.link_clicks}</td>
+          <td class="num">${ctr}</td>
+          <td class="num">${s.rating||0}</td>
+          <td class="status ${status}">${label}</td>
+        </tr>`;
+      }).join("");
+      tb.innerHTML = rows || `<tr><td colspan="9" style="text-align:center;color:#777;">No rows</td></tr>`;
+    }
 
-      // ⭐ Star listeners
-      const starsDiv=card.querySelector(`#stars-${store.id}`);
-      starsDiv.querySelectorAll("span").forEach(span=>{
-        span.addEventListener("click",()=>{
-          const v=parseInt(span.dataset.v);
-          store.rating=v;
-          starsDiv.querySelectorAll("span").forEach(s=>s.classList.toggle("sel",parseInt(s.dataset.v)<=v));
-        });
+    /* ---------- Charts ---------- */
+    function buildAgg(byKey){
+      const m=new Map();
+      filtered().forEach(s=>{
+        const k=(s[byKey]||"Unknown").trim();
+        if(!m.has(k)) m.set(k,{count:0});
+        m.get(k).count++;
       });
+      const arr=[...m.entries()].map(([k,v])=>({k, n:v.count})).sort((a,b)=>b.n-a.n).slice(0,15);
+      return { labels: arr.map(x=>x.k), counts: arr.map(x=>x.n) };
+    }
 
-      // Toggle lounge access box
-      card.querySelector(`#type-${store.id}`).addEventListener("change",(e)=>{
-        const val=e.target.value;
-        const accDiv=card.querySelector(`#access-${store.id}`);
-        accDiv.style.display=val==="lounge"?"block":"none";
+    function renderChart(){
+      if(chartInstance){ chartInstance.destroy(); }
+      const mode = currentChart;
+      let agg;
+      if(mode==="country")   agg = buildAgg("country");
+      else if(mode==="continent") agg = buildAgg("continent");
+      else /* type */        agg = buildAgg("type");
+
+      chartInstance=new Chart(ctx,{
+        type:'bar',
+        data:{labels:agg.labels,datasets:[{label:'Locations',data:agg.counts,backgroundColor:"#2f78c4"}]},
+        options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
       });
+      chartTitle.textContent = `Performance per ${mode.charAt(0).toUpperCase()+mode.slice(1)}`;
     }
 
-    function toggleExpand(btn,cancel=false){
-      const card=btn.closest(".card");
-      if(cancel) card.classList.remove("expanded");
-      else card.classList.toggle("expanded");
-    }
+    /* ---------- Helpers ---------- */
+    function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
-    /* ---------- Save / Approve / Flag / Delete with instant refresh ---------- */
-    async function saveChanges(id){
-      const name=document.getElementById(`name-${id}`).value.trim();
-      const address=document.getElementById(`addr-${id}`).value.trim();
-      const city=document.getElementById(`city-${id}`).value.trim();
-      const country=document.getElementById(`country-${id}`).value.trim();
-      const phone=document.getElementById(`phone-${id}`).value.trim();
-      const website=document.getElementById(`web-${id}`).value.trim();
-      const type=document.getElementById(`type-${id}`).value;
-      const access=type==="lounge"?document.getElementById(`accessVal-${id}`).value:null;
-      const rating=document.querySelectorAll(`#stars-${id} span.sel`).length||null;
+    /* ---------- Events ---------- */
+    document.getElementById("searchInput").addEventListener("input",()=>{ renderTable(); renderChart(); });
 
-      const {error}=await supabase.from("stores")
-        .update({name,address,city,country,phone,website,type,access,rating,updated_at:new Date().toISOString()})
-        .eq("id",id);
-      if(error) return showToast(error.message,"error");
-      showToast("💾 Saved successfully","success");
-      // 🔄 Update local store instantly without reload
-      const s=allStores.find(x=>x.id===id);
-      if(s){Object.assign(s,{name,address,city,country,phone,website,type,access,rating}); renderFiltered();}
-    }
+    document.querySelectorAll(".stat-card").forEach(card=>{
+      card.addEventListener("click",()=>{
+        document.querySelectorAll(".stat-card").forEach(c=>c.classList.remove("active"));
+        card.classList.add("active");
+        currentFilter = card.dataset.kpi==="all" ? "all" : card.dataset.kpi;
+        renderTable(); renderChart();
+      });
+    });
 
-    async function updateStatus(id,approved){
-      const {error}=await supabase.from("stores")
-        .update({approved,status:approved?"approved":"pending"})
-        .eq("id",id);
-      if(error)return showToast(error.message,"error");
-      showToast(approved?"✅ Approved":"⏳ Unapproved","success");
-      const idx=allStores.findIndex(x=>x.id===id);
-      if(idx>-1){allStores.splice(idx,1);renderFiltered();}
-    }
+    const toggleBtn = document.getElementById("toggleCharts");
+    toggleBtn?.addEventListener("click",()=>{
+      chartsVisible=!chartsVisible;
+      const p=document.getElementById("chartsPanel");
+      if(chartsVisible){p.classList.remove("minimized");toggleBtn.textContent="Hide Charts ▴";renderChart();}
+      else{p.classList.add("minimized");toggleBtn.textContent="Show Charts ▾";}
+    });
 
-async function toggleFlag(id, flagged) {
-  const { error } = await supabase
-    .from("stores")
-    .update({ flagged: !flagged })
-    .eq("id", id);
-  if (error) return showToast(error.message, "error");
-  showToast(flagged ? "🚫 Unflagged" : "🚩 Flagged", "success");
-  const s = allStores.find((x) => x.id === id);
-  if (s) s.flagged = !flagged;
-  renderFiltered();
-}
+    document.getElementById("btnCountry").addEventListener("click",()=>{ 
+      document.querySelectorAll(".row .btn").forEach(b=>b.classList.remove("active"));
+      btnCountry.classList.add("active");
+      currentChart="country"; renderChart(); 
+    });
+    document.getElementById("btnContinent").addEventListener("click",()=>{ 
+      document.querySelectorAll(".row .btn").forEach(b=>b.classList.remove("active"));
+      btnContinent.classList.add("active");
+      currentChart="continent"; renderChart(); 
+    });
+    document.getElementById("btnType").addEventListener("click",()=>{ 
+      document.querySelectorAll(".row .btn").forEach(b=>b.classList.remove("active"));
+      btnType.classList.add("active");
+      currentChart="type"; renderChart(); 
+    });
 
-    async function softDelete(id){
-      const delUntil=new Date(Date.now()+48*60*60*1000).toISOString();
-      const {error}=await supabase.from("stores")
-        .update({deleted:true,deleted_until:delUntil})
-        .eq("id",id);
-      if(error)return showToast(error.message,"error");
-      showToast("🗑️ Moved to Trash","success");
-      const idx=allStores.findIndex(x=>x.id===id);
-      if(idx>-1){allStores.splice(idx,1);renderFiltered();}
-    }
-
-    /* ---------- Toast helper ---------- */
-    function showToast(msg,type="info"){
-      const c=document.getElementById("toast-container");
-      const t=document.createElement("div");
-      t.className=`toast ${type}`;
-      t.textContent=msg;
-      c.appendChild(t);
-      setTimeout(()=>t.remove(),3000);
-    }
-
-    /* ---------- Load trash ---------- */
-    async function loadTrash(){
-      const {data,error}=await supabase.from("stores").select("*").eq("deleted",true);
-      if(error){showToast(error.message,"error");return;}
-      allStores=data||[];
-      renderFiltered();
-      countText.textContent=`${allStores.length} trashed store${allStores.length===1?"":"s"}`;
-    }
-
-    // ✅ Make route() globally available for buttons in top bar
-    window.route = route;
-
-    // 🔄 Start in Pending mode
-    route("pending");
+    // If you had a refresh/edge function button by id "runRefreshBtn" earlier:
+    const runRefreshBtn = document.getElementById("runRefreshBtn");
+    runRefreshBtn?.addEventListener("click",()=>{
+      if(confirm("Are you sure you want to force refresh of all photo URLs?\n(This uses Google API quota.)")){
+        alert("✅ Refresh placeholder — actual Edge Function not triggered in GH version.");
+      }
+    });
   </script>
 </body>
 </html>
