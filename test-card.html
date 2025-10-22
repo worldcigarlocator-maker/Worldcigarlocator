@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WCL – Stående kort (Final)</title>
+  <title>WCL – Kort (balanserad v2)</title>
   <style>
     :root {
       --green: #28a745;
@@ -42,7 +42,7 @@
       position: relative;
       display: flex;
       align-items: center;
-      padding: 1rem 1.8rem 1rem 1.6rem; /* ⚖️ balanserad spacing */
+      padding: 1rem 1.8rem 1rem 1.6rem; /* balanserad spacing */
       gap: 1.4rem;
     }
 
@@ -65,14 +65,16 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 0.8rem;
+      gap: 0.6rem;
       margin-left: 0.6rem;
+      padding-right: 0.5rem; /* 🟢 Mer luft mot högerkanten */
     }
 
     .badges {
       display: flex;
-      flex-direction: column; /* vertikal stapling */
-      gap: 0.4rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
     }
 
     .badge {
@@ -89,9 +91,9 @@
 
     .rating {
       color: var(--gold);
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       letter-spacing: 1px;
-      margin-top: 0.4rem;
+      margin-top: 0.3rem;
     }
 
     /* === Titel === */
@@ -99,7 +101,7 @@
       font-size: 1.3rem;
       font-weight: 800;
       text-align: left;
-      margin: 1.5rem 1.4rem 0.5rem 1.4rem; /* din justering */
+      margin: 1.5rem 1.4rem 0.5rem 1.4rem;
       color: #fff;
     }
 
@@ -108,7 +110,7 @@
       display: flex;
       flex-direction: column;
       gap: 0.7rem;
-      padding: 1.2rem 1.6rem; /* ⚖️ samma vänster/höger spacing som top */
+      padding: 1.2rem 1.6rem;
       margin-top: 0.3rem;
     }
 
@@ -162,8 +164,8 @@
         <div class="badges">
           <span class="badge store">Store</span>
           <span class="badge lounge">Lounge</span>
+          <span class="rating">★★★★★</span>
         </div>
-        <div class="rating">★★★★★</div>
       </div>
     </div>
 
