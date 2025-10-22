@@ -3,121 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WCL – Card Design Test v2</title>
+  <title>WCL – Card Design Test v3</title>
   <style>
     body {
-      background: #fff;
-      color: #111;
-      font-family: Arial, Helvetica, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      background:#fff;
+      font-family:Arial,Helvetica,sans-serif;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
     }
 
     .store-card {
-      background: #111;
-      color: #eee;
-      border: 1px solid #2a2a2a;
-      border-radius: 12px;
-      width: 380px;       /* lite bredare */
-      height: 180px;      /* lägre kort = mer rektangulärt */
-      padding: 0.8rem 1rem;
-      display: flex;
-      gap: 1rem;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
-      align-items: center; /* centrera vertikalt */
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      background:#111;
+      color:#eee;
+      border:1px solid #2a2a2a;
+      border-radius:16px;
+      width:480px;             /* bredare */
+      height:140px;            /* lägre – avlång */
+      display:flex;
+      align-items:center;
+      gap:1rem;
+      padding:0.8rem 1rem;
+      box-shadow:0 6px 14px rgba(0,0,0,0.25);
+      transition:transform .18s ease, box-shadow .18s ease;
+    }
+    .store-card:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,0.4);}
+
+    /* ==== Bild ==== */
+    .img-box{
+      width:120px;
+      height:120px;
+      border-radius:10px;
+      background:#000;
+      border:1px solid #333;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#777;
+      font-weight:800;
+      font-size:1.3rem;
+      flex-shrink:0;
     }
 
-    .store-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    /* ==== Innehåll ==== */
+    .info-block{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:0.3rem;
     }
 
-    /* ===== Bilden ===== */
-    .img-box {
-      width: 140px;    /* större bild */
-      height: 140px;
-      background: #000;
-      border: 1px solid #333;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #666;
-      font-weight: 800;
-      font-size: 1.3rem;
-      flex-shrink: 0;
+    .badge-row{
+      display:flex;
+      align-items:center;
+      gap:0.4rem;
+      margin-bottom:0.15rem;
+    }
+    .badge{
+      color:#fff;
+      font-weight:700;
+      font-size:0.75rem;
+      border-radius:6px;
+      padding:0.25rem 0.5rem;
+      text-transform:uppercase;
+    }
+    .badge.store{background:#28a745;}
+    .badge.lounge{background:#007bff;}
+    .rating{color:#f0c55a;font-size:1rem;letter-spacing:1px;}
+
+    .title{
+      font-size:1.05rem;
+      font-weight:800;
+      color:#fff;
+      line-height:1.2;
     }
 
-    /* ===== Infozon ===== */
-    .info-block {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 0.4rem;
+    .info{
+      display:flex;
+      flex-direction:column;
+      gap:0.1rem;
+      margin-top:0.2rem;
+    }
+    .info p{
+      margin:0;
+      font-size:0.85rem;
+      color:#ccc;
+      line-height:1.25;
     }
 
-    .badge-row {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      margin-bottom: 0.2rem;
+    .membership{
+      font-size:0.8rem;
+      font-weight:700;
+      margin-top:0.15rem;
     }
+    .public{color:#28a745;}
+    .membership-only{color:#c9a227;}
+    .members-only{color:#ff5050;}
 
-    .badge {
-      color: #fff;
-      font-weight: 700;
-      font-size: 0.75rem;
-      border-radius: 6px;
-      padding: 0.25rem 0.5rem;
-      text-transform: uppercase;
-    }
-
-    .badge.store { background: #28a745; }
-    .badge.lounge { background: #007bff; }
-
-    .rating {
-      color: #f0c55a;
-      font-size: 1rem;
-      letter-spacing: 1px;
-    }
-
-    .title {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: #fff;
-    }
-
-    .info {
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-      margin-top: 0.2rem;
-    }
-
-    .info p {
-      margin: 0;
-      font-size: 0.85rem;
-      color: #ccc;
-      line-height: 1.2;
-    }
-
-    .membership {
-      font-size: 0.8rem;
-      color: #c9a227;
-      font-weight: 700;
-      margin-top: 0.15rem;
-    }
-
-    a {
-      color: #f0c55a;
-      text-decoration: none;
-    }
-
-    a:hover { text-decoration: underline; }
+    a{color:#f0c55a;text-decoration:none;}
+    a:hover{text-decoration:underline;}
   </style>
 </head>
 <body>
@@ -130,15 +116,22 @@
         <span class="badge lounge">Lounge</span>
         <span class="rating">★★★★★</span>
       </div>
+
       <div class="title">Cigarrummet</div>
+
       <div class="info">
-        <p><strong>📍</strong> Sweden, Stockholm</p>
-        <p><strong>🏠</strong> Kungsgatan 55</p>
-        <p><strong>📞</strong> +46 8 21 59 34</p>
-        <p class="membership"><strong>👥</strong> Public / Membership</p>
-        <p><strong>🌐</strong> <a href="#">www.cigarrummet.se</a></p>
+        <p>📍 Sweden, Stockholm</p>
+        <p>🏠 Kungsgatan 55</p>
+        <p>📞 +46 8 21 59 34</p>
+        <p class="membership public">👥 Public</p>
+        <!-- Testa även dessa genom att byta klass:
+             class="membership membership-only"
+             class="membership members-only"
+        -->
+        <p>🌐 <a href="#">www.cigarrummet.se</a></p>
       </div>
     </div>
   </div>
 </body>
 </html>
+
