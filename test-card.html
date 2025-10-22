@@ -1,98 +1,157 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>WCL – Portrait Card Test</title>
-<style>
-  :root{
-    --card-bg:#111; --card-border:#2a2a2a; --text:#eee;
-    --muted:#ccc; --gold:#f0c55a; --green:#28a745; --blue:#007bff; --link:#f0c55a;
-  }
-  body{
-    margin:0;background:#fff;font-family:Arial,Helvetica,sans-serif;
-    min-height:100vh;display:flex;align-items:center;justify-content:center;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WCL – Stående kort test</title>
+  <style>
+    :root {
+      --green: #28a745;
+      --blue: #007bff;
+      --gold: #f0c55a;
+      --text: #eee;
+      --muted: #ccc;
+      --card: #000;
+    }
 
-  /* === PORTRAIT CARD === */
-  .store-card{
-    width: 340px;          /* smalare än höjden → porträtt */
-    min-height: 460px;     /* högre – avlångt stående format */
-    background: var(--card-bg);
-    color: var(--text);
-    border: 1px solid var(--card-border);
-    border-radius: 18px;
-    box-shadow: 0 12px 28px rgba(0,0,0,.35);
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+    body {
+      background: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-  /* Topp: bild vänster, badges + stjärnor höger (centrerad mot bilden) */
-  .top{
-    display: grid;
-    grid-template-columns: 140px 1fr;  /* bild 140, info höger */
-    gap: 14px;
-    align-items: center; /* centrerar badges+stjärnor i höjdled mot bilden */
-  }
+    .store-card {
+      width: 320px;               /* 👈 lite smalare */
+      min-height: 520px;          /* 👈 stående proportion */
+      background: var(--card);
+      color: var(--text);
+      border-radius: 16px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid #222;
+    }
 
-  .img-box{
-    width: 140px; height: 140px;
-    background:#000; border:1px solid #333; border-radius: 12px;
-    display:flex;align-items:center;justify-content:center;
-    color:#777;font-weight:800;font-size:1.2rem; user-select:none;
-    object-fit: contain; /* hela bilden syns */
-  }
-  .right-top{
-    display:flex; flex-direction:column; gap:10px;
-    align-items:flex-start; justify-content:center;
-  }
-  .badges{ display:flex; gap:8px; flex-wrap:wrap; }
-  .badge{
-    font-weight:800; font-size:.78rem; color:#fff;
-    padding: 6px 10px; border-radius: 8px; text-transform: uppercase;
-  }
-  .badge.store{ background: var(--green); }
-  .badge.lounge{ background: var(--blue); }
-  .rating{ color: var(--gold); font-size: 1.05rem; letter-spacing: 1px; }
+    /* === Bildsektion === */
+    .top {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      padding: 1rem;
+      gap: 1rem;
+    }
 
-  /* Titel + info under toppsektionen */
-  .title{
-    font-size: 1.25rem; font-weight: 800; line-height: 1.2; margin-top: 2px;
-  }
+    .img-box {
+      width: 160px;
+      height: 160px;
+      background: #000;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #4ce34c;
+      font-size: 2.5rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
 
-  .info{
-    display:flex; flex-direction:column; gap:8px;
-    margin-top: 4px; padding-top: 8px;
-    border-top: 1px solid rgba(255,255,255,.08);
-  }
-  .row{ color: var(--muted); font-size: .95rem; line-height: 1.25; }
+    .top-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
 
-  /* Membership-status (en av dessa tre) */
-  .membership{ font-weight: 800; font-size: .92rem; }
-  .public{ color: var(--green); }              /* Public */
-  .membership-only{ color: #c9a227; }          /* Membership */
-  .members-only{ color: #ff5252; }             /* Members Only */
+    .badges {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
 
-  /* Länk på en rad med ellipsis */
-  .row a{
-    color: var(--link); text-decoration: none; display:inline-block; max-width: 100%;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .row a:hover{ text-decoration: underline; }
+    .badge {
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #fff;
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
+      text-transform: uppercase;
+    }
 
-  /* Liten polish */
-  .icon{ margin-right: 6px; }
-</style>
+    .badge.store {
+      background: var(--green);
+    }
+    .badge.lounge {
+      background: var(--blue);
+    }
+
+    .rating {
+      color: var(--gold);
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+    }
+
+    /* === Titel === */
+    .title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      text-align: left;
+      margin: 0.5rem 1rem 0 1rem;
+      color: #fff;
+    }
+
+    /* === Infozon === */
+    .info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      padding: 1rem;
+      margin-top: 0.2rem;
+    }
+
+    .info p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .membership {
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-top: 0.2rem;
+    }
+
+    .public {
+      color: var(--green);
+    }
+    .membership-only {
+      color: #c9a227;
+    }
+    .members-only {
+      color: #ff5050;
+    }
+
+    a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-
-  <article class="store-card">
-    <!-- TOP: image left, badges+stars right -->
+  <div class="store-card">
     <div class="top">
-      <img class="img-box" src="" alt="Bild" onerror="this.replaceWith(dummy)">
-      <div class="right-top">
+      <div class="img-box">Bild</div>
+      <div class="top-info">
         <div class="badges">
           <span class="badge store">Store</span>
           <span class="badge lounge">Lounge</span>
@@ -101,32 +160,17 @@
       </div>
     </div>
 
-    <!-- TITLE -->
-    <h3 class="title">Cigarrummet</h3>
+    <div class="title">Cigarrummet</div>
 
-    <!-- INFO LIST -->
     <div class="info">
-      <div class="row"><span class="icon">📍</span>Sweden, Stockholm</div>
-      <div class="row"><span class="icon">🏠</span>Kungsgatan 55</div>
-      <div class="row"><span class="icon">📞</span>+46 8 21 59 34</div>
-
-      <!-- Välj EN av dessa tre genom att kommentera/avkommentera -->
-      <div class="row membership public"><span class="icon">👥</span>Public</div>
-      <!-- <div class="row membership membership-only"><span class="icon">👥</span>Membership</div> -->
-      <!-- <div class="row membership members-only"><span class="icon">🚫</span>Members Only</div> -->
-
-      <div class="row"><span class="icon">🌐</span><a href="#">www.cigarrummet.se</a></div>
+      <p>📍 Sweden, Stockholm</p>
+      <p>🏠 Kungsgatan 55</p>
+      <p>📞 +46 8 21 59 34</p>
+      <p class="membership public">👥 Public</p>
+      <!-- <p class="membership membership-only">👥 Membership</p> -->
+      <!-- <p class="membership members-only">🚫 Members Only</p> -->
+      <p>🌐 <a href="#">www.cigarrummet.se</a></p>
     </div>
-  </article>
-
-<script>
-  // Litet “dummy”-element om bilden saknas (så rutan visar "Bild")
-  const dummy = (() => {
-    const d = document.createElement('div');
-    d.className = 'img-box';
-    d.textContent = 'Bild';
-    return d;
-  })();
-</script>
+  </div>
 </body>
 </html>
