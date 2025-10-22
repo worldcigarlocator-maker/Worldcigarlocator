@@ -12,38 +12,32 @@
     }
     *{box-sizing:border-box}
     body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:1.2rem;color:var(--text)}
-
     .wrap{max-width:950px;margin:0 auto;}
     .topbar{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
     .btn{background:#fff;border:1.6px solid var(--primary);color:var(--primary);padding:.5rem .8rem;border-radius:8px;font-weight:800;cursor:pointer;transition:filter .15s}
     .btn.primary{background:var(--primary);color:#fff;border:none}
     .btn:hover{filter:brightness(.95)}
-
     h1{text-align:center;margin:.2rem 0 1rem;color:#2b2b2b}
     .card{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:1rem}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
     .full{grid-column:1/-1}
-
     label{font-weight:bold;font-size:.92rem}
     input[type="text"],input[type="tel"],input[type="url"]{width:100%;padding:.6rem;border:1px solid #ccc;border-radius:8px;font-size:.95rem}
-
     .chips{display:flex;gap:.5rem;flex-wrap:wrap}
     .chip{border:1px solid var(--border);padding:.35rem .7rem;border-radius:16px;cursor:pointer;user-select:none}
     .chip.active{background:#eef6ff;border-color:#bcd7ff;color:#145b99}
-
     .access-box{display:none;background:#f8fafc;border:1px dashed #cfe1ff;padding:.6rem .7rem;border-radius:8px}
     .stars{display:flex;gap:.35rem;font-size:1.6rem;cursor:pointer;color:#ccc}
     .stars .sel{color:#b8860b}
-
     .photo-picker{display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:.4rem}
     .photo-nav{background:#fff;border:1px solid var(--primary);color:var(--primary);border-radius:6px;padding:.3rem .6rem;cursor:pointer}
     .photo-nav:hover{background:#f0f7ff}
     .preview-photo{width:220px;height:140px;object-fit:cover;border-radius:8px;border:1px solid var(--border);background:#fff}
     .muted{color:var(--muted);font-size:.86rem}
-
     #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999}
     .toast{background:#333;color:#fff;padding:.7rem 1rem;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);opacity:.97}
     .toast.success{background:#28a745}.toast.error{background:#dc3545}.toast.info{background:#2f78c4}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -51,6 +45,7 @@
     <div class="topbar">
       <button class="btn" onclick="window.location.href='backoffice.html'">← Back to Home</button>
     </div>
+
     <h1>Add Store (Backoffice)</h1>
 
     <div class="card">
@@ -119,10 +114,15 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const sel = { types: [], access: null, rating: null, lat:null, lng:null, place_id:null, photos:[], photo_index:0, state:null };
+    const sel = { types: [], access: null, rating: null, lat:null, lng:null, place_id:null, photos:[], photo_index:0, state:null, photo_reference:null, photo_url:null };
 
-    // 🌍 196 countries map
-    function getContinentFromCountry(country){if(!country)return"Other";const c=country.trim().toLowerCase();const m={"afghanistan":"Asia","albania":"Europe","algeria":"Africa","andorra":"Europe","angola":"Africa","antigua and barbuda":"North America","argentina":"South America","armenia":"Asia","australia":"Oceania","austria":"Europe","azerbaijan":"Asia","bahamas":"North America","bahrain":"Asia","bangladesh":"Asia","barbados":"North America","belarus":"Europe","belgium":"Europe","belize":"North America","benin":"Africa","bhutan":"Asia","bolivia":"South America","bosnia and herzegovina":"Europe","botswana":"Africa","brazil":"South America","brunei":"Asia","bulgaria":"Europe","burkina faso":"Africa","burundi":"Africa","cabo verde":"Africa","cambodia":"Asia","cameroon":"Africa","canada":"North America","central african republic":"Africa","chad":"Africa","chile":"South America","china":"Asia","colombia":"South America","comoros":"Africa","congo":"Africa","democratic republic of the congo":"Africa","costa rica":"North America","croatia":"Europe","cuba":"North America","cyprus":"Asia","czech republic":"Europe","czechia":"Europe","denmark":"Europe","djibouti":"Africa","dominica":"North America","dominican republic":"North America","ecuador":"South America","egypt":"Africa","el salvador":"North America","equatorial guinea":"Africa","eritrea":"Africa","estonia":"Europe","eswatini":"Africa","ethiopia":"Africa","fiji":"Oceania","finland":"Europe","france":"Europe","gabon":"Africa","gambia":"Africa","georgia":"Asia","germany":"Europe","ghana":"Africa","greece":"Europe","grenada":"North America","guatemala":"North America","guinea":"Africa","guinea-bissau":"Africa","guyana":"South America","haiti":"North America","honduras":"North America","hungary":"Europe","iceland":"Europe","india":"Asia","indonesia":"Asia","iran":"Asia","iraq":"Asia","ireland":"Europe","israel":"Asia","italy":"Europe","ivory coast":"Africa","jamaica":"North America","japan":"Asia","jordan":"Asia","kazakhstan":"Asia","kenya":"Africa","kiribati":"Oceania","kosovo":"Europe","kuwait":"Asia","kyrgyzstan":"Asia","laos":"Asia","latvia":"Europe","lebanon":"Asia","lesotho":"Africa","liberia":"Africa","libya":"Africa","liechtenstein":"Europe","lithuania":"Europe","luxembourg":"Europe","madagascar":"Africa","malawi":"Africa","malaysia":"Asia","maldives":"Asia","mali":"Africa","malta":"Europe","marshall islands":"Oceania","mauritania":"Africa","mauritius":"Africa","mexico":"North America","micronesia":"Oceania","moldova":"Europe","monaco":"Europe","mongolia":"Asia","montenegro":"Europe","morocco":"Africa","mozambique":"Africa","myanmar":"Asia","namibia":"Africa","nauru":"Oceania","nepal":"Asia","netherlands":"Europe","new zealand":"Oceania","nicaragua":"North America","niger":"Africa","nigeria":"Africa","north korea":"Asia","north macedonia":"Europe","norway":"Europe","oman":"Asia","pakistan":"Asia","palau":"Oceania","palestine":"Asia","panama":"North America","papua new guinea":"Oceania","paraguay":"South America","peru":"South America","philippines":"Asia","poland":"Europe","portugal":"Europe","qatar":"Asia","romania":"Europe","russia":"Europe","rwanda":"Africa","saint kitts and nevis":"North America","saint lucia":"North America","saint vincent and the grenadines":"North America","samoa":"Oceania","san marino":"Europe","sao tome and principe":"Africa","saudi arabia":"Asia","senegal":"Africa","serbia":"Europe","seychelles":"Africa","sierra leone":"Africa","singapore":"Asia","slovakia":"Europe","slovenia":"Europe","solomon islands":"Oceania","somalia":"Africa","south africa":"Africa","south korea":"Asia","south sudan":"Africa","spain":"Europe","sri lanka":"Asia","sudan":"Africa","suriname":"South America","sweden":"Europe","switzerland":"Europe","syria":"Asia","taiwan":"Asia","tajikistan":"Asia","tanzania":"Africa","thailand":"Asia","timor-leste":"Asia","togo":"Africa","tonga":"Oceania","trinidad and tobago":"North America","tunisia":"Africa","turkey":"Asia","turkmenistan":"Asia","tuvalu":"Oceania","uganda":"Africa","ukraine":"Europe","united arab emirates":"Asia","united kingdom":"Europe","united states":"North America","usa":"North America","uruguay":"South America","uzbekistan":"Asia","vanuatu":"Oceania","vatican city":"Europe","venezuela":"South America","vietnam":"Asia","yemen":"Asia","zambia":"Africa","zimbabwe":"Africa"};return m[c]||"Other";}
+    /* 🌍 196 countries map */
+    function getContinentFromCountry(country){
+      if(!country) return "Other";
+      const c=country.trim().toLowerCase();
+      const m={"afghanistan":"Asia","albania":"Europe","algeria":"Africa","andorra":"Europe","angola":"Africa","antigua and barbuda":"North America","argentina":"South America","armenia":"Asia","australia":"Oceania","austria":"Europe","azerbaijan":"Asia","bahamas":"North America","bahrain":"Asia","bangladesh":"Asia","barbados":"North America","belarus":"Europe","belgium":"Europe","belize":"North America","benin":"Africa","bhutan":"Asia","bolivia":"South America","bosnia and herzegovina":"Europe","botswana":"Africa","brazil":"South America","brunei":"Asia","bulgaria":"Europe","burkina faso":"Africa","burundi":"Africa","cabo verde":"Africa","cambodia":"Asia","cameroon":"Africa","canada":"North America","central african republic":"Africa","chad":"Africa","chile":"South America","china":"Asia","colombia":"South America","comoros":"Africa","congo":"Africa","democratic republic of the congo":"Africa","costa rica":"North America","croatia":"Europe","cuba":"North America","cyprus":"Asia","czech republic":"Europe","czechia":"Europe","denmark":"Europe","djibouti":"Africa","dominica":"North America","dominican republic":"North America","ecuador":"South America","egypt":"Africa","el salvador":"North America","equatorial guinea":"Africa","eritrea":"Africa","estonia":"Europe","eswatini":"Africa","ethiopia":"Africa","fiji":"Oceania","finland":"Europe","france":"Europe","gabon":"Africa","gambia":"Africa","georgia":"Asia","germany":"Europe","ghana":"Africa","greece":"Europe","grenada":"North America","guatemala":"North America","guinea":"Africa","guinea-bissau":"Africa","guyana":"South America","haiti":"North America","honduras":"North America","hungary":"Europe","iceland":"Europe","india":"Asia","indonesia":"Asia","iran":"Asia","iraq":"Asia","ireland":"Europe","israel":"Asia","italy":"Europe","ivory coast":"Africa","jamaica":"North America","japan":"Asia","jordan":"Asia","kazakhstan":"Asia","kenya":"Africa","kiribati":"Oceania","kosovo":"Europe","kuwait":"Asia","kyrgyzstan":"Asia","laos":"Asia","latvia":"Europe","lebanon":"Asia","lesotho":"Africa","liberia":"Africa","libya":"Africa","liechtenstein":"Europe","lithuania":"Europe","luxembourg":"Europe","madagascar":"Africa","malawi":"Africa","malaysia":"Asia","maldives":"Asia","mali":"Africa","malta":"Europe","marshall islands":"Oceania","mauritania":"Africa","mauritius":"Africa","mexico":"North America","micronesia":"Oceania","moldova":"Europe","monaco":"Europe","mongolia":"Asia","montenegro":"Europe","morocco":"Africa","mozambique":"Africa","myanmar":"Asia","namibia":"Africa","nauru":"Oceania","nepal":"Asia","netherlands":"Europe","new zealand":"Oceania","nicaragua":"North America","niger":"Africa","nigeria":"Africa","north korea":"Asia","north macedonia":"Europe","norway":"Europe","oman":"Asia","pakistan":"Asia","palau":"Oceania","palestine":"Asia","panama":"North America","papua new guinea":"Oceania","paraguay":"South America","peru":"South America","philippines":"Asia","poland":"Europe","portugal":"Europe","qatar":"Asia","romania":"Europe","russia":"Europe","rwanda":"Africa","saint kitts and nevis":"North America","saint lucia":"North America","saint vincent and the grenadines":"North America","samoa":"Oceania","san marino":"Europe","sao tome and principe":"Africa","saudi arabia":"Asia","senegal":"Africa","serbia":"Europe","seychelles":"Africa","sierra leone":"Africa","singapore":"Asia","slovakia":"Europe","slovenia":"Europe","solomon islands":"Oceania","somalia":"Africa","south africa":"Africa","south korea":"Asia","south sudan":"Africa","spain":"Europe","sri lanka":"Asia","sudan":"Africa","suriname":"South America","sweden":"Europe","switzerland":"Europe","syria":"Asia","taiwan":"Asia","tajikistan":"Asia","tanzania":"Africa","thailand":"Asia","timor-leste":"Asia","togo":"Africa","tonga":"Oceania","trinidad and tobago":"North America","tunisia":"Africa","turkey":"Asia","turkmenistan":"Asia","tuvalu":"Oceania","uganda":"Africa","ukraine":"Europe","united arab emirates":"Asia","united kingdom":"Europe","united states":"North America","usa":"North America","uruguay":"South America","uzbekistan":"Asia","vanuatu":"Oceania","vatican city":"Europe","venezuela":"South America","vietnam":"Asia","yemen":"Asia","zambia":"Africa","zimbabwe":"Africa"};
+      return m[c]||"Other";
+    }
 
     document.querySelectorAll("#typeRow .chip").forEach(chip=>{
       chip.addEventListener("click",()=>{
@@ -150,6 +150,38 @@
       setTimeout(()=>t.remove(),3200);
     }
 
+    function resetForm(){
+      ["gAddress","name","addr","city","state","country","phone","website"].forEach(id=>document.getElementById(id).value="");
+      document.querySelectorAll("#typeRow .chip").forEach(c=>c.classList.remove("active"));
+      document.getElementById("forceDefault").checked=false;
+      sel.types=[]; sel.access=null; sel.rating=null; sel.lat=null; sel.lng=null; sel.place_id=null; sel.photos=[]; sel.photo_index=0; sel.state=null; sel.photo_reference=null; sel.photo_url=null;
+      document.getElementById("accessBox").style.display="none";
+      [...stars.children].forEach(el=>el.classList.remove("sel"));
+      updatePhoto();
+      showToast("Form cleared","success");
+    }
+
+    function updatePhoto(){
+      const img=document.getElementById("preview-photo");
+      const meta=document.getElementById("photo-meta");
+      const force=document.getElementById("forceDefault").checked;
+      if(force || !sel.photos.length){
+        img.src = sel.types.includes("lounge") ? "images/lounge.jpg" : "images/store.jpg";
+        meta.textContent = "Default image in use.";
+        sel.photo_reference=null; sel.photo_url=null;
+        return;
+      }
+      const p = sel.photos[(sel.photo_index + sel.photos.length)%sel.photos.length];
+      const url = p.getUrl({maxWidth:800});
+      sel.photo_reference = p.photo_reference;
+      sel.photo_url = url;
+      img.src=url;
+      meta.textContent = `Photo ${sel.photo_index+1}/${sel.photos.length}`;
+    }
+
+    document.getElementById("prev-photo").onclick = ()=>{ if(sel.photos.length){ sel.photo_index=(sel.photo_index-1+sel.photos.length)%sel.photos.length; updatePhoto(); }};
+    document.getElementById("next-photo").onclick = ()=>{ if(sel.photos.length){ sel.photo_index=(sel.photo_index+1)%sel.photos.length; updatePhoto(); }};
+
     async function saveStore(){
       const name=document.getElementById("name").value.trim();
       const address=document.getElementById("addr").value.trim();
@@ -160,29 +192,63 @@
       const phone=document.getElementById("phone").value.trim();
       const website=document.getElementById("website").value.trim();
       const access=sel.types.includes("lounge")?(document.querySelector("input[name='access']:checked")?.value||null):null;
-      
-      if(!name||!address||!city||!country){showToast("⚠️ Please fill all required fields","error");return;}
+
+      if(!name||!address||!city||!country){
+        showToast("⚠️ Please fill in all required fields","error"); 
+        return;
+      }
+
+      // duplicate check (name+city+country)
+      const { data: existing, error: checkError } = await supabase
+        .from("stores").select("id").eq("name",name).eq("city",city).eq("country",country).eq("deleted",false).limit(1);
+      if(checkError){ console.error("Check error:",checkError); showToast("⚠️ Could not verify duplicates","error"); return; }
+      if(existing && existing.length){ showToast("⚠️ This store already exists!","error"); return; }
+
       const force=document.getElementById("forceDefault").checked;
-      const payload={name,address,city,state,country,continent,phone,website,type:sel.types[0]||null,types:sel.types.length?sel.types:null,access,rating:sel.rating??null,approved:false,status:"pending",lat:sel.lat,lng:sel.lng,place_id:sel.place_id,photo_reference:force?null:sel.photo_reference||null,photo_url:force?null:sel.photo_url||null,deleted:false};
+      const payload={
+        name,address,city,state,country,continent,phone,website,
+        type: sel.types[0]||null,
+        types: sel.types.length?sel.types:null,
+        access,
+        rating: sel.rating??null,
+        approved:false,status:"pending",
+        lat:sel.lat,lng:sel.lng,place_id:sel.place_id,
+        photo_reference:force?null:sel.photo_reference||null,
+        photo_url:force?null:sel.photo_url||null,
+        deleted:false
+      };
 
       const { error } = await supabase.from("stores").insert([payload]);
-      if(error){console.error(error);showToast("❌ Error saving store","error");return;}
-      showToast("✅ Store saved successfully","success");resetForm();
+      if(error){ console.error(error); showToast("❌ Error saving store","error"); return; }
+
+      showToast("✅ Store saved successfully","success");
+      resetForm();
     }
 
     function initAutocomplete(){
       const input=document.getElementById("gAddress");
       const ac=new google.maps.places.Autocomplete(input,{fields:["place_id","address_components","geometry","name","formatted_address","international_phone_number","website","photos"]});
       ac.addListener("place_changed",()=>{
-        const p=ac.getPlace();if(!p)return;
-        document.getElementById("name").value=p.name||"";document.getElementById("addr").value=p.formatted_address||"";
-        const comps=p.address_components||[];
+        const place=ac.getPlace(); if(!place)return;
+        document.getElementById("name").value=place.name||"";
+        document.getElementById("addr").value=place.formatted_address||"";
+
+        const comps=place.address_components||[];
         const city=comps.find(c=>c.types.includes("locality")||c.types.includes("postal_town")||c.types.includes("administrative_area_level_2"));
         const state=comps.find(c=>c.types.includes("administrative_area_level_1"));
         const country=comps.find(c=>c.types.includes("country"));
-        document.getElementById("city").value=city?.long_name||"";document.getElementById("state").value=state?.long_name||"";document.getElementById("country").value=country?.long_name||"";
-        sel.state=state?.long_name||null;document.getElementById("phone").value=p.international_phone_number||"";document.getElementById("website").value=p.website||"";
-        sel.lat=p.geometry?.location?.lat()||null;sel.lng=p.geometry?.location?.lng()||null;sel.place_id=p.place_id||null;sel.photos=p.photos||[];sel.photo_index=0;
+        document.getElementById("city").value=city?.long_name||"";
+        document.getElementById("state").value=state?.long_name||"";
+        document.getElementById("country").value=country?.long_name||"";
+
+        sel.state=state?.long_name||null;
+        document.getElementById("phone").value=place.international_phone_number||"";
+        document.getElementById("website").value=place.website||"";
+        sel.lat=place.geometry?.location?.lat()||null;
+        sel.lng=place.geometry?.location?.lng()||null;
+        sel.place_id=place.place_id||null;
+        sel.photos=place.photos||[]; sel.photo_index=0;
+        updatePhoto();
       });
     }
     window.initAutocomplete=initAutocomplete;
