@@ -592,7 +592,14 @@ function renderCards(list){
         <div class="row muted">🏠 ${esc(s.address||"–")}</div>
         ${s.phone?`<div class="row muted">📞 ${esc(s.phone)}</div>`:""}
         ${s.website?`<div class="row"><a href="${esc(s.website)}" target="_blank" rel="noopener">🌐 ${esc(s.website)}</a></div>`:""}
-        ${currentTab==="flagged" ? `<div class="row muted flag-reason">🚩 ${esc(s.flag_reason || "No reason provided")}</div>` : ""}
+${(currentTab==="pending" || currentTab==="flagged") && s.flag_reason ? (() => {
+  const reason = s.flag_reason || "No reason provided";
+  const [category, detail] = reason.split("|").map(x => x.trim());
+  return `<div class="flag-reason">
+            🚩 <strong>${esc(category.charAt(0).toUpperCase() + category.slice(1))}</strong>
+            ${detail ? `<div class="muted detail">${esc(detail)}</div>` : ""}
+          </div>`;
+})() : ""}
         <div class="meta">
           <div>🕓 ${fmtDate(s.created_at)}</div>
           <div>${s.added_by?`👤 ${esc(s.added_by)}`:""}</div>
