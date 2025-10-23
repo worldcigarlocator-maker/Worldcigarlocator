@@ -1,9 +1,9 @@
-<!-- Backoffice V4 — Moderation + Continent + Access | 2025-10-22 -->
+<!-- Backoffice V4.1 — Moderation + Hierarchy + Photo Picker + Flag Reason | 2025-10-23 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Backoffice — Moderation (V4)</title>
+<title>Backoffice — Moderation (V4.1)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -16,8 +16,9 @@
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  a{color:#0b5fff;text-decoration:none} a:hover{text-decoration:underline}
 
-  .wrap{max-width:1200px;margin:0 auto;padding:1.2rem}
+  .wrap{max-width:1220px;margin:0 auto;padding:1.2rem}
 
   /* Topbar */
   .topbar{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:.8rem}
@@ -29,6 +30,7 @@
   .btn.primary{background:var(--primary);color:#fff;border:none}
   .btn.danger{border-color:var(--red);color:var(--red)}
   .btn.danger:hover{background:var(--red);color:#fff}
+  .btn.ghost{border:1.6px solid var(--border);color:#333;background:#fff}
 
   /* Filters row */
   .filters{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:.6rem 0 1rem}
@@ -41,6 +43,22 @@
   .viewtoggle{display:flex;gap:.4rem;align-items:center;margin-top:.2rem}
   .viewtoggle .seg{padding:.35rem .6rem;border:1.6px solid var(--border);border-radius:9px;cursor:pointer;font-weight:800;color:#333;background:#fff}
   .viewtoggle .seg.active{border-color:var(--primary);color:#fff;background:var(--primary)}
+
+  /* Hierarchy (Approved) */
+  .hierarchy-panel{background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:.8rem;margin:.6rem 0 1rem}
+  .h-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:space-between}
+  .h-controls{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+  .h-controls input{padding:.45rem .6rem;border:1.6px solid var(--border);border-radius:9px;min-width:220px}
+  .h-tree{margin-top:.6rem}
+  .h-node{border:1px solid #eef1f5;background:#fafbfc;border-radius:10px;margin:.35rem 0;padding:.4rem .6rem}
+  .h-line{display:flex;gap:.5rem;align-items:center;cursor:pointer}
+  .h-toggle{width:22px;height:22px;border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;background:#fff}
+  .h-label{font-weight:800}
+  .h-pill{margin-left:auto;background:#fff;border:1px solid var(--border);border-radius:999px;padding:.1rem .5rem;font-size:.8rem}
+  .h-children{margin-left:1.6rem;margin-top:.35rem}
+  .crumbs{font-size:.9rem;color:#444}
+  .crumbs b{color:#000}
+  .link{cursor:pointer;text-decoration:underline}
 
   /* Grid cards */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
@@ -69,28 +87,42 @@
   .actions{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.6rem}
   .btn.sm{padding:.35rem .55rem;border-radius:8px;font-size:.85rem}
 
-  /* Edit form inside card */
-  .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem}
+  /* Edit form inside card / table */
+  .edit-zone{background:#fbfcfe;border:1px dashed #d9e1f1;border-radius:10px;padding:.6rem;margin-top:.5rem}
+  .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.2rem}
   .edit-grid .full{grid-column:1/-1}
-  .edit-grid input,.edit-grid select{width:100%;padding:.45rem .55rem;border:1px solid #cfd4dc;border-radius:8px}
+  .edit-grid input,.edit-grid select{width:100%;padding:.45rem .55rem;border:1px solid #cfd4dc;border-radius:8px;background:#fff;color:#111}
+  .edit-help{font-size:.85rem;color:#5a6b81}
+
+  .photo-row{display:flex;align-items:center;gap:.5rem;margin-top:.3rem;flex-wrap:wrap}
+  .photo-preview{width:220px;height:140px;border:1px solid var(--border);border-radius:8px;object-fit:cover;background:#fff}
+  .photo-nav{border:1px solid var(--primary);background:#fff;color:var(--primary);border-radius:8px;padding:.3rem .6rem;cursor:pointer}
+  .photo-nav:hover{background:#eef6ff}
+  .photo-meta{font-size:.85rem;color:#444}
+  .photo-check{display:flex;gap:.4rem;align-items:center}
 
   /* Approved list view (text format) */
   .table-wrap{background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow:auto}
-  table{width:100%;border-collapse:collapse;min-width:900px}
-  th,td{padding:.65rem .7rem;border-bottom:1px solid #f0f2f5;text-align:left;font-size:.92rem}
+  table{width:100%;border-collapse:collapse;min-width:980px}
+  th,td{padding:.65rem .7rem;border-bottom:1px solid #f0f2f5;text-align:left;font-size:.92rem;vertical-align:top}
   th{background:#f8fafc;color:#333;font-weight:900}
   tr:hover td{background:#fafcff}
   .t-actions{white-space:nowrap}
 
-  /* Toasts */
+  /* Toasts & Modal */
   #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999}
   .toast{background:#333;color:#fff;padding:.7rem 1rem;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:.97}
   .toast.success{background:#28a745}.toast.error{background:#dc3545}.toast.info{background:#2f78c4}
+
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:9998}
+  .modal{background:#fff;border-radius:12px;max-width:520px;width:92%;padding:1rem;border:1px solid var(--border);box-shadow:0 12px 32px rgba(0,0,0,.25)}
+  .modal h3{margin:.2rem 0 .6rem}
+  .modal textarea{width:100%;min-height:120px;border:1px solid #cfd4dc;border-radius:10px;padding:.6rem}
+  .modal .row{justify-content:flex-end;margin-top:.6rem}
 </style>
 </head>
 <body>
   <div class="wrap">
-
     <!-- Topbar -->
     <div class="topbar">
       <button class="btn" onclick="location.href='add-store-backoffice.html'">＋ Add Store</button>
@@ -115,6 +147,19 @@
       </div>
     </div>
 
+    <!-- Approved hierarchy panel (only shown in Approved tab) -->
+    <div id="hierarchyPanel" class="hierarchy-panel" style="display:none">
+      <div class="h-row">
+        <div class="h-controls">
+          <input id="hSearch" placeholder="Filter continent / country / city…" />
+          <button class="btn ghost" id="hCloseAll">Close All</button>
+          <button class="btn ghost" id="hClearSel" title="Clear selection">Clear</button>
+        </div>
+        <div class="crumbs" id="hCrumbs">Showing: <b>All Approved</b></div>
+      </div>
+      <div id="hTree" class="h-tree"></div>
+    </div>
+
     <!-- Dynamic content -->
     <div id="cards" class="grid" style="display:none"></div>
 
@@ -132,21 +177,37 @@
             <th>Added</th>
             <th>Added by</th>
             <th>Status</th>
+            <th>Reason</th>
             <th class="t-actions">Actions</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
       </table>
     </div>
-
   </div>
 
+  <!-- Toast & Modal -->
   <div id="toast-container"></div>
+
+  <div id="flagModal" class="modal-backdrop">
+    <div class="modal">
+      <h3>Flag store — reason</h3>
+      <textarea id="flagReason" placeholder="Describe why this store should be flagged…"></textarea>
+      <div class="row">
+        <button class="btn ghost" id="flagCancel">Cancel</button>
+        <button class="btn danger" id="flagConfirm">Flag</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invisible node for Google Places (no map shown) -->
+  <div id="gmap" style="width:0;height:0;overflow:hidden;position:absolute;left:-9999px;top:-9999px"></div>
 
 <script>
 /* ====== Config ====== */
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ====== State ====== */
@@ -155,12 +216,16 @@ let currentTab = "pending";          // pending default
 let currentView = "cards";           // cards default
 let editingId = null;
 
+/* Approved hierarchy filter */
+let H_SELECTED = { continent:null, country:null, city:null };
+let hPhotosById = {}; // {id: {photos:[], index:0}} for photo-picker per card
+
 /* ====== Utils ====== */
 const $ = (s, p=document)=>p.querySelector(s);
 function toast(msg,type="info"){
   const c=$("#toast-container"); const t=document.createElement("div");
   t.className=`toast ${type}`; t.textContent=msg; c.appendChild(t);
-  setTimeout(()=>t.remove(),3200);
+  setTimeout(()=>t.remove(),3400);
 }
 function esc(s){return String(s ?? "").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function fmtDate(s){
@@ -173,8 +238,7 @@ function stars(n){
   const v = Math.round(Number(n)||0);
   return "★★★★★".slice(0,v) + "☆☆☆☆☆".slice(0,5-v);
 }
-
-/* Google-compatible country -> continent (fallback if DB empty) */
+/* Google-compatible fallback (if DB column missing) */
 function countryToContinent(country){
   if(!country) return "Other";
   const c = country.trim().toLowerCase();
@@ -218,8 +282,7 @@ function countryToContinent(country){
     "turkey":"Asia","turkmenistan":"Asia","tuvalu":"Oceania","uganda":"Africa","ukraine":"Europe",
     "united arab emirates":"Asia","united kingdom":"Europe","united states":"North America","uruguay":"South America","uzbekistan":"Asia",
     "vanuatu":"Oceania","vatican city":"Europe","venezuela":"South America","vietnam":"Asia","yemen":"Asia",
-    "zambia":"Africa","zimbabwe":"Africa",
-    "hong kong":"Asia","puerto rico":"North America","macau":"Asia","greenland":"North America"
+    "zambia":"Africa","zimbabwe":"Africa","hong kong":"Asia","puerto rico":"North America","macau":"Asia","greenland":"North America"
   };
   return m[c] || "Other";
 }
@@ -228,6 +291,7 @@ function countryToContinent(country){
 document.addEventListener("DOMContentLoaded", async()=>{
   bindUI();
   await reloadData();
+  // default: Pending -> cards
 });
 
 async function reloadData(){
@@ -250,8 +314,8 @@ function bindUI(){
       document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active"));
       p.classList.add("active");
       currentTab = p.dataset.tab;
-      // Default view behavior per tab
-      if(currentTab==="approved"){ setView("list"); } else { setView("cards"); }
+      if(currentTab==="approved"){ setView("list"); $("#hierarchyPanel").style.display=""; buildHierarchy(); }
+      else { $("#hierarchyPanel").style.display="none"; setView("cards"); H_SELECTED={continent:null,country:null,city:null}; updateCrumbs(); }
       render();
     });
   });
@@ -266,6 +330,15 @@ function bindUI(){
   });
 
   $("#searchInput").addEventListener("input",render);
+
+  // Hierarchy controls
+  $("#hSearch").addEventListener("input", buildHierarchy);
+  $("#hCloseAll").addEventListener("click", ()=>{ document.querySelectorAll(".h-children").forEach(el=>el.style.display="none"); });
+  $("#hClearSel").addEventListener("click", ()=>{ H_SELECTED={continent:null,country:null,city:null}; updateCrumbs(); render(); });
+
+  // Flag modal
+  $("#flagCancel").addEventListener("click", ()=>toggleFlagModal(false));
+  $("#flagConfirm").addEventListener("click", onConfirmFlag);
 }
 
 function setView(v){
@@ -279,6 +352,14 @@ function filtered(){
   if(currentTab==="pending")  arr = arr.filter(s=>!s.approved && !s.deleted);
   if(currentTab==="flagged")  arr = arr.filter(s=>s.flagged && !s.deleted);
   if(currentTab==="deleted")  arr = arr.filter(s=>s.deleted);
+
+  // Hierarchy selection filter (approved only)
+  if(currentTab==="approved"){
+    if(H_SELECTED.continent) arr = arr.filter(s=>(s.continent||"")===H_SELECTED.continent);
+    if(H_SELECTED.country)   arr = arr.filter(s=>(s.country||"")===H_SELECTED.country);
+    if(H_SELECTED.city)      arr = arr.filter(s=>(s.city||"")===H_SELECTED.city);
+  }
+
   const q = $("#searchInput").value.trim().toLowerCase();
   if(q){
     arr = arr.filter(s =>
@@ -291,12 +372,122 @@ function filtered(){
   return arr;
 }
 
+/* ====== Hierarchy (Approved) ====== */
+function updateCrumbs(){
+  const parts = [];
+  if(H_SELECTED.continent) parts.push(H_SELECTED.continent);
+  if(H_SELECTED.country)   parts.push(H_SELECTED.country);
+  if(H_SELECTED.city)      parts.push(H_SELECTED.city);
+  $("#hCrumbs").innerHTML = parts.length ? `Showing: <b>${esc(parts.join(" → "))}</b>` : `Showing: <b>All Approved</b>`;
+}
+
+function buildHierarchy(){
+  if(currentTab!=="approved") return;
+  const q = $("#hSearch").value.trim().toLowerCase();
+  const data = filtered(); // already approved + current store search applied
+  // Build groups
+  const tree = {};
+  data.forEach(s=>{
+    const cont = s.continent || "Other";
+    const ctry = s.country || "Unknown";
+    const city = s.city || "Unknown";
+    tree[cont]??={};
+    tree[cont][ctry]??={};
+    tree[cont][ctry][city]??=0;
+    tree[cont][ctry][city]++;
+  });
+
+  const h = $("#hTree");
+  h.innerHTML = "";
+
+  Object.keys(tree).sort().forEach(cont=>{
+    const contNode = document.createElement("div");
+    contNode.className="h-node";
+    const totalCont = Object.values(tree[cont]).reduce((acc,citiesByCountry)=>acc+Object.values(citiesByCountry).reduce((a,b)=>a+b,0),0);
+    contNode.innerHTML = `
+      <div class="h-line" data-lv="continent" data-key="${esc(cont)}">
+        <div class="h-toggle">▶</div>
+        <div class="h-label">🌍 ${esc(cont)}</div>
+        <div class="h-pill">${totalCont}</div>
+      </div>
+      <div class="h-children" style="display:none"></div>
+    `;
+    const contLine = contNode.querySelector(".h-line");
+    const contChildren = contNode.querySelector(".h-children");
+
+    contLine.addEventListener("click", ()=>{
+      const s = getComputedStyle(contChildren).display==="none";
+      contChildren.style.display = s ? "" : "none";
+      if(s && contChildren.childElementCount===0){
+        // render countries
+        Object.keys(tree[cont]).sort().forEach(country=>{
+          if(q && !(country.toLowerCase().includes(q) || cont.toLowerCase().includes(q))) return;
+          const countryNode = document.createElement("div");
+          countryNode.className="h-node";
+          const totalC = Object.values(tree[cont][country]).reduce((a,b)=>a+b,0);
+          countryNode.innerHTML = `
+            <div class="h-line" data-lv="country" data-cont="${esc(cont)}" data-key="${esc(country)}">
+              <div class="h-toggle">▶</div>
+              <div class="h-label">🏳️ ${esc(country)}</div>
+              <div class="h-pill">${totalC}</div>
+            </div>
+            <div class="h-children" style="display:none"></div>
+          `;
+          const cLine = countryNode.querySelector(".h-line");
+          const cChildren = countryNode.querySelector(".h-children");
+
+          cLine.addEventListener("click", (ev)=>{
+            ev.stopPropagation();
+            const s2 = getComputedStyle(cChildren).display==="none";
+            cChildren.style.display = s2 ? "" : "none";
+            if(s2 && cChildren.childElementCount===0){
+              // render cities
+              Object.keys(tree[cont][country]).sort((a,b)=>tree[cont][country][b]-tree[cont][country][a]).forEach(city=>{
+                if(q && !(city.toLowerCase().includes(q))) return;
+                const cityNode = document.createElement("div");
+                cityNode.className="h-node";
+                cityNode.innerHTML=`
+                  <div class="h-line" data-lv="city" data-cont="${esc(cont)}" data-cty="${esc(country)}" data-key="${esc(city)}">
+                    <div class="h-label">🏙️ ${esc(city)}</div>
+                    <div class="h-pill">${tree[cont][country][city]}</div>
+                  </div>
+                `;
+                const cityLine = cityNode.querySelector(".h-line");
+                cityLine.addEventListener("click",(e)=>{
+                  e.stopPropagation();
+                  H_SELECTED = { continent:cont, country:country, city:city };
+                  updateCrumbs();
+                  render();
+                });
+                cChildren.appendChild(cityNode);
+              });
+            }
+            // If user clicks on country label (not toggle) and wants country filter:
+            H_SELECTED = { continent:cont, country:country, city:null };
+            updateCrumbs(); render();
+          });
+
+          contChildren.appendChild(countryNode);
+        });
+      }
+      // filter by continent on expand click
+      H_SELECTED = { continent:cont, country:null, city:null };
+      updateCrumbs(); render();
+    });
+
+    h.appendChild(contNode);
+  });
+}
+
 /* ====== Render ====== */
 function render(){
   const list = filtered();
   const showCards = (currentView==="cards");
 
-  // default: Approved -> list; others -> cards (but user can toggle)
+  // Approved: show hierarchy panel
+  if(currentTab==="approved"){ $("#hierarchyPanel").style.display=""; buildHierarchy(); }
+  else { $("#hierarchyPanel").style.display="none"; }
+
   $("#cards").style.display = showCards ? "" : "none";
   $("#table").style.display = !showCards ? "" : "none";
 
@@ -325,12 +516,51 @@ function cardBadges(s){
 function cardImageSrc(s){
   if(s.photo_url) return s.photo_url;
   if(s.photo_reference){
-    // Fallback Google photo endpoint; your key is already loaded in project
-    return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(s.photo_reference)}&key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ`;
+    return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(s.photo_reference)}&key=${GOOGLE_BROWSER_KEY}`;
   }
-  // Default per type
   const tt = (s.types && s.types.length ? s.types : (s.type? [s.type] : [])).map(x=>String(x||"").toLowerCase());
   return tt.includes("lounge") ? "images/lounge.jpg" : "images/store.jpg";
+}
+
+function renderEditFormHTML(s){
+  return `
+    <div class="edit-grid">
+      <input class="full" data-k="name" value="${esc(s.name||"")}" placeholder="Name">
+      <input data-k="phone" value="${esc(s.phone||"")}" placeholder="Phone">
+      <input data-k="website" value="${esc(s.website||"")}" placeholder="https://">
+      <input class="full" data-k="address" value="${esc(s.address||"")}" placeholder="Address">
+      <input data-k="city" value="${esc(s.city||"")}" placeholder="City">
+      <input data-k="state" value="${esc(s.state||"")}" placeholder="State/Region">
+      <input data-k="country" value="${esc(s.country||"")}" placeholder="Country">
+      <select data-k="access">
+        <option value="">Access…</option>
+        <option value="public" ${s.access==='public'?'selected':''}>Public</option>
+        <option value="membership" ${s.access==='membership'?'selected':''}>Membership</option>
+        <option value="members" ${s.access==='members'?'selected':''}>Members Only</option>
+      </select>
+      <select data-k="type">
+        <option value="">Type…</option>
+        <option value="store" ${s.type==='store'?'selected':''}>Store</option>
+        <option value="lounge" ${s.type==='lounge'?'selected':''}>Lounge</option>
+        <option value="other" ${s.type==='other'?'selected':''}>Other</option>
+      </select>
+      <input type="number" min="0" max="5" step="1" data-k="rating" value="${Number(s.rating||0)}" placeholder="Rating 0–5">
+      <input class="full" data-k="photo_url" value="${esc(s.photo_url||"")}" placeholder="Photo URL">
+      <input type="hidden" data-k="photo_reference" value="${esc(s.photo_reference||"")}">
+      <input type="hidden" data-k="place_id" value="${esc(s.place_id||"")}">
+    </div>
+
+    <div class="edit-help">Tip: If Google <code>place_id</code> exists we will load its photos to choose from. Otherwise paste a direct image URL or tick “Use default image”.</div>
+
+    <div class="photo-row">
+      <button class="photo-nav" data-photo="prev">◀</button>
+      <img class="photo-preview" src="${esc(cardImageSrc(s))}" alt="Preview">
+      <button class="photo-nav" data-photo="next">▶</button>
+      <span class="photo-meta">No photos loaded</span>
+      <button class="btn" data-photo="use">Use this photo</button>
+      <label class="photo-check"><input type="checkbox" data-photo="default"> Use default image</label>
+    </div>
+  `;
 }
 
 function renderCards(list){
@@ -352,36 +582,15 @@ function renderCards(list){
         <div class="row muted">🏠 ${esc(s.address||"–")}</div>
         ${s.phone?`<div class="row muted">📞 ${esc(s.phone)}</div>`:""}
         ${s.website?`<div class="row"><a href="${esc(s.website)}" target="_blank" rel="noopener">🌐 ${esc(s.website)}</a></div>`:""}
+        ${s.flag_reason && s.flagged ? `<div class="row muted">🚩 Reason: ${esc(s.flag_reason)}</div>`:""}
         <div class="meta">
           <div>🕓 ${fmtDate(s.created_at)}</div>
           <div>${s.added_by?`👤 ${esc(s.added_by)}`:""}</div>
         </div>
 
-        <!-- Inline edit form (hidden by default; toggled per card) -->
+        <!-- Inline edit form -->
         <div class="edit-zone" style="display:none">
-          <div class="edit-grid">
-            <input class="full" data-k="name" value="${esc(s.name||"")}" placeholder="Name">
-            <input data-k="phone" value="${esc(s.phone||"")}" placeholder="Phone">
-            <input data-k="website" value="${esc(s.website||"")}" placeholder="https://">
-            <input class="full" data-k="address" value="${esc(s.address||"")}" placeholder="Address">
-            <input data-k="city" value="${esc(s.city||"")}" placeholder="City">
-            <input data-k="state" value="${esc(s.state||"")}" placeholder="State/Region">
-            <input data-k="country" value="${esc(s.country||"")}" placeholder="Country">
-            <select data-k="access">
-              <option value="">Access…</option>
-              <option value="public" ${s.access==='public'?'selected':''}>Public</option>
-              <option value="membership" ${s.access==='membership'?'selected':''}>Membership</option>
-              <option value="members" ${s.access==='members'?'selected':''}>Members Only</option>
-            </select>
-            <select data-k="type">
-              <option value="">Type…</option>
-              <option value="store" ${s.type==='store'?'selected':''}>Store</option>
-              <option value="lounge" ${s.type==='lounge'?'selected':''}>Lounge</option>
-              <option value="other" ${s.type==='other'?'selected':''}>Other</option>
-            </select>
-            <input type="number" min="0" max="5" step="1" data-k="rating" value="${Number(s.rating||0)}" placeholder="Rating 0–5">
-            <input class="full" data-k="photo_url" value="${esc(s.photo_url||"")}" placeholder="Photo URL">
-          </div>
+          ${renderEditFormHTML(s)}
         </div>
 
         <div class="row muted">Status: <strong>${status}</strong></div>
@@ -391,15 +600,13 @@ function renderCards(list){
   }).join("");
 
   // bind actions
-  c.querySelectorAll("[data-act]").forEach(b=>{
-    b.addEventListener("click", onCardAction);
-  });
+  c.querySelectorAll("[data-act]").forEach(b=>b.addEventListener("click", onCardAction));
+  // init photo pickers for cards currently in edit state (none on initial render)
 }
 
 function cardActionsFor(s){
   const id = s.id;
   const arr=[];
-  // moderation set
   if(!s.deleted){
     if(!s.approved) arr.push(`<button class="btn sm" data-act="approve" data-id="${id}">Approve</button>`);
     else            arr.push(`<button class="btn sm" data-act="unapprove" data-id="${id}">Unapprove</button>`);
@@ -425,7 +632,7 @@ function onCardAction(e){
 
   if(act==="approve") return setApproved(id,true);
   if(act==="unapprove") return setApproved(id,false);
-  if(act==="flag") return setFlagged(id,true);
+  if(act==="flag") return openFlagModal(id);
   if(act==="unflag") return setFlagged(id,false);
   if(act==="delete") return setDeleted(id,true);
   if(act==="restore") return setDeleted(id,false);
@@ -441,6 +648,7 @@ function onCardAction(e){
     btnSave.style.display="";
     btnCancel.style.display="";
     btnEdit.style.display="none";
+    initPhotoPicker(card, id);
     return;
   }
   if(act==="cancel"){
@@ -452,77 +660,48 @@ function onCardAction(e){
     return;
   }
   if(act==="save"){
-    const payload = {};
-    ez.querySelectorAll("[data-k]").forEach(inp=>{
-      const k = inp.dataset.k;
-      let v = inp.value.trim();
-      if(k==="rating") v = Number(v||0);
-      payload[k]= v||null;
-    });
-    // maintain types from 'type'
-    if(payload.type){
-      payload.types = [payload.type];
-    }
-    // ensure continent if country changed
-    if(payload.country && !payload.continent){
-      payload.continent = countryToContinent(payload.country);
-    }
+    const payload = collectEditPayload(ez);
     return saveEdit(id, payload, card);
   }
 }
 
-async function setApproved(id, val){
-  const { error } = await supabase.from("stores").update({ approved:val }).eq("id", id);
-  if(error){ console.error(error); toast("Update failed","error"); return;}
-  toast(val?"Approved ✅":"Unapproved","success");
-  await reloadData();
-}
-async function setFlagged(id, val){
-  const { error } = await supabase.from("stores").update({ flagged:val }).eq("id", id);
-  if(error){ console.error(error); toast("Update failed","error"); return;}
-  toast(val?"Flagged 🚩":"Unflagged","success");
-  await reloadData();
-}
-async function setDeleted(id, val){
-  const { error } = await supabase.from("stores").update({ deleted:val }).eq("id", id);
-  if(error){ console.error(error); toast("Update failed","error"); return;}
-  toast(val?"Moved to Trash 🗑️":"Restored","success");
-  await reloadData();
-}
-async function saveEdit(id, payload, card){
-  const { error } = await supabase.from("stores").update(payload).eq("id", id);
-  if(error){ console.error(error); toast("Save failed","error"); return;}
-  toast("Saved ✔","success");
-  editingId = null;
-  await reloadData();
-}
-
-/* ====== Table (Approved default) ====== */
+/* ====== Table (list view with row-expander edit) ====== */
 function renderTable(list){
   const tb = $("#tbody");
   tb.innerHTML = list.map(s=>{
     const status = s.deleted ? "Deleted" : s.flagged ? "Flagged" : s.approved ? "Approved" : "Pending";
-    const acts = tableActionsFor(s);
     const types = (s.types && s.types.length ? s.types : (s.type? [s.type] : [])).join(", ");
     const access = s.access ? (s.access==="members"?"Members Only":s.access[0].toUpperCase()+s.access.slice(1)) : "–";
-    return `<tr data-id="${s.id}">
-      <td>${esc(s.name||"–")}</td>
-      <td>${esc(s.country||"–")}</td>
-      <td>${esc(s.continent||"–")}</td>
-      <td>${esc(s.city||"–")}</td>
-      <td>${esc(types||"–")}</td>
-      <td>${esc(access)}</td>
-      <td>${Number(s.rating||0)}</td>
-      <td>${fmtDate(s.created_at)}</td>
-      <td>${esc(s.added_by||"")}</td>
-      <td>${status}</td>
-      <td class="t-actions">${acts}</td>
-    </tr>`;
+    const acts = tableActionsFor(s);
+    return `
+      <tr data-id="${s.id}">
+        <td><strong>${esc(s.name||"–")}</strong></td>
+        <td>${esc(s.country||"–")}</td>
+        <td>${esc(s.continent||"–")}</td>
+        <td>${esc(s.city||"–")}</td>
+        <td>${esc(types||"–")}</td>
+        <td>${esc(access)}</td>
+        <td>${Number(s.rating||0)}</td>
+        <td>${fmtDate(s.created_at)}</td>
+        <td>${esc(s.added_by||"")}</td>
+        <td>${status}</td>
+        <td>${s.flag_reason && s.flagged ? esc(s.flag_reason) : ""}</td>
+        <td class="t-actions">${acts}</td>
+      </tr>
+      <tr data-edit="${s.id}" style="display:none"><td colspan="12">
+        <div class="edit-zone">
+          ${renderEditFormHTML(s)}
+          <div class="row" style="justify-content:flex-end;margin-top:.5rem">
+            <button class="btn" data-rowact="save" data-id="${s.id}">Save</button>
+            <button class="btn ghost" data-rowact="cancel" data-id="${s.id}">Cancel</button>
+          </div>
+        </div>
+      </td></tr>
+    `;
   }).join("");
 
-  tb.querySelectorAll("[data-act]").forEach(b=>{
-    b.addEventListener("click", onTableAction);
-  });
+  tb.querySelectorAll("[data-act]").forEach(b=>b.addEventListener("click", onTableAction));
+  tb.querySelectorAll("[data-rowact]").forEach(b=>b.addEventListener("click", onRowEditAction));
 }
 
 function tableActionsFor(s){
@@ -537,38 +716,221 @@ function tableActionsFor(s){
   } else {
     arr.push(`<button class="btn sm" data-act="restore" data-id="${id}">Restore</button>`);
   }
-  // Quick-edit opens a lightweight prompt set
-  arr.push(`<button class="btn sm" data-act="qedit" data-id="${id}">Edit</button>`);
+  arr.push(`<button class="btn sm" data-act="editrow" data-id="${id}">Edit</button>`);
   return arr.join(" ");
 }
 
 function onTableAction(e){
   const act = e.currentTarget.dataset.act;
   const id  = e.currentTarget.dataset.id;
+
   if(act==="approve") return setApproved(id,true);
   if(act==="unapprove") return setApproved(id,false);
-  if(act==="flag") return setFlagged(id,true);
+  if(act==="flag") return openFlagModal(id);
   if(act==="unflag") return setFlagged(id,false);
   if(act==="delete") return setDeleted(id,true);
   if(act==="restore") return setDeleted(id,false);
-  if(act==="qedit") return quickEditRow(id);
+
+  if(act==="editrow"){
+    const row = document.querySelector(`tr[data-edit="${id}"]`);
+    const show = row.style.display==="none";
+    row.style.display = show ? "" : "none";
+    if(show){
+      initPhotoPicker(row, id); // row variant uses same initializer
+    }
+  }
 }
 
-async function quickEditRow(id){
-  const item = ALL.find(x=>x.id===id);
-  if(!item) return;
-  const name = prompt("Name:", item.name||"");
-  if(name===null) return;
-  const phone = prompt("Phone:", item.phone||"");
-  if(phone===null) return;
-  const website = prompt("Website:", item.website||"");
-  if(website===null) return;
+function onRowEditAction(e){
+  const id = e.currentTarget.dataset.id;
+  const act = e.currentTarget.dataset.rowact;
+  const row = document.querySelector(`tr[data-edit="${id}"]`);
+  if(act==="cancel"){ row.style.display="none"; return; }
+  if(act==="save"){
+    const ez = row.querySelector(".edit-zone");
+    const payload = collectEditPayload(ez);
+    return saveEdit(id, payload, row);
+  }
+}
 
-  const payload = { name, phone, website };
+/* ====== Collect & Save ====== */
+function collectEditPayload(ez){
+  const payload = {};
+  ez.querySelectorAll("[data-k]").forEach(inp=>{
+    const k = inp.dataset.k;
+    let v = inp.value.trim();
+    if(k==="rating") v = Number(v||0);
+    payload[k]= v||null;
+  });
+  if(payload.type){ payload.types = [payload.type]; }
+  // Ensure continent if country changed or empty
+  if(payload.country && !payload.continent){
+    payload.continent = countryToContinent(payload.country);
+  }
+  // Default image checkbox
+  const useDefault = ez.querySelector('[data-photo="default"]')?.checked;
+  if(useDefault){
+    payload.photo_url = null;
+    payload.photo_reference = null;
+  }
+  return payload;
+}
+
+async function setApproved(id, val){
+  const { error } = await supabase.from("stores").update({ approved:val }).eq("id", id);
+  if(error){ console.error(error); toast("Update failed","error"); return;}
+  toast(val?"Approved ✅":"Unapproved","success");
+  await reloadData();
+}
+async function setFlagged(id, val, reason=null){
+  const upd = { flagged:val };
+  if(val) upd.flag_reason = reason ?? null;
+  else    upd.flag_reason = null;
+  const { error } = await supabase.from("stores").update(upd).eq("id", id);
+  if(error){
+    console.error(error);
+    if(val && /column .*flag_reason/i.test(error.message||"")){
+      toast("Flag saved, but add column flag_reason TEXT in DB to store reason.", "info");
+    } else {
+      toast("Update failed","error");
+    }
+    return;
+  }
+  toast(val?"Flagged 🚩":"Unflagged","success");
+  await reloadData();
+}
+async function setDeleted(id, val){
+  const { error } = await supabase.from("stores").update({ deleted:val }).eq("id", id);
+  if(error){ console.error(error); toast("Update failed","error"); return;}
+  toast(val?"Moved to Trash 🗑️":"Restored","success");
+  await reloadData();
+}
+async function saveEdit(id, payload){
   const { error } = await supabase.from("stores").update(payload).eq("id", id);
   if(error){ console.error(error); toast("Save failed","error"); return;}
   toast("Saved ✔","success");
+  editingId = null;
   await reloadData();
+}
+
+/* ====== Flag reason modal ====== */
+let FLAG_TARGET_ID = null;
+function openFlagModal(id){
+  FLAG_TARGET_ID = id;
+  $("#flagReason").value="";
+  toggleFlagModal(true);
+}
+function toggleFlagModal(show){
+  $("#flagModal").style.display = show ? "flex" : "none";
+}
+async function onConfirmFlag(){
+  const reason = $("#flagReason").value.trim();
+  toggleFlagModal(false);
+  if(!FLAG_TARGET_ID) return;
+  await setFlagged(FLAG_TARGET_ID, true, reason || null);
+  FLAG_TARGET_ID = null;
+}
+
+/* ====== Photo picker (Google Places) ====== */
+let placesService = null;
+function ensurePlacesService(){
+  if(placesService) return true;
+  if(!window.google || !window.google.maps || !window.google.maps.places) return false;
+  placesService = new google.maps.places.PlacesService(document.getElementById("gmap"));
+  return true;
+}
+
+function initPhotoPicker(scopeEl, id){
+  const ez = scopeEl.querySelector(".edit-zone");
+  if(!ez) return;
+  const placeId = ez.querySelector('[data-k="place_id"]')?.value || "";
+  const prev = ez.querySelector('[data-photo="prev"]');
+  const next = ez.querySelector('[data-photo="next"]');
+  const useBtn = ez.querySelector('[data-photo="use"]');
+  const defChk = ez.querySelector('[data-photo="default"]');
+  const img = ez.querySelector(".photo-preview");
+  const meta = ez.querySelector(".photo-meta");
+  const urlInput = ez.querySelector('[data-k="photo_url"]');
+  const refInput = ez.querySelector('[data-k="photo_reference"]');
+
+  hPhotosById[id] = hPhotosById[id] || { photos:[], index:0 };
+
+  function updatePhotoPreview(){
+    const st = hPhotosById[id];
+    if(!st.photos.length){
+      meta.textContent = "No photos loaded";
+      return;
+    }
+    const p = st.photos[st.index];
+    const url = p.getUrl({maxWidth:800});
+    img.src = url;
+    meta.textContent = `Photo ${st.index+1}/${st.photos.length}`;
+  }
+
+  function nav(delta){
+    const st = hPhotosById[id];
+    if(!st.photos.length) return;
+    st.index = (st.index + delta + st.photos.length) % st.photos.length;
+    updatePhotoPreview();
+  }
+
+  prev.addEventListener("click", ()=>nav(-1));
+  next.addEventListener("click", ()=>nav(+1));
+  useBtn.addEventListener("click", ()=>{
+    const st = hPhotosById[id];
+    if(!st.photos.length){ toast("No Google photos to use","info"); return; }
+    const p = st.photos[st.index];
+    const url = p.getUrl({maxWidth:800});
+    urlInput.value = url;
+    // Some implementations expose .photo_reference; fallback: keep existing ref
+    try{ refInput.value = p.photo_reference || refInput.value; }catch(_){}
+    toast("Photo selected","success");
+  });
+  defChk.addEventListener("change", ()=>{
+    if(defChk.checked){
+      img.src = (urlInput.value && urlInput.value.includes("lounge")) ? "images/lounge.jpg" : "images/store.jpg";
+      meta.textContent = "Default image selected";
+    } else {
+      updatePhotoPreview();
+    }
+  });
+
+  if(!placeId){
+    meta.textContent = "No place_id — paste a Photo URL or tick default.";
+    return;
+  }
+  // Ensure Google places loaded; if not yet, we retry after script loads (handled by onMapsReady)
+  if(ensurePlacesService()){
+    placesService.getDetails({placeId, fields:["photos"]}, (res, status)=>{
+      if(status==="OK" && res && res.photos && res.photos.length){
+        hPhotosById[id] = { photos:res.photos, index:0 };
+        updatePhotoPreview();
+      } else {
+        meta.textContent = "No Google photos found";
+      }
+    });
+  } else {
+    meta.textContent = "Loading Google photos…";
+    // Will be auto-initialized when script callback runs; we can poll a bit:
+    const t = setInterval(()=>{
+      if(ensurePlacesService()){
+        clearInterval(t);
+        initPhotoPicker(scopeEl, id);
+      }
+    }, 400);
+    setTimeout(()=>clearInterval(t), 6000);
+  }
+}
+</script>
+
+<!-- Google Places (for photo picker) -->
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=_mapsReady"></script>
+<script>
+function _mapsReady(){
+  // initialize service on load so photo-pickers can work immediately
+  if(!window.google||!google.maps||!google.maps.places) return;
+  // creates service instance
+  const dummyMap = new google.maps.Map(document.getElementById("gmap"));
 }
 </script>
 </body>
