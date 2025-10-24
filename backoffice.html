@@ -1,9 +1,9 @@
-<!-- Backoffice V4.1 — Moderation + Hierarchy + Photo Picker + Flag Reason | 2025-10-23 -->
+<!-- Backoffice V4.2 — Moderation + Hierarchy + Photo Picker + Flag Reason | 2025-10-24 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Backoffice — Moderation (V4.1)</title>
+<title>Backoffice — Moderation (V4.2)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -17,6 +17,7 @@
   *{box-sizing:border-box}
   body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
   a{color:#0b5fff;text-decoration:none} a:hover{text-decoration:underline}
+  code{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:.05rem .35rem}
 
   .wrap{max-width:1220px;margin:0 auto;padding:1.2rem}
 
@@ -45,7 +46,7 @@
   .viewtoggle .seg.active{border-color:var(--primary);color:#fff;background:var(--primary)}
 
   /* Hierarchy (Approved) */
-  .hierarchy-panel{background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:.8rem;margin:.6rem 0 1rem}
+  .hierarchy-panel{background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:.8rem;margin:.6rem 0 1rem;display:none}
   .h-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:space-between}
   .h-controls{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
   .h-controls input{padding:.45rem .6rem;border:1.6px solid var(--border);border-radius:9px;min-width:220px}
@@ -70,7 +71,7 @@
   .card:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(0,0,0,.12)}
   .card-img{width:100%;height:170px;object-fit:cover;background:#000}
   .card-body{padding:1rem;display:flex;flex-direction:column;gap:.55rem}
-  .title{font-weight:900;font-size:1.05rem}
+  .title{font-weight:900;font-size:1.05rem;display:flex;align-items:center;gap:.35rem}
   .row{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
   .muted{color:var(--muted);font-size:.9rem}
   .badges{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.15rem}
@@ -96,7 +97,7 @@
 
   .photo-row{display:flex;align-items:center;gap:.5rem;margin-top:.3rem;flex-wrap:wrap}
   .photo-preview{width:220px;height:140px;border:1px solid var(--border);border-radius:8px;object-fit:cover;background:#fff}
-  .photo-nav{border:1px solid var(--primary);background:#fff;color:var(--primary);border-radius:8px;padding:.3rem .6rem;cursor:pointer}
+  .photo-nav{border:1px solid var(--primary);background:#fff;color:#2f78c4;border-radius:8px;padding:.3rem .6rem;cursor:pointer}
   .photo-nav:hover{background:#eef6ff}
   .photo-meta{font-size:.85rem;color:#444}
   .photo-check{display:flex;gap:.4rem;align-items:center}
@@ -118,9 +119,9 @@
   .modal{background:#fff;border-radius:12px;max-width:520px;width:92%;padding:1rem;border:1px solid var(--border);box-shadow:0 12px 32px rgba(0,0,0,.25)}
   .modal h3{margin:.2rem 0 .6rem}
   .modal textarea{width:100%;min-height:120px;border:1px solid #cfd4dc;border-radius:10px;padding:.6rem}
-   .modal .row{justify-content:flex-end;margin-top:.6rem}
+  .modal .row{justify-content:flex-end;margin-top:.6rem}
 
-    /* ---- Flag reason (for pending & flagged cards) ---- */
+  /* ---- Flag reason (for pending & flagged cards) ---- */
   .flag-reason {
     background: #fff3f3;
     color: #b00020;
@@ -132,35 +133,29 @@
     border: 1px solid #f5b5b5;
     line-height: 1.4;
   }
-
   .flag-reason .detail {
     color: #b94a48;
     font-weight: 500;
     font-size: .85rem;
     margin-top: .2rem;
   }
-/* ===== Admin Action Buttons ===== */
-.action-btn { 
-  border: none;
-  border-radius: 6px;
-  padding: 0.35rem 0.7rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-  color: #fff;
-  margin-right: 4px; /* 👈 lägger till lite luft mellan knapparna */
-}
 
-.action-btn.approve { background: #28a745; }     /* Grön */
-.action-btn.unflag { background: #6c757d; }      /* Grå */
-.action-btn.edit { background: #007bff; }        /* Blå */
-.action-btn.delete { background: #dc3545; }      /* Röd */
-
-.action-btn:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
-}
-
+  /* ===== Admin Action Buttons (table list) ===== */
+  .action-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 0.35rem 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    color: #fff;
+    margin-right: 4px;
+  }
+  .action-btn.approve { background: #28a745; }
+  .action-btn.unflag { background: #6c757d; }
+  .action-btn.edit    { background: #007bff; }
+  .action-btn.delete  { background: #dc3545; }
+  .action-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
 </style>
 </head>
 <body>
@@ -189,8 +184,8 @@
       </div>
     </div>
 
-    <!-- Approved hierarchy panel (only shown in Approved tab) -->
-    <div id="hierarchyPanel" class="hierarchy-panel" style="display:none">
+    <!-- Approved hierarchy panel (only shown in Approved tab; collapsed by default) -->
+    <div id="hierarchyPanel" class="hierarchy-panel">
       <div class="h-row">
         <div class="h-controls">
           <input id="hSearch" placeholder="Filter continent / country / city…" />
@@ -203,7 +198,7 @@
     </div>
 
     <!-- Dynamic content -->
-    <div id="cards" class="grid" style="display:none"></div>
+    <div id="cards" class="grid"></div>
 
     <div id="table" class="table-wrap" style="display:none">
       <table>
@@ -254,8 +249,8 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ====== State ====== */
 let ALL = [];
-let currentTab = "pending";          // pending default
-let currentView = "cards";           // cards default
+let currentTab = "pending";          // default: Pending
+let currentView = "cards";           // default: Cards
 let editingId = null;
 
 /* Approved hierarchy filter */
@@ -280,7 +275,7 @@ function stars(n){
   const v = Math.round(Number(n)||0);
   return "★★★★★".slice(0,v) + "☆☆☆☆☆".slice(0,5-v);
 }
-/* Google-compatible fallback (if DB column missing) */
+/* Country → Continent fallback (om kolumn saknas) */
 function countryToContinent(country){
   if(!country) return "Other";
   const c = country.trim().toLowerCase();
@@ -333,7 +328,7 @@ function countryToContinent(country){
 document.addEventListener("DOMContentLoaded", async()=>{
   bindUI();
   await reloadData();
-  // default: Pending -> cards
+  // Startläge: Pending + Cards, Approved-hierarki panel hålls dold tills fliken klickas
 });
 
 async function reloadData(){
@@ -351,22 +346,34 @@ async function reloadData(){
 
 /* ====== Filters / View ====== */
 function bindUI(){
+  // tabs
   document.querySelectorAll(".pill").forEach(p=>{
     p.addEventListener("click",()=>{
       document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active"));
       p.classList.add("active");
       currentTab = p.dataset.tab;
-      if(currentTab==="approved"){ setView("list"); $("#hierarchyPanel").style.display=""; buildHierarchy(); }
-      else { $("#hierarchyPanel").style.display="none"; setView("cards"); H_SELECTED={continent:null,country:null,city:null}; updateCrumbs(); }
+
+      // Approved: visa hierarki-panel (stängd läge), default till LIST eller CARDS?
+      if(currentTab==="approved"){ 
+        $("#hierarchyPanel").style.display="";
+      } else {
+        $("#hierarchyPanel").style.display="none";
+        H_SELECTED={continent:null,country:null,city:null}; 
+        updateCrumbs();
+      }
+
+      // Cards som standard utom om du själv växlar
+      setView(currentView); 
       render();
     });
   });
 
+  // view toggle
   document.querySelectorAll(".viewtoggle .seg").forEach(seg=>{
     seg.addEventListener("click",()=>{
       document.querySelectorAll(".viewtoggle .seg").forEach(x=>x.classList.remove("active"));
       seg.classList.add("active");
-      currentView = seg.dataset.view;
+      setView(seg.dataset.view);
       render();
     });
   });
@@ -386,6 +393,8 @@ function bindUI(){
 function setView(v){
   currentView = v;
   document.querySelectorAll(".viewtoggle .seg").forEach(x=>x.classList.toggle("active", x.dataset.view===v));
+  // Approved → hierarki ska synas oavsett vy (den hjälper att filtrera Approved)
+  if(currentTab==="approved") $("#hierarchyPanel").style.display="";
 }
 
 function filtered(){
@@ -394,6 +403,7 @@ function filtered(){
   if(currentTab==="pending")  arr = arr.filter(s=>!s.approved && !s.deleted);
   if(currentTab==="flagged")  arr = arr.filter(s=>s.flagged && !s.deleted);
   if(currentTab==="deleted")  arr = arr.filter(s=>s.deleted);
+  // "all" lämnar allt
 
   // Hierarchy selection filter (approved only)
   if(currentTab==="approved"){
@@ -426,7 +436,8 @@ function updateCrumbs(){
 function buildHierarchy(){
   if(currentTab!=="approved") return;
   const q = $("#hSearch").value.trim().toLowerCase();
-  const data = filtered(); // already approved + current store search applied
+  const data = filtered(); // already approved + store search applied
+
   // Build groups
   const tree = {};
   data.forEach(s=>{
@@ -504,7 +515,7 @@ function buildHierarchy(){
                 cChildren.appendChild(cityNode);
               });
             }
-            // If user clicks on country label (not toggle) and wants country filter:
+            // Klick på land sätter filter land
             H_SELECTED = { continent:cont, country:country, city:null };
             updateCrumbs(); render();
           });
@@ -512,7 +523,7 @@ function buildHierarchy(){
           contChildren.appendChild(countryNode);
         });
       }
-      // filter by continent on expand click
+      // Klick på kontinent sätter filter kontinent
       H_SELECTED = { continent:cont, country:null, city:null };
       updateCrumbs(); render();
     });
@@ -526,7 +537,7 @@ function render(){
   const list = filtered();
   const showCards = (currentView==="cards");
 
-  // Approved: show hierarchy panel
+  // Hierarki visas bara i Approved
   if(currentTab==="approved"){ $("#hierarchyPanel").style.display=""; buildHierarchy(); }
   else { $("#hierarchyPanel").style.display="none"; }
 
@@ -617,21 +628,26 @@ function renderCards(list){
     <div class="card" data-id="${s.id}">
       <img class="card-img" src="${esc(img)}" alt="${esc(s.name||'')}" onerror="this.src='images/store.jpg'">
       <div class="card-body">
-        <div class="title">${esc(s.name||"–")}</div>
+        <div class="title">
+          ${s.flagged ? '🚩' : ''}${esc(s.name||"–")}
+        </div>
         <div class="badges">${cardBadges(s)}</div>
         <div class="row rating" title="Rating">${ratingStars}</div>
         <div class="row muted">📍 ${esc(s.city||"")}${s.city&&s.country?', ':''}${esc(s.country||"")}</div>
         <div class="row muted">🏠 ${esc(s.address||"–")}</div>
         ${s.phone?`<div class="row muted">📞 ${esc(s.phone)}</div>`:""}
         ${s.website?`<div class="row"><a href="${esc(s.website)}" target="_blank" rel="noopener">🌐 ${esc(s.website)}</a></div>`:""}
-${(currentTab==="pending" || currentTab==="flagged") && s.flag_reason ? (() => {
-  const reason = s.flag_reason || "No reason provided";
-  const [category, detail] = reason.split("|").map(x => x.trim());
-  return `<div class="flag-reason">
-            🚩 <strong>${esc(category.charAt(0).toUpperCase() + category.slice(1))}</strong>
-            ${detail ? `<div class="muted detail">${esc(detail)}</div>` : ""}
-          </div>`;
-})() : ""}
+        ${( (currentTab==="pending" || currentTab==="flagged") && s.flag_reason ) ? (() => {
+          const reason = s.flag_reason || "No reason provided";
+          const parts = reason.split("|");
+          const category = (parts[0]||"").trim();
+          const detail = (parts.slice(1).join("|")||"").trim();
+          return `<div class="flag-reason">
+                    🚩 <strong>${esc(category.charAt(0).toUpperCase() + category.slice(1))}</strong>
+                    ${detail ? `<div class="muted detail">${esc(detail)}</div>` : ""}
+                  </div>`;
+        })() : ""}
+
         <div class="meta">
           <div>🕓 ${fmtDate(s.created_at)}</div>
           <div>${s.added_by?`👤 ${esc(s.added_by)}`:""}</div>
@@ -650,7 +666,6 @@ ${(currentTab==="pending" || currentTab==="flagged") && s.flag_reason ? (() => {
 
   // bind actions
   c.querySelectorAll("[data-act]").forEach(b=>b.addEventListener("click", onCardAction));
-  // init photo pickers for cards currently in edit state (none on initial render)
 }
 
 function cardActionsFor(s){
@@ -735,22 +750,21 @@ function renderTable(list){
         <td>${esc(s.added_by||"")}</td>
         <td>${status}</td>
         <td>${s.flag_reason && s.flagged ? esc(s.flag_reason) : ""}</td>
-
-  <td class="t-actions">
-  ${!s.approved && !s.flagged ? `
-    <button class="action-btn approve" onclick="approveStore('${s.id}')">✔️ Approve</button>
-    <button class="action-btn edit" onclick="editStore('${s.id}')">✏️ Edit</button>
-    <button class="action-btn delete" onclick="deleteStore('${s.id}')">🗑 Delete</button>
-  ` : s.flagged ? `
-    <button class="action-btn approve" onclick="approveStore('${s.id}')">✔️ Approve</button>
-    <button class="action-btn unflag" onclick="unflagStore('${s.id}')">🧹 Unflag</button>
-    <button class="action-btn edit" onclick="editStore('${s.id}')">✏️ Edit</button>
-    <button class="action-btn delete" onclick="deleteStore('${s.id}')">🗑 Delete</button>
-  ` : s.approved ? `
-    <button class="action-btn edit" onclick="editStore('${s.id}')">✏️ Edit</button>
-    <button class="action-btn delete" onclick="deleteStore('${s.id}')">🗑 Delete</button>
-  ` : ""}
-</td>
+        <td class="t-actions">
+          ${!s.approved && !s.flagged ? `
+            <button class="action-btn approve" onclick="approveStore('${s.id}')">✔️ Approve</button>
+            <button class="action-btn edit" onclick="editStore('${s.id}')">✏️ Edit</button>
+            <button class="action-btn delete" onclick="deleteStore('${s.id}')">🗑 Delete</button>
+          ` : s.flagged ? `
+            <button class="action-btn approve" onclick="approveStore('${s.id}')">✔️ Approve</button>
+            <button class="action-btn unflag" onclick="unflagStore('${s.id}')">🧹 Unflag</button>
+            <button class="action-btn edit" onclick="editStore('${s.id}')">✏️ Edit</button>
+            <button class="action-btn delete" onclick="deleteStore('${s.id}')">🗑 Delete</button>
+          ` : s.approved ? `
+            <button class="action-btn edit" onclick="editStore('${s.id}')">✏️ Edit</button>
+            <button class="action-btn delete" onclick="deleteStore('${s.id}')">🗑 Delete</button>
+          ` : ""}
+        </td>
       </tr>
 
       <tr data-edit="${s.id}" style="display:none">
@@ -765,52 +779,21 @@ function renderTable(list){
         </td>
       </tr>
     `;
-  }).join(""); // ✅ glöm inte join()
+  }).join("");
 
-  // Eventlisteners ska ligga utanför templaten
-  tb.querySelectorAll("[data-act]").forEach(b=>b.addEventListener("click", onTableAction));
+  // Row-level actions
   tb.querySelectorAll("[data-rowact]").forEach(b=>b.addEventListener("click", onRowEditAction));
 }
 
-
-  tb.querySelectorAll("[data-act]").forEach(b=>b.addEventListener("click", onTableAction));
-  tb.querySelectorAll("[data-rowact]").forEach(b=>b.addEventListener("click", onRowEditAction));
-}
-
-function tableActionsFor(s){
-  const id = s.id;
-  const arr=[];
-  if(!s.deleted){
-    if(!s.approved) arr.push(`<button class="btn sm" data-act="approve" data-id="${id}">Approve</button>`);
-    else            arr.push(`<button class="btn sm" data-act="unapprove" data-id="${id}">Unapprove</button>`);
-    if(!s.flagged)  arr.push(`<button class="btn sm" data-act="flag" data-id="${id}">Flag</button>`);
-    else            arr.push(`<button class="btn sm" data-act="unflag" data-id="${id}">Unflag</button>`);
-    arr.push(`<button class="btn sm danger" data-act="delete" data-id="${id}">Delete</button>`);
-  } else {
-    arr.push(`<button class="btn sm" data-act="restore" data-id="${id}">Restore</button>`);
-  }
-  arr.push(`<button class="btn sm" data-act="editrow" data-id="${id}">Edit</button>`);
-  return arr.join(" ");
-}
-
-function onTableAction(e){
-  const act = e.currentTarget.dataset.act;
-  const id  = e.currentTarget.dataset.id;
-
-  if(act==="approve") return setApproved(id,true);
-  if(act==="unapprove") return setApproved(id,false);
-  if(act==="flag") return openFlagModal(id);
-  if(act==="unflag") return setFlagged(id,false);
-  if(act==="delete") return setDeleted(id,true);
-  if(act==="restore") return setDeleted(id,false);
-
-  if(act==="editrow"){
-    const row = document.querySelector(`tr[data-edit="${id}"]`);
-    const show = row.style.display==="none";
-    row.style.display = show ? "" : "none";
-    if(show){
-      initPhotoPicker(row, id); // row variant uses same initializer
-    }
+function editStore(id) {
+  const row = document.querySelector(`tr[data-edit="${id}"]`);
+  if(!row) return;
+  const show = row.style.display==="none";
+  // Stäng andra öppna editrader
+  document.querySelectorAll('tr[data-edit]').forEach(r=>r.style.display='none');
+  row.style.display = show ? "" : "none";
+  if(show){
+    initPhotoPicker(row, id); // rad-varianten använder samma initialisering
   }
 }
 
@@ -818,6 +801,7 @@ function onRowEditAction(e){
   const id = e.currentTarget.dataset.id;
   const act = e.currentTarget.dataset.rowact;
   const row = document.querySelector(`tr[data-edit="${id}"]`);
+  if(!row) return;
   if(act==="cancel"){ row.style.display="none"; return; }
   if(act==="save"){
     const ez = row.querySelector(".edit-zone");
@@ -849,24 +833,21 @@ function collectEditPayload(ez){
   return payload;
 }
 
+/* ====== Supabase updates ====== */
 async function setApproved(id, val){
-  const { error } = await supabase.from("stores").update({ approved:val }).eq("id", id);
+  const updates = val ? { approved:true, flagged:false } : { approved:false };
+  const { error } = await supabase.from("stores").update(updates).eq("id", id);
   if(error){ console.error(error); toast("Update failed","error"); return;}
   toast(val?"Approved ✅":"Unapproved","success");
   await reloadData();
 }
+let FLAG_TARGET_ID = null;
 async function setFlagged(id, val, reason=null){
-  const upd = { flagged:val };
-  if(val) upd.flag_reason = reason ?? null;
-  else    upd.flag_reason = null;
+  const upd = val ? { flagged:true, flag_reason: (reason||'manual | flagged by admin') } : { flagged:false, flag_reason:null };
   const { error } = await supabase.from("stores").update(upd).eq("id", id);
   if(error){
     console.error(error);
-    if(val && /column .*flag_reason/i.test(error.message||"")){
-      toast("Flag saved, but add column flag_reason TEXT in DB to store reason.", "info");
-    } else {
-      toast("Update failed","error");
-    }
+    toast("Update failed","error");
     return;
   }
   toast(val?"Flagged 🚩":"Unflagged","success");
@@ -887,7 +868,6 @@ async function saveEdit(id, payload){
 }
 
 /* ====== Flag reason modal ====== */
-let FLAG_TARGET_ID = null;
 function openFlagModal(id){
   FLAG_TARGET_ID = id;
   $("#flagReason").value="";
@@ -955,13 +935,13 @@ function initPhotoPicker(scopeEl, id){
     const p = st.photos[st.index];
     const url = p.getUrl({maxWidth:800});
     urlInput.value = url;
-    // Some implementations expose .photo_reference; fallback: keep existing ref
     try{ refInput.value = p.photo_reference || refInput.value; }catch(_){}
     toast("Photo selected","success");
   });
   defChk.addEventListener("change", ()=>{
     if(defChk.checked){
-      img.src = (urlInput.value && urlInput.value.includes("lounge")) ? "images/lounge.jpg" : "images/store.jpg";
+      const tt = (urlInput.value||"").toLowerCase();
+      img.src = tt.includes("lounge") ? "images/lounge.jpg" : "images/store.jpg";
       meta.textContent = "Default image selected";
     } else {
       updatePhotoPreview();
@@ -972,7 +952,6 @@ function initPhotoPicker(scopeEl, id){
     meta.textContent = "No place_id — paste a Photo URL or tick default.";
     return;
   }
-  // Ensure Google places loaded; if not yet, we retry after script loads (handled by onMapsReady)
   if(ensurePlacesService()){
     placesService.getDetails({placeId, fields:["photos"]}, (res, status)=>{
       if(status==="OK" && res && res.photos && res.photos.length){
@@ -984,7 +963,6 @@ function initPhotoPicker(scopeEl, id){
     });
   } else {
     meta.textContent = "Loading Google photos…";
-    // Will be auto-initialized when script callback runs; we can poll a bit:
     const t = setInterval(()=>{
       if(ensurePlacesService()){
         clearInterval(t);
@@ -994,6 +972,16 @@ function initPhotoPicker(scopeEl, id){
     setTimeout(()=>clearInterval(t), 6000);
   }
 }
+
+/* ====== Convenience for table buttons ====== */
+async function approveStore(id){ await setApproved(id,true); }
+async function unflagStore(id){ await setFlagged(id,false); }
+function editStoreRowToggle(id){ editStore(id); }
+async function deleteStore(id){ 
+  if(!confirm("Are you sure you want to delete this store?")) return;
+  await setDeleted(id,true); 
+}
+
 </script>
 
 <!-- Google Places (for photo picker) -->
@@ -1002,68 +990,8 @@ function initPhotoPicker(scopeEl, id){
 function _mapsReady(){
   // initialize service on load so photo-pickers can work immediately
   if(!window.google||!google.maps||!google.maps.places) return;
-  // creates service instance
   const dummyMap = new google.maps.Map(document.getElementById("gmap"));
 }
-  /* === Admin Actions === */
-
-// ✅ Approve store (mark as approved & unflag)
-async function approveStore(id) {
-  try {
-    const { error } = await supabase
-      .from("stores")
-      .update({ approved: true, flagged: false })
-      .eq("id", id);
-    if (error) throw error;
-    showToast("✅ Store approved!", "success");
-    reloadData();
-  } catch (err) {
-    console.error(err);
-    showToast("❌ Error approving store", "error");
-  }
-}
-
-// 🧹 Unflag store (remove flagged state but not auto-approve)
-async function unflagStore(id) {
-  try {
-    const { error } = await supabase
-      .from("stores")
-      .update({ flagged: false, flag_reason: null })
-      .eq("id", id);
-    if (error) throw error;
-    showToast("🧹 Store unflagged!", "success");
-    reloadData();
-  } catch (err) {
-    console.error(err);
-    showToast("❌ Error unflagging store", "error");
-  }
-}
-
-// ✏️ Edit store (expand inline form)
-function editStore(id) {
-  const tr = document.querySelector(`tr[data-edit="${id}"]`);
-  const open = tr && tr.style.display !== "none";
-  document.querySelectorAll("tr[data-edit]").forEach(el => el.style.display = "none");
-  if (!open && tr) tr.style.display = "table-row";
-}
-
-// 🗑 Delete store (soft delete)
-async function deleteStore(id) {
-  if (!confirm("Are you sure you want to delete this store?")) return;
-  try {
-    const { error } = await supabase
-      .from("stores")
-      .update({ deleted: true })
-      .eq("id", id);
-    if (error) throw error;
-    showToast("🗑 Store deleted (soft delete)", "info");
-    reloadData();
-  } catch (err) {
-    console.error(err);
-    showToast("❌ Error deleting store", "error");
-  }
-}
-
 </script>
 </body>
 </html>
