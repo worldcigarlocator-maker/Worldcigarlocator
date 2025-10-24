@@ -139,6 +139,27 @@
     font-size: .85rem;
     margin-top: .2rem;
   }
+/* ===== Admin Action Buttons ===== */
+.action-btn { 
+  border: none;
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  color: #fff;
+  margin-right: 4px; /* 👈 lägger till lite luft mellan knapparna */
+}
+
+.action-btn.approve { background: #28a745; }     /* Grön */
+.action-btn.unflag { background: #6c757d; }      /* Grå */
+.action-btn.edit { background: #007bff; }        /* Blå */
+.action-btn.delete { background: #dc3545; }      /* Röd */
+
+.action-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
 
 </style>
 </head>
@@ -700,7 +721,7 @@ function renderTable(list){
     const status = s.deleted ? "Deleted" : s.flagged ? "Flagged" : s.approved ? "Approved" : "Pending";
     const types = (s.types && s.types.length ? s.types : (s.type? [s.type] : [])).join(", ");
     const access = s.access ? (s.access==="members"?"Members Only":s.access[0].toUpperCase()+s.access.slice(1)) : "–";
-    const acts = tableActionsFor(s);
+
     return `
       <tr data-id="${s.id}">
         <td><strong>${esc(s.name||"–")}</strong></td>
@@ -714,19 +735,43 @@ function renderTable(list){
         <td>${esc(s.added_by||"")}</td>
         <td>${status}</td>
         <td>${s.flag_reason && s.flagged ? esc(s.flag_reason) : ""}</td>
-        <td class="t-actions">${acts}</td>
+
+  <td class="t-actions">
+  ${!s.approved && !s.flagged ? `
+    <button class="action-btn approve" onclick="approveStore('${s.id}')">✔️ Approve</button>
+    <button class="action-btn edit" onclick="editStore('${s.id}')">✏️ Edit</button>
+    <button class="action-btn delete" onclick="deleteStore('${s.id}')">🗑 Delete</button>
+  ` : s.flagged ? `
+    <button class="action-btn approve" onclick="approveStore('${s.id}')">✔️ Approve</button>
+    <button class="action-btn unflag" onclick="unflagStore('${s.id}')">🧹 Unflag</button>
+    <button class="action-btn edit" onclick="editStore('${s.id}')">✏️ Edit</button>
+    <button class="action-btn delete" onclick="deleteStore('${s.id}')">🗑 Delete</button>
+  ` : s.approved ? `
+    <button class="action-btn edit" onclick="editStore('${s.id}')">✏️ Edit</button>
+    <button class="action-btn delete" onclick="deleteStore('${s.id}')">🗑 Delete</button>
+  ` : ""}
+</td>
       </tr>
-      <tr data-edit="${s.id}" style="display:none"><td colspan="12">
-        <div class="edit-zone">
-          ${renderEditFormHTML(s)}
-          <div class="row" style="justify-content:flex-end;margin-top:.5rem">
-            <button class="btn" data-rowact="save" data-id="${s.id}">Save</button>
-            <button class="btn ghost" data-rowact="cancel" data-id="${s.id}">Cancel</button>
+
+      <tr data-edit="${s.id}" style="display:none">
+        <td colspan="12">
+          <div class="edit-zone">
+            ${renderEditFormHTML(s)}
+            <div class="row" style="justify-content:flex-end;margin-top:.5rem">
+              <button class="btn" data-rowact="save" data-id="${s.id}">Save</button>
+              <button class="btn ghost" data-rowact="cancel" data-id="${s.id}">Cancel</button>
+            </div>
           </div>
-        </div>
-      </td></tr>
+        </td>
+      </tr>
     `;
-  }).join("");
+  }).join(""); // ✅ glöm inte join()
+
+  // Eventlisteners ska ligga utanför templaten
+  tb.querySelectorAll("[data-act]").forEach(b=>b.addEventListener("click", onTableAction));
+  tb.querySelectorAll("[data-rowact]").forEach(b=>b.addEventListener("click", onRowEditAction));
+}
+
 
   tb.querySelectorAll("[data-act]").forEach(b=>b.addEventListener("click", onTableAction));
   tb.querySelectorAll("[data-rowact]").forEach(b=>b.addEventListener("click", onRowEditAction));
@@ -960,6 +1005,65 @@ function _mapsReady(){
   // creates service instance
   const dummyMap = new google.maps.Map(document.getElementById("gmap"));
 }
+  /* === Admin Actions === */
+
+// ✅ Approve store (mark as approved & unflag)
+async function approveStore(id) {
+  try {
+    const { error } = await supabase
+      .from("stores")
+      .update({ approved: true, flagged: false })
+      .eq("id", id);
+    if (error) throw error;
+    showToast("✅ Store approved!", "success");
+    reloadData();
+  } catch (err) {
+    console.error(err);
+    showToast("❌ Error approving store", "error");
+  }
+}
+
+// 🧹 Unflag store (remove flagged state but not auto-approve)
+async function unflagStore(id) {
+  try {
+    const { error } = await supabase
+      .from("stores")
+      .update({ flagged: false, flag_reason: null })
+      .eq("id", id);
+    if (error) throw error;
+    showToast("🧹 Store unflagged!", "success");
+    reloadData();
+  } catch (err) {
+    console.error(err);
+    showToast("❌ Error unflagging store", "error");
+  }
+}
+
+// ✏️ Edit store (expand inline form)
+function editStore(id) {
+  const tr = document.querySelector(`tr[data-edit="${id}"]`);
+  const open = tr && tr.style.display !== "none";
+  document.querySelectorAll("tr[data-edit]").forEach(el => el.style.display = "none");
+  if (!open && tr) tr.style.display = "table-row";
+}
+
+// 🗑 Delete store (soft delete)
+async function deleteStore(id) {
+  if (!confirm("Are you sure you want to delete this store?")) return;
+  try {
+    const { error } = await supabase
+      .from("stores")
+      .update({ deleted: true })
+      .eq("id", id);
+    if (error) throw error;
+    showToast("🗑 Store deleted (soft delete)", "info");
+    reloadData();
+  } catch (err) {
+    console.error(err);
+    showToast("❌ Error deleting store", "error");
+  }
+}
+
 </script>
 </body>
 </html>
