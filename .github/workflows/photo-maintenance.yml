@@ -10,7 +10,7 @@ jobs:
   photo-maintenance:
     runs-on: ubuntu-latest
     env:
-BASE_URL: "https://gbxxoeplkzbhsvagnfsr.supabase.co/functions/v1/photo-maintenance"
+      BASE_URL: "https://gbxxoeplkzbhsvagnfsr.supabase.co/functions/v1/photo-maintenance"
       AUTH: "Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
 
     steps:
