@@ -860,8 +860,26 @@ async function setDeleted(id, val){
   await reloadData();
 }
 async function saveEdit(id, payload){
+  // --- Handle "Use default image" cleanup ---
+  if (!payload.photo_url && !payload.photo_reference) {
+    // användaren har kryssat i "Use default image" eller rensat fältet
+    payload.photo_url = null;
+    payload.photo_reference = null;
+  }
+
+  // --- Fix broken Google PhotoService URLs ---
+  if (payload.photo_reference && (!payload.photo_url || payload.photo_url.includes('PhotoService.GetPhoto'))) {
+    payload.photo_url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${payload.photo_reference}&key=${GOOGLE_BROWSER_KEY}`;
+  }
+
+  // --- Spara till Supabase ---
   const { error } = await supabase.from("stores").update(payload).eq("id", id);
-  if(error){ console.error(error); toast("Save failed","error"); return;}
+  if(error){
+    console.error(error);
+    toast("Save failed","error");
+    return;
+  }
+
   toast("Saved ✔","success");
   editingId = null;
   await reloadData();
