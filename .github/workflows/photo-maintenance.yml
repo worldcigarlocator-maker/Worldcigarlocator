@@ -1,0 +1,26 @@
+name: 🧩 Photo Maintenance (repair + refresh)
+
+on:
+  schedule:
+    - cron: "0 2 * * *"   # 02:00 UTC
+    - cron: "0 5 * * *"   # 05:00 UTC
+  workflow_dispatch:       # Kör manuellt från Actions-fliken
+
+jobs:
+  photo-maintenance:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-maintenance"
+      AUTH: "Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
+
+    steps:
+      - name: 🚀 Run photo maintenance
+        run: |
+          echo "Starting scheduled photo maintenance..."
+          curl -s -X POST "$BASE_URL" \
+            -H "Authorization: $AUTH" \
+            -H "Content-Type: application/json" \
+            -d '{"run":true}' || true
+
+      - name: ✅ Summary
+        run: echo "Photo maintenance complete at $(date -u)"
