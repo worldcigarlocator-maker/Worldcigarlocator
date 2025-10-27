@@ -947,15 +947,24 @@ function initPhotoPicker(scopeEl, id){
 
   prev.addEventListener("click", ()=>nav(-1));
   next.addEventListener("click", ()=>nav(+1));
-  useBtn.addEventListener("click", ()=>{
-    const st = hPhotosById[id];
-    if(!st.photos.length){ toast("No Google photos to use","info"); return; }
-    const p = st.photos[st.index];
-    const url = p.getUrl({maxWidth:800});
-    urlInput.value = url;
-    try{ refInput.value = p.photo_reference || refInput.value; }catch(_){}
-    toast("Photo selected","success");
-  });
+useBtn.addEventListener("click", ()=>{
+  const st = hPhotosById[id];
+  if(!st.photos.length){ toast("No Google photos to use","info"); return; }
+  const p = st.photos[st.index];
+
+  // Try to get a persistent photo_reference (needed for later)
+  const ref = p.photo_reference || (p.html_attributions?.[0] ?? "").match(/photoreference=([^&]+)/)?.[1] || "";
+
+  if(ref){
+    refInput.value = ref;
+    urlInput.value = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${ref}&key=${GOOGLE_BROWSER_KEY}`;
+  } else {
+    // fallback to temporary URL if no ref (should be rare)
+    urlInput.value = p.getUrl({maxWidth:800});
+  }
+
+  toast("Photo selected","success");
+});
   defChk.addEventListener("change", ()=>{
     if(defChk.checked){
       const tt = (urlInput.value||"").toLowerCase();
