@@ -567,11 +567,18 @@ function cardBadges(s){
 }
 
 function cardImageSrc(s){
-  if(s.photo_url) return s.photo_url;
-  if(s.photo_reference){
+  // 🧠 Always prefer Google API if we have a reference
+  if (s.photo_reference) {
     return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(s.photo_reference)}&key=${GOOGLE_BROWSER_KEY}`;
   }
-  const tt = (s.types && s.types.length ? s.types : (s.type? [s.type] : [])).map(x=>String(x||"").toLowerCase());
+
+  // ✅ Use photo_url only if it's not a Google temporary URL
+  if (s.photo_url && !s.photo_url.includes('PhotoService.GetPhoto')) {
+    return s.photo_url;
+  }
+
+  // 🖼️ Fallback image
+  const tt = (s.types && s.types.length ? s.types : (s.type ? [s.type] : [])).map(x=>String(x||"").toLowerCase());
   return tt.includes("lounge") ? "images/lounge.jpg" : "images/store.jpg";
 }
 
