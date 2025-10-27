@@ -1,1 +1,206 @@
+<!-- Backoffice V4.3 — Permanent 403 Fix | 2025-10-27 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Backoffice — Moderation (V4.3)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --text:#111; --muted:#667085; --border:#e5e7eb;
+    --primary:#2f78c4; --primary-dark:#245f9a;
+    --gold:#d4af37; --gold-dark:#b8911b;
+    --green:#28a745; --blue:#007bff; --red:#d9534f; --amber:#ffb020;
+    --shadow:0 8px 24px rgba(0,0,0,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  a{color:#0b5fff;text-decoration:none} a:hover{text-decoration:underline}
+  .wrap{max-width:1220px;margin:0 auto;padding:1.2rem}
+  .topbar{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:.8rem}
+  .btn{background:#fff;border:1.6px solid var(--primary);color:var(--primary);padding:.5rem .8rem;border-radius:10px;font-weight:800;cursor:pointer}
+  .btn:hover{background:var(--primary);color:#fff}
+  .btn.primary{background:var(--primary);color:#fff;border:none}
+  .btn.danger{border-color:var(--red);color:var(--red)}
+  .btn.danger:hover{background:var(--red);color:#fff}
+  .filters{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:.6rem 0 1rem}
+  .pill{padding:.4rem .7rem;border:1.6px solid var(--primary);border-radius:999px;font-weight:800;cursor:pointer;background:#fff;color:var(--primary)}
+  .pill.active{background:var(--primary);color:#fff}
+  .searchbar{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin:.4rem 0}
+  .searchbar input{padding:.55rem .7rem;border:1.6px solid var(--primary);border-radius:10px;font-size:.95rem;min-width:260px;background:#fff;color:#111}
+  .viewtoggle{display:flex;gap:.4rem;align-items:center;margin-top:.2rem}
+  .viewtoggle .seg{padding:.35rem .6rem;border:1.6px solid var(--border);border-radius:9px;cursor:pointer;font-weight:800;color:#333;background:#fff}
+  .viewtoggle .seg.active{border-color:var(--primary);color:#fff;background:var(--primary)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;transition:transform .18s ease,box-shadow .18s ease}
+  .card:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(0,0,0,.12)}
+  .card-img{width:100%;height:170px;object-fit:cover;background:#000}
+  .card-body{padding:1rem;display:flex;flex-direction:column;gap:.55rem}
+  .title{font-weight:900;font-size:1.05rem;display:flex;align-items:center;gap:.35rem}
+  .row{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+  .muted{color:#667085;font-size:.9rem}
+  .actions{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem}
+  .btn.sm{padding:.35rem .55rem;border-radius:8px;font-size:.85rem}
+  #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999}
+  .toast{background:#333;color:#fff;padding:.7rem 1rem;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:.97}
+  .toast.success{background:#28a745}.toast.error{background:#dc3545}.toast.info{background:#2f78c4}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <button class="btn" onclick="location.href='add-store-backoffice.html'">＋ Add Store</button>
+      <button class="btn" onclick="location.href='analytics.html'">📊 Analytics</button>
+      <button class="btn" onclick="reloadData()">⟲ Reload</button>
+    </div>
+
+    <div class="filters">
+      <button class="pill active" data-tab="pending">Pending</button>
+      <button class="pill" data-tab="approved">Approved</button>
+      <button class="pill" data-tab="flagged">Flagged</button>
+      <button class="pill" data-tab="deleted">Trash</button>
+    </div>
+
+    <div class="searchbar">
+      <input id="searchInput" placeholder="Search by name, city, country…" />
+      <div class="viewtoggle">
+        <span class="seg" data-view="list">List</span>
+        <span class="seg active" data-view="cards">Cards</span>
+      </div>
+    </div>
+
+    <div id="cards" class="grid"></div>
+    <div id="table" class="table-wrap" style="display:none"></div>
+  </div>
+
+  <div id="toast-container"></div>
+
+<script>
+const SUPABASE_URL="https://gbxxoeplkzbhsvagnfsr.supabase.co";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let ALL=[];let currentTab="pending";let currentView="cards";
+const $=(s,p=document)=>p.querySelector(s);
+function toast(m,t="info"){const c=$("#toast-container");const d=document.createElement("div");d.className=`toast ${t}`;d.textContent=m;c.appendChild(d);setTimeout(()=>d.remove(),3200);}
+
+/* ==== Load ==== */
+document.addEventListener("DOMContentLoaded",async()=>{bindUI();await reloadData();});
+async function reloadData(){
+  const {data,error}=await supabase.from("stores").select("*").order("created_at",{ascending:false});
+  if(error){console.error(error);toast("Load failed","error");return;}
+  ALL=data||[];render();
+}
+
+/* ==== UI ==== */
+function bindUI(){
+  document.querySelectorAll(".pill").forEach(p=>p.addEventListener("click",()=>{
+    document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active"));
+    p.classList.add("active");currentTab=p.dataset.tab;render();
+  }));
+  document.querySelectorAll(".viewtoggle .seg").forEach(seg=>seg.addEventListener("click",()=>{
+    document.querySelectorAll(".viewtoggle .seg").forEach(x=>x.classList.remove("active"));
+    seg.classList.add("active");currentView=seg.dataset.view;render();
+  }));
+  $("#searchInput").addEventListener("input",render);
+}
+
+/* ==== Filter ==== */
+function filtered(){
+  let arr=[...ALL];
+  if(currentTab==="approved")arr=arr.filter(s=>s.approved&&!s.deleted);
+  if(currentTab==="pending")arr=arr.filter(s=>!s.approved&&!s.deleted);
+  if(currentTab==="flagged")arr=arr.filter(s=>s.flagged&&!s.deleted);
+  if(currentTab==="deleted")arr=arr.filter(s=>s.deleted);
+  const q=$("#searchInput").value.trim().toLowerCase();
+  if(q)arr=arr.filter(s=>(s.name||"").toLowerCase().includes(q)||(s.city||"").toLowerCase().includes(q)||(s.country||"").toLowerCase().includes(q));
+  return arr;
+}
+
+/* ==== Image logic (403 Safe) ==== */
+function cardImageSrc(s){
+  // 🧹 Remove invalid or expired Google image URLs
+  if(s.photo_url && s.photo_url.includes("PhotoService.GetPhoto")) s.photo_url=null;
+
+  // ✅ Use existing valid URL or your GitHub fallback
+  if(s.photo_url && (s.photo_url.startsWith("https://")||s.photo_url.startsWith("images/"))){
+    return s.photo_url;
+  }
+
+  const tt=(s.types&&s.types.length?s.types:(s.type?[s.type]:[])).map(x=>String(x||"").toLowerCase());
+  return tt.includes("lounge")?"images/lounge.jpg":"images/store.jpg";
+}
+
+/* ==== Render ==== */
+function render(){
+  const arr=filtered();
+  $("#cards").style.display=currentView==="cards"?"":"none";
+  $("#table").style.display=currentView==="list"?"":"none";
+  if(currentView==="cards")renderCards(arr);else renderTable(arr);
+}
+
+function renderCards(arr){
+  const c=$("#cards");
+  c.innerHTML=arr.map(s=>`
+  <div class="card" data-id="${s.id}">
+    <img class="card-img" src="${cardImageSrc(s)}" onerror="this.src='images/store.jpg'">
+    <div class="card-body">
+      <div class="title">${s.flagged?'🚩 ':''}${s.name||'–'}</div>
+      <div class="muted">${s.city||''}, ${s.country||''}</div>
+      <div class="row muted">⭐ ${s.rating||'–'} | ${s.type||''}</div>
+      <div class="row muted">${s.website?`<a href="${s.website}" target="_blank">${s.website}</a>`:''}</div>
+      <div class="actions">
+        <button class="btn sm" data-act="edit" data-id="${s.id}">Edit</button>
+        <button class="btn sm danger" data-act="delete" data-id="${s.id}">Delete</button>
+      </div>
+      <div class="edit-zone" style="display:none">
+        <input data-k="photo_url" placeholder="Image URL" value="${s.photo_url||''}" style="width:100%;margin:.3rem 0;padding:.3rem">
+        <button class="btn sm" data-act="save" data-id="${s.id}">Save</button>
+        <button class="btn sm" data-act="cancel" data-id="${s.id}">Cancel</button>
+      </div>
+    </div>
+  </div>`).join("");
+  c.querySelectorAll("[data-act]").forEach(b=>b.onclick=onCardAction);
+}
+
+/* ==== Actions ==== */
+function onCardAction(e){
+  const act=e.currentTarget.dataset.act;const id=e.currentTarget.dataset.id;
+  const card=e.currentTarget.closest(".card");
+  const ez=card.querySelector(".edit-zone");
+  if(act==="edit"){ez.style.display="";}
+  if(act==="cancel"){ez.style.display="none";}
+  if(act==="save"){
+    const url=ez.querySelector("[data-k=photo_url]").value.trim();
+    saveEdit(id,{photo_url:url||null});
+  }
+  if(act==="delete")deleteStore(id);
+}
+
+/* ==== 403-Safe Save ==== */
+async function saveEdit(id,payload){
+  // 🧹 Clean temporary Google URLs
+  if(payload.photo_url && payload.photo_url.includes("PhotoService.GetPhoto"))payload.photo_url=null;
+
+  // 🧩 Clear refs if default image used
+  if(!payload.photo_url && !payload.photo_reference){
+    payload.photo_url=null;
+    payload.photo_reference=null;
+  }
+
+  const {error}=await supabase.from("stores").update(payload).eq("id",id);
+  if(error){console.error(error);toast("Save failed","error");return;}
+  toast("Saved ✔","success");await reloadData();
+}
+
+/* ==== Delete ==== */
+async function deleteStore(id){
+  if(!confirm("Delete this store?"))return;
+  const {error}=await supabase.from("stores").update({deleted:true}).eq("id",id);
+  if(error){toast("Delete failed","error");return;}
+  toast("Deleted","success");await reloadData();
+}
+</script>
+</body>
+</html>
 
