@@ -10,21 +10,19 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="backoffice.css" />
+  <link rel="stylesheet" href="css/backoffice.css" />
 
-  <!-- Google Fonts (Inter for UI) -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="wrap">
-    <!-- Topbar -->
     <div class="topbar">
       <button class="btn" onclick="location.href='add-store-backoffice.html'">＋ Add Store</button>
       <button class="btn" onclick="location.href='analytics.html'">📊 Analytics</button>
       <button class="btn" onclick="reloadData()">⟲ Reload</button>
     </div>
 
-    <!-- Filters -->
     <div class="filters">
       <button class="pill" data-tab="all">All</button>
       <button class="pill" data-tab="approved">Approved</button>
@@ -41,7 +39,6 @@
       </div>
     </div>
 
-    <!-- Approved hierarchy panel -->
     <div id="hierarchyPanel" class="hierarchy-panel">
       <div class="h-row">
         <div class="h-controls">
@@ -54,7 +51,6 @@
       <div id="hTree" class="h-tree"></div>
     </div>
 
-    <!-- Dynamic content -->
     <div id="cards" class="grid"></div>
     <div id="table" class="table-wrap" style="display:none">
       <table>
@@ -79,7 +75,7 @@
     </div>
   </div>
 
-  <!-- Toasts & Modal -->
+  <!-- Toast & Modal -->
   <div id="toast-container"></div>
 
   <div id="flagModal" class="modal-backdrop">
@@ -97,9 +93,9 @@
   <div id="gmap" style="width:0;height:0;overflow:hidden;position:absolute;left:-9999px;top:-9999px"></div>
 
   <!-- JS -->
-  <script src="backoffice.js"></script>
+  <script src="js/backoffice.js"></script>
 
-  <!-- Google Places API -->
+  <!-- Google Places -->
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=_mapsReady">
   </script>
