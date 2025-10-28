@@ -1,5 +1,5 @@
 /* Backoffice Add Store — Clean Final Version (2025-10-28)
-   Includes 403 fix, Google photo fallback, and full stability
+   Stable version with DOMContentLoaded protection and 403 fix
 */
 
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
@@ -7,7 +7,6 @@ const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 let FLAG_TARGET_ID = null;
 
 const sel = {
@@ -24,7 +23,7 @@ const sel = {
   photo_url: null
 };
 
-/* 🌍 Simplified Continent Mapper */
+/* 🌍 Simple Continent Mapper */
 function getContinentFromCountry(country) {
   if (!country) return "Other";
   const c = country.trim().toLowerCase();
@@ -52,69 +51,7 @@ function getContinentFromCountry(country) {
   return m[c] || "Other";
 }
 
-/* ---------- UI Binding ---------- */
-
-document.querySelectorAll("#typeRow .chip").forEach((chip) => {
-  chip.addEventListener("click", () => {
-    chip.classList.toggle("active");
-    sel.types = Array.from(
-      document.querySelectorAll("#typeRow .chip.active")
-    ).map((c) => c.dataset.type);
-    document.getElementById("accessBox").style.display = sel.types.includes("lounge")
-      ? "block"
-      : "none";
-  });
-});
-
-document.querySelectorAll("input[name='access']").forEach((r) => {
-  r.addEventListener("change", () => (sel.access = r.value));
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  const stars = document.getElementById("stars");
-  if (stars) {
-    stars.addEventListener("click", (e) => {
-      const v = +e.target.dataset.v;
-      if (!v) return;
-      sel.rating = v;
-      [...stars.children].forEach((el, i) => el.classList.toggle("sel", i < v));
-    });
-  }
-
-  document.querySelectorAll("#typeRow .chip").forEach((chip) => {
-    chip.addEventListener("click", () => {
-      chip.classList.toggle("active");
-      sel.types = Array.from(
-        document.querySelectorAll("#typeRow .chip.active")
-      ).map((c) => c.dataset.type);
-      document.getElementById("accessBox").style.display = sel.types.includes("lounge")
-        ? "block"
-        : "none";
-    });
-  });
-
-  document.querySelectorAll("input[name='access']").forEach((r) => {
-    r.addEventListener("change", () => (sel.access = r.value));
-  });
-
-  document.getElementById("prev-photo").onclick = () => {
-    if (sel.photos.length) {
-      sel.photo_index = (sel.photo_index - 1 + sel.photos.length) % sel.photos.length;
-      updatePhoto();
-    }
-  };
-
-  document.getElementById("next-photo").onclick = () => {
-    if (sel.photos.length) {
-      sel.photo_index = (sel.photo_index + 1) % sel.photos.length;
-      updatePhoto();
-    }
-  };
-});
-
-
-/* ---------- Toast ---------- */
-
+/* ---------- Toast Utility ---------- */
 function showToast(msg, type = "info") {
   const c = document.getElementById("toast-container");
   const t = document.createElement("div");
@@ -124,46 +61,13 @@ function showToast(msg, type = "info") {
   setTimeout(() => t.remove(), 3200);
 }
 
-/* ---------- Reset Form ---------- */
-
-function resetForm() {
-  [
-    "gAddress",
-    "name",
-    "addr",
-    "city",
-    "state",
-    "country",
-    "phone",
-    "website"
-  ].forEach((id) => (document.getElementById(id).value = ""));
-  document.querySelectorAll("#typeRow .chip").forEach((c) =>
-    c.classList.remove("active")
-  );
-  document.getElementById("forceDefault").checked = false;
-  sel.types = [];
-  sel.access = null;
-  sel.rating = null;
-  sel.lat = null;
-  sel.lng = null;
-  sel.place_id = null;
-  sel.photos = [];
-  sel.photo_index = 0;
-  sel.state = null;
-  sel.photo_reference = null;
-  sel.photo_url = null;
-  document.getElementById("accessBox").style.display = "none";
-  [...stars.children].forEach((el) => el.classList.remove("sel"));
-  updatePhoto();
-  showToast("Form cleared", "success");
-}
-
-/* ---------- Photo Logic ---------- */
-
+/* ---------- Photo Update ---------- */
 function updatePhoto() {
   const img = document.getElementById("preview-photo");
   const meta = document.getElementById("photo-meta");
-  const force = document.getElementById("forceDefault").checked;
+  const force = document.getElementById("forceDefault")?.checked;
+
+  if (!img || !meta) return;
 
   if (force || !sel.photos.length) {
     img.src = sel.types.includes("lounge")
@@ -183,32 +87,61 @@ function updatePhoto() {
   meta.textContent = `Photo ${sel.photo_index + 1}/${sel.photos.length}`;
 }
 
-document.getElementById("prev-photo").onclick = () => {
-  if (sel.photos.length) {
-    sel.photo_index = (sel.photo_index - 1 + sel.photos.length) % sel.photos.length;
-    updatePhoto();
-  }
-};
+/* ---------- Reset Form ---------- */
+function resetForm() {
+  [
+    "gAddress",
+    "name",
+    "addr",
+    "city",
+    "state",
+    "country",
+    "phone",
+    "website"
+  ].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
 
-document.getElementById("next-photo").onclick = () => {
-  if (sel.photos.length) {
-    sel.photo_index = (sel.photo_index + 1) % sel.photos.length;
-    updatePhoto();
-  }
-};
+  document.querySelectorAll("#typeRow .chip").forEach((c) =>
+    c.classList.remove("active")
+  );
+  const check = document.getElementById("forceDefault");
+  if (check) check.checked = false;
+
+  sel.types = [];
+  sel.access = null;
+  sel.rating = null;
+  sel.lat = null;
+  sel.lng = null;
+  sel.place_id = null;
+  sel.photos = [];
+  sel.photo_index = 0;
+  sel.state = null;
+  sel.photo_reference = null;
+  sel.photo_url = null;
+
+  const accessBox = document.getElementById("accessBox");
+  if (accessBox) accessBox.style.display = "none";
+
+  const stars = document.getElementById("stars");
+  if (stars) [...stars.children].forEach((el) => el.classList.remove("sel"));
+
+  updatePhoto();
+  showToast("Form cleared", "success");
+}
 
 /* ---------- Save Store ---------- */
-
 async function saveStore() {
-  const name = document.getElementById("name").value.trim();
-  const address = document.getElementById("addr").value.trim();
-  const city = document.getElementById("city").value.trim();
+  const name = document.getElementById("name")?.value.trim();
+  const address = document.getElementById("addr")?.value.trim();
+  const city = document.getElementById("city")?.value.trim();
   const state =
-    document.getElementById("state").value.trim() || sel.state || null;
-  const country = document.getElementById("country").value.trim();
+    document.getElementById("state")?.value.trim() || sel.state || null;
+  const country = document.getElementById("country")?.value.trim();
   const continent = getContinentFromCountry(country);
-  const phone = document.getElementById("phone").value.trim();
-  const website = document.getElementById("website").value.trim();
+  const phone = document.getElementById("phone")?.value.trim();
+  const website = document.getElementById("website")?.value.trim();
   const access = sel.types.includes("lounge")
     ? document.querySelector("input[name='access']:checked")?.value || null
     : null;
@@ -218,7 +151,7 @@ async function saveStore() {
     return;
   }
 
-  // Duplicate check
+  // duplicate check
   const { data: existing, error: checkError } = await supabase
     .from("stores")
     .select("id")
@@ -233,13 +166,12 @@ async function saveStore() {
     showToast("⚠️ Could not verify duplicates", "error");
     return;
   }
-
   if (existing && existing.length) {
     showToast("⚠️ This store already exists!", "error");
     return;
   }
 
-  const force = document.getElementById("forceDefault").checked;
+  const force = document.getElementById("forceDefault")?.checked;
 
   const payload = {
     name,
@@ -260,7 +192,7 @@ async function saveStore() {
     lng: sel.lng,
     place_id: sel.place_id,
     photo_reference: force ? null : sel.photo_reference || null,
-    photo_url: null, // no temporary Google photo URLs
+    photo_url: null,
     deleted: false
   };
 
@@ -275,10 +207,11 @@ async function saveStore() {
   resetForm();
 }
 
-/* ---------- Autocomplete ---------- */
-
+/* ---------- Google Maps Autocomplete ---------- */
 function initAutocomplete() {
   const input = document.getElementById("gAddress");
+  if (!input) return;
+
   const ac = new google.maps.places.Autocomplete(input, {
     fields: [
       "place_id",
@@ -291,6 +224,7 @@ function initAutocomplete() {
       "photos"
     ]
   });
+
   ac.addListener("place_changed", () => {
     const place = ac.getPlace();
     if (!place) return;
@@ -327,13 +261,59 @@ function initAutocomplete() {
   });
 }
 
-/* ---------- Map Loader Callback ---------- */
+/* ---------- Google Maps Ready Callback ---------- */
 function _mapsReady() {
   if (!window.google || !google.maps || !google.maps.places) {
-    console.warn("Google Maps not ready");
+    console.warn("⚠️ Google Maps not ready yet");
     return;
   }
   console.log("✅ Google Maps API Ready");
 }
+
+/* ---------- DOMContentLoaded: All Event Bindings ---------- */
+document.addEventListener("DOMContentLoaded", () => {
+  const stars = document.getElementById("stars");
+  if (stars) {
+    stars.addEventListener("click", (e) => {
+      const v = +e.target.dataset.v;
+      if (!v) return;
+      sel.rating = v;
+      [...stars.children].forEach((el, i) => el.classList.toggle("sel", i < v));
+    });
+  }
+
+  document.querySelectorAll("#typeRow .chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      chip.classList.toggle("active");
+      sel.types = Array.from(
+        document.querySelectorAll("#typeRow .chip.active")
+      ).map((c) => c.dataset.type);
+      const box = document.getElementById("accessBox");
+      if (box) box.style.display = sel.types.includes("lounge") ? "block" : "none";
+    });
+  });
+
+  document.querySelectorAll("input[name='access']").forEach((r) => {
+    r.addEventListener("change", () => (sel.access = r.value));
+  });
+
+  const prev = document.getElementById("prev-photo");
+  const next = document.getElementById("next-photo");
+  if (prev && next) {
+    prev.onclick = () => {
+      if (sel.photos.length) {
+        sel.photo_index =
+          (sel.photo_index - 1 + sel.photos.length) % sel.photos.length;
+        updatePhoto();
+      }
+    };
+    next.onclick = () => {
+      if (sel.photos.length) {
+        sel.photo_index = (sel.photo_index + 1) % sel.photos.length;
+        updatePhoto();
+      }
+    };
+  }
+});
 
 window.initAutocomplete = initAutocomplete;
