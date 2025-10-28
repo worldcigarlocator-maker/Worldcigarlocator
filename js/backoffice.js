@@ -74,13 +74,32 @@ function countryToContinent(country){
 /* ============ IMAGE HELPERS (permanent, legal) ============ */
 // Prova varianter om någon CDN-variant inte laddas i vissa regioner/CDN-edges
 function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
+  if (!ref) return null;
+
+  // 🧠 Om ref redan är en full Google CDN-länk — använd den direkt
+  if (ref.startsWith("https://lh3.googleusercontent.com/")) {
+    return ref;
+  }
+
+  // 🧹 Rensa och normalisera (tar bort "places/.../photos/" om det finns)
+  let clean = String(ref).trim();
+  if (clean.includes("/photos/")) {
+    const parts = clean.split("/");
+    clean = parts[parts.length - 1];
+  }
+  if (clean.startsWith("p/")) clean = clean.slice(2);
+  clean = clean.split("?")[0];
+
+  // 📐 Prova olika varianter (–k-no, –no)
   const tails = [
     `=w${w}-h${h}`,
     `=w${w}-h${h}-k-no`,
     `=w${w}-h${h}-no`
   ];
   const idx = Math.max(0, Math.min(variant, tails.length - 1));
-  return `https://lh3.googleusercontent.com/p/${encodeURIComponent(ref)}${tails[idx]}`;
+
+  // ✅ Bygg slutlig CDN-URL
+  return `https://lh3.googleusercontent.com/p/${encodeURIComponent(clean)}${tails[idx]}`;
 }
 
 function githubFallbackForTypes(typesOrType){
