@@ -66,7 +66,7 @@ function countryToContinent(country) {
     japan: "Asia",
     china: "Asia",
     india: "Asia",
-    south africa: "Africa",
+      "south africa": "Africa"
   };
   return m[c] || "Other";
 }
