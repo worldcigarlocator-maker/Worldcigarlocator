@@ -109,7 +109,7 @@ async function reloadData() {
       showToast("❌ Error loading stores", "error");
       return;
     }
-
+ALL = data; // 
     renderAll(data || []);
     showToast(`✅ Loaded ${data.length} stores`, "success");
 
