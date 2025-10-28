@@ -2,56 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Backoffice — World Cigar Locator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Backoffice — Moderation (V4.2+)</title>
 
-  <!-- Fonts & Supabase -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- CSS -->
+  <!-- Styles -->
   <link rel="stylesheet" href="css/backoffice.css" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="wrap">
+    <!-- Topbar -->
     <div class="topbar">
       <button class="btn" onclick="location.href='add-store-backoffice.html'">＋ Add Store</button>
       <button class="btn" onclick="location.href='analytics.html'">📊 Analytics</button>
       <button class="btn" onclick="reloadData()">⟲ Reload</button>
     </div>
 
-    <h1>Backoffice — Moderation & Management</h1>
-
+    <!-- Filters -->
     <div class="filters">
-      <button class="pill active" data-tab="all">All</button>
+      <button class="pill" data-tab="all">All</button>
       <button class="pill" data-tab="approved">Approved</button>
-      <button class="pill" data-tab="pending">Pending</button>
+      <button class="pill active" data-tab="pending">Pending</button>
       <button class="pill" data-tab="flagged">Flagged</button>
       <button class="pill" data-tab="deleted">Trash</button>
     </div>
 
     <div class="searchbar">
-      <input id="searchInput" type="text" placeholder="Search by name, city, or country…" />
+      <input id="searchInput" placeholder="Search by name, city, country…" />
       <div class="viewtoggle">
-        <span class="seg active" data-view="cards">Cards</span>
         <span class="seg" data-view="list">List</span>
+        <span class="seg active" data-view="cards">Cards</span>
       </div>
     </div>
 
+    <!-- Approved hierarchy panel -->
+    <div id="hierarchyPanel" class="hierarchy-panel" style="display:none">
+      <div class="h-row">
+        <div class="h-controls">
+          <input id="hSearch" placeholder="Filter continent / country / city…" />
+          <button class="btn ghost" id="hCloseAll">Close All</button>
+          <button class="btn ghost" id="hClearSel" title="Clear selection">Clear</button>
+        </div>
+        <div class="crumbs" id="hCrumbs">Showing: <b>All Approved</b></div>
+      </div>
+      <div id="hTree" class="h-tree"></div>
+    </div>
+
+    <!-- Dynamic content -->
     <div id="cards" class="grid"></div>
 
-    <div id="table" class="table-wrap" style="display:none;">
+    <div id="table" class="table-wrap" style="display:none">
       <table>
         <thead>
           <tr>
             <th>Name</th>
-            <th>City</th>
             <th>Country</th>
+            <th>Continent</th>
+            <th>City</th>
             <th>Type</th>
             <th>Access</th>
             <th>Rating</th>
+            <th>Added</th>
+            <th>Added by</th>
             <th>Status</th>
-            <th>Actions</th>
+            <th>Reason</th>
+            <th class="t-actions">Actions</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -59,10 +79,9 @@
     </div>
   </div>
 
-  <!-- Toast -->
+  <!-- Toast & Modal -->
   <div id="toast-container"></div>
 
-  <!-- Flag Modal -->
   <div id="flagModal" class="modal-backdrop">
     <div class="modal">
       <h3>Flag store — reason</h3>
@@ -74,7 +93,13 @@
     </div>
   </div>
 
-  <!-- JS -->
+  <!-- Invisible node for Google Places (no map shown) -->
+  <div id="gmap" style="width:0;height:0;overflow:hidden;position:absolute;left:-9999px;top:-9999px"></div>
+
+  <!-- Logic -->
   <script src="js/backoffice.js"></script>
+
+  <!-- Google Places (for photo picker) -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=_mapsReady"></script>
 </body>
 </html>
