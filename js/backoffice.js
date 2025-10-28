@@ -1,319 +1,211 @@
-/* Backoffice Add Store — Clean Final Version (2025-10-28)
-   Stable version with DOMContentLoaded protection and 403 fix
-*/
+/* ======================================================
+   Backoffice Logic — World Cigar Locator
+   Clean rebuild 2025-10-28 (stable)
+====================================================== */
 
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-const SUPABASE_ANON_KEY =
+const SUPABASE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let STORES = [];
+let CURRENT_TAB = "approved";
 let FLAG_TARGET_ID = null;
 
-const sel = {
-  types: [],
-  access: null,
-  rating: null,
-  lat: null,
-  lng: null,
-  place_id: null,
-  photos: [],
-  photo_index: 0,
-  state: null,
-  photo_reference: null,
-  photo_url: null
-};
-
-/* 🌍 Simple Continent Mapper */
-function getContinentFromCountry(country) {
-  if (!country) return "Other";
-  const c = country.trim().toLowerCase();
-  const m = {
-    sweden: "Europe",
-    norway: "Europe",
-    denmark: "Europe",
-    finland: "Europe",
-    iceland: "Europe",
-    usa: "North America",
-    "united states": "North America",
-    canada: "North America",
-    france: "Europe",
-    germany: "Europe",
-    italy: "Europe",
-    spain: "Europe",
-    brazil: "South America",
-    argentina: "South America",
-    australia: "Oceania",
-    japan: "Asia",
-    china: "Asia",
-    india: "Asia",
-    "south africa": "Africa"
-  };
-  return m[c] || "Other";
-}
-
-/* ---------- Toast Utility ---------- */
+/* -------------------- Toast -------------------- */
 function showToast(msg, type = "info") {
-  const c = document.getElementById("toast-container");
-  const t = document.createElement("div");
-  t.className = `toast ${type}`;
-  t.textContent = msg;
-  c.appendChild(t);
-  setTimeout(() => t.remove(), 3200);
+  const container = document.getElementById("toast-container");
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
 }
 
-/* ---------- Photo Update ---------- */
-function updatePhoto() {
-  const img = document.getElementById("preview-photo");
-  const meta = document.getElementById("photo-meta");
-  const force = document.getElementById("forceDefault")?.checked;
-
-  if (!img || !meta) return;
-
-  if (force || !sel.photos.length) {
-    img.src = sel.types.includes("lounge")
-      ? "images/lounge.jpg"
-      : "images/store.jpg";
-    meta.textContent = "Default image in use.";
-    sel.photo_reference = null;
-    sel.photo_url = null;
-    return;
-  }
-
-  const p = sel.photos[(sel.photo_index + sel.photos.length) % sel.photos.length];
-  const url = p.getUrl({ maxWidth: 800 });
-  sel.photo_reference = p.photo_reference;
-  sel.photo_url = url;
-  img.src = url;
-  meta.textContent = `Photo ${sel.photo_index + 1}/${sel.photos.length}`;
-}
-
-/* ---------- Reset Form ---------- */
-function resetForm() {
-  [
-    "gAddress",
-    "name",
-    "addr",
-    "city",
-    "state",
-    "country",
-    "phone",
-    "website"
-  ].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) el.value = "";
-  });
-
-  document.querySelectorAll("#typeRow .chip").forEach((c) =>
-    c.classList.remove("active")
-  );
-  const check = document.getElementById("forceDefault");
-  if (check) check.checked = false;
-
-  sel.types = [];
-  sel.access = null;
-  sel.rating = null;
-  sel.lat = null;
-  sel.lng = null;
-  sel.place_id = null;
-  sel.photos = [];
-  sel.photo_index = 0;
-  sel.state = null;
-  sel.photo_reference = null;
-  sel.photo_url = null;
-
-  const accessBox = document.getElementById("accessBox");
-  if (accessBox) accessBox.style.display = "none";
-
-  const stars = document.getElementById("stars");
-  if (stars) [...stars.children].forEach((el) => el.classList.remove("sel"));
-
-  updatePhoto();
-  showToast("Form cleared", "success");
-}
-
-/* ---------- Save Store ---------- */
-async function saveStore() {
-  const name = document.getElementById("name")?.value.trim();
-  const address = document.getElementById("addr")?.value.trim();
-  const city = document.getElementById("city")?.value.trim();
-  const state =
-    document.getElementById("state")?.value.trim() || sel.state || null;
-  const country = document.getElementById("country")?.value.trim();
-  const continent = getContinentFromCountry(country);
-  const phone = document.getElementById("phone")?.value.trim();
-  const website = document.getElementById("website")?.value.trim();
-  const access = sel.types.includes("lounge")
-    ? document.querySelector("input[name='access']:checked")?.value || null
-    : null;
-
-  if (!name || !address || !city || !country) {
-    showToast("⚠️ Please fill in all required fields", "error");
-    return;
-  }
-
-  // duplicate check
-  const { data: existing, error: checkError } = await supabase
+/* -------------------- Load Stores -------------------- */
+async function reloadData() {
+  const { data, error } = await supabase
     .from("stores")
-    .select("id")
-    .eq("name", name)
-    .eq("city", city)
-    .eq("country", country)
-    .eq("deleted", false)
-    .limit(1);
-
-  if (checkError) {
-    console.error("Check error:", checkError);
-    showToast("⚠️ Could not verify duplicates", "error");
-    return;
-  }
-  if (existing && existing.length) {
-    showToast("⚠️ This store already exists!", "error");
-    return;
-  }
-
-  const force = document.getElementById("forceDefault")?.checked;
-
-  const payload = {
-    name,
-    address,
-    city,
-    state,
-    country,
-    continent,
-    phone,
-    website,
-    type: sel.types[0] || null,
-    types: sel.types.length ? sel.types : null,
-    access,
-    rating: sel.rating ?? null,
-    approved: false,
-    status: "pending",
-    lat: sel.lat,
-    lng: sel.lng,
-    place_id: sel.place_id,
-    photo_reference: force ? null : sel.photo_reference || null,
-    photo_url: null,
-    deleted: false
-  };
-
-  const { error } = await supabase.from("stores").insert([payload]);
+    .select("*")
+    .order("id", { ascending: false });
   if (error) {
     console.error(error);
-    showToast("❌ Error saving store", "error");
+    showToast("❌ Failed to load stores", "error");
+    return;
+  }
+  STORES = data || [];
+  renderCards();
+}
+
+/* -------------------- Render Cards -------------------- */
+function renderCards() {
+  const grid = document.getElementById("cards");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  const filtered = STORES.filter((s) => {
+    if (CURRENT_TAB === "approved") return s.approved && !s.deleted;
+    if (CURRENT_TAB === "pending") return !s.approved && !s.deleted && !s.flagged;
+    if (CURRENT_TAB === "flagged") return s.flagged && !s.deleted;
+    if (CURRENT_TAB === "deleted") return s.deleted;
+    return !s.deleted;
+  });
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div style="text-align:center;color:#666;margin-top:1rem">No stores found in this category</div>`;
     return;
   }
 
-  showToast("✅ Store saved successfully", "success");
-  resetForm();
-}
+  filtered.forEach((s) => {
+    const card = document.createElement("div");
+    card.className = "card";
 
-/* ---------- Google Maps Autocomplete ---------- */
-function initAutocomplete() {
-  const input = document.getElementById("gAddress");
-  if (!input) return;
+    const photo =
+      s.photo_url ||
+      (s.type === "lounge" ? "images/lounge.jpg" : "images/store.jpg");
 
-  const ac = new google.maps.places.Autocomplete(input, {
-    fields: [
-      "place_id",
-      "address_components",
-      "geometry",
-      "name",
-      "formatted_address",
-      "international_phone_number",
-      "website",
-      "photos"
-    ]
+    card.innerHTML = `
+      <img src="${photo}" alt="${s.name}" class="preview-photo" />
+      <h3>${s.name}</h3>
+      <p>${s.city ? s.city + ", " : ""}${s.country || ""}</p>
+      <div class="muted">${s.type || "–"} ${s.access ? "• " + s.access : ""}</div>
+      <div class="muted">⭐ ${s.rating || "N/A"}</div>
+      <div class="row" style="justify-content:flex-end;gap:.4rem;margin-top:.5rem">
+        ${s.deleted
+          ? `<button class="btn" onclick="restoreStore(${s.id})">Restore</button>`
+          : `
+          ${
+            s.flagged
+              ? `<button class="btn" onclick="unflagStore(${s.id})">Unflag</button>`
+              : `<button class="btn" onclick="openFlag(${s.id})">Flag</button>`
+          }
+          ${
+            !s.approved && !s.deleted
+              ? `<button class="btn primary" onclick="approveStore(${s.id})">Approve</button>`
+              : ""
+          }
+          <button class="btn" onclick="softDelete(${s.id})">Delete</button>`}
+      </div>
+    `;
+
+    grid.appendChild(card);
   });
 
-  ac.addListener("place_changed", () => {
-    const place = ac.getPlace();
-    if (!place) return;
-
-    document.getElementById("name").value = place.name || "";
-    document.getElementById("addr").value = place.formatted_address || "";
-
-    const comps = place.address_components || [];
-    const city = comps.find(
-      (c) =>
-        c.types.includes("locality") ||
-        c.types.includes("postal_town") ||
-        c.types.includes("administrative_area_level_2")
-    );
-    const state = comps.find((c) =>
-      c.types.includes("administrative_area_level_1")
-    );
-    const country = comps.find((c) => c.types.includes("country"));
-
-    document.getElementById("city").value = city?.long_name || "";
-    document.getElementById("state").value = state?.long_name || "";
-    document.getElementById("country").value = country?.long_name || "";
-
-    sel.state = state?.long_name || null;
-    document.getElementById("phone").value =
-      place.international_phone_number || "";
-    document.getElementById("website").value = place.website || "";
-    sel.lat = place.geometry?.location?.lat() || null;
-    sel.lng = place.geometry?.location?.lng() || null;
-    sel.place_id = place.place_id || null;
-    sel.photos = place.photos || [];
-    sel.photo_index = 0;
-    updatePhoto();
-  });
+  document.getElementById("hCrumbs").innerHTML = `Showing: <b>All ${
+    CURRENT_TAB[0].toUpperCase() + CURRENT_TAB.slice(1)
+  }</b>`;
 }
 
-/* ---------- Google Maps Ready Callback ---------- */
+/* -------------------- Store Actions -------------------- */
+async function approveStore(id) {
+  const { error } = await supabase
+    .from("stores")
+    .update({ approved: true })
+    .eq("id", id);
+  if (error) {
+    console.error(error);
+    showToast("❌ Error approving store", "error");
+  } else {
+    showToast("✅ Store approved", "success");
+    reloadData();
+  }
+}
+
+async function softDelete(id) {
+  const { error } = await supabase
+    .from("stores")
+    .update({ deleted: true })
+    .eq("id", id);
+  if (error) {
+    console.error(error);
+    showToast("❌ Error deleting store", "error");
+  } else {
+    showToast("🗑️ Moved to trash", "info");
+    reloadData();
+  }
+}
+
+async function restoreStore(id) {
+  const { error } = await supabase
+    .from("stores")
+    .update({ deleted: false })
+    .eq("id", id);
+  if (error) {
+    console.error(error);
+    showToast("❌ Error restoring store", "error");
+  } else {
+    showToast("♻️ Restored", "success");
+    reloadData();
+  }
+}
+
+/* -------------------- Flagging -------------------- */
+function openFlag(id) {
+  FLAG_TARGET_ID = id;
+  document.getElementById("flagModal").style.display = "flex";
+}
+function closeFlag() {
+  document.getElementById("flagModal").style.display = "none";
+  document.getElementById("flagReason").value = "";
+}
+async function confirmFlag() {
+  const reason = document.getElementById("flagReason").value.trim();
+  if (!reason) {
+    showToast("⚠️ Please enter a reason", "error");
+    return;
+  }
+  const { error } = await supabase
+    .from("stores")
+    .update({ flagged: true, flag_reason: reason })
+    .eq("id", FLAG_TARGET_ID);
+  if (error) {
+    console.error(error);
+    showToast("❌ Error flagging", "error");
+  } else {
+    showToast("🚩 Store flagged", "success");
+    closeFlag();
+    reloadData();
+  }
+}
+async function unflagStore(id) {
+  const { error } = await supabase
+    .from("stores")
+    .update({ flagged: false, flag_reason: null })
+    .eq("id", id);
+  if (error) {
+    console.error(error);
+    showToast("❌ Error unflagging", "error");
+  } else {
+    showToast("✅ Unflagged", "success");
+    reloadData();
+  }
+}
+
+/* -------------------- Filter Tabs -------------------- */
+function setTab(tab) {
+  CURRENT_TAB = tab;
+  document.querySelectorAll(".pill").forEach((p) => p.classList.remove("active"));
+  const active = document.querySelector(`.pill[data-tab='${tab}']`);
+  if (active) active.classList.add("active");
+  renderCards();
+}
+
+/* -------------------- Google Maps Ready -------------------- */
 function _mapsReady() {
-  if (!window.google || !google.maps || !google.maps.places) {
-    console.warn("⚠️ Google Maps not ready yet");
-    return;
-  }
   console.log("✅ Google Maps API Ready");
 }
 
-/* ---------- DOMContentLoaded: All Event Bindings ---------- */
+/* -------------------- Init -------------------- */
 document.addEventListener("DOMContentLoaded", () => {
-  const stars = document.getElementById("stars");
-  if (stars) {
-    stars.addEventListener("click", (e) => {
-      const v = +e.target.dataset.v;
-      if (!v) return;
-      sel.rating = v;
-      [...stars.children].forEach((el, i) => el.classList.toggle("sel", i < v));
-    });
-  }
+  // Tabs
+  document.querySelectorAll(".pill").forEach((b) =>
+    b.addEventListener("click", () => setTab(b.dataset.tab))
+  );
 
-  document.querySelectorAll("#typeRow .chip").forEach((chip) => {
-    chip.addEventListener("click", () => {
-      chip.classList.toggle("active");
-      sel.types = Array.from(
-        document.querySelectorAll("#typeRow .chip.active")
-      ).map((c) => c.dataset.type);
-      const box = document.getElementById("accessBox");
-      if (box) box.style.display = sel.types.includes("lounge") ? "block" : "none";
-    });
-  });
+  // Flag modal
+  document.getElementById("flagCancel").addEventListener("click", closeFlag);
+  document.getElementById("flagConfirm").addEventListener("click", confirmFlag);
 
-  document.querySelectorAll("input[name='access']").forEach((r) => {
-    r.addEventListener("change", () => (sel.access = r.value));
-  });
-
-  const prev = document.getElementById("prev-photo");
-  const next = document.getElementById("next-photo");
-  if (prev && next) {
-    prev.onclick = () => {
-      if (sel.photos.length) {
-        sel.photo_index =
-          (sel.photo_index - 1 + sel.photos.length) % sel.photos.length;
-        updatePhoto();
-      }
-    };
-    next.onclick = () => {
-      if (sel.photos.length) {
-        sel.photo_index = (sel.photo_index + 1) % sel.photos.length;
-        updatePhoto();
-      }
-    };
-  }
+  // Initial load
+  reloadData();
 });
-
-window.initAutocomplete = initAutocomplete;
