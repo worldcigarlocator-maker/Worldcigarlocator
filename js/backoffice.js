@@ -1,21 +1,36 @@
+/* js/backoffice.js  —  World Cigar Locator (Backoffice)
+   Permanent, legal Google CDN images + GitHub fallback
+   Last update: 2025-10-28
+*/
+
 /* ====== Config ====== */
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // används för Places Details REST
+
+// 🔒 Supabase client
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// 🔁 GitHub-bild-backup (absoluta länkar)
+const GITHUB_STORE_FALLBACK  = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
+const GITHUB_LOUNGE_FALLBACK = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
 
 /* ====== State ====== */
 let ALL = [];
-let currentTab = "pending";   // default: Pending
+let currentTab  = "pending";  // default: Pending
 let currentView = "cards";    // default: Cards
-let editingId = null;
+let editingId   = null;
 
-/* Approved hierarchy filter */
+// Approved hierarchy filter
 let H_SELECTED = { continent:null, country:null, city:null };
-let hPhotosById = {}; // {id: {photos:[], index:0}} for photo-picker per card
 
-/* ====== Utils ====== */
-const $ = (s, p=document)=>p.querySelector(s);
+// Photo picker state per row/card: { [id]: { refs: string[], index: number } }
+let hPhotosById = {};
+
+/* ====== DOM utils & helpers ====== */
+const $  = (s, p=document)=>p.querySelector(s);
+const $$ = (s, p=document)=>Array.from(p.querySelectorAll(s));
+
 function toast(msg,type="info"){
   const c=$("#toast-container"); const t=document.createElement("div");
   t.className=`toast ${type}`; t.textContent=msg; c.appendChild(t);
@@ -33,53 +48,46 @@ function stars(n){
   return "★★★★★".slice(0,v) + "☆☆☆☆☆".slice(0,5-v);
 }
 
-/* Country → Continent */
+/* ====== Country → Continent (fallback) ====== */
 function countryToContinent(country){
   if(!country) return "Other";
   const c = country.trim().toLowerCase();
   const m = {
-    "afghanistan":"Asia","albania":"Europe","algeria":"Africa","andorra":"Europe","angola":"Africa",
-    "antigua and barbuda":"North America","argentina":"South America","armenia":"Asia","australia":"Oceania","austria":"Europe",
-    "azerbaijan":"Asia","bahamas":"North America","bahrain":"Asia","bangladesh":"Asia","barbados":"North America",
-    "belarus":"Europe","belgium":"Europe","belize":"North America","benin":"Africa","bhutan":"Asia",
-    "bolivia":"South America","bosnia and herzegovina":"Europe","botswana":"Africa","brazil":"South America","brunei":"Asia",
-    "bulgaria":"Europe","burkina faso":"Africa","burundi":"Africa","cabo verde":"Africa","cambodia":"Asia",
-    "cameroon":"Africa","canada":"North America","central african republic":"Africa","chad":"Africa","chile":"South America",
-    "china":"Asia","colombia":"South America","comoros":"Africa","congo":"Africa","democratic republic of the congo":"Africa",
-    "costa rica":"North America","croatia":"Europe","cuba":"North America","cyprus":"Asia","czech republic":"Europe","czechia":"Europe",
-    "denmark":"Europe","djibouti":"Africa","dominica":"North America","dominican republic":"North America","ecuador":"South America",
-    "egypt":"Africa","el salvador":"North America","equatorial guinea":"Africa","eritrea":"Africa","estonia":"Europe",
-    "eswatini":"Africa","ethiopia":"Africa","fiji":"Oceania","finland":"Europe","france":"Europe",
-    "gabon":"Africa","gambia":"Africa","georgia":"Asia","germany":"Europe","ghana":"Africa",
-    "greece":"Europe","grenada":"North America","guatemala":"North America","guinea":"Africa","guinea-bissau":"Africa",
-    "guyana":"South America","haiti":"North America","honduras":"North America","hungary":"Europe","iceland":"Europe",
-    "india":"Asia","indonesia":"Asia","iran":"Asia","iraq":"Asia","ireland":"Europe",
-    "israel":"Asia","italy":"Europe","ivory coast":"Africa","jamaica":"North America","japan":"Asia",
-    "jordan":"Asia","kazakhstan":"Asia","kenya":"Africa","kiribati":"Oceania","kosovo":"Europe",
-    "kuwait":"Asia","kyrgyzstan":"Asia","laos":"Asia","latvia":"Europe","lebanon":"Asia",
-    "lesotho":"Africa","liberia":"Africa","libya":"Africa","liechtenstein":"Europe","lithuania":"Europe",
-    "luxembourg":"Europe","madagascar":"Africa","malawi":"Africa","malaysia":"Asia","maldives":"Asia",
-    "mali":"Africa","malta":"Europe","marshall islands":"Oceania","mauritania":"Africa","mauritius":"Africa",
-    "mexico":"North America","micronesia":"Oceania","moldova":"Europe","monaco":"Europe","mongolia":"Asia",
-    "montenegro":"Europe","morocco":"Africa","mozambique":"Africa","myanmar":"Asia","namibia":"Africa",
-    "nauru":"Oceania","nepal":"Asia","netherlands":"Europe","new zealand":"Oceania","nicaragua":"North America",
-    "niger":"Africa","nigeria":"Africa","north korea":"Asia","north macedonia":"Europe","norway":"Europe",
-    "oman":"Asia","pakistan":"Asia","palau":"Oceania","palestine":"Asia","panama":"North America",
-    "papua new guinea":"Oceania","paraguay":"South America","peru":"South America","philippines":"Asia","poland":"Europe",
-    "portugal":"Europe","qatar":"Asia","romania":"Europe","russia":"Europe","rwanda":"Africa",
-    "saint kitts and nevis":"North America","saint lucia":"North America","saint vincent and the grenadines":"North America","samoa":"Oceania","san marino":"Europe",
-    "sao tome and principe":"Africa","saudi arabia":"Asia","senegal":"Africa","serbia":"Europe","seychelles":"Africa",
-    "sierra leone":"Africa","singapore":"Asia","slovakia":"Europe","slovenia":"Europe","solomon islands":"Oceania",
-    "somalia":"Africa","south africa":"Africa","south korea":"Asia","south sudan":"Africa","spain":"Europe",
-    "sri lanka":"Asia","sudan":"Africa","suriname":"South America","sweden":"Europe","switzerland":"Europe",
-    "syria":"Asia","taiwan":"Asia","tajikistan":"Asia","tanzania":"Africa","thailand":"Asia",
-    "timor-leste":"Asia","togo":"Africa","tonga":"Oceania","trinidad and tobago":"North America","tunisia":"Africa",
-    "turkey":"Asia","turkmenistan":"Asia","tuvalu":"Oceania","uganda":"Africa","ukraine":"Europe",
-    "united arab emirates":"Asia","united kingdom":"Europe","united states":"North America","usa":"North America","uruguay":"South America","uzbekistan":"Asia",
-    "vanuatu":"Oceania","vatican city":"Europe","venezuela":"South America","vietnam":"Asia","yemen":"Asia",
-    "zambia":"Africa","zimbabwe":"Africa","hong kong":"Asia","puerto rico":"North America","macau":"Asia","greenland":"North America"
+    "sweden":"Europe","norway":"Europe","denmark":"Europe","finland":"Europe","iceland":"Europe",
+    "usa":"North America","united states":"North America","canada":"North America","mexico":"North America",
+    "france":"Europe","germany":"Europe","italy":"Europe","spain":"Europe","portugal":"Europe","netherlands":"Europe","belgium":"Europe","poland":"Europe","czechia":"Europe","czech republic":"Europe","austria":"Europe","switzerland":"Europe","united kingdom":"Europe","ireland":"Europe",
+    "brazil":"South America","argentina":"South America","chile":"South America","peru":"South America","colombia":"South America",
+    "australia":"Oceania","new zealand":"Oceania",
+    "japan":"Asia","china":"Asia","india":"Asia","south korea":"Asia","singapore":"Asia","thailand":"Asia","vietnam":"Asia","taiwan":"Asia",
+    "south africa":"Africa","morocco":"Africa","egypt":"Africa","kenya":"Africa",
   };
   return m[c] || "Other";
+}
+
+/* ====== Image helpers (permanent, legal) ====== */
+function googleCdnFromPhotoRef(ref, width=800, height=600){
+  // Officiell, stabil visningslänk via Googles CDN
+  return `https://lh3.googleusercontent.com/p/${encodeURIComponent(ref)}=w${width}-h${height}-n-k-no`;
+}
+
+function githubFallbackForTypes(typesOrType){
+  const arr = (Array.isArray(typesOrType) && typesOrType.length
+    ? typesOrType
+    : (typesOrType ? [typesOrType] : [])).map(x=>String(x||"").toLowerCase());
+  return arr.includes("lounge") ? GITHUB_LOUNGE_FALLBACK : GITHUB_STORE_FALLBACK;
+}
+
+function cardImageSrc(s){
+  // 1) Primärt: Google CDN med photo_reference
+  if (s.photo_reference) {
+    return googleCdnFromPhotoRef(s.photo_reference);
+  }
+  // 2) egen/fri bild-URL (så länge det inte är temporär PhotoService)
+  if (s.photo_url && !s.photo_url.includes("PhotoService.GetPhoto")) {
+    return s.photo_url;
+  }
+  // 3) GitHub fallback
+  return githubFallbackForTypes(s.types?.length ? s.types : s.type);
 }
 
 /* ====== Load ====== */
@@ -88,66 +96,6 @@ document.addEventListener("DOMContentLoaded", async()=>{
   await reloadData();
 });
 
-/* ====== Google Maps bootstrap ====== */
-let placesService = null;
-window._mapsReady = function(){
-  if(!window.google||!google.maps||!google.maps.places) return;
-  const dummyMap = new google.maps.Map(document.getElementById("gmap"));
-  placesService = new google.maps.places.PlacesService(dummyMap);
-};
-
-/* ====== UI Bindings ====== */
-function bindUI(){
-  // Tabs
-  document.querySelectorAll(".pill").forEach(p=>{
-    p.addEventListener("click",()=>{
-      document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active"));
-      p.classList.add("active");
-      currentTab = p.dataset.tab;
-
-      // Hierarchy panel only on approved
-      if(currentTab==="approved"){ 
-        $("#hierarchyPanel").style.display="";
-      } else {
-        $("#hierarchyPanel").style.display="none";
-        H_SELECTED={continent:null,country:null,city:null}; 
-        updateCrumbs();
-      }
-      setView(currentView);
-      render();
-    });
-  });
-
-  // View toggle
-  document.querySelectorAll(".viewtoggle .seg").forEach(seg=>{
-    seg.addEventListener("click",()=>{
-      document.querySelectorAll(".viewtoggle .seg").forEach(x=>x.classList.remove("active"));
-      seg.classList.add("active");
-      setView(seg.dataset.view);
-      render();
-    });
-  });
-
-  // Search
-  $("#searchInput").addEventListener("input",render);
-
-  // Hierarchy controls
-  $("#hSearch").addEventListener("input", buildHierarchy);
-  $("#hCloseAll").addEventListener("click", ()=>{ document.querySelectorAll(".h-children").forEach(el=>el.style.display="none"); });
-  $("#hClearSel").addEventListener("click", ()=>{ H_SELECTED={continent:null,country:null,city:null}; updateCrumbs(); render(); });
-
-  // Flag modal
-  $("#flagCancel").addEventListener("click", ()=>toggleFlagModal(false));
-  $("#flagConfirm").addEventListener("click", onConfirmFlag);
-}
-
-function setView(v){
-  currentView = v;
-  document.querySelectorAll(".viewtoggle .seg").forEach(x=>x.classList.toggle("active", x.dataset.view===v));
-  if(currentTab==="approved") $("#hierarchyPanel").style.display="";
-}
-
-/* ====== Data Load & Filter ====== */
 async function reloadData(){
   const { data, error } = await supabase
     .from("stores")
@@ -161,24 +109,74 @@ async function reloadData(){
   render();
 }
 
+/* ====== Filters & View ====== */
+function bindUI(){
+  // Tabs
+  $$(".pill").forEach(p=>{
+    p.addEventListener("click",()=>{
+      $$(".pill").forEach(x=>x.classList.remove("active"));
+      p.classList.add("active");
+      currentTab = p.dataset.tab;
+
+      // Endast i Approved: visa hierarkipanel
+      if(currentTab==="approved"){ $("#hierarchyPanel").style.display=""; }
+      else {
+        $("#hierarchyPanel").style.display="none";
+        H_SELECTED={continent:null,country:null,city:null}; 
+        updateCrumbs();
+      }
+
+      setView(currentView);
+      render();
+    });
+  });
+
+  // View toggle
+  $$(".viewtoggle .seg").forEach(seg=>{
+    seg.addEventListener("click",()=>{
+      $$(".viewtoggle .seg").forEach(x=>x.classList.remove("active"));
+      seg.classList.add("active");
+      setView(seg.dataset.view);
+      render();
+    });
+  });
+
+  $("#searchInput").addEventListener("input",render);
+
+  // Hierarchy controls
+  $("#hSearch")?.addEventListener("input", buildHierarchy);
+  $("#hCloseAll")?.addEventListener("click", ()=>{ $$(".h-children").forEach(el=>el.style.display="none"); });
+  $("#hClearSel")?.addEventListener("click", ()=>{ H_SELECTED={continent:null,country:null,city:null}; updateCrumbs(); render(); });
+
+  // Flag modal
+  $("#flagCancel")?.addEventListener("click", ()=>toggleFlagModal(false));
+  $("#flagConfirm")?.addEventListener("click", onConfirmFlag);
+}
+
+function setView(v){
+  currentView = v;
+  $$(".viewtoggle .seg").forEach(x=>x.classList.toggle("active", x.dataset.view===v));
+  if(currentTab==="approved") $("#hierarchyPanel").style.display="";
+}
+
 function filtered(){
   let arr = [...ALL];
 
-  // Tabs (NOTE: All DOES NOT show deleted anymore)
+  // ✅ All = allt utom deleted
+  if(currentTab==="all")      arr = arr.filter(s=>!s.deleted);
   if(currentTab==="approved") arr = arr.filter(s=>s.approved && !s.deleted);
   if(currentTab==="pending")  arr = arr.filter(s=>!s.approved && !s.deleted);
   if(currentTab==="flagged")  arr = arr.filter(s=>s.flagged && !s.deleted);
   if(currentTab==="deleted")  arr = arr.filter(s=>s.deleted);
-  if(currentTab==="all")      arr = arr.filter(s=>!s.deleted); // <— change requested
 
-  // Hierarchy (approved only)
+  // Hierarki (Approved)
   if(currentTab==="approved"){
     if(H_SELECTED.continent) arr = arr.filter(s=>(s.continent||"")===H_SELECTED.continent);
     if(H_SELECTED.country)   arr = arr.filter(s=>(s.country||"")===H_SELECTED.country);
     if(H_SELECTED.city)      arr = arr.filter(s=>(s.city||"")===H_SELECTED.city);
   }
 
-  // Search
+  // Sök
   const q = $("#searchInput").value.trim().toLowerCase();
   if(q){
     arr = arr.filter(s =>
@@ -191,7 +189,7 @@ function filtered(){
   return arr;
 }
 
-/* ====== Hierarchy ====== */
+/* ====== Hierarchy (Approved) ====== */
 function updateCrumbs(){
   const parts = [];
   if(H_SELECTED.continent) parts.push(H_SELECTED.continent);
@@ -203,9 +201,9 @@ function updateCrumbs(){
 function buildHierarchy(){
   if(currentTab!=="approved") return;
   const q = $("#hSearch").value.trim().toLowerCase();
-  const data = filtered();
+  const data = filtered(); // already approved + search applied
 
-  // Build groups
+  // Build tree
   const tree = {};
   data.forEach(s=>{
     const cont = s.continent || "Other";
@@ -222,8 +220,8 @@ function buildHierarchy(){
 
   Object.keys(tree).sort().forEach(cont=>{
     const contNode = document.createElement("div");
-    contNode.className="h-node";
     const totalCont = Object.values(tree[cont]).reduce((acc,citiesByCountry)=>acc+Object.values(citiesByCountry).reduce((a,b)=>a+b,0),0);
+    contNode.className="h-node";
     contNode.innerHTML = `
       <div class="h-line" data-lv="continent" data-key="${esc(cont)}">
         <div class="h-toggle">▶</div>
@@ -236,15 +234,14 @@ function buildHierarchy(){
     const contChildren = contNode.querySelector(".h-children");
 
     contLine.addEventListener("click", ()=>{
-      const s = getComputedStyle(contChildren).display==="none";
-      contChildren.style.display = s ? "" : "none";
-      if(s && contChildren.childElementCount===0){
-        // render countries
+      const opened = getComputedStyle(contChildren).display==="none";
+      contChildren.style.display = opened ? "" : "none";
+      if(opened && contChildren.childElementCount===0){
         Object.keys(tree[cont]).sort().forEach(country=>{
           if(q && !(country.toLowerCase().includes(q) || cont.toLowerCase().includes(q))) return;
+          const totalC = Object.values(tree[cont][country]).reduce((a,b)=>a+b,0);
           const countryNode = document.createElement("div");
           countryNode.className="h-node";
-          const totalC = Object.values(tree[cont][country]).reduce((a,b)=>a+b,0);
           countryNode.innerHTML = `
             <div class="h-line" data-lv="country" data-cont="${esc(cont)}" data-key="${esc(country)}">
               <div class="h-toggle">▶</div>
@@ -258,10 +255,9 @@ function buildHierarchy(){
 
           cLine.addEventListener("click", (ev)=>{
             ev.stopPropagation();
-            const s2 = getComputedStyle(cChildren).display==="none";
-            cChildren.style.display = s2 ? "" : "none";
-            if(s2 && cChildren.childElementCount===0){
-              // render cities
+            const opened2 = getComputedStyle(cChildren).display==="none";
+            cChildren.style.display = opened2 ? "" : "none";
+            if(opened2 && cChildren.childElementCount===0){
               Object.keys(tree[cont][country]).sort((a,b)=>tree[cont][country][b]-tree[cont][country][a]).forEach(city=>{
                 if(q && !(city.toLowerCase().includes(q))) return;
                 const cityNode = document.createElement("div");
@@ -282,7 +278,7 @@ function buildHierarchy(){
                 cChildren.appendChild(cityNode);
               });
             }
-            // Klick på land sätter filter land
+            // Klick på land sätter filter
             H_SELECTED = { continent:cont, country:country, city:null };
             updateCrumbs(); render();
           });
@@ -290,7 +286,7 @@ function buildHierarchy(){
           contChildren.appendChild(countryNode);
         });
       }
-      // Klick på kontinent sätter filter kontinent
+      // Klick på kontinent sätter filter
       H_SELECTED = { continent:cont, country:null, city:null };
       updateCrumbs(); render();
     });
@@ -310,8 +306,8 @@ function render(){
   $("#cards").style.display = showCards ? "" : "none";
   $("#table").style.display = !showCards ? "" : "none";
 
-  if(showCards){ renderCards(list); }
-  else { renderTable(list); }
+  if(showCards) renderCards(list);
+  else          renderTable(list);
 }
 
 function cardBadges(s){
@@ -326,24 +322,8 @@ function cardBadges(s){
     else if(a==="membership") arr.push(`<span class="badge b-membership">Membership</span>`);
     else if(a==="members") arr.push(`<span class="badge b-membersonly">Members Only</span>`);
   }
-  if(s.continent){
-    arr.push(`<span class="badge b-continent">🌍 ${esc(s.continent)}</span>`);
-  }
+  if(s.continent){ arr.push(`<span class="badge b-continent">🌍 ${esc(s.continent)}</span>`); }
   return arr.join(" ");
-}
-
-function cardImageSrc(s){
-  // Prefer Google API if we have a reference
-  if (s.photo_reference) {
-    return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(s.photo_reference)}&key=${GOOGLE_BROWSER_KEY}`;
-  }
-  // If photo_url exists but is a temporary Google URL, ignore it
-  if (s.photo_url && !s.photo_url.includes('PhotoService.GetPhoto')) {
-    return s.photo_url;
-  }
-  // Fallbacks (your GitHub images)
-  const tt = (s.types && s.types.length ? s.types : (s.type? [s.type] : [])).map(x=>String(x||"").toLowerCase());
-  return tt.includes("lounge") ? "images/lounge.jpg" : "images/store.jpg";
 }
 
 function renderEditFormHTML(s){
@@ -369,12 +349,12 @@ function renderEditFormHTML(s){
         <option value="other" ${s.type==='other'?'selected':''}>Other</option>
       </select>
       <input type="number" min="0" max="5" step="1" data-k="rating" value="${Number(s.rating||0)}" placeholder="Rating 0–5">
-      <input class="full" data-k="photo_url" value="${esc(s.photo_url||"")}" placeholder="Photo URL">
+      <input class="full" data-k="photo_url" value="${esc(s.photo_url||"")}" placeholder="Photo URL (optional if Google photo used)">
       <input type="hidden" data-k="photo_reference" value="${esc(s.photo_reference||"")}">
       <input type="hidden" data-k="place_id" value="${esc(s.place_id||"")}">
     </div>
 
-    <div class="edit-help">Tip: If Google <code>place_id</code> exists we will load its photos to choose from. Otherwise paste a direct image URL or tick “Use default image”.</div>
+    <div class="edit-help">If <code>place_id</code> exists we load Google photo references (permanent, legal). Otherwise paste your own image URL or tick “Use default image”.</div>
 
     <div class="photo-row">
       <button class="photo-nav" data-photo="prev">◀</button>
@@ -394,20 +374,24 @@ function renderCards(list){
     const img = cardImageSrc(s);
     const status = s.deleted ? "Deleted" : s.flagged ? "Flagged" : s.approved ? "Approved" : "Pending";
     const actions = cardActionsFor(s);
+    const fb = githubFallbackForTypes(s.types?.length ? s.types : s.type);
 
     return `
     <div class="card" data-id="${s.id}">
-      <img class="card-img" src="${esc(img)}" alt="${esc(s.name||'')}" onerror="this.src='images/store.jpg'">
+      <img class="card-img"
+           src="${esc(img)}"
+           alt="${esc(s.name||'')}"
+           data-fallback="${esc(fb)}"
+           onerror="this.onerror=null; this.src=this.dataset.fallback; console.warn('🟡 Fallback image used for', this.alt);" />
       <div class="card-body">
-        <div class="title">
-          ${s.flagged ? '🚩' : ''}${esc(s.name||"–")}
-        </div>
+        <div class="title">${s.flagged ? '🚩 ' : ''}${esc(s.name||"–")}</div>
         <div class="badges">${cardBadges(s)}</div>
         <div class="row rating" title="Rating">${ratingStars}</div>
         <div class="row muted">📍 ${esc(s.city||"")}${s.city&&s.country?', ':''}${esc(s.country||"")}</div>
         <div class="row muted">🏠 ${esc(s.address||"–")}</div>
         ${s.phone?`<div class="row muted">📞 ${esc(s.phone)}</div>`:""}
         ${s.website?`<div class="row"><a href="${esc(s.website)}" target="_blank" rel="noopener">🌐 ${esc(s.website)}</a></div>`:""}
+
         ${( (currentTab==="pending" || currentTab==="flagged") && s.flag_reason ) ? (() => {
           const reason = s.flag_reason || "No reason provided";
           const parts = reason.split("|");
@@ -424,7 +408,6 @@ function renderCards(list){
           <div>${s.added_by?`👤 ${esc(s.added_by)}`:""}</div>
         </div>
 
-        <!-- Inline edit form -->
         <div class="edit-zone" style="display:none">
           ${renderEditFormHTML(s)}
         </div>
@@ -436,7 +419,7 @@ function renderCards(list){
   }).join("");
 
   // bind actions
-  c.querySelectorAll("[data-act]").forEach(b=>b.addEventListener("click", onCardAction));
+  $$("#cards [data-act]").forEach(b=>b.addEventListener("click", onCardAction));
 }
 
 function cardActionsFor(s){
@@ -465,12 +448,12 @@ function onCardAction(e){
   const card = e.currentTarget.closest(".card");
   if(!id || !card) return;
 
-  if(act==="approve") return setApproved(id,true);
+  if(act==="approve")   return setApproved(id,true);
   if(act==="unapprove") return setApproved(id,false);
-  if(act==="flag") return openFlagModal(id);
-  if(act==="unflag") return setFlagged(id,false);
-  if(act==="delete") return setDeleted(id,true);
-  if(act==="restore") return setDeleted(id,false);
+  if(act==="flag")      return openFlagModal(id);
+  if(act==="unflag")    return setFlagged(id,false);
+  if(act==="delete")    return setDeleted(id,true);
+  if(act==="restore")   return setDeleted(id,false);
 
   const ez = card.querySelector(".edit-zone");
   const btnEdit   = card.querySelector(`[data-act="edit"]`);
@@ -496,11 +479,11 @@ function onCardAction(e){
   }
   if(act==="save"){
     const payload = collectEditPayload(ez);
-    return saveEdit(id, payload, card);
+    return saveEdit(id, payload);
   }
 }
 
-/* ====== Table (list view with row-expander edit) ====== */
+/* ====== Table (list view) ====== */
 function renderTable(list){
   const tb = $("#tbody");
   tb.innerHTML = list.map(s=>{
@@ -553,14 +536,15 @@ function renderTable(list){
   }).join("");
 
   // Row-level actions
-  tb.querySelectorAll("[data-rowact]").forEach(b=>b.addEventListener("click", onRowEditAction));
+  $$("#tbody [data-rowact]").forEach(b=>b.addEventListener("click", onRowEditAction));
 }
 
 function editStore(id) {
   const row = document.querySelector(`tr[data-edit="${id}"]`);
   if(!row) return;
   const show = row.style.display==="none";
-  document.querySelectorAll('tr[data-edit]').forEach(r=>r.style.display='none');
+  // Stäng andra öppna editrader
+  $$('tr[data-edit]').forEach(r=>r.style.display='none');
   row.style.display = show ? "" : "none";
   if(show){ initPhotoPicker(row, id); }
 }
@@ -574,7 +558,7 @@ function onRowEditAction(e){
   if(act==="save"){
     const ez = row.querySelector(".edit-zone");
     const payload = collectEditPayload(ez);
-    return saveEdit(id, payload, row);
+    return saveEdit(id, payload);
   }
 }
 
@@ -588,7 +572,7 @@ function collectEditPayload(ez){
     payload[k]= v||null;
   });
   if(payload.type){ payload.types = [payload.type]; }
-  // Ensure continent if country changed or empty
+  // continent från country om saknas
   if(payload.country && !payload.continent){
     payload.continent = countryToContinent(payload.country);
   }
@@ -598,9 +582,31 @@ function collectEditPayload(ez){
     payload.photo_url = null;
     payload.photo_reference = null;
   }
+  // ⚠️ Spara aldrig temporära PhotoService-länkar
+  if (payload.photo_url && payload.photo_url.includes("PhotoService.GetPhoto")) {
+    payload.photo_url = null;
+  }
   return payload;
 }
 
+async function saveEdit(id, payload){
+  // Om reference finns → använd inte photo_url
+  if (payload.photo_reference) {
+    payload.photo_url = null;
+  }
+
+  const { error } = await supabase.from("stores").update(payload).eq("id", id);
+  if(error){
+    console.error(error);
+    toast("Save failed","error");
+    return;
+  }
+  toast("Saved ✔","success");
+  editingId = null;
+  await reloadData();
+}
+
+/* ====== Approvals/Flags/Deletes ====== */
 async function setApproved(id, val){
   const updates = val ? { approved:true, flagged:false } : { approved:false };
   const { error } = await supabase.from("stores").update(updates).eq("id", id);
@@ -609,6 +615,7 @@ async function setApproved(id, val){
   await reloadData();
 }
 let FLAG_TARGET_ID = null;
+
 async function setFlagged(id, val, reason=null){
   const upd = val ? { flagged:true, flag_reason: (reason||'manual | flagged by admin') } : { flagged:false, flag_reason:null };
   const { error } = await supabase.from("stores").update(upd).eq("id", id);
@@ -623,24 +630,12 @@ async function setDeleted(id, val){
   await reloadData();
 }
 
-async function saveEdit(id, payload){
-  // If nothing set, keep nulls for default fallback
-  if (!payload.photo_url && !payload.photo_reference) {
-    payload.photo_url = null;
-    payload.photo_reference = null;
-  }
-
-  // If we got a reference but a temp URL, normalize URL to API endpoint
-  if (payload.photo_reference && (!payload.photo_url || payload.photo_url.includes('PhotoService.GetPhoto'))) {
-    payload.photo_url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${payload.photo_reference}&key=${GOOGLE_BROWSER_KEY}`;
-  }
-
-  const { error } = await supabase.from("stores").update(payload).eq("id", id);
-  if(error){ console.error(error); toast("Save failed","error"); return; }
-
-  toast("Saved ✔","success");
-  editingId = null;
-  await reloadData();
+// Table helpers
+async function approveStore(id){ await setApproved(id,true); }
+async function unflagStore(id){ await setFlagged(id,false); }
+async function deleteStore(id){
+  if(!confirm("Are you sure you want to delete this store?")) return;
+  await setDeleted(id,true);
 }
 
 /* ====== Flag reason modal ====== */
@@ -660,42 +655,69 @@ async function onConfirmFlag(){
   FLAG_TARGET_ID = null;
 }
 
-/* ====== Photo picker (Google Places) ====== */
+/* ====== Photo picker with Places Details (REST) ====== */
+// Vi hämtar *riktiga* photo_reference via REST, vilket inte finns på JS Photo-objektet
+async function fetchPhotoRefs(placeId){
+  if(!placeId) return [];
+  try {
+    // v1 endpoint
+    const urlV1 = `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}?fields=photos&key=${encodeURIComponent(GOOGLE_BROWSER_KEY)}`;
+    let res = await fetch(urlV1);
+    if (res.ok) {
+      const j = await res.json();
+      const refs = (j.photos||[]).map(p => p?.name?.split("/").pop()).filter(Boolean);
+      if (refs.length) return refs;
+    }
+    // fallback: old Details API
+    const urlLegacy = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=photos&key=${encodeURIComponent(GOOGLE_BROWSER_KEY)}`;
+    res = await fetch(urlLegacy);
+    if (res.ok) {
+      const j = await res.json();
+      const refs = (j.result?.photos||[]).map(p=>p.photo_reference).filter(Boolean);
+      return refs;
+    }
+  } catch(e){ console.warn("fetchPhotoRefs error", e); }
+  return [];
+}
+
 function ensurePlacesService(){
-  return !!placesService;
+  if(!window.google || !window.google.maps || !window.google.maps.places) return false;
+  return true;
 }
 
 function initPhotoPicker(scopeEl, id){
   const ez = scopeEl.querySelector(".edit-zone");
   if(!ez) return;
-  const placeId = ez.querySelector('[data-k="place_id"]')?.value || "";
-  const prev = ez.querySelector('[data-photo="prev"]');
-  const next = ez.querySelector('[data-photo="next"]');
-  const useBtn = ez.querySelector('[data-photo="use"]');
-  const defChk = ez.querySelector('[data-photo="default"]');
-  const img = ez.querySelector(".photo-preview");
-  const meta = ez.querySelector(".photo-meta");
+
+  const placeId  = ez.querySelector('[data-k="place_id"]')?.value || "";
+  const prev     = ez.querySelector('[data-photo="prev"]');
+  const next     = ez.querySelector('[data-photo="next"]');
+  const useBtn   = ez.querySelector('[data-photo="use"]');
+  const defChk   = ez.querySelector('[data-photo="default"]');
+  const img      = ez.querySelector(".photo-preview");
+  const meta     = ez.querySelector(".photo-meta");
   const urlInput = ez.querySelector('[data-k="photo_url"]');
   const refInput = ez.querySelector('[data-k="photo_reference"]');
 
-  hPhotosById[id] = hPhotosById[id] || { photos:[], index:0 };
+  if(!hPhotosById[id]) hPhotosById[id] = { refs:[], index:0 };
 
   function updatePhotoPreview(){
     const st = hPhotosById[id];
-    if(!st.photos.length){
+    if(!st.refs.length){
       meta.textContent = "No photos loaded";
+      img.src = urlInput.value || githubFallbackForTypes((ez.querySelector('[data-k="type"]')?.value)||"");
       return;
     }
-    const p = st.photos[st.index];
-    const url = p.getUrl({maxWidth:800});
+    const ref = st.refs[st.index];
+    const url = googleCdnFromPhotoRef(ref);
     img.src = url;
-    meta.textContent = `Photo ${st.index+1}/${st.photos.length}`;
+    meta.textContent = `Photo ${st.index+1}/${st.refs.length}`;
   }
 
   function nav(delta){
     const st = hPhotosById[id];
-    if(!st.photos.length) return;
-    st.index = (st.index + delta + st.photos.length) % st.photos.length;
+    if(!st.refs.length) return;
+    st.index = (st.index + delta + st.refs.length) % st.refs.length;
     updatePhotoPreview();
   }
 
@@ -704,62 +726,44 @@ function initPhotoPicker(scopeEl, id){
 
   useBtn.addEventListener("click", ()=>{
     const st = hPhotosById[id];
-    if(!st.photos.length){ toast("No Google photos to use","info"); return; }
-    const p = st.photos[st.index];
-
-    // Try to get a persistent photo_reference
-    const ref = p.photo_reference || (p.html_attributions?.[0] ?? "").match(/photoreference=([^&]+)/)?.[1] || "";
-
-    if(ref){
-      refInput.value = ref;
-      urlInput.value = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${ref}&key=${GOOGLE_BROWSER_KEY}`;
-    } else {
-      // fallback to temporary URL if no ref (rare)
-      urlInput.value = p.getUrl({maxWidth:800});
-    }
+    if(!st.refs.length){ toast("No Google photos to use","info"); return; }
+    const ref = st.refs[st.index];
+    refInput.value = ref;
+    urlInput.value = ""; // lagra inte URL när vi har reference
     toast("Photo selected","success");
   });
 
   defChk.addEventListener("change", ()=>{
     if(defChk.checked){
-      const tt = (urlInput.value||"").toLowerCase();
-      img.src = tt.includes("lounge") ? "images/lounge.jpg" : "images/store.jpg";
+      refInput.value = "";
+      urlInput.value = "";
+      const fb = githubFallbackForTypes((ez.querySelector('[data-k="type"]')?.value)||"");
+      img.src = fb;
       meta.textContent = "Default image selected";
     } else {
       updatePhotoPreview();
     }
   });
 
+  // Ladda in refs via REST
   if(!placeId){
     meta.textContent = "No place_id — paste a Photo URL or tick default.";
     return;
   }
-  if(ensurePlacesService()){
-    placesService.getDetails({placeId, fields:["photos"]}, (res, status)=>{
-      if(status==="OK" && res && res.photos && res.photos.length){
-        hPhotosById[id] = { photos:res.photos, index:0 };
-        updatePhotoPreview();
-      } else {
-        meta.textContent = "No Google photos found";
-      }
-    });
-  } else {
-    meta.textContent = "Loading Google photos…";
-    const t = setInterval(()=>{
-      if(ensurePlacesService()){
-        clearInterval(t);
-        initPhotoPicker(scopeEl, id);
-      }
-    }, 400);
-    setTimeout(()=>clearInterval(t), 6000);
-  }
+  meta.textContent = "Loading Google photos…";
+  fetchPhotoRefs(placeId).then(refs=>{
+    if(refs && refs.length){
+      hPhotosById[id] = { refs, index:0 };
+      updatePhotoPreview();
+    } else {
+      meta.textContent = "No Google photos found";
+    }
+  }).catch(()=>{
+    meta.textContent = "No Google photos found";
+  });
 }
 
-/* ====== Convenience for table buttons ====== */
-async function approveStore(id){ await setApproved(id,true); }
-async function unflagStore(id){ await setFlagged(id,false); }
-function editStoreRowToggle(id){ editStore(id); }
-async function deleteStore(id){ 
-  if(!confirm("Are you sure you want to delete this store?")) return;
-  await setDeleted(id,true); 
-}
+/* ====== Google Maps bootstrap (for other parts if needed) ====== */
+window._mapsReady = function(){
+  // No-op: vi använder REST för foto-refsen men låter skriptet laddas
+};
