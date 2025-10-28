@@ -1,0 +1,254 @@
+/* ===================================================
+   Backoffice Styling — World Cigar Locator (2025-10-28)
+   Clean, modern, light design — fully compatible
+=================================================== */
+
+:root {
+  --primary: #2f78c4;
+  --primary-dark: #2466a8;
+  --accent: #b8860b;
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Reset & layout */
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family: "Inter", Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  margin: 0;
+  padding: 1rem;
+  color: var(--text);
+}
+h1, h2, h3 {
+  margin: 0;
+  font-weight: 800;
+}
+h1 {
+  text-align: center;
+  color: #2b2b2b;
+  margin-bottom: 1rem;
+}
+
+/* ---------------- Navigation ---------------- */
+.topbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.btn {
+  background: #fff;
+  border: 1.6px solid var(--primary);
+  color: var(--primary);
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+.btn:hover {
+  background: var(--primary);
+  color: #fff;
+}
+.btn.primary {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+}
+.btn.primary:hover {
+  filter: brightness(0.95);
+}
+
+/* ---------------- Card Layout ---------------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.full {
+  grid-column: 1 / -1;
+}
+
+/* ---------------- Input Styling ---------------- */
+label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin-bottom: 0.3rem;
+}
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="email"],
+textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease;
+}
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(47, 120, 196, 0.1);
+}
+
+/* ---------------- Chips / Category ---------------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.chip {
+  background: #fff;
+  border: 1px solid var(--border);
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.chip.active {
+  background: #eef6ff;
+  border-color: #bcd7ff;
+  color: #145b99;
+}
+
+/* ---------------- Lounge Access ---------------- */
+.access-box {
+  background: #f8fafc;
+  border: 1px dashed #cfe1ff;
+  border-radius: 8px;
+  padding: 0.8rem;
+  margin-top: 0.5rem;
+  display: none;
+}
+
+/* ---------------- Rating Stars ---------------- */
+.stars {
+  display: flex;
+  gap: 0.3rem;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #ccc;
+}
+.stars .sel {
+  color: var(--accent);
+}
+
+/* ---------------- Photo Picker ---------------- */
+.photo-picker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+.photo-nav {
+  background: #fff;
+  border: 1.4px solid var(--primary);
+  color: var(--primary);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+.photo-nav:hover {
+  background: #f0f7ff;
+}
+.preview-photo {
+  width: 220px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+#photo-meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 0.3rem;
+}
+
+/* ---------------- Toast Notifications ---------------- */
+#toast-container {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  z-index: 9999;
+}
+.toast {
+  background: #333;
+  color: #fff;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  opacity: 0.96;
+  font-size: 0.9rem;
+}
+.toast.success {
+  background: #28a745;
+}
+.toast.error {
+  background: #dc3545;
+}
+.toast.info {
+  background: var(--primary);
+}
+
+/* ---------------- Utility ---------------- */
+.muted {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 0.8rem;
+  }
+  .preview-photo {
+    width: 100%;
+    height: auto;
+  }
+  .btn {
+    font-size: 0.9rem;
+  }
+  h1 {
+    font-size: 1.3rem;
+  }
+}
