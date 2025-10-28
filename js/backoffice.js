@@ -534,6 +534,220 @@ function renderTable(list){
 
   $$("#tbody [data-rowact]").forEach(b=>b.addEventListener("click", onRowEditAction));
 }
+/* ============ EDIT & PHOTO PICKER SYSTEM ============ */
+
+/* Collects payload from any edit zone (card or table row) */
+function collectEditPayload(ez){
+  const payload = {};
+  ez.querySelectorAll("[data-k]").forEach(inp=>{
+    const k = inp.dataset.k;
+    let v = inp.value.trim();
+    if(k==="rating") v = Number(v||0);
+    payload[k] = v || null;
+  });
+
+  // type → types[]
+  if(payload.type){ payload.types = [payload.type]; }
+
+  // continent fallback
+  if(payload.country && !payload.continent){
+    payload.continent = countryToContinent(payload.country);
+  }
+
+  // default image
+  const useDefault = ez.querySelector('[data-photo="default"]')?.checked;
+  if(useDefault){
+    payload.photo_url = null;
+    payload.photo_reference = null;
+  }
+
+  // ta bort temporära PhotoService-länkar
+  if (payload.photo_url && payload.photo_url.includes("PhotoService.GetPhoto")) {
+    payload.photo_url = null;
+  }
+  return payload;
+}
+/* ====== FETCH GOOGLE PHOTO REFERENCES ====== */
+async function fetchPhotoRefs(placeId){
+  if(!placeId) return [];
+  try {
+    const resp = await fetch(
+      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=photos&key=${GOOGLE_BROWSER_KEY}`
+    );
+    const data = await resp.json();
+    if(!data.result?.photos?.length) return [];
+    return data.result.photos.map(p => p.photo_reference);
+  } catch(err){
+    console.error("fetchPhotoRefs error:", err);
+    return [];
+  }
+}
+
+/* Photo carousel logic inside edit-form */
+function initPhotoPicker(scopeEl, id){
+  const ez = scopeEl.querySelector(".edit-zone");
+  if(!ez) return;
+
+  const placeId  = ez.querySelector('[data-k="place_id"]')?.value || "";
+  const prev     = ez.querySelector('[data-photo="prev"]');
+  const next     = ez.querySelector('[data-photo="next"]');
+  const useBtn   = ez.querySelector('[data-photo="use"]');
+  const defChk   = ez.querySelector('[data-photo="default"]');
+  const img      = ez.querySelector(".photo-preview");
+  const meta     = ez.querySelector(".photo-meta");
+  const urlInput = ez.querySelector('[data-k="photo_url"]');
+  const refInput = ez.querySelector('[data-k="photo_reference"]');
+
+  if(!hPhotosById[id]) hPhotosById[id] = { refs:[], index:0 };
+
+  function updatePhotoPreview(){
+    const st = hPhotosById[id];
+    if(!st.refs.length){
+      meta.textContent = "No photos loaded";
+      img.src = urlInput.value || githubFallbackForTypes((ez.querySelector('[data-k=\"type\"]')?.value)||"");
+      return;
+    }
+    const ref = st.refs[st.index];
+    img.src = googleCdnFromPhotoRef(ref);
+    meta.textContent = `Photo ${st.index+1}/${st.refs.length}`;
+  }
+
+  function nav(delta){
+    const st = hPhotosById[id];
+    if(!st.refs.length) return;
+    st.index = (st.index + delta + st.refs.length) % st.refs.length;
+    updatePhotoPreview();
+  }
+
+  prev.addEventListener("click", ()=>nav(-1));
+  next.addEventListener("click", ()=>nav(+1));
+
+  useBtn.addEventListener("click", ()=>{
+    const st = hPhotosById[id];
+    if(!st.refs.length){ toast("No Google photos to use","info"); return; }
+    const ref = st.refs[st.index];
+    refInput.value = ref;
+    urlInput.value = ""; // lagra inte URL när vi har reference
+    toast("Photo selected","success");
+  });
+
+  defChk.addEventListener("change", ()=>{
+    if(defChk.checked){
+      refInput.value = "";
+      urlInput.value = "";
+      const fb = githubFallbackForTypes((ez.querySelector('[data-k=\"type\"]')?.value)||"");
+      img.src = fb;
+      meta.textContent = "Default image selected";
+    } else {
+      updatePhotoPreview();
+    }
+  });
+
+  // Ladda in refs via REST
+  if(!placeId){
+    meta.textContent = "No place_id — paste a Photo URL or tick default.";
+    return;
+  }
+  meta.textContent = "Loading Google photos…";
+  fetchPhotoRefs(placeId).then(refs=>{
+    if(refs && refs.length){
+      hPhotosById[id] = { refs, index:0 };
+      updatePhotoPreview();
+    } else {
+      meta.textContent = "No Google photos found";
+    }
+  }).catch(()=>{
+    meta.textContent = "No Google photos found";
+  });
+}
+/* ============ SAVE, APPROVE, FLAG, DELETE ============ */
+
+/* Spara ändringar från edit-zon */
+async function saveEdit(id, payload){
+  // Om vi har photo_reference → spara permanent CDN-URL
+  if (payload.photo_reference) {
+    payload.photo_url = null;
+    payload.photo_cdn_url = googleCdnFromPhotoRef(payload.photo_reference);
+  }
+
+  const { error } = await supabase.from("stores").update(payload).eq("id", id);
+  if(error){
+    console.error("❌ Save failed:", error);
+    toast("Save failed","error");
+    return;
+  }
+  toast("Saved ✔","success");
+  editingId = null;
+  await reloadData();
+}
+
+/* ====== Approvals ====== */
+async function setApproved(id, val){
+  const updates = val ? { approved:true, flagged:false } : { approved:false };
+  const { error } = await supabase.from("stores").update(updates).eq("id", id);
+  if(error){ console.error(error); toast("Update failed","error"); return;}
+  toast(val?"Approved ✅":"Unapproved","success");
+  await reloadData();
+}
+
+/* ====== Flagged ====== */
+let FLAG_TARGET_ID = null;
+
+async function setFlagged(id, val, reason=null){
+  const upd = val
+    ? { flagged:true, flag_reason: (reason || 'manual | flagged by admin') }
+    : { flagged:false, flag_reason:null };
+
+  const { error } = await supabase.from("stores").update(upd).eq("id", id);
+  if(error){
+    console.error(error);
+    toast("Update failed","error");
+    return;
+  }
+  toast(val?"Flagged 🚩":"Unflagged","success");
+  await reloadData();
+}
+
+/* ====== Deleted ====== */
+async function setDeleted(id, val){
+  const { error } = await supabase.from("stores").update({ deleted:val }).eq("id", id);
+  if(error){ console.error(error); toast("Update failed","error"); return;}
+  toast(val?"Moved to Trash 🗑️":"Restored","success");
+  await reloadData();
+}
+
+/* ====== Table view helpers (knappar i listan) ====== */
+async function approveStore(id){ await setApproved(id,true); }
+async function unflagStore(id){ await setFlagged(id,false); }
+async function deleteStore(id){
+  if(!confirm("Are you sure you want to delete this store?")) return;
+  await setDeleted(id,true);
+}
+
+/* ====== Flag modal ====== */
+function openFlagModal(id){
+  FLAG_TARGET_ID = id;
+  $("#flagReason").value="";
+  toggleFlagModal(true);
+}
+
+function toggleFlagModal(show){
+  $("#flagModal").style.display = show ? "flex" : "none";
+}
+
+async function onConfirmFlag(){
+  const reason = $("#flagReason").value.trim();
+  toggleFlagModal(false);
+  if(!FLAG_TARGET_ID) return;
+  await setFlagged(FLAG_TARGET_ID, true, reason || null);
+  FLAG_TARGET_ID = null;
+}
+
+/* ====== Google Maps bootstrap (dummy) ====== */
+window._mapsReady = function(){
+  // no-op: laddas bara för Places REST
+};
+
 /* ====== CARD & ROW ACTIONS ====== */
 function cardActionsFor(s){
   const id = s.id;
