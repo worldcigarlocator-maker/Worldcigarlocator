@@ -47,28 +47,28 @@ function stars(n) {
 function countryToContinent(country) {
   if (!country) return "Other";
   const c = country.trim().toLowerCase();
-  const m = {
-    sweden: "Europe",
-    norway: "Europe",
-    denmark: "Europe",
-    finland: "Europe",
-    iceland: "Europe",
-    usa: "North America",
-    "united states": "North America",
-    canada: "North America",
-    france: "Europe",
-    germany: "Europe",
-    italy: "Europe",
-    spain: "Europe",
-    brazil: "South America",
-    argentina: "South America",
-    australia: "Oceania",
-    japan: "Asia",
-    china: "Asia",
-    india: "Asia",
-   "south africa": "Africa"
-  };
-  return m[c] || "Other";
+const m = {
+  sweden: "Europe",
+  norway: "Europe",
+  denmark: "Europe",
+  finland: "Europe",
+  iceland: "Europe",
+  usa: "North America",
+  "united states": "North America",
+  canada: "North America",
+  france: "Europe",
+  germany: "Europe",
+  italy: "Europe",
+  spain: "Europe",
+  brazil: "South America",
+  argentina: "South America",
+  australia: "Oceania",
+  japan: "Asia",
+  china: "Asia",
+  india: "Asia",
+  "south africa": "Africa"
+};
+return m[c] || "Other";
 }
 
 /* ====== Load ====== */
