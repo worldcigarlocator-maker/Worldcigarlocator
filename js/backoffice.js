@@ -65,15 +65,35 @@ function countryToContinent(country){
 }
 
 /* ====== Image helpers (permanent, legal) ====== */
-function googleCdnFromPhotoRef(ref, width=800, height=600){
-  // Officiell, stabil visningslänk via Googles CDN
-  return `https://lh3.googleusercontent.com/p/${encodeURIComponent(ref)}=w${width}-h${height}-n-k-no`;
+function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
+  // Prova i ordning: endast storlek → +k-no → +no
+  const tails = [
+    `=w${w}-h${h}`,
+    `=w${w}-h${h}-k-no`,
+    `=w${w}-h${h}-no`
+  ];
+  const idx = Math.max(0, Math.min(variant, tails.length - 1));
+  return `https://lh3.googleusercontent.com/p/${ref}${tails[idx]}`;
 }
-function cardImageSrc(s) {
-  // 1️⃣ Har vi permanent Google photo_reference → använd CDN
-  if (s.photo_reference) {
-    return googleCdnFromPhotoRef(s.photo_reference);
-  }
+
+function githubFallbackForTypes(typesOrType){
+  const arr = (Array.isArray(typesOrType) && typesOrType.length
+    ? typesOrType
+    : (typesOrType ? [typesOrType] : [])).map(x=>String(x||"").toLowerCase());
+  return arr.includes("lounge")
+    ? "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg"
+    : "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
+}
+
+function cardImageSrc(s){
+  // 1) Google CDN om vi har ett (v1) media key / photo_reference
+  if (s.photo_reference) return googleCdnFromPhotoRef(s.photo_reference);
+  // 2) Stabil egen URL (inte PhotoService-temporär)
+  if (s.photo_url && !s.photo_url.includes("PhotoService.GetPhoto")) return s.photo_url;
+  // 3) Fallback
+  return githubFallbackForTypes(s.types?.length ? s.types : s.type);
+}
+
 
   // 2️⃣ Har vi en stabil egen URL → använd den (men inte PhotoService-länkar)
   if (s.photo_url && !s.photo_url.includes("PhotoService.GetPhoto")) {
@@ -707,18 +727,46 @@ function renderCard(s) {
   const card = document.createElement("div");
   card.className = "card";
 
-  // 🖼️ Hämta rätt foto
-  const img = document.createElement("img");
-  img.className = "photo";
-  img.src = buildPhotoUrl(s.photo_reference, s.type);
-  img.alt = s.name || "Store photo";
+// 🖼️ Hämta rätt foto
+const img = document.createElement("img");
+img.className = "photo";
+img.alt = s.name || "Store photo";
 
-  // Om Google-bilden inte går att ladda – fallback automatiskt
-  img.onerror = () => {
-    img.src = s.type === "lounge"
-      ? "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg"
-      : "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-  };
+// start-src
+const baseRef = s.photo_reference || null;
+const fallbackUrl = githubFallbackForTypes(s.types?.length ? s.types : s.type);
+let variantTry = 0;
+
+if (baseRef) {
+  img.src = googleCdnFromPhotoRef(baseRef, 800, 600, variantTry);
+} else if (s.photo_url && !s.photo_url.includes("PhotoService.GetPhoto")) {
+  img.src = s.photo_url;
+} else {
+  img.src = fallbackUrl;
+}
+
+// Prova flera CDN-varianter innan vi går till GitHub
+img.onerror = () => {
+  if (baseRef && variantTry < 2) {
+    variantTry += 1;
+    img.src = googleCdnFromPhotoRef(baseRef, 800, 600, variantTry);
+  } else {
+    console.warn(`⚠️ Fallback används för: ${s.name}`);
+    img.src = fallbackUrl;
+  }
+};
+
+
+// Prova flera CDN-varianter innan vi går till GitHub
+img.onerror = () => {
+  if (baseRef && variantTry < 2) {
+    variantTry += 1;
+    img.src = googleCdnFromPhotoRef(baseRef, 800, 600, variantTry);
+  } else {
+    img.src = fallbackUrl;
+  }
+};
+
 
   // 🏷️ Info-sektion
   const info = document.createElement("div");
