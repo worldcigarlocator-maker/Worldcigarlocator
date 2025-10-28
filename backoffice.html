@@ -1,19 +1,16 @@
-<!-- backoffice.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Backoffice — Moderation & Management</title>
+  <title>Backoffice — World Cigar Locator</title>
 
-  <!-- Supabase -->
+  <!-- Fonts & Supabase -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- CSS -->
   <link rel="stylesheet" href="css/backoffice.css" />
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="wrap">
@@ -23,51 +20,38 @@
       <button class="btn" onclick="reloadData()">⟲ Reload</button>
     </div>
 
+    <h1>Backoffice — Moderation & Management</h1>
+
     <div class="filters">
-      <button class="pill" data-tab="all">All</button>
+      <button class="pill active" data-tab="all">All</button>
       <button class="pill" data-tab="approved">Approved</button>
-      <button class="pill active" data-tab="pending">Pending</button>
+      <button class="pill" data-tab="pending">Pending</button>
       <button class="pill" data-tab="flagged">Flagged</button>
       <button class="pill" data-tab="deleted">Trash</button>
     </div>
 
     <div class="searchbar">
-      <input id="searchInput" placeholder="Search by name, city, country…" />
+      <input id="searchInput" type="text" placeholder="Search by name, city, or country…" />
       <div class="viewtoggle">
-        <span class="seg" data-view="list">List</span>
         <span class="seg active" data-view="cards">Cards</span>
+        <span class="seg" data-view="list">List</span>
       </div>
-    </div>
-
-    <div id="hierarchyPanel" class="hierarchy-panel">
-      <div class="h-row">
-        <div class="h-controls">
-          <input id="hSearch" placeholder="Filter continent / country / city…" />
-          <button class="btn ghost" id="hCloseAll">Close All</button>
-          <button class="btn ghost" id="hClearSel">Clear</button>
-        </div>
-        <div class="crumbs" id="hCrumbs">Showing: <b>All Approved</b></div>
-      </div>
-      <div id="hTree" class="h-tree"></div>
     </div>
 
     <div id="cards" class="grid"></div>
-    <div id="table" class="table-wrap" style="display:none">
+
+    <div id="table" class="table-wrap" style="display:none;">
       <table>
         <thead>
           <tr>
             <th>Name</th>
-            <th>Country</th>
-            <th>Continent</th>
             <th>City</th>
+            <th>Country</th>
             <th>Type</th>
             <th>Access</th>
             <th>Rating</th>
-            <th>Added</th>
-            <th>Added by</th>
             <th>Status</th>
-            <th>Reason</th>
-            <th class="t-actions">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -75,9 +59,10 @@
     </div>
   </div>
 
-  <!-- Toast & Modal -->
+  <!-- Toast -->
   <div id="toast-container"></div>
 
+  <!-- Flag Modal -->
   <div id="flagModal" class="modal-backdrop">
     <div class="modal">
       <h3>Flag store — reason</h3>
@@ -89,15 +74,7 @@
     </div>
   </div>
 
-  <!-- Hidden Google Maps container -->
-  <div id="gmap" style="width:0;height:0;overflow:hidden;position:absolute;left:-9999px;top:-9999px"></div>
-
   <!-- JS -->
   <script src="js/backoffice.js"></script>
-
-  <!-- Google Places -->
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=_mapsReady">
-  </script>
 </body>
 </html>
