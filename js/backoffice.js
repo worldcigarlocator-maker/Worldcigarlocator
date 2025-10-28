@@ -70,13 +70,48 @@ document.querySelectorAll("input[name='access']").forEach((r) => {
   r.addEventListener("change", () => (sel.access = r.value));
 });
 
-const stars = document.getElementById("stars");
-stars.addEventListener("click", (e) => {
-  const v = +e.target.dataset.v;
-  if (!v) return;
-  sel.rating = v;
-  [...stars.children].forEach((el, i) => el.classList.toggle("sel", i < v));
+document.addEventListener("DOMContentLoaded", () => {
+  const stars = document.getElementById("stars");
+  if (stars) {
+    stars.addEventListener("click", (e) => {
+      const v = +e.target.dataset.v;
+      if (!v) return;
+      sel.rating = v;
+      [...stars.children].forEach((el, i) => el.classList.toggle("sel", i < v));
+    });
+  }
+
+  document.querySelectorAll("#typeRow .chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      chip.classList.toggle("active");
+      sel.types = Array.from(
+        document.querySelectorAll("#typeRow .chip.active")
+      ).map((c) => c.dataset.type);
+      document.getElementById("accessBox").style.display = sel.types.includes("lounge")
+        ? "block"
+        : "none";
+    });
+  });
+
+  document.querySelectorAll("input[name='access']").forEach((r) => {
+    r.addEventListener("change", () => (sel.access = r.value));
+  });
+
+  document.getElementById("prev-photo").onclick = () => {
+    if (sel.photos.length) {
+      sel.photo_index = (sel.photo_index - 1 + sel.photos.length) % sel.photos.length;
+      updatePhoto();
+    }
+  };
+
+  document.getElementById("next-photo").onclick = () => {
+    if (sel.photos.length) {
+      sel.photo_index = (sel.photo_index + 1) % sel.photos.length;
+      updatePhoto();
+    }
+  };
 });
+
 
 /* ---------- Toast ---------- */
 
