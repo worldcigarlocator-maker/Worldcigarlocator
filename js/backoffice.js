@@ -69,26 +69,26 @@ function googleCdnFromPhotoRef(ref, width=800, height=600){
   // Officiell, stabil visningslänk via Googles CDN
   return `https://lh3.googleusercontent.com/p/${encodeURIComponent(ref)}=w${width}-h${height}-n-k-no`;
 }
-
-function githubFallbackForTypes(typesOrType){
-  const arr = (Array.isArray(typesOrType) && typesOrType.length
-    ? typesOrType
-    : (typesOrType ? [typesOrType] : [])).map(x=>String(x||"").toLowerCase());
-  return arr.includes("lounge") ? GITHUB_LOUNGE_FALLBACK : GITHUB_STORE_FALLBACK;
-}
-
-function cardImageSrc(s){
-  // 1) Primärt: Google CDN med photo_reference
+function cardImageSrc(s) {
+  // 1️⃣ Har vi permanent Google photo_reference → använd CDN
   if (s.photo_reference) {
     return googleCdnFromPhotoRef(s.photo_reference);
   }
-  // 2) egen/fri bild-URL (så länge det inte är temporär PhotoService)
+
+  // 2️⃣ Har vi en stabil egen URL → använd den (men inte PhotoService-länkar)
   if (s.photo_url && !s.photo_url.includes("PhotoService.GetPhoto")) {
     return s.photo_url;
   }
-  // 3) GitHub fallback
+
+  // 3️⃣ Har vi Google-foto-URL som verkar temporär? → tillåt ändå (är CDN)
+  if (s.photo_url && s.photo_url.includes("googleusercontent")) {
+    return s.photo_url;
+  }
+
+  // 4️⃣ Annars fallback till GitHub-bilder
   return githubFallbackForTypes(s.types?.length ? s.types : s.type);
 }
+
 
 /* ====== Load ====== */
 document.addEventListener("DOMContentLoaded", async()=>{
@@ -96,18 +96,49 @@ document.addEventListener("DOMContentLoaded", async()=>{
   await reloadData();
 });
 
-async function reloadData(){
-  const { data, error } = await supabase
-    .from("stores")
-    .select("*")
-    .order("created_at", { ascending:false });
-  if(error){ console.error(error); toast("Failed to load data","error"); return; }
-  ALL = (data||[]).map(s=>({
-    ...s,
-    continent: s.continent || countryToContinent(s.country)
-  }));
-  render();
+/* ====== Load & render all stores ====== */
+async function reloadData() {
+  try {
+    const { data, error } = await supabase
+      .from("stores")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (error) {
+      console.error("Supabase fetch error:", error);
+      showToast("❌ Error loading stores", "error");
+      return;
+    }
+
+    renderAll(data || []);
+    showToast(`✅ Loaded ${data.length} stores`, "success");
+
+  } catch (e) {
+    console.error("Reload error:", e);
+    showToast("⚠️ Could not load stores", "error");
+  }
 }
+
+/* ====== Render all cards ====== */
+function renderAll(data) {
+  const container = document.getElementById("cards");
+  container.innerHTML = "";
+
+  if (!data || !data.length) {
+    container.innerHTML = `<div class="empty">No stores found</div>`;
+    return;
+  }
+
+  data.forEach(s => {
+    // 🧠 Visa bara om den inte är raderad (men inkludera flagged/pending/approved)
+    if (s.deleted) return;
+
+    // ⚙️ Rendera kort
+    const card = renderCard(s);
+    container.appendChild(card);
+  });
+}
+
 
 /* ====== Filters & View ====== */
 function bindUI(){
@@ -593,6 +624,9 @@ async function saveEdit(id, payload){
   // Om reference finns → använd inte photo_url
   if (payload.photo_reference) {
     payload.photo_url = null;
+         // 💾 Spara även permanent Google CDN-URL för framtida visning
+    payload.photo_cdn_url = googleCdnFromPhotoRef(payload.photo_reference);
+
   }
 
   const { error } = await supabase.from("stores").update(payload).eq("id", id);
@@ -655,30 +689,69 @@ async function onConfirmFlag(){
   FLAG_TARGET_ID = null;
 }
 
-/* ====== Photo picker with Places Details (REST) ====== */
-// Vi hämtar *riktiga* photo_reference via REST, vilket inte finns på JS Photo-objektet
-async function fetchPhotoRefs(placeId){
-  if(!placeId) return [];
-  try {
-    // v1 endpoint
-    const urlV1 = `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}?fields=photos&key=${encodeURIComponent(GOOGLE_BROWSER_KEY)}`;
-    let res = await fetch(urlV1);
-    if (res.ok) {
-      const j = await res.json();
-      const refs = (j.photos||[]).map(p => p?.name?.split("/").pop()).filter(Boolean);
-      if (refs.length) return refs;
-    }
-    // fallback: old Details API
-    const urlLegacy = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=photos&key=${encodeURIComponent(GOOGLE_BROWSER_KEY)}`;
-    res = await fetch(urlLegacy);
-    if (res.ok) {
-      const j = await res.json();
-      const refs = (j.result?.photos||[]).map(p=>p.photo_reference).filter(Boolean);
-      return refs;
-    }
-  } catch(e){ console.warn("fetchPhotoRefs error", e); }
-  return [];
+/* ====== Helper: Build legal, permanent image URL ====== */
+function buildPhotoUrl(photo_reference, type) {
+  if (photo_reference) {
+    // ✅ Google CDN — fungerar utan API-nyckel och utan 403-risk
+    return `https://lh3.googleusercontent.com/p/${photo_reference}=w600-h400-n-k-no`;
+  }
+  // 🪪 Fallback till GitHub-bilder
+  if (type === "lounge") {
+    return "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
+  }
+  return "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
 }
+
+/* ====== Render one card (store entry) ====== */
+function renderCard(s) {
+  const card = document.createElement("div");
+  card.className = "card";
+
+  // 🖼️ Hämta rätt foto
+  const img = document.createElement("img");
+  img.className = "photo";
+  img.src = buildPhotoUrl(s.photo_reference, s.type);
+  img.alt = s.name || "Store photo";
+
+  // Om Google-bilden inte går att ladda – fallback automatiskt
+  img.onerror = () => {
+    img.src = s.type === "lounge"
+      ? "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg"
+      : "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
+  };
+
+  // 🏷️ Info-sektion
+  const info = document.createElement("div");
+  info.className = "info";
+  info.innerHTML = `
+    <h3>${s.name || "Unnamed"}</h3>
+    <p>${s.city || ""}, ${s.country || ""}</p>
+    <p><b>Type:</b> ${s.type || "–"}${s.access ? ` • ${s.access}` : ""}</p>
+    ${s.rating ? `<p><b>Rating:</b> ⭐ ${s.rating}</p>` : ""}
+  `;
+
+  // 🔘 Actions
+  const actions = document.createElement("div");
+  actions.className = "actions";
+  actions.innerHTML = `
+    <button class="btn small approve">Approve</button>
+    <button class="btn small flag">Flag</button>
+    <button class="btn small delete">Delete</button>
+  `;
+
+  // ⛓️ Event-handlers
+  actions.querySelector(".approve").onclick = () => updateStatus(s.id, "approved");
+  actions.querySelector(".flag").onclick = () => openFlagModal(s.id);
+  actions.querySelector(".delete").onclick = () => softDeleteStore(s.id);
+
+  // 🧩 Montera kortet
+  card.appendChild(img);
+  card.appendChild(info);
+  card.appendChild(actions);
+
+  return card;
+}
+
 
 function ensurePlacesService(){
   if(!window.google || !window.google.maps || !window.google.maps.places) return false;
