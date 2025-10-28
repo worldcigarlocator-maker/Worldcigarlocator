@@ -882,7 +882,6 @@ async function setApproved(id, val){
   toast(val?"Approved ✅":"Unapproved","success");
   await reloadData();
 }
-let FLAG_TARGET_ID = null;
 
 async function setFlagged(id, val, reason=null){
   const upd = val ? { flagged:true, flag_reason: (reason||'manual | flagged by admin') } : { flagged:false, flag_reason:null };
