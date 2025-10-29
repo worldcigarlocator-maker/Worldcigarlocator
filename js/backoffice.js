@@ -109,16 +109,30 @@ function githubFallbackForTypes(typesOrType){
   return arr.includes("lounge") ? GITHUB_LOUNGE_FALLBACK : GITHUB_STORE_FALLBACK;
 }
 
-function cardImageSrc(s){
-  // 1) Google CDN image från photo_reference
-  if (s.photo_reference) return googleCdnFromPhotoRef(s.photo_reference);
-  // 2) Stabil egen URL (inte PhotoService temp)
-  if (s.photo_url && !s.photo_url.includes("PhotoService.GetPhoto")) return s.photo_url;
-  // 3) Om någon redan-sparad googleusercontent-URL (CDN) — tillåt
-  if (s.photo_url && s.photo_url.includes("googleusercontent")) return s.photo_url;
-  // 4) Fallback
-  return githubFallbackForTypes(s.types?.length ? s.types : s.type);
+function cardImageSrc(s) {
+  let srcType = "fallback";
+  let finalUrl;
+
+  if (s.photo_cdn_url) {
+    finalUrl = s.photo_cdn_url;
+    srcType = "cdn_url";
+  } else if (s.photo_reference) {
+    finalUrl = googleCdnFromPhotoRef(s.photo_reference);
+    srcType = "photo_reference";
+  } else if (s.photo_url && !s.photo_url.includes("PhotoService.GetPhoto")) {
+    finalUrl = s.photo_url;
+    srcType = "photo_url";
+  } else if (s.photo_url && s.photo_url.includes("googleusercontent")) {
+    finalUrl = s.photo_url;
+    srcType = "googleusercontent";
+  } else {
+    finalUrl = githubFallbackForTypes(s.types?.length ? s.types : s.type);
+  }
+
+  console.log(`🖼️ [${s.name || "Unnamed"}] → ${srcType}`, finalUrl);
+  return finalUrl;
 }
+
 
 /* ====== Photo references via Places Details (REST) ====== */
 async function fetchPhotoRefs(placeId){
