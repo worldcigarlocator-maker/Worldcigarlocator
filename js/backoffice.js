@@ -1,12 +1,13 @@
 /* js/backoffice.js — World Cigar Locator (Backoffice)
-   Permanent Google CDN images + GitHub fallback, full features
-   Last update: 2025-10-28
+   Level 3 photo strategy (Supabase Edge Function proxy + cache)
+   Last update: 2025-10-29
 */
 
 /* ================= CONFIG ================= */
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // For Places Details REST
+const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ"; // Only for Places Details (REST)
+const PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co/functions/v1/photo-proxy"; // Edge Function
 
 // Supabase client
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -71,33 +72,29 @@ function countryToContinent(country){
   return m[c] || "Other";
 }
 
-/* ============ IMAGE HELPERS (permanent, legal) ============ */
-// Förbättrad version – använder Supabase-proxy för AWn-referenser (nivå 3-lösning).
-// Om CDN inte fungerar används fallback till proxy eller GitHub.
+/* ============ IMAGE HELPERS — Level 3 (Proxy-first for AWn refs) ============ */
 
-function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
-  if (!ref) return null;
+/** Bygg proxylänk (server-key skyddad i Edge Function) */
+function buildProxyUrl(ref, w=800){
+  return `${PHOTO_PROXY_URL}?ref=${encodeURIComponent(ref)}&w=${encodeURIComponent(String(w))}`;
+}
 
-  // 🌐 Om ref redan är en fullständig URL (http/https)
-  if (ref.startsWith("http")) return ref;
+/** Best effort: försök CDN för “p/..”-liknande refs, annars proxy. */
+async function resolveGooglePhotoUrl(ref, w=800, h=600, variant=0){
+  if(!ref) return null;
 
-  // 💡 AWn... = Google PhotoService → måste gå via Supabase-proxy
-  if (/^AWn/i.test(ref)) {
-    const proxyUrl = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?ref=${encodeURIComponent(ref)}&w=${w}`;
-    console.log("🪄 Using Supabase photo-proxy for", ref);
-    return proxyUrl;
-  }
+  // Redan URL? använd direkt
+  if(/^https?:\/\//i.test(ref)) return ref;
 
-  // 🧹 Normalisera referensen för Google CDN
+  // AWn… → PhotoService token => MÅSTE via proxy
+  if(/^AWn/i.test(ref)) return buildProxyUrl(ref, w);
+
+  // “p/..” eller raw id → prova CDN; fallback proxy vid fel
   let clean = String(ref).trim();
-  if (clean.includes("/photos/")) {
-    const parts = clean.split("/");
-    clean = parts[parts.length - 1];
-  }
+  if (clean.includes("/photos/")) clean = clean.split("/").pop();
   if (clean.startsWith("p/")) clean = clean.slice(2);
   clean = clean.split("?")[0];
 
-  // 📐 Bygg CDN-URL (testar olika varianter)
   const tails = [
     `=w${w}-h${h}`,
     `=w${w}-h${h}-k-no`,
@@ -106,59 +103,49 @@ function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
   const idx = Math.max(0, Math.min(variant, tails.length - 1));
   const cdnUrl = `https://lh3.googleusercontent.com/p/${encodeURIComponent(clean)}${tails[idx]}`;
 
-  // 🧩 Testa i bakgrunden – om CDN-försöket felar, använd proxy automatiskt
-  return new Promise((resolve) => {
+  // Testa CDN (icke-blockerande för UI – vi bara väntar i denna funktion)
+  const ok = await new Promise(res=>{
     const img = new Image();
-    img.onload = () => {
-      console.log(`✅ CDN OK for ${ref}`);
-      resolve(cdnUrl);
-    };
-    img.onerror = () => {
-      console.warn(`⚠️ CDN failed for ${ref}, using proxy fallback`);
-      const proxyUrl = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?ref=${encodeURIComponent(ref)}&w=${w}`;
-      resolve(proxyUrl);
-    };
+    img.onload = ()=>res(true);
+    img.onerror = ()=>res(false);
     img.src = cdnUrl;
   });
+  if(ok){
+    console.log("✅ CDN OK:", ref);
+    return cdnUrl;
+  } else {
+    console.warn("⚠️ CDN fail, fallback proxy:", ref);
+    return buildProxyUrl(ref, w);
+  }
 }
 
-
-/* GitHub fallback – används om Google-bilden inte laddas alls */
-function githubFallbackForTypes(typesOrType) {
+/** GitHub fallback när inget från Google funkar */
+function githubFallbackForTypes(typesOrType){
   const arr = (Array.isArray(typesOrType) && typesOrType.length
     ? typesOrType
-    : (typesOrType ? [typesOrType] : [])).map(x => String(x || "").toLowerCase());
-  return arr.includes("lounge")
-    ? GITHUB_LOUNGE_FALLBACK
-    : GITHUB_STORE_FALLBACK;
+    : (typesOrType ? [typesOrType] : [])).map(x=>String(x||"").toLowerCase());
+  return arr.includes("lounge") ? GITHUB_LOUNGE_FALLBACK : GITHUB_STORE_FALLBACK;
 }
 
+/** Asynk: avgör vilken bild-URL vi ska använda */
+async function cardImageSrcAsync(s){
+  // 1) explicit cdn url i DB
+  if (s.photo_cdn_url) return s.photo_cdn_url;
 
-/* Bestäm vilken bild-URL som ska användas för ett kort */
-function cardImageSrc(s) {
-  let srcType = "fallback";
-  let finalUrl;
-
-  if (s.photo_cdn_url) {
-    finalUrl = s.photo_cdn_url;
-    srcType = "cdn_url";
-  } else if (s.photo_reference) {
-    finalUrl = googleCdnFromPhotoRef(s.photo_reference);
-    srcType = "photo_reference";
-  } else if (s.photo_url && !s.photo_url.includes("PhotoService.GetPhoto")) {
-    finalUrl = s.photo_url;
-    srcType = "photo_url";
-  } else if (s.photo_url && s.photo_url.includes("googleusercontent")) {
-    finalUrl = s.photo_url;
-    srcType = "googleusercontent";
-  } else {
-    finalUrl = githubFallbackForTypes(s.types?.length ? s.types : s.type);
+  // 2) photo_reference via vår resolver (proxy/CDN)
+  if (s.photo_reference){
+    return await resolveGooglePhotoUrl(s.photo_reference, 800, 600, 0);
   }
 
-  console.log(`🖼️ [${s.name || "Unnamed"}] → ${srcType}`, finalUrl);
-  return finalUrl;
-}
+  // 3) stabil manuell url (undvik PhotoService temp)
+  if (s.photo_url && !s.photo_url.includes("PhotoService.GetPhoto")) return s.photo_url;
 
+  // 4) redan googleusercontent
+  if (s.photo_url && s.photo_url.includes("googleusercontent")) return s.photo_url;
+
+  // 5) fallback
+  return githubFallbackForTypes(s.types?.length ? s.types : s.type);
+}
 
 /* ====== Photo references via Places Details (REST) ====== */
 async function fetchPhotoRefs(placeId){
@@ -191,6 +178,7 @@ document.addEventListener("DOMContentLoaded", async()=>{
   bindUI();
   await reloadData();
 });
+
 /* ====== LOAD & FILTER ====== */
 async function reloadData(){
   try{
@@ -246,7 +234,6 @@ function filtered(){
   return arr;
 }
 
-/* ====== HIERARCHY (approved) ====== */
 function updateCrumbs(){
   const parts = [];
   if(H_SELECTED.continent) parts.push(H_SELECTED.continent);
@@ -254,7 +241,6 @@ function updateCrumbs(){
   if(H_SELECTED.city)      parts.push(H_SELECTED.city);
   $("#hCrumbs").innerHTML = parts.length ? `Showing: <b>${esc(parts.join(" → "))}</b>` : `Showing: <b>All Approved</b>`;
 }
-
 function buildHierarchy(){
   if(currentTab!=="approved") return;
   const q = $("#hSearch").value.trim().toLowerCase();
@@ -409,6 +395,22 @@ function render(){
   else          renderTable(list);
 }
 
+/** Sätter bild asynkront på <img>, med GitHub-fallback som sista steg */
+async function setCardImg(imgEl, store){
+  try{
+    const url = await cardImageSrcAsync(store);
+    imgEl.src = url;
+    imgEl.onerror = function(){
+      console.warn("🟡 Image failed, using fallback for", store.name || "–");
+      this.onerror=null;
+      this.src = githubFallbackForTypes(store.types?.length ? store.types : store.type);
+    };
+  } catch(e){
+    console.warn("image resolve error", e);
+    imgEl.src = githubFallbackForTypes(store.types?.length ? store.types : store.type);
+  }
+}
+
 function cardBadges(s){
   const arr=[];
   const tt = (s.types && Array.isArray(s.types) ? s.types : (s.type? [s.type] : []))
@@ -453,11 +455,11 @@ function renderEditFormHTML(s){
       <input type="hidden" data-k="place_id" value="${esc(s.place_id||"")}">
     </div>
 
-    <div class="edit-help">If <code>place_id</code> exists we load Google photo references (permanent, legal). Otherwise paste your own image URL or tick “Use default image”.</div>
+    <div class="edit-help">If <code>place_id</code> exists we load Google photo references. Images are fetched via a secure proxy and cached 24h.</div>
 
     <div class="photo-row">
       <button class="photo-nav" data-photo="prev">◀</button>
-      <img class="photo-preview" src="${esc(cardImageSrc(s))}" alt="Preview">
+      <img class="photo-preview" src="${esc(githubFallbackForTypes(s.types?.length ? s.types : s.type))}" alt="Preview">
       <button class="photo-nav" data-photo="next">▶</button>
       <span class="photo-meta">No photos loaded</span>
       <button class="btn" data-photo="use">Use this photo</button>
@@ -466,43 +468,40 @@ function renderEditFormHTML(s){
   `;
 }
 
-function renderCards(list) {
+function renderCards(list){
   const c = $("#cards");
-  c.innerHTML = list.map(s => {
+  c.innerHTML = list.map(s=>{
     const ratingStars = stars(s.rating);
-    const img = cardImageSrc(s); // försöker CDN eller API via vår helper
+    const fb = githubFallbackForTypes(s.types?.length ? s.types : s.type);
     const status = s.deleted ? "Deleted" : s.flagged ? "Flagged" : s.approved ? "Approved" : "Pending";
     const actions = cardActionsFor(s);
-    const fb = githubFallbackForTypes(s.types?.length ? s.types : s.type);
 
     return `
     <div class="card" data-id="${s.id}">
-      <img class="card-img"
-           src="${esc(img)}"
-           alt="${esc(s.name || '')}"
-           data-fallback="${esc(fb)}"
-           onerror="
-             console.warn('🟡 Fallback image used for', this.alt);
-             this.onerror=null;
-             if (!this.src.includes('maps.googleapis.com')) {
-               this.src='https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${s.photo_reference || ''}&key=${GOOGLE_BROWSER_KEY}';
-             } else {
-               this.src=this.dataset.fallback;
-             }
-           " />
-
+      <img class="card-img" src="${esc(fb)}" alt="${esc(s.name||'')}" />
       <div class="card-body">
-        <div class="title">${s.flagged ? '🚩 ' : ''}${esc(s.name || '–')}</div>
+        <div class="title">${s.flagged ? '🚩 ' : ''}${esc(s.name||"–")}</div>
         <div class="badges">${cardBadges(s)}</div>
         <div class="row rating" title="Rating">${ratingStars}</div>
-        <div class="row muted">📍 ${esc(s.city || '')}${s.city && s.country ? ', ' : ''}${esc(s.country || '')}</div>
-        <div class="row muted">🏠 ${esc(s.address || '–')}</div>
-        ${s.phone ? `<div class="row muted">📞 ${esc(s.phone)}</div>` : ""}
-        ${s.website ? `<div class="row"><a href="${esc(s.website)}" target="_blank" rel="noopener">🌐 ${esc(s.website)}</a></div>` : ""}
+        <div class="row muted">📍 ${esc(s.city||"")}${s.city&&s.country?', ':''}${esc(s.country||"")}</div>
+        <div class="row muted">🏠 ${esc(s.address||"–")}</div>
+        ${s.phone?`<div class="row muted">📞 ${esc(s.phone)}</div>`:""}
+        ${s.website?`<div class="row"><a href="${esc(s.website)}" target="_blank" rel="noopener">🌐 ${esc(s.website)}</a></div>`:""}
+
+        ${( (currentTab==="pending" || currentTab==="flagged") && s.flag_reason ) ? (() => {
+          const reason = s.flag_reason || "No reason provided";
+          const parts = reason.split("|");
+          const category = (parts[0]||"").trim();
+          const detail = (parts.slice(1).join("|")||"").trim();
+          return `<div class="flag-reason">
+                    🚩 <strong>${esc(category.charAt(0).toUpperCase() + category.slice(1))}</strong>
+                    ${detail ? `<div class="muted detail">${esc(detail)}</div>` : ""}
+                  </div>`;
+        })() : ""}
 
         <div class="meta">
           <div>🕓 ${fmtDate(s.created_at)}</div>
-          <div>${s.added_by ? `👤 ${esc(s.added_by)}` : ""}</div>
+          <div>${s.added_by?`👤 ${esc(s.added_by)}`:""}</div>
         </div>
 
         <div class="edit-zone" style="display:none">
@@ -515,10 +514,18 @@ function renderCards(list) {
     </div>`;
   }).join("");
 
-  // bind actions
-  $$("#cards [data-act]").forEach(b => b.addEventListener("click", onCardAction));
-}
+  // Efter att korten finns i DOM → sätt bilder asynkront
+  $$("#cards .card").forEach(async card=>{
+    const id = card.dataset.id;
+    const store = filtered().find(s=>String(s.id)===String(id)) || ALL.find(s=>String(s.id)===String(id));
+    if(!store) return;
+    const imgEl = card.querySelector(".card-img");
+    await setCardImg(imgEl, store);
+  });
 
+  // bind actions
+  $$("#cards [data-act]").forEach(b=>b.addEventListener("click", onCardAction));
+}
 
 function renderTable(list){
   const tb = $("#tbody");
@@ -573,6 +580,7 @@ function renderTable(list){
 
   $$("#tbody [data-rowact]").forEach(b=>b.addEventListener("click", onRowEditAction));
 }
+
 /* ============ EDIT & PHOTO PICKER SYSTEM ============ */
 
 /* Collects payload from any edit zone (card or table row) */
@@ -606,21 +614,6 @@ function collectEditPayload(ez){
   }
   return payload;
 }
-/* ====== FETCH GOOGLE PHOTO REFERENCES ====== */
-async function fetchPhotoRefs(placeId){
-  if(!placeId) return [];
-  try {
-    const resp = await fetch(
-      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=photos&key=${GOOGLE_BROWSER_KEY}`
-    );
-    const data = await resp.json();
-    if(!data.result?.photos?.length) return [];
-    return data.result.photos.map(p => p.photo_reference);
-  } catch(err){
-    console.error("fetchPhotoRefs error:", err);
-    return [];
-  }
-}
 
 /* Photo carousel logic inside edit-form */
 function initPhotoPicker(scopeEl, id){
@@ -639,16 +632,18 @@ function initPhotoPicker(scopeEl, id){
 
   if(!hPhotosById[id]) hPhotosById[id] = { refs:[], index:0 };
 
-  function updatePhotoPreview(){
+  async function updatePhotoPreview(){
     const st = hPhotosById[id];
     if(!st.refs.length){
       meta.textContent = "No photos loaded";
-      img.src = urlInput.value || githubFallbackForTypes((ez.querySelector('[data-k=\"type\"]')?.value)||"");
+      img.src = urlInput.value || githubFallbackForTypes((ez.querySelector('[data-k="type"]')?.value)||"");
       return;
     }
     const ref = st.refs[st.index];
-    img.src = googleCdnFromPhotoRef(ref);
+    const url = await resolveGooglePhotoUrl(ref, 800, 600, 0);
+    img.src = url;
     meta.textContent = `Photo ${st.index+1}/${st.refs.length}`;
+    img.onerror = ()=>{ img.src = githubFallbackForTypes((ez.querySelector('[data-k="type"]')?.value)||""); };
   }
 
   function nav(delta){
@@ -658,10 +653,10 @@ function initPhotoPicker(scopeEl, id){
     updatePhotoPreview();
   }
 
-  prev.addEventListener("click", ()=>nav(-1));
-  next.addEventListener("click", ()=>nav(+1));
+  prev?.addEventListener("click", ()=>nav(-1));
+  next?.addEventListener("click", ()=>nav(+1));
 
-  useBtn.addEventListener("click", ()=>{
+  useBtn?.addEventListener("click", ()=>{
     const st = hPhotosById[id];
     if(!st.refs.length){ toast("No Google photos to use","info"); return; }
     const ref = st.refs[st.index];
@@ -670,11 +665,11 @@ function initPhotoPicker(scopeEl, id){
     toast("Photo selected","success");
   });
 
-  defChk.addEventListener("change", ()=>{
+  defChk?.addEventListener("change", ()=>{
     if(defChk.checked){
       refInput.value = "";
       urlInput.value = "";
-      const fb = githubFallbackForTypes((ez.querySelector('[data-k=\"type\"]')?.value)||"");
+      const fb = githubFallbackForTypes((ez.querySelector('[data-k="type"]')?.value)||"");
       img.src = fb;
       meta.textContent = "Default image selected";
     } else {
@@ -682,7 +677,6 @@ function initPhotoPicker(scopeEl, id){
     }
   });
 
-  // Ladda in refs via REST
   if(!placeId){
     meta.textContent = "No place_id — paste a Photo URL or tick default.";
     return;
@@ -699,14 +693,15 @@ function initPhotoPicker(scopeEl, id){
     meta.textContent = "No Google photos found";
   });
 }
+
 /* ============ SAVE, APPROVE, FLAG, DELETE ============ */
 
-/* Spara ändringar från edit-zon */
 async function saveEdit(id, payload){
-  // Om vi har photo_reference → spara permanent CDN-URL
+  // Om vi har photo_reference: spara inte PhotoService-URL. Låt frontend hämta via proxy/CDN.
   if (payload.photo_reference) {
     payload.photo_url = null;
-    payload.photo_cdn_url = googleCdnFromPhotoRef(payload.photo_reference);
+    // valfritt: skriv även en “derived” url (proxylänk) om du vill visa i DB:
+    // payload.photo_cdn_url = buildProxyUrl(payload.photo_reference, 800);
   }
 
   const { error } = await supabase.from("stores").update(payload).eq("id", id);
@@ -720,7 +715,7 @@ async function saveEdit(id, payload){
   await reloadData();
 }
 
-/* ====== Approvals ====== */
+/* ====== Approvals / Flag / Delete ====== */
 async function setApproved(id, val){
   const updates = val ? { approved:true, flagged:false } : { approved:false };
   const { error } = await supabase.from("stores").update(updates).eq("id", id);
@@ -729,7 +724,6 @@ async function setApproved(id, val){
   await reloadData();
 }
 
-/* ====== Flagged ====== */
 let FLAG_TARGET_ID = null;
 
 async function setFlagged(id, val, reason=null){
@@ -747,7 +741,6 @@ async function setFlagged(id, val, reason=null){
   await reloadData();
 }
 
-/* ====== Deleted ====== */
 async function setDeleted(id, val){
   const { error } = await supabase.from("stores").update({ deleted:val }).eq("id", id);
   if(error){ console.error(error); toast("Update failed","error"); return;}
@@ -769,11 +762,9 @@ function openFlagModal(id){
   $("#flagReason").value="";
   toggleFlagModal(true);
 }
-
 function toggleFlagModal(show){
   $("#flagModal").style.display = show ? "flex" : "none";
 }
-
 async function onConfirmFlag(){
   const reason = $("#flagReason").value.trim();
   toggleFlagModal(false);
@@ -781,11 +772,6 @@ async function onConfirmFlag(){
   await setFlagged(FLAG_TARGET_ID, true, reason || null);
   FLAG_TARGET_ID = null;
 }
-
-/* ====== Google Maps bootstrap (dummy) ====== */
-window._mapsReady = function(){
-  // no-op: laddas bara för Places REST
-};
 
 /* ====== CARD & ROW ACTIONS ====== */
 function cardActionsFor(s){
@@ -856,190 +842,7 @@ function editStore(id) {
   if(show){ initPhotoPicker(row, id); }
 }
 
-function onRowEditAction(e){
-  const id = e.currentTarget.dataset.id;
-  const act = e.currentTarget.dataset.rowact;
-  const row = document.querySelector(`tr[data-edit="${id}"]`);
-  if(!row) return;
-  if(act==="cancel"){ row.style.display="none"; return; }
-  if(act==="save"){
-    const ez = row.querySelector(".edit-zone");
-    const payload = collectEditPayload(ez);
-    return saveEdit(id, payload);
-  }
-}
-
-/* ====== COLLECT & SAVE ====== */
-function collectEditPayload(ez){
-  const payload = {};
-  ez.querySelectorAll("[data-k]").forEach(inp=>{
-    const k = inp.dataset.k;
-    let v = inp.value.trim();
-    if(k==="rating") v = Number(v||0);
-    payload[k]= v||null;
-  });
-
-  if(payload.type){ payload.types = [payload.type]; }
-
-  if(payload.country && !payload.continent){
-    payload.continent = countryToContinent(payload.country);
-  }
-
-  const useDefault = ez.querySelector('[data-photo="default"]')?.checked;
-  if(useDefault){
-    payload.photo_url = null;
-    payload.photo_reference = null;
-  }
-
-  // Spara aldrig temporära PhotoService-länkar
-  if (payload.photo_url && payload.photo_url.includes("PhotoService.GetPhoto")) {
-    payload.photo_url = null;
-  }
-  return payload;
-}
-
-async function saveEdit(id, payload){
-  // Om reference finns → använd inte photo_url, spara även cdn-url
-  if (payload.photo_reference) {
-    payload.photo_url = null;
-    payload.photo_cdn_url = googleCdnFromPhotoRef(payload.photo_reference);
-  }
-
-  const { error } = await supabase.from("stores").update(payload).eq("id", id);
-  if(error){ console.error(error); toast("Save failed","error"); return; }
-
-  toast("Saved ✔","success");
-  editingId = null;
-  await reloadData();
-}
-
-/* ====== APPROVE / FLAG / DELETE ====== */
-async function setApproved(id, val){
-  const updates = val ? { approved:true, flagged:false } : { approved:false };
-  const { error } = await supabase.from("stores").update(updates).eq("id", id);
-  if(error){ console.error(error); toast("Update failed","error"); return;}
-  toast(val?"Approved ✅":"Unapproved","success");
-  await reloadData();
-}
-
-async function setFlagged(id, val, reason=null){
-  const upd = val ? { flagged:true, flag_reason: (reason||'manual | flagged by admin') } : { flagged:false, flag_reason:null };
-  const { error } = await supabase.from("stores").update(upd).eq("id", id);
-  if(error){ console.error(error); toast("Update failed","error"); return; }
-  toast(val?"Flagged 🚩":"Unflagged","success");
-  await reloadData();
-}
-async function setDeleted(id, val){
-  const { error } = await supabase.from("stores").update({ deleted:val }).eq("id", id);
-  if(error){ console.error(error); toast("Update failed","error"); return;}
-  toast(val?"Moved to Trash 🗑️":"Restored","success");
-  await reloadData();
-}
-
-// Table inline helpers (list view)
-async function approveStore(id){ await setApproved(id,true); }
-async function unflagStore(id){ await setFlagged(id,false); }
-async function deleteStore(id){
-  if(!confirm("Are you sure you want to delete this store?")) return;
-  await setDeleted(id,true);
-}
-
-/* ====== FLAG MODAL ====== */
-function openFlagModal(id){
-  FLAG_TARGET_ID = id;
-  $("#flagReason").value="";
-  toggleFlagModal(true);
-}
-function toggleFlagModal(show){
-  $("#flagModal").style.display = show ? "flex" : "none";
-}
-async function onConfirmFlag(){
-  const reason = $("#flagReason").value.trim();
-  toggleFlagModal(false);
-  if(!FLAG_TARGET_ID) return;
-  await setFlagged(FLAG_TARGET_ID, true, reason || null);
-  FLAG_TARGET_ID = null;
-}
-
-/* ====== PHOTO PICKER (edit UIs) ====== */
-function initPhotoPicker(scopeEl, id){
-  const ez = scopeEl.querySelector(".edit-zone");
-  if(!ez) return;
-
-  const placeId  = ez.querySelector('[data-k="place_id"]')?.value || "";
-  const prev     = ez.querySelector('[data-photo="prev"]');
-  const next     = ez.querySelector('[data-photo="next"]');
-  const useBtn   = ez.querySelector('[data-photo="use"]');
-  const defChk   = ez.querySelector('[data-photo="default"]');
-  const img      = ez.querySelector(".photo-preview");
-  const meta     = ez.querySelector(".photo-meta");
-  const urlInput = ez.querySelector('[data-k="photo_url"]');
-  const refInput = ez.querySelector('[data-k="photo_reference"]');
-
-  if(!hPhotosById[id]) hPhotosById[id] = { refs:[], index:0 };
-
-  function updatePhotoPreview(){
-    const st = hPhotosById[id];
-    if(!st.refs.length){
-      meta.textContent = "No photos loaded";
-      img.src = urlInput.value || githubFallbackForTypes((ez.querySelector('[data-k="type"]')?.value)||"");
-      return;
-    }
-    const ref = st.refs[st.index];
-    const url = googleCdnFromPhotoRef(ref);
-    img.src = url;
-    meta.textContent = `Photo ${st.index+1}/${st.refs.length}`;
-  }
-
-  function nav(delta){
-    const st = hPhotosById[id];
-    if(!st.refs.length) return;
-    st.index = (st.index + delta + st.refs.length) % st.refs.length;
-    updatePhotoPreview();
-  }
-
-  prev?.addEventListener("click", ()=>nav(-1));
-  next?.addEventListener("click", ()=>nav(+1));
-
-  useBtn?.addEventListener("click", ()=>{
-    const st = hPhotosById[id];
-    if(!st.refs.length){ toast("No Google photos to use","info"); return; }
-    const ref = st.refs[st.index];
-    refInput.value = ref;
-    urlInput.value = ""; // lagra inte URL när vi har reference
-    toast("Photo selected","success");
-  });
-
-  defChk?.addEventListener("change", ()=>{
-    if(defChk.checked){
-      refInput.value = "";
-      urlInput.value = "";
-      const fb = githubFallbackForTypes((ez.querySelector('[data-k="type"]')?.value)||"");
-      img.src = fb;
-      meta.textContent = "Default image selected";
-    } else {
-      updatePhotoPreview();
-    }
-  });
-
-  if(!placeId){
-    meta.textContent = "No place_id — paste a Photo URL or tick default.";
-    return;
-  }
-  meta.textContent = "Loading Google photos…";
-  fetchPhotoRefs(placeId).then(refs=>{
-    if(refs && refs.length){
-      hPhotosById[id] = { refs, index:0 };
-      updatePhotoPreview();
-    } else {
-      meta.textContent = "No Google photos found";
-    }
-  }).catch(()=>{
-    meta.textContent = "No Google photos found";
-  });
-}
-
 /* ====== GOOGLE MAPS BOOTSTRAP (noop) ====== */
 window._mapsReady = function(){
-  // no-op; REST används för foton men skriptet laddas för ev. annan funktion
+  // noop: vi använder bara Places Details via fetch (REST)
 };
