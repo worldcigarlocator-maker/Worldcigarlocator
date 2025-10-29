@@ -72,17 +72,23 @@ function countryToContinent(country){
 }
 
 /* ============ IMAGE HELPERS (permanent, legal) ============ */
-// Denna version testar Googles CDN-länkar och loggar resultatet i konsolen.
-// Om länken inte laddas korrekt faller den automatiskt tillbaka på API-länken med key.
+// Förbättrad version – känner av vilken typ av Google-referens som används.
+// Om CDN inte fungerar används automatiskt API-länken (med key).
 // CDN används för permanenta, nyckellösa bilder – API-länken är temporär men alltid fungerande.
 
 function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
   if (!ref) return null;
 
-  // 🧠 Om ref redan är en fullständig Google- eller CDN-länk
+  // 🧠 Om ref redan är en fullständig URL (http/https)
   if (ref.startsWith("http")) return ref;
 
-  // 🧹 Normalisera och rensa referensen
+  // 🚫 Om det är en "AWn..."-referens (Google PhotoService) → kräver API-länk
+  if (/^AWn/i.test(ref)) {
+    console.warn("⚠️ Using API photo URL for AWn-style reference:", ref);
+    return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${w}&photo_reference=${encodeURIComponent(ref)}&key=${GOOGLE_BROWSER_KEY}`;
+  }
+
+  // 🧹 Normalisera och rensa referensen (för CDN-kompatibla varianter)
   let clean = String(ref).trim();
   if (clean.includes("/photos/")) {
     const parts = clean.split("/");
@@ -91,7 +97,7 @@ function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
   if (clean.startsWith("p/")) clean = clean.slice(2);
   clean = clean.split("?")[0];
 
-  // 📐 Bygg CDN-URL med olika varianter (för olika regioner)
+  // 📐 Bygg CDN-URL med olika suffix (–k-no, –no etc.)
   const tails = [
     `=w${w}-h${h}`,
     `=w${w}-h${h}-k-no`,
@@ -100,26 +106,26 @@ function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
   const idx = Math.max(0, Math.min(variant, tails.length - 1));
   const cdnUrl = `https://lh3.googleusercontent.com/p/${encodeURIComponent(clean)}${tails[idx]}`;
 
-  // 🧩 Testa URL i bakgrunden (icke-blockerande)
+  // 🧩 Testa i bakgrunden (icke-blockerande logg)
   const img = new Image();
   img.onload = () => console.log(`✅ CDN works for ${ref}`);
-  img.onerror = () => console.warn(`⚠️ CDN failed, fallback will be used for ${ref}`);
+  img.onerror = () => console.warn(`⚠️ CDN failed, fallback may apply for ${ref}`);
   img.src = cdnUrl;
 
-  // 🪪 Returnera CDN-länk; om den misslyckas används fallback i <img onerror> direkt
-  // (Behåller snabbhet, låter browser hantera fallback utan att vänta)
   return cdnUrl;
 }
 
-/* GitHub fallback – används om Google-bilden inte laddas */
+/* GitHub fallback – används om Google-bilden inte laddas alls */
 function githubFallbackForTypes(typesOrType) {
   const arr = (Array.isArray(typesOrType) && typesOrType.length
     ? typesOrType
     : (typesOrType ? [typesOrType] : [])).map(x => String(x || "").toLowerCase());
+
   return arr.includes("lounge")
     ? GITHUB_LOUNGE_FALLBACK
     : GITHUB_STORE_FALLBACK;
 }
+
 
 /* Bestäm vilken bild-URL som ska användas för ett kort */
 function cardImageSrc(s) {
