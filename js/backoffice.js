@@ -106,14 +106,22 @@ function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
   const idx = Math.max(0, Math.min(variant, tails.length - 1));
   const cdnUrl = `https://lh3.googleusercontent.com/p/${encodeURIComponent(clean)}${tails[idx]}`;
 
-  // 🧩 Testa i bakgrunden, fallback till proxy om CDN felar
-  const img = new Image();
-  img.onload = () => console.log(`✅ CDN OK for ${ref}`);
-  img.onerror = () => console.warn(`⚠️ CDN failed for ${ref}`);
-  img.src = cdnUrl;
-
-  return cdnUrl;
+  // 🧩 Testa i bakgrunden – om CDN-försöket felar, använd proxy automatiskt
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      console.log(`✅ CDN OK for ${ref}`);
+      resolve(cdnUrl);
+    };
+    img.onerror = () => {
+      console.warn(`⚠️ CDN failed for ${ref}, using proxy fallback`);
+      const proxyUrl = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?ref=${encodeURIComponent(ref)}&w=${w}`;
+      resolve(proxyUrl);
+    };
+    img.src = cdnUrl;
+  });
 }
+
 
 /* GitHub fallback – används om Google-bilden inte laddas alls */
 function githubFallbackForTypes(typesOrType) {
