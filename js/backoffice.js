@@ -459,11 +459,11 @@ function renderEditFormHTML(s){
   `;
 }
 
-function renderCards(list){
+function renderCards(list) {
   const c = $("#cards");
-  c.innerHTML = list.map(s=>{
+  c.innerHTML = list.map(s => {
     const ratingStars = stars(s.rating);
-    const img = cardImageSrc(s);
+    const img = cardImageSrc(s); // försöker CDN eller API via vår helper
     const status = s.deleted ? "Deleted" : s.flagged ? "Flagged" : s.approved ? "Approved" : "Pending";
     const actions = cardActionsFor(s);
     const fb = githubFallbackForTypes(s.types?.length ? s.types : s.type);
@@ -472,32 +472,30 @@ function renderCards(list){
     <div class="card" data-id="${s.id}">
       <img class="card-img"
            src="${esc(img)}"
-           alt="${esc(s.name||'')}"
+           alt="${esc(s.name || '')}"
            data-fallback="${esc(fb)}"
-           onerror="this.onerror=null; this.src=this.dataset.fallback; console.warn('🟡 Fallback image used for', this.alt);" />
+           onerror="
+             console.warn('🟡 Fallback image used for', this.alt);
+             this.onerror=null;
+             if (!this.src.includes('maps.googleapis.com')) {
+               this.src='https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${s.photo_reference || ''}&key=${GOOGLE_BROWSER_KEY}';
+             } else {
+               this.src=this.dataset.fallback;
+             }
+           " />
+
       <div class="card-body">
-        <div class="title">${s.flagged ? '🚩 ' : ''}${esc(s.name||"–")}</div>
+        <div class="title">${s.flagged ? '🚩 ' : ''}${esc(s.name || '–')}</div>
         <div class="badges">${cardBadges(s)}</div>
         <div class="row rating" title="Rating">${ratingStars}</div>
-        <div class="row muted">📍 ${esc(s.city||"")}${s.city&&s.country?', ':''}${esc(s.country||"")}</div>
-        <div class="row muted">🏠 ${esc(s.address||"–")}</div>
-        ${s.phone?`<div class="row muted">📞 ${esc(s.phone)}</div>`:""}
-        ${s.website?`<div class="row"><a href="${esc(s.website)}" target="_blank" rel="noopener">🌐 ${esc(s.website)}</a></div>`:""}
-
-        ${( (currentTab==="pending" || currentTab==="flagged") && s.flag_reason ) ? (() => {
-          const reason = s.flag_reason || "No reason provided";
-          const parts = reason.split("|");
-          const category = (parts[0]||"").trim();
-          const detail = (parts.slice(1).join("|")||"").trim();
-          return `<div class="flag-reason">
-                    🚩 <strong>${esc(category.charAt(0).toUpperCase() + category.slice(1))}</strong>
-                    ${detail ? `<div class="muted detail">${esc(detail)}</div>` : ""}
-                  </div>`;
-        })() : ""}
+        <div class="row muted">📍 ${esc(s.city || '')}${s.city && s.country ? ', ' : ''}${esc(s.country || '')}</div>
+        <div class="row muted">🏠 ${esc(s.address || '–')}</div>
+        ${s.phone ? `<div class="row muted">📞 ${esc(s.phone)}</div>` : ""}
+        ${s.website ? `<div class="row"><a href="${esc(s.website)}" target="_blank" rel="noopener">🌐 ${esc(s.website)}</a></div>` : ""}
 
         <div class="meta">
           <div>🕓 ${fmtDate(s.created_at)}</div>
-          <div>${s.added_by?`👤 ${esc(s.added_by)}`:""}</div>
+          <div>${s.added_by ? `👤 ${esc(s.added_by)}` : ""}</div>
         </div>
 
         <div class="edit-zone" style="display:none">
@@ -511,8 +509,9 @@ function renderCards(list){
   }).join("");
 
   // bind actions
-  $$("#cards [data-act]").forEach(b=>b.addEventListener("click", onCardAction));
+  $$("#cards [data-act]").forEach(b => b.addEventListener("click", onCardAction));
 }
+
 
 function renderTable(list){
   const tb = $("#tbody");
