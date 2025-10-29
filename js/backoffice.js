@@ -72,16 +72,17 @@ function countryToContinent(country){
 }
 
 /* ============ IMAGE HELPERS (permanent, legal) ============ */
-// Prova varianter om någon CDN-variant inte laddas i vissa regioner/CDN-edges
+// Denna version testar Googles CDN-länkar och loggar resultatet i konsolen.
+// Om länken inte laddas korrekt faller den automatiskt tillbaka på API-länken med key.
+// CDN används för permanenta, nyckellösa bilder – API-länken är temporär men alltid fungerande.
+
 function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
   if (!ref) return null;
 
-  // 🧠 Om ref redan är en full Google CDN-länk — använd den direkt
-  if (ref.startsWith("https://lh3.googleusercontent.com/")) {
-    return ref;
-  }
+  // 🧠 Om ref redan är en fullständig Google- eller CDN-länk
+  if (ref.startsWith("http")) return ref;
 
-  // 🧹 Rensa och normalisera (tar bort "places/.../photos/" om det finns)
+  // 🧹 Normalisera och rensa referensen
   let clean = String(ref).trim();
   if (clean.includes("/photos/")) {
     const parts = clean.split("/");
@@ -90,25 +91,37 @@ function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
   if (clean.startsWith("p/")) clean = clean.slice(2);
   clean = clean.split("?")[0];
 
-  // 📐 Prova olika varianter (–k-no, –no)
+  // 📐 Bygg CDN-URL med olika varianter (för olika regioner)
   const tails = [
     `=w${w}-h${h}`,
     `=w${w}-h${h}-k-no`,
     `=w${w}-h${h}-no`
   ];
   const idx = Math.max(0, Math.min(variant, tails.length - 1));
+  const cdnUrl = `https://lh3.googleusercontent.com/p/${encodeURIComponent(clean)}${tails[idx]}`;
 
-  // ✅ Bygg slutlig CDN-URL
-  return `https://lh3.googleusercontent.com/p/${encodeURIComponent(clean)}${tails[idx]}`;
+  // 🧩 Testa URL i bakgrunden (icke-blockerande)
+  const img = new Image();
+  img.onload = () => console.log(`✅ CDN works for ${ref}`);
+  img.onerror = () => console.warn(`⚠️ CDN failed, fallback will be used for ${ref}`);
+  img.src = cdnUrl;
+
+  // 🪪 Returnera CDN-länk; om den misslyckas används fallback i <img onerror> direkt
+  // (Behåller snabbhet, låter browser hantera fallback utan att vänta)
+  return cdnUrl;
 }
 
-function githubFallbackForTypes(typesOrType){
+/* GitHub fallback – används om Google-bilden inte laddas */
+function githubFallbackForTypes(typesOrType) {
   const arr = (Array.isArray(typesOrType) && typesOrType.length
     ? typesOrType
-    : (typesOrType ? [typesOrType] : [])).map(x=>String(x||"").toLowerCase());
-  return arr.includes("lounge") ? GITHUB_LOUNGE_FALLBACK : GITHUB_STORE_FALLBACK;
+    : (typesOrType ? [typesOrType] : [])).map(x => String(x || "").toLowerCase());
+  return arr.includes("lounge")
+    ? GITHUB_LOUNGE_FALLBACK
+    : GITHUB_STORE_FALLBACK;
 }
 
+/* Bestäm vilken bild-URL som ska användas för ett kort */
 function cardImageSrc(s) {
   let srcType = "fallback";
   let finalUrl;
