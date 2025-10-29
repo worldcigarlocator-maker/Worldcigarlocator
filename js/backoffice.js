@@ -72,24 +72,23 @@ function countryToContinent(country){
 }
 
 /* ============ IMAGE HELPERS (permanent, legal) ============ */
-// Förbättrad version – känner av vilken typ av Google-referens som används.
-// Om CDN inte fungerar används automatiskt API-länken (med key).
-// CDN används för permanenta, nyckellösa bilder – API-länken är temporär men alltid fungerande.
+// Förbättrad version – använder Supabase-proxy för AWn-referenser (nivå 3-lösning).
+// Om CDN inte fungerar används fallback till proxy eller GitHub.
 
 function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
   if (!ref) return null;
 
-  // Direktlänk? returnera som den är
+  // 🌐 Om ref redan är en fullständig URL (http/https)
   if (ref.startsWith("http")) return ref;
 
-  // 💡 AWn... = PhotoService → måste köras via API
+  // 💡 AWn... = Google PhotoService → måste gå via Supabase-proxy
   if (/^AWn/i.test(ref)) {
-    const apiUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${w}&photo_reference=${encodeURIComponent(ref)}&key=${GOOGLE_BROWSER_KEY}`;
-    console.log("📸 Using Google Photo API for", ref);
-    return apiUrl;
+    const proxyUrl = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?ref=${encodeURIComponent(ref)}&w=${w}`;
+    console.log("🪄 Using Supabase photo-proxy for", ref);
+    return proxyUrl;
   }
 
-  // Rensa för CDN
+  // 🧹 Normalisera referensen för Google CDN
   let clean = String(ref).trim();
   if (clean.includes("/photos/")) {
     const parts = clean.split("/");
@@ -98,7 +97,7 @@ function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
   if (clean.startsWith("p/")) clean = clean.slice(2);
   clean = clean.split("?")[0];
 
-  // Bygg CDN URL
+  // 📐 Bygg CDN-URL (testar olika varianter)
   const tails = [
     `=w${w}-h${h}`,
     `=w${w}-h${h}-k-no`,
@@ -107,22 +106,20 @@ function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
   const idx = Math.max(0, Math.min(variant, tails.length - 1));
   const cdnUrl = `https://lh3.googleusercontent.com/p/${encodeURIComponent(clean)}${tails[idx]}`;
 
-  // Testa i bakgrunden
+  // 🧩 Testa i bakgrunden, fallback till proxy om CDN felar
   const img = new Image();
-  img.onload = () => console.log(`✅ CDN OK: ${ref}`);
-  img.onerror = () => console.warn(`⚠️ CDN FAIL: ${ref}`);
+  img.onload = () => console.log(`✅ CDN OK for ${ref}`);
+  img.onerror = () => console.warn(`⚠️ CDN failed for ${ref}`);
   img.src = cdnUrl;
 
   return cdnUrl;
 }
-
 
 /* GitHub fallback – används om Google-bilden inte laddas alls */
 function githubFallbackForTypes(typesOrType) {
   const arr = (Array.isArray(typesOrType) && typesOrType.length
     ? typesOrType
     : (typesOrType ? [typesOrType] : [])).map(x => String(x || "").toLowerCase());
-
   return arr.includes("lounge")
     ? GITHUB_LOUNGE_FALLBACK
     : GITHUB_STORE_FALLBACK;
