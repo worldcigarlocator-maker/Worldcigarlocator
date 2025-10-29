@@ -79,16 +79,17 @@ function countryToContinent(country){
 function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
   if (!ref) return null;
 
-  // 🧠 Om ref redan är en fullständig URL (http/https)
+  // Direktlänk? returnera som den är
   if (ref.startsWith("http")) return ref;
 
-  // 🚫 Om det är en "AWn..."-referens (Google PhotoService) → kräver API-länk
+  // 💡 AWn... = PhotoService → måste köras via API
   if (/^AWn/i.test(ref)) {
-    console.warn("⚠️ Using API photo URL for AWn-style reference:", ref);
-    return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${w}&photo_reference=${encodeURIComponent(ref)}&key=${GOOGLE_BROWSER_KEY}`;
+    const apiUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${w}&photo_reference=${encodeURIComponent(ref)}&key=${GOOGLE_BROWSER_KEY}`;
+    console.log("📸 Using Google Photo API for", ref);
+    return apiUrl;
   }
 
-  // 🧹 Normalisera och rensa referensen (för CDN-kompatibla varianter)
+  // Rensa för CDN
   let clean = String(ref).trim();
   if (clean.includes("/photos/")) {
     const parts = clean.split("/");
@@ -97,7 +98,7 @@ function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
   if (clean.startsWith("p/")) clean = clean.slice(2);
   clean = clean.split("?")[0];
 
-  // 📐 Bygg CDN-URL med olika suffix (–k-no, –no etc.)
+  // Bygg CDN URL
   const tails = [
     `=w${w}-h${h}`,
     `=w${w}-h${h}-k-no`,
@@ -106,14 +107,15 @@ function googleCdnFromPhotoRef(ref, w = 800, h = 600, variant = 0) {
   const idx = Math.max(0, Math.min(variant, tails.length - 1));
   const cdnUrl = `https://lh3.googleusercontent.com/p/${encodeURIComponent(clean)}${tails[idx]}`;
 
-  // 🧩 Testa i bakgrunden (icke-blockerande logg)
+  // Testa i bakgrunden
   const img = new Image();
-  img.onload = () => console.log(`✅ CDN works for ${ref}`);
-  img.onerror = () => console.warn(`⚠️ CDN failed, fallback may apply for ${ref}`);
+  img.onload = () => console.log(`✅ CDN OK: ${ref}`);
+  img.onerror = () => console.warn(`⚠️ CDN FAIL: ${ref}`);
   img.src = cdnUrl;
 
   return cdnUrl;
 }
+
 
 /* GitHub fallback – används om Google-bilden inte laddas alls */
 function githubFallbackForTypes(typesOrType) {
