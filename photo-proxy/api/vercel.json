@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/photo-proxy.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/photo-proxy", "dest": "/api/photo-proxy.js" }
+  ]
+}
