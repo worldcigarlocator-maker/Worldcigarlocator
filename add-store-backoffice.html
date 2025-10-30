@@ -3,241 +3,352 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Add Store — Backoffice</title>
+  <title>Backoffice — Add Store</title>
+
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
       --gold: #b8860b;
-      --primary: var(--gold);
-      --bg: #fff;
-      --border: #e5e7eb;
-      --muted: #6b7280;
+      --bg: #f5f5f5;
+      --card-bg: #ffffff;
+      --border: #d1d5db;
       --text: #1f2937;
+      --muted: #6b7280;
+      --hover: #fff8e1;
     }
+
     * { box-sizing: border-box; }
+
     body {
-      font-family: 'Inter', Arial, sans-serif;
+      font-family: 'Inter', sans-serif;
       background: var(--bg);
       color: var(--text);
       margin: 0;
-      padding: 1.2rem;
+      padding: 1rem 1.5rem;
     }
-    .wrap { max-width: 900px; margin: 0 auto; }
-    h1 { text-align: center; color: var(--primary); }
-    .btn {
-      background: var(--primary);
-      color: #fff;
-      border: none;
+
+    h1 {
+      text-align: center;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+
+    .admin-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 0.5rem 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      align-items: center;
+      gap: 0.4rem 1rem;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    .muted { color: var(--muted); font-size: 0.85rem; }
+
+    .photo-section {
+      display: flex;
+      align-items: center;
+      justify-content: start;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .photo-preview {
+      width: 220px;
+      height: 140px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+
+    .photo-nav {
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      background: white;
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
       cursor: pointer;
       font-weight: 600;
     }
-    .btn:hover { filter: brightness(1.1); }
-    input, select {
-      width: 100%;
-      padding: .6rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 1rem;
+
+    .photo-nav:hover { background: var(--hover); }
+
+    .btn {
+      background: var(--gold);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1.2rem;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 1rem;
     }
-    label { font-weight: 600; }
-    .card { background: #f9fafb; border-radius: 12px; padding: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,.05); }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
-    .full { grid-column: 1 / -1; }
-    .stars { display: flex; gap: .3rem; font-size: 1.6rem; cursor: pointer; color: #ccc; }
-    .stars .sel { color: var(--gold); }
-    .muted { color: var(--muted); font-size: .9rem; }
-    .photo-picker { display: flex; align-items: center; justify-content: center; gap: .4rem; margin-top: .5rem; }
-    .photo-nav { border: 1px solid var(--gold); color: var(--gold); background: white; border-radius: 6px; padding: .3rem .6rem; cursor: pointer; }
-    .photo-nav:hover { background: #fff8e1; }
-    .preview-photo { width: 220px; height: 140px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
-    #toast-container { position: fixed; bottom: 1rem; right: 1rem; display: flex; flex-direction: column; gap: .4rem; z-index: 9999; }
-    .toast { background: #333; color: #fff; padding: .6rem 1rem; border-radius: 6px; }
+
+    .btn:hover { filter: brightness(1.1); }
+
+    #toast-container {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+      z-index: 9999;
+    }
+    .toast {
+      background: #333;
+      color: #fff;
+      padding: .6rem 1rem;
+      border-radius: 6px;
+    }
     .toast.success { background: #28a745; }
     .toast.error { background: #dc3545; }
+
+    .stars {
+      display: flex;
+      gap: 0.25rem;
+      font-size: 1.4rem;
+      color: #ccc;
+      cursor: pointer;
+    }
+    .stars .sel { color: var(--gold); }
+
+    .checkbox-group, .radio-group {
+      display: flex;
+      gap: 1.2rem;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <h1>Add Store (Backoffice)</h1>
+  <h1>🗂️ Add Store (Backoffice)</h1>
 
-    <div class="card">
-      <div class="grid">
-        <div class="full">
-          <label>Search with Google</label>
-          <input id="gAddress" type="text" placeholder="Start typing a place..." />
-          <div class="muted">Select from the list to auto-fill details.</div>
+  <div class="admin-card">
+    <div class="grid">
+      <label>Google Search</label>
+      <div>
+        <input id="gAddress" type="text" placeholder="Search Google Places..." />
+        <div class="muted">Select a place to auto-fill details</div>
+      </div>
+
+      <label>Name</label><input id="name" type="text" />
+
+      <label>Phone</label><input id="phone" type="tel" />
+
+      <label>Address</label><input id="addr" type="text" />
+
+      <label>City</label><input id="city" type="text" />
+
+      <label>Country</label><input id="country" type="text" />
+
+      <label>Website</label><input id="website" type="url" placeholder="https://" />
+
+      <label>Type</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="type" value="store" /> Store</label>
+        <label><input type="checkbox" name="type" value="lounge" /> Lounge</label>
+      </div>
+
+      <label>Access</label>
+      <div class="radio-group">
+        <label><input type="radio" name="access" value="public" /> Public</label>
+        <label><input type="radio" name="access" value="members" /> Members Only</label>
+      </div>
+
+      <label>Rating</label>
+      <div id="stars" class="stars">
+        <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+      </div>
+
+      <label>Photo</label>
+      <div>
+        <div class="photo-section">
+          <button id="prev-photo" class="photo-nav">◀</button>
+          <img id="preview-photo" class="photo-preview" src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg" alt="Preview" />
+          <button id="next-photo" class="photo-nav">▶</button>
         </div>
-
-        <div><label>Name</label><input id="name" type="text"></div>
-        <div><label>Phone</label><input id="phone" type="tel"></div>
-        <div class="full"><label>Address</label><input id="addr" type="text"></div>
-        <div><label>City</label><input id="city" type="text"></div>
-        <div><label>Country</label><input id="country" type="text"></div>
-        <div><label>Website</label><input id="website" type="url" placeholder="https://"></div>
-
-        <div class="full">
-          <label>Type</label>
-          <div>
-            <label><input type="checkbox" name="type" value="store"> Store</label>
-            <label><input type="checkbox" name="type" value="lounge"> Lounge</label>
-          </div>
-        </div>
-
-        <div class="full">
-          <label>Access</label>
-          <div>
-            <label><input type="radio" name="access" value="public"> Public</label>
-            <label><input type="radio" name="access" value="members"> Members Only</label>
-          </div>
-        </div>
-
-        <div class="full">
-          <label>Rating</label>
-          <div id="stars" class="stars">
-            <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
-          </div>
-        </div>
-
-        <div class="full">
-          <label>Photo Preview</label>
-          <div class="photo-picker">
-            <button id="prev-photo" class="photo-nav">◀</button>
-            <img id="preview-photo" class="preview-photo" src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg" alt="Preview" />
-            <button id="next-photo" class="photo-nav">▶</button>
-          </div>
-          <div id="photo-meta" class="muted" style="text-align:center;">No photo loaded</div>
-          <div style="margin-top:.3rem;">
-            <label><input type="checkbox" id="forceDefault"> Use default image</label>
-          </div>
-        </div>
-
-        <div class="full" style="display:flex;justify-content:flex-end;gap:.6rem;">
-          <button class="btn" onclick="resetForm()">Clear</button>
-          <button class="btn" onclick="saveStore()">Save</button>
+        <div id="photo-meta" class="muted">No photo loaded</div>
+        <div style="margin-top:0.3rem;">
+          <label><input type="checkbox" id="forceDefault" /> Use default image</label>
         </div>
       </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" onclick="resetForm()">Clear</button>
+      <button class="btn" onclick="saveStore()">Save</button>
     </div>
   </div>
 
   <div id="toast-container"></div>
 
+  <!-- Shared logic -->
+  <script src="js/add-shared.js"></script>
+
+  <!-- Page logic -->
   <script>
-    const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = window.supabase.createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
 
-    const GOOGLE_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
-    const GITHUB_STORE_FALLBACK = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-    const GITHUB_LOUNGE_FALLBACK = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
+    const sel = { types: [], access: null, rating: null, place_id: null, _photo_refs: [], photo_index: 0, photo_reference: null };
 
-    const sel = { types: [], access:null, rating:null, place_id:null, _photo_refs:[], photo_index:0, photo_reference:null };
-
-    function toast(msg,type="info"){
+    function toast(msg, type="info"){
       const c=document.getElementById("toast-container");
       const t=document.createElement("div");
-      t.className=`toast ${type}`; t.textContent=msg;
+      t.className=`toast ${type}`;
+      t.textContent=msg;
       c.appendChild(t);
       setTimeout(()=>t.remove(),3000);
     }
 
-    const stars=document.getElementById("stars");
-    stars.addEventListener("click",e=>{
-      const v=+e.target.dataset.v; if(!v)return;
-      sel.rating=v; [...stars.children].forEach((el,i)=>el.classList.toggle("sel",i<v));
+    const stars = document.getElementById("stars");
+    stars.addEventListener("click", e => {
+      const v = +e.target.dataset.v;
+      if (!v) return;
+      sel.rating = v;
+      [...stars.children].forEach((el, i) => el.classList.toggle("sel", i < v));
     });
 
-    function resetForm(){
-      document.querySelectorAll("input").forEach(i=>{if(i.type!=="radio"&&i.type!=="checkbox")i.value="";});
-      document.querySelectorAll("input[type=checkbox],input[type=radio]").forEach(i=>i.checked=false);
-      sel.types=[]; sel.access=null; sel.rating=null; sel.place_id=null; sel._photo_refs=[]; sel.photo_reference=null;
-      document.getElementById("preview-photo").src=GITHUB_STORE_FALLBACK;
-      document.getElementById("photo-meta").textContent="No photo loaded";
-      toast("Cleared","success");
+    function resetForm() {
+      document.querySelectorAll("input").forEach(i => {
+        if (i.type !== "radio" && i.type !== "checkbox") i.value = "";
+      });
+      document.querySelectorAll("input[type=checkbox],input[type=radio]").forEach(i => i.checked = false);
+      sel.types = []; sel.access = null; sel.rating = null; sel.place_id = null; sel._photo_refs = []; sel.photo_reference = null;
+      document.getElementById("preview-photo").src = GITHUB_STORE_FALLBACK;
+      document.getElementById("photo-meta").textContent = "No photo loaded";
+      toast("Cleared", "success");
     }
 
-    async function fetchPhotoRefs(placeId){
-      try {
-        const v1=`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}?fields=photos&key=${GOOGLE_KEY}`;
-        let r=await fetch(v1);
-        if(r.ok){const j=await r.json();const refs=(j.photos||[]).map(p=>p.name.split('/').pop()).filter(Boolean);if(refs.length)return refs;}
-        const legacy=`https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=photos&key=${GOOGLE_KEY}`;
-        r=await fetch(legacy);
-        if(r.ok){const j=await r.json();const refs=(j.result?.photos||[]).map(p=>p.photo_reference).filter(Boolean);return refs;}
-      }catch(e){console.warn("fetchPhotoRefs",e);}
-      return [];
+    function getTypes() {
+      return Array.from(document.querySelectorAll("input[name='type']:checked")).map(i => i.value);
+    }
+    function getAccess() {
+      return document.querySelector("input[name='access']:checked")?.value || null;
     }
 
-    function googleCdnFromRef(ref){return `https://lh3.googleusercontent.com/p/${encodeURIComponent(ref)}=w800-h600-n-k-no`; }
-    function fallbackForTypes(types){return types.includes("lounge")?GITHUB_LOUNGE_FALLBACK:GITHUB_STORE_FALLBACK;}
+    async function saveStore() {
+      const name = document.getElementById("name").value.trim();
+      const address = document.getElementById("addr").value.trim();
+      const city = document.getElementById("city").value.trim();
+      const country = document.getElementById("country").value.trim();
 
-    function updatePhoto(){
-      const refs=sel._photo_refs; const img=document.getElementById("preview-photo");
-      const meta=document.getElementById("photo-meta");
-      if(refs.length){
-        const ref=refs[sel.photo_index];
-        sel.photo_reference=ref;
-        img.src=googleCdnFromRef(ref);
-        meta.textContent=`Photo ${sel.photo_index+1}/${refs.length}`;
-      } else {
-        img.src=fallbackForTypes(sel.types);
-        meta.textContent="No photo loaded";
+      if (!name || !address || !city || !country) {
+        toast("Please fill in required fields", "error");
+        return;
       }
-    }
 
-    document.getElementById("prev-photo").onclick=()=>{if(sel._photo_refs.length){sel.photo_index=(sel.photo_index-1+sel._photo_refs.length)%sel._photo_refs.length;updatePhoto();}};
-    document.getElementById("next-photo").onclick=()=>{if(sel._photo_refs.length){sel.photo_index=(sel.photo_index+1)%sel._photo_refs.length;updatePhoto();}};
+      const types = getTypes();
+      const access = getAccess();
+      const force = document.getElementById("forceDefault").checked;
+      const continent = countryToContinent(country);
 
-    function getTypes(){return Array.from(document.querySelectorAll("input[name='type']:checked")).map(i=>i.value);}
-    function getAccess(){return document.querySelector("input[name='access']:checked")?.value||null;}
-
-    async function saveStore(){
-      const name=document.getElementById("name").value.trim();
-      const address=document.getElementById("addr").value.trim();
-      const city=document.getElementById("city").value.trim();
-      const country=document.getElementById("country").value.trim();
-      if(!name||!address||!city||!country){toast("Please fill in required fields","error");return;}
-
-      const types=getTypes();
-      const access=getAccess();
-      const force=document.getElementById("forceDefault").checked;
-      const payload={
-        name,address,city,country,
-        type:types[0]||null,types,
-        access,rating:sel.rating??null,
-        place_id:sel.place_id,
-        photo_reference:force?null:(sel.photo_reference||null),
-        photo_url:null,
-        approved:false,flagged:false,deleted:false,status:"pending"
+      const payload = {
+        name, address, city, country, continent,
+        type: types[0] || null, types,
+        access, rating: sel.rating ?? null,
+        place_id: sel.place_id,
+        photo_reference: force ? null : (sel.photo_reference || null),
+        photo_url: null,
+        approved: false, flagged: false, deleted: false, status: "pending"
       };
 
       const { error } = await supabase.from("stores").insert([payload]);
-      if(error){console.error(error);toast("Error saving","error");return;}
-      toast("Saved successfully","success");
+      if (error) {
+        console.error(error);
+        toast("Error saving", "error");
+        return;
+      }
+
+      toast("Saved successfully", "success");
       resetForm();
     }
 
-    function initAutocomplete(){
-      const input=document.getElementById("gAddress");
-      const ac=new google.maps.places.Autocomplete(input,{fields:["place_id","address_components","geometry","name","formatted_address","international_phone_number","website"]});
-      ac.addListener("place_changed",async()=>{
-        const p=ac.getPlace();
-        if(!p)return;
-        document.getElementById("name").value=p.name||"";
-        document.getElementById("addr").value=p.formatted_address||"";
-        document.getElementById("phone").value=p.international_phone_number||"";
-        document.getElementById("website").value=p.website||"";
+    function updatePhoto() {
+      const refs = sel._photo_refs;
+      const img = document.getElementById("preview-photo");
+      const meta = document.getElementById("photo-meta");
 
-        const comps=p.address_components||[];
-        const city=comps.find(c=>c.types.includes("locality")||c.types.includes("postal_town"));
-        const country=comps.find(c=>c.types.includes("country"));
-        document.getElementById("city").value=city?.long_name||"";
-        document.getElementById("country").value=country?.long_name||"";
-        sel.place_id=p.place_id||null;
+      if (refs.length) {
+        const ref = refs[sel.photo_index];
+        sel.photo_reference = ref;
+        img.src = `https://lh3.googleusercontent.com/p/${encodeURIComponent(ref)}=w800-h600-n-k-no`;
+        meta.textContent = `Photo ${sel.photo_index + 1}/${refs.length}`;
+      } else {
+        const types = getTypes();
+        img.src = fallbackForType(types[0]);
+        meta.textContent = "No photo loaded";
+      }
+    }
 
-                if(sel.place_id){
+    document.getElementById("prev-photo").onclick = () => {
+      if (sel._photo_refs.length) {
+        sel.photo_index = (sel.photo_index - 1 + sel._photo_refs.length) % sel._photo_refs.length;
+        updatePhoto();
+      }
+    };
+    document.getElementById("next-photo").onclick = () => {
+      if (sel._photo_refs.length) {
+        sel.photo_index = (sel.photo_index + 1) % sel._photo_refs.length;
+        updatePhoto();
+      }
+    };
+
+    function initAutocomplete() {
+      const input = document.getElementById("gAddress");
+      const ac = new google.maps.places.Autocomplete(input, {
+        fields: ["place_id", "address_components", "geometry", "name", "formatted_address", "international_phone_number", "website"]
+      });
+
+      ac.addListener("place_changed", async () => {
+        const p = ac.getPlace();
+        if (!p) return;
+
+        document.getElementById("name").value = p.name || "";
+        document.getElementById("addr").value = p.formatted_address || "";
+        document.getElementById("phone").value = p.international_phone_number || "";
+        document.getElementById("website").value = p.website || "";
+
+        const comps = p.address_components || [];
+        const city = comps.find(c => c.types.includes("locality") || c.types.includes("postal_town"));
+        const country = comps.find(c => c.types.includes("country"));
+        document.getElementById("city").value = city?.long_name || "";
+        document.getElementById("country").value = country?.long_name || "";
+        sel.place_id = p.place_id || null;
+
+        if (sel.place_id) {
           document.getElementById("photo-meta").textContent = "Loading photos…";
           const refs = await fetchPhotoRefs(sel.place_id);
           sel._photo_refs = refs;
@@ -252,16 +363,8 @@
     window.initAutocomplete = initAutocomplete;
   </script>
 
-  <!-- 🧩 Supabase + gemensam logik -->
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
-  <script src="js/add-shared.js"></script>
-
-  <!-- 🧾 Sidans egen logik -->
-  <script src="js/add-store.js"></script>
-  <!-- eller: <script src="js/add-store-backoffice.js"></script> -->
-
-  <!-- 🗺️ Google Maps SDK (måste vara sist) -->
-  <script async defer 
+  <!-- Google Maps SDK -->
+  <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete">
   </script>
 </body>
