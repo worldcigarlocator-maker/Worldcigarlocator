@@ -237,19 +237,32 @@
         document.getElementById("country").value=country?.long_name||"";
         sel.place_id=p.place_id||null;
 
-        if(sel.place_id){
-          document.getElementById("photo-meta").textContent="Loading photos…";
-          const refs=await fetchPhotoRefs(sel.place_id);
-          sel._photo_refs=refs; sel.photo_index=0;
+                if(sel.place_id){
+          document.getElementById("photo-meta").textContent = "Loading photos…";
+          const refs = await fetchPhotoRefs(sel.place_id);
+          sel._photo_refs = refs;
+          sel.photo_index = 0;
           updatePhoto();
         } else {
-          document.getElementById("photo-meta").textContent="No photo loaded";
+          document.getElementById("photo-meta").textContent = "No photo loaded";
         }
       });
     }
-    window.initAutocomplete=initAutocomplete;
+
+    window.initAutocomplete = initAutocomplete;
   </script>
 
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete"></script>
+  <!-- 🧩 Supabase + gemensam logik -->
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script src="js/add-shared.js"></script>
+
+  <!-- 🧾 Sidans egen logik -->
+  <script src="js/add-store.js"></script>
+  <!-- eller: <script src="js/add-store-backoffice.js"></script> -->
+
+  <!-- 🗺️ Google Maps SDK (måste vara sist) -->
+  <script async defer 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete">
+  </script>
 </body>
 </html>
