@@ -1,141 +1,94 @@
+/* ================================
+   js/add-store.js
+   Frontend Add Store form
+   Shared logic via add-shared.js
+   ================================ */
 
-  // Init Supabase
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("addStoreForm");
+  const submitBtn = document.getElementById("saveBtn");
+  const preview = document.getElementById("preview");
 
-const supabaseUrl = "https://https://gbxxoeplkzbhsvagnfsr.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4Y";
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+  // 🔹 Google Place-data som fylls automatiskt
+  let selectedPlace = {};
 
-
-// ---- Star rating ----
-let selectedRating = 0;
-const ratingContainer = document.getElementById("rating");
-if (ratingContainer) {
-  ratingContainer.innerHTML = "";
-  for (let i = 1; i <= 5; i++) {
-    const star = document.createElement("span");
-    star.classList.add("star");
-    star.textContent = "★";
-    star.dataset.value = i;
-    star.addEventListener("click", () => {
-      selectedRating = i;
-      document.querySelectorAll(".star").forEach((s, idx) => {
-        s.classList.toggle("selected", idx < i);
-      });
+  // 🗺️ Initieras av Google Maps callback (från add-shared.js)
+  window.initAutocomplete = async function initAutocomplete() {
+    const input = document.getElementById("placeInput");
+    const autocomplete = new google.maps.places.Autocomplete(input, {
+      fields: ["place_id", "geometry", "formatted_address", "name", "photos", "address_components"],
+      types: ["establishment"],
     });
-    ratingContainer.appendChild(star);
-  }
-}
 
-// ---- Google Autocomplete ----
-let selectedLat = null;
-let selectedLng = null;
-let selectedPlaceId = null;
-let selectedPhotoRef = null;
+    autocomplete.addListener("place_changed", async () => {
+      const place = autocomplete.getPlace();
+      if (!place.place_id) return;
 
-const autocompleteEl = document.getElementById("address");
+      // 🔸 Grunddata
+      selectedPlace = {
+        name: place.name || "",
+        address: place.formatted_address || "",
+        place_id: place.place_id,
+        lat: place.geometry?.location?.lat() || null,
+        lng: place.geometry?.location?.lng() || null,
+      };
 
-if (autocompleteEl) {
-  autocompleteEl.addEventListener("gmpx-placechange", () => {
-    const place = autocompleteEl.getPlace();
-    if (!place) return;
+      // 🔹 Hämta land & stad
+      const comp = place.address_components || [];
+      const cityObj = comp.find(c => c.types.includes("locality")) ||
+                      comp.find(c => c.types.includes("postal_town"));
+      const countryObj = comp.find(c => c.types.includes("country"));
+      selectedPlace.city = cityObj?.long_name || "";
+      selectedPlace.country = countryObj?.long_name || "";
+      selectedPlace.continent = countryToContinent(selectedPlace.country);
 
-    // Plocka fält
-    document.getElementById("name").value = place.displayName || "";
-    document.getElementById("phone").value = place.formattedPhoneNumber || "";
-    document.getElementById("website").value = place.websiteUri || "";
-
-    // Addresskomponenter
-    let city = "";
-    let country = "";
-    if (place.addressComponents) {
-      for (const comp of place.addressComponents) {
-        if (comp.types.includes("locality")) city = comp.longText;
-        if (comp.types.includes("country")) country = comp.longText;
+      // 🔹 Hämta fotoreferenser via REST → photo-proxy
+      const refs = await fetchPhotoRefs(place.place_id);
+      if (refs.length) {
+        selectedPlace.photo_reference = refs[0];
+        const url = await resolveGooglePhotoUrl(refs[0]);
+        preview.innerHTML = `<img src="${url}" alt="Preview">`;
+      } else {
+        const fallback = githubFallbackForTypes("store");
+        preview.innerHTML = `<img src="${fallback}" alt="Preview">`;
       }
-    }
-    document.getElementById("city").value = city;
-    document.getElementById("country").value = country;
+    });
+  };
 
-    // Lat/Lng
-    if (place.location) {
-      selectedLat = place.location.lat();
-      selectedLng = place.location.lng();
-    }
-
-    selectedPlaceId = place.id || null;
-
-    // Preview-bild
-    const preview = document.getElementById("preview");
-    if (place.photos && place.photos.length > 0) {
-      const url = place.photos[0].getURI({ maxHeight: 200 });
-      preview.innerHTML = `<img src="${url}" alt="Preview">`;
-      selectedPhotoRef = place.photos[0].name || null;
-    } else {
-      preview.innerHTML = "";
-      selectedPhotoRef = null;
-    }
-  });
-}
-
-// ---- Toast helper ----
-function showToast(msg, type = "success") {
-  const container = document.getElementById("toast-container");
-  if (!container) return;
-  const toast = document.createElement("div");
-  toast.className = `toast ${type}`;
-  toast.textContent = msg;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 4000);
-}
-
-// ---- Submit ----
-const form = document.getElementById("store-form");
-if (form) {
+  // 💾 Spara till Supabase
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    submitBtn.disabled = true;
 
-    const name = document.getElementById("name").value.trim();
-    const address = document.getElementById("address").value.trim();
-    const city = document.getElementById("city").value.trim();
-    const country = document.getElementById("country").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const website = document.getElementById("website").value.trim();
-    const type = form.querySelector("input[name='store-type']:checked")?.value;
+    try {
+      const type = document.querySelector("input[name='type']:checked")?.value || "store";
+      const rating = Number(document.querySelector("input[name='rating']")?.value || 0);
+      const added_by = document.querySelector("#added_by")?.value || "anonymous";
 
-    if (!name || !address || !city || !country || !type || !selectedRating) {
-      showToast("Please fill in all required fields.", "error");
-      return;
-    }
-
-    const { error } = await supabase.from("stores").insert([
-      {
-        name,
-        address,
-        city,
-        country,
+      const payload = {
+        ...selectedPlace,
         type,
-        rating: selectedRating,
-        phone,
-        website,
-        latitude: selectedLat,
-        longitude: selectedLng,
-        place_id: selectedPlaceId,
-        photo_reference: selectedPhotoRef,
+        types: [type],
+        rating,
+        added_by,
         approved: false,
-        flagged: false
-      }
-    ]);
+        flagged: false,
+        deleted: false,
+      };
 
-    if (error) {
-      console.error(error);
-      showToast("Error saving store.", "error");
-    } else {
-      showToast("Store added successfully!", "success");
+      // 🧩 Spara till Supabase
+      const { data, error } = await supabase.from("stores").insert([payload]);
+
+      if (error) throw error;
+      toast("✅ Store added successfully!", "success");
       form.reset();
-      document.getElementById("preview").innerHTML = "";
-      selectedRating = 0;
-      document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
+      preview.innerHTML = "";
+      selectedPlace = {};
+    } catch (err) {
+      console.error(err);
+      toast("❌ Error saving store", "error");
+    } finally {
+      submitBtn.disabled = false;
     }
   });
-}
+});
