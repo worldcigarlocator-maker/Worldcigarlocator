@@ -75,19 +75,20 @@ function countryToContinent(country){
 /* ============ IMAGE HELPERS — Level 3 (Proxy-first for AWn refs) ============ */
 
 /** Bygg proxylänk (server-key skyddad i Edge Function) */
-function buildProxyUrl(ref, w=800){
-  return `${PHOTO_PROXY_URL}?ref=${encodeURIComponent(ref)}&w=${encodeURIComponent(String(w))}`;
+function buildProxyUrl(ref, w = 800) {
+  // 🟢 Viktigt: rätt endpoint (.functions.supabase.co) och rätt parameter-namn
+  return `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?photo_reference=${encodeURIComponent(ref)}&maxwidth=${encodeURIComponent(String(w))}`;
 }
 
 /** Best effort: försök CDN för “p/..”-liknande refs, annars proxy. */
-async function resolveGooglePhotoUrl(ref, w=800, h=600, variant=0){
-  if(!ref) return null;
+async function resolveGooglePhotoUrl(ref, w = 800, h = 600, variant = 0) {
+  if (!ref) return null;
 
   // Redan URL? använd direkt
-  if(/^https?:\/\//i.test(ref)) return ref;
+  if (/^https?:\/\//i.test(ref)) return ref;
 
-  // AWn… → PhotoService token => MÅSTE via proxy
-  if(/^AWn/i.test(ref)) return buildProxyUrl(ref, w);
+  // AWn… → PhotoService token => MÅSTE via proxy (skyddad via server-key)
+  if (/^AWn/i.test(ref)) return buildProxyUrl(ref, w);
 
   // “p/..” eller raw id → prova CDN; fallback proxy vid fel
   let clean = String(ref).trim();
@@ -104,13 +105,14 @@ async function resolveGooglePhotoUrl(ref, w=800, h=600, variant=0){
   const cdnUrl = `https://lh3.googleusercontent.com/p/${encodeURIComponent(clean)}${tails[idx]}`;
 
   // Testa CDN (icke-blockerande för UI – vi bara väntar i denna funktion)
-  const ok = await new Promise(res=>{
+  const ok = await new Promise(res => {
     const img = new Image();
-    img.onload = ()=>res(true);
-    img.onerror = ()=>res(false);
+    img.onload = () => res(true);
+    img.onerror = () => res(false);
     img.src = cdnUrl;
   });
-  if(ok){
+
+  if (ok) {
     console.log("✅ CDN OK:", ref);
     return cdnUrl;
   } else {
