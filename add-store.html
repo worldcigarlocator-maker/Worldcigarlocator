@@ -312,23 +312,35 @@
           place_id: place.place_id || null
         };
 
-        // 🧠 Hämta permanenta photo_reference via REST
+               // 🧠 Hämta permanenta photo_reference via REST
         let refs = await fetchPhotoRefs(place.place_id);
         if (refs.length) {
           selectedPlace.photo_reference = refs[0];
-          const url = googleCdnFromRef(refs[0]);
+          const url = await resolveGooglePhotoUrl(refs[0]); // ✅ använder proxy/CDN från add-shared.js
           document.getElementById("preview").innerHTML = `<img src="${url}" alt="Preview" />`;
         } else {
           selectedPlace.photo_reference = null;
           const type = document.querySelector("input[name='type']:checked")?.value || "store";
-          document.getElementById("preview").innerHTML = `<img src="${fallbackForType(type)}" alt="Preview" />`;
+          const fallback = githubFallbackForTypes(type); // ✅ gemensam fallback-funktion
+          document.getElementById("preview").innerHTML = `<img src="${fallback}" alt="Preview" />`;
         }
       });
     }
+
     window.initAutocomplete = initAutocomplete;
   </script>
 
-  <!-- ✅ Google Maps API -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&language=en&callback=initAutocomplete"></script>
+  <!-- 🧩 Supabase + gemensam logik -->
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script src="js/add-shared.js"></script>
+
+  <!-- 🧾 Sidans egen logik -->
+  <script src="js/add-store.js"></script>
+  <!-- eller: <script src="js/add-store-backoffice.js"></script> -->
+
+  <!-- 🗺️ Google Maps API (laddas sist!) -->
+  <script async defer 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&language=en&callback=initAutocomplete">
+  </script>
 </body>
 </html>
