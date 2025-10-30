@@ -3,167 +3,133 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Backoffice | Add Store</title>
-  <link rel="icon" type="image/png" href="images/favicon.png" />
+  <title>Add Store — Backoffice</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
-      --primary: #1f2937;
       --accent: #007bff;
-      --bg: #f3f4f6;
-      --card-bg: #ffffff;
-      --border: #e5e7eb;
+      --bg: #f9fafb;
+      --text: #1f2937;
       --muted: #6b7280;
-      --text: #111827;
+      --border: #e5e7eb;
       --success: #28a745;
       --error: #dc3545;
     }
-
     * { box-sizing: border-box; }
-
     body {
       font-family: 'Inter', Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
       margin: 0;
+      padding: 1.5rem;
     }
-
-    /* Topbar */
     header {
-      background: var(--primary);
-      color: white;
+      background: white;
+      padding: 0.8rem 1.2rem;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.8rem 1.2rem;
+      margin-bottom: 1.5rem;
     }
-    header h1 {
-      font-size: 1.1rem;
-      margin: 0;
-      font-weight: 500;
-    }
+    header h1 { font-size: 1.3rem; margin: 0; }
     header a {
-      background: var(--accent);
-      color: white;
+      color: var(--accent);
       text-decoration: none;
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
-      font-weight: 500;
-    }
-    header a:hover { background: #0056cc; }
-
-    main {
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 1rem;
+      font-weight: 600;
     }
 
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.5rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
+    .wrap { max-width: 900px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .full { grid-column: 1 / -1; }
-
-    label { font-weight: 600; color: var(--text); }
+    label { font-weight: 600; display: block; margin-bottom: .3rem; }
 
     input, select {
       width: 100%;
       padding: .6rem;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 1rem;
-      background: white;
-    }
-
-    .stars {
-      display: flex;
-      gap: .3rem;
-      font-size: 1.4rem;
-      cursor: pointer;
-      color: #ccc;
-    }
-    .stars .sel { color: #ffb400; }
-
-    .photo-picker {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: .4rem;
-      margin-top: .5rem;
-    }
-    .photo-nav {
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      background: white;
-      border-radius: 6px;
-      padding: .3rem .6rem;
-      cursor: pointer;
-    }
-    .photo-nav:hover { background: #eef5ff; }
-    .preview-photo {
-      width: 220px;
-      height: 140px;
-      object-fit: cover;
       border-radius: 8px;
-      border: 1px solid var(--border);
+      font-size: 1rem;
     }
-    .muted { color: var(--muted); font-size: .9rem; }
 
     .btn {
       background: var(--accent);
-      color: white;
+      color: #fff;
       border: none;
-      border-radius: 6px;
-      padding: .6rem 1rem;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background .2s;
+    }
+    .btn:hover { background: #005ec4; }
+
+    /* --- TYPE BUTTONS --- */
+    .type-group { display: flex; gap: .6rem; margin-top: .4rem; }
+    .type-btn {
+      border: 1px solid var(--accent);
+      background: white;
+      color: var(--accent);
+      border-radius: 20px;
+      padding: .4rem 1rem;
       font-weight: 600;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
-    .btn:hover { background: #0056cc; }
+    .type-btn:hover { background: #eef5ff; }
+    .type-btn.active { background: var(--accent); color: white; }
 
-    #toast-container {
-      position: fixed;
-      bottom: 1rem;
-      right: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: .4rem;
-      z-index: 9999;
+    /* --- ACCESS PILLS --- */
+    .access-group { display: flex; gap: .6rem; margin-top: .4rem; }
+    .access-pill { position: relative; cursor: pointer; }
+    .access-pill input { position: absolute; opacity: 0; pointer-events: none; }
+    .access-pill span {
+      display: inline-block;
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      padding: .4rem 1rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: white;
+      transition: all 0.2s ease;
     }
-    .toast {
-      background: #333;
-      color: #fff;
-      padding: .6rem 1rem;
-      border-radius: 6px;
-    }
+    .access-pill input:checked + span { background: var(--accent); color: white; }
+    .access-pill span:hover { background: #eef5ff; }
+
+    /* --- STARS --- */
+    .stars { display: flex; gap: .3rem; font-size: 1.8rem; cursor: pointer; color: #ccc; }
+    .stars span { transition: color 0.2s ease; }
+    .stars span:hover, .stars span:hover ~ span { color: #ffda7a; }
+    .stars .sel { color: #ffb400; }
+
+    /* --- PHOTO --- */
+    .photo-picker { display: flex; align-items: center; justify-content: center; gap: .4rem; margin-top: .5rem; }
+    .photo-nav { border: 1px solid var(--accent); color: var(--accent); background: white; border-radius: 6px; padding: .3rem .6rem; cursor: pointer; }
+    .photo-nav:hover { background: #eef5ff; }
+    .preview-photo { width: 220px; height: 140px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+
+    #toast-container { position: fixed; bottom: 1rem; right: 1rem; display: flex; flex-direction: column; gap: .4rem; z-index: 9999; }
+    .toast { background: #333; color: #fff; padding: .6rem 1rem; border-radius: 6px; }
     .toast.success { background: var(--success); }
     .toast.error { background: var(--error); }
   </style>
 </head>
-
 <body>
   <header>
-    <h1>Backoffice | Add Store</h1>
-    <a href="backoffice.html">Home</a>
+    <h1>Backoffice — Add Store</h1>
+    <a href="backoffice.html">🏠 Home</a>
   </header>
 
-  <main>
+  <div class="wrap">
     <div class="card">
       <div class="grid">
         <div class="full">
           <label>Search with Google</label>
           <input id="gAddress" type="text" placeholder="Start typing a place..." />
-          <div class="muted">Select from the dropdown to autofill details.</div>
+          <div class="muted">Select from the list to auto-fill details.</div>
         </div>
 
         <div><label>Name</label><input id="name" type="text"></div>
@@ -173,29 +139,43 @@
         <div><label>Country</label><input id="country" type="text"></div>
         <div><label>Website</label><input id="website" type="url" placeholder="https://"></div>
 
+        <!-- TYPE -->
         <div class="full">
           <label>Type</label>
-          <div>
-            <label><input type="checkbox" name="type" value="store"> Store</label>
-            <label><input type="checkbox" name="type" value="lounge"> Lounge</label>
+          <div class="type-group">
+            <button type="button" class="type-btn" data-type="store">Store</button>
+            <button type="button" class="type-btn" data-type="lounge">Lounge</button>
           </div>
         </div>
 
+        <!-- ACCESS -->
         <div class="full">
           <label>Access</label>
-          <div>
-            <label><input type="radio" name="access" value="public"> Public</label>
-            <label><input type="radio" name="access" value="members"> Members Only</label>
+          <div class="access-group">
+            <label class="access-pill">
+              <input type="radio" name="access" value="public">
+              <span>Public</span>
+            </label>
+            <label class="access-pill">
+              <input type="radio" name="access" value="members">
+              <span>Members Only</span>
+            </label>
           </div>
         </div>
 
+        <!-- RATING -->
         <div class="full">
           <label>Rating</label>
           <div id="stars" class="stars">
-            <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+            <span data-v="1">★</span>
+            <span data-v="2">★</span>
+            <span data-v="3">★</span>
+            <span data-v="4">★</span>
+            <span data-v="5">★</span>
           </div>
         </div>
 
+        <!-- PHOTO -->
         <div class="full">
           <label>Photo Preview</label>
           <div class="photo-picker">
@@ -204,18 +184,19 @@
             <button id="next-photo" class="photo-nav">▶</button>
           </div>
           <div id="photo-meta" class="muted" style="text-align:center;">No photo loaded</div>
-          <div style="margin-top:.3rem;text-align:center;">
+          <div style="margin-top:.3rem;">
             <label><input type="checkbox" id="forceDefault"> Use default image</label>
           </div>
         </div>
 
+        <!-- ACTIONS -->
         <div class="full" style="display:flex;justify-content:flex-end;gap:.6rem;">
           <button class="btn" onclick="resetForm()">Clear</button>
           <button class="btn" onclick="saveStore()">Save</button>
         </div>
       </div>
     </div>
-  </main>
+  </div>
 
   <div id="toast-container"></div>
 
@@ -223,10 +204,7 @@
     const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     const GOOGLE_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
-    const GITHUB_STORE_FALLBACK = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-    const GITHUB_LOUNGE_FALLBACK = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
 
     const sel = { types: [], access:null, rating:null, place_id:null, _photo_refs:[], photo_index:0, photo_reference:null };
 
@@ -234,59 +212,43 @@
       const c=document.getElementById("toast-container");
       const t=document.createElement("div");
       t.className=`toast ${type}`; t.textContent=msg;
-      c.appendChild(t);
-      setTimeout(()=>t.remove(),3000);
+      c.appendChild(t); setTimeout(()=>t.remove(),3000);
     }
 
+    // --- Type buttons ---
+    document.querySelectorAll(".type-btn").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        btn.classList.toggle("active");
+        sel.types = Array.from(document.querySelectorAll(".type-btn.active")).map(b=>b.dataset.type);
+      });
+    });
+
+    // --- Stars ---
     const stars=document.getElementById("stars");
     stars.addEventListener("click",e=>{
       const v=+e.target.dataset.v; if(!v)return;
-      sel.rating=v; [...stars.children].forEach((el,i)=>el.classList.toggle("sel",i<v));
+      sel.rating=v;
+      [...stars.children].forEach((el,i)=>el.classList.toggle("sel",i<v));
+    });
+    stars.addEventListener("mouseover",e=>{
+      const v=+e.target.dataset.v;
+      if(!v)return;
+      [...stars.children].forEach((el,i)=>el.style.color=i<v?"#ffda7a":"#ccc");
+    });
+    stars.addEventListener("mouseout",()=>{
+      [...stars.children].forEach((el,i)=>el.style.color=i<(sel.rating??0)?"#ffb400":"#ccc");
     });
 
+    // --- Reset form ---
     function resetForm(){
       document.querySelectorAll("input").forEach(i=>{if(i.type!=="radio"&&i.type!=="checkbox")i.value="";});
+      document.querySelectorAll(".type-btn").forEach(b=>b.classList.remove("active"));
       document.querySelectorAll("input[type=checkbox],input[type=radio]").forEach(i=>i.checked=false);
       sel.types=[]; sel.access=null; sel.rating=null; sel.place_id=null; sel._photo_refs=[]; sel.photo_reference=null;
-      document.getElementById("preview-photo").src=GITHUB_STORE_FALLBACK;
+      document.getElementById("preview-photo").src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
       document.getElementById("photo-meta").textContent="No photo loaded";
       toast("Cleared","success");
     }
-
-    async function fetchPhotoRefs(placeId){
-      try {
-        const v1=`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}?fields=photos&key=${GOOGLE_KEY}`;
-        let r=await fetch(v1);
-        if(r.ok){const j=await r.json();const refs=(j.photos||[]).map(p=>p.name.split('/').pop()).filter(Boolean);if(refs.length)return refs;}
-        const legacy=`https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=photos&key=${GOOGLE_KEY}`;
-        r=await fetch(legacy);
-        if(r.ok){const j=await r.json();const refs=(j.result?.photos||[]).map(p=>p.photo_reference).filter(Boolean);return refs;}
-      }catch(e){console.warn("fetchPhotoRefs",e);}
-      return [];
-    }
-
-    function googleCdnFromRef(ref){return `https://lh3.googleusercontent.com/p/${encodeURIComponent(ref)}=w800-h600-n-k-no`; }
-    function fallbackForTypes(types){return types.includes("lounge")?GITHUB_LOUNGE_FALLBACK:GITHUB_STORE_FALLBACK;}
-
-    function updatePhoto(){
-      const refs=sel._photo_refs; const img=document.getElementById("preview-photo");
-      const meta=document.getElementById("photo-meta");
-      if(refs.length){
-        const ref=refs[sel.photo_index];
-        sel.photo_reference=ref;
-        img.src=googleCdnFromRef(ref);
-        meta.textContent=`Photo ${sel.photo_index+1}/${refs.length}`;
-      } else {
-        img.src=fallbackForTypes(sel.types);
-        meta.textContent="No photo loaded";
-      }
-    }
-
-    document.getElementById("prev-photo").onclick=()=>{if(sel._photo_refs.length){sel.photo_index=(sel.photo_index-1+sel._photo_refs.length)%sel._photo_refs.length;updatePhoto();}};
-    document.getElementById("next-photo").onclick=()=>{if(sel._photo_refs.length){sel.photo_index=(sel.photo_index+1)%sel._photo_refs.length;updatePhoto();}};
-
-    function getTypes(){return Array.from(document.querySelectorAll("input[name='type']:checked")).map(i=>i.value);}
-    function getAccess(){return document.querySelector("input[name='access']:checked")?.value||null;}
 
     async function saveStore(){
       const name=document.getElementById("name").value.trim();
@@ -295,12 +257,11 @@
       const country=document.getElementById("country").value.trim();
       if(!name||!address||!city||!country){toast("Please fill in required fields","error");return;}
 
-      const types=getTypes();
-      const access=getAccess();
+      const access=document.querySelector("input[name='access']:checked")?.value||null;
       const force=document.getElementById("forceDefault").checked;
       const payload={
         name,address,city,country,
-        type:types[0]||null,types,
+        type:sel.types[0]||null,types:sel.types,
         access,rating:sel.rating??null,
         place_id:sel.place_id,
         photo_reference:force?null:(sel.photo_reference||null),
@@ -318,8 +279,7 @@
       const input=document.getElementById("gAddress");
       const ac=new google.maps.places.Autocomplete(input,{fields:["place_id","address_components","geometry","name","formatted_address","international_phone_number","website"]});
       ac.addListener("place_changed",async()=>{
-        const p=ac.getPlace();
-        if(!p)return;
+        const p=ac.getPlace(); if(!p)return;
         document.getElementById("name").value=p.name||"";
         document.getElementById("addr").value=p.formatted_address||"";
         document.getElementById("phone").value=p.international_phone_number||"";
@@ -332,23 +292,15 @@
         document.getElementById("country").value=country?.long_name||"";
         sel.place_id=p.place_id||null;
 
-        if(sel.place_id){
-          document.getElementById("photo-meta").textContent="Loading photos…";
-          const refs=await fetchPhotoRefs(sel.place_id);
-          sel._photo_refs=refs; sel.photo_index=0;
-          updatePhoto();
-        } else {
-          document.getElementById("photo-meta").textContent="No photo loaded";
-        }
+        document.getElementById("photo-meta").textContent="Loading photos…";
+        sel._photo_refs=[]; sel.photo_index=0;
+        document.getElementById("photo-meta").textContent="No photo loaded";
       });
     }
-
-    window.initAutocomplete = initAutocomplete;
+    window.initAutocomplete=initAutocomplete;
   </script>
 
-  <!-- 🗺️ Google Maps SDK (måste vara sist) -->
-  <script async defer 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete">
-  </script>
+  <!-- 🗺️ Google Maps -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete"></script>
 </body>
 </html>
