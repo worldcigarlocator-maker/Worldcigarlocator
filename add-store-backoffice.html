@@ -343,7 +343,7 @@ function initAutocomplete() {
     }
   });
 
-  // 🖼️ Hjälpfunktion för att uppdatera visad bild
+ // 🖼️ Hjälpfunktion för att uppdatera visad bild
 async function updatePhoto() {
   const img = document.getElementById("preview-photo");
   const meta = document.getElementById("photo-meta");
@@ -359,7 +359,7 @@ async function updatePhoto() {
     try {
       const res = await fetch(proxyUrl, {
         headers: {
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`, // 👈 viktigt
         },
       });
 
@@ -386,7 +386,7 @@ async function updatePhoto() {
     meta.textContent = "No photo loaded";
   }
 }
-  
+
   // 🧭 Foto-navigering (nästa/föregående)
   document.getElementById("prev-photo").onclick = () => {
     if (sel._photo_refs.length > 0) {
