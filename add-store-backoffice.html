@@ -344,27 +344,49 @@ function initAutocomplete() {
   });
 
   // 🖼️ Hjälpfunktion för att uppdatera visad bild
-  function updatePhoto() {
-    const img = document.getElementById("preview-photo");
-    const meta = document.getElementById("photo-meta");
+async function updatePhoto() {
+  const img = document.getElementById("preview-photo");
+  const meta = document.getElementById("photo-meta");
 
-    if (sel._photo_refs.length > 0) {
-      const ref = sel._photo_refs[sel.photo_index];
-      sel.photo_reference = ref;
+  if (sel._photo_refs.length > 0) {
+    const ref = sel._photo_refs[sel.photo_index];
+    sel.photo_reference = ref;
 
-      const proxyUrl = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?photo_reference=${encodeURIComponent(
-        ref
-      )}&maxwidth=800`;
+    const proxyUrl = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?photo_reference=${encodeURIComponent(
+      ref
+    )}&maxwidth=800`;
 
-      img.src = proxyUrl;
-      meta.textContent = `Photo ${sel.photo_index + 1}/${sel._photo_refs.length}`;
-    } else {
+    try {
+      const res = await fetch(proxyUrl, {
+        headers: {
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      });
+
+      if (res.ok) {
+        const blob = await res.blob();
+        const imgUrl = URL.createObjectURL(blob);
+        img.src = imgUrl;
+        meta.textContent = `Photo ${sel.photo_index + 1}/${sel._photo_refs.length}`;
+      } else {
+        console.warn("❌ Proxy returned", res.status);
+        img.src =
+          "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
+        meta.textContent = "Proxy failed";
+      }
+    } catch (err) {
+      console.error("❌ Error fetching from proxy:", err);
       img.src =
         "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-      meta.textContent = "No photo loaded";
+      meta.textContent = "Error loading photo";
     }
+  } else {
+    img.src =
+      "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
+    meta.textContent = "No photo loaded";
   }
-
+}
+  
   // 🧭 Foto-navigering (nästa/föregående)
   document.getElementById("prev-photo").onclick = () => {
     if (sel._photo_refs.length > 0) {
