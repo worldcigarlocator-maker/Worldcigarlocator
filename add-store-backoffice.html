@@ -290,7 +290,7 @@
             const data = await res.json();
 
             if (data.photos && data.photos.length > 0) {
-              sel._photo_refs = data.photos.map(p => p.name.split("/").pop());
+             sel._photo_refs = data.photos.map(p => p.name);
               sel.photo_index = 0;
               sel.photo_reference = sel._photo_refs[0];
               await updatePhoto();
