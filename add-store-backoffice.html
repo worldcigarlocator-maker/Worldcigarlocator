@@ -292,9 +292,34 @@
         document.getElementById("country").value=country?.long_name||"";
         sel.place_id=p.place_id||null;
 
-        document.getElementById("photo-meta").textContent="Loading photos…";
-        sel._photo_refs=[]; sel.photo_index=0;
-        document.getElementById("photo-meta").textContent="No photo loaded";
+if (sel.place_id) {
+  document.getElementById("photo-meta").textContent = "Loading photos…";
+
+  try {
+    const v1 = `https://places.googleapis.com/v1/places/${encodeURIComponent(sel.place_id)}?fields=photos&key=${GOOGLE_KEY}`;
+    const res = await fetch(v1);
+    const data = await res.json();
+
+    if (data.photos && data.photos.length > 0) {
+      sel._photo_refs = data.photos.map(p => p.name.split("/").pop());
+      sel.photo_index = 0;
+      sel.photo_reference = sel._photo_refs[0];
+
+      // Bygg CDN-länk till första bilden
+      const firstUrl = `https://lh3.googleusercontent.com/p/${sel.photo_reference}=w800-h600-n-k-no`;
+      document.getElementById("preview-photo").src = firstUrl;
+      document.getElementById("photo-meta").textContent = `Loaded ${sel._photo_refs.length} photo(s)`;
+    } else {
+      document.getElementById("photo-meta").textContent = "No Google photos found";
+    }
+  } catch (err) {
+    console.error("❌ Photo fetch error:", err);
+    document.getElementById("photo-meta").textContent = "Failed to load photos";
+  }
+} else {
+  document.getElementById("photo-meta").textContent = "No photo loaded";
+}
+
       });
     }
     window.initAutocomplete=initAutocomplete;
