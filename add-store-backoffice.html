@@ -275,57 +275,121 @@
       resetForm();
     }
 
-    function initAutocomplete(){
-      const input=document.getElementById("gAddress");
-      const ac=new google.maps.places.Autocomplete(input,{fields:["place_id","address_components","geometry","name","formatted_address","international_phone_number","website"]});
-      ac.addListener("place_changed",async()=>{
-        const p=ac.getPlace(); if(!p)return;
-        document.getElementById("name").value=p.name||"";
-        document.getElementById("addr").value=p.formatted_address||"";
-        document.getElementById("phone").value=p.international_phone_number||"";
-        document.getElementById("website").value=p.website||"";
+function initAutocomplete() {
+  const input = document.getElementById("gAddress");
+  const ac = new google.maps.places.Autocomplete(input, {
+    fields: [
+      "place_id",
+      "address_components",
+      "geometry",
+      "name",
+      "formatted_address",
+      "international_phone_number",
+      "website"
+    ]
+  });
 
-        const comps=p.address_components||[];
-        const city=comps.find(c=>c.types.includes("locality")||c.types.includes("postal_town"));
-        const country=comps.find(c=>c.types.includes("country"));
-        document.getElementById("city").value=city?.long_name||"";
-        document.getElementById("country").value=country?.long_name||"";
-        sel.place_id=p.place_id||null;
+  ac.addListener("place_changed", async () => {
+    const p = ac.getPlace();
+    if (!p) return;
 
-if (sel.place_id) {
-  document.getElementById("photo-meta").textContent = "Loading photos…";
+    // 🧩 Fyll i grundinfo
+    document.getElementById("name").value = p.name || "";
+    document.getElementById("addr").value = p.formatted_address || "";
+    document.getElementById("phone").value = p.international_phone_number || "";
+    document.getElementById("website").value = p.website || "";
 
-  try {
-    const v1 = `https://places.googleapis.com/v1/places/${encodeURIComponent(sel.place_id)}?fields=photos&key=${GOOGLE_KEY}`;
-    const res = await fetch(v1);
-    const data = await res.json();
+    const comps = p.address_components || [];
+    const city = comps.find(
+      c => c.types.includes("locality") || c.types.includes("postal_town")
+    );
+    const country = comps.find(c => c.types.includes("country"));
+    document.getElementById("city").value = city?.long_name || "";
+    document.getElementById("country").value = country?.long_name || "";
 
-    if (data.photos && data.photos.length > 0) {
-      sel._photo_refs = data.photos.map(p => p.name.split("/").pop());
+    sel.place_id = p.place_id || null;
+
+    // === 🧠 Hämta bilder via Places API (v1) ===
+    if (sel.place_id) {
+      document.getElementById("photo-meta").textContent = "Loading photos…";
+      sel._photo_refs = [];
       sel.photo_index = 0;
-      sel.photo_reference = sel._photo_refs[0];
 
-      // Bygg CDN-länk till första bilden
-      const firstUrl = `https://lh3.googleusercontent.com/p/${sel.photo_reference}=w800-h600-n-k-no`;
-      document.getElementById("preview-photo").src = firstUrl;
-      document.getElementById("photo-meta").textContent = `Loaded ${sel._photo_refs.length} photo(s)`;
+      try {
+        const v1 = `https://places.googleapis.com/v1/places/${encodeURIComponent(
+          sel.place_id
+        )}?fields=photos&key=${GOOGLE_KEY}`;
+        const res = await fetch(v1);
+        const data = await res.json();
+
+        if (data.photos && data.photos.length > 0) {
+          sel._photo_refs = data.photos.map(p => p.name.split("/").pop());
+          sel.photo_index = 0;
+          sel.photo_reference = sel._photo_refs[0];
+
+          updatePhoto();
+          document.getElementById("photo-meta").textContent = `Loaded ${sel._photo_refs.length} photo(s)`;
+        } else {
+          document.getElementById("preview-photo").src =
+            "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
+          document.getElementById("photo-meta").textContent = "No Google photos found";
+        }
+      } catch (err) {
+        console.error("❌ Photo fetch error:", err);
+        document.getElementById("photo-meta").textContent = "Failed to load photos";
+      }
     } else {
-      document.getElementById("photo-meta").textContent = "No Google photos found";
+      document.getElementById("photo-meta").textContent = "No photo loaded";
     }
-  } catch (err) {
-    console.error("❌ Photo fetch error:", err);
-    document.getElementById("photo-meta").textContent = "Failed to load photos";
+  });
+
+  // 🖼️ Hjälpfunktion för att uppdatera visad bild
+  function updatePhoto() {
+    const img = document.getElementById("preview-photo");
+    const meta = document.getElementById("photo-meta");
+
+    if (sel._photo_refs.length > 0) {
+      const ref = sel._photo_refs[sel.photo_index];
+      sel.photo_reference = ref;
+
+      const proxyUrl = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?photo_reference=${encodeURIComponent(
+        ref
+      )}&maxwidth=800`;
+
+      img.src = proxyUrl;
+      meta.textContent = `Photo ${sel.photo_index + 1}/${sel._photo_refs.length}`;
+    } else {
+      img.src =
+        "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
+      meta.textContent = "No photo loaded";
+    }
   }
-} else {
-  document.getElementById("photo-meta").textContent = "No photo loaded";
+
+  // 🧭 Foto-navigering (nästa/föregående)
+  document.getElementById("prev-photo").onclick = () => {
+    if (sel._photo_refs.length > 0) {
+      sel.photo_index =
+        (sel.photo_index - 1 + sel._photo_refs.length) % sel._photo_refs.length;
+      updatePhoto();
+    }
+  };
+
+  document.getElementById("next-photo").onclick = () => {
+    if (sel._photo_refs.length > 0) {
+      sel.photo_index = (sel.photo_index + 1) % sel._photo_refs.length;
+      updatePhoto();
+    }
+  };
 }
 
-      });
-    }
-    window.initAutocomplete=initAutocomplete;
-  </script>
+window.initAutocomplete = initAutocomplete;
+</script>
 
-  <!-- 🗺️ Google Maps -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete"></script>
+<!-- 🗺️ Google Maps -->
+<script 
+  async 
+  defer 
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete">
+</script>
 </body>
 </html>
