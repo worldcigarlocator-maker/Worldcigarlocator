@@ -1,19 +1,22 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Add Store — Backoffice</title>
+  <title>Add Store — World Cigar Locator</title>
+
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Shared JS (photo-proxy, Google helpers, fallbacks, etc.) -->
+  <script src="add-shared.js"></script>
 
   <style>
     :root {
-      --accent: #007bff;
-      --bg: #f9fafb;
-      --text: #1f2937;
+      --accent: #b8860b;
+      --bg: #fff;
+      --text: #1f1f1f;
       --muted: #6b7280;
-      --border: #e5e7eb;
+      --border: #ddd;
       --success: #28a745;
       --error: #dc3545;
     }
@@ -25,29 +28,23 @@
       margin: 0;
       padding: 1.5rem;
     }
-    header {
-      background: white;
-      padding: 0.8rem 1.2rem;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.5rem;
-    }
-    header h1 { font-size: 1.3rem; margin: 0; }
-    header a {
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 1.2rem;
       color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
+      text-align: center;
     }
-
-    .wrap { max-width: 900px; margin: 0 auto; }
-    .card { background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+    .wrap { max-width: 800px; margin: 0 auto; }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+    }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .full { grid-column: 1 / -1; }
-    label { font-weight: 600; display: block; margin-bottom: .3rem; }
-
+    label { font-weight: 600; display: block; margin-bottom: .3rem; color: var(--accent); }
     input, select {
       width: 100%;
       padding: .6rem;
@@ -55,7 +52,6 @@
       border-radius: 8px;
       font-size: 1rem;
     }
-
     .btn {
       background: var(--accent);
       color: #fff;
@@ -64,11 +60,11 @@
       padding: 0.6rem 1.2rem;
       cursor: pointer;
       font-weight: 600;
-      transition: background .2s;
+      transition: opacity .2s;
     }
-    .btn:hover { background: #005ec4; }
+    .btn:hover { opacity: 0.8; }
 
-    .type-group, .access-group { display: flex; gap: .6rem; margin-top: .4rem; }
+    .type-group, .access-group { display: flex; gap: .6rem; margin-top: .4rem; justify-content: center; }
     .type-btn, .access-pill span {
       border: 1px solid var(--accent);
       border-radius: 20px;
@@ -78,22 +74,20 @@
       transition: all 0.2s ease;
     }
     .type-btn { background: white; color: var(--accent); }
-    .type-btn:hover { background: #eef5ff; }
+    .type-btn:hover { background: #fff8e1; }
     .type-btn.active { background: var(--accent); color: white; }
-
     .access-pill input { display: none; }
     .access-pill span { color: var(--accent); background: white; }
     .access-pill input:checked + span { background: var(--accent); color: white; }
-    .access-pill span:hover { background: #eef5ff; }
 
-    .stars { display: flex; gap: .3rem; font-size: 1.8rem; cursor: pointer; color: #ccc; }
+    .stars { display: flex; gap: .3rem; font-size: 1.8rem; cursor: pointer; color: #ccc; justify-content: center; }
     .stars span { transition: color 0.2s ease; }
     .stars span:hover, .stars span:hover ~ span { color: #ffda7a; }
     .stars .sel { color: #ffb400; }
 
     .photo-picker { display: flex; align-items: center; justify-content: center; gap: .4rem; margin-top: .5rem; }
     .photo-nav { border: 1px solid var(--accent); color: var(--accent); background: white; border-radius: 6px; padding: .3rem .6rem; cursor: pointer; }
-    .photo-nav:hover { background: #eef5ff; }
+    .photo-nav:hover { background: #fff8e1; }
     .preview-photo { width: 220px; height: 140px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
 
     #toast-container { position: fixed; bottom: 1rem; right: 1rem; display: flex; flex-direction: column; gap: .4rem; z-index: 9999; }
@@ -103,12 +97,8 @@
   </style>
 </head>
 <body>
-  <header>
-    <h1>Backoffice — Add Store</h1>
-    <a href="backoffice.html">🏠 Home</a>
-  </header>
-
   <div class="wrap">
+    <h1>Suggest a Cigar Store or Lounge</h1>
     <div class="card">
       <div class="grid">
         <div class="full">
@@ -169,15 +159,12 @@
             <button id="next-photo" class="photo-nav">▶</button>
           </div>
           <div id="photo-meta" class="muted" style="text-align:center;">No photo loaded</div>
-          <div style="margin-top:.3rem;">
-            <label><input type="checkbox" id="forceDefault"> Use default image</label>
-          </div>
         </div>
 
         <!-- ACTIONS -->
-        <div class="full" style="display:flex;justify-content:flex-end;gap:.6rem;">
+        <div class="full" style="display:flex;justify-content:center;gap:.6rem;margin-top:1rem;">
           <button class="btn" onclick="resetForm()">Clear</button>
-          <button class="btn" onclick="saveStore()">Save</button>
+          <button class="btn" onclick="saveStore()">Submit</button>
         </div>
       </div>
     </div>
@@ -186,27 +173,23 @@
   <div id="toast-container"></div>
 
   <script>
-    const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-    const GOOGLE_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     const sel = { types: [], access:null, rating:null, place_id:null, _photo_refs:[], photo_index:0, photo_reference:null };
 
-    function toast(msg,type="info"){
-      const c=document.getElementById("toast-container");
-      const t=document.createElement("div");
-      t.className=`toast ${type}`; t.textContent=msg;
-      c.appendChild(t); setTimeout(()=>t.remove(),3000);
-    }
-
+    // Type toggle
     document.querySelectorAll(".type-btn").forEach(btn=>{
       btn.addEventListener("click",()=>{
-        btn.classList.toggle("active");
-        sel.types = Array.from(document.querySelectorAll(".type-btn.active")).map(b=>b.dataset.type);
+        document.querySelectorAll(".type-btn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        sel.types=[btn.dataset.type];
       });
     });
 
+    // Access selection
+    document.querySelectorAll(".access-pill input").forEach(r=>{
+      r.addEventListener("change",()=>sel.access=r.value);
+    });
+
+    // Rating stars
     const stars=document.getElementById("stars");
     stars.addEventListener("click",e=>{
       const v=+e.target.dataset.v; if(!v)return;
@@ -222,42 +205,44 @@
       [...stars.children].forEach((el,i)=>el.style.color=i<(sel.rating??0)?"#ffb400":"#ccc");
     });
 
+    // Reset form
     function resetForm(){
-      document.querySelectorAll("input").forEach(i=>{if(i.type!=="radio"&&i.type!=="checkbox")i.value="";});
+      document.querySelectorAll("input").forEach(i=>{if(i.type!=="radio")i.value="";});
       document.querySelectorAll(".type-btn").forEach(b=>b.classList.remove("active"));
-      document.querySelectorAll("input[type=checkbox],input[type=radio]").forEach(i=>i.checked=false);
+      document.querySelectorAll(".access-pill input").forEach(r=>r.checked=false);
       sel.types=[]; sel.access=null; sel.rating=null; sel.place_id=null; sel._photo_refs=[]; sel.photo_reference=null;
-      document.getElementById("preview-photo").src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
+      document.getElementById("preview-photo").src=WCL.GITHUB_STORE_FALLBACK;
       document.getElementById("photo-meta").textContent="No photo loaded";
-      toast("Cleared","success");
+      WCL.toastShared("Cleared","success");
     }
 
+    // Save to Supabase
     async function saveStore(){
       const name=document.getElementById("name").value.trim();
       const address=document.getElementById("addr").value.trim();
       const city=document.getElementById("city").value.trim();
       const country=document.getElementById("country").value.trim();
-      if(!name||!address||!city||!country){toast("Please fill in required fields","error");return;}
+      if(!name||!address||!city||!country){WCL.toastShared("Please fill in required fields","error");return;}
 
-      const access=document.querySelector("input[name='access']:checked")?.value||null;
-      const force=document.getElementById("forceDefault").checked;
       const payload={
         name,address,city,country,
         type:sel.types[0]||null,types:sel.types,
-        access,rating:sel.rating??null,
+        access:sel.access,
+        rating:sel.rating??null,
         place_id:sel.place_id,
-        photo_reference:force?null:(sel.photo_reference||null),
+        photo_reference:sel.photo_reference||null,
         photo_url:null,
         approved:false,flagged:false,deleted:false,status:"pending"
       };
 
-      const { error } = await supabase.from("stores").insert([payload]);
-      if(error){console.error(error);toast("Error saving","error");return;}
-      toast("Saved successfully","success");
+      const { error } = await WCL.supabase.from("stores").insert([payload]);
+      if(error){console.error(error);WCL.toastShared("Error saving","error");return;}
+      WCL.toastShared("Thank you! Your suggestion was submitted.","success");
       resetForm();
     }
 
-    function initAutocomplete() {
+    // Google Autocomplete setup
+    async function initAutocomplete() {
       const input = document.getElementById("gAddress");
       const ac = new google.maps.places.Autocomplete(input, {
         fields: ["place_id", "address_components", "geometry", "name", "formatted_address", "international_phone_number", "website"]
@@ -285,24 +270,16 @@
           sel._photo_refs = [];
           sel.photo_index = 0;
 
-          try {
-            const v1 = `https://places.googleapis.com/v1/places/${encodeURIComponent(sel.place_id)}?fields=photos&key=${GOOGLE_KEY}`;
-            const res = await fetch(v1);
-            const data = await res.json();
-
-            if (data.photos && data.photos.length > 0) {
-             sel._photo_refs = data.photos.map(p => p.name);
-              sel.photo_index = 0;
-              sel.photo_reference = sel._photo_refs[0];
-              await updatePhoto();
-              document.getElementById("photo-meta").textContent = `Loaded ${sel._photo_refs.length} photo(s)`;
-            } else {
-              document.getElementById("preview-photo").src = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-              document.getElementById("photo-meta").textContent = "No Google photos found";
-            }
-          } catch (err) {
-            console.error("❌ Photo fetch error:", err);
-            document.getElementById("photo-meta").textContent = "Failed to load photos";
+          const refs = await WCL.fetchPhotoRefs(sel.place_id);
+          if (refs.length > 0) {
+            sel._photo_refs = refs;
+            sel.photo_index = 0;
+            sel.photo_reference = refs[0];
+            await WCL.loadProxyPhotoInto(document.getElementById("preview-photo"), refs[0], sel.types[0]);
+            document.getElementById("photo-meta").textContent = `Loaded ${refs.length} photo(s)`;
+          } else {
+            document.getElementById("preview-photo").src = WCL.fallbackForType(sel.types[0]);
+            document.getElementById("photo-meta").textContent = "No Google photos found";
           }
         }
       });
@@ -310,59 +287,24 @@
       document.getElementById("prev-photo").onclick = () => {
         if (sel._photo_refs.length > 0) {
           sel.photo_index = (sel.photo_index - 1 + sel._photo_refs.length) % sel._photo_refs.length;
-          updatePhoto();
+          WCL.loadProxyPhotoInto(document.getElementById("preview-photo"), sel._photo_refs[sel.photo_index], sel.types[0]);
+          document.getElementById("photo-meta").textContent = `Photo ${sel.photo_index + 1}/${sel._photo_refs.length}`;
         }
       };
 
       document.getElementById("next-photo").onclick = () => {
         if (sel._photo_refs.length > 0) {
           sel.photo_index = (sel.photo_index + 1) % sel._photo_refs.length;
-          updatePhoto();
+          WCL.loadProxyPhotoInto(document.getElementById("preview-photo"), sel._photo_refs[sel.photo_index], sel.types[0]);
+          document.getElementById("photo-meta").textContent = `Photo ${sel.photo_index + 1}/${sel._photo_refs.length}`;
         }
       };
-    }
-
-    // 🖼️ Hjälpfunktion för att uppdatera visad bild via photo-proxy
-    async function updatePhoto() {
-      const img = document.getElementById("preview-photo");
-      const meta = document.getElementById("photo-meta");
-
-      if (sel._photo_refs.length > 0) {
-        const ref = sel._photo_refs[sel.photo_index];
-        sel.photo_reference = ref;
-
-        const proxyUrl = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?photo_reference=${encodeURIComponent(ref)}&maxwidth=800`;
-
-        try {
-          const res = await fetch(proxyUrl, {
-            headers: { Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
-          });
-
-          if (res.ok) {
-            const blob = await res.blob();
-            const imgUrl = URL.createObjectURL(blob);
-            img.src = imgUrl;
-            meta.textContent = `Photo ${sel.photo_index + 1}/${sel._photo_refs.length}`;
-          } else {
-            console.warn("❌ Proxy returned", res.status);
-            img.src = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-            meta.textContent = "Proxy failed";
-          }
-        } catch (err) {
-          console.error("❌ Error fetching from proxy:", err);
-          img.src = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-          meta.textContent = "Error loading photo";
-        }
-      } else {
-        img.src = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-        meta.textContent = "No photo loaded";
-      }
     }
 
     window.initAutocomplete = initAutocomplete;
   </script>
 
-  <!-- 🗺️ Google Maps -->
+  <!-- Google Maps / Places -->
   <script 
     async 
     defer 
