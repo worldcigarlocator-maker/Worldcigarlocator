@@ -7,7 +7,7 @@
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Shared JS (photo-proxy, Google helpers, fallbacks, etc.) -->
+  <!-- Shared logic (proxy, continents, photo handling, etc.) -->
   <script src="add-shared.js"></script>
 
   <style>
@@ -184,7 +184,7 @@
       });
     });
 
-    // Access selection
+    // Access
     document.querySelectorAll(".access-pill input").forEach(r=>{
       r.addEventListener("change",()=>sel.access=r.value);
     });
@@ -216,7 +216,7 @@
       WCL.toastShared("Cleared","success");
     }
 
-    // Save to Supabase
+    // Save
     async function saveStore(){
       const name=document.getElementById("name").value.trim();
       const address=document.getElementById("addr").value.trim();
@@ -224,8 +224,10 @@
       const country=document.getElementById("country").value.trim();
       if(!name||!address||!city||!country){WCL.toastShared("Please fill in required fields","error");return;}
 
+      const continent = WCL.countryToContinent(country);
+
       const payload={
-        name,address,city,country,
+        name,address,city,country,continent,
         type:sel.types[0]||null,types:sel.types,
         access:sel.access,
         rating:sel.rating??null,
@@ -241,7 +243,7 @@
       resetForm();
     }
 
-    // Google Autocomplete setup
+    // Google Autocomplete
     async function initAutocomplete() {
       const input = document.getElementById("gAddress");
       const ac = new google.maps.places.Autocomplete(input, {
@@ -304,7 +306,6 @@
     window.initAutocomplete = initAutocomplete;
   </script>
 
-  <!-- Google Maps / Places -->
   <script 
     async 
     defer 
