@@ -717,38 +717,64 @@ async function saveEdit(id, payload){
   await reloadData();
 }
 
-/* ====== Approvals / Flag / Delete ====== */
+/* ====== Approvals / Flag / Delete (uppdaterad med status) ====== */
 async function setApproved(id, val){
-  const updates = val ? { approved:true, flagged:false } : { approved:false };
+  const updates = val
+    ? { approved: true, flagged: false, deleted: false, status: "approved" }
+    : { approved: false, flagged: false, status: "pending" };
+
   const { error } = await supabase.from("stores").update(updates).eq("id", id);
-  if(error){ console.error(error); toast("Update failed","error"); return;}
-  toast(val?"Approved ✅":"Unapproved","success");
+  if (error) {
+    console.error(error);
+    toast("Update failed","error");
+    return;
+  }
+  toast(val ? "Approved ✅" : "Unapproved","success");
   await reloadData();
 }
 
 let FLAG_TARGET_ID = null;
 
-async function setFlagged(id, val, reason=null){
-  const upd = val
-    ? { flagged:true, flag_reason: (reason || 'manual | flagged by admin') }
-    : { flagged:false, flag_reason:null };
+async function setFlagged(id, val, reason = null) {
+  const updates = val
+    ? {
+        flagged: true,
+        approved: false,
+        deleted: false,
+        flag_reason: reason || "manual | flagged by admin",
+        status: "flagged"
+      }
+    : {
+        flagged: false,
+        flag_reason: null,
+        status: "pending"
+      };
 
-  const { error } = await supabase.from("stores").update(upd).eq("id", id);
-  if(error){
+  const { error } = await supabase.from("stores").update(updates).eq("id", id);
+  if (error) {
     console.error(error);
     toast("Update failed","error");
     return;
   }
-  toast(val?"Flagged 🚩":"Unflagged","success");
+  toast(val ? "Flagged 🚩" : "Unflagged","success");
   await reloadData();
 }
 
-async function setDeleted(id, val){
-  const { error } = await supabase.from("stores").update({ deleted:val }).eq("id", id);
-  if(error){ console.error(error); toast("Update failed","error"); return;}
-  toast(val?"Moved to Trash 🗑️":"Restored","success");
+async function setDeleted(id, val) {
+  const updates = val
+    ? { deleted: true, approved: false, flagged: false, status: "deleted" }
+    : { deleted: false, status: "pending" };
+
+  const { error } = await supabase.from("stores").update(updates).eq("id", id);
+  if (error) {
+    console.error(error);
+    toast("Update failed","error");
+    return;
+  }
+  toast(val ? "Moved to Trash 🗑️" : "Restored","success");
   await reloadData();
 }
+
 
 /* ====== Table view helpers (knappar i listan) ====== */
 async function approveStore(id){ await setApproved(id,true); }
