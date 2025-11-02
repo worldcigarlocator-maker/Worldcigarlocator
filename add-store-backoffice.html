@@ -3,12 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Add Store — Backoffice</title>
+  <title>Backoffice — Add Store</title>
 
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Shared logic (photo-proxy, Google helpers, fallbacks, etc.) -->
   <script src="add-shared.js"></script>
 
   <style>
@@ -88,7 +85,6 @@
     .access-pill input { display: none; }
     .access-pill span { color: var(--accent); background: white; }
     .access-pill input:checked + span { background: var(--accent); color: white; }
-    .access-pill span:hover { background: #eef5ff; }
 
     .stars { display: flex; gap: .3rem; font-size: 1.8rem; cursor: pointer; color: #ccc; }
     .stars span { transition: color 0.2s ease; }
@@ -173,9 +169,6 @@
             <button id="next-photo" class="photo-nav">▶</button>
           </div>
           <div id="photo-meta" class="muted" style="text-align:center;">No photo loaded</div>
-          <div style="margin-top:.3rem;">
-            <label><input type="checkbox" id="forceDefault"> Use default image</label>
-          </div>
         </div>
 
         <!-- ACTIONS -->
@@ -194,9 +187,14 @@
 
     document.querySelectorAll(".type-btn").forEach(btn=>{
       btn.addEventListener("click",()=>{
-        btn.classList.toggle("active");
-        sel.types = Array.from(document.querySelectorAll(".type-btn.active")).map(b=>b.dataset.type);
+        document.querySelectorAll(".type-btn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        sel.types=[btn.dataset.type];
       });
+    });
+
+    document.querySelectorAll(".access-pill input").forEach(r=>{
+      r.addEventListener("change",()=>sel.access=r.value);
     });
 
     const stars=document.getElementById("stars");
@@ -215,9 +213,9 @@
     });
 
     function resetForm(){
-      document.querySelectorAll("input").forEach(i=>{if(i.type!=="radio"&&i.type!=="checkbox")i.value="";});
+      document.querySelectorAll("input").forEach(i=>{if(i.type!=="radio")i.value="";});
       document.querySelectorAll(".type-btn").forEach(b=>b.classList.remove("active"));
-      document.querySelectorAll("input[type=checkbox],input[type=radio]").forEach(i=>i.checked=false);
+      document.querySelectorAll(".access-pill input").forEach(r=>r.checked=false);
       sel.types=[]; sel.access=null; sel.rating=null; sel.place_id=null; sel._photo_refs=[]; sel.photo_reference=null;
       document.getElementById("preview-photo").src=WCL.GITHUB_STORE_FALLBACK;
       document.getElementById("photo-meta").textContent="No photo loaded";
@@ -231,21 +229,21 @@
       const country=document.getElementById("country").value.trim();
       if(!name||!address||!city||!country){WCL.toastShared("Please fill in required fields","error");return;}
 
-      const access=document.querySelector("input[name='access']:checked")?.value||null;
-      const force=document.getElementById("forceDefault").checked;
+      const continent = WCL.countryToContinent(country);
+
       const payload={
-        name,address,city,country,
+        name,address,city,country,continent,
         type:sel.types[0]||null,types:sel.types,
-        access,rating:sel.rating??null,
+        access:sel.access,rating:sel.rating??null,
         place_id:sel.place_id,
-        photo_reference:force?null:(sel.photo_reference||null),
+        photo_reference:sel.photo_reference||null,
         photo_url:null,
         approved:false,flagged:false,deleted:false,status:"pending"
       };
 
       const { error } = await WCL.supabase.from("stores").insert([payload]);
       if(error){console.error(error);WCL.toastShared("Error saving","error");return;}
-      WCL.toastShared("Saved successfully","success");
+      WCL.toastShared("Store saved successfully","success");
       resetForm();
     }
 
@@ -271,6 +269,10 @@
         document.getElementById("country").value = country?.long_name || "";
 
         sel.place_id = p.place_id || null;
+
+        // auto continent
+        const continent = WCL.countryToContinent(country?.long_name || "");
+        console.log("🌍 Auto continent:", continent);
 
         if (sel.place_id) {
           document.getElementById("photo-meta").textContent = "Loading photos…";
@@ -311,7 +313,6 @@
     window.initAutocomplete = initAutocomplete;
   </script>
 
-  <!-- Google Maps / Places -->
   <script 
     async 
     defer 
