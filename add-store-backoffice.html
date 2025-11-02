@@ -4,7 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add Store — Backoffice</title>
+
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Shared logic (photo-proxy, Google helpers, fallbacks, etc.) -->
+  <script src="add-shared.js"></script>
 
   <style>
     :root {
@@ -185,19 +190,7 @@
   <div id="toast-container"></div>
 
   <script>
-    const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-    const GOOGLE_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     const sel = { types: [], access:null, rating:null, place_id:null, _photo_refs:[], photo_index:0, photo_reference:null };
-
-    function toast(msg,type="info"){
-      const c=document.getElementById("toast-container");
-      const t=document.createElement("div");
-      t.className=`toast ${type}`; t.textContent=msg;
-      c.appendChild(t); setTimeout(()=>t.remove(),3000);
-    }
 
     document.querySelectorAll(".type-btn").forEach(btn=>{
       btn.addEventListener("click",()=>{
@@ -226,9 +219,9 @@
       document.querySelectorAll(".type-btn").forEach(b=>b.classList.remove("active"));
       document.querySelectorAll("input[type=checkbox],input[type=radio]").forEach(i=>i.checked=false);
       sel.types=[]; sel.access=null; sel.rating=null; sel.place_id=null; sel._photo_refs=[]; sel.photo_reference=null;
-      document.getElementById("preview-photo").src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
+      document.getElementById("preview-photo").src=WCL.GITHUB_STORE_FALLBACK;
       document.getElementById("photo-meta").textContent="No photo loaded";
-      toast("Cleared","success");
+      WCL.toastShared("Cleared","success");
     }
 
     async function saveStore(){
@@ -236,7 +229,7 @@
       const address=document.getElementById("addr").value.trim();
       const city=document.getElementById("city").value.trim();
       const country=document.getElementById("country").value.trim();
-      if(!name||!address||!city||!country){toast("Please fill in required fields","error");return;}
+      if(!name||!address||!city||!country){WCL.toastShared("Please fill in required fields","error");return;}
 
       const access=document.querySelector("input[name='access']:checked")?.value||null;
       const force=document.getElementById("forceDefault").checked;
@@ -250,13 +243,13 @@
         approved:false,flagged:false,deleted:false,status:"pending"
       };
 
-      const { error } = await supabase.from("stores").insert([payload]);
-      if(error){console.error(error);toast("Error saving","error");return;}
-      toast("Saved successfully","success");
+      const { error } = await WCL.supabase.from("stores").insert([payload]);
+      if(error){console.error(error);WCL.toastShared("Error saving","error");return;}
+      WCL.toastShared("Saved successfully","success");
       resetForm();
     }
 
-    function initAutocomplete() {
+    async function initAutocomplete() {
       const input = document.getElementById("gAddress");
       const ac = new google.maps.places.Autocomplete(input, {
         fields: ["place_id", "address_components", "geometry", "name", "formatted_address", "international_phone_number", "website"]
@@ -284,24 +277,16 @@
           sel._photo_refs = [];
           sel.photo_index = 0;
 
-          try {
-            const v1 = `https://places.googleapis.com/v1/places/${encodeURIComponent(sel.place_id)}?fields=photos&key=${GOOGLE_KEY}`;
-            const res = await fetch(v1);
-            const data = await res.json();
-
-            if (data.photos && data.photos.length > 0) {
-             sel._photo_refs = data.photos.map(p => p.name);
-              sel.photo_index = 0;
-              sel.photo_reference = sel._photo_refs[0];
-              await updatePhoto();
-              document.getElementById("photo-meta").textContent = `Loaded ${sel._photo_refs.length} photo(s)`;
-            } else {
-              document.getElementById("preview-photo").src = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-              document.getElementById("photo-meta").textContent = "No Google photos found";
-            }
-          } catch (err) {
-            console.error("❌ Photo fetch error:", err);
-            document.getElementById("photo-meta").textContent = "Failed to load photos";
+          const refs = await WCL.fetchPhotoRefs(sel.place_id);
+          if (refs.length > 0) {
+            sel._photo_refs = refs;
+            sel.photo_index = 0;
+            sel.photo_reference = refs[0];
+            await WCL.loadProxyPhotoInto(document.getElementById("preview-photo"), refs[0], sel.types[0]);
+            document.getElementById("photo-meta").textContent = `Loaded ${refs.length} photo(s)`;
+          } else {
+            document.getElementById("preview-photo").src = WCL.fallbackForType(sel.types[0]);
+            document.getElementById("photo-meta").textContent = "No Google photos found";
           }
         }
       });
@@ -309,59 +294,24 @@
       document.getElementById("prev-photo").onclick = () => {
         if (sel._photo_refs.length > 0) {
           sel.photo_index = (sel.photo_index - 1 + sel._photo_refs.length) % sel._photo_refs.length;
-          updatePhoto();
+          WCL.loadProxyPhotoInto(document.getElementById("preview-photo"), sel._photo_refs[sel.photo_index], sel.types[0]);
+          document.getElementById("photo-meta").textContent = `Photo ${sel.photo_index + 1}/${sel._photo_refs.length}`;
         }
       };
 
       document.getElementById("next-photo").onclick = () => {
         if (sel._photo_refs.length > 0) {
           sel.photo_index = (sel.photo_index + 1) % sel._photo_refs.length;
-          updatePhoto();
+          WCL.loadProxyPhotoInto(document.getElementById("preview-photo"), sel._photo_refs[sel.photo_index], sel.types[0]);
+          document.getElementById("photo-meta").textContent = `Photo ${sel.photo_index + 1}/${sel._photo_refs.length}`;
         }
       };
-    }
-
-    // 🖼️ Hjälpfunktion för att uppdatera visad bild via photo-proxy
-    async function updatePhoto() {
-      const img = document.getElementById("preview-photo");
-      const meta = document.getElementById("photo-meta");
-
-      if (sel._photo_refs.length > 0) {
-        const ref = sel._photo_refs[sel.photo_index];
-        sel.photo_reference = ref;
-
-        const proxyUrl = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?photo_reference=${encodeURIComponent(ref)}&maxwidth=800`;
-
-        try {
-          const res = await fetch(proxyUrl, {
-            headers: { Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
-          });
-
-          if (res.ok) {
-            const blob = await res.blob();
-            const imgUrl = URL.createObjectURL(blob);
-            img.src = imgUrl;
-            meta.textContent = `Photo ${sel.photo_index + 1}/${sel._photo_refs.length}`;
-          } else {
-            console.warn("❌ Proxy returned", res.status);
-            img.src = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-            meta.textContent = "Proxy failed";
-          }
-        } catch (err) {
-          console.error("❌ Error fetching from proxy:", err);
-          img.src = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-          meta.textContent = "Error loading photo";
-        }
-      } else {
-        img.src = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-        meta.textContent = "No photo loaded";
-      }
     }
 
     window.initAutocomplete = initAutocomplete;
   </script>
 
-  <!-- 🗺️ Google Maps -->
+  <!-- Google Maps / Places -->
   <script 
     async 
     defer 
