@@ -1,117 +1,95 @@
 /* ================================================
    add-shared.js — Shared logic for Add Store pages
-   Version: 2025-10-30
+   Version: 2025-11-02 (full + proxy-compatible)
    ================================================ */
 
+// 🧩 Supabase setup
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 🔑 Google browser key (only used client-side for Places)
+// 🔑 Google browser key (frontend-safe)
 const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
 
-// 📸 Supabase Edge Function photo proxy (server-key protected)
+// 🖼️ Supabase Edge Function (server-protected proxy)
 const PHOTO_PROXY_URL =
   "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
 
-// 🖼️ Static GitHub fallback images
+// 🏞️ Fallback images hosted on GitHub Pages
 const GITHUB_STORE_FALLBACK =
   "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
 const GITHUB_LOUNGE_FALLBACK =
   "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
 
 /* ==========================================================
-   🌍 Country → Continent Mapping (matches Google Places)
+   🌍 Country → Continent Mapping
    ========================================================== */
 function countryToContinent(country) {
   if (!country) return "Other";
   const c = country.trim().toLowerCase();
-
   const map = {
-    // 🌍 Europe
-    "albania":"Europe","andorra":"Europe","austria":"Europe","belarus":"Europe",
-    "belgium":"Europe","bosnia and herzegovina":"Europe","bulgaria":"Europe",
-    "croatia":"Europe","cyprus":"Europe","czech republic":"Europe","czechia":"Europe",
-    "denmark":"Europe","estonia":"Europe","finland":"Europe","france":"Europe",
-    "germany":"Europe","greece":"Europe","hungary":"Europe","iceland":"Europe",
-    "ireland":"Europe","italy":"Europe","kosovo":"Europe","latvia":"Europe",
-    "lithuania":"Europe","luxembourg":"Europe","malta":"Europe","moldova":"Europe",
-    "monaco":"Europe","montenegro":"Europe","netherlands":"Europe","north macedonia":"Europe",
-    "norway":"Europe","poland":"Europe","portugal":"Europe","romania":"Europe",
-    "serbia":"Europe","slovakia":"Europe","slovenia":"Europe","spain":"Europe",
-    "sweden":"Europe","switzerland":"Europe","ukraine":"Europe","united kingdom":"Europe",
-    "england":"Europe","scotland":"Europe","wales":"Europe",
-
-    // 🌎 North America
-    "antigua and barbuda":"North America","bahamas":"North America","barbados":"North America",
-    "belize":"North America","canada":"North America","costa rica":"North America",
-    "cuba":"North America","dominican republic":"North America","el salvador":"North America",
-    "grenada":"North America","guatemala":"North America","haiti":"North America",
-    "honduras":"North America","jamaica":"North America","mexico":"North America",
-    "nicaragua":"North America","panama":"North America","puerto rico":"North America",
-    "trinidad and tobago":"North America","united states":"North America","usa":"North America",
-
-    // 🌎 South America
-    "argentina":"South America","bolivia":"South America","brazil":"South America",
-    "chile":"South America","colombia":"South America","ecuador":"South America",
-    "guyana":"South America","paraguay":"South America","peru":"South America",
-    "suriname":"South America","uruguay":"South America","venezuela":"South America",
-
-    // 🌏 Asia
-    "armenia":"Asia","azerbaijan":"Asia","bahrain":"Asia","bangladesh":"Asia","brunei":"Asia",
-    "cambodia":"Asia","china":"Asia","georgia":"Asia","hong kong":"Asia","india":"Asia",
-    "indonesia":"Asia","iran":"Asia","iraq":"Asia","israel":"Asia","japan":"Asia",
-    "jordan":"Asia","kazakhstan":"Asia","kuwait":"Asia","kyrgyzstan":"Asia","laos":"Asia",
-    "lebanon":"Asia","malaysia":"Asia","maldives":"Asia","mongolia":"Asia","myanmar":"Asia",
-    "nepal":"Asia","oman":"Asia","pakistan":"Asia","palestine":"Asia","philippines":"Asia",
-    "qatar":"Asia","saudi arabia":"Asia","singapore":"Asia","south korea":"Asia",
-    "sri lanka":"Asia","taiwan":"Asia","tajikistan":"Asia","thailand":"Asia",
-    "turkey":"Asia","turkmenistan":"Asia","united arab emirates":"Asia","uae":"Asia",
-    "uzbekistan":"Asia","vietnam":"Asia",
-
-    // 🌍 Africa
-    "algeria":"Africa","angola":"Africa","benin":"Africa","botswana":"Africa",
-    "burkina faso":"Africa","burundi":"Africa","cameroon":"Africa","cape verde":"Africa",
-    "central african republic":"Africa","chad":"Africa","congo":"Africa",
-    "democratic republic of the congo":"Africa","djibouti":"Africa","egypt":"Africa",
-    "equatorial guinea":"Africa","eritrea":"Africa","eswatini":"Africa","ethiopia":"Africa",
-    "gabon":"Africa","gambia":"Africa","ghana":"Africa","guinea":"Africa",
-    "guinea-bissau":"Africa","ivory coast":"Africa","kenya":"Africa","lesotho":"Africa",
-    "liberia":"Africa","libya":"Africa","madagascar":"Africa","malawi":"Africa",
-    "mali":"Africa","mauritania":"Africa","mauritius":"Africa","morocco":"Africa",
-    "mozambique":"Africa","namibia":"Africa","niger":"Africa","nigeria":"Africa",
-    "rwanda":"Africa","senegal":"Africa","seychelles":"Africa","sierra leone":"Africa",
-    "somalia":"Africa","south africa":"Africa","sudan":"Africa","tanzania":"Africa",
-    "togo":"Africa","tunisia":"Africa","uganda":"Africa","zambia":"Africa","zimbabwe":"Africa",
-
-    // 🌊 Oceania
-    "australia":"Oceania","fiji":"Oceania","kiribati":"Oceania","micronesia":"Oceania",
-    "new zealand":"Oceania","papua new guinea":"Oceania","samoa":"Oceania",
-    "solomon islands":"Oceania","tonga":"Oceania","vanuatu":"Oceania",
+    // Europe
+    "sweden":"Europe","norway":"Europe","denmark":"Europe","finland":"Europe","germany":"Europe","france":"Europe","italy":"Europe","spain":"Europe","united kingdom":"Europe","ireland":"Europe","austria":"Europe","portugal":"Europe","poland":"Europe","czech republic":"Europe","slovakia":"Europe","hungary":"Europe","greece":"Europe","switzerland":"Europe","belgium":"Europe","netherlands":"Europe",
+    // North America
+    "usa":"North America","united states":"North America","canada":"North America","mexico":"North America","jamaica":"North America","dominican republic":"North America",
+    // South America
+    "brazil":"South America","argentina":"South America","chile":"South America","colombia":"South America","peru":"South America","venezuela":"South America",
+    // Asia
+    "china":"Asia","japan":"Asia","india":"Asia","thailand":"Asia","philippines":"Asia","singapore":"Asia","vietnam":"Asia","indonesia":"Asia","malaysia":"Asia","south korea":"Asia","united arab emirates":"Asia","turkey":"Asia",
+    // Africa
+    "south africa":"Africa","egypt":"Africa","morocco":"Africa","kenya":"Africa","nigeria":"Africa","tunisia":"Africa",
+    // Oceania
+    "australia":"Oceania","new zealand":"Oceania","fiji":"Oceania","samoa":"Oceania","tonga":"Oceania"
   };
-
   return map[c] || "Other";
 }
 
 /* ==========================================================
-   📸 Photo Helpers (Level 3 — Proxy-first for AWn refs)
+   📸 Photo Helpers — v2 (Proxy-first, full-feature)
    ========================================================== */
 
-/** Build proxy URL (server-key protected) */
+/**
+ * Build proxy URL for a given Google photo_reference.
+ * Always uses Supabase edge function (handles both AWn... and v1 refs).
+ */
 function buildProxyUrl(ref, w = 800) {
+  if (!ref) return null;
   return `${PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=${encodeURIComponent(String(w))}`;
 }
 
-/** Try CDN for “p/..”-refs, else fall back to proxy */
+/**
+ * Get fallback image based on type.
+ */
+function fallbackForType(type) {
+  const t = String(type || "").toLowerCase();
+  if (t.includes("lounge")) return GITHUB_LOUNGE_FALLBACK;
+  return GITHUB_STORE_FALLBACK;
+}
+
+/**
+ * Resolve a Google photo reference to an actual image URL.
+ * Tries CDN first if the ref looks like a public hash, otherwise uses proxy.
+ * Now fully compatible with Supabase proxy for all refs.
+ */
 async function resolveGooglePhotoUrl(ref, w = 800, h = 600, variant = 0) {
   if (!ref) return null;
 
-  if (/^https?:\/\//i.test(ref)) return ref; // Already full URL
+  // Already a URL?
+  if (/^https?:\/\//i.test(ref)) return ref;
 
-  if (/^AWn/i.test(ref)) return buildProxyUrl(ref, w); // Needs proxy (server-key)
+  // If it's a v1 photo name (starts with "places/")
+  if (ref.startsWith("places/")) {
+    return buildProxyUrl(ref, w);
+  }
 
+  // If it's an AWn reference → proxy required
+  if (/^AWn/i.test(ref)) {
+    return buildProxyUrl(ref, w);
+  }
+
+  // Try Google CDN fallback for simple "p/..." references
   let clean = String(ref).trim();
   if (clean.includes("/photos/")) clean = clean.split("/").pop();
   if (clean.startsWith("p/")) clean = clean.slice(2);
@@ -125,34 +103,64 @@ async function resolveGooglePhotoUrl(ref, w = 800, h = 600, variant = 0) {
   const idx = Math.max(0, Math.min(variant, tails.length - 1));
   const cdnUrl = `https://lh3.googleusercontent.com/p/${encodeURIComponent(clean)}${tails[idx]}`;
 
-  const ok = await new Promise(res => {
+  const ok = await new Promise((resolve) => {
     const img = new Image();
-    img.onload = () => res(true);
-    img.onerror = () => res(false);
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
     img.src = cdnUrl;
   });
 
   return ok ? cdnUrl : buildProxyUrl(ref, w);
 }
 
-/** GitHub fallback if no Google photo available */
-function fallbackForType(type) {
-  const t = String(type || "").toLowerCase();
-  if (t.includes("lounge")) return GITHUB_LOUNGE_FALLBACK;
-  return GITHUB_STORE_FALLBACK;
+/**
+ * Load photo into <img> via proxy, fallback on error.
+ */
+async function loadProxyPhotoInto(imgEl, ref, type = "store") {
+  if (!imgEl) return;
+  const fallback = fallbackForType(type);
+
+  if (!ref) {
+    imgEl.src = fallback;
+    return;
+  }
+
+  const proxyUrl = buildProxyUrl(ref);
+
+  try {
+    const res = await fetch(proxyUrl);
+    if (!res.ok) {
+      console.warn("Proxy returned", res.status, "→ fallback");
+      imgEl.src = fallback;
+      return;
+    }
+
+    const blob = await res.blob();
+    imgEl.src = URL.createObjectURL(blob);
+  } catch (err) {
+    console.error("Error loading proxy image:", err);
+    imgEl.src = fallback;
+  }
 }
 
-/** Fetch Google photo references for a Place ID */
+/**
+ * Fetch Google photo references for a given Place ID.
+ * Uses new Places API v1 exclusively, fallback to v0 if needed.
+ */
 async function fetchPhotoRefs(placeId) {
   if (!placeId) return [];
+
   try {
+    // Try Places v1
     const v1 = `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}?fields=photos&key=${GOOGLE_BROWSER_KEY}`;
     let res = await fetch(v1);
     if (res.ok) {
       const j = await res.json();
-      const refs = (j.photos || []).map(p => (p?.name || "").split("/").pop()).filter(Boolean);
+      const refs = (j.photos || []).map(p => p.name).filter(Boolean);
       if (refs.length) return refs;
     }
+
+    // Fallback → legacy Places Details API
     const legacy = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=photos&key=${GOOGLE_BROWSER_KEY}`;
     res = await fetch(legacy);
     if (res.ok) {
@@ -165,3 +173,66 @@ async function fetchPhotoRefs(placeId) {
   }
   return [];
 }
+
+/* ==========================================================
+   ⚙️ General utilities (optional shared helpers)
+   ========================================================== */
+
+/**
+ * Converts rating (1–5) to star emoji string for quick debug.
+ */
+function ratingToStars(rating) {
+  if (!rating) return "";
+  const full = "★".repeat(Math.round(rating));
+  const empty = "☆".repeat(5 - Math.round(rating));
+  return full + empty;
+}
+
+/**
+ * Simple toast helper (if not defined in the page)
+ */
+function toastShared(msg, type = "info") {
+  let c = document.getElementById("toast-container");
+  if (!c) {
+    c = document.createElement("div");
+    c.id = "toast-container";
+    c.style.position = "fixed";
+    c.style.bottom = "1rem";
+    c.style.right = "1rem";
+    c.style.display = "flex";
+    c.style.flexDirection = "column";
+    c.style.gap = ".4rem";
+    c.style.zIndex = "9999";
+    document.body.appendChild(c);
+  }
+  const t = document.createElement("div");
+  t.className = "toast " + type;
+  t.textContent = msg;
+  t.style.background = type === "error" ? "#dc3545" : (type === "success" ? "#28a745" : "#333");
+  t.style.color = "#fff";
+  t.style.padding = ".6rem 1rem";
+  t.style.borderRadius = "6px";
+  t.style.fontSize = ".9rem";
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+/* ==========================================================
+   🧾 Exports (for script tag inclusion)
+   ========================================================== */
+
+window.WCL = {
+  supabase,
+  GOOGLE_BROWSER_KEY,
+  PHOTO_PROXY_URL,
+  GITHUB_STORE_FALLBACK,
+  GITHUB_LOUNGE_FALLBACK,
+  buildProxyUrl,
+  fallbackForType,
+  fetchPhotoRefs,
+  resolveGooglePhotoUrl,
+  loadProxyPhotoInto,
+  countryToContinent,
+  ratingToStars,
+  toastShared
+};
