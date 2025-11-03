@@ -104,15 +104,19 @@ async function resolveGooglePhotoUrl(ref, w = 800, h = 600, variant = 0) {
   const idx = Math.max(0, Math.min(variant, tails.length - 1));
   const cdnUrl = `https://lh3.googleusercontent.com/p/${encodeURIComponent(clean)}${tails[idx]}`;
 
-  const ok = await new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    img.src = cdnUrl;
-  });
+const ok = await new Promise((resolve) => {
+  const img = new Image();
+  img.onload = () => resolve(true);
+  img.onerror = () => resolve(false);
+  img.src = cdnUrl;
+});
 
-  return ok ? cdnUrl : buildProxyUrl(ref, w);
+// ✅ ALWAYS fallback to proxy for AWn5SU... refs
+if (!ok || /^AWn/i.test(ref)) {
+  return buildProxyUrl(ref, w);
 }
+
+return cdnUrl;
 
 /**
  * Load photo into <img> via proxy, fallback on error.
