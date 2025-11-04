@@ -3,31 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Backoffice — Moderation (V5 Proxy Ready)</title>
+  <title>Backoffice — Moderation (V5 Stable)</title>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/backoffice.css" />
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="wrap">
-    <!-- Topbar -->
     <div class="topbar">
       <button class="btn" onclick="location.href='add-store-backoffice.html'">＋ Add Store</button>
-      <button class="btn" onclick="location.href='analytics.html'">📊 Analytics</button>
       <button class="btn" onclick="reloadData()">⟲ Reload</button>
     </div>
 
-    <!-- Filters -->
     <div class="filters">
-      <button class="pill" data-tab="all">All</button>
+      <button class="pill active" data-tab="all">All</button>
       <button class="pill" data-tab="approved">Approved</button>
-      <button class="pill active" data-tab="pending">Pending</button>
+      <button class="pill" data-tab="pending">Pending</button>
       <button class="pill" data-tab="flagged">Flagged</button>
       <button class="pill" data-tab="deleted">Trash</button>
     </div>
@@ -35,26 +29,25 @@
     <div class="searchbar">
       <input id="searchInput" placeholder="Search by name, city, country…" />
       <div class="viewtoggle">
-        <span class="seg" data-view="list">List</span>
         <span class="seg active" data-view="cards">Cards</span>
+        <span class="seg" data-view="list">List</span>
       </div>
     </div>
 
     <div id="cards" class="grid"></div>
+
     <div id="table" class="table-wrap" style="display:none">
       <table>
         <thead>
           <tr>
             <th>Name</th>
             <th>Country</th>
-            <th>Continent</th>
             <th>City</th>
+            <th>Continent</th>
             <th>Type</th>
             <th>Access</th>
             <th>Rating</th>
-            <th>Added</th>
             <th>Status</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -64,160 +57,173 @@
 
   <div id="toast-container"></div>
 
-  <!-- Flag modal -->
-  <div id="flagModal" class="modal-backdrop">
-    <div class="modal">
-      <h3>Flag store — reason</h3>
-      <textarea id="flagReason" placeholder="Describe why this store should be flagged…"></textarea>
-      <div class="row">
-        <button class="btn ghost" id="flagCancel">Cancel</button>
-        <button class="btn danger" id="flagConfirm">Flag</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============================================================
-       SCRIPT LOGIC — Proxy + Supabase setup
-  ============================================================ -->
   <script>
-    // === Global config ===
+    /* ============================================================
+       Backoffice Logic — Stable Proxy Version
+    ============================================================ */
     const WCL = {};
     WCL.SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
     WCL.SUPABASE_ANON_KEY =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-    WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
-
     WCL.PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
     WCL.FALLBACK_IMG = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
 
-    // === Helpers ===
+    WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
+
+    let currentTab = "all";
+    let currentView = "cards";
+    let STORES = [];
+
     const toast = (msg, cls="success") => {
       const c = document.getElementById("toast-container");
       const t = document.createElement("div");
       t.className = `toast ${cls}`;
       t.textContent = msg;
       c.appendChild(t);
-      setTimeout(()=>t.remove(), 3000);
+      setTimeout(() => t.remove(), 3000);
     };
 
-    function buildPhotoProxyUrl(ref, w=600) {
-      if (!ref) return WCL.FALLBACK_IMG;
-      return `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=${w}`;
-    }
-
-    // === Main data loader ===
-    async function reloadData(tab="pending") {
+    async function reloadData() {
       const grid = document.getElementById("cards");
-      grid.innerHTML = "<p style='color:#999;text-align:center;'>Loading…</p>";
+      grid.innerHTML = "<p style='color:#888;text-align:center;'>Loading…</p>";
 
       let query = WCL.supabase.from("stores").select("*").order("id", { ascending: false });
 
-      if (tab !== "all") query = query.eq(tab, true);
+      switch (currentTab) {
+        case "approved":
+          query = query.eq("approved", true).eq("deleted", false);
+          break;
+        case "pending":
+          query = query.eq("approved", false).eq("deleted", false).eq("flagged", false);
+          break;
+        case "flagged":
+          query = query.eq("flagged", true).eq("deleted", false);
+          break;
+        case "deleted":
+          query = query.eq("deleted", true);
+          break;
+        case "all":
+        default:
+          query = query.eq("deleted", false);
+      }
+
       const { data, error } = await query;
       if (error) {
         console.error(error);
-        grid.innerHTML = "<p style='color:#c33;text-align:center;'>Error loading stores</p>";
+        grid.innerHTML = `<p style='color:#c33;text-align:center;'>Error loading stores<br>${error.message}</p>`;
         return;
       }
 
-      renderCards(data);
+      STORES = data;
+      renderView();
     }
 
-    // === Card renderer with proxy ===
-    function renderCards(stores) {
+    function renderView() {
+      if (currentView === "list") renderList();
+      else renderCards();
+    }
+
+    function renderCards() {
       const grid = document.getElementById("cards");
       grid.innerHTML = "";
 
-      stores.forEach((s) => {
+      if (!STORES.length) {
+        grid.innerHTML = "<p style='color:#888;text-align:center;'>No stores found.</p>";
+        return;
+      }
+
+      STORES.forEach((s) => {
         const card = document.createElement("div");
-        card.className = "card";
+        card.className = "store-card";
 
-        const img = document.createElement("img");
-        img.className = "photo";
-        img.src = s.photo_reference ? buildPhotoProxyUrl(s.photo_reference) : WCL.FALLBACK_IMG;
-        img.onerror = () => (img.src = WCL.FALLBACK_IMG);
+        let colorClass = s.deleted
+          ? "deleted"
+          : s.flagged
+          ? "flagged"
+          : s.approved
+          ? "approved"
+          : "pending";
+        card.classList.add(colorClass);
 
-        const body = document.createElement("div");
-        body.className = "body";
-        body.innerHTML = `
-          <h3>${s.name || "Unnamed"}</h3>
-          <p><strong>📍</strong> ${s.city || "Unknown"}, ${s.country || ""}</p>
-          <p><strong>⭐</strong> ${s.rating ?? "–"}</p>
-          <p><strong>🗺️</strong> ${s.continent || ""}</p>
-          <div class="badges">
-            ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
-            ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
-            ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
-            ${!s.approved && !s.deleted && !s.flagged ? `<span class='badge gold'>PENDING</span>` : ""}
+        const imgSrc = s.photo_reference
+          ? `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(s.photo_reference)}&maxwidth=800`
+          : WCL.FALLBACK_IMG;
+
+        card.innerHTML = `
+          <img src="${imgSrc}" class="store-photo" onerror="this.src='${WCL.FALLBACK_IMG}'">
+          <div class="store-body">
+            <h3>${s.name || "Unnamed"}</h3>
+            <p>${s.city || "Unknown"}, ${s.country || ""}</p>
+            <div class="stars">${"★".repeat(s.rating || 0)}${"☆".repeat(5 - (s.rating || 0))}</div>
+            <p class="meta">${s.type || "Store"} • ${s.access || "Public"}</p>
+            <span class="status">${colorClass.toUpperCase()}</span>
           </div>
         `;
 
-        const actions = document.createElement("div");
-        actions.className = "actions";
-        actions.innerHTML = `
-          <button class="btn ghost small" onclick="approve(${s.id})">Approve</button>
-          <button class="btn ghost small danger" onclick="flag(${s.id})">Flag</button>
-          <button class="btn ghost small" onclick="removeStore(${s.id})">Delete</button>
-        `;
-
-        card.append(img, body, actions);
         grid.appendChild(card);
       });
     }
 
-    // === Moderation actions ===
-    async function approve(id) {
-      const { error } = await WCL.supabase.from("stores").update({ approved:true, flagged:false }).eq("id", id);
-      if (error) return toast("Error approving", "error");
-      toast("Approved ✅");
-      reloadData(currentTab);
+    function renderList() {
+      const tbody = document.getElementById("tbody");
+      document.getElementById("table").style.display = "block";
+      document.getElementById("cards").style.display = "none";
+
+      tbody.innerHTML = "";
+      if (!STORES.length) {
+        tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;'>No stores found</td></tr>";
+        return;
+      }
+
+      STORES.forEach((s) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${s.name}</td>
+          <td>${s.country}</td>
+          <td>${s.city}</td>
+          <td>${s.continent || "-"}</td>
+          <td>${s.type || "-"}</td>
+          <td>${s.access || "-"}</td>
+          <td>${s.rating || "-"}</td>
+          <td>${s.approved ? "Approved" : s.flagged ? "Flagged" : s.deleted ? "Deleted" : "Pending"}</td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
-    async function flag(id) {
-      const reason = prompt("Enter reason for flagging:");
-      if (!reason) return;
-      const { error } = await WCL.supabase.from("stores").update({ flagged:true, flag_reason:reason }).eq("id", id);
-      if (error) return toast("Error flagging", "error");
-      toast("Flagged 🚩");
-      reloadData(currentTab);
-    }
-
-    async function removeStore(id) {
-      if (!confirm("Move this store to Trash?")) return;
-      const { error } = await WCL.supabase.from("stores").update({ deleted:true }).eq("id", id);
-      if (error) return toast("Error deleting", "error");
-      toast("Moved to Trash 🗑️");
-      reloadData(currentTab);
-    }
-
-    // === Filter logic ===
-    let currentTab = "pending";
-    document.querySelectorAll(".pill").forEach(p => {
+    // === Filters ===
+    document.querySelectorAll(".pill").forEach((p) => {
       p.addEventListener("click", () => {
-        document.querySelectorAll(".pill").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".pill").forEach((b) => b.classList.remove("active"));
         p.classList.add("active");
         currentTab = p.dataset.tab;
-        reloadData(currentTab);
+        reloadData();
       });
     });
 
-    // === Search logic ===
-    document.getElementById("searchInput").addEventListener("input", async (e) => {
-      const term = e.target.value.trim();
-      if (!term) return reloadData(currentTab);
-      const { data, error } = await WCL.supabase
-        .from("stores")
-        .select("*")
-        .ilike("name", `%${term}%`);
-      if (error) return console.error(error);
-      renderCards(data);
+    // === View toggle ===
+    document.querySelectorAll(".seg").forEach((s) => {
+      s.addEventListener("click", () => {
+        document.querySelectorAll(".seg").forEach((x) => x.classList.remove("active"));
+        s.classList.add("active");
+        currentView = s.dataset.view;
+        renderView();
+      });
     });
 
-    // === Init ===
-    document.addEventListener("DOMContentLoaded", () => {
-      reloadData("pending");
-      toast("✅ Backoffice Proxy Ready");
+    // === Search ===
+    document.getElementById("searchInput").addEventListener("input", async (e) => {
+      const term = e.target.value.trim();
+      if (!term) return renderView();
+      const results = STORES.filter((s) =>
+        [s.name, s.city, s.country].some((f) =>
+          f?.toLowerCase().includes(term.toLowerCase())
+        )
+      );
+      currentView === "list" ? renderList(results) : renderCards(results);
     });
+
+    document.addEventListener("DOMContentLoaded", reloadData);
   </script>
 </body>
 </html>
