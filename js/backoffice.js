@@ -1,22 +1,56 @@
 /* ============================================================
-   WCL Backoffice V4.4 – Stable cards/list system + filtering
+   Backoffice — Moderation / Management (V4.3)
    ============================================================ */
 
-console.log("✅ Backoffice V4.4 loaded");
+console.log("✅ Backoffice JS v4.3 loaded (cards+list+proxy fixed)");
 
 const WCL = {};
 WCL.SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 WCL.SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
+WCL.PHOTO_PROXY_URL =
+  "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
+WCL.GITHUB_STORE_FALLBACK =
+  "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
 
-// Global state
+WCL.supabase = window.supabase.createClient(
+  WCL.SUPABASE_URL,
+  WCL.SUPABASE_ANON_KEY
+);
+
 let STORES = [];
 let CURRENT_TAB = "pending";
 let CURRENT_VIEW = "cards";
 
 /* ============================================================
-   Load Stores
+   INIT
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("🚀 Backoffice initialized");
+
+  document.querySelectorAll(".pill").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".pill").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      CURRENT_TAB = btn.dataset.tab;
+      loadStores();
+    });
+  });
+
+  document.querySelectorAll(".seg").forEach((seg) => {
+    seg.addEventListener("click", () => {
+      document.querySelectorAll(".seg").forEach((s) => s.classList.remove("active"));
+      seg.classList.add("active");
+      CURRENT_VIEW = seg.dataset.view;
+      renderView();
+    });
+  });
+
+  loadStores();
+});
+
+/* ============================================================
+   Load Stores (Safe + Status-based)
    ============================================================ */
 async function loadStores() {
   console.log("🔄 Loading stores for tab:", CURRENT_TAB);
@@ -27,101 +61,99 @@ async function loadStores() {
   cardsWrap.style.display = "block";
 
   try {
-    let query = WCL.supabase.from("stores").select(
-      "id, name, city, country, continent, type, access, rating, approved, flagged, deleted, status, photo_reference, place_id"
-    );
+    let query = WCL.supabase
+      .from("stores")
+      .select(
+        "id,name,city,country,continent,type,access,rating,approved,flagged,deleted,status,photo_reference,place_id"
+      );
 
-    // 👇 här ligger fixen – inga “pending”-kolumner längre
-    if (CURRENT_TAB === "pending") {
-      query = query
-        .eq("approved", false)
-        .eq("flagged", false)
-        .eq("deleted", false);
-    } else if (CURRENT_TAB === "approved") {
-      query = query.eq("approved", true).eq("deleted", false);
-    } else if (CURRENT_TAB === "flagged") {
-      query = query.eq("flagged", true).eq("deleted", false);
-    } else if (CURRENT_TAB === "deleted") {
-      query = query.eq("deleted", true);
-    } else if (CURRENT_TAB === "all") {
-      query = query.eq("deleted", false);
+    switch (CURRENT_TAB) {
+      case "pending":
+        query = query.eq("status", "pending").eq("deleted", false);
+        break;
+      case "approved":
+        query = query.eq("approved", true).eq("deleted", false);
+        break;
+      case "flagged":
+        query = query.eq("flagged", true).eq("deleted", false);
+        break;
+      case "deleted":
+        query = query.eq("deleted", true);
+        break;
+      case "all":
+        query = query.eq("deleted", false);
+        break;
     }
 
     const { data, error } = await query.order("id", { ascending: false });
 
-    if (error) {
-      console.error("❌ Supabase error:", error);
-      cardsWrap.innerHTML = `<div class="error">Error loading stores</div>`;
-      return;
-    }
+    if (error) throw error;
 
     STORES = data || [];
     console.log(`✅ Loaded ${STORES.length} stores`);
     renderView();
   } catch (err) {
     console.error("💥 loadStores failed:", err);
-    const cardsWrap = document.getElementById("cards");
     cardsWrap.innerHTML = `<div class="error">Error loading stores</div>`;
   }
 }
 
-
 /* ============================================================
-   Rendering
+   Render View
    ============================================================ */
 function renderView() {
-  const cardsWrap = document.getElementById("cards");
-  const tableWrap = document.getElementById("table");
-
-  if (CURRENT_VIEW === "cards") {
-    tableWrap.style.display = "none";
-    cardsWrap.style.display = "block";
-    renderCards();
-  } else {
-    cardsWrap.style.display = "none";
-    tableWrap.style.display = "block";
-    renderList();
-  }
+  if (CURRENT_VIEW === "cards") renderCards();
+  else renderList();
 }
 
 /* ============================================================
-   Render Cards
+   Render Cards (color-coded)
    ============================================================ */
 function renderCards() {
   const wrap = document.getElementById("cards");
   wrap.innerHTML = "";
 
   if (!STORES.length) {
-    wrap.innerHTML = `<div class="muted">No stores found in this category.</div>`;
+    wrap.innerHTML = `<p style="text-align:center;color:#999;">No stores found.</p>`;
     return;
   }
 
-  const cards = STORES.map(store => `
-    <div class="store-card">
-      <img class="store-photo" src="https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?photo_reference=${encodeURIComponent(store.photo_reference || "")}&maxwidth=400" 
-           onerror="this.src='https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg'">
-      <div class="store-body">
-        <h3>${store.name || "(No name)"}</h3>
-        <p>📍 ${store.city || "-"}, ${store.country || ""}</p>
-        <p>⭐ ${store.rating || "–"}</p>
-        <p>🌍 ${store.continent || "Other"}</p>
-        <p>🏷️ ${store.type || "–"} / ${store.access || "–"}</p>
-        <div class="status">
-          ${store.approved ? "✅ APPROVED" :
-            store.flagged ? "⚠️ FLAGGED" :
-            store.deleted ? "🗑️ DELETED" :
-            "⏳ PENDING"}
-        </div>
-        <div class="actions">
-          <button class="btn small" onclick="approveStore(${store.id})">Approve</button>
-          <button class="btn small ghost" onclick="flagStore(${store.id})">Flag</button>
-          <button class="btn small danger" onclick="deleteStore(${store.id})">Delete</button>
-        </div>
-      </div>
-    </div>
-  `).join("");
+  STORES.forEach((s) => {
+    const card = document.createElement("div");
+    card.className = "store-card";
 
-  wrap.innerHTML = `<div class="grid-cards">${cards}</div>`;
+    // ✅ Color based on status
+    let colorClass = "";
+    if (s.deleted) colorClass = "deleted";
+    else if (s.flagged) colorClass = "flagged";
+    else if (s.approved) colorClass = "approved";
+    else colorClass = "pending";
+    card.classList.add(colorClass);
+
+    const img =
+      s.photo_reference
+        ? `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(
+            s.photo_reference
+          )}&maxwidth=800`
+        : WCL.GITHUB_STORE_FALLBACK;
+
+    const stars = Array.from({ length: 5 })
+      .map((_, i) => (i < (Math.round(s.rating) || 0) ? "★" : "☆"))
+      .join("");
+
+    card.innerHTML = `
+      <img class="store-photo" src="${img}" alt="${s.name}">
+      <div class="store-body">
+        <div class="title">${s.name}</div>
+        <div class="meta">${s.city || "Unknown"}, ${s.country || ""}</div>
+        <div class="stars">${stars}</div>
+        <div class="tag">${s.type || "N/A"} • ${s.access || "-"}</div>
+        <div class="status">${s.status?.toUpperCase() || (s.approved ? "APPROVED" : "PENDING")}</div>
+      </div>
+    `;
+
+    wrap.appendChild(card);
+  });
 }
 
 /* ============================================================
@@ -129,75 +161,32 @@ function renderCards() {
    ============================================================ */
 function renderList() {
   const tbody = document.getElementById("tbody");
+  const tableWrap = document.getElementById("table");
+  const cardsWrap = document.getElementById("cards");
   tbody.innerHTML = "";
+  tableWrap.style.display = "block";
+  cardsWrap.style.display = "none";
 
   if (!STORES.length) {
-    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:#666;">No stores found</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;color:#888;">No stores found.</td></tr>`;
     return;
   }
 
-  STORES.forEach(store => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${store.name || "-"}</td>
-      <td>${store.country || "-"}</td>
-      <td>${store.continent || "-"}</td>
-      <td>${store.city || "-"}</td>
-      <td>${store.type || "-"}</td>
-      <td>${store.access || "-"}</td>
-      <td>${store.rating || "-"}</td>
-      <td>${store.status || "-"}</td>
-      <td>${store.approved ? "✅" : store.flagged ? "⚠️" : store.deleted ? "🗑️" : "⏳"}</td>
-      <td>
-        <button class="btn small" onclick="approveStore(${store.id})">Approve</button>
-        <button class="btn small ghost" onclick="flagStore(${store.id})">Flag</button>
-        <button class="btn small danger" onclick="deleteStore(${store.id})">Delete</button>
-      </td>
+  STORES.forEach((s) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${s.name}</td>
+      <td>${s.country}</td>
+      <td>${s.continent || "-"}</td>
+      <td>${s.city}</td>
+      <td>${s.type || "-"}</td>
+      <td>${s.access || "-"}</td>
+      <td>${s.rating || "-"}</td>
+      <td>${s.status || (s.approved ? "approved" : "pending")}</td>
+      <td>${s.flagged ? "⚠️" : ""}</td>
+      <td>${s.deleted ? "🗑" : ""}</td>
+      <td class="t-actions">—</td>
     `;
-    tbody.appendChild(row);
+    tbody.appendChild(tr);
   });
 }
-
-/* ============================================================
-   Actions
-   ============================================================ */
-async function approveStore(id) {
-  await WCL.supabase.from("stores").update({ approved: true, flagged: false, deleted: false, status: "approved" }).eq("id", id);
-  loadStores();
-}
-async function flagStore(id) {
-  await WCL.supabase.from("stores").update({ flagged: true, approved: false, deleted: false, status: "flagged" }).eq("id", id);
-  loadStores();
-}
-async function deleteStore(id) {
-  await WCL.supabase.from("stores").update({ deleted: true, flagged: false, approved: false, status: "deleted" }).eq("id", id);
-  loadStores();
-}
-
-/* ============================================================
-   Tabs + View Toggles
-   ============================================================ */
-document.querySelectorAll(".pill").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".pill").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    CURRENT_TAB = btn.dataset.tab;
-    loadStores();
-  });
-});
-
-document.querySelectorAll(".seg").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".seg").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    CURRENT_VIEW = btn.dataset.view;
-    renderView();
-  });
-});
-
-/* ============================================================
-   Init
-   ============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  loadStores();
-});
