@@ -18,7 +18,6 @@
       --success: #28a745;
       --error: #dc3545;
     }
-
     body {
       font-family: 'Inter', Arial, sans-serif;
       background: var(--bg);
@@ -26,7 +25,6 @@
       margin: 0;
       padding: 1.5rem;
     }
-
     header {
       background: white;
       padding: 0.8rem 1.2rem;
@@ -37,7 +35,6 @@
       justify-content: space-between;
       margin-bottom: 1.5rem;
     }
-
     .wrap { max-width: 900px; margin: 0 auto; }
     .card { background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
@@ -47,16 +44,8 @@
       width: 100%; padding: .6rem; border: 1px solid var(--border);
       border-radius: 8px; font-size: 1rem;
     }
-
-    .btn {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 0.6rem 1.2rem;
-      cursor: pointer;
-      font-weight: 600;
-    }
+    .btn { background: var(--accent); color: #fff; border: none;
+      border-radius: 8px; padding: 0.6rem 1.2rem; cursor: pointer; font-weight: 600; }
     .btn:hover { background: #005ec4; }
 
     .type-group, .access-group { display: flex; gap: .6rem; margin-top: .4rem; }
@@ -151,112 +140,82 @@
 
   <div id="toast-container"></div>
 
-  <!-- ==================== JS Logic ==================== -->
   <script>
     const WCL = {};
 
-    // ✅ Supabase config
+    // ✅ Supabase + Proxy setup
     WCL.SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    WCL.SUPABASE_ANON_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-
-    // ✅ Proxy + Google setup
+    WCL.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
     WCL.PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
     WCL.GOOGLE_KEY = "AIzaSyATmexFx54vFxbNu3IbWYkNuxQ1jdt00XY";
     WCL.GITHUB_STORE_FALLBACK = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-
-    // ✅ Create Supabase client
     WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
-    // ✅ Helpers
-    WCL.countryToContinent = (country) => {
-      const c = (country || "").toLowerCase();
-      if (["sweden","germany","france","italy","spain","norway","finland","denmark","netherlands","belgium","austria","switzerland","poland","czech republic","czechia"].includes(c)) return "Europe";
-      if (["united states","usa","canada","mexico","cuba","dominican republic"].includes(c)) return "North America";
-      if (["brazil","argentina","chile","peru","colombia","uruguay","paraguay"].includes(c)) return "South America";
-      if (["china","japan","india","thailand","malaysia","singapore","israel","turkey","vietnam","indonesia"].includes(c)) return "Asia";
-      if (["south africa","nigeria","kenya","morocco","egypt","ghana"].includes(c)) return "Africa";
-      if (["australia","new zealand","fiji"].includes(c)) return "Oceania";
-      return "Other";
+    // ✅ Helper functions
+    WCL.countryToContinent = (c) => {
+      c=(c||"").toLowerCase();
+      if(["sweden","germany","france","italy","spain","norway","finland","denmark","netherlands","belgium","austria","switzerland","poland","czech republic","czechia"].includes(c))return"Europe";
+      if(["united states","usa","canada","mexico","cuba","dominican republic"].includes(c))return"North America";
+      if(["brazil","argentina","chile","peru","colombia","uruguay","paraguay"].includes(c))return"South America";
+      if(["china","japan","india","thailand","malaysia","singapore","israel","turkey","vietnam","indonesia"].includes(c))return"Asia";
+      if(["south africa","nigeria","kenya","morocco","egypt","ghana"].includes(c))return"Africa";
+      if(["australia","new zealand","fiji"].includes(c))return"Oceania";
+      return"Other";
     };
 
-    WCL.fetchPhotoRefs = async (placeId) => {
-      const endpoint = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs?place_id=${encodeURIComponent(placeId)}`;
-      try {
-        const res = await fetch(endpoint);
-        const data = await res.json();
-        return data?.refs || [];
-      } catch {
-        return [];
-      }
+    WCL.fetchPhotoRefs = async (pid)=>{
+      const res=await fetch(`https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs?place_id=${pid}`);
+      const j=await res.json(); return j?.refs||[];
     };
 
-    WCL.loadProxyPhotoInto = async (imgEl, ref) => {
-      imgEl.src = ref
-        ? `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=800`
-        : WCL.GITHUB_STORE_FALLBACK;
+    WCL.loadProxyPhotoInto=(el,ref)=>{
+      el.src=ref?`${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=800`:WCL.GITHUB_STORE_FALLBACK;
     };
 
-    WCL.toastShared = (msg, cls="success") => {
-      const c = document.getElementById("toast-container");
-      const t = document.createElement("div");
-      t.className = `toast ${cls}`;
-      t.textContent = msg;
-      c.appendChild(t);
-      setTimeout(()=>t.remove(), 3000);
+    WCL.toastShared=(m,c="success")=>{
+      const t=document.createElement("div");
+      t.className=`toast ${c}`;t.textContent=m;
+      document.getElementById("toast-container").appendChild(t);
+      setTimeout(()=>t.remove(),3000);
     };
 
-    // ✅ Logic
-    const sel = { types: [], access:null, rating:null, place_id:null, _photo_refs:[], photo_index:0, photo_reference:null };
+    const sel={types:[],access:null,rating:null,place_id:null,_photo_refs:[],photo_index:0,photo_reference:null};
 
-    document.addEventListener("DOMContentLoaded", () => {
-      // Type toggle
-      document.querySelectorAll(".type-btn").forEach(btn=>{
-        btn.addEventListener("click",()=>{
-          const active = btn.classList.contains("active");
-          document.querySelectorAll(".type-btn").forEach(b=>b.classList.remove("active"));
-          sel.types = active ? [] : [btn.dataset.type];
-          if (!active) btn.classList.add("active");
-        });
-      });
+    document.addEventListener("DOMContentLoaded",()=>{
+      document.querySelectorAll(".type-btn").forEach(b=>b.addEventListener("click",()=>{
+        const a=b.classList.contains("active");
+        document.querySelectorAll(".type-btn").forEach(x=>x.classList.remove("active"));
+        if(!a){b.classList.add("active");sel.types=[b.dataset.type];}else sel.types=[];
+      }));
 
-      // Access toggle
-      document.querySelectorAll(".access-pill input").forEach(r=>{
-        r.addEventListener("change",()=>{
-          if (sel.access === r.value) { r.checked = false; sel.access = null; }
-          else sel.access = r.value;
-        });
-      });
+      document.querySelectorAll(".access-pill input").forEach(r=>r.addEventListener("change",()=>{
+        if(sel.access===r.value){r.checked=false;sel.access=null;}else sel.access=r.value;
+      }));
 
-      // Stars
       const stars=document.getElementById("stars");
-      stars.addEventListener("click",e=>{
-        const v=+e.target.dataset.v; if(!v)return;
-        sel.rating=v; updateStars();
-      });
-      stars.addEventListener("mouseover",e=>highlightStars(+e.target.dataset.v));
-      stars.addEventListener("mouseout",updateStars);
-
-      function updateStars(){
-        [...stars.children].forEach((el,i)=>{ el.style.color=i<(sel.rating??0)?"#ffb400":"#ccc"; });
-      }
-      function highlightStars(v){
-        [...stars.children].forEach((el,i)=>{ el.style.color=i<v?"#ffda7a":"#ccc"; });
-      }
+      stars.addEventListener("click",e=>{const v=+e.target.dataset.v;if(v){sel.rating=v;u();}});
+      stars.addEventListener("mouseover",e=>h(+e.target.dataset.v));
+      stars.addEventListener("mouseout",u);
+      const u=()=>[...stars.children].forEach((el,i)=>el.style.color=i<(sel.rating??0)?"#ffb400":"#ccc");
+      const h=v=>[...stars.children].forEach((el,i)=>el.style.color=i<v?"#ffda7a":"#ccc");
     });
 
-    async function saveStore() {
+    async function saveStore(){
       const name=document.getElementById("name").value.trim();
       const address=document.getElementById("addr").value.trim();
       const city=document.getElementById("city").value.trim();
       const country=document.getElementById("country").value.trim();
       if(!name||!address||!city||!country){WCL.toastShared("⚠️ Please fill in all required fields","error");return;}
-      const continent = WCL.countryToContinent(country);
-      const payload={name,address,city,country,continent,
-        type:sel.types[0]||null,types:sel.types,access:sel.access,rating:sel.rating??null,
-        place_id:sel.place_id,photo_reference:sel.photo_reference||null,photo_url:null,
-        approved:false,flagged:false,deleted:false,status:"pending"};
-      const { error } = await WCL.supabase.from("stores").insert([payload]);
+      const payload={
+        name,address,city,country,
+        continent:WCL.countryToContinent(country),
+        type:sel.types[0]||null,types:sel.types,
+        access:sel.access,rating:sel.rating??null,
+        place_id:sel.place_id,photo_reference:sel.photo_reference||null,
+        approved:false,flagged:false,deleted:false,status:"pending"
+      };
+      console.log("🧩 Payload to Supabase:",payload);
+      const {error}=await WCL.supabase.from("stores").insert([payload]);
       if(error){console.error(error);WCL.toastShared("Error saving","error");return;}
       WCL.toastShared("✅ Store saved successfully","success");
       resetForm();
@@ -266,16 +225,16 @@
       document.querySelectorAll("input").forEach(i=>{if(i.type!=="radio")i.value="";});
       document.querySelectorAll(".type-btn").forEach(b=>b.classList.remove("active"));
       document.querySelectorAll(".access-pill input").forEach(r=>r.checked=false);
-      sel.types=[]; sel.access=null; sel.rating=null; sel.place_id=null; sel._photo_refs=[]; sel.photo_reference=null;
+      sel.types=[];sel.access=null;sel.rating=null;sel.place_id=null;sel._photo_refs=[];sel.photo_reference=null;
       document.getElementById("preview-photo").src=WCL.GITHUB_STORE_FALLBACK;
       document.getElementById("photo-meta").textContent="No photo loaded";
     }
 
-    async function initAutocomplete() {
-      const input=document.getElementById("gAddress");
-      const ac=new google.maps.places.Autocomplete(input,{fields:["place_id","address_components","geometry","name","formatted_address","international_phone_number","website"]});
+    async function initAutocomplete(){
+      const i=document.getElementById("gAddress");
+      const ac=new google.maps.places.Autocomplete(i,{fields:["place_id","address_components","geometry","name","formatted_address","international_phone_number","website"]});
       ac.addListener("place_changed",async()=>{
-        const p=ac.getPlace(); if(!p)return;
+        const p=ac.getPlace();if(!p)return;
         document.getElementById("name").value=p.name||"";
         document.getElementById("addr").value=p.formatted_address||"";
         document.getElementById("phone").value=p.international_phone_number||"";
@@ -287,20 +246,16 @@
         document.getElementById("country").value=country?.long_name||"";
         sel.place_id=p.place_id||null;
         const refs=await WCL.fetchPhotoRefs(sel.place_id);
-        if(refs.length>0){
-          sel._photo_refs=refs; sel.photo_index=0; sel.photo_reference=refs[0];
+        if(refs.length>0){sel._photo_refs=refs;sel.photo_index=0;sel.photo_reference=refs[0];
           await WCL.loadProxyPhotoInto(document.getElementById("preview-photo"),refs[0]);
           document.getElementById("photo-meta").textContent=`Loaded ${refs.length} photo(s)`;
-        } else {
-          document.getElementById("preview-photo").src=WCL.GITHUB_STORE_FALLBACK;
-          document.getElementById("photo-meta").textContent="No Google photos found";
-        }
+        }else{document.getElementById("preview-photo").src=WCL.GITHUB_STORE_FALLBACK;
+          document.getElementById("photo-meta").textContent="No Google photos found";}
       });
     }
     window.initAutocomplete=initAutocomplete;
   </script>
 
-  <!-- Google Maps (Browser key only here) -->
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete"></script>
 </body>
 </html>
