@@ -1,8 +1,8 @@
 /* ============================================================
-   WCL Backoffice V4.3 – Store moderation + view system
+   WCL Backoffice V4.4 – Stable cards/list system + filtering
    ============================================================ */
 
-console.log("✅ Backoffice V4.3 loaded");
+console.log("✅ Backoffice V4.4 loaded");
 
 const WCL = {};
 WCL.SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
@@ -20,6 +20,12 @@ let CURRENT_VIEW = "cards";
    ============================================================ */
 async function loadStores() {
   console.log("🔄 Loading stores for tab:", CURRENT_TAB);
+  const cardsWrap = document.getElementById("cards");
+  const tableWrap = document.getElementById("table");
+  cardsWrap.innerHTML = `<p style="text-align:center;color:#888;">Loading…</p>`;
+  tableWrap.style.display = "none";
+  cardsWrap.style.display = "block";
+
   try {
     let query = WCL.supabase.from("stores").select(
       "id, name, city, country, continent, type, access, rating, approved, flagged, deleted, status, photo_reference, place_id"
@@ -29,13 +35,13 @@ async function loadStores() {
     else if (CURRENT_TAB === "approved") query = query.eq("approved", true).eq("deleted", false);
     else if (CURRENT_TAB === "flagged") query = query.eq("flagged", true).eq("deleted", false);
     else if (CURRENT_TAB === "deleted") query = query.eq("deleted", true);
-    else if (CURRENT_TAB === "all") query = query.eq("deleted", false); // ✅ Exclude deleted
+    else if (CURRENT_TAB === "all") query = query.eq("deleted", false); // ✅ Exclude deleted from All
 
     const { data, error } = await query.order("id", { ascending: false });
 
     if (error) {
       console.error("❌ Supabase error:", error);
-      document.getElementById("cards").innerHTML = `<div class="error">Error loading stores</div>`;
+      cardsWrap.innerHTML = `<div class="error">Error loading stores</div>`;
       return;
     }
 
@@ -52,8 +58,18 @@ async function loadStores() {
    Rendering
    ============================================================ */
 function renderView() {
-  if (CURRENT_VIEW === "cards") renderCards();
-  else renderList();
+  const cardsWrap = document.getElementById("cards");
+  const tableWrap = document.getElementById("table");
+
+  if (CURRENT_VIEW === "cards") {
+    tableWrap.style.display = "none";
+    cardsWrap.style.display = "block";
+    renderCards();
+  } else {
+    cardsWrap.style.display = "none";
+    tableWrap.style.display = "block";
+    renderList();
+  }
 }
 
 /* ============================================================
@@ -78,7 +94,12 @@ function renderCards() {
         <p>⭐ ${store.rating || "–"}</p>
         <p>🌍 ${store.continent || "Other"}</p>
         <p>🏷️ ${store.type || "–"} / ${store.access || "–"}</p>
-        <div class="status">${store.approved ? "✅ APPROVED" : store.flagged ? "⚠️ FLAGGED" : store.deleted ? "🗑️ DELETED" : "⏳ PENDING"}</div>
+        <div class="status">
+          ${store.approved ? "✅ APPROVED" :
+            store.flagged ? "⚠️ FLAGGED" :
+            store.deleted ? "🗑️ DELETED" :
+            "⏳ PENDING"}
+        </div>
         <div class="actions">
           <button class="btn small" onclick="approveStore(${store.id})">Approve</button>
           <button class="btn small ghost" onclick="flagStore(${store.id})">Flag</button>
@@ -115,13 +136,18 @@ function renderList() {
       <td>${store.rating || "-"}</td>
       <td>${store.status || "-"}</td>
       <td>${store.approved ? "✅" : store.flagged ? "⚠️" : store.deleted ? "🗑️" : "⏳"}</td>
+      <td>
+        <button class="btn small" onclick="approveStore(${store.id})">Approve</button>
+        <button class="btn small ghost" onclick="flagStore(${store.id})">Flag</button>
+        <button class="btn small danger" onclick="deleteStore(${store.id})">Delete</button>
+      </td>
     `;
     tbody.appendChild(row);
   });
 }
 
 /* ============================================================
-   Actions (Approve / Flag / Delete)
+   Actions
    ============================================================ */
 async function approveStore(id) {
   await WCL.supabase.from("stores").update({ approved: true, flagged: false, deleted: false, status: "approved" }).eq("id", id);
@@ -137,7 +163,7 @@ async function deleteStore(id) {
 }
 
 /* ============================================================
-   Filter / Tab Controls
+   Tabs + View Toggles
    ============================================================ */
 document.querySelectorAll(".pill").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -160,4 +186,6 @@ document.querySelectorAll(".seg").forEach(btn => {
 /* ============================================================
    Init
    ============================================================ */
-loadStores();
+document.addEventListener("DOMContentLoaded", () => {
+  loadStores();
+});
