@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Backoffice — Moderation (V4.2+)</title>
+  <title>Backoffice — Moderation (V5 Proxy Ready)</title>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -40,22 +40,7 @@
       </div>
     </div>
 
-    <!-- Approved hierarchy panel -->
-    <div id="hierarchyPanel" class="hierarchy-panel" style="display:none">
-      <div class="h-row">
-        <div class="h-controls">
-          <input id="hSearch" placeholder="Filter continent / country / city…" />
-          <button class="btn ghost" id="hCloseAll">Close All</button>
-          <button class="btn ghost" id="hClearSel" title="Clear selection">Clear</button>
-        </div>
-        <div class="crumbs" id="hCrumbs">Showing: <b>All Approved</b></div>
-      </div>
-      <div id="hTree" class="h-tree"></div>
-    </div>
-
-    <!-- Dynamic content -->
     <div id="cards" class="grid"></div>
-
     <div id="table" class="table-wrap" style="display:none">
       <table>
         <thead>
@@ -68,10 +53,8 @@
             <th>Access</th>
             <th>Rating</th>
             <th>Added</th>
-            <th>Added by</th>
             <th>Status</th>
-            <th>Reason</th>
-            <th class="t-actions">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -79,9 +62,9 @@
     </div>
   </div>
 
-  <!-- Toast & Modal -->
   <div id="toast-container"></div>
 
+  <!-- Flag modal -->
   <div id="flagModal" class="modal-backdrop">
     <div class="modal">
       <h3>Flag store — reason</h3>
@@ -93,13 +76,148 @@
     </div>
   </div>
 
-  <!-- Invisible node for Google Places (no map shown) -->
-  <div id="gmap" style="width:0;height:0;overflow:hidden;position:absolute;left:-9999px;top:-9999px"></div>
+  <!-- ============================================================
+       SCRIPT LOGIC — Proxy + Supabase setup
+  ============================================================ -->
+  <script>
+    // === Global config ===
+    const WCL = {};
+    WCL.SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    WCL.SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
-  <!-- Logic -->
-  <script src="js/backoffice.js"></script>
+    WCL.PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
+    WCL.FALLBACK_IMG = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
 
-  <!-- Google Places (for photo picker) -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=_mapsReady"></script>
+    // === Helpers ===
+    const toast = (msg, cls="success") => {
+      const c = document.getElementById("toast-container");
+      const t = document.createElement("div");
+      t.className = `toast ${cls}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(()=>t.remove(), 3000);
+    };
+
+    function buildPhotoProxyUrl(ref, w=600) {
+      if (!ref) return WCL.FALLBACK_IMG;
+      return `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=${w}`;
+    }
+
+    // === Main data loader ===
+    async function reloadData(tab="pending") {
+      const grid = document.getElementById("cards");
+      grid.innerHTML = "<p style='color:#999;text-align:center;'>Loading…</p>";
+
+      let query = WCL.supabase.from("stores").select("*").order("id", { ascending: false });
+
+      if (tab !== "all") query = query.eq(tab, true);
+      const { data, error } = await query;
+      if (error) {
+        console.error(error);
+        grid.innerHTML = "<p style='color:#c33;text-align:center;'>Error loading stores</p>";
+        return;
+      }
+
+      renderCards(data);
+    }
+
+    // === Card renderer with proxy ===
+    function renderCards(stores) {
+      const grid = document.getElementById("cards");
+      grid.innerHTML = "";
+
+      stores.forEach((s) => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const img = document.createElement("img");
+        img.className = "photo";
+        img.src = s.photo_reference ? buildPhotoProxyUrl(s.photo_reference) : WCL.FALLBACK_IMG;
+        img.onerror = () => (img.src = WCL.FALLBACK_IMG);
+
+        const body = document.createElement("div");
+        body.className = "body";
+        body.innerHTML = `
+          <h3>${s.name || "Unnamed"}</h3>
+          <p><strong>📍</strong> ${s.city || "Unknown"}, ${s.country || ""}</p>
+          <p><strong>⭐</strong> ${s.rating ?? "–"}</p>
+          <p><strong>🗺️</strong> ${s.continent || ""}</p>
+          <div class="badges">
+            ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
+            ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
+            ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
+            ${!s.approved && !s.deleted && !s.flagged ? `<span class='badge gold'>PENDING</span>` : ""}
+          </div>
+        `;
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        actions.innerHTML = `
+          <button class="btn ghost small" onclick="approve(${s.id})">Approve</button>
+          <button class="btn ghost small danger" onclick="flag(${s.id})">Flag</button>
+          <button class="btn ghost small" onclick="removeStore(${s.id})">Delete</button>
+        `;
+
+        card.append(img, body, actions);
+        grid.appendChild(card);
+      });
+    }
+
+    // === Moderation actions ===
+    async function approve(id) {
+      const { error } = await WCL.supabase.from("stores").update({ approved:true, flagged:false }).eq("id", id);
+      if (error) return toast("Error approving", "error");
+      toast("Approved ✅");
+      reloadData(currentTab);
+    }
+
+    async function flag(id) {
+      const reason = prompt("Enter reason for flagging:");
+      if (!reason) return;
+      const { error } = await WCL.supabase.from("stores").update({ flagged:true, flag_reason:reason }).eq("id", id);
+      if (error) return toast("Error flagging", "error");
+      toast("Flagged 🚩");
+      reloadData(currentTab);
+    }
+
+    async function removeStore(id) {
+      if (!confirm("Move this store to Trash?")) return;
+      const { error } = await WCL.supabase.from("stores").update({ deleted:true }).eq("id", id);
+      if (error) return toast("Error deleting", "error");
+      toast("Moved to Trash 🗑️");
+      reloadData(currentTab);
+    }
+
+    // === Filter logic ===
+    let currentTab = "pending";
+    document.querySelectorAll(".pill").forEach(p => {
+      p.addEventListener("click", () => {
+        document.querySelectorAll(".pill").forEach(b => b.classList.remove("active"));
+        p.classList.add("active");
+        currentTab = p.dataset.tab;
+        reloadData(currentTab);
+      });
+    });
+
+    // === Search logic ===
+    document.getElementById("searchInput").addEventListener("input", async (e) => {
+      const term = e.target.value.trim();
+      if (!term) return reloadData(currentTab);
+      const { data, error } = await WCL.supabase
+        .from("stores")
+        .select("*")
+        .ilike("name", `%${term}%`);
+      if (error) return console.error(error);
+      renderCards(data);
+    });
+
+    // === Init ===
+    document.addEventListener("DOMContentLoaded", () => {
+      reloadData("pending");
+      toast("✅ Backoffice Proxy Ready");
+    });
+  </script>
 </body>
 </html>
