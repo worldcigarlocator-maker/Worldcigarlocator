@@ -1,160 +1,122 @@
 /* ============================================================
-   Backoffice — Card/List visual refresh (V4.4)
+   Backoffice Cards + Table Styling (V4.3)
    ============================================================ */
 
-body {
-  background: #f6f7f9;
-  font-family: "Inter", sans-serif;
-  color: #222;
-}
-
-/* Grid layout for cards */
-.grid-cards {
+.grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.5rem;
+  gap: 1.2rem;
   margin-top: 1rem;
 }
 
-/* Store card */
 .store-card {
   background: #fff;
-  border-radius: 14px;
+  border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.store-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  border: 2px solid transparent;
 }
 
-/* Store photo */
+.store-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
 .store-photo {
   width: 100%;
   height: 180px;
   object-fit: cover;
-  background: #ddd;
+  background: #eee;
 }
 
-/* Card content */
 .store-body {
-  padding: 1rem 1.2rem 1.3rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  padding: 0.9rem 1rem 1.1rem;
 }
 
-.store-body h3 {
-  font-size: 1.05rem;
-  font-weight: 600;
-  margin: 0 0 0.4rem 0;
-  color: #111;
-}
-.store-body p {
-  margin: 0.15rem 0;
-  color: #444;
-  font-size: 0.95rem;
+.store-body .title {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
 }
 
-/* Status badge */
-.status {
-  margin-top: 0.5rem;
-  padding: 0.4rem 0.7rem;
-  border-radius: 6px;
-  font-weight: 600;
+.store-body .meta {
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 0.4rem;
+}
+
+.store-body .stars {
+  color: #ffb400;
+  letter-spacing: 1px;
+  margin-bottom: 0.4rem;
+}
+
+.store-body .tag {
   font-size: 0.85rem;
-  display: inline-block;
-  align-self: flex-start;
-}
-
-/* Color-coded status */
-.status:contains("APPROVED"),
-.status:has-text("APPROVED") {
-  background: #e8f8ed;
-  color: #187c3c;
-}
-.status:contains("PENDING"),
-.status:has-text("PENDING") {
-  background: #fff7e0;
-  color: #b37d00;
-}
-.status:contains("FLAGGED"),
-.status:has-text("FLAGGED") {
-  background: #fff0f0;
-  color: #c42b2b;
-}
-.status:contains("DELETED"),
-.status:has-text("DELETED") {
-  background: #f1f1f1;
   color: #555;
+  margin-bottom: 0.3rem;
 }
 
-/* Buttons in cards */
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.4rem;
+.store-body .status {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  background: #f0f2f5;
+  color: #333;
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+}
+
+/* === COLOR CODES === */
+.store-card.pending {
+  border-color: #f7c948;
+}
+.store-card.approved {
+  border-color: #3ac47d;
+}
+.store-card.flagged {
+  border-color: #f04c4c;
+}
+.store-card.deleted {
+  border-color: #999;
+  opacity: 0.7;
+}
+
+/* === TABLE FIX === */
+.table-wrap {
+  overflow-x: auto;
   margin-top: 1rem;
 }
 
-.btn.small {
-  font-size: 0.8rem;
-  padding: 0.3rem 0.7rem;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.btn.small:hover {
-  opacity: 0.9;
-}
-
-.btn.small.ghost {
-  background: #eaf1ff;
-  color: #1b5ef9;
-}
-
-.btn.small.danger {
-  background: #ffeaea;
-  color: #c61e1e;
-}
-
-.btn.small {
-  background: #dff6e0;
-  color: #166e31;
-}
-
-/* List view table improvements */
-.table-wrap table {
+table {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-.table-wrap th,
-.table-wrap td {
-  padding: 0.6rem 0.8rem;
-  text-align: left;
+table th, table td {
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid #eee;
   font-size: 0.9rem;
+  text-align: left;
 }
 
-.table-wrap th {
-  background: #f2f4f7;
-  font-weight: 600;
-  color: #333;
+table th {
+  background: #f9fafb;
+  font-weight: 700;
 }
 
-.table-wrap tr:nth-child(even) {
-  background: #fafafa;
+.t-actions {
+  text-align: right;
 }
 
-.table-wrap tr:hover {
-  background: #f5f9ff;
+.error {
+  color: #d33;
+  text-align: center;
+  padding: 1rem;
 }
