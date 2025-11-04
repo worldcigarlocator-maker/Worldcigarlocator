@@ -31,11 +31,21 @@ async function loadStores() {
       "id, name, city, country, continent, type, access, rating, approved, flagged, deleted, status, photo_reference, place_id"
     );
 
-    if (CURRENT_TAB === "pending") query = query.eq("approved", false).eq("flagged", false).eq("deleted", false);
-    else if (CURRENT_TAB === "approved") query = query.eq("approved", true).eq("deleted", false);
-    else if (CURRENT_TAB === "flagged") query = query.eq("flagged", true).eq("deleted", false);
-    else if (CURRENT_TAB === "deleted") query = query.eq("deleted", true);
-    else if (CURRENT_TAB === "all") query = query.eq("deleted", false); // ✅ Exclude deleted from All
+    // 👇 här ligger fixen – inga “pending”-kolumner längre
+    if (CURRENT_TAB === "pending") {
+      query = query
+        .eq("approved", false)
+        .eq("flagged", false)
+        .eq("deleted", false);
+    } else if (CURRENT_TAB === "approved") {
+      query = query.eq("approved", true).eq("deleted", false);
+    } else if (CURRENT_TAB === "flagged") {
+      query = query.eq("flagged", true).eq("deleted", false);
+    } else if (CURRENT_TAB === "deleted") {
+      query = query.eq("deleted", true);
+    } else if (CURRENT_TAB === "all") {
+      query = query.eq("deleted", false);
+    }
 
     const { data, error } = await query.order("id", { ascending: false });
 
@@ -50,9 +60,11 @@ async function loadStores() {
     renderView();
   } catch (err) {
     console.error("💥 loadStores failed:", err);
-    document.getElementById("cards").innerHTML = `<div class="error">Error loading stores</div>`;
+    const cardsWrap = document.getElementById("cards");
+    cardsWrap.innerHTML = `<div class="error">Error loading stores</div>`;
   }
 }
+
 
 /* ============================================================
    Rendering
