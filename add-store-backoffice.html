@@ -40,18 +40,20 @@
       return "Other";
     };
 
-    // ✅ Get Google photo references
-    WCL.fetchPhotoRefs = async (placeId) => {
-      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=photos&key=${WCL.GOOGLE_KEY}`;
-      try {
-        const res = await fetch(`https://cors.isomorphic-git.org/${url}`);
-        const data = await res.json();
-        return data.result?.photos?.map(p => p.photo_reference) || [];
-      } catch (e) {
-        console.error("fetchPhotoRefs failed", e);
-        return [];
-      }
-    };
+  // ✅ Hämtar photo_reference[] via Supabase Edge-funktion (ingen CORS-blockering)
+WCL.fetchPhotoRefs = async (placeId) => {
+  const endpoint = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs?place_id=${encodeURIComponent(placeId)}`;
+  try {
+    const res = await fetch(endpoint);
+    const data = await res.json();
+    if (data?.refs?.length) return data.refs;
+    console.warn("No photo refs found", data);
+    return [];
+  } catch (err) {
+    console.error("fetchPhotoRefs error:", err);
+    return [];
+  }
+};
 
     // ✅ Load image through proxy
     WCL.loadProxyPhotoInto = async (imgEl, ref, type) => {
