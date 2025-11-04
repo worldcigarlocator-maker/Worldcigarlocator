@@ -7,77 +7,79 @@
 
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  /* ============================================================
+     WCL Global Config – Supabase + Google + Proxy
+     ============================================================ */
+  const WCL = {};
 
-  <script>
-    /* ============================================================
-       WCL Global Config – Supabase + Google + Proxy
-       ============================================================ */
-    const WCL = {};
+  // ✅ Supabase config
+  WCL.GOOGLE_KEY = "AIzaSyATmexFx54vFxbNu3IbWYkNuxQ1jdt00XY"; // ✅ server key
+  WCL.SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+console.log("✅ Add-Store Backoffice script loaded (proxy + photo-refs active)");
 
-    // ✅ Supabase config
-    WCL.PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
-    WCL.SUPABASE_ANON_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-    WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
+  // ✅ Proxy setup
+  WCL.PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
+  WCL.GOOGLE_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+  WCL.GITHUB_STORE_FALLBACK =
+    "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
 
-    // ✅ Proxy setup
-    WCL.PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
-    WCL.GOOGLE_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
-    WCL.GITHUB_STORE_FALLBACK =
-      "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-
-    // ============================================================
-    // Helpers
-    // ============================================================
-    WCL.countryToContinent = (country) => {
-      const c = (country || "").toLowerCase();
-      if (["sweden","germany","france","italy","spain","norway","finland","denmark","netherlands","belgium","austria","switzerland","poland","czech republic","czechia"].includes(c)) return "Europe";
-      if (["united states","usa","canada","mexico","cuba","dominican republic"].includes(c)) return "North America";
-      if (["brazil","argentina","chile","peru","colombia","uruguay","paraguay"].includes(c)) return "South America";
-      if (["china","japan","india","thailand","malaysia","singapore","israel","turkey","vietnam","indonesia"].includes(c)) return "Asia";
-      if (["south africa","nigeria","kenya","morocco","egypt","ghana"].includes(c)) return "Africa";
-      if (["australia","new zealand","fiji"].includes(c)) return "Oceania";
-      return "Other";
-    };
+  // ============================================================
+  // Helpers
+  // ============================================================
+  WCL.countryToContinent = (country) => {
+    const c = (country || "").toLowerCase();
+    if (["sweden","germany","france","italy","spain","norway","finland","denmark","netherlands","belgium","austria","switzerland","poland","czech republic","czechia"].includes(c)) return "Europe";
+    if (["united states","usa","canada","mexico","cuba","dominican republic"].includes(c)) return "North America";
+    if (["brazil","argentina","chile","peru","colombia","uruguay","paraguay"].includes(c)) return "South America";
+    if (["china","japan","india","thailand","malaysia","singapore","israel","turkey","vietnam","indonesia"].includes(c)) return "Asia";
+    if (["south africa","nigeria","kenya","morocco","egypt","ghana"].includes(c)) return "Africa";
+    if (["australia","new zealand","fiji"].includes(c)) return "Oceania";
+    return "Other";
+  };
 
   // ✅ Hämtar photo_reference[] via Supabase Edge-funktion (ingen CORS-blockering)
-WCL.fetchPhotoRefs = async (placeId) => {
-  const endpoint = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs?place_id=${encodeURIComponent(placeId)}`;
-  try {
-    const res = await fetch(endpoint);
-    const data = await res.json();
-    if (data?.refs?.length) return data.refs;
-    console.warn("No photo refs found", data);
-    return [];
-  } catch (err) {
-    console.error("fetchPhotoRefs error:", err);
-    return [];
-  }
-};
+  WCL.fetchPhotoRefs = async (placeId) => {
+    const endpoint = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs?place_id=${encodeURIComponent(placeId)}`;
+    try {
+      const res = await fetch(endpoint);
+      const data = await res.json();
+      if (data?.refs?.length) return data.refs;
+      console.warn("No photo refs found", data);
+      return [];
+    } catch (err) {
+      console.error("fetchPhotoRefs error:", err);
+      return [];
+    }
+  };
 
-    // ✅ Load image through proxy
-    WCL.loadProxyPhotoInto = async (imgEl, ref, type) => {
-      if (!ref) {
-        imgEl.src = WCL.GITHUB_STORE_FALLBACK;
-        return;
-      }
-      const proxyUrl = `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=800`;
-      imgEl.src = proxyUrl;
-    };
+  // ✅ Load image through proxy
+  WCL.loadProxyPhotoInto = async (imgEl, ref, type) => {
+    if (!ref) {
+      imgEl.src = WCL.GITHUB_STORE_FALLBACK;
+      return;
+    }
+    const proxyUrl = `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=800`;
+    imgEl.src = proxyUrl;
+  };
 
-    // ✅ Toast helper
-    WCL.toastShared = (msg, cls="success") => {
-      const c = document.getElementById("toast-container");
-      const t = document.createElement("div");
-      t.className = `toast ${cls}`;
-      t.textContent = msg;
-      c.appendChild(t);
-      setTimeout(()=>t.remove(), 3000);
-    };
+  // ✅ Toast helper
+  WCL.toastShared = (msg, cls="success") => {
+    const c = document.getElementById("toast-container");
+    const t = document.createElement("div");
+    t.className = `toast ${cls}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(()=>t.remove(), 3000);
+  };
 
-    // ✅ Fallback
-    WCL.fallbackForType = () => WCL.GITHUB_STORE_FALLBACK;
-  </script>
+  // ✅ Fallback
+  WCL.fallbackForType = () => WCL.GITHUB_STORE_FALLBACK;
+
+  // ✅ Create Supabase client (do this LAST)
+  WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
+</script>
 
   <style>
     :root {
