@@ -305,4 +305,19 @@
       document.getElementById("prev-photo").onclick = () => {
         if (sel._photo_refs.length > 0) {
           sel.photo_index = (sel.photo_index - 1 + sel._photo_refs.length) % sel._photo_refs.length;
-          WCL.loadProxyPhotoInto(document.getElementById("preview
+          WCL.loadProxyPhotoInto(document.getElementById("preview-photo"), sel._photo_refs[sel.photo_index]);
+        }
+      };
+      document.getElementById("next-photo").onclick = () => {
+        if (sel._photo_refs.length > 0) {
+          sel.photo_index = (sel.photo_index + 1) % sel._photo_refs.length;
+          WCL.loadProxyPhotoInto(document.getElementById("preview-photo"), sel._photo_refs[sel.photo_index]);
+        }
+      };
+    }
+    window.initAutocomplete = initAutocomplete;
+  </script>
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete"></script>
+</body>
+</html>
