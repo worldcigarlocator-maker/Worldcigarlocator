@@ -57,6 +57,13 @@ const photoURL = (ref, w = 800) =>
         ref
       )}&maxwidth=${w}`
     : WCL.FALLBACK_IMG;
+/* ============================================================
+   Photo Proxy Builder (för edit-modal)
+   ============================================================ */
+function buildPhotoProxyUrl(photo_reference, maxwidth = 800) {
+  if (!photo_reference) return WCL.FALLBACK_IMG;
+  return `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(photo_reference)}&maxwidth=${maxwidth}`;
+}
 
 const starRow = (rating) => {
   const r = Math.round(Number(rating) || 0);
