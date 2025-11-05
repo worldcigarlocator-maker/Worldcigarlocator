@@ -165,6 +165,44 @@ body {
   background: var(--blue);
   color: #fff;
 }
+/* ============================================================
+   Filter Pills — färgkodade per kategori
+   ============================================================ */
+.pill.all.active {
+  background: #d0d0d0;
+  color: #000;
+  border-color: #d0d0d0;
+}
+
+.pill.approved.active {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+
+.pill.pending.active {
+  background: var(--gold);
+  color: #222;
+  border-color: var(--gold);
+}
+
+.pill.flagged.active {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+.pill.deleted.active {
+  background: var(--gray);
+  color: #fff;
+  border-color: var(--gray);
+}
+
+/* Små visuella förbättringar */
+.pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
 
 /* ============================================================
    Grid & Cards
@@ -183,16 +221,6 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: transform .1s ease-in-out;
-}
-.card {
-  background: var(--card-bg);
-  border-radius: 10px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
   transition: transform .1s ease-in-out, border-color .25s ease-in-out;
   border: 2px solid transparent;
 }
@@ -200,18 +228,10 @@ body {
 /* ============================================================
    Card Borders (matchar statusfärger)
    ============================================================ */
-.card.border-green {
-  border-color: #28a745; /* Approved */
-}
-.card.border-red {
-  border-color: #dc3545; /* Flagged */
-}
-.card.border-gold {
-  border-color: #ffc107; /* Pending */
-}
-.card.border-gray {
-  border-color: #aaa; /* Deleted */
-}
+.card.border-green { border-color: #28a745; } /* Approved */
+.card.border-red   { border-color: #dc3545; } /* Flagged */
+.card.border-gold  { border-color: #ffc107; } /* Pending */
+.card.border-gray  { border-color: #aaa;    } /* Deleted */
 
 .card:hover {
   transform: translateY(-2px);
@@ -255,10 +275,10 @@ body {
   font-size: .75rem;
   color: #fff;
 }
-.badge.green { background: var(--green); }
-.badge.red { background: var(--red); }
-.badge.gray { background: var(--gray); }
-.badge.gold { background: var(--gold); color: #222; }
+.badge.green  { background: var(--green); }
+.badge.red    { background: var(--red); }
+.badge.gray   { background: var(--gray); }
+.badge.gold   { background: var(--gold); color: #222; }
 .badge.yellow { background: var(--yellow); color: #222; }
 
 .actions {
@@ -295,7 +315,18 @@ th {
 }
 tr:hover td {
   background: #f1f5f9;
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.05);
 }
+
+/* ============================================================
+   View Toggle Highlight (Cards/List)
+   ============================================================ */
+.viewtoggle .seg.active {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
 
 /* ============================================================
    Toasts
