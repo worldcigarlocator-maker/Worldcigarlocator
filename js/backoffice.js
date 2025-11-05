@@ -97,6 +97,44 @@ function render() {
 }
 
 /* ============================================================
+   Render List View (Table)
+   ============================================================ */
+function renderTable(stores) {
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+
+  if (!stores.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="muted" style="text-align:center;">No stores found</td></tr>`;
+    return;
+  }
+
+  stores.forEach((s) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${s.name || "Unnamed"}</td>
+      <td>${s.country || ""}</td>
+      <td>${s.continent || ""}</td>
+      <td>${s.city || ""}</td>
+      <td>${s.type || ""}</td>
+      <td>${s.access || ""}</td>
+      <td>${s.rating ?? "–"}</td>
+      <td>${new Date(s.created_at).toLocaleDateString()}</td>
+      <td class="status ${s.deleted ? "deleted" : s.flagged ? "flagged" : s.approved ? "approved" : "pending"}">
+        ${s.deleted ? "DELETED" : s.flagged ? "FLAGGED" : s.approved ? "APPROVED" : "PENDING"}
+      </td>
+      <td>
+        <button class="btn small" onclick="editStore(${s.id})">Edit</button>
+        ${s.flagged 
+          ? `<button class="btn small yellow" onclick="unflag(${s.id})">Unflag</button>` 
+          : `<button class="btn small danger" onclick="flag(${s.id})">Flag</button>`}
+        <button class="btn small danger" onclick="removeStore(${s.id})">${s.deleted ? "Restore" : "Delete"}</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ============================================================
    Cards
    ============================================================ */
 function renderCards(list) {
