@@ -317,3 +317,44 @@ tr:hover td { background: #f1f5f9; }
   border: 1px solid var(--border);
   color: var(--text);
 }
+/* ============================================================
+   Kommentarlista i Edit-modal
+   ============================================================ */
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin-top: .3rem;
+}
+
+.comment-item {
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .4rem .6rem;
+  position: relative;
+}
+
+.comment-item p {
+  margin: 0;
+  font-size: .9rem;
+}
+
+.comment-item .muted {
+  font-size: .75rem;
+}
+
+.comment-item .del-comment {
+  position: absolute;
+  right: .4rem;
+  top: .4rem;
+  font-size: .8rem;
+  padding: .2rem .4rem;
+  background: transparent;
+  border: none;
+  color: #c00;
+  cursor: pointer;
+}
+.comment-item .del-comment:hover {
+  color: #900;
+}
