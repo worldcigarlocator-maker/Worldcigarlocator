@@ -183,7 +183,7 @@ function renderCards(list) {
   grid.innerHTML = "";
 
   list.forEach((s) => {
-    const card = document.createElement("div");
+    // 🟦 Statusfärg
     const borderClass = s.deleted
       ? "border-gray"
       : s.flagged
@@ -191,35 +191,42 @@ function renderCards(list) {
       : s.approved
       ? "border-green"
       : "border-gold";
+
+    const card = document.createElement("div");
     card.className = `card ${borderClass}`;
 
+    // 🖼️ Bild
     const img = document.createElement("img");
     img.className = "photo";
     img.src = photoURL(s.photo_reference, 800);
     img.onerror = () => (img.src = WCL.FALLBACK_IMG);
 
+    // 🧾 Textinnehåll
     const body = document.createElement("div");
     body.className = "body";
     body.innerHTML = `
       <h3>${safe(s.name)}</h3>
       <p><strong>📍</strong> ${safe(s.city)}, ${safe(s.country)}</p>
-      <p><strong>🗺️</strong> ${safe(s.continent)}</p>
+      <p><strong>🗺️</strong> ${safe(s.continent || "")}</p>
       <p><strong>⭐</strong> ${s.rating ?? "–"}</p>
       <div class="badges">
         ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
         ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
         ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
-        ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
+        ${!s.approved && !s.flagged && !s.deleted
+          ? `<span class='badge gold'>PENDING</span>`
+          : ""}
       </div>
     `;
 
+    // 🧩 Knappar
     const actions = document.createElement("div");
     actions.className = "actions";
     actions.append(
       makeBtn("Approve", () => approveStore(s.id), "green"),
       s.flagged
-        ? makeBtn("Unflag", () => unflagStore(s.id), "yellow")
-        : makeBtn("Flag", () => openFlagModal(s), "danger"),
+        ? makeBtn("Unflag", () => unflagStore(s.id), "yellow")   // 💛 Gul unflag
+        : makeBtn("Flag", () => openFlagModal(s), "danger"),     // 🔴 Röd flag
       makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger"),
       makeBtn("Edit", () => editStore(s.id), "blue")
     );
@@ -228,11 +235,13 @@ function renderCards(list) {
     grid.appendChild(card);
   });
 
+  // 🕳️ Fallback om listan är tom
   if (!list.length) {
-    grid.innerHTML = `<p class="muted" style="text-align:center">No stores</p>`;
+    grid.innerHTML = `<p class="muted center">No stores</p>`;
   }
 }
 
+/* ===================== Hjälpfunktion ==================== */
 function makeBtn(label, onClick, cls = "") {
   const b = document.createElement("button");
   b.className = `btn ${cls}`;
@@ -411,9 +420,20 @@ function openFlagModal(s) {
         <button class="btn ghost" id="flagCancel">Cancel</button>
         <button class="btn danger" id="flagConfirm">Flag</button>
       </div>
-    </div>
-  `;
+  </div>`;
   document.body.appendChild(m);
+
+  // ✅ Stäng modalen om man klickar utanför
+  m.addEventListener("click", (e) => {
+    if (e.target === m) closeEdit();
+  });
+
+  // ✅ Stäng modalen med Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeEdit();
+  });
+
+  // ✅ Flag modal logik
   $("#flagCancel").onclick = () => m.remove();
   $("#flagConfirm").onclick = async () => {
     const reason = $("#flagReason").value.trim() || null;
@@ -439,36 +459,23 @@ async function toggleDelete(s) {
   reloadData(CURRENT_TAB);
 }
 
-/* ======================== EDIT MODAL ===================== */
-async function openEdit(s) {
-  // Hämta färsk data
-  const { data, error } = await WCL.supabase
+/* ============================================================
+   Edit Store Modal (slutlig version)
+   ============================================================ */
+async function editStore(id) {
+  // 🔒 Stäng gamla modaler om någon redan är öppen
+  closeEdit();
+
+  const { data: store, error } = await WCL.supabase
     .from("stores")
     .select("*")
-    .eq("id", s.id)
+    .eq("id", id)
     .single();
-  if (error || !data) {
-    toast("Failed to load store", "error");
-    return;
-  }
-  const store = data;
 
-  // Förbered photo-refs
-  EDIT_CTX = { refs: [], index: 0 };
-  if (store.place_id) {
-    try {
-      const res = await fetch(
-        `${WCL.PHOTO_REFS_URL}?place_id=${encodeURIComponent(store.place_id)}`
-      );
-      const j = await res.json();
-      if (Array.isArray(j.refs) && j.refs.length) {
-        EDIT_CTX.refs = j.refs;
-        const i = j.refs.indexOf(store.photo_reference);
-        EDIT_CTX.index = i >= 0 ? i : 0;
-      }
-    } catch (e) {
-      console.warn("photo-refs failed:", e);
-    }
+  if (error || !store) {
+    toast("Failed to load store", "error");
+    console.error(error);
+    return;
   }
 
   const modal = document.createElement("div");
@@ -478,133 +485,149 @@ async function openEdit(s) {
       <h3>Edit Store</h3>
       <div class="edit-grid">
         <label>Name</label>
-        <input id="e-name" value="${safe(store.name)}"/>
+        <input id="edit-name" value="${safe(store.name)}" />
 
         <label>City</label>
-        <input id="e-city" value="${safe(store.city)}"/>
+        <input id="edit-city" value="${safe(store.city)}" />
 
         <label>Country</label>
-        <input id="e-country" value="${safe(store.country)}"/>
-
-        <label>Continent</label>
-        <select id="e-continent">
-          ${["Europe","North America","South America","Asia","Africa","Oceania","Other"]
-            .map((c)=>`<option ${store.continent===c?"selected":""}>${c}</option>`).join("")}
-        </select>
+        <input id="edit-country" value="${safe(store.country)}" />
 
         <label>Website</label>
-        <input id="e-website" value="${safe(store.website)}"/>
+        <input id="edit-website" value="${safe(store.website)}" />
 
         <label>Type</label>
         <div class="type-group">
-          <button type="button" class="type-btn ${store.type==='store'?'active':''}" data-type="store">Store</button>
-          <button type="button" class="type-btn ${store.type==='lounge'?'active':''}" data-type="lounge">Lounge</button>
+          <button type="button" class="type-btn ${store.type === "store" ? "active" : ""}" data-type="store">Store</button>
+          <button type="button" class="type-btn ${store.type === "lounge" ? "active" : ""}" data-type="lounge">Lounge</button>
         </div>
 
         <label>Access</label>
         <div class="access-group">
-          <label class="access-pill"><input type="radio" name="e-access" value="public" ${store.access==='public'?'checked':''}><span>Public</span></label>
-          <label class="access-pill"><input type="radio" name="e-access" value="members" ${store.access==='members'?'checked':''}><span>Members Only</span></label>
+          <label class="access-pill">
+            <input type="radio" name="access" value="public" ${store.access === "public" ? "checked" : ""}>
+            <span>Public</span>
+          </label>
+          <label class="access-pill">
+            <input type="radio" name="access" value="members" ${store.access === "members" ? "checked" : ""}>
+            <span>Members Only</span>
+          </label>
         </div>
 
         <label>Photo</label>
         <div class="photo-picker">
-          <button id="e-prev" class="photo-nav">◀</button>
-          <img id="e-photo" class="preview-photo" src="${photoURL(store.photo_reference)}" />
-          <button id="e-next" class="photo-nav">▶</button>
+          <button id="edit-prev" class="photo-nav">◀</button>
+          <img id="edit-photo" class="preview-photo" src="${
+            store.photo_reference ? buildPhotoProxyUrl(store.photo_reference) : WCL.FALLBACK_IMG
+          }" />
+          <button id="edit-next" class="photo-nav">▶</button>
         </div>
-        <div id="e-photo-meta" class="muted" style="text-align:center;">
-          ${EDIT_CTX.refs.length ? `Photos: ${EDIT_CTX.index+1}/${EDIT_CTX.refs.length}` : "No Google photos found"}
+        <div id="photo-meta" class="muted" style="text-align:center;">
+          ${store.photo_reference ? "Loaded from proxy" : "No photo loaded"}
         </div>
       </div>
 
       <div class="row" style="justify-content:flex-end;gap:.6rem;margin-top:1rem;">
-        <button class="btn ghost" id="e-cancel">Cancel</button>
-        <button class="btn blue" id="e-save">Save</button>
-        ${store.flagged ? `<button class="btn yellow" id="e-unflag">Unflag</button>` : ""}
-        <button class="btn danger" id="e-delete">${store.deleted?"Restore":"Delete"}</button>
+        <button class="btn ghost" id="edit-cancel">Cancel</button>
+        <button class="btn blue" id="edit-save">Save</button>
+        ${
+          store.flagged
+            ? `<button class="btn yellow" id="edit-unflag">Unflag</button>`
+            : ""
+        }
+        <button class="btn danger" id="edit-delete">Delete</button>
       </div>
     </div>
   `;
   document.body.appendChild(modal);
 
-  // typ-toggle
-  modal.querySelectorAll(".type-btn").forEach((b) =>
-    b.addEventListener("click", () => {
-      modal.querySelectorAll(".type-btn").forEach((x) => x.classList.remove("active"));
-      b.classList.add("active");
-    })
-  );
+  // === Modalinteraktioner ===
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeEdit();
+  });
 
-  // photo-pilar
-  const imgEl = modal.querySelector("#e-photo");
-  const metaEl = modal.querySelector("#e-photo-meta");
-  modal.querySelector("#e-prev").onclick = () => {
-    if (!EDIT_CTX.refs.length) return;
-    EDIT_CTX.index = (EDIT_CTX.index - 1 + EDIT_CTX.refs.length) % EDIT_CTX.refs.length;
-    imgEl.src = photoURL(EDIT_CTX.refs[EDIT_CTX.index]);
-    metaEl.textContent = `Photos: ${EDIT_CTX.index + 1}/${EDIT_CTX.refs.length}`;
-  };
-  modal.querySelector("#e-next").onclick = () => {
-    if (!EDIT_CTX.refs.length) return;
-    EDIT_CTX.index = (EDIT_CTX.index + 1) % EDIT_CTX.refs.length;
-    imgEl.src = photoURL(EDIT_CTX.refs[EDIT_CTX.index]);
-    metaEl.textContent = `Photos: ${EDIT_CTX.index + 1}/${EDIT_CTX.refs.length}`;
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeEdit();
+  });
+
+  // === Knapp-händelser ===
+  $("#edit-cancel").onclick = closeEdit;
+
+  $("#edit-save").onclick = async () => {
+    const payload = {
+      name: $("#edit-name").value.trim(),
+      city: $("#edit-city").value.trim(),
+      country: $("#edit-country").value.trim(),
+      website: $("#edit-website").value.trim(),
+      type: document.querySelector(".type-btn.active")?.dataset.type || null,
+      access: document.querySelector('input[name="access"]:checked')?.value || null,
+    };
+
+    const { error } = await WCL.supabase.from("stores").update(payload).eq("id", id);
+    if (error) return toast("Error saving", "error");
+    toast("Saved ✅");
+    closeEdit();
+    reloadData();
   };
 
-  // knappar
-  $("#e-cancel").onclick = () => modal.remove();
-  $("#e-save").onclick = () => saveEdit(store.id, modal);
-  $("#e-delete").onclick = async () => {
-    const next = !store.deleted;
+  $("#edit-delete").onclick = async () => {
+    if (!confirm("Move to trash?")) return;
     const { error } = await WCL.supabase
       .from("stores")
-      .update({ deleted: next })
-      .eq("id", store.id);
-    if (error) return toast("Error updating", "error");
-    toast(next ? "Moved to Trash" : "Restored");
-    modal.remove();
-    reloadData(CURRENT_TAB);
+      .update({ deleted: true })
+      .eq("id", id);
+    if (error) return toast("Error deleting", "error");
+    toast("Deleted 🗑️");
+    closeEdit();
+    reloadData();
   };
-  if (store.flagged && $("#e-unflag")) {
-    $("#e-unflag").onclick = async () => {
+
+  if (store.flagged) {
+    $("#edit-unflag").onclick = async () => {
       const { error } = await WCL.supabase
         .from("stores")
         .update({ flagged: false, flag_reason: null })
-        .eq("id", store.id);
+        .eq("id", id);
       if (error) return toast("Error unflagging", "error");
-      toast("Unflagged");
-      modal.remove();
-      reloadData(CURRENT_TAB);
+      toast("Unflagged ✅");
+      closeEdit();
+      reloadData();
     };
   }
-}
 
-async function saveEdit(id, modal) {
-  const payload = {
-    name: $("#e-name").value.trim(),
-    city: $("#e-city").value.trim(),
-    country: $("#e-country").value.trim(),
-    continent: $("#e-continent").value,
-    website: $("#e-website").value.trim(),
-    type: modal.querySelector(".type-btn.active")?.dataset.type || null,
-    access: modal.querySelector('input[name="e-access"]:checked')?.value || null,
+  // === Typval ===
+  modal.querySelectorAll(".type-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      modal.querySelectorAll(".type-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+
+  // === Bildpilar ===
+  let currentIndex = 0;
+  let refs = store._photo_refs || (store.photo_reference ? [store.photo_reference] : []);
+  const imgEl = modal.querySelector("#edit-photo");
+
+  modal.querySelector("#edit-prev").onclick = () => {
+    if (!refs.length) return;
+    currentIndex = (currentIndex - 1 + refs.length) % refs.length;
+    imgEl.src = buildPhotoProxyUrl(refs[currentIndex]);
   };
 
-  // sätt photo_reference om man bläddrat fram en
-  if (EDIT_CTX.refs.length) {
-    payload.photo_reference = EDIT_CTX.refs[EDIT_CTX.index];
-  }
-
-  const { error } = await WCL.supabase.from("stores").update(payload).eq("id", id);
-  if (error) {
-    console.error(error);
-    return toast("Error saving", "error");
-  }
-  toast("Saved ✅");
-  modal.remove();
-  reloadData(CURRENT_TAB);
+  modal.querySelector("#edit-next").onclick = () => {
+    if (!refs.length) return;
+    currentIndex = (currentIndex + 1) % refs.length;
+    imgEl.src = buildPhotoProxyUrl(refs[currentIndex]);
+  };
 }
+
+/* ============================================================
+   Stäng Edit Modal
+   ============================================================ */
+function closeEdit() {
+  document.querySelectorAll(".modal-backdrop").forEach((m) => m.remove());
+}
+
 
 /* ===================== UI WIRING ========================= */
 document.addEventListener("DOMContentLoaded", () => {
