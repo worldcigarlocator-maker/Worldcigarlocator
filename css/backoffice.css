@@ -96,6 +96,40 @@ body {
 .btn.danger { background: var(--red); }
 .btn.yellow { background: var(--yellow); color: #222; }
 .btn.blue { background: var(--blue); }
+/* ============================================================
+   Extra Button Colors (for Backoffice actions)
+   ============================================================ */
+.btn.primary {
+  background: #007bff;
+  color: #fff;
+}
+.btn.primary:hover {
+  background: #0069d9;
+}
+
+.btn.warning {
+  background: #ffc107;
+  color: #000;
+}
+.btn.warning:hover {
+  background: #e0a800;
+}
+
+.btn.danger {
+  background: #dc3545;
+  color: #fff;
+}
+.btn.danger:hover {
+  background: #b52a37;
+}
+
+.btn.ok {
+  background: #28a745;
+  color: #fff;
+}
+.btn.ok:hover {
+  background: #218838;
+}
 
 /* ============================================================
    Pills & Toggles
@@ -151,6 +185,34 @@ body {
   justify-content: space-between;
   transition: transform .1s ease-in-out;
 }
+.card {
+  background: var(--card-bg);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform .1s ease-in-out, border-color .25s ease-in-out;
+  border: 2px solid transparent;
+}
+
+/* ============================================================
+   Card Borders (matchar statusfärger)
+   ============================================================ */
+.card.border-green {
+  border-color: #28a745; /* Approved */
+}
+.card.border-red {
+  border-color: #dc3545; /* Flagged */
+}
+.card.border-gold {
+  border-color: #ffc107; /* Pending */
+}
+.card.border-gray {
+  border-color: #aaa; /* Deleted */
+}
+
 .card:hover { transform: translateY(-2px); }
 
 .card img.photo {
