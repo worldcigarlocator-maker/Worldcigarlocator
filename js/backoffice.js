@@ -280,114 +280,112 @@ async function toggleDelete(s) {
   reloadData();
 }
 
-/* ----------------- Edit modal ----------------- */
-function openEdit(s) {
-  EDIT_ID = s.id;
+/* ============================================================
+   Edit Store Modal (med photo-refs och pilar)
+   ============================================================ */
+async function editStore(id) {
+  const { data, error } = await WCL.supabase.from("stores").select("*").eq("id", id).single();
+  if (error || !data) {
+    toast("Failed to load store", "error");
+    console.error(error);
+    return;
+  }
+  const store = data;
 
-  $("#e_name").value = safe(s.name);
-  $("#e_phone").value = safe(s.phone);
-  $("#e_address").value = safe(s.address);
-  $("#e_city").value = safe(s.city);
-  $("#e_country").value = safe(s.country);
-  $("#e_continent").value = safe(s.continent) || "Other";
-  $("#e_website").value = safe(s.website);
+  // 🔹 1. Hämta photo_refs via Supabase Edge Function
+  let refs = [];
+  if (store.place_id) {
+    try {
+      const res = await fetch(
+        `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs?place_id=${encodeURIComponent(store.place_id)}`
+      );
+      const json = await res.json();
+      refs = json?.refs || [];
+    } catch (err) {
+      console.warn("photo-refs fetch failed", err);
+    }
+  }
 
-  // type chips
-  $("#e_type_store").checked = safe(s.type).toLowerCase().includes("store");
-  $("#e_type_lounge").checked = safe(s.type).toLowerCase().includes("lounge");
+  // 🔹 2. Bygg modalen
+  const editModal = document.createElement("div");
+  editModal.className = "modal-backdrop";
+  editModal.innerHTML = `
+    <div class="modal">
+      <h3>Edit Store</h3>
+      <div class="edit-grid">
+        <label>Name</label>
+        <input id="edit-name" value="${store.name || ''}" />
 
-  // access
-  const acc = (safe(s.access) || "public").toLowerCase();
-  (acc === "members" ? $("#e_access_members") : $("#e_access_public")).checked = true;
+        <label>City</label>
+        <input id="edit-city" value="${store.city || ''}" />
 
-  // badges
-  $("#e_badge_pending").style.display = !s.approved && !s.flagged && !s.deleted ? "inline-block" : "none";
-  $("#e_badge_approved").style.display = s.approved ? "inline-block" : "none";
-  $("#e_badge_flagged").style.display = s.flagged ? "inline-block" : "none";
-  $("#e_badge_deleted").style.display = s.deleted ? "inline-block" : "none";
+        <label>Country</label>
+        <input id="edit-country" value="${store.country || ''}" />
 
-  // reviews (best effort – hide if table missing)
-  loadReviews(s.id);
+        <label>Website</label>
+        <input id="edit-website" value="${store.website || ''}" />
 
-  $("#editModal").classList.add("show");
-}
-$("#editCancel").onclick = () => {
-  $("#editModal").classList.remove("show");
-  EDIT_ID = null;
-};
+        <label>Type</label>
+        <div class="type-group">
+          <button type="button" class="type-btn ${store.type==='store'?'active':''}" data-type="store">Store</button>
+          <button type="button" class="type-btn ${store.type==='lounge'?'active':''}" data-type="lounge">Lounge</button>
+        </div>
 
-$("#editSave").onclick = async () => {
-  if (!EDIT_ID) return;
+        <label>Access</label>
+        <div class="access-group">
+          <label class="access-pill"><input type="radio" name="access" value="public" ${store.access==='public'?'checked':''}><span>Public</span></label>
+          <label class="access-pill"><input type="radio" name="access" value="members" ${store.access==='members'?'checked':''}><span>Members Only</span></label>
+        </div>
 
-  const typeParts = [];
-  if ($("#e_type_store").checked) typeParts.push("store");
-  if ($("#e_type_lounge").checked) typeParts.push("lounge");
+        <label>Photo</label>
+        <div class="photo-picker">
+          <button id="edit-prev" class="photo-nav">◀</button>
+          <img id="edit-photo" class="preview-photo" src="${store.photo_reference ? buildPhotoProxyUrl(store.photo_reference) : WCL.FALLBACK_IMG}" />
+          <button id="edit-next" class="photo-nav">▶</button>
+        </div>
+        <div id="photo-meta" class="muted" style="text-align:center;">${refs.length ? `Showing ${refs.length} photos` : 'No photos found'}</div>
+      </div>
 
-  const payload = {
-    name: $("#e_name").value.trim() || null,
-    phone: $("#e_phone").value.trim() || null,
-    address: $("#e_address").value.trim() || null,
-    city: $("#e_city").value.trim() || null,
-    country: $("#e_country").value.trim() || null,
-    continent: $("#e_continent").value,
-    website: $("#e_website").value.trim() || null,
-    type: typeParts.join(",") || null,
-    access: document.querySelector('input[name="e_access"]:checked')?.value || null,
+      <div class="row" style="justify-content:flex-end;gap:.6rem;margin-top:1rem;">
+        <button class="btn ghost" onclick="closeEdit()">Cancel</button>
+        <button class="btn" onclick="saveEdit(${store.id})">Save</button>
+        ${store.flagged ? `<button class="btn warning" onclick="unflag(${store.id})">Unflag</button>` : ""}
+        <button class="btn danger" onclick="removeStore(${store.id})">Delete</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(editModal);
+
+  // 🔹 3. Interaktivitet
+  document.querySelectorAll(".type-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".type-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+
+  // 🔹 4. Piltangenter för foto
+  let currentIndex = 0;
+  const imgEl = editModal.querySelector("#edit-photo");
+
+  function updatePhoto() {
+    if (!refs.length) return;
+    imgEl.src = buildPhotoProxyUrl(refs[currentIndex]);
+  }
+
+  editModal.querySelector("#edit-prev").onclick = () => {
+    if (!refs.length) return;
+    currentIndex = (currentIndex - 1 + refs.length) % refs.length;
+    updatePhoto();
   };
 
-  const { error } = await WCL.supabase.from("stores").update(payload).eq("id", EDIT_ID);
-  if (error) return toast("Error saving", "error");
-
-  toast("Saved");
-  $("#editModal").classList.remove("show");
-  reloadData();
-};
-
-/* reviews: safe if table absent */
-async function loadReviews(storeId) {
-  const list = $("#reviewsList");
-  list.innerHTML = `<div class="muted">Loading…</div>`;
-  try {
-    const { data, error } = await WCL.supabase
-      .from("store_reviews")
-      .select("id, created_at, author, rating, comment")
-      .eq("store_id", storeId)
-      .order("created_at", { ascending: false })
-      .limit(20);
-
-    if (error) throw error;
-
-    if (!data || !data.length) {
-      list.innerHTML = `<div class="muted">No comments yet.</div>`;
-      return;
-    }
-
-    list.innerHTML = "";
-    data.forEach((r) => {
-      const row = document.createElement("div");
-      row.className = "review";
-      row.innerHTML = `
-        <div class="r-head">
-          <b>${safe(r.author) || "Anon"}</b>
-          <span class="r-stars">${starRow(r.rating)}</span>
-          <span class="r-date">${new Date(r.created_at).toLocaleDateString()}</span>
-          <button class="btn ghost small danger">Delete</button>
-        </div>
-        <div class="r-body">${safe(r.comment)}</div>
-      `;
-      row.querySelector("button").onclick = async () => {
-        const { error: delErr } = await WCL.supabase.from("store_reviews").delete().eq("id", r.id);
-        if (delErr) return toast("Delete failed", "error");
-        row.remove();
-        toast("Comment deleted");
-      };
-      list.appendChild(row);
-    });
-  } catch (e) {
-    console.warn("Reviews table missing / failed:", e.message || e);
-    list.innerHTML = `<div class="muted">Reviews unavailable.</div>`;
-  }
+  editModal.querySelector("#edit-next").onclick = () => {
+    if (!refs.length) return;
+    currentIndex = (currentIndex + 1) % refs.length;
+    updatePhoto();
+  };
 }
+
 
 /* ============================================================
    UI wiring
