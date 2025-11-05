@@ -1,76 +1,33 @@
-/* ============================================================
-   WCL Backoffice Styles — V5 Enhanced
-   ============================================================ */
 :root {
   --blue: #007bff;
   --green: #28a745;
   --red: #dc3545;
-  --yellow: #f5c542;
-  --gray: #6c757d;
-  --gold: #ffb400;
-  --bg: #f8f9fa;
-  --text: #1f2937;
-  --border: #e2e8f0;
-  --muted: #6b7280;
+  --gold: #ffc107;
+  --gray: #999;
+  --border: #ddd;
+  --text: #222;
+  --muted: #666;
+  --bg: #f7f9fb;
   --card-bg: #fff;
-  --shadow: 0 1px 6px rgba(0,0,0,0.08);
-  font-family: "Inter", sans-serif;
-}
-
-* {
-  box-sizing: border-box;
+  --shadow: 0 2px 6px rgba(0,0,0,0.05);
+  --yellow: #ffeb3b;
 }
 
 body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
   background: var(--bg);
   color: var(--text);
-  margin: 0;
-  padding: 0;
-  font-family: "Inter", sans-serif;
 }
 
-/* ============================================================
-   Layout
-   ============================================================ */
-.wrap {
-  max-width: 1300px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
+.wrap { max-width: 1200px; margin: auto; padding: 1rem; }
 
 .topbar {
   display: flex;
-  justify-content: flex-start;
-  gap: .8rem;
-  margin-bottom: 1rem;
-}
-
-.filters {
-  display: flex;
-  flex-wrap: wrap;
   gap: .6rem;
   margin-bottom: 1rem;
 }
 
-.searchbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.searchbar input {
-  flex: 1;
-  padding: .6rem .8rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 1rem;
-}
-
-/* ============================================================
-   Buttons
-   ============================================================ */
 .btn {
   background: var(--blue);
   color: #fff;
@@ -79,61 +36,15 @@ body {
   padding: .5rem 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all .15s ease-in-out;
+  transition: opacity .15s;
 }
 .btn:hover { opacity: 0.9; }
-.btn.ghost {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text);
-}
-.btn.small {
-  padding: .3rem .6rem;
-  font-size: .85rem;
-}
-
+.btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
 .btn.green { background: var(--green); }
 .btn.danger { background: var(--red); }
 .btn.yellow { background: var(--yellow); color: #222; }
 .btn.blue { background: var(--blue); }
-/* ============================================================
-   Extra Button Colors (for Backoffice actions)
-   ============================================================ */
-.btn.primary {
-  background: #007bff;
-  color: #fff;
-}
-.btn.primary:hover {
-  background: #0069d9;
-}
 
-.btn.warning {
-  background: #ffc107;
-  color: #000;
-}
-.btn.warning:hover {
-  background: #e0a800;
-}
-
-.btn.danger {
-  background: #dc3545;
-  color: #fff;
-}
-.btn.danger:hover {
-  background: #b52a37;
-}
-
-.btn.ok {
-  background: #28a745;
-  color: #fff;
-}
-.btn.ok:hover {
-  background: #218838;
-}
-
-/* ============================================================
-   Pills & Toggles
-   ============================================================ */
 .pill {
   background: white;
   border: 1px solid var(--border);
@@ -141,12 +52,21 @@ body {
   padding: .4rem 1rem;
   cursor: pointer;
   font-weight: 600;
-  transition: all .2s;
 }
-.pill.active {
-  background: var(--blue);
-  color: #fff;
-  border-color: var(--blue);
+.pill.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+.searchbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.searchbar input {
+  flex: 1;
+  padding: .5rem .8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
 }
 
 .viewtoggle {
@@ -165,48 +85,8 @@ body {
   background: var(--blue);
   color: #fff;
 }
-/* ============================================================
-   Filter Pills — färgkodade per kategori
-   ============================================================ */
-.pill.all.active {
-  background: #d0d0d0;
-  color: #000;
-  border-color: #d0d0d0;
-}
 
-.pill.approved.active {
-  background: var(--green);
-  color: #fff;
-  border-color: var(--green);
-}
-
-.pill.pending.active {
-  background: var(--gold);
-  color: #222;
-  border-color: var(--gold);
-}
-
-.pill.flagged.active {
-  background: var(--red);
-  color: #fff;
-  border-color: var(--red);
-}
-
-.pill.deleted.active {
-  background: var(--gray);
-  color: #fff;
-  border-color: var(--gray);
-}
-
-/* Små visuella förbättringar */
-.pill:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-}
-
-/* ============================================================
-   Grid & Cards
-   ============================================================ */
+/* === Cards === */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
@@ -220,82 +100,40 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  transition: transform .1s ease-in-out, border-color .25s ease-in-out;
   border: 2px solid transparent;
+  transition: transform .15s, border-color .25s;
 }
+.card.border-green { border-color: var(--green); }
+.card.border-red { border-color: var(--red); }
+.card.border-gold { border-color: var(--gold); }
+.card.border-gray { border-color: var(--gray); }
 
-/* ============================================================
-   Card Borders (matchar statusfärger)
-   ============================================================ */
-.card.border-green { border-color: #28a745; } /* Approved */
-.card.border-red   { border-color: #dc3545; } /* Flagged */
-.card.border-gold  { border-color: #ffc107; } /* Pending */
-.card.border-gray  { border-color: #aaa;    } /* Deleted */
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.12);
-}
+.card:hover { transform: translateY(-2px); }
 
 .card img.photo {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
+  width: 100%; height: 150px; object-fit: cover;
 }
-
-.card .body {
-  padding: 1rem;
-  flex: 1;
-}
-
-.card .body h3 {
-  margin: 0 0 .5rem 0;
-  font-size: 1.1rem;
-  color: var(--text);
-}
-
-.card .body p {
-  margin: .2rem 0;
-  font-size: .9rem;
-  color: var(--muted);
-}
-
-.badges {
-  display: flex;
-  gap: .4rem;
-  flex-wrap: wrap;
-  margin-top: .6rem;
-}
-
-.badge {
-  padding: .25rem .6rem;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: .75rem;
-  color: #fff;
-}
-.badge.green  { background: var(--green); }
-.badge.red    { background: var(--red); }
-.badge.gray   { background: var(--gray); }
-.badge.gold   { background: var(--gold); color: #222; }
-.badge.yellow { background: var(--yellow); color: #222; }
+.card .body { padding: 1rem; }
+.card .body h3 { margin: 0 0 .4rem 0; font-size: 1.1rem; }
+.card .body p { margin: .2rem 0; font-size: .9rem; color: var(--muted); }
 
 .actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .4rem;
-  padding: .6rem;
-  border-top: 1px solid var(--border);
+  display: flex; flex-wrap: wrap; gap: .4rem;
+  padding: .6rem; border-top: 1px solid var(--border);
   justify-content: center;
 }
 
-/* ============================================================
-   Table (List View)
-   ============================================================ */
-.table-wrap {
-  overflow-x: auto;
+/* === List View === */
+.listview-wrap { display: flex; gap: 1rem; margin-top: 1rem; }
+#hierarchyPanel {
+  flex: 0 0 30%;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  padding-right: 1rem;
 }
+.table-wrap { flex: 1; overflow-x: auto; padding-left: 1rem; }
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -308,235 +146,22 @@ th, td {
   padding: .6rem .8rem;
   border-bottom: 1px solid var(--border);
 }
-th {
-  background: var(--bg);
-  font-weight: 700;
-  color: var(--text);
-}
-tr:hover td {
-  background: #f1f5f9;
-  box-shadow: inset 0 0 6px rgba(0,0,0,0.05);
-}
-/* ============================================================
-   Statusfärgning i List View
-   ============================================================ */
-td.status {
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: .4rem .6rem;
-  border-radius: 6px;
-  text-align: center;
-  width: 120px;
-}
+th { background: var(--bg); font-weight: 700; color: var(--text); }
+tr:hover td { background: #f1f5f9; }
 
-td.status.approved {
-  color: var(--green);
-}
-
-td.status.pending {
-  color: var(--gold);
-}
-
-td.status.flagged {
-  color: var(--red);
-}
-
-td.status.deleted {
-  color: var(--gray);
-}
-
-/* Gör raderna lite mer interaktiva */
-tr:hover td.status {
-  font-weight: 800;
-  letter-spacing: .3px;
-}
-
-/* ============================================================
-   View Toggle Highlight (Cards/List)
-   ============================================================ */
-.viewtoggle .seg.active {
-  background: var(--blue);
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-}
-
-
-/* ============================================================
-   Toasts
-   ============================================================ */
-#toast-container {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: .4rem;
-  z-index: 9999;
-}
-.toast {
-  background: #333;
-  color: #fff;
-  padding: .6rem 1rem;
-  border-radius: 6px;
-}
-.toast.success { background: var(--green); }
-.toast.error { background: var(--red); }
-
-/* ============================================================
-   Modal (Edit store)
-   ============================================================ */
-.modal-backdrop {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 10000;
-  justify-content: center;
-  align-items: center;
-}
-.modal {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: var(--shadow);
-  padding: 1.5rem;
-  width: 90%;
-  max-width: 600px;
-}
-.modal.large {
-  max-width: 720px;
-}
-.modal h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-}
-.modal .row {
-  display: flex;
-  justify-content: flex-end;
-  gap: .6rem;
-  margin-top: 1.2rem;
-}
-
-/* ============================================================
-   Edit Modal Content
-   ============================================================ */
-.edit-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: .8rem;
-}
-.edit-grid label {
-  display: flex;
-  flex-direction: column;
-  font-weight: 600;
-  font-size: .9rem;
-  color: var(--text);
-}
-.edit-grid input, .edit-grid select {
-  margin-top: .3rem;
-  padding: .5rem .6rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: .9rem;
-}
-
-.photo-section {
-  grid-column: 1 / -1;
-  text-align: center;
-}
-.photo-section img.preview {
-  width: 280px;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  margin-bottom: .5rem;
-}
-
-/* ============================================================
-   Scrollbars
-   ============================================================ */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #999; }
-/* ============================================================
-   Hierarki (Continent → Country → City)
-   ============================================================ */
-.hierarchy-panel {
-  background: white;
-  border-radius: 10px;
-  box-shadow: var(--shadow);
-  padding: 1rem;
-  margin-top: 1rem;
-  font-size: .9rem;
-}
-
-.line {
-  border-left: 2px solid var(--border);
-  margin-left: .8rem;
-  padding-left: .6rem;
-}
-
-.line-header {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
+.hierarchy-panel .line {
   cursor: pointer;
-  font-weight: 600;
-  color: var(--text);
-  padding: .3rem 0;
+  padding: .2rem .4rem;
+  border-radius: 6px;
+  transition: background .2s;
 }
+.hierarchy-panel .line:hover { background: rgba(0,0,0,0.05); }
+.line.continent { font-weight: 700; color: var(--blue); }
+.line.country { margin-left: 1rem; color: var(--green); }
+.line.city { margin-left: 2rem; color: var(--gold); }
+.arrow { margin-right: .3rem; font-size: .8rem; }
+.nested { margin-left: 1rem; border-left: 1px dashed var(--border); padding-left: .5rem; display: none; }
+.store-leaf { margin-left: 2rem; color: var(--muted); cursor: pointer; }
+.store-leaf:hover { color: var(--blue); text-decoration: underline; }
 
-.line-header:hover {
-  color: var(--blue);
-}
-
-.line .count {
-  background: var(--bg);
-  border-radius: 10px;
-  padding: .1rem .5rem;
-  font-size: .75rem;
-  margin-left: auto;
-}
-
-.line.open > .nested {
-  display: block;
-}
-.nested {
-  display: none;
-  margin-left: 1rem;
-}
-
-.line.store {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: .2rem 0;
-}
-
-.line.store button {
-  font-size: .75rem;
-  padding: .25rem .5rem;
-}
-
-/* ============================================================
-   Kombinerad List + Hierarki Layout
-   ============================================================ */
-.listview-wrap {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-#hierarchyPanel {
-  flex: 0 0 30%;
-  overflow-y: auto;
-  max-height: 80vh;
-  border-right: 1px solid var(--border);
-  padding-right: 1rem;
-}
-
-.table-wrap {
-  flex: 1;
-  overflow-x: auto;
-  padding-left: 1rem;
-}
+.highlight { background: #fff3cd !important; transition: background .5s; }
