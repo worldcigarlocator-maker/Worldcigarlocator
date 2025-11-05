@@ -66,37 +66,50 @@
 
   <div id="toast-container"></div>
 
-  <!-- Edit modal -->
-  <div id="editModal" class="modal-backdrop">
-    <div class="modal large">
-      <h3>Edit Store</h3>
-      <div class="edit-grid">
-        <label>Name <input id="editName" type="text" /></label>
-        <label>Address <input id="editAddress" type="text" /></label>
-        <label>City <input id="editCity" type="text" /></label>
-        <label>Country <input id="editCountry" type="text" /></label>
-        <label>Continent
-          <select id="editContinent">
-            <option value="Europe">Europe</option>
-            <option value="North America">North America</option>
-            <option value="South America">South America</option>
-            <option value="Asia">Asia</option>
-            <option value="Africa">Africa</option>
-            <option value="Oceania">Oceania</option>
-            <option value="Other">Other</option>
-          </select>
-        </label>
-        <div class="photo-section">
-          <img id="editPhoto" class="preview" src="" alt="Preview" />
-          <button class="btn ghost small" id="changePhoto">Change Photo</button>
-        </div>
+editModal.innerHTML = `
+  <div class="modal">
+    <h3>Edit Store</h3>
+    <div class="edit-grid">
+      <label>Name</label>
+      <input id="edit-name" value="${store.name || ''}" />
+
+      <label>City</label>
+      <input id="edit-city" value="${store.city || ''}" />
+
+      <label>Country</label>
+      <input id="edit-country" value="${store.country || ''}" />
+
+      <label>Website</label>
+      <input id="edit-website" value="${store.website || ''}" />
+
+      <label>Type</label>
+      <div class="type-group">
+        <button type="button" class="type-btn ${store.type==='store'?'active':''}" data-type="store">Store</button>
+        <button type="button" class="type-btn ${store.type==='lounge'?'active':''}" data-type="lounge">Lounge</button>
       </div>
-      <div class="row">
-        <button class="btn ghost" id="editCancel">Cancel</button>
-        <button class="btn" id="editSave">Save Changes</button>
+
+      <label>Access</label>
+      <div class="access-group">
+        <label class="access-pill"><input type="radio" name="access" value="public" ${store.access==='public'?'checked':''}><span>Public</span></label>
+        <label class="access-pill"><input type="radio" name="access" value="members" ${store.access==='members'?'checked':''}><span>Members Only</span></label>
       </div>
+
+      <label>Photo</label>
+      <div class="photo-picker">
+        <button id="edit-prev" class="photo-nav">◀</button>
+        <img id="edit-photo" class="preview-photo" src="${store.photo_reference ? buildPhotoProxyUrl(store.photo_reference) : WCL.FALLBACK_IMG}" />
+        <button id="edit-next" class="photo-nav">▶</button>
+      </div>
+      <div id="photo-meta" class="muted" style="text-align:center;">${store.photo_reference ? 'Loaded from proxy' : 'No photo loaded'}</div>
+    </div>
+
+    <div class="row" style="justify-content:flex-end;gap:.5rem;">
+      <button class="btn ghost" onclick="closeEdit()">Cancel</button>
+      <button class="btn" onclick="saveEdit(${store.id})">Save</button>
     </div>
   </div>
+`;
+
 
   <script>
     // === Config ===
