@@ -3,10 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Backoffice — Moderation V5.2</title>
+  <title>Backoffice — Moderation (V5.5 Inline Edit)</title>
 
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Styles -->
   <link rel="stylesheet" href="css/backoffice.css" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="wrap">
@@ -19,37 +25,35 @@
 
     <!-- Filters -->
     <div class="filters">
-      <button class="pill active" data-tab="all">All</button>
+      <button class="pill" data-tab="all">All</button>
       <button class="pill" data-tab="approved">Approved</button>
-      <button class="pill" data-tab="pending">Pending</button>
+      <button class="pill active" data-tab="pending">Pending</button>
       <button class="pill" data-tab="flagged">Flagged</button>
       <button class="pill" data-tab="deleted">Trash</button>
     </div>
 
-    <!-- Search + View Toggle -->
     <div class="searchbar">
       <input id="searchInput" placeholder="Search by name, city, country…" />
       <div class="viewtoggle">
-        <span class="seg active" data-view="cards">Cards</span>
         <span class="seg" data-view="list">List</span>
+        <span class="seg active" data-view="cards">Cards</span>
       </div>
     </div>
 
-    <!-- Card grid -->
+    <!-- Dynamic containers -->
     <div id="cards" class="grid"></div>
-
-    <!-- List table -->
     <div id="table" class="table-wrap" style="display:none">
       <table>
         <thead>
           <tr>
             <th>Name</th>
-            <th>Country</th>
             <th>City</th>
+            <th>Country</th>
             <th>Continent</th>
             <th>Type</th>
             <th>Access</th>
             <th>Rating</th>
+            <th>Comments</th>
             <th>Status</th>
           </tr>
         </thead>
@@ -58,91 +62,52 @@
     </div>
   </div>
 
+  <!-- Toast container -->
   <div id="toast-container"></div>
 
   <script>
     // ============================================================
-    // CONFIG
+    // Global Config
     // ============================================================
     const WCL = {};
     WCL.SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
     WCL.SUPABASE_ANON_KEY =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
     WCL.PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
     WCL.FALLBACK_IMG = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-    WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
-    let currentTab = "all";
-    let currentView = "cards";
     let STORES = [];
-
-    const toast = (msg, cls="success") => {
-      const c = document.getElementById("toast-container");
-      const t = document.createElement("div");
-      t.className = `toast ${cls}`;
-      t.textContent = msg;
-      c.appendChild(t);
-      setTimeout(() => t.remove(), 3000);
-    };
+    let currentTab = "pending";
 
     // ============================================================
-    // LOAD STORES
+    // Load stores
     // ============================================================
-    async function reloadData() {
+    async function reloadData(tab = currentTab) {
+      currentTab = tab;
       const grid = document.getElementById("cards");
-      grid.innerHTML = "<p style='color:#888;text-align:center;'>Loading…</p>";
+      grid.innerHTML = "<p style='color:#999;text-align:center;'>Loading…</p>";
 
       let query = WCL.supabase.from("stores").select("*").order("id", { ascending: false });
 
-      switch (currentTab) {
-        case "approved":
-          query = query.eq("approved", true).eq("deleted", false);
-          break;
-        case "pending":
-          query = query.eq("approved", false).eq("deleted", false).eq("flagged", false);
-          break;
-        case "flagged":
-          query = query.eq("flagged", true).eq("deleted", false);
-          break;
-        case "deleted":
-          query = query.eq("deleted", true);
-          break;
-        case "all":
-        default:
-          query = query.eq("deleted", false);
-      }
+      if (tab === "pending") query = query.eq("approved", false).eq("flagged", false).eq("deleted", false);
+      if (tab === "approved") query = query.eq("approved", true).eq("deleted", false);
+      if (tab === "flagged") query = query.eq("flagged", true).eq("deleted", false);
+      if (tab === "deleted") query = query.eq("deleted", true);
 
       const { data, error } = await query;
       if (error) {
         console.error(error);
-        grid.innerHTML = `<p class='error'>Error loading stores<br>${error.message}</p>`;
+        grid.innerHTML = "<p style='color:#c33;text-align:center;'>Error loading stores</p>";
         return;
       }
 
-      STORES = data;
-      renderView();
+      STORES = data || [];
+      renderCards();
     }
 
     // ============================================================
-    // RENDER VIEW
-    // ============================================================
-    function renderView() {
-      const grid = document.getElementById("cards");
-      const table = document.getElementById("table");
-
-      if (currentView === "cards") {
-        grid.style.display = "grid";
-        table.style.display = "none";
-        renderCards();
-      } else {
-        grid.style.display = "none";
-        table.style.display = "block";
-        renderList();
-      }
-    }
-
-    // ============================================================
-    // RENDER CARDS
+    // Render Cards (Inline Editable)
     // ============================================================
     function renderCards() {
       const grid = document.getElementById("cards");
@@ -172,111 +137,158 @@
 
         card.innerHTML = `
           <img src="${imgSrc}" class="store-photo" onerror="this.src='${WCL.FALLBACK_IMG}'">
-          <div class="store-body">
-            <h3>${s.name || "Unnamed"}</h3>
-            <p>${s.city || "Unknown"}, ${s.country || ""}</p>
-            <p><small>${s.continent || ""}</small></p>
-            <div class="stars">${s.rating ? "★".repeat(s.rating) + "☆".repeat(5 - s.rating) : ""}</div>
-            <p class="meta">${s.type || "Store"} • ${s.access || "Public"}</p>
+          <div class="store-body" data-id="${s.id}">
+            <h3 data-field="name" class="editable">${s.name || "Unnamed"}</h3>
+            <p>
+              <span data-field="city" class="editable">${s.city || "Unknown"}</span>,
+              <span data-field="country" class="editable">${s.country || ""}</span>
+            </p>
+            <p><small data-field="continent" class="editable">${s.continent || ""}</small></p>
+            <p>⭐ ${s.rating ?? "–"}</p>
+            <p class="meta">
+              <span data-field="type" class="editable">${s.type || "Store"}</span> •
+              <span data-field="access" class="editable">${s.access || "Public"}</span>
+            </p>
+            ${
+              s.comment
+                ? `<p class="comment"><strong>💬</strong> ${s.comment}</p>`
+                : `<p class="comment empty">No comments yet</p>`
+            }
             <span class="status">${colorClass.toUpperCase()}</span>
           </div>
           <div class="actions">
+            ${
+              s.flagged
+                ? `<button class="btn small unflag" onclick="unflag(${s.id})">🚩 Unflag</button>`
+                : `<button class="btn small flag" onclick="flag(${s.id})">Flag</button>`
+            }
+            ${
+              s.deleted
+                ? `<button class="btn small undelete" onclick="undelete(${s.id})">↩️ Restore</button>`
+                : `<button class="btn small delete" onclick="removeStore(${s.id})">Delete</button>`
+            }
             <button class="btn small approve" onclick="approve(${s.id})">Approve</button>
-            <button class="btn small flag" onclick="flag(${s.id})">Flag</button>
-            <button class="btn small delete" onclick="removeStore(${s.id})">Delete</button>
           </div>
         `;
         grid.appendChild(card);
       });
-    }
 
-    // ============================================================
-    // RENDER LIST
-    // ============================================================
-    function renderList() {
-      const tbody = document.getElementById("tbody");
-      tbody.innerHTML = "";
-
-      if (!STORES.length) {
-        tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;'>No stores found</td></tr>";
-        return;
-      }
-
-      STORES.forEach((s) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${s.name}</td>
-          <td>${s.country}</td>
-          <td>${s.city}</td>
-          <td>${s.continent || "-"}</td>
-          <td>${s.type || "-"}</td>
-          <td>${s.access || "-"}</td>
-          <td>${s.rating || "-"}</td>
-          <td>${s.approved ? "Approved" : s.flagged ? "Flagged" : s.deleted ? "Deleted" : "Pending"}</td>
-        `;
-        tbody.appendChild(tr);
+      document.querySelectorAll(".editable").forEach((el) => {
+        el.addEventListener("dblclick", () => startInlineEdit(el));
       });
     }
 
     // ============================================================
-    // ACTIONS
+    // Inline Edit Logic
+    // ============================================================
+    function startInlineEdit(el) {
+      const field = el.dataset.field;
+      const id = el.closest(".store-body").dataset.id;
+      const original = el.textContent.trim();
+      const input = document.createElement("input");
+      input.value = original;
+      input.className = "inline-input";
+      el.replaceWith(input);
+      input.focus();
+
+      input.addEventListener("keydown", async (e) => {
+        if (e.key === "Escape") {
+          input.replaceWith(el);
+          el.textContent = original;
+        }
+        if (e.key === "Enter") {
+          const newValue = input.value.trim();
+          await saveInlineEdit(id, field, newValue, el, input);
+        }
+      });
+
+      input.addEventListener("blur", async () => {
+        const newValue = input.value.trim();
+        if (newValue !== original) await saveInlineEdit(id, field, newValue, el, input);
+        else input.replaceWith(el);
+      });
+    }
+
+    async function saveInlineEdit(id, field, value, el, input) {
+      const { error } = await WCL.supabase.from("stores").update({ [field]: value }).eq("id", id);
+      if (error) {
+        toast("Error saving", "error");
+        input.replaceWith(el);
+        el.textContent = el.textContent;
+        return;
+      }
+      el.textContent = value;
+      input.replaceWith(el);
+      toast(`✅ ${field} updated`);
+    }
+
+    // ============================================================
+    // Moderation Actions
     // ============================================================
     async function approve(id) {
-      const { error } = await WCL.supabase.from("stores").update({ approved:true, flagged:false }).eq("id", id);
-      if (error) return toast("Error approving", "error");
-      toast("✅ Approved");
+      await WCL.supabase.from("stores").update({ approved: true }).eq("id", id);
+      toast("Approved ✅");
       reloadData();
     }
-
     async function flag(id) {
-      const reason = prompt("Reason for flagging?");
+      const reason = prompt("Enter reason:");
       if (!reason) return;
-      const { error } = await WCL.supabase.from("stores").update({ flagged:true, flag_reason:reason }).eq("id", id);
-      if (error) return toast("Error flagging", "error");
-      toast("🚩 Flagged");
+      await WCL.supabase.from("stores").update({ flagged: true, flag_reason: reason }).eq("id", id);
+      toast("Flagged 🚩");
       reloadData();
     }
-
+    async function unflag(id) {
+      await WCL.supabase.from("stores").update({ flagged: false, flag_reason: null }).eq("id", id);
+      toast("Unflagged 🚩");
+      reloadData();
+    }
     async function removeStore(id) {
-      if (!confirm("Move this store to Trash?")) return;
-      const { error } = await WCL.supabase.from("stores").update({ deleted:true }).eq("id", id);
-      if (error) return toast("Error deleting", "error");
-      toast("🗑️ Moved to Trash");
+      await WCL.supabase.from("stores").update({ deleted: true }).eq("id", id);
+      toast("Moved to Trash 🗑️");
+      reloadData();
+    }
+    async function undelete(id) {
+      await WCL.supabase.from("stores").update({ deleted: false }).eq("id", id);
+      toast("Restored ♻️");
       reloadData();
     }
 
     // ============================================================
-    // FILTERS + VIEW TOGGLE + SEARCH
+    // UI Events
     // ============================================================
     document.querySelectorAll(".pill").forEach((p) => {
       p.addEventListener("click", () => {
         document.querySelectorAll(".pill").forEach((b) => b.classList.remove("active"));
         p.classList.add("active");
-        currentTab = p.dataset.tab;
-        reloadData();
+        reloadData(p.dataset.tab);
       });
     });
 
-    document.querySelectorAll(".seg").forEach((seg) => {
-      seg.addEventListener("click", () => {
-        document.querySelectorAll(".seg").forEach((s) => s.classList.remove("active"));
-        seg.classList.add("active");
-        currentView = seg.dataset.view;
-        renderView();
-      });
+    document.getElementById("searchInput").addEventListener("input", async (e) => {
+      const term = e.target.value.trim();
+      if (!term) return reloadData();
+      const { data, error } = await WCL.supabase
+        .from("stores")
+        .select("*")
+        .ilike("name", `%${term}%`);
+      if (error) return console.error(error);
+      STORES = data || [];
+      renderCards();
     });
 
-    document.getElementById("searchInput").addEventListener("input", (e) => {
-      const term = e.target.value.trim().toLowerCase();
-      if (!term) return renderView();
-      const filtered = STORES.filter((s) =>
-        [s.name, s.city, s.country].some((f) => f?.toLowerCase().includes(term))
-      );
-      if (currentView === "cards") renderCards(filtered);
-      else renderList(filtered);
-    });
+    function toast(msg, cls = "success") {
+      const c = document.getElementById("toast-container");
+      const t = document.createElement("div");
+      t.className = `toast ${cls}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 2500);
+    }
 
-    document.addEventListener("DOMContentLoaded", reloadData);
+    document.addEventListener("DOMContentLoaded", () => {
+      reloadData("pending");
+      toast("✅ Inline Edit Active");
+    });
   </script>
 </body>
 </html>
