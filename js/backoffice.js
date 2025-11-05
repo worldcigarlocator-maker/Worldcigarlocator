@@ -130,14 +130,27 @@ function renderCards(list) {
       </div>
     `;
 
+    // === actions (justerat)
     const actions = document.createElement("div");
     actions.className = "actions";
+
+    // Approve (visas om ej approved)
+    if (!s.approved && !s.deleted) {
+      actions.append(button("Approve", () => approveStore(s.id), "ok"));
+    }
+
+    // Unflag (gul) om flagged = true
+    if (s.flagged) {
+      actions.append(button("Unflag", () => unflag(s.id), "warning"));
+    }
+
+    // Delete / Restore
     actions.append(
-      button("Approve", () => approveStore(s.id), "ok"),
-      button(s.flagged ? "Unflag" : "Flag", () => openFlag(s), s.flagged ? "" : "warn"),
-      button(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "ghost"),
-      button("Edit", () => openEdit(s), "primary")
+      button(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), s.deleted ? "ghost" : "danger")
     );
+
+    // Edit (alltid tillgänglig)
+    actions.append(button("Edit", () => editStore(s.id), "primary"));
 
     card.append(img, body, actions);
     grid.appendChild(card);
@@ -148,6 +161,9 @@ function renderCards(list) {
   }
 }
 
+/* ============================================================
+   Button helper
+   ============================================================ */
 function button(label, onClick, cls = "") {
   const b = document.createElement("button");
   b.className = `btn ${cls}`;
