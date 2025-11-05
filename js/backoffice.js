@@ -221,7 +221,7 @@ function renderCards(list) {
         ? makeBtn("Unflag", () => unflagStore(s.id), "yellow")
         : makeBtn("Flag", () => openFlagModal(s), "danger"),
       makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger"),
-      makeBtn("Edit", () => openEdit(s), "blue")
+      makeBtn("Edit", () => editStore(s.id), "blue")
     );
 
     card.append(img, body, actions);
