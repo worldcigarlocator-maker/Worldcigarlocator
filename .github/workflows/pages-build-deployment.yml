@@ -1,17 +1,10 @@
 name: Deploy GitHub Pages
 
-name: Deploy GitHub Pages
-
 on:
   push:
     branches:
       - main
   workflow_dispatch:   # 👈 ny rad
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
 
 
 permissions:
