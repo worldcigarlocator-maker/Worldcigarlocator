@@ -165,3 +165,57 @@ tr:hover td { background: #f1f5f9; }
 .store-leaf:hover { color: var(--blue); text-decoration: underline; }
 
 .highlight { background: #fff3cd !important; transition: background .5s; }
+/* ============================================================
+   Edit Modal (centrerad overlay)
+   ============================================================ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  animation: fadeIn .2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .8rem 1rem;
+}
+
+.edit-grid label {
+  font-weight: 600;
+  color: #333;
+}
+
+.photo-picker {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .5rem;
+}
+
+.preview-photo {
+  width: 160px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.15);
+}
