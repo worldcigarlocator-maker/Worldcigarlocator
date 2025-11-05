@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Backoffice — Moderation (V5 Stable)</title>
+  <title>Backoffice — Moderation V5.2</title>
 
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Styles -->
   <link rel="stylesheet" href="css/backoffice.css" />
 </head>
 <body>
   <div class="wrap">
+    <!-- Topbar -->
     <div class="topbar">
-      <button class="btn" onclick="location.href='add-store-backoffice.html'">＋ Add Store</button>
-      <button class="btn" onclick="reloadData()">⟲ Reload</button>
+      <button class="btn primary" onclick="location.href='add-store-backoffice.html'">＋ Add Store</button>
+      <button class="btn ghost" onclick="location.href='analytics.html'">📊 Analytics</button>
+      <button class="btn ghost" onclick="reloadData()">⟲ Reload</button>
     </div>
 
+    <!-- Filters -->
     <div class="filters">
       <button class="pill active" data-tab="all">All</button>
       <button class="pill" data-tab="approved">Approved</button>
@@ -26,6 +26,7 @@
       <button class="pill" data-tab="deleted">Trash</button>
     </div>
 
+    <!-- Search + View Toggle -->
     <div class="searchbar">
       <input id="searchInput" placeholder="Search by name, city, country…" />
       <div class="viewtoggle">
@@ -34,8 +35,10 @@
       </div>
     </div>
 
+    <!-- Card grid -->
     <div id="cards" class="grid"></div>
 
+    <!-- List table -->
     <div id="table" class="table-wrap" style="display:none">
       <table>
         <thead>
@@ -58,16 +61,15 @@
   <div id="toast-container"></div>
 
   <script>
-    /* ============================================================
-       Backoffice Logic — Stable Proxy Version
-    ============================================================ */
+    // ============================================================
+    // CONFIG
+    // ============================================================
     const WCL = {};
     WCL.SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
     WCL.SUPABASE_ANON_KEY =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
     WCL.PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
     WCL.FALLBACK_IMG = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-
     WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
     let currentTab = "all";
@@ -83,6 +85,9 @@
       setTimeout(() => t.remove(), 3000);
     };
 
+    // ============================================================
+    // LOAD STORES
+    // ============================================================
     async function reloadData() {
       const grid = document.getElementById("cards");
       grid.innerHTML = "<p style='color:#888;text-align:center;'>Loading…</p>";
@@ -110,7 +115,7 @@
       const { data, error } = await query;
       if (error) {
         console.error(error);
-        grid.innerHTML = `<p style='color:#c33;text-align:center;'>Error loading stores<br>${error.message}</p>`;
+        grid.innerHTML = `<p class='error'>Error loading stores<br>${error.message}</p>`;
         return;
       }
 
@@ -118,11 +123,27 @@
       renderView();
     }
 
+    // ============================================================
+    // RENDER VIEW
+    // ============================================================
     function renderView() {
-      if (currentView === "list") renderList();
-      else renderCards();
+      const grid = document.getElementById("cards");
+      const table = document.getElementById("table");
+
+      if (currentView === "cards") {
+        grid.style.display = "grid";
+        table.style.display = "none";
+        renderCards();
+      } else {
+        grid.style.display = "none";
+        table.style.display = "block";
+        renderList();
+      }
     }
 
+    // ============================================================
+    // RENDER CARDS
+    // ============================================================
     function renderCards() {
       const grid = document.getElementById("cards");
       grid.innerHTML = "";
@@ -154,22 +175,28 @@
           <div class="store-body">
             <h3>${s.name || "Unnamed"}</h3>
             <p>${s.city || "Unknown"}, ${s.country || ""}</p>
-            <div class="stars">${"★".repeat(s.rating || 0)}${"☆".repeat(5 - (s.rating || 0))}</div>
+            <p><small>${s.continent || ""}</small></p>
+            <div class="stars">${s.rating ? "★".repeat(s.rating) + "☆".repeat(5 - s.rating) : ""}</div>
             <p class="meta">${s.type || "Store"} • ${s.access || "Public"}</p>
             <span class="status">${colorClass.toUpperCase()}</span>
           </div>
+          <div class="actions">
+            <button class="btn small approve" onclick="approve(${s.id})">Approve</button>
+            <button class="btn small flag" onclick="flag(${s.id})">Flag</button>
+            <button class="btn small delete" onclick="removeStore(${s.id})">Delete</button>
+          </div>
         `;
-
         grid.appendChild(card);
       });
     }
 
+    // ============================================================
+    // RENDER LIST
+    // ============================================================
     function renderList() {
       const tbody = document.getElementById("tbody");
-      document.getElementById("table").style.display = "block";
-      document.getElementById("cards").style.display = "none";
-
       tbody.innerHTML = "";
+
       if (!STORES.length) {
         tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;'>No stores found</td></tr>";
         return;
@@ -191,7 +218,36 @@
       });
     }
 
-    // === Filters ===
+    // ============================================================
+    // ACTIONS
+    // ============================================================
+    async function approve(id) {
+      const { error } = await WCL.supabase.from("stores").update({ approved:true, flagged:false }).eq("id", id);
+      if (error) return toast("Error approving", "error");
+      toast("✅ Approved");
+      reloadData();
+    }
+
+    async function flag(id) {
+      const reason = prompt("Reason for flagging?");
+      if (!reason) return;
+      const { error } = await WCL.supabase.from("stores").update({ flagged:true, flag_reason:reason }).eq("id", id);
+      if (error) return toast("Error flagging", "error");
+      toast("🚩 Flagged");
+      reloadData();
+    }
+
+    async function removeStore(id) {
+      if (!confirm("Move this store to Trash?")) return;
+      const { error } = await WCL.supabase.from("stores").update({ deleted:true }).eq("id", id);
+      if (error) return toast("Error deleting", "error");
+      toast("🗑️ Moved to Trash");
+      reloadData();
+    }
+
+    // ============================================================
+    // FILTERS + VIEW TOGGLE + SEARCH
+    // ============================================================
     document.querySelectorAll(".pill").forEach((p) => {
       p.addEventListener("click", () => {
         document.querySelectorAll(".pill").forEach((b) => b.classList.remove("active"));
@@ -201,26 +257,23 @@
       });
     });
 
-    // === View toggle ===
-    document.querySelectorAll(".seg").forEach((s) => {
-      s.addEventListener("click", () => {
-        document.querySelectorAll(".seg").forEach((x) => x.classList.remove("active"));
-        s.classList.add("active");
-        currentView = s.dataset.view;
+    document.querySelectorAll(".seg").forEach((seg) => {
+      seg.addEventListener("click", () => {
+        document.querySelectorAll(".seg").forEach((s) => s.classList.remove("active"));
+        seg.classList.add("active");
+        currentView = seg.dataset.view;
         renderView();
       });
     });
 
-    // === Search ===
-    document.getElementById("searchInput").addEventListener("input", async (e) => {
-      const term = e.target.value.trim();
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      const term = e.target.value.trim().toLowerCase();
       if (!term) return renderView();
-      const results = STORES.filter((s) =>
-        [s.name, s.city, s.country].some((f) =>
-          f?.toLowerCase().includes(term.toLowerCase())
-        )
+      const filtered = STORES.filter((s) =>
+        [s.name, s.city, s.country].some((f) => f?.toLowerCase().includes(term))
       );
-      currentView === "list" ? renderList(results) : renderCards(results);
+      if (currentView === "cards") renderCards(filtered);
+      else renderList(filtered);
     });
 
     document.addEventListener("DOMContentLoaded", reloadData);
