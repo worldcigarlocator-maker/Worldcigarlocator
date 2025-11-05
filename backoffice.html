@@ -40,29 +40,33 @@
       </div>
     </div>
 
-    <!-- Cards -->
-    <div id="cards" class="grid"></div>
+ <!-- === Card View === -->
+<div id="cards" class="grid"></div>
 
-    <!-- List view -->
-    <div id="table" class="table-wrap" style="display:none">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Country</th>
-            <th>Continent</th>
-            <th>City</th>
-            <th>Type</th>
-            <th>Access</th>
-            <th>Rating</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
+<!-- === Kombinerad List + Hierarki View === -->
+<div class="listview-wrap" style="display:none;">
+  <div id="hierarchyPanel" class="hierarchy-panel"></div>
+  <div id="table" class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Country</th>
+          <th>Continent</th>
+          <th>City</th>
+          <th>Type</th>
+          <th>Access</th>
+          <th>Rating</th>
+          <th>Added</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
   </div>
+</div>
+
 
   <div id="toast-container"></div>
 
