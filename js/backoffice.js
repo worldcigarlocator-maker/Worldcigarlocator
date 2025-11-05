@@ -86,15 +86,22 @@ function render() {
       );
 
   if (CURRENT_VIEW === "cards") {
+    // === Card View ===
     $("#hierarchyPanel").style.display = "none";
+    $("#table").style.display = "none";
     $("#cards").style.display = "grid";
     renderCards(filtered);
   } else {
+    // === Kombinerad List + Hierarki ===
     $("#cards").style.display = "none";
     $("#hierarchyPanel").style.display = "block";
-    renderHierarchy(filtered);
+    $("#table").style.display = "block";
+
+    renderHierarchy(filtered); // vänstersidan
+    renderTable(filtered);     // högersidan
   }
 }
+
 
 /* ============================================================
    Render List View (Table)
