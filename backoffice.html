@@ -3,24 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Backoffice — Moderation (V5 Enhanced)</title>
+  <title>Backoffice — Moderation (V5)</title>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Styles -->
   <link rel="stylesheet" href="css/backoffice.css" />
-
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="wrap">
+
     <!-- Topbar -->
     <div class="topbar">
-      <button class="btn" onclick="location.href='add-store-backoffice.html'">＋ Add Store</button>
-      <button class="btn" onclick="location.href='analytics.html'">📊 Analytics</button>
-      <button class="btn" onclick="reloadData()">⟲ Reload</button>
+      <button class="btn blue" onclick="location.href='add-store-backoffice.html'">＋ Add Store</button>
+      <button class="btn ghost" onclick="location.href='analytics.html'">📊 Analytics</button>
+      <button class="btn green" onclick="reloadData()">⟲ Reload</button>
     </div>
 
     <!-- Filters -->
@@ -32,313 +29,44 @@
       <button class="pill" data-tab="deleted">Trash</button>
     </div>
 
+    <!-- Search + View toggle -->
     <div class="searchbar">
       <input id="searchInput" placeholder="Search by name, city, country…" />
       <div class="viewtoggle">
-        <span class="seg" data-view="list">List</span>
         <span class="seg active" data-view="cards">Cards</span>
+        <span class="seg" data-view="list">List</span>
       </div>
     </div>
 
- <!-- === Card View === -->
-<div id="cards" class="grid"></div>
+    <!-- === CARD VIEW === -->
+    <div id="cards" class="grid"></div>
 
-<!-- === Kombinerad List + Hierarki View === -->
-<div class="listview-wrap" style="display:none;">
-  <div id="hierarchyPanel" class="hierarchy-panel"></div>
-  <div id="table" class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Country</th>
-          <th>Continent</th>
-          <th>City</th>
-          <th>Type</th>
-          <th>Access</th>
-          <th>Rating</th>
-          <th>Added</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
+    <!-- === LIST VIEW === -->
+    <div class="listview-wrap" style="display:none;">
+      <div id="hierarchyPanel" class="hierarchy-panel"></div>
+      <div id="table" class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Country</th>
+              <th>Continent</th>
+              <th>City</th>
+              <th>Type</th>
+              <th>Access</th>
+              <th>Rating</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
-</div>
-
 
   <div id="toast-container"></div>
 
-editModal.innerHTML = `
-  <div class="modal">
-    <h3>Edit Store</h3>
-    <div class="edit-grid">
-      <label>Name</label>
-      <input id="edit-name" value="${store.name || ''}" />
-
-      <label>City</label>
-      <input id="edit-city" value="${store.city || ''}" />
-
-      <label>Country</label>
-      <input id="edit-country" value="${store.country || ''}" />
-
-      <label>Website</label>
-      <input id="edit-website" value="${store.website || ''}" />
-
-      <label>Type</label>
-      <div class="type-group">
-        <button type="button" class="type-btn ${store.type==='store'?'active':''}" data-type="store">Store</button>
-        <button type="button" class="type-btn ${store.type==='lounge'?'active':''}" data-type="lounge">Lounge</button>
-      </div>
-
-      <label>Access</label>
-      <div class="access-group">
-        <label class="access-pill"><input type="radio" name="access" value="public" ${store.access==='public'?'checked':''}><span>Public</span></label>
-        <label class="access-pill"><input type="radio" name="access" value="members" ${store.access==='members'?'checked':''}><span>Members Only</span></label>
-      </div>
-
-      <label>Photo</label>
-      <div class="photo-picker">
-        <button id="edit-prev" class="photo-nav">◀</button>
-        <img id="edit-photo" class="preview-photo" src="${store.photo_reference ? buildPhotoProxyUrl(store.photo_reference) : WCL.FALLBACK_IMG}" />
-        <button id="edit-next" class="photo-nav">▶</button>
-      </div>
-      <div id="photo-meta" class="muted" style="text-align:center;">${store.photo_reference ? 'Loaded from proxy' : 'No photo loaded'}</div>
-    </div>
-
-    <div class="row" style="justify-content:flex-end;gap:.5rem;">
-      <button class="btn ghost" onclick="closeEdit()">Cancel</button>
-      <button class="btn" onclick="saveEdit(${store.id})">Save</button>
-    </div>
-  </div>
-`;
-
-
-  <script>
-    // === Config ===
-    const WCL = {};
-    WCL.SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    WCL.SUPABASE_ANON_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-    WCL.PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
-    WCL.FALLBACK_IMG = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-    WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
-
-    const toast = (msg, cls = "success") => {
-      const c = document.getElementById("toast-container");
-      const t = document.createElement("div");
-      t.className = `toast ${cls}`;
-      t.textContent = msg;
-      c.appendChild(t);
-      setTimeout(() => t.remove(), 3000);
-    };
-
-    const buildPhotoProxyUrl = (ref, w = 800) =>
-      ref ? `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=${w}` : WCL.FALLBACK_IMG;
-
-    let currentTab = "pending";
-    let currentView = "cards";
-
-    async function reloadData(tab = currentTab) {
-      currentTab = tab;
-      const grid = document.getElementById("cards");
-      grid.innerHTML = "<p style='color:#999;text-align:center;'>Loading…</p>";
-      let query = WCL.supabase.from("stores").select("*").order("id", { ascending: false });
-
-      if (tab === "pending") query = query.eq("approved", false).eq("deleted", false);
-      if (tab === "approved") query = query.eq("approved", true).eq("deleted", false);
-      if (tab === "flagged") query = query.eq("flagged", true).eq("deleted", false);
-      if (tab === "deleted") query = query.eq("deleted", true);
-      if (tab === "all") query = query.eq("deleted", false);
-
-      const { data, error } = await query;
-      if (error) {
-        console.error(error);
-        grid.innerHTML = "<p style='color:#c33;text-align:center;'>Error loading stores</p>";
-        return;
-      }
-
-      if (currentView === "list") renderList(data);
-      else renderCards(data);
-    }
-
-    // === Card Renderer ===
-    function renderCards(stores) {
-      const grid = document.getElementById("cards");
-      grid.innerHTML = "";
-      document.getElementById("table").style.display = "none";
-      grid.style.display = "grid";
-
-      stores.forEach((s) => {
-        const card = document.createElement("div");
-        card.className = "card";
-        const img = document.createElement("img");
-        img.className = "photo";
-        img.src = s.photo_reference ? buildPhotoProxyUrl(s.photo_reference) : WCL.FALLBACK_IMG;
-        img.onerror = () => (img.src = WCL.FALLBACK_IMG);
-
-        const body = document.createElement("div");
-        body.className = "body";
-        body.innerHTML = `
-          <h3>${s.name || "Unnamed"}</h3>
-          <p><strong>📍</strong> ${s.city || "Unknown"}, ${s.country || ""}</p>
-          <p><strong>⭐</strong> ${s.rating ?? "–"}</p>
-          <p><strong>🗺️</strong> ${s.continent || ""}</p>
-          <div class="badges">
-            ${s.flagged ? `<span class='badge yellow'>FLAGGED</span>` : ""}
-            ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
-            ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
-            ${!s.approved && !s.deleted && !s.flagged ? `<span class='badge gold'>PENDING</span>` : ""}
-          </div>
-        `;
-
-        const actions = document.createElement("div");
-        actions.className = "actions";
-        const btns = [];
-        btns.push(`<button class="btn ghost small blue" onclick="editStore(${s.id})">Edit</button>`);
-        if (!s.approved && !s.deleted)
-          btns.push(`<button class="btn ghost small green" onclick="approve(${s.id})">Approve</button>`);
-        if (s.flagged)
-          btns.push(`<button class="btn ghost small yellow" onclick="unflag(${s.id})">Unflag</button>`);
-        if (!s.deleted)
-          btns.push(`<button class="btn ghost small danger" onclick="removeStore(${s.id})">Delete</button>`);
-        actions.innerHTML = btns.join("");
-        card.append(img, body, actions);
-        grid.appendChild(card);
-      });
-    }
-
-    // === List View ===
-    function renderList(stores) {
-      const tbody = document.getElementById("tbody");
-      const table = document.getElementById("table");
-      tbody.innerHTML = "";
-      document.getElementById("cards").style.display = "none";
-      table.style.display = "block";
-
-      stores.forEach((s) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${s.name}</td>
-          <td>${s.country}</td>
-          <td>${s.continent}</td>
-          <td>${s.city}</td>
-          <td>${s.type}</td>
-          <td>${s.access}</td>
-          <td>${s.rating ?? "–"}</td>
-          <td>${s.approved ? "✅" : s.flagged ? "🚩" : s.deleted ? "🗑️" : "⏳"}</td>
-          <td>
-            <button class="btn ghost small blue" onclick="editStore(${s.id})">Edit</button>
-            ${s.flagged ? `<button class="btn ghost small yellow" onclick="unflag(${s.id})">Unflag</button>` : ""}
-            <button class="btn ghost small danger" onclick="removeStore(${s.id})">Delete</button>
-          </td>`;
-        tbody.appendChild(tr);
-      });
-    }
-
-    // === Edit Modal ===
-    let editingStore = null;
-    async function editStore(id) {
-      const { data, error } = await WCL.supabase.from("stores").select("*").eq("id", id).single();
-      if (error) return toast("Error loading store", "error");
-      editingStore = data;
-
-      document.getElementById("editName").value = data.name || "";
-      document.getElementById("editAddress").value = data.address || "";
-      document.getElementById("editCity").value = data.city || "";
-      document.getElementById("editCountry").value = data.country || "";
-      document.getElementById("editContinent").value = data.continent || "Other";
-      document.getElementById("editPhoto").src = buildPhotoProxyUrl(data.photo_reference);
-
-      document.getElementById("editModal").style.display = "flex";
-    }
-
-    document.getElementById("editCancel").onclick = () => {
-      document.getElementById("editModal").style.display = "none";
-      editingStore = null;
-    };
-
-    document.getElementById("editSave").onclick = async () => {
-      const updated = {
-        name: document.getElementById("editName").value.trim(),
-        address: document.getElementById("editAddress").value.trim(),
-        city: document.getElementById("editCity").value.trim(),
-        country: document.getElementById("editCountry").value.trim(),
-        continent: document.getElementById("editContinent").value,
-      };
-      const { error } = await WCL.supabase.from("stores").update(updated).eq("id", editingStore.id);
-      if (error) return toast("Error saving", "error");
-      toast("Store updated ✅");
-      document.getElementById("editModal").style.display = "none";
-      reloadData(currentTab);
-    };
-
-    document.getElementById("changePhoto").onclick = () => {
-      const newRef = prompt("Enter new photo_reference:");
-      if (!newRef) return;
-      document.getElementById("editPhoto").src = buildPhotoProxyUrl(newRef);
-      WCL.supabase.from("stores").update({ photo_reference: newRef }).eq("id", editingStore.id);
-      toast("Photo updated ✅");
-    };
-
-    // === Unflag ===
-    async function unflag(id) {
-      if (!confirm("Vill du ta bort flaggningen för denna butik?")) return;
-      const { error } = await WCL.supabase.from("stores").update({ flagged: false, flag_reason: null }).eq("id", id);
-      if (error) return toast("Fel vid unflag 🚫", "error");
-      toast("Unflagged ✅", "success");
-      reloadData(currentTab);
-    }
-
-    async function approve(id) {
-      const { error } = await WCL.supabase.from("stores").update({ approved: true, flagged: false }).eq("id", id);
-      if (error) return toast("Error approving", "error");
-      toast("Approved ✅");
-      reloadData(currentTab);
-    }
-
-    async function removeStore(id) {
-      if (!confirm("Move this store to Trash?")) return;
-      const { error } = await WCL.supabase.from("stores").update({ deleted: true }).eq("id", id);
-      if (error) return toast("Error deleting", "error");
-      toast("Moved to Trash 🗑️");
-      reloadData(currentTab);
-    }
-
-    document.querySelectorAll(".pill").forEach((p) => {
-      p.addEventListener("click", () => {
-        document.querySelectorAll(".pill").forEach((b) => b.classList.remove("active"));
-        p.classList.add("active");
-        reloadData(p.dataset.tab);
-      });
-    });
-
-    document.querySelectorAll(".seg").forEach((s) => {
-      s.addEventListener("click", () => {
-        document.querySelectorAll(".seg").forEach((b) => b.classList.remove("active"));
-        s.classList.add("active");
-        currentView = s.dataset.view;
-        reloadData(currentTab);
-      });
-    });
-
-    document.getElementById("searchInput").addEventListener("input", async (e) => {
-      const term = e.target.value.trim();
-      if (!term) return reloadData(currentTab);
-      const { data, error } = await WCL.supabase
-        .from("stores")
-        .select("*")
-        .or(`name.ilike.%${term}%,city.ilike.%${term}%,country.ilike.%${term}%`);
-      if (error) return console.error(error);
-      if (currentView === "list") renderList(data);
-      else renderCards(data);
-    });
-
-    document.addEventListener("DOMContentLoaded", () => {
-      reloadData("pending");
-      toast("✅ Backoffice ready");
-    });
-  </script>
+  <script src="js/backoffice.js"></script>
 </body>
 </html>
