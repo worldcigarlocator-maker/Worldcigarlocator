@@ -238,6 +238,62 @@ table th {
 .toast.error {
   background: #d33;
 }
+/* Topbar buttons */
+.btn {
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0.45rem 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.btn:hover {
+  background: #f0f0f0;
+}
+.btn.primary {
+  background: #3a6ff7;
+  border-color: #3a6ff7;
+  color: #fff;
+}
+.btn.primary:hover {
+  background: #2959d8;
+}
+.btn.ghost {
+  background: #fff;
+  border-color: #aaa;
+  color: #333;
+}
+
+/* Card actions */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 1rem 1rem;
+}
+.btn.small {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+}
+.btn.approve {
+  background: #3ac47d;
+  border: none;
+  color: #fff;
+}
+.btn.flag {
+  background: #ffb347;
+  border: none;
+  color: #222;
+}
+.btn.delete {
+  background: #e74c3c;
+  border: none;
+  color: #fff;
+}
+.btn.small:hover {
+  opacity: 0.85;
+}
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }
