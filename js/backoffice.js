@@ -133,6 +133,100 @@ function renderTable(stores) {
     tbody.appendChild(tr);
   });
 }
+/* ============================================================
+   Hierarki (Continent → Country → City)
+   ============================================================ */
+function renderHierarchy(stores) {
+  const panel = document.getElementById("hierarchyPanel");
+  panel.innerHTML = "";
+
+  if (!stores.length) {
+    panel.innerHTML = `<p class="muted center">No stores found</p>`;
+    return;
+  }
+
+  // 🧩 Grupp 1: continent → countries → cities
+  const continents = {};
+  stores.forEach((s) => {
+    const cont = s.continent || "Other";
+    const country = s.country || "Unknown";
+    const city = s.city || "Unknown";
+
+    if (!continents[cont]) continents[cont] = {};
+    if (!continents[cont][country]) continents[cont][country] = {};
+    if (!continents[cont][country][city]) continents[cont][country][city] = [];
+    continents[cont][country][city].push(s);
+  });
+
+  // 🧱 Bygg hierarki DOM
+  Object.entries(continents).forEach(([cont, countries]) => {
+    const contDiv = document.createElement("div");
+    contDiv.className = "line continent";
+    contDiv.innerHTML = `
+      <div class="line-header">
+        <span class="arrow">▶</span>
+        <strong>${cont}</strong>
+        <span class="count">${Object.values(countries).reduce((a, c) => a + Object.values(c).reduce((b, d) => b + d.length, 0), 0)}</span>
+      </div>
+      <div class="nested"></div>
+    `;
+    panel.appendChild(contDiv);
+
+    const nestedCont = contDiv.querySelector(".nested");
+
+    Object.entries(countries).forEach(([country, cities]) => {
+      const countryDiv = document.createElement("div");
+      countryDiv.className = "line country";
+      countryDiv.innerHTML = `
+        <div class="line-header">
+          <span class="arrow">▶</span>
+          <span>${country}</span>
+          <span class="count">${Object.values(cities).reduce((a, b) => a + b.length, 0)}</span>
+        </div>
+        <div class="nested"></div>
+      `;
+      nestedCont.appendChild(countryDiv);
+
+      const nestedCountry = countryDiv.querySelector(".nested");
+
+      Object.entries(cities).forEach(([city, list]) => {
+        const cityDiv = document.createElement("div");
+        cityDiv.className = "line city";
+        cityDiv.innerHTML = `
+          <div class="line-header">
+            <span class="arrow">▶</span>
+            <span>${city}</span>
+            <span class="count">${list.length}</span>
+          </div>
+          <div class="nested stores"></div>
+        `;
+        nestedCountry.appendChild(cityDiv);
+
+        const nestedCity = cityDiv.querySelector(".nested");
+
+        list.forEach((store) => {
+          const storeDiv = document.createElement("div");
+          storeDiv.className = "line store";
+          storeDiv.innerHTML = `
+            <span>${store.name}</span>
+            <span class="muted">${store.type || ""}</span>
+            <button class="btn small" onclick="editStore(${store.id})">Edit</button>
+          `;
+          nestedCity.appendChild(storeDiv);
+        });
+      });
+    });
+  });
+
+  // 🎯 Gör pilar klickbara
+  panel.querySelectorAll(".line-header").forEach((hdr) => {
+    hdr.addEventListener("click", (e) => {
+      const line = hdr.parentElement;
+      line.classList.toggle("open");
+      hdr.querySelector(".arrow").textContent = line.classList.contains("open") ? "▼" : "▶";
+    });
+  });
+}
 
 /* ============================================================
    Cards
