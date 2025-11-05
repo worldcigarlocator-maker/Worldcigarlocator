@@ -460,17 +460,16 @@ async function toggleDelete(s) {
 }
 
 /* ============================================================
-   Edit Store Modal (slutlig version)
+   Edit Store Modal (med kommentarhantering)
    ============================================================ */
 async function editStore(id) {
-  // 🔒 Stäng gamla modaler om någon redan är öppen
   closeEdit();
 
-  const { data: store, error } = await WCL.supabase
-    .from("stores")
-    .select("*")
-    .eq("id", id)
-    .single();
+  // === Ladda butik + kommentarer ===
+  const [{ data: store, error }, { data: comments }] = await Promise.all([
+    WCL.supabase.from("stores").select("*").eq("id", id).single(),
+    WCL.supabase.from("store_comments").select("*").eq("store_id", id).order("created_at", { ascending: false })
+  ]);
 
   if (error || !store) {
     toast("Failed to load store", "error");
@@ -525,34 +524,46 @@ async function editStore(id) {
         <div id="photo-meta" class="muted" style="text-align:center;">
           ${store.photo_reference ? "Loaded from proxy" : "No photo loaded"}
         </div>
+
+        ${
+          comments?.length
+            ? `<label>Comments (${comments.length})</label>
+               <div class="comment-list">
+                 ${comments
+                   .map(
+                     (c) => `
+                     <div class="comment-item">
+                       <p><strong>${safe(c.user_name || "Anon")}:</strong> ${safe(c.comment)}</p>
+                       <span class="muted">${new Date(c.created_at).toLocaleString()}</span>
+                       <button class="btn small ghost del-comment" data-id="${c.id}">🗑️</button>
+                     </div>`
+                   )
+                   .join("")}
+               </div>`
+            : `<label>Comments</label><p class="muted">No comments yet.</p>`
+        }
       </div>
 
       <div class="row" style="justify-content:flex-end;gap:.6rem;margin-top:1rem;">
         <button class="btn ghost" id="edit-cancel">Cancel</button>
         <button class="btn blue" id="edit-save">Save</button>
-        ${
-          store.flagged
-            ? `<button class="btn yellow" id="edit-unflag">Unflag</button>`
-            : ""
-        }
+        ${store.flagged ? `<button class="btn yellow" id="edit-unflag">Unflag</button>` : ""}
         <button class="btn danger" id="edit-delete">Delete</button>
       </div>
     </div>
   `;
   document.body.appendChild(modal);
 
-  // === Modalinteraktioner ===
+  // === Eventhantering ===
   modal.addEventListener("click", (e) => {
     if (e.target === modal) closeEdit();
   });
-
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeEdit();
   });
 
-  // === Knapp-händelser ===
+  // === Knappkopplingar ===
   $("#edit-cancel").onclick = closeEdit;
-
   $("#edit-save").onclick = async () => {
     const payload = {
       name: $("#edit-name").value.trim(),
@@ -562,7 +573,6 @@ async function editStore(id) {
       type: document.querySelector(".type-btn.active")?.dataset.type || null,
       access: document.querySelector('input[name="access"]:checked')?.value || null,
     };
-
     const { error } = await WCL.supabase.from("stores").update(payload).eq("id", id);
     if (error) return toast("Error saving", "error");
     toast("Saved ✅");
@@ -572,10 +582,7 @@ async function editStore(id) {
 
   $("#edit-delete").onclick = async () => {
     if (!confirm("Move to trash?")) return;
-    const { error } = await WCL.supabase
-      .from("stores")
-      .update({ deleted: true })
-      .eq("id", id);
+    const { error } = await WCL.supabase.from("stores").update({ deleted: true }).eq("id", id);
     if (error) return toast("Error deleting", "error");
     toast("Deleted 🗑️");
     closeEdit();
@@ -595,25 +602,35 @@ async function editStore(id) {
     };
   }
 
-  // === Typval ===
-  modal.querySelectorAll(".type-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      modal.querySelectorAll(".type-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
+  // === Radera kommentar ===
+  modal.querySelectorAll(".del-comment").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("Delete this comment?")) return;
+      const cid = btn.dataset.id;
+      const { error } = await WCL.supabase.from("store_comments").delete().eq("id", cid);
+      if (error) return toast("Error deleting comment", "error");
+      toast("Comment deleted 🗑️");
+      closeEdit();
+      editStore(id); // ladda om modalen
     });
   });
 
-  // === Bildpilar ===
+  // === Typval och bildpilar ===
+  modal.querySelectorAll(".type-btn").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      modal.querySelectorAll(".type-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+    })
+  );
+
   let currentIndex = 0;
   let refs = store._photo_refs || (store.photo_reference ? [store.photo_reference] : []);
   const imgEl = modal.querySelector("#edit-photo");
-
   modal.querySelector("#edit-prev").onclick = () => {
     if (!refs.length) return;
     currentIndex = (currentIndex - 1 + refs.length) % refs.length;
     imgEl.src = buildPhotoProxyUrl(refs[currentIndex]);
   };
-
   modal.querySelector("#edit-next").onclick = () => {
     if (!refs.length) return;
     currentIndex = (currentIndex + 1) % refs.length;
@@ -622,12 +639,11 @@ async function editStore(id) {
 }
 
 /* ============================================================
-   Stäng Edit Modal
+   Stäng edit-modal
    ============================================================ */
 function closeEdit() {
   document.querySelectorAll(".modal-backdrop").forEach((m) => m.remove());
 }
-
 
 /* ===================== UI WIRING ========================= */
 document.addEventListener("DOMContentLoaded", () => {
