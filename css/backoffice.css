@@ -213,7 +213,10 @@ body {
   border-color: #aaa; /* Deleted */
 }
 
-.card:hover { transform: translateY(-2px); }
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+}
 
 .card img.photo {
   width: 100%;
