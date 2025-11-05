@@ -88,17 +88,18 @@ function render() {
   if (CURRENT_VIEW === "cards") {
     // === Card View ===
     $("#hierarchyPanel").style.display = "none";
-    $("#table").style.display = "none";
+    $(".listview-wrap").style.display = "none";
     $("#cards").style.display = "grid";
     renderCards(filtered);
   } else {
-    // === Kombinerad List + Hierarki ===
+    // === Kombinerad List + Hierarki View ===
     $("#cards").style.display = "none";
+    $(".listview-wrap").style.display = "flex";
     $("#hierarchyPanel").style.display = "block";
     $("#table").style.display = "block";
 
-    renderHierarchy(filtered); // vänstersidan
-    renderTable(filtered);     // högersidan
+    renderHierarchy(filtered); // vänster sida
+    renderTable(filtered);     // höger sida
   }
 }
 
