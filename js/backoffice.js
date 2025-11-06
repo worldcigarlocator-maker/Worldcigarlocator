@@ -178,13 +178,13 @@ function renderCards(list) {
     const card = document.createElement("div");
     card.className = `card ${borderClass}`;
 
-    // bild
+    // 🖼️ Bild
     const img = document.createElement("img");
     img.className = "photo";
     img.src = photoURL(s.photo_reference, 800);
     img.onerror = () => (img.src = WCL.FALLBACK_IMG);
 
-    // innehåll
+    // 📋 Innehåll
     const body = document.createElement("div");
     body.className = "body";
     body.innerHTML = `
@@ -196,21 +196,44 @@ function renderCards(list) {
         ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
         ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
         ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
-        ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
+        ${!s.approved && !s.flagged && !s.deleted
+          ? `<span class='badge gold'>PENDING</span>`
+          : ""}
       </div>
     `;
 
-    // actions (endast UNFLAG i backoffice, ingen FLAG)
+    // 🧩 Knappar
     const actions = document.createElement("div");
     actions.className = "actions";
-    actions.append(
-      makeBtn("Approve", () => approveStore(s.id), "green"),
-      s.flagged ? makeBtn("Unflag", () => unflagStore(s.id), "yellow") : null,
-      makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger"),
-      makeBtn("Edit", () => editStore(s.id), "blue")
-    ).children; // no-op, bara för läsbarhet
 
-    card.append(img, body, actions.parentElement || actions); // i de flesta browsers räcker card.append(img, body, actions)
+    const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
+    const deleteBtn = makeBtn(
+      s.deleted ? "Restore" : "Delete",
+      () => toggleDelete(s),
+      "danger"
+    );
+    const editBtn = makeBtn("Edit", () => editStore(s.id), "blue");
+
+    // 🧰 Ny “Repair Photo”-knapp (kopplad till denna kortbild)
+    const repairBtn = makeBtn(
+      "Repair Photo",
+      () => repairPhoto(s.id, s.place_id, img),
+      "orange"
+    );
+
+    if (s.flagged) {
+      actions.append(
+        approveBtn,
+        makeBtn("Unflag", () => unflagStore(s.id), "yellow"),
+        deleteBtn,
+        editBtn,
+        repairBtn
+      );
+    } else {
+      actions.append(approveBtn, deleteBtn, editBtn, repairBtn);
+    }
+
+    // 🔗 Montera kortet
     card.append(img, body, actions);
     grid.appendChild(card);
   });
@@ -220,13 +243,6 @@ function renderCards(list) {
   }
 }
 
-function makeBtn(label, onClick, cls = "") {
-  const b = document.createElement("button");
-  b.className = `btn ${cls}`;
-  b.textContent = label;
-  b.onclick = onClick;
-  return b;
-}
 
 /* ===================== LIST RENDERING ==================== */
 function renderTable(list) {
@@ -363,6 +379,43 @@ function applyHierarchyFilter(list) {
   if (HIER_SEL.city) out = out.filter((s) => s.city === HIER_SEL.city);
   return out;
 }
+/* ============================================================
+   Repair Photo – hämtar nya refs från Google & uppdaterar butiken
+   ============================================================ */
+async function repairPhoto(id, place_id, imgEl) {
+  if (!place_id) {
+    toast("No place_id found for this store", "error");
+    return;
+  }
+
+  toast("Repairing photo…", "info");
+  try {
+    const refs = await fetchPhotoRefs(place_id);
+    if (!refs.length) {
+      toast("No photos found from Google", "error");
+      return;
+    }
+
+    const newRef = refs[0];
+    const { error } = await WCL.supabase
+      .from("stores")
+      .update({ photo_reference: newRef })
+      .eq("id", id);
+
+    if (error) {
+      toast("Error updating photo", "error");
+      console.error(error);
+      return;
+    }
+
+    toast("Photo repaired ✅");
+    if (imgEl) imgEl.src = buildPhotoProxyUrl(newRef); // uppdatera bilden direkt
+  } catch (e) {
+    console.error(e);
+    toast("Repair failed", "error");
+  }
+}
+
 
 /* ==================== MODERATION ACTIONS ================= */
 async function approveStore(id) {
