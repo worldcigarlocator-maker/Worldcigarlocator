@@ -1,15 +1,9 @@
 /* ============================================================
-   Backoffice V5 — Moderation + Hierarki + Edit + Proxy
-   Works with:
-   - Supabase table: stores
-     cols (min): id, name, city, country, continent, type, access, rating,
-                 approved (bool), flagged (bool), deleted (bool),
-                 status (text), photo_reference (text), place_id (text),
-                 website (text), flag_reason (text), created_at (timestamptz)
-   - Edge functions:
-       /photo-proxy?photo_reference=...&maxwidth=...
-       /photo-refs?place_id=...
+   Backoffice V5.1 — Moderation + Hierarki + Edit + Proxy
+   JavaScript
    ============================================================ */
+
+console.log("🚀 Backoffice V5.1 loaded ✅");
 
 /* ======================== CONFIG ======================== */
 const WCL = {
@@ -703,3 +697,52 @@ document.addEventListener("DOMContentLoaded", () => {
   // initial load
   reloadData("pending");
 });
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ DOM fully loaded — Backoffice V5.1 ready");
+  // befintlig init-kod
+  $$(".filters .pill").forEach((p) =>
+    p.addEventListener("click", () => {
+      CURRENT_TAB = p.dataset.tab;
+      reloadData(CURRENT_TAB);
+    })
+  );
+  $$(".viewtoggle .seg").forEach((seg) =>
+    seg.addEventListener("click", () => {
+      $$(".viewtoggle .seg").forEach((x) => x.classList.remove("active"));
+      seg.classList.add("active");
+      CURRENT_VIEW = seg.dataset.view;
+      if (CURRENT_VIEW === "cards") {
+        $("#cards").style.display = "grid";
+        $(".listview-wrap").style.display = "none";
+      } else {
+        $("#cards").style.display = "none";
+        $(".listview-wrap").style.display = "flex";
+      }
+      render();
+    })
+  );
+  $("#searchInput").addEventListener("input", () => render());
+  reloadData("pending");
+});
+✅ css/backoffice.css
+Längst upp:
+
+css
+Kopiera kod
+/* ============================================================
+   Backoffice V5.1 — Moderation + Hierarki + Edit + Proxy
+   Stylesheet
+   ============================================================ */
+Och (som tidigare) den lilla .version-pill-klassen:
+
+css
+Kopiera kod
+.version-pill {
+  background: var(--gold);
+  color: #000;
+  font-weight: 700;
+  padding: .35rem .8rem;
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+  font-size: .85rem;
+}
