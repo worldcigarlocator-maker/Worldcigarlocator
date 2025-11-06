@@ -1,3 +1,8 @@
+/* ============================================================
+   Backoffice V5.1 — Moderation + Hierarki + Edit + Proxy
+   Stylesheet
+   ============================================================ */
+
 :root {
   --blue: #007bff;
   --green: #28a745;
@@ -22,12 +27,29 @@ body {
 
 .wrap { max-width: 1200px; margin: auto; padding: 1rem; }
 
+/* === Topbar === */
 .topbar {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: .6rem;
   margin-bottom: 1rem;
 }
+.topbar .left {
+  display: flex;
+  gap: .6rem;
+}
+.version-pill {
+  background: var(--gold);
+  color: #000;
+  font-weight: 700;
+  padding: .35rem .8rem;
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+  font-size: .85rem;
+}
 
+/* === Buttons === */
 .btn {
   background: var(--blue);
   color: #fff;
@@ -45,6 +67,7 @@ body {
 .btn.yellow { background: var(--yellow); color: #222; }
 .btn.blue { background: var(--blue); }
 
+/* === Filters === */
 .pill {
   background: white;
   border: 1px solid var(--border);
@@ -55,6 +78,7 @@ body {
 }
 .pill.active { background: var(--blue); color: #fff; border-color: var(--blue); }
 
+/* === Search & View toggle === */
 .searchbar {
   display: flex;
   justify-content: space-between;
@@ -85,6 +109,10 @@ body {
   background: var(--blue);
   color: #fff;
 }
+
+/* === Cards, List view, Modal, Comments === */
+/* (resten är exakt som din tidigare CSS) */
+
 
 /* === Cards === */
 .grid {
