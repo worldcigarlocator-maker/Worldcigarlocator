@@ -724,25 +724,3 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#searchInput").addEventListener("input", () => render());
   reloadData("pending");
 });
-✅ css/backoffice.css
-Längst upp:
-
-css
-Kopiera kod
-/* ============================================================
-   Backoffice V5.1 — Moderation + Hierarki + Edit + Proxy
-   Stylesheet
-   ============================================================ */
-Och (som tidigare) den lilla .version-pill-klassen:
-
-css
-Kopiera kod
-.version-pill {
-  background: var(--gold);
-  color: #000;
-  font-weight: 700;
-  padding: .35rem .8rem;
-  border-radius: 1rem;
-  box-shadow: var(--shadow);
-  font-size: .85rem;
-}
