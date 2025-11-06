@@ -34,13 +34,11 @@ let STORES = [];
 let CURRENT_TAB = "pending"; // all | approved | pending | flagged | deleted
 let CURRENT_VIEW = "cards";  // cards | list
 let HIER_SEL = { continent: null, country: null, city: null };
-let EDIT_CTX = { refs: [], index: 0 };
 
 /* ======================== HELPERS ======================== */
-const $ = (sel) => document.querySelector(sel);
+const $  = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 const safe = (v) => (v ?? "").toString();
-const prettyDate = (d) => (d ? new Date(d).toLocaleDateString() : "—");
 
 const toast = (msg, cls = "success") => {
   const c = $("#toast-container");
@@ -53,10 +51,9 @@ const toast = (msg, cls = "success") => {
 
 const photoURL = (ref, w = 800) =>
   ref
-    ? `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(
-        ref
-      )}&maxwidth=${w}`
+    ? `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=${w}`
     : WCL.FALLBACK_IMG;
+
 /* ============================================================
    Photo Proxy Builder (för edit-modal)
    ============================================================ */
@@ -65,57 +62,36 @@ function buildPhotoProxyUrl(photo_reference, maxwidth = 800) {
   return `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(photo_reference)}&maxwidth=${maxwidth}`;
 }
 
-const starRow = (rating) => {
-  const r = Math.round(Number(rating) || 0);
-  return Array.from({ length: 5 })
-    .map((_, i) => (i < r ? "★" : "☆"))
-    .join("");
-};
+/* ============================================================
+   Hämta photo_reference[] från Edge-funktionen
+   ============================================================ */
+async function fetchPhotoRefs(placeId) {
+  if (!placeId) return [];
+  try {
+    const url = `${WCL.PHOTO_REFS_URL}?place_id=${encodeURIComponent(placeId)}`;
+    const res = await fetch(url, { method: "GET" });
+    if (!res.ok) return [];
+    const json = await res.json();  // { refs: [...] }
+    return Array.isArray(json?.refs) ? json.refs : [];
+  } catch (e) {
+    console.warn("fetchPhotoRefs failed:", e);
+    return [];
+  }
+}
 
 const countryToContinent = (country) => {
   const c = (country || "").toLowerCase();
-  if (
-    [
-      "sweden",
-      "germany",
-      "france",
-      "italy",
-      "spain",
-      "norway",
-      "finland",
-      "denmark",
-      "netherlands",
-      "belgium",
-      "austria",
-      "switzerland",
-      "poland",
-      "czech republic",
-      "czechia",
-    ].includes(c)
-  )
-    return "Europe";
-  if (["united states", "usa", "canada", "mexico", "cuba", "dominican republic"].includes(c))
-    return "North America";
-  if (["brazil", "argentina", "chile", "peru", "colombia", "uruguay", "paraguay"].includes(c))
-    return "South America";
-  if (
-    [
-      "china",
-      "japan",
-      "india",
-      "thailand",
-      "malaysia",
-      "singapore",
-      "israel",
-      "turkey",
-      "vietnam",
-      "indonesia",
-    ].includes(c)
-  )
-    return "Asia";
-  if (["south africa", "nigeria", "kenya", "morocco", "egypt", "ghana"].includes(c))
-    return "Africa";
-  if (["australia", "new zealand", "fiji"].includes(c)) return "Oceania";
+  if ([
+    "sweden","germany","france","italy","spain","norway","finland","denmark",
+    "netherlands","belgium","austria","switzerland","poland","czech republic","czechia"
+  ].includes(c)) return "Europe";
+  if (["united states","usa","canada","mexico","cuba","dominican republic"].includes(c)) return "North America";
+  if (["brazil","argentina","chile","peru","colombia","uruguay","paraguay"].includes(c)) return "South America";
+  if ([
+    "china","japan","india","thailand","malaysia","singapore","israel","turkey","vietnam","indonesia"
+  ].includes(c)) return "Asia";
+  if (["south africa","nigeria","kenya","morocco","egypt","ghana"].includes(c)) return "Africa";
+  if (["australia","new zealand","fiji"].includes(c)) return "Oceania";
   return "Other";
 };
 
@@ -190,7 +166,7 @@ function renderCards(list) {
   grid.innerHTML = "";
 
   list.forEach((s) => {
-    // 🟦 Statusfärg
+    // statusfärg
     const borderClass = s.deleted
       ? "border-gray"
       : s.flagged
@@ -202,13 +178,13 @@ function renderCards(list) {
     const card = document.createElement("div");
     card.className = `card ${borderClass}`;
 
-    // 🖼️ Bild
+    // bild
     const img = document.createElement("img");
     img.className = "photo";
     img.src = photoURL(s.photo_reference, 800);
     img.onerror = () => (img.src = WCL.FALLBACK_IMG);
 
-    // 🧾 Textinnehåll
+    // innehåll
     const body = document.createElement("div");
     body.className = "body";
     body.innerHTML = `
@@ -220,35 +196,30 @@ function renderCards(list) {
         ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
         ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
         ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
-        ${!s.approved && !s.flagged && !s.deleted
-          ? `<span class='badge gold'>PENDING</span>`
-          : ""}
+        ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
       </div>
     `;
 
-    // 🧩 Knappar
+    // actions (endast UNFLAG i backoffice, ingen FLAG)
     const actions = document.createElement("div");
     actions.className = "actions";
     actions.append(
       makeBtn("Approve", () => approveStore(s.id), "green"),
-      s.flagged
-        ? makeBtn("Unflag", () => unflagStore(s.id), "yellow")   // 💛 Gul unflag
-        : makeBtn("Flag", () => openFlagModal(s), "danger"),     // 🔴 Röd flag
+      s.flagged ? makeBtn("Unflag", () => unflagStore(s.id), "yellow") : null,
       makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger"),
       makeBtn("Edit", () => editStore(s.id), "blue")
-    );
+    ).children; // no-op, bara för läsbarhet
 
+    card.append(img, body, actions.parentElement || actions); // i de flesta browsers räcker card.append(img, body, actions)
     card.append(img, body, actions);
     grid.appendChild(card);
   });
 
-  // 🕳️ Fallback om listan är tom
   if (!list.length) {
     grid.innerHTML = `<p class="muted center">No stores</p>`;
   }
 }
 
-/* ===================== Hjälpfunktion ==================== */
 function makeBtn(label, onClick, cls = "") {
   const b = document.createElement("button");
   b.className = `btn ${cls}`;
@@ -284,11 +255,9 @@ function renderTable(list) {
     const actionsTd = tr.lastElementChild;
     actionsTd.style.whiteSpace = "nowrap";
     actionsTd.append(
-      makeBtn("Edit", () => openEdit(s), "blue"),
+      makeBtn("Edit", () => editStore(s.id), "blue"),
       makeBtn("Approve", () => approveStore(s.id), "green"),
-      s.flagged
-        ? makeBtn("Unflag", () => unflagStore(s.id), "yellow")
-        : makeBtn("Flag", () => openFlagModal(s), "danger"),
+      s.flagged ? makeBtn("Unflag", () => unflagStore(s.id), "yellow") : null,
       makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger")
     );
 
@@ -416,45 +385,6 @@ async function unflagStore(id) {
   reloadData(CURRENT_TAB);
 }
 
-function openFlagModal(s) {
-  const m = document.createElement("div");
-  m.className = "modal-backdrop";
-  m.innerHTML = `
-    <div class="modal">
-      <h3>Flag store — reason</h3>
-      <textarea id="flagReason" placeholder="Describe why this store should be flagged…"></textarea>
-      <div class="row" style="justify-content:flex-end;gap:.6rem;">
-        <button class="btn ghost" id="flagCancel">Cancel</button>
-        <button class="btn danger" id="flagConfirm">Flag</button>
-      </div>
-  </div>`;
-  document.body.appendChild(m);
-
-  // ✅ Stäng modalen om man klickar utanför
-  m.addEventListener("click", (e) => {
-    if (e.target === m) closeEdit();
-  });
-
-  // ✅ Stäng modalen med Escape
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeEdit();
-  });
-
-  // ✅ Flag modal logik
-  $("#flagCancel").onclick = () => m.remove();
-  $("#flagConfirm").onclick = async () => {
-    const reason = $("#flagReason").value.trim() || null;
-    const { error } = await WCL.supabase
-      .from("stores")
-      .update({ flagged: true, flag_reason: reason })
-      .eq("id", s.id);
-    if (error) return toast("Error flagging", "error");
-    toast("Flagged 🚩");
-    m.remove();
-    reloadData(CURRENT_TAB);
-  };
-}
-
 async function toggleDelete(s) {
   const next = !s.deleted;
   const { error } = await WCL.supabase
@@ -467,12 +397,12 @@ async function toggleDelete(s) {
 }
 
 /* ============================================================
-   Edit Store Modal (med kommentarhantering)
+   Edit Store Modal (med kommentarer + fotopilar + Repair Photo)
    ============================================================ */
 async function editStore(id) {
   closeEdit();
 
-  // === Ladda butik + kommentarer ===
+  // ladda butik + kommentarer
   const [{ data: store, error }, { data: comments }] = await Promise.all([
     WCL.supabase.from("stores").select("*").eq("id", id).single(),
     WCL.supabase.from("store_comments").select("*").eq("store_id", id).order("created_at", { ascending: false })
@@ -554,6 +484,7 @@ async function editStore(id) {
       <div class="row" style="justify-content:flex-end;gap:.6rem;margin-top:1rem;">
         <button class="btn ghost" id="edit-cancel">Cancel</button>
         <button class="btn blue" id="edit-save">Save</button>
+        <button class="btn orange" id="repair-photo">Repair Photo</button>
         ${store.flagged ? `<button class="btn yellow" id="edit-unflag">Unflag</button>` : ""}
         <button class="btn danger" id="edit-delete">Delete</button>
       </div>
@@ -561,15 +492,81 @@ async function editStore(id) {
   `;
   document.body.appendChild(modal);
 
-  // === Eventhantering ===
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeEdit();
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeEdit();
+  // stängning
+  modal.addEventListener("click", (e) => { if (e.target === modal) closeEdit(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeEdit(); }, { once: true });
+
+  // typknappar
+  modal.querySelectorAll(".type-btn").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      modal.querySelectorAll(".type-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+    })
+  );
+
+  // hämta refs
+  let refs = await fetchPhotoRefs(store.place_id);
+  if (!refs.length && store.photo_reference) refs = [store.photo_reference];
+
+  let currentIndex = 0;
+  const startAt = refs.indexOf(store.photo_reference);
+  currentIndex = startAt >= 0 ? startAt : 0;
+
+  const imgEl  = modal.querySelector("#edit-photo");
+  const metaEl = modal.querySelector("#photo-meta");
+
+  function showCurrent() {
+    if (!refs.length) {
+      imgEl.src = WCL.FALLBACK_IMG;
+      metaEl.textContent = "No photo loaded";
+      return;
+    }
+    imgEl.src = buildPhotoProxyUrl(refs[currentIndex]);
+    metaEl.textContent = `Photo ${currentIndex + 1} / ${refs.length} — via proxy`;
+  }
+  showCurrent();
+
+  modal.querySelector("#edit-prev").onclick = () => {
+    if (!refs.length) return;
+    currentIndex = (currentIndex - 1 + refs.length) % refs.length;
+    showCurrent();
+  };
+  modal.querySelector("#edit-next").onclick = () => {
+    if (!refs.length) return;
+    currentIndex = (currentIndex + 1) % refs.length;
+    showCurrent();
+  };
+
+  // 🧰 Repair Photo-knapp
+  $("#repair-photo").onclick = async () => {
+    toast("Repairing photo…", "info");
+    const fresh = await fetchPhotoRefs(store.place_id);
+    if (!fresh.length) {
+      toast("No photos found from Google", "error");
+      return;
+    }
+    const newRef = fresh[0];
+    const { error } = await WCL.supabase.from("stores").update({ photo_reference: newRef }).eq("id", id);
+    if (error) return toast("Error updating photo", "error");
+    toast("Photo repaired ✅");
+    imgEl.src = buildPhotoProxyUrl(newRef);
+    metaEl.textContent = "Photo repaired from Google";
+  };
+
+  // radera kommentar
+  modal.querySelectorAll(".del-comment").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("Delete this comment?")) return;
+      const cid = btn.dataset.id;
+      const { error } = await WCL.supabase.from("store_comments").delete().eq("id", cid);
+      if (error) return toast("Error deleting comment", "error");
+      toast("Comment deleted 🗑️");
+      closeEdit();
+      editStore(id);
+    });
   });
 
-  // === Knappkopplingar ===
+  // övriga knappar
   $("#edit-cancel").onclick = closeEdit;
   $("#edit-save").onclick = async () => {
     const payload = {
@@ -579,12 +576,13 @@ async function editStore(id) {
       website: $("#edit-website").value.trim(),
       type: document.querySelector(".type-btn.active")?.dataset.type || null,
       access: document.querySelector('input[name="access"]:checked')?.value || null,
+      photo_reference: refs.length ? refs[currentIndex] : null,
     };
     const { error } = await WCL.supabase.from("stores").update(payload).eq("id", id);
     if (error) return toast("Error saving", "error");
     toast("Saved ✅");
     closeEdit();
-    reloadData();
+    reloadData(CURRENT_TAB);
   };
 
   $("#edit-delete").onclick = async () => {
@@ -593,7 +591,7 @@ async function editStore(id) {
     if (error) return toast("Error deleting", "error");
     toast("Deleted 🗑️");
     closeEdit();
-    reloadData();
+    reloadData(CURRENT_TAB);
   };
 
   if (store.flagged) {
@@ -605,45 +603,11 @@ async function editStore(id) {
       if (error) return toast("Error unflagging", "error");
       toast("Unflagged ✅");
       closeEdit();
-      reloadData();
+      reloadData(CURRENT_TAB);
     };
   }
-
-  // === Radera kommentar ===
-  modal.querySelectorAll(".del-comment").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      if (!confirm("Delete this comment?")) return;
-      const cid = btn.dataset.id;
-      const { error } = await WCL.supabase.from("store_comments").delete().eq("id", cid);
-      if (error) return toast("Error deleting comment", "error");
-      toast("Comment deleted 🗑️");
-      closeEdit();
-      editStore(id); // ladda om modalen
-    });
-  });
-
-  // === Typval och bildpilar ===
-  modal.querySelectorAll(".type-btn").forEach((btn) =>
-    btn.addEventListener("click", () => {
-      modal.querySelectorAll(".type-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-    })
-  );
-
-  let currentIndex = 0;
-  let refs = store._photo_refs || (store.photo_reference ? [store.photo_reference] : []);
-  const imgEl = modal.querySelector("#edit-photo");
-  modal.querySelector("#edit-prev").onclick = () => {
-    if (!refs.length) return;
-    currentIndex = (currentIndex - 1 + refs.length) % refs.length;
-    imgEl.src = buildPhotoProxyUrl(refs[currentIndex]);
-  };
-  modal.querySelector("#edit-next").onclick = () => {
-    if (!refs.length) return;
-    currentIndex = (currentIndex + 1) % refs.length;
-    imgEl.src = buildPhotoProxyUrl(refs[currentIndex]);
-  };
 }
+
 
 /* ============================================================
    Stäng edit-modal
@@ -668,7 +632,7 @@ document.addEventListener("DOMContentLoaded", () => {
       $$(".viewtoggle .seg").forEach((x) => x.classList.remove("active"));
       seg.classList.add("active");
       CURRENT_VIEW = seg.dataset.view;
-      // växla containers
+
       if (CURRENT_VIEW === "cards") {
         $("#cards").style.display = "grid";
         $(".listview-wrap").style.display = "none";
