@@ -154,6 +154,15 @@ function render() {
   }
 }
 
+/* ===================== BUTTON BUILDER ==================== */
+function makeBtn(label, onclick, cls = "") {
+  const b = document.createElement("button");
+  b.className = `btn ${cls}`;
+  b.textContent = label;
+  b.onclick = onclick;
+  return b;
+}
+
 /* ===================== CARD RENDERING ==================== */
 function renderCards(list) {
   const grid = $("#cards");
