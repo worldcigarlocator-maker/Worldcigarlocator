@@ -1,6 +1,6 @@
 /* ============================================================
    Backoffice V5.1 — Moderation + Hierarki + Edit + Proxy
-   JavaScript
+   JavaScript (clean, single-file, no duplicates)
    ============================================================ */
 
 console.log("🚀 Backoffice V5.1 loaded ✅");
@@ -18,6 +18,7 @@ const WCL = {
     "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg",
 };
 
+// Supabase client
 WCL.supabase = window.supabase.createClient(
   WCL.SUPABASE_URL,
   WCL.SUPABASE_ANON_KEY
@@ -36,6 +37,7 @@ const safe = (v) => (v ?? "").toString();
 
 const toast = (msg, cls = "success") => {
   const c = $("#toast-container");
+  if (!c) { console.warn("[toast]", msg); return; }
   const t = document.createElement("div");
   t.className = `toast ${cls}`;
   t.textContent = msg;
@@ -47,6 +49,14 @@ const photoURL = (ref, w = 800) =>
   ref
     ? `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=${w}`
     : WCL.FALLBACK_IMG;
+
+function makeBtn(label, onclick, cls = "") {
+  const b = document.createElement("button");
+  b.className = `btn ${cls}`.trim();
+  b.textContent = label;
+  if (typeof onclick === "function") b.onclick = onclick;
+  return b;
+}
 
 /* ============================================================
    Photo Proxy Builder (för edit-modal)
@@ -73,18 +83,21 @@ async function fetchPhotoRefs(placeId) {
   }
 }
 
+/* ============================================================
+   Country -> Continent (fallback om kolumn saknas)
+   ============================================================ */
 const countryToContinent = (country) => {
   const c = (country || "").toLowerCase();
   if ([
     "sweden","germany","france","italy","spain","norway","finland","denmark",
-    "netherlands","belgium","austria","switzerland","poland","czech republic","czechia"
+    "netherlands","belgium","austria","switzerland","poland","czech republic","czechia","portugal","ireland","iceland","estonia","latvia","lithuania","hungary","greece"
   ].includes(c)) return "Europe";
   if (["united states","usa","canada","mexico","cuba","dominican republic"].includes(c)) return "North America";
   if (["brazil","argentina","chile","peru","colombia","uruguay","paraguay"].includes(c)) return "South America";
   if ([
-    "china","japan","india","thailand","malaysia","singapore","israel","turkey","vietnam","indonesia"
+    "china","japan","india","thailand","malaysia","singapore","israel","turkey","vietnam","indonesia","philippines","south korea","taiwan"
   ].includes(c)) return "Asia";
-  if (["south africa","nigeria","kenya","morocco","egypt","ghana"].includes(c)) return "Africa";
+  if (["south africa","nigeria","kenya","morocco","egypt","ghana","ethiopia","tanzania"].includes(c)) return "Africa";
   if (["australia","new zealand","fiji"].includes(c)) return "Oceania";
   return "Other";
 };
@@ -100,20 +113,25 @@ async function reloadData(tab = CURRENT_TAB) {
 
   // Visa rätt view-omslag
   if (CURRENT_VIEW === "cards") {
-    $("#cards").style.display = "grid";
-    $(".listview-wrap").style.display = "none";
+    const cards = $("#cards");
+    const listWrap = $(".listview-wrap");
+    if (cards) cards.style.display = "grid";
+    if (listWrap) listWrap.style.display = "none";
   } else {
-    $("#cards").style.display = "none";
-    $(".listview-wrap").style.display = "flex";
+    const cards = $("#cards");
+    const listWrap = $(".listview-wrap");
+    if (cards) cards.style.display = "none";
+    if (listWrap) listWrap.style.display = "flex";
   }
 
   const grid = $("#cards");
-  grid.innerHTML = "<p class='muted' style='text-align:center'>Loading…</p>";
+  if (grid) grid.innerHTML = "<p class='muted center'>Loading…</p>";
 
   // Basfråga
-  let q = WCL.supabase.from("stores").select(
-    "id,name,city,country,continent,type,access,rating,approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason"
-  ).order("id", { ascending: false });
+  let q = WCL.supabase
+    .from("stores")
+    .select("id,name,city,country,continent,type,access,rating,approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason")
+    .order("id", { ascending: false });
 
   // Logiska filter (OBS: ingen 'pending' kolumn)
   if (tab === "approved") q = q.eq("approved", true).eq("deleted", false);
@@ -126,25 +144,22 @@ async function reloadData(tab = CURRENT_TAB) {
   const { data, error } = await q;
   if (error) {
     console.error(error);
-    grid.innerHTML = "<p class='error' style='text-align:center'>Error loading stores</p>";
+    if (grid) grid.innerHTML = "<p class='error center'>Error loading stores</p>";
     return;
   }
+
   STORES = (data || []).map((s) => ({
     ...s,
     continent: s.continent || countryToContinent(s.country),
   }));
 
-  // Render enligt vald vy
   render();
 }
 
 function render() {
-  const term = $("#searchInput").value.trim().toLowerCase();
-  let list = !term
-    ? STORES
-    : STORES.filter((s) =>
-        [s.name, s.city, s.country].some((v) => safe(v).toLowerCase().includes(term))
-      );
+  const term = ($("#searchInput")?.value || "").trim().toLowerCase();
+  const hay = (s) => [s.name, s.city, s.country].some((v) => safe(v).toLowerCase().includes(term));
+  let list = !term ? STORES : STORES.filter(hay);
 
   if (CURRENT_VIEW === "cards") {
     renderCards(list);
@@ -154,22 +169,13 @@ function render() {
   }
 }
 
-/* ===================== BUTTON BUILDER ==================== */
-function makeBtn(label, onclick, cls = "") {
-  const b = document.createElement("button");
-  b.className = `btn ${cls}`;
-  b.textContent = label;
-  b.onclick = onclick;
-  return b;
-}
-
 /* ===================== CARD RENDERING ==================== */
 function renderCards(list) {
   const grid = $("#cards");
+  if (!grid) return;
   grid.innerHTML = "";
 
   list.forEach((s) => {
-    // statusfärg
     const borderClass = s.deleted
       ? "border-gray"
       : s.flagged
@@ -181,13 +187,13 @@ function renderCards(list) {
     const card = document.createElement("div");
     card.className = `card ${borderClass}`;
 
-    // 🖼️ Bild
+    // Img
     const img = document.createElement("img");
     img.className = "photo";
     img.src = photoURL(s.photo_reference, 800);
     img.onerror = () => (img.src = WCL.FALLBACK_IMG);
 
-    // 📋 Innehåll
+    // Body
     const body = document.createElement("div");
     body.className = "body";
     body.innerHTML = `
@@ -199,30 +205,18 @@ function renderCards(list) {
         ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
         ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
         ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
-        ${!s.approved && !s.flagged && !s.deleted
-          ? `<span class='badge gold'>PENDING</span>`
-          : ""}
+        ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
       </div>
     `;
 
-    // 🧩 Knappar
+    // Actions
     const actions = document.createElement("div");
     actions.className = "actions";
 
     const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
-    const deleteBtn = makeBtn(
-      s.deleted ? "Restore" : "Delete",
-      () => toggleDelete(s),
-      "danger"
-    );
+    const deleteBtn = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
     const editBtn = makeBtn("Edit", () => editStore(s.id), "blue");
-
-    // 🧰 Ny “Repair Photo”-knapp (kopplad till denna kortbild)
-    const repairBtn = makeBtn(
-      "Repair Photo",
-      () => repairPhoto(s.id, s.place_id, img),
-      "orange"
-    );
+    const repairBtn = makeBtn("Repair Photo", () => repairPhoto(s.id, s.place_id, img), "orange");
 
     if (s.flagged) {
       actions.append(
@@ -236,7 +230,6 @@ function renderCards(list) {
       actions.append(approveBtn, deleteBtn, editBtn, repairBtn);
     }
 
-    // 🔗 Montera kortet
     card.append(img, body, actions);
     grid.appendChild(card);
   });
@@ -246,10 +239,10 @@ function renderCards(list) {
   }
 }
 
-
 /* ===================== LIST RENDERING ==================== */
 function renderTable(list) {
   const tbody = $("#tbody");
+  if (!tbody) return;
   tbody.innerHTML = "";
 
   list.forEach((s) => {
@@ -268,15 +261,15 @@ function renderTable(list) {
         ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
         ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
       </td>
-      <td></td>
+      <td class="action-td"></td>
     `;
 
-    const actionsTd = tr.lastElementChild;
+    const actionsTd = tr.querySelector(".action-td");
     actionsTd.style.whiteSpace = "nowrap";
     actionsTd.append(
       makeBtn("Edit", () => editStore(s.id), "blue"),
       makeBtn("Approve", () => approveStore(s.id), "green"),
-      s.flagged ? makeBtn("Unflag", () => unflagStore(s.id), "yellow") : null,
+      s.flagged ? makeBtn("Unflag", () => unflagStore(s.id), "yellow") : document.createComment(""),
       makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger")
     );
 
@@ -284,13 +277,14 @@ function renderTable(list) {
   });
 
   if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="9" class="muted" style="text-align:center">No stores</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="muted center">No stores</td></tr>`;
   }
 }
 
 /* ================ HIERARCHY (LIST-VIEW) ================== */
 function renderHierarchy(list) {
   const panel = $("#hierarchyPanel");
+  if (!panel) return;
   panel.innerHTML = "";
 
   const byCont = groupBy(list, (s) => s.continent || "Other");
@@ -304,7 +298,7 @@ function renderHierarchy(list) {
       contNode.addEventListener("click", () => {
         toggleNested(nestedCountries, contNode);
         HIER_SEL = { continent, country: null, city: null };
-        render(); // uppdatera tabell
+        render();
         highlight(panel, contNode);
       });
 
@@ -358,7 +352,7 @@ function toggleNested(nested, lineEl) {
   const a = lineEl.querySelector(".arrow");
   const open = nested.style.display === "block";
   nested.style.display = open ? "none" : "block";
-  a.textContent = open ? "▶" : "▼";
+  if (a) a.textContent = open ? "▶" : "▼";
 }
 
 function highlight(root, el) {
@@ -367,13 +361,13 @@ function highlight(root, el) {
 }
 
 function groupBy(arr, fn) {
-  return arr.reduce((acc, x) => {
+  return (arr || []).reduce((acc, x) => {
     const k = fn(x);
     (acc[k] ||= []).push(x);
     return acc;
   }, {});
 }
-const countStores = (arr) => arr.length;
+const countStores = (arr) => (arr || []).length;
 
 function applyHierarchyFilter(list) {
   let out = list.slice();
@@ -382,8 +376,9 @@ function applyHierarchyFilter(list) {
   if (HIER_SEL.city) out = out.filter((s) => s.city === HIER_SEL.city);
   return out;
 }
+
 /* ============================================================
-   Repair Photo – hämtar nya refs från Google & uppdaterar butiken
+   Repair Photo – hämta nya refs & uppdatera butik
    ============================================================ */
 async function repairPhoto(id, place_id, imgEl) {
   if (!place_id) {
@@ -412,13 +407,12 @@ async function repairPhoto(id, place_id, imgEl) {
     }
 
     toast("Photo repaired ✅");
-    if (imgEl) imgEl.src = buildPhotoProxyUrl(newRef); // uppdatera bilden direkt
+    if (imgEl) imgEl.src = buildPhotoProxyUrl(newRef);
   } catch (e) {
     console.error(e);
     toast("Repair failed", "error");
   }
 }
-
 
 /* ==================== MODERATION ACTIONS ================= */
 async function approveStore(id) {
@@ -453,16 +447,19 @@ async function toggleDelete(s) {
 }
 
 /* ============================================================
-   Edit Store Modal (med kommentarer + fotopilar + Repair Photo)
+   Edit Store Modal (kommentarer + fotopilar + Repair Photo)
    ============================================================ */
 async function editStore(id) {
   closeEdit();
 
-  // ladda butik + kommentarer
-  const [{ data: store, error }, { data: comments }] = await Promise.all([
+  const [storeResp, commentsResp] = await Promise.all([
     WCL.supabase.from("stores").select("*").eq("id", id).single(),
     WCL.supabase.from("store_comments").select("*").eq("store_id", id).order("created_at", { ascending: false })
   ]);
+
+  const store = storeResp?.data;
+  const error = storeResp?.error;
+  const comments = commentsResp?.data || [];
 
   if (error || !store) {
     toast("Failed to load store", "error");
@@ -519,19 +516,16 @@ async function editStore(id) {
         </div>
 
         ${
-          comments?.length
+          comments.length
             ? `<label>Comments (${comments.length})</label>
                <div class="comment-list">
-                 ${comments
-                   .map(
-                     (c) => `
-                     <div class="comment-item">
-                       <p><strong>${safe(c.user_name || "Anon")}:</strong> ${safe(c.comment)}</p>
-                       <span class="muted">${new Date(c.created_at).toLocaleString()}</span>
-                       <button class="btn small ghost del-comment" data-id="${c.id}">🗑️</button>
-                     </div>`
-                   )
-                   .join("")}
+                 ${comments.map((c) => `
+                   <div class="comment-item">
+                     <p><strong>${safe(c.user_name || "Anon")}:</strong> ${safe(c.comment)}</p>
+                     <span class="muted">${new Date(c.created_at).toLocaleString()}</span>
+                     <button class="btn small ghost del-comment" data-id="${c.id}">🗑️</button>
+                   </div>
+                 `).join("")}
                </div>`
             : `<label>Comments</label><p class="muted">No comments yet.</p>`
         }
@@ -548,11 +542,11 @@ async function editStore(id) {
   `;
   document.body.appendChild(modal);
 
-  // stängning
+  // close handlers
   modal.addEventListener("click", (e) => { if (e.target === modal) closeEdit(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeEdit(); }, { once: true });
 
-  // typknappar
+  // type toggle
   modal.querySelectorAll(".type-btn").forEach((btn) =>
     btn.addEventListener("click", () => {
       modal.querySelectorAll(".type-btn").forEach((b) => b.classList.remove("active"));
@@ -560,14 +554,11 @@ async function editStore(id) {
     })
   );
 
-  // hämta refs
+  // photo refs & navigation
   let refs = await fetchPhotoRefs(store.place_id);
   if (!refs.length && store.photo_reference) refs = [store.photo_reference];
 
-  let currentIndex = 0;
-  const startAt = refs.indexOf(store.photo_reference);
-  currentIndex = startAt >= 0 ? startAt : 0;
-
+  let currentIndex = Math.max(0, refs.indexOf(store.photo_reference));
   const imgEl  = modal.querySelector("#edit-photo");
   const metaEl = modal.querySelector("#photo-meta");
 
@@ -593,7 +584,7 @@ async function editStore(id) {
     showCurrent();
   };
 
-  // 🧰 Repair Photo-knapp
+  // Repair Photo
   $("#repair-photo").onclick = async () => {
     toast("Repairing photo…", "info");
     const fresh = await fetchPhotoRefs(store.place_id);
@@ -609,7 +600,7 @@ async function editStore(id) {
     metaEl.textContent = "Photo repaired from Google";
   };
 
-  // radera kommentar
+  // delete comment
   modal.querySelectorAll(".del-comment").forEach((btn) => {
     btn.addEventListener("click", async () => {
       if (!confirm("Delete this comment?")) return;
@@ -622,8 +613,9 @@ async function editStore(id) {
     });
   });
 
-  // övriga knappar
+  // modal buttons
   $("#edit-cancel").onclick = closeEdit;
+
   $("#edit-save").onclick = async () => {
     const payload = {
       name: $("#edit-name").value.trim(),
@@ -664,7 +656,6 @@ async function editStore(id) {
   }
 }
 
-
 /* ============================================================
    Stäng edit-modal
    ============================================================ */
@@ -674,7 +665,9 @@ function closeEdit() {
 
 /* ===================== UI WIRING ========================= */
 document.addEventListener("DOMContentLoaded", () => {
-  // tabbar
+  console.log("✅ DOM fully loaded — Backoffice V5.1 ready");
+
+  // tabs
   $$(".filters .pill").forEach((p) =>
     p.addEventListener("click", () => {
       CURRENT_TAB = p.dataset.tab;
@@ -682,7 +675,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   );
 
-  // view-toggle
+  // view toggle
   $$(".viewtoggle .seg").forEach((seg) =>
     seg.addEventListener("click", () => {
       $$(".viewtoggle .seg").forEach((x) => x.classList.remove("active"));
@@ -701,35 +694,8 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   // search
-  $("#searchInput").addEventListener("input", () => render());
+  $("#searchInput")?.addEventListener("input", () => render());
 
   // initial load
-  reloadData("pending");
-});
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ DOM fully loaded — Backoffice V5.1 ready");
-  // befintlig init-kod
-  $$(".filters .pill").forEach((p) =>
-    p.addEventListener("click", () => {
-      CURRENT_TAB = p.dataset.tab;
-      reloadData(CURRENT_TAB);
-    })
-  );
-  $$(".viewtoggle .seg").forEach((seg) =>
-    seg.addEventListener("click", () => {
-      $$(".viewtoggle .seg").forEach((x) => x.classList.remove("active"));
-      seg.classList.add("active");
-      CURRENT_VIEW = seg.dataset.view;
-      if (CURRENT_VIEW === "cards") {
-        $("#cards").style.display = "grid";
-        $(".listview-wrap").style.display = "none";
-      } else {
-        $("#cards").style.display = "none";
-        $(".listview-wrap").style.display = "flex";
-      }
-      render();
-    })
-  );
-  $("#searchInput").addEventListener("input", () => render());
   reloadData("pending");
 });
