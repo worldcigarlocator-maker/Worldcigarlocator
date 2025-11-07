@@ -700,39 +700,35 @@ async function editStore(id) {
     });
   });
 
-  // buttons
-  $("#edit-save").onclick = async () => {
-    const payload = {
-      name: $("#edit-name").value.trim(),
-      city: $("#edit-city").value.trim(),
-      country: $("#edit-country").value.trim(),
-      continent: $("#edit-continent").value || null,
-      website: $("#edit-website").value.trim(),
-      type: document.querySelector(".type-btn.active")?.dataset.type || null,
-      access: document.querySelector('input[name="access"]:checked')?.value || null,
-      photo_reference: refs.length ? refs[currentIndex] : null,
-    };
-    const { error } = await WCL.supabase.from("stores").update(payload).eq("id", id);
-    if (error) return toast("Error saving", "error");
-    toast("Saved ✅");
-    closeEdit(); reloadData(CURRENT_TAB);
-};
-  $("#edit-delete").onclick = async () => {
-    if (!confirm("Move to trash?")) return;
-    const { error } = await WCL.supabase.from("stores").update({ deleted: true }).eq("id", id);
-    if (error) return toast("Error deleting", "error");
-    toast("Deleted 🗑️");
-    closeEdit(); reloadData(CURRENT_TAB);
+// buttons
+$("#edit-save").onclick = async () => {
+  const payload = {
+    name: $("#edit-name").value.trim(),
+    city: $("#edit-city").value.trim(),
+    country: $("#edit-country").value.trim(),
+    continent: $("#edit-continent").value || null,
+    website: $("#edit-website").value.trim(),
+    type: document.querySelector(".type-btn.active")?.dataset.type || null,
+    access: document.querySelector('input[name="access"]:checked')?.value || null,
+    photo_reference: refs.length ? refs[currentIndex] : null,
   };
-  if (store.flagged) {
-    $("#edit-unflag").onclick = async () => {
-      const { error } = await WCL.supabase.from("stores").update({ flagged: false, flag_reason: null }).eq("id", id);
-      if (error) return toast("Error unflagging", "error");
-      toast("Unflagged ✅");
-      closeEdit(); reloadData(CURRENT_TAB);
-    };
-  }
-}
+
+  // ✅ Lägg till ISO2-automatik här:
+  payload.country_iso2 =
+    COUNTRY_TO_ISO2[ normalizeCountryKey(payload.country) ] || null;
+
+  const { error } = await WCL.supabase
+    .from("stores")
+    .update(payload)
+    .eq("id", id);
+
+  if (error) return toast("Error saving", "error");
+
+  toast("Saved ✅");
+  closeEdit();
+  reloadData(CURRENT_TAB);
+};
+
 
 /* ==================== CLOSE MODAL ================= */
 function closeEdit(){ document.querySelectorAll(".modal-backdrop").forEach((m)=>m.remove()); }
