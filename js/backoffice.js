@@ -289,10 +289,10 @@ function renderCards(list) {
     body.appendChild(h3);
 
     /* ----------- Flag + Country/City ----------- */
-    const row = document.createElement("div");
-    row.className = "locrow";
+const row = document.createElement("div");
+row.className = "locrow";
 
-const iso = flagURL(s.country);  // ✅ korrekt funktion
+const iso = flagURL(s.country);
 if (iso) {
   const flag = document.createElement("img");
   flag.className = "flag";
@@ -302,11 +302,12 @@ if (iso) {
   row.appendChild(flag);
 }
 
-    const geo = document.createElement("span");
-    geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
-    row.appendChild(geo);
+const geo = document.createElement("span");
+geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
+row.appendChild(geo);
 
-    body.appendChild(row);
+body.appendChild(row);
+
 
     /* ----------- Continent ---------- */
     const cont = document.createElement("p");
