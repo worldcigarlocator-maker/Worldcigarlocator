@@ -497,65 +497,6 @@ function renderHierarchy(list) {
   });
 }
 
-
-      // ---- CITIES ----
-      const byCity = groupBy(byCountry[country], (s) => s.city || "Unknown");
-
-      Object.keys(byCity)
-        .sort((a, b) => byCity[b].length - byCity[a].length)
-        .forEach((city) => {
-          const cityNode = document.createElement("div");
-          cityNode.className = "line city";
-          cityNode.textContent = `${city} (${byCity[city].length})`;
-
-          cityNode.addEventListener("click", (e) => {
-            e.stopPropagation();
-            HIER_SEL = { continent, country, city };
-            render();
-            highlight(panel, cityNode);
-          });
-
-          nestedCities.appendChild(cityNode);
-        });
-
-      nestedCountries.append(cNode, nestedCities);
-    });
-
-    panel.append(contNode, nestedCountries);
-  });
-}
-
-function line(level, label, count) {
-  const el = document.createElement("div");
-  el.className = `line ${level}`;
-  el.innerHTML = `
-    <span class="arrow">▶</span>
-    <span class="label">${label}</span>
-    <span class="muted">(${count})</span>
-  `;
-  return el;
-}
-
-function toggleNested(nested, lineEl) {
-  const arrow = lineEl.querySelector(".arrow");
-  const open = nested.classList.contains("open");
-
-  if (open) {
-    nested.classList.remove("open");
-    arrow.textContent = "▶";
-    nested.style.display = "none";
-  } else {
-    nested.classList.add("open");
-    arrow.textContent = "▼";
-    nested.style.display = "block";
-  }
-}
-
-function highlight(root, el) {
-  root.querySelectorAll(".highlight").forEach((n) => n.classList.remove("highlight"));
-  el.classList.add("highlight");
-}
-
 /* ================ EXPAND / COLLAPSE ALL ================= */
 
 function expandAllHierarchy() {
