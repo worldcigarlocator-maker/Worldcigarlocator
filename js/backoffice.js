@@ -292,15 +292,15 @@ function renderCards(list) {
     const row = document.createElement("div");
     row.className = "locrow";
 
-    const iso = flagURL(s.country);
-    if (iso) {
-      const flag = document.createElement("img");
-      flag.className = "flag";
-      flag.src = iso;
-      flag.alt = safe(s.country);
-      flag.onerror = () => (flag.style.display = "none");
-      row.appendChild(flag);
-    }
+ const iso = flagURL(s.country);
+if (iso) {
+  const flag = document.createElement("img");
+  flag.className = "flag";
+  flag.src = iso;
+  flag.alt = safe(s.country);
+  flag.onerror = () => (flag.style.display = "none");
+  row.appendChild(flag);
+}
 
     const geo = document.createElement("span");
     geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
@@ -362,23 +362,36 @@ function renderTable(list) {
   tbody.innerHTML = "";
 
   list.forEach((s) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${safe(s.name)}</td>
-      <td>${safe(s.country)}</td>
-      <td>${safe(s.continent)}</td>
-      <td>${safe(s.city)}</td>
-      <td>${safe(s.type) || "store"}</td>
-      <td>${safe(s.access) || "—"}</td>
-      <td>${s.rating ?? "—"}</td>
-      <td>
-        ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
-        ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
-        ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
-        ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
-      </td>
-      <td class="action-td"></td>
-    `;
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${safe(s.name)}</td>
+
+    <td>
+      ${(() => {
+        const url = flagURL(s.country);
+        return url
+          ? `<img class="flag" src="${url}"
+               style="width:18px;height:14px;margin-right:6px;vertical-align:middle;
+                      border-radius:2px;object-fit:cover;">`
+          : "";
+      })()}
+      ${safe(s.country)}
+    </td>
+
+    <td>${safe(s.continent)}</td>
+    <td>${safe(s.city)}</td>
+    <td>${safe(s.type) || "store"}</td>
+    <td>${safe(s.access) || "—"}</td>
+    <td>${s.rating ?? "—"}</td>
+    <td>
+      ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
+      ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
+      ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
+      ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
+    </td>
+    <td class="action-td"></td>
+  `;
+
     const actionsTd = tr.querySelector(".action-td");
     actionsTd.style.whiteSpace = "nowrap";
     actionsTd.append(
