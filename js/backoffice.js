@@ -701,7 +701,6 @@ async function editStore(id) {
   });
 
   // buttons
-  $("#edit-cancel").onclick = closeEdit;
   $("#edit-save").onclick = async () => {
     const payload = {
       name: $("#edit-name").value.trim(),
@@ -717,7 +716,7 @@ async function editStore(id) {
     if (error) return toast("Error saving", "error");
     toast("Saved ✅");
     closeEdit(); reloadData(CURRENT_TAB);
-  };
+};
   $("#edit-delete").onclick = async () => {
     if (!confirm("Move to trash?")) return;
     const { error } = await WCL.supabase.from("stores").update({ deleted: true }).eq("id", id);
