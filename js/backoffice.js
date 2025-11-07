@@ -415,14 +415,13 @@ function renderTable(list) {
   }
 }
 
-
-
 /* ================ HIERARCHY (LIST-VIEW) ================== */
 function renderHierarchy(list) {
   const panel = $("#hierarchyPanel");
   panel.innerHTML = "";
 
   const byCont = groupBy(list, (s) => s.continent || "Other");
+
   Object.keys(byCont).sort().forEach((continent) => {
 
     const contNode = line("continent", continent, countStores(byCont[continent]));
@@ -436,8 +435,8 @@ function renderHierarchy(list) {
       highlight(panel, contNode);
     });
 
-    // COUNTRY LOOP
     const byCountry = groupBy(byCont[continent], (s) => s.country || "Unknown");
+
     Object.keys(byCountry).sort().forEach((country) => {
 
       const cNode = document.createElement("div");
@@ -445,7 +444,9 @@ function renderHierarchy(list) {
 
       const iso = flagURL(country);
       const flagHTML = iso
-        ? `<img src="${iso}" style="width:18px;height:14px;border-radius:2px;object-fit:cover;border:1px solid #ccc;margin-right:6px;">`
+        ? `<img src="${iso}" 
+               style="width:18px;height:14px;border-radius:2px;
+               object-fit:cover;border:1px solid #ccc;margin-right:6px;">`
         : "";
 
       cNode.innerHTML = `
@@ -466,8 +467,9 @@ function renderHierarchy(list) {
         highlight(panel, cNode);
       });
 
-      // CITY LOOP
+      /* ----- Cities ------ */
       const byCity = groupBy(byCountry[country], (s) => s.city || "Unknown");
+
       Object.keys(byCity)
         .sort((a, b) => byCity[b].length - byCity[a].length)
         .forEach((city) => {
