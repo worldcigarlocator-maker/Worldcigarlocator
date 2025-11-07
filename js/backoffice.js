@@ -166,7 +166,7 @@ async function fetchPhotoRefs(placeId) {
 
 /* ---------- Country -> Continent fallback ---------- */
 const countryToContinent = (country) => {
-  const c = normalizeCountryName(country);
+  const c = normalizeCountry(country);
   if ([
     "sweden","germany","france","italy","spain","norway","finland","denmark","netherlands","belgium","austria","switzerland","poland","czech republic","czechia","portugal","ireland","iceland","estonia","latvia","lithuania","hungary","greece","romania","bulgaria","slovenia","slovakia","croatia","ukraine"
   ].includes(c)) return "Europe";
@@ -538,7 +538,7 @@ async function editStore(id) {
         <input id="edit-city" value="${safe(store.city)}" />
 
         <label>Country</label>
-        <input id="edit-country" value "${safe(store.country)}" />
+        <input id="edit-country" value="${safe(store.country)}" />
 
         <label>Continent</label>
         <select id="edit-continent">
