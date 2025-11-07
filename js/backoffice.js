@@ -292,7 +292,7 @@ function renderCards(list) {
     const row = document.createElement("div");
     row.className = "locrow";
 
- const iso = flagURL(s.country);
+const iso = flagURL(s.country);  // ✅ korrekt funktion
 if (iso) {
   const flag = document.createElement("img");
   flag.className = "flag";
