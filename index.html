@@ -3,38 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Backoffice — Moderation (V5.1)</title>
+  <title>Backoffice V5.2 — Moderation + Hierarchy</title>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="css/backoffice.css" />
+  <!-- Fonts & CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/backoffice.css" />
 </head>
 
 <body>
   <div class="wrap">
-    <!-- Topbar -->
+    <!-- === TOPBAR === -->
     <div class="topbar">
       <div class="left">
         <button class="btn blue" onclick="location.href='add-store-backoffice.html'">＋ Add Store</button>
-        <button class="btn ghost" onclick="location.href='analytics.html'">📊 Analytics</button>
-        <button class="btn green" onclick="reloadData()">⟲ Reload</button>
+        <button class="btn blue" onclick="location.href='analytics.html'">📊 Analytics</button>
+        <button class="btn blue" onclick="reloadData()">⟲ Reload</button>
       </div>
-      <div class="version-pill">V5.1</div>
+      <div class="version-pill">V5.2</div>
     </div>
 
-    <!-- Filters -->
+    <!-- === FILTERS === -->
     <div class="filters">
       <button class="pill" data-tab="all">All</button>
       <button class="pill" data-tab="approved">Approved</button>
       <button class="pill active" data-tab="pending">Pending</button>
       <button class="pill" data-tab="flagged">Flagged</button>
       <button class="pill" data-tab="deleted">Trash</button>
+      <button class="pill" data-tab="repair">Needs Repair</button>
     </div>
 
-    <!-- Search + View toggle -->
+    <!-- === SEARCH & VIEW === -->
     <div class="searchbar">
       <input id="searchInput" placeholder="Search by name, city, country…" />
       <div class="viewtoggle">
@@ -49,7 +50,7 @@
     <!-- === LIST VIEW === -->
     <div class="listview-wrap" style="display:none;">
       <div id="hierarchyPanel" class="hierarchy-panel"></div>
-      <div id="table" class="table-wrap">
+      <div class="table-wrap">
         <table>
           <thead>
             <tr>
@@ -72,7 +73,7 @@
 
   <div id="toast-container"></div>
 
-  <!-- ✅ JS sist -->
+  <!-- JS sist -->
   <script src="js/backoffice.js"></script>
 </body>
 </html>
