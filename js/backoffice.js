@@ -367,35 +367,39 @@ function renderTable(list) {
 
     tr.innerHTML = `
       <td>${safe(s.name)}</td>
+
       <td>
         <div style="display:flex; align-items:center; gap:6px;">
           ${(() => {
             const url = flagURL(s.country);
             return url
               ? `<img class="flag" src="${url}"
-                     style="width:18px;height:14px;border-radius:2px;object-fit:cover;border:1px solid #ccc;">`
+                   style="width:18px;height:14px;border-radius:2px;object-fit:cover;border:1px solid #ccc;">`
               : "";
           })()}
           <span>${safe(s.country)}</span>
         </div>
       </td>
+
       <td>${safe(s.continent)}</td>
       <td>${safe(s.city)}</td>
       <td>${safe(s.type) || "store"}</td>
       <td>${safe(s.access) || "—"}</td>
       <td>${s.rating ?? "—"}</td>
+
       <td>
         ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
         ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
         ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
         ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
       </td>
+
       <td class="action-td"></td>
     `;
 
-    // actions
     const actionsTd = tr.querySelector(".action-td");
     actionsTd.style.whiteSpace = "nowrap";
+
     actionsTd.append(
       makeBtn("Edit", () => editStore(s.id), "blue"),
       makeBtn("Approve", () => approveStore(s.id), "green"),
