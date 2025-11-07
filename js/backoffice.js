@@ -426,7 +426,7 @@ function renderHierarchy(list) {
 
   Object.keys(byCont).sort().forEach((continent) => {
 
-    // ---- CONTINENT LINE ----
+    // ---- CONTINENT ----
     const contNode = line("continent", continent, countStores(byCont[continent]));
     const nestedCountries = document.createElement("div");
     nestedCountries.className = "nested";
@@ -446,11 +446,10 @@ function renderHierarchy(list) {
       const cNode = document.createElement("div");
       cNode.className = "line country";
 
-      const iso = flagURL(country, s?.country_iso2);
+      const iso = flagURL(country);
       const flagHTML = iso
-        ? `<img src="${iso}"
-             style="width:18px;height:14px;border-radius:2px;object-fit:cover;
-             border:1px solid #ccc;margin-right:6px;">`
+        ? `<img src="${iso}" style="width:18px;height:14px;border-radius:2px;
+           object-fit:cover;border:1px solid #ccc;margin-right:6px;">`
         : "";
 
       cNode.innerHTML = `
@@ -470,8 +469,61 @@ function renderHierarchy(list) {
         render();
         highlight(panel, cNode);
       });
+
+      // ---- CITIES ----
+      const byCity = groupBy(byCountry[country], (s) => s.city || "Unknown");
+
+      Object.keys(byCity)
+        .sort((a, b) => byCity[b].length - byCity[a].length)
+        .forEach((city) => {
+          const cityNode = document.createElement("div");
+          cityNode.className = "line city";
+          cityNode.textContent = `${city} (${byCity[city].length})`;
+
+          cityNode.addEventListener("click", (e) => {
+            e.stopPropagation();
+            HIER_SEL = { continent, country, city };
+            render();
+            highlight(panel, cityNode);
+          });
+
+          nestedCities.appendChild(cityNode);
+        });
+
+      nestedCountries.append(cNode, nestedCities);
+    });
+
+    panel.append(contNode, nestedCountries);
+  });
 }
 
+
+      // ---- CITIES ----
+      const byCity = groupBy(byCountry[country], (s) => s.city || "Unknown");
+
+      Object.keys(byCity)
+        .sort((a, b) => byCity[b].length - byCity[a].length)
+        .forEach((city) => {
+          const cityNode = document.createElement("div");
+          cityNode.className = "line city";
+          cityNode.textContent = `${city} (${byCity[city].length})`;
+
+          cityNode.addEventListener("click", (e) => {
+            e.stopPropagation();
+            HIER_SEL = { continent, country, city };
+            render();
+            highlight(panel, cityNode);
+          });
+
+          nestedCities.appendChild(cityNode);
+        });
+
+      nestedCountries.append(cNode, nestedCities);
+    });
+
+    panel.append(contNode, nestedCountries);
+  });
+}
 
 function line(level, label, count) {
   const el = document.createElement("div");
@@ -483,12 +535,12 @@ function line(level, label, count) {
   `;
   return el;
 }
+
 function toggleNested(nested, lineEl) {
   const arrow = lineEl.querySelector(".arrow");
+  const open = nested.classList.contains("open");
 
-  const currentlyOpen = nested.classList.contains("open");
-
-  if (currentlyOpen) {
+  if (open) {
     nested.classList.remove("open");
     arrow.textContent = "▶";
     nested.style.display = "none";
@@ -503,16 +555,7 @@ function highlight(root, el) {
   root.querySelectorAll(".highlight").forEach((n) => n.classList.remove("highlight"));
   el.classList.add("highlight");
 }
-function groupBy(arr, fn) { return (arr || []).reduce((acc, x) => { const k = fn(x); (acc[k] ||= []).push(x); return acc; }, {}); }
-const countStores = (arr) => (arr || []).length;
 
-function applyHierarchyFilter(list) {
-  let out = list.slice();
-  if (HIER_SEL.continent) out = out.filter((s) => s.continent === HIER_SEL.continent);
-  if (HIER_SEL.country) out = out.filter((s) => s.country === HIER_SEL.country);
-  if (HIER_SEL.city) out = out.filter((s) => s.city === HIER_SEL.city);
-  return out;
-}
 
 /* ==================== MOD ACTIONS ================= */
 async function approveStore(id) {
