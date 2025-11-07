@@ -48,7 +48,13 @@
 
     <!-- === LIST VIEW === -->
     <div class="listview-wrap" style="display:none;">
-      <div id="hierarchyPanel" class="hierarchy-panel"></div>
+     <div class="hierarchy-header">
+  <button id="expandAll" class="btn ghost small">Expand All</button>
+  <button id="collapseAll" class="btn ghost small">Collapse All</button>
+</div>
+
+<div id="hierarchyPanel"></div>
+
       <div id="table" class="table-wrap">
         <table>
           <thead>
