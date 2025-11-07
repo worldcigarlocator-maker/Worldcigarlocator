@@ -40,111 +40,104 @@ const toast = (msg, cls = "success") => {
   setTimeout(() => t.remove(), 2500);
 };
 
-/* ---------- Flags: country -> ISO-2 -> SVG URL ---------- */
-const COUNTRY_TO_ISO = (() => {
-  // svensk + engelsk + vanliga varianter
-  const map = {
-    // Nordics + EU
-    "sweden":"se","sverige":"se",
-    "norway":"no","norge":"no",
-    "denmark":"dk","danmark":"dk",
-    "finland":"fi",
-    "iceland":"is","island":"is",
-    "germany":"de","tyskland":"de",
-    "france":"fr","frankrike":"fr",
-    "italy":"it","italien":"it",
-    "spain":"es","spanien":"es",
-    "portugal":"pt",
-    "netherlands":"nl","the netherlands":"nl","nederlands":"nl","nederländerna":"nl","holland":"nl",
-    "belgium":"be","belgien":"be",
-    "switzerland":"ch","schweiz":"ch",
-    "austria":"at","österrike":"at",
-    "poland":"pl","polen":"pl",
-    "czech republic":"cz","czechia":"cz","tjeckien":"cz",
-    "slovakia":"sk","slovakien":"sk",
-    "hungary":"hu","ungern":"hu",
-    "slovenia":"si","slovenien":"si",
-    "croatia":"hr","kroatien":"hr",
-    "greece":"gr","grekland":"gr",
-    "ireland":"ie","irland":"ie",
-    "estonia":"ee","estland":"ee",
-    "latvia":"lv","lettland":"lv",
-    "lithuania":"lt","litauen":"lt",
-    "romania":"ro","rumänien":"ro",
-    "bulgaria":"bg","bulgarien":"bg",
-    "ukraine":"ua","ukraina":"ua",
-    // UK/US/NA
-    "united kingdom":"gb","uk":"gb","great britain":"gb","storbritannien":"gb","england":"gb","scotland":"gb","wales":"gb","northern ireland":"gb",
-    "united states":"us","usa":"us","us":"us","förenta staterna":"us","united states of america":"us",
-    "canada":"ca",
-    "mexico":"mx","mexiko":"mx",
-    "dominican republic":"do","dominikanska republiken":"do",
-    "cuba":"cu",
-    // South America
-    "brazil":"br","brasilien":"br",
-    "argentina":"ar",
-    "chile":"cl",
-    "peru":"pe",
-    "colombia":"co",
-    "uruguay":"uy",
-    "paraguay":"py",
-    // Asia + ME
-    "china":"cn","kina":"cn",
-    "japan":"jp",
-    "india":"in","indien":"in",
-    "thailand":"th",
-    "vietnam":"vn",
-    "indonesia":"id",
-    "philippines":"ph","filippinerna":"ph",
-    "malaysia":"my",
-    "singapore":"sg","singapour":"sg",
-    "south korea":"kr","korea, republic of":"kr","sydkorea":"kr",
-    "taiwan":"tw",
-    "israel":"il",
-    "turkey":"tr","turkiet":"tr",
-    "united arab emirates":"ae","uae":"ae","förenade arabemiraten":"ae",
-    "qatar":"qa",
-    "saudi arabia":"sa",
-    // Africa + Oceania
-    "south africa":"za","sydafrika":"za",
-    "morocco":"ma","marocko":"ma",
-    "egypt":"eg","egypten":"eg",
-    "kenya":"ke",
-    "nigeria":"ng",
-    "ghana":"gh",
-    "australia":"au",
-    "new zealand":"nz","nz":"nz","nya zeeland":"nz",
-  };
-  // normalisera nycklar
-  const norm = {};
-  Object.keys(map).forEach(k => norm[k.toLowerCase()] = map[k]);
-  return norm;
-})();
+/* ========================= FLAGS ========================= */
 
-function normalizeCountryName(name) {
+/* ---- 1) Full lista: COUNTRY → ISO2 ---- */
+const COUNTRY_TO_ISO2 = {
+  // EUROPE
+  "albania": "al", "andorra": "ad", "armenia": "am", "austria": "at",
+  "azerbaijan": "az", "belarus": "by", "belgium": "be",
+  "bosnia and herzegovina": "ba", "bulgaria": "bg", "croatia": "hr",
+  "cyprus": "cy", "czech republic": "cz", "czechia": "cz",
+  "denmark": "dk", "estonia": "ee", "finland": "fi", "france": "fr",
+  "georgia": "ge", "germany": "de", "greece": "gr", "hungary": "hu",
+  "iceland": "is", "ireland": "ie", "italy": "it", "kazakhstan": "kz",
+  "kosovo": "xk", "latvia": "lv", "lithuania": "lt", "luxembourg": "lu",
+  "malta": "mt", "moldova": "md", "monaco": "mc", "montenegro": "me",
+  "netherlands": "nl", "north macedonia": "mk", "norway": "no",
+  "poland": "pl", "portugal": "pt", "romania": "ro", "serbia": "rs",
+  "slovakia": "sk", "slovenia": "si", "spain": "es", "sweden": "se",
+  "switzerland": "ch", "turkey": "tr", "ukraine": "ua",
+  "united kingdom": "gb", "england": "gb", "scotland": "gb", "wales": "gb",
+
+  // NORTH AMERICA
+  "canada": "ca", "united states": "us", "usa": "us", "mexico": "mx",
+
+  // CENTRAL AMERICA
+  "belize": "bz", "costa rica": "cr", "el salvador": "sv",
+  "guatemala": "gt", "honduras": "hn", "nicaragua": "ni",
+  "panama": "pa",
+
+  // CARIBBEAN
+  "antigua and barbuda": "ag", "bahamas": "bs", "barbados": "bb",
+  "cuba": "cu", "dominica": "dm", "dominican republic": "do",
+  "grenada": "gd", "haiti": "ht", "jamaica": "jm", "puerto rico": "pr",
+  "saint lucia": "lc", "saint kitts and nevis": "kn",
+  "saint vincent and the grenadines": "vc",
+  "trinidad and tobago": "tt",
+
+  // SOUTH AMERICA
+  "argentina": "ar", "bolivia": "bo", "brazil": "br", "chile": "cl",
+  "colombia": "co", "ecuador": "ec", "guyana": "gy", "paraguay": "py",
+  "peru": "pe", "suriname": "sr", "uruguay": "uy", "venezuela": "ve",
+
+  // AFRICA
+  "algeria": "dz", "angola": "ao", "benin": "bj", "botswana": "bw",
+  "burkina faso": "bf", "burundi": "bi", "cameroon": "cm",
+  "cape verde": "cv", "central african republic": "cf", "chad": "td",
+  "comoros": "km", "congo": "cg", "democratic republic of the congo": "cd",
+  "djibouti": "dj", "egypt": "eg", "equatorial guinea": "gq",
+  "eritrea": "er", "ethiopia": "et", "gabon": "ga", "gambia": "gm",
+  "ghana": "gh", "guinea": "gn", "guinea-bissau": "gw",
+  "ivory coast": "ci", "kenya": "ke", "lesotho": "ls", "liberia": "lr",
+  "libya": "ly", "madagascar": "mg", "malawi": "mw", "mali": "ml",
+  "mauritania": "mr", "mauritius": "mu", "morocco": "ma",
+  "mozambique": "mz", "namibia": "na", "niger": "ne", "nigeria": "ng",
+  "rwanda": "rw", "senegal": "sn", "seychelles": "sc",
+  "sierra leone": "sl", "somalia": "so", "south africa": "za",
+  "sudan": "sd", "tanzania": "tz", "togo": "tg", "tunisia": "tn",
+  "uganda": "ug", "zambia": "zm", "zimbabwe": "zw",
+
+  // ASIA
+  "afghanistan": "af", "bahrain": "bh", "bangladesh": "bd",
+  "bhutan": "bt", "brunei": "bn", "cambodia": "kh", "china": "cn",
+  "india": "in", "indonesia": "id", "iran": "ir", "iraq": "iq",
+  "israel": "il", "japan": "jp", "jordan": "jo", "kuwait": "kw",
+  "kyrgyzstan": "kg", "laos": "la", "lebanon": "lb", "malaysia": "my",
+  "maldives": "mv", "mongolia": "mn", "myanmar": "mm", "nepal": "np",
+  "north korea": "kp", "oman": "om", "pakistan": "pk", "philippines": "ph",
+  "qatar": "qa", "saudi arabia": "sa", "singapore": "sg",
+  "south korea": "kr", "sri lanka": "lk", "syria": "sy", "taiwan": "tw",
+  "tajikistan": "tj", "thailand": "th", "timor-leste": "tl",
+  "turkmenistan": "tm", "united arab emirates": "ae", "uzbekistan": "uz",
+  "vietnam": "vn", "yemen": "ye",
+
+  // OCEANIA
+  "australia": "au", "fiji": "fj", "new zealand": "nz",
+  "papua new guinea": "pg", "samoa": "ws", "tonga": "to", "vanuatu": "vu"
+};
+
+/* ---- 2) Normalizer ---- */
+function normalizeCountry(name) {
   return (name || "")
-    .toString()
-    .trim()
     .toLowerCase()
+    .trim()
+    .replace(/\./g, "")
+    .replace(/,/g, "")
+    .replace(/-/g, " ")
     .replace(/\s+/g, " ")
-    .replace(/[’'`.]/g, "") // ta bort special-apostrof
-    ;
+    .replace(/’/g, "'")
+    .replace(/&/g, "and")
+    .replace(/^the /, "")
+    .replace(/republic of /, "")
+    .trim();
 }
 
-function countryToISO(country) {
-  const key = normalizeCountryName(country);
-  // direktträff
-  if (COUNTRY_TO_ISO[key]) return COUNTRY_TO_ISO[key];
-  // försök ta bort "the "
-  const noThe = key.replace(/^the\s+/, "");
-  if (COUNTRY_TO_ISO[noThe]) return COUNTRY_TO_ISO[noThe];
-  // fallback: ingen flagga
-  return null;
-}
-
-function flagUrlFromCountry(country) {
-  const iso = countryToISO(country);
-  return iso ? `${WCL.FLAGS_BASE}/${iso}.svg` : null;
+/* ---- 3) Flag resolver ---- */
+function flagURL(country) {
+  const key = normalizeCountry(country);
+  const iso = COUNTRY_TO_ISO2[key];
+  return iso ? `assets/flags/${iso}.svg` : null;
 }
 
 /* ---------- Images ---------- */
@@ -270,64 +263,89 @@ function renderCards(list) {
   grid.innerHTML = "";
 
   list.forEach((s) => {
-    const borderClass = s.deleted ? "border-gray" : s.flagged ? "border-red" : s.approved ? "border-green" : "border-gold";
+    const borderClass =
+      s.deleted ? "border-gray" :
+      s.flagged ? "border-red" :
+      s.approved ? "border-green" :
+      "border-gold";
 
     const card = document.createElement("div");
     card.className = `card ${borderClass}`;
 
+    /* ----------- Photo ----------- */
     const img = document.createElement("img");
     img.className = "photo";
     img.src = photoURL(s.photo_reference, 800);
     img.onerror = () => (img.src = WCL.FALLBACK_IMG);
 
+    /* ----------- Body ----------- */
     const body = document.createElement("div");
     body.className = "body";
 
-    // Flagga + geo-text
-    const geoLine = document.createElement("div");
-    geoLine.className = "geo-line";
+    /* ----------- Name (2 lines) ----------- */
+    const h3 = document.createElement("h3");
+    h3.className = "twoline";
+    h3.textContent = safe(s.name);
+    body.appendChild(h3);
 
-    const flagUrl = flagUrlFromCountry(s.country);
-    if (flagUrl) {
-      const flagImg = document.createElement("img");
-      flagImg.className = "flag-icon";
-      flagImg.alt = safe(s.country);
-      flagImg.src = flagUrl;
-      // om fil saknas, dölj
-      flagImg.onerror = () => { flagImg.style.display = "none"; };
-      geoLine.appendChild(flagImg);
+    /* ----------- Flag + Country/City ----------- */
+    const row = document.createElement("div");
+    row.className = "locrow";
+
+    const iso = flagURL(s.country);
+    if (iso) {
+      const flag = document.createElement("img");
+      flag.className = "flag";
+      flag.src = iso;
+      flag.alt = safe(s.country);
+      flag.onerror = () => (flag.style.display = "none");
+      row.appendChild(flag);
     }
 
-    const geoText = document.createElement("div");
-    geoText.className = "geo-text";
-    geoText.textContent = `${safe(s.continent || "")} — ${safe(s.country)} — ${safe(s.city)}`;
-    geoLine.appendChild(geoText);
+    const geo = document.createElement("span");
+    geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
+    row.appendChild(geo);
 
-    body.innerHTML = `
-      <h3>${safe(s.name)}</h3>
-    `;
-    body.appendChild(geoLine);
+    body.appendChild(row);
 
-    // badges + rating
-    const statusWrap = document.createElement("div");
-    statusWrap.className = "badges";
-    statusWrap.innerHTML = `
+    /* ----------- Continent ---------- */
+    const cont = document.createElement("p");
+    cont.className = "muted";
+    cont.textContent = `${safe(s.continent)}`;
+    body.appendChild(cont);
+
+    /* ----------- Status badges ---------- */
+    const status = document.createElement("div");
+    status.className = "badges";
+    status.innerHTML = `
       ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
       ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
       ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
       ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
-      ${`<span style="margin-left:6px;color:var(--muted)">⭐ ${s.rating ?? "–"}</span>`}
+      <span style="margin-left:6px;color:var(--muted)">⭐ ${s.rating ?? "–"}</span>
     `;
-    body.appendChild(statusWrap);
+    body.appendChild(status);
 
+    /* ----------- Actions ----------- */
     const actions = document.createElement("div");
     actions.className = "actions";
+
     const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
     const deleteBtn  = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
     const editBtn    = makeBtn("Edit", () => editStore(s.id), "blue");
     const repairBtn  = makeBtn("Repair Photo", () => repairPhoto(s.id, s.place_id, img), "orange");
-    if (s.flagged) actions.append(approveBtn, makeBtn("Unflag", () => unflagStore(s.id), "yellow"), deleteBtn, editBtn, repairBtn);
-    else actions.append(approveBtn, deleteBtn, editBtn, repairBtn);
+
+    if (s.flagged) {
+      actions.append(
+        approveBtn,
+        makeBtn("Unflag", () => unflagStore(s.id), "yellow"),
+        deleteBtn,
+        editBtn,
+        repairBtn
+      );
+    } else {
+      actions.append(approveBtn, deleteBtn, editBtn, repairBtn);
+    }
 
     card.append(img, body, actions);
     grid.appendChild(card);
