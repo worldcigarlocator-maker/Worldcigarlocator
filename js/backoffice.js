@@ -294,7 +294,7 @@ function renderCards(list) {
 const row = document.createElement("div");
 row.className = "locrow";
 
-const iso = flagURL(s.country, s.country_iso2);
+const iso = flagURL(s.country, s.country_iso2 || null);
 if (iso) {
   const flag = document.createElement("img");
   flag.className = "flag";
