@@ -13,7 +13,7 @@ const WCL = {
   PHOTO_REFS_URL:  "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs",
   FALLBACK_IMG:   "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg",
 
-  FLAGS_BASE: "/Worldcigarlocator/assets/flags"
+  FLAGS_BASE: "https://worldcigarlocator-maker.github.io/Worldcigarlocator/assets/flags"
 };
 
 /* Supabase */
