@@ -41,10 +41,10 @@ const toast = (msg, cls = "success") => {
 };
 
 /* ========================= FLAGS =========================
-   Minimal: EN global resolver som tål fler språk/varianter
-   ======================================================== */
+   Global ISO2 Engine — robust mapping med alias & normalisering
+   ============================================================ */
 
-/* Bas-karta ISO2 → namn (urval, vi kan utöka senare) */
+/* 1) ISO2 → namn (baslista) */
 const ISO2_BASE = {
   "al":"albania","ad":"andorra","am":"armenia","at":"austria","az":"azerbaijan",
   "by":"belarus","be":"belgium","ba":"bosnia and herzegovina","bg":"bulgaria",
@@ -94,13 +94,14 @@ const ISO2_BASE = {
   "ws":"samoa","to":"tonga","vu":"vanuatu"
 };
 
-/* Bygg reverse-lookup med vanliga alias */
+/* 2) Bygg reverse lookup: namn/alias → iso2 */
 const COUNTRY_TO_ISO2 = {};
 for (const [iso, name] of Object.entries(ISO2_BASE)) {
-  COUNTRY_TO_ISO2[name] = iso;                      // engelsk standard
-  COUNTRY_TO_ISO2[name.replace(" and ", " & ")] = iso; // “and” vs “&”
+  COUNTRY_TO_ISO2[name] = iso;
+  COUNTRY_TO_ISO2[name.replace(" and ", " & ")] = iso;
 }
-/* Svenska + vanliga språkvarianter */
+
+/* 3) Extra alias (svenska + vanliga språk) */
 Object.assign(COUNTRY_TO_ISO2, {
   "sverige":"se","norge":"no","danmark":"dk","finland":"fi",
   "storbritannien":"gb","england":"gb","skottland":"gb","wales":"gb","nordirland":"gb",
@@ -109,26 +110,37 @@ Object.assign(COUNTRY_TO_ISO2, {
   "brasil":"br","japón":"jp","россия":"ru","rossiya":"ru"
 });
 
-/* Normalisering */
+/* 4) Normalisering */
 function normalizeCountryKey(name){
-  return (name||"").toLowerCase().trim()
-    .replace(/’/g,"'").replace(/\./g,"").replace(/,/g,"")
-    .replace(/-/g," ").replace(/\s+/g," ");
+  return (name||"").toLowerCase()
+    .trim()
+    .replace(/’/g,"'")
+    .replace(/\./g,"")
+    .replace(/,/g,"")
+    .replace(/-/g," ")
+    .replace(/\s+/g," ");
 }
 
-/* Publik helper: flagURL(countryNameOrIso2) */
-function flagURL(country){
-  if(!country) return null;
+/* 5) Global flag resolver */
+function flagURL(country, isoOverride = null){
+  if (!country && !isoOverride) return null;
+
+  // A) Om redan iso-override (supabase future-proof)
+  if (isoOverride && ISO2_BASE[isoOverride]) {
+    return `${WCL.FLAGS_BASE}/${isoOverride}.svg`;
+  }
+
   const key = normalizeCountryKey(country);
 
-  // redan iso2?
-  if (ISO2_BASE[key]) return `${WCL.FLAGS_BASE}/${key}.svg`;
+  // B) Country är redan iso2
+  if (ISO2_BASE[key]) {
+    return `${WCL.FLAGS_BASE}/${key}.svg`;
+  }
 
-  // mappa namn/alias → iso2
+  // C) Vanliga namn/alias
   const iso = COUNTRY_TO_ISO2[key];
   return iso ? `${WCL.FLAGS_BASE}/${iso}.svg` : null;
 }
-
 
 /* ---------- Images ---------- */
 const photoURL = (ref, w = 800) =>
@@ -282,7 +294,7 @@ function renderCards(list) {
 const row = document.createElement("div");
 row.className = "locrow";
 
-const iso = flagURL(s.country);
+const iso = flagURL(s.country, s.country_iso2);
 if (iso) {
   const flag = document.createElement("img");
   flag.className = "flag";
@@ -361,7 +373,7 @@ function renderTable(list) {
       <td>
         <div style="display:flex; align-items:center; gap:6px;">
           ${(() => {
-            const url = flagURL(s.country);
+            const url = flagURL(s.country, s.country_iso2);
             return url
               ? `<img class="flag" src="${url}"
                    style="width:18px;height:14px;border-radius:2px;object-fit:cover;border:1px solid #ccc;">`
@@ -434,7 +446,7 @@ function renderHierarchy(list) {
       const cNode = document.createElement("div");
       cNode.className = "line country";
 
-      const iso = flagURL(country);
+      const iso = flagURL(country, s?.country_iso2);
       const flagHTML = iso
         ? `<img src="${iso}"
              style="width:18px;height:14px;border-radius:2px;object-fit:cover;
