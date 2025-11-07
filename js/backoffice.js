@@ -367,8 +367,6 @@ function renderTable(list) {
 
     tr.innerHTML = `
       <td>${safe(s.name)}</td>
-
-      <!-- ✅ DET ÄR DETTA TD-BLOCK DU BYTER UT -->
       <td>
         <div style="display:flex; align-items:center; gap:6px;">
           ${(() => {
@@ -381,8 +379,6 @@ function renderTable(list) {
           <span>${safe(s.country)}</span>
         </div>
       </td>
-      <!-- ✅ KLART -->
-
       <td>${safe(s.continent)}</td>
       <td>${safe(s.city)}</td>
       <td>${safe(s.type) || "store"}</td>
@@ -396,6 +392,25 @@ function renderTable(list) {
       </td>
       <td class="action-td"></td>
     `;
+
+    // actions
+    const actionsTd = tr.querySelector(".action-td");
+    actionsTd.style.whiteSpace = "nowrap";
+    actionsTd.append(
+      makeBtn("Edit", () => editStore(s.id), "blue"),
+      makeBtn("Approve", () => approveStore(s.id), "green"),
+      s.flagged ? makeBtn("Unflag", () => unflagStore(s.id), "yellow") : document.createComment(""),
+      makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger")
+    );
+
+    tbody.appendChild(tr);
+  });
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="9" class="muted center">No stores</td></tr>`;
+  }
+}
+
 
 
 /* ================ HIERARCHY (LIST-VIEW) ================== */
