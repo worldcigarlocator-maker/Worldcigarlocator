@@ -1,5 +1,5 @@
 /* ============================================================
-   Backoffice V5.2 — Moderation + Hierarchy + Edit + Proxy
+   Backoffice V5.2.1 — Moderation + Hierarchy + Edit + Proxy
    ============================================================ */
 :root{
   --blue:#007bff;--green:#28a745;--red:#dc3545;--gold:#ffc107;
@@ -52,35 +52,36 @@ body{font-family:'Inter',sans-serif;margin:0;background:var(--bg);color:var(--te
 
 /* === GRID (Cards) === */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem;}
-.card{background:var(--card-bg);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;border:2px solid transparent;transition:transform .15s,border-color .25s;min-height:340px;}
+.card{background:var(--card-bg);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;border:2px solid transparent;transition:transform .15s,border-color .25s;min-height:350px;}
 .card.border-green{border-color:var(--green);}
 .card.border-red{border-color:var(--red);}
 .card.border-gold{border-color:var(--gold);}
 .card.border-gray{border-color:var(--gray);}
 .card:hover{transform:translateY(-2px);}
 .card img.photo{width:100%;height:150px;object-fit:cover;}
-.card .body{padding:1rem;display:flex;flex-direction:column;gap:.25rem;flex:1;}
+.card .body{padding:1rem;display:flex;flex-direction:column;gap:.35rem;flex:1;}
 .card .body h3{margin:0 0 .4rem 0;font-size:1.1rem;line-height:1.2rem;height:2.4rem;overflow:hidden;}
-.card .body p{margin:.1rem 0;font-size:.9rem;color:var(--muted);line-height:1.2rem;height:1.2rem;overflow:hidden;}
+/* geo-rad: flagga + text, max 2 rader för alignment */
+.geo-line{display:flex;align-items:center;gap:.5rem;line-height:1.2rem;min-height:2.4rem;max-height:2.4rem;overflow:hidden;}
+.flag-icon{width:18px;height:18px;object-fit:cover;border-radius:2px;border:1px solid var(--border);flex:0 0 18px;}
+.geo-text{color:var(--muted);font-size:.9rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .actions{display:flex;flex-wrap:wrap;gap:.4rem;padding:.6rem;border-top:1px solid var(--border);justify-content:center;}
 
 /* === LIST VIEW === */
 .listview-wrap{display:flex;gap:1rem;margin-top:1rem;}
-#hierarchyPanel{flex:0 0 30%;max-height:80vh;overflow-y:auto;border-right:1px solid var(--border);padding-right:1rem;}
+#hierarchyPanel{flex:0 0 22%;min-width:200px;max-height:80vh;overflow-y:auto;border-right:1px solid var(--border);padding-right:1rem;}
 .table-wrap{flex:1;overflow-x:auto;padding-left:1rem;}
 table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;box-shadow:var(--shadow);}
 th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--border);}
 th{background:var(--bg);font-weight:700;color:var(--text);}
 tr:hover td{background:#f1f5f9;}
-.hierarchy-panel .line{cursor:pointer;padding:.2rem .4rem;border-radius:6px;transition:background .2s;}
+.hierarchy-panel .line{cursor:pointer;padding:.2rem .4rem;border-radius:6px;transition:background .2s;display:flex;align-items:center;gap:.4rem;}
 .hierarchy-panel .line:hover{background:rgba(0,0,0,.05);}
 .line.continent{font-weight:700;color:var(--blue);}
 .line.country{margin-left:1rem;color:var(--green);}
 .line.city{margin-left:2rem;color:var(--gold);}
-.arrow{margin-right:.3rem;font-size:.8rem;}
+.arrow{margin-right:.1rem;font-size:.8rem;}
 .nested{margin-left:1rem;border-left:1px dashed var(--border);padding-left:.5rem;display:none;}
-.store-leaf{margin-left:2rem;color:var(--muted);cursor:pointer;}
-.store-leaf:hover{color:var(--blue);text-decoration:underline;}
 .highlight{background:#fff3cd !important;transition:background .5s;}
 
 /* === BADGES === */
@@ -104,7 +105,7 @@ tr:hover td{background:#f1f5f9;}
 .modal h3{margin-bottom:1rem;font-size:1.3rem;font-weight:700;color:var(--text);}
 .edit-grid{display:grid;gap:.75rem;}
 .edit-grid label{font-weight:600;font-size:.9rem;color:var(--text);}
-.edit-grid input{padding:.5rem .6rem;border:1px solid var(--border);border-radius:6px;width:100%;font-size:.95rem;}
+.edit-grid input, .edit-grid select{padding:.5rem .6rem;border:1px solid var(--border);border-radius:6px;width:100%;font-size:.95rem;}
 
 /* Type toggle */
 .type-group{display:flex;gap:.5rem;}
