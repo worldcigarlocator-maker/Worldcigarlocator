@@ -40,9 +40,9 @@ const toast = (msg, cls = "success") => {
   setTimeout(() => t.remove(), 2500);
 };
 
+
 /* ========================= FLAGS ========================= */
 
-/* ---- 1) Full lista: COUNTRY → ISO2 ---- */
 const COUNTRY_TO_ISO2 = {
   // EUROPE
   "albania": "al", "andorra": "ad", "armenia": "am", "austria": "at",
@@ -116,6 +116,17 @@ const COUNTRY_TO_ISO2 = {
   "australia": "au", "fiji": "fj", "new zealand": "nz",
   "papua new guinea": "pg", "samoa": "ws", "tonga": "to", "vanuatu": "vu"
 };
+
+// --- Swedish aliases ---
+COUNTRY_TO_ISO2["sverige"] = "se";
+COUNTRY_TO_ISO2["norge"] = "no";
+COUNTRY_TO_ISO2["danmark"] = "dk";
+COUNTRY_TO_ISO2["storbritannien"] = "gb";
+COUNTRY_TO_ISO2["england"] = "gb";
+COUNTRY_TO_ISO2["skottland"] = "gb";
+COUNTRY_TO_ISO2["wales"] = "gb";
+COUNTRY_TO_ISO2["nordirland"] = "gb";
+
 
 /* ---- 2) Normalizer ---- */
 function normalizeCountry(name) {
