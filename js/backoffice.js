@@ -362,51 +362,40 @@ function renderTable(list) {
   tbody.innerHTML = "";
 
   list.forEach((s) => {
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td>${safe(s.name)}</td>
+    const tr = document.createElement("tr");
 
-    <td>
-      ${(() => {
-        const url = flagURL(s.country);
-        return url
-          ? `<img class="flag" src="${url}"
-               style="width:18px;height:14px;margin-right:6px;vertical-align:middle;
-                      border-radius:2px;object-fit:cover;">`
-          : "";
-      })()}
-      ${safe(s.country)}
-    </td>
+    tr.innerHTML = `
+      <td>${safe(s.name)}</td>
 
-    <td>${safe(s.continent)}</td>
-    <td>${safe(s.city)}</td>
-    <td>${safe(s.type) || "store"}</td>
-    <td>${safe(s.access) || "—"}</td>
-    <td>${s.rating ?? "—"}</td>
-    <td>
-      ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
-      ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
-      ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
-      ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
-    </td>
-    <td class="action-td"></td>
-  `;
+      <!-- ✅ DET ÄR DETTA TD-BLOCK DU BYTER UT -->
+      <td>
+        <div style="display:flex; align-items:center; gap:6px;">
+          ${(() => {
+            const url = flagURL(s.country);
+            return url
+              ? `<img class="flag" src="${url}"
+                     style="width:18px;height:14px;border-radius:2px;object-fit:cover;border:1px solid #ccc;">`
+              : "";
+          })()}
+          <span>${safe(s.country)}</span>
+        </div>
+      </td>
+      <!-- ✅ KLART -->
 
-    const actionsTd = tr.querySelector(".action-td");
-    actionsTd.style.whiteSpace = "nowrap";
-    actionsTd.append(
-      makeBtn("Edit", () => editStore(s.id), "blue"),
-      makeBtn("Approve", () => approveStore(s.id), "green"),
-      s.flagged ? makeBtn("Unflag", () => unflagStore(s.id), "yellow") : document.createComment(""),
-      makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger")
-    );
-    tbody.appendChild(tr);
-  });
+      <td>${safe(s.continent)}</td>
+      <td>${safe(s.city)}</td>
+      <td>${safe(s.type) || "store"}</td>
+      <td>${safe(s.access) || "—"}</td>
+      <td>${s.rating ?? "—"}</td>
+      <td>
+        ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
+        ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
+        ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
+        ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
+      </td>
+      <td class="action-td"></td>
+    `;
 
-  if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="9" class="muted center">No stores</td></tr>`;
-  }
-}
 
 /* ================ HIERARCHY (LIST-VIEW) ================== */
 function renderHierarchy(list) {
@@ -427,18 +416,33 @@ function renderHierarchy(list) {
     });
 
     const byCountry = groupBy(byCont[continent], (s) => s.country || "Unknown");
-    Object.keys(byCountry).sort().forEach((country) => {
-      const cNode = line("country", country, countStores(byCountry[country]));
-      const nestedCities = document.createElement("div");
-      nestedCities.className = "nested";
+Object.keys(byCountry).sort().forEach((country) => {
 
-      cNode.addEventListener("click", (e) => {
-        e.stopPropagation();
-        toggleNested(nestedCities, cNode);
-        HIER_SEL = { continent, country, city: null };
-        render();
-        highlight(panel, cNode);
-      });
+  const cNode = document.createElement("div");
+  cNode.className = "line country";
+
+  const iso = flagURL(country);
+  const flagHTML = iso
+    ? `<img src="${iso}" style="width:18px;height:14px;border-radius:2px;object-fit:cover;border:1px solid #ccc;margin-right:6px;">`
+    : "";
+
+  cNode.innerHTML = `
+    <span class="arrow">▶</span>
+    ${flagHTML}
+    <span class="label">${country}</span>
+    <span class="muted">(${countStores(byCountry[country])})</span>
+  `;
+
+  const nestedCities = document.createElement("div");
+  nestedCities.className = "nested";
+
+  cNode.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleNested(nestedCities, cNode);
+    HIER_SEL = { continent, country, city: null };
+    render();
+    highlight(panel, cNode);
+  });
 
       const byCity = groupBy(byCountry[country], (s) => s.city || "Unknown");
       Object.keys(byCity).sort((a, b) => byCity[b].length - byCity[a].length).forEach((city) => {
@@ -473,10 +477,20 @@ function line(level, label, count) {
 }
 function toggleNested(nested, lineEl) {
   const arrow = lineEl.querySelector(".arrow");
-  const open = nested.style.display === "block";
-  if (open) { nested.style.display = "none"; arrow.textContent = "▶"; }
-  else { nested.style.display = "block"; arrow.textContent = "▼"; }
+
+  const currentlyOpen = nested.classList.contains("open");
+
+  if (currentlyOpen) {
+    nested.classList.remove("open");
+    arrow.textContent = "▶";
+    nested.style.display = "none";
+  } else {
+    nested.classList.add("open");
+    arrow.textContent = "▼";
+    nested.style.display = "block";
+  }
 }
+
 function highlight(root, el) {
   root.querySelectorAll(".highlight").forEach((n) => n.classList.remove("highlight"));
   el.classList.add("highlight");
