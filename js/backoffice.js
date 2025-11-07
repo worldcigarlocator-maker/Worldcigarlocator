@@ -40,111 +40,93 @@ const toast = (msg, cls = "success") => {
   setTimeout(() => t.remove(), 2500);
 };
 
+/* ========================= FLAGS =========================
+   Minimal: EN global resolver som tål fler språk/varianter
+   ======================================================== */
 
-/* ============================================================
-   GLOBAL COUNTRY → ISO2 ENGINE (250+ countries)
-   ============================================================ */
-
-/* 1) Base ISO2 map */
+/* Bas-karta ISO2 → namn (urval, vi kan utöka senare) */
 const ISO2_BASE = {
-  "af": "afghanistan", "ax": "aland islands", "al": "albania", "dz": "algeria",
-  "as": "american samoa", "ad": "andorra", "ao": "angola", "ai": "anguilla",
-  "aq": "antarctica", "ag": "antigua and barbuda", "ar": "argentina",
-  "am": "armenia", "aw": "aruba", "au": "australia", "at": "austria",
-  "az": "azerbaijan", "bs": "bahamas", "bh": "bahrain", "bd": "bangladesh",
-  "bb": "barbados", "by": "belarus", "be": "belgium", "bz": "belize",
-  "bj": "benin", "bm": "bermuda", "bt": "bhutan", "bo": "bolivia",
-  "bq": "caribbean netherlands", "ba": "bosnia and herzegovina",
-  "bw": "botswana", "br": "brazil", "io": "british indian ocean territory",
-  "bg": "bulgaria", "bf": "burkina faso", "bi": "burundi",
-  "cv": "cabo verde", "kh": "cambodia", "cm": "cameroon", "ca": "canada",
-  "ky": "cayman islands", "cf": "central african republic", "td": "chad",
-  "cl": "chile", "cn": "china", "co": "colombia", "km": "comoros",
-  "cr": "costa rica", "ci": "cote d'ivoire", "hr": "croatia",
-  "cu": "cuba", "cy": "cyprus", "cz": "czechia", "dk": "denmark",
-  "dj": "djibouti", "dm": "dominica", "do": "dominican republic",
-  "ec": "ecuador", "eg": "egypt", "sv": "el salvador", "gq": "equatorial guinea",
-  "er": "eritrea", "ee": "estonia", "et": "ethiopia", "fj": "fiji",
-  "fi": "finland", "fr": "france", "ga": "gabon", "gm": "gambia",
-  "ge": "georgia", "de": "germany", "gh": "ghana", "gi": "gibraltar",
-  "gr": "greece", "gl": "greenland", "gd": "grenada", "gu": "guam",
-  "gt": "guatemala", "gn": "guinea", "gw": "guinea-bissau",
-  "gy": "guyana", "ht": "haiti", "hn": "honduras", "hk": "hong kong",
-  "hu": "hungary", "is": "iceland", "in": "india", "id": "indonesia",
-  "ir": "iran", "iq": "iraq", "ie": "ireland", "il": "israel", "it": "italy",
-  "jm": "jamaica", "jp": "japan", "jo": "jordan", "kz": "kazakhstan",
-  "ke": "kenya", "ki": "kiribati", "kp": "north korea", "kr": "south korea",
-  "kw": "kuwait", "kg": "kyrgyzstan", "la": "laos", "lv": "latvia",
-  "lb": "lebanon", "ls": "lesotho", "lr": "liberia", "ly": "libya",
-  "li": "liechtenstein", "lt": "lithuania", "lu": "luxembourg",
-  "mo": "macau", "mk": "north macedonia", "mg": "madagascar",
-  "mw": "malawi", "my": "malaysia", "mv": "maldives", "ml": "mali",
-  "mt": "malta", "mh": "marshall islands", "mq": "martinique",
-  "mr": "mauritania", "mu": "mauritius", "mx": "mexico",
-  "md": "moldova", "mc": "monaco", "mn": "mongolia", "me": "montenegro",
-  "ma": "morocco", "mz": "mozambique", "mm": "myanmar",
-  "na": "namibia", "nr": "nauru", "np": "nepal", "nl": "netherlands",
-  "nc": "new caledonia", "nz": "new zealand", "ni": "nicaragua",
-  "ne": "niger", "ng": "nigeria", "no": "norway", "om": "oman",
-  "pk": "pakistan", "pw": "palau", "pa": "panama", "pg": "papua new guinea",
-  "py": "paraguay", "pe": "peru", "ph": "philippines",
-  "pl": "poland", "pt": "portugal", "pr": "puerto rico",
-  "qa": "qatar", "ro": "romania", "ru": "russia", "rw": "rwanda",
-  "kn": "saint kitts and nevis", "lc": "saint lucia",
-  "vc": "saint vincent and the grenadines", "ws": "samoa",
-  "sm": "san marino", "st": "sao tome and principe",
-  "sa": "saudi arabia", "sn": "senegal", "rs": "serbia",
-  "sc": "seychelles", "sl": "sierra leone", "sg": "singapore",
-  "sk": "slovakia", "si": "slovenia", "sb": "solomon islands",
-  "so": "somalia", "za": "south africa", "ss": "south sudan",
-  "es": "spain", "lk": "sri lanka", "sd": "sudan", "sr": "suriname",
-  "se": "sweden", "ch": "switzerland", "sy": "syria",
-  "tw": "taiwan", "tj": "tajikistan", "tz": "tanzania",
-  "th": "thailand", "tl": "timor-leste", "tg": "togo",
-  "to": "tonga", "tt": "trinidad and tobago",
-  "tn": "tunisia", "tr": "turkey", "tm": "turkmenistan",
-  "ug": "uganda", "ua": "ukraine", "ae": "united arab emirates",
-  "gb": "united kingdom", "us": "united states", "uy": "uruguay",
-  "uz": "uzbekistan", "vu": "vanuatu", "ve": "venezuela",
-  "vn": "vietnam", "ye": "yemen", "zm": "zambia", "zw": "zimbabwe"
+  "al":"albania","ad":"andorra","am":"armenia","at":"austria","az":"azerbaijan",
+  "by":"belarus","be":"belgium","ba":"bosnia and herzegovina","bg":"bulgaria",
+  "hr":"croatia","cy":"cyprus","cz":"czechia","dk":"denmark","ee":"estonia",
+  "fi":"finland","fr":"france","ge":"georgia","de":"germany","gr":"greece",
+  "hu":"hungary","is":"iceland","ie":"ireland","it":"italy","kz":"kazakhstan",
+  "xk":"kosovo","lv":"latvia","lt":"lithuania","lu":"luxembourg","mt":"malta",
+  "md":"moldova","mc":"monaco","me":"montenegro","nl":"netherlands",
+  "mk":"north macedonia","no":"norway","pl":"poland","pt":"portugal",
+  "ro":"romania","rs":"serbia","sk":"slovakia","si":"slovenia","es":"spain",
+  "se":"sweden","ch":"switzerland","tr":"turkey","ua":"ukraine","gb":"united kingdom",
+
+  "ca":"canada","us":"united states","mx":"mexico","bz":"belize","cr":"costa rica",
+  "sv":"el salvador","gt":"guatemala","hn":"honduras","ni":"nicaragua","pa":"panama",
+  "ag":"antigua and barbuda","bs":"bahamas","bb":"barbados","cu":"cuba",
+  "dm":"dominica","do":"dominican republic","gd":"grenada","ht":"haiti","jm":"jamaica",
+  "pr":"puerto rico","lc":"saint lucia","kn":"saint kitts and nevis",
+  "vc":"saint vincent and the grenadines","tt":"trinidad and tobago",
+
+  "ar":"argentina","bo":"bolivia","br":"brazil","cl":"chile","co":"colombia",
+  "ec":"ecuador","gy":"guyana","py":"paraguay","pe":"peru","sr":"suriname",
+  "uy":"uruguay","ve":"venezuela",
+
+  "dz":"algeria","ao":"angola","bj":"benin","bw":"botswana","bf":"burkina faso",
+  "bi":"burundi","cm":"cameroon","cv":"cabo verde","cf":"central african republic",
+  "td":"chad","km":"comoros","cg":"congo","cd":"democratic republic of the congo",
+  "dj":"djibouti","eg":"egypt","gq":"equatorial guinea","er":"eritrea","et":"ethiopia",
+  "ga":"gabon","gm":"gambia","gh":"ghana","gn":"guinea","gw":"guinea-bissau",
+  "ci":"cote d'ivoire","ke":"kenya","ls":"lesotho","lr":"liberia","ly":"libya",
+  "mg":"madagascar","mw":"malawi","ml":"mali","mr":"mauritania","mu":"mauritius",
+  "ma":"morocco","mz":"mozambique","na":"namibia","ne":"niger","ng":"nigeria",
+  "rw":"rwanda","sn":"senegal","sc":"seychelles","sl":"sierra leone","so":"somalia",
+  "za":"south africa","sd":"sudan","tz":"tanzania","tg":"togo","tn":"tunisia",
+  "ug":"uganda","zm":"zambia","zw":"zimbabwe",
+
+  "af":"afghanistan","bh":"bahrain","bd":"bangladesh","bt":"bhutan","bn":"brunei",
+  "kh":"cambodia","cn":"china","in":"india","id":"indonesia","ir":"iran","iq":"iraq",
+  "il":"israel","jp":"japan","jo":"jordan","kw":"kuwait","kg":"kyrgyzstan",
+  "la":"laos","lb":"lebanon","my":"malaysia","mv":"maldives","mn":"mongolia",
+  "mm":"myanmar","np":"nepal","kp":"north korea","om":"oman","pk":"pakistan",
+  "ph":"philippines","qa":"qatar","sa":"saudi arabia","sg":"singapore",
+  "kr":"south korea","lk":"sri lanka","sy":"syria","tw":"taiwan","tj":"tajikistan",
+  "th":"thailand","tl":"timor-leste","tm":"turkmenistan","ae":"united arab emirates",
+  "uz":"uzbekistan","vn":"vietnam","ye":"yemen",
+
+  "au":"australia","fj":"fiji","nz":"new zealand","pg":"papua new guinea",
+  "ws":"samoa","to":"tonga","vu":"vanuatu"
 };
 
-/* 2) Build reverse lookup for EVERY language spelling */
+/* Bygg reverse-lookup med vanliga alias */
 const COUNTRY_TO_ISO2 = {};
-
 for (const [iso, name] of Object.entries(ISO2_BASE)) {
-  COUNTRY_TO_ISO2[name] = iso;                         // english
-  COUNTRY_TO_ISO2[name.replace("and", "&")] = iso;     // & variations
+  COUNTRY_TO_ISO2[name] = iso;                      // engelsk standard
+  COUNTRY_TO_ISO2[name.replace(" and ", " & ")] = iso; // “and” vs “&”
+}
+/* Svenska + vanliga språkvarianter */
+Object.assign(COUNTRY_TO_ISO2, {
+  "sverige":"se","norge":"no","danmark":"dk","finland":"fi",
+  "storbritannien":"gb","england":"gb","skottland":"gb","wales":"gb","nordirland":"gb",
+  "usa":"us","united states of america":"us",
+  "españa":"es","méxico":"mx","deutschland":"de","schweiz":"ch","italia":"it",
+  "brasil":"br","japón":"jp","россия":"ru","rossiya":"ru"
+});
+
+/* Normalisering */
+function normalizeCountryKey(name){
+  return (name||"").toLowerCase().trim()
+    .replace(/’/g,"'").replace(/\./g,"").replace(/,/g,"")
+    .replace(/-/g," ").replace(/\s+/g," ");
 }
 
-/* 3) Add extended alias support (common languages) */
-const EXTRA_ALIASES = {
-  "sverige": "se", "norge": "no", "danmark": "dk", "finland": "fi",
-  "storbritannien": "gb", "england": "gb", "skottland": "gb", 
-  "wales": "gb", "nordirland": "gb",
-  "españa": "es", "alemania": "de", "suède": "se", "schweden": "se",
-  "brasil": "br", "méxico": "mx", "austrália": "au", "japón": "jp",
-  "eesti": "ee", "deutschland": "de", "rossiya": "ru"
-};
-
-for (const [alias, iso] of Object.entries(EXTRA_ALIASES)) {
-  COUNTRY_TO_ISO2[alias] = iso;
-}
-
-/* 4) Normalize function */
-function normalizeCountryKey(name) {
-  return (name || "")
-    .toLowerCase()
-    .trim()
-    .replace(/’/g, "'")
-    .replace(/[^a-zA-Z\s]/g, "")
-    .replace(/\s+/g, " ");
-}
-
-/* 5) Global resolver */
-function resolveISO2(country) {
+/* Publik helper: flagURL(countryNameOrIso2) */
+function flagURL(country){
+  if(!country) return null;
   const key = normalizeCountryKey(country);
-  return COUNTRY_TO_ISO2[key] || null;
+
+  // redan iso2?
+  if (ISO2_BASE[key]) return `${WCL.FLAGS_BASE}/${key}.svg`;
+
+  // mappa namn/alias → iso2
+  const iso = COUNTRY_TO_ISO2[key];
+  return iso ? `${WCL.FLAGS_BASE}/${iso}.svg` : null;
 }
 
 
@@ -432,6 +414,7 @@ function renderHierarchy(list) {
 
   Object.keys(byCont).sort().forEach((continent) => {
 
+    // ---- CONTINENT LINE ----
     const contNode = line("continent", continent, countStores(byCont[continent]));
     const nestedCountries = document.createElement("div");
     nestedCountries.className = "nested";
@@ -443,6 +426,7 @@ function renderHierarchy(list) {
       highlight(panel, contNode);
     });
 
+    // ---- COUNTRIES ----
     const byCountry = groupBy(byCont[continent], (s) => s.country || "Unknown");
 
     Object.keys(byCountry).sort().forEach((country) => {
@@ -452,9 +436,9 @@ function renderHierarchy(list) {
 
       const iso = flagURL(country);
       const flagHTML = iso
-        ? `<img src="${iso}" 
-               style="width:18px;height:14px;border-radius:2px;
-               object-fit:cover;border:1px solid #ccc;margin-right:6px;">`
+        ? `<img src="${iso}"
+             style="width:18px;height:14px;border-radius:2px;object-fit:cover;
+             border:1px solid #ccc;margin-right:6px;">`
         : "";
 
       cNode.innerHTML = `
@@ -474,6 +458,34 @@ function renderHierarchy(list) {
         render();
         highlight(panel, cNode);
       });
+
+      // ---- CITIES ----
+      const byCity = groupBy(byCountry[country], (s) => s.city || "Unknown");
+
+      Object.keys(byCity)
+        .sort((a, b) => byCity[b].length - byCity[a].length)
+        .forEach((city) => {
+          const cityNode = document.createElement("div");
+          cityNode.className = "line city";
+          cityNode.textContent = `${city} (${byCity[city].length})`;
+
+          cityNode.addEventListener("click", (e) => {
+            e.stopPropagation();
+            HIER_SEL = { continent, country, city };
+            render();
+            highlight(panel, cityNode);
+          });
+
+          nestedCities.appendChild(cityNode);
+        });
+
+      nestedCountries.append(cNode, nestedCities);
+    });
+
+    panel.append(contNode, nestedCountries);
+  });
+}
+
 
       /* ----- Cities ------ */
       const byCity = groupBy(byCountry[country], (s) => s.city || "Unknown");
