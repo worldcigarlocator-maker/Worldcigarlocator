@@ -470,32 +470,6 @@ function renderHierarchy(list) {
         render();
         highlight(panel, cNode);
       });
-
-      // ---- CITIES ----
-      const byCity = groupBy(byCountry[country], (s) => s.city || "Unknown");
-
-      Object.keys(byCity)
-        .sort((a, b) => byCity[b].length - byCity[a].length)
-        .forEach((city) => {
-          const cityNode = document.createElement("div");
-          cityNode.className = "line city";
-          cityNode.textContent = `${city} (${byCity[city].length})`;
-
-          cityNode.addEventListener("click", (e) => {
-            e.stopPropagation();
-            HIER_SEL = { continent, country, city };
-            render();
-            highlight(panel, cityNode);
-          });
-
-          nestedCities.appendChild(cityNode);
-        });
-
-      nestedCountries.append(cNode, nestedCities);
-    });
-
-    panel.append(contNode, nestedCountries);
-  });
 }
 
 
