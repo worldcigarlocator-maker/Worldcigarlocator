@@ -556,6 +556,23 @@ function highlight(root, el) {
   el.classList.add("highlight");
 }
 
+/* ================ EXPAND / COLLAPSE ALL ================= */
+
+function expandAllHierarchy() {
+  $$("#hierarchyPanel .nested").forEach((nested) => {
+    nested.classList.add("open");
+    nested.style.display = "block";
+  });
+  $$("#hierarchyPanel .line .arrow").forEach((arr) => arr.textContent = "▼");
+}
+
+function collapseAllHierarchy() {
+  $$("#hierarchyPanel .nested").forEach((nested) => {
+    nested.classList.remove("open");
+    nested.style.display = "none";
+  });
+  $$("#hierarchyPanel .line .arrow").forEach((arr) => arr.textContent = "▶");
+}
 
 /* ==================== MOD ACTIONS ================= */
 async function approveStore(id) {
@@ -812,6 +829,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // search
   $("#searchInput")?.addEventListener("input", () => render());
+
+$("#expandAll")?.addEventListener("click", expandAllHierarchy);
+$("#collapseAll")?.addEventListener("click", collapseAllHierarchy);
 
   // initial
   reloadData("pending");
