@@ -250,11 +250,13 @@ body {
    LIST VIEW (Hierarchy + Table)
    ============================================================ */
 
-.listview-wrap {
+.listview-wrap{
   display:flex;
-  gap:1.2rem;
-  margin-top:1.2rem;
+  flex-wrap:wrap;      /* <-- FIX #1 */
+  gap:1rem;
+  margin-top:1rem;
 }
+
 
 /* Left panel */
 #hierarchyPanel {
