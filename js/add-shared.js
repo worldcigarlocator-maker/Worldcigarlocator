@@ -22,93 +22,84 @@ const GITHUB_STORE_FALLBACK =
 const GITHUB_LOUNGE_FALLBACK =
   "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
 
-/* ==========================================================
-   🌍 Country → Continent (Full ISO2 coverage)
-   ========================================================== */
+// 🌍 Konvertera land till kontinent via ISO2 eller engelskt namn
+WCL.countryToContinent = function (countryName = null, iso2 = null) {
+  // Fallback-tabell baserad på ISO 3166-1 alpha-2
+  const MAP = {
+    // 🌍 Europe
+    al:"Europe", ad:"Europe", am:"Europe", at:"Europe", az:"Europe", by:"Europe",
+    be:"Europe", ba:"Europe", bg:"Europe", hr:"Europe", cy:"Europe", cz:"Europe",
+    dk:"Europe", ee:"Europe", fi:"Europe", fr:"Europe", ge:"Europe", de:"Europe",
+    gr:"Europe", hu:"Europe", is:"Europe", ie:"Europe", it:"Europe", lv:"Europe",
+    li:"Europe", lt:"Europe", lu:"Europe", mt:"Europe", md:"Europe", mc:"Europe",
+    me:"Europe", nl:"Europe", mk:"Europe", no:"Europe", pl:"Europe", pt:"Europe",
+    ro:"Europe", rs:"Europe", sk:"Europe", si:"Europe", es:"Europe", se:"Europe",
+    ch:"Europe", ua:"Europe", gb:"Europe", va:"Europe",
 
-// Complete UN/ISO mapping (~250)
-const ISO2_TO_CONTINENT = {
-  // Africa
-  dz:"Africa", ao:"Africa", bj:"Africa", bw:"Africa", bf:"Africa", bi:"Africa", cm:"Africa",
-  cv:"Africa", cf:"Africa", td:"Africa", km:"Africa", cg:"Africa", cd:"Africa", dj:"Africa",
-  eg:"Africa", gq:"Africa", er:"Africa", et:"Africa", ga:"Africa", gm:"Africa", gh:"Africa",
-  gn:"Africa", gw:"Africa", ke:"Africa", ls:"Africa", lr:"Africa", ly:"Africa", mg:"Africa",
-  mw:"Africa", ml:"Africa", mr:"Africa", mu:"Africa", yt:"Africa", ma:"Africa", mz:"Africa",
-  na:"Africa", ne:"Africa", ng:"Africa", re:"Africa", rw:"Africa", sh:"Africa", st:"Africa",
-  sn:"Africa", sc:"Africa", sl:"Africa", so:"Africa", za:"Africa", ss:"Africa", sd:"Africa",
-  sz:"Africa", tg:"Africa", tn:"Africa", ug:"Africa", tz:"Africa", eh:"Africa", zm:"Africa",
-  zw:"Africa",
+    // 🌎 North America
+    ag:"North America", ai:"North America", aw:"North America", bb:"North America",
+    bm:"North America", bs:"North America", bz:"North America", ca:"North America",
+    cr:"North America", cu:"North America", dm:"North America", do:"North America",
+    gd:"North America", gt:"North America", hn:"North America", ht:"North America",
+    jm:"North America", kn:"North America", lc:"North America", mx:"North America",
+    ni:"North America", pa:"North America", pr:"North America", sv:"North America",
+    tt:"North America", us:"North America", vc:"North America", vg:"North America",
+    vi:"North America", ky:"North America", cw:"North America",
 
-  // Asia
-  af:"Asia", am:"Asia", az:"Asia", bh:"Asia", bd:"Asia", bt:"Asia", bn:"Asia", kh:"Asia",
-  cn:"Asia", cx:"Asia", cc:"Asia", ge:"Asia", hk:"Asia", in:"Asia", id:"Asia", ir:"Asia",
-  iq:"Asia", il:"Asia", jp:"Asia", jo:"Asia", kz:"Asia", kp:"Asia", kr:"Asia", kw:"Asia",
-  kg:"Asia", la:"Asia", lb:"Asia", mo:"Asia", my:"Asia", mv:"Asia", mn:"Asia", mm:"Asia",
-  np:"Asia", om:"Asia", pk:"Asia", ps:"Asia", ph:"Asia", qa:"Asia", sa:"Asia", sg:"Asia",
-  lk:"Asia", sy:"Asia", tw:"Asia", tj:"Asia", th:"Asia", tl:"Asia", tr:"Asia", tm:"Asia",
-  ae:"Asia", uz:"Asia", vn:"Asia", ye:"Asia",
+    // 🌎 South America
+    ar:"South America", bo:"South America", br:"South America", cl:"South America",
+    co:"South America", ec:"South America", gf:"South America", gy:"South America",
+    pe:"South America", py:"South America", sr:"South America", uy:"South America",
+    ve:"South America",
 
-  // Europe
-  al:"Europe", ad:"Europe", at:"Europe", by:"Europe", be:"Europe", ba:"Europe", bg:"Europe",
-  hr:"Europe", cy:"Europe", cz:"Europe", dk:"Europe", ee:"Europe", fo:"Europe", fi:"Europe",
-  fr:"Europe", de:"Europe", gi:"Europe", gr:"Europe", va:"Europe", hu:"Europe", is:"Europe",
-  ie:"Europe", it:"Europe", lv:"Europe", li:"Europe", lt:"Europe", lu:"Europe", mt:"Europe",
-  md:"Europe", mc:"Europe", me:"Europe", nl:"Europe", mk:"Europe", no:"Europe", pl:"Europe",
-  pt:"Europe", ro:"Europe", ru:"Europe", sm:"Europe", rs:"Europe", sk:"Europe", si:"Europe",
-  es:"Europe", se:"Europe", ch:"Europe", ua:"Europe", gb:"Europe",
+    // 🌍 Asia
+    ae:"Asia", af:"Asia", bd:"Asia", bh:"Asia", bn:"Asia", bt:"Asia", cn:"Asia",
+    id:"Asia", il:"Asia", in:"Asia", iq:"Asia", ir:"Asia", jo:"Asia", jp:"Asia",
+    kg:"Asia", kh:"Asia", kp:"Asia", kr:"Asia", kw:"Asia", kz:"Asia", la:"Asia",
+    lb:"Asia", lk:"Asia", mm:"Asia", mn:"Asia", mv:"Asia", my:"Asia", np:"Asia",
+    om:"Asia", ph:"Asia", pk:"Asia", ps:"Asia", qa:"Asia", sa:"Asia", sg:"Asia",
+    sy:"Asia", th:"Asia", tj:"Asia", tl:"Asia", tm:"Asia", tr:"Asia", tw:"Asia",
+    uz:"Asia", vn:"Asia", ye:"Asia",
 
-  // North America
-  ag:"North America", ai:"North America", aw:"North America", bs:"North America",
-  bb:"North America", bz:"North America", bm:"North America", ca:"North America",
-  cr:"North America", cu:"North America", cw:"North America", dm:"North America",
-  do:"North America", sv:"North America", gd:"North America", gt:"North America",
-  ht:"North America", hn:"North America", jm:"North America", mx:"North America",
-  ni:"North America", pa:"North America", pr:"North America", kn:"North America",
-  lc:"North America", vc:"North America", tt:"North America", us:"North America",
-  vg:"North America", vi:"North America",
+    // 🌍 Africa
+    ao:"Africa", bf:"Africa", bi:"Africa", bj:"Africa", bw:"Africa", cd:"Africa",
+    cf:"Africa", cg:"Africa", ci:"Africa", cm:"Africa", cv:"Africa", dj:"Africa",
+    dz:"Africa", eg:"Africa", er:"Africa", et:"Africa", ga:"Africa", gh:"Africa",
+    gm:"Africa", gn:"Africa", gq:"Africa", gw:"Africa", ke:"Africa", km:"Africa",
+    ls:"Africa", lr:"Africa", ly:"Africa", mg:"Africa", ml:"Africa", mr:"Africa",
+    mu:"Africa", mw:"Africa", mz:"Africa", na:"Africa", ne:"Africa", ng:"Africa",
+    rw:"Africa", sc:"Africa", sd:"Africa", sl:"Africa", sn:"Africa", so:"Africa",
+    ss:"Africa", st:"Africa", sz:"Africa", tg:"Africa", tn:"Africa", tz:"Africa",
+    ug:"Africa", zm:"Africa", zw:"Africa", re:"Africa", yt:"Africa", eh:"Africa",
 
-  // South America
-  ar:"South America", bo:"South America", br:"South America", cl:"South America",
-  co:"South America", ec:"South America", fk:"South America", gf:"South America",
-  gy:"South America", py:"South America", pe:"South America", sr:"South America",
-  uy:"South America", ve:"South America",
+    // 🌊 Oceania
+    as:"Oceania", au:"Oceania", fj:"Oceania", fm:"Oceania", ki:"Oceania", mh:"Oceania",
+    nr:"Oceania", nz:"Oceania", pw:"Oceania", pg:"Oceania", sb:"Oceania", to:"Oceania",
+    tv:"Oceania", vu:"Oceania", ws:"Oceania", nc:"Oceania", pf:"Oceania", ck:"Oceania",
 
-  // Oceania
-  as:"Oceania", au:"Oceania", ck:"Oceania", fj:"Oceania", pf:"Oceania", gu:"Oceania",
-  ki:"Oceania", mh:"Oceania", fm:"Oceania", nr:"Oceania", nc:"Oceania", nz:"Oceania",
-  nu:"Oceania", nf:"Oceania", mp:"Oceania", pw:"Oceania", pg:"Oceania", pn:"Oceania",
-  ws:"Oceania", sb:"Oceania", tk:"Oceania", to:"Oceania", tv:"Oceania", vu:"Oceania",
-  wf:"Oceania", ws:"Oceania",
-};
-
-/**
- * 🌍 Returnerar rätt kontinent för ett land.
- * Fungerar med både namn och ISO2-kod.
- */
-function countryToContinent(countryName, iso2Opt = null) {
-  const iso = (iso2Opt || "").trim().toLowerCase();
-  const name = (countryName || "").trim().toLowerCase();
-
-  // 1️⃣ ISO2-träff
-  if (ISO2_TO_CONTINENT[iso]) return ISO2_TO_CONTINENT[iso];
-
-  // 2️⃣ Fallback på vanliga namn
-  const NAME_MAP = {
-    "sweden":"Europe","sverige":"Europe",
-    "norway":"Europe","norge":"Europe",
-    "denmark":"Europe","danmark":"Europe",
-    "finland":"Europe","germany":"Europe","tyskland":"Europe",
-    "australia":"Oceania","australien":"Oceania",
-    "united states":"North America","usa":"North America",
-    "canada":"North America","brazil":"South America",
-    "argentina":"South America","south africa":"Africa",
-    "japan":"Asia","china":"Asia","india":"Asia"
+    // 🧊 Antarctica
+    aq:"Antarctica", bv:"Antarctica", tf:"Antarctica", hm:"Antarctica", gs:"Antarctica"
   };
 
-  if (NAME_MAP[name]) return NAME_MAP[name];
+  // 🧠 Normalisera ISO2
+  const key = (iso2 || "").toLowerCase();
 
-  return "Other"; // sista utväg, men ska i princip aldrig hända
-}
+  // 💡 Försök hitta via ISO2 först
+  if (MAP[key]) return MAP[key];
+
+  // 💡 Om bara namn finns, försök text-matcha
+  const name = (countryName || "").toLowerCase();
+  if (/australia|new zealand|fiji|oceania|vanuatu/.test(name)) return "Oceania";
+  if (/europe|sweden|germany|france|italy|spain|uk|norway|denmark|poland|portugal/.test(name)) return "Europe";
+  if (/africa|nigeria|egypt|south africa|kenya|morocco|tanzania/.test(name)) return "Africa";
+  if (/asia|china|japan|india|singapore|korea|vietnam/.test(name)) return "Asia";
+  if (/america|usa|canada|mexico/.test(name)) return "North America";
+  if (/argentina|brazil|chile|peru|venezuela/.test(name)) return "South America";
+  if (/antarctica/.test(name)) return "Antarctica";
+
+  return "Other"; // fallback
+};
+
 
 /* ==========================================================
    📸 Photo Helpers — v2 (Proxy-first, full-feature)
