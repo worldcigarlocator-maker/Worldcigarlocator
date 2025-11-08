@@ -286,46 +286,49 @@ function renderCards(list) {
 
     /* ----------- Name (2 lines) ----------- */
     const h3 = document.createElement("h3");
-    h3.className = "twoline";
+    h3.className = "twoline truncate";
     h3.textContent = safe(s.name);
     body.appendChild(h3);
 
     /* ----------- Flag + Country/City ----------- */
-    const row = document.createElement("div");
-    row.className = "locrow";
-
-    const iso = flagURL(s.country, s.country_iso2 || null);
-    if (iso) {
+    const loc = document.createElement("div");
+    loc.className = "locrow";
+    const flagSrc = flagURL(s.country, s.country_iso2 || null);
+    if (flagSrc) {
       const flag = document.createElement("img");
       flag.className = "flag";
-      flag.src = iso;
+      flag.src = flagSrc;
       flag.alt = safe(s.country);
       flag.onerror = () => (flag.style.display = "none");
-      row.appendChild(flag);
+      loc.appendChild(flag);
     }
-
     const geo = document.createElement("span");
+    geo.className = "truncate";
     geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
-    row.appendChild(geo);
+    loc.appendChild(geo);
+    body.appendChild(loc);
 
-    body.appendChild(row);
-
-    /* ----------- Continent ---------- */
-    const cont = document.createElement("p");
-    cont.className = "muted";
-    cont.textContent = `${safe(s.continent)}`;
-    body.appendChild(cont);
-
-    /* ----------- NEW: Type + Address + Phone + Website ---------- */
+    /* ----------- Info (Type, Address, Phone, Website) ----------- */
     const info = document.createElement("div");
-    info.className = "info-block";
+    info.className = "infoblock";
     info.innerHTML = `
       ${s.type ? `<p class="truncate"><strong>Type:</strong> ${safe(s.type)}</p>` : ""}
       ${s.address ? `<p class="truncate"><strong>Address:</strong> ${safe(s.address)}</p>` : ""}
       ${s.phone ? `<p class="truncate"><strong>Phone:</strong> ${safe(s.phone)}</p>` : ""}
-      ${s.website ? `<p class="truncate"><strong>Website:</strong> <a href="${safe(s.website)}" target="_blank" rel="noopener">Visit</a></p>` : ""}
+      ${s.website ? `<p class="truncate"><strong>Website:</strong> 
+        <a href="${safe(s.website)}" target="_blank" rel="noopener">Visit</a></p>` : ""}
     `;
     body.appendChild(info);
+
+    /* ----------- View Comments/Reviews ----------- */
+    const reviews = document.createElement("div");
+    reviews.className = "reviewslink";
+    reviews.innerHTML = `
+      <button class="btn ghost small" onclick="editStore(${s.id})">
+        💬 View Comments / Reviews
+      </button>
+    `;
+    body.appendChild(reviews);
 
     /* ----------- Status badges ---------- */
     const status = document.createElement("div");
@@ -335,27 +338,20 @@ function renderCards(list) {
       ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
       ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
       ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
-      <span style="margin-left:6px;color:var(--muted)">⭐ ${s.rating ?? "–"}</span>
+      <span class="muted" style="margin-left:6px">⭐ ${s.rating ?? "–"}</span>
     `;
     body.appendChild(status);
 
     /* ----------- Actions ----------- */
     const actions = document.createElement("div");
     actions.className = "actions";
-
     const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
     const deleteBtn  = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
     const editBtn    = makeBtn("Edit", () => editStore(s.id), "blue");
     const repairBtn  = makeBtn("Repair Photo", () => repairPhoto(s.id, s.place_id, img), "orange");
 
     if (s.flagged) {
-      actions.append(
-        approveBtn,
-        makeBtn("Unflag", () => unflagStore(s.id), "yellow"),
-        deleteBtn,
-        editBtn,
-        repairBtn
-      );
+      actions.append(approveBtn, makeBtn("Unflag", () => unflagStore(s.id), "yellow"), deleteBtn, editBtn, repairBtn);
     } else {
       actions.append(approveBtn, deleteBtn, editBtn, repairBtn);
     }
@@ -364,9 +360,7 @@ function renderCards(list) {
     grid.appendChild(card);
   });
 
-  if (!list.length) {
-    grid.innerHTML = `<p class="muted center">No stores</p>`;
-  }
+  if (!list.length) grid.innerHTML = `<p class="muted center">No stores</p>`;
 }
 
 
