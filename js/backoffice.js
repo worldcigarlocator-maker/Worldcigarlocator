@@ -291,31 +291,41 @@ function renderCards(list) {
     body.appendChild(h3);
 
     /* ----------- Flag + Country/City ----------- */
-const row = document.createElement("div");
-row.className = "locrow";
+    const row = document.createElement("div");
+    row.className = "locrow";
 
-const iso = flagURL(s.country, s.country_iso2 || null);
-if (iso) {
-  const flag = document.createElement("img");
-  flag.className = "flag";
-  flag.src = iso;
-  flag.alt = safe(s.country);
-  flag.onerror = () => (flag.style.display = "none");
-  row.appendChild(flag);
-}
+    const iso = flagURL(s.country, s.country_iso2 || null);
+    if (iso) {
+      const flag = document.createElement("img");
+      flag.className = "flag";
+      flag.src = iso;
+      flag.alt = safe(s.country);
+      flag.onerror = () => (flag.style.display = "none");
+      row.appendChild(flag);
+    }
 
-const geo = document.createElement("span");
-geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
-row.appendChild(geo);
+    const geo = document.createElement("span");
+    geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
+    row.appendChild(geo);
 
-body.appendChild(row);
-
+    body.appendChild(row);
 
     /* ----------- Continent ---------- */
     const cont = document.createElement("p");
     cont.className = "muted";
     cont.textContent = `${safe(s.continent)}`;
     body.appendChild(cont);
+
+    /* ----------- NEW: Type + Address + Phone + Website ---------- */
+    const info = document.createElement("div");
+    info.className = "info-block";
+    info.innerHTML = `
+      ${s.type ? `<p class="truncate"><strong>Type:</strong> ${safe(s.type)}</p>` : ""}
+      ${s.address ? `<p class="truncate"><strong>Address:</strong> ${safe(s.address)}</p>` : ""}
+      ${s.phone ? `<p class="truncate"><strong>Phone:</strong> ${safe(s.phone)}</p>` : ""}
+      ${s.website ? `<p class="truncate"><strong>Website:</strong> <a href="${safe(s.website)}" target="_blank" rel="noopener">Visit</a></p>` : ""}
+    `;
+    body.appendChild(info);
 
     /* ----------- Status badges ---------- */
     const status = document.createElement("div");
@@ -358,6 +368,7 @@ body.appendChild(row);
     grid.innerHTML = `<p class="muted center">No stores</p>`;
   }
 }
+
 
 /* ===================== LIST ===================== */
 function renderTable(list) {
