@@ -23,21 +23,102 @@ const GITHUB_LOUNGE_FALLBACK =
   "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
 
 /* ==========================================================
-   🌍 Country → Continent Mapping
+   🌍 Country → Continent Mapping (ISO2 + Name, robust)
    ========================================================== */
-function countryToContinent(country) {
-  if (!country) return "Other";
-  const c = country.trim().toLowerCase();
-  const map = {
-    "sweden":"Europe","norway":"Europe","denmark":"Europe","finland":"Europe","germany":"Europe","france":"Europe","italy":"Europe","spain":"Europe","united kingdom":"Europe","ireland":"Europe","austria":"Europe","portugal":"Europe","poland":"Europe","czech republic":"Europe","slovakia":"Europe","hungary":"Europe","greece":"Europe","switzerland":"Europe","belgium":"Europe","netherlands":"Europe",
-    "usa":"North America","united states":"North America","canada":"North America","mexico":"North America","jamaica":"North America","dominican republic":"North America",
-    "brazil":"South America","argentina":"South America","chile":"South America","colombia":"South America","peru":"South America","venezuela":"South America",
-    "china":"Asia","japan":"Asia","india":"Asia","thailand":"Asia","philippines":"Asia","singapore":"Asia","vietnam":"Asia","indonesia":"Asia","malaysia":"Asia","south korea":"Asia","united arab emirates":"Asia","turkey":"Asia",
-    "south africa":"Africa","egypt":"Africa","morocco":"Africa","kenya":"Africa","nigeria":"Africa","tunisia":"Africa",
-    "australia":"Oceania","new zealand":"Oceania","fiji":"Oceania","samoa":"Oceania","tonga":"Oceania"
+const ISO2_TO_CONTINENT = {
+  // Europe
+  se: "Europe", no: "Europe", dk: "Europe", fi: "Europe",
+  de: "Europe", fr: "Europe", it: "Europe", es: "Europe",
+  gb: "Europe", ie: "Europe", at: "Europe", pt: "Europe",
+  pl: "Europe", cz: "Europe", sk: "Europe", hu: "Europe",
+  gr: "Europe", ch: "Europe", be: "Europe", nl: "Europe",
+  is: "Europe", lt: "Europe", lv: "Europe", ee: "Europe",
+  ro: "Europe", bg: "Europe", hr: "Europe", si: "Europe",
+  ua: "Europe", rs: "Europe", ba: "Europe",
+
+  // North America
+  us: "North America", ca: "North America", mx: "North America",
+
+  // South America
+  br: "South America", ar: "South America", cl: "South America",
+  co: "South America", pe: "South America", ve: "South America",
+  ec: "South America", uy: "South America", py: "South America",
+  bo: "South America",
+
+  // Asia
+  cn: "Asia", jp: "Asia", in: "Asia", th: "Asia", ph: "Asia",
+  sg: "Asia", vn: "Asia", id: "Asia", my: "Asia", kr: "Asia",
+  ae: "Asia", tr: "Asia", hk: "Asia", qa: "Asia", sa: "Asia",
+  jo: "Asia", il: "Asia", lb: "Asia",
+
+  // Africa
+  za: "Africa", eg: "Africa", ma: "Africa", ke: "Africa",
+  ng: "Africa", tn: "Africa", gh: "Africa", et: "Africa",
+  dz: "Africa", sn: "Africa",
+
+  // Oceania
+  au: "Oceania", nz: "Oceania", fj: "Oceania", ws: "Oceania",
+  pg: "Oceania",
+};
+
+/**
+ * Get continent by country name or ISO2 code.
+ */
+function countryToContinent(countryName, iso2Opt = null) {
+  if (!countryName && !iso2Opt) return "Other";
+
+  // --- Normalize ---
+  const iso = (iso2Opt || "").trim().toLowerCase();
+  const name = (countryName || "").trim().toLowerCase();
+
+  // --- 1️⃣ ISO2 lookup ---
+  if (iso && ISO2_TO_CONTINENT[iso]) {
+    return ISO2_TO_CONTINENT[iso];
+  }
+
+  // --- 2️⃣ Name fallback ---
+  const NAME_MAP = {
+    // Europe
+    "sweden": "Europe", "sverige": "Europe",
+    "norway": "Europe", "norge": "Europe",
+    "denmark": "Europe", "danmark": "Europe",
+    "finland": "Europe", "germany": "Europe", "tyskland": "Europe",
+    "france": "Europe", "frankrike": "Europe",
+    "italy": "Europe", "italien": "Europe",
+    "spain": "Europe", "spanien": "Europe",
+    "united kingdom": "Europe", "england": "Europe",
+    "netherlands": "Europe", "holland": "Europe",
+    "austria": "Europe", "poland": "Europe", "portugal": "Europe",
+
+    // North America
+    "united states": "North America", "usa": "North America",
+    "canada": "North America", "mexico": "North America",
+
+    // South America
+    "brazil": "South America", "brasilien": "South America",
+    "argentina": "South America", "chile": "South America",
+    "peru": "South America", "colombia": "South America",
+
+    // Asia
+    "china": "Asia", "japan": "Asia", "india": "Asia",
+    "thailand": "Asia", "vietnam": "Asia", "philippines": "Asia",
+    "indonesia": "Asia", "malaysia": "Asia", "south korea": "Asia",
+
+    // Oceania
+    "australia": "Oceania", "new zealand": "Oceania",
+    "australien": "Oceania", "nya zeeland": "Oceania",
+
+    // Africa
+    "south africa": "Africa", "kenya": "Africa", "nigeria": "Africa",
+    "egypt": "Africa", "marocco": "Africa", "ghana": "Africa",
   };
-  return map[c] || "Other";
+
+  if (NAME_MAP[name]) return NAME_MAP[name];
+
+  // --- 3️⃣ Default ---
+  return "Other";
 }
+
 
 /* ==========================================================
    📸 Photo Helpers — v2 (Proxy-first, full-feature)
