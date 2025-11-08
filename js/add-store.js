@@ -20,39 +20,58 @@ document.addEventListener("DOMContentLoaded", () => {
       types: ["establishment"],
     });
 
-    autocomplete.addListener("place_changed", async () => {
-      const place = autocomplete.getPlace();
-      if (!place.place_id) return;
+   autocomplete.addListener("place_changed", async () => {
+  const place = autocomplete.getPlace();
+  if (!place.place_id) return;
 
-      // 🔸 Grunddata
-      selectedPlace = {
-        name: place.name || "",
-        address: place.formatted_address || "",
-        place_id: place.place_id,
-        lat: place.geometry?.location?.lat() || null,
-        lng: place.geometry?.location?.lng() || null,
-      };
+  // 🔸 Grunddata
+  selectedPlace = {
+    name: place.name || "",
+    address: place.formatted_address || "",
+    place_id: place.place_id,
+    lat: place.geometry?.location?.lat() || null,
+    lng: place.geometry?.location?.lng() || null,
+  };
 
-      // 🔹 Hämta land & stad
-      const comp = place.address_components || [];
-      const cityObj = comp.find(c => c.types.includes("locality")) ||
-                      comp.find(c => c.types.includes("postal_town"));
-      const countryObj = comp.find(c => c.types.includes("country"));
-      selectedPlace.city = cityObj?.long_name || "";
-      selectedPlace.country = countryObj?.long_name || "";
-      selectedPlace.continent = countryToContinent(selectedPlace.country);
+  // 🔹 Hämta land & stad
+  const comp = place.address_components || [];
+  const cityObj = comp.find(c => c.types.includes("locality")) ||
+                  comp.find(c => c.types.includes("postal_town"));
+  const countryObj = comp.find(c => c.types.includes("country"));
+  selectedPlace.city = cityObj?.long_name || "";
+  selectedPlace.country = countryObj?.long_name || "";
 
-      // 🔹 Hämta fotoreferenser via REST → photo-proxy
-      const refs = await fetchPhotoRefs(place.place_id);
-      if (refs.length) {
-        selectedPlace.photo_reference = refs[0];
-        const url = await resolveGooglePhotoUrl(refs[0]);
-        preview.innerHTML = `<img src="${url}" alt="Preview">`;
-      } else {
-        const fallback = githubFallbackForTypes("store");
-        preview.innerHTML = `<img src="${fallback}" alt="Preview">`;
-      }
-    });
+  // 🌍 Bestäm kontinent via shared.js
+  selectedPlace.continent = WCL.countryToContinent(selectedPlace.country);
+
+  // 📞💻 Hämta telefon & webbplats via Places v1
+  try {
+    const details = await WCL.fetchPlaceDetails(place.place_id);
+    if (details) {
+      selectedPlace.phone = details.phone || "";
+      selectedPlace.website = details.website || "";
+    }
+  } catch (err) {
+    console.warn("fetchPlaceDetails failed", err);
+  }
+
+  // 🖼️ Hämta fotoreferenser via REST → photo-proxy
+  const refs = await WCL.fetchPhotoRefs(place.place_id);
+  if (refs.length) {
+    selectedPlace.photo_reference = refs[0];
+    const url = await WCL.resolveGooglePhotoUrl(refs[0]);
+    preview.innerHTML = `<img src="${url}" alt="Preview">`;
+  } else {
+    const fallback = WCL.fallbackForType("store");
+    preview.innerHTML = `<img src="${fallback}" alt="Preview">`;
+  }
+
+  // 🧠 Autofyll eventuella fält i formuläret
+  if (selectedPlace.phone && $("#phone")) $("#phone").value = selectedPlace.phone;
+  if (selectedPlace.website && $("#website")) $("#website").value = selectedPlace.website;
+
+  toast("✅ Platsdata hämtad!", "success");
+});
   };
 
   // 💾 Spara till Supabase
