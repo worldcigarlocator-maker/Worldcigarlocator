@@ -279,6 +279,7 @@ function renderCards(list) {
     img.className = "photo";
     img.src = photoURL(s.photo_reference, 800);
     img.onerror = () => (img.src = WCL.FALLBACK_IMG);
+    card.appendChild(img);
 
     /* ----------- Body ----------- */
     const body = document.createElement("div");
@@ -286,14 +287,15 @@ function renderCards(list) {
 
     /* ----------- Name (2 lines) ----------- */
     const h3 = document.createElement("h3");
-    h3.className = "twoline truncate";
+    h3.className = "twoline";
     h3.textContent = safe(s.name);
     body.appendChild(h3);
 
     /* ----------- Flag + Country/City ----------- */
     const loc = document.createElement("div");
     loc.className = "locrow";
-    const flagSrc = flagURL(s.country, s.country_iso2 || null);
+
+    const flagSrc = flagURL(s.country, s.country_iso2);
     if (flagSrc) {
       const flag = document.createElement("img");
       flag.className = "flag";
@@ -302,33 +304,36 @@ function renderCards(list) {
       flag.onerror = () => (flag.style.display = "none");
       loc.appendChild(flag);
     }
+
     const geo = document.createElement("span");
-    geo.className = "truncate";
     geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
     loc.appendChild(geo);
     body.appendChild(loc);
 
-    /* ----------- Info (Type, Address, Phone, Website) ----------- */
+    /* ----------- Info Block ----------- */
     const info = document.createElement("div");
     info.className = "infoblock";
     info.innerHTML = `
-      ${s.type ? `<p class="truncate"><strong>Type:</strong> ${safe(s.type)}</p>` : ""}
-      ${s.address ? `<p class="truncate"><strong>Address:</strong> ${safe(s.address)}</p>` : ""}
-      ${s.phone ? `<p class="truncate"><strong>Phone:</strong> ${safe(s.phone)}</p>` : ""}
-      ${s.website ? `<p class="truncate"><strong>Website:</strong> 
-        <a href="${safe(s.website)}" target="_blank" rel="noopener">Visit</a></p>` : ""}
+      <p class="truncate"><strong>Type:</strong> ${safe(s.type || "–")}</p>
+      <p class="truncate"><strong>Address:</strong> ${safe(s.address || "–")}</p>
+      <p class="truncate"><strong>Phone:</strong> ${safe(s.phone || "–")}</p>
+      <p class="truncate"><strong>Website:</strong> ${
+        s.website
+          ? `<a href="${safe(s.website)}" target="_blank" rel="noopener">Visit</a>`
+          : "–"
+      }</p>
     `;
     body.appendChild(info);
 
-    /* ----------- View Comments/Reviews ----------- */
-    const reviews = document.createElement("div");
-    reviews.className = "reviewslink";
-    reviews.innerHTML = `
-      <button class="btn ghost small" onclick="editStore(${s.id})">
+    /* ----------- Reviews Link ----------- */
+    const reviewsLink = document.createElement("div");
+    reviewsLink.className = "reviewslink";
+    reviewsLink.innerHTML = `
+      <button class="btn small ghost" onclick="editStore(${s.id})">
         💬 View Comments / Reviews
       </button>
     `;
-    body.appendChild(reviews);
+    body.appendChild(reviewsLink);
 
     /* ----------- Status badges ---------- */
     const status = document.createElement("div");
@@ -338,30 +343,39 @@ function renderCards(list) {
       ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
       ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
       ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
-      <span class="muted" style="margin-left:6px">⭐ ${s.rating ?? "–"}</span>
+      <span style="margin-left:6px;color:var(--muted)">⭐ ${s.rating ?? "–"}</span>
     `;
     body.appendChild(status);
 
     /* ----------- Actions ----------- */
     const actions = document.createElement("div");
     actions.className = "actions";
+
     const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
     const deleteBtn  = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
     const editBtn    = makeBtn("Edit", () => editStore(s.id), "blue");
     const repairBtn  = makeBtn("Repair Photo", () => repairPhoto(s.id, s.place_id, img), "orange");
 
     if (s.flagged) {
-      actions.append(approveBtn, makeBtn("Unflag", () => unflagStore(s.id), "yellow"), deleteBtn, editBtn, repairBtn);
+      actions.append(
+        approveBtn,
+        makeBtn("Unflag", () => unflagStore(s.id), "yellow"),
+        deleteBtn,
+        editBtn,
+        repairBtn
+      );
     } else {
       actions.append(approveBtn, deleteBtn, editBtn, repairBtn);
     }
 
-    card.append(img, body, actions);
+    card.appendChild(body);
+    card.appendChild(actions);
     grid.appendChild(card);
   });
 
   if (!list.length) grid.innerHTML = `<p class="muted center">No stores</p>`;
 }
+
 
 
 /* ===================== LIST ===================== */
