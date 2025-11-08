@@ -16,7 +16,16 @@ document.addEventListener("DOMContentLoaded", () => {
   window.initAutocomplete = async function initAutocomplete() {
     const input = document.getElementById("placeInput");
     const autocomplete = new google.maps.places.Autocomplete(input, {
-      fields: ["place_id", "geometry", "formatted_address", "name", "photos", "address_components"],
+      fields: [
+  "place_id",
+  "geometry",
+  "formatted_address",
+  "name",
+  "photos",
+  "address_components",
+  "international_phone_number",
+  "website"
+],
       types: ["establishment"],
     });
 
