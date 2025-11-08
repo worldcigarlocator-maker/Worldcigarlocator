@@ -727,7 +727,12 @@ $("#edit-save").onclick = async () => {
   toast("Saved ✅");
   closeEdit();
   reloadData(CURRENT_TAB);
-};
+};   // avslutar $("#edit-save").onclick
+}    // ✅ LÄGG TILL DENNA – avslutar async function editStore
+
+/* ==================== CLOSE MODAL ================= */
+function closeEdit(){ document.querySelectorAll(".modal-backdrop").forEach((m)=>m.remove()); }
+
 
 
 /* ==================== CLOSE MODAL ================= */
