@@ -367,6 +367,12 @@
     window.initAutocomplete = initAutocomplete;
   </script>
 
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete"></script>
+<!-- ✅ Google Places (forced English language) -->
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete&language=en"
+  async
+  defer>
+</script>
+
 </body>
 </html>
