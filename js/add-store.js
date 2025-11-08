@@ -7,7 +7,6 @@
 // 🌍 Global plats-data tillgänglig överallt
 window.selectedPlace = {};
 
-
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("addStoreForm");
   const submitBtn = document.getElementById("saveBtn");
@@ -18,71 +17,73 @@ document.addEventListener("DOMContentLoaded", () => {
     const input = document.getElementById("placeInput");
     const autocomplete = new google.maps.places.Autocomplete(input, {
       fields: [
-  "place_id",
-  "geometry",
-  "formatted_address",
-  "name",
-  "photos",
-  "address_components",
-  "international_phone_number",
-  "website"
-],
+        "place_id",
+        "geometry",
+        "formatted_address",
+        "name",
+        "photos",
+        "address_components",
+        "international_phone_number",
+        "website"
+      ],
       types: ["establishment"],
     });
 
-   autocomplete.addListener("place_changed", async () => {
-  const place = autocomplete.getPlace();
-  if (!place.place_id) return;
+    autocomplete.addListener("place_changed", async () => {
+      const place = autocomplete.getPlace();
+      if (!place.place_id) return;
 
-  // 🔸 Grunddata
- window.selectedPlace = {
-  name: place.name || "",
-  address: place.formatted_address || "",
-  place_id: place.place_id,
-  lat: place.geometry?.location?.lat() || null,
-  lng: place.geometry?.location?.lng() || null,
-};
+      // 🔸 Grunddata
+      window.selectedPlace = {
+        name: place.name || "",
+        address: place.formatted_address || "",
+        place_id: place.place_id,
+        lat: place.geometry?.location?.lat() || null,
+        lng: place.geometry?.location?.lng() || null,
+      };
 
+      // 🔹 Hämta land & stad
+      const comp = place.address_components || [];
+      const cityObj =
+        comp.find(c => c.types.includes("locality")) ||
+        comp.find(c => c.types.includes("postal_town"));
+      const countryObj = comp.find(c => c.types.includes("country"));
+      window.selectedPlace.city = cityObj?.long_name || "";
+      window.selectedPlace.country = countryObj?.long_name || "";
 
-  // 🔹 Hämta land & stad
-  const comp = place.address_components || [];
-  const cityObj = comp.find(c => c.types.includes("locality")) ||
-                  comp.find(c => c.types.includes("postal_town"));
-  const countryObj = comp.find(c => c.types.includes("country"));
-  selectedPlace.city = cityObj?.long_name || "";
-  selectedPlace.country = countryObj?.long_name || "";
+      // 🌍 Bestäm kontinent via shared.js
+      window.selectedPlace.continent = WCL.countryToContinent(window.selectedPlace.country);
 
-  // 🌍 Bestäm kontinent via shared.js
-  selectedPlace.continent = WCL.countryToContinent(selectedPlace.country);
+      // 📞💻 Hämta telefon & webbplats via Places v1
+      try {
+        const details = await WCL.fetchPlaceDetails(place.place_id);
+        if (details) {
+          window.selectedPlace.phone = details.phone || "";
+          window.selectedPlace.website = details.website || "";
+        }
+      } catch (err) {
+        console.warn("fetchPlaceDetails failed", err);
+      }
 
-  // 📞💻 Hämta telefon & webbplats via Places v1
-  try {
-    const details = await WCL.fetchPlaceDetails(place.place_id);
-    if (details) {
-      selectedPlace.phone = details.phone || "";
-      selectedPlace.website = details.website || "";
-    }
-  } catch (err) {
-    console.warn("fetchPlaceDetails failed", err);
-  }
+      // 🖼️ Hämta fotoreferenser via REST → photo-proxy
+      const refs = await WCL.fetchPhotoRefs(place.place_id);
+      if (refs.length) {
+        window.selectedPlace.photo_reference = refs[0];
+        const url = await WCL.resolveGooglePhotoUrl(refs[0]);
+        preview.innerHTML = `<img src="${url}" alt="Preview">`;
+      } else {
+        const fallback = WCL.fallbackForType("store");
+        preview.innerHTML = `<img src="${fallback}" alt="Preview">`;
+      }
 
-  // 🖼️ Hämta fotoreferenser via REST → photo-proxy
-  const refs = await WCL.fetchPhotoRefs(place.place_id);
-  if (refs.length) {
-    selectedPlace.photo_reference = refs[0];
-    const url = await WCL.resolveGooglePhotoUrl(refs[0]);
-    preview.innerHTML = `<img src="${url}" alt="Preview">`;
-  } else {
-    const fallback = WCL.fallbackForType("store");
-    preview.innerHTML = `<img src="${fallback}" alt="Preview">`;
-  }
+      // 🧠 Autofyll formulärfält
+      if (window.selectedPlace.phone && $("#phone"))
+        $("#phone").value = window.selectedPlace.phone;
+      if (window.selectedPlace.website && $("#website"))
+        $("#website").value = window.selectedPlace.website;
 
-  // 🧠 Autofyll eventuella fält i formuläret
-  if (selectedPlace.phone && $("#phone")) $("#phone").value = selectedPlace.phone;
-  if (selectedPlace.website && $("#website")) $("#website").value = selectedPlace.website;
-
-  toast("✅ Platsdata hämtad!", "success");
-});
+      toast("✅ Platsdata hämtad!", "success");
+    });
   };
 
   // 💾 Spara till Supabase
@@ -95,38 +96,35 @@ document.addEventListener("DOMContentLoaded", () => {
       const rating = Number(document.querySelector("input[name='rating']")?.value || 0);
       const added_by = document.querySelector("#added_by")?.value || "anonymous";
 
-const payload = {
-  ...window.selectedPlace,
-  type,
-  types: [type],
-  rating,
-  added_by,
-  approved: false,
-  flagged: false,
-  deleted: false,
-  phone: window.selectedPlace.phone || null,
-  website: window.selectedPlace.website || null,
-  continent:
-    window.selectedPlace.continent ||
-    (window.selectedPlace.country
-      ? WCL.countryToContinent(window.selectedPlace.country)
-      : null),
-};
+      // 📦 Bygg payload med all data
+      const payload = {
+        ...window.selectedPlace,
+        type,
+        types: [type],
+        rating,
+        added_by,
+        approved: false,
+        flagged: false,
+        deleted: false,
+        phone: window.selectedPlace.phone || null,
+        website: window.selectedPlace.website || null,
+        continent:
+          window.selectedPlace.continent ||
+          (window.selectedPlace.country
+            ? WCL.countryToContinent(window.selectedPlace.country)
+            : null),
+      };
 
-
-// 🌍 Säkerställ att kontinent alltid fylls
-if (!selectedPlace.continent && selectedPlace.country) {
-  selectedPlace.continent = WCL.countryToContinent(selectedPlace.country);
-}
+      console.log("📦 Saving payload →", payload);
 
       // 🧩 Spara till Supabase
       const { data, error } = await supabase.from("stores").insert([payload]);
-
       if (error) throw error;
+
       toast("✅ Store added successfully!", "success");
       form.reset();
       preview.innerHTML = "";
-      selectedPlace = {};
+      window.selectedPlace = {}; // nollställ globalen
     } catch (err) {
       console.error(err);
       toast("❌ Error saving store", "error");
