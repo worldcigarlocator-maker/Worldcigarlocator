@@ -42,7 +42,7 @@ autocomplete.addListener("place_changed", async () => {
     lng: place.geometry?.location?.lng() || null,
   };
 
-  // 🔹 Land & stad
+   // 🔹 Land & stad
   const comp = place.address_components || [];
   const cityObj =
     comp.find((c) => c.types.includes("locality")) ||
@@ -51,6 +51,13 @@ autocomplete.addListener("place_changed", async () => {
 
   window.selectedPlace.city = cityObj?.long_name || "";
   window.selectedPlace.country = countryObj?.long_name || "";
+
+  // 🇨🇭 ISO2 + 🌍 kontinent
+  window.selectedPlace.country_iso2 = countryObj?.short_name?.toLowerCase() || null;
+  window.selectedPlace.continent = WCL.countryToContinent(
+    window.selectedPlace.country,
+    window.selectedPlace.country_iso2
+  );
 
   // 🌍 Fyll alltid kontinent
   window.selectedPlace.continent = WCL.countryToContinent(window.selectedPlace.country);
