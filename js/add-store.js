@@ -14,20 +14,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 🗺️ Initieras av Google Maps callback (från add-shared.js)
   window.initAutocomplete = async function initAutocomplete() {
-    const input = document.getElementById("placeInput");
-    const autocomplete = new google.maps.places.Autocomplete(input, {
-      fields: [
-        "place_id",
-        "geometry",
-        "formatted_address",
-        "name",
-        "photos",
-        "address_components",
-        "international_phone_number",
-        "website"
-      ],
-      types: ["establishment"],
-    });
+const autocomplete = new google.maps.places.Autocomplete(input, {
+  fields: [
+    "place_id",
+    "geometry",
+    "formatted_address",
+    "name",
+    "photos",
+    "address_components",
+    "international_phone_number",
+    "website"
+  ],
+  types: ["establishment"],
+  language: "en", // 👈 Force English output from Google Places
+});
+
 
 autocomplete.addListener("place_changed", async () => {
   const place = autocomplete.getPlace();
