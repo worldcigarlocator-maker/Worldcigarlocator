@@ -84,16 +84,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const rating = Number(document.querySelector("input[name='rating']")?.value || 0);
       const added_by = document.querySelector("#added_by")?.value || "anonymous";
 
-      const payload = {
-        ...selectedPlace,
-        type,
-        types: [type],
-        rating,
-        added_by,
-        approved: false,
-        flagged: false,
-        deleted: false,
-      };
+const payload = {
+  ...selectedPlace,
+  type,
+  types: [type],
+  rating,
+  added_by,
+  approved: false,
+  flagged: false,
+  deleted: false,
+  // ✅ Nytt — tvinga in dessa fält även om Google är seg
+  phone: selectedPlace.phone || null,
+  website: selectedPlace.website || null,
+  continent: selectedPlace.continent || (selectedPlace.country ? WCL.countryToContinent(selectedPlace.country) : null),
+};
+
 // 🌍 Säkerställ att kontinent alltid fylls
 if (!selectedPlace.continent && selectedPlace.country) {
   selectedPlace.continent = WCL.countryToContinent(selectedPlace.country);
