@@ -94,6 +94,10 @@ document.addEventListener("DOMContentLoaded", () => {
         flagged: false,
         deleted: false,
       };
+// 🌍 Säkerställ att kontinent alltid fylls
+if (!selectedPlace.continent && selectedPlace.country) {
+  selectedPlace.continent = WCL.countryToContinent(selectedPlace.country);
+}
 
       // 🧩 Spara till Supabase
       const { data, error } = await supabase.from("stores").insert([payload]);
