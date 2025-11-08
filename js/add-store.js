@@ -35,13 +35,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!place.place_id) return;
 
   // 🔸 Grunddata
-  selectedPlace = {
-    name: place.name || "",
-    address: place.formatted_address || "",
-    place_id: place.place_id,
-    lat: place.geometry?.location?.lat() || null,
-    lng: place.geometry?.location?.lng() || null,
-  };
+ window.selectedPlace = {
+  name: place.name || "",
+  address: place.formatted_address || "",
+  place_id: place.place_id,
+  lat: place.geometry?.location?.lat() || null,
+  lng: place.geometry?.location?.lng() || null,
+};
+
 
   // 🔹 Hämta land & stad
   const comp = place.address_components || [];
@@ -95,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const added_by = document.querySelector("#added_by")?.value || "anonymous";
 
 const payload = {
-  ...selectedPlace,
+  ...window.selectedPlace,
   type,
   types: [type],
   rating,
@@ -103,11 +104,15 @@ const payload = {
   approved: false,
   flagged: false,
   deleted: false,
-  // ✅ Nytt — tvinga in dessa fält även om Google är seg
-  phone: selectedPlace.phone || null,
-  website: selectedPlace.website || null,
-  continent: selectedPlace.continent || (selectedPlace.country ? WCL.countryToContinent(selectedPlace.country) : null),
+  phone: window.selectedPlace.phone || null,
+  website: window.selectedPlace.website || null,
+  continent:
+    window.selectedPlace.continent ||
+    (window.selectedPlace.country
+      ? WCL.countryToContinent(window.selectedPlace.country)
+      : null),
 };
+
 
 // 🌍 Säkerställ att kontinent alltid fylls
 if (!selectedPlace.continent && selectedPlace.country) {
