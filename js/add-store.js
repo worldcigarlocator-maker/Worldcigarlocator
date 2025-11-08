@@ -4,13 +4,13 @@
    Shared logic via add-shared.js
    ================================ */
 
+// 🧩 Globala variabler
+let selectedPlace = {}; // <– gör den global så save-knappen hittar den
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("addStoreForm");
   const submitBtn = document.getElementById("saveBtn");
   const preview = document.getElementById("preview");
-
-  // 🔹 Google Place-data som fylls automatiskt
-  let selectedPlace = {};
 
   // 🗺️ Initieras av Google Maps callback (från add-shared.js)
   window.initAutocomplete = async function initAutocomplete() {
