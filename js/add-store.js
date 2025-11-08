@@ -54,16 +54,25 @@ document.addEventListener("DOMContentLoaded", () => {
       // 🌍 Bestäm kontinent via shared.js
       window.selectedPlace.continent = WCL.countryToContinent(window.selectedPlace.country);
 
-      // 📞💻 Hämta telefon & webbplats via Places v1
-      try {
-        const details = await WCL.fetchPlaceDetails(place.place_id);
-        if (details) {
-          window.selectedPlace.phone = details.phone || "";
-          window.selectedPlace.website = details.website || "";
-        }
-      } catch (err) {
-        console.warn("fetchPlaceDetails failed", err);
-      }
+  // 📞💻 Hämta telefon & webbplats via Supabase Edge Function
+try {
+  const res = await fetch("https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/fetch-place-details", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ place_id: place.place_id }),
+  });
+
+  if (res.ok) {
+    const details = await res.json();
+    selectedPlace.phone = details.phone || "";
+    selectedPlace.website = details.website || "";
+  } else {
+    console.warn("fetch-place-details failed", res.status);
+  }
+} catch (err) {
+  console.warn("fetch-place-details error", err);
+}
+
 
       // 🖼️ Hämta fotoreferenser via REST → photo-proxy
       const refs = await WCL.fetchPhotoRefs(place.place_id);
