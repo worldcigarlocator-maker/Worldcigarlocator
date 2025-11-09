@@ -268,47 +268,59 @@
     }
 
     // ✅ Save to Supabase
-    async function saveStore() {
-      const name = document.getElementById("name").value.trim();
-      const address = document.getElementById("addr").value.trim();
-      const city = document.getElementById("city").value.trim();
-      const country = document.getElementById("country").value.trim();
-      const continent = document.getElementById("continent").value || WCL.countryToContinent(country);
+  async function saveStore() {
+  const name = document.getElementById("name").value.trim();
+  const address = document.getElementById("addr").value.trim();
+  const city = document.getElementById("city").value.trim();
+  const country = document.getElementById("country").value.trim();
+  const continent = document.getElementById("continent").value || WCL.countryToContinent(country);
 
-      if (!name || !address || !city || !country) {
-        WCL.toastShared("Please fill in required fields", "error");
-        return;
-      }
+  // 👇 NYTT
+  const phone = document.getElementById("phone").value.trim() || null;
+  const website = document.getElementById("website").value.trim() || null;
 
-      const payload = {
-        name,
-        address,
-        city,
-        country,
-        continent,
-        type: sel.types[0] || null,
-        types: sel.types,
-        access: sel.access,
-        rating: sel.rating ?? null,
-        place_id: sel.place_id,
-        photo_reference: sel.photo_reference || null,
-        photo_url: null,
-        approved: false,
-        flagged: false,
-        deleted: false,
-        status: "pending"
-      };
+  if (!name || !address || !city || !country) {
+    WCL.toastShared("Please fill in required fields", "error");
+    return;
+  }
 
-      const { error } = await WCL.supabase.from("stores").insert([payload]);
-      if (error) {
-        console.error(error);
-        WCL.toastShared("Error saving", "error");
-        return;
-      }
+  const payload = {
+    name,
+    address,
+    city,
+    country,
+    continent,
 
-      WCL.toastShared("Store saved successfully", "success");
-      resetForm();
-    }
+    // 👇 NYTT
+    phone,
+    website,
+
+    type: sel.types[0] || null,
+    types: sel.types,
+    access: sel.access,
+    rating: sel.rating ?? null,
+    place_id: sel.place_id,
+    photo_reference: sel.photo_reference || null,
+    photo_url: null,
+    approved: false,
+    flagged: false,
+    deleted: false,
+    status: "pending"
+  };
+
+  console.log("📦 Saving payload →", payload); // bra för att se i konsolen
+
+  const { error } = await WCL.supabase.from("stores").insert([payload]);
+  if (error) {
+    console.error(error);
+    WCL.toastShared("Error saving", "error");
+    return;
+  }
+
+  WCL.toastShared("Store saved successfully", "success");
+  resetForm();
+}
+
 
     // ✅ Google Autocomplete
     async function initAutocomplete() {
@@ -367,7 +379,6 @@
     window.initAutocomplete = initAutocomplete;
   </script>
   
-<script src="js/add-store.js"></script>
   
 <!-- ✅ Google Places (forced English language) -->
 <script
