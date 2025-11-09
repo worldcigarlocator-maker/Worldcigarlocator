@@ -511,6 +511,7 @@ function renderHierarchy(list) {
   panel.innerHTML = "";
 
   const byCont = groupBy(list, (s) => s.continent || "Other");
+console.log("🌍 Hierarchy grouped by continent:", Object.keys(byCont));
 
   Object.keys(byCont).sort().forEach((continent) => {
 
