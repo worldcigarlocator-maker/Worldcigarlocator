@@ -849,5 +849,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initial load
   updateFilterCounts();
-reloadData("pending");
+reloadData("all");
 });
