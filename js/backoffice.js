@@ -191,7 +191,7 @@ async function reloadData(tab = CURRENT_TAB) {
     b.classList.toggle("active", b.dataset.tab === CURRENT_TAB)
   );
 
-  // vy
+  // växla vy
   if (CURRENT_VIEW === "cards") {
     $("#cards").style.display = "grid";
     $(".listview-wrap").style.display = "none";
@@ -203,51 +203,89 @@ async function reloadData(tab = CURRENT_TAB) {
   const grid = $("#cards");
   grid.innerHTML = "<p class='muted center'>Loading…</p>";
 
+  // 🧱 Samma select överallt (inkl address + phone + website)
+  const SELECT_FIELDS =
+    "id,name,city,country,continent,type,address,phone,access," +
+    "rating,approved,flagged,deleted,status," +
+    "photo_reference,place_id,website,created_at,flag_reason";
+
   // Basfråga
   let base = WCL.supabase
     .from("stores")
-    .select("id,name,city,country,continent,type,address,phone,access,rating,approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason")
+    .select(SELECT_FIELDS)
     .order("id", { ascending: false });
 
   // Logiska filter
-  if (tab === "approved") base = base.eq("approved", true).eq("deleted", false);
-  else if (tab === "flagged") base = base.eq("flagged", true).eq("deleted", false);
-  else if (tab === "deleted") base = base.eq("deleted", true);
-  else if (tab === "pending") base = base.eq("approved", false).eq("flagged", false).eq("deleted", false);
-  else base = base.eq("deleted", false); // all
+  if (tab === "approved") {
+    base = base.eq("approved", true).eq("deleted", false);
+  } else if (tab === "flagged") {
+    base = base.eq("flagged", true).eq("deleted", false);
+  } else if (tab === "deleted") {
+    base = base.eq("deleted", true);
+  } else if (tab === "pending") {
+    base = base
+      .eq("approved", false)
+      .eq("flagged", false)
+      .eq("deleted", false);
+  } else {
+    base = base.eq("deleted", false); // all
+  }
 
-  // Needs Repair
+  // 🔧 Needs Repair-läge (särskild branch)
   if (tab === "repair") {
     const { data, error } = await WCL.supabase
       .from("stores")
-      .select("id,name,city,country,continent,type,address,phone,access,rating,approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason")
+      .select(SELECT_FIELDS)
       .eq("deleted", false)
       .order("id", { ascending: false });
-    if (error) { console.error(error); grid.innerHTML = "<p class='error center'>Error loading stores</p>"; return; }
 
-    const fallbackList = (data || []).filter(s => !s.photo_reference);
-    STORES = fallbackList.map((s) => ({ ...s, continent: s.continent || countryToContinent(s.country) }));
-    render(); return;
+    if (error) {
+      console.error(error);
+      grid.innerHTML =
+        "<p class='error center'>Error loading stores</p>";
+      return;
+    }
+
+    const fallbackList = (data || []).filter(
+      (s) => !s.photo_reference
+    );
+
+    STORES = fallbackList.map((s) => ({
+      ...s,
+      continent: s.continent || countryToContinent(s.country),
+    }));
+
+    console.log(
+      "🔎 reloadData(repair) → rows:",
+      STORES.length
+    );
+
+    render();
+    return;
   }
 
+  // 🔁 Vanligt läge
   const { data, error } = await base;
-  if (error) { console.error(error); grid.innerHTML = "<p class='error center'>Error loading stores</p>"; return; }
-
-  STORES = (data || []).map((s) => ({ ...s, continent: s.continent || countryToContinent(s.country) }));
-  render();
-}
-
-function render() {
-  const term = ($("#searchInput")?.value || "").trim().toLowerCase();
-  const matches = (s) => [s.name, s.city, s.country].some((v) => safe(v).toLowerCase().includes(term));
-  const list = term ? STORES.filter(matches) : STORES;
-
-  if (CURRENT_VIEW === "cards") {
-    renderCards(list);
-  } else {
-    renderHierarchy(list);
-    renderTable(applyHierarchyFilter(list));
+  if (error) {
+    console.error(error);
+    grid.innerHTML =
+      "<p class='error center'>Error loading stores</p>";
+    return;
   }
+
+  STORES = (data || []).map((s) => ({
+    ...s,
+    continent: s.continent || countryToContinent(s.country),
+  }));
+
+  console.log(
+    "🔎 reloadData(): tab=",
+    CURRENT_TAB,
+    "rows=",
+    STORES.length
+  );
+
+  render();
 }
 
 /* ===================== BUTTON ===================== */
