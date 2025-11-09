@@ -512,7 +512,6 @@ function highlight(panel, node) {
   panel.querySelectorAll(".line").forEach(el => el.classList.remove("active"));
   node.classList.add("active");
 }
-
 /* ================ RENDER HIERARCHY (LIST-VIEW) ================== */
 function renderHierarchy(list) {
   const tbody = $("#tbody");
@@ -530,7 +529,7 @@ function renderHierarchy(list) {
     const contRow = document.createElement("tr");
     contRow.className = "level-1";
     contRow.innerHTML = `
-      <td><span class="arrow">▶</span> ${cont}</td>
+      <td><span class="arrow">▶</span> ${cont} <span class="muted">(${contStores.length})</span></td>
       <td colspan="7"></td>
       <td style="text-align:right; font-weight:600;">${contStores.length}</td>
     `;
@@ -553,7 +552,7 @@ function renderHierarchy(list) {
           cRow.className = "level-2";
           cRow.dataset.parent = cont;
           cRow.innerHTML = `
-            <td><span class="arrow">▶</span> ${country}</td>
+            <td><span class="arrow">▶</span> ${country} <span class="muted">(${countryStores.length})</span></td>
             <td colspan="7"></td>
             <td style="text-align:right;">${countryStores.length}</td>
           `;
@@ -578,7 +577,7 @@ function renderHierarchy(list) {
                   cityRow.className = "level-3";
                   cityRow.dataset.parent = country;
                   cityRow.innerHTML = `
-                    <td>${city}</td>
+                    <td>${city} <span class="muted">(${cityStores.length})</span></td>
                     <td colspan="7"></td>
                     <td style="text-align:right;">${cityStores.length}</td>
                   `;
@@ -628,7 +627,7 @@ function renderHierarchy(list) {
       }
     });
   });
-}
+}  // ✅ stänger funktionen korrekt
 
 
 /* ================ EXPAND / COLLAPSE ALL ================= */
