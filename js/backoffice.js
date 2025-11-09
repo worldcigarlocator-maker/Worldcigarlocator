@@ -534,66 +534,115 @@ function highlight(panel, node) {
 }
 
 
-/* ================ HIERARCHY (LIST-VIEW) ================== */
+/* ================ RENDER HIERARCHY (LIST-VIEW) ================== */
 function renderHierarchy(list) {
   const tbody = $("#tbody");
   tbody.innerHTML = "";
 
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="9" class="muted center">No stores</td></tr>`;
+    return;
+  }
+
   const byContinent = groupBy(list, s => s.continent || "Other");
 
-  // Startnivå — kontinenter
   Object.keys(byContinent).sort().forEach(cont => {
+    const contStores = byContinent[cont];
     const contRow = document.createElement("tr");
     contRow.className = "level-1";
     contRow.innerHTML = `
       <td><span class="arrow">▶</span> ${cont}</td>
-      <td colspan="8"></td>
+      <td colspan="7"></td>
+      <td style="text-align:right; font-weight:600;">${contStores.length}</td>
     `;
     tbody.appendChild(contRow);
 
-    const byCountry = groupBy(byContinent[cont], s => s.country || "Unknown");
+    const byCountry = groupBy(contStores, s => s.country || "Unknown");
 
     contRow.addEventListener("click", () => {
-      const isOpen = contRow.classList.toggle("open");
-      const arrow = contRow.querySelector(".arrow");
-      arrow.textContent = isOpen ? "▼" : "▶";
+      const open = contRow.classList.toggle("open");
+      const arr = contRow.querySelector(".arrow");
+      arr.textContent = open ? "▼" : "▶";
 
-      // ta bort gamla child-rader
+      // ta bort child-rader vid collapse
       tbody.querySelectorAll(`tr[data-parent='${cont}']`).forEach(r => r.remove());
 
-      if (isOpen) {
+      if (open) {
         Object.keys(byCountry).sort().forEach(country => {
+          const countryStores = byCountry[country];
           const cRow = document.createElement("tr");
           cRow.className = "level-2";
           cRow.dataset.parent = cont;
           cRow.innerHTML = `
             <td><span class="arrow">▶</span> ${country}</td>
-            <td colspan="8"></td>
+            <td colspan="7"></td>
+            <td style="text-align:right;">${countryStores.length}</td>
           `;
           tbody.appendChild(cRow);
 
-          const byCity = groupBy(byCountry[country], s => s.city || "Unknown");
+          const byCity = groupBy(countryStores, s => s.city || "Unknown");
 
           cRow.addEventListener("click", e => {
             e.stopPropagation();
-            const open = cRow.classList.toggle("open");
-            const arr = cRow.querySelector(".arrow");
-            arr.textContent = open ? "▼" : "▶";
+            const openC = cRow.classList.toggle("open");
+            const arrC = cRow.querySelector(".arrow");
+            arrC.textContent = openC ? "▼" : "▶";
 
-            // ta bort ev gamla city-rader
             tbody.querySelectorAll(`tr[data-parent='${country}']`).forEach(r => r.remove());
 
-            if (open) {
-              byCity && Object.keys(byCity).sort().forEach(city => {
-                const cityRow = document.createElement("tr");
-                cityRow.className = "level-3";
-                cityRow.dataset.parent = country;
-                cityRow.innerHTML = `
-                  <td>${city}</td>
-                  <td colspan="8"></td>
-                `;
-                tbody.appendChild(cityRow);
-              });
+            if (openC) {
+              Object.keys(byCity)
+                .sort((a, b) => byCity[b].length - byCity[a].length)
+                .forEach(city => {
+                  const cityStores = byCity[city];
+                  const cityRow = document.createElement("tr");
+                  cityRow.className = "level-3";
+                  cityRow.dataset.parent = country;
+                  cityRow.innerHTML = `
+                    <td>${city}</td>
+                    <td colspan="7"></td>
+                    <td style="text-align:right;">${cityStores.length}</td>
+                  `;
+                  tbody.appendChild(cityRow);
+
+                  // klick på stad => visa faktiska stores under
+                  cityRow.addEventListener("click", e => {
+                    e.stopPropagation();
+                    const openCity = cityRow.classList.toggle("open");
+
+                    tbody.querySelectorAll(`tr[data-parent='${city}']`).forEach(r => r.remove());
+                    if (openCity) {
+                      cityStores.forEach(store => {
+                        const sRow = document.createElement("tr");
+                        sRow.className = "level-4";
+                        sRow.dataset.parent = city;
+                        sRow.innerHTML = `
+                          <td>${safe(store.name)}</td>
+                          <td>${safe(store.country)}</td>
+                          <td>${safe(store.continent)}</td>
+                          <td>${safe(store.city)}</td>
+                          <td>${safe(store.type || "–")}</td>
+                          <td>${safe(store.access || "–")}</td>
+                          <td>${store.rating ?? "–"}</td>
+                          <td>
+                            ${store.approved ? `<span class='badge green'>APPROVED</span>` : ""}
+                            ${store.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
+                            ${store.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
+                            ${!store.approved && !store.flagged && !store.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
+                          </td>
+                          <td style="white-space:nowrap;">
+                            <button class="btn small blue" onclick="editStore(${store.id})">Edit</button>
+                            <button class="btn small green" onclick="approveStore(${store.id})">Approve</button>
+                            <button class="btn small danger" onclick="toggleDelete(${JSON.stringify(store)})">
+                              ${store.deleted ? "Restore" : "Delete"}
+                            </button>
+                          </td>
+                        `;
+                        tbody.appendChild(sRow);
+                      });
+                    }
+                  });
+                });
             }
           });
         });
@@ -601,7 +650,6 @@ function renderHierarchy(list) {
     });
   });
 }
-
 
     // ---- COUNTRIES ----
     const byCountry = groupBy(byCont[continent], (s) => s.country || "Unknown");
