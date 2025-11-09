@@ -774,7 +774,8 @@ closeEdit();
 
 // 🔥 Ladda om kort automatiskt
 await reloadData(CURRENT_TAB);
-};
+};   // avslutar $("#edit-save").onclick
+}    // avslutar hela async function editStore()
 
 
 /* ==================== CLOSE MODAL ================= */
