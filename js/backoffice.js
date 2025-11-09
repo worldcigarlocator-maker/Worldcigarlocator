@@ -544,19 +544,33 @@ async function approveStore(id) {
   if (error) return toast("Error approving", "error");
 
   toast("Approved ✅");
-  await reloadData(CURRENT_TAB); // vänta in så UI uppdateras direkt
+  await reloadData(CURRENT_TAB);
 }
 
 async function unflagStore(id) {
-  const { error } = await WCL.supabase.from("stores").update({ flagged: false, flag_reason: null }).eq("id", id);
+  const { error } = await WCL.supabase
+    .from("stores")
+    .update({ flagged: false, flag_reason: null })
+    .eq("id", id);
+
   if (error) return toast("Error unflagging", "error");
-  toast("Unflagged ✅"); reloadData(CURRENT_TAB);
+
+  toast("Unflagged ✅");
+  await reloadData(CURRENT_TAB);
 }
+
 async function toggleDelete(s) {
   const next = !s.deleted;
-  const { error } = await WCL.supabase.from("stores").update({ deleted: next }).eq("id", s.id);
+
+  const { error } = await WCL.supabase
+    .from("stores")
+    .update({ deleted: next })
+    .eq("id", s.id);
+
   if (error) return toast("Error updating delete", "error");
-  toast(next ? "Moved to Trash 🗑️" : "Restored ♻️"); reloadData(CURRENT_TAB);
+
+  toast(next ? "Moved to Trash 🗑️" : "Restored ♻️");
+  await reloadData(CURRENT_TAB);
 }
 
 /* ==================== REPAIR PHOTO ================= */
