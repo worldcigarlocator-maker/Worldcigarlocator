@@ -505,6 +505,23 @@ function renderTable(list) {
   }
 }
 
+/* ---------- Helper: line() ---------- */
+function line(level, name, count) {
+  const div = document.createElement("div");
+  div.className = `line ${level}`;
+  div.innerHTML = `
+    <span class="label">${safe(name)}</span>
+    <span class="pill">${count}</span>
+  `;
+  return div;
+}
+
+/* ---------- Helper: countStores() ---------- */
+function countStores(arr) {
+  return Array.isArray(arr) ? arr.length : 0;
+}
+
+
 /* ================ HIERARCHY (LIST-VIEW) ================== */
 function renderHierarchy(list) {
   const panel = $("#hierarchyPanel");
