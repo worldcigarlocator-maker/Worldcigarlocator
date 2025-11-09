@@ -206,7 +206,7 @@ async function reloadData(tab = CURRENT_TAB) {
   // Basfråga
   let base = WCL.supabase
     .from("stores")
-    .select("id,name,city,country,continent,type,access,rating,approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason")
+    .select("id,name,city,country,continent,type,address,phone,access,rating,approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason")
     .order("id", { ascending: false });
 
   // Logiska filter
@@ -220,7 +220,7 @@ async function reloadData(tab = CURRENT_TAB) {
   if (tab === "repair") {
     const { data, error } = await WCL.supabase
       .from("stores")
-      .select("id,name,city,country,continent,type,access,rating,approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason")
+      .select("id,name,city,country,continent,type,address,phone,access,rating,approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason")
       .eq("deleted", false)
       .order("id", { ascending: false });
     if (error) { console.error(error); grid.innerHTML = "<p class='error center'>Error loading stores</p>"; return; }
