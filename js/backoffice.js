@@ -512,6 +512,18 @@ function highlight(panel, node) {
   panel.querySelectorAll(".line").forEach(el => el.classList.remove("active"));
   node.classList.add("active");
 }
+
+/* ===================== MAIN RENDER SWITCH ===================== */
+function render() {
+  if (CURRENT_VIEW === "cards") {
+    renderCards(STORES);
+  } else {
+    renderHierarchy(STORES);
+    updateCounts(); // 🔢 uppdaterar counts efter rendering
+  }
+}
+
+
 /* ================ RENDER HIERARCHY (LIST-VIEW) ================== */
 function renderHierarchy(list) {
   const tbody = $("#tbody");
