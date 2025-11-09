@@ -630,23 +630,69 @@ function renderHierarchy(list) {
 }  // ✅ stänger funktionen korrekt
 
 
-/* ================ EXPAND / COLLAPSE ALL ================= */
+/* ================ EXPAND / COLLAPSE + SEARCH (LIST-VIEW) ================= */
 
+// Expand all: öppna alla nivåer och visa alla child-rader
 function expandAllHierarchy() {
-  $$("#hierarchyPanel .nested").forEach((nested) => {
-    nested.classList.add("open");
-    nested.style.display = "block";
+  const tbody = $("#tbody");
+  tbody.querySelectorAll("tr").forEach((tr) => {
+    if (tr.classList.contains("level-1") || tr.classList.contains("level-2") || tr.classList.contains("level-3")) {
+      tr.classList.add("open");
+      const arrow = tr.querySelector(".arrow");
+      if (arrow) arrow.textContent = "▼";
+    }
   });
-  $$("#hierarchyPanel .line .arrow").forEach((arr) => arr.textContent = "▼");
+  // Visa alla child-rader
+  tbody.querySelectorAll("tr").forEach(tr => (tr.style.display = ""));
 }
 
+// Collapse all: stäng alla child-rader utom topnivån
 function collapseAllHierarchy() {
-  $$("#hierarchyPanel .nested").forEach((nested) => {
-    nested.classList.remove("open");
-    nested.style.display = "none";
+  const tbody = $("#tbody");
+  tbody.querySelectorAll("tr").forEach((tr) => {
+    const lvl = tr.className.match(/level-(\d)/);
+    const level = lvl ? parseInt(lvl[1]) : 0;
+    if (level > 1) tr.remove(); // ta bort undernivåer
+    if (level === 1) {
+      tr.classList.remove("open");
+      const arrow = tr.querySelector(".arrow");
+      if (arrow) arrow.textContent = "▶";
+    }
   });
-  $$("#hierarchyPanel .line .arrow").forEach((arr) => arr.textContent = "▶");
 }
+
+// Uppdatera counts vid filterbyte (anropas i reloadData/render)
+function updateCounts() {
+  const tbody = $("#tbody");
+  tbody.querySelectorAll(".level-1").forEach(contRow => {
+    const cont = contRow.textContent.trim();
+    const childRows = Array.from(tbody.querySelectorAll(`tr[data-parent='${cont}']`));
+    const count = childRows.length ? childRows.reduce((sum, r) => {
+      const num = parseInt(r.lastElementChild?.textContent || 0);
+      return sum + (isNaN(num) ? 0 : num);
+    }, 0) : parseInt(contRow.lastElementChild?.textContent || 0);
+    const muted = contRow.querySelector(".muted");
+    if (muted) muted.textContent = `(${count})`;
+  });
+}
+
+// Inline-search i list-view (namn, land, stad, kontinent)
+function filterListView(query) {
+  const q = query.trim().toLowerCase();
+  const rows = $("#tbody").querySelectorAll("tr");
+  if (!q) {
+    rows.forEach(r => (r.style.display = ""));
+    return;
+  }
+  rows.forEach(r => {
+    const text = r.textContent.toLowerCase();
+    r.style.display = text.includes(q) ? "" : "none";
+  });
+}
+
+/* --- koppla searchfältet --- */
+$("#searchInput")?.addEventListener("input", (e) => filterListView(e.target.value));
+
 
 
 /* ==================== MOD ACTIONS ================= */
