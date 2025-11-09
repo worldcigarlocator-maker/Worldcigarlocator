@@ -748,9 +748,11 @@ $("#edit-save").onclick = async () => {
 
   if (error) return toast("Error saving", "error");
 
-  toast("Saved ✅");
-  closeEdit();
-  reloadData(CURRENT_TAB);
+toast("Saved ✅");
+closeEdit();
+
+// 🔥 Ladda om kort automatiskt
+await reloadData(CURRENT_TAB);
 };
 
 
