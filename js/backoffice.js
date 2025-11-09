@@ -521,6 +521,18 @@ function countStores(arr) {
   return Array.isArray(arr) ? arr.length : 0;
 }
 
+/* ---------- Helper: toggleNested() ---------- */
+function toggleNested(nested, node) {
+  const isOpen = nested.classList.toggle("open");
+  node.classList.toggle("open", isOpen);
+}
+
+/* ---------- Helper: highlight() ---------- */
+function highlight(panel, node) {
+  panel.querySelectorAll(".line").forEach(el => el.classList.remove("active"));
+  node.classList.add("active");
+}
+
 
 /* ================ HIERARCHY (LIST-VIEW) ================== */
 function renderHierarchy(list) {
