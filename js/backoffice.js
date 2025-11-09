@@ -157,9 +157,10 @@ function countryToContinent(country){
   return "Other";
 }
 
-/* ============================================================
-   4.9 RENDERING HELPERS — Cards & Hierarchy
-   ============================================================ */
+
+/* ====================================================
+   4.9 RENDER HELPERS - Cards & Hierarchy
+   ==================================================== */
 
 // Helper: makeBtn(label, action, style)
 function makeBtn(label, onClick, cls = "ghost") {
