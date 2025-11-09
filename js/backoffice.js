@@ -576,58 +576,96 @@ async function editStore(id) {
   };
 }
 
-
 /* ============================================================
-   9. CLOSE MODAL — utility
+   9. EXPAND / COLLAPSE + COUNT + SEARCH
    ============================================================ */
-function closeEdit() {
-  document.querySelectorAll(".modal-backdrop").forEach((m)=>m.remove());
+function expandAllHierarchy() {
+  const tbody = $("#tbody");
+  tbody.querySelectorAll("tr").forEach(tr => {
+    if (["level-1","level-2","level-3"].some(c => tr.classList.contains(c))) {
+      tr.classList.add("open");
+      const arrow = tr.querySelector(".arrow");
+      if (arrow) arrow.textContent = "▼";
+    }
+  });
+  tbody.querySelectorAll("tr").forEach(tr => (tr.style.display = ""));
+}
+
+function collapseAllHierarchy() {
+  const tbody = $("#tbody");
+  tbody.querySelectorAll("tr").forEach(tr => {
+    const lvl = tr.className.match(/level-(\d)/);
+    const level = lvl ? parseInt(lvl[1]) : 0;
+    if (level > 1) tr.remove();
+    if (level === 1) {
+      tr.classList.remove("open");
+      const arrow = tr.querySelector(".arrow");
+      if (arrow) arrow.textContent = "▶";
+    }
+  });
+}
+
+function updateCounts() {
+  const tbody = $("#tbody");
+  tbody.querySelectorAll(".level-1").forEach(contRow => {
+    const cont = contRow.textContent.trim();
+    const childRows = Array.from(tbody.querySelectorAll(`tr[data-parent='${cont}']`));
+    const count = childRows.length
+      ? childRows.reduce((sum, r) => {
+          const num = parseInt(r.lastElementChild?.textContent || 0);
+          return sum + (isNaN(num) ? 0 : num);
+        }, 0)
+      : parseInt(contRow.lastElementChild?.textContent || 0);
+    const muted = contRow.querySelector(".muted");
+    if (muted) muted.textContent = `(${count})`;
+  });
+}
+
+function filterListView(query) {
+  const q = query.trim().toLowerCase();
+  const rows = $("#tbody").querySelectorAll("tr");
+  if (!q) return rows.forEach(r => (r.style.display = ""));
+  rows.forEach(r => {
+    const text = r.textContent.toLowerCase();
+    r.style.display = text.includes(q) ? "" : "none";
+  });
 }
 
 
 /* ============================================================
-   10. UI WIRING — event handlers + initial load
+   10. MODERATION ACTIONS
    ============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ DOM fully loaded — Backoffice V5.2.1 ready");
+async function approveStore(id) {
+  const { error } = await WCL.supabase
+    .from("stores")
+    .update({ approved: true, flagged: false, deleted: false })
+    .eq("id", id);
+  if (error) return toast("Error approving", "error");
+  toast("Approved ✅");
+  await reloadData(CURRENT_TAB);
+}
 
-  // filter-pillarna
-  $$(".filters .pill").forEach((p) =>
-    p.addEventListener("click", () => {
-      CURRENT_TAB = p.dataset.tab;
-      reloadData(CURRENT_TAB);
-    })
-  );
+async function unflagStore(id) {
+  const { error } = await WCL.supabase
+    .from("stores")
+    .update({ flagged: false, flag_reason: null })
+    .eq("id", id);
+  if (error) return toast("Error unflagging", "error");
+  toast("Unflagged ✅");
+  await reloadData(CURRENT_TAB);
+}
 
-  // view toggle
-  $$(".viewtoggle .seg").forEach((seg) =>
-    seg.addEventListener("click", () => {
-      $$(".viewtoggle .seg").forEach((x) => x.classList.remove("active"));
-      seg.classList.add("active");
-      CURRENT_VIEW = seg.dataset.view;
+async function toggleDelete(s) {
+  const next = !s.deleted;
+  const { error } = await WCL.supabase
+    .from("stores")
+    .update({ deleted: next })
+    .eq("id", s.id);
+  if (error) return toast("Error updating delete", "error");
+  toast(next ? "Moved to Trash 🗑️" : "Restored ♻️");
+  await reloadData(CURRENT_TAB);
+}
 
-      if (CURRENT_VIEW === "cards") {
-        $("#cards").style.display = "grid";
-        $(".listview-wrap").style.display = "none";
-      } else {
-        $("#cards").style.display = "none";
-        $(".listview-wrap").style.display = "flex";
-      }
-      render();
-    })
-  );
-
-  // search
-  $("#searchInput")?.addEventListener("input", () => render());
-
-  // expand/collapse hierarchy (om knapparna finns)
-  $("#expandAll")?.addEventListener("click", expandAllHierarchy);
-  $("#collapseAll")?.addEventListener("click", collapseAllHierarchy);
-
-  // initial load — starta i "all" istället för "pending"
-  updateFilterCounts();
-  reloadData("all");
-});
 
 /* ============================================================
    11. PHOTO REPAIR
@@ -870,6 +908,5 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#collapseAll")?.addEventListener("click", collapseAllHierarchy);
 
   // Initial load
-  updateFilterCounts();
-reloadData("all");
+  reloadData("pending");
 });
