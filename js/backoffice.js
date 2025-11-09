@@ -160,6 +160,12 @@ function countryToContinent(country){
 /* ============================================================
    4.9 RENDERING HELPERS — Cards & Hierarchy
    ============================================================ */
+/* ============================================================
+   4.9 RENDERING HELPERS — Cards & Hierarchy
+   ============================================================ */
+
+// 🧪 TESTLOGG för felsökning
+console.log("✅ renderCards loaded!");
 
 // Render cards (grid view)
 function renderCards(list) {
