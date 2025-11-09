@@ -513,7 +513,6 @@ function highlight(panel, node) {
   node.classList.add("active");
 }
 
-
 /* ================ RENDER HIERARCHY (LIST-VIEW) ================== */
 function renderHierarchy(list) {
   const tbody = $("#tbody");
@@ -630,6 +629,26 @@ function renderHierarchy(list) {
     });
   });
 }
+
+
+/* ================ EXPAND / COLLAPSE ALL ================= */
+
+function expandAllHierarchy() {
+  $$("#hierarchyPanel .nested").forEach((nested) => {
+    nested.classList.add("open");
+    nested.style.display = "block";
+  });
+  $$("#hierarchyPanel .line .arrow").forEach((arr) => arr.textContent = "▼");
+}
+
+function collapseAllHierarchy() {
+  $$("#hierarchyPanel .nested").forEach((nested) => {
+    nested.classList.remove("open");
+    nested.style.display = "none";
+  });
+  $$("#hierarchyPanel .line .arrow").forEach((arr) => arr.textContent = "▶");
+}
+
 
     // ---- COUNTRIES ----
     const byCountry = groupBy(byCont[continent], (s) => s.country || "Unknown");
