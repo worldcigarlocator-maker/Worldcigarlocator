@@ -175,11 +175,13 @@ function render() {
    ============================================================ */
 async function reloadData(tab = CURRENT_TAB) {
   CURRENT_TAB = tab;
+
+  // uppdatera filter UI
   $$(".filters .pill").forEach((b) =>
     b.classList.toggle("active", b.dataset.tab === CURRENT_TAB)
   );
 
-  // Växla vy
+  // växla vy
   if (CURRENT_VIEW === "cards") {
     $("#cards").style.display = "grid";
     $(".listview-wrap").style.display = "none";
@@ -191,396 +193,150 @@ async function reloadData(tab = CURRENT_TAB) {
   const grid = $("#cards");
   grid.innerHTML = "<p class='muted center'>Loading…</p>";
 
+  // Samma select överallt (inkl address + phone + website)
   const SELECT_FIELDS =
     "id,name,city,country,continent,type,address,phone,access," +
     "rating,approved,flagged,deleted,status," +
     "photo_reference,place_id,website,created_at,flag_reason";
 
-  let base = WCL.supabase.from("stores").select(SELECT_FIELDS).order("id", { ascending: false });
+  // Basfråga
+  let base = WCL.supabase
+    .from("stores")
+    .select(SELECT_FIELDS)
+    .order("id", { ascending: false });
 
-  if (tab === "approved") base = base.eq("approved", true).eq("deleted", false);
-  else if (tab === "flagged") base = base.eq("flagged", true).eq("deleted", false);
-  else if (tab === "deleted") base = base.eq("deleted", true);
-  else if (tab === "pending") base = base.eq("approved", false).eq("flagged", false).eq("deleted", false);
-  else base = base.eq("deleted", false);
-
-  // Repair mode
-  if (tab === "repair") {
-    const { data, error } = await WCL.supabase
-      .from("stores").select(SELECT_FIELDS).eq("deleted", false).order("id", { ascending: false });
-    if (error) return grid.innerHTML = "<p class='error center'>Error loading stores</p>";
-
-    const fallbackList = (data || []).filter(s => !s.photo_reference);
-    STORES = fallbackList.map(s => ({ ...s, continent: s.continent || countryToContinent(s.country) }));
-    return render();
+  // Logiska filter
+  if (tab === "approved") {
+    base = base.eq("approved", true).eq("deleted", false);
+  } else if (tab === "flagged") {
+    base = base.eq("flagged", true).eq("deleted", false);
+  } else if (tab === "deleted") {
+    base = base.eq("deleted", true);
+  } else if (tab === "pending") {
+    base = base
+      .eq("approved", false)
+      .eq("flagged", false)
+      .eq("deleted", false);
+  } else {
+    base = base.eq("deleted", false); // all
   }
 
-  // Normal mode
-  const { data, error } = await base;
-  if (error) return grid.innerHTML = "<p class='error center'>Error loading stores</p>";
+  // 🔧 Needs Repair-läge (särskild branch)
+  if (tab === "repair") {
+    const { data, error } = await WCL.supabase
+      .from("stores")
+      .select(SELECT_FIELDS)
+      .eq("deleted", false)
+      .order("id", { ascending: false });
 
-STORES = (data || []).map((s) => ({
-  ...s,
-  continent: s.continent || countryToContinent(s.country),
-}));
-
-console.log(
-  "🔎 reloadData(): tab=",
-  CURRENT_TAB,
-  "rows=",
-  STORES.length
-);
-
-// 🧩 uppdatera topbar-badges
-await updateFilterCounts();
-
-// rendera aktuell vy
-render();
-} 
-
-/* ============================================================
-   6.1 FILTER COUNTS BADGES
-   ============================================================ */
-async function updateFilterCounts() {
-  const tables = WCL.supabase.from("stores");
-
-  const queries = {
-    all: tables.select("id", { count: "exact", head: true }).eq("deleted", false),
-    approved: tables.select("id", { count: "exact", head: true }).eq("approved", true).eq("deleted", false),
-    pending: tables.select("id", { count: "exact", head: true }).eq("approved", false).eq("flagged", false).eq("deleted", false),
-    flagged: tables.select("id", { count: "exact", head: true }).eq("flagged", true).eq("deleted", false),
-    deleted: tables.select("id", { count: "exact", head: true }).eq("deleted", true)
-  };
-
-  const results = await Promise.all([
-    queries.all,
-    queries.approved,
-    queries.pending,
-    queries.flagged,
-    queries.deleted
-  ]);
-
-  const counts = {
-    all: results[0].count || 0,
-    approved: results[1].count || 0,
-    pending: results[2].count || 0,
-    flagged: results[3].count || 0,
-    deleted: results[4].count || 0
-  };
-
-  // uppdatera text i varje knapp
-  $$(".filters .pill").forEach(pill => {
-    const tab = pill.dataset.tab;
-    if (counts[tab] !== undefined) {
-      const baseLabel = pill.textContent.split("(")[0].trim(); // ta bort gammal count
-      pill.textContent = `${baseLabel} (${counts[tab]})`;
-    }
-  });
-}
-
-
-/* ============================================================
-   7. UI ELEMENT HELPERS
-   ============================================================ */
-function makeBtn(label, onclick, cls = "") {
-  const b = document.createElement("button");
-  b.className = `btn ${cls}`.trim();
-  b.textContent = label;
-  if (typeof onclick === "function") b.onclick = onclick;
-  return b;
-}
-
-
-/* ============================================================
-   8. RENDERING — CARDS, LIST & HIERARKY
-   ============================================================ */
-
-/* ---------- Cards (grid view) ---------- */
-function renderCards(list) {
-  const grid = $("#cards");
-  grid.innerHTML = "";
-
-  list.forEach((s) => {
-    const borderClass =
-      s.deleted ? "border-gray" :
-      s.flagged ? "border-red" :
-      s.approved ? "border-green" :
-      "border-gold";
-
-    const card = document.createElement("div");
-    card.className = `card ${borderClass}`;
-
-    const img = document.createElement("img");
-    img.className = "photo";
-    img.src = s.photo_reference
-      ? `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(s.photo_reference)}&maxwidth=800`
-      : WCL.FALLBACK_IMG;
-    img.onerror = () => (img.src = WCL.FALLBACK_IMG);
-    card.appendChild(img);
-
-    const body = document.createElement("div");
-    body.className = "body";
-
-    const h3 = document.createElement("h3");
-    h3.className = "twoline";
-    h3.textContent = safe(s.name);
-    body.appendChild(h3);
-
-    const loc = document.createElement("div");
-    loc.className = "locrow";
-    const flagSrc = flagURL(s.country, s.country_iso2);
-    if (flagSrc) {
-      const flag = document.createElement("img");
-      flag.className = "flag";
-      flag.src = flagSrc;
-      flag.alt = safe(s.country);
-      flag.onerror = () => (flag.style.display = "none");
-      loc.appendChild(flag);
-    }
-    const geo = document.createElement("span");
-    geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
-    loc.appendChild(geo);
-    body.appendChild(loc);
-
-    const info = document.createElement("div");
-    info.className = "infoblock";
-    info.innerHTML = `
-      <p class="truncate"><strong>Type:</strong> ${safe(s.type || "–")}</p>
-      <p class="truncate"><strong>Address:</strong> ${safe(s.address || "–")}</p>
-      <p class="truncate"><strong>Phone:</strong> ${safe(s.phone || "–")}</p>
-      <p class="truncate"><strong>Website:</strong> ${
-        s.website
-          ? `<a href="${safe(s.website)}" target="_blank" rel="noopener">Visit</a>`
-          : "–"
-      }</p>
-    `;
-    body.appendChild(info);
-
-    const reviewsLink = document.createElement("div");
-    reviewsLink.className = "reviewslink";
-    reviewsLink.innerHTML = `
-      <button class="btn small ghost" onclick="editStore(${s.id})">💬 View Comments / Reviews</button>
-    `;
-    body.appendChild(reviewsLink);
-
-    const status = document.createElement("div");
-    status.className = "badges";
-    status.innerHTML = `
-      ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
-      ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
-      ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
-      ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
-      <span style="margin-left:6px;color:var(--muted)">⭐ ${s.rating ?? "–"}</span>
-    `;
-    body.appendChild(status);
-
-    const actions = document.createElement("div");
-    actions.className = "actions";
-
-    const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
-    const deleteBtn  = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
-    const editBtn    = makeBtn("Edit", () => editStore(s.id), "blue");
-    const repairBtn  = makeBtn("Repair Photo", () => repairPhoto(s.id, s.place_id, img), "orange");
-
-    if (s.flagged) {
-      actions.append(
-        approveBtn,
-        makeBtn("Unflag", () => unflagStore(s.id), "yellow"),
-        deleteBtn,
-        editBtn,
-        repairBtn
-      );
-    } else {
-      actions.append(approveBtn, deleteBtn, editBtn, repairBtn);
+    if (error) {
+      console.error(error);
+      grid.innerHTML =
+        "<p class='error center'>Error loading stores</p>";
+      return;
     }
 
-    card.appendChild(body);
-    card.appendChild(actions);
-    grid.appendChild(card);
-  });
+    const fallbackList = (data || []).filter(
+      (s) => !s.photo_reference
+    );
 
-  if (!list.length) grid.innerHTML = `<p class="muted center">No stores</p>`;
-}
+    STORES = fallbackList.map((s) => ({
+      ...s,
+      continent: s.continent || countryToContinent(s.country),
+    }));
 
+    console.log(
+      "🔎 reloadData(repair) → rows:",
+      STORES.length
+    );
 
-/* ---------- ListView Hierarchy ---------- */
-function renderHierarchy(list) {
-  const tbody = $("#tbody");
-  tbody.innerHTML = "";
-
-  if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="9" class="muted center">No stores</td></tr>`;
+    // uppdatera counts & render
+    await updateFilterCounts();
+    render();
     return;
   }
 
-  const byContinent = groupBy(list, s => s.continent || "Other");
+  // 🔁 Vanligt läge
+  const { data, error } = await base;
+  if (error) {
+    console.error(error);
+    grid.innerHTML =
+      "<p class='error center'>Error loading stores</p>";
+    return;
+  }
 
-  Object.keys(byContinent).sort().forEach(cont => {
-    const contStores = byContinent[cont];
-    const contRow = document.createElement("tr");
-    contRow.className = "level-1";
-    contRow.innerHTML = `
-      <td><span class="arrow">▶</span> ${cont} <span class="muted">(${contStores.length})</span></td>
-      <td colspan="7"></td>
-      <td style="text-align:right; font-weight:600;">${contStores.length}</td>
-    `;
-    tbody.appendChild(contRow);
+  STORES = (data || []).map((s) => ({
+    ...s,
+    continent: s.continent || countryToContinent(s.country),
+  }));
 
-    const byCountry = groupBy(contStores, s => s.country || "Unknown");
+  console.log(
+    "🔎 reloadData(): tab=",
+    CURRENT_TAB,
+    "rows=",
+    STORES.length
+  );
 
-    contRow.addEventListener("click", () => {
-      const open = contRow.classList.toggle("open");
-      const arr = contRow.querySelector(".arrow");
-      arr.textContent = open ? "▼" : "▶";
-      tbody.querySelectorAll(`tr[data-parent='${cont}']`).forEach(r => r.remove());
+  // 🧩 uppdatera topbar-badges
+  await updateFilterCounts();
 
-      if (open) {
-        Object.keys(byCountry).sort().forEach(country => {
-          const countryStores = byCountry[country];
-          const cRow = document.createElement("tr");
-          cRow.className = "level-2";
-          cRow.dataset.parent = cont;
-          cRow.innerHTML = `
-            <td><span class="arrow">▶</span> ${country} <span class="muted">(${countryStores.length})</span></td>
-            <td colspan="7"></td>
-            <td style="text-align:right;">${countryStores.length}</td>
-          `;
-          tbody.appendChild(cRow);
-
-          const byCity = groupBy(countryStores, s => s.city || "Unknown");
-
-          cRow.addEventListener("click", e => {
-            e.stopPropagation();
-            const openC = cRow.classList.toggle("open");
-            const arrC = cRow.querySelector(".arrow");
-            arrC.textContent = openC ? "▼" : "▶";
-            tbody.querySelectorAll(`tr[data-parent='${country}']`).forEach(r => r.remove());
-
-            if (openC) {
-              Object.keys(byCity)
-                .sort((a, b) => byCity[b].length - byCity[a].length)
-                .forEach(city => {
-                  const cityStores = byCity[city];
-                  const cityRow = document.createElement("tr");
-                  cityRow.className = "level-3";
-                  cityRow.dataset.parent = country;
-                  cityRow.innerHTML = `
-                    <td>${city} <span class="muted">(${cityStores.length})</span></td>
-                    <td colspan="7"></td>
-                    <td style="text-align:right;">${cityStores.length}</td>
-                  `;
-                  tbody.appendChild(cityRow);
-
-                  cityRow.addEventListener("click", e => {
-                    e.stopPropagation();
-                    const openCity = cityRow.classList.toggle("open");
-                    tbody.querySelectorAll(`tr[data-parent='${city}']`).forEach(r => r.remove());
-                    if (openCity) {
-                      cityStores.forEach(store => {
-                        const sRow = document.createElement("tr");
-                        sRow.className = "level-4";
-                        sRow.dataset.parent = city;
-                        sRow.innerHTML = `
-                          <td>${safe(store.name)}</td>
-                          <td>${safe(store.country)}</td>
-                          <td>${safe(store.continent)}</td>
-                          <td>${safe(store.city)}</td>
-                          <td>${safe(store.type || "–")}</td>
-                          <td>${safe(store.access || "–")}</td>
-                          <td>${store.rating ?? "–"}</td>
-                          <td>
-                            ${store.approved ? `<span class='badge green'>APPROVED</span>` : ""}
-                            ${store.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
-                            ${store.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
-                            ${!store.approved && !store.flagged && !store.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
-                          </td>
-                          <td style="white-space:nowrap;">
-                            <button class="btn small blue" onclick="editStore(${store.id})">Edit</button>
-                            <button class="btn small green" onclick="approveStore(${store.id})">Approve</button>
-                            <button class="btn small danger" onclick="toggleDelete(${JSON.stringify(store)})">
-                              ${store.deleted ? "Restore" : "Delete"}
-                            </button>
-                          </td>
-                        `;
-                        tbody.appendChild(sRow);
-                      });
-                    }
-                  });
-                });
-            }
-          });
-        });
-      }
-    });
-  });
+  // rendera aktuell vy
+  render();
 }
 
 
 /* ============================================================
-   9. EXPAND / COLLAPSE + COUNT + SEARCH
+   6.1 FILTER COUNTS BADGES — uppdaterar siffror i toppbar
    ============================================================ */
-function expandAllHierarchy() {
-  const tbody = $("#tbody");
-  tbody.querySelectorAll("tr").forEach(tr => {
-    if (["level-1","level-2","level-3"].some(c => tr.classList.contains(c))) {
-      tr.classList.add("open");
-      const arrow = tr.querySelector(".arrow");
-      if (arrow) arrow.textContent = "▼";
+async function updateFilterCounts() {
+  try {
+    // hämta alla (ej hårt filtrerat här, vi räknar i JS)
+    const { data, error } = await WCL.supabase
+      .from("stores")
+      .select("id, approved, flagged, deleted, photo_reference");
+
+    if (error) {
+      console.error("updateFilterCounts error:", error);
+      return;
     }
-  });
-  tbody.querySelectorAll("tr").forEach(tr => (tr.style.display = ""));
-}
 
-function collapseAllHierarchy() {
-  const tbody = $("#tbody");
-  tbody.querySelectorAll("tr").forEach(tr => {
-    const lvl = tr.className.match(/level-(\d)/);
-    const level = lvl ? parseInt(lvl[1]) : 0;
-    if (level > 1) tr.remove();
-    if (level === 1) {
-      tr.classList.remove("open");
-      const arrow = tr.querySelector(".arrow");
-      if (arrow) arrow.textContent = "▶";
-    }
-  });
-}
+    const rows = data || [];
 
-function updateCounts() {
-  const tbody = $("#tbody");
-  tbody.querySelectorAll(".level-1").forEach(contRow => {
-    const cont = contRow.textContent.trim();
-    const childRows = Array.from(tbody.querySelectorAll(`tr[data-parent='${cont}']`));
-    const count = childRows.length
-      ? childRows.reduce((sum, r) => {
-          const num = parseInt(r.lastElementChild?.textContent || 0);
-          return sum + (isNaN(num) ? 0 : num);
-        }, 0)
-      : parseInt(contRow.lastElementChild?.textContent || 0);
-    const muted = contRow.querySelector(".muted");
-    if (muted) muted.textContent = `(${count})`;
-  });
-}
+    const allCount      = rows.filter(s => !s.deleted).length;
+    const pendingCount  = rows.filter(s => !s.deleted && !s.approved && !s.flagged).length;
+    const approvedCount = rows.filter(s => s.approved && !s.deleted).length;
+    const flaggedCount  = rows.filter(s => s.flagged && !s.deleted).length;
+    const deletedCount  = rows.filter(s => s.deleted).length;
+    const repairCount   = rows.filter(s => !s.deleted && !s.photo_reference).length;
 
-function filterListView(query) {
-  const q = query.trim().toLowerCase();
-  const rows = $("#tbody").querySelectorAll("tr");
-  if (!q) return rows.forEach(r => (r.style.display = ""));
-  rows.forEach(r => {
-    const text = r.textContent.toLowerCase();
-    r.style.display = text.includes(q) ? "" : "none";
-  });
+    const setBadge = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    };
+
+    setBadge("count-all",      allCount);
+    setBadge("count-pending",  pendingCount);
+    setBadge("count-approved", approvedCount);
+    setBadge("count-flagged",  flaggedCount);
+    setBadge("count-deleted",  deletedCount);
+    setBadge("count-repair",   repairCount);
+  } catch (e) {
+    console.error("updateFilterCounts exception:", e);
+  }
 }
 
 
 /* ============================================================
-   10. MODERATION ACTIONS
+   7. MOD ACTIONS — approve / unflag / delete / repair photo
    ============================================================ */
 async function approveStore(id) {
   const { error } = await WCL.supabase
     .from("stores")
     .update({ approved: true, flagged: false, deleted: false })
     .eq("id", id);
+
   if (error) return toast("Error approving", "error");
+
   toast("Approved ✅");
   await reloadData(CURRENT_TAB);
 }
@@ -590,22 +346,288 @@ async function unflagStore(id) {
     .from("stores")
     .update({ flagged: false, flag_reason: null })
     .eq("id", id);
+
   if (error) return toast("Error unflagging", "error");
+
   toast("Unflagged ✅");
   await reloadData(CURRENT_TAB);
 }
 
 async function toggleDelete(s) {
   const next = !s.deleted;
+
   const { error } = await WCL.supabase
     .from("stores")
     .update({ deleted: next })
     .eq("id", s.id);
+
   if (error) return toast("Error updating delete", "error");
+
   toast(next ? "Moved to Trash 🗑️" : "Restored ♻️");
   await reloadData(CURRENT_TAB);
 }
 
+/* ==================== REPAIR PHOTO ================= */
+async function repairPhoto(id, place_id, imgEl) {
+  if (!place_id) { toast("No place_id found for this store", "error"); return; }
+  toast("Repairing photo…", "info");
+  try {
+    const refs = await fetchPhotoRefs(place_id);
+    if (!refs.length) { toast("No photos found from Google", "error"); return; }
+    const newRef = refs[0];
+    const { error } = await WCL.supabase.from("stores").update({ photo_reference: newRef }).eq("id", id);
+    if (error) { console.error(error); toast("Error updating photo", "error"); return; }
+    toast("Photo repaired ✅");
+    if (imgEl) imgEl.src = buildPhotoProxyUrl(newRef);
+  } catch (e) { console.error(e); toast("Repair failed", "error"); }
+}
+
+
+/* ============================================================
+   8. EDIT MODAL — ladda butik + kommentarer, visa formulär
+   ============================================================ */
+async function editStore(id) {
+  closeEdit();
+
+  const [storeResp, commentsResp] = await Promise.all([
+    WCL.supabase.from("stores").select("*").eq("id", id).single(),
+    WCL.supabase.from("store_comments").select("*").eq("store_id", id).order("created_at", { ascending: false })
+  ]);
+
+  const store = storeResp?.data;
+  const error = storeResp?.error;
+  const comments = commentsResp?.data || [];
+  if (error || !store) { toast("Failed to load store", "error"); console.error(error); return; }
+
+  const modal = document.createElement("div");
+  modal.className = "modal-backdrop";
+  modal.innerHTML = `
+    <div class="modal">
+      <h3>Edit Store</h3>
+      <div class="edit-grid">
+        <label>Name</label>
+        <input id="edit-name" value="${safe(store.name)}" />
+
+        <label>Address</label>
+        <input id="edit-address" value="${safe(store.address || '')}" />
+
+        <label>Phone</label>
+        <input id="edit-phone" value="${safe(store.phone || '')}" />
+
+        <label>City</label>
+        <input id="edit-city" value="${safe(store.city)}" />
+
+        <label>Country</label>
+        <input id="edit-country" value="${safe(store.country)}" />
+
+        <label>Continent</label>
+        <select id="edit-continent">
+          <option value="Europe">Europe</option>
+          <option value="North America">North America</option>
+          <option value="South America">South America</option>
+          <option value="Asia">Asia</option>
+          <option value="Africa">Africa</option>
+          <option value="Oceania">Oceania</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label>Website</label>
+        <input id="edit-website" value="${safe(store.website)}" />
+
+        <label>Type</label>
+        <div class="type-group">
+          <button type="button" class="type-btn ${store.type === "store" ? "active" : ""}" data-type="store">Store</button>
+          <button type="button" class="type-btn ${store.type === "lounge" ? "active" : ""}" data-type="lounge">Lounge</button>
+        </div>
+
+        <label>Access</label>
+        <div class="access-group">
+          <label class="access-pill">
+            <input type="radio" name="access" value="public" ${store.access === "public" ? "checked" : ""}>
+            <span>Public</span>
+          </label>
+          <label class="access-pill">
+            <input type="radio" name="access" value="members" ${store.access === "members" ? "checked" : ""}>
+            <span>Members Only</span>
+          </label>
+        </div>
+
+        <label>Photo</label>
+        <div class="photo-picker">
+          <button id="edit-prev" class="photo-nav">◀</button>
+          <img id="edit-photo" class="preview-photo" src="${store.photo_reference ? buildPhotoProxyUrl(store.photo_reference) : WCL.FALLBACK_IMG}" />
+          <button id="edit-next" class="photo-nav">▶</button>
+        </div>
+        <div id="photo-meta" class="muted center">
+          ${store.photo_reference ? "Loaded from proxy" : "No photo loaded"}
+        </div>
+
+        ${
+          comments.length
+          ? `<label>Comments (${comments.length})</label>
+             <div class="comment-list">
+               ${comments.map((c) => `
+                 <div class="comment-item">
+                   <p><strong>${safe(c.user_name || "Anon")}:</strong> ${safe(c.comment)}</p>
+                   <span class="muted">${new Date(c.created_at).toLocaleString()}</span>
+                   <button class="btn small ghost del-comment" data-id="${c.id}">🗑️</button>
+                 </div>
+               `).join("")}
+             </div>`
+          : `<label>Comments</label><p class="muted">No comments yet.</p>`
+        }
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" id="edit-cancel">Cancel</button>
+        <button class="btn blue" id="edit-save">Save</button>
+        <button class="btn orange" id="repair-photo">Repair Photo</button>
+        ${store.flagged ? `<button class="btn yellow" id="edit-unflag">Unflag</button>` : ""}
+        <button class="btn danger" id="edit-delete">Delete</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  // init continent select default (store.continent eller auto)
+  const contSel = $("#edit-continent");
+  const defaultCont = store.continent || countryToContinent(store.country);
+  if (defaultCont) contSel.value = defaultCont;
+
+  // close på backdrop + ESC
+  modal.addEventListener("click", (e) => { if (e.target === modal) closeEdit(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeEdit(); }, { once: true });
+
+  // type toggles
+  modal.querySelectorAll(".type-btn").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      modal.querySelectorAll(".type-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+    })
+  );
+
+  // photos
+  let refs = await fetchPhotoRefs(store.place_id);
+  if (!refs.length && store.photo_reference) refs = [store.photo_reference];
+  let currentIndex = Math.max(0, refs.indexOf(store.photo_reference));
+  const imgEl  = modal.querySelector("#edit-photo");
+  const metaEl = modal.querySelector("#photo-meta");
+
+  function showCurrent() {
+    if (!refs.length) { imgEl.src = WCL.FALLBACK_IMG; metaEl.textContent = "No photo loaded"; return; }
+    imgEl.src = buildPhotoProxyUrl(refs[currentIndex]);
+    metaEl.textContent = `Photo ${currentIndex + 1} / ${refs.length} — via proxy`;
+  }
+  showCurrent();
+
+  $("#edit-prev").onclick = () => { if (!refs.length) return; currentIndex = (currentIndex - 1 + refs.length) % refs.length; showCurrent(); };
+  $("#edit-next").onclick = () => { if (!refs.length) return; currentIndex = (currentIndex + 1) % refs.length; showCurrent(); };
+
+  // repair från modal
+  $("#repair-photo").onclick = async () => {
+    toast("Repairing photo…", "info");
+    const fresh = await fetchPhotoRefs(store.place_id);
+    if (!fresh.length) { toast("No photos found from Google", "error"); return; }
+    const newRef = fresh[0];
+    const { error } = await WCL.supabase.from("stores").update({ photo_reference: newRef }).eq("id", id);
+    if (error) return toast("Error updating photo", "error");
+    toast("Photo repaired ✅");
+    imgEl.src = buildPhotoProxyUrl(newRef);
+    metaEl.textContent = "Photo repaired from Google";
+  };
+
+  // delete comment
+  modal.querySelectorAll(".del-comment").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("Delete this comment?")) return;
+      const cid = btn.dataset.id;
+      const { error } = await WCL.supabase.from("store_comments").delete().eq("id", cid);
+      if (error) return toast("Error deleting comment", "error");
+      toast("Comment deleted 🗑️");
+      closeEdit(); editStore(id);
+    });
+  });
+
+  // save-knapp
+  $("#edit-save").onclick = async () => {
+    const payload = {
+      name: $("#edit-name").value.trim(),
+      address: $("#edit-address").value.trim(),
+      phone: $("#edit-phone").value.trim(),
+      city: $("#edit-city").value.trim(),
+      country: $("#edit-country").value.trim(),
+      continent: $("#edit-continent").value || null,
+      website: $("#edit-website").value.trim(),
+      type: document.querySelector(".type-btn.active")?.dataset.type || null,
+      access: document.querySelector('input[name="access"]:checked')?.value || null,
+      photo_reference: refs.length ? refs[currentIndex] : null,
+    };
+
+    const { error } = await WCL.supabase
+      .from("stores")
+      .update(payload)
+      .eq("id", id);
+
+    if (error) return toast("Error saving", "error");
+
+    toast("Saved ✅");
+    closeEdit();
+    await reloadData(CURRENT_TAB);
+  };
+}
+
+
+/* ============================================================
+   9. CLOSE MODAL — utility
+   ============================================================ */
+function closeEdit() {
+  document.querySelectorAll(".modal-backdrop").forEach((m)=>m.remove());
+}
+
+
+/* ============================================================
+   10. UI WIRING — event handlers + initial load
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ DOM fully loaded — Backoffice V5.2.1 ready");
+
+  // filter-pillarna
+  $$(".filters .pill").forEach((p) =>
+    p.addEventListener("click", () => {
+      CURRENT_TAB = p.dataset.tab;
+      reloadData(CURRENT_TAB);
+    })
+  );
+
+  // view toggle
+  $$(".viewtoggle .seg").forEach((seg) =>
+    seg.addEventListener("click", () => {
+      $$(".viewtoggle .seg").forEach((x) => x.classList.remove("active"));
+      seg.classList.add("active");
+      CURRENT_VIEW = seg.dataset.view;
+
+      if (CURRENT_VIEW === "cards") {
+        $("#cards").style.display = "grid";
+        $(".listview-wrap").style.display = "none";
+      } else {
+        $("#cards").style.display = "none";
+        $(".listview-wrap").style.display = "flex";
+      }
+      render();
+    })
+  );
+
+  // search
+  $("#searchInput")?.addEventListener("input", () => render());
+
+  // expand/collapse hierarchy (om knapparna finns)
+  $("#expandAll")?.addEventListener("click", expandAllHierarchy);
+  $("#collapseAll")?.addEventListener("click", collapseAllHierarchy);
+
+  // initial load — starta i "all" istället för "pending"
+  updateFilterCounts();
+  reloadData("all");
+});
 
 /* ============================================================
    11. PHOTO REPAIR
