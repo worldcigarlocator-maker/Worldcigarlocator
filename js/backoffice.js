@@ -219,12 +219,63 @@ async function reloadData(tab = CURRENT_TAB) {
   const { data, error } = await base;
   if (error) return grid.innerHTML = "<p class='error center'>Error loading stores</p>";
 
-  STORES = (data || []).map((s) => ({
-    ...s,
-    continent: s.continent || countryToContinent(s.country),
-  }));
+STORES = (data || []).map((s) => ({
+  ...s,
+  continent: s.continent || countryToContinent(s.country),
+}));
 
-  render();
+console.log(
+  "🔎 reloadData(): tab=",
+  CURRENT_TAB,
+  "rows=",
+  STORES.length
+);
+
+// 🧩 uppdatera topbar-badges
+await updateFilterCounts();
+
+// rendera aktuell vy
+render();
+
+
+/* ============================================================
+   FILTER COUNTS BADGES
+   ============================================================ */
+async function updateFilterCounts() {
+  const tables = WCL.supabase.from("stores");
+
+  const queries = {
+    all: tables.select("id", { count: "exact", head: true }).eq("deleted", false),
+    approved: tables.select("id", { count: "exact", head: true }).eq("approved", true).eq("deleted", false),
+    pending: tables.select("id", { count: "exact", head: true }).eq("approved", false).eq("flagged", false).eq("deleted", false),
+    flagged: tables.select("id", { count: "exact", head: true }).eq("flagged", true).eq("deleted", false),
+    deleted: tables.select("id", { count: "exact", head: true }).eq("deleted", true)
+  };
+
+  const results = await Promise.all([
+    queries.all,
+    queries.approved,
+    queries.pending,
+    queries.flagged,
+    queries.deleted
+  ]);
+
+  const counts = {
+    all: results[0].count || 0,
+    approved: results[1].count || 0,
+    pending: results[2].count || 0,
+    flagged: results[3].count || 0,
+    deleted: results[4].count || 0
+  };
+
+  // uppdatera text i varje knapp
+  $$(".filters .pill").forEach(pill => {
+    const tab = pill.dataset.tab;
+    if (counts[tab] !== undefined) {
+      const baseLabel = pill.textContent.split("(")[0].trim(); // ta bort gammal count
+      pill.textContent = `${baseLabel} (${counts[tab]})`;
+    }
+  });
 }
 
 
@@ -797,5 +848,6 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#collapseAll")?.addEventListener("click", collapseAllHierarchy);
 
   // Initial load
-  reloadData("pending");
+  updateFilterCounts();
+reloadData("pending");
 });
