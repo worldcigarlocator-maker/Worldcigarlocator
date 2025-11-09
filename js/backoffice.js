@@ -536,25 +536,72 @@ function highlight(panel, node) {
 
 /* ================ HIERARCHY (LIST-VIEW) ================== */
 function renderHierarchy(list) {
-  const panel = $("#hierarchyPanel");
-  panel.innerHTML = "";
+  const tbody = $("#tbody");
+  tbody.innerHTML = "";
 
-  const byCont = groupBy(list, (s) => s.continent || "Other");
-console.log("🌍 Hierarchy grouped by continent:", Object.keys(byCont));
+  const byContinent = groupBy(list, s => s.continent || "Other");
 
-  Object.keys(byCont).sort().forEach((continent) => {
+  // Startnivå — kontinenter
+  Object.keys(byContinent).sort().forEach(cont => {
+    const contRow = document.createElement("tr");
+    contRow.className = "level-1";
+    contRow.innerHTML = `
+      <td><span class="arrow">▶</span> ${cont}</td>
+      <td colspan="8"></td>
+    `;
+    tbody.appendChild(contRow);
 
-    // ---- CONTINENT ----
-    const contNode = line("continent", continent, countStores(byCont[continent]));
-    const nestedCountries = document.createElement("div");
-    nestedCountries.className = "nested";
+    const byCountry = groupBy(byContinent[cont], s => s.country || "Unknown");
 
-    contNode.addEventListener("click", () => {
-      toggleNested(nestedCountries, contNode);
-      HIER_SEL = { continent, country: null, city: null };
-      render();
-      highlight(panel, contNode);
+    contRow.addEventListener("click", () => {
+      const isOpen = contRow.classList.toggle("open");
+      const arrow = contRow.querySelector(".arrow");
+      arrow.textContent = isOpen ? "▼" : "▶";
+
+      // ta bort gamla child-rader
+      tbody.querySelectorAll(`tr[data-parent='${cont}']`).forEach(r => r.remove());
+
+      if (isOpen) {
+        Object.keys(byCountry).sort().forEach(country => {
+          const cRow = document.createElement("tr");
+          cRow.className = "level-2";
+          cRow.dataset.parent = cont;
+          cRow.innerHTML = `
+            <td><span class="arrow">▶</span> ${country}</td>
+            <td colspan="8"></td>
+          `;
+          tbody.appendChild(cRow);
+
+          const byCity = groupBy(byCountry[country], s => s.city || "Unknown");
+
+          cRow.addEventListener("click", e => {
+            e.stopPropagation();
+            const open = cRow.classList.toggle("open");
+            const arr = cRow.querySelector(".arrow");
+            arr.textContent = open ? "▼" : "▶";
+
+            // ta bort ev gamla city-rader
+            tbody.querySelectorAll(`tr[data-parent='${country}']`).forEach(r => r.remove());
+
+            if (open) {
+              byCity && Object.keys(byCity).sort().forEach(city => {
+                const cityRow = document.createElement("tr");
+                cityRow.className = "level-3";
+                cityRow.dataset.parent = country;
+                cityRow.innerHTML = `
+                  <td>${city}</td>
+                  <td colspan="8"></td>
+                `;
+                tbody.appendChild(cityRow);
+              });
+            }
+          });
+        });
+      }
     });
+  });
+}
+
 
     // ---- COUNTRIES ----
     const byCountry = groupBy(byCont[continent], (s) => s.country || "Unknown");
