@@ -709,23 +709,6 @@ function collapseAllHierarchy() {
   });
 }
 
-/* ================ EXPAND / COLLAPSE ALL ================= */
-
-function expandAllHierarchy() {
-  $$("#hierarchyPanel .nested").forEach((nested) => {
-    nested.classList.add("open");
-    nested.style.display = "block";
-  });
-  $$("#hierarchyPanel .line .arrow").forEach((arr) => arr.textContent = "▼");
-}
-
-function collapseAllHierarchy() {
-  $$("#hierarchyPanel .nested").forEach((nested) => {
-    nested.classList.remove("open");
-    nested.style.display = "none";
-  });
-  $$("#hierarchyPanel .line .arrow").forEach((arr) => arr.textContent = "▶");
-}
 
 /* ==================== MOD ACTIONS ================= */
 async function approveStore(id) {
