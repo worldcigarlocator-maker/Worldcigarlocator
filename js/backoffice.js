@@ -158,6 +158,119 @@ function countryToContinent(country){
 }
 
 /* ============================================================
+   4.9 RENDERING HELPERS — Cards & Hierarchy
+   ============================================================ */
+
+// Render cards (grid view)
+function renderCards(list) {
+  const grid = $("#cards");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  if (!list.length) {
+    grid.innerHTML = `<p class="muted center">No stores</p>`;
+    return;
+  }
+
+  list.forEach((s) => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    // --- Photo ---
+    const img = document.createElement("img");
+    img.className = "photo";
+    img.src = s.photo_reference
+      ? `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(s.photo_reference)}&maxwidth=800`
+      : WCL.FALLBACK_IMG;
+    img.onerror = () => (img.src = WCL.FALLBACK_IMG);
+    card.appendChild(img);
+
+    // --- Body ---
+    const body = document.createElement("div");
+    body.className = "body";
+
+    const h3 = document.createElement("h3");
+    h3.textContent = safe(s.name);
+    body.appendChild(h3);
+
+    const flagSrc = flagURL(s.country, s.country_iso2);
+    if (flagSrc) {
+      const flag = document.createElement("img");
+      flag.className = "flag";
+      flag.src = flagSrc;
+      flag.alt = s.country;
+      flag.onerror = () => (flag.style.display = "none");
+      body.appendChild(flag);
+    }
+
+    const loc = document.createElement("p");
+    loc.className = "muted";
+    loc.textContent = `${safe(s.city)}, ${safe(s.country)}`;
+    body.appendChild(loc);
+
+    // --- Actions ---
+    const actions = document.createElement("div");
+    actions.className = "actions";
+    actions.append(
+      makeBtn("Edit", () => editStore(s.id), "blue"),
+      makeBtn("Approve", () => approveStore(s.id), "green"),
+      makeBtn("Delete", () => toggleDelete(s), "danger")
+    );
+
+    card.appendChild(body);
+    card.appendChild(actions);
+    grid.appendChild(card);
+  });
+}
+
+// Render hierarchy (list view)
+function renderHierarchy(list) {
+  const tbody = $("#tbody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="9" class="muted center">No stores</td></tr>`;
+    return;
+  }
+
+  const byContinent = groupBy(list, s => s.continent || "Other");
+
+  Object.keys(byContinent).sort().forEach(cont => {
+    const contStores = byContinent[cont];
+    const contRow = document.createElement("tr");
+    contRow.className = "level-1";
+    contRow.innerHTML = `
+      <td><span class="arrow">▶</span> ${cont} <span class="muted">(${contStores.length})</span></td>
+      <td colspan="8"></td>`;
+    tbody.appendChild(contRow);
+
+    contRow.addEventListener("click", () => {
+      const open = contRow.classList.toggle("open");
+      const arr = contRow.querySelector(".arrow");
+      arr.textContent = open ? "▼" : "▶";
+      tbody.querySelectorAll(`tr[data-parent='${cont}']`).forEach(r => r.remove());
+      if (open) {
+        contStores.forEach(s => {
+          const row = document.createElement("tr");
+          row.dataset.parent = cont;
+          row.innerHTML = `
+            <td>${safe(s.name)}</td>
+            <td>${safe(s.city)}</td>
+            <td>${safe(s.country)}</td>
+            <td>${safe(s.type || "–")}</td>
+            <td>${safe(s.access || "–")}</td>
+            <td>${s.rating ?? "–"}</td>
+            <td>${s.approved ? "✅" : "–"}</td>`;
+          tbody.appendChild(row);
+        });
+      }
+    });
+  });
+}
+
+
+/* ============================================================
    5. MAIN RENDER SWITCH
    ============================================================ */
 function render() {
