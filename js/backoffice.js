@@ -236,10 +236,10 @@ await updateFilterCounts();
 
 // rendera aktuell vy
 render();
-
+} 
 
 /* ============================================================
-   FILTER COUNTS BADGES
+   6.1 FILTER COUNTS BADGES
    ============================================================ */
 async function updateFilterCounts() {
   const tables = WCL.supabase.from("stores");
