@@ -157,14 +157,24 @@ function countryToContinent(country){
   return "Other";
 }
 
-/* ============================================================
-   4.9 RENDERING HELPERS — Cards & Hierarchy
-   ============================================================ */
-/* ============================================================
+//* ============================================================
    4.9 RENDERING HELPERS — Cards & Hierarchy
    ============================================================ */
 
-// 🧪 TESTLOGG för felsökning
+// Helper: makeBtn(label, action, style)
+function makeBtn(label, onClick, cls = "ghost") {
+  const b = document.createElement("button");
+  b.className = `btn ${cls}`;
+  b.textContent = label;
+  b.addEventListener("click", (e) => {
+    e.stopPropagation(); // hindrar klick från att trigga kortet
+    onClick();
+  });
+  return b;
+}
+
+
+// 🧪 TESTLOGG
 console.log("✅ renderCards loaded!");
 
 // Render cards (grid view)
