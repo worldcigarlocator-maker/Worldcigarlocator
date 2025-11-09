@@ -182,6 +182,24 @@ const countryToContinent = (country) => {
   return "Other";
 };
 
+/* ===================== RENDER ====================== */
+function render() {
+  const term = ($("#searchInput")?.value || "").trim().toLowerCase();
+  const matches = (s) =>
+    [s.name, s.city, s.country].some((v) =>
+      safe(v).toLowerCase().includes(term)
+    );
+  const list = term ? STORES.filter(matches) : STORES;
+
+  if (CURRENT_VIEW === "cards") {
+    renderCards(list);
+  } else {
+    renderHierarchy(list);
+    renderTable(applyHierarchyFilter(list));
+  }
+}
+
+
 /* ===================== DATA LOADING ====================== */
 async function reloadData(tab = CURRENT_TAB) {
   CURRENT_TAB = tab;
