@@ -589,6 +589,13 @@ async function editStore(id) {
         <label>Name</label>
         <input id="edit-name" value="${safe(store.name)}" />
 
+        <label>Address</label>
+<input id="edit-address" value="${safe(store.address || '')}" />
+
+<label>Phone</label>
+<input id="edit-phone" value="${safe(store.phone || '')}" />
+
+
         <label>City</label>
         <input id="edit-city" value="${safe(store.city)}" />
 
@@ -723,7 +730,9 @@ async function editStore(id) {
 $("#edit-save").onclick = async () => {
   const payload = {
     name: $("#edit-name").value.trim(),
-    city: $("#edit-city").value.trim(),
+   address: $("#edit-address").value.trim(),
+phone: $("#edit-phone").value.trim(),
+ city: $("#edit-city").value.trim(),
     country: $("#edit-country").value.trim(),
     continent: $("#edit-continent").value || null,
     website: $("#edit-website").value.trim(),
@@ -752,10 +761,6 @@ $("#edit-save").onclick = async () => {
 /* ==================== CLOSE MODAL ================= */
 function closeEdit(){ document.querySelectorAll(".modal-backdrop").forEach((m)=>m.remove()); }
 
-
-
-/* ==================== CLOSE MODAL ================= */
-function closeEdit(){ document.querySelectorAll(".modal-backdrop").forEach((m)=>m.remove()); }
 
 /* ===================== UI WIRING ========================= */
 document.addEventListener("DOMContentLoaded", () => {
