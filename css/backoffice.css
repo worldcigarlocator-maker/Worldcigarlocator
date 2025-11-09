@@ -379,9 +379,10 @@ tr:hover td {
   cursor: pointer;
 }
 
-tr.level-1 td { padding-left: 8px; font-weight: 700; }      /* continent */
-tr.level-2 td { padding-left: 24px; color: var(--text); }   /* country */
-tr.level-3 td { padding-left: 40px; color: var(--muted); }  /* city */
+tr.level-1 td { font-weight:700; background:#f8fafc; }
+tr.level-2 td { padding-left:1rem; background:#fcfcfd; }
+tr.level-3 td { padding-left:2rem; background:#fff; }
+tr.level-4 td { padding-left:3rem; background:#fff; font-size:0.88rem; }
 
 .arrow {
   display: inline-block;
