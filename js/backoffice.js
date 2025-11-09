@@ -623,12 +623,17 @@ async function editStore(id) {
         <label>Country</label>
         <input id="edit-country" value="${safe(store.country)}" />
 
-        <label>Continent</label>
-        <select id="edit-continent">
-          ${["Europe","North America","South America","Asia","Africa","Oceania","Other"].map(opt => `
-            <option value="${opt}">${opt}</option>
-          `).join("")}
-        </select>
+     <label>Continent</label>
+<select id="edit-continent">
+  <option value="Europe">Europe</option>
+  <option value="North America">North America</option>
+  <option value="South America">South America</option>
+  <option value="Asia">Asia</option>
+  <option value="Africa">Africa</option>
+  <option value="Oceania">Oceania</option>
+  <option value="Other">Other</option>
+</select>
+
 
         <label>Website</label>
         <input id="edit-website" value="${safe(store.website)}" />
