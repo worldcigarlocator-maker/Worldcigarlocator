@@ -730,9 +730,9 @@ async function editStore(id) {
 $("#edit-save").onclick = async () => {
   const payload = {
     name: $("#edit-name").value.trim(),
-   address: $("#edit-address").value.trim(),
-phone: $("#edit-phone").value.trim(),
- city: $("#edit-city").value.trim(),
+    address: $("#edit-address").value.trim(),
+    phone: $("#edit-phone").value.trim(),
+    city: $("#edit-city").value.trim(),
     country: $("#edit-country").value.trim(),
     continent: $("#edit-continent").value || null,
     website: $("#edit-website").value.trim(),
@@ -740,10 +740,6 @@ phone: $("#edit-phone").value.trim(),
     access: document.querySelector('input[name="access"]:checked')?.value || null,
     photo_reference: refs.length ? refs[currentIndex] : null,
   };
-
-  // ✅ Lägg till ISO2-automatik här:
-  payload.country_iso2 =
-    COUNTRY_TO_ISO2[ normalizeCountryKey(payload.country) ] || null;
 
   const { error } = await WCL.supabase
     .from("stores")
@@ -755,8 +751,8 @@ phone: $("#edit-phone").value.trim(),
   toast("Saved ✅");
   closeEdit();
   reloadData(CURRENT_TAB);
-};   // avslutar $("#edit-save").onclick
-}    // ✅ LÄGG TILL DENNA – avslutar async function editStore
+};
+
 
 /* ==================== CLOSE MODAL ================= */
 function closeEdit(){ document.querySelectorAll(".modal-backdrop").forEach((m)=>m.remove()); }
