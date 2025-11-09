@@ -536,10 +536,17 @@ function collapseAllHierarchy() {
 
 /* ==================== MOD ACTIONS ================= */
 async function approveStore(id) {
-  const { error } = await WCL.supabase.from("stores").update({ approved: true, flagged: false }).eq("id", id);
+  const { error } = await WCL.supabase
+    .from("stores")
+    .update({ approved: true, flagged: false, deleted: false })
+    .eq("id", id);
+
   if (error) return toast("Error approving", "error");
-  toast("Approved ✅"); reloadData(CURRENT_TAB);
+
+  toast("Approved ✅");
+  await reloadData(CURRENT_TAB); // vänta in så UI uppdateras direkt
 }
+
 async function unflagStore(id) {
   const { error } = await WCL.supabase.from("stores").update({ flagged: false, flag_reason: null }).eq("id", id);
   if (error) return toast("Error unflagging", "error");
