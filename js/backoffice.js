@@ -182,6 +182,17 @@ const countryToContinent = (country) => {
   return "Other";
 };
 
+/* ---------- Helper: groupBy ---------- */
+function groupBy(array, keyFn) {
+  const map = {};
+  for (const item of array) {
+    const key = keyFn(item);
+    if (!map[key]) map[key] = [];
+    map[key].push(item);
+  }
+  return map;
+}
+
 /* ===================== RENDER ====================== */
 function render() {
   const term = ($("#searchInput")?.value || "").trim().toLowerCase();
