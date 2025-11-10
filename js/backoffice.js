@@ -210,8 +210,6 @@ function render() {
     renderTable(list);
   }
 
-  updateRegionCounts(list);
-}
 
 
 /* ============================================================
