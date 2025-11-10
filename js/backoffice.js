@@ -396,17 +396,20 @@ async function reloadData(tab = CURRENT_TAB) {
   grid.innerHTML = "<p class='muted center'>Loading…</p>";
 
   // -----------------------------------------------------------
-  // 1️⃣  Hämta alla rader (för counts)
+  // 1️⃣  Hämta alla rader för counts (oberoende av flik)
   // -----------------------------------------------------------
   const COUNT_FIELDS = "id,approved,flagged,deleted,photo_reference";
   let allData = [];
   try {
     const { data, error } = await WCL.supabase
       .from("stores")
-      .select(COUNT_FIELDS);
-    if (!error && data) allData = data;
+      .select(COUNT_FIELDS, { head: false }) // 🔹 hämtar bara minimala fält
+      .order("id", { ascending: false });
+
+    if (error) console.warn("⚠️ Count fetch failed:", error);
+    if (data) allData = data;
   } catch (err) {
-    console.warn("⚠️ Count fetch failed:", err);
+    console.warn("⚠️ Count fetch crashed:", err);
   }
 
   // -----------------------------------------------------------
@@ -416,7 +419,10 @@ async function reloadData(tab = CURRENT_TAB) {
     "id,name,city,country,continent,type,address,phone,access,rating," +
     "approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason";
 
-  let base = WCL.supabase.from("stores").select(SELECT_FIELDS).order("id", { ascending: false });
+  let base = WCL.supabase
+    .from("stores")
+    .select(SELECT_FIELDS)
+    .order("id", { ascending: false });
 
   if (tab === "approved") base = base.eq("approved", true).eq("deleted", false);
   else if (tab === "flagged") base = base.eq("flagged", true).eq("deleted", false);
@@ -427,15 +433,30 @@ async function reloadData(tab = CURRENT_TAB) {
   // “Needs Repair” specialflik
   if (tab === "repair") {
     const { data, error } = await WCL.supabase
-      .from("stores").select(SELECT_FIELDS).eq("deleted", false).order("id", { ascending: false });
-    if (error) return grid.innerHTML = "<p class='error center'>Error loading stores</p>";
+      .from("stores")
+      .select(SELECT_FIELDS)
+      .eq("deleted", false)
+      .order("id", { ascending: false });
+
+    if (error) {
+      grid.innerHTML = "<p class='error center'>Error loading stores</p>";
+      return;
+    }
+
     const fallbackList = (data || []).filter(s => !s.photo_reference);
-    STORES = fallbackList.map(s => ({ ...s, continent: s.continent || countryToContinent(s.country) }));
+    STORES = fallbackList.map(s => ({
+      ...s,
+      continent: s.continent || countryToContinent(s.country)
+    }));
+
     render();
-    updateRegionCounts(allData);  // ✅ counts från alla rader
+    updateRegionCounts(allData); // ✅ alltid uppdaterad
     return;
   }
 
+  // -----------------------------------------------------------
+  // 3️⃣  Kör huvudqueryn för aktiv flik
+  // -----------------------------------------------------------
   const { data, error } = await base;
   if (error) {
     console.error(error);
@@ -443,19 +464,20 @@ async function reloadData(tab = CURRENT_TAB) {
     return;
   }
 
-  // -----------------------------------------------------------
-  // 3️⃣  Spara filtrerad lista + rendera + uppdatera counts
-  // -----------------------------------------------------------
   STORES = (data || []).map((s) => ({
     ...s,
     continent: s.continent || countryToContinent(s.country),
   }));
 
+  // -----------------------------------------------------------
+  // 4️⃣  Rendera + uppdatera counts korrekt
+  // -----------------------------------------------------------
   render();
-  updateRegionCounts(allData); // ✅ alltid hela systemets status
+  updateRegionCounts(allData); // 💥 baseras på *hela databasen*
 
-  console.log(`✅ reloadData(): tab=${CURRENT_TAB}, rows=${STORES.length}, all=${allData.length}`);
+  console.log(`✅ reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}, total=${allData.length}`);
 }
+
 
 
 
