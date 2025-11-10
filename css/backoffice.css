@@ -340,115 +340,82 @@ h3.twoline,
 
 
 /* ============================================================
-   INLINE TABLE VIEW — Compact Hierarchy Table
+   COMPACT TABLE VIEW — Excel-style Admin Layout
    ============================================================ */
-function renderTable(list) {
-  const tbody = $("#tbody");
-  tbody.innerHTML = "";
 
-  list.forEach((s) => {
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>${safe(s.continent)}</td>
-
-      <td>
-        <div style="display:flex; align-items:center; gap:4px;">
-          ${(() => {
-            const url = flagURL(s.country, s.country_iso2);
-            return url
-              ? `<img class="flag" src="${url}" style="width:14px;height:10px;border-radius:2px;object-fit:cover;">`
-              : "";
-          })()}
-          <span>${safe(s.country)}</span>
-        </div>
-      </td>
-
-      <td>${safe(s.city)}</td>
-      <td class="truncate">${safe(s.name)}</td>
-      <td>${safe(s.type || "–")}</td>
-      <td>${safe(s.access || "–")}</td>
-      <td>${s.rating ?? "–"}</td>
-      <td>${s.comment_count ?? 0}</td>
-
-      <td class="action-td" style="white-space:nowrap;"></td>
-    `;
-
-    // Actions
-    const actionsTd = tr.querySelector(".action-td");
-    actionsTd.append(
-      makeBtn("Edit", () => editStore(s.id), "blue small"),
-      makeBtn("Approve", () => approveStore(s.id), "green small"),
-      makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger small")
-    );
-
-    tbody.appendChild(tr);
-  });
-
-  if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="10" class="muted center">No stores</td></tr>`;
-  }
+.table-wrap {
+  flex: 1;
+  overflow-x: auto;
+  padding-left: .5rem;
 }
 
-
-/* ============================================================
-   INLINE HIERARCHY — Smooth Excel-style expand
-   ============================================================ */
-#hierarchyPanel {
-  flex: 0 0 25%;
-  min-width: 200px;
-  max-height: 80vh;
-  overflow-y: auto;
-  border-right: 1px solid var(--border);
-  padding-right: .6rem;
+table {
+  width: 100%;
+  border-collapse: collapse;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 6px;
   box-shadow: var(--shadow);
-  font-size: 0.82rem;        /* 🔹 mindre text */
-  line-height: 1.1rem;       /* 🔹 kompakt radavstånd */
+  font-size: 0.55rem;         /* 🔹 ca 8–9px */
+  line-height: 1.1rem;
+  color: var(--text);
 }
 
-.line {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: .35rem;
-  padding: .2rem .4rem;      /* 🔹 tajtare */
+th, td {
+  padding: .25rem .4rem;      /* 🔹 kompakt cellhöjd */
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  background: #f5f7fa;
+  font-weight: 600;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: #333;
+}
+
+tr:hover td {
+  background: #f1f5f9;
+}
+
+/* Flag inside cells */
+td .flag {
+  vertical-align: middle;
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 4px;
+  object-fit: cover;
+}
+
+/* Actions buttons inside table */
+.action-td .btn.small {
+  font-size: 0.55rem;
+  padding: .2rem .35rem;
   border-radius: 4px;
-  transition: background .2s;
-}
-.line:hover {
-  background: rgba(0,0,0,.05);
+  font-weight: 600;
 }
 
-.line.continent { font-weight:600; color:var(--blue); }
-.line.country   { margin-left:.8rem; color:var(--green); font-weight:500; }
-.line.city      { margin-left:1.6rem; color:var(--gold); font-weight:400; }
-
-.arrow {
-  width: .8rem;
-  color: var(--muted);
-  font-size: .75rem;
-}
-.count {
-  margin-left: auto;
-  color: var(--muted);
-  font-size: .75rem;
+/* Column truncate for long names */
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+  display: inline-block;
 }
 
-.nested {
-  margin-left: .6rem;
-  border-left: 1px dashed var(--border);
-  padding-left: .4rem;
+/* Scrollbars only when needed */
+.table-wrap::-webkit-scrollbar {
+  height: 6px;
 }
-.hidden {
-  display: none !important;
+.table-wrap::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
 }
-
-.highlight {
-  background: #fff3cd !important;
-}
-
 
 
 /* ============================================================
