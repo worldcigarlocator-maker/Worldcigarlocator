@@ -759,11 +759,18 @@ async function editStore(id) {
         <label>Website</label>
         <input id="edit-website" value="${safe(store.website)}" />
 
-        <label>Type</label>
-        <div class="type-group">
-          <button type="button" class="type-btn ${store.type === "store" ? "active" : ""}" data-type="store">Store</button>
-          <button type="button" class="type-btn ${store.type === "lounge" ? "active" : ""}" data-type="lounge">Lounge</button>
-        </div>
+  <label>Type</label>
+<div class="type-group">
+  <label class="type-btn">
+    <input type="checkbox" name="types" value="store" ${store.types?.includes("store") ? "checked" : ""}>
+    Store
+  </label>
+  <label class="type-btn">
+    <input type="checkbox" name="types" value="lounge" ${store.types?.includes("lounge") ? "checked" : ""}>
+    Lounge
+  </label>
+</div>
+
 
         <label>Access</label>
         <div class="access-group">
@@ -874,19 +881,19 @@ async function editStore(id) {
   });
 
 // buttons
-$("#edit-save").onclick = async () => {
-  const payload = {
-    name: $("#edit-name").value.trim(),
-    address: $("#edit-address").value.trim(),
-    phone: $("#edit-phone").value.trim(),
-    city: $("#edit-city").value.trim(),
-    country: $("#edit-country").value.trim(),
-    continent: $("#edit-continent").value || null,
-    website: $("#edit-website").value.trim(),
-    type: document.querySelector(".type-btn.active")?.dataset.type || null,
-    access: document.querySelector('input[name="access"]:checked')?.value || null,
-    photo_reference: refs.length ? refs[currentIndex] : null,
-  };
+const payload = {
+  name: $("#edit-name").value.trim(),
+  address: $("#edit-address").value.trim(),
+  phone: $("#edit-phone").value.trim(),
+  city: $("#edit-city").value.trim(),
+  country: $("#edit-country").value.trim(),
+  continent: $("#edit-continent").value || null,
+  website: $("#edit-website").value.trim(),
+  types: Array.from(document.querySelectorAll('input[name="types"]:checked')).map(cb => cb.value),
+  access: document.querySelector('input[name="access"]:checked')?.value || null,
+  photo_reference: refs.length ? refs[currentIndex] : null,
+};
+
 
   const { error } = await WCL.supabase
     .from("stores")
