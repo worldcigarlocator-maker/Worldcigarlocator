@@ -52,6 +52,131 @@ function groupBy(arr, keyFn) {
   }, {});
 }
 
+
+/* ============================================================
+   INLINE LISTVIEW — Expandable Continent → Country → City → Store
+   ============================================================ */
+function renderListView(list) {
+  const wrap = $(".listview-wrap");
+  if (!wrap) return;
+
+  wrap.innerHTML = `
+    <table id="listTable">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Continent</th>
+          <th>Country</th>
+          <th>City</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Access</th>
+          <th>Rating</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="listBody"></tbody>
+    </table>
+  `;
+
+  const tbody = $("#listBody");
+  tbody.innerHTML = "";
+
+  // Grupp efter kontinent
+  const byContinent = groupBy(list, s => s.continent || "Other");
+
+  Object.entries(byContinent).forEach(([continent, contStores]) => {
+    const row = makeExpandableRow(continent, contStores, "continent");
+    tbody.appendChild(row);
+  });
+}
+
+/* ============================================================
+   HELPER — Skapar expanderbar rad
+   ============================================================ */
+function makeExpandableRow(label, items, level) {
+  const tr = document.createElement("tr");
+  tr.className = `expandable ${level}`;
+  tr.innerHTML = `
+    <td class="arrow-cell">▶</td>
+    <td colspan="9" class="line-label"><strong>${label}</strong> <span class="muted">(${items.length})</span></td>
+  `;
+
+  let expanded = false;
+  const subRows = [];
+
+  tr.addEventListener("click", (e) => {
+    e.stopPropagation();
+
+    // Collapse existing
+    if (expanded) {
+      subRows.forEach(r => r.remove());
+      tr.querySelector(".arrow-cell").textContent = "▶";
+      expanded = false;
+      return;
+    }
+
+    // Expand level
+    tr.querySelector(".arrow-cell").textContent = "▼";
+    expanded = true;
+
+    // Nästa nivå
+    if (level === "continent") {
+      const byCountry = groupBy(items, s => s.country || "Unknown");
+      Object.entries(byCountry).forEach(([country, countryStores]) => {
+        const sub = makeExpandableRow(country, countryStores, "country");
+        subRows.push(sub);
+        tr.insertAdjacentElement("afterend", sub);
+      });
+    } else if (level === "country") {
+      const byCity = groupBy(items, s => s.city || "Unknown");
+      Object.entries(byCity).forEach(([city, cityStores]) => {
+        const sub = makeExpandableRow(city, cityStores, "city");
+        subRows.push(sub);
+        tr.insertAdjacentElement("afterend", sub);
+      });
+    } else if (level === "city") {
+      // Visa butiker
+      items.forEach((s) => {
+        const row = document.createElement("tr");
+        row.className = "store-row";
+        row.innerHTML = `
+          <td></td>
+          <td>${safe(s.continent)}</td>
+          <td>
+            ${flagURL(s.country, s.country_iso2)
+              ? `<img src="${flagURL(s.country, s.country_iso2)}" class="flag">`
+              : ""}
+            ${safe(s.country)}
+          </td>
+          <td>${safe(s.city)}</td>
+          <td>${safe(s.name)}</td>
+          <td>${safe(s.type)}</td>
+          <td>${safe(s.access) || "–"}</td>
+          <td>${s.rating ?? "–"}</td>
+          <td>
+            ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
+            ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
+            ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
+            ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
+          </td>
+          <td class="action-td">
+            <button class="btn small blue" onclick="editStore(${s.id})">Edit</button>
+            <button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
+            <button class="btn small danger" onclick="toggleDelete(${s.id})">Delete</button>
+          </td>
+        `;
+        subRows.push(row);
+        tr.insertAdjacentElement("afterend", row);
+      });
+    }
+  });
+
+  return tr;
+}
+
+
 /* ========================= FLAGS =========================
    Global ISO2 Engine — robust mapping med alias & normalisering
    ============================================================ */
@@ -241,10 +366,9 @@ function render() {
   if (CURRENT_VIEW === "cards") {
     renderCards(list);
   } else {
-    renderHierarchy(list);
-    renderTable(list);
+    renderListView(list);
   }
-} 
+}
 
 
 /* ============================================================
@@ -444,160 +568,6 @@ function renderCards(list) {
   if (!list.length) grid.innerHTML = `<p class="muted center">No stores</p>`;
 }
 
-/* ============================================================
-   INLINE TABLE VIEW — Compact Hierarchy Table
-   ============================================================ */
-function renderTable(list) {
-  const tbody = $("#tbody");
-  tbody.innerHTML = "";
-
-  list.forEach((s) => {
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>${safe(s.continent)}</td>
-
-      <td>
-        <div style="display:flex; align-items:center; gap:4px;">
-          ${(() => {
-            const url = flagURL(s.country, s.country_iso2);
-            return url
-              ? `<img class="flag" src="${url}" style="width:14px;height:10px;border-radius:2px;object-fit:cover;">`
-              : "";
-          })()}
-          <span>${safe(s.country)}</span>
-        </div>
-      </td>
-
-      <td>${safe(s.city)}</td>
-      <td class="truncate">${safe(s.name)}</td>
-      <td>${safe(s.type || "–")}</td>
-      <td>${safe(s.access || "–")}</td>
-      <td>${s.rating ?? "–"}</td>
-      <td>${s.comment_count ?? 0}</td>
-
-      <td class="action-td" style="white-space:nowrap;"></td>
-    `;
-
-    // Actions
-    const actionsTd = tr.querySelector(".action-td");
-    actionsTd.append(
-      makeBtn("Edit", () => editStore(s.id), "blue small"),
-      makeBtn("Approve", () => approveStore(s.id), "green small"),
-      makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger small")
-    );
-
-    tbody.appendChild(tr);
-  });
-
-  if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="10" class="muted center">No stores</td></tr>`;
-  }
-}
-
-
-/* ============================================================
-   HIERARCHY (LIST-VIEW) — Inline Expandable List
-   ============================================================ */
-function renderHierarchy(list) {
-  const panel = $("#hierarchyPanel");
-  if (!panel) return;
-  panel.innerHTML = "";
-
-  // Grupp efter kontinent
-  const byContinent = groupBy(list, s => s.continent || "Other");
-
-  Object.entries(byContinent).forEach(([continent, contStores]) => {
-    const contLine = document.createElement("div");
-    contLine.className = "line continent";
-    contLine.innerHTML = `
-      <span class="arrow">▶</span>
-      <span>${continent}</span>
-      <span class="count">${contStores.length}</span>
-    `;
-
-    const nestedCountries = document.createElement("div");
-    nestedCountries.className = "nested hidden";
-
-    // Grupp efter land
-    const byCountry = groupBy(contStores, s => s.country || "Unknown");
-    Object.entries(byCountry).forEach(([country, countryStores]) => {
-      const countryLine = document.createElement("div");
-      countryLine.className = "line country";
-      countryLine.innerHTML = `
-        <span class="arrow">▶</span>
-        <span>${country}</span>
-        <span class="count">${countryStores.length}</span>
-      `;
-
-      const nestedCities = document.createElement("div");
-      nestedCities.className = "nested hidden";
-
-      // Grupp efter stad
-      const byCity = groupBy(countryStores, s => s.city || "Unknown");
-      Object.entries(byCity)
-        .sort((a, b) => b[1].length - a[1].length)
-        .forEach(([city, cityStores]) => {
-          const cityLine = document.createElement("div");
-          cityLine.className = "line city";
-          cityLine.innerHTML = `
-            <span>${city}</span>
-            <span class="count">${cityStores.length}</span>
-          `;
-          cityLine.addEventListener("click", (e) => {
-            e.stopPropagation();
-            highlight(panel, cityLine);
-            renderTable(cityStores);
-          });
-          nestedCities.appendChild(cityLine);
-        });
-
-      // Klick på land → toggle city-lista + uppdatera tabell
-      countryLine.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const open = countryLine.classList.toggle("open");
-        nestedCities.classList.toggle("hidden");
-        countryLine.querySelector(".arrow").textContent = open ? "▼" : "▶";
-        highlight(panel, countryLine);
-        renderTable(countryStores);
-      });
-
-      nestedCountries.append(countryLine, nestedCities);
-    });
-
-    // Klick på kontinent → toggle country-lista + uppdatera tabell
-    contLine.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const open = contLine.classList.toggle("open");
-      nestedCountries.classList.toggle("hidden");
-      contLine.querySelector(".arrow").textContent = open ? "▼" : "▶";
-      highlight(panel, contLine);
-      renderTable(contStores);
-    });
-
-    panel.append(contLine, nestedCountries);
-  });
-}
-
-
-
-/* ================ EXPAND / COLLAPSE ALL ================= */
-
-function expandAllHierarchy() {
-  $$("#hierarchyPanel .nested").forEach((nested) => {
-    nested.classList.add("open");
-    nested.style.display = "block";
-  });
-  $$("#hierarchyPanel .line .arrow").forEach((arr) => arr.textContent = "▼");
-}
-
-function collapseAllHierarchy() {
-  $$("#hierarchyPanel .nested").forEach((nested) => {
-    nested.classList.remove("open");
-    nested.style.display = "none";
-  });
-  $$("#hierarchyPanel .line .arrow").forEach((arr) => arr.textContent = "▶");
-}
 
 /* ==================== MOD ACTIONS ================= */
 async function approveStore(id) {
@@ -884,9 +854,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // search
   $("#searchInput")?.addEventListener("input", () => render());
-
-$("#expandAll")?.addEventListener("click", expandAllHierarchy);
-$("#collapseAll")?.addEventListener("click", collapseAllHierarchy);
 
   // initial
   reloadData("pending");
