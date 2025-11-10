@@ -114,24 +114,20 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ================================
      TYPE SELECTOR — Multi-select
      ================================ */
-  const typeButtons = document.querySelectorAll(".type-btn");
-  selectedTypes = [];
+document.querySelectorAll(".type-btn input").forEach(cb => {
+  cb.addEventListener("change", () => {
+    const val = cb.value;
 
-  typeButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const type = btn.dataset.type;
+    if (cb.checked) {
+      if (!sel.types.includes(val)) sel.types.push(val);
+    } else {
+      sel.types = sel.types.filter(t => t !== val);
+    }
 
-      if (selectedTypes.includes(type)) {
-        selectedTypes = selectedTypes.filter((t) => t !== type);
-        btn.classList.remove("active");
-      } else {
-        selectedTypes.push(type);
-        btn.classList.add("active");
-      }
-
-      console.log("🟩 selectedTypes →", selectedTypes);
-    });
+    console.log("🟩 Selected types →", sel.types);
   });
+});
+
 
   /* ================================
      FORM SUBMIT
