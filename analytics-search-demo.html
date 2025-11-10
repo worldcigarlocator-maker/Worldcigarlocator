@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics Smart Search Demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background:#f5f7fa; padding:2rem; color:#222; }
+    h1 { margin-bottom:1rem; }
+    input[type=text] {
+      width:100%; max-width:600px; padding:.6rem .8rem; border:1px solid #ccc;
+      border-radius:8px; font-size:1rem; outline:none;
+    }
+    input[type=text]:focus { border-color:#007bff; }
+    pre {
+      background:#fff; border:1px solid #eee; padding:1rem; margin-top:1rem;
+      border-radius:8px; font-family:monospace; font-size:.9rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Analytics Smart Search Parser (Demo)</h1>
+  <input id="query" type="text" placeholder="Ex: flagged europe cannabis top50 type:lounge approved:true" />
+  <pre id="output">Waiting for input…</pre>
+
+  <script>
+    function parseQuery(q) {
+      q = q.trim().toLowerCase();
+      const filters = {
+        flagged:false, approved:false, deleted:false, pending:false,
+        continent:null, country:null, city:null, type:null, access:null,
+        flag_reason:null, sort:null, limit:50
+      };
+
+      const parts = q.split(/\s+/);
+
+      for (let p of parts) {
+        // Boolean/status
+        if (["flagged","approved","deleted","pending","repair"].includes(p)) {
+          filters[p] = true;
+          continue;
+        }
+
+        // Key:value (type:store)
+        const kv = p.split(":");
+        if (kv.length === 2) {
+          const [key, val] = kv;
+          if (["continent","country","city","type","access"].includes(key))
+            filters[key] = capitalize(val);
+          else if (["approved","flagged","deleted"].includes(key))
+            filters[key] = val === "true";
+          else if (key === "limit" || key === "top")
+            filters.limit = parseInt(val,10);
+          else if (key === "sort")
+            filters.sort = val;
+          continue;
+        }
+
+        // top100 / top50
+        if (p.startsWith("top") && parseInt(p.slice(3))) {
+          filters.limit = parseInt(p.slice(3));
+          continue;
+        }
+        if (/^\d+$/.test(p)) {
+          filters.limit = parseInt(p);
+          continue;
+        }
+
+        // Sort keywords
+        if (["comments","views","clicks","rating"].includes(p)) {
+          filters.sort = p;
+          continue;
+        }
+
+        // Continents (no prefix)
+        const conts = ["europe","asia","africa","north america","south america","oceania","other"];
+        if (conts.includes(p)) {
+          filters.continent = capitalize(p);
+          continue;
+        }
+
+        // Fallback: maybe flag_reason search term
+        if (!filters.flag_reason) filters.flag_reason = p;
+      }
+
+      return filters;
+    }
+
+    function capitalize(str){
+      if(!str) return "";
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    const input = document.getElementById("query");
+    const output = document.getElementById("output");
+
+    input.addEventListener("input", () => {
+      const parsed = parseQuery(input.value);
+      output.textContent = JSON.stringify(parsed, null, 2);
+      console.clear();
+      console.log("Parsed filters:", parsed);
+    });
+  </script>
+</body>
+</html>
