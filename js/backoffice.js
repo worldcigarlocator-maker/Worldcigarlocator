@@ -436,85 +436,98 @@ function renderTable(list) {
   }
 }
 
-/* ================ HIERARCHY (LIST-VIEW) ================== */
+/* ============================================================
+   HIERARCHY (LIST-VIEW) — Excel-style, clickable & nested
+   ============================================================ */
 function renderHierarchy(list) {
   const panel = $("#hierarchyPanel");
+  if (!panel) return;
   panel.innerHTML = "";
 
-  const byCont = groupBy(list, (s) => s.continent || "Other");
+  // Grupp efter kontinent → land → stad
+  const byContinent = groupBy(list, s => s.continent || "Other");
 
-  Object.keys(byCont).sort().forEach((continent) => {
+  Object.entries(byContinent).forEach(([continent, countries]) => {
+    // === CONTINENT ===
+    const contNode = document.createElement("div");
+    contNode.className = "line continent";
+    contNode.innerHTML = `
+      <span class="arrow">▶</span>
+      <strong>${continent}</strong>
+      <span class="count muted">(${countries.length})</span>
+    `;
 
-    // ---- CONTINENT ----
-    const contNode = line("continent", continent, countStores(byCont[continent]));
     const nestedCountries = document.createElement("div");
-    nestedCountries.className = "nested";
+    nestedCountries.className = "nested hidden";
 
-    contNode.addEventListener("click", () => {
-      toggleNested(nestedCountries, contNode);
-      HIER_SEL = { continent, country: null, city: null };
-      render();
-      highlight(panel, contNode);
-    });
-
-    // ---- COUNTRIES ----
-    const byCountry = groupBy(byCont[continent], (s) => s.country || "Unknown");
-
-    Object.keys(byCountry).sort().forEach((country) => {
-
+    // Grupp efter land
+    const byCountry = groupBy(countries, s => s.country || "Unknown");
+    Object.entries(byCountry).forEach(([country, cities]) => {
       const cNode = document.createElement("div");
       cNode.className = "line country";
 
       const iso = flagURL(country);
       const flagHTML = iso
-        ? `<img src="${iso}" style="width:18px;height:14px;border-radius:2px;
-           object-fit:cover;border:1px solid #ccc;margin-right:6px;">`
+        ? `<img src="${iso}" class="flag" style="width:18px;height:14px;margin-right:6px;border:1px solid #ccc;border-radius:2px;">`
         : "";
 
       cNode.innerHTML = `
         <span class="arrow">▶</span>
-        ${flagHTML}
-        <span class="label">${country}</span>
-        <span class="muted">(${countStores(byCountry[country])})</span>
+        ${flagHTML}<span>${country}</span>
+        <span class="count muted">(${cities.length})</span>
       `;
 
       const nestedCities = document.createElement("div");
-      nestedCities.className = "nested";
+      nestedCities.className = "nested hidden";
 
-      cNode.addEventListener("click", (e) => {
-        e.stopPropagation();
-        toggleNested(nestedCities, cNode);
-        HIER_SEL = { continent, country, city: null };
-        render();
-        highlight(panel, cNode);
+      // Grupp efter stad
+      const byCity = groupBy(cities, s => s.city || "Unknown");
+      Object.entries(byCity).forEach(([city, stores]) => {
+        const cityNode = document.createElement("div");
+        cityNode.className = "line city";
+        cityNode.textContent = `${city} (${stores.length})`;
+        cityNode.addEventListener("click", (e) => {
+          e.stopPropagation();
+          HIER_SEL = { continent, country, city };
+          highlight(panel, cityNode);
+          renderTable(stores);
+        });
+        nestedCities.appendChild(cityNode);
       });
 
-      // ---- CITIES ----
-      const byCity = groupBy(byCountry[country], (s) => s.city || "Unknown");
+      // toggle country
+      cNode.addEventListener("click", (e) => {
+        e.stopPropagation();
+        cNode.classList.toggle("open");
+        nestedCities.classList.toggle("hidden");
+        cNode.querySelector(".arrow").textContent =
+          cNode.classList.contains("open") ? "▼" : "▶";
+        HIER_SEL = { continent, country, city: null };
+        highlight(panel, cNode);
+        renderTable(cities);
+      });
 
-      Object.keys(byCity)
-        .sort((a, b) => byCity[b].length - byCity[a].length)
-        .forEach((city) => {
-          const cityNode = document.createElement("div");
-          cityNode.className = "line city";
-          cityNode.textContent = `${city} (${byCity[city].length})`;
-
-          cityNode.addEventListener("click", (e) => {
-            e.stopPropagation();
-            HIER_SEL = { continent, country, city };
-            render();
-            highlight(panel, cityNode);
-          });
-
-          nestedCities.appendChild(cityNode);
-        });
-
-      nestedCountries.append(cNode, nestedCities);
+      nestedCountries.appendChild(cNode);
+      nestedCountries.appendChild(nestedCities);
     });
 
-    panel.append(contNode, nestedCountries);
+    // toggle continent
+    contNode.addEventListener("click", (e) => {
+      e.stopPropagation();
+      contNode.classList.toggle("open");
+      nestedCountries.classList.toggle("hidden");
+      contNode.querySelector(".arrow").textContent =
+        contNode.classList.contains("open") ? "▼" : "▶";
+      HIER_SEL = { continent, country: null, city: null };
+      highlight(panel, contNode);
+      renderTable(countries);
+    });
+
+    panel.appendChild(contNode);
+    panel.appendChild(nestedCountries);
   });
 }
+
 
 /* ================ EXPAND / COLLAPSE ALL ================= */
 
