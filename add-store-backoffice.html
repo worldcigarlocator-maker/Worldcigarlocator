@@ -8,248 +8,162 @@
 
   <style>
     :root {
-      --blue: #007bff;
-      --gold: #ffc107;
-      --border: #ddd;
-      --bg: #f7f9fb;
-      --text: #222;
-      --muted: #777;
-      --shadow: 0 2px 6px rgba(0,0,0,0.05);
+      --blue:#007bff; --gold:#ffc107; --border:#ddd; --bg:#f7f9fb; --text:#222; --muted:#777;
     }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 1rem;
-    }
-    .wrap { max-width: 900px; margin: auto; background: #fff; padding: 1.5rem; border-radius: 10px; box-shadow: var(--shadow); }
-
-    label { font-weight: 600; display: block; margin-bottom: .3rem; }
-    input, select {
-      width: 100%; padding: .45rem .6rem; border: 1px solid var(--border);
-      border-radius: 6px; font-size: .9rem; margin-bottom: .8rem;
-    }
-
-    .type-group { display: flex; gap: .6rem; margin-bottom: .8rem; }
-    .type-btn {
-      padding: .4rem .9rem; border: 1px solid var(--border); border-radius: 6px;
-      cursor: pointer; background: #fff; font-weight: 600; transition: .2s;
-    }
-    .type-btn:hover { background: #f1f1f1; }
-    .type-btn.active[data-type="store"] { background: var(--blue); color: #fff; border-color: var(--blue); }
-    .type-btn.active[data-type="lounge"] { background: var(--gold); color: #000; border-color: var(--gold); }
-
-    .preview img { max-width: 240px; border-radius: 8px; box-shadow: var(--shadow); }
-
-    .btn {
-      background: var(--blue); color: #fff; border: none; border-radius: 6px;
-      padding: .6rem 1.2rem; font-weight: 600; cursor: pointer; font-size: .9rem;
-    }
-    .btn:hover { background: #005ec4; }
-    #toast-container { position: fixed; bottom: 1rem; right: 1rem; display: flex; flex-direction: column; gap: .3rem; }
-    .toast { background: #333; color: #fff; padding: .4rem .8rem; border-radius: 6px; }
-    .toast.success { background: #28a745; }
-    .toast.error { background: #dc3545; }
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);margin:0;padding:1rem;}
+    .wrap{max-width:900px;margin:auto;background:#fff;padding:1.2rem 1.5rem;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+    h2{margin-top:0;font-size:1.1rem;}
+    label{font-weight:600;font-size:.85rem;margin-bottom:.2rem;display:block;}
+    input,select{width:100%;padding:.35rem .5rem;border:1px solid var(--border);border-radius:6px;font-size:.85rem;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.7rem 1rem;}
+    .type-group,.access-group{display:flex;gap:.5rem;margin-top:.25rem;}
+    .type-btn{flex:1;text-align:center;padding:.35rem;border:1px solid var(--border);border-radius:6px;background:#fff;font-weight:600;cursor:pointer;}
+    .type-btn.active[data-type="store"]{background:var(--blue);color:#fff;border-color:var(--blue);}
+    .type-btn.active[data-type="lounge"]{background:var(--gold);color:#000;border-color:var(--gold);}
+    .access-pill input{display:none;}
+    .access-pill span{display:inline-block;border:1px solid var(--border);border-radius:20px;padding:.25rem .9rem;cursor:pointer;font-size:.8rem;}
+    .access-pill input:checked+span{background:var(--blue);color:#fff;border-color:var(--blue);}
+    .photo-wrap{text-align:center;margin-top:.5rem;}
+    .photo-wrap img{width:220px;height:140px;object-fit:cover;border-radius:8px;border:1px solid var(--border);}
+    .btn{background:var(--blue);color:#fff;border:none;border-radius:6px;padding:.45rem 1rem;font-weight:600;cursor:pointer;font-size:.85rem;}
+    .btn:hover{background:#005ec4;}
+    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.3rem;}
+    .toast{background:#333;color:#fff;padding:.4rem .8rem;border-radius:6px;}
+    .toast.success{background:#28a745;} .toast.error{background:#dc3545;}
   </style>
 
   <script>
-    const WCL = {
-      SUPABASE_URL: "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4",
-      PHOTO_PROXY_URL: "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy",
-      PHOTO_REFS_URL: "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs",
-      FALLBACK_IMG: "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg"
+    const WCL={
+      SUPABASE_URL:"https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      SUPABASE_ANON_KEY:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4",
+      PHOTO_PROXY_URL:"https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy",
+      PHOTO_REFS_URL:"https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs",
+      FALLBACK_IMG:"https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg"
     };
-    WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
-    WCL.toast = (msg, cls="success") => {
-      const c = document.getElementById("toast-container");
-      const t = document.createElement("div");
-      t.className = `toast ${cls}`;
-      t.textContent = msg;
-      c.appendChild(t);
-      setTimeout(()=>t.remove(), 2500);
-    };
-    WCL.fetchPhotoRefs = async (placeId) => {
-      try {
-        const res = await fetch(`${WCL.PHOTO_REFS_URL}?place_id=${placeId}`);
-        const json = await res.json();
-        return json.refs || [];
-      } catch { return []; }
-    };
-    WCL.buildPhotoProxyUrl = (ref) => `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=800`;
-    WCL.countryToContinent = (countryIso2) => {
-      const c = (countryIso2 || "").toLowerCase();
-      if (["se","de","fr","it","es","no","fi","dk","nl","be","pl","ch","pt"].includes(c)) return "Europe";
-      if (["us","ca","mx"].includes(c)) return "North America";
-      if (["br","ar","cl","pe","co"].includes(c)) return "South America";
-      if (["cn","jp","in","th","sg"].includes(c)) return "Asia";
-      if (["za","ng","eg","ma","gh"].includes(c)) return "Africa";
-      if (["au","nz"].includes(c)) return "Oceania";
-      return "Other";
-    };
+    WCL.supabase=window.supabase.createClient(WCL.SUPABASE_URL,WCL.SUPABASE_ANON_KEY);
+    WCL.toast=(m,c="success")=>{const x=document.getElementById("toast-container"),t=document.createElement("div");t.className=`toast ${c}`;t.textContent=m;x.appendChild(t);setTimeout(()=>t.remove(),2500)};
+    WCL.fetchPhotoRefs=async(id)=>{try{const r=await fetch(`${WCL.PHOTO_REFS_URL}?place_id=${id}`);const j=await r.json();return j.refs||[]}catch{return[]}};
+    WCL.buildPhotoProxyUrl=(r)=>`${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(r)}&maxwidth=800`;
+    WCL.countryToContinent=(iso2)=>{const c=(iso2||"").toLowerCase();if(["se","de","fr","it","es","no","fi","dk","nl","be","pl","ch","pt"].includes(c))return"Europe";if(["us","ca","mx"].includes(c))return"North America";if(["br","ar","cl","pe","co"].includes(c))return"South America";if(["cn","jp","in","th","sg"].includes(c))return"Asia";if(["za","ng","eg","ma","gh"].includes(c))return"Africa";if(["au","nz"].includes(c))return"Oceania";return"Other"};
   </script>
 </head>
 <body>
   <div class="wrap">
     <h2>Add Store</h2>
 
-    <form id="addStoreForm">
-      <label for="autocomplete">Search Google Place</label>
-      <input id="autocomplete" type="text" placeholder="Start typing store name or address..." />
+    <form id="addStoreForm" class="grid">
+      <div class="full"><label>Search Google Place</label><input id="autocomplete" type="text" placeholder="Start typing..."></div>
+      <div><label>Name</label><input id="name" required></div>
+      <div><label>Address</label><input id="address"></div>
+      <div><label>City</label><input id="city"></div>
+      <div><label>Country</label><input id="country"></div>
+      <div><label>Continent</label><input id="continent" readonly></div>
+      <div><label>Phone</label><input id="phone"></div>
+      <div><label>Website</label><input id="website" type="url"></div>
 
-      <label>Name</label>
-      <input id="name" type="text" required>
-
-      <label>Address</label>
-      <input id="address" type="text">
-
-      <label>City</label>
-      <input id="city" type="text">
-
-      <label>Country</label>
-      <input id="country" type="text">
-
-      <label>Phone</label>
-      <input id="phone" type="text">
-
-      <label>Website</label>
-      <input id="website" type="url">
-
-      <label>Type</label>
-      <div class="type-group">
-        <button type="button" class="type-btn" data-type="store">🏪 Store</button>
-        <button type="button" class="type-btn" data-type="lounge">🍷 Lounge</button>
+      <div class="full">
+        <label>Type</label>
+        <div class="type-group">
+          <button type="button" class="type-btn" data-type="store">🏪 Store</button>
+          <button type="button" class="type-btn" data-type="lounge">🍷 Lounge</button>
+        </div>
       </div>
 
-      <label>Rating</label>
-      <input id="rating" type="number" min="0" max="5" step="0.1">
-
-      <label>Added by</label>
-      <input id="added_by" type="text" placeholder="Your name">
-
-      <label>Photo Preview</label>
-      <div class="preview" id="preview">
-        <img src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg" alt="Preview">
+      <div class="full">
+        <label>Access</label>
+        <div class="access-group">
+          <label class="access-pill"><input type="radio" name="access" value="public"><span>Public</span></label>
+          <label class="access-pill"><input type="radio" name="access" value="members"><span>Members Only</span></label>
+        </div>
       </div>
 
-      <br>
-      <button id="saveBtn" class="btn">Save Store</button>
+      <div><label>Added by</label><input id="added_by" placeholder="Your name"></div>
+      <div><label>Rating</label><input id="rating" type="number" step="0.1" min="0" max="5"></div>
+
+      <div class="photo-wrap full">
+        <img id="preview" src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg" alt="Preview">
+        <div id="photo-meta" class="muted small">No photo loaded</div>
+      </div>
+
+      <div class="full" style="text-align:right;"><button id="saveBtn" class="btn">Save Store</button></div>
     </form>
   </div>
-
   <div id="toast-container"></div>
 
   <script>
-    window.selectedPlace = {};
-    let selectedTypes = [];
+    window.selectedPlace={};
+    let selectedTypes=[];
 
-    // 🔹 Type buttons
-    document.querySelectorAll(".type-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const type = btn.dataset.type;
-        if (selectedTypes.includes(type)) {
-          selectedTypes = selectedTypes.filter(t => t !== type);
-          btn.classList.remove("active");
-        } else {
-          selectedTypes.push(type);
-          btn.classList.add("active");
-        }
+    // type buttons
+    document.querySelectorAll(".type-btn").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        const t=btn.dataset.type;
+        if(selectedTypes.includes(t)){selectedTypes=selectedTypes.filter(x=>x!==t);btn.classList.remove("active");}
+        else{selectedTypes.push(t);btn.classList.add("active");}
       });
     });
 
-    // 🔹 Google autocomplete
-    window.initAutocomplete = async function() {
-      const input = document.getElementById("autocomplete");
-      const ac = new google.maps.places.Autocomplete(input, {
-        fields: ["place_id","geometry","formatted_address","name","address_components","international_phone_number","website","photos"],
-        language: "en"
+    // autocomplete
+    window.initAutocomplete=async function(){
+      const ac=new google.maps.places.Autocomplete(document.getElementById("autocomplete"),{
+        fields:["place_id","geometry","formatted_address","name","address_components","international_phone_number","website","photos"],
+        language:"en"
       });
-
-      ac.addListener("place_changed", async () => {
-        const place = ac.getPlace();
-        if (!place.place_id) return;
-        window.selectedPlace = {
-          name: place.name || "",
-          address: place.formatted_address || "",
-          place_id: place.place_id,
-          lat: place.geometry?.location?.lat() || null,
-          lng: place.geometry?.location?.lng() || null
+      ac.addListener("place_changed",async()=>{
+        const p=ac.getPlace(); if(!p.place_id)return;
+        const comps=p.address_components||[];
+        const city=comps.find(c=>c.types.includes("locality")||c.types.includes("postal_town"));
+        const country=comps.find(c=>c.types.includes("country"));
+        const iso=country?.short_name?.toLowerCase()||"";
+        const cont=WCL.countryToContinent(iso);
+        window.selectedPlace={
+          name:p.name||"",address:p.formatted_address||"",
+          city:city?.long_name||"",country:country?.long_name||"",
+          country_iso2:iso,continent:cont,place_id:p.place_id,
+          lat:p.geometry?.location?.lat()||null,lng:p.geometry?.location?.lng()||null
         };
-
-        const comp = place.address_components || [];
-        const cityObj = comp.find(c=>c.types.includes("locality")||c.types.includes("postal_town"));
-        const countryObj = comp.find(c=>c.types.includes("country"));
-        const countryIso2 = countryObj?.short_name?.toLowerCase() || "";
-        window.selectedPlace.city = cityObj?.long_name || "";
-        window.selectedPlace.country = countryObj?.long_name || "";
-        window.selectedPlace.country_iso2 = countryIso2;
-        window.selectedPlace.continent = WCL.countryToContinent(countryIso2);
-
-        document.getElementById("name").value = window.selectedPlace.name;
-        document.getElementById("address").value = window.selectedPlace.address;
-        document.getElementById("city").value = window.selectedPlace.city;
-        document.getElementById("country").value = window.selectedPlace.country;
-
-        const refs = await WCL.fetchPhotoRefs(place.place_id);
-        if (refs.length) {
-          window.selectedPlace.photo_reference = refs[0];
-          document.querySelector("#preview img").src = WCL.buildPhotoProxyUrl(refs[0]);
-        } else {
-          document.querySelector("#preview img").src = WCL.FALLBACK_IMG;
-        }
-
-        document.getElementById("phone").value = place.international_phone_number || "";
-        document.getElementById("website").value = place.website || "";
-        WCL.toast("✅ Place loaded", "success");
+        document.getElementById("name").value=p.name||"";
+        document.getElementById("address").value=p.formatted_address||"";
+        document.getElementById("city").value=window.selectedPlace.city;
+        document.getElementById("country").value=window.selectedPlace.country;
+        document.getElementById("continent").value=cont;
+        document.getElementById("phone").value=p.international_phone_number||"";
+        document.getElementById("website").value=p.website||"";
+        const refs=await WCL.fetchPhotoRefs(p.place_id);
+        if(refs.length){window.selectedPlace.photo_reference=refs[0];
+          document.getElementById("preview").src=WCL.buildPhotoProxyUrl(refs[0]);
+          document.getElementById("photo-meta").textContent=`Loaded ${refs.length} photo(s)`;}
+        else{document.getElementById("preview").src=WCL.FALLBACK_IMG;
+          document.getElementById("photo-meta").textContent="No photo loaded";}
+        WCL.toast("✅ Place loaded");
       });
     };
 
-    // 🔹 Save
-    document.getElementById("addStoreForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      document.getElementById("saveBtn").disabled = true;
-
-      try {
-        const types = selectedTypes.length ? selectedTypes : ["store"];
-        const rating = Number(document.getElementById("rating").value || 0);
-        const added_by = document.getElementById("added_by").value || "anonymous";
-
-        const payload = {
-          ...window.selectedPlace,
-          types,
-          rating,
-          added_by,
-          approved: false,
-          flagged: false,
-          deleted: false,
-          phone: document.getElementById("phone").value || null,
-          website: document.getElementById("website").value || null,
-          continent: window.selectedPlace.continent,
-          country_iso2: window.selectedPlace.country_iso2 || null,
-        };
-
-        console.log("📦 Saving payload →", payload);
-        const { error } = await WCL.supabase.from("stores").insert([payload]);
-        if (error) throw error;
-
-        WCL.toast("✅ Store added successfully!", "success");
+    // save
+    document.getElementById("addStoreForm").addEventListener("submit",async(e)=>{
+      e.preventDefault(); const btn=document.getElementById("saveBtn"); btn.disabled=true;
+      try{
+        const types=selectedTypes.length?selectedTypes:["store"];
+        const access=document.querySelector("input[name='access']:checked")?.value||null;
+        const payload={...window.selectedPlace,types,access,
+          rating:Number(document.getElementById("rating").value||0),
+          added_by:document.getElementById("added_by").value||"anonymous",
+          phone:document.getElementById("phone").value||null,
+          website:document.getElementById("website").value||null,
+          approved:false,flagged:false,deleted:false};
+        console.log("📦 Saving payload →",payload);
+        const {error}=await WCL.supabase.from("stores").insert([payload]);
+        if(error)throw error;
+        WCL.toast("✅ Store saved!","success");
         e.target.reset();
-        document.querySelector("#preview img").src = WCL.FALLBACK_IMG;
-        selectedTypes = [];
-        document.querySelectorAll(".type-btn").forEach(b=>b.classList.remove("active"));
-      } catch (err) {
-        console.error(err);
-        WCL.toast("❌ Error saving store", "error");
-      } finally {
-        document.getElementById("saveBtn").disabled = false;
-      }
+        document.getElementById("preview").src=WCL.FALLBACK_IMG;
+        document.getElementById("photo-meta").textContent="No photo loaded";
+        selectedTypes=[];document.querySelectorAll(".type-btn").forEach(b=>b.classList.remove("active"));
+      }catch(err){console.error(err);WCL.toast("❌ Error saving","error");}
+      finally{btn.disabled=false;}
     });
   </script>
 
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete&language=en"
-    async defer>
-  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete&language=en" async defer></script>
 </body>
 </html>
