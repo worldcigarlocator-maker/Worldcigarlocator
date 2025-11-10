@@ -659,25 +659,54 @@ async function toggleDelete(s) {
 /* ==================== REPAIR PHOTO ================= */
 async function repairPhoto(id, place_id, imgEl) {
   const row = event?.target?.closest("tr");
-  if (row) row.style.backgroundColor = "rgba(255,165,0,0.15)"; // 🔶 highlight
+  if (row) row.style.transition = "background-color 0.4s ease";
 
-  if (!place_id) { toast("No place_id found for this store", "error"); return; }
+  if (!place_id) {
+    toast("No place_id found for this store", "error");
+    return;
+  }
+
+  // 🔶 Markera raden under arbete
+  if (row) row.style.backgroundColor = "rgba(255,165,0,0.25)";
   toast("Repairing photo…", "info");
+
   try {
     const refs = await fetchPhotoRefs(place_id);
-    if (!refs.length) { toast("No photos found from Google", "error"); return; }
+    if (!refs.length) {
+      toast("No photos found from Google", "error");
+      if (row) row.style.backgroundColor = "";
+      return;
+    }
+
     const newRef = refs[0];
-    const { error } = await WCL.supabase.from("stores").update({ photo_reference: newRef }).eq("id", id);
-    if (error) { console.error(error); toast("Error updating photo", "error"); return; }
+    const { error } = await WCL.supabase
+      .from("stores")
+      .update({ photo_reference: newRef })
+      .eq("id", id);
+
+    if (error) {
+      console.error(error);
+      toast("Error updating photo", "error");
+      if (row) row.style.backgroundColor = "";
+      return;
+    }
+
+    // ✅ Lyckades — grön blink!
     toast("Photo repaired ✅");
     if (imgEl) imgEl.src = buildPhotoProxyUrl(newRef);
-    if (row) row.style.backgroundColor = ""; // återställ färg
+    if (row) {
+      row.style.backgroundColor = "rgba(144,238,144,0.4)"; // ljusgrön
+      setTimeout(() => (row.style.backgroundColor = ""), 800);
+    }
+
   } catch (e) {
     console.error(e);
     toast("Repair failed", "error");
     if (row) row.style.backgroundColor = "";
   }
 }
+
+
 
 
 /* ==================== EDIT MODAL ================= */
