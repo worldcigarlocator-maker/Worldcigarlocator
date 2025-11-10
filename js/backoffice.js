@@ -723,7 +723,6 @@ async function repairPhoto(id, place_id, imgEl) {
   }
 }
 
-
 /* ==================== EDIT MODAL ================= */
 async function editStore(id) {
   closeEdit();
@@ -769,13 +768,14 @@ async function editStore(id) {
 
         <label>Continent</label>
         <select id="edit-continent">
-          <option value="Europe">Europe</option>
-          <option value="North America">North America</option>
-          <option value="South America">South America</option>
-          <option value="Asia">Asia</option>
-          <option value="Africa">Africa</option>
-          <option value="Oceania">Oceania</option>
-          <option value="Other">Other</option>
+          <option value="">(Auto)</option>
+          <option>Europe</option>
+          <option>North America</option>
+          <option>South America</option>
+          <option>Asia</option>
+          <option>Africa</option>
+          <option>Oceania</option>
+          <option>Other</option>
         </select>
 
         <label>Website</label>
@@ -783,20 +783,14 @@ async function editStore(id) {
 
         <label>Type</label>
         <div class="type-group">
-          <button type="button" class="type-btn ${store.type === "store" ? "active" : ""}" data-type="store">Store</button>
-          <button type="button" class="type-btn ${store.type === "lounge" ? "active" : ""}" data-type="lounge">Lounge</button>
+          <label class="type-btn"><input type="checkbox" value="store"> Store</label>
+          <label class="type-btn"><input type="checkbox" value="lounge"> Lounge</label>
         </div>
 
         <label>Access</label>
         <div class="access-group">
-          <label class="access-pill">
-            <input type="radio" name="access" value="public" ${store.access === "public" ? "checked" : ""}>
-            <span>Public</span>
-          </label>
-          <label class="access-pill">
-            <input type="radio" name="access" value="members" ${store.access === "members" ? "checked" : ""}>
-            <span>Members Only</span>
-          </label>
+          <label class="access-pill"><input type="radio" name="access" value="public"><span>Public</span></label>
+          <label class="access-pill"><input type="radio" name="access" value="members"><span>Members Only</span></label>
         </div>
 
         <label>Photo</label>
@@ -838,28 +832,26 @@ async function editStore(id) {
   `;
   document.body.appendChild(modal);
 
-  // 🔹 Förifyll kontinent
+  // 🔹 Fyll kontinent
   const contSel = $("#edit-continent");
   const defaultCont = store.continent || countryToContinent(store.country);
   if (defaultCont) contSel.value = defaultCont;
 
-  // 🔹 Stäng vid klick utanför modal
-  modal.addEventListener("click", (e) => { if (e.target === modal) closeEdit(); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeEdit(); }, { once: true });
+  // 🔹 Typval – återställ
+  modal.querySelectorAll(".type-btn input").forEach(cb => {
+    cb.checked = (store.types || []).includes(cb.value);
+  });
 
-  // 🔹 Typval
-  modal.querySelectorAll(".type-btn").forEach((btn) =>
-    btn.addEventListener("click", () => {
-      modal.querySelectorAll(".type-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-    })
-  );
+  // 🔹 Access
+  modal.querySelectorAll(".access-pill input").forEach(radio => {
+    radio.checked = store.access === radio.value;
+  });
 
   // 🔹 Foto-navigation
   let refs = await fetchPhotoRefs(store.place_id);
   if (!refs.length && store.photo_reference) refs = [store.photo_reference];
   let currentIndex = Math.max(0, refs.indexOf(store.photo_reference));
-  const imgEl  = modal.querySelector("#edit-photo");
+  const imgEl = modal.querySelector("#edit-photo");
   const metaEl = modal.querySelector("#photo-meta");
 
   function showCurrent() {
@@ -900,6 +892,9 @@ async function editStore(id) {
 
   // 🔹 Save button
   $("#edit-save").onclick = async () => {
+    const selectedTypes = Array.from(modal.querySelectorAll(".type-btn input:checked")).map(cb => cb.value);
+    const selectedAccess = modal.querySelector("input[name='access']:checked")?.value || null;
+
     const payload = {
       name: $("#edit-name").value.trim(),
       address: $("#edit-address").value.trim(),
@@ -908,72 +903,22 @@ async function editStore(id) {
       country: $("#edit-country").value.trim(),
       continent: $("#edit-continent").value || null,
       website: $("#edit-website").value.trim(),
-      type: document.querySelector(".type-btn.active")?.dataset.type || null,
-      access: document.querySelector('input[name="access"]:checked')?.value || null,
+      types: selectedTypes, // ✅ array
+      access: selectedAccess,
       photo_reference: refs.length ? refs[currentIndex] : null,
     };
 
-    const { data, error } = await WCL.supabase
-      .from("stores")
-      .update(payload)
-      .eq("id", id);
-
+    const { error } = await WCL.supabase.from("stores").update(payload).eq("id", id);
     if (error) {
       console.error("❌ Supabase update failed:", error);
       return toast("Error saving", "error");
     }
 
-    console.log("✅ Store updated:", data);
-    toast("Saved ✅");
+    toast("✅ Store updated!");
     closeEdit();
-
-    // 🔥 Ladda om kort automatiskt
-    await reloadData(CURRENT_TAB);
+    reloadData(CURRENT_TAB);
   };
 
-  // 🔹 Cancel button
   $("#edit-cancel").onclick = closeEdit;
-} // ✅ avslutar hela async function editStore()
+}
 
-
-
-/* ==================== CLOSE MODAL ================= */
-function closeEdit(){ document.querySelectorAll(".modal-backdrop").forEach((m)=>m.remove()); }
-
-
-/* ===================== UI WIRING ========================= */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ DOM fully loaded — Backoffice V5.2.1 ready");
-
-  // filters
-  $$(".filters .pill").forEach((p) =>
-    p.addEventListener("click", () => {
-      CURRENT_TAB = p.dataset.tab;
-      reloadData(CURRENT_TAB);
-    })
-  );
-
-  // view toggle
-  $$(".viewtoggle .seg").forEach((seg) =>
-    seg.addEventListener("click", () => {
-      $$(".viewtoggle .seg").forEach((x) => x.classList.remove("active"));
-      seg.classList.add("active");
-      CURRENT_VIEW = seg.dataset.view;
-
-      if (CURRENT_VIEW === "cards") {
-        $("#cards").style.display = "grid";
-        $(".listview-wrap").style.display = "none";
-      } else {
-        $("#cards").style.display = "none";
-        $(".listview-wrap").style.display = "flex";
-      }
-      render();
-    })
-  );
-
-  // search
-  $("#searchInput")?.addEventListener("input", () => render());
-
-  // initial
-  reloadData("pending");
-});
