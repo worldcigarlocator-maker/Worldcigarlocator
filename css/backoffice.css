@@ -343,16 +343,25 @@ h3.twoline,
    LIST VIEW (Hierarchy + Table)
    ============================================================ */
 
-.listview-wrap{
-  display:flex;
-  flex-wrap:wrap;      /* <-- FIX #1 */
-  gap:1rem;
-  margin-top:1rem;
+.listview-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 /* ============================================================
-   HIERARCHY PANEL — smooth toggle + highlighting
+   HIERARCHY PANEL — Click-through inline style
    ============================================================ */
+
+#hierarchyPanel {
+  flex: 0 0 22%;
+  min-width: 200px;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  padding-right: 1rem;
+}
 
 .line {
   cursor: pointer;
@@ -363,36 +372,42 @@ h3.twoline,
   align-items: center;
   gap: .4rem;
 }
+.line:hover { background: rgba(0,0,0,.05); }
 
-.line:hover {
-  background: rgba(0,0,0,.05);
+.line.continent { font-weight:700; color:var(--blue); }
+.line.country   { margin-left:1rem; color:var(--green); }
+.line.city      { margin-left:2rem; color:var(--gold); }
+
+.count { margin-left: auto; color: var(--muted); font-size: .85rem; }
+
+/* Top dynamic count row */
+.continent-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin-bottom: .6rem;
+  font-size: .9rem;
 }
 
-.line.active {
+.count-pill {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: .2rem .6rem;
+  cursor: pointer;
+  transition: background .2s;
+}
+.count-pill:hover {
   background: var(--blue);
   color: #fff;
 }
 
-.arrow {
+/* Breadcrumb-like navpath */
+.navpath {
+  font-weight: 600;
+  margin-bottom: .4rem;
   color: var(--muted);
-  width: 1rem;
-}
-
-.nested.hidden {
-  display: none !important;
-}
-
-.count {
-  margin-left: auto;
-  color: var(--muted);
-  font-size: .85rem;
-}
-
-/* Optional — gives nested cities a lighter border */
-.nested {
-  margin-left: 1rem;
-  border-left: 1px dashed var(--border);
-  padding-left: .5rem;
+  font-size: .9rem;
 }
 
 
