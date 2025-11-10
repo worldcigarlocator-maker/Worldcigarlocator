@@ -209,6 +209,8 @@ function render() {
     renderHierarchy(list);
     renderTable(list);
   }
+} 
+
 
 /* ============================================================
    DATA LOADING — hämtar från Supabase och växlar vy
