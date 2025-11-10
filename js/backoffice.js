@@ -395,14 +395,29 @@ async function reloadData(tab = CURRENT_TAB) {
   const grid = $("#cards");
   grid.innerHTML = "<p class='muted center'>Loading…</p>";
 
-  // Fält som hämtas
+  // -----------------------------------------------------------
+  // 1️⃣  Hämta alla rader (för counts)
+  // -----------------------------------------------------------
+  const COUNT_FIELDS = "id,approved,flagged,deleted,photo_reference";
+  let allData = [];
+  try {
+    const { data, error } = await WCL.supabase
+      .from("stores")
+      .select(COUNT_FIELDS);
+    if (!error && data) allData = data;
+  } catch (err) {
+    console.warn("⚠️ Count fetch failed:", err);
+  }
+
+  // -----------------------------------------------------------
+  // 2️⃣  Hämta filtrerad lista beroende på flik
+  // -----------------------------------------------------------
   const SELECT_FIELDS =
     "id,name,city,country,continent,type,address,phone,access,rating," +
     "approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason";
 
   let base = WCL.supabase.from("stores").select(SELECT_FIELDS).order("id", { ascending: false });
 
-  // Filtrera baserat på flik
   if (tab === "approved") base = base.eq("approved", true).eq("deleted", false);
   else if (tab === "flagged") base = base.eq("flagged", true).eq("deleted", false);
   else if (tab === "deleted") base = base.eq("deleted", true);
@@ -417,11 +432,10 @@ async function reloadData(tab = CURRENT_TAB) {
     const fallbackList = (data || []).filter(s => !s.photo_reference);
     STORES = fallbackList.map(s => ({ ...s, continent: s.continent || countryToContinent(s.country) }));
     render();
-    updateRegionCounts(STORES);
+    updateRegionCounts(allData);  // ✅ counts från alla rader
     return;
   }
 
-  // 🔹 normal laddning
   const { data, error } = await base;
   if (error) {
     console.error(error);
@@ -429,17 +443,20 @@ async function reloadData(tab = CURRENT_TAB) {
     return;
   }
 
+  // -----------------------------------------------------------
+  // 3️⃣  Spara filtrerad lista + rendera + uppdatera counts
+  // -----------------------------------------------------------
   STORES = (data || []).map((s) => ({
     ...s,
     continent: s.continent || countryToContinent(s.country),
   }));
 
-  // 🔹 rendera aktiv vy + topbar-räknare
   render();
-  updateRegionCounts(STORES);
+  updateRegionCounts(allData); // ✅ alltid hela systemets status
 
-  console.log(`✅ reloadData(): tab=${CURRENT_TAB}, rows=${STORES.length}`);
+  console.log(`✅ reloadData(): tab=${CURRENT_TAB}, rows=${STORES.length}, all=${allData.length}`);
 }
+
 
 
 /* ===================== BUTTON ===================== */
