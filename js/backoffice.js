@@ -460,6 +460,19 @@ function renderTable(list) {
 }
 
 /* ============================================================
+   HELPER: groupBy
+   ============================================================ */
+function groupBy(arr, keyFn) {
+  return arr.reduce((acc, item) => {
+    const key = keyFn(item) || "Unknown";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(item);
+    return acc;
+  }, {});
+}
+
+
+/* ============================================================
    HIERARCHY (LIST-VIEW) — Excel Inline Style
    ============================================================ */
 function renderHierarchy(list) {
@@ -528,6 +541,7 @@ function renderHierarchy(list) {
         });
     });
 }
+
 
 /* ================ EXPAND / COLLAPSE ALL ================= */
 
