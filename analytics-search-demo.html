@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Analytics Smart Search Demo</title>
+  <title>Analytics Smart Search Parser (V2)</title>
   <style>
     body { font-family: system-ui, sans-serif; background:#f5f7fa; padding:2rem; color:#222; }
     h1 { margin-bottom:1rem; }
@@ -19,11 +19,15 @@
   </style>
 </head>
 <body>
-  <h1>🔍 Analytics Smart Search Parser (Demo)</h1>
-  <input id="query" type="text" placeholder="Ex: flagged europe cannabis top50 type:lounge approved:true" />
+  <h1>🔍 Analytics Smart Search Parser (V2)</h1>
+  <input id="query" type="text" placeholder="Ex: flagged europe cannabis top50 type:lounge sweden" />
   <pre id="output">Waiting for input…</pre>
 
   <script>
+    const countries = ["sweden","norway","denmark","finland","usa","canada","mexico","spain","italy","france","germany","portugal","uk","england","brazil","argentina","japan","china","thailand","australia","south africa"];
+    const continents = ["europe","asia","africa","north america","south america","oceania","other"];
+    const cities = ["stockholm","gothenburg","oslo","copenhagen","madrid","barcelona","rome","paris","berlin","london","tokyo","bangkok","new york","los angeles","cape town"];
+
     function parseQuery(q) {
       q = q.trim().toLowerCase();
       const filters = {
@@ -35,51 +39,43 @@
       const parts = q.split(/\s+/);
 
       for (let p of parts) {
-        // Boolean/status
+        // status
         if (["flagged","approved","deleted","pending","repair"].includes(p)) {
           filters[p] = true;
           continue;
         }
 
-        // Key:value (type:store)
+        // key:value
         const kv = p.split(":");
         if (kv.length === 2) {
-          const [key, val] = kv;
-          if (["continent","country","city","type","access"].includes(key))
-            filters[key] = capitalize(val);
-          else if (["approved","flagged","deleted"].includes(key))
-            filters[key] = val === "true";
-          else if (key === "limit" || key === "top")
-            filters.limit = parseInt(val,10);
-          else if (key === "sort")
-            filters.sort = val;
+          const [key,val] = kv;
+          if (["continent","country","city","type","access"].includes(key)) filters[key]=capitalize(val);
+          if (["approved","flagged","deleted"].includes(key)) filters[key]=(val==="true");
+          if (key==="limit"||key==="top") filters.limit=parseInt(val,10);
+          if (key==="sort") filters.sort=val;
           continue;
         }
 
-        // top100 / top50
-        if (p.startsWith("top") && parseInt(p.slice(3))) {
-          filters.limit = parseInt(p.slice(3));
-          continue;
-        }
-        if (/^\d+$/.test(p)) {
-          filters.limit = parseInt(p);
-          continue;
-        }
+        // top50 etc
+        if (p.startsWith("top") && parseInt(p.slice(3))) { filters.limit=parseInt(p.slice(3)); continue; }
 
-        // Sort keywords
-        if (["comments","views","clicks","rating"].includes(p)) {
-          filters.sort = p;
-          continue;
-        }
+        // sorts
+        if (["comments","views","clicks","rating"].includes(p)) { filters.sort=p; continue; }
 
-        // Continents (no prefix)
-        const conts = ["europe","asia","africa","north america","south america","oceania","other"];
-        if (conts.includes(p)) {
-          filters.continent = capitalize(p);
-          continue;
-        }
+        // type or access
+        if (["store","stores","lounge","lounges"].includes(p)) { filters.type="Store/Lounge"; continue; }
+        if (["members","public"].includes(p)) { filters.access=capitalize(p); continue; }
 
-        // Fallback: maybe flag_reason search term
+        // continent
+        if (continents.includes(p)) { filters.continent=capitalize(p); continue; }
+
+        // country
+        if (countries.includes(p)) { filters.country=capitalize(p); continue; }
+
+        // city
+        if (cities.includes(p)) { filters.city=capitalize(p); continue; }
+
+        // fallback — flag_reason
         if (!filters.flag_reason) filters.flag_reason = p;
       }
 
