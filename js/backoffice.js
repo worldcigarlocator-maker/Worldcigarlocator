@@ -506,73 +506,79 @@ function renderTable(list) {
 
 
 /* ============================================================
-   HIERARCHY (LIST-VIEW) — Excel Inline Style
+   HIERARCHY (LIST-VIEW) — Click-through version
    ============================================================ */
 function renderHierarchy(list) {
   const panel = $("#hierarchyPanel");
   if (!panel) return;
   panel.innerHTML = "";
 
-  // Grupp efter kontinent, land och stad
+  // Grupp efter kontinent
   const byContinent = groupBy(list, s => s.continent || "Other");
 
-  Object.entries(byContinent)
-    .sort((a, b) => b[1].length - a[1].length)
-    .forEach(([continent, continentStores]) => {
-      // --- CONTINENT ---
-      const contLine = document.createElement("div");
-      contLine.className = "line continent";
-      contLine.innerHTML = `
-        <strong>${continent}</strong>
-        <span class="count">${continentStores.length}</span>
+  // 🔹 Build dynamic topbar count row
+  const topRow = document.createElement("div");
+  topRow.className = "continent-counts";
+  Object.entries(byContinent).forEach(([cont, stores]) => {
+    const span = document.createElement("span");
+    span.textContent = `${cont} ${stores.length}`;
+    span.className = "count-pill";
+    span.onclick = () => {
+      showCountries(cont, stores);
+    };
+    topRow.appendChild(span);
+  });
+  panel.appendChild(topRow);
+
+  // 🔹 Visa kontinenter (default vy)
+  Object.entries(byContinent).forEach(([continent, stores]) => {
+    const cont = document.createElement("div");
+    cont.className = "line continent";
+    cont.innerHTML = `
+      <strong>${continent}</strong>
+      <span class="count">(${stores.length})</span>
+    `;
+    cont.onclick = () => showCountries(continent, stores);
+    panel.appendChild(cont);
+  });
+
+  // --- INNER FUNCTIONS --- //
+  function showCountries(continent, contStores) {
+    panel.innerHTML = `<div class="navpath">${continent}</div>`;
+    const byCountry = groupBy(contStores, s => s.country || "Unknown");
+
+    Object.entries(byCountry).forEach(([country, stores]) => {
+      const c = document.createElement("div");
+      c.className = "line country";
+      const flag = flagURL(country);
+      c.innerHTML = `
+        ${flag ? `<img src="${flag}" class="flag" style="width:18px;height:14px;border-radius:2px;margin-right:6px;">` : ""}
+        ${country} <span class="count">(${stores.length})</span>
       `;
-      contLine.onclick = () => {
-        HIER_SEL = { continent, country: null, city: null };
-        highlight(panel, contLine);
-        renderTable(continentStores);
-      };
-      panel.appendChild(contLine);
-
-      // --- COUNTRY LEVEL ---
-      const byCountry = groupBy(continentStores, s => s.country || "Unknown");
-      Object.entries(byCountry)
-        .sort((a, b) => b[1].length - a[1].length)
-        .forEach(([country, countryStores]) => {
-          const countryLine = document.createElement("div");
-          countryLine.className = "line country";
-          const flag = flagURL(country);
-          countryLine.innerHTML = `
-            ${flag ? `<img src="${flag}" class="flag" style="width:18px;height:14px;border-radius:3px;margin-right:5px;">` : ""}
-            ${country}
-            <span class="count">${countryStores.length}</span>
-          `;
-          countryLine.onclick = () => {
-            HIER_SEL = { continent, country, city: null };
-            highlight(panel, countryLine);
-            renderTable(countryStores);
-          };
-          panel.appendChild(countryLine);
-
-          // --- CITY LEVEL ---
-          const byCity = groupBy(countryStores, s => s.city || "Unknown");
-          Object.entries(byCity)
-            .sort((a, b) => b[1].length - a[1].length)
-            .forEach(([city, cityStores]) => {
-              const cityLine = document.createElement("div");
-              cityLine.className = "line city";
-              cityLine.innerHTML = `
-                ${city}
-                <span class="count">${cityStores.length}</span>
-              `;
-              cityLine.onclick = () => {
-                HIER_SEL = { continent, country, city };
-                highlight(panel, cityLine);
-                renderTable(cityStores);
-              };
-              panel.appendChild(cityLine);
-            });
-        });
+      c.onclick = () => showCities(continent, country, stores);
+      panel.appendChild(c);
     });
+
+    renderTable(contStores);
+  }
+
+  function showCities(continent, country, countryStores) {
+    panel.innerHTML = `<div class="navpath">${continent} › ${country}</div>`;
+    const byCity = groupBy(countryStores, s => s.city || "Unknown");
+
+    Object.entries(byCity).forEach(([city, stores]) => {
+      const cityDiv = document.createElement("div");
+      cityDiv.className = "line city";
+      cityDiv.innerHTML = `${city} <span class="count">(${stores.length})</span>`;
+      cityDiv.onclick = () => {
+        panel.innerHTML = `<div class="navpath">${continent} › ${country} › ${city}</div>`;
+        renderTable(stores);
+      };
+      panel.appendChild(cityDiv);
+    });
+
+    renderTable(countryStores);
+  }
 }
 
 
