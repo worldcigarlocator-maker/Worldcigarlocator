@@ -100,7 +100,9 @@ function makeExpandableRow(label, items, level) {
   tr.className = `expandable ${level}`;
   tr.innerHTML = `
     <td class="arrow-cell">▶</td>
-    <td colspan="9" class="line-label"><strong>${label}</strong> <span class="muted">(${items.length})</span></td>
+    <td colspan="9" class="line-label">
+      <strong>${label}</strong> <span class="muted">(${items.length})</span>
+    </td>
   `;
 
   let expanded = false;
@@ -127,20 +129,25 @@ function makeExpandableRow(label, items, level) {
       Object.entries(byCountry).forEach(([country, countryStores]) => {
         const sub = makeExpandableRow(country, countryStores, "country");
         subRows.push(sub);
-        tr.insertAdjacentElement("afterend", sub);
+        tr.parentNode.insertBefore(sub, tr.nextSibling);
       });
+
     } else if (level === "country") {
       const byCity = groupBy(items, s => s.city || "Unknown");
       Object.entries(byCity).forEach(([city, cityStores]) => {
         const sub = makeExpandableRow(city, cityStores, "city");
         subRows.push(sub);
-        tr.insertAdjacentElement("afterend", sub);
+        tr.parentNode.insertBefore(sub, tr.nextSibling);
       });
+
     } else if (level === "city") {
       // Visa butiker
       items.forEach((s) => {
         const row = document.createElement("tr");
         row.className = "store-row";
+
+        const hasPhoto = Boolean(s.photo_reference);
+
         row.innerHTML = `
           <td></td>
           <td>${safe(s.continent)}</td>
@@ -164,11 +171,13 @@ function makeExpandableRow(label, items, level) {
           <td class="action-td">
             <button class="btn small blue" onclick="editStore(${s.id})">Edit</button>
             <button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
+            ${!hasPhoto ? `<button class="btn small orange" onclick="repairPhoto(${s.id}, '${(s.place_id || "").replace(/'/g, "\\'")}')">Repair</button>` : ""}
             <button class="btn small danger" onclick="toggleDelete(${s.id})">Delete</button>
           </td>
         `;
+
         subRows.push(row);
-        tr.insertAdjacentElement("afterend", row);
+        tr.parentNode.insertBefore(row, tr.nextSibling);
       });
     }
   });
@@ -649,6 +658,9 @@ async function toggleDelete(s) {
 
 /* ==================== REPAIR PHOTO ================= */
 async function repairPhoto(id, place_id, imgEl) {
+  const row = event?.target?.closest("tr");
+  if (row) row.style.backgroundColor = "rgba(255,165,0,0.15)"; // 🔶 highlight
+
   if (!place_id) { toast("No place_id found for this store", "error"); return; }
   toast("Repairing photo…", "info");
   try {
@@ -659,8 +671,14 @@ async function repairPhoto(id, place_id, imgEl) {
     if (error) { console.error(error); toast("Error updating photo", "error"); return; }
     toast("Photo repaired ✅");
     if (imgEl) imgEl.src = buildPhotoProxyUrl(newRef);
-  } catch (e) { console.error(e); toast("Repair failed", "error"); }
+    if (row) row.style.backgroundColor = ""; // återställ färg
+  } catch (e) {
+    console.error(e);
+    toast("Repair failed", "error");
+    if (row) row.style.backgroundColor = "";
+  }
 }
+
 
 /* ==================== EDIT MODAL ================= */
 async function editStore(id) {
