@@ -40,6 +40,18 @@ const toast = (msg, cls = "success") => {
   setTimeout(() => t.remove(), 2500);
 };
 
+/* ============================================================
+   HELPER: groupBy
+   ============================================================ */
+function groupBy(arr, keyFn) {
+  return arr.reduce((acc, item) => {
+    const key = keyFn(item) || "Unknown";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(item);
+    return acc;
+  }, {});
+}
+
 /* ========================= FLAGS =========================
    Global ISO2 Engine — robust mapping med alias & normalisering
    ============================================================ */
@@ -457,18 +469,6 @@ function renderTable(list) {
   if (!list.length) {
     tbody.innerHTML = `<tr><td colspan="9" class="muted center">No stores</td></tr>`;
   }
-}
-
-/* ============================================================
-   HELPER: groupBy
-   ============================================================ */
-function groupBy(arr, keyFn) {
-  return arr.reduce((acc, item) => {
-    const key = keyFn(item) || "Unknown";
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(item);
-    return acc;
-  }, {});
 }
 
 
