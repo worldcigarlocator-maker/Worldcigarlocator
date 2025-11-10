@@ -183,6 +183,33 @@ const countryToContinent = (country) => {
 };
 
 /* ============================================================
+   RENDER SWITCH — Cards vs List
+   ============================================================ */
+function render() {
+  const term = ($("#searchInput")?.value || "").trim().toLowerCase();
+  const matches = (s) => [s.name, s.city, s.country]
+    .some((v) => safe(v).toLowerCase().includes(term));
+  const list = term ? STORES.filter(matches) : STORES;
+
+  if (CURRENT_VIEW === "cards") {
+    renderCards(list);
+  } else {
+    renderHierarchy(list);
+    renderTable(list);
+  }
+
+  updateRegionCounts(list);
+}
+
+/* ============================================================
+   DATA LOADING — hämtar från Supabase och växlar vy
+   ============================================================ */
+async function reloadData(tab = CURRENT_TAB) {
+  ...
+}
+
+
+/* ============================================================
    DATA LOADING — hämtar från Supabase och växlar vy
    ============================================================ */
 async function reloadData(tab = CURRENT_TAB) {
