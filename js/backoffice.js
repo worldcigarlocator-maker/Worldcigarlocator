@@ -194,6 +194,41 @@ const countryToContinent = (country) => {
   return "Other";
 };
 
+
+/* ============================================================
+   REGION COUNTS — uppdaterar topbar badges
+   ============================================================ */
+function updateRegionCounts(list = STORES) {
+  const counts = {
+    all: list.length,
+    approved: list.filter(s => s.approved && !s.deleted).length,
+    pending: list.filter(s => !s.approved && !s.flagged && !s.deleted).length,
+    flagged: list.filter(s => s.flagged && !s.deleted).length,
+    deleted: list.filter(s => s.deleted).length,
+    repair: list.filter(s => !s.photo_reference && !s.deleted).length
+  };
+
+  // uppdatera siffrorna i filtren (om badges finns)
+  $$(".filters .pill").forEach(p => {
+    const tab = p.dataset.tab;
+    const n = counts[tab];
+    if (n !== undefined) {
+      let badge = p.querySelector(".badge-count");
+      if (!badge) {
+        badge = document.createElement("span");
+        badge.className = "badge-count";
+        badge.style.marginLeft = "6px";
+        badge.style.fontSize = ".85rem";
+        badge.style.opacity = "0.7";
+        p.appendChild(badge);
+      }
+      badge.textContent = `(${n})`;
+    }
+  });
+
+  console.log("🔢 Region counts updated:", counts);
+}
+
 /* ============================================================
    RENDER SWITCH — Cards vs List
    ============================================================ */
@@ -282,39 +317,6 @@ async function reloadData(tab = CURRENT_TAB) {
   console.log(`✅ reloadData(): tab=${CURRENT_TAB}, rows=${STORES.length}`);
 }
 
-/* ============================================================
-   REGION COUNTS — uppdaterar topbar badges
-   ============================================================ */
-function updateRegionCounts(list = STORES) {
-  const counts = {
-    all: list.length,
-    approved: list.filter(s => s.approved && !s.deleted).length,
-    pending: list.filter(s => !s.approved && !s.flagged && !s.deleted).length,
-    flagged: list.filter(s => s.flagged && !s.deleted).length,
-    deleted: list.filter(s => s.deleted).length,
-    repair: list.filter(s => !s.photo_reference && !s.deleted).length
-  };
-
-  // uppdatera siffrorna i filtren (om badges finns)
-  $$(".filters .pill").forEach(p => {
-    const tab = p.dataset.tab;
-    const n = counts[tab];
-    if (n !== undefined) {
-      let badge = p.querySelector(".badge-count");
-      if (!badge) {
-        badge = document.createElement("span");
-        badge.className = "badge-count";
-        badge.style.marginLeft = "6px";
-        badge.style.fontSize = ".85rem";
-        badge.style.opacity = "0.7";
-        p.appendChild(badge);
-      }
-      badge.textContent = `(${n})`;
-    }
-  });
-
-  console.log("🔢 Region counts updated:", counts);
-}
 
 /* ===================== BUTTON ===================== */
 function makeBtn(label, onclick, cls = "") {
