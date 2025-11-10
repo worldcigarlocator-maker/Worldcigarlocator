@@ -162,14 +162,20 @@ form.addEventListener("submit", async (e) => {
   submitBtn.disabled = true;
 
   try {
-    const type = document.querySelector("input[name='type']:checked")?.value || "store";
+    // 🔹 Hämta alla valda typer (kan vara flera)
+    const selectedTypes = Array.from(
+      document.querySelectorAll("input[name='types']:checked")
+    ).map(cb => cb.value);
+
+    // 🔹 Om inga typer är valda → fallback till "store"
+    const types = selectedTypes.length ? selectedTypes : ["store"];
+
     const rating = Number(document.querySelector("input[name='rating']")?.value || 0);
     const added_by = document.querySelector("#added_by")?.value || "anonymous";
 
     const payload = {
       ...window.selectedPlace,
-      type,
-      types: [type],
+      types,                            // ✅ nu en riktig array
       rating,
       added_by,
       approved: false,
@@ -200,5 +206,4 @@ form.addEventListener("submit", async (e) => {
   } finally {
     submitBtn.disabled = false;
   }
-});
 });
