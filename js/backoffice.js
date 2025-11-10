@@ -922,3 +922,44 @@ async function editStore(id) {
   $("#edit-cancel").onclick = closeEdit;
 }
 
+/* ==================== CLOSE MODAL ================= */
+function closeEdit() {
+  document.querySelectorAll(".modal-backdrop").forEach((m) => m.remove());
+}
+
+/* ===================== UI WIRING ========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ DOM fully loaded — Backoffice ready");
+
+  // 🔹 Filterknappar
+  $$(".filters .pill").forEach((p) =>
+    p.addEventListener("click", () => {
+      CURRENT_TAB = p.dataset.tab;
+      reloadData(CURRENT_TAB);
+    })
+  );
+
+  // 🔹 Växla vy (kort / lista)
+  $$(".viewtoggle .seg").forEach((seg) =>
+    seg.addEventListener("click", () => {
+      $$(".viewtoggle .seg").forEach((x) => x.classList.remove("active"));
+      seg.classList.add("active");
+      CURRENT_VIEW = seg.dataset.view;
+
+      if (CURRENT_VIEW === "cards") {
+        $("#cards").style.display = "grid";
+        $(".listview-wrap").style.display = "none";
+      } else {
+        $("#cards").style.display = "none";
+        $(".listview-wrap").style.display = "flex";
+      }
+      render();
+    })
+  );
+
+  // 🔹 Sökfält
+  $("#searchInput")?.addEventListener("input", () => render());
+
+  // 🔹 Ladda initial data
+  reloadData("pending");
+});
