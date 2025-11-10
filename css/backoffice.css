@@ -359,43 +359,46 @@ h3.twoline,
   max-height: 80vh;
   overflow-y: auto;
   border-right: 1px solid var(--border);
-  padding-right: 1rem;
+  padding-right: .6rem;
   background: #fff;
   border-radius: 8px;
   box-shadow: var(--shadow);
+  font-size: 0.82rem;        /* 🔹 mindre text */
+  line-height: 1.1rem;       /* 🔹 kompakt radavstånd */
 }
 
 .line {
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: .5rem;
-  padding: .3rem .5rem;
-  border-radius: 6px;
+  gap: .35rem;
+  padding: .2rem .4rem;      /* 🔹 tajtare */
+  border-radius: 4px;
   transition: background .2s;
-  font-size: .95rem;
 }
 .line:hover {
   background: rgba(0,0,0,.05);
 }
-.line.continent { font-weight:700; color:var(--blue); }
-.line.country   { margin-left:1rem; color:var(--green); }
-.line.city      { margin-left:2rem; color:var(--gold); }
+
+.line.continent { font-weight:600; color:var(--blue); }
+.line.country   { margin-left:.8rem; color:var(--green); font-weight:500; }
+.line.city      { margin-left:1.6rem; color:var(--gold); font-weight:400; }
 
 .arrow {
-  width: 1rem;
+  width: .8rem;
   color: var(--muted);
+  font-size: .75rem;
 }
 .count {
   margin-left: auto;
   color: var(--muted);
-  font-size: .85rem;
+  font-size: .75rem;
 }
 
 .nested {
-  margin-left: .8rem;
+  margin-left: .6rem;
   border-left: 1px dashed var(--border);
-  padding-left: .5rem;
+  padding-left: .4rem;
 }
 .hidden {
   display: none !important;
