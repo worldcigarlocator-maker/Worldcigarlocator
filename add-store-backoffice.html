@@ -4,391 +4,252 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Backoffice — Add Store</title>
-
-  <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
-      --accent: #007bff;
-      --bg: #f9fafb;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --success: #28a745;
-      --error: #dc3545;
+      --blue: #007bff;
+      --gold: #ffc107;
+      --border: #ddd;
+      --bg: #f7f9fb;
+      --text: #222;
+      --muted: #777;
+      --shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
-    * { box-sizing: border-box; }
     body {
-      font-family: 'Inter', Arial, sans-serif;
+      font-family: 'Inter', sans-serif;
       background: var(--bg);
       color: var(--text);
       margin: 0;
-      padding: 1.2rem;
-      font-size: 0.93rem;
+      padding: 1rem;
     }
-    header {
-      background: white;
-      padding: 0.6rem 1rem;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.2rem;
-    }
-    header h1 { font-size: 1.15rem; margin: 0; font-weight: 700; }
-    header a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .wrap { max-width: 900px; margin: auto; background: #fff; padding: 1.5rem; border-radius: 10px; box-shadow: var(--shadow); }
 
-    .wrap { max-width: 900px; margin: 0 auto; }
-    .card { background: #fff; border-radius: 10px; padding: 1.2rem 1.3rem; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
-
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem 1rem; }
-    .full { grid-column: 1 / -1; }
-
-    label { font-weight: 600; display: block; margin-bottom: .25rem; font-size: 0.9rem; }
+    label { font-weight: 600; display: block; margin-bottom: .3rem; }
     input, select {
-      width: 100%;
-      padding: .45rem .55rem;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.9rem;
-      background: #fff;
+      width: 100%; padding: .45rem .6rem; border: 1px solid var(--border);
+      border-radius: 6px; font-size: .9rem; margin-bottom: .8rem;
     }
 
-    .btn { background: var(--accent); color: #fff; border: none;
-      border-radius: 6px; padding: 0.5rem 1.1rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .type-group { display: flex; gap: .6rem; margin-bottom: .8rem; }
+    .type-btn {
+      padding: .4rem .9rem; border: 1px solid var(--border); border-radius: 6px;
+      cursor: pointer; background: #fff; font-weight: 600; transition: .2s;
+    }
+    .type-btn:hover { background: #f1f1f1; }
+    .type-btn.active[data-type="store"] { background: var(--blue); color: #fff; border-color: var(--blue); }
+    .type-btn.active[data-type="lounge"] { background: var(--gold); color: #000; border-color: var(--gold); }
+
+    .preview img { max-width: 240px; border-radius: 8px; box-shadow: var(--shadow); }
+
+    .btn {
+      background: var(--blue); color: #fff; border: none; border-radius: 6px;
+      padding: .6rem 1.2rem; font-weight: 600; cursor: pointer; font-size: .9rem;
+    }
     .btn:hover { background: #005ec4; }
-
-    .type-group, .access-group { display: flex; gap: .5rem; margin-top: .25rem; }
-    .type-btn, .access-pill span {
-      border: 1px solid var(--accent); border-radius: 20px; padding: .35rem .9rem;
-      font-weight: 600; cursor: pointer; transition: all 0.2s ease; font-size: 0.9rem;
-    }
-    .type-btn { background: white; color: var(--accent); }
-    .type-btn.active { background: var(--accent); color: white; }
-    .access-pill input { display: none; }
-    .access-pill span { color: var(--accent); background: white; }
-    .access-pill input:checked + span { background: var(--accent); color: white; }
-
-    .stars { display: flex; gap: .25rem; font-size: 1.5rem; cursor: pointer; color: #ccc; }
-    .stars .sel { color: #ffb400; }
-
-    .photo-picker { display: flex; align-items: center; justify-content: center; gap: .4rem; margin-top: .5rem; }
-    .photo-nav { border: 1px solid var(--accent); color: var(--accent); background: white;
-      border-radius: 6px; padding: .3rem .6rem; cursor: pointer; }
-    .photo-nav:hover { background: #eef5ff; }
-    .preview-photo { width: 220px; height: 140px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
-
-    #toast-container { position: fixed; bottom: 1rem; right: 1rem; display: flex; flex-direction: column; gap: .4rem; z-index: 9999; }
-    .toast { background: #333; color: #fff; padding: .5rem .9rem; border-radius: 6px; font-size: 0.9rem; }
-    .toast.success { background: var(--success); }
-    .toast.error { background: var(--error); }
+    #toast-container { position: fixed; bottom: 1rem; right: 1rem; display: flex; flex-direction: column; gap: .3rem; }
+    .toast { background: #333; color: #fff; padding: .4rem .8rem; border-radius: 6px; }
+    .toast.success { background: #28a745; }
+    .toast.error { background: #dc3545; }
   </style>
 
   <script>
-    const WCL = {};
-    WCL.SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-    WCL.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-    WCL.PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
-    WCL.GOOGLE_KEY = "AIzaSyATmexFx54vFxbNu3IbWYkNuxQ1jdt00XY"; 
-    WCL.GITHUB_STORE_FALLBACK = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
+    const WCL = {
+      SUPABASE_URL: "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4",
+      PHOTO_PROXY_URL: "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy",
+      PHOTO_REFS_URL: "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs",
+      FALLBACK_IMG: "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg"
+    };
     WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
-
-    WCL.fetchPhotoRefs = async (placeId) => {
-      const endpoint = `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs?place_id=${encodeURIComponent(placeId)}`;
-      try {
-        const res = await fetch(endpoint);
-        const data = await res.json();
-        return data?.refs || [];
-      } catch (err) {
-        console.error("fetchPhotoRefs error:", err);
-        return [];
-      }
-    };
-
-    WCL.loadProxyPhotoInto = async (imgEl, ref) => {
-      imgEl.src = ref
-        ? `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=800`
-        : WCL.GITHUB_STORE_FALLBACK;
-    };
-
-    WCL.countryToContinent = (country) => {
-      const c = (country || "").toLowerCase();
-      if (["sweden","germany","france","italy","spain","norway","finland","denmark","netherlands","belgium","austria","switzerland","poland","czech republic","czechia"].includes(c)) return "Europe";
-      if (["united states","usa","canada","mexico","cuba","dominican republic"].includes(c)) return "North America";
-      if (["brazil","argentina","chile","peru","colombia","uruguay","paraguay"].includes(c)) return "South America";
-      if (["china","japan","india","thailand","malaysia","singapore","israel","turkey","vietnam","indonesia"].includes(c)) return "Asia";
-      if (["south africa","nigeria","kenya","morocco","egypt","ghana"].includes(c)) return "Africa";
-      if (["australia","new zealand","fiji"].includes(c)) return "Oceania";
-      return "Other";
-    };
-
-    WCL.toastShared = (msg, cls="success") => {
+    WCL.toast = (msg, cls="success") => {
       const c = document.getElementById("toast-container");
       const t = document.createElement("div");
       t.className = `toast ${cls}`;
       t.textContent = msg;
       c.appendChild(t);
-      setTimeout(()=>t.remove(), 3000);
+      setTimeout(()=>t.remove(), 2500);
+    };
+    WCL.fetchPhotoRefs = async (placeId) => {
+      try {
+        const res = await fetch(`${WCL.PHOTO_REFS_URL}?place_id=${placeId}`);
+        const json = await res.json();
+        return json.refs || [];
+      } catch { return []; }
+    };
+    WCL.buildPhotoProxyUrl = (ref) => `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=800`;
+    WCL.countryToContinent = (countryIso2) => {
+      const c = (countryIso2 || "").toLowerCase();
+      if (["se","de","fr","it","es","no","fi","dk","nl","be","pl","ch","pt"].includes(c)) return "Europe";
+      if (["us","ca","mx"].includes(c)) return "North America";
+      if (["br","ar","cl","pe","co"].includes(c)) return "South America";
+      if (["cn","jp","in","th","sg"].includes(c)) return "Asia";
+      if (["za","ng","eg","ma","gh"].includes(c)) return "Africa";
+      if (["au","nz"].includes(c)) return "Oceania";
+      return "Other";
     };
   </script>
 </head>
 <body>
-  <header>
-    <h1>Backoffice — Add Store</h1>
-    <a href="backoffice.html">🏠 Home</a>
-  </header>
-
   <div class="wrap">
-    <div class="card">
-      <div class="grid">
-        <div class="full">
-          <label>Search with Google</label>
-          <input id="gAddress" type="text" placeholder="Start typing a place..." />
-        </div>
+    <h2>Add Store</h2>
 
-        <div><label>Name</label><input id="name" type="text"></div>
-        <div><label>Phone</label><input id="phone" type="tel"></div>
-        <div class="full"><label>Address</label><input id="addr" type="text"></div>
-        <div><label>City</label><input id="city" type="text"></div>
-        <div><label>Country</label><input id="country" type="text"></div>
+    <form id="addStoreForm">
+      <label for="autocomplete">Search Google Place</label>
+      <input id="autocomplete" type="text" placeholder="Start typing store name or address..." />
 
-        <div>
-          <label>Continent</label>
-          <select id="continent">
-            <option value="">(Auto from country)</option>
-            <option>Europe</option>
-            <option>North America</option>
-            <option>South America</option>
-            <option>Asia</option>
-            <option>Africa</option>
-            <option>Oceania</option>
-            <option>Other</option>
-          </select>
-        </div>
+      <label>Name</label>
+      <input id="name" type="text" required>
 
-        <div><label>Website</label><input id="website" type="url" placeholder="https://"></div>
+      <label>Address</label>
+      <input id="address" type="text">
 
-       <label>Type</label>
-<div class="type-group">
-  <label class="type-btn">
-    <input type="checkbox" name="types" value="store"> Store
-  </label>
-  <label class="type-btn">
-    <input type="checkbox" name="types" value="lounge"> Lounge
-  </label>
-</div>
+      <label>City</label>
+      <input id="city" type="text">
 
-        <div class="full">
-          <label>Access</label>
-          <div class="access-group">
-            <label class="access-pill"><input type="radio" name="access" value="public"><span>Public</span></label>
-            <label class="access-pill"><input type="radio" name="access" value="members"><span>Members Only</span></label>
-          </div>
-        </div>
+      <label>Country</label>
+      <input id="country" type="text">
 
-        <div class="full">
-          <label>Rating</label>
-          <div id="stars" class="stars">
-            <span data-v="1">★</span>
-            <span data-v="2">★</span>
-            <span data-v="3">★</span>
-            <span data-v="4">★</span>
-            <span data-v="5">★</span>
-          </div>
-        </div>
+      <label>Phone</label>
+      <input id="phone" type="text">
 
-        <div class="full">
-          <label>Photo Preview</label>
-          <div class="photo-picker">
-            <button id="prev-photo" class="photo-nav">◀</button>
-            <img id="preview-photo" class="preview-photo" src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg" alt="Preview" />
-            <button id="next-photo" class="photo-nav">▶</button>
-          </div>
-          <div id="photo-meta" class="muted" style="text-align:center;">No photo loaded</div>
-        </div>
+      <label>Website</label>
+      <input id="website" type="url">
 
-        <div class="full" style="display:flex;justify-content:flex-end;gap:.6rem;">
-          <button class="btn" onclick="resetForm()">Clear</button>
-          <button class="btn" onclick="saveStore()">Save</button>
-        </div>
+      <label>Type</label>
+      <div class="type-group">
+        <button type="button" class="type-btn" data-type="store">🏪 Store</button>
+        <button type="button" class="type-btn" data-type="lounge">🍷 Lounge</button>
       </div>
-    </div>
+
+      <label>Rating</label>
+      <input id="rating" type="number" min="0" max="5" step="0.1">
+
+      <label>Added by</label>
+      <input id="added_by" type="text" placeholder="Your name">
+
+      <label>Photo Preview</label>
+      <div class="preview" id="preview">
+        <img src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg" alt="Preview">
+      </div>
+
+      <br>
+      <button id="saveBtn" class="btn">Save Store</button>
+    </form>
   </div>
 
   <div id="toast-container"></div>
 
   <script>
-    const sel = { types: [], access: null, rating: null, place_id: null, _photo_refs: [], photo_index: 0, photo_reference: null };
+    window.selectedPlace = {};
+    let selectedTypes = [];
 
-    // ✅ Type toggle (click again to deselect)
+    // 🔹 Type buttons
     document.querySelectorAll(".type-btn").forEach(btn => {
       btn.addEventListener("click", () => {
-        if (sel.types.includes(btn.dataset.type)) {
+        const type = btn.dataset.type;
+        if (selectedTypes.includes(type)) {
+          selectedTypes = selectedTypes.filter(t => t !== type);
           btn.classList.remove("active");
-          sel.types = [];
         } else {
-          document.querySelectorAll(".type-btn").forEach(b => b.classList.remove("active"));
+          selectedTypes.push(type);
           btn.classList.add("active");
-          sel.types = [btn.dataset.type];
         }
       });
     });
 
-    // ✅ Access toggle (click again to deselect)
-    document.querySelectorAll(".access-pill input").forEach(radio => {
-      radio.addEventListener("click", () => {
-        if (sel.access === radio.value) {
-          radio.checked = false;
-          sel.access = null;
-        } else {
-          document.querySelectorAll(".access-pill input").forEach(r => r.checked = false);
-          radio.checked = true;
-          sel.access = radio.value;
-        }
-      });
-    });
-
-    // ✅ Stars (left = 1, right = 5)
-    const stars = document.getElementById("stars");
-    stars.addEventListener("click", e => {
-      const v = +e.target.dataset.v;
-      if (!v) return;
-      sel.rating = v;
-      [...stars.children].forEach((el, i) => el.classList.toggle("sel", i < v));
-    });
-
-    // ✅ Reset
-    function resetForm() {
-      document.querySelectorAll("input").forEach(i => { if (i.type !== "radio") i.value = ""; });
-      document.querySelectorAll(".type-btn").forEach(b => b.classList.remove("active"));
-      document.querySelectorAll(".access-pill input").forEach(r => r.checked = false);
-      sel.types = []; sel.access = null; sel.rating = null; sel.place_id = null; sel._photo_refs = []; sel.photo_reference = null;
-      document.getElementById("preview-photo").src = WCL.GITHUB_STORE_FALLBACK;
-      document.getElementById("photo-meta").textContent = "No photo loaded";
-      WCL.toastShared("Cleared", "success");
-    }
-
-    // ✅ Save to Supabase
-  async function saveStore() {
-  const name = document.getElementById("name").value.trim();
-  const address = document.getElementById("addr").value.trim();
-  const city = document.getElementById("city").value.trim();
-  const country = document.getElementById("country").value.trim();
-  const continent = document.getElementById("continent").value || WCL.countryToContinent(country);
-
-  // 👇 NYTT
-  const phone = document.getElementById("phone").value.trim() || null;
-  const website = document.getElementById("website").value.trim() || null;
-
-  if (!name || !address || !city || !country) {
-    WCL.toastShared("Please fill in required fields", "error");
-    return;
-  }
-
-  const payload = {
-    name,
-    address,
-    city,
-    country,
-    continent,
-
-    // 👇 NYTT
-    phone,
-    website,
-
-    type: sel.types[0] || null,
-    types: sel.types,
-    access: sel.access,
-    rating: sel.rating ?? null,
-    place_id: sel.place_id,
-    photo_reference: sel.photo_reference || null,
-    photo_url: null,
-    approved: false,
-    flagged: false,
-    deleted: false,
-    status: "pending"
-  };
-
-  console.log("📦 Saving payload →", payload); // bra för att se i konsolen
-
-  const { error } = await WCL.supabase.from("stores").insert([payload]);
-  if (error) {
-    console.error(error);
-    WCL.toastShared("Error saving", "error");
-    return;
-  }
-
-  WCL.toastShared("Store saved successfully", "success");
-  resetForm();
-}
-
-
-    // ✅ Google Autocomplete
-    async function initAutocomplete() {
-      const input = document.getElementById("gAddress");
+    // 🔹 Google autocomplete
+    window.initAutocomplete = async function() {
+      const input = document.getElementById("autocomplete");
       const ac = new google.maps.places.Autocomplete(input, {
-        fields: ["place_id", "address_components", "name", "formatted_address", "international_phone_number", "website"]
+        fields: ["place_id","geometry","formatted_address","name","address_components","international_phone_number","website","photos"],
+        language: "en"
       });
 
       ac.addListener("place_changed", async () => {
-        const p = ac.getPlace();
-        if (!p) return;
+        const place = ac.getPlace();
+        if (!place.place_id) return;
+        window.selectedPlace = {
+          name: place.name || "",
+          address: place.formatted_address || "",
+          place_id: place.place_id,
+          lat: place.geometry?.location?.lat() || null,
+          lng: place.geometry?.location?.lng() || null
+        };
 
-        document.getElementById("name").value = p.name || "";
-        document.getElementById("addr").value = p.formatted_address || "";
-        document.getElementById("phone").value = p.international_phone_number || "";
-        document.getElementById("website").value = p.website || "";
+        const comp = place.address_components || [];
+        const cityObj = comp.find(c=>c.types.includes("locality")||c.types.includes("postal_town"));
+        const countryObj = comp.find(c=>c.types.includes("country"));
+        const countryIso2 = countryObj?.short_name?.toLowerCase() || "";
+        window.selectedPlace.city = cityObj?.long_name || "";
+        window.selectedPlace.country = countryObj?.long_name || "";
+        window.selectedPlace.country_iso2 = countryIso2;
+        window.selectedPlace.continent = WCL.countryToContinent(countryIso2);
 
-        const comps = p.address_components || [];
-        const city = comps.find(c => c.types.includes("locality") || c.types.includes("postal_town"));
-        const country = comps.find(c => c.types.includes("country"));
-        document.getElementById("city").value = city?.long_name || "";
-        document.getElementById("country").value = country?.long_name || "";
+        document.getElementById("name").value = window.selectedPlace.name;
+        document.getElementById("address").value = window.selectedPlace.address;
+        document.getElementById("city").value = window.selectedPlace.city;
+        document.getElementById("country").value = window.selectedPlace.country;
 
-        const continent = WCL.countryToContinent(country?.long_name);
-        document.getElementById("continent").value = continent || "";
-
-        sel.place_id = p.place_id || null;
-
-        const refs = await WCL.fetchPhotoRefs(sel.place_id);
-        if (refs.length > 0) {
-          sel._photo_refs = refs;
-          sel.photo_index = 0;
-          sel.photo_reference = refs[0];
-          await WCL.loadProxyPhotoInto(document.getElementById("preview-photo"), refs[0]);
-          document.getElementById("photo-meta").textContent = `Loaded ${refs.length} photo(s)`;
+        const refs = await WCL.fetchPhotoRefs(place.place_id);
+        if (refs.length) {
+          window.selectedPlace.photo_reference = refs[0];
+          document.querySelector("#preview img").src = WCL.buildPhotoProxyUrl(refs[0]);
         } else {
-          document.getElementById("preview-photo").src = WCL.GITHUB_STORE_FALLBACK;
-          document.getElementById("photo-meta").textContent = "No Google photos found";
+          document.querySelector("#preview img").src = WCL.FALLBACK_IMG;
         }
+
+        document.getElementById("phone").value = place.international_phone_number || "";
+        document.getElementById("website").value = place.website || "";
+        WCL.toast("✅ Place loaded", "success");
       });
+    };
 
-      document.getElementById("prev-photo").onclick = () => {
-        if (sel._photo_refs.length > 0) {
-          sel.photo_index = (sel.photo_index - 1 + sel._photo_refs.length) % sel._photo_refs.length;
-          WCL.loadProxyPhotoInto(document.getElementById("preview-photo"), sel._photo_refs[sel.photo_index]);
-        }
-      };
-      document.getElementById("next-photo").onclick = () => {
-        if (sel._photo_refs.length > 0) {
-          sel.photo_index = (sel.photo_index + 1) % sel._photo_refs.length;
-          WCL.loadProxyPhotoInto(document.getElementById("preview-photo"), sel._photo_refs[sel.photo_index]);
-        }
-      };
-    }
+    // 🔹 Save
+    document.getElementById("addStoreForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      document.getElementById("saveBtn").disabled = true;
 
-    window.initAutocomplete = initAutocomplete;
+      try {
+        const types = selectedTypes.length ? selectedTypes : ["store"];
+        const rating = Number(document.getElementById("rating").value || 0);
+        const added_by = document.getElementById("added_by").value || "anonymous";
+
+        const payload = {
+          ...window.selectedPlace,
+          types,
+          rating,
+          added_by,
+          approved: false,
+          flagged: false,
+          deleted: false,
+          phone: document.getElementById("phone").value || null,
+          website: document.getElementById("website").value || null,
+          continent: window.selectedPlace.continent,
+          country_iso2: window.selectedPlace.country_iso2 || null,
+        };
+
+        console.log("📦 Saving payload →", payload);
+        const { error } = await WCL.supabase.from("stores").insert([payload]);
+        if (error) throw error;
+
+        WCL.toast("✅ Store added successfully!", "success");
+        e.target.reset();
+        document.querySelector("#preview img").src = WCL.FALLBACK_IMG;
+        selectedTypes = [];
+        document.querySelectorAll(".type-btn").forEach(b=>b.classList.remove("active"));
+      } catch (err) {
+        console.error(err);
+        WCL.toast("❌ Error saving store", "error");
+      } finally {
+        document.getElementById("saveBtn").disabled = false;
+      }
+    });
   </script>
-  
-  
-<!-- ✅ Google Places (forced English language) -->
-<script
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete&language=en"
-  async
-  defer>
-</script>
 
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete&language=en"
+    async defer>
+  </script>
 </body>
 </html>
