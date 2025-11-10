@@ -340,59 +340,79 @@ h3.twoline,
 
 
 /* ============================================================
-   LIST VIEW — Hierarchical Table (Excel Style)
+   LIST VIEW (Hierarchy + Table)
    ============================================================ */
 
-.listview-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
-  margin-top: 1rem;
+.listview-wrap{
+  display:flex;
+  flex-wrap:wrap;      /* <-- FIX #1 */
+  gap:1rem;
+  margin-top:1rem;
 }
 
+
+/* Left panel */
+#hierarchyPanel {
+  flex:0 0 22%;
+  min-width:200px;
+  max-height:80vh;
+  overflow-y:auto;
+  border-right:1px solid var(--border);
+  padding-right:1rem;
+}
+
+.line {
+  cursor:pointer;
+  padding:.2rem .4rem;
+  border-radius:6px;
+  transition:background .2s;
+  display:flex;
+  align-items:center;
+  gap:.4rem;
+}
+.line:hover { background:rgba(0,0,0,.05); }
+
+.line.continent { font-weight:700; color:var(--blue); }
+.line.country   { margin-left:1rem; color:var(--green); }
+.line.city      { margin-left:2rem; color:var(--gold); }
+
+.arrow { font-size:.8rem; }
+.nested { 
+  margin-left:1rem;
+  border-left:1px dashed var(--border);
+  padding-left:.5rem;
+  display:none;
+}
+.highlight { background:#fff3cd !important; }
+
+/* Table */
 .table-wrap {
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: var(--shadow);
-  overflow-x: auto;
+  flex:1;
+  overflow-x:auto;
+  padding-left:.5rem;
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-th, td {
-  text-align: left;
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:8px;
+  box-shadow:var(--shadow);
 }
 
 th {
-  background: #f3f4f6;
-  font-weight: 600;
+  background:#f5f7fa;
+  font-weight:700;
+  border-bottom:1px solid var(--border);
+  padding:.6rem .8rem;
+}
+td {
+  border-bottom:1px solid var(--border);
+  padding:.6rem .8rem;
 }
 
 tr:hover td {
-  background: #f9fafb;
-  cursor: pointer;
-}
-
-tr.level-1 td { font-weight:700; background:#f8fafc; }
-tr.level-2 td { padding-left:1rem; background:#fcfcfd; }
-tr.level-3 td { padding-left:2rem; background:#fff; }
-tr.level-4 td { padding-left:3rem; background:#fff; font-size:0.88rem; }
-
-.arrow {
-  display: inline-block;
-  width: 1.2em;
-  text-align: center;
-  transition: transform 0.2s;
-}
-
-.open .arrow {
-  transform: rotate(90deg);
+  background:#f1f5f9;
 }
 
 /* ============================================================
