@@ -201,13 +201,6 @@ function render() {
   updateRegionCounts(list);
 }
 
-/* ============================================================
-   DATA LOADING — hämtar från Supabase och växlar vy
-   ============================================================ */
-async function reloadData(tab = CURRENT_TAB) {
-  ...
-}
-
 
 /* ============================================================
    DATA LOADING — hämtar från Supabase och växlar vy
@@ -467,100 +460,74 @@ function renderTable(list) {
 }
 
 /* ============================================================
-   HIERARCHY (LIST-VIEW) — Clean Excel-Style
+   HIERARCHY (LIST-VIEW) — Excel Inline Style
    ============================================================ */
 function renderHierarchy(list) {
   const panel = $("#hierarchyPanel");
   if (!panel) return;
   panel.innerHTML = "";
 
-  // Grupp efter kontinent → land → stad
+  // Grupp efter kontinent, land och stad
   const byContinent = groupBy(list, s => s.continent || "Other");
 
-  Object.entries(byContinent).forEach(([continent, countries]) => {
-    // === CONTINENT ===
-    const contNode = document.createElement("div");
-    contNode.className = "line continent";
-    contNode.innerHTML = `
-      <span class="arrow">▶</span>
-      <strong>${continent}</strong>
-      <span class="count">(${countries.length})</span>
-    `;
-
-    const nestedCountries = document.createElement("div");
-    nestedCountries.className = "nested hidden";
-
-    // Grupp efter land
-    const byCountry = groupBy(countries, s => s.country || "Unknown");
-    Object.entries(byCountry).forEach(([country, cities]) => {
-      const cNode = document.createElement("div");
-      cNode.className = "line country";
-
-      const flagSrc = flagURL(country);
-      const flagHTML = flagSrc
-        ? `<img src="${flagSrc}" class="flag"
-                style="width:18px;height:14px;border-radius:2px;
-                       object-fit:cover;border:1px solid #ccc;">`
-        : "";
-
-      cNode.innerHTML = `
-        <span class="arrow">▶</span>
-        ${flagHTML}
-        <span>${country}</span>
-        <span class="count">(${cities.length})</span>
+  Object.entries(byContinent)
+    .sort((a, b) => b[1].length - a[1].length)
+    .forEach(([continent, continentStores]) => {
+      // --- CONTINENT ---
+      const contLine = document.createElement("div");
+      contLine.className = "line continent";
+      contLine.innerHTML = `
+        <strong>${continent}</strong>
+        <span class="count">${continentStores.length}</span>
       `;
+      contLine.onclick = () => {
+        HIER_SEL = { continent, country: null, city: null };
+        highlight(panel, contLine);
+        renderTable(continentStores);
+      };
+      panel.appendChild(contLine);
 
-      const nestedCities = document.createElement("div");
-      nestedCities.className = "nested hidden";
-
-      // Grupp efter stad
-      const byCity = groupBy(cities, s => s.city || "Unknown");
-      Object.entries(byCity)
+      // --- COUNTRY LEVEL ---
+      const byCountry = groupBy(continentStores, s => s.country || "Unknown");
+      Object.entries(byCountry)
         .sort((a, b) => b[1].length - a[1].length)
-        .forEach(([city, stores]) => {
-          const cityNode = document.createElement("div");
-          cityNode.className = "line city";
-          cityNode.innerHTML = `${city} <span class='count'>(${stores.length})</span>`;
+        .forEach(([country, countryStores]) => {
+          const countryLine = document.createElement("div");
+          countryLine.className = "line country";
+          const flag = flagURL(country);
+          countryLine.innerHTML = `
+            ${flag ? `<img src="${flag}" class="flag" style="width:18px;height:14px;border-radius:3px;margin-right:5px;">` : ""}
+            ${country}
+            <span class="count">${countryStores.length}</span>
+          `;
+          countryLine.onclick = () => {
+            HIER_SEL = { continent, country, city: null };
+            highlight(panel, countryLine);
+            renderTable(countryStores);
+          };
+          panel.appendChild(countryLine);
 
-          cityNode.addEventListener("click", (e) => {
-            e.stopPropagation();
-            HIER_SEL = { continent, country, city };
-            highlight(panel, cityNode);
-            renderTable(stores);
-          });
-
-          nestedCities.appendChild(cityNode);
+          // --- CITY LEVEL ---
+          const byCity = groupBy(countryStores, s => s.city || "Unknown");
+          Object.entries(byCity)
+            .sort((a, b) => b[1].length - a[1].length)
+            .forEach(([city, cityStores]) => {
+              const cityLine = document.createElement("div");
+              cityLine.className = "line city";
+              cityLine.innerHTML = `
+                ${city}
+                <span class="count">${cityStores.length}</span>
+              `;
+              cityLine.onclick = () => {
+                HIER_SEL = { continent, country, city };
+                highlight(panel, cityLine);
+                renderTable(cityStores);
+              };
+              panel.appendChild(cityLine);
+            });
         });
-
-      // Toggle COUNTRY
-      cNode.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const open = cNode.classList.toggle("open");
-        nestedCities.classList.toggle("hidden");
-        cNode.querySelector(".arrow").textContent = open ? "▼" : "▶";
-        HIER_SEL = { continent, country, city: null };
-        highlight(panel, cNode);
-        renderTable(cities);
-      });
-
-      nestedCountries.append(cNode, nestedCities);
     });
-
-    // Toggle CONTINENT
-    contNode.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const open = contNode.classList.toggle("open");
-      nestedCountries.classList.toggle("hidden");
-      contNode.querySelector(".arrow").textContent = open ? "▼" : "▶";
-      HIER_SEL = { continent, country: null, city: null };
-      highlight(panel, contNode);
-      renderTable(countries);
-    });
-
-    panel.append(contNode, nestedCountries);
-  });
 }
-
 
 /* ================ EXPAND / COLLAPSE ALL ================= */
 
