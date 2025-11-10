@@ -506,7 +506,7 @@ function renderTable(list) {
 
 
 /* ============================================================
-   HIERARCHY (LIST-VIEW) — Click-through version
+   HIERARCHY (LIST-VIEW) — Inline Expandable List
    ============================================================ */
 function renderHierarchy(list) {
   const panel = $("#hierarchyPanel");
@@ -516,70 +516,78 @@ function renderHierarchy(list) {
   // Grupp efter kontinent
   const byContinent = groupBy(list, s => s.continent || "Other");
 
-  // 🔹 Build dynamic topbar count row
-  const topRow = document.createElement("div");
-  topRow.className = "continent-counts";
-  Object.entries(byContinent).forEach(([cont, stores]) => {
-    const span = document.createElement("span");
-    span.textContent = `${cont} ${stores.length}`;
-    span.className = "count-pill";
-    span.onclick = () => {
-      showCountries(cont, stores);
-    };
-    topRow.appendChild(span);
-  });
-  panel.appendChild(topRow);
-
-  // 🔹 Visa kontinenter (default vy)
-  Object.entries(byContinent).forEach(([continent, stores]) => {
-    const cont = document.createElement("div");
-    cont.className = "line continent";
-    cont.innerHTML = `
-      <strong>${continent}</strong>
-      <span class="count">(${stores.length})</span>
+  Object.entries(byContinent).forEach(([continent, contStores]) => {
+    const contLine = document.createElement("div");
+    contLine.className = "line continent";
+    contLine.innerHTML = `
+      <span class="arrow">▶</span>
+      <span>${continent}</span>
+      <span class="count">${contStores.length}</span>
     `;
-    cont.onclick = () => showCountries(continent, stores);
-    panel.appendChild(cont);
-  });
 
-  // --- INNER FUNCTIONS --- //
-  function showCountries(continent, contStores) {
-    panel.innerHTML = `<div class="navpath">${continent}</div>`;
+    const nestedCountries = document.createElement("div");
+    nestedCountries.className = "nested hidden";
+
+    // Grupp efter land
     const byCountry = groupBy(contStores, s => s.country || "Unknown");
-
-    Object.entries(byCountry).forEach(([country, stores]) => {
-      const c = document.createElement("div");
-      c.className = "line country";
-      const flag = flagURL(country);
-      c.innerHTML = `
-        ${flag ? `<img src="${flag}" class="flag" style="width:18px;height:14px;border-radius:2px;margin-right:6px;">` : ""}
-        ${country} <span class="count">(${stores.length})</span>
+    Object.entries(byCountry).forEach(([country, countryStores]) => {
+      const countryLine = document.createElement("div");
+      countryLine.className = "line country";
+      countryLine.innerHTML = `
+        <span class="arrow">▶</span>
+        <span>${country}</span>
+        <span class="count">${countryStores.length}</span>
       `;
-      c.onclick = () => showCities(continent, country, stores);
-      panel.appendChild(c);
+
+      const nestedCities = document.createElement("div");
+      nestedCities.className = "nested hidden";
+
+      // Grupp efter stad
+      const byCity = groupBy(countryStores, s => s.city || "Unknown");
+      Object.entries(byCity)
+        .sort((a, b) => b[1].length - a[1].length)
+        .forEach(([city, cityStores]) => {
+          const cityLine = document.createElement("div");
+          cityLine.className = "line city";
+          cityLine.innerHTML = `
+            <span>${city}</span>
+            <span class="count">${cityStores.length}</span>
+          `;
+          cityLine.addEventListener("click", (e) => {
+            e.stopPropagation();
+            highlight(panel, cityLine);
+            renderTable(cityStores);
+          });
+          nestedCities.appendChild(cityLine);
+        });
+
+      // Klick på land → toggle city-lista + uppdatera tabell
+      countryLine.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const open = countryLine.classList.toggle("open");
+        nestedCities.classList.toggle("hidden");
+        countryLine.querySelector(".arrow").textContent = open ? "▼" : "▶";
+        highlight(panel, countryLine);
+        renderTable(countryStores);
+      });
+
+      nestedCountries.append(countryLine, nestedCities);
     });
 
-    renderTable(contStores);
-  }
-
-  function showCities(continent, country, countryStores) {
-    panel.innerHTML = `<div class="navpath">${continent} › ${country}</div>`;
-    const byCity = groupBy(countryStores, s => s.city || "Unknown");
-
-    Object.entries(byCity).forEach(([city, stores]) => {
-      const cityDiv = document.createElement("div");
-      cityDiv.className = "line city";
-      cityDiv.innerHTML = `${city} <span class="count">(${stores.length})</span>`;
-      cityDiv.onclick = () => {
-        panel.innerHTML = `<div class="navpath">${continent} › ${country} › ${city}</div>`;
-        renderTable(stores);
-      };
-      panel.appendChild(cityDiv);
+    // Klick på kontinent → toggle country-lista + uppdatera tabell
+    contLine.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = contLine.classList.toggle("open");
+      nestedCountries.classList.toggle("hidden");
+      contLine.querySelector(".arrow").textContent = open ? "▼" : "▶";
+      highlight(panel, contLine);
+      renderTable(contStores);
     });
 
-    renderTable(countryStores);
-  }
+    panel.append(contLine, nestedCountries);
+  });
 }
+
 
 
 /* ================ EXPAND / COLLAPSE ALL ================= */
