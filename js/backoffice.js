@@ -437,7 +437,7 @@ function renderTable(list) {
 }
 
 /* ============================================================
-   HIERARCHY (LIST-VIEW) — Excel-style, clickable & nested
+   HIERARCHY (LIST-VIEW) — Clean Excel-Style
    ============================================================ */
 function renderHierarchy(list) {
   const panel = $("#hierarchyPanel");
@@ -454,7 +454,7 @@ function renderHierarchy(list) {
     contNode.innerHTML = `
       <span class="arrow">▶</span>
       <strong>${continent}</strong>
-      <span class="count muted">(${countries.length})</span>
+      <span class="count">(${countries.length})</span>
     `;
 
     const nestedCountries = document.createElement("div");
@@ -466,15 +466,18 @@ function renderHierarchy(list) {
       const cNode = document.createElement("div");
       cNode.className = "line country";
 
-      const iso = flagURL(country);
-      const flagHTML = iso
-        ? `<img src="${iso}" class="flag" style="width:18px;height:14px;margin-right:6px;border:1px solid #ccc;border-radius:2px;">`
+      const flagSrc = flagURL(country);
+      const flagHTML = flagSrc
+        ? `<img src="${flagSrc}" class="flag"
+                style="width:18px;height:14px;border-radius:2px;
+                       object-fit:cover;border:1px solid #ccc;">`
         : "";
 
       cNode.innerHTML = `
         <span class="arrow">▶</span>
-        ${flagHTML}<span>${country}</span>
-        <span class="count muted">(${cities.length})</span>
+        ${flagHTML}
+        <span>${country}</span>
+        <span class="count">(${cities.length})</span>
       `;
 
       const nestedCities = document.createElement("div");
@@ -482,49 +485,49 @@ function renderHierarchy(list) {
 
       // Grupp efter stad
       const byCity = groupBy(cities, s => s.city || "Unknown");
-      Object.entries(byCity).forEach(([city, stores]) => {
-        const cityNode = document.createElement("div");
-        cityNode.className = "line city";
-        cityNode.textContent = `${city} (${stores.length})`;
-        cityNode.addEventListener("click", (e) => {
-          e.stopPropagation();
-          HIER_SEL = { continent, country, city };
-          highlight(panel, cityNode);
-          renderTable(stores);
-        });
-        nestedCities.appendChild(cityNode);
-      });
+      Object.entries(byCity)
+        .sort((a, b) => b[1].length - a[1].length)
+        .forEach(([city, stores]) => {
+          const cityNode = document.createElement("div");
+          cityNode.className = "line city";
+          cityNode.innerHTML = `${city} <span class='count'>(${stores.length})</span>`;
 
-      // toggle country
+          cityNode.addEventListener("click", (e) => {
+            e.stopPropagation();
+            HIER_SEL = { continent, country, city };
+            highlight(panel, cityNode);
+            renderTable(stores);
+          });
+
+          nestedCities.appendChild(cityNode);
+        });
+
+      // Toggle COUNTRY
       cNode.addEventListener("click", (e) => {
         e.stopPropagation();
-        cNode.classList.toggle("open");
+        const open = cNode.classList.toggle("open");
         nestedCities.classList.toggle("hidden");
-        cNode.querySelector(".arrow").textContent =
-          cNode.classList.contains("open") ? "▼" : "▶";
+        cNode.querySelector(".arrow").textContent = open ? "▼" : "▶";
         HIER_SEL = { continent, country, city: null };
         highlight(panel, cNode);
         renderTable(cities);
       });
 
-      nestedCountries.appendChild(cNode);
-      nestedCountries.appendChild(nestedCities);
+      nestedCountries.append(cNode, nestedCities);
     });
 
-    // toggle continent
+    // Toggle CONTINENT
     contNode.addEventListener("click", (e) => {
       e.stopPropagation();
-      contNode.classList.toggle("open");
+      const open = contNode.classList.toggle("open");
       nestedCountries.classList.toggle("hidden");
-      contNode.querySelector(".arrow").textContent =
-        contNode.classList.contains("open") ? "▼" : "▶";
+      contNode.querySelector(".arrow").textContent = open ? "▼" : "▶";
       HIER_SEL = { continent, country: null, city: null };
       highlight(panel, contNode);
       renderTable(countries);
     });
 
-    panel.appendChild(contNode);
-    panel.appendChild(nestedCountries);
+    panel.append(contNode, nestedCountries);
   });
 }
 
