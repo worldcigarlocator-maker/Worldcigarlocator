@@ -351,19 +351,9 @@ h3.twoline,
 }
 
 /* ============================================================
-   HIERARCHY PANEL — Smooth Toggle + Nested Styling
+   HIERARCHY PANEL — smooth toggle + highlighting
    ============================================================ */
 
-#hierarchyPanel {
-  flex: 0 0 22%;
-  min-width: 200px;
-  max-height: 80vh;
-  overflow-y: auto;
-  border-right: 1px solid var(--border);
-  padding-right: 1rem;
-}
-
-/* Baslinjer */
 .line {
   cursor: pointer;
   padding: .25rem .4rem;
@@ -374,39 +364,37 @@ h3.twoline,
   gap: .4rem;
 }
 
-/* Hover / Active states */
-.line:hover { background: rgba(0,0,0,.05); }
-.line.active { background: var(--blue); color: #fff; }
+.line:hover {
+  background: rgba(0,0,0,.05);
+}
 
-/* Nivåfärger */
-.line.continent { font-weight: 700; color: var(--blue); }
-.line.country   { margin-left: 1rem; color: var(--green); }
-.line.city      { margin-left: 2rem; color: var(--gold); }
+.line.active {
+  background: var(--blue);
+  color: #fff;
+}
 
-/* Pilen + Count */
 .arrow {
   color: var(--muted);
   width: 1rem;
-  font-size: .8rem;
 }
+
+.nested.hidden {
+  display: none !important;
+}
+
 .count {
   margin-left: auto;
   color: var(--muted);
   font-size: .85rem;
 }
 
-/* Nested block (child levels) */
+/* Optional — gives nested cities a lighter border */
 .nested {
   margin-left: 1rem;
   border-left: 1px dashed var(--border);
   padding-left: .5rem;
-  display: none;
 }
-.nested.hidden { display: none !important; }
 
-/* Highlighted rad (ex. vid klick) */
-.highlight { background: #fff3cd !important; }
-}
 
 /* ============================================================
    MODAL (Edit)
