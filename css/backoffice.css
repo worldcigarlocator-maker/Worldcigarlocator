@@ -235,6 +235,8 @@ body {
 .badge.red   { background:var(--red); }
 .badge.gray  { background:var(--gray); }
 .badge.gold  { background:var(--gold); color:#000; }
+.badge.blue  { background: var(--blue); color: #fff; }
+
 
 /* ACTION BUTTONS */
 .actions {
