@@ -885,22 +885,6 @@ async function editStore(id) {
     showCurrent();
   };
 
-  // 🔹 Repair photo
-  $("#repair-photo").onclick = async () => {
-    toast("Repairing photo…", "info");
-    const fresh = await fetchPhotoRefs(store.place_id);
-    if (!fresh.length) {
-      toast("No photos found from Google", "error");
-      return;
-    }
-    const newRef = fresh[0];
-    const { error } = await WCL.supabase.from("stores").update({ photo_reference: newRef }).eq("id", id);
-    if (error) return toast("Error updating photo", "error");
-    toast("Photo repaired ✅");
-    $("#edit-photo").src = buildPhotoProxyUrl(newRef);
-    $("#photo-meta").textContent = "Photo repaired from Google";
-  };
-
   // 🔹 Delete comment
   modal.querySelectorAll(".del-comment").forEach((btn) => {
     btn.addEventListener("click", async () => {
@@ -950,6 +934,7 @@ async function editStore(id) {
   // 🔹 Cancel button
   $("#edit-cancel").onclick = closeEdit;
 } // ✅ avslutar hela async function editStore()
+
 
 
 /* ==================== CLOSE MODAL ================= */
