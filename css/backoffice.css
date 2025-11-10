@@ -350,69 +350,62 @@ h3.twoline,
   margin-top:1rem;
 }
 
+/* ============================================================
+   HIERARCHY PANEL — Smooth Toggle + Nested Styling
+   ============================================================ */
 
-/* Left panel */
 #hierarchyPanel {
-  flex:0 0 22%;
-  min-width:200px;
-  max-height:80vh;
-  overflow-y:auto;
-  border-right:1px solid var(--border);
-  padding-right:1rem;
+  flex: 0 0 22%;
+  min-width: 200px;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  padding-right: 1rem;
 }
 
+/* Baslinjer */
 .line {
-  cursor:pointer;
-  padding:.2rem .4rem;
-  border-radius:6px;
-  transition:background .2s;
-  display:flex;
-  align-items:center;
-  gap:.4rem;
-}
-.line:hover { background:rgba(0,0,0,.05); }
-
-.line.continent { font-weight:700; color:var(--blue); }
-.line.country   { margin-left:1rem; color:var(--green); }
-.line.city      { margin-left:2rem; color:var(--gold); }
-
-.arrow { font-size:.8rem; }
-.nested { 
-  margin-left:1rem;
-  border-left:1px dashed var(--border);
-  padding-left:.5rem;
-  display:none;
-}
-.highlight { background:#fff3cd !important; }
-
-/* Table */
-.table-wrap {
-  flex:1;
-  overflow-x:auto;
-  padding-left:.5rem;
+  cursor: pointer;
+  padding: .25rem .4rem;
+  border-radius: 6px;
+  transition: background .2s;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
 }
 
-table {
-  width:100%;
-  border-collapse:collapse;
-  background:#fff;
-  border-radius:8px;
-  box-shadow:var(--shadow);
+/* Hover / Active states */
+.line:hover { background: rgba(0,0,0,.05); }
+.line.active { background: var(--blue); color: #fff; }
+
+/* Nivåfärger */
+.line.continent { font-weight: 700; color: var(--blue); }
+.line.country   { margin-left: 1rem; color: var(--green); }
+.line.city      { margin-left: 2rem; color: var(--gold); }
+
+/* Pilen + Count */
+.arrow {
+  color: var(--muted);
+  width: 1rem;
+  font-size: .8rem;
+}
+.count {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: .85rem;
 }
 
-th {
-  background:#f5f7fa;
-  font-weight:700;
-  border-bottom:1px solid var(--border);
-  padding:.6rem .8rem;
+/* Nested block (child levels) */
+.nested {
+  margin-left: 1rem;
+  border-left: 1px dashed var(--border);
+  padding-left: .5rem;
+  display: none;
 }
-td {
-  border-bottom:1px solid var(--border);
-  padding:.6rem .8rem;
-}
+.nested.hidden { display: none !important; }
 
-tr:hover td {
-  background:#f1f5f9;
+/* Highlighted rad (ex. vid klick) */
+.highlight { background: #fff3cd !important; }
 }
 
 /* ============================================================
