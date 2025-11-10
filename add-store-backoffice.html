@@ -4,163 +4,366 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Backoffice — Add Store</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
-      --blue:#007bff; --gold:#ffc107; --border:#ddd; --bg:#f7f9fb; --text:#222; --muted:#777;
+      --accent: #007bff;
+      --bg: #f9fafb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success: #28a745;
+      --error: #dc3545;
     }
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);margin:0;padding:1rem;}
-    .wrap{max-width:900px;margin:auto;background:#fff;padding:1.2rem 1.5rem;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
-    h2{margin-top:0;font-size:1.1rem;}
-    label{font-weight:600;font-size:.85rem;margin-bottom:.2rem;display:block;}
-    input,select{width:100%;padding:.35rem .5rem;border:1px solid var(--border);border-radius:6px;font-size:.85rem;}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.7rem 1rem;}
-    .type-group,.access-group{display:flex;gap:.5rem;margin-top:.25rem;}
-    .type-btn{flex:1;text-align:center;padding:.35rem;border:1px solid var(--border);border-radius:6px;background:#fff;font-weight:600;cursor:pointer;}
-    .type-btn.active[data-type="store"]{background:var(--blue);color:#fff;border-color:var(--blue);}
-    .type-btn.active[data-type="lounge"]{background:var(--gold);color:#000;border-color:var(--gold);}
-    .access-pill input{display:none;}
-    .access-pill span{display:inline-block;border:1px solid var(--border);border-radius:20px;padding:.25rem .9rem;cursor:pointer;font-size:.8rem;}
-    .access-pill input:checked+span{background:var(--blue);color:#fff;border-color:var(--blue);}
-    .photo-wrap{text-align:center;margin-top:.5rem;}
-    .photo-wrap img{width:220px;height:140px;object-fit:cover;border-radius:8px;border:1px solid var(--border);}
-    .btn{background:var(--blue);color:#fff;border:none;border-radius:6px;padding:.45rem 1rem;font-weight:600;cursor:pointer;font-size:.85rem;}
-    .btn:hover{background:#005ec4;}
-    #toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.3rem;}
-    .toast{background:#333;color:#fff;padding:.4rem .8rem;border-radius:6px;}
-    .toast.success{background:#28a745;} .toast.error{background:#dc3545;}
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+    header {
+      background: white;
+      padding: 0.6rem 1rem;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    header h1 { font-size: 1rem; margin: 0; font-weight: 700; }
+    header a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+    .wrap { max-width: 850px; margin: 0 auto; }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,.05);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .6rem 1rem;
+    }
+    .full { grid-column: 1 / -1; }
+
+    label { font-weight: 600; display: block; margin-bottom: .2rem; font-size: 0.85rem; }
+    input, select, textarea {
+      width: 100%;
+      padding: .4rem .5rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 60px; }
+
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.45rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    .btn:hover { background: #005ec4; }
+
+    .type-group, .access-group {
+      display: flex; gap: .5rem; margin-top: .25rem; flex-wrap: wrap;
+    }
+    .type-btn, .access-pill span {
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      padding: .3rem .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.85rem;
+    }
+    .type-btn { background: white; color: var(--accent); }
+    .type-btn.active { background: var(--accent); color: white; }
+    .access-pill input { display: none; }
+    .access-pill span { color: var(--accent); background: white; }
+    .access-pill input:checked + span { background: var(--accent); color: white; }
+
+    .photo-picker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4rem;
+      margin-top: .4rem;
+    }
+    .photo-nav {
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      background: white;
+      border-radius: 6px;
+      padding: .25rem .55rem;
+      cursor: pointer;
+    }
+    .photo-nav:hover { background: #eef5ff; }
+    .preview-photo {
+      width: 200px;
+      height: 130px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    #toast-container {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+      z-index: 9999;
+    }
+    .toast {
+      background: #333;
+      color: #fff;
+      padding: .45rem .8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--error); }
   </style>
 
   <script>
-    const WCL={
-      SUPABASE_URL:"https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      SUPABASE_ANON_KEY:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4",
-      PHOTO_PROXY_URL:"https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy",
-      PHOTO_REFS_URL:"https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs",
-      FALLBACK_IMG:"https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg"
+    const WCL = {};
+    WCL.SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+    WCL.SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+    WCL.PHOTO_PROXY_URL =
+      "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
+    WCL.FALLBACK_IMG =
+      "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
+    WCL.supabase = window.supabase.createClient(
+      WCL.SUPABASE_URL,
+      WCL.SUPABASE_ANON_KEY
+    );
+
+    WCL.fetchPhotoRefs = async (placeId) => {
+      try {
+        const res = await fetch(
+          `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs?place_id=${encodeURIComponent(placeId)}`
+        );
+        const data = await res.json();
+        return data?.refs || [];
+      } catch {
+        return [];
+      }
     };
-    WCL.supabase=window.supabase.createClient(WCL.SUPABASE_URL,WCL.SUPABASE_ANON_KEY);
-    WCL.toast=(m,c="success")=>{const x=document.getElementById("toast-container"),t=document.createElement("div");t.className=`toast ${c}`;t.textContent=m;x.appendChild(t);setTimeout(()=>t.remove(),2500)};
-    WCL.fetchPhotoRefs=async(id)=>{try{const r=await fetch(`${WCL.PHOTO_REFS_URL}?place_id=${id}`);const j=await r.json();return j.refs||[]}catch{return[]}};
-    WCL.buildPhotoProxyUrl=(r)=>`${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(r)}&maxwidth=800`;
-    WCL.countryToContinent=(iso2)=>{const c=(iso2||"").toLowerCase();if(["se","de","fr","it","es","no","fi","dk","nl","be","pl","ch","pt"].includes(c))return"Europe";if(["us","ca","mx"].includes(c))return"North America";if(["br","ar","cl","pe","co"].includes(c))return"South America";if(["cn","jp","in","th","sg"].includes(c))return"Asia";if(["za","ng","eg","ma","gh"].includes(c))return"Africa";if(["au","nz"].includes(c))return"Oceania";return"Other"};
+
+    WCL.countryToContinent = (country) => {
+      const c = (country || "").toLowerCase();
+      if (["sweden","germany","france","italy","spain","norway","finland","denmark","netherlands","belgium","austria","switzerland","poland","czech republic","czechia"].includes(c)) return "Europe";
+      if (["united states","usa","canada","mexico","cuba","dominican republic"].includes(c)) return "North America";
+      if (["brazil","argentina","chile","peru","colombia","uruguay","paraguay"].includes(c)) return "South America";
+      if (["china","japan","india","thailand","malaysia","singapore","israel","turkey","vietnam","indonesia"].includes(c)) return "Asia";
+      if (["south africa","nigeria","kenya","morocco","egypt","ghana"].includes(c)) return "Africa";
+      if (["australia","new zealand","fiji"].includes(c)) return "Oceania";
+      return "Other";
+    };
+
+    WCL.toast = (msg, cls = "success") => {
+      const c = document.getElementById("toast-container");
+      const t = document.createElement("div");
+      t.className = `toast ${cls}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    };
   </script>
 </head>
 <body>
+  <header>
+    <h1>Backoffice — Add Store</h1>
+    <a href="backoffice.html">🏠 Home</a>
+  </header>
+
   <div class="wrap">
-    <h2>Add Store</h2>
+    <div class="card">
+      <div class="grid">
+        <div class="full">
+          <label>Search with Google</label>
+          <input id="gAddress" type="text" placeholder="Start typing a place..." />
+        </div>
 
-    <form id="addStoreForm" class="grid">
-      <div class="full"><label>Search Google Place</label><input id="autocomplete" type="text" placeholder="Start typing..."></div>
-      <div><label>Name</label><input id="name" required></div>
-      <div><label>Address</label><input id="address"></div>
-      <div><label>City</label><input id="city"></div>
-      <div><label>Country</label><input id="country"></div>
-      <div><label>Continent</label><input id="continent" readonly></div>
-      <div><label>Phone</label><input id="phone"></div>
-      <div><label>Website</label><input id="website" type="url"></div>
+        <div><label>Name</label><input id="name" type="text"></div>
+        <div><label>Phone</label><input id="phone" type="tel"></div>
+        <div class="full"><label>Address</label><input id="addr" type="text"></div>
+        <div><label>City</label><input id="city" type="text"></div>
+        <div><label>Country</label><input id="country" type="text"></div>
 
-      <div class="full">
-        <label>Type</label>
-        <div class="type-group">
-          <button type="button" class="type-btn" data-type="store">🏪 Store</button>
-          <button type="button" class="type-btn" data-type="lounge">🍷 Lounge</button>
+        <div>
+          <label>Continent</label>
+          <select id="continent">
+            <option value="">(Auto)</option>
+            <option>Europe</option>
+            <option>North America</option>
+            <option>South America</option>
+            <option>Asia</option>
+            <option>Africa</option>
+            <option>Oceania</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div><label>Website</label><input id="website" type="url" placeholder="https://"></div>
+
+        <div class="full">
+          <label>Type</label>
+          <div class="type-group">
+            <label class="type-btn"><input type="checkbox" name="types" value="store"> Store</label>
+            <label class="type-btn"><input type="checkbox" name="types" value="lounge"> Lounge</label>
+          </div>
+        </div>
+
+        <div class="full">
+          <label>Access</label>
+          <div class="access-group">
+            <label class="access-pill"><input type="radio" name="access" value="public"><span>Public</span></label>
+            <label class="access-pill"><input type="radio" name="access" value="members"><span>Members Only</span></label>
+          </div>
+        </div>
+
+        <div class="full">
+          <label>Comment</label>
+          <textarea id="comment" placeholder="Add an optional comment…"></textarea>
+        </div>
+
+        <div class="full">
+          <label>Photo Preview</label>
+          <div class="photo-picker">
+            <button id="prev-photo" class="photo-nav">◀</button>
+            <img id="preview-photo" class="preview-photo" src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg" alt="Preview" />
+            <button id="next-photo" class="photo-nav">▶</button>
+          </div>
+          <div id="photo-meta" class="muted" style="text-align:center;">No photo loaded</div>
+        </div>
+
+        <div class="full" style="display:flex;justify-content:flex-end;gap:.6rem;">
+          <button class="btn" onclick="resetForm()">Clear</button>
+          <button class="btn" onclick="saveStore()">Save</button>
         </div>
       </div>
-
-      <div class="full">
-        <label>Access</label>
-        <div class="access-group">
-          <label class="access-pill"><input type="radio" name="access" value="public"><span>Public</span></label>
-          <label class="access-pill"><input type="radio" name="access" value="members"><span>Members Only</span></label>
-        </div>
-      </div>
-
-      <div><label>Added by</label><input id="added_by" placeholder="Your name"></div>
-      <div><label>Rating</label><input id="rating" type="number" step="0.1" min="0" max="5"></div>
-
-      <div class="photo-wrap full">
-        <img id="preview" src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg" alt="Preview">
-        <div id="photo-meta" class="muted small">No photo loaded</div>
-      </div>
-
-      <div class="full" style="text-align:right;"><button id="saveBtn" class="btn">Save Store</button></div>
-    </form>
+    </div>
   </div>
+
   <div id="toast-container"></div>
 
   <script>
-    window.selectedPlace={};
-    let selectedTypes=[];
+    const sel = { types: [], access: null, place_id: null, _photo_refs: [], photo_index: 0, photo_reference: null };
 
-    // type buttons
-    document.querySelectorAll(".type-btn").forEach(btn=>{
-      btn.addEventListener("click",()=>{
-        const t=btn.dataset.type;
-        if(selectedTypes.includes(t)){selectedTypes=selectedTypes.filter(x=>x!==t);btn.classList.remove("active");}
-        else{selectedTypes.push(t);btn.classList.add("active");}
+    document.querySelectorAll(".type-btn input").forEach(cb => {
+      cb.addEventListener("change", () => {
+        const val = cb.value;
+        if (cb.checked) sel.types.push(val);
+        else sel.types = sel.types.filter(t => t !== val);
       });
     });
 
-    // autocomplete
-    window.initAutocomplete=async function(){
-      const ac=new google.maps.places.Autocomplete(document.getElementById("autocomplete"),{
-        fields:["place_id","geometry","formatted_address","name","address_components","international_phone_number","website","photos"],
-        language:"en"
-      });
-      ac.addListener("place_changed",async()=>{
-        const p=ac.getPlace(); if(!p.place_id)return;
-        const comps=p.address_components||[];
-        const city=comps.find(c=>c.types.includes("locality")||c.types.includes("postal_town"));
-        const country=comps.find(c=>c.types.includes("country"));
-        const iso=country?.short_name?.toLowerCase()||"";
-        const cont=WCL.countryToContinent(iso);
-        window.selectedPlace={
-          name:p.name||"",address:p.formatted_address||"",
-          city:city?.long_name||"",country:country?.long_name||"",
-          country_iso2:iso,continent:cont,place_id:p.place_id,
-          lat:p.geometry?.location?.lat()||null,lng:p.geometry?.location?.lng()||null
-        };
-        document.getElementById("name").value=p.name||"";
-        document.getElementById("address").value=p.formatted_address||"";
-        document.getElementById("city").value=window.selectedPlace.city;
-        document.getElementById("country").value=window.selectedPlace.country;
-        document.getElementById("continent").value=cont;
-        document.getElementById("phone").value=p.international_phone_number||"";
-        document.getElementById("website").value=p.website||"";
-        const refs=await WCL.fetchPhotoRefs(p.place_id);
-        if(refs.length){window.selectedPlace.photo_reference=refs[0];
-          document.getElementById("preview").src=WCL.buildPhotoProxyUrl(refs[0]);
-          document.getElementById("photo-meta").textContent=`Loaded ${refs.length} photo(s)`;}
-        else{document.getElementById("preview").src=WCL.FALLBACK_IMG;
-          document.getElementById("photo-meta").textContent="No photo loaded";}
-        WCL.toast("✅ Place loaded");
-      });
-    };
+    document.querySelectorAll(".access-pill input").forEach(radio => {
+      radio.addEventListener("change", () => sel.access = radio.value);
+    });
 
-    // save
-    document.getElementById("addStoreForm").addEventListener("submit",async(e)=>{
-      e.preventDefault(); const btn=document.getElementById("saveBtn"); btn.disabled=true;
-      try{
-        const types=selectedTypes.length?selectedTypes:["store"];
-        const access=document.querySelector("input[name='access']:checked")?.value||null;
-        const payload={...window.selectedPlace,types,access,
-          rating:Number(document.getElementById("rating").value||0),
-          added_by:document.getElementById("added_by").value||"anonymous",
-          phone:document.getElementById("phone").value||null,
-          website:document.getElementById("website").value||null,
-          approved:false,flagged:false,deleted:false};
-        console.log("📦 Saving payload →",payload);
-        const {error}=await WCL.supabase.from("stores").insert([payload]);
-        if(error)throw error;
-        WCL.toast("✅ Store saved!","success");
-        e.target.reset();
-        document.getElementById("preview").src=WCL.FALLBACK_IMG;
-        document.getElementById("photo-meta").textContent="No photo loaded";
-        selectedTypes=[];document.querySelectorAll(".type-btn").forEach(b=>b.classList.remove("active"));
-      }catch(err){console.error(err);WCL.toast("❌ Error saving","error");}
-      finally{btn.disabled=false;}
+    function resetForm() {
+      document.querySelectorAll("input, textarea").forEach(i => { if (i.type !== "radio" && i.type !== "checkbox") i.value = ""; });
+      document.querySelectorAll("input[type=checkbox], input[type=radio]").forEach(i => i.checked = false);
+      sel.types = []; sel.access = null; sel.place_id = null; sel._photo_refs = [];
+      document.getElementById("preview-photo").src = WCL.FALLBACK_IMG;
+      document.getElementById("photo-meta").textContent = "No photo loaded";
+      WCL.toast("Cleared", "success");
+    }
+
+    async function saveStore() {
+      const name = nameEl.value.trim();
+      const address = addrEl.value.trim();
+      const city = cityEl.value.trim();
+      const country = countryEl.value.trim();
+      const continent = continentEl.value || WCL.countryToContinent(country);
+      const phone = phoneEl.value.trim() || null;
+      const website = websiteEl.value.trim() || null;
+      const commentText = document.getElementById("comment").value.trim();
+
+      if (!name || !address || !city || !country) return WCL.toast("Please fill all required fields", "error");
+
+      const payload = {
+        name, address, city, country, continent, phone, website,
+        types: sel.types.length ? sel.types : ["store"],
+        access: sel.access,
+        photo_reference: sel.photo_reference || null,
+        approved: false, flagged: false, deleted: false, status: "pending"
+      };
+
+      const { data, error } = await WCL.supabase.from("stores").insert([payload]).select().single();
+      if (error) return WCL.toast("Error saving store", "error");
+
+      if (commentText) {
+        await WCL.supabase.from("store_comments").insert([{
+          store_id: data.id,
+          comment: commentText,
+          user_name: "Backoffice",
+        }]);
+      }
+
+      WCL.toast("✅ Store saved!", "success");
+      resetForm();
+    }
+
+    async function initAutocomplete() {
+      const input = document.getElementById("gAddress");
+      const ac = new google.maps.places.Autocomplete(input, { fields: ["place_id","name","formatted_address","address_components","international_phone_number","website"] });
+
+      ac.addListener("place_changed", async () => {
+        const p = ac.getPlace();
+        if (!p) return;
+
+        nameEl.value = p.name || "";
+        addrEl.value = p.formatted_address || "";
+        phoneEl.value = p.international_phone_number || "";
+        websiteEl.value = p.website || "";
+
+        const comps = p.address_components || [];
+        const city = comps.find(c => c.types.includes("locality") || c.types.includes("postal_town"));
+        const country = comps.find(c => c.types.includes("country"));
+        cityEl.value = city?.long_name || "";
+        countryEl.value = country?.long_name || "";
+        continentEl.value = WCL.countryToContinent(country?.long_name) || "";
+
+        sel.place_id = p.place_id || null;
+        const refs = await WCL.fetchPhotoRefs(sel.place_id);
+        if (refs.length) {
+          sel._photo_refs = refs;
+          sel.photo_reference = refs[0];
+          document.getElementById("preview-photo").src = `${WCL.PHOTO_PROXY_URL}?photo_reference=${refs[0]}&maxwidth=800`;
+          document.getElementById("photo-meta").textContent = `${refs.length} photo(s) found`;
+        } else {
+          document.getElementById("preview-photo").src = WCL.FALLBACK_IMG;
+          document.getElementById("photo-meta").textContent = "No photo found";
+        }
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      window.nameEl = document.getElementById("name");
+      window.addrEl = document.getElementById("addr");
+      window.cityEl = document.getElementById("city");
+      window.countryEl = document.getElementById("country");
+      window.continentEl = document.getElementById("continent");
+      window.phoneEl = document.getElementById("phone");
+      window.websiteEl = document.getElementById("website");
     });
   </script>
 
