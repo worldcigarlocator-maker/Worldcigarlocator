@@ -728,30 +728,38 @@ async function repairPhoto(id, place_id, imgEl) {
 async function editStore(id) {
   closeEdit();
 
+  // 🔹 Hämta store + kommentarer parallellt
   const [storeResp, commentsResp] = await Promise.all([
     WCL.supabase.from("stores").select("*").eq("id", id).single(),
     WCL.supabase.from("store_comments").select("*").eq("store_id", id).order("created_at", { ascending: false })
   ]);
+
   const store = storeResp?.data;
   const error = storeResp?.error;
   const comments = commentsResp?.data || [];
-  if (error || !store) { toast("Failed to load store", "error"); console.error(error); return; }
 
+  if (error || !store) {
+    toast("Failed to load store", "error");
+    console.error(error);
+    return;
+  }
+
+  // 🔹 Bygg modal
   const modal = document.createElement("div");
   modal.className = "modal-backdrop";
   modal.innerHTML = `
     <div class="modal">
       <h3>Edit Store</h3>
       <div class="edit-grid">
+
         <label>Name</label>
         <input id="edit-name" value="${safe(store.name)}" />
 
         <label>Address</label>
-<input id="edit-address" value="${safe(store.address || '')}" />
+        <input id="edit-address" value="${safe(store.address || '')}" />
 
-<label>Phone</label>
-<input id="edit-phone" value="${safe(store.phone || '')}" />
-
+        <label>Phone</label>
+        <input id="edit-phone" value="${safe(store.phone || '')}" />
 
         <label>City</label>
         <input id="edit-city" value="${safe(store.city)}" />
@@ -759,33 +767,25 @@ async function editStore(id) {
         <label>Country</label>
         <input id="edit-country" value="${safe(store.country)}" />
 
-     <label>Continent</label>
-<select id="edit-continent">
-  <option value="Europe">Europe</option>
-  <option value="North America">North America</option>
-  <option value="South America">South America</option>
-  <option value="Asia">Asia</option>
-  <option value="Africa">Africa</option>
-  <option value="Oceania">Oceania</option>
-  <option value="Other">Other</option>
-</select>
-
+        <label>Continent</label>
+        <select id="edit-continent">
+          <option value="Europe">Europe</option>
+          <option value="North America">North America</option>
+          <option value="South America">South America</option>
+          <option value="Asia">Asia</option>
+          <option value="Africa">Africa</option>
+          <option value="Oceania">Oceania</option>
+          <option value="Other">Other</option>
+        </select>
 
         <label>Website</label>
         <input id="edit-website" value="${safe(store.website)}" />
 
-  <label>Type</label>
-<div class="type-group">
-  <label class="type-btn">
-    <input type="checkbox" name="types" value="store" ${store.types?.includes("store") ? "checked" : ""}>
-    Store
-  </label>
-  <label class="type-btn">
-    <input type="checkbox" name="types" value="lounge" ${store.types?.includes("lounge") ? "checked" : ""}>
-    Lounge
-  </label>
-</div>
-
+        <label>Type</label>
+        <div class="type-group">
+          <button type="button" class="type-btn ${store.type === "store" ? "active" : ""}" data-type="store">Store</button>
+          <button type="button" class="type-btn ${store.type === "lounge" ? "active" : ""}" data-type="lounge">Lounge</button>
+        </div>
 
         <label>Access</label>
         <div class="access-group">
@@ -802,27 +802,29 @@ async function editStore(id) {
         <label>Photo</label>
         <div class="photo-picker">
           <button id="edit-prev" class="photo-nav">◀</button>
-          <img id="edit-photo" class="preview-photo" src="${store.photo_reference ? buildPhotoProxyUrl(store.photo_reference) : WCL.FALLBACK_IMG}" />
+          <img id="edit-photo" class="preview-photo"
+            src="${store.photo_reference ? buildPhotoProxyUrl(store.photo_reference) : WCL.FALLBACK_IMG}" />
           <button id="edit-next" class="photo-nav">▶</button>
         </div>
+
         <div id="photo-meta" class="muted center">
           ${store.photo_reference ? "Loaded from proxy" : "No photo loaded"}
         </div>
 
         ${
           comments.length
-          ? `<label>Comments (${comments.length})</label>
-             <div class="comment-list">
-               ${comments.map((c) => `
-                 <div class="comment-item">
-                   <p><strong>${safe(c.user_name || "Anon")}:</strong> ${safe(c.comment)}</p>
-                   <span class="muted">${new Date(c.created_at).toLocaleString()}</span>
-                   <button class="btn small ghost del-comment" data-id="${c.id}">🗑️</button>
-                 </div>
-               `).join("")}
-             </div>`
-          : `<label>Comments</label><p class="muted">No comments yet.</p>`
+            ? `<label>Comments (${comments.length})</label>
+               <div class="comment-list">
+                 ${comments.map((c) => `
+                   <div class="comment-item">
+                     <p><strong>${safe(c.user_name || "Anon")}:</strong> ${safe(c.comment)}</p>
+                     <span class="muted">${new Date(c.created_at).toLocaleString()}</span>
+                     <button class="btn small ghost del-comment" data-id="${c.id}">🗑️</button>
+                   </div>`).join("")}
+               </div>`
+            : `<label>Comments</label><p class="muted">No comments yet.</p>`
         }
+
       </div>
 
       <div class="row">
@@ -836,16 +838,16 @@ async function editStore(id) {
   `;
   document.body.appendChild(modal);
 
-  // init continent select default (store.continent eller auto)
+  // 🔹 Förifyll kontinent
   const contSel = $("#edit-continent");
   const defaultCont = store.continent || countryToContinent(store.country);
   if (defaultCont) contSel.value = defaultCont;
 
-  // close
+  // 🔹 Stäng vid klick utanför modal
   modal.addEventListener("click", (e) => { if (e.target === modal) closeEdit(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeEdit(); }, { once: true });
 
-  // type toggles
+  // 🔹 Typval
   modal.querySelectorAll(".type-btn").forEach((btn) =>
     btn.addEventListener("click", () => {
       modal.querySelectorAll(".type-btn").forEach((b) => b.classList.remove("active"));
@@ -853,7 +855,7 @@ async function editStore(id) {
     })
   );
 
-  // photos
+  // 🔹 Foto-navigation
   let refs = await fetchPhotoRefs(store.place_id);
   if (!refs.length && store.photo_reference) refs = [store.photo_reference];
   let currentIndex = Math.max(0, refs.indexOf(store.photo_reference));
@@ -861,29 +863,45 @@ async function editStore(id) {
   const metaEl = modal.querySelector("#photo-meta");
 
   function showCurrent() {
-    if (!refs.length) { imgEl.src = WCL.FALLBACK_IMG; metaEl.textContent = "No photo loaded"; return; }
+    if (!refs.length) {
+      imgEl.src = WCL.FALLBACK_IMG;
+      metaEl.textContent = "No photo loaded";
+      return;
+    }
     imgEl.src = buildPhotoProxyUrl(refs[currentIndex]);
     metaEl.textContent = `Photo ${currentIndex + 1} / ${refs.length} — via proxy`;
   }
   showCurrent();
 
-  $("#edit-prev").onclick = () => { if (!refs.length) return; currentIndex = (currentIndex - 1 + refs.length) % refs.length; showCurrent(); };
-  $("#edit-next").onclick = () => { if (!refs.length) return; currentIndex = (currentIndex + 1) % refs.length; showCurrent(); };
+  $("#edit-prev").onclick = () => {
+    if (!refs.length) return;
+    currentIndex = (currentIndex - 1 + refs.length) % refs.length;
+    showCurrent();
+  };
 
-  // repair
+  $("#edit-next").onclick = () => {
+    if (!refs.length) return;
+    currentIndex = (currentIndex + 1) % refs.length;
+    showCurrent();
+  };
+
+  // 🔹 Repair photo
   $("#repair-photo").onclick = async () => {
     toast("Repairing photo…", "info");
     const fresh = await fetchPhotoRefs(store.place_id);
-    if (!fresh.length) { toast("No photos found from Google", "error"); return; }
+    if (!fresh.length) {
+      toast("No photos found from Google", "error");
+      return;
+    }
     const newRef = fresh[0];
     const { error } = await WCL.supabase.from("stores").update({ photo_reference: newRef }).eq("id", id);
     if (error) return toast("Error updating photo", "error");
     toast("Photo repaired ✅");
-    imgEl.src = buildPhotoProxyUrl(newRef);
-    metaEl.textContent = "Photo repaired from Google";
+    $("#edit-photo").src = buildPhotoProxyUrl(newRef);
+    $("#photo-meta").textContent = "Photo repaired from Google";
   };
 
-  // delete comment
+  // 🔹 Delete comment
   modal.querySelectorAll(".del-comment").forEach((btn) => {
     btn.addEventListener("click", async () => {
       if (!confirm("Delete this comment?")) return;
@@ -891,80 +909,48 @@ async function editStore(id) {
       const { error } = await WCL.supabase.from("store_comments").delete().eq("id", cid);
       if (error) return toast("Error deleting comment", "error");
       toast("Comment deleted 🗑️");
-      closeEdit(); editStore(id);
+      closeEdit();
+      editStore(id);
     });
   });
 
-// buttons
-$("#edit-save").onclick = async () => {
-  const payload = {
-    name: $("#edit-name").value.trim(),
-    address: $("#edit-address").value.trim(),
-    phone: $("#edit-phone").value.trim(),
-    city: $("#edit-city").value.trim(),
-    country: $("#edit-country").value.trim(),
-    continent: $("#edit-continent").value || null,
-    website: $("#edit-website").value.trim(),
-    type: document.querySelector(".type-btn.active")?.dataset.type || null,
-    access: document.querySelector('input[name="access"]:checked')?.value || null,
-    photo_reference: refs.length ? refs[currentIndex] : null,
+  // 🔹 Save button
+  $("#edit-save").onclick = async () => {
+    const payload = {
+      name: $("#edit-name").value.trim(),
+      address: $("#edit-address").value.trim(),
+      phone: $("#edit-phone").value.trim(),
+      city: $("#edit-city").value.trim(),
+      country: $("#edit-country").value.trim(),
+      continent: $("#edit-continent").value || null,
+      website: $("#edit-website").value.trim(),
+      type: document.querySelector(".type-btn.active")?.dataset.type || null,
+      access: document.querySelector('input[name="access"]:checked')?.value || null,
+      photo_reference: refs.length ? refs[currentIndex] : null,
+    };
+
+    const { data, error } = await WCL.supabase
+      .from("stores")
+      .update(payload)
+      .eq("id", id);
+
+    if (error) {
+      console.error("❌ Supabase update failed:", error);
+      return toast("Error saving", "error");
+    }
+
+    console.log("✅ Store updated:", data);
+    toast("Saved ✅");
+    closeEdit();
+
+    // 🔥 Ladda om kort automatiskt
+    await reloadData(CURRENT_TAB);
   };
 
-  const { data, error } = await WCL.supabase
-    .from("stores")
-    .update(payload)
-    .eq("id", id);
+  // 🔹 Cancel button
+  $("#edit-cancel").onclick = closeEdit;
+} // ✅ avslutar hela async function editStore()
 
-  if (error) {
-    console.error("❌ Supabase update failed:", error);
-    return toast("Error saving", "error");
-  }
-
-  console.log("✅ Store updated:", data);
-  toast("Saved ✅");
-  closeEdit();
-
-  // 🔥 Ladda om kort automatiskt
-  await reloadData(CURRENT_TAB);
-};
-
-// repair
-$("#repair-photo").onclick = async () => {
-  toast("Repairing photo…", "info");
-  const fresh = await fetchPhotoRefs(store.place_id);
-  if (!fresh.length) {
-    toast("No photos found from Google", "error");
-    return;
-  }
-  const newRef = fresh[0];
-  const { error } = await WCL.supabase
-    .from("stores")
-    .update({ photo_reference: newRef })
-    .eq("id", id);
-  if (error) return toast("Error updating photo", "error");
-  toast("Photo repaired ✅");
-  $("#edit-photo").src = buildPhotoProxyUrl(newRef);
-  $("#photo-meta").textContent = "Photo repaired from Google";
-};
-
-// delete comment
-modal.querySelectorAll(".del-comment").forEach((btn) => {
-  btn.addEventListener("click", async () => {
-    if (!confirm("Delete this comment?")) return;
-    const cid = btn.dataset.id;
-    const { error } = await WCL.supabase
-      .from("store_comments")
-      .delete()
-      .eq("id", cid);
-    if (error) return toast("Error deleting comment", "error");
-    toast("Comment deleted 🗑️");
-    closeEdit();
-    editStore(id);
-  });
-});
-
-$("#edit-cancel").onclick = closeEdit;
-} // avslutar hela async function editStore()
 
 /* ==================== CLOSE MODAL ================= */
 function closeEdit(){ document.querySelectorAll(".modal-backdrop").forEach((m)=>m.remove()); }
