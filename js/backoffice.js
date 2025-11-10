@@ -444,9 +444,9 @@ function renderCards(list) {
   if (!list.length) grid.innerHTML = `<p class="muted center">No stores</p>`;
 }
 
-
-
-/* ===================== LIST ===================== */
+/* ============================================================
+   INLINE TABLE VIEW — Compact Hierarchy Table
+   ============================================================ */
 function renderTable(list) {
   const tbody = $("#tbody");
   tbody.innerHTML = "";
@@ -455,52 +455,43 @@ function renderTable(list) {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${safe(s.name)}</td>
+      <td>${safe(s.continent)}</td>
 
       <td>
-        <div style="display:flex; align-items:center; gap:6px;">
+        <div style="display:flex; align-items:center; gap:4px;">
           ${(() => {
             const url = flagURL(s.country, s.country_iso2);
             return url
-              ? `<img class="flag" src="${url}"
-                   style="width:18px;height:14px;border-radius:2px;object-fit:cover;border:1px solid #ccc;">`
+              ? `<img class="flag" src="${url}" style="width:14px;height:10px;border-radius:2px;object-fit:cover;">`
               : "";
           })()}
           <span>${safe(s.country)}</span>
         </div>
       </td>
 
-      <td>${safe(s.continent)}</td>
       <td>${safe(s.city)}</td>
-      <td>${safe(s.type) || "store"}</td>
-      <td>${safe(s.access) || "—"}</td>
-      <td>${s.rating ?? "—"}</td>
+      <td class="truncate">${safe(s.name)}</td>
+      <td>${safe(s.type || "–")}</td>
+      <td>${safe(s.access || "–")}</td>
+      <td>${s.rating ?? "–"}</td>
+      <td>${s.comment_count ?? 0}</td>
 
-      <td>
-        ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
-        ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
-        ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
-        ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
-      </td>
-
-      <td class="action-td"></td>
+      <td class="action-td" style="white-space:nowrap;"></td>
     `;
 
+    // Actions
     const actionsTd = tr.querySelector(".action-td");
-    actionsTd.style.whiteSpace = "nowrap";
-
     actionsTd.append(
-      makeBtn("Edit", () => editStore(s.id), "blue"),
-      makeBtn("Approve", () => approveStore(s.id), "green"),
-      s.flagged ? makeBtn("Unflag", () => unflagStore(s.id), "yellow") : document.createComment(""),
-      makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger")
+      makeBtn("Edit", () => editStore(s.id), "blue small"),
+      makeBtn("Approve", () => approveStore(s.id), "green small"),
+      makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger small")
     );
 
     tbody.appendChild(tr);
   });
 
   if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="9" class="muted center">No stores</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" class="muted center">No stores</td></tr>`;
   }
 }
 
