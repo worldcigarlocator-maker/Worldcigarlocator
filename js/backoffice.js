@@ -724,8 +724,6 @@ async function repairPhoto(id, place_id, imgEl) {
 }
 
 
-
-
 /* ==================== EDIT MODAL ================= */
 async function editStore(id) {
   closeEdit();
@@ -898,35 +896,75 @@ async function editStore(id) {
   });
 
 // buttons
-const payload = {
-  name: $("#edit-name").value.trim(),
-  address: $("#edit-address").value.trim(),
-  phone: $("#edit-phone").value.trim(),
-  city: $("#edit-city").value.trim(),
-  country: $("#edit-country").value.trim(),
-  continent: $("#edit-continent").value || null,
-  website: $("#edit-website").value.trim(),
-  types: Array.from(document.querySelectorAll('input[name="types"]:checked')).map(cb => cb.value),
-  access: document.querySelector('input[name="access"]:checked')?.value || null,
-  photo_reference: refs.length ? refs[currentIndex] : null,
-};
+$("#edit-save").onclick = async () => {
+  const payload = {
+    name: $("#edit-name").value.trim(),
+    address: $("#edit-address").value.trim(),
+    phone: $("#edit-phone").value.trim(),
+    city: $("#edit-city").value.trim(),
+    country: $("#edit-country").value.trim(),
+    continent: $("#edit-continent").value || null,
+    website: $("#edit-website").value.trim(),
+    type: document.querySelector(".type-btn.active")?.dataset.type || null,
+    access: document.querySelector('input[name="access"]:checked')?.value || null,
+    photo_reference: refs.length ? refs[currentIndex] : null,
+  };
 
-
-  const { error } = await WCL.supabase
+  const { data, error } = await WCL.supabase
     .from("stores")
     .update(payload)
     .eq("id", id);
 
-  if (error) return toast("Error saving", "error");
+  if (error) {
+    console.error("❌ Supabase update failed:", error);
+    return toast("Error saving", "error");
+  }
 
-toast("Saved ✅");
-closeEdit();
+  console.log("✅ Store updated:", data);
+  toast("Saved ✅");
+  closeEdit();
 
-// 🔥 Ladda om kort automatiskt
-await reloadData(CURRENT_TAB);
-};   // avslutar $("#edit-save").onclick
-}    // avslutar hela async function editStore()
+  // 🔥 Ladda om kort automatiskt
+  await reloadData(CURRENT_TAB);
+};
 
+// repair
+$("#repair-photo").onclick = async () => {
+  toast("Repairing photo…", "info");
+  const fresh = await fetchPhotoRefs(store.place_id);
+  if (!fresh.length) {
+    toast("No photos found from Google", "error");
+    return;
+  }
+  const newRef = fresh[0];
+  const { error } = await WCL.supabase
+    .from("stores")
+    .update({ photo_reference: newRef })
+    .eq("id", id);
+  if (error) return toast("Error updating photo", "error");
+  toast("Photo repaired ✅");
+  $("#edit-photo").src = buildPhotoProxyUrl(newRef);
+  $("#photo-meta").textContent = "Photo repaired from Google";
+};
+
+// delete comment
+modal.querySelectorAll(".del-comment").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    if (!confirm("Delete this comment?")) return;
+    const cid = btn.dataset.id;
+    const { error } = await WCL.supabase
+      .from("store_comments")
+      .delete()
+      .eq("id", cid);
+    if (error) return toast("Error deleting comment", "error");
+    toast("Comment deleted 🗑️");
+    closeEdit();
+    editStore(id);
+  });
+});
+
+$("#edit-cancel").onclick = closeEdit;
+} // avslutar hela async function editStore()
 
 /* ==================== CLOSE MODAL ================= */
 function closeEdit(){ document.querySelectorAll(".modal-backdrop").forEach((m)=>m.remove()); }
