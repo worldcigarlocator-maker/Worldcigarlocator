@@ -1,6 +1,6 @@
 /* ==========================================================
    add-shared.js — Shared logic for Add/Edit Store pages
-   Version: Stable 2025-11-11
+   Version: Fixed 2025-11-11
    ========================================================== */
 
 // 🧩 Supabase setup
@@ -10,43 +10,37 @@ const SUPABASE_ANON_KEY =
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 🔑 Google browser key (frontend-safe)
+// 🔑 Google browser key
 const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
 
-// 🖼️ Supabase Edge Function (server-protected proxy)
+// 🖼️ Supabase Functions
 const PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
 const PHOTO_REFS_URL  = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs";
 
-// 🏞️ Fallback images hosted on GitHub Pages
+// 🏞️ Fallback images
 const GITHUB_STORE_FALLBACK =
   "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
 const GITHUB_LOUNGE_FALLBACK =
   "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
 
-// 🧩 Init global WCL namespace
+// Init WCL
 window.WCL = window.WCL || {};
 
 /* ==========================================================
-   🌍 Country → Continent (ISO2 + Name)
+   🌍 Country → Continent
    ========================================================== */
-WCL.countryToContinent = function (countryName = null, iso2 = null) {
+function countryToContinent(countryName = null, iso2 = null) {
   const c = (countryName || "").toLowerCase().trim();
   const i = (iso2 || "").toLowerCase().trim();
 
   const MAP = {
-    // Europe
     gb: "Europe", uk: "Europe", se: "Europe", no: "Europe", fi: "Europe", dk: "Europe",
     fr: "Europe", de: "Europe", es: "Europe", it: "Europe", nl: "Europe", be: "Europe",
     pt: "Europe", pl: "Europe", cz: "Europe", ch: "Europe", at: "Europe",
-    // North America
     us: "North America", ca: "North America", mx: "North America",
-    // South America
     br: "South America", ar: "South America", cl: "South America",
-    // Asia
     cn: "Asia", jp: "Asia", in: "Asia", tr: "Asia", ae: "Asia", sg: "Asia",
-    // Africa
     za: "Africa", ng: "Africa", eg: "Africa",
-    // Oceania
     au: "Oceania", nz: "Oceania"
   };
 
@@ -76,10 +70,10 @@ WCL.countryToContinent = function (countryName = null, iso2 = null) {
     return "Oceania";
 
   return "Other";
-};
+}
 
 /* ==========================================================
-   📸 Photo Helpers — Proxy + Ref Fetch
+   📸 Photo Helpers
    ========================================================== */
 function buildProxyUrl(ref, w = 800) {
   if (!ref) return null;
@@ -120,7 +114,7 @@ async function loadProxyPhotoInto(imgEl, ref, type = "store") {
 }
 
 /* ==========================================================
-   ⭐ Rating Utility (used in edit/list)
+   ⭐ Rating + Toast
    ========================================================== */
 function ratingToStars(rating) {
   if (!rating) return "";
@@ -129,9 +123,6 @@ function ratingToStars(rating) {
   return full + empty;
 }
 
-/* ==========================================================
-   🔔 Toast Helper
-   ========================================================== */
 function toastShared(msg, type = "info") {
   let c = document.getElementById("toast-container");
   if (!c) {
@@ -160,7 +151,7 @@ function toastShared(msg, type = "info") {
 }
 
 /* ==========================================================
-   🧾 Exports
+   ✅ EXPORTS (alla funktioner till WCL)
    ========================================================== */
 Object.assign(window.WCL, {
   supabase,
