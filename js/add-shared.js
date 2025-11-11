@@ -1,3 +1,6 @@
+// 🧩 Global WCL init om den inte redan finns
+window.WCL = window.WCL || {};
+
 // 🌍 Konvertera land till kontinent via ISO2 eller namn
 WCL.countryToContinent = function (countryName = null, iso2 = null) {
   const c = (countryName || "").toLowerCase().trim();
@@ -55,12 +58,16 @@ WCL.countryToContinent = function (countryName = null, iso2 = null) {
 
   // 🔸 ISO2 direktträff
   if (MAP[i]) return MAP[i];
-  if (i === "uk") return "Europe"; // 🇬🇧 säkerhetsbälte
+  if (i === "uk") return "Europe"; // 🇬🇧 extra säkerhet
 
   // ----------------------------
   // 2️⃣ Text-match på landnamn
   // ----------------------------
-  const n = c.replace(/’/g, "'").replace(/\./g, "").replace(/-/g, " ");
+  const n = c
+    .replace(/’/g, "'")
+    .replace(/\./g, "")
+    .replace(/-/g, " ");
+
   if ([
     "sweden","germany","france","italy","spain","norway","finland","denmark",
     "netherlands","belgium","austria","switzerland","poland","czech republic",
@@ -89,8 +96,6 @@ WCL.countryToContinent = function (countryName = null, iso2 = null) {
 
   return "Other";
 };
-
-
 
 
 /* ==========================================================
@@ -248,11 +253,11 @@ Object.assign(window.WCL, {
   buildProxyUrl,
   fallbackForType,
   fetchPhotoRefs,
-  fetchPlaceDetails,   // ✅ NY
+  fetchPlaceDetails,
   resolveGooglePhotoUrl,
   loadProxyPhotoInto,
-  countryToContinent,
   ratingToStars,
   toastShared
+  // ✅ countryToContinent ligger redan på WCL via WCL.countryToContinent ovan
 });
 
