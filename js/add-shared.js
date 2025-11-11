@@ -73,7 +73,7 @@ function toastShared(msg, type = "success") {
   c.appendChild(t); setTimeout(() => t.remove(), 3000);
 }
 
-// ✅ Merge exports
+// ✅ Merge exports utan dubblett av countryToContinent
 Object.assign(window.WCL, {
   supabase,
   GOOGLE_BROWSER_KEY,
@@ -83,6 +83,7 @@ Object.assign(window.WCL, {
   buildProxyUrl,
   fallbackForType,
   fetchPhotoRefs,
-  countryToContinent,
+  // ❌ ta bort "countryToContinent" här
+  ratingToStars,
   toastShared
 });
