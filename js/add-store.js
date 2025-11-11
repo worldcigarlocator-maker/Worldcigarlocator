@@ -18,61 +18,60 @@ document.addEventListener("DOMContentLoaded", () => {
       types: ["establishment"], language: "en"
     });
 
-    autocomplete.addListener("place_changed", async () => {
-      const place = autocomplete.getPlace();
-      if (!place.place_id) return;
+  autocomplete.addListener("place_changed", async () => {
+  try {
+    const place = autocomplete.getPlace();
+    if (!place.place_id) return;
 
-      window.selectedPlace = {
-        name: place.name || "",
-        address: place.formatted_address || "",
-        place_id: place.place_id,
-        lat: place.geometry?.location?.lat() || null,
-        lng: place.geometry?.location?.lng() || null,
+    console.log("📍 Full place object:", place);
+
+    // 🖼️ Foto (hämtar och aktiverar navigation)
+    const refs = await WCL.fetchPhotoRefs(place.place_id);
+    window.photoRefs = refs;
+    currentIndex = 0;
+
+    function showCurrentPhoto() {
+      const preview = document.getElementById("preview");
+      if (!preview) {
+        console.warn("⚠️ Missing #preview element in HTML");
+        return;
+      }
+
+      if (!window.photoRefs.length) {
+        const fallback = WCL.fallbackForType("store");
+        preview.innerHTML = `<img src="${fallback}" alt="Preview">`;
+        return;
+      }
+
+      const ref = window.photoRefs[currentIndex];
+      window.selectedPlace.photo_reference = ref;
+      const url = WCL.buildProxyUrl(ref, 800);
+
+      preview.innerHTML = `
+        <div class="photo-picker">
+          <button id="add-prev" class="photo-nav">◀</button>
+          <img id="add-photo" class="preview-photo" src="${url}" alt="Preview">
+          <button id="add-next" class="photo-nav">▶</button>
+        </div>
+        <div class="muted center">Photo ${currentIndex + 1} / ${window.photoRefs.length}</div>
+      `;
+
+      document.getElementById("add-prev").onclick = () => {
+        if (!window.photoRefs.length) return;
+        currentIndex = (currentIndex - 1 + window.photoRefs.length) % window.photoRefs.length;
+        showCurrentPhoto();
       };
-
-      const comp = place.address_components || [];
-      const cityObj = comp.find(c => c.types.includes("locality") || c.types.includes("postal_town"));
-      const countryObj = comp.find(c => c.types.includes("country"));
-      window.selectedPlace.city = cityObj?.long_name || "";
-      window.selectedPlace.country_iso2 = countryObj?.short_name?.toLowerCase() || null;
-      window.selectedPlace.country = countryObj?.long_name || "";
-
-      window.selectedPlace.continent = WCL.countryToContinent(
-        window.selectedPlace.country, window.selectedPlace.country_iso2
-      );
-
-      const refs = await WCL.fetchPhotoRefs(place.place_id);
-      window.photoRefs = refs;
-      currentIndex = 0;
-
-      const showCurrentPhoto = () => {
-        if (!window.photoRefs.length) {
-          preview.innerHTML = `<img src="${WCL.GITHUB_STORE_FALLBACK}" alt="Preview">`;
-          return;
-        }
-        const ref = window.photoRefs[currentIndex];
-        window.selectedPlace.photo_reference = ref;
-        const url = WCL.buildProxyUrl(ref, 800);
-        preview.innerHTML = `
-          <div class="photo-picker">
-            <button id="add-prev" class="photo-nav">◀</button>
-            <img id="add-photo" class="preview-photo" src="${url}" alt="Preview">
-            <button id="add-next" class="photo-nav">▶</button>
-          </div>
-          <div class="muted center">Photo ${currentIndex + 1} / ${window.photoRefs.length}</div>
-        `;
-        document.getElementById("add-prev").onclick = () => {
-          currentIndex = (currentIndex - 1 + window.photoRefs.length) % window.photoRefs.length;
-          showCurrentPhoto();
-        };
-        document.getElementById("add-next").onclick = () => {
-          currentIndex = (currentIndex + 1) % window.photoRefs.length;
-          showCurrentPhoto();
-        };
+      document.getElementById("add-next").onclick = () => {
+        if (!window.photoRefs.length) return;
+        currentIndex = (currentIndex + 1) % window.photoRefs.length;
+        showCurrentPhoto();
       };
-      showCurrentPhoto();
+    }
 
-      WCL.toastShared(`✅ ${refs.length} photos found!`, "success");
-    });
-  };
+    showCurrentPhoto();
+
+    WCL.toastShared(`✅ ${refs.length} photos found!`, "success");
+  } catch (err) {
+    console.error("❌ place_changed failed:", err);
+  }
 });
