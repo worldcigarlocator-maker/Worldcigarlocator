@@ -22,9 +22,14 @@ const GITHUB_STORE_FALLBACK =
 const GITHUB_LOUNGE_FALLBACK =
   "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
 
-// 🌍 Konvertera land till kontinent via ISO2 eller engelskt namn
+// 🌍 Konvertera land till kontinent via ISO2 eller namn
 WCL.countryToContinent = function (countryName = null, iso2 = null) {
-  // Fallback-tabell baserad på ISO 3166-1 alpha-2
+  const c = (countryName || "").toLowerCase().trim();
+  const i = (iso2 || "").toLowerCase().trim();
+
+  // ----------------------------
+  // 1️⃣ Direkt-match på ISO2-kod
+  // ----------------------------
   const MAP = {
     // 🌍 Europe
     al:"Europe", ad:"Europe", am:"Europe", at:"Europe", az:"Europe", by:"Europe",
@@ -34,7 +39,7 @@ WCL.countryToContinent = function (countryName = null, iso2 = null) {
     li:"Europe", lt:"Europe", lu:"Europe", mt:"Europe", md:"Europe", mc:"Europe",
     me:"Europe", nl:"Europe", mk:"Europe", no:"Europe", pl:"Europe", pt:"Europe",
     ro:"Europe", rs:"Europe", sk:"Europe", si:"Europe", es:"Europe", se:"Europe",
-    ch:"Europe", ua:"Europe", gb:"Europe", va:"Europe",
+    ch:"Europe", ua:"Europe", gb:"Europe", va:"Europe", im:"Europe",
 
     // 🌎 North America
     ag:"North America", ai:"North America", aw:"North America", bb:"North America",
@@ -48,57 +53,69 @@ WCL.countryToContinent = function (countryName = null, iso2 = null) {
 
     // 🌎 South America
     ar:"South America", bo:"South America", br:"South America", cl:"South America",
-    co:"South America", ec:"South America", gf:"South America", gy:"South America",
-    pe:"South America", py:"South America", sr:"South America", uy:"South America",
-    ve:"South America",
+    co:"South America", ec:"South America", gy:"South America", py:"South America",
+    pe:"South America", sr:"South America", uy:"South America", ve:"South America",
 
-    // 🌍 Asia
+    // 🌏 Asia
     ae:"Asia", af:"Asia", bd:"Asia", bh:"Asia", bn:"Asia", bt:"Asia", cn:"Asia",
-    id:"Asia", il:"Asia", in:"Asia", iq:"Asia", ir:"Asia", jo:"Asia", jp:"Asia",
-    kg:"Asia", kh:"Asia", kp:"Asia", kr:"Asia", kw:"Asia", kz:"Asia", la:"Asia",
-    lb:"Asia", lk:"Asia", mm:"Asia", mn:"Asia", mv:"Asia", my:"Asia", np:"Asia",
-    om:"Asia", ph:"Asia", pk:"Asia", ps:"Asia", qa:"Asia", sa:"Asia", sg:"Asia",
-    sy:"Asia", th:"Asia", tj:"Asia", tl:"Asia", tm:"Asia", tr:"Asia", tw:"Asia",
+    hk:"Asia", id:"Asia", il:"Asia", in:"Asia", iq:"Asia", ir:"Asia", jo:"Asia",
+    jp:"Asia", kg:"Asia", kh:"Asia", kp:"Asia", kr:"Asia", kw:"Asia", kz:"Asia",
+    la:"Asia", lb:"Asia", lk:"Asia", mm:"Asia", mn:"Asia", mo:"Asia", my:"Asia",
+    np:"Asia", om:"Asia", ph:"Asia", pk:"Asia", ps:"Asia", qa:"Asia", sa:"Asia",
+    sg:"Asia", sy:"Asia", th:"Asia", tj:"Asia", tm:"Asia", tr:"Asia", tw:"Asia",
     uz:"Asia", vn:"Asia", ye:"Asia",
 
     // 🌍 Africa
-    ao:"Africa", bf:"Africa", bi:"Africa", bj:"Africa", bw:"Africa", cd:"Africa",
-    cf:"Africa", cg:"Africa", ci:"Africa", cm:"Africa", cv:"Africa", dj:"Africa",
-    dz:"Africa", eg:"Africa", er:"Africa", et:"Africa", ga:"Africa", gh:"Africa",
-    gm:"Africa", gn:"Africa", gq:"Africa", gw:"Africa", ke:"Africa", km:"Africa",
-    ls:"Africa", lr:"Africa", ly:"Africa", mg:"Africa", ml:"Africa", mr:"Africa",
-    mu:"Africa", mw:"Africa", mz:"Africa", na:"Africa", ne:"Africa", ng:"Africa",
-    rw:"Africa", sc:"Africa", sd:"Africa", sl:"Africa", sn:"Africa", so:"Africa",
-    ss:"Africa", st:"Africa", sz:"Africa", tg:"Africa", tn:"Africa", tz:"Africa",
-    ug:"Africa", zm:"Africa", zw:"Africa", re:"Africa", yt:"Africa", eh:"Africa",
+    dz:"Africa", ao:"Africa", bj:"Africa", bw:"Africa", bf:"Africa", bi:"Africa",
+    cm:"Africa", cv:"Africa", cf:"Africa", td:"Africa", km:"Africa", cg:"Africa",
+    cd:"Africa", dj:"Africa", eg:"Africa", gq:"Africa", er:"Africa", et:"Africa",
+    ga:"Africa", gm:"Africa", gh:"Africa", gn:"Africa", gw:"Africa", ci:"Africa",
+    ke:"Africa", ls:"Africa", lr:"Africa", ly:"Africa", mg:"Africa", mw:"Africa",
+    ml:"Africa", mr:"Africa", mu:"Africa", ma:"Africa", mz:"Africa", na:"Africa",
+    ne:"Africa", ng:"Africa", rw:"Africa", sn:"Africa", sc:"Africa", sl:"Africa",
+    so:"Africa", za:"Africa", sd:"Africa", tz:"Africa", tg:"Africa", tn:"Africa",
+    ug:"Africa", zm:"Africa", zw:"Africa",
 
-    // 🌊 Oceania
-    as:"Oceania", au:"Oceania", fj:"Oceania", fm:"Oceania", ki:"Oceania", mh:"Oceania",
-    nr:"Oceania", nz:"Oceania", pw:"Oceania", pg:"Oceania", sb:"Oceania", to:"Oceania",
-    tv:"Oceania", vu:"Oceania", ws:"Oceania", nc:"Oceania", pf:"Oceania", ck:"Oceania",
-
-    // 🧊 Antarctica
-    aq:"Antarctica", bv:"Antarctica", tf:"Antarctica", hm:"Antarctica", gs:"Antarctica"
+    // 🌏 Oceania
+    au:"Oceania", fj:"Oceania", nz:"Oceania", pg:"Oceania",
+    ws:"Oceania", to:"Oceania", vu:"Oceania"
   };
 
-  // 🧠 Normalisera ISO2
-  const key = (iso2 || "").toLowerCase();
+  if (MAP[i]) return MAP[i];
 
-  // 💡 Försök hitta via ISO2 först
-  if (MAP[key]) return MAP[key];
+  // ----------------------------
+  // 2️⃣ Text-match på landnamn
+  // ----------------------------
+  const n = c.replace(/’/g, "'").replace(/\./g, "").replace(/-/g, " ");
+  if ([
+    "sweden","germany","france","italy","spain","norway","finland","denmark",
+    "netherlands","belgium","austria","switzerland","poland","czech republic",
+    "czechia","portugal","ireland","iceland","estonia","latvia","lithuania",
+    "hungary","greece","romania","bulgaria","slovenia","slovakia","croatia",
+    "ukraine","united kingdom","england","wales","scotland","northern ireland"
+  ].includes(n)) return "Europe";
 
-  // 💡 Om bara namn finns, försök text-matcha
-  const name = (countryName || "").toLowerCase();
-  if (/australia|new zealand|fiji|oceania|vanuatu/.test(name)) return "Oceania";
-  if (/europe|sweden|germany|france|italy|spain|uk|norway|denmark|poland|portugal/.test(name)) return "Europe";
-  if (/africa|nigeria|egypt|south africa|kenya|morocco|tanzania/.test(name)) return "Africa";
-  if (/asia|china|japan|india|singapore|korea|vietnam/.test(name)) return "Asia";
-  if (/america|usa|canada|mexico/.test(name)) return "North America";
-  if (/argentina|brazil|chile|peru|venezuela/.test(name)) return "South America";
-  if (/antarctica/.test(name)) return "Antarctica";
+  if (["united states","usa","canada","mexico","cuba","dominican republic"].includes(n))
+    return "North America";
 
-  return "Other"; // fallback
+  if (["brazil","argentina","chile","peru","colombia","uruguay","paraguay"].includes(n))
+    return "South America";
+
+  if ([
+    "china","japan","india","thailand","malaysia","singapore","israel","turkey",
+    "vietnam","indonesia","philippines","south korea","taiwan","united arab emirates",
+    "uae","qatar","saudi arabia"
+  ].includes(n)) return "Asia";
+
+  if (["south africa","nigeria","kenya","morocco","egypt","ghana"].includes(n))
+    return "Africa";
+
+  if (["australia","new zealand","fiji"].includes(n))
+    return "Oceania";
+
+  return "Other";
 };
+
 
 
 /* ==========================================================
