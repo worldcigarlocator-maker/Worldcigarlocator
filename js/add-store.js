@@ -73,10 +73,12 @@ document.addEventListener("DOMContentLoaded", () => {
         (countryObj?.long_name || "");
 
       // 🌍 Kontinent
-      window.selectedPlace.continent = WCL.countryToContinent(
-        window.selectedPlace.country
-      );
+     window.selectedPlace.continent = WCL.countryToContinent(
+  window.selectedPlace.country,
+  window.selectedPlace.country_iso2
+);
 
+       
       // 📞💻 Hämta phone/website via Supabase-funktion
       try {
         const res = await fetch("https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/fetch-place-details", {
@@ -183,10 +185,12 @@ document.addEventListener("DOMContentLoaded", () => {
         phone: window.selectedPlace.phone || null,
         website: window.selectedPlace.website || null,
         continent:
-          window.selectedPlace.continent ||
-          (window.selectedPlace.country
-            ? WCL.countryToContinent(window.selectedPlace.country)
-            : null),
+         continent:
+  window.selectedPlace.continent ||
+  (window.selectedPlace.country || window.selectedPlace.country_iso2
+    ? WCL.countryToContinent(window.selectedPlace.country, window.selectedPlace.country_iso2)
+    : null),
+
         country_iso2: window.selectedPlace.country_iso2 || null,
       };
 
