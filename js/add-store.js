@@ -1,143 +1,234 @@
-/* ================================
-   js/add-store.js
-   Add Store — Backoffice version
-   Shared logic via add-shared.js
-   ================================ */
+/* ==========================================================
+   add-store.js — Backoffice Add Store page logic
+   Version: Stable 2025-11-11
+   Depends on: add-shared.js (Supabase, WCL, photo helpers)
+   ========================================================== */
 
 console.log("🚀 Add Store Backoffice loaded");
 
-/* 🌍 Global platsdata */
-window.selectedPlace = {};
-window.photoRefs = [];
-let currentIndex = 0;
-let selectedTypes = [];
+// ----------------- GLOBAL STATE -----------------
+const sel = {
+  types: [],
+  access: null,
+  place_id: null,
+  country_iso2: null,
+  _photo_refs: [],
+  photo_index: 0,
+  photo_reference: null,
+};
 
-/* ================================
-   GOOGLE AUTOCOMPLETE
-   ================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("addStoreForm");
-  const submitBtn = document.getElementById("saveBtn");
-  const preview = document.getElementById("preview");
+// ----------------- FORM HELPERS -----------------
+function resetForm() {
+  document.querySelectorAll("input, textarea").forEach(i => {
+    if (i.type !== "radio" && i.type !== "checkbox") i.value = "";
+  });
+  document.querySelectorAll("input[type=checkbox], input[type=radio]").forEach(i => {
+    i.checked = false;
+  });
+  document.querySelectorAll(".type-btn").forEach(b => b.classList.remove("active"));
 
-  // ✅ Exporteras globalt till Google callback
-  window.initAutocomplete = async function initAutocomplete() {
-    const input = document.getElementById("gAddress");
-    const autocomplete = new google.maps.places.Autocomplete(input, {
-      fields: [
-        "place_id",
-        "geometry",
-        "formatted_address",
-        "name",
-        "photos",
-        "address_components",
-        "international_phone_number",
-        "website"
-      ],
-      types: ["establishment"],
-      language: "en"
-    });
+  sel.types = [];
+  sel.access = null;
+  sel.place_id = null;
+  sel.country_iso2 = null;
+  sel._photo_refs = [];
+  sel.photo_index = 0;
+  sel.photo_reference = null;
 
-    autocomplete.addListener("place_changed", async () => {
-      try {
-        const place = autocomplete.getPlace();
-        if (!place.place_id) return;
+  document.getElementById("preview-photo").src = WCL.GITHUB_STORE_FALLBACK;
+  document.getElementById("photo-meta").textContent = "No photo loaded";
+  WCL.toastShared("Form cleared", "success");
+}
 
-        console.log("📍 Full place object:", place);
+async function saveStore() {
+  const name = nameEl.value.trim();
+  const address = addrEl.value.trim();
+  const city = cityEl.value.trim();
+  const country = countryEl.value.trim();
+  const continent = continentEl.value || WCL.countryToContinent(country);
+  const phone = phoneEl.value.trim() || null;
+  const website = websiteEl.value.trim() || null;
+  const commentText = document.getElementById("comment").value.trim();
 
-        // 🔸 Grunddata
-        window.selectedPlace = {
-          name: place.name || "",
-          address: place.formatted_address || "",
-          place_id: place.place_id,
-          lat: place.geometry?.location?.lat() || null,
-          lng: place.geometry?.location?.lng() || null,
-        };
+  if (!name || !address || !city || !country) {
+    return WCL.toastShared("Please fill all required fields", "error");
+  }
 
-        // 🔹 Land & stad
-        const comp = place.address_components || [];
-        const cityObj =
-          comp.find(c => c.types.includes("locality")) ||
-          comp.find(c => c.types.includes("postal_town"));
-        const countryObj = comp.find(c => c.types.includes("country"));
+  const types = sel.types.length ? sel.types : ["store"];
 
-        window.selectedPlace.city = cityObj?.long_name || "";
-        window.selectedPlace.country_iso2 = countryObj?.short_name?.toLowerCase() || null;
-        window.selectedPlace.country = countryObj?.long_name || "";
-
-        // 🌍 Kontinent
-        window.selectedPlace.continent = WCL.countryToContinent(
-          window.selectedPlace.country,
-          window.selectedPlace.country_iso2
-        );
-
-        // 📞💻 Hämta phone/website via Supabase-funktion
-        try {
-          const res = await fetch(
-            "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/fetch-place-details",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ place_id: place.place_id }),
-            }
-          );
-
-          if (res.ok) {
-            const details = await res.json();
-            window.selectedPlace.phone = details.phone || "";
-            window.selectedPlace.website = details.website || "";
-          } else {
-            console.warn("fetch-place-details failed:", res.status);
-          }
-        } catch (err) {
-          console.warn("fetch-place-details error:", err);
-        }
-
-        // 🖼️ Foto (hämtar och aktiverar navigation)
-        const refs = await WCL.fetchPhotoRefs(place.place_id);
-        window.photoRefs = refs;
-        currentIndex = 0;
-
-        function showCurrentPhoto() {
-          if (!preview) return;
-
-          if (!window.photoRefs.length) {
-            const fallback = WCL.fallbackForType("store");
-            preview.innerHTML = `<img src="${fallback}" alt="Preview">`;
-            return;
-          }
-
-          const ref = window.photoRefs[currentIndex];
-          window.selectedPlace.photo_reference = ref;
-          const url = WCL.buildProxyUrl(ref, 800);
-
-          preview.innerHTML = `
-            <div class="photo-picker">
-              <button id="add-prev" class="photo-nav">◀</button>
-              <img id="add-photo" class="preview-photo" src="${url}" alt="Preview">
-              <button id="add-next" class="photo-nav">▶</button>
-            </div>
-            <div class="muted center">Photo ${currentIndex + 1} / ${window.photoRefs.length}</div>
-          `;
-
-          document.getElementById("add-prev").onclick = () => {
-            if (!window.photoRefs.length) return;
-            currentIndex = (currentIndex - 1 + window.photoRefs.length) % window.photoRefs.length;
-            showCurrentPhoto();
-          };
-          document.getElementById("add-next").onclick = () => {
-            if (!window.photoRefs.length) return;
-            currentIndex = (currentIndex + 1) % window.photoRefs.length;
-            showCurrentPhoto();
-          };
-        }
-
-        showCurrentPhoto();
-        WCL.toastShared(`✅ ${refs.length} photos found!`, "success");
-
-      } catch (err) {
-        console.error("❌ place_changed failed:", err);
-      }
-    });
+  const payload = {
+    name,
+    address,
+    city,
+    country,
+    continent,
+    phone,
+    website,
+    types,              // JSON-array
+    type: types[0],     // För snabbfiltrering i listor
+    access: sel.access,
+    place_id: sel.place_id,
+    country_iso2: sel.country_iso2,
+    photo_reference: sel.photo_reference || null,
+    approved: false,
+    flagged: false,
+    deleted: false,
+    status: "pending",
   };
+
+  console.log("📦 Saving payload →", payload);
+
+  const { data, error } = await WCL.supabase
+    .from("stores")
+    .insert([payload])
+    .select()
+    .single();
+
+  if (error) {
+    console.error("❌ Supabase insert error:", error);
+    return WCL.toastShared("Error saving store", "error");
+  }
+
+  if (commentText) {
+    await WCL.supabase.from("store_comments").insert([
+      {
+        store_id: data.id,
+        comment: commentText,
+        user_name: "Backoffice",
+      },
+    ]);
+  }
+
+  WCL.toastShared("✅ Store added successfully!", "success");
+  resetForm();
+}
+
+// ----------------- GOOGLE AUTOCOMPLETE -----------------
+function initAutocomplete() {
+  const input = document.getElementById("gAddress");
+  const ac = new google.maps.places.Autocomplete(input, {
+    fields: [
+      "place_id",
+      "geometry",
+      "formatted_address",
+      "name",
+      "photos",
+      "address_components",
+      "international_phone_number",
+      "website"
+    ],
+    types: ["establishment"],
+    language: "en"
+  });
+
+  ac.addListener("place_changed", async () => {
+    try {
+      const p = ac.getPlace();
+      if (!p) return;
+
+      // Fyll i grunddata
+      nameEl.value = p.name || "";
+      addrEl.value = p.formatted_address || "";
+      phoneEl.value = p.international_phone_number || "";
+      websiteEl.value = p.website || "";
+
+      const comps = p.address_components || [];
+      const city = comps.find(c => c.types.includes("locality") || c.types.includes("postal_town"));
+      const country = comps.find(c => c.types.includes("country"));
+
+      cityEl.value = city?.long_name || "";
+      countryEl.value = country?.long_name || "";
+
+      sel.country_iso2 = country?.short_name?.toLowerCase() || null;
+      continentEl.value = WCL.countryToContinent(country?.long_name) || "";
+
+      sel.place_id = p.place_id || null;
+
+      // 📸 Foto-hantering
+      const refs = await WCL.fetchPhotoRefs(sel.place_id);
+      sel._photo_refs = refs;
+      sel.photo_index = 0;
+
+      const imgEl = document.getElementById("preview-photo");
+      const metaEl = document.getElementById("photo-meta");
+
+      function showCurrentPhoto() {
+        if (!sel._photo_refs.length) {
+          imgEl.src = WCL.GITHUB_STORE_FALLBACK;
+          metaEl.textContent = "No photo found";
+          sel.photo_reference = null;
+          return;
+        }
+        const ref = sel._photo_refs[sel.photo_index];
+        sel.photo_reference = ref;
+        WCL.loadProxyPhotoInto(imgEl, ref);
+        metaEl.textContent = `Photo ${sel.photo_index + 1} / ${sel._photo_refs.length}`;
+      }
+
+      document.getElementById("prev-photo").onclick = () => {
+        if (!sel._photo_refs.length) return;
+        sel.photo_index = (sel.photo_index - 1 + sel._photo_refs.length) % sel._photo_refs.length;
+        showCurrentPhoto();
+      };
+      document.getElementById("next-photo").onclick = () => {
+        if (!sel._photo_refs.length) return;
+        sel.photo_index = (sel.photo_index + 1) % sel._photo_refs.length;
+        showCurrentPhoto();
+      };
+
+      showCurrentPhoto();
+
+      WCL.toastShared(
+        refs.length
+          ? `✅ ${refs.length} photos found`
+          : "No photos found (using fallback)",
+        refs.length ? "success" : "error"
+      );
+    } catch (err) {
+      console.error("❌ place_changed failed:", err);
+      WCL.toastShared("Error fetching place details", "error");
+    }
+  });
+}
+
+// Gör initAutocomplete global för Google callback
+window.initAutocomplete = initAutocomplete;
+
+// ----------------- DOM READY -----------------
+window.addEventListener("DOMContentLoaded", () => {
+  // Snabb access till inputs
+  window.nameEl = document.getElementById("name");
+  window.addrEl = document.getElementById("addr");
+  window.cityEl = document.getElementById("city");
+  window.countryEl = document.getElementById("country");
+  window.continentEl = document.getElementById("continent");
+  window.phoneEl = document.getElementById("phone");
+  window.websiteEl = document.getElementById("website");
+
+  // TYPE
+  document.querySelectorAll(".type-btn input").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const val = cb.value;
+      const parent = cb.closest(".type-btn");
+      if (cb.checked) {
+        if (!sel.types.includes(val)) sel.types.push(val);
+        parent.classList.add("active");
+      } else {
+        sel.types = sel.types.filter(t => t !== val);
+        parent.classList.remove("active");
+      }
+      console.log("🟩 Selected types:", sel.types);
+    });
+  });
+
+  // ACCESS
+  document.querySelectorAll(".access-pill input").forEach(radio => {
+    radio.addEventListener("change", () => {
+      sel.access = radio.value;
+    });
+  });
+
+  // BUTTONS
+  document.getElementById("clearBtn").onclick = resetForm;
+  document.getElementById("saveBtn").onclick = saveStore;
 });
