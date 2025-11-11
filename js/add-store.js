@@ -71,7 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
     showCurrentPhoto();
 
     WCL.toastShared(`✅ ${refs.length} photos found!`, "success");
-  } catch (err) {
+    } catch (err) {
     console.error("❌ place_changed failed:", err);
   }
-});
+}); // <-- första avslutar addListener
+}); // <-- denna avslutar document.addEventListener("DOMContentLoaded", ...)
