@@ -61,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
         currentIndex = (currentIndex - 1 + window.photoRefs.length) % window.photoRefs.length;
         showCurrentPhoto();
       };
+
       document.getElementById("add-next").onclick = () => {
         if (!window.photoRefs.length) return;
         currentIndex = (currentIndex + 1) % window.photoRefs.length;
@@ -69,10 +70,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     showCurrentPhoto();
-
     WCL.toastShared(`✅ ${refs.length} photos found!`, "success");
-    } catch (err) {
+
+  } catch (err) {
     console.error("❌ place_changed failed:", err);
   }
-}); // <-- första avslutar addListener
-}); // <-- denna avslutar document.addEventListener("DOMContentLoaded", ...)
+}); // <-- end autocomplete.addListener
+
+}); // <-- end DOMContentLoaded
