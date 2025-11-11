@@ -239,37 +239,31 @@
         </div>
 
         <div class="full">
-          <label>Comment</label>
-          <textarea id="comment" placeholder="Add an optional comment…"></textarea>
-        </div>
+  <label>Comment</label>
+  <textarea id="comment" placeholder="Add an optional comment…"></textarea>
+</div>
 
-        <div class="full">
-          <label>Photo Preview</label>
-          <div class="photo-picker">
-            <button id="prev-photo" class="photo-nav">◀</button>
-            <img id="preview-photo" class="preview-photo" src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg" alt="Preview" />
-            <button id="next-photo" class="photo-nav">▶</button>
-          </div>
-          <div id="photo-meta" class="muted" style="text-align:center;">No photo loaded</div>
-        </div>
+<!-- ✅ Korrekt Photo Preview-block (matchar add-store.js) -->
+<div class="full">
+  <label>Photo Preview</label>
+  <div id="preview" class="preview-container"></div>
+</div>
 
-        <div class="full" style="display:flex;justify-content:flex-end;gap:.6rem;">
-          <button class="btn" onclick="resetForm()">Clear</button>
-          <button class="btn" onclick="saveStore()">Save</button>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="full" style="display:flex;justify-content:flex-end;gap:.6rem;">
+  <button class="btn" onclick="resetForm()">Clear</button>
+  <button class="btn" onclick="saveStore()">Save</button>
+</div>
+</div>
+</div>
+</div>
 
-  <div id="toast-container"></div>
+<div id="toast-container"></div>
 
-  <!-- 🔗 Shared WCL logic (everything from Supabase, proxy, countryToContinent etc) -->
-  <script src="js/add-shared.js"></script>
+<!-- 🔗 Shared WCL logic (everything from Supabase, proxy, countryToContinent etc) -->
+<script src="js/add-shared.js"></script>
 
-  <!-- 🔗 Page-specific logic -->
-  <script src="js/add-store.js"></script>
+<!-- 🔗 Page-specific logic -->
+<script src="js/add-store.js"></script>
 
-  <!-- ✅ Google Places API -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete&language=en" async defer></script>
-</body>
-</html>
+<!-- ✅ Google Places API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete&language=en" async defer></script>
