@@ -520,16 +520,13 @@ function renderCards(list) {
     body.appendChild(h3);
 
     /* ----------- Type Badges (inline under name) ----------- */
-    const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
-    const typeBadges = types.map(t => {
-      const color =
-        t === "store" ? "blue" :
-        t === "lounge" ? "gold" : "gray";
-      const icon =
-        t === "store" ? "🏪" :
-        t === "lounge" ? "🍷" : "🏷️";
-      return `<span class="badge ${color}">${icon} ${t}</span>`;
-    }).join(" ");
+const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
+const typeBadges = types.map(t => {
+  const color =
+    t === "store" ? "blue" :
+    t === "lounge" ? "gold" : "gray";
+  return `<span class="badge ${color}">${t}</span>`;
+}).join(" ");
 
     const badgeWrap = document.createElement("div");
     badgeWrap.className = "badge-wrap";
