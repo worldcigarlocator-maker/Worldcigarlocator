@@ -487,91 +487,88 @@ async function reloadData(tab = CURRENT_TAB) {
   console.log(`✅ reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}, total=${allData.length}`);
 }
 
+/* ===================== CARDS ===================== */
+function renderCards(list) {
+  const grid = $("#cards");
+  grid.innerHTML = "";
 
+  list.forEach((s) => {
+    const borderClass =
+      s.deleted ? "border-gray" :
+      s.flagged ? "border-red" :
+      s.approved ? "border-green" :
+      "border-gold";
 
+    const card = document.createElement("div");
+    card.className = `card ${borderClass}`;
 
-/* ===================== BUTTON ===================== */
-function makeBtn(label, onclick, cls = "") {
-  const b = document.createElement("button");
-  b.className = `btn ${cls}`.trim();
-  b.textContent = label;
-  if (typeof onclick === "function") b.onclick = onclick;
-  return b;
-}
+    /* ----------- Photo ----------- */
+    const img = document.createElement("img");
+    img.className = "photo";
+    img.src = photoURL(s.photo_reference, 800);
+    img.onerror = () => (img.src = WCL.FALLBACK_IMG);
+    card.appendChild(img);
 
-/* ----------- Name (2 lines) ----------- */
-const h3 = document.createElement("h3");
-h3.className = "twoline";
-h3.textContent = safe(s.name);
-body.appendChild(h3);
+    /* ----------- Body ----------- */
+    const body = document.createElement("div");
+    body.className = "body";
 
-/* ----------- Type Badges (inline under name) ----------- */
-const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
-const typeBadges = types.map(t => {
-  const color =
-    t === "store" ? "blue" :
-    t === "lounge" ? "gold" : "gray";
-  const icon =
-    t === "store" ? "🏪" :
-    t === "lounge" ? "🍷" : "🏷️";
-  return `<span class="badge ${color}">${icon} ${t}</span>`;
-}).join(" ");
+    /* ----------- Name (2 lines) ----------- */
+    const h3 = document.createElement("h3");
+    h3.className = "twoline";
+    h3.textContent = safe(s.name);
+    body.appendChild(h3);
 
-const badgeWrap = document.createElement("div");
-badgeWrap.className = "badge-wrap";
-badgeWrap.innerHTML = typeBadges || `<span class="badge gray">–</span>`;
-body.appendChild(badgeWrap);
+    /* ----------- Type Badges (inline under name) ----------- */
+    const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
+    const typeBadges = types.map(t => {
+      const color =
+        t === "store" ? "blue" :
+        t === "lounge" ? "gold" : "gray";
+      const icon =
+        t === "store" ? "🏪" :
+        t === "lounge" ? "🍷" : "🏷️";
+      return `<span class="badge ${color}">${icon} ${t}</span>`;
+    }).join(" ");
 
-/* ----------- Flag + Country/City ----------- */
-const loc = document.createElement("div");
-loc.className = "locrow";
+    const badgeWrap = document.createElement("div");
+    badgeWrap.className = "badge-wrap";
+    badgeWrap.innerHTML = typeBadges || `<span class="badge gray">–</span>`;
+    body.appendChild(badgeWrap);
 
-const flagSrc = flagURL(s.country, s.country_iso2);
-if (flagSrc) {
-  const flag = document.createElement("img");
-  flag.className = "flag";
-  flag.src = flagSrc;
-  flag.alt = safe(s.country);
-  flag.onerror = () => (flag.style.display = "none");
-  loc.appendChild(flag);
-}
+    /* ----------- Flag + Country/City ----------- */
+    const loc = document.createElement("div");
+    loc.className = "locrow";
 
-const geo = document.createElement("span");
-geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
-loc.appendChild(geo);
-body.appendChild(loc);
+    const flagSrc = flagURL(s.country, s.country_iso2);
+    if (flagSrc) {
+      const flag = document.createElement("img");
+      flag.className = "flag";
+      flag.src = flagSrc;
+      flag.alt = safe(s.country);
+      flag.onerror = () => (flag.style.display = "none");
+      loc.appendChild(flag);
+    }
 
-/* ----------- Info Block ----------- */
-const info = document.createElement("div");
-info.className = "infoblock";
+    const geo = document.createElement("span");
+    geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
+    loc.appendChild(geo);
+    body.appendChild(loc);
 
+    /* ----------- Info Block ----------- */
+    const info = document.createElement("div");
+    info.className = "infoblock";
 
-// 🟦🟨 Typ-badges (stöd för flera typer)
-const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
-const typeBadges = types.map(t => {
-  const color =
-    t === "store" ? "blue" :
-    t === "lounge" ? "gold" : "gray";
-  const icon =
-    t === "store" ? "🏪" :
-    t === "lounge" ? "🍷" : "🏷️";
-  return `<span class="badge ${color}">${icon} ${t}</span>`;
-}).join(" ");
-
-info.innerHTML = `
-  <div class="badge-wrap">
-    ${typeBadges || "–"}
-  </div>
-  <p class="truncate"><strong>Address:</strong> ${safe(s.address || "–")}</p>
-  <p class="truncate"><strong>Phone:</strong> ${safe(s.phone || "–")}</p>
-  <p class="truncate"><strong>Website:</strong> ${
-    s.website
-      ? `<a href="${safe(s.website)}" target="_blank" rel="noopener">Visit</a>`
-      : "–"
-  }</p>
-`;
-
-body.appendChild(info);
+    info.innerHTML = `
+      <p class="truncate"><strong>Address:</strong> ${safe(s.address || "–")}</p>
+      <p class="truncate"><strong>Phone:</strong> ${safe(s.phone || "–")}</p>
+      <p class="truncate"><strong>Website:</strong> ${
+        s.website
+          ? `<a href="${safe(s.website)}" target="_blank" rel="noopener">Visit</a>`
+          : "–"
+      }</p>
+    `;
+    body.appendChild(info);
 
     /* ----------- Reviews Link ----------- */
     const reviewsLink = document.createElement("div");
@@ -621,9 +618,19 @@ body.appendChild(info);
     grid.appendChild(card);
   });
 
-  if (!list.length) grid.innerHTML = `<p class="muted center">No stores</p>`;
+  if (!list.length)
+    grid.innerHTML = `<p class="muted center">No stores</p>`;
 }
 
+
+/* ===================== BUTTON ===================== */
+function makeBtn(label, onclick, cls = "") {
+  const b = document.createElement("button");
+  b.className = `btn ${cls}`.trim();
+  b.textContent = label;
+  if (typeof onclick === "function") b.onclick = onclick;
+  return b;
+}
 
 /* ==================== MOD ACTIONS ================= */
 async function approveStore(id) {
