@@ -237,6 +237,10 @@ body {
 .badge.gold  { background:var(--gold); color:#000; }
 .badge.blue  { background: var(--blue); color: #fff; }
 
+/* STORE / LOUNGE TYPE BADGES */
+.badge.store  { background: var(--blue); }
+.badge.lounge { background: var(--gold); color:#000; }
+
 
 /* ACTION BUTTONS */
 .actions {
