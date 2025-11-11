@@ -424,9 +424,9 @@ async function reloadData(tab = CURRENT_TAB) {
   // -----------------------------------------------------------
   // 2️⃣  Hämta filtrerad lista beroende på flik
   // -----------------------------------------------------------
-  const SELECT_FIELDS =
-    "id,name,city,country,continent,type,address,phone,access,rating," +
-    "approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason";
+const SELECT_FIELDS =
+  "id,name,city,country,continent,type,types,address,phone,access,rating," +
+  "approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason";
 
   let base = WCL.supabase
     .from("stores")
