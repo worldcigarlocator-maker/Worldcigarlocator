@@ -499,77 +499,69 @@ function makeBtn(label, onclick, cls = "") {
   return b;
 }
 
-/* ===================== CARDS ===================== */
-function renderCards(list) {
-  const grid = $("#cards");
-  grid.innerHTML = "";
+/* ----------- Name (2 lines) ----------- */
+const h3 = document.createElement("h3");
+h3.className = "twoline";
+h3.textContent = safe(s.name);
+body.appendChild(h3);
 
-  list.forEach((s) => {
-    const borderClass =
-      s.deleted ? "border-gray" :
-      s.flagged ? "border-red" :
-      s.approved ? "border-green" :
-      "border-gold";
+/* ----------- Type Badges (inline under name) ----------- */
+const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
+const typeBadges = types.map(t => {
+  const color =
+    t === "store" ? "blue" :
+    t === "lounge" ? "gold" : "gray";
+  const icon =
+    t === "store" ? "🏪" :
+    t === "lounge" ? "🍷" : "🏷️";
+  return `<span class="badge ${color}">${icon} ${t}</span>`;
+}).join(" ");
 
-    const card = document.createElement("div");
-    card.className = `card ${borderClass}`;
+const badgeWrap = document.createElement("div");
+badgeWrap.className = "badge-wrap";
+badgeWrap.innerHTML = typeBadges || `<span class="badge gray">–</span>`;
+body.appendChild(badgeWrap);
 
-    /* ----------- Photo ----------- */
-    const img = document.createElement("img");
-    img.className = "photo";
-    img.src = photoURL(s.photo_reference, 800);
-    img.onerror = () => (img.src = WCL.FALLBACK_IMG);
-    card.appendChild(img);
+/* ----------- Flag + Country/City ----------- */
+const loc = document.createElement("div");
+loc.className = "locrow";
 
-    /* ----------- Body ----------- */
-    const body = document.createElement("div");
-    body.className = "body";
+const flagSrc = flagURL(s.country, s.country_iso2);
+if (flagSrc) {
+  const flag = document.createElement("img");
+  flag.className = "flag";
+  flag.src = flagSrc;
+  flag.alt = safe(s.country);
+  flag.onerror = () => (flag.style.display = "none");
+  loc.appendChild(flag);
+}
 
-    /* ----------- Name (2 lines) ----------- */
-    const h3 = document.createElement("h3");
-    h3.className = "twoline";
-    h3.textContent = safe(s.name);
-    body.appendChild(h3);
-
-    /* ----------- Flag + Country/City ----------- */
-    const loc = document.createElement("div");
-    loc.className = "locrow";
-
-    const flagSrc = flagURL(s.country, s.country_iso2);
-    if (flagSrc) {
-      const flag = document.createElement("img");
-      flag.className = "flag";
-      flag.src = flagSrc;
-      flag.alt = safe(s.country);
-      flag.onerror = () => (flag.style.display = "none");
-      loc.appendChild(flag);
-    }
-
-    const geo = document.createElement("span");
-    geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
-    loc.appendChild(geo);
-    body.appendChild(loc);
+const geo = document.createElement("span");
+geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
+loc.appendChild(geo);
+body.appendChild(loc);
 
 /* ----------- Info Block ----------- */
 const info = document.createElement("div");
 info.className = "infoblock";
 
-// 🟦🟨 Typ-badges (flera typer stöds)
-const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
 
-const info = document.createElement("div");
-info.className = "infoblock";
+// 🟦🟨 Typ-badges (stöd för flera typer)
+const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
+const typeBadges = types.map(t => {
+  const color =
+    t === "store" ? "blue" :
+    t === "lounge" ? "gold" : "gray";
+  const icon =
+    t === "store" ? "🏪" :
+    t === "lounge" ? "🍷" : "🏷️";
+  return `<span class="badge ${color}">${icon} ${t}</span>`;
+}).join(" ");
+
 info.innerHTML = `
-  <p class="truncate"><strong>Type:</strong>
-    ${types.length
-      ? types.map(t => {
-          const color =
-            t === "store" ? "blue" :
-            t === "lounge" ? "gold" : "gray";
-          return `<span class="badge ${color}">${t}</span>`;
-        }).join(" ")
-      : "–"}
-  </p>
+  <div class="badge-wrap">
+    ${typeBadges || "–"}
+  </div>
   <p class="truncate"><strong>Address:</strong> ${safe(s.address || "–")}</p>
   <p class="truncate"><strong>Phone:</strong> ${safe(s.phone || "–")}</p>
   <p class="truncate"><strong>Website:</strong> ${
@@ -578,9 +570,8 @@ info.innerHTML = `
       : "–"
   }</p>
 `;
+
 body.appendChild(info);
-
-
 
     /* ----------- Reviews Link ----------- */
     const reviewsLink = document.createElement("div");
