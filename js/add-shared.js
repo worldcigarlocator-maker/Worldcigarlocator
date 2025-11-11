@@ -73,7 +73,45 @@ function toastShared(msg, type = "success") {
   c.appendChild(t); setTimeout(() => t.remove(), 3000);
 }
 
-// ✅ Merge exports utan dubblett av countryToContinent
+/* ==========================================================
+   ⚙️ Utilities
+   ========================================================== */
+function ratingToStars(rating) {
+  if (!rating) return "";
+  const full = "★".repeat(Math.round(rating));
+  const empty = "☆".repeat(5 - Math.round(rating));
+  return full + empty;
+}
+
+function toastShared(msg, type = "info") {
+  let c = document.getElementById("toast-container");
+  if (!c) {
+    c = document.createElement("div");
+    c.id = "toast-container";
+    c.style.position = "fixed";
+    c.style.bottom = "1rem";
+    c.style.right = "1rem";
+    c.style.display = "flex";
+    c.style.flexDirection = "column";
+    c.style.gap = ".4rem";
+    c.style.zIndex = "9999";
+    document.body.appendChild(c);
+  }
+  const t = document.createElement("div");
+  t.className = "toast " + type;
+  t.textContent = msg;
+  t.style.background = type === "error" ? "#dc3545" : type === "success" ? "#28a745" : "#333";
+  t.style.color = "#fff";
+  t.style.padding = ".6rem 1rem";
+  t.style.borderRadius = "6px";
+  t.style.fontSize = ".9rem";
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+/* ==========================================================
+   🧾 Exports (for script tag inclusion)
+   ========================================================== */
 Object.assign(window.WCL, {
   supabase,
   GOOGLE_BROWSER_KEY,
@@ -83,7 +121,6 @@ Object.assign(window.WCL, {
   buildProxyUrl,
   fallbackForType,
   fetchPhotoRefs,
-  // ❌ ta bort "countryToContinent" här
   ratingToStars,
   toastShared
 });
