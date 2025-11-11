@@ -1,31 +1,3 @@
-/* ================================================
-   add-shared.js — Shared logic for Add Store pages
-   Version: 2025-11-08 (full + proxy + autofill)
-   ================================================ */
-
-// Global WCL-namespace (shared mellan backoffice och add-store)
-window.WCL = window.WCL || {};
-
-
-// 🧩 Supabase setup
-const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// 🔑 Google browser key (frontend-safe)
-const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
-
-// 🖼️ Supabase Edge Function (server-protected proxy)
-const PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
-
-// 🏞️ Fallback images hosted on GitHub Pages
-const GITHUB_STORE_FALLBACK =
-  "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-const GITHUB_LOUNGE_FALLBACK =
-  "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
-
 // 🌍 Konvertera land till kontinent via ISO2 eller namn
 WCL.countryToContinent = function (countryName = null, iso2 = null) {
   const c = (countryName || "").toLowerCase().trim();
@@ -46,14 +18,10 @@ WCL.countryToContinent = function (countryName = null, iso2 = null) {
     ch:"Europe", ua:"Europe", gb:"Europe", va:"Europe", im:"Europe",
 
     // 🌎 North America
-    ag:"North America", ai:"North America", aw:"North America", bb:"North America",
-    bm:"North America", bs:"North America", bz:"North America", ca:"North America",
-    cr:"North America", cu:"North America", dm:"North America", do:"North America",
-    gd:"North America", gt:"North America", hn:"North America", ht:"North America",
-    jm:"North America", kn:"North America", lc:"North America", mx:"North America",
-    ni:"North America", pa:"North America", pr:"North America", sv:"North America",
-    tt:"North America", us:"North America", vc:"North America", vg:"North America",
-    vi:"North America", ky:"North America", cw:"North America",
+    ca:"North America", us:"North America", mx:"North America", bz:"North America",
+    cr:"North America", pa:"North America", cu:"North America", do:"North America",
+    jm:"North America", gt:"North America", ni:"North America", hn:"North America",
+    sv:"North America", tt:"North America", pr:"North America", bs:"North America",
 
     // 🌎 South America
     ar:"South America", bo:"South America", br:"South America", cl:"South America",
@@ -64,10 +32,10 @@ WCL.countryToContinent = function (countryName = null, iso2 = null) {
     ae:"Asia", af:"Asia", bd:"Asia", bh:"Asia", bn:"Asia", bt:"Asia", cn:"Asia",
     hk:"Asia", id:"Asia", il:"Asia", in:"Asia", iq:"Asia", ir:"Asia", jo:"Asia",
     jp:"Asia", kg:"Asia", kh:"Asia", kp:"Asia", kr:"Asia", kw:"Asia", kz:"Asia",
-    la:"Asia", lb:"Asia", lk:"Asia", mm:"Asia", mn:"Asia", mo:"Asia", my:"Asia",
-    np:"Asia", om:"Asia", ph:"Asia", pk:"Asia", ps:"Asia", qa:"Asia", sa:"Asia",
-    sg:"Asia", sy:"Asia", th:"Asia", tj:"Asia", tm:"Asia", tr:"Asia", tw:"Asia",
-    uz:"Asia", vn:"Asia", ye:"Asia",
+    la:"Asia", lb:"Asia", lk:"Asia", mm:"Asia", mn:"Asia", my:"Asia", np:"Asia",
+    om:"Asia", ph:"Asia", pk:"Asia", ps:"Asia", qa:"Asia", sa:"Asia", sg:"Asia",
+    sy:"Asia", th:"Asia", tj:"Asia", tm:"Asia", tr:"Asia", tw:"Asia", uz:"Asia",
+    vn:"Asia", ye:"Asia",
 
     // 🌍 Africa
     dz:"Africa", ao:"Africa", bj:"Africa", bw:"Africa", bf:"Africa", bi:"Africa",
@@ -80,12 +48,14 @@ WCL.countryToContinent = function (countryName = null, iso2 = null) {
     so:"Africa", za:"Africa", sd:"Africa", tz:"Africa", tg:"Africa", tn:"Africa",
     ug:"Africa", zm:"Africa", zw:"Africa",
 
-    // 🌏 Oceania
+    // 🌊 Oceania
     au:"Oceania", fj:"Oceania", nz:"Oceania", pg:"Oceania",
     ws:"Oceania", to:"Oceania", vu:"Oceania"
   };
 
+  // 🔸 ISO2 direktträff
   if (MAP[i]) return MAP[i];
+  if (i === "uk") return "Europe"; // 🇬🇧 säkerhetsbälte
 
   // ----------------------------
   // 2️⃣ Text-match på landnamn
@@ -119,6 +89,7 @@ WCL.countryToContinent = function (countryName = null, iso2 = null) {
 
   return "Other";
 };
+
 
 
 
@@ -267,7 +238,8 @@ function toastShared(msg, type = "info") {
 /* ==========================================================
    🧾 Exports (for script tag inclusion)
    ========================================================== */
-window.WCL = {
+// 🧾 Merge exports med befintlig WCL (ersätter inte hela objektet)
+Object.assign(window.WCL, {
   supabase,
   GOOGLE_BROWSER_KEY,
   PHOTO_PROXY_URL,
@@ -282,4 +254,5 @@ window.WCL = {
   countryToContinent,
   ratingToStars,
   toastShared
-};
+});
+
