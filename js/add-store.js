@@ -8,6 +8,8 @@ console.log("🚀 Add Store Backoffice loaded");
 
 /* 🌍 Global platsdata */
 window.selectedPlace = {};
+window.photoRefs = [];
+let currentIndex = 0;
 let selectedTypes = [];
 
 /* ================================
@@ -71,7 +73,9 @@ document.addEventListener("DOMContentLoaded", () => {
         (countryObj?.long_name || "");
 
       // 🌍 Kontinent
-      window.selectedPlace.continent = WCL.countryToContinent(null, window.selectedPlace.country_iso2);
+      window.selectedPlace.continent = WCL.countryToContinent(
+        window.selectedPlace.country
+      );
 
       // 📞💻 Hämta phone/website via Supabase-funktion
       try {
@@ -92,42 +96,68 @@ document.addEventListener("DOMContentLoaded", () => {
         console.warn("fetch-place-details error:", err);
       }
 
-      // 🖼️ Foto
+      // 🖼️ Foto (hämtar och aktiverar navigation)
       const refs = await WCL.fetchPhotoRefs(place.place_id);
-      if (refs.length) {
-        window.selectedPlace.photo_reference = refs[0];
-        const url = await WCL.resolveGooglePhotoUrl(refs[0]);
-        preview.innerHTML = `<img src="${url}" alt="Preview">`;
-      } else {
-        const fallback = WCL.fallbackForType("store");
-        preview.innerHTML = `<img src="${fallback}" alt="Preview">`;
+      window.photoRefs = refs;
+      currentIndex = 0;
+
+      function showCurrentPhoto() {
+        if (!window.photoRefs.length) {
+          const fallback = WCL.fallbackForType("store");
+          preview.innerHTML = `<img src="${fallback}" alt="Preview">`;
+          return;
+        }
+
+        const ref = window.photoRefs[currentIndex];
+        window.selectedPlace.photo_reference = ref;
+        const url = WCL.buildPhotoProxyUrl(ref, 800);
+
+        preview.innerHTML = `
+          <div class="photo-picker">
+            <button id="add-prev" class="photo-nav">◀</button>
+            <img id="add-photo" class="preview-photo" src="${url}" alt="Preview">
+            <button id="add-next" class="photo-nav">▶</button>
+          </div>
+          <div class="muted center">Photo ${currentIndex + 1} / ${window.photoRefs.length}</div>
+        `;
+
+        // aktivera navigation
+        document.getElementById("add-prev").onclick = () => {
+          if (!window.photoRefs.length) return;
+          currentIndex = (currentIndex - 1 + window.photoRefs.length) % window.photoRefs.length;
+          showCurrentPhoto();
+        };
+        document.getElementById("add-next").onclick = () => {
+          if (!window.photoRefs.length) return;
+          currentIndex = (currentIndex + 1) % window.photoRefs.length;
+          showCurrentPhoto();
+        };
       }
+
+      showCurrentPhoto();
 
       // 🧠 Autofyll formulärfält
       if (window.selectedPlace.phone && $("#phone")) $("#phone").value = window.selectedPlace.phone;
       if (window.selectedPlace.website && $("#website")) $("#website").value = window.selectedPlace.website;
 
-      toast("✅ Platsdata hämtad!", "success");
+      toast(`✅ ${refs.length ? refs.length + " photos found!" : "No photos found"}`, "success");
     });
   };
 
   /* ================================
      TYPE SELECTOR — Multi-select
      ================================ */
-document.querySelectorAll(".type-btn input").forEach(cb => {
-  cb.addEventListener("change", () => {
-    const val = cb.value;
-
-    if (cb.checked) {
-      if (!sel.types.includes(val)) sel.types.push(val);
-    } else {
-      sel.types = sel.types.filter(t => t !== val);
-    }
-
-    console.log("🟩 Selected types →", sel.types);
+  document.querySelectorAll(".type-btn input").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const val = cb.value;
+      if (cb.checked) {
+        if (!selectedTypes.includes(val)) selectedTypes.push(val);
+      } else {
+        selectedTypes = selectedTypes.filter(t => t !== val);
+      }
+      console.log("🟩 Selected types →", selectedTypes);
+    });
   });
-});
-
 
   /* ================================
      FORM SUBMIT
@@ -143,6 +173,7 @@ document.querySelectorAll(".type-btn input").forEach(cb => {
 
       const payload = {
         ...window.selectedPlace,
+        photo_reference: window.selectedPlace.photo_reference || null, // ✅ aktuell bild
         types,
         rating,
         added_by,
@@ -168,6 +199,8 @@ document.querySelectorAll(".type-btn input").forEach(cb => {
       form.reset();
       preview.innerHTML = "";
       window.selectedPlace = {};
+      window.photoRefs = [];
+      currentIndex = 0;
       selectedTypes = [];
       document.querySelectorAll(".type-btn").forEach((b) => b.classList.remove("active"));
 
