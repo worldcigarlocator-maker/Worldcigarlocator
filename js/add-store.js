@@ -121,114 +121,58 @@ function initAutocomplete() {
     language: "en"
   });
 
-  ac.addListener("place_changed", async () => {
-    try {
-      const p = ac.getPlace();
-      if (!p) return;
+  autocomplete.addListener("place_changed", async () => {
+  const place = autocomplete.getPlace();
+  if (!place.place_id) return;
 
-      // Fyll i grunddata
-      nameEl.value = p.name || "";
-      addrEl.value = p.formatted_address || "";
-      phoneEl.value = p.international_phone_number || "";
-      websiteEl.value = p.website || "";
+  try {
+    // 🧠 Grunddata
+    window.selectedPlace = {
+      name: place.name || "",
+      address: place.formatted_address || "",
+      place_id: place.place_id,
+      lat: place.geometry?.location?.lat() || null,
+      lng: place.geometry?.location?.lng() || null,
+    };
 
-      const comps = p.address_components || [];
-      const city = comps.find(c => c.types.includes("locality") || c.types.includes("postal_town"));
-      const country = comps.find(c => c.types.includes("country"));
+    // 📍 Stad och land
+    const comp = place.address_components || [];
+    const cityObj =
+      comp.find((c) => c.types.includes("locality")) ||
+      comp.find((c) => c.types.includes("postal_town"));
+    const countryObj = comp.find((c) => c.types.includes("country"));
+    window.selectedPlace.city = cityObj?.long_name || "";
+    window.selectedPlace.country_iso2 = countryObj?.short_name?.toLowerCase() || "";
+    window.selectedPlace.country = countryObj?.long_name || "";
 
-      cityEl.value = city?.long_name || "";
-      countryEl.value = country?.long_name || "";
+    // 🌍 Kontinent
+    window.selectedPlace.continent = WCL.countryToContinent(
+      window.selectedPlace.country,
+      window.selectedPlace.country_iso2
+    );
 
-      sel.country_iso2 = country?.short_name?.toLowerCase() || null;
-      continentEl.value = WCL.countryToContinent(country?.long_name) || "";
+    // ☎️ Website + phone från PlaceDetails
+    window.selectedPlace.phone = place.international_phone_number || "";
+    window.selectedPlace.website = place.website || "";
 
-      sel.place_id = p.place_id || null;
-
-      // 📸 Foto-hantering
-      const refs = await WCL.fetchPhotoRefs(sel.place_id);
-      sel._photo_refs = refs;
-      sel.photo_index = 0;
-
-      const imgEl = document.getElementById("preview-photo");
-      const metaEl = document.getElementById("photo-meta");
-
-      function showCurrentPhoto() {
-        if (!sel._photo_refs.length) {
-          imgEl.src = WCL.GITHUB_STORE_FALLBACK;
-          metaEl.textContent = "No photo found";
-          sel.photo_reference = null;
-          return;
-        }
-        const ref = sel._photo_refs[sel.photo_index];
-        sel.photo_reference = ref;
-        WCL.loadProxyPhotoInto(imgEl, ref);
-        metaEl.textContent = `Photo ${sel.photo_index + 1} / ${sel._photo_refs.length}`;
-      }
-
-      document.getElementById("prev-photo").onclick = () => {
-        if (!sel._photo_refs.length) return;
-        sel.photo_index = (sel.photo_index - 1 + sel._photo_refs.length) % sel._photo_refs.length;
-        showCurrentPhoto();
-      };
-      document.getElementById("next-photo").onclick = () => {
-        if (!sel._photo_refs.length) return;
-        sel.photo_index = (sel.photo_index + 1) % sel._photo_refs.length;
-        showCurrentPhoto();
-      };
-
-      showCurrentPhoto();
-
-      WCL.toastShared(
-        refs.length
-          ? `✅ ${refs.length} photos found`
-          : "No photos found (using fallback)",
-        refs.length ? "success" : "error"
-      );
-    } catch (err) {
-      console.error("❌ place_changed failed:", err);
-      WCL.toastShared("Error fetching place details", "error");
+    // 🖼️ Foto via proxy
+    const refs = await WCL.fetchPhotoRefs(place.place_id);
+    if (refs.length) {
+      window.selectedPlace.photo_reference = refs[0];
+      const url = WCL.buildProxyUrl(refs[0]);
+      preview.innerHTML = `<img src="${url}" alt="Preview">`;
+    } else {
+      const fallback = WCL.fallbackForType("store");
+      preview.innerHTML = `<img src="${fallback}" alt="Preview">`;
     }
-  });
-}
 
-// Gör initAutocomplete global för Google callback
-window.initAutocomplete = initAutocomplete;
+    // 🧾 Autofyll fälten
+    document.querySelector("#phone").value = window.selectedPlace.phone;
+    document.querySelector("#website").value = window.selectedPlace.website;
 
-// ----------------- DOM READY -----------------
-window.addEventListener("DOMContentLoaded", () => {
-  // Snabb access till inputs
-  window.nameEl = document.getElementById("name");
-  window.addrEl = document.getElementById("addr");
-  window.cityEl = document.getElementById("city");
-  window.countryEl = document.getElementById("country");
-  window.continentEl = document.getElementById("continent");
-  window.phoneEl = document.getElementById("phone");
-  window.websiteEl = document.getElementById("website");
-
-  // TYPE
-  document.querySelectorAll(".type-btn input").forEach(cb => {
-    cb.addEventListener("change", () => {
-      const val = cb.value;
-      const parent = cb.closest(".type-btn");
-      if (cb.checked) {
-        if (!sel.types.includes(val)) sel.types.push(val);
-        parent.classList.add("active");
-      } else {
-        sel.types = sel.types.filter(t => t !== val);
-        parent.classList.remove("active");
-      }
-      console.log("🟩 Selected types:", sel.types);
-    });
-  });
-
-  // ACCESS
-  document.querySelectorAll(".access-pill input").forEach(radio => {
-    radio.addEventListener("change", () => {
-      sel.access = radio.value;
-    });
-  });
-
-  // BUTTONS
-  document.getElementById("clearBtn").onclick = resetForm;
-  document.getElementById("saveBtn").onclick = saveStore;
+    WCL.toastShared(`✅ Data loaded for ${place.name}`, "success");
+  } catch (err) {
+    console.error("❌ place_changed failed:", err);
+    WCL.toastShared("Error fetching place details", "error");
+  }
 });
