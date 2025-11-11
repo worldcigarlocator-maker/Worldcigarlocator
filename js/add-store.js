@@ -1,6 +1,6 @@
 /* ================================================================
    js/add-store.js
-   Backoffice — Add Store
+   Backoffice — Add Store (fixed 2025-11-11)
    ================================================================ */
 
 console.log("🚀 Add Store Backoffice loaded");
@@ -14,7 +14,7 @@ let selectedTypes = [];
 /* ================================================================
    GOOGLE AUTOCOMPLETE
    ================================================================ */
-window.initAutocomplete = async function initAutocomplete() {
+window.initAutocomplete = function initAutocomplete() {
   console.log("✅ initAutocomplete ready");
 
   const input = document.getElementById("gAddress");
@@ -78,52 +78,56 @@ window.initAutocomplete = async function initAutocomplete() {
       window.selectedPlace.website = place.website || "";
 
       // 🖼️ Foto via proxy
-const refs = await WCL.fetchPhotoRefs(place.place_id);
-window.photoRefs = refs;
+      const refs = await WCL.fetchPhotoRefs(place.place_id);
+      window.photoRefs = refs;
+      const previewImg = document.getElementById("preview-photo");
+      const meta = document.getElementById("photo-meta");
 
-const previewImg = document.getElementById("preview-photo");
-const meta = document.getElementById("photo-meta");
+      if (refs.length) {
+        currentIndex = 0;
+        window.selectedPlace.photo_reference = refs[0];
+        const url = WCL.buildProxyUrl(refs[0]);
+        previewImg.src = url;
+        meta.textContent = `${refs.length} photo(s) found`;
 
-if (refs.length) {
-  currentIndex = 0;
-  window.selectedPlace.photo_reference = refs[0];
-  const url = WCL.buildProxyUrl(refs[0]);
-  if (previewImg) previewImg.src = url;
-  if (meta) meta.textContent = `${refs.length} photo(s) found`;
+        // 🧭 aktivera navigation
+        const prevBtn = document.getElementById("prev-photo");
+        const nextBtn = document.getElementById("next-photo");
+        if (prevBtn && nextBtn) {
+          prevBtn.onclick = () => {
+            currentIndex = (currentIndex - 1 + refs.length) % refs.length;
+            const newUrl = WCL.buildProxyUrl(refs[currentIndex]);
+            previewImg.src = newUrl;
+            meta.textContent = `Photo ${currentIndex + 1} / ${refs.length}`;
+          };
+          nextBtn.onclick = () => {
+            currentIndex = (currentIndex + 1) % refs.length;
+            const newUrl = WCL.buildProxyUrl(refs[currentIndex]);
+            previewImg.src = newUrl;
+            meta.textContent = `Photo ${currentIndex + 1} / ${refs.length}`;
+          };
+        }
+      } else {
+        previewImg.src = WCL.fallbackForType("store");
+        meta.textContent = "No photo found";
+      }
 
-  // 🧭 aktivera navigation
-  const prevBtn = document.getElementById("prev-photo");
-  const nextBtn = document.getElementById("next-photo");
-  if (prevBtn && nextBtn) {
-    prevBtn.onclick = () => {
-      currentIndex = (currentIndex - 1 + refs.length) % refs.length;
-      const newUrl = WCL.buildProxyUrl(refs[currentIndex]);
-      previewImg.src = newUrl;
-      meta.textContent = `Photo ${currentIndex + 1} / ${refs.length}`;
-    };
-    nextBtn.onclick = () => {
-      currentIndex = (currentIndex + 1) % refs.length;
-      const newUrl = WCL.buildProxyUrl(refs[currentIndex]);
-      previewImg.src = newUrl;
-      meta.textContent = `Photo ${currentIndex + 1} / ${refs.length}`;
-    };
-  }
-} else {
-  if (previewImg) previewImg.src = WCL.fallbackForType("store");
-  if (meta) meta.textContent = "No photo found";
-}
+      // 🧾 Autofyll alla fält
+      document.getElementById("name").value = window.selectedPlace.name || "";
+      document.getElementById("addr").value = window.selectedPlace.address || "";
+      document.getElementById("city").value = window.selectedPlace.city || "";
+      document.getElementById("country").value = window.selectedPlace.country || "";
+      document.getElementById("continent").value = window.selectedPlace.continent || "";
+      document.getElementById("phone").value = window.selectedPlace.phone || "";
+      document.getElementById("website").value = window.selectedPlace.website || "";
 
-// 🧾 Autofyll alla fält
-document.getElementById("name").value = place.name || "";
-document.getElementById("addr").value = place.formatted_address || "";
-document.getElementById("city").value = window.selectedPlace.city || "";
-document.getElementById("country").value = window.selectedPlace.country || "";
-document.getElementById("continent").value = window.selectedPlace.continent || "";
-document.getElementById("phone").value = window.selectedPlace.phone || "";
-document.getElementById("website").value = window.selectedPlace.website || "";
-
-WCL.toastShared(`✅ Data loaded for ${place.name}`, "success");
-
+      WCL.toastShared(`✅ Data loaded for ${place.name}`, "success");
+    } catch (err) {
+      console.error("❌ place_changed failed:", err);
+      WCL.toastShared("Error fetching place details", "error");
+    }
+  });
+};
 
 /* ================================================================
    TYPE SELECTOR
@@ -137,7 +141,36 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("🟩 Selected types:", selectedTypes);
     });
   });
+
+  // 🧹 Clear form
+  const clearBtn = document.getElementById("clearBtn");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", resetForm);
+  }
+
+  // 💾 Save
+  const saveBtn = document.getElementById("saveBtn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", saveStore);
+  }
 });
+
+/* ================================================================
+   RESET FORM
+   ================================================================ */
+function resetForm() {
+  document.querySelectorAll("input, textarea").forEach((el) => {
+    if (!["checkbox", "radio"].includes(el.type)) el.value = "";
+    else el.checked = false;
+  });
+  document.getElementById("preview-photo").src = WCL.fallbackForType("store");
+  document.getElementById("photo-meta").textContent = "No photo loaded";
+  window.selectedPlace = {};
+  window.photoRefs = [];
+  currentIndex = 0;
+  selectedTypes = [];
+  WCL.toastShared("Form cleared", "info");
+}
 
 /* ================================================================
    SAVE STORE
@@ -177,7 +210,12 @@ async function saveStore() {
   };
 
   try {
-    const { data, error } = await WCL.supabase.from("stores").insert([payload]).select().single();
+    const { data, error } = await WCL.supabase
+      .from("stores")
+      .insert([payload])
+      .select()
+      .single();
+
     if (error) throw error;
 
     if (commentText) {
@@ -187,8 +225,13 @@ async function saveStore() {
     }
 
     WCL.toastShared("✅ Store saved successfully!", "success");
+    resetForm();
   } catch (err) {
     console.error("❌ Error saving store:", err);
     WCL.toastShared("Error saving store", "error");
   }
 }
+
+// 🧾 Export global for external buttons (if needed)
+window.saveStore = saveStore;
+window.resetForm = resetForm;
