@@ -78,35 +78,52 @@ window.initAutocomplete = async function initAutocomplete() {
       window.selectedPlace.website = place.website || "";
 
       // 🖼️ Foto via proxy
-      const refs = await WCL.fetchPhotoRefs(place.place_id);
-      window.photoRefs = refs;
-      const preview = document.getElementById("preview-photo");
-      const meta = document.getElementById("photo-meta");
+const refs = await WCL.fetchPhotoRefs(place.place_id);
+window.photoRefs = refs;
 
-      if (refs.length) {
-        currentIndex = 0;
-        window.selectedPlace.photo_reference = refs[0];
-        const url = WCL.buildProxyUrl(refs[0]);
-        if (preview) preview.src = url;
-        if (meta) meta.textContent = `${refs.length} photo(s) found`;
-      } else {
-        if (preview) preview.src = WCL.fallbackForType("store");
-        if (meta) meta.textContent = "No photo found";
-      }
+const previewImg = document.getElementById("preview-photo");
+const meta = document.getElementById("photo-meta");
 
-      // 🧾 Autofyll fält
-      const phoneEl = document.querySelector("#phone");
-      const websiteEl = document.querySelector("#website");
-      if (phoneEl) phoneEl.value = window.selectedPlace.phone;
-      if (websiteEl) websiteEl.value = window.selectedPlace.website;
+if (refs.length) {
+  currentIndex = 0;
+  window.selectedPlace.photo_reference = refs[0];
+  const url = WCL.buildProxyUrl(refs[0]);
+  if (previewImg) previewImg.src = url;
+  if (meta) meta.textContent = `${refs.length} photo(s) found`;
 
-      WCL.toastShared(`✅ Loaded ${place.name}`, "success");
-    } catch (err) {
-      console.error("❌ place_changed failed:", err);
-      WCL.toastShared("Error fetching place details", "error");
-    }
-  });
-};
+  // 🧭 aktivera navigation
+  const prevBtn = document.getElementById("prev-photo");
+  const nextBtn = document.getElementById("next-photo");
+  if (prevBtn && nextBtn) {
+    prevBtn.onclick = () => {
+      currentIndex = (currentIndex - 1 + refs.length) % refs.length;
+      const newUrl = WCL.buildProxyUrl(refs[currentIndex]);
+      previewImg.src = newUrl;
+      meta.textContent = `Photo ${currentIndex + 1} / ${refs.length}`;
+    };
+    nextBtn.onclick = () => {
+      currentIndex = (currentIndex + 1) % refs.length;
+      const newUrl = WCL.buildProxyUrl(refs[currentIndex]);
+      previewImg.src = newUrl;
+      meta.textContent = `Photo ${currentIndex + 1} / ${refs.length}`;
+    };
+  }
+} else {
+  if (previewImg) previewImg.src = WCL.fallbackForType("store");
+  if (meta) meta.textContent = "No photo found";
+}
+
+// 🧾 Autofyll alla fält
+document.getElementById("name").value = place.name || "";
+document.getElementById("addr").value = place.formatted_address || "";
+document.getElementById("city").value = window.selectedPlace.city || "";
+document.getElementById("country").value = window.selectedPlace.country || "";
+document.getElementById("continent").value = window.selectedPlace.continent || "";
+document.getElementById("phone").value = window.selectedPlace.phone || "";
+document.getElementById("website").value = window.selectedPlace.website || "";
+
+WCL.toastShared(`✅ Data loaded for ${place.name}`, "success");
+
 
 /* ================================================================
    TYPE SELECTOR
