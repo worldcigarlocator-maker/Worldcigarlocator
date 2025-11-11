@@ -18,9 +18,7 @@
       --success: #28a745;
       --error: #dc3545;
     }
-
     * { box-sizing: border-box; }
-
     body {
       font-family: 'Inter', Arial, sans-serif;
       background: var(--bg);
@@ -30,7 +28,6 @@
       font-size: 0.9rem;
     }
 
-    /* HEADER */
     header {
       background: white;
       padding: 0.45rem 0.9rem;
@@ -59,13 +56,8 @@
       text-decoration: none;
       transition: all 0.2s ease;
     }
+    header .btn.home:hover { background: var(--accent); color: #fff; }
 
-    header .btn.home:hover {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    /* MAIN CARD */
     .wrap { max-width: 850px; margin: 0 auto; }
     .card {
       background: #fff;
@@ -96,7 +88,6 @@
       font-size: 0.85rem;
       background: #fff;
     }
-
     textarea { resize: vertical; min-height: 60px; }
 
     .btn {
@@ -151,7 +142,6 @@
       padding: .25rem .55rem;
       cursor: pointer;
     }
-
     .photo-nav:hover { background: #eef5ff; }
 
     .preview-photo {
@@ -179,22 +169,77 @@
       border-radius: 6px;
       font-size: 0.85rem;
     }
-
     .toast.success { background: var(--success); }
     .toast.error { background: var(--error); }
   </style>
 
   <script>
+    // =========================
+    // 🌍 Base Config + Helpers
+    // =========================
     const WCL = {};
     WCL.SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
     WCL.SUPABASE_ANON_KEY =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
-    WCL.PHOTO_PROXY_URL =
-      "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
-    WCL.FALLBACK_IMG =
-      "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
+    WCL.PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
+    WCL.FALLBACK_IMG = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
     WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
+    // ===============================================
+    // 🌍 Robust country → continent mapping
+    // ===============================================
+    WCL.countryToContinent = function (countryName = null, iso2 = null) {
+      const c = (countryName || "").toLowerCase().trim();
+      const i = (iso2 || "").toLowerCase().trim();
+
+      const MAP = {
+        al:"Europe", ad:"Europe", am:"Europe", at:"Europe", az:"Europe", by:"Europe",
+        be:"Europe", ba:"Europe", bg:"Europe", hr:"Europe", cy:"Europe", cz:"Europe",
+        dk:"Europe", ee:"Europe", fi:"Europe", fr:"Europe", ge:"Europe", de:"Europe",
+        gr:"Europe", hu:"Europe", is:"Europe", ie:"Europe", it:"Europe", lv:"Europe",
+        li:"Europe", lt:"Europe", lu:"Europe", mt:"Europe", md:"Europe", mc:"Europe",
+        me:"Europe", nl:"Europe", mk:"Europe", no:"Europe", pl:"Europe", pt:"Europe",
+        ro:"Europe", rs:"Europe", sk:"Europe", si:"Europe", es:"Europe", se:"Europe",
+        ch:"Europe", ua:"Europe", gb:"Europe", va:"Europe", im:"Europe",
+        ca:"North America", us:"North America", mx:"North America",
+        br:"South America", ar:"South America",
+        cn:"Asia", jp:"Asia", in:"Asia", tr:"Asia", ae:"Asia", sg:"Asia",
+        za:"Africa", ng:"Africa", eg:"Africa",
+        au:"Oceania", nz:"Oceania"
+      };
+
+      if (MAP[i]) return MAP[i];
+      if (i === "uk") return "Europe";
+
+      const n = c.replace(/’/g,"'").replace(/\./g,"").replace(/-/g," ");
+      if (["united kingdom","england","wales","scotland","northern ireland"].includes(n))
+        return "Europe";
+
+      if (["united states","usa","canada","mexico","cuba"].includes(n))
+        return "North America";
+      if (["brazil","argentina","chile","peru","colombia"].includes(n))
+        return "South America";
+      if (["china","japan","india","thailand","malaysia","singapore","israel","turkey"].includes(n))
+        return "Asia";
+      if (["south africa","nigeria","kenya","morocco","egypt"].includes(n))
+        return "Africa";
+      if (["australia","new zealand","fiji"].includes(n))
+        return "Oceania";
+
+      return "Other";
+    };
+
+    // Basic toast
+    WCL.toast = (msg, cls = "success") => {
+      const c = document.getElementById("toast-container");
+      const t = document.createElement("div");
+      t.className = `toast ${cls}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    };
+
+    // Fetch photo refs
     WCL.fetchPhotoRefs = async (placeId) => {
       try {
         const res = await fetch(`https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs?place_id=${encodeURIComponent(placeId)}`);
@@ -203,26 +248,6 @@
       } catch {
         return [];
       }
-    };
-
-    WCL.countryToContinent = (country) => {
-      const c = (country || "").toLowerCase();
-      if (["sweden","germany","france","italy","spain","norway","finland","denmark","netherlands","belgium","austria","switzerland","poland","czech republic","czechia"].includes(c)) return "Europe";
-      if (["united states","usa","canada","mexico","cuba","dominican republic"].includes(c)) return "North America";
-      if (["brazil","argentina","chile","peru","colombia","uruguay","paraguay"].includes(c)) return "South America";
-      if (["china","japan","india","thailand","malaysia","singapore","israel","turkey","vietnam","indonesia"].includes(c)) return "Asia";
-      if (["south africa","nigeria","kenya","morocco","egypt","ghana"].includes(c)) return "Africa";
-      if (["australia","new zealand","fiji"].includes(c)) return "Oceania";
-      return "Other";
-    };
-
-    WCL.toast = (msg, cls = "success") => {
-      const c = document.getElementById("toast-container");
-      const t = document.createElement("div");
-      t.className = `toast ${cls}`;
-      t.textContent = msg;
-      c.appendChild(t);
-      setTimeout(() => t.remove(), 3000);
     };
   </script>
 </head>
@@ -304,7 +329,6 @@
 
   <div id="toast-container"></div>
 
-  <!-- ✅ JS functional logic -->
   <script>
     const sel = { types: [], access: null, place_id: null, _photo_refs: [], photo_reference: null };
 
@@ -339,7 +363,8 @@
       const website = websiteEl.value.trim() || null;
       const commentText = document.getElementById("comment").value.trim();
 
-      if (!name || !address || !city || !country) return WCL.toast("Please fill all required fields", "error");
+      if (!name || !address || !city || !country)
+        return WCL.toast("Please fill all required fields", "error");
 
       const payload = {
         name, address, city, country, continent, phone, website,
@@ -382,7 +407,7 @@
         const country = comps.find(c => c.types.includes("country"));
         cityEl.value = city?.long_name || "";
         countryEl.value = country?.long_name || "";
-        continentEl.value = WCL.countryToContinent(country?.long_name) || "";
+        continentEl.value = WCL.countryToContinent(country?.long_name, country?.short_name) || "";
 
         sel.place_id = p.place_id || null;
         const refs = await WCL.fetchPhotoRefs(sel.place_id);
