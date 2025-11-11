@@ -237,6 +237,21 @@ body {
 .badge.gold  { background:var(--gold); color:#000; }
 .badge.blue  { background: var(--blue); color: #fff; }
 
+/* TYPE BADGES (inline next to "Type:") */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px; /* mellan ikon och text */
+  text-transform: capitalize;
+}
+
+.badge-wrap {
+  display: inline-flex;
+  gap: 4px;
+  vertical-align: middle;
+}
+
+
 /* STORE / LOUNGE TYPE BADGES */
 .badge.store  { background: var(--blue); }
 .badge.lounge { background: var(--gold); color:#000; }
