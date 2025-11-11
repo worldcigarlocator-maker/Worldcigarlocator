@@ -569,7 +569,9 @@ const typeBadges = (Array.isArray(s.types) ? s.types : [s.type])
   .join("");
 
 info.innerHTML = `
-  <p class="truncate"><strong>Type:</strong> ${typeBadges || "–"}</p>
+  <div class="badge-wrap">
+  ${(s.types || []).map(t => `<span class="badge ${t}">${t}</span>`).join(" ")}
+</div>
   <p class="truncate"><strong>Address:</strong> ${safe(s.address || "–")}</p>
   <p class="truncate"><strong>Phone:</strong> ${safe(s.phone || "–")}</p>
   <p class="truncate"><strong>Website:</strong> ${
