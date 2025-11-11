@@ -3,6 +3,10 @@
    Version: 2025-11-08 (full + proxy + autofill)
    ================================================ */
 
+// Global WCL-namespace (shared mellan backoffice och add-store)
+window.WCL = window.WCL || {};
+
+
 // 🧩 Supabase setup
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY =
