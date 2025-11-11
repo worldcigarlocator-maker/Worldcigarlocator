@@ -121,7 +121,7 @@ function initAutocomplete() {
     language: "en"
   });
 
-  autocomplete.addListener("place_changed", async () => {
+ autocomplete.addListener("place_changed", async () => {
   const place = autocomplete.getPlace();
   if (!place.place_id) return;
 
