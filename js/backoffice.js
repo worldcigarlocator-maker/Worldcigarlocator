@@ -555,21 +555,21 @@ const info = document.createElement("div");
 info.className = "infoblock";
 
 // 🟦🟨 Typ-badges (flera typer stöds)
-const typeBadges = (Array.isArray(s.types) ? s.types : [s.type])
-  .filter(Boolean)
-  .map(t => {
-    const color =
-      t === "store" ? "blue" :
-      t === "lounge" ? "gold" : "gray";
-    const icon =
-      t === "store" ? "🏪" :
-      t === "lounge" ? "🍷" : "🏷️";
-    return `<span class="badge ${color}">${icon} ${t}</span>`;
-  })
-  .join(" ");
+const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
 
+const info = document.createElement("div");
+info.className = "infoblock";
 info.innerHTML = `
-  <p class="truncate"><strong>Type:</strong> ${typeBadges || "–"}</p>
+  <p class="truncate"><strong>Type:</strong>
+    ${types.length
+      ? types.map(t => {
+          const color =
+            t === "store" ? "blue" :
+            t === "lounge" ? "gold" : "gray";
+          return `<span class="badge ${color}">${t}</span>`;
+        }).join(" ")
+      : "–"}
+  </p>
   <p class="truncate"><strong>Address:</strong> ${safe(s.address || "–")}</p>
   <p class="truncate"><strong>Phone:</strong> ${safe(s.phone || "–")}</p>
   <p class="truncate"><strong>Website:</strong> ${
@@ -578,7 +578,6 @@ info.innerHTML = `
       : "–"
   }</p>
 `;
-
 body.appendChild(info);
 
 
