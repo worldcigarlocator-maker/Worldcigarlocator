@@ -564,14 +564,12 @@ const typeBadges = (Array.isArray(s.types) ? s.types : [s.type])
     const icon =
       t === "store" ? "🏪" :
       t === "lounge" ? "🍷" : "🏷️";
-    return `<span class="badge ${color}" style="margin-left:4px;">${icon} ${t}</span>`;
+    return `<span class="badge ${color}">${icon} ${t}</span>`;
   })
-  .join("");
+  .join(" ");
 
 info.innerHTML = `
-  <div class="badge-wrap">
-  ${(s.types || []).map(t => `<span class="badge ${t}">${t}</span>`).join(" ")}
-</div>
+  <p class="truncate"><strong>Type:</strong> ${typeBadges || "–"}</p>
   <p class="truncate"><strong>Address:</strong> ${safe(s.address || "–")}</p>
   <p class="truncate"><strong>Phone:</strong> ${safe(s.phone || "–")}</p>
   <p class="truncate"><strong>Website:</strong> ${
@@ -582,6 +580,7 @@ info.innerHTML = `
 `;
 
 body.appendChild(info);
+
 
 
     /* ----------- Reviews Link ----------- */
