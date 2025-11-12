@@ -159,3 +159,52 @@ body {
 .support .sidebar-link:hover {
   color: #b8860b;
 }
+
+/* ===============================
+   LOGIN SCREEN (Backoffice)
+   =============================== */
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.login-card {
+  background: #fff;
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  min-width: 300px;
+}
+
+.login-card h2 {
+  margin: 0 0 .5rem 0;
+}
+
+.login-card input {
+  padding: .6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.login-card button {
+  padding: .6rem;
+  border: 0;
+  border-radius: 8px;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-card .error {
+  color: #d33;
+  margin: .2rem 0 0 0;
+  min-height: 1.2em;
+}
