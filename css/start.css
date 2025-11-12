@@ -70,10 +70,11 @@ body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:var(--text);}
 /* ==== Cards grid – kompakt backoffice-style ==== */
 .store-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* smalare */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 0.9rem;
   align-items: start;
 }
+
 
 /* Kortens ram + hover */
 .store-card {
