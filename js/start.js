@@ -243,18 +243,6 @@ async function loadStores(filter = {}, searchTerm = "") {
 /* ============================================================
    Render Store Cards
    ============================================================ */
-function flagEmoji(country = "") {
-  const map = { "united kingdom": "GB", "united states": "US" };
-  const key = (country || "").trim().toLowerCase();
-  const iso2 =
-    map[key] ||
-    key.split(/\s+/)[0].slice(0, 2).toUpperCase(); // grov fallback
-
-  if (!iso2 || iso2.length !== 2) return "🏳️";
-  const codePoints = [...iso2].map(c => 0x1F1E6 - 65 + c.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
-}
-
 function renderStoreCards(stores) {
   const grid = document.getElementById("storeGrid");
   grid.innerHTML = "";
@@ -263,11 +251,12 @@ function renderStoreCards(stores) {
     const card = document.createElement("div");
     card.className = "store-card";
 
+    // 🔹 Bild via proxy (eller fallback)
     const imgSrc = s.photo_reference
       ? buildPhotoProxyUrl(s.photo_reference, 800)
       : "images/store.jpg";
 
-    // badge-lista (store/lounge)
+    // 🔹 Typ-badges (store/lounge)
     const typeList = (s.type || "")
       .split(",")
       .map((t) => t.trim().toLowerCase())
@@ -279,16 +268,31 @@ function renderStoreCards(stores) {
       })
       .join(" ");
 
+    // 🔹 Rating-stjärnor
     const rating = Math.round(Number(s.rating) || 0);
     const stars = Array.from({ length: 5 })
       .map((_, i) => (i < rating ? "★" : "☆"))
       .join("");
 
+    // 🔹 Övrig info
     const addr = s.address || "Unknown";
     const phone = s.phone || "";
-    const website = s.website ? `<a href="${esc(s.website)}" target="_blank" rel="noopener">${esc(s.website)}</a>` : "";
-    const flag = flagEmoji(s.country);
+    const website = s.website
+      ? `<a href="${esc(s.website)}" target="_blank" rel="noopener">${esc(s.website)}</a>`
+      : "";
 
+    // 🔹 Flagga (SVG)
+    const flagSrc = flagURL(s.country);
+    const flagImg = flagSrc
+      ? `<img src="${flagSrc}" class="flag" alt="${esc(s.country)}" />`
+      : "";
+    const locationRow = `
+      <div class="locrow">
+        ${flagImg}
+        <span class="loc-text">${esc(s.country || "")}${s.city ? ", " + esc(s.city) : ""}</span>
+      </div>`;
+
+    // 🔹 Bygg kortet
     card.innerHTML = `
       <div class="card-top">
         <img src="${imgSrc}" alt="${esc(s.name)}" class="store-img" />
@@ -296,17 +300,12 @@ function renderStoreCards(stores) {
 
       <div class="card-body">
         <div class="badge-row">${badgesHtml}</div>
-
         <div class="title-wrap">
           <h3 class="card-title twoline">${esc(s.name)}</h3>
         </div>
-
         <div class="rating-stars">${stars}</div>
 
-        <div class="locrow">
-          <span class="flag-emoji">${flag}</span>
-          <span class="loc-text">${esc(s.country || "")}${s.city ? ", " + esc(s.city) : ""}</span>
-        </div>
+        ${locationRow}
 
         <p class="card-info"><strong>Address:</strong> <span class="truncate">${esc(addr)}</span></p>
         ${phone ? `<p class="card-info"><strong>Phone:</strong> ${esc(phone)}</p>` : ""}
@@ -317,6 +316,7 @@ function renderStoreCards(stores) {
     grid.appendChild(card);
   });
 }
+
 
 /* ============================================================
    Sidebar builder
