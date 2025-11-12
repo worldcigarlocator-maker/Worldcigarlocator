@@ -19,6 +19,50 @@ const WCL = {
 /* Supabase */
 WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
+/* ============================================================
+   AUTH GUARD — login skydd för Backoffice
+   ============================================================ */
+async function showApp() {
+  document.getElementById("login-screen")?.style.setProperty("display","none");
+  document.querySelector(".wrap")?.style.setProperty("display","block");
+  await reloadData("pending");
+}
+
+async function showLogin() {
+  document.querySelector(".wrap")?.style.setProperty("display","none");
+  document.getElementById("login-screen")?.style.setProperty("display","flex");
+}
+
+async function checkAuth() {
+  const { data: { user } } = await WCL.supabase.auth.getUser();
+  if (user) return showApp();
+  return showLogin();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // login-knappen
+  document.getElementById("login-btn")?.addEventListener("click", async () => {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const { error } = await WCL.supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      document.getElementById("login-error").textContent = "❌ Wrong email or password";
+      return;
+    }
+    await showApp();
+  });
+
+  // kontrollera session vid sidstart
+  checkAuth();
+});
+
+// valfri logout-knapp kan anropa:
+window.logout = async () => {
+  await WCL.supabase.auth.signOut();
+  await checkAuth();
+};
+
+
 /* ======================== STATE ========================= */
 let STORES = [];
 let CURRENT_TAB = "pending"; // all | approved | pending | flagged | deleted | repair
@@ -1000,7 +1044,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 🔹 Sökfält
   $("#searchInput")?.addEventListener("input", () => render());
-
-  // 🔹 Ladda initial data
-  reloadData("pending");
 });
+
