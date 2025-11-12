@@ -165,7 +165,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:var(--text);}
   box-shadow: 0 0 1px rgba(0,0,0,0.3);
 }
 
-/* Info-rader */
+/* === Info-rader === */
 .card-info {
   font-size: 0.85rem;
   color: #ccc;
@@ -175,10 +175,29 @@ body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:var(--text);}
 .card-info strong {
   color: var(--accent);
 }
+
+/* === Truncate långa textfält === */
 .truncate {
   display: inline-block;
   max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  vertical-align: bottom;
+  position: relative;
+  cursor: help; /* visar att man kan hovra */
+}
+
+/* === Tooltip-effekt vid hover === */
+.truncate:hover {
+  overflow: visible;
+  white-space: normal;
+  background: rgba(0, 0, 0, 0.88);
+  color: #fff;
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  max-width: none; /* låt hela texten synas */
 }
