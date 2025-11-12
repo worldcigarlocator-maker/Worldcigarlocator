@@ -312,21 +312,67 @@ async function fetchPhotoRefs(placeId) {
   }
 }
 
-/* ---------- Country -> Continent fallback ---------- */
-const countryToContinent = (country) => {
-  const c = normalizeCountry(country);
-  if ([
-    "sweden","germany","france","italy","spain","norway","finland","denmark","netherlands","belgium","austria","switzerland","poland","czech republic","czechia","portugal","ireland","iceland","estonia","latvia","lithuania","hungary","greece","romania","bulgaria","slovenia","slovakia","croatia","ukraine"
-  ].includes(c)) return "Europe";
-  if (["united states","usa","canada","mexico","cuba","dominican republic"].includes(c)) return "North America";
-  if (["brazil","argentina","chile","peru","colombia","uruguay","paraguay"].includes(c)) return "South America";
-  if ([
-    "china","japan","india","thailand","malaysia","singapore","israel","turkey","vietnam","indonesia","philippines","south korea","taiwan","united arab emirates","uae","qatar","saudi arabia"
-  ].includes(c)) return "Asia";
-  if (["south africa","nigeria","kenya","morocco","egypt","ghana"].includes(c)) return "Africa";
-  if (["australia","new zealand","fiji"].includes(c)) return "Oceania";
-  return "Other";
+/* ============================================================
+   COUNTRY HELPERS
+   ============================================================ */
+
+// 🔹 Normaliserar namn (så "Germany", "germany", "GERMANY" blir samma)
+function normalizeCountry(name) {
+  if (!name) return "";
+  return name
+    .trim()
+    .toLowerCase()
+    .replaceAll("å", "a")
+    .replaceAll("ä", "a")
+    .replaceAll("ö", "o")
+    .replaceAll("é", "e")
+    .replaceAll("è", "e");
+}
+
+// 🔹 Mappning från land → kontinent (för flaggor & hierarki)
+const countryContinentMap = {
+  germany: "Europe",
+  sweden: "Europe",
+  norway: "Europe",
+  denmark: "Europe",
+  france: "Europe",
+  spain: "Europe",
+  italy: "Europe",
+  united_kingdom: "Europe",
+  usa: "North America",
+  united_states: "North America",
+  canada: "North America",
+  mexico: "North America",
+  brazil: "South America",
+  argentina: "South America",
+  south_africa: "Africa",
+  egypt: "Africa",
+  morocco: "Africa",
+  china: "Asia",
+  japan: "Asia",
+  thailand: "Asia",
+  singapore: "Asia",
+  australia: "Oceania",
+  new_zealand: "Oceania",
 };
+
+// 🔹 Omvandla land → kontinent
+function countryToContinent(country) {
+  if (!country) return "Unknown";
+  const c = normalizeCountry(country).replaceAll(" ", "_");
+  return countryContinentMap[c] || "Unknown";
+}
+
+// 🔹 Land → Flagga (fallback emoji om ISO saknas)
+function countryToFlag(country) {
+  if (!country) return "🏳️";
+  const c = normalizeCountry(country)
+    .replaceAll(" ", "_")
+    .replaceAll("united_kingdom", "gb")
+    .replaceAll("united_states", "us");
+  const code = c.slice(0, 2).toUpperCase();
+  return String.fromCodePoint(...[...code].map(ch => 0x1F1E6 - 65 + ch.charCodeAt(0))) || "🏳️";
+}
 
 
 /* ============================================================
