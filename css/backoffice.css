@@ -630,3 +630,39 @@ td .flag {
 .info-block a:hover {
   text-decoration: underline;
 }
+/* === Flag + location + continent === */
+.locrow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  margin-bottom: 0.4rem;
+}
+
+.loc-top {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #ddd;
+  font-size: 0.9rem;
+}
+
+.flag {
+  width: 18px;
+  height: 12px;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+.loc-text {
+  color: #ddd;
+}
+
+.continent-line {
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  margin-left: 22px; /* linjera med texten efter flaggan */
+  letter-spacing: 0.4px;
+}
