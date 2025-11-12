@@ -626,12 +626,13 @@ const typeBadges = types.map(t => {
     badgeWrap.innerHTML = typeBadges || `<span class="badge gray">–</span>`;
     body.appendChild(badgeWrap);
 
-  /* ----------- Flag + Country + City (rad 1) + Continent (rad 2) ----------- */
+/* ----------- Flag + Country/City + Continent ----------- */
 const loc = document.createElement("div");
 loc.className = "locrow";
 
-const topRow = document.createElement("div");
-topRow.className = "loc-top";
+/* -- Översta raden: flagga + land + stad -- */
+const locTop = document.createElement("div");
+locTop.className = "loc-top";
 
 const flagSrc = flagURL(s.country, s.country_iso2);
 if (flagSrc) {
@@ -640,16 +641,16 @@ if (flagSrc) {
   flag.src = flagSrc;
   flag.alt = safe(s.country);
   flag.onerror = () => (flag.style.display = "none");
-  topRow.appendChild(flag);
+  locTop.appendChild(flag);
 }
 
 const geo = document.createElement("span");
 geo.className = "loc-text";
-geo.textContent = `${safe(s.country || "Unknown")}${s.city ? ", " + safe(s.city) : ""}`;
-topRow.appendChild(geo);
+geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
+locTop.appendChild(geo);
+loc.appendChild(locTop);
 
-loc.appendChild(topRow);
-
+/* -- Ny rad under: kontinent -- */
 if (s.continent) {
   const cont = document.createElement("div");
   cont.className = "continent-line";
@@ -658,7 +659,6 @@ if (s.continent) {
 }
 
 body.appendChild(loc);
-
 
     /* ----------- Info Block ----------- */
     const info = document.createElement("div");
