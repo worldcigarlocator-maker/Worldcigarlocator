@@ -292,29 +292,42 @@ function renderStoreCards(stores) {
         <span class="loc-text">${esc(s.country || "")}${s.city ? ", " + esc(s.city) : ""}</span>
       </div>`;
 
-    // 🔹 Bygg kortet
-    card.innerHTML = `
-      <div class="card-top">
-        <img src="${imgSrc}" alt="${esc(s.name)}" class="store-img" />
-      </div>
+  
+// 🔹 Bygg kortet
+card.innerHTML = `
+  <div class="card-top">
+    <img src="${imgSrc}" alt="${esc(s.name)}" class="store-img" />
+  </div>
 
-      <div class="card-body">
-        <div class="badge-row">${badgesHtml}</div>
-        <div class="title-wrap">
-          <h3 class="card-title twoline">${esc(s.name)}</h3>
-        </div>
-        <div class="rating-stars">${stars}</div>
+  <div class="card-body">
+    <div class="badge-row">${badgesHtml}</div>
 
-        ${locationRow}
+    <div class="title-wrap">
+      <h3 class="card-title twoline">${esc(s.name)}</h3>
+    </div>
 
-        <p class="card-info"><strong>Address:</strong> <span class="truncate">${esc(addr)}</span></p>
-        ${phone ? `<p class="card-info"><strong>Phone:</strong> ${esc(phone)}</p>` : ""}
-        ${website ? `<p class="card-info"><strong>Website:</strong> ${website}</p>` : ""}
-      </div>
-    `;
+    <div class="rating-stars">${stars}</div>
 
-    grid.appendChild(card);
-  });
+    ${locationRow}
+
+    <p class="card-info">
+      <strong>Address:</strong>
+      <span class="truncate">
+        ${esc(s.address || `${s.city || "Unknown"}, ${s.country || ""}`)}
+      </span>
+    </p>
+
+    ${phone ? `<p class="card-info"><strong>Phone:</strong> ${esc(phone)}</p>` : ""}
+    ${
+      website
+        ? `<p class="card-info"><strong>Website:</strong> ${website}</p>`
+        : ""
+    }
+  </div>
+`;
+
+grid.appendChild(card);
+});
 }
 
 
