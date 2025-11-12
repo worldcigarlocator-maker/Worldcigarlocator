@@ -626,24 +626,27 @@ const typeBadges = types.map(t => {
     badgeWrap.innerHTML = typeBadges || `<span class="badge gray">–</span>`;
     body.appendChild(badgeWrap);
 
-    /* ----------- Flag + Country/City ----------- */
-    const loc = document.createElement("div");
-    loc.className = "locrow";
+    /* ----------- Flag + Country/City + Continent ----------- */
+const loc = document.createElement("div");
+loc.className = "locrow";
 
-    const flagSrc = flagURL(s.country, s.country_iso2);
-    if (flagSrc) {
-      const flag = document.createElement("img");
-      flag.className = "flag";
-      flag.src = flagSrc;
-      flag.alt = safe(s.country);
-      flag.onerror = () => (flag.style.display = "none");
-      loc.appendChild(flag);
-    }
+const flagSrc = flagURL(s.country, s.country_iso2);
+if (flagSrc) {
+  const flag = document.createElement("img");
+  flag.className = "flag";
+  flag.src = flagSrc;
+  flag.alt = safe(s.country);
+  flag.onerror = () => (flag.style.display = "none");
+  loc.appendChild(flag);
+}
 
-    const geo = document.createElement("span");
-    geo.textContent = `${safe(s.country)}, ${safe(s.city)}`;
-    loc.appendChild(geo);
-    body.appendChild(loc);
+const geoText = document.createElement("span");
+geoText.innerHTML = `
+  ${safe(s.country || "Unknown")}${s.city ? ", " + safe(s.city) : ""}
+  ${s.continent ? `<span class="continent-pill">${safe(s.continent)}</span>` : ""}
+`;
+loc.appendChild(geoText);
+body.appendChild(loc);
 
     /* ----------- Info Block ----------- */
     const info = document.createElement("div");
