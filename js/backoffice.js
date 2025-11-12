@@ -614,12 +614,24 @@ function renderCards(list) {
 
     /* ----------- Type Badges (inline under name) ----------- */
 const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
-const typeBadges = types.map(t => {
+     const typeBadges = types.map(t => {
   const color =
     t === "store" ? "blue" :
     t === "lounge" ? "gold" : "gray";
-  return `<span class="badge ${color}">${t}</span>`;
+  let html = `<span class="badge ${color}">${t}</span>`;
+
+  // 🟣 Lägg till access-badge direkt efter LOUNGE
+  if (t === "lounge" && s.access) {
+    const accessColor =
+      s.access === "public" ? "green" :
+      s.access === "members" ? "purple" :
+      "gray";
+    html += `<span class="badge access ${accessColor}">${s.access.toUpperCase()}</span>`;
+  }
+
+  return html;
 }).join(" ");
+
 
     const badgeWrap = document.createElement("div");
     badgeWrap.className = "badge-wrap";
