@@ -9,6 +9,67 @@ const SUPABASE_ANON_KEY =
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// ====== Global flag resolver (full auto + emoji fallback) ======
+const FLAGS_BASE = "https://worldcigarlocator-maker.github.io/Worldcigarlocator/assets/flags";
+
+function flagURL(country) {
+  if (!country) return null;
+  const name = country.trim().toLowerCase();
+
+  // 🧩 Manuella specialfall
+  const map = {
+    "united states": "us",
+    "usa": "us",
+    "united kingdom": "gb",
+    "england": "gb",
+    "scotland": "gb",
+    "wales": "gb",
+    "northern ireland": "gb",
+    "czech republic": "cz",
+    "czechia": "cz",
+    "south korea": "kr",
+    "north korea": "kp",
+    "dominican republic": "do",
+    "puerto rico": "pr",
+    "hong kong": "hk",
+    "taiwan": "tw",
+    "vietnam": "vn",
+    "venezuela": "ve",
+    "laos": "la",
+    "ivory coast": "ci",
+    "côte d’ivoire": "ci",
+    "congo": "cd",
+    "dr congo": "cd",
+    "democratic republic of the congo": "cd",
+    "republic of the congo": "cg",
+    "united arab emirates": "ae",
+    "uae": "ae",
+    "palestine": "ps",
+    "vatican city": "va",
+    "syria": "sy",
+    "iran": "ir",
+    "iraq": "iq",
+    "bolivia": "bo",
+    "tanzania": "tz",
+    "cape verde": "cv",
+    "eswatini": "sz",
+    "north macedonia": "mk",
+  };
+
+  const isoGuess = name.replace(/[^a-z]/g, "").slice(0, 2).toLowerCase();
+  const iso = map[name] || isoGuess;
+  const svgUrl = `${FLAGS_BASE}/${iso}.svg`;
+
+  // 🪄 Emoji-fallback (om flaggan saknas)
+  const flagEmoji = iso
+    .toUpperCase()
+    .replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0)));
+
+  // Returnera både URL och emoji
+  return { svgUrl, flagEmoji };
+}
+
+
 
 // ✅ Proxy for photo loading
 const PHOTO_PROXY_URL =
@@ -168,16 +229,30 @@ function renderStoreCards(stores) {
       ? `<a href="${esc(s.website)}" target="_blank" rel="noopener">${esc(s.website)}</a>`
       : "";
 
-    // 🔹 Flagga (SVG)
-    const flagSrc = flagURL(s.country);
-    const flagImg = flagSrc
-      ? `<img src="${flagSrc}" class="flag" alt="${esc(s.country)}" />`
-      : "";
-    const locationRow = `
-      <div class="locrow">
-        ${flagImg}
-        <span class="loc-text">${esc(s.country || "")}${s.city ? ", " + esc(s.city) : ""}</span>
-      </div>`;
+const flagData = flagURL(s.country);
+let flagImg = "";
+
+if (flagData) {
+  // SVG med säker fallback till emoji
+  flagImg = `
+    <img src="${flagData.svgUrl}"
+         class="flag"
+         alt="${esc(s.country)}"
+         onerror="this.style.display='none'; 
+                  const span=document.createElement('span'); 
+                  span.className='flag-fallback'; 
+                  span.textContent='${flagData.flagEmoji}'; 
+                  this.parentNode.insertBefore(span,this.nextSibling);">
+  `;
+}
+
+const locationRow = `
+  <div class="locrow">
+    ${flagImg}
+    <span class="loc-text">
+      ${esc(s.country || "")}${s.city ? ", " + esc(s.city) : ""}
+    </span>
+  </div>`;
 
   
 // 🔹 Bygg kortet
