@@ -129,27 +129,39 @@ async function loadStores(filter = {}, searchTerm = "") {
 /* ============================================================
    Render Store Cards
    ============================================================ */
+function flagEmoji(country = "") {
+  const map = { "united kingdom": "GB", "united states": "US" };
+  const key = (country || "").trim().toLowerCase();
+  const iso2 =
+    map[key] ||
+    key.split(/\s+/)[0].slice(0, 2).toUpperCase(); // grov fallback
+
+  if (!iso2 || iso2.length !== 2) return "🏳️";
+  const codePoints = [...iso2].map(c => 0x1F1E6 - 65 + c.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+}
+
 function renderStoreCards(stores) {
   const grid = document.getElementById("storeGrid");
   grid.innerHTML = "";
 
   stores.forEach((s) => {
-    const card = el("div", "store-card");
+    const card = document.createElement("div");
+    card.className = "store-card";
 
-    // ✅ Bild: proxy-fallback om Google-URL failar
     const imgSrc = s.photo_reference
-      ? buildPhotoProxyUrl(s.photo_reference)
+      ? buildPhotoProxyUrl(s.photo_reference, 800)
       : "images/store.jpg";
 
+    // badge-lista (store/lounge)
     const typeList = (s.type || "")
       .split(",")
       .map((t) => t.trim().toLowerCase())
       .filter((t) => t === "store" || t === "lounge");
     const badgesHtml = typeList
       .map((t) => {
-        let color = t === "store" ? "#28a745" : "#007bff";
-        let label = t === "store" ? "STORE" : "LOUNGE";
-        return `<span class="type-badge-inline" style="background:${color};color:#fff;">${label}</span>`;
+        const isStore = t === "store";
+        return `<span class="type-badge-inline ${isStore ? "store" : "lounge"}">${isStore ? "STORE" : "LOUNGE"}</span>`;
       })
       .join(" ");
 
@@ -158,24 +170,36 @@ function renderStoreCards(stores) {
       .map((_, i) => (i < rating ? "★" : "☆"))
       .join("");
 
+    const addr = s.address || "Unknown";
+    const phone = s.phone || "";
+    const website = s.website ? `<a href="${esc(s.website)}" target="_blank" rel="noopener">${esc(s.website)}</a>` : "";
+    const flag = flagEmoji(s.country);
+
     card.innerHTML = `
       <div class="card-top">
         <img src="${imgSrc}" alt="${esc(s.name)}" class="store-img" />
       </div>
+
       <div class="card-body">
         <div class="badge-row">${badgesHtml}</div>
-        <div class="title-wrap"><h3 class="card-title">${esc(s.name)}</h3></div>
+
+        <div class="title-wrap">
+          <h3 class="card-title twoline">${esc(s.name)}</h3>
+        </div>
+
         <div class="rating-stars">${stars}</div>
-        <p class="card-info"><strong>📍</strong> ${esc(s.city || "Unknown")}, ${esc(s.country || "")}</p>
-        ${s.phone ? `<p class="card-info"><strong>📞</strong> ${esc(s.phone)}</p>` : ""}
-        ${
-          s.website
-            ? `<p class="card-info"><strong>🌐</strong> <a href="${esc(
-                s.website
-              )}" target="_blank">${esc(s.website)}</a></p>`
-            : ""
-        }
-      </div>`;
+
+        <div class="locrow">
+          <span class="flag-emoji">${flag}</span>
+          <span class="loc-text">${esc(s.country || "")}${s.city ? ", " + esc(s.city) : ""}</span>
+        </div>
+
+        <p class="card-info"><strong>Address:</strong> <span class="truncate">${esc(addr)}</span></p>
+        ${phone ? `<p class="card-info"><strong>Phone:</strong> ${esc(phone)}</p>` : ""}
+        ${website ? `<p class="card-info"><strong>Website:</strong> ${website}</p>` : ""}
+      </div>
+    `;
+
     grid.appendChild(card);
   });
 }
