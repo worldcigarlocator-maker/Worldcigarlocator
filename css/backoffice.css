@@ -253,6 +253,33 @@ body {
 .badge.store  { background: var(--blue); }
 .badge.lounge { background: var(--gold); color:#000; }
 
+/* === Access badge (for lounges only) === */
+.badge.access {
+  font-size: 0.68rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  opacity: 0.9;
+}
+
+.badge.access.green {
+  background: #28a745; /* Public */
+  color: #fff;
+}
+
+.badge.access.purple {
+  background: #8a2be2; /* Members-only */
+  color: #fff;
+}
+
+.badge.access.gray {
+  background: #666; /* Fallback */
+  color: #fff;
+}
+
+
 
 /* ACTION BUTTONS */
 .actions {
