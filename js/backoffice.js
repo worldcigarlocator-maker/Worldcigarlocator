@@ -52,6 +52,9 @@ document.addEventListener("DOMContentLoaded", () => {
     await showApp();
   });
 
+   console.log("🧩 Auth init – DOM loaded");
+
+
   // kontrollera session vid sidstart
   checkAuth();
 });
