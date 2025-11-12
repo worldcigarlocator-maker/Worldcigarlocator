@@ -2,78 +2,69 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Backoffice V5.2.1 — Moderation + Hierarchy</title>
-
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Fonts & CSS -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/backoffice.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Cigar Locator – Age Verification</title>
+  <link rel="stylesheet" href="css/start.css" />
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #111;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    h1 {
+      color: var(--accent, #c9a227);
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      color: #ccc;
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+    }
+    .btns {
+      display: flex;
+      gap: 1rem;
+    }
+    button {
+      background: var(--accent, #c9a227);
+      border: none;
+      color: #111;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+    button:hover {
+      background: #b38d1f;
+      transform: translateY(-2px);
+    }
+  </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <!-- === TOPBAR === -->
-    <div class="topbar">
-      <div class="left">
-        <button class="btn blue" onclick="location.href='add-store-backoffice.html'">＋ Add Store</button>
-        <button class="btn blue" onclick="location.href='analytics.html'">📊 Analytics</button>
-        <button class="btn blue" onclick="reloadData()">⟲ Reload</button>
-      </div>
-      <div class="version-pill">V5.2.1</div>
-    </div>
-
-    <!-- === FILTERS === -->
-    <div class="filters">
-      <button class="pill" data-tab="all">All</button>
-      <button class="pill" data-tab="approved">Approved</button>
-      <button class="pill active" data-tab="pending">Pending</button>
-      <button class="pill" data-tab="flagged">Flagged</button>
-      <button class="pill" data-tab="deleted">Trash</button>
-      <button class="pill" data-tab="repair">Needs Repair</button>
-    </div>
-
-    <!-- === SEARCH & VIEW === -->
-    <div class="searchbar">
-      <input id="searchInput" placeholder="Search by name, city, country…" />
-      <div class="viewtoggle">
-        <span class="seg active" data-view="cards">Cards</span>
-        <span class="seg" data-view="list">List</span>
-      </div>
-    </div>
-
-    <!-- === CARD VIEW === -->
-    <div id="cards" class="grid"></div>
-
-    <!-- === LIST VIEW === -->
-    <div class="listview-wrap" style="display:none;">
-      <div id="hierarchyPanel" class="hierarchy-panel"></div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Country</th>
-              <th>Continent</th>
-              <th>City</th>
-              <th>Type</th>
-              <th>Access</th>
-              <th>Rating</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-    </div>
+  <h1>Welcome to World Cigar Locator</h1>
+  <p>You must be 18 years or older to enter.</p>
+  <div class="btns">
+    <button onclick="enterSite()">Yes, I’m 18+</button>
+    <button onclick="denyAccess()">No</button>
   </div>
 
-  <div id="toast-container"></div>
-
-  <!-- JS sist -->
-  <script src="js/backoffice.js"></script>
+  <script>
+    function enterSite() {
+      window.location.href = "start.html"; // 👉 den publika front-end sidan
+    }
+    function denyAccess() {
+      document.body.innerHTML = "<h2>Sorry, you must be 18+ to access this site.</h2>";
+    }
+  </script>
 </body>
 </html>
