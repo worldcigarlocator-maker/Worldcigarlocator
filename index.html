@@ -5,6 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>World Cigar Locator – Age Verification</title>
   <link rel="stylesheet" href="css/start.css" />
+
+<script>
+  const correctPassword = "jockefylla";
+  const stored = sessionStorage.getItem("wclAccess");
+
+  if (stored !== correctPassword) {
+    const input = prompt("🔒 Enter password to access World Cigar Locator:");
+    if (input !== correctPassword) {
+      alert("Access denied.");
+      window.location.href = "https://google.com";
+    } else {
+      sessionStorage.setItem("wclAccess", correctPassword);
+    }
+  }
+</script>
+
+  
   <style>
     body {
       margin: 0;
@@ -57,7 +74,7 @@
     <button onclick="enterSite()">Yes, I’m 18+</button>
     <button onclick="denyAccess()">No</button>
   </div>
-
+  
   <script>
     function enterSite() {
       window.location.href = "start.html"; // 👉 den publika front-end sidan
