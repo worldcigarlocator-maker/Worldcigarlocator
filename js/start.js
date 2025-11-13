@@ -2,6 +2,8 @@
    start.js — World Cigar Locator (Frontend v7.2 – auth + reviews)
    ============================================================ */
 
+import { renderCards } from "./cards.js";
+
 /* ================== Supabase setup ================== */
 const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 const SUPABASE_ANON_KEY =
@@ -166,7 +168,7 @@ async function loadStores(filter = {}, searchTerm = "") {
   else if (filter.continent) {
     const { data: all } = await query;
     const filtered = all.filter((s)=> getContinentFromCountry(s.country) === filter.continent);
-    renderStoreCards(filtered);      // <-- från cards.js
+    renderCards(filtered);      // <-- från cards.js
     return;
   }
 
@@ -177,221 +179,7 @@ async function loadStores(filter = {}, searchTerm = "") {
   }
 
   const { data: stores } = await query;
-  renderStoreCards(stores);          // <-- från cards.js
-}
-
-
-/* ============================================================
-   Render Store Cards – Backoffice layout, dark theme
-   ============================================================ */
-function renderStoreCards(stores) {
-  const grid = document.getElementById("storeGrid");
-  if (!grid) return;
-  grid.innerHTML = "";
-
-  stores.forEach((s) => {
-    const card = document.createElement("div");
-    card.className = "store-card";
-
-    /* -------- BILD -------- */
-    const imgSrc = s.photo_reference
-      ? buildPhotoProxyUrl(s.photo_reference, 800)
-      : "images/store.jpg";
-
-    const img = document.createElement("img");
-    img.className = "store-img";
-    img.src = imgSrc;
-    img.alt = esc(s.name || "");
-    card.appendChild(img);
-
-    /* -------- BODY -------- */
-    const body = document.createElement("div");
-    body.className = "card-body";
-
-    /* 1) TYPE BADGES + ACCESS (överst) */
-    const badgeWrap = document.createElement("div");
-    badgeWrap.className = "badge-wrap";
-
-    const types = Array.isArray(s.types)
-      ? s.types
-      : (s.type ? s.type.split(",").map(t => t.trim().toLowerCase()) : []);
-
-    if (types.length) {
-      types.forEach((tRaw) => {
-        const t = tRaw.toLowerCase();
-        if (t !== "store" && t !== "lounge") return;
-
-        const span = document.createElement("span");
-        span.className = `type-badge-inline ${t}`;
-        span.textContent = t.toUpperCase();
-        badgeWrap.appendChild(span);
-
-        // access badge direkt efter LOUNGE
-        if (t === "lounge" && s.access) {
-          const acc = document.createElement("span");
-          acc.className = "badge-access " + (
-            s.access === "public"
-              ? "public"
-              : s.access === "members"
-              ? "members"
-              : "other"
-          );
-          acc.textContent = s.access.toUpperCase();
-          badgeWrap.appendChild(acc);
-        }
-      });
-    }
-
-    if (!badgeWrap.children.length) {
-      // visa ändå något så raderna håller sin plats
-      const span = document.createElement("span");
-      span.className = "type-badge-inline";
-      span.textContent = "–";
-      badgeWrap.appendChild(span);
-    }
-
-    body.appendChild(badgeWrap);
-
-    /* 2) TITEL – exakt 2 rader */
-    const titleWrap = document.createElement("div");
-    titleWrap.className = "title-wrap";
-    const h3 = document.createElement("h3");
-    h3.className = "card-title";
-    h3.textContent = s.name || "";
-    titleWrap.appendChild(h3);
-    body.appendChild(titleWrap);
-
-    /* 3) STJÄRNOR */
-    const ratingRow = document.createElement("div");
-    ratingRow.className = "rating-stars";
-    const baseRating = Math.round(Number(s.rating) || 0);
-    ratingRow.textContent = Array.from({ length: 5 })
-      .map((_, i) => (i < baseRating ? "★" : "☆"))
-      .join("");
-    body.appendChild(ratingRow);
-
-    /* 4) FLAGGA + LOCATION + CONTINENT-LINE */
-    const loc = document.createElement("div");
-    loc.className = "locrow";
-
-    const locTop = document.createElement("div");
-    locTop.className = "loc-top";
-
-    const flagData = flagURL(s.country);
-    if (flagData) {
-      const flagImg = document.createElement("img");
-      flagImg.className = "flag";
-      flagImg.src = flagData.svgUrl;
-      flagImg.alt = esc(s.country || "");
-      flagImg.onerror = function () {
-        this.style.display = "none";
-        const span = document.createElement("span");
-        span.className = "flag-fallback";
-        span.textContent = flagData.flagEmoji;
-        this.parentNode.insertBefore(span, this.nextSibling);
-      };
-      locTop.appendChild(flagImg);
-    }
-
-    const geo = document.createElement("span");
-    geo.className = "loc-text";
-    const parts = [];
-    if (s.country) parts.push(s.country);
-    if (s.state) parts.push(s.state);
-    if (s.city) parts.push(s.city);
-    geo.textContent = parts.join(", ");
-    locTop.appendChild(geo);
-    loc.appendChild(locTop);
-
-    const continent = s.continent || getContinentFromCountry(s.country);
-    if (continent) {
-      const contLine = document.createElement("div");
-      contLine.className = "continent-line";
-      contLine.textContent = continent.toUpperCase();
-      loc.appendChild(contLine);
-    }
-
-    body.appendChild(loc);
-
-    /* 5) INFOBLOCK – Address / Phone / Website */
-    const info = document.createElement("div");
-    info.className = "infoblock";
-
-    const addrP = document.createElement("p");
-    addrP.innerHTML =
-      `<strong>Address:</strong> ` +
-      `<span class="truncate">${esc(s.address || (s.city || s.country || "–"))}</span>`;
-    info.appendChild(addrP);
-
-    const phoneP = document.createElement("p");
-    phoneP.innerHTML =
-      `<strong>Phone:</strong> ${esc(s.phone || "–")}`;
-    info.appendChild(phoneP);
-
-    const webP = document.createElement("p");
-    if (s.website) {
-      const safeUrl = esc(s.website);
-      webP.innerHTML =
-        `<strong>Website:</strong> ` +
-        `<a href="${safeUrl}" target="_blank" rel="noopener">Visit</a>`;
-    } else {
-      webP.innerHTML = `<strong>Website:</strong> –`;
-    }
-    info.appendChild(webP);
-
-    body.appendChild(info);
-
-    /* 6) VIEW COMMENTS / RATING-LÄNK (öppnar samma modal) */
-    const reviewsLink = document.createElement("div");
-    reviewsLink.className = "reviewslink";
-    const reviewsBtn = document.createElement("button");
-    reviewsBtn.type = "button";
-    reviewsBtn.className = "btn-ghost-small";
-    reviewsBtn.textContent = "💬 View comments / rating";
-    reviewsLink.appendChild(reviewsBtn);
-    body.appendChild(reviewsLink);
-
-    card.appendChild(body);
-
-    /* --- DATASET till modal --- */
-    card.dataset.id = s.id; // bigint
-    card.dataset.name = s.name || "";
-    card.dataset.address = s.address || "";
-    card.dataset.city = s.city || "";
-    card.dataset.country = s.country || "";
-    card.dataset.phone = s.phone || "";
-    card.dataset.website = s.website || "";
-    card.dataset.img = imgSrc;
-
-    grid.appendChild(card);
-
-    /* --- EVENTS --- */
-
-    // Hela kortet → öppna modal
-    card.addEventListener("click", () => {
-      if (typeof openStoreModal === "function") {
-        openStoreModal(card);
-      }
-    });
-
-    // Visit-länk: stoppa bubblan så kortet inte öppnar modal
-    if (s.website) {
-      const link = webP.querySelector("a");
-      if (link) {
-        link.addEventListener("click", (e) => {
-          e.stopPropagation();
-        });
-      }
-    }
-
-    // View comments-knappen → samma modal
-    reviewsBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (typeof openStoreModal === "function") {
-        openStoreModal(card);
-      }
-    });
-  });
+  renderCards(stores);          // <-- från cards.js
 }
 
 
