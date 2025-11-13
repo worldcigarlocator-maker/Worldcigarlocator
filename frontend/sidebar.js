@@ -1,143 +1,144 @@
 /* ============================================================
-   FRONTEND SIDEBAR (v8)
-   Hierarki: CONTINENT → COUNTRY → CITY
-   ============================================================ */
+   sidebar.js — Frontend v8
+   Build Continent → Country → City Browser
+   Uses stores_public (lite, snabb, frontend-optimerad)
+============================================================ */
 
 import { getContinentFromCountry } from "./globals.js";
-import { loadStores } from "./start.js";
 
-/* Helper */
-function el(tag, cls, html){
+/* Quick helper */
+function el(tag, cls, html) {
   const e = document.createElement(tag);
   if (cls) e.className = cls;
   if (html) e.innerHTML = html;
   return e;
 }
 
-/* ============================================================
-   Build hierarchical sidebar
-   ============================================================ */
-export async function buildFrontendSidebar() {
-
+/* ------------------------------------------------------------
+   MAIN EXPORT
+------------------------------------------------------------ */
+export async function buildFrontendSidebar(loadStoresFn) {
   const menu = document.getElementById("sidebarMenu");
   if (!menu) return;
 
-  // loading placeholder
-  menu.innerHTML = `<li style="color:#888;padding:6px 12px;">Loading…</li>`;
+  menu.innerHTML = `<li style="color:#888;padding:4px 8px;">Loading…</li>`;
 
-  // Load all stores (id, name, city, country)
+  /* ============================================================
+     1. Fetch only small dataset from stores_public
+  ============================================================ */
   const { data, error } = await window.supabase
     .from("stores_public")
-    .select("id, name, city, country, continent");
+    .select("id, name, city, country");
 
   if (error || !data) {
-    menu.innerHTML = `<li style="color:#f55;padding:6px 12px;">Failed to load</li>`;
+    menu.innerHTML = `<li style="color:#f55">Failed to load</li>`;
     return;
   }
 
   /* ============================================================
-     Group stores → continent → country → city
-     ============================================================ */
+     2. Group into continent → country → city
+  ============================================================ */
   const grouped = {};
 
   data.forEach((s) => {
     const cont = getContinentFromCountry(s.country);
-    const country = s.country || "Unknown";
-    const city = s.city || "Unknown";
-
     if (!grouped[cont]) grouped[cont] = {};
+
+    const country = s.country || "Unknown";
     if (!grouped[cont][country]) grouped[cont][country] = {};
+
+    const city = s.city || "Unknown";
     if (!grouped[cont][country][city]) grouped[cont][country][city] = [];
 
     grouped[cont][country][city].push(s);
   });
 
   /* ============================================================
-     Render hierarchy
-     ============================================================ */
+     3. Build sidebar DOM
+  ============================================================ */
   menu.innerHTML = "";
 
   Object.entries(grouped)
     .sort(([a],[b]) => a.localeCompare(b))
     .forEach(([continent, countries]) => {
 
-      /* --- CONTINENT BUTTON --- */
-      const countCont = Object.values(countries)
-        .reduce((acc, ctry) => acc + Object.values(ctry).reduce((a,b)=>a+b.length,0), 0);
-
+      /* --------- CONTINENT LINE --------- */
       const contBtn = el(
         "button",
         "line continent",
-        `<span class="arrow">▶</span>
-         <span class="label">${continent}</span>
-         <span class="pill">${countCont}</span>`
+        `
+          <span class="arrow">▶</span>
+          <span class="label">${continent}</span>
+          <span class="pill">${
+            Object.values(countries).reduce(
+              (acc, cities) => acc + Object.values(cities).reduce((a,b) => a + b.length, 0),
+              0
+            )
+          }</span>
+        `
       );
 
-      const contNested = el("div", "nested");
+      const contWrap = el("div", "nested");
 
       contBtn.addEventListener("click", () => {
-        const opened = contNested.classList.toggle("show");
-        contBtn.classList.toggle("open", opened);
-        contBtn.querySelector(".arrow").style.transform =
-          opened ? "rotate(90deg)" : "rotate(0deg)";
+        const isOpen = contWrap.classList.toggle("show");
+        contBtn.classList.toggle("open", isOpen);
+        contBtn.querySelector(".arrow").style.transform = isOpen ? "rotate(90deg)" : "rotate(0deg)";
 
-        if (opened) loadStores({ continent });
+        if (isOpen) loadStoresFn({ continent });
       });
 
-      /* --- COUNTRIES --- */
+      /* --------- COUNTRIES --------- */
       Object.entries(countries)
         .sort(([a],[b]) => a.localeCompare(b))
         .forEach(([country, cities]) => {
 
-          const countCountry = Object.values(cities)
-            .reduce((a,b) => a + b.length, 0);
-
-          const cBtn = el(
+          const countryBtn = el(
             "button",
             "line country",
-            `<span class="arrow">▶</span>
-             <span class="label">${country}</span>
-             <span class="pill">${countCountry}</span>`
+            `
+              <span class="arrow">▶</span>
+              <span class="label">${country}</span>
+              <span class="pill">${
+                Object.values(cities).reduce((a,b) => a + b.length, 0)
+              }</span>
+            `
           );
 
-          const cityNested = el("div", "nested");
+          const cityWrap = el("div", "nested");
 
-          cBtn.addEventListener("click", (ev) => {
-            ev.stopPropagation();
-            const opened = cityNested.classList.toggle("show");
-            cBtn.classList.toggle("open", opened);
-            cBtn.querySelector(".arrow").style.transform =
-              opened ? "rotate(90deg)" : "rotate(0deg)";
+          countryBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isOpen = cityWrap.classList.toggle("show");
+            countryBtn.classList.toggle("open", isOpen);
+            countryBtn.querySelector(".arrow").style.transform = isOpen ? "rotate(90deg)" : "rotate(0deg)";
 
-            if (opened) loadStores({ country });
+            if (isOpen) loadStoresFn({ country });
           });
 
-          /* --- CITIES --- */
+          /* --------- CITIES --------- */
           Object.entries(cities)
             .sort(([,a],[,b]) => b.length - a.length)
-            .forEach(([city, items]) => {
+            .forEach(([city, arr]) => {
 
               const cityBtn = el(
                 "button",
                 "line city",
-                `<span class="label">${city}</span>
-                 <span class="pill">${items.length}</span>`
+                `<span class="label">${city}</span><span class="pill">${arr.length}</span>`
               );
 
-              cityBtn.addEventListener("click", (ev) => {
-                ev.stopPropagation();
-                document.querySelector(".main").scrollIntoView({ behavior:"smooth" });
-                loadStores({ city });
+              cityBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                document.querySelector(".main").scrollIntoView({ behavior: "smooth" });
+                loadStoresFn({ city });
               });
 
-              cityNested.appendChild(cityBtn);
+              cityWrap.appendChild(cityBtn);
             });
 
-          contNested.appendChild(cBtn);
-          contNested.appendChild(cityNested);
+          contWrap.append(countryBtn, cityWrap);
         });
 
-      menu.appendChild(contBtn);
-      menu.appendChild(contNested);
+      menu.append(contBtn, contWrap);
     });
 }
