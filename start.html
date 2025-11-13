@@ -9,6 +9,33 @@
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
+  <!-- Store Modal -->
+<div id="storeModal" class="modal" aria-hidden="true">
+  <div class="modal-content" role="dialog" aria-modal="true">
+    <button class="modal-close" aria-label="Close">&times;</button>
+    <img id="mPhoto" alt="" />
+    <h2 id="mTitle"></h2>
+    <p id="mAddress" class="m-line"></p>
+    <p id="mLocation" class="m-line"></p>
+
+    <div class="m-rating">
+      <button class="star" data-v="1">★</button>
+      <button class="star" data-v="2">★</button>
+      <button class="star" data-v="3">★</button>
+      <button class="star" data-v="4">★</button>
+      <button class="star" data-v="5">★</button>
+      <small id="mRatingNote">(click to rate – mock)</small>
+    </div>
+
+    <textarea id="mComment" placeholder="Leave a comment… (mock)"></textarea>
+    <div class="m-actions">
+      <button id="mVisit" class="btn">Visit</button>
+      <button id="mSave" class="btn outline">Save comment (mock)</button>
+    </div>
+  </div>
+</div>
+
 <body>
   <div class="container">
     <!-- Sidebar -->
