@@ -1,130 +1,112 @@
 /* ============================================================
-   Cards (Frontend) — Backoffice layout, dark theme
+   FRONTEND — FIXED CARD LAYOUT (265px) — MATCH BACKOFFICE
    ============================================================ */
 
-/* GRID */
 .store-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 270px); /* fasta kort */
+  grid-template-columns: repeat(auto-fill, 265px);
   gap: 1rem;
-  justify-content: flex-start;  /* så ett kort inte stretchar */
-  align-items: flex-start;
+  justify-content: start;
+  align-items: start;
 }
 
-/* KORT */
+/* Card */
 .store-card {
-  width: 270px;
-  min-height: 420px;              /* 🔒 samma höjd-känsla som backoffice */
-  background: var(--card, #111);
-  border-radius: 10px;
-  border: 1px solid var(--border, #2a2a2a);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-  color: #eee;
+  width: 265px;
+  min-height: 420px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: transform .15s, box-shadow .15s;
-  cursor: pointer;
-}
-.store-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.55);
+  transition: transform .18s ease, box-shadow .18s ease;
 }
 
-/* BILD */
+.store-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 14px rgba(0,0,0,.2);
+}
+
+/* Photo */
 .store-img {
   width: 100%;
-  height: 150px;
+  height: 160px;
   object-fit: cover;
-  background: #000;
 }
 
-/* BODY */
-.card-body {
-  padding: 0.8rem 0.9rem 0.85rem;
+/* Card body */
+.store-body {
+  flex: 1;
+  padding: 0.8rem 1rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;   /* toppen + botten håller ihop */
-  gap: 0.35rem;
-  flex: 1;
+  justify-content: space-between;
 }
 
-/* BADGES RAD (typ + access) */
-.badge-wrap {
+/* Title */
+.store-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2rem;
+  margin: 0 0 0.4rem 0;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  min-height: 2.4rem;
+}
+
+/* Badges */
+.badge-row {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.4rem;
 }
 
-.type-badge-inline {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0.18rem 0.5rem;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: #fff;
-}
-
-.type-badge-inline.store  { background: #007bff; }
-.type-badge-inline.lounge { background: #ffc107; color:#111; }
-
-/* access-badges (för lounges) */
-.badge-access {
-  font-size: 0.68rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: 6px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  opacity: 0.9;
-}
-.badge-access.public  { background:#28a745; color:#fff; }
-.badge-access.members { background:#8a2be2; color:#fff; }
-.badge-access.other   { background:#666;   color:#fff; }
-
-/* TITEL – alltid två rader */
-.title-wrap {
-  min-height: 2.6em;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.card-title {
-  font-size: 0.98rem;
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: .75rem;
   font-weight: 600;
-  color: #fff;
-  line-height: 1.25;
-  margin: 0;
+  text-transform: capitalize;
 }
 
-/* STJÄRNOR */
-.rating-stars {
-  color: var(--accent, #c9a227);
-  font-size: 1rem;
+.badge.blue  { background: var(--blue); }
+.badge.gold  { background: var(--gold); color: #000; }
+.badge.green { background: var(--green); }
+.badge.red   { background: var(--red); }
+.badge.gray  { background: var(--gray); }
+
+/* Access badge */
+.badge.access {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: .7rem;
 }
 
-/* FLAGGA + LOCATION + CONTINENT */
+.badge.access.green  { background: #28a745; }
+.badge.access.purple { background: #8a2be2; }
+.badge.access.gray   { background: #555; }
+
+/* Location group */
 .locrow {
+  margin: .4rem 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.25rem;
-  margin: 0.2rem 0 0.35rem;
+  gap: .3rem;
 }
 
 .loc-top {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.9rem;
+  gap: .4rem;
   font-weight: 600;
-  color: var(--accent, #c9a227);
+  font-size: .9rem;
 }
 
 .flag {
@@ -132,89 +114,69 @@
   height: 12px;
   border-radius: 2px;
   object-fit: cover;
-  box-shadow: 0 0 1px rgba(0,0,0,0.4);
-}
-
-.flag-fallback {
-  font-size: 1rem;
-  line-height: 1;
-}
-
-.loc-text {
-  color: var(--accent, #c9a227);
 }
 
 .continent-line {
-  color: #b5b5b5;
-  font-weight: 500;
+  font-size: .8rem;
+  color: #bbb;
   text-transform: uppercase;
-  font-size: 0.8rem;
-  letter-spacing: 0.4px;
-  margin-left: 22px;  /* linjera med text efter flaggan */
+  margin-left: 22px;
 }
 
-/* INFO-BLOCK (Address / Phone / Website) */
+/* Info block (Address, Phone, Website) */
 .infoblock {
+  margin-top: .4rem;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  margin-top: 2px;
-  font-size: 0.83rem;
 }
 
 .infoblock p {
-  margin: 0;
-  color: #ccc;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #ddd;
+  margin: 0;
+  font-size: .85rem;
 }
 
-.infoblock strong {
-  color: var(--accent, #c9a227);
-  margin-right: 4px;
+/* Even empty lines reserve space */
+.infoblock p:empty::after {
+  content: " ";
+  opacity: 0;
+  display: block;
+  height: 1.1rem;
 }
 
+/* Website link */
 .infoblock a {
-  color: #4da3ff;
+  color: var(--blue);
   text-decoration: none;
 }
 .infoblock a:hover {
   text-decoration: underline;
 }
 
-/* TRUNCATE INLINE-SPAN (främst address) */
-.truncate {
-  display: inline;
-  max-width: 150px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: bottom;
-}
-
-/* REVIEWS-LÄNK (View comments / rating) */
-.reviewslink {
-  margin-top: 0.4rem;
-}
-.reviewslink .btn {
-  padding: 0.25rem 0.55rem;
-  font-size: 0.76rem;
+/* Reviews button */
+.review-btn {
+  margin-top: 6px;
+  font-size: .8rem;
+  padding: .25rem .5rem;
   border-radius: 6px;
 }
 
-/* LITEN "GHOST"-STIL KNAPP (använder din btn.outline-bas) */
-.btn-ghost-small {
-  background: transparent;
-  color: #ddd;
-  border: 1px solid #444;
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
-  font-size: 0.78rem;
+/* Status row */
+.status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: .5rem;
+  font-size: .8rem;
+}
+
+/* Rating */
+.rating-chip {
+  margin-left: auto;
+  color: #aaa;
   font-weight: 600;
-  cursor: pointer;
-}
-.btn-ghost-small:hover {
-  border-color: var(--accent, #c9a227);
-  color: #fff;
 }
