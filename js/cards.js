@@ -1,64 +1,58 @@
-/* ============================================================
-   FRONTEND — CARDS RENDERER (Backoffice-matching)
-   ============================================================ */
-
-import { WCL, flagURL, photoURL } from "./globals.js";
-
-export function renderCards(list) {
+export function renderStoreCards(stores) {
   const grid = document.getElementById("storeGrid");
-  if (!grid) return;
-
   grid.innerHTML = "";
 
-  list.forEach((s) => {
+  stores.forEach((s) => {
     const card = document.createElement("div");
     card.className = "store-card";
 
-    /* ===================== PHOTO ===================== */
+    /* IMAGE */
     const img = document.createElement("img");
     img.className = "store-img";
-    img.src = photoURL(s.photo_reference, 800);
-    img.onerror = () => (img.src = WCL.FALLBACK_IMG);
+    img.src = s.photo_reference
+      ? buildPhotoProxyUrl(s.photo_reference, 800)
+      : "images/store.jpg";
     card.appendChild(img);
 
-    /* ===================== BODY ====================== */
+    /* BODY */
     const body = document.createElement("div");
     body.className = "store-body";
 
-    /* ===== Title (2 lines) ===== */
+    /* TITLE */
     const title = document.createElement("h3");
     title.className = "store-title";
     title.textContent = s.name || "Unnamed";
     body.appendChild(title);
 
-    /* ===== Type badges ===== */
+    /* BADGES (store / lounge + access) */
     const badgeRow = document.createElement("div");
     badgeRow.className = "badge-row";
 
     const types = Array.isArray(s.types)
       ? s.types
-      : s.type
-      ? [s.type]
-      : [];
+      : s.type ? [s.type] : [];
 
     types.forEach((t) => {
-      const b = document.createElement("span");
-      b.className = `badge ${
-        t === "store" ? "blue" : t === "lounge" ? "gold" : "gray"
-      }`;
-      b.textContent = t;
-      badgeRow.appendChild(b);
+      const span = document.createElement("span");
+      span.className =
+        "badge " +
+        (t === "store"
+          ? "blue"
+          : t === "lounge"
+          ? "gold"
+          : "gray");
+      span.textContent = t.toUpperCase();
+      badgeRow.appendChild(span);
 
-      // Access after lounge
       if (t === "lounge" && s.access) {
         const acc = document.createElement("span");
-        acc.className = `badge access ${
-          s.access === "public"
+        acc.className =
+          "badge access " +
+          (s.access === "public"
             ? "green"
             : s.access === "members"
             ? "purple"
-            : "gray"
-        }`;
+            : "gray");
         acc.textContent = s.access.toUpperCase();
         badgeRow.appendChild(acc);
       }
@@ -66,75 +60,72 @@ export function renderCards(list) {
 
     body.appendChild(badgeRow);
 
-    /* ===== Location ===== */
+    /* RATING (★) */
+    const rating = document.createElement("div");
+    rating.className = "rating-stars";
+    const r = Math.round(Number(s.rating) || 0);
+    rating.textContent =
+      "★".repeat(r) + "☆".repeat(5 - r);
+    body.appendChild(rating);
+
+    /* LOCATION */
     const loc = document.createElement("div");
     loc.className = "locrow";
 
     const top = document.createElement("div");
     top.className = "loc-top";
 
-    const flag = flagURL(s.country, s.country_iso2);
+    const flag = flagURL(s.country);
     if (flag) {
       const f = document.createElement("img");
       f.className = "flag";
-      f.src = flag;
+      f.src = flag.svgUrl;
       top.appendChild(f);
     }
 
     const geo = document.createElement("span");
-    geo.textContent = `${s.country || "-"}, ${s.city || "-"}`;
+    geo.textContent = `${s.country || ""}, ${s.city || ""}`;
     top.appendChild(geo);
-
     loc.appendChild(top);
 
-    if (s.continent) {
-      const cont = document.createElement("div");
-      cont.className = "continent-line";
-      cont.textContent = s.continent;
-      loc.appendChild(cont);
-    }
+    const cont = document.createElement("div");
+    cont.className = "continent-line";
+    cont.textContent = (s.continent || getContinentFromCountry(s.country)).toUpperCase();
+    loc.appendChild(cont);
 
     body.appendChild(loc);
 
-    /* ===== Info block ===== */
+    /* INFOBLOCK */
     const info = document.createElement("div");
     info.className = "infoblock";
-
     info.innerHTML = `
       <p><strong>Address:</strong> ${s.address || "–"}</p>
       <p><strong>Phone:</strong> ${s.phone || "–"}</p>
       <p><strong>Website:</strong> ${
-        s.website
-          ? `<a href="${s.website}" target="_blank">Visit</a>`
-          : "–"
+        s.website ? `<a href="${s.website}" target="_blank">Visit</a>` : "–"
       }</p>
     `;
-
     body.appendChild(info);
 
-    /* ===== Reviews button ===== */
-    const reviewsBtn = document.createElement("button");
-    reviewsBtn.className = "btn small ghost review-btn";
-    reviewsBtn.textContent = "💬 View Comments";
-    reviewsBtn.onclick = () => openStoreModal(s);
-    body.appendChild(reviewsBtn);
+    /* DIVIDER */
+    const divider = document.createElement("div");
+    divider.className = "card-divider";
+    body.appendChild(divider);
 
-    /* ===== Status row ===== */
-    const statusRow = document.createElement("div");
-    statusRow.className = "status-row";
+    /* COMMENTS BUTTON */
+    const btn = document.createElement("button");
+    btn.className = "review-btn";
+    btn.textContent = "💬 View Comments";
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openStoreModal(s);
+    });
+    body.appendChild(btn);
 
-    if (s.approved) statusRow.innerHTML += `<span class="badge green">APPROVED</span>`;
-    if (s.flagged)  statusRow.innerHTML += `<span class="badge red">FLAGGED</span>`;
-    if (s.deleted)  statusRow.innerHTML += `<span class="badge gray">DELETED</span>`;
-    if (!s.approved && !s.flagged && !s.deleted)
-      statusRow.innerHTML += `<span class="badge gold">PENDING</span>`;
-
-    statusRow.innerHTML += `<span class="rating-chip">⭐ ${s.rating ?? "–"}</span>`;
-
-    body.appendChild(statusRow);
-
-    /* Attach body */
     card.appendChild(body);
+
+    /* CLICK WHOLE CARD */
+    card.addEventListener("click", () => openStoreModal(s));
 
     grid.appendChild(card);
   });
