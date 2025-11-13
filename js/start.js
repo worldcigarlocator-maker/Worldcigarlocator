@@ -30,11 +30,22 @@ function flagURL(country) {
 
 /* ================== Photo proxy ================== */
 const PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
-function buildPhotoProxyUrl(ref, w=800) { return ref ? `${PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=${w}` : null; }
+function buildPhotoProxyUrl(ref, w=800) {
+  return ref ? `${PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=${w}` : null;
+}
 
 /* ================== Small helpers ================== */
-function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text) e.textContent=text; return e; }
-function esc(str){ return String(str||"").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function el(tag, cls, text){
+  const e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(text) e.textContent = text;
+  return e;
+}
+function esc(str){
+  return String(str||"").replace(/[&<>"']/g,(c)=>(
+    {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]
+  ));
+}
 function qs(id){ return document.getElementById(id); }
 
 function getContinentFromCountry(country){
@@ -56,8 +67,12 @@ let currentUser = null;
 function ensureAuthButton(){
   const bar = document.querySelector(".searchbar");
   if(!bar || qs("authBtn")) return;
-  const btn = el("button","btn outline"); btn.id="authBtn"; btn.textContent="Log in";
-  btn.addEventListener("click", ()=> { currentUser ? signOut() : openAuthModal(); });
+  const btn = el("button","btn outline");
+  btn.id="authBtn";
+  btn.textContent="Log in";
+  btn.addEventListener("click", ()=> {
+    currentUser ? signOut() : openAuthModal();
+  });
   bar.appendChild(btn);
 }
 
@@ -135,7 +150,7 @@ function updateAuthUI(){
 }
 
 /* ============================================================
-   Load & render stores
+   Load stores (cards renderas i /js/cards.js)
    ============================================================ */
 async function loadStores(filter = {}, searchTerm = "") {
   const grid = document.getElementById("storeGrid");
@@ -150,11 +165,14 @@ async function loadStores(filter = {}, searchTerm = "") {
   else if (filter.country) query = query.eq("country", filter.country);
   else if (filter.continent) {
     const { data: all, error } = await query;
-    if (error) { grid.innerHTML = `<p style="color:#c33;text-align:center;">Error loading stores.</p>`; return; }
+    if (error) {
+      grid.innerHTML = `<p style="color:#c33;text-align:center;">Error loading stores.</p>`;
+      return;
+    }
     const filtered = all.filter((s)=> getContinentFromCountry(s.country) === filter.continent);
     heading.textContent = `Latest in ${filter.continent}`;
     showAllBtn.style.display = "inline-block";
-    renderStoreCards(filtered);
+    renderStoreCards(filtered);  // <-- nu definierad i cards.js
     return;
   }
 
@@ -163,244 +181,28 @@ async function loadStores(filter = {}, searchTerm = "") {
   }
 
   const { data: stores, error } = await query;
-  if (error) { console.error(error); grid.innerHTML = `<p style="color:#c33;text-align:center;">Error loading stores.</p>`; return; }
-  if (!stores || stores.length === 0) { grid.innerHTML = `<p style="color:#777;text-align:center;">No stores found.</p>`; return; }
-
-  if (filter.city){ heading.textContent = `Latest in ${filter.city}`; showAllBtn.style.display="inline-block"; }
-  else if (filter.country){ heading.textContent = `Latest in ${filter.country}`; showAllBtn.style.display="inline-block"; }
-  else { heading.textContent = "Latest 20 worldwide"; showAllBtn.style.display="none"; }
-
-  renderStoreCards(stores);
-}
-
-/* ================== Cards ================== */
-function renderStoreCards(stores){
-  const grid = document.getElementById("storeGrid");
-  grid.innerHTML = "";
-
-  stores.forEach((s)=>{
-    const card = document.createElement("div");
-    card.className = "store-card";
-
-    const imgSrc = s.photo_reference ? buildPhotoProxyUrl(s.photo_reference, 800) : "images/store.jpg";
-
-    // type badges
-    const typeList = (s.type||"").split(",").map(t=>t.trim().toLowerCase()).filter(t=>t==="store"||t==="lounge");
-    const badgesHtml = typeList.map(t=>`<span class="type-badge-inline ${t}">${t.toUpperCase()}</span>`).join(" ");
-
-    // rating (from stores table if present). We may override after saving a review.
-    const baseRating = Math.round(Number(s.rating)||0);
-    const stars = Array.from({length:5}).map((_,i)=> i<baseRating ? "★" : "☆").join("");
-
-    // flag + location
-    const flagData = flagURL(s.country);
-    let flagImg = "";
-    if (flagData) {
-      flagImg = `<img src="${flagData.svgUrl}" class="flag" alt="${esc(s.country)}"
-        onerror="this.style.display='none';const span=document.createElement('span');span.className='flag-fallback';span.textContent='${flagData.flagEmoji}';this.parentNode.insertBefore(span,this.nextSibling);">`;
-    }
-    const locationRow = `<div class="locrow">${flagImg}<span class="loc-text">${esc(s.country||"")}${s.city ? ", "+esc(s.city) : ""}</span></div>`;
-
-    // Always render Address / Phone / Website rows (even if empty)
-    const addrText = s.address ? esc(s.address) : "";
-    const phoneText = s.phone ? esc(s.phone) : "";
-    const websiteBtn = s.website ? `<button class="visit-btn" data-url="${esc(s.website)}" type="button">Visit</button>` : "";
-
-    card.innerHTML = `
-      <div class="card-top">
-        <img src="${imgSrc}" alt="${esc(s.name)}" class="store-img" />
-      </div>
-
-      <div class="card-body">
-        <div class="badge-row">${badgesHtml}</div>
-
-        <div class="title-wrap">
-          <h3 class="card-title">${esc(s.name)}</h3>
-        </div>
-
-        <div class="rating-stars">${stars}</div>
-
-        ${locationRow}
-
-        <p class="card-info"><strong>Address:</strong> <span class="truncate">${addrText}</span></p>
-        <p class="card-info"><strong>Phone:</strong> ${phoneText}</p>
-        <p class="card-info"><strong>Website:</strong> ${websiteBtn || ""}</p>
-
-        <div class="card-actions"></div>
-      </div>
-    `;
-
-    // dataset for modal
-    card.dataset.id = s.id; // bigint
-    card.dataset.name = s.name || "";
-    card.dataset.address = s.address || "";
-    card.dataset.city = s.city || "";
-    card.dataset.country = s.country || "";
-    card.dataset.phone = s.phone || "";
-    card.dataset.website = s.website || "";
-    card.dataset.img = imgSrc;
-
-    grid.appendChild(card);
-  });
-
-  // Visit buttons
-  grid.querySelectorAll(".visit-btn").forEach(btn=>{
-    btn.addEventListener("click",(e)=>{
-      e.stopPropagation();
-      const url = e.currentTarget.getAttribute("data-url");
-      if (url) window.open(url, "_blank", "noopener");
-    });
-  });
-
-  // Card click → modal
-  grid.querySelectorAll(".store-card").forEach(card=>{
-    card.addEventListener("click", ()=> openStoreModal(card));
-  });
-}
-
-/* ============================================================
-   Store modal (details + reviews)
-   ============================================================ */
-async function openStoreModal(card){
-  const id = Number(card.dataset.id);
-  const modal = qs("storeModal");
-  const mPhoto = qs("mPhoto");
-  const mTitle = qs("mTitle");
-  const mAddress = qs("mAddress");
-  const mLocation = qs("mLocation");
-  const mVisit = qs("mVisit");
-
-  // Fill basic
-  mPhoto.src = card.dataset.img || "";
-  mTitle.textContent = card.dataset.name || "";
-  mAddress.textContent = `Address: ${card.dataset.address || ""}`.trim();
-  mLocation.textContent = [card.dataset.city, card.dataset.country].filter(Boolean).join(", ");
-
-  // Visit
-  mVisit.onclick = null;
-  if (card.dataset.website){ mVisit.style.display=""; mVisit.addEventListener("click",()=>window.open(card.dataset.website,"_blank","noopener")); }
-  else { mVisit.style.display="none"; }
-
-  // Reviews: load avg + list
-  await renderReviewsSection(id);
-
-  modal.classList.add("show");
-  modal.setAttribute("aria-hidden","false");
-}
-
-async function renderReviewsSection(storeId){
-  // inject a reviews container if not exists
-  let reviewsBox = qs("reviewsBox");
-  if(!reviewsBox){
-    const modal = qs("storeModal").querySelector(".modal-content");
-    reviewsBox = el("div", "reviews-box");
-    reviewsBox.id = "reviewsBox";
-    reviewsBox.innerHTML = `
-      <div id="avgRating" style="margin:.5rem 0 .25rem; font-size:1.05rem;"></div>
-      <div id="reviewsList" style="display:grid;gap:.4rem;margin:.4rem 0;"></div>
-      <div id="reviewComposer" style="margin-top:.6rem;">
-        <div id="starInput" style="margin:.25rem 0;">
-          ${[1,2,3,4,5].map(v=>`<button class="star" data-v="${v}">★</button>`).join("")}
-          <small id="starHint" style="margin-left:.25rem;color:#aaa;"></small>
-        </div>
-        <textarea id="mComment" placeholder="Write a comment… (login required)"></textarea>
-        <div class="m-actions">
-          <button id="mSave" class="btn outline">Post review</button>
-        </div>
-      </div>
-    `;
-    modal.appendChild(reviewsBox);
+  if (error) {
+    console.error(error);
+    grid.innerHTML = `<p style="color:#c33;text-align:center;">Error loading stores.</p>`;
+    return;
+  }
+  if (!stores || stores.length === 0) {
+    grid.innerHTML = `<p style="color:#777;text-align:center;">No stores found.</p>`;
+    return;
   }
 
-  // avg
-  const { data: avgRows, error: avgErr } = await supabase
-    .from("store_reviews")
-    .select("rating")
-    .eq("store_id", storeId);
-
-  let avg = 0;
-  if(!avgErr && avgRows && avgRows.length){
-    avg = avgRows.reduce((a,b)=>a+Number(b.rating||0),0) / avgRows.length;
-  }
-  const stars = Array.from({length:5}).map((_,i)=> i<Math.round(avg) ? "★":"☆").join("");
-  qs("avgRating").innerHTML = `<strong>Rating:</strong> ${stars} <small style="color:#aaa;">(${avgRows?.length||0})</small>`;
-
-  // list latest reviews
-  const { data: revs, error: listErr } = await supabase
-    .from("store_reviews")
-    .select("rating, comment, created_at")
-    .eq("store_id", storeId)
-    .order("created_at", { ascending:false })
-    .limit(5);
-
-  const listEl = qs("reviewsList");
-  listEl.innerHTML = "";
-  if(listErr){ listEl.innerHTML = `<small style="color:#c66;">Failed loading reviews</small>`; }
-  else if(!revs || !revs.length){ listEl.innerHTML = `<small style="color:#aaa;">No reviews yet.</small>`; }
-  else {
-    revs.forEach(r=>{
-      const li = el("div","rev");
-      const s = Array.from({length:5}).map((_,i)=> i<Number(r.rating||0) ? "★":"☆").join("");
-      const dt = r.created_at ? new Date(r.created_at).toLocaleDateString() : "";
-      li.innerHTML = `<div style="display:flex;justify-content:space-between;"><span>${s}</span><small style="color:#777;">${dt}</small></div>${r.comment?`<div style="color:#ddd;">${esc(r.comment)}</div>`:""}`;
-      listEl.appendChild(li);
-    });
+  if (filter.city){
+    heading.textContent = `Latest in ${filter.city}`;
+    showAllBtn.style.display="inline-block";
+  } else if (filter.country){
+    heading.textContent = `Latest in ${filter.country}`;
+    showAllBtn.style.display="inline-block";
+  } else {
+    heading.textContent = "Latest 20 worldwide";
+    showAllBtn.style.display="none";
   }
 
-  // composer (auth-gated)
-  setupComposer(storeId);
-}
-
-function requireLoginOr(fn){
-  if(!currentUser){ openAuthModal(); return; }
-  fn();
-}
-
-function setupComposer(storeId){
-  const stars = Array.from(qs("starInput").querySelectorAll(".star"));
-  const hint = qs("starHint");
-  let selected = 0;
-
-  stars.forEach(btn=>{
-    btn.style.color = "var(--accent, #c9a227)";
-    btn.addEventListener("click", ()=> requireLoginOr(()=>{
-      selected = Number(btn.getAttribute("data-v"));
-      stars.forEach(s=> s.style.opacity = Number(s.getAttribute("data-v")) <= selected ? "1" : ".35");
-      hint.textContent = `You selected ${selected}/5`;
-    }));
-  });
-
-  qs("mSave").onclick = ()=> requireLoginOr(async ()=>{
-    if(!selected){ alert("Choose a rating (1–5)"); return; }
-    const comment = (qs("mComment").value||"").trim();
-
-    const payload = { store_id: storeId, user_id: currentUser.id, rating: selected, comment: comment || null };
-    const { error } = await supabase.from("store_reviews").insert(payload);
-    if(error){ alert(error.message); return; }
-
-    // Reset composer
-    qs("mComment").value = "";
-    stars.forEach(s=> s.style.opacity = ".35"); selected = 0; hint.textContent = "";
-
-    // Re-render reviews (avg + list) and also update stars on the card grid
-    await renderReviewsSection(storeId);
-    updateCardStarsInGrid(storeId);
-  });
-}
-
-async function updateCardStarsInGrid(storeId){
-  // recompute avg from store_reviews
-  const { data, error } = await supabase.from("store_reviews").select("rating").eq("store_id", storeId);
-  if(error) return;
-  const avg = data?.length ? data.reduce((a,b)=>a+Number(b.rating||0),0)/data.length : 0;
-  const stars = Array.from({length:5}).map((_,i)=> i<Math.round(avg) ? "★":"☆").join("");
-
-  // find the card and replace the stars row
-  const card = Array.from(document.querySelectorAll(".store-card")).find(c=> Number(c.dataset.id)===Number(storeId));
-  if(card){
-    const row = card.querySelector(".rating-stars");
-    if(row) row.textContent = stars;
-  }
+  renderStoreCards(stores);   // <-- från cards.js
 }
 
 /* ============================================================
@@ -410,8 +212,13 @@ async function buildSidebar() {
   const menu = document.getElementById("sidebarMenu");
   if (!menu) return;
   menu.innerHTML = `<li style="color:#999">Loading…</li>`;
-  const { data: stores, error } = await supabase.from("stores_public").select("id,name,city,country");
-  if (error || !stores) { menu.innerHTML = `<li style="color:#f56">Failed to load data</li>`; return; }
+  const { data: stores, error } = await supabase
+    .from("stores_public")
+    .select("id,name,city,country");
+  if (error || !stores) {
+    menu.innerHTML = `<li style="color:#f56">Failed to load data</li>`;
+    return;
+  }
 
   const grouped = {};
   for (const s of stores) {
@@ -428,7 +235,10 @@ async function buildSidebar() {
   Object.entries(grouped).sort(([a],[b])=>a.localeCompare(b)).forEach(([continent, countries])=>{
     const line = el("button","line continent");
     line.innerHTML = `<span class="arrow">▶</span><span class="label">${continent}</span><span class="pill">${
-      Object.values(countries).reduce((acc,c)=> acc + Object.values(c).reduce((a,b)=>a+b.length,0),0)
+      Object.values(countries).reduce(
+        (acc,c)=> acc + Object.values(c).reduce((a,b)=>a+b.length,0),
+        0
+      )
     }</span>`;
     const nested = el("div","nested");
     line.addEventListener("click",()=>{
@@ -472,7 +282,7 @@ async function buildSidebar() {
 
 /* ================== Init ================== */
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ Frontend v7.2 loaded");
+  console.log("✅ Frontend v7.2 (split) loaded");
   ensureAuthButton();
   initAuth();
   buildSidebar();
@@ -488,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
   searchInput?.addEventListener("keypress",(e)=>{ if(e.key==="Enter") loadStores({}, e.target.value.trim()); });
   showAllBtn?.addEventListener("click",()=>{ loadStores(); showAllBtn.style.display="none"; });
 
-  // Close store modal handlers (it already exists in HTML)
+  // Close store modal handlers (modal HTML finns redan i start.html)
   const storeModal = qs("storeModal");
   if(storeModal){
     const closeBtn = storeModal.querySelector(".modal-close");
