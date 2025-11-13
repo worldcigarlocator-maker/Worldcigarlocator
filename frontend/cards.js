@@ -1,39 +1,32 @@
 import { WCL, flagURL, photoURL } from "./globals.js";
 
-export function renderCards(stores = []) {
+export function renderCards(stores) {
   const grid = document.getElementById("storeGrid");
   if (!grid) return;
   grid.innerHTML = "";
-
-  if (!stores.length) {
-    grid.innerHTML =
-      "<p style='color:#999;text-align:center;margin-top:1rem;'>No results found.</p>";
-    return;
-  }
 
   stores.forEach((s) => {
     const card = document.createElement("div");
     card.className = "store-card";
 
-    /* ---------- Photo ---------- */
+    /* PHOTO -------------------------------------------------- */
     const img = document.createElement("img");
     img.className = "store-img";
     img.src = photoURL(s.photo_reference, 800);
-    img.alt = s.name || "";
     img.onerror = () => (img.src = WCL.FALLBACK_IMG);
     card.appendChild(img);
 
-    /* ---------- Body ---------- */
+    /* BODY --------------------------------------------------- */
     const body = document.createElement("div");
     body.className = "store-body";
 
-    /* Name */
+    /* TITLE -------------------------------------------------- */
     const title = document.createElement("h3");
     title.className = "store-title";
     title.textContent = s.name || "Unnamed";
     body.appendChild(title);
 
-    /* Type badges */
+    /* BADGES ------------------------------------------------- */
     const badgeRow = document.createElement("div");
     badgeRow.className = "badge-row";
 
@@ -43,52 +36,41 @@ export function renderCards(stores = []) {
       ? [s.type]
       : [];
 
-    if (types.length) {
-      types.forEach((tRaw) => {
-        const t = String(tRaw).toLowerCase();
-        const b = document.createElement("span");
-        b.className =
-          "badge " +
-          (t === "store"
-            ? "blue"
-            : t === "lounge"
-            ? "gold"
-            : "gray");
-        b.textContent = t;
-        badgeRow.appendChild(b);
+    types.forEach((t) => {
+      const b = document.createElement("span");
+      b.className = `badge ${
+        t === "store" ? "blue" :
+        t === "lounge" ? "gold" : "gray"
+      }`;
+      b.textContent = t.toUpperCase();
+      badgeRow.appendChild(b);
 
-        if (t === "lounge" && s.access) {
-          const acc = document.createElement("span");
-          const val = String(s.access).toLowerCase();
-          acc.className =
-            "badge access " +
-            (val === "public"
-              ? "green"
-              : val === "members"
-              ? "purple"
-              : "gray");
-          acc.textContent = val.toUpperCase();
-          badgeRow.appendChild(acc);
-        }
-      });
-    }
+      if (t === "lounge" && s.access) {
+        const a = document.createElement("span");
+        a.className =
+          "badge access " +
+          (s.access === "public"
+            ? "green"
+            : s.access === "members"
+            ? "purple"
+            : "gray");
+        a.textContent = s.access.toUpperCase();
+        badgeRow.appendChild(a);
+      }
+    });
 
     body.appendChild(badgeRow);
 
-    /* Stars (rating only once!) */
-    const starsRow = document.createElement("div");
-    starsRow.className = "stars-row";
+    /* STARS -------------------------------------------------- */
+    const stars = document.createElement("div");
+    stars.className = "stars";
+
     const rating = Math.round(Number(s.rating) || 0);
+    stars.textContent = "★★★★★☆☆☆☆☆".slice(5 - rating, 10 - rating);
 
-    for (let i = 1; i <= 5; i++) {
-      const span = document.createElement("span");
-      span.className = "star" + (i <= rating ? " filled" : "");
-      span.textContent = "★";
-      starsRow.appendChild(span);
-    }
-    body.appendChild(starsRow);
+    body.appendChild(stars);
 
-    /* Location */
+    /* LOCATION ------------------------------------------------ */
     const loc = document.createElement("div");
     loc.className = "locrow";
 
@@ -100,72 +82,60 @@ export function renderCards(stores = []) {
       const f = document.createElement("img");
       f.className = "flag";
       f.src = flagSrc;
-      f.alt = s.country || "";
-      f.onerror = () => (f.style.display = "none");
       top.appendChild(f);
     }
 
-    const countrySpan = document.createElement("span");
-    countrySpan.className = "loc-country";
-    countrySpan.textContent = s.country || "Unknown";
-    top.appendChild(countrySpan);
+    const geo = document.createElement("span");
+    geo.textContent = [s.country, s.state, s.city].filter(Boolean).join(", ");
+    top.appendChild(geo);
 
     loc.appendChild(top);
 
     if (s.continent) {
-      const cont = document.createElement("div");
-      cont.className = "loc-continent";
-      cont.textContent = String(s.continent).toUpperCase();
-      loc.appendChild(cont);
+      const c = document.createElement("div");
+      c.className = "continent-line";
+      c.textContent = s.continent.toUpperCase();
+      loc.appendChild(c);
     }
 
     body.appendChild(loc);
 
-    /* Info block */
+    /* INFO BLOCK -------------------------------------------- */
     const info = document.createElement("div");
     info.className = "infoblock";
 
-    const addr = document.createElement("p");
-    addr.innerHTML = `<strong>Address:</strong> <span>${s.address || "–"}</span>`;
-    info.appendChild(addr);
-
-    const phone = document.createElement("p");
-    phone.innerHTML = `<strong>Phone:</strong> <span>${s.phone || "–"}</span>`;
-    info.appendChild(phone);
-
-    const web = document.createElement("p");
-    if (s.website) {
-      const safeUrl = String(s.website);
-      web.innerHTML = `<strong>Website:</strong> <span><a href="${safeUrl}" target="_blank" rel="noopener">Visit</a></span>`;
-    } else {
-      web.innerHTML = `<strong>Website:</strong> <span>–</span>`;
-    }
-    info.appendChild(web);
-
+    info.innerHTML = `
+      <p><strong>Address:</strong> ${s.address || "–"}</p>
+      <p><strong>Phone:</strong> ${s.phone || "–"}</p>
+      <p><strong>Website:</strong> ${
+        s.website ? `<a href="${s.website}" target="_blank">Visit</a>` : "–"
+      }</p>
+    `;
     body.appendChild(info);
 
-    /* Divider */
-    const divider = document.createElement("div");
-    divider.className = "card-divider";
-    body.appendChild(divider);
+    /* SEPARATOR ---------------------------------------------- */
+    const sep = document.createElement("div");
+    sep.className = "separator";
+    body.appendChild(sep);
 
-    /* Comments button */
-    const commentsRow = document.createElement("div");
-    commentsRow.className = "comments-row";
-
-    const btn = document.createElement("button");
-    btn.className = "btn-comments";
-    btn.type = "button";
-    btn.innerHTML = `<span>💬</span><span>View Comments / Rating</span>`;
-    btn.addEventListener("click", (e) => {
+    /* COMMENTS BUTTON ---------------------------------------- */
+    const reviewsBtn = document.createElement("button");
+    reviewsBtn.className = "reviews-btn";
+    reviewsBtn.textContent = "💬 View comments";
+    reviewsBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (window.openStoreModal) window.openStoreModal(s);
     });
+    body.appendChild(reviewsBtn);
 
-    commentsRow.appendChild(btn);
-    body.appendChild(commentsRow);
+    /* STATUS ROW (ONLY SHOW RATING IN FRONTEND) -------------- */
+    const statusRow = document.createElement("div");
+    statusRow.className = "status-row";
 
-    /* Click hela kortet öppnar samma modal */
+    statusRow.innerHTML = `<span class="rating-chip">⭐ ${s.rating ?? "–"}</span>`;
+    body.appendChild(statusRow);
+
+    /* CLICK WHOLE CARD --------------------------------------- */
     card.addEventListener("click", () => {
       if (window.openStoreModal) window.openStoreModal(s);
     });
@@ -174,4 +144,3 @@ export function renderCards(stores = []) {
     grid.appendChild(card);
   });
 }
-
