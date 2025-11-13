@@ -1,104 +1,100 @@
 /* ============================================================
-   FRONTEND — FIXED CARD LAYOUT (265px) — MATCH BACKOFFICE
+   FRONTEND — PERFECT FIXED CARD LAYOUT (MATCH BACKOFFICE)
    ============================================================ */
 
 .store-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 265px);
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(265px, 265px));
+  gap: 1.2rem;
   justify-content: start;
-  align-items: start;
 }
 
-/* Card */
+/* CARD ----------------------------------------------------- */
 .store-card {
   width: 265px;
-  min-height: 420px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: #0f0f0f;
+  border: 1px solid #333;
+  border-radius: 14px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  height: 520px; /* ← EXAKT SAMMA HÖJD FÖR ALLA */
   transition: transform .18s ease, box-shadow .18s ease;
 }
 
 .store-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 14px rgba(0,0,0,.2);
+  box-shadow: 0 4px 14px rgba(0,0,0,.25);
 }
 
-/* Photo */
+/* PHOTO ---------------------------------------------------- */
 .store-img {
   width: 100%;
-  height: 160px;
+  height: 165px;
   object-fit: cover;
 }
 
-/* Card body */
+/* BODY ----------------------------------------------------- */
 .store-body {
   flex: 1;
-  padding: 0.8rem 1rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  padding: .9rem 1rem;
 }
 
-/* Title */
+/* 1) TITLE -------------------------------------------------- */
 .store-title {
   font-size: 1.05rem;
   font-weight: 700;
   color: #fff;
-  line-height: 1.2rem;
-  margin: 0 0 0.4rem 0;
+  margin: 0 0 .35rem;
 
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
-  min-height: 2.4rem;
+
+  height: 2.4rem; /* EXAKT 2 LINES */
+  line-height: 1.2rem;
 }
 
-/* Badges */
+/* 2) TYPE + ACCESS BADGES --------------------------------- */
 .badge-row {
+  min-height: 22px; /* FIXED BADGE ROW HEIGHT */
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 0.4rem;
+  margin-bottom: .5rem;
 }
 
 .badge {
   display: inline-block;
-  padding: 2px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
   font-size: .75rem;
   font-weight: 600;
-  text-transform: capitalize;
+  text-transform: uppercase;
+  letter-spacing: .3px;
 }
 
-.badge.blue  { background: var(--blue); }
-.badge.gold  { background: var(--gold); color: #000; }
-.badge.green { background: var(--green); }
-.badge.red   { background: var(--red); }
-.badge.gray  { background: var(--gray); }
+.badge.blue  { background: #007bff; }
+.badge.gold  { background: #ffcc33; color: #000; }
+.badge.green { background: #28a745; }
+.badge.red   { background: #dc3545; }
+.badge.gray  { background: #555; color:#ddd; }
 
-/* Access badge */
-.badge.access {
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: .7rem;
-}
+.badge.access.green  { background:#28a745; }
+.badge.access.purple { background:#8a2be2; }
+.badge.access.gray   { background:#555; }
 
-.badge.access.green  { background: #28a745; }
-.badge.access.purple { background: #8a2be2; }
-.badge.access.gray   { background: #555; }
-
-/* Location group */
+/* 3) LOCATION ---------------------------------------------- */
 .locrow {
-  margin: .4rem 0;
+  margin: .25rem 0 .35rem;
   display: flex;
   flex-direction: column;
-  gap: .3rem;
+  gap: .25rem;
+
+  min-height: 46px; /* 2 fixed lines: geo + continent */
 }
 
 .loc-top {
@@ -106,77 +102,67 @@
   align-items: center;
   gap: .4rem;
   font-weight: 600;
-  font-size: .9rem;
+  color: #eee;
+  font-size: .88rem;
 }
 
 .flag {
   width: 18px;
   height: 12px;
   border-radius: 2px;
-  object-fit: cover;
 }
 
 .continent-line {
-  font-size: .8rem;
-  color: #bbb;
-  text-transform: uppercase;
   margin-left: 22px;
+  font-size: .78rem;
+  text-transform: uppercase;
+  color: #bbb;
 }
 
-/* Info block (Address, Phone, Website) */
+/* 4) INFOBLOCK (Always 3 lines) ----------------------------- */
 .infoblock {
-  margin-top: .4rem;
+  margin-top: .2rem;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+
+  min-height: 3.6rem; /* 3 × 1.2rem fixed lines */
 }
 
 .infoblock p {
+  margin: 0;
+  font-size: .83rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #ddd;
-  margin: 0;
-  font-size: .85rem;
+  color: #ccc;
+  line-height: 1.2rem;
 }
 
-/* Even empty lines reserve space */
-.infoblock p:empty::after {
-  content: " ";
-  opacity: 0;
-  display: block;
-  height: 1.1rem;
-}
-
-/* Website link */
 .infoblock a {
-  color: var(--blue);
+  color: #4da3ff;
   text-decoration: none;
 }
-.infoblock a:hover {
-  text-decoration: underline;
-}
+.infoblock a:hover { text-decoration: underline; }
 
-/* Reviews button */
+/* 5) COMMENTS BUTTON ---------------------------------------- */
 .review-btn {
-  margin-top: 6px;
-  font-size: .8rem;
+  margin-top: .4rem;
   padding: .25rem .5rem;
+  font-size: .78rem;
   border-radius: 6px;
+  background: #222;
+  color: #ddd;
+  border: 1px solid #444;
+}
+.review-btn:hover {
+  background: #2d2d2d;
 }
 
-/* Status row */
+/* 6) STATUS + RATING ---------------------------------------- */
 .status-row {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: .5rem;
-  font-size: .8rem;
-}
-
-/* Rating */
-.rating-chip {
-  margin-left: auto;
-  color: #aaa;
-  font-weight: 600;
-}
+  margin-top: auto; /* PUSH TO BOT*
