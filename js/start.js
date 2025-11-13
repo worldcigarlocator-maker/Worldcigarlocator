@@ -292,6 +292,64 @@ grid.appendChild(card);
 });
 }
 
+function qs(id){ return document.getElementById(id); }
+
+function openStoreModal(card){
+  const modal = qs("storeModal");
+  const mPhoto = qs("mPhoto");
+  const mTitle = qs("mTitle");
+  const mAddress = qs("mAddress");
+  const mLocation = qs("mLocation");
+  const mVisit = qs("mVisit");
+
+  mPhoto.src = card.dataset.img || "";
+  mTitle.textContent = card.dataset.name || "";
+  mAddress.textContent = `Address: ${card.dataset.address || ""}`.trim();
+  mLocation.textContent = [card.dataset.city, card.dataset.country].filter(Boolean).join(", ");
+  mVisit.onclick = null;
+
+  if (card.dataset.website){
+    mVisit.style.display = "";
+    mVisit.addEventListener("click", () => window.open(card.dataset.website, "_blank", "noopener"));
+  } else {
+    mVisit.style.display = "none";
+  }
+
+  modal.classList.add("show");
+  modal.setAttribute("aria-hidden","false");
+}
+
+(function initModal(){
+  const modal = document.getElementById("storeModal");
+  const closeBtn = modal.querySelector(".modal-close");
+
+  function close(){
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden","true");
+  }
+
+  closeBtn.addEventListener("click", close);
+  modal.addEventListener("click", (e) => { if(e.target === modal) close(); });
+
+  // Mock rating + kommentar (local-only)
+  const stars = modal.querySelectorAll(".star");
+  const note = document.getElementById("mRatingNote");
+  stars.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const v = btn.getAttribute("data-v");
+      note.textContent = `You selected ${v}/5 (mock)`;
+      stars.forEach(s=> s.style.opacity = Number(s.getAttribute("data-v")) <= v ? "1" : ".35");
+    });
+  });
+
+  document.getElementById("mSave").addEventListener("click", ()=>{
+    const txt = (document.getElementById("mComment").value||"").trim();
+    if(!txt){ alert("Write a comment first."); return; }
+    alert("Saved locally (mock). Hook to Supabase later.");
+  });
+})();
+
+
 
 /* ============================================================
    Sidebar builder
