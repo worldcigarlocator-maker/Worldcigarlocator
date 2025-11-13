@@ -113,7 +113,7 @@ export function renderCards(stores) {
     /* COMMENTS BUTTON */
     const reviewsBtn = document.createElement("button");
     reviewsBtn.className = "reviews-btn";
-    reviewsBtn.textContent = "💬 View Comments";
+    reviewsBtn.textContent = "💬 Comments";
     reviewsBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (window.openStoreModal) window.openStoreModal(s);
