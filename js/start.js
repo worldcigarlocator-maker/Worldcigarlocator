@@ -150,6 +150,38 @@ function updateAuthUI(){
 }
 
 /* ============================================================
+   Load stores (cards renderas i /js/cards.js)
+   ============================================================ */
+async function loadStores(filter = {}, searchTerm = "") {
+  const grid = document.getElementById("storeGrid");
+  const heading = document.getElementById("resultHeading");
+  const showAllBtn = document.getElementById("showAllBtn");
+
+  grid.innerHTML = `<p style="color:#777;text-align:center;">Loading…</p>`;
+
+  let query = supabase.from("stores_public").select("*").order("id",{ascending:false});
+
+  if (filter.city) query = query.eq("city", filter.city);
+  else if (filter.country) query = query.eq("country", filter.country);
+  else if (filter.continent) {
+    const { data: all } = await query;
+    const filtered = all.filter((s)=> getContinentFromCountry(s.country) === filter.continent);
+    renderStoreCards(filtered);      // <-- från cards.js
+    return;
+  }
+
+  if (searchTerm) {
+    query = query.or(
+      `name.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%,country.ilike.%${searchTerm}%`
+    );
+  }
+
+  const { data: stores } = await query;
+  renderStoreCards(stores);          // <-- från cards.js
+}
+
+
+/* ============================================================
    Render Store Cards – Backoffice layout, dark theme
    ============================================================ */
 function renderStoreCards(stores) {
