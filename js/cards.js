@@ -1,91 +1,64 @@
+/* ============================================================
+   FRONTEND — PIXEL-PERFECT BACKOFFICE CARD
+   ============================================================ */
+
 export function renderStoreCards(stores) {
   const grid = document.getElementById("storeGrid");
+  if (!grid) return;
+
   grid.innerHTML = "";
 
   stores.forEach((s) => {
     const card = document.createElement("div");
-    card.className = "store-card";
+    card.className = "card-frontend";
 
-    /* IMAGE */
+    /* ===== PHOTO ===== */
     const img = document.createElement("img");
-    img.className = "store-img";
+    img.className = "card-photo";
     img.src = s.photo_reference
       ? buildPhotoProxyUrl(s.photo_reference, 800)
       : "images/store.jpg";
+    img.onerror = () => (img.src = "images/store.jpg");
     card.appendChild(img);
 
-    /* BODY */
+    /* ===== BODY ===== */
     const body = document.createElement("div");
-    body.className = "store-body";
+    body.className = "card-body";
 
-    /* TITLE */
-    const title = document.createElement("h3");
-    title.className = "store-title";
-    title.textContent = s.name || "Unnamed";
-    body.appendChild(title);
+    /* === TITLE EXACT 2 LINES === */
+    const h3 = document.createElement("h3");
+    h3.className = "card-title";
+    h3.textContent = s.name || "";
+    body.appendChild(h3);
 
-    /* BADGES (store / lounge + access) */
-    const badgeRow = document.createElement("div");
-    badgeRow.className = "badge-row";
-
-    const types = Array.isArray(s.types)
-      ? s.types
-      : s.type ? [s.type] : [];
-
-    types.forEach((t) => {
-      const span = document.createElement("span");
-      span.className =
-        "badge " +
-        (t === "store"
-          ? "blue"
-          : t === "lounge"
-          ? "gold"
-          : "gray");
-      span.textContent = t.toUpperCase();
-      badgeRow.appendChild(span);
-
-      if (t === "lounge" && s.access) {
-        const acc = document.createElement("span");
-        acc.className =
-          "badge access " +
-          (s.access === "public"
-            ? "green"
-            : s.access === "members"
-            ? "purple"
-            : "gray");
-        acc.textContent = s.access.toUpperCase();
-        badgeRow.appendChild(acc);
-      }
-    });
-
-    body.appendChild(badgeRow);
-
-    /* RATING (★) */
-    const rating = document.createElement("div");
-    rating.className = "rating-stars";
+    /* === STARS === */
+    const stars = document.createElement("div");
+    stars.className = "card-stars";
     const r = Math.round(Number(s.rating) || 0);
-    rating.textContent =
-      "★".repeat(r) + "☆".repeat(5 - r);
-    body.appendChild(rating);
+    stars.innerHTML = Array.from({ length: 5 })
+      .map((_, i) => (i < r ? "★" : "☆"))
+      .join("");
+    body.appendChild(stars);
 
-    /* LOCATION */
+    /* === FLAG + COUNTRY + CITY === */
     const loc = document.createElement("div");
     loc.className = "locrow";
 
     const top = document.createElement("div");
     top.className = "loc-top";
 
-    const flag = flagURL(s.country);
-    if (flag) {
+    const flagData = flagURL(s.country);
+    if (flagData?.svgUrl) {
       const f = document.createElement("img");
       f.className = "flag";
-      f.src = flag.svgUrl;
+      f.src = flagData.svgUrl;
       top.appendChild(f);
     }
 
     const geo = document.createElement("span");
     geo.textContent = `${s.country || ""}, ${s.city || ""}`;
     top.appendChild(geo);
+
     loc.appendChild(top);
 
     const cont = document.createElement("div");
@@ -95,9 +68,10 @@ export function renderStoreCards(stores) {
 
     body.appendChild(loc);
 
-    /* INFOBLOCK */
+    /* === ADDRESS / PHONE / WEBSITE === */
     const info = document.createElement("div");
-    info.className = "infoblock";
+    info.className = "info-block";
+
     info.innerHTML = `
       <p><strong>Address:</strong> ${s.address || "–"}</p>
       <p><strong>Phone:</strong> ${s.phone || "–"}</p>
@@ -105,26 +79,27 @@ export function renderStoreCards(stores) {
         s.website ? `<a href="${s.website}" target="_blank">Visit</a>` : "–"
       }</p>
     `;
+
     body.appendChild(info);
 
-    /* DIVIDER */
-    const divider = document.createElement("div");
-    divider.className = "card-divider";
-    body.appendChild(divider);
+    /* === VIEW COMMENTS BUTTON === */
+    const btnWrap = document.createElement("div");
+    btnWrap.className = "reviews-btn-wrap";
 
-    /* COMMENTS BUTTON */
     const btn = document.createElement("button");
-    btn.className = "review-btn";
-    btn.textContent = "💬 View Comments";
+    btn.className = "btn small ghost";
+    btn.textContent = "💬 View comments / rating";
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       openStoreModal(s);
     });
-    body.appendChild(btn);
+
+    btnWrap.appendChild(btn);
+    body.appendChild(btnWrap);
 
     card.appendChild(body);
 
-    /* CLICK WHOLE CARD */
+    /* === CARD CLICK OPENS MODAL === */
     card.addEventListener("click", () => openStoreModal(s));
 
     grid.appendChild(card);
