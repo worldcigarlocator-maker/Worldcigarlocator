@@ -1,1 +1,225 @@
+/* ============================================================
+   FIXED CARD LAYOUT — Dark + Gold (Design A)
+   ============================================================ */
+
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 265px);
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* Card wrapper */
+.store-card {
+  width: 265px;
+  min-height: 430px;
+  background: var(--card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.17s ease, box-shadow 0.17s ease, border-color 0.17s ease;
+}
+
+.store-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.85);
+  border-color: var(--gold-soft);
+}
+
+/* Photo */
+.store-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+/* Body */
+.store-body {
+  flex: 1;
+  padding: 0.95rem 1rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Title */
+.store-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25rem;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.5rem;
+}
+
+/* Badges (store/lounge + access) */
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0.35rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge.blue {
+  background: #2b66ff;
+  color: #fff;
+}
+.badge.gold {
+  background: var(--gold);
+  color: #111;
+}
+.badge.green {
+  background: #23b45e;
+  color: #fff;
+}
+.badge.purple {
+  background: #8a2be2;
+  color: #fff;
+}
+.badge.gray {
+  background: #444;
+  color: #eee;
+}
+
+.badge.access {
+  font-size: 0.7rem;
+}
+
+/* Stars (rating) */
+.stars-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0.2rem 0 0.5rem;
+  font-size: 1rem;
+}
+
+.star {
+  color: #444;
+}
+
+.star.filled {
+  color: var(--gold);
+}
+
+/* Location */
+.locrow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.4rem;
+}
+
+.loc-top {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.flag {
+  width: 18px;
+  height: 12px;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+.loc-country {
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.loc-continent {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-left: 22px;
+}
+
+/* Info block */
+.infoblock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 0.55rem;
+  font-size: 0.86rem;
+}
+
+.infoblock p {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.infoblock strong {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.infoblock span {
+  color: var(--muted);
+}
+
+.infoblock a {
+  color: var(--gold-soft);
+  text-decoration: none;
+}
+.infoblock a:hover {
+  text-decoration: underline;
+}
+
+/* Divider */
+.card-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.04);
+  margin: 0.35rem 0;
+}
+
+/* Comments button-row */
+.comments-row {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-comments {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: #171717;
+  color: var(--muted);
+  padding: 0.38rem 0.65rem;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.btn-comments:hover {
+  background: #202020;
+  color: #fff;
+  border-color: var(--gold-soft);
+}
 
