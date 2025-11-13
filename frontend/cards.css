@@ -1,192 +1,232 @@
 /* ============================================================
-   FRONTEND CARDS – Pixel Perfect 265px (v8.0)
+   FRONTEND — CARD LAYOUT (PIXEL-PERFECT)
+   Matches Backoffice V5.2.1 but dark + gold theme
    ============================================================ */
 
 :root {
-  --card-bg: #111;
-  --card-border: #3a3a3a;
-  --text-main: #fff;
-  --text-muted: #bbb;
-  --gold: #c99d3f;
-  --blue: #2c7be5;
+  --blue: #007bff;
   --green: #28a745;
   --red: #dc3545;
-  --gray: #666;
+  --gold: #ffc107;
+  --gray: #888;
+  --border: #2a2a2a;
+  --card: #0f0f0f;
+  --text: #ddd;
+  --muted: #999;
 }
 
-/* GRID ------------------------------------------------------- */
+/* ============================================================
+   GRID
+   ============================================================ */
 .store-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, 265px);
-  gap: 1rem;
+  gap: 1.2rem;
   justify-content: start;
-  padding-bottom: 3rem;
+  padding-bottom: 2rem;
 }
 
-/* CARD ------------------------------------------------------- */
+/* ============================================================
+   CARD WRAPPER
+   ============================================================ */
 .store-card {
   width: 265px;
-  height: 520px;              /* ← FIXAR ALLA HÖJDER */
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 14px;
+  min-height: 420px;
+
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  cursor: pointer;
+
   transition: transform .18s ease, box-shadow .18s ease;
 }
 
 .store-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 18px rgba(0,0,0,.35),
-              0 0 0 2px rgba(200,160,80,0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 14px rgba(0,0,0,.45);
+  cursor: pointer;
 }
 
-/* PHOTO ------------------------------------------------------ */
+/* ============================================================
+   PHOTO
+   ============================================================ */
 .store-img {
   width: 100%;
-  height: 165px;
+  height: 160px;
   object-fit: cover;
-  background: #000;
+  background: #1a1a1a;
 }
 
-/* BODY ------------------------------------------------------- */
+/* ============================================================
+   BODY
+   ============================================================ */
 .store-body {
   flex: 1;
   padding: 0.9rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
-  color: var(--text-main);
+  color: var(--text);
 }
 
-/* TITLE – exactly 2 lines ------------------------------------ */
+/* ============================================================
+   TITLE — 2 lines fixed
+   ============================================================ */
 .store-title {
   font-size: 1.05rem;
   font-weight: 700;
+  color: #fff;
   line-height: 1.25rem;
   margin: 0;
 
-  height: 2.5rem;                    /* ← exakt 2 rader */
-  overflow: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  overflow: hidden;
+  min-height: 2.45rem;
 }
 
-/* BADGES ----------------------------------------------------- */
+/* ============================================================
+   BADGES — store / lounge + access
+   ============================================================ */
 .badge-row {
   display: flex;
-  gap: .4rem;
   flex-wrap: wrap;
+  gap: 6px;
+  margin-top: -2px;
 }
 
 .badge {
+  display: inline-block;
   padding: 2px 7px;
-  border-radius: 5px;
-  font-size: .72rem;
-  font-weight: 700;
+  border-radius: 4px;
+  font-size: .75rem;
+  font-weight: 600;
   text-transform: uppercase;
-  color: #fff;
+  letter-spacing: .3px;
 }
 
-.badge.blue  { background: var(--blue); }
-.badge.gold  { background: var(--gold); color: #111; }
-.badge.gray  { background: var(--gray); }
-.badge.green { background: var(--green); }
+/* store / lounge theme */
+.badge.store { background: var(--blue); }
+.badge.lounge { background: var(--gold); color:#000; }
+.badge.gray { background: var(--gray); }
 
-/* stars ------------------------------------------------------ */
+/* access */
+.badge.access {
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: .70rem;
+  font-weight: 700;
+}
+.badge.access.public { background: var(--green); color:#fff; }
+.badge.access.members { background: #8a2be2; color:#fff; }
+.badge.access.other { background:#666; }
+
+/* ============================================================
+   RATING STARS
+   ============================================================ */
 .stars {
+  font-size: 1.0rem;
   color: var(--gold);
-  font-size: 1rem;
   letter-spacing: 1px;
-  margin-top: 0.2rem;
+  margin-top: 0.15rem;
+  margin-bottom: -4px;
 }
 
-/* LOCATION --------------------------------------------------- */
+/* ============================================================
+   LOCATION (Flag + Country/City + Continent)
+   ============================================================ */
 .locrow {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  margin-top: 2px;
 }
 
 .loc-top {
   display: flex;
   align-items: center;
-  gap: .4rem;
+  gap: 0.45rem;
+  color: var(--gold);
   font-size: .9rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .flag {
-  width: 20px;
-  height: 14px;
+  width: 18px;
+  height: 12px;
   border-radius: 2px;
   object-fit: cover;
 }
 
 .continent-line {
-  font-size: .8rem;
-  color: var(--text-muted);
-  margin-left: 24px;
+  margin-left: 22px;
+  font-size: .78rem;
+  color: #aaa;
+  letter-spacing: .4px;
   text-transform: uppercase;
+  margin-top: -2px;
 }
 
-/* INFO BLOCK ------------------------------------------------- */
+/* ============================================================
+   INFO BLOCK — extra luft mellan rader
+   ============================================================ */
 .infoblock {
-  margin-top: .2rem;
+  margin-top: 0.3rem;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;                 /* ← extra luft */
+  gap: 6px;                     /* ← extra spacing */
 }
 
 .infoblock p {
   margin: 0;
-  font-size: .88rem;
-  color: var(--text-muted);
+  color: var(--muted);
+  font-size: .87rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.infoblock strong {
-  color: var(--gold);
-  margin-right: 4px;
+.infoblock a {
+  color: var(--blue);
+  text-decoration: none;
+}
+.infoblock a:hover {
+  text-decoration: underline;
 }
 
-/* SEPARATOR -------------------------------------------------- */
-.separator {
-  width: 100%;
-  height: 1px;
-  background: #2a2a2a;
-  margin: .3rem 0;
-}
-
-/* COMMENTS BUTTON ------------------------------------------- */
+/* ============================================================
+   COMMENTS BUTTON
+   ============================================================ */
 .reviews-btn {
-  margin-top: .2rem;
+  margin-top: 0.4rem;
   padding: .35rem .6rem;
-  font-size: .82rem;
+  background: #1d1d1d;
+  border: 1px solid #333;
   border-radius: 6px;
-  background: rgba(255,255,255,0.05);
-  color: var(--gold);
-  border: 1px solid var(--card-border);
-  cursor: pointer;
-  transition: .15s;
+  font-size: .78rem;
+  color: var(--text);
+  transition: all .15s;
 }
 
 .reviews-btn:hover {
-  background: rgba(255,255,255,0.12);
+  background: #272727;
+  border-color: #444;
 }
 
-/* STATUS ROW (frontend hides admin chips except rating) ----- */
+/* ============================================================
+   STATUS ROW (frontend does NOT show admin status)
+   ============================================================ */
 .status-row {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: auto;
+  display: none; /* hidden completely */
 }
 
-.rating-chip {
-  color: var(--text-muted);
+/* ============================================================
+   PERFECT EDGE FIX — keeps right edge straight
+   ============================================================ */
+.store-body > * {
+  width: 100%;
 }
