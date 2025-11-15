@@ -1,76 +1,117 @@
 /* ============================================================
-   start.js — FRONTEND v8 (full sync with Backoffice)
+   start.js — World Cigar Locator (Frontend v8)
    ============================================================ */
 
 import { WCL, getContinentFromCountry } from "./globals.js";
 import { renderCards } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
-
-/* Supabase ESM */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+/* Helpers */
+function qs(id) {
+  return document.getElementById(id);
+}
+
+/* Supabase client (ESM, no window.supabase) */
 const supabase = createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
-function qs(id){ return document.getElementById(id); }
-
 /* ============================================================
-   Load stores
+   LOAD STORES — used by sidebar + search
    ============================================================ */
-export async function loadStores(filter = {}, search = ""){
+export async function loadStores(filter = {}, searchTerm = "") {
   const grid = qs("storeGrid");
+  if (!grid) return;
+
   grid.innerHTML = `<p style="color:#777;text-align:center;">Loading…</p>`;
 
-  let q = supabase
+  let query = supabase
     .from("stores_public")
     .select("*")
-    .order("id",{ ascending:false });
+    .order("id", { ascending: false });
 
-  if (filter.continent){
-    const { data } = await q;
-    renderCards(data.filter(s => getContinentFromCountry(s.country) === filter.continent));
+  if (filter.continent) {
+    const { data, error } = await query;
+    if (error || !data) {
+      console.error(error);
+      grid.innerHTML =
+        "<p style='color:#f55;text-align:center;'>Error loading stores.</p>";
+      return;
+    }
+    const filtered = data.map((s) => ({
+      ...s,
+      continent: getContinentFromCountry(s.country),
+    })).filter((s) => s.continent === filter.continent);
+    renderCards(filtered);
     return;
   }
 
-  if (filter.country) q = q.eq("country", filter.country);
-  if (filter.city)    q = q.eq("city", filter.city);
+  if (filter.country) query = query.eq("country", filter.country);
+  if (filter.city) query = query.eq("city", filter.city);
 
-  if (search){
-    q = q.or(`name.ilike.%${search}%, city.ilike.%${search}%, country.ilike.%${search}%`);
+  if (searchTerm) {
+    query = query.or(
+      `name.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%,country.ilike.%${searchTerm}%`
+    );
   }
 
-  const { data } = await q;
-  renderCards(data);
+  const { data: stores, error } = await query;
+  if (error || !stores) {
+    console.error(error);
+    grid.innerHTML =
+      "<p style='color:#f55;text-align:center;'>Error loading stores.</p>";
+    return;
+  }
+
+  const withContinent = stores.map((s) => ({
+    ...s,
+    continent: s.continent || getContinentFromCountry(s.country),
+  }));
+
+  renderCards(withContinent);
 }
 
 /* ============================================================
    INIT
    ============================================================ */
-document.addEventListener("DOMContentLoaded", ()=>{
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("🌍 Frontend v8 loaded");
 
-  console.log("🌍 Frontend v8 ready");
-
-  /* Hierarchy */
+  // Sidebar (gets supabase instance, loader + continent helper)
   buildFrontendSidebar(supabase, loadStores, getContinentFromCountry);
 
-  /* Initial load */
+  // Default load
   loadStores();
 
-  /* Search */
+  // Search hooks
   const searchInput = qs("searchInput");
-  qs("searchBtn")?.addEventListener("click",()=> loadStores({}, searchInput.value.trim()));
-  qs("clearBtn")?.addEventListener("click",()=>{
+  const searchBtn = qs("searchBtn");
+  const clearBtn = qs("clearBtn");
+
+  searchBtn?.addEventListener("click", () => {
+    loadStores({}, searchInput.value.trim());
+  });
+
+  clearBtn?.addEventListener("click", () => {
     searchInput.value = "";
     loadStores();
   });
-  searchInput?.addEventListener("keypress",(e)=>{
-    if(e.key==="Enter") loadStores({}, searchInput.value.trim());
+
+  searchInput?.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      loadStores({}, searchInput.value.trim());
+    }
   });
 
-  /* Modal close */
+  // Modal close behaviour (modal markup finns i start.html)
   const modal = qs("storeModal");
-  if(modal){
-    const close = ()=> modal.classList.remove("show");
+  if (modal) {
+    const close = () => {
+      modal.classList.remove("show");
+      modal.setAttribute("aria-hidden", "true");
+    };
     modal.querySelector(".modal-close")?.addEventListener("click", close);
-    modal.addEventListener("click",(e)=>{ if(e.target===modal) close(); });
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) close();
+    });
   }
 });
