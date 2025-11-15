@@ -1,155 +1,182 @@
-/* ============================================
-   Global variables (colors)
-   ============================================ */
-:root {
-  --gold: #ffcc33;
-}
-
 /* ============================================================
-   FRONTEND CARD DESIGN — WCL Public UI (2025)
+   FRONTEND — CARD LAYOUT (265px) — MATCH BACKOFFICE STYLE
    ============================================================ */
 
 :root {
-  --gold: #f7c843;
-  --blue: #3a76ff;
-  --green: #39c86a;
-  --red: #e34b4b;
-  --purple: #9951ff;
-  --gray: #777;
-  --bg-dark: #111;
-  --text-light: #fff;
+  --blue: #007bff;
+  --green: #28a745;
+  --red: #dc3545;
+  --gold: #ffcc33; /* Pure gold */
+  --gray: #999;
+  --border: #2c2c2c;
+  --text: #e5e5e5;
+  --muted: #aaa;
+  --bg: #0c0c0c;
+
+  --card-bg: #1a1a1a;
+  --shadow: 0 4px 14px rgba(0,0,0,.4);
 }
 
+/* GRID */
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 265px);
+  gap: 1rem;
+  justify-content: start;
+  align-items: start;
+}
+
+/* CARD */
 .store-card {
-  background: var(--bg-dark);
-  color: var(--text-light);
-  border-radius: 16px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.35);
+  width: 265px;
+  min-height: 420px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
   overflow: hidden;
+  position: relative;
   cursor: pointer;
-  transition: transform .15s, box-shadow .15s;
+  transition: transform .18s ease, box-shadow .18s ease;
 }
 
 .store-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+  box-shadow: 0 8px 20px rgba(0,0,0,.6);
 }
 
+/* Make card clickable but keep links working */
+.store-card * {
+  pointer-events: none;
+}
+.store-card a,
+.store-card button {
+  pointer-events: auto;
+}
+
+/* PHOTO */
 .store-img {
   width: 100%;
-  height: 220px;
+  height: 160px;
   object-fit: cover;
-  display: block;
 }
 
+/* BODY */
 .store-body {
-  padding: 1rem 1.1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0.9rem 1rem;
+  gap: 0.5rem;
 }
 
+/* TITLE */
 .store-title {
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  margin: 0 0 0.4rem;
+  color: #fff;
+  line-height: 1.25rem;
+  margin: 0;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* ---------------- BADGES ---------------- */
+/* BADGES */
 .badge-row {
   display: flex;
-  gap: 0.4rem;
-  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .badge {
-  padding: 3px 8px;
-  font-size: 0.72rem;
-  border-radius: 6px;
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: .7rem;
   font-weight: 700;
-  text-transform: uppercase;
 }
 
-.badge.gold { background: var(--gold); color: #000; }
-.badge.blue { background: var(--blue); color: #fff; }
-.badge.green { background: var(--green); color: #000; }
-.badge.red { background: var(--red); color: #fff; }
-.badge.purple { background: var(--purple); color: #fff; }
-.badge.gray { background: #444; color: #ddd; }
+.badge.blue { background: var(--blue); }
+.badge.gold { background: var(--gold); color:#222; }
 
-/* ---------------- RATING ---------------- */
+.badge.access {
+  background: #444;
+  color: #fff;
+  font-size: .65rem;
+  padding: 2px 6px;
+}
+.badge.access.public  { background: #28a745; }
+.badge.access.members { background: #8a2be2; }
+
+/* STARS */
 .stars {
   color: var(--gold);
   font-size: 1.1rem;
-  margin-bottom: 0.9rem;
+  margin-top: -4px;
 }
 
-/* ---------------- LOCATION ---------------- */
+/* LOCATION */
 .locrow {
-  margin-bottom: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  margin-top: .3rem;
 }
 
 .loc-top {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.9rem;
+  gap: .4rem;
+  font-weight: 600;
+  font-size: .85rem;
+  color: var(--text);
 }
 
 .flag {
-  width: 22px;
-  height: 16px;
-  border-radius: 3px;
+  width: 18px;
+  height: 12px;
+  border-radius: 2px;
   object-fit: cover;
 }
 
-.continent-line {
-  font-size: 0.75rem;
-  opacity: 0.7;
-  margin-top: 0.1rem;
-}
-
-/* ---------------- INFO BLOCK ---------------- */
+/* INFO BLOCK */
 .infoblock {
-  margin-bottom: 1.1rem;
+  margin-top: .3rem;
+  margin-bottom: .3rem;
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
 }
 
 .infoblock p {
-  margin: 0.35rem 0;
-  line-height: 1.35rem;
+  margin: 0;
+  font-size: .85rem;
+  color: var(--muted);
 }
 
-/* ---------------- COMMENTS BTN ---------------- */
-.reviews-btn {
-  width: 100%;
-  padding: 0.55rem 0.8rem;
-  background: #1b1b1b;
+.infoblock a {
   color: var(--gold);
-  border: 1px solid #333;
-  border-radius: 10px;
+  text-decoration: none;
+}
+.infoblock a:hover {
+  text-decoration: underline;
+}
+
+/* COMMENTS BUTTON */
+.reviews-btn {
+  padding: .35rem .6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #111;
+  color: var(--text);
+  font-size: .75rem;
+  margin-top: auto;
   cursor: pointer;
-  margin-bottom: 0.9rem;
 }
 
 .reviews-btn:hover {
   background: #222;
-}
-
-/* ---------------- STATUS ---------------- */
-.status-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.rating-chip {
-  background: #222;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-}
-
-/* === FIX GRID WIDTH === */
-.store-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
-  gap: 1.2rem;
-  padding: 1rem 0;
 }
