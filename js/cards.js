@@ -31,34 +31,30 @@ export function renderCards(stores) {
     title.textContent = s.name || "";
     body.appendChild(title);
 
-    /* ---------------- BADGES ---------------- */
-    const badgeRow = document.createElement("div");
-    badgeRow.className = "badge-row";
+    /* === TYPE & ACCESS BADGES (matchar Backoffice) === */
+const badgeRow = document.createElement("div");
+badgeRow.className = "badge-row";
 
-    // TYPE: store / lounge
-    if (s.type) {
-      const typeEl = document.createElement("span");
-      typeEl.className = s.type === "lounge" ? "badge gold" : "badge blue";
-      typeEl.textContent = s.type;
-      badgeRow.appendChild(typeEl);
-    }
+if (s.type) {
+  const b = document.createElement("span");
+  b.className = `badge ${s.type === "store" ? "blue" : "gold"}`;
+  b.textContent = s.type;
+  badgeRow.appendChild(b);
+}
 
-    // ACCESS: public / members
-    if (s.access) {
-      const acc = document.createElement("span");
-      acc.className =
-        "badge " +
-        (s.access === "public"
-          ? "green"
-          : s.access === "members"
-          ? "purple"
-          : "gray");
+if (s.access) {
+  const acc = document.createElement("span");
+  acc.className = `badge access ${
+    s.access === "public"   ? "green" :
+    s.access === "members" ? "purple" :
+                              "gray"
+  }`;
+  acc.textContent = s.access.toUpperCase();
+  badgeRow.appendChild(acc);
+}
 
-      acc.textContent = s.access.toUpperCase();
-      badgeRow.appendChild(acc);
-    }
+body.appendChild(badgeRow);
 
-    body.appendChild(badgeRow);
 
     /* ---------------- STARS ---------------- */
     const stars = document.createElement("div");
