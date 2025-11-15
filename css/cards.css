@@ -1,217 +1,140 @@
 /* ============================================================
-   FRONTEND — FIXED CARD LAYOUT (265px) — MATCH BACKOFFICE
+   FRONTEND CARD DESIGN — WCL Public UI (2025)
    ============================================================ */
 
-.store-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 265px);
-  gap: 1rem;
-  justify-content: flex-start;
-  align-items: flex-start;
+:root {
+  --gold: #f7c843;
+  --blue: #3a76ff;
+  --green: #39c86a;
+  --red: #e34b4b;
+  --purple: #9951ff;
+  --gray: #777;
+  --bg-dark: #111;
+  --text-light: #fff;
 }
 
-/* Card */
 .store-card {
-  width: 265px;
-  min-height: 430px;
-  background: #151515;
-  border: 1px solid #292929;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
+  background: var(--bg-dark);
+  color: var(--text-light);
+  border-radius: 16px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.35);
   overflow: hidden;
-  transition: transform 0.18s ease, box-shadow 0.18s ease,
-    border-color 0.18s ease;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
 }
 
 .store-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-  border-color: #f0b45a;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
 }
 
-/* Photo */
 .store-img {
   width: 100%;
-  height: 160px;
+  height: 220px;
   object-fit: cover;
+  display: block;
 }
 
-/* Card body */
 .store-body {
-  flex: 1;
-  padding: 0.8rem 1rem 0.9rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  padding: 1rem 1.1rem;
 }
 
-/* Title – exakt 2 rader */
 .store-title {
-  font-size: 1.02rem;
-  font-weight: 600;
-  color: #ffffff;
-  line-height: 1.25rem;
-  margin: 0 0 0.2rem 0;
-
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  min-height: 2.5rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
 }
 
-/* Badges */
+/* ---------------- BADGES ---------------- */
 .badge-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 0.2rem;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
 }
 
 .badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 6px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 600;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  border-radius: 6px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
 }
 
-.badge.blue {
-  background: #1e88e5;
-  color: #fff;
-}
-.badge.gold {
-  background: #f7d27d;
-  color: #000;
-}
-.badge.green {
-  background: #2e7d32;
-  color: #fff;
-}
-.badge.purple {
-  background: #8e24aa;
-  color: #fff;
-}
-.badge.gray {
-  background: #555;
-  color: #eee;
+.badge.gold { background: var(--gold); color: #000; }
+.badge.blue { background: var(--blue); color: #fff; }
+.badge.green { background: var(--green); color: #000; }
+.badge.red { background: var(--red); color: #fff; }
+.badge.purple { background: var(--purple); color: #fff; }
+.badge.gray { background: #444; color: #ddd; }
+
+/* ---------------- RATING ---------------- */
+.stars {
+  color: var(--gold);
+  font-size: 1.1rem;
+  margin-bottom: 0.9rem;
 }
 
-/* Access badge */
-.badge.access {
-  font-size: 0.65rem;
-}
-
-/* Stars */
-.stars-row {
-  font-size: 0.85rem;
-  color: #f6d56a;
-}
-
-/* Location group */
+/* ---------------- LOCATION ---------------- */
 .locrow {
-  margin: 0.2rem 0 0.3rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.22rem;
+  margin-bottom: 0.9rem;
 }
 
 .loc-top {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-weight: 600;
-  font-size: 0.88rem;
-  color: #f3f3f3;
+  font-size: 0.9rem;
 }
 
 .flag {
-  width: 18px;
-  height: 12px;
-  border-radius: 2px;
+  width: 22px;
+  height: 16px;
+  border-radius: 3px;
   object-fit: cover;
 }
 
 .continent-line {
   font-size: 0.75rem;
-  color: #b3b3b3;
-  text-transform: uppercase;
-  margin-left: 22px;
-  letter-spacing: 0.08em;
+  opacity: 0.7;
+  margin-top: 0.1rem;
 }
 
-/* Info block (Address, Phone, Website) */
+/* ---------------- INFO BLOCK ---------------- */
 .infoblock {
-  margin-top: 0.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem; /* ← lite extra luft mellan raderna */
+  margin-bottom: 1.1rem;
 }
 
 .infoblock p {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: #d7d7d7;
-  margin: 0;
-  font-size: 0.85rem;
+  margin: 0.35rem 0;
+  line-height: 1.35rem;
 }
 
-/* Website link */
-.infoblock a {
-  color: #f6d56a;
-  text-decoration: none;
-}
-.infoblock a:hover {
-  text-decoration: underline;
-}
-
-/* Liten visuell delare mot comment-länken */
-.card-divider {
-  height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(255, 255, 255, 0.15),
-    transparent
-  );
-  margin: 0.35rem 0 0.15rem;
-}
-
-/* Comments button */
+/* ---------------- COMMENTS BTN ---------------- */
 .reviews-btn {
-  margin-top: 0.15rem;
-  font-size: 0.8rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  border: 1px solid #333;
+  width: 100%;
+  padding: 0.55rem 0.8rem;
   background: #1b1b1b;
-  color: #f3f3f3;
+  color: var(--gold);
+  border: 1px solid #333;
+  border-radius: 10px;
   cursor: pointer;
-  align-self: flex-start;
-  transition: background 0.16s ease, border-color 0.16s ease, transform 0.08s;
+  margin-bottom: 0.9rem;
 }
 
 .reviews-btn:hover {
-  background: #262626;
-  border-color: #f6d56a;
-  transform: translateY(-1px);
+  background: #222;
 }
 
-/* Bottom rating chip */
-.rating-chip-row {
-  margin-top: 0.25rem;
+/* ---------------- STATUS ---------------- */
+.status-row {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .rating-chip {
-  font-size: 0.78rem;
-  color: #f6d56a;
-  opacity: 0.9;
-  font-weight: 600;
+  background: #222;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
 }
