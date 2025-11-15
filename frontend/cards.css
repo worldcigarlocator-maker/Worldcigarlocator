@@ -1,158 +1,132 @@
 /* ============================================================
-   FRONTEND — CARD LAYOUT (PIXEL-PERFECT)
-   Matches Backoffice V5.2.1 but dark + gold theme
+   FRONTEND — FIXED CARD LAYOUT (265px) — MATCH BACKOFFICE
    ============================================================ */
 
-:root {
-  --blue: #007bff;
-  --green: #28a745;
-  --red: #dc3545;
-  --gold: #ffc107;
-  --gray: #888;
-  --border: #2a2a2a;
-  --card: #0f0f0f;
-  --text: #ddd;
-  --muted: #999;
-}
-
-/* ============================================================
-   GRID
-   ============================================================ */
 .store-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, 265px);
-  gap: 1.2rem;
-  justify-content: start;
-  padding-bottom: 2rem;
+  gap: 1rem;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 
-/* ============================================================
-   CARD WRAPPER
-   ============================================================ */
+/* Card */
 .store-card {
   width: 265px;
-  min-height: 420px;
-
-  background: var(--card);
-  border: 1px solid var(--border);
+  min-height: 430px;
+  background: #151515;
+  border: 1px solid #292929;
   border-radius: 12px;
-  
   display: flex;
   flex-direction: column;
   overflow: hidden;
-
-  transition: transform .18s ease, box-shadow .18s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .store-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 14px rgba(0,0,0,.45);
-  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  border-color: #f0b45a;
 }
 
-/* ============================================================
-   PHOTO
-   ============================================================ */
+/* Photo */
 .store-img {
   width: 100%;
   height: 160px;
   object-fit: cover;
-  background: #1a1a1a;
 }
 
-/* ============================================================
-   BODY
-   ============================================================ */
+/* Card body */
 .store-body {
   flex: 1;
-  padding: 0.9rem 1rem;
+  padding: 0.8rem 1rem 0.9rem;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
-  color: var(--text);
+  gap: 0.35rem;
 }
 
-/* ============================================================
-   TITLE — 2 lines fixed
-   ============================================================ */
+/* Title – exakt 2 rader */
 .store-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #fff;
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: #ffffff;
   line-height: 1.25rem;
-  margin: 0;
+  margin: 0 0 0.2rem 0;
 
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
-  min-height: 2.45rem;
+  min-height: 2.5rem;
 }
 
-/* ============================================================
-   BADGES — store / lounge + access
-   ============================================================ */
+/* Badges */
 .badge-row {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: -2px;
+  margin-bottom: 0.2rem;
 }
 
 .badge {
-  display: inline-block;
-  padding: 2px 7px;
-  border-radius: 4px;
-  font-size: .75rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: .3px;
+  letter-spacing: 0.03em;
 }
 
-/* store / lounge theme */
-.badge.store { background: var(--blue); }
-.badge.lounge { background: var(--gold); color:#000; }
-.badge.gray { background: var(--gray); }
+.badge.blue {
+  background: #1e88e5;
+  color: #fff;
+}
+.badge.gold {
+  background: #f7d27d;
+  color: #000;
+}
+.badge.green {
+  background: #2e7d32;
+  color: #fff;
+}
+.badge.purple {
+  background: #8e24aa;
+  color: #fff;
+}
+.badge.gray {
+  background: #555;
+  color: #eee;
+}
 
-/* access */
+/* Access badge */
 .badge.access {
-  border-radius: 4px;
-  padding: 2px 6px;
-  font-size: .70rem;
-  font-weight: 700;
-}
-.badge.access.public { background: var(--green); color:#fff; }
-.badge.access.members { background: #8a2be2; color:#fff; }
-.badge.access.other { background:#666; }
-
-/* ============================================================
-   RATING STARS
-   ============================================================ */
-.stars {
-  font-size: 1.0rem;
-  color: var(--gold);
-  letter-spacing: 1px;
-  margin-top: 0.15rem;
-  margin-bottom: -4px;
+  font-size: 0.65rem;
 }
 
-/* ============================================================
-   LOCATION (Flag + Country/City + Continent)
-   ============================================================ */
+/* Stars */
+.stars-row {
+  font-size: 0.85rem;
+  color: #f6d56a;
+}
+
+/* Location group */
 .locrow {
+  margin: 0.2rem 0 0.3rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  margin-top: 2px;
+  gap: 0.22rem;
 }
 
 .loc-top {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  color: var(--gold);
-  font-size: .9rem;
+  gap: 0.4rem;
   font-weight: 600;
+  font-size: 0.88rem;
+  color: #f3f3f3;
 }
 
 .flag {
@@ -163,70 +137,81 @@
 }
 
 .continent-line {
-  margin-left: 22px;
-  font-size: .78rem;
-  color: #aaa;
-  letter-spacing: .4px;
+  font-size: 0.75rem;
+  color: #b3b3b3;
   text-transform: uppercase;
-  margin-top: -2px;
+  margin-left: 22px;
+  letter-spacing: 0.08em;
 }
 
-/* ============================================================
-   INFO BLOCK — extra luft mellan rader
-   ============================================================ */
+/* Info block (Address, Phone, Website) */
 .infoblock {
-  margin-top: 0.3rem;
+  margin-top: 0.25rem;
   display: flex;
   flex-direction: column;
-  gap: 6px;                     /* ← extra spacing */
+  gap: 0.3rem; /* ← lite extra luft mellan raderna */
 }
 
 .infoblock p {
-  margin: 0;
-  color: var(--muted);
-  font-size: .87rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #d7d7d7;
+  margin: 0;
+  font-size: 0.85rem;
 }
 
+/* Website link */
 .infoblock a {
-  color: var(--blue);
+  color: #f6d56a;
   text-decoration: none;
 }
 .infoblock a:hover {
   text-decoration: underline;
 }
 
-/* ============================================================
-   COMMENTS BUTTON
-   ============================================================ */
+/* Liten visuell delare mot comment-länken */
+.card-divider {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  margin: 0.35rem 0 0.15rem;
+}
+
+/* Comments button */
 .reviews-btn {
-  margin-top: 0.4rem;
-  padding: .35rem .6rem;
-  background: #1d1d1d;
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
   border: 1px solid #333;
-  border-radius: 6px;
-  font-size: .78rem;
-  color: var(--text);
-  transition: all .15s;
+  background: #1b1b1b;
+  color: #f3f3f3;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.08s;
 }
 
 .reviews-btn:hover {
-  background: #272727;
-  border-color: #444;
+  background: #262626;
+  border-color: #f6d56a;
+  transform: translateY(-1px);
 }
 
-/* ============================================================
-   STATUS ROW (frontend does NOT show admin status)
-   ============================================================ */
-.status-row {
-  display: none; /* hidden completely */
+/* Bottom rating chip */
+.rating-chip-row {
+  margin-top: 0.25rem;
+  display: flex;
+  justify-content: flex-end;
 }
 
-/* ============================================================
-   PERFECT EDGE FIX — keeps right edge straight
-   ============================================================ */
-.store-body > * {
-  width: 100%;
+.rating-chip {
+  font-size: 0.78rem;
+  color: #f6d56a;
+  opacity: 0.9;
+  font-weight: 600;
 }
