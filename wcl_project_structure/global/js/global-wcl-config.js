@@ -1,1 +1,0 @@
-/* Placeholder for global-wcl-config.js */
