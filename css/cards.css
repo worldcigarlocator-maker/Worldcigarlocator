@@ -187,3 +187,6 @@
 .reviews-btn:hover {
   background: #222;
 }
+body {
+  outline: 5px solid red !important;
+}
