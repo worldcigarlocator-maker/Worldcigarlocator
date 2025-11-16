@@ -142,14 +142,21 @@
   object-fit: cover;
 }
 
-/* INFO BLOCK */
-.infoblock {
-  margin-top: .3rem;
-  margin-bottom: .3rem;
-  display: flex;
-  flex-direction: column;
-  gap: .45rem;
+.infoblock p {
+  margin: 0;
+  font-size: .85rem;
+  color: var(--muted);
 }
+
+/* FORCE UNIFORM HEIGHT FOR INFO LINES */
+.infoblock p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25rem;
+  height: 1.25rem;
+}
+
 
 .infoblock p {
   margin: 0;
