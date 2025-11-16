@@ -1,0 +1,1 @@
+/* Placeholder for bo-add-store.js */
