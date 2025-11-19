@@ -46,17 +46,31 @@
     </div>
 
     <div class="container">
-      <!-- Sidebar -->
-      <aside class="sidebar">
-        <h1 class="logo">WCL</h1>
-        <ul id="sidebarMenu" class="nav"></ul>
-        <a href="../add-store.html" class="add-btn">+ Add Store / Lounge</a>
-        <a
-          href="mailto:support@worldcigarlocator.com"
-          class="support-link"
-          >Contact / Support</a
-        >
-      </aside>
+     <aside class="sidebar">
+
+  <div class="sidebar-top">
+    <h1 class="logo">World Cigar Locator</h1>
+
+    <div id="authBox" class="auth-box">
+      <button id="loginBtn" class="auth-btn">Login</button>
+      <button id="logoutBtn" class="auth-btn" style="display:none;">Logout</button>
+      <small id="authStatus" class="auth-status"></small>
+    </div>
+
+    <hr class="divider" />
+  </div>
+
+  <ul id="sidebarMenu" class="nav"></ul>
+
+  <div class="sidebar-bottom">
+    <hr class="divider" />
+
+    <a href="#" class="menu-link">About</a>
+    <a href="mailto:support@worldcigarlocator.com" class="menu-link">Contact / Support</a>
+    <a href="../add-store.html" class="menu-link add-store">+ Add Store</a>
+  </div>
+
+</aside>
 
       <!-- Main -->
       <main class="main">
