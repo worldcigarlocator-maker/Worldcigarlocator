@@ -123,3 +123,28 @@ document.getElementById("loginBtn").onclick = () => {
 document.getElementById("logoutBtn").onclick = () => {
   alert("Logout placeholder – riktig auth kommer sen!");
 };
+
+// ============================================================
+// AUTH placeholder (riktig Supabase-auth kommer senare)
+// ============================================================
+
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const authStatus = document.getElementById("authStatus");
+
+if (loginBtn) {
+  loginBtn.addEventListener("click", () => {
+    authStatus.textContent = "Logged in (mock)";
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+  });
+}
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    authStatus.textContent = "Logged out";
+    logoutBtn.style.display = "none";
+    loginBtn.style.display = "inline-block";
+  });
+}
+
