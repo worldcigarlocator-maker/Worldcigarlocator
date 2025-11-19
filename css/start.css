@@ -1,5 +1,5 @@
 /* ============================================================
-   START PAGE LAYOUT — dark, elegant
+   START PAGE LAYOUT — dark & elegant
    ============================================================ */
 
 :root {
@@ -13,7 +13,7 @@
   --muted: #9a9a9a;
 }
 
-/* Reset-ish */
+/* Reset */
 *,
 *::before,
 *::after {
@@ -30,23 +30,30 @@ body {
     "Segoe UI", sans-serif;
 }
 
-/* Layout */
+/* ============================================================
+   GRID LAYOUT
+   ============================================================ */
+
 .container {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100vh;
 }
 
-/* Sidebar */
+/* ============================================================
+   SIDEBAR BASE
+   ============================================================ */
+
 .sidebar {
   background: linear-gradient(180deg, #101010, #050505);
   border-right: 1px solid var(--border);
   padding: 1.2rem 1rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  justify-content: space-between;
 }
 
+/* Logo */
 .logo {
   margin: 0 0 0.5rem;
   font-size: 1.4rem;
@@ -54,6 +61,50 @@ body {
   text-transform: uppercase;
   color: var(--accent);
 }
+
+/* Top structure (logo + login + divider) */
+.sidebar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Auth box */
+.auth-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.auth-btn {
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  background: var(--panel-soft);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.auth-btn:hover {
+  border-color: var(--accent);
+}
+
+.auth-status {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0.8rem 0;
+}
+
+/* ============================================================
+   SIDEBAR HIERARCHY (continent → country → city)
+   ============================================================ */
 
 .nav {
   list-style: none;
@@ -64,7 +115,7 @@ body {
   font-size: 0.85rem;
 }
 
-/* Sidebar hierarchy lines */
+/* Expand lines */
 .line {
   width: 100%;
   border: none;
@@ -76,6 +127,10 @@ body {
   padding: 0.25rem 0.1rem;
   cursor: pointer;
   border-radius: 6px;
+}
+
+.line:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .line .label {
@@ -101,10 +156,12 @@ body {
   font-weight: 600;
   color: #e7e7e7;
 }
+
 .line.continent.open {
   background: rgba(255, 255, 255, 0.03);
 }
 
+/* Indentation */
 .line.country {
   padding-left: 1.2rem;
 }
@@ -113,7 +170,7 @@ body {
   font-size: 0.8rem;
 }
 
-/* Nested containers */
+/* Nested blocks */
 .nested {
   display: none;
   padding-left: 0.3rem;
@@ -124,33 +181,41 @@ body {
   display: block;
 }
 
-/* Add / Support links */
-.add-btn,
-.support-link {
-  display: inline-block;
-  text-decoration: none;
-  font-size: 0.82rem;
-  padding: 0.4rem 0.7rem;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  margin-top: 0.1rem;
-}
-.add-btn {
-  border-color: var(--accent-soft);
-  color: var(--accent);
-}
-.add-btn:hover,
-.support-link:hover {
-  border-color: var(--accent);
+/* ============================================================
+   SIDEBAR BOTTOM MENU
+   ============================================================ */
+
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
 }
 
-/* Main */
+.menu-link {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+  padding: 0.3rem 0;
+}
+
+.menu-link:hover {
+  color: var(--accent);
+}
+
+.add-store {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ============================================================
+   MAIN AREA
+   ============================================================ */
+
 .main {
   padding: 1.4rem 1.6rem 2rem;
 }
 
-/* Title / tagline */
+/* Optional (du vill troligen ta bort rubriken helt senare) */
 .title {
   margin: 0 0 0.2rem;
   font-size: 1.6rem;
@@ -163,7 +228,10 @@ body {
   font-size: 0.95rem;
 }
 
-/* Searchbar */
+/* ============================================================
+   SEARCHBAR
+   ============================================================ */
+
 .searchbar {
   display: flex;
   gap: 0.6rem;
@@ -197,13 +265,17 @@ body {
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
+
 .btn.outline {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--muted);
 }
 
-/* Heading / show all */
+/* ============================================================
+   RESULT HEADING
+   ============================================================ */
+
 .result-heading {
   margin-top: 0.3rem;
   margin-bottom: 0.4rem;
@@ -215,14 +287,19 @@ body {
   margin-bottom: 0.6rem;
 }
 
-/* Toast */
+/* ============================================================
+   TOAST
+   ============================================================ */
+
 #toast-container {
   position: fixed;
   right: 1rem;
   bottom: 1rem;
 }
 
-/* Modal (same base styling, already funkar hos dig – bara lite trim) */
+/* ============================================================
+   MODAL STYLING
+   ============================================================ */
 
 .modal {
   position: fixed;
