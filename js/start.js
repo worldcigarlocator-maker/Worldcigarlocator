@@ -115,3 +115,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+// AUTH placeholder (vi bygger riktig senare)
+document.getElementById("loginBtn").onclick = () => {
+  alert("Login placeholder – riktig auth kommer sen!");
+};
+
+document.getElementById("logoutBtn").onclick = () => {
+  alert("Logout placeholder – riktig auth kommer sen!");
+};
