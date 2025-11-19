@@ -73,27 +73,46 @@ export function renderCards(stores) {
     stars.textContent = "★★★★★☆☆☆☆☆".slice(5 - rating, 10 - rating);
     body.appendChild(stars);
 
-    /* ============================================================
-       LOCATION ROW
-       ============================================================ */
-    const loc = document.createElement("div");
-    loc.className = "loc-row";
+    /* ---------------- LOCATION ---------------- */
+const loc = document.createElement("div");
+loc.className = "locrow";
 
-    // Flag
-    const flag = flagURL(s.country, s.country_iso2);
-    if (flag) {
-      const f = document.createElement("img");
-      f.className = "flag";
-      f.src = flag;
-      loc.appendChild(f);
-    }
+/* First row: flag + Country, City */
+const top = document.createElement("div");
+top.className = "loc-top";
 
-    // City, Country
-    const geo = document.createElement("span");
-    geo.textContent = [s.city, s.country].filter(Boolean).join(", ");
-    loc.appendChild(geo);
+/* Flag */
+const fsrc = flagURL(s.country, s.country_iso2);
+if (fsrc) {
+  const f = document.createElement("img");
+  f.className = "flag";
+  f.src = fsrc;
+  top.appendChild(f);
+}
 
-    body.appendChild(loc);
+/* Country + city */
+const geo = document.createElement("span");
+geo.className = "geo-main";
+geo.textContent = [s.country, s.city].filter(Boolean).join(", ");
+top.appendChild(geo);
+
+loc.appendChild(top);
+
+/* Second row: continent (Capitalized) */
+if (s.continent) {
+  const cont = document.createElement("div");
+  cont.className = "continent-label";
+
+  // Capitalize properly
+  const nice =
+    s.continent.charAt(0).toUpperCase() +
+    s.continent.slice(1).toLowerCase();
+
+  cont.textContent = nice;
+  loc.appendChild(cont);
+}
+
+body.appendChild(loc);
 
     /* ============================================================
        SPACER
