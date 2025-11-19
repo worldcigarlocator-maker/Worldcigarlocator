@@ -1,67 +1,75 @@
-body {
-  border: 5px solid red !important;
+
+/* ============================================================
+   GRID – 265px kolumner exakt som backend
+   ============================================================ */
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 265px);
+  gap: 1.3rem;
+  padding-top: .5rem;
+  justify-content: start;
 }
 
-/* ===========================================
-   CARD FRONTEND BASE
-   =========================================== */
+/* ============================================================
+   CARD BASE + GULDKANT
+   ============================================================ */
 .store-card {
   width: 265px;
   height: 540px;
-  background: var(--card-bg);
-  border: 1px solid var(--border);
+  background: #1a1a1a;
   border-radius: 12px;
-  box-shadow: var(--shadow);
+  border: 1px solid rgba(255, 204, 51, 0.4);  /* GOLD BORDER */
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
   overflow: hidden;
 
   display: flex;
   flex-direction: column;
 }
 
+/* PHOTO */
 .store-img {
   width: 100%;
   height: 160px;
   object-fit: cover;
 }
 
-/* ===========================================
-   INNER BODY
-   =========================================== */
+/* ============================================================
+   BODY
+   ============================================================ */
 .store-body {
-  height: 380px;
+  flex: 1;
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: .65rem;         /* ← lite mer luft generellt */
+  gap: .55rem;
 }
 
-/* ===========================================
-   TITLE — 1 line + ellipsis
-   =========================================== */
+/* ============================================================
+   TITLE – exakt 2 rader alltid
+   ============================================================ */
 .store-title {
   font-size: 1.35rem;
   font-weight: 700;
   margin: 0;
   color: #fff;
 
-  height: 1.35rem;
-  line-height: 1.35rem;
-
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+
+  min-height: 2.6rem; /* 2 rader */
+  line-height: 1.3rem;
 }
 
-/* ===========================================
-   BADGE ROW — restored
-   =========================================== */
+/* ============================================================
+   BADGES
+   ============================================================ */
 .badge-row {
   display: flex;
   gap: .4rem;
   align-items: center;
-
-  height: 1.35rem;
-  line-height: 1.35rem;
+  min-height: 1.3rem;
 }
 
 .badge {
@@ -69,88 +77,87 @@ body {
   border-radius: 4px;
   font-size: .75rem;
   font-weight: 700;
-  color: #fff;
 }
 
-.badge.blue   { background: var(--blue); }
-.badge.gold   { background: var(--gold); color:#222; }
-.badge.public { background: #28a745; }
-.badge.members{ background: #8a2be2; }
+.badge.blue { background: #007bff; }
+.badge.gold { background: #ffcc33; color:#222; }
+.badge.public  { background: #28a745; color:#fff; }
+.badge.members { background: #8a2be2; color:#fff; }
 
-
-/* ===========================================
-   STARS — restored golden color
-   =========================================== */
+/* ============================================================
+   STARS – guld med glow
+   ============================================================ */
 .stars {
-  font-size: 1.25rem;
-  line-height: 1.35rem;
-  height: 1.35rem;
-
-  color: #ffcc33;                     /* ← backend gold */
-  text-shadow: 0 0 5px rgba(0,0,0,.4); /* ← backend glow */
+  font-size: 1.22rem;
+  color: #ffcc33;
+  text-shadow: 0 0 4px rgba(255, 204, 51, .6);
+  line-height: 1.2rem;
+  min-height: 1.2rem;
 }
 
-/* ===========================================
-   LOCATION — fixed 1 line
-   =========================================== */
+/* ============================================================
+   LOCATION – 1 rad, flagga + stad + land
+   ============================================================ */
 .locrow {
   display: flex;
   align-items: center;
   gap: .4rem;
-
   font-size: .95rem;
-  color: #fff;
-
-  height: 1.35rem;
-  line-height: 1.35rem;
+  color: #ddd;
 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  min-height: 1.25rem;
 }
 
 .flag {
   width: 18px;
   height: 12px;
+  object-fit: cover;
+  border-radius: 2px;
   flex-shrink: 0;
 }
 
-/* ===========================================
-   INFOBLOCK — 3 rows + extra spacing
-   =========================================== */
+/* ============================================================
+   INFOBLOCK – address, phone, website
+   ============================================================ */
 .infoblock {
   display: flex;
   flex-direction: column;
-  gap: .35rem;          /* ← EXTRA spacing */
+  gap: .35rem;
+  margin-top: .3rem;
 }
 
 .infoblock p,
 .infoblock a {
   margin: 0;
-  height: 1.25rem;
-  line-height: 1.25rem;
+  font-size: .85rem;
+  color: #aaa;
 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 
-  font-size: .95rem;
-  color: var(--muted);
+  height: 1.25rem;
+  line-height: 1.25rem;
 }
 
 .infoblock a {
-  color: var(--gold);
+  color: #ffcc33;
+  text-decoration: none;
 }
 
-/* ===========================================
-   COMMENTS BUTTON — bottom anchor
-   =========================================== */
+/* ============================================================
+   COMMENTS BUTTON – bottom align
+   ============================================================ */
 .reviews-btn {
   margin-top: auto;
-  padding: .5rem .8rem;
+  padding: .55rem .8rem;
   border-radius: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid #444;
   background: #111;
-  color: var(--text);
+  color: #eee;
   font-size: .85rem;
 }
