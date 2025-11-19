@@ -129,24 +129,43 @@
   margin-top: 0.3rem;
 }
 
-/* ============================================================
-   LOCATION BLOCK
-   ============================================================ */
+/* ================================
+   LOCATION (Frontend = Backend style)
+   ================================ */
 
-.loc-row {
+.locrow {
+  font-size: 0.95rem;
+  margin: 0.6rem 0 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.loc-top {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.85rem;
-  color: var(--text);
-  margin-top: 0.2rem;
 }
 
 .flag {
-  width: 18px;
-  height: 12px;
-  border-radius: 2px;
+  width: 20px;
+  height: 14px;
   object-fit: cover;
+  border-radius: 2px;
+}
+
+.geo-main {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 210px; /* samma som backend-bredden */
+}
+
+.continent-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  padding-left: 2rem;       /* ✓ indragen under texten, inte under flaggan */
+  margin-top: -2px;         /* perfekt vertikal offset */
 }
 
 /* ============================================================
