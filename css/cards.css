@@ -1,9 +1,6 @@
-body {
-  border: 5px solid red !important;
-}
 
 /* ===========================================
-   CARD BASE
+   CARD FRONTEND BASE
    =========================================== */
 .store-card {
   width: 265px;
