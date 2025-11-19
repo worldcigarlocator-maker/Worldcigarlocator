@@ -1,14 +1,12 @@
-/* ===========================================
-   TITEL — alltid exakt 2 rader
-   =========================================== */
+/* TITLE — 2 rader */
 .store-title {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   margin: 0;
   color: #fff;
 
-  line-height: 1.35rem;
-  height: calc(1.35rem * 2); /* fixed 2 rows */
+  line-height: 1.2rem;
+  height: 2.4rem;
 
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -16,49 +14,33 @@
   overflow: hidden;
 }
 
-
-/* ===========================================
-   BADGE RAD — fixed 1 rad höjd
-   =========================================== */
+/* BADGES — 1 rad */
 .badge-row {
   display: flex;
-  gap: .35rem;
-  flex-wrap: nowrap;
-
-  height: 1.35rem;      /* ⭐ exakt backend height */
+  gap: .3rem;
+  height: 1.2rem;
   align-items: center;
 }
 
-
-/* ===========================================
-   STARS — egen rad
-   =========================================== */
+/* STARS — 1 rad */
 .stars {
-  font-size: 1.15rem;
-  color: var(--gold);
-
-  height: 1.35rem;      /* ⭐ exakt backend height */
-  line-height: 1.35rem;
+  font-size: 1.1rem;
+  height: 1.2rem;
+  line-height: 1.2rem;
 }
 
-
-/* ===========================================
-   LOCATION — exakt 1 rad
-   =========================================== */
+/* LOCATION — 1 rad */
 .locrow {
   display: flex;
   align-items: center;
   gap: .4rem;
 
-  font-size: .95rem;
-  color: #fff;
+  height: 1.2rem;
+  line-height: 1.2rem;
 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  height: 1.3rem;        /* ⭐ exakt backend height */
-  line-height: 1.3rem;
 }
 
 .flag {
@@ -67,37 +49,26 @@
   flex-shrink: 0;
 }
 
-
-/* ===========================================
-   INFOBLOCK — exakt 3 rader (Address, Phone, Website)
-   =========================================== */
+/* INFOBLOCK — 3 rader */
 .infoblock {
-  margin-top: .4rem;
   display: flex;
   flex-direction: column;
-  gap: .25rem;
-
-  height: calc(1.2rem * 3); /* ⭐ 3 rows */
+  gap: .2rem;
+  height: calc(1.1rem * 3);
 }
 
 .infoblock p,
 .infoblock a {
   margin: 0;
-  font-size: .9rem;
-  color: var(--muted);
-
-  line-height: 1.2rem;
-  height: 1.2rem;
+  height: 1.1rem;
+  line-height: 1.1rem;
 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-
-/* ===========================================
-   BUTTON bottom anchor
-   =========================================== */
+/* BUTTON TO BOTTOM */
 .reviews-btn {
   margin-top: auto;
 }
