@@ -1,31 +1,135 @@
-<main class="main">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>World Cigar Locator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- TOP STATUS ROW -->
-  <div class="status-row">
-
-    <div class="online-box">
-      <span class="dot"></span>
-      <span id="onlineCount">Online: 0</span>
-    </div>
-
-    <div class="auth-buttons">
-      <button id="loginBtn" class="login-btn">Login</button>
-      <button id="logoutBtn" class="logout-btn" style="display:none;">Logout</button>
-    </div>
-
-  </div>
-
-  <!-- Search -->
-  <div class="searchbar">
-    <input
-      id="searchInput"
-      type="text"
-      placeholder="Search by name, city or country…"
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;400;500;600;700&display=swap"
+      rel="stylesheet"
     />
-  </div>
 
-  <!-- Cards grid -->
-  <div id="storeGrid" class="store-grid"></div>
-  <div id="toast-container"></div>
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/cards.css" />
+    <link rel="stylesheet" href="css/start.css" />
+  </head>
 
-</main>
+  <body>
+    <!-- Store Modal -->
+    <div id="storeModal" class="modal" aria-hidden="true">
+      <div class="modal-content" role="dialog" aria-modal="true">
+        <button class="modal-close" aria-label="Close">&times;</button>
+        <img id="mPhoto" alt="" />
+        <h2 id="mTitle"></h2>
+        <p id="mAddress" class="m-line"></p>
+        <p id="mLocation" class="m-line"></p>
+
+        <div class="m-rating">
+          <button class="star" data-v="1">★</button>
+          <button class="star" data-v="2">★</button>
+          <button class="star" data-v="3">★</button>
+          <button class="star" data-v="4">★</button>
+          <button class="star" data-v="5">★</button>
+          <small id="mRatingNote">(click to rate – mock)</small>
+        </div>
+
+        <textarea id="mComment" placeholder="Leave a comment… (mock)"></textarea>
+        <div class="m-actions">
+          <button id="mVisit" class="btn">Visit</button>
+          <button id="mSave" class="btn outline">Save comment (mock)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login modal (Supabase auth) -->
+    <div id="authModal" class="modal" aria-hidden="true">
+      <div class="modal-content auth-modal" role="dialog" aria-modal="true">
+        <button class="modal-close auth-close" aria-label="Close">&times;</button>
+        <h2 class="auth-title">Login</h2>
+        <p class="auth-subtitle">Use your WCL account email & password.</p>
+
+        <label class="auth-label">
+          Email
+          <input id="authEmail" type="email" autocomplete="email" />
+        </label>
+
+        <label class="auth-label">
+          Password
+          <input id="authPassword" type="password" autocomplete="current-password" />
+        </label>
+
+        <button id="authSubmit" class="btn auth-submit">Login</button>
+        <p class="auth-hint">
+          Authentication is handled securely via Supabase.
+        </p>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-top">
+          <h1 class="logo">World Cigar Locator</h1>
+
+          <div id="authBox" class="auth-box">
+            <!-- Online -->
+            <div class="online-line">
+              <span class="online-dot"></span>
+              <span id="onlineCount" class="online-text">Online: –</span>
+            </div>
+
+            <!-- Auth state -->
+            <div class="auth-row">
+              <button id="loginBtn" class="auth-btn">Login</button>
+              <button id="logoutBtn" class="auth-btn outline" style="display:none;">
+                Logout
+              </button>
+            </div>
+
+            <small id="authStatus" class="auth-status">Not logged in</small>
+          </div>
+
+          <hr class="divider" />
+        </div>
+
+        <ul id="sidebarMenu" class="nav"></ul>
+
+        <div class="sidebar-bottom">
+          <hr class="divider" />
+          <a href="#" class="menu-link">About</a>
+          <a href="mailto:support@worldcigarlocator.com" class="menu-link">
+            Contact / Support
+          </a>
+          <a href="../add-store.html" class="menu-link add-store">+ Add Store</a>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="main">
+        <!-- Search only – no title/subtitle -->
+        <div class="searchbar">
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Search by name, city or country…"
+          />
+          <button id="clearBtn" class="btn outline">Clear</button>
+        </div>
+
+        <!-- Cards grid -->
+        <div id="storeGrid" class="store-grid"></div>
+        <div id="toast-container"></div>
+      </main>
+    </div>
+
+    <!-- Frontend app (ES modules) -->
+    <script type="module" src="globals.js"></script>
+    <script type="module" src="cards.js"></script>
+    <script type="module" src="sidebar.js"></script>
+    <script type="module" src="start.js"></script>
+  </body>
+</html>
