@@ -30,16 +30,19 @@ export function renderCards(stores) {
     title.textContent = s.name || "";
     body.appendChild(title);
 
-/* ---------------- TYPES / BADGES ---------------- */
+/* ---------------- BADGES ---------------- */
+const badgeRow = document.createElement("div");
+badgeRow.className = "badge-row";
+
+/* ---------------- TYPES / BADGES ✔️ ---------------- */
 
 let types = [];
 
-// 1) Array-case (ovanligt men stöds)
+// 1) Array-case
 if (Array.isArray(s.types) && s.types.length > 0) {
   types = s.types.map(t => t.toLowerCase());
 }
-
-// 2) Vanlig typ-string "store,lounge"
+// 2) String-case: "store,lounge"
 else if (typeof s.type === "string" && s.type.trim() !== "") {
   types = s.type.split(",").map(t => t.trim().toLowerCase());
 }
@@ -52,7 +55,6 @@ types.forEach((t) => {
     badgeRow.appendChild(b);
   }
 
-  /* ACCESS BADGE — syns endast för lounge */
   if (t === "lounge") {
     const acc = (s.access || "").toLowerCase();
 
@@ -64,6 +66,9 @@ types.forEach((t) => {
     }
   }
 });
+
+body.appendChild(badgeRow);
+
 
 
     /* ---------------- STARS ---------------- */
