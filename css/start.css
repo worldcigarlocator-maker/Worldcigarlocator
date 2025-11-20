@@ -1,5 +1,5 @@
 /* ============================================================
-   START PAGE LAYOUT — DARK, CLEAN, ELEGANT
+   START PAGE LAYOUT — DARK SIDEBAR + LIGHT MAIN
    ============================================================ */
 
 :root {
@@ -8,7 +8,7 @@
   --panel-soft: #161616;
   --border: #262626;
   --accent: #f6d56a;
-  --accent-soft: rgba(246, 213, 106, 0.1);
+  --accent-soft: rgba(246, 213, 106, 0.12);
   --text: #f5f5f5;
   --muted: #9a9a9a;
 }
@@ -73,28 +73,63 @@ body {
 }
 
 /* ============================================================
-   SIDEBAR — AUTH BOX
+   SIDEBAR — AUTH + ONLINE
    ============================================================ */
 
 .auth-box {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.6rem;
+  padding: 0.6rem 0.4rem;
+  border-radius: 10px;
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+}
+
+/* Online line */
+.online-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.online-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #29c24a;
+  box-shadow: 0 0 6px rgba(41, 194, 74, 0.6);
+}
+
+.online-text {
+  font-size: 0.8rem;
+  color: #e2e2e2;
+  font-weight: 500;
+}
+
+/* Auth row */
+.auth-row {
+  display: flex;
+  gap: 0.6rem;
 }
 
 .auth-btn {
-  width: 100%;
-  padding: 0.45rem 0.7rem;
-  font-size: 0.8rem;
-  border-radius: 8px;
+  flex: 1;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.78rem;
+  border-radius: 999px;
   border: 1px solid var(--border);
-  background: #0c0c0c;
+  background: #151515;
   color: var(--text);
   cursor: pointer;
 }
 
 .auth-btn:hover {
-  background: #1f1f1f;
+  background: #222;
+}
+
+.auth-btn.outline {
+  background: transparent;
 }
 
 .auth-status {
@@ -108,11 +143,11 @@ body {
   border: none;
   height: 1px;
   background: var(--border);
-  margin: 0.8rem 0;
+  margin: 0.8rem 0 0.4rem;
 }
 
 /* ============================================================
-   SIDEBAR — HIERARCHY (continents, countries, cities)
+   SIDEBAR — HIERARCHY
    ============================================================ */
 
 .nav {
@@ -214,10 +249,12 @@ body {
 }
 
 /* ============================================================
-   MAIN AREA (no title / no subtitle)
+   MAIN — VIT, REN
    ============================================================ */
 
 .main {
+  background: #ffffff;
+  color: #111;
   padding: 1.4rem 1.6rem 2rem;
 }
 
@@ -235,15 +272,15 @@ body {
   flex: 1;
   padding: 0.55rem 0.8rem;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  background: #0b0b0b;
-  color: var(--text);
+  border: 1px solid #ddd;
+  background: #fafafa;
+  color: #111;
   font-size: 0.9rem;
   outline: none;
 }
 
 .searchbar input::placeholder {
-  color: #555;
+  color: #777;
 }
 
 .btn {
@@ -261,23 +298,8 @@ body {
 
 .btn.outline {
   background: transparent;
-  border: 1px solid var(--border);
-  color: var(--muted);
-}
-
-/* ============================================================
-   HEADINGS (search results)
-   ============================================================ */
-
-.result-heading {
-  margin-top: -0.4rem;
-  margin-bottom: 0.6rem;
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-#showAllBtn {
-  margin-bottom: 0.6rem;
+  border: 1px solid #ccc;
+  color: #555;
 }
 
 /* ============================================================
@@ -291,7 +313,7 @@ body {
 }
 
 /* ============================================================
-   MODAL
+   MODAL BASE
    ============================================================ */
 
 .modal {
@@ -331,78 +353,48 @@ body {
 }
 
 /* ============================================================
-   MAIN – VIT BAKGRUND TEST
+   AUTH MODAL (login)
    ============================================================ */
-.main {
-  background: #ffffff;
-  color: #111;
-  padding: 1.4rem 1.6rem 2rem;
-  border-left: 1px solid var(--border);
+
+.auth-modal {
+  max-width: 420px;
+  background: #111;
 }
 
-/* ============================================================
-   STATUS ROW (Online + Login/Logout)
-   ============================================================ */
-.status-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.2rem;
+.auth-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.2rem;
 }
 
-/* ONLINE BOX */
-.online-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: #f7f7f7;
-  border: 1px solid #ddd;
+.auth-subtitle {
+  margin: 0 0 0.9rem;
   font-size: 0.85rem;
-  color: #333;
-  font-weight: 600;
+  color: var(--muted);
 }
 
-.dot {
-  width: 10px;
-  height: 10px;
-  background: #28a745;
-  border-radius: 50%;
-  box-shadow: 0 0 6px rgba(40,167,69,0.6);
+.auth-label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 0.7rem;
 }
 
-/* AUTH BUTTONS */
-.auth-buttons {
-  display: flex;
-  gap: 10px;
+.auth-label input {
+  width: 100%;
+  margin-top: 0.2rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #060606;
+  color: var(--text);
 }
 
-.login-btn {
-  background: var(--accent);
-  border: none;
-  color: #111;
-  font-weight: 600;
-  padding: 6px 16px;
-  border-radius: 999px;
-  cursor: pointer;
+.auth-submit {
+  width: 100%;
+  margin-top: 0.6rem;
 }
 
-.logout-btn {
-  background: transparent;
-  border: 1px solid #888;
-  color: #333;
-  font-weight: 600;
-  padding: 6px 16px;
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.login-btn:hover {
-  background: #ffdd70;
-}
-
-.logout-btn:hover {
-  background: #eee;
+.auth-hint {
+  margin-top: 0.7rem;
+  font-size: 0.75rem;
+  color: var(--muted);
 }
