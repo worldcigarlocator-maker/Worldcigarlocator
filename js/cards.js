@@ -34,7 +34,20 @@ export function renderCards(stores) {
 const badgeRow = document.createElement("div");
 badgeRow.className = "badge-row";
 
-/* ---------------- TYPES / BADGES ✔️ ---------------- */
+
+/* ---------------- TYPES / BADGES ---------------- */
+
+const badgeRow = document.createElement("div");
+badgeRow.className = "badge-row";
+
+/* Normalize types */
+let types = [];
+
+if (Array.isArray(s.types)) {
+  types = s.types.map(t => t.toLowerCase());
+} else if (typeof s.type === "string") {
+  types = s.type.split(",").map(t => t.trim().toLowerCase());
+}
 
 types.forEach((t) => {
   if (t === "store" || t === "lounge") {
@@ -54,6 +67,8 @@ types.forEach((t) => {
     }
   }
 });
+
+body.appendChild(badgeRow);
 
 
     /* ---------------- STARS ---------------- */
