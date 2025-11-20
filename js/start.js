@@ -1,5 +1,5 @@
 /* ============================================================
-   start.js — World Cigar Locator (Frontend v8)
+   start.js — World Cigar Locator (Frontend with Supabase Auth)
    ============================================================ */
 
 import { WCL, getContinentFromCountry } from "./globals.js";
@@ -12,17 +12,18 @@ function qs(id) {
   return document.getElementById(id);
 }
 
-/* Supabase client (ESM, no window.supabase) */
+/* Supabase client */
 const supabase = createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
 /* ============================================================
-   LOAD STORES — used by sidebar + search
+   LOAD STORES
    ============================================================ */
 export async function loadStores(filter = {}, searchTerm = "") {
   const grid = qs("storeGrid");
   if (!grid) return;
 
-  grid.innerHTML = `<p style="color:#777;text-align:center;">Loading…</p>`;
+  grid.innerHTML =
+    "<p style='color:#777;text-align:center;margin-top:1rem;'>Loading…</p>";
 
   let query = supabase
     .from("stores_public")
@@ -37,10 +38,12 @@ export async function loadStores(filter = {}, searchTerm = "") {
         "<p style='color:#f55;text-align:center;'>Error loading stores.</p>";
       return;
     }
-    const filtered = data.map((s) => ({
-      ...s,
-      continent: getContinentFromCountry(s.country),
-    })).filter((s) => s.continent === filter.continent);
+    const filtered = data
+      .map((s) => ({
+        ...s,
+        continent: getContinentFromCountry(s.country),
+      }))
+      .filter((s) => s.continent === filter.continent);
     renderCards(filtered);
     return;
   }
@@ -71,72 +74,217 @@ export async function loadStores(filter = {}, searchTerm = "") {
 }
 
 /* ============================================================
+   AUTH UI HELPERS
+   ============================================================ */
+
+function setAuthStatus(user) {
+  const authStatus = qs("authStatus");
+  const loginBtn = qs("loginBtn");
+  const logoutBtn = qs("logoutBtn");
+
+  if (!authStatus || !loginBtn || !logoutBtn) return;
+
+  if (user) {
+    const email = user.email || "logged in";
+    authStatus.textContent = `Logged in as ${email}`;
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+  } else {
+    authStatus.textContent = "Not logged in";
+    loginBtn.style.display = "inline-block";
+    logoutBtn.style.display = "none";
+  }
+}
+
+async function refreshAuthState() {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) {
+    console.warn("auth getUser error", error.message);
+  }
+  setAuthStatus(data?.user || null);
+}
+
+/* ============================================================
+   AUTH MODAL LOGIC
+   ============================================================ */
+
+function setupAuthModal() {
+  const loginBtn = qs("loginBtn");
+  const logoutBtn = qs("logoutBtn");
+  const authModal = qs("authModal");
+  const authClose = document.querySelector(".auth-close");
+  const authSubmit = qs("authSubmit");
+  const emailInput = qs("authEmail");
+  const passwordInput = qs("authPassword");
+
+  if (!authModal || !loginBtn || !logoutBtn || !authSubmit) return;
+
+  const openModal = () => {
+    authModal.classList.add("show");
+    authModal.setAttribute("aria-hidden", "false");
+    emailInput.value = "";
+    passwordInput.value = "";
+    emailInput.focus();
+  };
+
+  const closeModal = () => {
+    authModal.classList.remove("show");
+    authModal.setAttribute("aria-hidden", "true");
+  };
+
+  loginBtn.addEventListener("click", openModal);
+  authClose?.addEventListener("click", closeModal);
+  authModal.addEventListener("click", (e) => {
+    if (e.target === authModal) closeModal();
+  });
+
+  authSubmit.addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!email || !password) {
+      alert("Please enter both email and password.");
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error("Login error", error);
+      alert("Login failed: " + error.message);
+      return;
+    }
+
+    setAuthStatus(data.user);
+    closeModal();
+  });
+
+  logoutBtn.addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    setAuthStatus(null);
+  });
+}
+
+/* ============================================================
+   REALTIME ONLINE USERS
+   ============================================================ */
+
+let sessionId = localStorage.getItem("wcl_session_id");
+if (!sessionId) {
+  sessionId = crypto.randomUUID();
+  localStorage.setItem("wcl_session_id", sessionId);
+}
+
+async function heartbeat() {
+  // Upsert this session
+  await supabase.from("online_users").upsert({
+    session_id: sessionId,
+    updated_at: new Date().toISOString(),
+  });
+
+  // Rensa gamla sessions (äldre än 45 sek)
+  const cutoff = new Date(Date.now() - 45_000).toISOString();
+  await supabase.from("online_users").delete().lt("updated_at", cutoff);
+}
+
+async function updateOnlineCount() {
+  const onlineCountEl = qs("onlineCount");
+  if (!onlineCountEl) return;
+
+  const { count, error } = await supabase
+    .from("online_users")
+    .select("id", { count: "exact", head: true });
+
+  if (error) {
+    console.warn("online count error", error.message);
+    onlineCountEl.textContent = "Online: –";
+    return;
+  }
+
+  onlineCountEl.textContent = `Online: ${count ?? 0}`;
+}
+
+function setupRealtimeOnline() {
+  // Första värdet
+  updateOnlineCount();
+  // Heartbeat var 30:e sekund
+  heartbeat();
+  setInterval(heartbeat, 30_000);
+
+  // Realtime-kanal
+  supabase
+    .channel("online-users-channel")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "online_users" },
+      () => {
+        updateOnlineCount();
+      }
+    )
+    .subscribe();
+}
+
+/* ============================================================
    INIT
    ============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("🌍 Frontend v8 loaded");
 
-  // Sidebar (gets supabase instance, loader + continent helper)
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("🌍 Frontend with Supabase Auth & Online loaded");
+
+  // Sidebar hierarchy
   buildFrontendSidebar(supabase, loadStores, getContinentFromCountry);
 
-  // Default load
+  // Default cards
   loadStores();
 
-  // Search hooks
+  // Search hooks — live filter + clear
   const searchInput = qs("searchInput");
-  const searchBtn = qs("searchBtn");
   const clearBtn = qs("clearBtn");
 
-  searchBtn?.addEventListener("click", () => {
-    loadStores({}, searchInput.value.trim());
+  searchInput?.addEventListener("input", (e) => {
+    const term = e.target.value.trim();
+    loadStores({}, term);
   });
 
   clearBtn?.addEventListener("click", () => {
-    searchInput.value = "";
+    if (searchInput) searchInput.value = "";
     loadStores();
   });
 
-  searchInput?.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      loadStores({}, searchInput.value.trim());
-    }
-  });
-
-  // Modal close behaviour (modal markup finns i start.html)
-  const modal = qs("storeModal");
-  if (modal) {
+  // Store modal close
+  const storeModal = qs("storeModal");
+  if (storeModal) {
     const close = () => {
-      modal.classList.remove("show");
-      modal.setAttribute("aria-hidden", "true");
+      storeModal.classList.remove("show");
+      storeModal.setAttribute("aria-hidden", "true");
     };
-    modal.querySelector(".modal-close")?.addEventListener("click", close);
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) close();
+    storeModal.querySelector(".modal-close")?.addEventListener("click", close);
+    storeModal.addEventListener("click", (e) => {
+      if (e.target === storeModal) close();
     });
   }
-});
-// AUTH placeholder (vi bygger riktig senare)
-document.getElementById("loginBtn").onclick = () => {
-  alert("Login placeholder – riktig auth kommer sen!");
-};
 
-document.getElementById("logoutBtn").onclick = () => {
-  alert("Logout placeholder – riktig auth kommer sen!");
-};
+  // Expose modal opener for cards.js
+  window.openStoreModal = (store) => {
+    if (!storeModal) return;
+    storeModal.classList.add("show");
+    storeModal.setAttribute("aria-hidden", "false");
 
-// ============================================================
-// AUTH placeholder (riktig Supabase-auth kommer senare)
-// ============================================================
+    qs("mTitle").textContent = store.name || "";
+    qs("mAddress").textContent = store.address || "";
+    qs("mLocation").textContent =
+      [store.country, store.city].filter(Boolean).join(", ");
+    const img = qs("mPhoto");
+    if (img) {
+      img.src = store.photo_url || "";
+    }
+  };
 
-document.addEventListener("DOMContentLoaded", () => {
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  if (loginBtn) {
-    loginBtn.onclick = () => alert("Login placeholder – riktig auth kommer sen!");
-  }
-
-  if (logoutBtn) {
-    logoutBtn.onclick = () => alert("Logout placeholder – riktig auth kommer sen!");
-  }
+  // Auth + online
+  setupAuthModal();
+  refreshAuthState();
+  setupRealtimeOnline();
 });
