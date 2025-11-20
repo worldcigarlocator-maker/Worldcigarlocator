@@ -50,12 +50,19 @@
    ============================================================ */
 
 .store-body {
-  padding: .9rem 1rem 1.2rem;
-  display: flex;
-  flex-direction: column;
-  gap: .45rem;
-  flex: 1;
+  display: grid;
+  grid-template-rows:
+    24px     /* title */
+    22px     /* badges */
+    20px     /* stars */
+    auto     /* location */
+    auto     /* info-block */
+    1fr      /* space filler */
+    40px;    /* comments btn */
+
+  gap: .35rem;
 }
+
 
 /* ============================================================
    TITLE — always 1 line
