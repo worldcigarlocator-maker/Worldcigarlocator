@@ -148,3 +148,15 @@ if (logoutBtn) {
   });
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  const loginBtn = document.getElementById("loginBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  if (loginBtn) {
+    loginBtn.onclick = () => alert("Login placeholder – riktig auth kommer sen!");
+  }
+
+  if (logoutBtn) {
+    logoutBtn.onclick = () => alert("Logout placeholder – riktig auth kommer sen!");
+  }
+});
