@@ -30,34 +30,41 @@ export function renderCards(stores) {
     title.textContent = s.name || "";
     body.appendChild(title);
 
-    /* ---------------- BADGES ---------------- */
-    const badgeRow = document.createElement("div");
-    badgeRow.className = "badge-row";
+/* ---------------- TYPES / BADGES ---------------- */
 
-    let types = [];
-    if (Array.isArray(s.types)) {
-      types = s.types;
-    } else if (typeof s.type === "string") {
-      types = s.type.split(",").map((t) => t.trim().toLowerCase());
+let types = [];
+
+// 1) Array-case (ovanligt men stöds)
+if (Array.isArray(s.types) && s.types.length > 0) {
+  types = s.types.map(t => t.toLowerCase());
+}
+
+// 2) Vanlig typ-string "store,lounge"
+else if (typeof s.type === "string" && s.type.trim() !== "") {
+  types = s.type.split(",").map(t => t.trim().toLowerCase());
+}
+
+types.forEach((t) => {
+  if (t === "store" || t === "lounge") {
+    const b = document.createElement("span");
+    b.className = `badge ${t === "store" ? "blue" : "gold"}`;
+    b.textContent = t.toUpperCase();
+    badgeRow.appendChild(b);
+  }
+
+  /* ACCESS BADGE — syns endast för lounge */
+  if (t === "lounge") {
+    const acc = (s.access || "").toLowerCase();
+
+    if (acc === "public" || acc === "members") {
+      const a = document.createElement("span");
+      a.className = `badge access ${acc}`;
+      a.textContent = acc.toUpperCase();
+      badgeRow.appendChild(a);
     }
+  }
+});
 
-    types.forEach((t) => {
-      if (t !== "store" && t !== "lounge") return;
-
-      const b = document.createElement("span");
-      b.className = `badge ${t === "store" ? "blue" : "gold"}`;
-      b.textContent = t.toUpperCase();
-      badgeRow.appendChild(b);
-
-      if (t === "lounge" && s.access) {
-        const a = document.createElement("span");
-        a.className = `badge access ${s.access.toLowerCase()}`;
-        a.textContent = s.access.toUpperCase();
-        badgeRow.appendChild(a);
-      }
-    });
-
-    body.appendChild(badgeRow);
 
     /* ---------------- STARS ---------------- */
     const stars = document.createElement("div");
@@ -67,27 +74,41 @@ export function renderCards(stores) {
     stars.textContent = "★★★★★☆☆☆☆☆".slice(5 - rating, 10 - rating);
     body.appendChild(stars);
 
-    /* ---------------- LOCATION ---------------- */
-    const loc = document.createElement("div");
-    loc.className = "locrow";
+  /* ---------------- LOCATION ---------------- */
+const loc = document.createElement("div");
+loc.className = "locrow";
 
-    const top = document.createElement("div");
-    top.className = "loc-top";
+/* Rad 1: flagga + country, city */
+const top = document.createElement("div");
+top.className = "loc-top";
 
-    const fsrc = flagURL(s.country, s.country_iso2);
-    if (fsrc) {
-      const f = document.createElement("img");
-      f.className = "flag";
-      f.src = fsrc;
-      top.appendChild(f);
-    }
+const fsrc = flagURL(s.country, s.country_iso2);
+if (fsrc) {
+  const f = document.createElement("img");
+  f.className = "flag";
+  f.src = fsrc;
+  top.appendChild(f);
+}
 
-    const geo = document.createElement("span");
-    geo.textContent = [s.country, s.state, s.city].filter(Boolean).join(", ");
-    top.appendChild(geo);
+const geo = document.createElement("span");
+geo.className = "geo-main";
+geo.textContent = [s.country, s.city].filter(Boolean).join(", ");
+top.appendChild(geo);
 
-    loc.appendChild(top);
-    body.appendChild(loc);
+loc.appendChild(top);
+
+/* Rad 2: continent (indragen) */
+if (s.continent) {
+  const cont = document.createElement("div");
+  cont.className = "continent-label";
+  cont.textContent =
+    s.continent.charAt(0).toUpperCase() +
+    s.continent.slice(1).toLowerCase();
+  loc.appendChild(cont);
+}
+
+body.appendChild(loc);
+
 
     /* ---------------- INFO ---------------- */
     const info = document.createElement("div");
