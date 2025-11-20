@@ -1,113 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>World Cigar Locator</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<main class="main">
 
-    <!-- Font (lite tunnare & elegantare än Backoffice Inter) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;400;500;600;700&display=swap"
-      rel="stylesheet"
+  <!-- TOP STATUS ROW -->
+  <div class="status-row">
+
+    <div class="online-box">
+      <span class="dot"></span>
+      <span id="onlineCount">Online: 0</span>
+    </div>
+
+    <div class="auth-buttons">
+      <button id="loginBtn" class="login-btn">Login</button>
+      <button id="logoutBtn" class="logout-btn" style="display:none;">Logout</button>
+    </div>
+
+  </div>
+
+  <!-- Search -->
+  <div class="searchbar">
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Search by name, city or country…"
     />
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="css/cards.css" />
-   <link rel="stylesheet" href="css/start.css" />
-  </head>
-
-  <body>
-    <!-- Store Modal -->
-    <div id="storeModal" class="modal" aria-hidden="true">
-      <div class="modal-content" role="dialog" aria-modal="true">
-        <button class="modal-close" aria-label="Close">&times;</button>
-        <img id="mPhoto" alt="" />
-        <h2 id="mTitle"></h2>
-        <p id="mAddress" class="m-line"></p>
-        <p id="mLocation" class="m-line"></p>
-
-        <div class="m-rating">
-          <button class="star" data-v="1">★</button>
-          <button class="star" data-v="2">★</button>
-          <button class="star" data-v="3">★</button>
-          <button class="star" data-v="4">★</button>
-          <button class="star" data-v="5">★</button>
-          <small id="mRatingNote">(click to rate – mock)</small>
-        </div>
-
-        <textarea id="mComment" placeholder="Leave a comment… (mock)"></textarea>
-        <div class="m-actions">
-          <button id="mVisit" class="btn">Visit</button>
-          <button id="mSave" class="btn outline">Save comment (mock)</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="container">
-     <aside class="sidebar">
-
-  <div class="sidebar-top">
-    <h1 class="logo">World Cigar Locator</h1>
-
-    <div id="authBox" class="auth-box">
-      <button id="loginBtn" class="auth-btn">Login</button>
-      <button id="logoutBtn" class="auth-btn" style="display:none;">Logout</button>
-      <small id="authStatus" class="auth-status"></small>
-    </div>
-
-    <hr class="divider" />
   </div>
 
-  <ul id="sidebarMenu" class="nav"></ul>
+  <!-- Cards grid -->
+  <div id="storeGrid" class="store-grid"></div>
+  <div id="toast-container"></div>
 
-  <div class="sidebar-bottom">
-    <hr class="divider" />
-
-    <a href="#" class="menu-link">About</a>
-    <a href="mailto:support@worldcigarlocator.com" class="menu-link">Contact / Support</a>
-    <a href="../add-store.html" class="menu-link add-store">+ Add Store</a>
-  </div>
-
-</aside>
-
-      <!-- Main -->
-      <main class="main">
-     
-        <!-- Search -->
-        <div class="searchbar">
-          <input
-            id="searchInput"
-            type="text"
-            placeholder="Search by name, city or country…"
-          />
-          <button id="searchBtn" class="btn">Search</button>
-          <button id="clearBtn" class="btn outline">Clear</button>
-        </div>
-
-        <!-- Heading + Show All -->
-        <div id="resultHeading" class="result-heading">
-          Latest worldwide
-        </div>
-        <button
-          id="showAllBtn"
-          class="btn outline"
-          style="display: none"
-        >
-          Show All
-        </button>
-
-        <!-- Cards grid -->
-        <div id="storeGrid" class="store-grid"></div>
-        <div id="toast-container"></div>
-      </main>
-    </div>
-
-    <!-- Frontend app (ES modules) -->
-    <script type="module" src="globals.js"></script>
-    <script type="module" src="cards.js"></script>
-    <script type="module" src="sidebar.js"></script>
-    <script type="module" src="start.js"></script>
-  </body>
-</html>
+</main>
