@@ -329,3 +329,80 @@ body {
   font-size: 1.2rem;
   cursor: pointer;
 }
+
+/* ============================================================
+   MAIN – VIT BAKGRUND TEST
+   ============================================================ */
+.main {
+  background: #ffffff;
+  color: #111;
+  padding: 1.4rem 1.6rem 2rem;
+  border-left: 1px solid var(--border);
+}
+
+/* ============================================================
+   STATUS ROW (Online + Login/Logout)
+   ============================================================ */
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+}
+
+/* ONLINE BOX */
+.online-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #f7f7f7;
+  border: 1px solid #ddd;
+  font-size: 0.85rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background: #28a745;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(40,167,69,0.6);
+}
+
+/* AUTH BUTTONS */
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.login-btn {
+  background: var(--accent);
+  border: none;
+  color: #111;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid #888;
+  color: #333;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  background: #ffdd70;
+}
+
+.logout-btn:hover {
+  background: #eee;
+}
