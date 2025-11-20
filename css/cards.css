@@ -1,225 +1,194 @@
 /* ============================================================
-   STORE GRID
+   FRONTEND — PIXEL PERFECT CARD LAYOUT (v5)
    ============================================================ */
 
 .store-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+  grid-template-columns: repeat(auto-fill, 265px);
   gap: 1.2rem;
-  width: 100%;
+  justify-content: start;
 }
 
 /* ============================================================
-   CARD BASE
+   CARD
    ============================================================ */
-
 .store-card {
-  width: 100%;
-  height: 540px;
-
-  background: #0b0b0b;
-  border-radius: 14px;
-  border: 1px solid rgba(246, 213, 106, 0.35); /* gold border */
-  overflow: hidden;
+  width: 265px;
+  height: 540px;              /* 🔥 FIX: exakt höjd */
+  background: var(--card-bg);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
 
   display: flex;
   flex-direction: column;
-  cursor: pointer;
-
-  transition: transform .15s ease, box-shadow .2s ease;
+  overflow: hidden;
+  position: relative;
 }
 
-.store-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 14px rgba(246, 213, 106, 0.15);
-}
-
-/* ============================================================
-   IMAGE
-   ============================================================ */
-
+/* IMAGE */
 .store-img {
   width: 100%;
-  height: 180px;
+  height: 160px;
   object-fit: cover;
-  background: #111;
 }
 
-/* ============================================================
-   BODY
-   ============================================================ */
-
+/* BODY */
 .store-body {
-  display: grid;
-  grid-template-rows:
-    24px     /* title */
-    22px     /* badges */
-    20px     /* stars */
-    auto     /* location */
-    auto     /* info-block */
-    1fr      /* space filler */
-    40px;    /* comments btn */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0.95rem 1rem 0.6rem;
 
-  gap: .35rem;
+  gap: 0.45rem;
 }
 
-
 /* ============================================================
-   TITLE — always 1 line
+   TITLE — 1 rad + spacing
    ============================================================ */
-
 .store-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
   color: #fff;
+  margin: 8px 0 6px 0;         /* 🔥 luft ovanför+under namnet */
 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  line-height: 1.3rem;
+  height: 1.3rem;              /* 🔥 exakt 1 rad */
 }
 
 /* ============================================================
-   BADGES
+   BADGES — fast höjd + spacing
    ============================================================ */
-
 .badge-row {
   display: flex;
-  gap: .4rem;
-  margin-bottom: 0.15rem;
+  gap: 6px;
+  height: 22px;                /* 🔥 fixar positioner */
+  align-items: center;
+  margin-bottom: 6px;
 }
 
 .badge {
-  padding: .18rem .45rem;
-  border-radius: 999px;
-  font-size: .72rem;
-  font-weight: 600;
-  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
 .badge.blue {
-  background: rgba(90, 160, 255, 0.18);
-  color: #7db5ff;
+  background: var(--blue);
 }
 
 .badge.gold {
-  background: rgba(246, 213, 106, 0.18);
-  color: var(--accent);
+  background: var(--gold);
+  color: #222;
 }
 
 .badge.access.public {
-  background: rgba(110, 255, 110, 0.16);
-  color: #8aff8a;
+  background: #28a745;
 }
+
 .badge.access.members {
-  background: rgba(255, 120, 120, 0.18);
-  color: #ff9a9a;
+  background: #8a2be2;
 }
 
 /* ============================================================
-   STARS
+   STARS — 1 rad, fix height
    ============================================================ */
-
 .stars {
-  font-size: .9rem;
-  color: var(--accent);
-  letter-spacing: 1px;
+  color: var(--gold);
+  font-size: 1.05rem;
+
+  height: 20px;                /* 🔥 exakt höjd */
+  line-height: 20px;
+  margin-bottom: 4px;
 }
 
 /* ============================================================
-   LOCATION ROW
+   LOCATION (flag + country/city + continent)
    ============================================================ */
-
 .locrow {
-  margin-top: 0.35rem;
-  margin-bottom: 0.7rem;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 2px;
+
+  height: 42px;               /* 🔥 fast blockhöjd */
 }
 
 .loc-top {
   display: flex;
   align-items: center;
-  gap: .45rem;
-  font-size: .85rem;
-  color: var(--muted);
+  gap: 6px;
+
+  font-size: 0.85rem;
+  color: var(--text);
 }
 
 .flag {
-  width: 20px;
-  height: 14px;
+  width: 18px;
+  height: 12px;
+  border-radius: 2px;
   object-fit: cover;
-  border-radius: 3px;
 }
 
-.geo-main {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* EUROPE under Sweden, indragen rätt */
 .continent-label {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--muted);
-  padding-left: 2rem;
-  margin-top: -2px;
+  margin-left: 24px;           /* 🔥 indrag som backend */
 }
-
 
 /* ============================================================
-   INFO BLOCK
+   INFO BLOCK (Address / Phone / Website)
    ============================================================ */
-
 .infoblock {
-  margin-top: .4rem;
-  display: flex;
-  flex-direction: column;
-  gap: .45rem;   /* MER LUFT – som backend */
+  margin-top: 4px;
 }
 
-.infoblock p {
-  margin: 0;
-  font-size: .82rem;
-  color: var(--muted);
-  line-height: 1.25rem;
-}
-
-/* Address = 1 rad */
-.info-row.address {
+.info-row {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  line-height: 1.25rem;
+  height: 1.25rem;
+
+  font-size: 0.86rem;
 }
 
-/* Website link */
-.info-row.website a {
-  color: var(--accent);
+.info-row + .info-row {
+  margin-top: 6px;             /* 🔥 luft mellan rader */
+}
+
+.info-row a {
+  color: var(--gold);
   text-decoration: none;
 }
-.info-row.website a:hover {
-  text-decoration: underline;
-}
 
 /* ============================================================
-   COMMENTS BUTTON
+   COMMENTS BUTTON — alltid nederst + centrerad
    ============================================================ */
-
 .reviews-btn {
-  margin-top: auto;
-  margin-bottom: .1rem;
+  margin-top: auto;            /* 🔥 pressar knappen till botten */
+  margin-bottom: 6px;
 
-  border: 1px solid var(--border);
+  align-self: center;          /* 🔥 centrerad */
+  text-align: center;
+
+  width: 85%;                  /* som backend */
+  padding: 0.35rem 0.6rem;
+
   background: #111;
-  color: #ccc;
-  padding: .45rem .7rem;
+  border: 1px solid var(--border);
   border-radius: 8px;
 
-  font-size: .8rem;
+  color: var(--text);
+  font-size: 0.8rem;
   cursor: pointer;
 }
 
 .reviews-btn:hover {
-  background: #1a1a1a;
+  background: #222;
 }
