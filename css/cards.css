@@ -1,5 +1,5 @@
 /* ============================================================
-   FRONTEND — PIXEL PERFECT CARD LAYOUT (v5)
+   FRONTEND — PIXEL PERFECT CARD LAYOUT (v6)
    ============================================================ */
 
 .store-grid {
@@ -14,9 +14,9 @@
    ============================================================ */
 .store-card {
   width: 265px;
-  height: 540px;              /* 🔥 FIX: exakt höjd */
+  height: 540px;
   background: var(--card-bg);
-  border: 1px solid var(--accent);
+  border: 1px solid var(--accent);   /* ✔ GULD */
   border-radius: 12px;
   box-shadow: var(--shadow);
 
@@ -39,7 +39,6 @@
   display: flex;
   flex-direction: column;
   padding: 0.95rem 1rem 0.6rem;
-
   gap: 0.45rem;
 }
 
@@ -50,23 +49,23 @@
   font-size: 1.15rem;
   font-weight: 700;
   color: #fff;
-  margin: 8px 0 6px 0;         /* 🔥 luft ovanför+under namnet */
+  margin: 8px 0 6px 0;
 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 
   line-height: 1.3rem;
-  height: 1.3rem;              /* 🔥 exakt 1 rad */
+  height: 1.3rem;
 }
 
 /* ============================================================
-   BADGES — fast höjd + spacing
+   BADGES — guld fixad + spacing
    ============================================================ */
 .badge-row {
   display: flex;
   gap: 6px;
-  height: 22px;                /* 🔥 fixar positioner */
+  height: 22px;
   align-items: center;
   margin-bottom: 6px;
 }
@@ -78,44 +77,50 @@
   font-weight: 700;
 }
 
-.badge.blue {
-  background: var(--blue);
-}
-
+/* ✔ Guld som backend */
 .badge.gold {
-  background: var(--gold);
-  color: #222;
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
+/* ✔ Fixad blå */
+.badge.blue {
+  background: rgba(100,150,255,0.15);
+  color: #9dbdff;
+}
+
+/* ✔ Access-badges rätt färger */
 .badge.access.public {
-  background: #28a745;
+  background: rgba(246,213,106,0.18);
+  color: var(--accent);
 }
 
 .badge.access.members {
-  background: #8a2be2;
+  background: rgba(255,50,50,0.20);
+  color: #ff7777;
 }
 
 /* ============================================================
-   STARS — 1 rad, fix height
+   STARS — 1 rad + extra spacing under
    ============================================================ */
 .stars {
-  color: var(--gold);
+  color: var(--accent);                 /* ✔ GULD */
   font-size: 1.05rem;
 
-  height: 20px;                /* 🔥 exakt höjd */
+  height: 20px;
   line-height: 20px;
-  margin-bottom: 4px;
+
+  margin-bottom: 14px;                 /* 🔥 EXTRA TOM RAD UNDER STJÄRNOR */
 }
 
 /* ============================================================
-   LOCATION (flag + country/city + continent)
+   LOCATION
    ============================================================ */
 .locrow {
   display: flex;
   flex-direction: column;
   gap: 2px;
-
-  height: 42px;               /* 🔥 fast blockhöjd */
+  height: 42px;
 }
 
 .loc-top {
@@ -137,11 +142,11 @@
 .continent-label {
   font-size: 0.75rem;
   color: var(--muted);
-  margin-left: 24px;           /* 🔥 indrag som backend */
+  margin-left: 24px;
 }
 
 /* ============================================================
-   INFO BLOCK (Address / Phone / Website)
+   INFO BLOCK
    ============================================================ */
 .infoblock {
   margin-top: 4px;
@@ -154,30 +159,30 @@
 
   line-height: 1.25rem;
   height: 1.25rem;
-
   font-size: 0.86rem;
 }
 
 .info-row + .info-row {
-  margin-top: 6px;             /* 🔥 luft mellan rader */
+  margin-top: 6px;
 }
 
+/* ✔ Visit länken i guld */
 .info-row a {
-  color: var(--gold);
+  color: var(--accent);
   text-decoration: none;
 }
 
 /* ============================================================
-   COMMENTS BUTTON — alltid nederst + centrerad
+   COMMENTS BUTTON — centrerad & nederst
    ============================================================ */
 .reviews-btn {
-  margin-top: auto;            /* 🔥 pressar knappen till botten */
+  margin-top: auto;
   margin-bottom: 6px;
 
-  align-self: center;          /* 🔥 centrerad */
+  align-self: center;
   text-align: center;
 
-  width: 85%;                  /* som backend */
+  width: 85%;
   padding: 0.35rem 0.6rem;
 
   background: #111;
