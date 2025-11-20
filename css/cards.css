@@ -124,7 +124,11 @@
    ============================================================ */
 
 .locrow {
-  margin-top: .15rem;
+  margin-top: 0.35rem;
+  margin-bottom: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
 .loc-top {
@@ -142,30 +146,47 @@
   border-radius: 3px;
 }
 
+.geo-main {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* EUROPE under Sweden, indragen rätt */
+.continent-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  padding-left: 2rem;
+  margin-top: -2px;
+}
+
+
 /* ============================================================
    INFO BLOCK
    ============================================================ */
 
 .infoblock {
-  margin-top: .25rem;
+  margin-top: .4rem;
   display: flex;
   flex-direction: column;
-  gap: .18rem;
+  gap: .45rem;   /* MER LUFT – som backend */
 }
 
 .infoblock p {
   margin: 0;
   font-size: .82rem;
   color: var(--muted);
+  line-height: 1.25rem;
 }
 
-/* truncate address */
+/* Address = 1 rad */
 .info-row.address {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* Website link */
 .info-row.website a {
   color: var(--accent);
   text-decoration: none;
