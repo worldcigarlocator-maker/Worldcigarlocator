@@ -36,10 +36,6 @@ badgeRow.className = "badge-row";
 
 
 /* ---------------- TYPES / BADGES ---------------- */
-
-const badgeRow = document.createElement("div");
-badgeRow.className = "badge-row";
-
 /* Normalize types */
 let types = [];
 
