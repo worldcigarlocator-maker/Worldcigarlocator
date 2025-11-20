@@ -36,17 +36,6 @@ badgeRow.className = "badge-row";
 
 /* ---------------- TYPES / BADGES ✔️ ---------------- */
 
-let types = [];
-
-// 1) Array-case
-if (Array.isArray(s.types) && s.types.length > 0) {
-  types = s.types.map(t => t.toLowerCase());
-}
-// 2) String-case: "store,lounge"
-else if (typeof s.type === "string" && s.type.trim() !== "") {
-  types = s.type.split(",").map(t => t.trim().toLowerCase());
-}
-
 types.forEach((t) => {
   if (t === "store" || t === "lounge") {
     const b = document.createElement("span");
@@ -57,7 +46,6 @@ types.forEach((t) => {
 
   if (t === "lounge") {
     const acc = (s.access || "").toLowerCase();
-
     if (acc === "public" || acc === "members") {
       const a = document.createElement("span");
       a.className = `badge access ${acc}`;
@@ -66,9 +54,6 @@ types.forEach((t) => {
     }
   }
 });
-
-body.appendChild(badgeRow);
-
 
 
     /* ---------------- STARS ---------------- */
