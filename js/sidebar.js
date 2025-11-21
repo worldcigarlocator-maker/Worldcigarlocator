@@ -1,120 +1,70 @@
 /* ============================================================
-   SIDEBAR — Continent → Country → City
+   SIDEBAR — Step 1
    ============================================================ */
 
-export function buildFrontendSidebar(supabase, loadStores, getContinent) {
+export function buildFrontendSidebar(supabase, loadStores) {
   const menu = document.getElementById("sidebarMenu");
   if (!menu) return;
 
-  menu.innerHTML = `<li style="color:#777;">Loading…</li>`;
+  menu.innerHTML = `<li style="color:#666;">Loading…</li>`;
 
   supabase
     .from("stores_public")
-    .select("id, name, country, city")
+    .select("country, city, continent")
     .then(({ data, error }) => {
       if (error || !data) {
-        menu.innerHTML = `<li style="color:#c44;">Sidebar failed.</li>`;
-        console.error(error);
+        menu.innerHTML = `<li style="color:red">Error loading</li>`;
         return;
       }
 
-      /* -------------------------------------------
-         Group data: continent → country → city
-      ------------------------------------------- */
+      // group continent → country → city
       const grouped = {};
-
       for (const s of data) {
-        const cont = getContinent(s.country);
-        const country = s.country || "Unknown";
+        const cont = s.continent || "Unknown";
+        if (!grouped[cont]) grouped[cont] = {};
+
+        const ctry = s.country || "Unknown";
+        if (!grouped[cont][ctry]) grouped[cont][ctry] = {};
+
         const city = s.city || "Unknown";
+        if (!grouped[cont][ctry][city]) grouped[cont][ctry][city] = 0;
 
-        grouped[cont] ??= {};
-        grouped[cont][country] ??= {};
-        grouped[cont][country][city] ??= [];
-
-        grouped[cont][country][city].push(s);
+        grouped[cont][ctry][city]++;
       }
 
       menu.innerHTML = "";
 
-      /* -------------------------------------------
-         Build DOM structure
-      ------------------------------------------- */
-      Object.entries(grouped)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .forEach(([continent, countries]) => {
-          /* ---------- CONTINENT BUTTON ---------- */
-          const contBtn = document.createElement("button");
-          contBtn.className = "line continent";
+      /* build sidebar */
+      Object.entries(grouped).forEach(([continent, countries]) => {
+        const contBtn = document.createElement("div");
+        contBtn.className = "line continent";
+        contBtn.innerHTML = `
+          <span class="label">${continent}</span>
+        `;
+        contBtn.onclick = () => loadStores({ continent });
+        menu.appendChild(contBtn);
 
-          const storeCount = Object.values(countries).reduce(
-            (acc, cities) =>
-              acc +
-              Object.values(cities).reduce((a, list) => a + list.length, 0),
-            0
-          );
+        Object.entries(countries).forEach(([country, cities]) => {
+          const cBtn = document.createElement("div");
+          cBtn.className = "line country";
+          cBtn.innerHTML = `<span class="label">${country}</span>`;
+          cBtn.onclick = (e) => {
+            e.stopPropagation();
+            loadStores({ country });
+          };
+          menu.appendChild(cBtn);
 
-          contBtn.innerHTML = `
-            <span class="label">${continent}</span>
-            <span class="pill">${storeCount}</span>
-          `;
-
-          const nestedCountries = document.createElement("div");
-          nestedCountries.className = "nested";
-
-          contBtn.addEventListener("click", () => {
-            const isOpen = nestedCountries.classList.toggle("show");
-            if (isOpen) loadStores({ continent });
+          Object.entries(cities).forEach(([city]) => {
+            const cityBtn = document.createElement("div");
+            cityBtn.className = "line city";
+            cityBtn.innerHTML = `<span class="label">${city}</span>`;
+            cityBtn.onclick = (e) => {
+              e.stopPropagation();
+              loadStores({ city });
+            };
+            menu.appendChild(cityBtn);
           });
-
-          /* ---------- COUNTRIES ---------- */
-          Object.entries(countries)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .forEach(([country, cities]) => {
-              const cBtn = document.createElement("button");
-              cBtn.className = "line country";
-
-              const cCount = Object.values(cities).reduce(
-                (acc, list) => acc + list.length,
-                0
-              );
-
-              cBtn.innerHTML = `
-                <span class="label">${country}</span>
-                <span class="pill">${cCount}</span>
-              `;
-
-              const nestedCities = document.createElement("div");
-              nestedCities.className = "nested";
-
-              cBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                const isOpen = nestedCities.classList.toggle("show");
-                if (isOpen) loadStores({ country });
-              });
-
-              /* ---------- CITIES ---------- */
-              Object.entries(cities).forEach(([city, stores]) => {
-                const cityBtn = document.createElement("button");
-                cityBtn.className = "line city";
-                cityBtn.innerHTML = `
-                  <span class="label">${city}</span>
-                  <span class="pill">${stores.length}</span>
-                `;
-                cityBtn.addEventListener("click", (e) => {
-                  e.stopPropagation();
-                  loadStores({ city });
-                });
-
-                nestedCities.appendChild(cityBtn);
-              });
-
-              nestedCountries.appendChild(cBtn);
-              nestedCountries.appendChild(nestedCities);
-            });
-
-          menu.appendChild(contBtn);
-          menu.appendChild(nestedCountries);
         });
+      });
     });
 }
