@@ -118,6 +118,42 @@ async function setupAuth() {
   }
 }
 
+
+/* ============================================================
+   STEP 3 — REALTIME ONLINE COUNTER
+   ============================================================ */
+
+async function initRealtimePresence() {
+  const onlineText = document.getElementById("onlineText");
+
+  // create a realtime channel
+  const channel = supabase.channel("online-users", {
+    config: {
+      presence: {
+        key: (await supabase.auth.getUser()).data.user?.email || "guest"
+      }
+    }
+  });
+
+  // join presence
+  channel.subscribe(async (status) => {
+    if (status === "SUBSCRIBED") {
+      await channel.track({ online_at: new Date().toISOString() });
+    }
+  });
+
+  // presence change listener
+  channel.on("presence", { event: "sync" }, () => {
+    const state = channel.presenceState();
+
+    // flatten presence keys into list
+    const users = Object.keys(state);
+
+    onlineText.textContent = `${users.length} online`;
+  });
+}
+
+
 /* ============================================================
    INIT
    ============================================================ */
