@@ -1,3 +1,5 @@
+console.log("SIDEBAR.JS LOADED — VERSION TEST");
+
 /* ============================================================
    SIDEBAR — Hierarchy (Continent → Country → City) — FIXED
    ============================================================ */
