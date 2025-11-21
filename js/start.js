@@ -1,5 +1,5 @@
 /* ============================================================
-   start.js — World Cigar Locator (Frontend premium)
+   start.js — World Cigar Locator (Frontend FULL v10)
    ============================================================ */
 
 import { WCL, getContinentFromCountry } from "./globals.js";
@@ -7,7 +7,7 @@ import { renderCards } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-/* Helpers */
+/* Helper */
 function qs(id) {
   return document.getElementById(id);
 }
@@ -16,7 +16,7 @@ function qs(id) {
 const supabase = createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
 /* ============================================================
-   LOAD STORES — used by sidebar + search
+   LOAD STORES (sidebar filters, search, default)
    ============================================================ */
 export async function loadStores(filter = {}, searchTerm = "") {
   const grid = qs("storeGrid");
@@ -29,13 +29,13 @@ export async function loadStores(filter = {}, searchTerm = "") {
     .select("*")
     .order("id", { ascending: false });
 
-  // Filter via continent (calculated via helper)
+  // 🌍 Filter: Continent
   if (filter.continent) {
     const { data, error } = await query;
     if (error || !data) {
       console.error(error);
       grid.innerHTML =
-        "<p style='color:#c00;text-align:center;'>Error loading stores.</p>";
+        "<p style='color:#f55;text-align:center;'>Error loading stores.</p>";
       return;
     }
 
@@ -50,9 +50,11 @@ export async function loadStores(filter = {}, searchTerm = "") {
     return;
   }
 
+  // Country + City filters
   if (filter.country) query = query.eq("country", filter.country);
   if (filter.city) query = query.eq("city", filter.city);
 
+  // Search
   if (searchTerm) {
     query = query.or(
       `name.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%,country.ilike.%${searchTerm}%`
@@ -60,10 +62,11 @@ export async function loadStores(filter = {}, searchTerm = "") {
   }
 
   const { data: stores, error } = await query;
+
   if (error || !stores) {
     console.error(error);
     grid.innerHTML =
-      "<p style='color:#c00;text-align:center;'>Error loading stores.</p>";
+      "<p style='color:#f55;text-align:center;'>Error loading stores.</p>";
     return;
   }
 
@@ -76,62 +79,38 @@ export async function loadStores(filter = {}, searchTerm = "") {
 }
 
 /* ============================================================
-   INIT
+   INIT (sidebar, default, search, modal)
    ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🌍 Frontend premium layout loaded");
+  console.log("🌍 Frontend FULL v10 loaded");
 
-  // Sidebar
+  // Sidebar (hierarchy)
   buildFrontendSidebar(supabase, loadStores, getContinentFromCountry);
 
-  // Default load
+  // Load default
   loadStores();
 
-  // =========================
-  // Search / autocomplete
-  // =========================
+  /* SEARCH HOOKS */
   const searchInput = qs("searchInput");
   const searchBtn = qs("searchBtn");
   const clearBtn = qs("clearBtn");
 
-  // Klick på Search
   searchBtn?.addEventListener("click", () => {
-    const term = searchInput.value.trim();
-    loadStores({}, term);
+    loadStores({}, searchInput.value.trim());
   });
 
-  // Clear
   clearBtn?.addEventListener("click", () => {
-    if (searchInput) searchInput.value = "";
+    searchInput.value = "";
     loadStores();
   });
 
-  // Enter i sök
   searchInput?.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
-      const term = searchInput.value.trim();
-      loadStores({}, term);
+      loadStores({}, searchInput.value.trim());
     }
   });
 
-  // Autocomplete / live-sök
-  let searchTimeout;
-  searchInput?.addEventListener("input", () => {
-    const term = searchInput.value.trim();
-
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      if (term.length >= 2) {
-        loadStores({}, term);
-      } else if (term.length === 0) {
-        loadStores();
-      }
-    }, 250);
-  });
-
-  // =========================
-  // Modal close behaviour
-  // =========================
+  /* MODAL CLOSE */
   const modal = qs("storeModal");
   if (modal) {
     const close = () => {
@@ -143,42 +122,36 @@ document.addEventListener("DOMContentLoaded", () => {
       if (e.target === modal) close();
     });
   }
+});
 
-  // =========================
-  // Fake ONLINE COUNTER
-  // =========================
-  const onlineText = qs("onlineText");
-
-  if (onlineText) {
-    const base = 40;   // basantal
-    const spread = 25; // variation
-
-    const updateOnline = () => {
-      const n = base + Math.floor(Math.random() * spread);
-      onlineText.textContent = `${n} online (demo)`;
-    };
-
-    updateOnline();
-    setInterval(updateOnline, 15000); // uppdatera var 15:e sekund
-  }
-
-  // =========================
-  // AUTH PLACEHOLDER
-  // =========================
-  const loginBtn = qs("loginBtn");
-  const logoutBtn = qs("logoutBtn");
-
-  if (loginBtn && logoutBtn) {
-    loginBtn.addEventListener("click", () => {
-      alert("Login placeholder – riktig Supabase-auth kommer sen!");
-      loginBtn.style.display = "none";
-      logoutBtn.style.display = "inline-block";
-    });
-
-    logoutBtn.addEventListener("click", () => {
-      alert("Logout placeholder – riktig Supabase-auth kommer sen!");
-      logoutBtn.style.display = "none";
-      loginBtn.style.display = "inline-block";
-    });
+/* ============================================================
+   HERO — Online Counter (fake for now)
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  const el = document.getElementById("onlineText");
+  if (el) {
+    const base = 20 + Math.floor(Math.random() * 40);
+    el.textContent = `${base} online`;
   }
 });
+
+/* ============================================================
+   AUTH — Fake Login/Logout (real Supabase coming later)
+   ============================================================ */
+
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (loginBtn) {
+  loginBtn.onclick = () => {
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+  };
+}
+
+if (logoutBtn) {
+  logoutBtn.onclick = () => {
+    logoutBtn.style.display = "none";
+    loginBtn.style.display = "inline-block";
+  };
+}
