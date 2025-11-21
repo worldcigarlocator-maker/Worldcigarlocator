@@ -176,6 +176,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  initRealtimePresence();   // <-- NEW
+
   // Init Auth
   setupAuth();
 });
