@@ -1,70 +1,80 @@
 /* ============================================================
-   SIDEBAR — Step 1
+   SIDEBAR — Hierarchy (Continent → Country → City)
    ============================================================ */
-
 export function buildFrontendSidebar(supabase, loadStores) {
   const menu = document.getElementById("sidebarMenu");
   if (!menu) return;
 
-  menu.innerHTML = `<li style="color:#666;">Loading…</li>`;
+  menu.innerHTML = `<li style="color:#777">Loading…</li>`;
 
   supabase
     .from("stores_public")
-    .select("country, city, continent")
+    .select("id,name,country,city,continent")
     .then(({ data, error }) => {
       if (error || !data) {
-        menu.innerHTML = `<li style="color:red">Error loading</li>`;
+        menu.innerHTML = `<li style="color:#f55">Failed to load sidebar.</li>`;
         return;
       }
 
-      // group continent → country → city
+      // Group
       const grouped = {};
       for (const s of data) {
-        const cont = s.continent || "Unknown";
-        if (!grouped[cont]) grouped[cont] = {};
+        if (!grouped[s.continent]) grouped[s.continent] = {};
+        if (!grouped[s.continent][s.country]) grouped[s.continent][s.country] = {};
+        if (!grouped[s.continent][s.country][s.city])
+          grouped[s.continent][s.country][s.city] = [];
 
-        const ctry = s.country || "Unknown";
-        if (!grouped[cont][ctry]) grouped[cont][ctry] = {};
-
-        const city = s.city || "Unknown";
-        if (!grouped[cont][ctry][city]) grouped[cont][ctry][city] = 0;
-
-        grouped[cont][ctry][city]++;
+        grouped[s.continent][s.country][s.city].push(s);
       }
 
       menu.innerHTML = "";
 
-      /* build sidebar */
       Object.entries(grouped).forEach(([continent, countries]) => {
-        const contBtn = document.createElement("div");
+        const contBtn = document.createElement("button");
         contBtn.className = "line continent";
         contBtn.innerHTML = `
           <span class="label">${continent}</span>
         `;
-        contBtn.onclick = () => loadStores({ continent });
-        menu.appendChild(contBtn);
+
+        const nest = document.createElement("div");
+        nest.className = "nested";
+
+        contBtn.onclick = () => {
+          nest.classList.toggle("show");
+          loadStores({ continent });
+        };
 
         Object.entries(countries).forEach(([country, cities]) => {
-          const cBtn = document.createElement("div");
+          const cBtn = document.createElement("button");
           cBtn.className = "line country";
           cBtn.innerHTML = `<span class="label">${country}</span>`;
+
+          const nestCity = document.createElement("div");
+          nestCity.className = "nested";
+
           cBtn.onclick = (e) => {
             e.stopPropagation();
+            nestCity.classList.toggle("show");
             loadStores({ country });
           };
-          menu.appendChild(cBtn);
 
           Object.entries(cities).forEach(([city]) => {
-            const cityBtn = document.createElement("div");
+            const cityBtn = document.createElement("button");
             cityBtn.className = "line city";
             cityBtn.innerHTML = `<span class="label">${city}</span>`;
             cityBtn.onclick = (e) => {
               e.stopPropagation();
               loadStores({ city });
             };
-            menu.appendChild(cityBtn);
+            nestCity.appendChild(cityBtn);
           });
+
+          nest.appendChild(cBtn);
+          nest.appendChild(nestCity);
         });
+
+        menu.appendChild(contBtn);
+        menu.appendChild(nest);
       });
     });
 }
