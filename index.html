@@ -5,15 +5,11 @@
   <title>World Cigar Locator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Font -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" />
 
-  <!-- Styles -->
+  <!-- CSS -->
   <link rel="stylesheet" href="css/start.css" />
   <link rel="stylesheet" href="css/cards.css" />
 </head>
@@ -22,19 +18,24 @@
 
 <div class="container">
 
-  <!-- SIDEBAR -->
+  <!-- ====================== SIDEBAR ====================== -->
   <aside class="sidebar">
-    <h1 class="logo">WORLD CIGAR LOCATOR</h1>
+    <h1 class="logo">World Cigar Locator</h1>
+
     <ul id="sidebarMenu" class="nav"></ul>
-    <a href="add-store.html" class="add-btn">+ Add Store / Lounge</a>
-    <a href="mailto:support@worldcigarlocator.com" class="support-link">Support</a>
+
+    <div class="sidebar-bottom">
+      <a href="#" class="menu-link">About</a>
+      <a href="mailto:support@worldcigarlocator.com" class="menu-link">Contact / Support</a>
+      <a href="add-store.html" class="menu-link add-store">+ Add Store</a>
+    </div>
   </aside>
 
-  <!-- MAIN -->
+  <!-- ====================== MAIN ====================== -->
   <main class="main">
 
-    <!-- HERO -->
-    <section class="hero">
+    <!-- HERO (visible until user searches or clicks a continent/country/city) -->
+    <section id="hero" class="hero">
       <img src="images/paris.jpg" class="hero-bg" />
       <div class="hero-overlay"></div>
 
@@ -42,14 +43,14 @@
         <h1>Welcome to World Cigar Locator</h1>
         <p>
           Discover cigar shops, lounges and cigar-friendly venues around the globe.<br/>
-          Our map is built together with the community — add your favorite location using our
+          Help the community grow — add your favorite place using our
           <strong>Google-powered Add Store form</strong>.<br/><br/>
           <em>Kind regards — Bakerman ✌🏽</em>
         </p>
       </div>
     </section>
 
-    <!-- STATUS -->
+    <!-- Status/Online + Login mock -->
     <div class="status-row">
       <div class="online-box">
         <span class="dot"></span>
@@ -62,27 +63,28 @@
       </div>
     </div>
 
-    <!-- SEARCH -->
+    <!-- Search -->
     <div class="searchbar">
       <input id="searchInput" type="text" placeholder="Search by name, city or country…" />
       <button id="searchBtn" class="btn">Search</button>
       <button id="clearBtn" class="btn outline">Clear</button>
     </div>
 
-    <!-- RESULT HEADING (DOLD SOM DEFAULT) -->
-    <div id="resultHeading" class="result-heading" style="display:none;"></div>
+    <div id="resultHeading" class="result-heading" style="display:none;">
+      Latest 20 worldwide
+    </div>
     <button id="showAllBtn" class="btn outline" style="display:none;">Show All</button>
 
-    <!-- CARDS -->
+    <!-- Cards -->
     <div id="storeGrid" class="store-grid"></div>
   </main>
 </div>
 
-<!-- SCRIPTS -->
-<script type="module" src="js/globals.js"></script>
-<script type="module" src="js/cards.js"></script>
-<script type="module" src="js/sidebar.js"></script>
-<script type="module" src="js/start.js"></script>
+<!-- JS -->
+<script type="module" src="globals.js"></script>
+<script type="module" src="sidebar.js"></script>
+<script type="module" src="cards.js"></script>
+<script type="module" src="start.js"></script>
 
 </body>
 </html>
