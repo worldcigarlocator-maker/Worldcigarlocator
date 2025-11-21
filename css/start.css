@@ -166,18 +166,21 @@ body {
   gap: 8px;
   padding: 6px 13px;
   border-radius: 999px;
-  background: #1e1e1e;
-  border: 1px solid #333;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
   font-size: 0.85rem;
+  color: var(--text);
+  backdrop-filter: blur(6px);
 }
 
 .dot {
   width: 10px;
   height: 10px;
-  background: #3ddc84;
+  background: #2df593;
   border-radius: 50%;
-  box-shadow: 0 0 6px rgba(61,220,132,0.8);
+  box-shadow: 0 0 8px rgba(45,245,147,0.7);
 }
+
 
 /* AUTH BUTTONS */
 .auth-buttons {
