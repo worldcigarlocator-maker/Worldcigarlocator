@@ -1,157 +1,84 @@
-/* ============================================================
-   start.js — World Cigar Locator (Frontend FULL v10)
-   ============================================================ */
+// ===============================
+// START PAGE LOGIC
+// ===============================
 
-import { WCL, getContinentFromCountry } from "./globals.js";
+import { supabase } from "./globals.js";
 import { renderCards } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-/* Helper */
-function qs(id) {
-  return document.getElementById(id);
+// DOM
+const searchInput = document.getElementById("searchInput");
+const searchBtn = document.getElementById("searchBtn");
+const clearBtn = document.getElementById("clearBtn");
+const resultHeading = document.getElementById("resultHeading");
+const showAllBtn = document.getElementById("showAllBtn");
+const storeGrid = document.getElementById("storeGrid");
+
+// ===============================
+// DEFAULT = NO CARDS
+// ===============================
+function resetToHero() {
+  storeGrid.innerHTML = "";
+  resultHeading.style.display = "none";
+  showAllBtn.style.display = "none";
 }
+resetToHero();  // <-- IMPORTANT
 
-/* Supabase client */
-const supabase = createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
+// ===============================
+// SEARCH
+// ===============================
+searchBtn.addEventListener("click", async () => {
+  const q = searchInput.value.trim();
+  if (!q) return;
 
-/* ============================================================
-   LOAD STORES (sidebar filters, search, default)
-   ============================================================ */
-export async function loadStores(filter = {}, searchTerm = "") {
-  const grid = qs("storeGrid");
-  if (!grid) return;
-
-  grid.innerHTML = `<p style="color:#777;text-align:center;">Loading…</p>`;
-
-  let query = supabase
+  const { data, error } = await supabase
     .from("stores_public")
     .select("*")
-    .order("id", { ascending: false });
+    .ilike("name", `%${q}%`);
 
-  // 🌍 Filter: Continent
-  if (filter.continent) {
-    const { data, error } = await query;
-    if (error || !data) {
-      console.error(error);
-      grid.innerHTML =
-        "<p style='color:#f55;text-align:center;'>Error loading stores.</p>";
-      return;
-    }
+  resultHeading.style.display = "block";
+  resultHeading.textContent = `Results for "${q}"`;
+  showAllBtn.style.display = "none";
 
-    const filtered = data
-      .map((s) => ({
-        ...s,
-        continent: getContinentFromCountry(s.country),
-      }))
-      .filter((s) => s.continent === filter.continent);
-
-    renderCards(filtered);
-    return;
+  if (!error && data.length > 0) {
+    renderCards(data);
+  } else {
+    storeGrid.innerHTML = "<p>No results found.</p>";
   }
+});
 
-  // Country + City filters
+// ===============================
+// CLEAR BUTTON
+// ===============================
+clearBtn.addEventListener("click", () => {
+  searchInput.value = "";
+  resetToHero();   // <-- No cards
+});
+
+// ===============================
+// SIDEBAR FILTER (loadStores)
+// ===============================
+export async function loadStores(filter) {
+  let query = supabase.from("stores_public").select("*");
+
+  if (filter.continent) query = query.eq("continent", filter.continent);
   if (filter.country) query = query.eq("country", filter.country);
   if (filter.city) query = query.eq("city", filter.city);
 
-  // Search
-  if (searchTerm) {
-    query = query.or(
-      `name.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%,country.ilike.%${searchTerm}%`
-    );
-  }
+  const { data } = await query;
 
-  const { data: stores, error } = await query;
+  resultHeading.style.display = "block";
+  resultHeading.textContent =
+    filter.city || filter.country || filter.continent;
 
-  if (error || !stores) {
-    console.error(error);
-    grid.innerHTML =
-      "<p style='color:#f55;text-align:center;'>Error loading stores.</p>";
-    return;
-  }
-
-  const withContinent = stores.map((s) => ({
-    ...s,
-    continent: s.continent || getContinentFromCountry(s.country),
-  }));
-
-  renderCards(withContinent);
+  renderCards(data);
 }
 
-/* ============================================================
-   INIT (sidebar, default, search, modal)
-   ============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("🌍 Frontend FULL v10 loaded");
-
-  // Sidebar (hierarchy)
-  buildFrontendSidebar(supabase, loadStores, getContinentFromCountry);
-
-  // Load default
-  loadStores();
-
-  /* SEARCH HOOKS */
-  const searchInput = qs("searchInput");
-  const searchBtn = qs("searchBtn");
-  const clearBtn = qs("clearBtn");
-
-  searchBtn?.addEventListener("click", () => {
-    loadStores({}, searchInput.value.trim());
-  });
-
-  clearBtn?.addEventListener("click", () => {
-    searchInput.value = "";
-    loadStores();
-  });
-
-  searchInput?.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      loadStores({}, searchInput.value.trim());
-    }
-  });
-
-  /* MODAL CLOSE */
-  const modal = qs("storeModal");
-  if (modal) {
-    const close = () => {
-      modal.classList.remove("show");
-      modal.setAttribute("aria-hidden", "true");
-    };
-    modal.querySelector(".modal-close")?.addEventListener("click", close);
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) close();
-    });
-  }
+buildFrontendSidebar(supabase, loadStores, (country) => {
+  // Simple continent mapping
+  if (!country) return "Other";
+  if (["Sweden","Norway","Germany","France","Spain","Italy"].includes(country)) return "Europe";
+  if (["Thailand","Japan","China"].includes(country)) return "Asia";
+  if (["USA","Canada"].includes(country)) return "North America";
+  return "Other";
 });
-
-/* ============================================================
-   HERO — Online Counter (fake for now)
-   ============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  const el = document.getElementById("onlineText");
-  if (el) {
-    const base = 20 + Math.floor(Math.random() * 40);
-    el.textContent = `${base} online`;
-  }
-});
-
-/* ============================================================
-   AUTH — Fake Login/Logout (real Supabase coming later)
-   ============================================================ */
-
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-
-if (loginBtn) {
-  loginBtn.onclick = () => {
-    loginBtn.style.display = "none";
-    logoutBtn.style.display = "inline-block";
-  };
-}
-
-if (logoutBtn) {
-  logoutBtn.onclick = () => {
-    logoutBtn.style.display = "none";
-    loginBtn.style.display = "inline-block";
-  };
-}
