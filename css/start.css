@@ -1,22 +1,19 @@
 /* ============================================================
-   START PAGE LAYOUT — LIGHT SIDEBAR, WHITE MAIN
+   GLOBAL THEME — DARK + GOLD PREMIUM
    ============================================================ */
 
 :root {
-  --bg: #e9eaec;
-  --sidebar-bg: #f4f4f4;
-  --sidebar-border: #d5d5d5;
-  --main-bg: #ffffff;
+  --bg: #000000;
+  --sidebar-bg: #0b0b0b;
+  --sidebar-border: #1d1d1d;
+  --main-bg: #0d0d0d;
 
-  --accent: #d3c38a;          /* champagne-guld */
-  --accent-soft: rgba(211, 195, 138, 0.15);
-  --text: #111111;
-  --muted: #757575;
+  --text: #ffffff;
+  --muted: #9a9a9a;
+  --gold: #f5d78c;            /* premium gold */
+  --gold-soft: rgba(245, 215, 140, 0.12);
 
-  /* dessa används i cards.css också */
-  --border: #222222;
-  --blue: #007bff;
-  --gold: #ffd866;
+  --border: #222;
 }
 
 /* Reset */
@@ -26,18 +23,16 @@
   box-sizing: border-box;
 }
 
-html,
-body {
+html, body {
   margin: 0;
   padding: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  font-family: "DM Sans", system-ui, sans-serif;
 }
 
 /* ============================================================
-   LAYOUT GRID
+   GRID LAYOUT
    ============================================================ */
 
 .container {
@@ -46,182 +41,154 @@ body {
   min-height: 100vh;
 }
 
+
 /* ============================================================
-   SIDEBAR
+   SIDEBAR — DARK
    ============================================================ */
 
 .sidebar {
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
-  padding: 1.4rem 1.1rem 1.6rem;
+  padding: 1.4rem 1.2rem 1.6rem;
   display: flex;
   flex-direction: column;
 }
 
 .logo {
-  margin: 0 0 0.2rem;
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
+  margin: 0;
+  padding-bottom: .4rem;
+  font-size: 1.3rem;
+  letter-spacing: .16em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--gold);
+  font-weight: 700;
 }
 
 .divider {
-  width: 100%;
-  border: none;
   height: 1px;
+  width: 100%;
   background: var(--sidebar-border);
-  margin: 0.9rem 0;
+  margin: .9rem 0;
 }
 
-/* HIERARKI / NAV */
+
+/* ---------------- NAV ---------------- */
 
 .nav {
   list-style: none;
-  margin: 0;
   padding: 0;
+  margin: 0;
   flex: 1;
   overflow-y: auto;
   font-size: 0.85rem;
 }
 
-/* Sidebar hierarchy lines */
 .line {
-  width: 100%;
-  border: none;
-  background: transparent;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  color: #444;
-  padding: 0.25rem 0.1rem;
+  padding: .28rem .1rem;
+  color: var(--muted);
   cursor: pointer;
   border-radius: 6px;
+  transition: 0.15s;
 }
 
 .line:hover {
-  background: rgba(0, 0, 0, 0.04);
-}
-
-.line .label {
-  flex: 1;
-  text-align: left;
-}
-
-.line .arrow {
-  display: inline-block;
-  margin-right: 0.4rem;
-  transition: transform 0.15s ease;
-}
-
-.line .pill {
-  font-size: 0.72rem;
-  padding: 0.1rem 0.4rem;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.05);
-  color: #555;
+  background: rgba(255,255,255,0.05);
 }
 
 .line.continent {
+  color: var(--text);
   font-weight: 600;
-  color: #222;
-}
-.line.continent.open {
-  background: rgba(0, 0, 0, 0.04);
 }
 
-.line.country {
-  padding-left: 1.2rem;
-}
-.line.city {
-  padding-left: 2.3rem;
-  font-size: 0.8rem;
+.line.country { padding-left: 1.1rem; }
+.line.city    { padding-left: 2.1rem; font-size: 0.78rem; }
+
+.pill {
+  background: rgba(255,255,255,0.12);
+  padding: 0rem .4rem;
+  border-radius: 999px;
+  font-size: .7rem;
+  color: var(--muted);
 }
 
-/* Nested */
 .nested {
   display: none;
-  padding-left: 0.3rem;
-  border-left: 1px dashed rgba(0, 0, 0, 0.08);
-  margin-left: 0.6rem;
+  margin-left: .6rem;
+  border-left: 1px dashed #333;
+  padding-left: .5rem;
 }
-.nested.show {
-  display: block;
-}
+.nested.show { display: block; }
 
-/* Sidebar bottom */
+
+/* ============================================================
+   SIDEBAR BOTTOM
+   ============================================================ */
 
 .sidebar-bottom {
-  margin-top: 0.8rem;
+  margin-top: .8rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: .4rem;
 }
 
 .menu-link {
-  display: block;
   text-decoration: none;
   color: var(--muted);
-  font-size: 0.82rem;
-  padding: 0.3rem 0;
+  font-size: .85rem;
+  padding: .3rem 0;
 }
-
-.menu-link:hover {
-  color: var(--accent);
-}
+.menu-link:hover { color: var(--gold); }
 
 .add-store {
-  color: var(--accent);
+  color: var(--gold);
   font-weight: 600;
 }
 
+
 /* ============================================================
-   MAIN
+   MAIN — DARK
    ============================================================ */
 
 .main {
   background: var(--main-bg);
-  color: #111;
-  padding: 1.5rem 1.7rem 2rem;
+  padding: 1.4rem 1.7rem 2rem;
+  color: var(--text);
 }
 
 /* ============================================================
-   STATUS ROW (Online + Auth)
+   ONLINE + AUTH
    ============================================================ */
 
 .status-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.1rem;
+  margin-bottom: 1.2rem;
 }
-
-/* ONLINE BOX */
 
 .online-box {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 13px;
+  background: #161616;
+  padding: 6px 12px;
   border-radius: 999px;
-  background: #f6f6f6;
-  border: 1px solid #dddddd;
-  font-size: 0.85rem;
-  color: #333;
-  font-weight: 600;
+  border: 1px solid #222;
+  font-size: .85rem;
+  color: var(--gold);
 }
 
 .dot {
   width: 10px;
   height: 10px;
-  background: #34c759;
   border-radius: 50%;
-  box-shadow: 0 0 6px rgba(52, 199, 89, 0.7);
+  background: #2ecc71;
+  box-shadow: 0 0 6px rgba(46,204,113,0.7);
 }
 
-/* AUTH BUTTONS */
-
+/* Auth buttons */
 .auth-buttons {
   display: flex;
   gap: 10px;
@@ -229,150 +196,83 @@ body {
 
 .login-btn,
 .logout-btn {
-  font-size: 0.82rem;
-  border-radius: 999px;
   padding: 6px 16px;
-  cursor: pointer;
+  border-radius: 999px;
+  font-size: .82rem;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .login-btn {
-  background: var(--accent);
+  background: var(--gold);
   border: none;
   color: #111;
 }
-
 .logout-btn {
   background: transparent;
-  border: 1px solid #bbbbbb;
-  color: #333;
+  border: 1px solid #555;
+  color: var(--muted);
 }
 
-.login-btn:hover {
-  background: #e3d39a;
-}
+.logout-btn:hover { background: #222; }
+.login-btn:hover  { filter: brightness(1.1); }
 
-.logout-btn:hover {
-  background: #f2f2f2;
-}
 
 /* ============================================================
-   SEARCHBAR
+   SEARCH BAR — DARK
    ============================================================ */
 
 .searchbar {
   display: flex;
-  gap: 0.6rem;
-  margin-bottom: 0.9rem;
+  gap: .6rem;
+  margin-bottom: 1rem;
 }
 
 .searchbar input {
   flex: 1;
-  padding: 0.6rem 0.95rem;
+  padding: .65rem 1rem;
   border-radius: 999px;
-  border: 1px solid #d4d4d4;
-  background: #000;
-  color: #222;
-  font-size: 0.9rem;
-  outline: none;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
-}
-
-.searchbar input::placeholder {
-  color: #999;
+  background: #111;
+  color: var(--text);
+  border: 1px solid #333;
 }
 
 .searchbar input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-soft);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-soft);
 }
 
-/* Buttons */
-
 .btn {
-  border-radius: 999px;
-  border: none;
-  background: var(--accent);
+  background: var(--gold);
   color: #111;
-  padding: 0.55rem 1.1rem;
-  font-size: 0.82rem;
+  border: none;
+  padding: .55rem 1rem;
+  font-size: .82rem;
   font-weight: 600;
-  cursor: pointer;
-  letter-spacing: 0.06em;
+  border-radius: 999px;
   text-transform: uppercase;
+  letter-spacing: .05em;
+  cursor: pointer;
 }
 
 .btn.outline {
-  background: #ffffff;
-  border: 1px solid #d4d4d4;
-  color: #555;
+  background: transparent;
+  border: 1px solid #555;
+  color: var(--muted);
 }
 
-.btn:hover {
-  filter: brightness(1.02);
+.btn.outline:hover {
+  border-color: var(--gold);
+  color: var(--gold);
 }
+
 
 /* ============================================================
    RESULT HEADING
    ============================================================ */
 
 .result-heading {
-  margin-top: 0.1rem;
-  margin-bottom: 0.4rem;
-  font-size: 0.9rem;
+  font-size: .9rem;
   color: var(--muted);
-}
-
-#showAllBtn {
-  margin-bottom: 0.7rem;
-}
-
-/* ============================================================
-   TOAST POSITION
-   ============================================================ */
-
-#toast-container {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-}
-
-/* ============================================================
-   MODAL (samma stil som tidigare)
-   ============================================================ */
-
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.72);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal.show {
-  display: flex;
-}
-
-.modal-content {
-  background: #101010;
-  border-radius: 14px;
-  padding: 1.4rem 1.5rem 1.2rem;
-  border: 1px solid #333;
-  max-width: 520px;
-  width: 100%;
-  color: #f5f5f5;
-  position: relative;
-}
-
-.modal-close {
-  position: absolute;
-  top: 0.6rem;
-  right: 0.7rem;
-  border: none;
-  background: transparent;
-  color: #aaa;
-  font-size: 1.2rem;
-  cursor: pointer;
+  margin-bottom: .5rem;
 }
