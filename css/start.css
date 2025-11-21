@@ -28,13 +28,17 @@ body {
   color: var(--text);
 }
 
-/* Fade-in */
-.fade-in {
-  opacity: 0;
-  animation: fadeIn 0.8s ease forwards;
-}
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
 @keyframes fadeIn {
+  from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 /* ============================================================
@@ -46,7 +50,7 @@ body {
 }
 
 /* ============================================================
-   SIDEBAR (Premium)
+   SIDEBAR
    ============================================================ */
 .sidebar {
   background: var(--sidebar-bg);
@@ -65,7 +69,6 @@ body {
   margin-bottom: 1.4rem;
 }
 
-/* Sidebar Links */
 .nav {
   flex: 1;
   list-style: none;
@@ -140,6 +143,7 @@ body {
   font-weight: 600;
   border: none;
 }
+
 .login-btn {
   background: var(--gold);
   color: #111;
@@ -150,10 +154,14 @@ body {
   color: var(--muted);
 }
 
-/* Search */
+/* ============================================================
+   SEARCH BAR
+   ============================================================ */
 .searchbar {
   display: flex;
   gap: .6rem;
+  margin-top: 1.5rem;
+  justify-content: center;
 }
 
 .searchbar input {
@@ -176,12 +184,13 @@ body {
 }
 
 /* ============================================================
-   HERO (glassy)
+   HERO IMAGE
    ============================================================ */
 .hero {
   position: relative;
   height: 360px;
   overflow: hidden;
+  animation: fadeIn 1s ease forwards;
 }
 
 .hero-bg {
@@ -200,13 +209,13 @@ body {
 }
 
 /* ============================================================
-   HERO TEXT AREA (Centered)
+   HERO TEXT
    ============================================================ */
 .hero-text {
   text-align: center;
   margin-top: 2rem;
   margin-bottom: 2rem;
-  animation: fadeIn 1.1s ease forwards;
+  animation: fadeIn 0.9s ease forwards;
 }
 
 .hero-text h1 {
@@ -227,33 +236,37 @@ body {
    RESULTS HEADING
    ============================================================ */
 .result-heading {
-  margin: 1rem auto;
+  margin: 1.4rem auto;
   text-align: center;
   color: var(--muted);
+  font-size: 1.1rem;
 }
 
-/* Cards spacing override */
 .store-grid {
   padding: 0 40px;
 }
 
 /* ============================================================
-   AGE GATE (glassy popup)
+   18+ AGE GATE POPUP
    ============================================================ */
 .age-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.82);
   display: flex;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(8px);
   z-index: 2000;
   animation: fadeIn 0.6s ease forwards;
 }
 
 .age-modal.hidden {
   display: none;
+}
+
+.age-modal.fade-out {
+  animation: fadeOut 0.45s ease forwards;
 }
 
 .age-box {
@@ -286,7 +299,8 @@ body {
   margin-bottom: .8rem;
 }
 
-.age-yes, .age-no {
+.age-yes,
+.age-no {
   padding: .6rem 1.3rem;
   border-radius: 999px;
   border: none;
@@ -298,6 +312,7 @@ body {
   background: var(--gold);
   color: #000;
 }
+
 .age-no {
   background: #333;
   color: #fff;
