@@ -1,5 +1,5 @@
 /* ============================================================
-   START.JS — STEP 1
+   START.JS — STEP 2 (Supabase Auth)
    ============================================================ */
 
 import { WCL } from "./globals.js";
@@ -9,6 +9,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const supabase = createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
+/* Helpers */
 const qs = (id) => document.getElementById(id);
 
 let HERO_VISIBLE = true;
@@ -20,12 +21,9 @@ export async function loadStores(filter = {}, search = "") {
   const grid = qs("storeGrid");
   const hero = qs("hero");
   const heading = qs("resultHeading");
-  const showAll = qs("showAllBtn");
 
-  // Hide hero when searching or selecting continent/country/city
   hero.style.display = "none";
   HERO_VISIBLE = false;
-
   heading.style.display = "block";
 
   let query = supabase
@@ -39,13 +37,15 @@ export async function loadStores(filter = {}, search = "") {
   if (filter.city) query = query.eq("city", filter.city);
 
   if (search) {
-    query = query.or(`name.ilike.%${search}%,city.ilike.%${search}%,country.ilike.%${search}%`);
+    query = query.or(
+      `name.ilike.%${search}%,city.ilike.%${search}%,country.ilike.%${search}%`
+    );
   }
 
   const { data, error } = await query;
   if (error) {
     console.error(error);
-    grid.innerHTML = "<p style='color:red;text-align:center;'>Error loading stores.</p>";
+    grid.innerHTML = "<p style='color:red;text-align:center;'>Error loading.</p>";
     return;
   }
 
@@ -53,38 +53,93 @@ export async function loadStores(filter = {}, search = "") {
 }
 
 /* ============================================================
-   INIT
-   ============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("🌍 Frontend Step 1 loaded");
-
-  buildFrontendSidebar(supabase, loadStores);
-
-  // SEARCH
-  const searchInput = qs("searchInput");
-  qs("searchBtn").addEventListener("click", () => loadStores({}, searchInput.value.trim()));
-  qs("clearBtn").addEventListener("click", () => {
-    searchInput.value = "";
-    resetToHero();
-  });
-
-  // ENTER key
-  searchInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") loadStores({}, searchInput.value.trim());
-  });
-
-  // Mock login
-  qs("loginBtn").onclick = () => alert("Login placeholder — real auth coming in step 2");
-  qs("logoutBtn").onclick = () => alert("Logout placeholder");
-});
-
-/* ============================================================
-   RESET TO HERO (Clear)
+   RESET HERO (Clear)
    ============================================================ */
 function resetToHero() {
   qs("storeGrid").innerHTML = "";
   qs("resultHeading").style.display = "none";
-  qs("showAllBtn").style.display = "none";
   qs("hero").style.display = "block";
   HERO_VISIBLE = true;
 }
+
+/* ============================================================
+   SUPABASE AUTH — STEP 2
+   ============================================================ */
+async function setupAuth() {
+  const loginBtn = qs("loginBtn");
+  const logoutBtn = qs("logoutBtn");
+  const userLabel = qs("authUser");
+
+  // Listen for auth events (login/logout)
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    const user = session?.user;
+
+    if (user) {
+      // logged in
+      userLabel.style.display = "inline-block";
+      userLabel.textContent = `Welcome, ${user.email}`;
+
+      loginBtn.style.display = "none";
+      logoutBtn.style.display = "inline-block";
+    } else {
+      // logged out
+      userLabel.style.display = "none";
+      loginBtn.style.display = "inline-block";
+      logoutBtn.style.display = "none";
+    }
+  });
+
+  // LOGIN — magic link popup
+  loginBtn.addEventListener("click", async () => {
+    const email = prompt("Enter your email to receive a login link:");
+    if (!email) return;
+
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) alert("Login error: " + error.message);
+    else alert("Magic link sent! Check your email.");
+  });
+
+  // LOGOUT
+  logoutBtn.addEventListener("click", async () => {
+    await supabase.auth.signOut();
+  });
+
+  // Check session on page load
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session?.user) {
+    userLabel.textContent = `Welcome, ${session.user.email}`;
+    userLabel.style.display = "inline-block";
+
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+  }
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  buildFrontendSidebar(supabase, loadStores);
+
+  // Search
+  const searchInput = qs("searchInput");
+  qs("searchBtn").onclick = () =>
+    loadStores({}, searchInput.value.trim());
+
+  qs("clearBtn").onclick = () => {
+    searchInput.value = "";
+    resetToHero();
+  };
+
+  searchInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      loadStores({}, searchInput.value.trim());
+    }
+  });
+
+  // Init Auth
+  setupAuth();
+});
