@@ -1,4 +1,3 @@
-
 import { supabase } from "./globals.js";
 import { loadStores, resetToHero } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
@@ -78,4 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fake online counter
   fakeOnlineCount();
+
+  // ⭐ Auth buttons (missing before)
+  setupAuth();
 });
