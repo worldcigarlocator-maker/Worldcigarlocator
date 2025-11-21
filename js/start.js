@@ -1,91 +1,80 @@
-import { supabase } from "./globals.js";
+import { supabase, qs } from "./globals.js";
 import { loadStores, resetToHero } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 
 /* ============================================================
-   AGE GATE (localStorage)
+   AGE GATE
    ============================================================ */
 export function initAgeGate() {
-  const modal = document.getElementById("ageGate");
-  const enter = document.getElementById("enterBtn");
-  const leave = document.getElementById("leaveBtn");
+  const modal = qs("ageGate");
+  const enter = qs("enterBtn");
+  const leave = qs("leaveBtn");
 
-  // If verified → hide immediately
-  const ok = localStorage.getItem("ageVerified");
-  if (ok === "yes") {
+  if (localStorage.getItem("ageVerified") === "yes") {
     modal.classList.add("hidden");
     return;
   }
 
-  // Show modal
   modal.classList.remove("hidden");
 
-  // ENTER (fade-out)
   enter.onclick = () => {
     localStorage.setItem("ageVerified", "yes");
-    modal.classList.add("fade-out");
-    setTimeout(() => modal.classList.add("hidden"), 420);
+    modal.classList.add("hidden");
   };
 
-  // LEAVE PAGE
   leave.onclick = () => {
     window.location.href = "https://google.com";
   };
+
+  // ENTER KEY SUPPORT
+  document.addEventListener("keydown", (e) => {
+    if (modal.classList.contains("hidden")) return;
+    if (e.key === "Enter") enter.click();
+  });
 }
 
 /* ============================================================
    FAKE ONLINE COUNTER
    ============================================================ */
 export function fakeOnlineCount() {
-  const el = document.getElementById("onlineText");
+  const el = qs("onlineText");
   if (!el) return;
-
-  const n = Math.floor(28 + Math.random() * 23);
-  el.textContent = `${n} online`;
+  el.textContent = Math.floor(28 + Math.random() * 23) + " online";
 }
 
 /* ============================================================
    AUTH PLACEHOLDER
    ============================================================ */
 export function setupAuth() {
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  if (loginBtn)
-    loginBtn.onclick = () => alert("Auth not implemented yet.");
-
-  if (logoutBtn)
-    logoutBtn.onclick = () => alert("Logout not implemented yet.");
+  qs("loginBtn").onclick = () => alert("Auth coming soon!");
+  qs("logoutBtn").onclick = () => alert("Logout coming soon!");
 }
 
 /* ============================================================
    INIT
    ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
-  // Sidebar hierarchy
+  // Sidebar
   buildFrontendSidebar(supabase, loadStores);
 
-  // SEARCH BAR
-  const input = document.getElementById("searchInput");
+  // Search
+  const input = qs("searchInput");
 
-  document.getElementById("searchBtn").onclick = () => {
+  qs("searchBtn").onclick = () =>
     loadStores({}, input.value.trim());
-  };
 
-  document.getElementById("clearBtn").onclick = () => {
+  qs("clearBtn").onclick = () => {
     input.value = "";
     resetToHero();
   };
 
   input.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      loadStores({}, input.value.trim());
-    }
+    if (e.key === "Enter") loadStores({}, input.value.trim());
   });
 
-  // AGE GATE
+  // Age gate
   initAgeGate();
 
-  // Simulated online counter
+  // Fake online
   fakeOnlineCount();
 });
