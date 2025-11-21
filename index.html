@@ -5,39 +5,38 @@
   <title>World Cigar Locator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Fonts -->
+  <!-- Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- CSS -->
+  <!-- Styles -->
   <link rel="stylesheet" href="css/start.css" />
   <link rel="stylesheet" href="css/cards.css" />
 </head>
 
-  <!-- ===================== AGE GATE ===================== -->
-<div id="ageGate" class="age-gate">
+<body>
+
+<!-- 18+ MODAL -->
+<div id="ageGate" class="age-modal">
   <div class="age-box">
     <h2>18+ Required</h2>
     <p>You must be at least 18 years old to enter World Cigar Locator.</p>
 
-    <button id="ageEnter" class="age-btn enter">Enter – I am 18+</button>
-    <button id="ageLeave" class="age-btn leave">Leave</button>
+    <div class="age-buttons">
+      <button id="enterBtn" class="age-yes">Enter – I am 18+</button>
+      <button id="leaveBtn" class="age-no">Leave</button>
+    </div>
 
-    <small class="age-note">
-      World Cigar Locator does not promote tobacco use.  
-      Please follow your local laws and guidelines.
-    </small>
+    <small>World Cigar Locator does not promote tobacco use. Follow your local laws.</small>
   </div>
 </div>
 
-
-<body>
-
 <div class="container">
 
-  <!-- ====================== SIDEBAR ====================== -->
+  <!-- SIDEBAR -->
   <aside class="sidebar">
-    <h1 class="logo">World Cigar Locator</h1>
+    <h1 class="logo">WORLD CIGAR<br>LOCATOR</h1>
 
     <ul id="sidebarMenu" class="nav"></ul>
 
@@ -48,61 +47,57 @@
     </div>
   </aside>
 
-  <!-- ====================== MAIN ====================== -->
+  <!-- MAIN -->
   <main class="main">
 
-    <!-- HERO (visible until user searches or clicks a continent/country/city) -->
-    <section id="hero" class="hero">
-      <img src="images/paris.jpg" class="hero-bg" />
-      <div class="hero-overlay"></div>
-
-      <div class="hero-content">
-        <h1>Welcome to World Cigar Locator</h1>
-        <p>
-          Discover cigar shops, lounges and cigar-friendly venues around the globe.<br/>
-          Help the community grow — add your favorite place using our
-          <strong>Google-powered Add Store form</strong>.<br/><br/>
-          <em>Kind regards — Bakerman ✌🏽</em>
-        </p>
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div id="onlineBox" class="online-box">
+        <span class="dot"></span>
+        <span id="onlineText">0 online</span>
       </div>
+
+      <div class="top-right">
+        <button id="loginBtn" class="login-btn">Login</button>
+        <button id="logoutBtn" class="logout-btn" style="display:none;">Logout</button>
+      </div>
+    </div>
+
+    <!-- HERO IMAGE -->
+    <section class="hero">
+      <img src="images/paris.jpg" alt="Hero" class="hero-bg" />
     </section>
 
-    <!-- Status/Online + Login mock -->
-    <div class="status-row">
-      <div class="online-box">
-        <span class="dot"></span>
-        <span id="onlineText">34 online</span>
-      </div>
+    <!-- HERO TEXT (separate from image) -->
+    <section class="hero-text">
+      <h1>Welcome to World Cigar Locator</h1>
+      <p>
+        Discover cigar shops, lounges and cigar-friendly venues around the globe.<br>
+        Help the community grow — add your favorite location using our
+        <strong>Google-powered Add Store form</strong>.<br><br>
+        <em>Kind regards — Bakerman ✌🏽</em>
+      </p>
+    </section>
 
- <div class="auth-box">
-  <span id="authUser" class="auth-user" style="display:none;"></span>
-
-  <button id="loginBtn" class="login-btn">Login</button>
-  <button id="logoutBtn" class="logout-btn" style="display:none;">Logout</button>
-</div>
-
-
-    <!-- Search -->
+    <!-- SEARCH BAR -->
     <div class="searchbar">
       <input id="searchInput" type="text" placeholder="Search by name, city or country…" />
       <button id="searchBtn" class="btn">Search</button>
       <button id="clearBtn" class="btn outline">Clear</button>
     </div>
 
-    <div id="resultHeading" class="result-heading" style="display:none;">
-      Latest 20 worldwide
-    </div>
+    <!-- RESULTS -->
+    <div id="resultHeading" class="result-heading" style="display:none;"></div>
     <button id="showAllBtn" class="btn outline" style="display:none;">Show All</button>
 
-    <!-- Cards -->
     <div id="storeGrid" class="store-grid"></div>
+
   </main>
 </div>
 
-<!-- JS -->
 <script type="module" src="globals.js"></script>
-<script type="module" src="sidebar.js"></script>
 <script type="module" src="cards.js"></script>
+<script type="module" src="sidebar.js"></script>
 <script type="module" src="start.js"></script>
 
 </body>
