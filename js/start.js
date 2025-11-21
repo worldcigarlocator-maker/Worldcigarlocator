@@ -10,58 +10,67 @@ export function initAgeGate() {
   const enter = document.getElementById("enterBtn");
   const leave = document.getElementById("leaveBtn");
 
+  // If verified → hide immediately
   const ok = localStorage.getItem("ageVerified");
   if (ok === "yes") {
     modal.classList.add("hidden");
     return;
   }
 
+  // Show modal
   modal.classList.remove("hidden");
 
+  // ENTER (fade-out)
   enter.onclick = () => {
     localStorage.setItem("ageVerified", "yes");
-    modal.classList.add("hidden");
+    modal.classList.add("fade-out");
+    setTimeout(() => modal.classList.add("hidden"), 420);
   };
 
+  // LEAVE PAGE
   leave.onclick = () => {
     window.location.href = "https://google.com";
   };
 }
 
 /* ============================================================
-   ONLINE COUNTER (fake for now)
+   FAKE ONLINE COUNTER
    ============================================================ */
 export function fakeOnlineCount() {
   const el = document.getElementById("onlineText");
   if (!el) return;
 
   const n = Math.floor(28 + Math.random() * 23);
-  el.textContent = n + " online";
+  el.textContent = `${n} online`;
 }
 
 /* ============================================================
-   AUTH BUTTONS (placeholder)
+   AUTH PLACEHOLDER
    ============================================================ */
 export function setupAuth() {
   const loginBtn = document.getElementById("loginBtn");
   const logoutBtn = document.getElementById("logoutBtn");
 
-  loginBtn.onclick = () => alert("Auth not implemented yet.");
-  logoutBtn.onclick = () => alert("Logout not implemented.");
+  if (loginBtn)
+    loginBtn.onclick = () => alert("Auth not implemented yet.");
+
+  if (logoutBtn)
+    logoutBtn.onclick = () => alert("Logout not implemented yet.");
 }
 
 /* ============================================================
    INIT
    ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
-
-  // Sidebar
+  // Sidebar hierarchy
   buildFrontendSidebar(supabase, loadStores);
 
-  // Search buttons
+  // SEARCH BAR
   const input = document.getElementById("searchInput");
-  document.getElementById("searchBtn").onclick = () =>
+
+  document.getElementById("searchBtn").onclick = () => {
     loadStores({}, input.value.trim());
+  };
 
   document.getElementById("clearBtn").onclick = () => {
     input.value = "";
@@ -69,15 +78,14 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   input.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") loadStores({}, input.value.trim());
+    if (e.key === "Enter") {
+      loadStores({}, input.value.trim());
+    }
   });
 
-  // Age gate
+  // AGE GATE
   initAgeGate();
 
-  // Fake online counter
+  // Simulated online counter
   fakeOnlineCount();
-
-  // ⭐ Auth buttons (missing before)
-  setupAuth();
 });
