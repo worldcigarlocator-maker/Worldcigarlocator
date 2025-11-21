@@ -9,17 +9,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
     <!-- Styles -->
-    <link rel="stylesheet" href="css/cards.css" />
     <link rel="stylesheet" href="css/start.css" />
+    <link rel="stylesheet" href="css/cards.css" />
   </head>
 
   <body>
-    <!-- Store Modal -->
+    <!-- HERO & MODAL -->
     <div id="storeModal" class="modal" aria-hidden="true">
       <div class="modal-content" role="dialog" aria-modal="true">
         <button class="modal-close" aria-label="Close">&times;</button>
@@ -57,43 +57,24 @@
         <div class="sidebar-bottom">
           <hr class="divider" />
           <a href="#" class="menu-link">About</a>
-          <a
-            href="mailto:support@worldcigarlocator.com"
-            class="menu-link"
-          >
-            Contact / Support
-          </a>
-          <a href="../add-store.html" class="menu-link add-store">
-            + Add Store
-          </a>
+          <a href="mailto:support@worldcigarlocator.com" class="menu-link">Contact / Support</a>
+          <a href="../add-store.html" class="menu-link add-store">+ Add Store</a>
         </div>
       </aside>
 
-      <!-- MAIN -->
+      <!-- MAIN AREA -->
       <main class="main">
-        <!-- HERO / INTRO -->
+
+        <!-- HERO SECTION -->
         <section class="hero">
-          <div class="hero-bg"></div>
+          <div class="hero-overlay"></div>
           <div class="hero-content">
-            <h2 class="hero-title">Welcome to World Cigar Locator</h2>
-
-            <p class="hero-text">
-              Discover cigar shops, lounges and cigar-friendly venues around the globe.
+            <h2>Welcome to World Cigar Locator</h2>
+            <p>
+              Discover cigar shops, lounges and cigar-friendly venues around the world.<br />
+              Help the community by adding your favourite spot using our Google-powered Add Store form.
             </p>
-
-            <p class="hero-text">
-              Our map is built together with the community — add your favorite location
-              using our Google-powered Add Store form and help cigar lovers worldwide
-              find the perfect place.
-            </p>
-
-            <p class="hero-signoff">
-              Kind regards <span>// Bakerman✌🏾</span>
-            </p>
-
-            <p class="hero-powered">
-              Places data &amp; search powered by Google.
-            </p>
+            <p class="signed">Kind regards // Bakerman ✌🏽</p>
           </div>
         </section>
 
@@ -106,49 +87,28 @@
 
           <div class="auth-buttons">
             <button id="loginBtn" class="login-btn">Login</button>
-            <button
-              id="logoutBtn"
-              class="logout-btn"
-              style="display:none;"
-            >
-              Logout
-            </button>
+            <button id="logoutBtn" class="logout-btn" style="display:none;">Logout</button>
           </div>
         </div>
 
         <!-- Search -->
         <div class="searchbar">
-          <input
-            id="searchInput"
-            type="text"
-            placeholder="Search by name, city or country…"
-          />
+          <input id="searchInput" type="text" placeholder="Search by name, city or country…" />
           <button id="searchBtn" class="btn">Search</button>
           <button id="clearBtn" class="btn outline">Clear</button>
         </div>
 
-        <!-- Heading + Show All -->
-        <div id="resultHeading" class="result-heading">
-          Latest 20 worldwide
-        </div>
-        <button
-          id="showAllBtn"
-          class="btn outline"
-          style="display:none;"
-        >
-          Show All
-        </button>
-
-        <!-- Cards grid -->
+        <!-- Cards -->
         <div id="storeGrid" class="store-grid"></div>
         <div id="toast-container"></div>
       </main>
+    </div>
 
-
-    <!-- Frontend app (ES modules) -->
+    <!-- Scripts -->
     <script type="module" src="globals.js"></script>
     <script type="module" src="cards.js"></script>
     <script type="module" src="sidebar.js"></script>
     <script type="module" src="start.js"></script>
+
   </body>
 </html>
