@@ -206,6 +206,40 @@ body {
   border: 1px solid #444;
 }
 
+/* AUTH BOX */
+.auth-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.auth-user {
+  font-size: 0.83rem;
+  color: var(--gold);
+  opacity: 0.9;
+}
+
+.login-btn, .logout-btn {
+  padding: 6px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.login-btn {
+  background: var(--gold);
+  color: #111;
+  border: none;
+}
+
+.logout-btn {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid #555;
+}
+
+
 /* ============================================================
    SEARCHBAR
    ============================================================ */
