@@ -24,15 +24,10 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <h1 class="logo">World Cigar Locator</h1>
-
+    <h1 class="logo">WORLD CIGAR LOCATOR</h1>
     <ul id="sidebarMenu" class="nav"></ul>
-
-    <div class="sidebar-bottom">
-      <a href="about.html" class="menu-link">About</a>
-      <a href="mailto:support@worldcigarlocator.com" class="menu-link">Contact / Support</a>
-      <a href="add-store-backoffice.html" class="menu-link add-store">+ Add Store</a>
-    </div>
+    <a href="add-store.html" class="add-btn">+ Add Store / Lounge</a>
+    <a href="mailto:support@worldcigarlocator.com" class="support-link">Support</a>
   </aside>
 
   <!-- MAIN -->
@@ -40,22 +35,21 @@
 
     <!-- HERO -->
     <section class="hero">
-      <img src="images/paris.jpg" alt="" class="hero-bg" />
-
+      <img src="images/paris.jpg" class="hero-bg" />
       <div class="hero-overlay"></div>
 
       <div class="hero-content">
         <h1>Welcome to World Cigar Locator</h1>
         <p>
-          Discover cigar shops, lounges and cigar-friendly venues around the globe.<br />
+          Discover cigar shops, lounges and cigar-friendly venues around the globe.<br/>
           Our map is built together with the community — add your favorite location using our
-          <strong>Google-powered Add Store form</strong> and help cigar lovers worldwide find the perfect place.<br/><br/>
+          <strong>Google-powered Add Store form</strong>.<br/><br/>
           <em>Kind regards — Bakerman ✌🏽</em>
         </p>
       </div>
     </section>
 
-    <!-- Status row -->
+    <!-- STATUS -->
     <div class="status-row">
       <div class="online-box">
         <span class="dot"></span>
@@ -68,23 +62,23 @@
       </div>
     </div>
 
-    <!-- Search -->
+    <!-- SEARCH -->
     <div class="searchbar">
       <input id="searchInput" type="text" placeholder="Search by name, city or country…" />
       <button id="searchBtn" class="btn">Search</button>
       <button id="clearBtn" class="btn outline">Clear</button>
     </div>
 
-    <!-- Heading -->
-    <div id="resultHeading" class="result-heading">Latest 20 worldwide</div>
+    <!-- RESULT HEADING (DOLD SOM DEFAULT) -->
+    <div id="resultHeading" class="result-heading" style="display:none;"></div>
     <button id="showAllBtn" class="btn outline" style="display:none;">Show All</button>
 
-    <!-- Cards -->
+    <!-- CARDS -->
     <div id="storeGrid" class="store-grid"></div>
   </main>
 </div>
 
-<!-- Correct JS paths -->
+<!-- SCRIPTS -->
 <script type="module" src="js/globals.js"></script>
 <script type="module" src="js/cards.js"></script>
 <script type="module" src="js/sidebar.js"></script>
