@@ -1,119 +1,90 @@
 /* ============================================================
-   START.JS — HERO ACTIVE UNTIL SEARCH
+   START.JS — STEP 1
    ============================================================ */
 
-import { WCL, getContinentFromCountry } from "./globals.js";
-import { renderCards } from "./cards.js";
+import { WCL } from "./globals.js";
 import { buildFrontendSidebar } from "./sidebar.js";
+import { renderCards } from "./cards.js";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const qs = (id) => document.getElementById(id);
 
 const supabase = createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
-/* HERO TOGGLE */
-function hideHero() {
-  const hero = document.querySelector(".hero");
-  if (hero) hero.style.display = "none";
-}
-function showHero() {
-  const hero = document.querySelector(".hero");
-  if (hero) hero.style.display = "block";
-}
+const qs = (id) => document.getElementById(id);
 
-/* LOAD STORES */
-export async function loadStores(filter = {}, searchTerm = "") {
-  hideHero();
+let HERO_VISIBLE = true;
 
+/* ============================================================
+   LOAD STORES
+   ============================================================ */
+export async function loadStores(filter = {}, search = "") {
   const grid = qs("storeGrid");
-  if (!grid) return;
+  const hero = qs("hero");
+  const heading = qs("resultHeading");
+  const showAll = qs("showAllBtn");
 
-  grid.innerHTML = `<p style="color:#777;text-align:center;">Loading…</p>`;
+  // Hide hero when searching or selecting continent/country/city
+  hero.style.display = "none";
+  HERO_VISIBLE = false;
+
+  heading.style.display = "block";
 
   let query = supabase
     .from("stores_public")
     .select("*")
-    .order("id", { ascending: false });
+    .order("id", { ascending: false })
+    .limit(20);
 
-  if (filter.continent) {
-    const { data, error } = await query;
-    if (error || !data) return;
-
-    const filtered = data
-      .map((s) => ({ ...s, continent: getContinentFromCountry(s.country) }))
-      .filter((s) => s.continent === filter.continent);
-
-    renderCards(filtered);
-    return;
-  }
-
+  if (filter.continent) query = query.eq("continent", filter.continent);
   if (filter.country) query = query.eq("country", filter.country);
   if (filter.city) query = query.eq("city", filter.city);
 
-  if (searchTerm) {
-    query = query.or(
-      `name.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%,country.ilike.%${searchTerm}%`
-    );
+  if (search) {
+    query = query.or(`name.ilike.%${search}%,city.ilike.%${search}%,country.ilike.%${search}%`);
   }
 
-  const { data: stores, error } = await query;
-  if (!stores) return;
+  const { data, error } = await query;
+  if (error) {
+    console.error(error);
+    grid.innerHTML = "<p style='color:red;text-align:center;'>Error loading stores.</p>";
+    return;
+  }
 
-  const enriched = stores.map((s) => ({
-    ...s,
-    continent: s.continent || getContinentFromCountry(s.country),
-  }));
-
-  renderCards(enriched);
+  renderCards(data || []);
 }
 
-/* INIT */
+/* ============================================================
+   INIT
+   ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🌍 start.js — hero active");
+  console.log("🌍 Frontend Step 1 loaded");
 
-  buildFrontendSidebar(supabase, loadStores, getContinentFromCountry);
+  buildFrontendSidebar(supabase, loadStores);
 
-  /* Search */
+  // SEARCH
   const searchInput = qs("searchInput");
-  const searchBtn = qs("searchBtn");
-  const clearBtn = qs("clearBtn");
-
-  searchBtn.addEventListener("click", () => {
-    const term = searchInput.value.trim();
-    if (term.length === 0) return;
-    hideHero();
-    loadStores({}, term);
-  });
-
-  searchInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      const term = searchInput.value.trim();
-      if (term.length === 0) return;
-      hideHero();
-      loadStores({}, term);
-    }
-  });
-
-  clearBtn.addEventListener("click", () => {
+  qs("searchBtn").addEventListener("click", () => loadStores({}, searchInput.value.trim()));
+  qs("clearBtn").addEventListener("click", () => {
     searchInput.value = "";
-    qs("storeGrid").innerHTML = "";
-    qs("resultHeading").innerHTML = "";
-    qs("showAllBtn").style.display = "none";
-    showHero();
+    resetToHero();
   });
 
-  /* Fake auth */
-  const loginBtn = qs("loginBtn");
-  const logoutBtn = qs("logoutBtn");
-
-  loginBtn.addEventListener("click", () => {
-    loginBtn.style.display = "none";
-    logoutBtn.style.display = "inline-block";
-    alert("Fake login — real auth soon");
+  // ENTER key
+  searchInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") loadStores({}, searchInput.value.trim());
   });
 
-  logoutBtn.addEventListener("click", () => {
-    logoutBtn.style.display = "none";
-    loginBtn.style.display = "inline-block";
-  });
+  // Mock login
+  qs("loginBtn").onclick = () => alert("Login placeholder — real auth coming in step 2");
+  qs("logoutBtn").onclick = () => alert("Logout placeholder");
 });
+
+/* ============================================================
+   RESET TO HERO (Clear)
+   ============================================================ */
+function resetToHero() {
+  qs("storeGrid").innerHTML = "";
+  qs("resultHeading").style.display = "none";
+  qs("showAllBtn").style.display = "none";
+  qs("hero").style.display = "block";
+  HERO_VISIBLE = true;
+}
