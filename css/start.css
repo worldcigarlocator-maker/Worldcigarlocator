@@ -158,6 +158,78 @@ html, body {
 }
 
 /* ============================================================
+   HERO / INTRO
+   ============================================================ */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  background: #000;
+  min-height: 220px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* Bakgrundsbild + mörk overlay */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.35)),
+    url("../images/paris.jpg");
+  background-size: cover;
+  background-position: center center;
+  transform: scale(1.03);
+}
+
+/* Textcontainer ovanpå bilden */
+.hero-content {
+  position: relative;
+  padding: 1.7rem 2rem 1.6rem;
+  max-width: 640px;
+  color: #f7f7f7;
+}
+
+/* Rubrik */
+.hero-title {
+  margin: 0 0 0.6rem;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Brödtext */
+.hero-text {
+  margin: 0 0 0.45rem;
+  font-size: 0.98rem;
+  line-height: 1.45rem;
+  color: #f2f2f2;
+}
+
+/* Signoff */
+.hero-signoff {
+  margin: 0.8rem 0 0.3rem;
+  font-size: 0.9rem;
+  color: #e5e5e5;
+}
+
+.hero-signoff span {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Powered by Google-text (diskret) */
+.hero-powered {
+  margin: 0;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+
+/* ============================================================
    ONLINE + AUTH
    ============================================================ */
 
