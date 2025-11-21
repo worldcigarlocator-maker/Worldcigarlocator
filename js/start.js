@@ -181,3 +181,35 @@ document.addEventListener("DOMContentLoaded", () => {
   // Init Auth
   setupAuth();
 });
+
+
+/* ============================================================
+   AGE GATE — 18+ verification
+   ============================================================ */
+
+function initAgeGate() {
+  const gate = document.getElementById("ageGate");
+  const enterBtn = document.getElementById("ageEnter");
+  const leaveBtn = document.getElementById("ageLeave");
+
+  // If already verified, hide immediately
+  if (localStorage.getItem("ageVerified") === "yes") {
+    gate.classList.add("hidden");
+    return;
+  }
+
+  // ENTER → allow, hide popup
+  enterBtn.addEventListener("click", () => {
+    localStorage.setItem("ageVerified", "yes");
+    gate.classList.add("hidden");
+  });
+
+  // LEAVE → redirect
+  leaveBtn.addEventListener("click", () => {
+    window.location.href = "https://google.com";
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initAgeGate();
+});
