@@ -1,130 +1,94 @@
+import { supabase } from "./globals.js";
+
 /* ============================================================
-   CARDS — Store cards (dark premium)
+   RESET HERO VIEW
    ============================================================ */
+export function resetToHero() {
+  document.getElementById("storeGrid").innerHTML = "";
+  document.getElementById("resultHeading").style.display = "none";
+  document.getElementById("showAllBtn").style.display = "none";
 
-import { WCL, flagURL, photoURL } from "./globals.js";
+  // Visa hero + hero-text igen
+  document.querySelector(".hero").style.display = "block";
+  document.querySelector(".hero-text").style.display = "block";
+}
 
-export function renderCards(stores) {
+/* ============================================================
+   RENDER STORES
+   ============================================================ */
+export function renderStores(list) {
   const grid = document.getElementById("storeGrid");
-  if (!grid) return;
-
   grid.innerHTML = "";
 
-  stores.forEach((s) => {
+  list.forEach((s) => {
     const card = document.createElement("div");
     card.className = "store-card";
 
-    /* -------------------------------- PHOTO -------------------------------- */
-    const img = document.createElement("img");
-    img.className = "store-img";
-    img.src = photoURL(s.photo_reference, 800);
-    img.onerror = () => (img.src = WCL.FALLBACK_IMG);
-    card.appendChild(img);
+    const img = s.photo_cdn_url
+      ? s.photo_cdn_url
+      : "images/fallback.jpg";
 
-    /* -------------------------------- BODY -------------------------------- */
-    const body = document.createElement("div");
-    body.className = "store-body";
+    card.innerHTML = `
+      <img src="${img}" class="store-img">
 
-    /* NAME */
-    const title = document.createElement("h3");
-    title.className = "store-title";
-    title.textContent = s.name || "";
-    body.appendChild(title);
+      <div class="store-body">
+        <div class="store-title">${s.name}</div>
 
-    /* BADGES */
-    const badgeRow = document.createElement("div");
-    badgeRow.className = "badge-row";
+        <div class="stars">
+          ${"★".repeat(Math.round(s.rating || 0))}
+        </div>
 
-    let types = [];
-    if (Array.isArray(s.types)) types = s.types.map((t) => t.toLowerCase());
-    if (typeof s.type === "string")
-      types = s.type.split(",").map((t) => t.trim().toLowerCase());
+        <div class="locrow">
+          <div class="loc-top">
+            <img src="flags/${(s.country_iso2 || "xx").toLowerCase()}.svg" class="flag">
+            <span>${s.city || ""}, ${s.country || ""}</span>
+          </div>
+        </div>
 
-    types.forEach((t) => {
-      if (t === "store" || t === "lounge") {
-        const b = document.createElement("span");
-        b.className = `badge ${t === "store" ? "blue" : "gold"}`;
-        b.textContent = t.toUpperCase();
-        badgeRow.appendChild(b);
-      }
+        <div class="infoblock">
+          <div class="info-row">${s.address || ""}</div>
+          <div class="info-row">${s.phone || ""}</div>
+          <div class="info-row">
+            ${s.website ? `<a href="${s.website}" target="_blank">${s.website}</a>` : ""}
+          </div>
+        </div>
 
-      if (t === "lounge") {
-        const acc = (s.access || "").toLowerCase();
-        if (acc === "public" || acc === "members") {
-          const a = document.createElement("span");
-          a.className = `badge access ${acc}`;
-          a.textContent = acc.toUpperCase();
-          badgeRow.appendChild(a);
-        }
-      }
-    });
-
-    body.appendChild(badgeRow);
-
-    /* STARS */
-    const stars = document.createElement("div");
-    stars.className = "stars";
-    const rating = Math.round(Number(s.rating) || 0);
-    stars.textContent = "★★★★★☆☆☆☆☆".slice(5 - rating, 10 - rating);
-    body.appendChild(stars);
-
-    /* LOCATION */
-    const loc = document.createElement("div");
-    loc.className = "locrow";
-
-    const top = document.createElement("div");
-    top.className = "loc-top";
-
-    const fsrc = flagURL(s.country, s.country_iso2);
-    if (fsrc) {
-      const f = document.createElement("img");
-      f.className = "flag";
-      f.src = fsrc;
-      top.appendChild(f);
-    }
-
-    const geo = document.createElement("span");
-    geo.className = "geo-main";
-    geo.textContent = [s.country, s.city].filter(Boolean).join(", ");
-    top.appendChild(geo);
-
-    loc.appendChild(top);
-
-    if (s.continent) {
-      const cont = document.createElement("div");
-      cont.className = "continent-label";
-      cont.textContent =
-        s.continent.charAt(0).toUpperCase() +
-        s.continent.slice(1).toLowerCase();
-      loc.appendChild(cont);
-    }
-
-    body.appendChild(loc);
-
-    /* INFO */
-    const info = document.createElement("div");
-    info.className = "infoblock";
-    info.innerHTML = `
-      <p class="info-row"><strong>Address:</strong> ${s.address || "–"}</p>
-      <p class="info-row"><strong>Phone:</strong> ${s.phone || "–"}</p>
-      <p class="info-row"><strong>Website:</strong> ${
-        s.website ? `<a href="${s.website}" target="_blank">Visit</a>` : "–"
-      }</p>
+        <button class="reviews-btn">Comments (${s.comment_count || 0})</button>
+      </div>
     `;
-    body.appendChild(info);
 
-    /* COMMENTS BUTTON */
-    const reviewsBtn = document.createElement("button");
-    reviewsBtn.className = "reviews-btn";
-    reviewsBtn.textContent = "💬 Comments";
-    body.appendChild(reviewsBtn);
-
-    /* MODAL CLICK */
-    card.addEventListener("click", () => {
-      if (window.openStoreModal) window.openStoreModal(s);
-    });
-
-    card.appendChild(body);
     grid.appendChild(card);
   });
+}
+
+/* ============================================================
+   LOAD STORES
+   ============================================================ */
+export async function loadStores(filters = {}, search = "") {
+  // Dölj hero
+  document.querySelector(".hero").style.display = "none";
+  document.querySelector(".hero-text").style.display = "none";
+
+  let query = supabase.from("stores_public").select("*");
+
+  if (search && search.length > 1) {
+    query = query.ilike("name", `%${search}%`);
+  }
+
+  if (filters.continent) query = query.eq("continent", filters.continent);
+  if (filters.country) query = query.eq("country", filters.country);
+  if (filters.city) query = query.eq("city", filters.city);
+
+  const { data, error } = await query.order("created_at", { ascending: false }).limit(200);
+
+  if (error) {
+    console.error("Load error:", error);
+    return;
+  }
+
+  document.getElementById("resultHeading").style.display = "block";
+  document.getElementById("resultHeading").textContent =
+    search ? `Results for "${search}"` : "Browse";
+
+  renderStores(data);
 }
