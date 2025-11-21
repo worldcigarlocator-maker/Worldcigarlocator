@@ -1,5 +1,5 @@
 /* ============================================================
-   GLOBAL COLORS — Premium dark + champagne
+   GLOBAL COLORS — Premium dark + champagne gold
    ============================================================ */
 :root {
   --gold: #d5c080;
@@ -15,17 +15,26 @@
   --border: #333;
 }
 
-/* Reset */
+/* RESET */
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {
   font-family: "DM Sans", sans-serif;
   background: var(--sidebar-bg);
   color: var(--text);
+}
+
+/* Fade-in */
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.8s ease forwards;
+}
+@keyframes fadeIn {
+  to { opacity: 1; }
 }
 
 /* ============================================================
@@ -37,7 +46,7 @@ body {
 }
 
 /* ============================================================
-   SIDEBAR (Premium Black)
+   SIDEBAR (Premium)
    ============================================================ */
 .sidebar {
   background: var(--sidebar-bg);
@@ -49,327 +58,250 @@ body {
 }
 
 .logo {
+  color: var(--gold);
   font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 1rem;
+  margin-bottom: 1.4rem;
 }
 
+/* Sidebar Links */
 .nav {
   flex: 1;
   list-style: none;
 }
 
-/* Country/City list from JS */
-.line {
-  padding: 0.35rem 0.3rem;
-  color: var(--muted);
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.line:hover {
-  background: rgba(255,255,255,0.06);
-}
-
-.sidebar-bottom {
-  margin-top: 1rem;
-}
-
 .menu-link {
-  display: block;
   color: var(--muted);
-  padding: 0.35rem 0;
+  display: block;
+  margin-bottom: .45rem;
   font-size: 0.85rem;
 }
-
 .menu-link:hover {
   color: var(--gold);
 }
 
-.add-store { color: var(--gold); font-weight: 600; }
+.add-store {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+}
 
 /* ============================================================
    MAIN AREA
    ============================================================ */
 .main {
   background: var(--main-bg);
-  padding: 0 0 3rem;
-  overflow-x: hidden;
+  min-height: 100vh;
+  padding-bottom: 4rem;
 }
 
 /* ============================================================
-   HERO SECTION (Premium glass)
+   TOPBAR
+   ============================================================ */
+.topbar {
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+  padding: 1.2rem 0;
+  align-items: center;
+}
+
+.online-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #1e1e1e;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #333;
+  font-size: 0.82rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background: #3ddc84;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(61,220,132,0.8);
+}
+
+/* Buttons */
+.login-btn,
+.logout-btn,
+.btn {
+  padding: 7px 18px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+}
+.login-btn {
+  background: var(--gold);
+  color: #111;
+}
+.logout-btn {
+  background: transparent;
+  border: 1px solid #666;
+  color: var(--muted);
+}
+
+/* Search */
+.searchbar {
+  display: flex;
+  gap: .6rem;
+}
+
+.searchbar input {
+  padding: .55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid #555;
+  background: #0c0c0c;
+  color: #eee;
+  width: 260px;
+}
+
+.btn {
+  background: var(--gold);
+  color: #111;
+}
+.btn.outline {
+  background: transparent;
+  border: 1px solid #666;
+  color: var(--muted);
+}
+
+/* ============================================================
+   HERO (glassy)
    ============================================================ */
 .hero {
   position: relative;
-  height: 320px;
+  height: 360px;
   overflow: hidden;
-  margin-bottom: 1.6rem;
 }
 
 .hero-bg {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.55);
+  filter: brightness(0.5) blur(2px);
+  transform: scale(1.04);
 }
 
-.hero-overlay {
+.hero::after {
+  content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7));
-}
-
-.hero-content {
-  position: absolute;
-  bottom: 20px;
-  left: 40px;
-  padding: 1.2rem 1.4rem;
-  max-width: 620px;
-
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-
-  color: var(--text);
-}
-
-.hero-content h1 {
-  font-size: 1.8rem;
-  margin-bottom: 0.6rem;
-  color: var(--gold);
-}
-
-.hero-content p {
-  font-size: 1rem;
-  line-height: 1.45rem;
-  color: var(--muted);
+  background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.75));
 }
 
 /* ============================================================
-   STATUS ROW
+   HERO TEXT AREA (Centered)
    ============================================================ */
-.status-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0 40px 1.2rem;
+.hero-text {
+  text-align: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  animation: fadeIn 1.1s ease forwards;
 }
 
-.online-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 13px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
-  font-size: 0.85rem;
-  color: var(--text);
-  backdrop-filter: blur(6px);
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  background: #2df593;
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(45,245,147,0.7);
-}
-
-
-/* AUTH BUTTONS */
-.auth-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.login-btn,
-.logout-btn {
-  padding: 6px 16px;
-  border-radius: 999px;
-  font-size: 0.82rem;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.login-btn {
-  color: #111;
-  background: var(--gold);
-  border: none;
-}
-
-.logout-btn {
-  color: var(--muted);
-  background: transparent;
-  border: 1px solid #444;
-}
-
-/* AUTH BOX */
-.auth-box {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.auth-user {
-  font-size: 0.83rem;
+.hero-text h1 {
   color: var(--gold);
-  opacity: 0.9;
+  font-size: 2rem;
+  margin-bottom: .5rem;
 }
 
-.login-btn, .logout-btn {
-  padding: 6px 16px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.82rem;
-}
-
-.login-btn {
-  background: var(--gold);
-  color: #111;
-  border: none;
-}
-
-.logout-btn {
-  background: transparent;
+.hero-text p {
   color: var(--muted);
-  border: 1px solid #555;
-}
-
-
-/* ============================================================
-   SEARCHBAR
-   ============================================================ */
-.searchbar {
-  display: flex;
-  gap: 0.6rem;
-  margin: 0 40px 1.2rem;
-}
-
-.searchbar input {
-  flex: 1;
-  padding: 0.6rem 1rem;
-  background: #0d0d0d;
-  border: 1px solid #333;
-  color: #eee;
-  border-radius: 999px;
-}
-
-.btn {
-  background: var(--gold);
-  border: none;
-  padding: 0.55rem 1rem;
-  border-radius: 999px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn.outline {
-  background: transparent;
-  border: 1px solid #555;
-  color: var(--muted);
+  max-width: 680px;
+  margin: auto;
+  font-size: 1.05rem;
+  line-height: 1.6;
 }
 
 /* ============================================================
-   RESULT HEADING
+   RESULTS HEADING
    ============================================================ */
 .result-heading {
-  margin: 0 40px 0.8rem;
+  margin: 1rem auto;
+  text-align: center;
   color: var(--muted);
 }
 
-/* Cards grid spacing override */
+/* Cards spacing override */
 .store-grid {
   padding: 0 40px;
 }
 
 /* ============================================================
-   AGE GATE POPUP — Premium Black/Gold
+   AGE GATE (glassy popup)
    ============================================================ */
-
-.age-gate {
+.age-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.85);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 5000;
+  align-items: center;
+  backdrop-filter: blur(6px);
+  z-index: 2000;
+  animation: fadeIn 0.6s ease forwards;
 }
 
-.age-gate.hidden {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
+.age-modal.hidden {
+  display: none;
 }
 
 .age-box {
-  background: rgba(0,0,0,0.55);
-  padding: 2rem 2.4rem;
-  border-radius: 14px;
-  border: 1px solid var(--gold);
-  backdrop-filter: blur(12px);
-  width: 92%;
-  max-width: 420px;
+  background: rgba(255,255,255,0.06);
+  padding: 2.4rem 2.6rem;
+  border-radius: 17px;
   text-align: center;
-  color: var(--text);
-  box-shadow: 0 0 40px rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.15);
+  max-width: 420px;
+  width: 90%;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  animation: fadeIn 0.9s ease forwards;
 }
 
 .age-box h2 {
-  font-size: 1.8rem;
-  margin-bottom: 0.8rem;
   color: var(--gold);
+  margin-bottom: 1rem;
 }
 
 .age-box p {
-  font-size: 1rem;
+  color: var(--text);
   margin-bottom: 1.4rem;
-  color: #e6e6e6;
 }
 
-.age-btn {
-  display: block;
-  width: 100%;
-  padding: 0.7rem 1rem;
-  margin-bottom: 0.8rem;
+.age-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: .8rem;
+}
+
+.age-yes, .age-no {
+  padding: .6rem 1.3rem;
   border-radius: 999px;
-  font-size: 1rem;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.age-btn.enter {
-  background: var(--gold);
-  color: #111;
   border: none;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.age-btn.enter:hover {
-  filter: brightness(1.1);
+.age-yes {
+  background: var(--gold);
+  color: #000;
 }
-
-.age-btn.leave {
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid #666;
+.age-no {
+  background: #333;
+  color: #fff;
 }
-
-.age-btn.leave:hover {
-  background: rgba(255,255,255,0.06);
-}
-
-.age-note {
-  display: block;
-  margin-top: 0.6rem;
-  font-size: 0.75rem;
-  color: var(--muted);
+.age-no:hover {
+  background: #444;
 }
