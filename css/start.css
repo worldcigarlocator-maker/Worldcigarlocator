@@ -1,96 +1,83 @@
 /* ============================================================
-   GLOBAL THEME — DARK + GOLD PREMIUM
+   COLOR THEME (DARK)
    ============================================================ */
-
 :root {
-  --bg: #000000;
-  --sidebar-bg: #0b0b0b;
-  --sidebar-border: #1d1d1d;
-  --main-bg: #0d0d0d;
-
-  --text: #ffffff;
-  --muted: #9a9a9a;
-  --gold: #f5d78c;            /* premium gold */
-  --gold-soft: rgba(245, 215, 140, 0.12);
-
-  --border: #222;
+  --sidebar-bg: #0c0c0c;
+  --main-bg: #101010;
+  --accent: #d4c287;   /* elegant champagne gold */
+  --accent-soft: rgba(212,194,135,0.18);
+  --text: #f5f5f5;
+  --muted: #8e8e8e;
+  --border: #262626;
 }
 
-/* Reset */
+/* RESET */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
-
 html, body {
   margin: 0;
   padding: 0;
-  background: var(--bg);
+  background: #050505;
   color: var(--text);
-  font-family: "DM Sans", system-ui, sans-serif;
+  font-family: "DM Sans", sans-serif;
 }
 
 /* ============================================================
-   GRID LAYOUT
+   LAYOUT
    ============================================================ */
-
 .container {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100vh;
 }
 
-
 /* ============================================================
-   SIDEBAR — DARK
+   SIDEBAR
    ============================================================ */
-
 .sidebar {
   background: var(--sidebar-bg);
-  border-right: 1px solid var(--sidebar-border);
-  padding: 1.4rem 1.2rem 1.6rem;
+  border-right: 1px solid var(--border);
+  padding: 1.3rem 1rem;
   display: flex;
   flex-direction: column;
 }
 
 .logo {
-  margin: 0;
-  padding-bottom: .4rem;
-  font-size: 1.3rem;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--gold);
+  margin: 0 0 0.6rem;
+  font-size: 1.25rem;
+  letter-spacing: 0.18em;
   font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
 }
 
 .divider {
+  border: none;
   height: 1px;
-  width: 100%;
-  background: var(--sidebar-border);
-  margin: .9rem 0;
+  background: var(--border);
+  margin: 1.2rem 0;
 }
 
-
-/* ---------------- NAV ---------------- */
-
+/* NAV */
 .nav {
-  list-style: none;
-  padding: 0;
-  margin: 0;
   flex: 1;
   overflow-y: auto;
-  font-size: 0.85rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
 .line {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: .28rem .1rem;
-  color: var(--muted);
+  padding: 0.28rem 0.2rem;
   cursor: pointer;
   border-radius: 6px;
-  transition: 0.15s;
+  color: var(--muted);
 }
 
 .line:hover {
@@ -102,137 +89,86 @@ html, body {
   font-weight: 600;
 }
 
-.line.country { padding-left: 1.1rem; }
-.line.city    { padding-left: 2.1rem; font-size: 0.78rem; }
-
-.pill {
-  background: rgba(255,255,255,0.12);
-  padding: 0rem .4rem;
-  border-radius: 999px;
-  font-size: .7rem;
-  color: var(--muted);
-}
-
 .nested {
   display: none;
-  margin-left: .6rem;
-  border-left: 1px dashed #333;
-  padding-left: .5rem;
+  margin-left: 0.7rem;
+  padding-left: 0.4rem;
+  border-left: 1px dashed rgba(255,255,255,0.08);
 }
-.nested.show { display: block; }
-
-
-/* ============================================================
-   SIDEBAR BOTTOM
-   ============================================================ */
+.nested.show {
+  display: block;
+}
 
 .sidebar-bottom {
-  margin-top: .8rem;
   display: flex;
   flex-direction: column;
-  gap: .4rem;
+  gap: 0.4rem;
 }
-
 .menu-link {
-  text-decoration: none;
   color: var(--muted);
-  font-size: .85rem;
-  padding: .3rem 0;
+  text-decoration: none;
+  font-size: 0.85rem;
 }
-.menu-link:hover { color: var(--gold); }
-
+.menu-link:hover {
+  color: var(--accent);
+}
 .add-store {
-  color: var(--gold);
-  font-weight: 600;
+  color: var(--accent);
 }
-
 
 /* ============================================================
-   MAIN — DARK
+   MAIN
    ============================================================ */
-
 .main {
   background: var(--main-bg);
-  padding: 1.4rem 1.7rem 2rem;
-  color: var(--text);
+  padding: 0 1.7rem 2rem;
+  position: relative;
 }
 
 /* ============================================================
-   HERO / INTRO
+   HERO SECTION
    ============================================================ */
-
 .hero {
   position: relative;
-  overflow: hidden;
+  height: 260px;
+  background: url("../images/paris.jpg") center/cover no-repeat;
   border-radius: 16px;
-  margin-bottom: 1.5rem;
-  background: #000;
-  min-height: 220px;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  margin: 1.4rem 0 1.7rem 0;
+  overflow: hidden;
 }
 
-/* Bakgrundsbild + mörk overlay */
-.hero-bg {
-  position: absolute;
+.hero-overlay {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.45), rgba(0,0,0,0.75));
   inset: 0;
-  background-image:
-    linear-gradient(135deg, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.35)),
-    url("../images/paris.jpg");
-  background-size: cover;
-  background-position: center center;
-  transform: scale(1.03);
+  position: absolute;
 }
 
-/* Textcontainer ovanpå bilden */
 .hero-content {
-  position: relative;
-  padding: 1.7rem 2rem 1.6rem;
-  max-width: 640px;
-  color: #f7f7f7;
+  position: absolute;
+  bottom: 20px;
+  left: 22px;
+  right: 22px;
 }
-
-/* Rubrik */
-.hero-title {
-  margin: 0 0 0.6rem;
-  font-size: 1.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.hero-content h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.4rem;
   color: var(--accent);
 }
-
-/* Brödtext */
-.hero-text {
-  margin: 0 0 0.45rem;
-  font-size: 0.98rem;
-  line-height: 1.45rem;
-  color: #f2f2f2;
+.hero-content p {
+  margin: 0.2rem 0;
+  font-size: 0.93rem;
+  color: #eaeaea;
+  opacity: 0.9;
 }
-
-/* Signoff */
-.hero-signoff {
-  margin: 0.8rem 0 0.3rem;
-  font-size: 0.9rem;
-  color: #e5e5e5;
-}
-
-.hero-signoff span {
+.hero-content .signed {
+  margin-top: 0.6rem;
+  font-style: italic;
   color: var(--accent);
-  font-weight: 600;
 }
-
-/* Powered by Google-text (diskret) */
-.hero-powered {
-  margin: 0;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.72);
-}
-
 
 /* ============================================================
-   ONLINE + AUTH
+   STATUS ROW (online + auth)
    ============================================================ */
-
 .status-row {
   display: flex;
   justify-content: space-between;
@@ -244,107 +180,70 @@ html, body {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #161616;
   padding: 6px 12px;
+  background: #1b1b1b;
+  border: 1px solid #333;
   border-radius: 999px;
-  border: 1px solid #222;
-  font-size: .85rem;
-  color: var(--gold);
+  color: var(--text);
 }
-
 .dot {
   width: 10px;
   height: 10px;
-  border-radius: 50%;
   background: #2ecc71;
+  border-radius: 50%;
   box-shadow: 0 0 6px rgba(46,204,113,0.7);
 }
 
-/* Auth buttons */
-.auth-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.login-btn,
-.logout-btn {
+.auth-buttons button {
   padding: 6px 16px;
   border-radius: 999px;
-  font-size: .82rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
 }
 
 .login-btn {
-  background: var(--gold);
-  border: none;
+  background: var(--accent);
   color: #111;
+  border: none;
 }
 .logout-btn {
+  border: 1px solid #777;
   background: transparent;
-  border: 1px solid #555;
-  color: var(--muted);
+  color: #ddd;
 }
 
-.logout-btn:hover { background: #222; }
-.login-btn:hover  { filter: brightness(1.1); }
-
-
 /* ============================================================
-   SEARCH BAR — DARK
+   SEARCHBAR
    ============================================================ */
-
 .searchbar {
   display: flex;
-  gap: .6rem;
-  margin-bottom: 1rem;
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
 }
 
 .searchbar input {
   flex: 1;
-  padding: .65rem 1rem;
-  border-radius: 999px;
-  background: #111;
+  padding: 0.6rem 1rem;
+  background: #181818;
   color: var(--text);
   border: 1px solid #333;
+  border-radius: 999px;
 }
-
-.searchbar input:focus {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px var(--gold-soft);
+.searchbar input::placeholder {
+  color: #888;
 }
 
 .btn {
-  background: var(--gold);
+  background: var(--accent);
   color: #111;
-  border: none;
-  padding: .55rem 1rem;
-  font-size: .82rem;
-  font-weight: 600;
   border-radius: 999px;
-  text-transform: uppercase;
-  letter-spacing: .05em;
+  padding: 0.6rem 1rem;
+  border: none;
   cursor: pointer;
 }
-
 .btn.outline {
-  background: transparent;
-  border: 1px solid #555;
-  color: var(--muted);
-}
-
-.btn.outline:hover {
-  border-color: var(--gold);
-  color: var(--gold);
-}
-
-
-/* ============================================================
-   RESULT HEADING
-   ============================================================ */
-
-.result-heading {
-  font-size: .9rem;
-  color: var(--muted);
-  margin-bottom: .5rem;
+  background: #181818;
+  border: 1px solid #333;
+  color: #cfcfcf;
 }
