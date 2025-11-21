@@ -15,8 +15,10 @@
   <link rel="stylesheet" href="css/cards.css" />
 </head>
 
+<body>
+
 <!-- ============================================================
-     AGE GATE POPUP
+     AGE GATE POPUP (ONLY ONE!)
      ============================================================ -->
 <div id="ageGate" class="age-modal hidden fade-in">
   <div class="age-box">
@@ -32,24 +34,6 @@
       World Cigar Locator does not promote tobacco use.  
       Please follow your local laws and guidelines.
     </small>
-  </div>
-</div>
-
-  
-<body>
-
-<!-- 18+ MODAL -->
-<div id="ageGate" class="age-modal">
-  <div class="age-box">
-    <h2>18+ Required</h2>
-    <p>You must be at least 18 years old to enter World Cigar Locator.</p>
-
-    <div class="age-buttons">
-      <button id="enterBtn" class="age-yes">Enter – I am 18+</button>
-      <button id="leaveBtn" class="age-no">Leave</button>
-    </div>
-
-    <small>World Cigar Locator does not promote tobacco use. Follow your local laws.</small>
   </div>
 </div>
 
@@ -89,7 +73,7 @@
       <img src="images/paris.jpg" alt="Hero" class="hero-bg" />
     </section>
 
-    <!-- HERO TEXT (separate from image) -->
+    <!-- HERO TEXT -->
     <section class="hero-text">
       <h1>Welcome to World Cigar Locator</h1>
       <p>
@@ -116,10 +100,11 @@
   </main>
 </div>
 
-<script type="module" src="globals.js"></script>
-<script type="module" src="cards.js"></script>
-<script type="module" src="sidebar.js"></script>
-<script type="module" src="start.js"></script>
+<!-- Correct module paths -->
+<script type="module" src="js/globals.js"></script>
+<script type="module" src="js/cards.js"></script>
+<script type="module" src="js/sidebar.js"></script>
+<script type="module" src="js/start.js"></script>
 
 </body>
 </html>
