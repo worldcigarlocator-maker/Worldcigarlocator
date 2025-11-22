@@ -8,7 +8,7 @@ export function resetToHero() {
   document.getElementById("resultHeading").style.display = "none";
   document.getElementById("showAllBtn").style.display = "none";
 
-  // Visa hero + hero-text igen
+  // Visa hero + text
   document.querySelector(".hero").style.display = "block";
   document.querySelector(".hero-text").style.display = "block";
 }
@@ -61,15 +61,19 @@ export function renderStores(list) {
   });
 }
 
-// ============================================================
-// LOAD STORES (search + filters)
-// ============================================================
+/* ============================================================
+   LOAD STORES (search + filters)
+   ============================================================ */
 export async function loadStores(filters = {}, search = "") {
   const grid = document.getElementById("storeGrid");
   const heading = document.getElementById("resultHeading");
 
   grid.innerHTML = "";
   heading.style.display = "block";
+
+  // Dölj hero
+  document.querySelector(".hero").style.display = "none";
+  document.querySelector(".hero-text").style.display = "none";
 
   let query = supabase.from("stores_frontend_public").select("*");
 
@@ -84,7 +88,7 @@ export async function loadStores(filters = {}, search = "") {
   if (filters.country) query = query.eq("country", filters.country);
   if (filters.city) query = query.eq("city", filters.city);
 
-  const { data, error } = await query.order("created_at", { ascending: false });
+  const { data, error } = await query;
 
   if (error) {
     console.error("Load error:", error);
@@ -97,6 +101,5 @@ export async function loadStores(filters = {}, search = "") {
     return;
   }
 
-  buildStoreCards(data);
+  renderStores(data);
 }
-
