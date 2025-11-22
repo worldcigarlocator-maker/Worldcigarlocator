@@ -1,4 +1,29 @@
+// js/cards.js
 import { supabase } from "./globals.js";
+
+/* ============================================================
+   PHOTO URL HELPER  (mirror backend behaviour)
+   ============================================================ */
+
+const FALLBACK_PHOTO = "images/store.jpg";  // you also have lounge.jpg etc.
+const PHOTO_PROXY_URL = "/photo-proxy/api/photo-proxy"; // existing edge function
+
+function getPhotoUrl(store) {
+  // 1) CDN image (Cloudflare / Supabase Storage)
+  if (store.photo_cdn_url) return store.photo_cdn_url;
+
+  // 2) Direct URL already stored
+  if (store.photo_url) return store.photo_url;
+
+  // 3) Google Places reference via your proxy
+  if (store.photo_reference) {
+    const ref = encodeURIComponent(store.photo_reference);
+    return `${PHOTO_PROXY_URL}?ref=${ref}&maxwidth=800`;
+  }
+
+  // 4) Nothing -> fallback
+  return FALLBACK_PHOTO;
+}
 
 /* ============================================================
    RESET HERO VIEW
@@ -6,56 +31,76 @@ import { supabase } from "./globals.js";
 export function resetToHero() {
   const grid = document.getElementById("storeGrid");
   const heading = document.getElementById("resultHeading");
-  const showAll = document.getElementById("showAllBtn");
+  const showAllBtn = document.getElementById("showAllBtn");
+  const heroImg = document.getElementById("heroImage");
+  const heroText = document.getElementById("heroText");
 
-  grid.innerHTML = "";
-  heading.style.display = "none";
-  showAll.style.display = "none";
-
-  document.getElementById("heroImage").style.display = "block";
-  document.getElementById("heroText").style.display = "block";
+  if (grid) grid.innerHTML = "";
+  if (heading) {
+    heading.style.display = "none";
+    heading.textContent = "";
+  }
+  if (showAllBtn) showAllBtn.style.display = "none";
+  if (heroImg) heroImg.style.display = "block";
+  if (heroText) heroText.style.display = "block";
 }
 
 /* ============================================================
-   RENDER STORES
+   RENDER STORE CARDS
    ============================================================ */
 export function renderStores(list) {
   const grid = document.getElementById("storeGrid");
+  if (!grid) return;
+
   grid.innerHTML = "";
 
   list.forEach((s) => {
-    const card = document.createElement("div");
+    const card = document.createElement("article");
     card.className = "store-card";
 
-    const img = s.photo_cdn_url || "images/fallback.jpg";
+    const imgSrc = getPhotoUrl(s);
+    const flagIso = (s.country_iso2 || "xx").toLowerCase();
 
     card.innerHTML = `
-      <img src="${img}" class="store-img" />
+      <div class="store-photo-wrap">
+        <img
+          src="${imgSrc}"
+          alt="${s.name || "Cigar location"}"
+          class="store-img"
+          onerror="this.onerror=null;this.src='${FALLBACK_PHOTO}';"
+        />
+      </div>
 
       <div class="store-body">
-        <div class="store-title">${s.name}</div>
+        <h3 class="store-title">${s.name || "Unnamed location"}</h3>
 
         <div class="stars">
-          ${"★".repeat(Math.round(s.rating || 0))}
+          ${"★".repeat(Math.round(s.rating || 0)) ||
+            '<span class="no-rating">No rating yet</span>'}
         </div>
 
         <div class="locrow">
           <div class="loc-top">
-            <img src="flags/${(s.country_iso2 || "xx").toLowerCase()}.svg" class="flag" />
-            <span>${s.city || ""}, ${s.country || ""}</span>
+            <img
+              src="flags/${flagIso}.svg"
+              class="flag"
+              alt="${s.country || ""}"
+              onerror="this.style.display='none';"
+            />
+            <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
           </div>
         </div>
 
         <div class="infoblock">
-          <div class="info-row">${s.address || ""}</div>
-          <div class="info-row">${s.phone || ""}</div>
-          <div class="info-row">
+          <p class="info-row">${s.address || ""}</p>
+          <p class="info-row">${s.phone || ""}</p>
+          <p class="info-row">
             ${
               s.website
-                ? `<a href="${s.website}" target="_blank">${s.website}</a>`
+                ? `<a href="${s.website}" target="_blank" rel="noopener">Visit website</a>`
                 : ""
             }
-          </div>
+          </p>
         </div>
 
         <button class="reviews-btn">
@@ -69,62 +114,54 @@ export function renderStores(list) {
 }
 
 /* ============================================================
-   LOAD STORES
+   LOAD STORES (search + filters)
    ============================================================ */
 export async function loadStores(filters = {}, search = "") {
   const grid = document.getElementById("storeGrid");
   const heading = document.getElementById("resultHeading");
+  const showAllBtn = document.getElementById("showAllBtn");
 
-  // Dölj hero när vi söker / klickar i hierarkin
+  // hide hero when we actually load results
   const heroImg = document.getElementById("heroImage");
   const heroText = document.getElementById("heroText");
   if (heroImg) heroImg.style.display = "none";
   if (heroText) heroText.style.display = "none";
 
-  grid.innerHTML = "";
-  heading.style.display = "block";
+  if (grid) grid.innerHTML = "";
+  if (heading) {
+    heading.style.display = "block";
+    heading.textContent = "Loading…";
+  }
+  if (showAllBtn) showAllBtn.style.display = "none";
 
-  // Base query
   let query = supabase.from("stores_frontend_public").select("*");
 
-  /* ------------------------------------------
-      SEARCH
-  ------------------------------------------ */
+  // Search string
   if (search) {
-    heading.textContent = `Results for "${search}"`;
     query = query.or(
       `name.ilike.%${search}%,city.ilike.%${search}%,country.ilike.%${search}%`
     );
   }
 
-  /* ------------------------------------------
-      FILTERS: Continent / Country / City
-  ------------------------------------------ */
+  // Filters from sidebar
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country) query = query.eq("country", filters.country);
   if (filters.city) query = query.eq("city", filters.city);
 
-  /* ------------------------------------------
-      EXECUTE QUERY
-  ------------------------------------------ */
+  // Newest first – view already only has approved/clean rows
   const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
     console.error("Load error:", error);
-    heading.textContent = "Error loading stores.";
+    if (heading) heading.textContent = "Error loading stores.";
     return;
   }
 
-  if (!data.length) {
-    heading.textContent = "No results found.";
+  if (!data || !data.length) {
+    if (heading) heading.textContent = "No results found.";
     return;
   }
 
-  heading.textContent = `${data.length} results`;
-
-  /* ------------------------------------------
-      RENDER STORES
-  ------------------------------------------ */
+  if (heading) heading.textContent = `${data.length} results`;
   renderStores(data);
 }
-
