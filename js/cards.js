@@ -75,15 +75,21 @@ export async function loadStores(filters = {}, search = "") {
   const grid = document.getElementById("storeGrid");
   const heading = document.getElementById("resultHeading");
 
-  // Dölj hero
-  document.getElementById("heroImage").style.display = "none";
-  document.getElementById("heroText").style.display = "none";
+  // Dölj hero när vi söker / klickar i hierarkin
+  const heroImg = document.getElementById("heroImage");
+  const heroText = document.getElementById("heroText");
+  if (heroImg) heroImg.style.display = "none";
+  if (heroText) heroText.style.display = "none";
 
   grid.innerHTML = "";
   heading.style.display = "block";
 
+  // Base query
   let query = supabase.from("stores_frontend_public").select("*");
 
+  /* ------------------------------------------
+      SEARCH
+  ------------------------------------------ */
   if (search) {
     heading.textContent = `Results for "${search}"`;
     query = query.or(
@@ -91,10 +97,16 @@ export async function loadStores(filters = {}, search = "") {
     );
   }
 
+  /* ------------------------------------------
+      FILTERS: Continent / Country / City
+  ------------------------------------------ */
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country) query = query.eq("country", filters.country);
   if (filters.city) query = query.eq("city", filters.city);
 
+  /* ------------------------------------------
+      EXECUTE QUERY
+  ------------------------------------------ */
   const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
@@ -110,5 +122,9 @@ export async function loadStores(filters = {}, search = "") {
 
   heading.textContent = `${data.length} results`;
 
+  /* ------------------------------------------
+      RENDER STORES
+  ------------------------------------------ */
   renderStores(data);
 }
+
