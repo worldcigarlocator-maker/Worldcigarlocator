@@ -61,34 +61,42 @@ export function renderStores(list) {
   });
 }
 
-/* ============================================================
-   LOAD STORES
-   ============================================================ */
+// ============================================================
+// LOAD STORES (search + filters)
+// ============================================================
 export async function loadStores(filters = {}, search = "") {
-  // Dölj hero
-  document.querySelector(".hero").style.display = "none";
-  document.querySelector(".hero-text").style.display = "none";
+  const grid = document.getElementById("storeGrid");
+  const heading = document.getElementById("resultHeading");
 
-  let query = supabase.from("stores_public").select("*");
+  grid.innerHTML = "";
+  heading.style.display = "block";
 
-  if (search && search.length > 1) {
-    query = query.ilike("name", `%${search}%`);
+  let query = supabase.from("stores_frontend_public").select("*");
+
+  // Search
+  if (search) {
+    heading.textContent = `Results for "${search}"`;
+    query = query.or(`name.ilike.%${search}%,city.ilike.%${search}%,country.ilike.%${search}%`);
   }
 
+  // Filters
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country) query = query.eq("country", filters.country);
   if (filters.city) query = query.eq("city", filters.city);
 
-  const { data, error } = await query.order("created_at", { ascending: false }).limit(200);
+  const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
     console.error("Load error:", error);
+    heading.textContent = "Error loading stores.";
     return;
   }
 
-  document.getElementById("resultHeading").style.display = "block";
-  document.getElementById("resultHeading").textContent =
-    search ? `Results for "${search}"` : "Browse";
+  if (!data.length) {
+    heading.textContent = "No results found.";
+    return;
+  }
 
-  renderStores(data);
+  buildStoreCards(data);
 }
+
