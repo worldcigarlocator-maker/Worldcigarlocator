@@ -1,5 +1,6 @@
 /* ============================================================
    SIDEBAR — Hierarchy (Continent → Country → City)
+   Premium version
    ============================================================ */
 
 import { getContinent } from "./globals.js";
@@ -12,7 +13,7 @@ export function buildFrontendSidebar(supabase, loadStores) {
 
   supabase
     .from("stores_frontend_public")
-    .select("id,name,country,city")
+    .select("id, name, country, city")
     .then(({ data, error }) => {
       if (error || !data) {
         console.error("Sidebar fetch error:", error);
@@ -26,7 +27,11 @@ export function buildFrontendSidebar(supabase, loadStores) {
       const grouped = {};
 
       for (const s of data) {
-        const cont = getContinent(s.country);
+        let cont = getContinent(s.country);
+
+        // Avoid having “Other”
+        if (cont === "Other" || cont === "Unknown") cont = "Unsorted";
+
         if (!grouped[cont]) grouped[cont] = {};
 
         const ctry = s.country || "Unknown";
@@ -41,7 +46,7 @@ export function buildFrontendSidebar(supabase, loadStores) {
       menu.innerHTML = "";
 
       /* --------------------------------------------------------
-         BUILD TREE
+         BUILD TREE UI
       ---------------------------------------------------------*/
       Object.entries(grouped)
         .sort(([a], [b]) => a.localeCompare(b))
@@ -58,15 +63,13 @@ export function buildFrontendSidebar(supabase, loadStores) {
           contBtn.innerHTML = `
             <span class="arrow">▶</span>
             <span class="label">${continent}</span>
-            <span class="pill">${totalStores}</span>
+            <span class="pill premium-pill">${totalStores}</span>
           `;
 
           const nestedCountries = document.createElement("div");
           nestedCountries.className = "nested";
 
-          /* -----------------------------------------------
-             CONTINENT CLICK
-          ------------------------------------------------*/
+          /* CONTINENT CLICK */
           contBtn.addEventListener("click", () => {
             const isOpen = nestedCountries.classList.toggle("show");
             contBtn.classList.toggle("open", isOpen);
@@ -77,9 +80,7 @@ export function buildFrontendSidebar(supabase, loadStores) {
             if (isOpen) loadStores({ continent });
           });
 
-          /* -----------------------------------------------
-             COUNTRIES
-          ------------------------------------------------*/
+          /* COUNTRIES */
           Object.entries(countries)
             .sort(([a], [b]) => a.localeCompare(b))
             .forEach(([country, cities]) => {
@@ -100,9 +101,7 @@ export function buildFrontendSidebar(supabase, loadStores) {
               const nestedCity = document.createElement("div");
               nestedCity.className = "nested";
 
-              /* --------------------------------------------
-                 COUNTRY CLICK
-              ---------------------------------------------*/
+              /* COUNTRY CLICK */
               cBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
                 const isOpen = nestedCity.classList.toggle("show");
@@ -114,9 +113,7 @@ export function buildFrontendSidebar(supabase, loadStores) {
                 if (isOpen) loadStores({ country });
               });
 
-              /* --------------------------------------------
-                 CITIES
-              ---------------------------------------------*/
+              /* CITIES */
               Object.entries(cities)
                 .sort(([, a], [, b]) => b.length - a.length)
                 .forEach(([city, cityStores]) => {
@@ -130,10 +127,7 @@ export function buildFrontendSidebar(supabase, loadStores) {
 
                   cityBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    document
-                      .querySelector(".main")
-                      ?.scrollIntoView({ behavior: "smooth" });
-
+                    document.querySelector(".main")?.scrollIntoView({ behavior: "smooth" });
                     loadStores({ city });
                   });
 
