@@ -1,4 +1,6 @@
-import { supabase, qs, getContinent } from "./globals.js";
+// start.js — World Cigar Locator frontend bootstrap
+
+import { supabase, qs } from "./globals.js";
 import { loadStores, resetToHero } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 
@@ -10,74 +12,113 @@ export function initAgeGate() {
   const enter = document.getElementById("enterBtn");
   const leave = document.getElementById("leaveBtn");
 
+  if (!modal || !enter || !leave) return;
+
   const ok = localStorage.getItem("ageVerified");
   if (ok === "yes") {
     modal.classList.add("hidden");
     return;
   }
 
+  // Visa popup
   modal.classList.remove("hidden");
 
+  // Enter (18+)
   enter.onclick = () => {
     localStorage.setItem("ageVerified", "yes");
     modal.classList.add("hidden");
   };
 
+  // Leave
   leave.onclick = () => {
     window.location.href = "https://google.com";
   };
 }
 
 /* ============================================================
-   ONLINE COUNTER (fake)
+   ONLINE COUNTER (fake just nu)
    ============================================================ */
 export function fakeOnlineCount() {
   const el = qs("onlineText");
   if (!el) return;
 
-  const n = Math.floor(28 + Math.random() * 23);
-  el.textContent = n + " online";
+  const n = Math.floor(28 + Math.random() * 23); // 28–50
+  el.textContent = `${n} online`;
 }
 
 /* ============================================================
-   AUTH PLACEHOLDER
+   AUTH PLACEHOLDER (riktig Supabase-auth senare)
    ============================================================ */
 export function setupAuth() {
   const loginBtn = qs("loginBtn");
   const logoutBtn = qs("logoutBtn");
 
-  loginBtn.onclick = () => alert("Auth coming soon!");
-  logoutBtn.onclick = () => alert("Logout coming soon!");
+  if (!loginBtn || !logoutBtn) return;
+
+  loginBtn.onclick = () => {
+    alert("Auth coming soon! (Supabase auth)");
+  };
+
+  logoutBtn.onclick = () => {
+    alert("Logout coming soon!");
+  };
 }
 
 /* ============================================================
    INIT
    ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
-
-  // BUILD SIDEBAR 
+  // 1) Bygg sidomenyn (hierarki)
   buildFrontendSidebar(supabase, loadStores);
 
-  // Search
+  // 2) Search-fält & knappar
   const input = qs("searchInput");
+  const searchBtn = qs("searchBtn");
+  const clearBtn = qs("clearBtn");
 
-  qs("searchBtn").onclick = () =>
-    loadStores({}, input.value.trim());
+  if (searchBtn && input) {
+    searchBtn.onclick = () => {
+      const term = input.value.trim();
+      if (!term) {
+        // Tom sök => gå tillbaka till hero
+        resetToHero();
+        return;
+      }
+      loadStores({}, term);
+    };
+  }
 
-  qs("clearBtn").onclick = () => {
-    input.value = "";
-    resetToHero();
-  };
+  if (clearBtn && input) {
+    clearBtn.onclick = () => {
+      input.value = "";
+      resetToHero(); // visar hero + gömmer kort
+    };
+  }
 
-  input.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      loadStores({}, input.value.trim());
-    }
-  });
+  if (input) {
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        const term = input.value.trim();
+        if (!term) {
+          resetToHero();
+          return;
+        }
+        loadStores({}, term);
+      }
+    });
+  }
 
-  // Init 18+ Gate
+  // 3) Age gate
   initAgeGate();
 
-  // Fake online
+  // 4) Fake online counter
   fakeOnlineCount();
+  // uppdatera lite då och då om du vill:
+  // setInterval(fakeOnlineCount, 15000);
+
+  // 5) Auth-placeholder
+  setupAuth();
+
+  // 6) Start-läge: hero synlig, inga kort
+  resetToHero();
 });
