@@ -1,8 +1,53 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
-export const supabase = createClient(
+// ============================================================
+// SUPABASE CLIENT
+// ============================================================
+export const supabase = window.supabase.createClient(
   "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+  "YOUR_PUBLIC_ANON_KEY"
 );
 
+// Snabb query selector
 export const qs = (id) => document.getElementById(id);
+
+
+// ============================================================
+// CONTINENT MAP  <-- DET ÄR HÄR DEN SKA LIGGA
+// ============================================================
+export function getContinent(country = "") {
+  if (!country) return "Unknown";
+
+  const c = country.toLowerCase();
+
+  // Europa
+  if ([
+    "sweden","norway","finland","denmark","germany","spain","france",
+    "italy","uk","england","poland","netherlands","belgium","switzerland",
+    "austria","portugal","ireland","czechia","slovakia","hungary"
+  ].includes(c)) return "Europe";
+
+  // Nordamerika
+  if (["usa","united states","canada","mexico"].includes(c))
+    return "North America";
+
+  // Sydamerika
+  if (["brazil","argentina","chile","colombia","peru"].includes(c))
+    return "South America";
+
+  // Asien
+  if ([
+    "japan","china","vietnam","thailand","south korea","india",
+    "indonesia","malaysia"
+  ].includes(c)) return "Asia";
+
+  // Afrika
+  if ([
+    "south africa","nigeria","morocco","egypt","kenya","tanzania"
+  ].includes(c))
+    return "Africa";
+
+  // Oceanien
+  if (["australia","new zealand"].includes(c))
+    return "Oceania";
+
+  return "Other";
+}
