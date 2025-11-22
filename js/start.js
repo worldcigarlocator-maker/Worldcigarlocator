@@ -1,16 +1,17 @@
-import { supabase } from "./globals.js";
+import { supabase, qs, getContinent } from "./globals.js";
 import { loadStores, resetToHero } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 
 /* ============================================================
    AGE GATE (localStorage)
    ============================================================ */
-function initAgeGate() {
+export function initAgeGate() {
   const modal = document.getElementById("ageGate");
   const enter = document.getElementById("enterBtn");
   const leave = document.getElementById("leaveBtn");
 
-  if (localStorage.getItem("ageVerified") === "yes") {
+  const ok = localStorage.getItem("ageVerified");
+  if (ok === "yes") {
     modal.classList.add("hidden");
     return;
   }
@@ -28,13 +29,25 @@ function initAgeGate() {
 }
 
 /* ============================================================
-   FAKE ONLINE COUNTER
+   ONLINE COUNTER (fake)
    ============================================================ */
-function fakeOnlineCount() {
-  const el = document.getElementById("onlineText");
+export function fakeOnlineCount() {
+  const el = qs("onlineText");
   if (!el) return;
-  const n = Math.floor(20 + Math.random() * 40);
+
+  const n = Math.floor(28 + Math.random() * 23);
   el.textContent = n + " online";
+}
+
+/* ============================================================
+   AUTH PLACEHOLDER
+   ============================================================ */
+export function setupAuth() {
+  const loginBtn = qs("loginBtn");
+  const logoutBtn = qs("logoutBtn");
+
+  loginBtn.onclick = () => alert("Auth coming soon!");
+  logoutBtn.onclick = () => alert("Logout coming soon!");
 }
 
 /* ============================================================
@@ -42,29 +55,29 @@ function fakeOnlineCount() {
    ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-  // Sidebar hierarchy
-  buildFrontendSidebar(supabase, loadStores);
+  // BUILD SIDEBAR (nu skickar vi med getContinent)
+  buildFrontendSidebar(supabase, loadStores, getContinent);
 
   // Search
-  const input = document.getElementById("searchInput");
+  const input = qs("searchInput");
 
-  function doSearch() {
+  qs("searchBtn").onclick = () =>
     loadStores({}, input.value.trim());
-  }
 
-  document.getElementById("searchBtn").onclick = doSearch;
-  input.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") doSearch();
-  });
-
-  document.getElementById("clearBtn").onclick = () => {
+  qs("clearBtn").onclick = () => {
     input.value = "";
     resetToHero();
   };
 
-  // Age gate
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      loadStores({}, input.value.trim());
+    }
+  });
+
+  // Init 18+ Gate
   initAgeGate();
 
-  // Online count
+  // Fake online
   fakeOnlineCount();
 });
