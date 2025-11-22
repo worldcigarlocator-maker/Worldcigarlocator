@@ -1,7 +1,8 @@
 /* ============================================================
    SIDEBAR — Hierarchy (Continent → Country → City)
-   Uses backend continent directly (NO getContinent needed)
    ============================================================ */
+
+import { getContinent } from "./globals.js";
 
 export function buildFrontendSidebar(supabase, loadStores) {
   const menu = document.getElementById("sidebarMenu");
@@ -11,7 +12,7 @@ export function buildFrontendSidebar(supabase, loadStores) {
 
   supabase
     .from("stores_frontend_public")
-    .select("id,name,country,city,continent")
+    .select("id,name,country,city")
     .then(({ data, error }) => {
       if (error || !data) {
         console.error("Sidebar fetch error:", error);
@@ -19,114 +20,127 @@ export function buildFrontendSidebar(supabase, loadStores) {
         return;
       }
 
-      /* ============================================================
-         1. GROUP DATA
-         ============================================================ */
+      /* --------------------------------------------------------
+         GROUP: continent → country → city
+      ---------------------------------------------------------*/
       const grouped = {};
 
       for (const s of data) {
-        const cont = s.continent || "Unknown";
-        const country = s.country || "Unknown";
-        const city = s.city || "Unknown";
-
+        const cont = getContinent(s.country);
         if (!grouped[cont]) grouped[cont] = {};
-        if (!grouped[cont][country]) grouped[cont][country] = {};
-        if (!grouped[cont][country][city]) grouped[cont][country][city] = [];
 
-        grouped[cont][country][city].push(s);
+        const ctry = s.country || "Unknown";
+        if (!grouped[cont][ctry]) grouped[cont][ctry] = {};
+
+        const city = s.city || "Unknown";
+        if (!grouped[cont][ctry][city]) grouped[cont][ctry][city] = [];
+
+        grouped[cont][ctry][city].push(s);
       }
 
-      /* ============================================================
-         2. RENDER SIDEBAR
-         ============================================================ */
       menu.innerHTML = "";
 
+      /* --------------------------------------------------------
+         BUILD TREE
+      ---------------------------------------------------------*/
       Object.entries(grouped)
         .sort(([a], [b]) => a.localeCompare(b))
         .forEach(([continent, countries]) => {
-          const contCount = Object.values(countries).reduce(
-            (acc, cityBlock) =>
-              acc +
-              Object.values(cityBlock).reduce(
-                (subtotal, list) => subtotal + list.length,
-                0
-              ),
+          const contBtn = document.createElement("button");
+          contBtn.className = "line continent";
+
+          const totalStores = Object.values(countries).reduce(
+            (acc, cities) =>
+              acc + Object.values(cities).reduce((n, list) => n + list.length, 0),
             0
           );
 
-          /* ---- CONTINENT BUTTON ---- */
-          const contBtn = document.createElement("button");
-          contBtn.className = "line continent";
           contBtn.innerHTML = `
             <span class="arrow">▶</span>
             <span class="label">${continent}</span>
-            <span class="pill">${contCount}</span>
+            <span class="pill">${totalStores}</span>
           `;
 
           const nestedCountries = document.createElement("div");
           nestedCountries.className = "nested";
 
+          /* -----------------------------------------------
+             CONTINENT CLICK
+          ------------------------------------------------*/
           contBtn.addEventListener("click", () => {
-            const open = nestedCountries.classList.toggle("show");
-            contBtn.classList.toggle("open", open);
-            contBtn.querySelector(".arrow").style.transform = open
-              ? "rotate(90deg)"
-              : "rotate(0deg)";
+            const isOpen = nestedCountries.classList.toggle("show");
+            contBtn.classList.toggle("open", isOpen);
 
-            if (open) loadStores({ continent });
+            contBtn.querySelector(".arrow").style.transform =
+              isOpen ? "rotate(90deg)" : "rotate(0deg)";
+
+            if (isOpen) loadStores({ continent });
           });
 
-          /* ---- COUNTRIES ---- */
+          /* -----------------------------------------------
+             COUNTRIES
+          ------------------------------------------------*/
           Object.entries(countries)
             .sort(([a], [b]) => a.localeCompare(b))
             .forEach(([country, cities]) => {
-              const countryCount = Object.values(cities).reduce(
-                (total, list) => total + list.length,
+              const cBtn = document.createElement("button");
+              cBtn.className = "line country";
+
+              const count = Object.values(cities).reduce(
+                (n, list) => n + list.length,
                 0
               );
 
-              const countryBtn = document.createElement("button");
-              countryBtn.className = "line country";
-              countryBtn.innerHTML = `
+              cBtn.innerHTML = `
                 <span class="arrow">▶</span>
                 <span class="label">${country}</span>
-                <span class="pill">${countryCount}</span>
+                <span class="pill">${count}</span>
               `;
 
               const nestedCity = document.createElement("div");
               nestedCity.className = "nested";
 
-              countryBtn.addEventListener("click", (e) => {
+              /* --------------------------------------------
+                 COUNTRY CLICK
+              ---------------------------------------------*/
+              cBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
-                const open = nestedCity.classList.toggle("show");
-                countryBtn.classList.toggle("open", open);
-                countryBtn.querySelector(".arrow").style.transform = open
-                  ? "rotate(90deg)"
-                  : "rotate(0deg)";
+                const isOpen = nestedCity.classList.toggle("show");
+                cBtn.classList.toggle("open", isOpen);
 
-                if (open) loadStores({ country });
+                cBtn.querySelector(".arrow").style.transform =
+                  isOpen ? "rotate(90deg)" : "rotate(0deg)";
+
+                if (isOpen) loadStores({ country });
               });
 
-              /* ---- CITIES ---- */
+              /* --------------------------------------------
+                 CITIES
+              ---------------------------------------------*/
               Object.entries(cities)
                 .sort(([, a], [, b]) => b.length - a.length)
-                .forEach(([city, list]) => {
+                .forEach(([city, cityStores]) => {
                   const cityBtn = document.createElement("button");
                   cityBtn.className = "line city";
+
                   cityBtn.innerHTML = `
                     <span class="label">${city}</span>
-                    <span class="pill">${list.length}</span>
+                    <span class="pill">${cityStores.length}</span>
                   `;
 
                   cityBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
+                    document
+                      .querySelector(".main")
+                      ?.scrollIntoView({ behavior: "smooth" });
+
                     loadStores({ city });
                   });
 
                   nestedCity.appendChild(cityBtn);
                 });
 
-              nestedCountries.appendChild(countryBtn);
+              nestedCountries.appendChild(cBtn);
               nestedCountries.appendChild(nestedCity);
             });
 
