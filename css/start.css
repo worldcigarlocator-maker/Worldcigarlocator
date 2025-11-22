@@ -2,15 +2,16 @@
    GLOBAL COLORS — Premium dark + champagne gold
    ============================================================ */
 :root {
-  --gold: #d5c080;
-  --gold-soft: rgba(213,192,128,0.2);
+  /* Djupare champagne-guld, mindre beige */
+  --gold: #e0c66f;
+  --gold-soft: rgba(224, 198, 111, 0.25);
 
-  --sidebar-bg: #0b0b0b;
-  --sidebar-border: #1d1d1d;
+  --sidebar-bg: #050505;
+  --sidebar-border: #181818;
 
   --main-bg: #111111;
   --text: #f5f5f5;
-  --muted: #bbbbbb;
+  --muted: #b9b9b9;
 
   --border: #333;
 }
@@ -28,17 +29,13 @@ body {
   color: var(--text);
 }
 
-/* ============================================================
-   ANIMATIONS
-   ============================================================ */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* Fade-in */
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.8s ease forwards;
 }
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+@keyframes fadeIn {
+  to { opacity: 1; }
 }
 
 /* ============================================================
@@ -46,39 +43,164 @@ body {
    ============================================================ */
 .container {
   display: grid;
-  grid-template-columns: 260px minmax(0,1fr);
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: 100vh;
 }
 
 /* ============================================================
-   SIDEBAR
+   SIDEBAR (Premium)
    ============================================================ */
 .sidebar {
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
-  padding: 1.6rem 1.2rem;
+  padding: 1.6rem 1.3rem 1.4rem;
   display: flex;
   flex-direction: column;
-  height: 100vh;
 }
 
 .logo {
   color: var(--gold);
   font-size: 1.3rem;
   font-weight: 700;
-  letter-spacing: .18em;
-  margin-bottom: 1.4rem;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  margin-bottom: 1.2rem;
 }
 
+/* Auth + online block */
+.sidebar-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.sidebar-online {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #151515;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid #2c2c2c;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  background: #3ddc84;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(61, 220, 132, 0.8);
+}
+
+/* Sidebar buttons */
+.login-btn,
+.logout-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+}
+
+/* Glansigt guld */
+.login-btn {
+  background: linear-gradient(135deg, #f2dd8a, #d9bf63);
+  color: #111;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+}
+.login-btn:hover {
+  filter: brightness(1.05);
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid #666;
+  color: var(--muted);
+}
+.logout-btn:hover {
+  background: #1a1a1a;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  height: 1px;
+  background: #222;
+  margin: 0.8rem 0 0.6rem;
+}
+
+/* Sidebar nav */
 .nav {
-  flex: 1;
   list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+  font-size: 0.84rem;
+}
+
+/* Dessa `.line` kommer från sidebar.js */
+.line {
+  width: 100%;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #c7c7c7;
+  padding: 0.25rem 0.18rem;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.line:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.line .label {
+  flex: 1;
+  text-align: left;
+}
+.line .arrow {
+  margin-right: 0.35rem;
+  transition: transform 0.15s ease;
+}
+.line .pill {
+  font-size: 0.72rem;
+  padding: 0.07rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #e4e4e4;
+}
+.line.continent {
+  font-weight: 600;
+  color: #f0f0f0;
+}
+
+/* Nested */
+.nested {
+  display: none;
+  padding-left: 0.4rem;
+  border-left: 1px dashed rgba(255, 255, 255, 0.08);
+  margin-left: 0.4rem;
+}
+.nested.show {
+  display: block;
+}
+
+/* Sidebar bottom links */
+.sidebar-bottom {
+  margin-top: 0.8rem;
 }
 
 .menu-link {
   color: var(--muted);
   display: block;
-  margin-bottom: .45rem;
-  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.82rem;
+  text-decoration: none;
 }
 .menu-link:hover {
   color: var(--gold);
@@ -87,10 +209,6 @@ body {
 .add-store {
   color: var(--gold);
   font-weight: 600;
-}
-
-.sidebar-bottom {
-  margin-top: auto;
 }
 
 /* ============================================================
@@ -103,94 +221,12 @@ body {
 }
 
 /* ============================================================
-   TOPBAR
-   ============================================================ */
-.topbar {
-  display: flex;
-  justify-content: center;
-  gap: 1.2rem;
-  padding: 1.2rem 0;
-  align-items: center;
-}
-
-.online-box {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #1e1e1e;
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid #333;
-  font-size: 0.82rem;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  background: #3ddc84;
-  border-radius: 50%;
-  box-shadow: 0 0 6px rgba(61,220,132,0.8);
-}
-
-/* Buttons */
-.login-btn,
-.logout-btn,
-.btn {
-  padding: 7px 18px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  font-weight: 600;
-  border: none;
-}
-
-.login-btn {
-  background: var(--gold);
-  color: #111;
-}
-.logout-btn {
-  background: transparent;
-  border: 1px solid #666;
-  color: var(--muted);
-}
-
-/* ============================================================
-   SEARCH BAR
-   ============================================================ */
-.searchbar {
-  display: flex;
-  gap: .6rem;
-  margin-top: 1.5rem;
-  justify-content: center;
-}
-
-.searchbar input {
-  padding: .55rem 1rem;
-  border-radius: 999px;
-  border: 1px solid #555;
-  background: #0c0c0c;
-  color: #eee;
-  width: 260px;
-}
-
-.btn {
-  background: var(--gold);
-  color: #111;
-}
-.btn.outline {
-  background: transparent;
-  border: 1px solid #666;
-  color: var(--muted);
-}
-
-/* ============================================================
-   HERO IMAGE
+   HERO (glassy background)
    ============================================================ */
 .hero {
   position: relative;
-  height: 360px;
+  height: 320px;
   overflow: hidden;
-  animation: fadeIn 1s ease forwards;
 }
 
 .hero-bg {
@@ -205,23 +241,27 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.75));
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.8)
+  );
 }
 
 /* ============================================================
-   HERO TEXT
+   HERO TEXT AREA (Centered)
    ============================================================ */
 .hero-text {
   text-align: center;
   margin-top: 2rem;
   margin-bottom: 2rem;
-  animation: fadeIn 0.9s ease forwards;
+  animation: fadeIn 1.1s ease forwards;
 }
 
 .hero-text h1 {
   color: var(--gold);
   font-size: 2rem;
-  margin-bottom: .5rem;
+  margin-bottom: 0.6rem;
 }
 
 .hero-text p {
@@ -233,30 +273,77 @@ body {
 }
 
 /* ============================================================
-   RESULTS HEADING
+   SEARCHBAR (centered under intro)
    ============================================================ */
-.result-heading {
-  margin: 1.4rem auto;
-  text-align: center;
-  color: var(--muted);
-  font-size: 1.1rem;
+.searchbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
 }
 
-.store-grid {
-  padding: 0 40px;
+.searchbar input {
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid #555;
+  background: #0c0c0c;
+  color: #f0f0f0;
+  width: 320px;
+  max-width: 90%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.searchbar input::placeholder {
+  color: #808080;
+}
+
+.btn {
+  background: linear-gradient(135deg, #f2dd8a, #d9bf63);
+  color: #111;
+  border-radius: 999px;
+  border: none;
+  padding: 0.55rem 1.15rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+.btn:hover {
+  filter: brightness(1.05);
+}
+
+.btn.outline {
+  background: transparent;
+  border: 1px solid #666;
+  color: var(--muted);
+  box-shadow: none;
 }
 
 /* ============================================================
-   18+ AGE GATE POPUP
+   RESULT HEADING & GRID
+   ============================================================ */
+.result-heading {
+  margin: 0.4rem auto 0.8rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.store-grid {
+  padding: 0 40px 0 40px;
+}
+
+/* ============================================================
+   AGE GATE (glassy popup)
    ============================================================ */
 .age-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.82);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(6px);
   z-index: 2000;
   animation: fadeIn 0.6s ease forwards;
 }
@@ -265,21 +352,16 @@ body {
   display: none;
 }
 
-.age-modal.fade-out {
-  animation: fadeOut 0.45s ease forwards;
-}
-
 .age-box {
-  background: rgba(255,255,255,0.06);
+  background: rgba(10, 10, 10, 0.88);
   padding: 2.4rem 2.6rem;
   border-radius: 17px;
   text-align: center;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   max-width: 420px;
   width: 90%;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
-  animation: fadeIn 0.9s ease forwards;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.65);
 }
 
 .age-box h2 {
@@ -296,21 +378,25 @@ body {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-bottom: .8rem;
+  margin-bottom: 0.8rem;
 }
 
 .age-yes,
 .age-no {
-  padding: .6rem 1.3rem;
+  padding: 0.6rem 1.3rem;
   border-radius: 999px;
   border: none;
   font-weight: 600;
   cursor: pointer;
+  font-size: 0.85rem;
 }
 
 .age-yes {
-  background: var(--gold);
+  background: linear-gradient(135deg, #f2dd8a, #d9bf63);
   color: #000;
+}
+.age-yes:hover {
+  filter: brightness(1.05);
 }
 
 .age-no {
