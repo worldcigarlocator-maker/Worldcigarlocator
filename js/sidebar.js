@@ -1,8 +1,3 @@
-/* ============================================================
-   SIDEBAR — Hierarchy (Continent → Country → City)
-   Premium version
-   ============================================================ */
-
 import { getContinent } from "./globals.js";
 
 export function buildFrontendSidebar(supabase, loadStores) {
@@ -13,7 +8,7 @@ export function buildFrontendSidebar(supabase, loadStores) {
 
   supabase
     .from("stores_frontend_public")
-    .select("id, name, country, city")
+    .select("id,name,country,city")
     .then(({ data, error }) => {
       if (error || !data) {
         console.error("Sidebar fetch error:", error);
@@ -21,17 +16,10 @@ export function buildFrontendSidebar(supabase, loadStores) {
         return;
       }
 
-      /* --------------------------------------------------------
-         GROUP: continent → country → city
-      ---------------------------------------------------------*/
       const grouped = {};
 
-      for (const s of data) {
-        let cont = getContinent(s.country);
-
-        // Avoid having “Other”
-        if (cont === "Other" || cont === "Unknown") cont = "Unsorted";
-
+      data.forEach((s) => {
+        const cont = getContinent(s.country);
         if (!grouped[cont]) grouped[cont] = {};
 
         const ctry = s.country || "Unknown";
@@ -41,46 +29,42 @@ export function buildFrontendSidebar(supabase, loadStores) {
         if (!grouped[cont][ctry][city]) grouped[cont][ctry][city] = [];
 
         grouped[cont][ctry][city].push(s);
-      }
+      });
 
       menu.innerHTML = "";
 
-      /* --------------------------------------------------------
-         BUILD TREE UI
-      ---------------------------------------------------------*/
       Object.entries(grouped)
         .sort(([a], [b]) => a.localeCompare(b))
         .forEach(([continent, countries]) => {
           const contBtn = document.createElement("button");
           contBtn.className = "line continent";
 
-          const totalStores = Object.values(countries).reduce(
-            (acc, cities) =>
-              acc + Object.values(cities).reduce((n, list) => n + list.length, 0),
+          const total = Object.values(countries).reduce(
+            (sum, cities) =>
+              sum +
+              Object.values(cities).reduce((n, list) => n + list.length, 0),
             0
           );
 
           contBtn.innerHTML = `
             <span class="arrow">▶</span>
             <span class="label">${continent}</span>
-            <span class="pill premium-pill">${totalStores}</span>
+            <span class="pill">${total}</span>
           `;
 
-          const nestedCountries = document.createElement("div");
-          nestedCountries.className = "nested";
+          const nestedC = document.createElement("div");
+          nestedC.className = "nested";
 
-          /* CONTINENT CLICK */
           contBtn.addEventListener("click", () => {
-            const isOpen = nestedCountries.classList.toggle("show");
+            const isOpen = nestedC.classList.toggle("show");
             contBtn.classList.toggle("open", isOpen);
-
-            contBtn.querySelector(".arrow").style.transform =
-              isOpen ? "rotate(90deg)" : "rotate(0deg)";
+            contBtn.querySelector(".arrow").style.transform = isOpen
+              ? "rotate(90deg)"
+              : "rotate(0deg)";
 
             if (isOpen) loadStores({ continent });
           });
 
-          /* COUNTRIES */
           Object.entries(countries)
             .sort(([a], [b]) => a.localeCompare(b))
             .forEach(([country, cities]) => {
@@ -101,19 +85,18 @@ export function buildFrontendSidebar(supabase, loadStores) {
               const nestedCity = document.createElement("div");
               nestedCity.className = "nested";
 
-              /* COUNTRY CLICK */
               cBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
                 const isOpen = nestedCity.classList.toggle("show");
                 cBtn.classList.toggle("open", isOpen);
 
-                cBtn.querySelector(".arrow").style.transform =
-                  isOpen ? "rotate(90deg)" : "rotate(0deg)";
+                cBtn.querySelector(".arrow").style.transform = isOpen
+                  ? "rotate(90deg)"
+                  : "rotate(0deg)";
 
                 if (isOpen) loadStores({ country });
               });
 
-              /* CITIES */
               Object.entries(cities)
                 .sort(([, a], [, b]) => b.length - a.length)
                 .forEach(([city, cityStores]) => {
@@ -127,19 +110,18 @@ export function buildFrontendSidebar(supabase, loadStores) {
 
                   cityBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    document.querySelector(".main")?.scrollIntoView({ behavior: "smooth" });
                     loadStores({ city });
                   });
 
                   nestedCity.appendChild(cityBtn);
                 });
 
-              nestedCountries.appendChild(cBtn);
-              nestedCountries.appendChild(nestedCity);
+              nestedC.appendChild(cBtn);
+              nestedC.appendChild(nestedCity);
             });
 
           menu.appendChild(contBtn);
-          menu.appendChild(nestedCountries);
+          menu.appendChild(nestedC);
         });
     });
 }
