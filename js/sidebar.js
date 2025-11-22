@@ -7,14 +7,12 @@ export function buildFrontendSidebar(supabase, loadStores) {
 
   menu.innerHTML = `<li style="color:#777">Loading…</li>`;
 
-  supabase
-    .from("stores_public")
-    .select("id,name,country,city,continent")
-    .then(({ data, error }) => {
-      if (error || !data) {
-        menu.innerHTML = `<li style="color:#f55">Failed to load sidebar.</li>`;
-        return;
-      }
+supabase
+  .from("stores_frontend_public")
+  .select("id,name,country,city")
+  .then(({ data, error }) => {
+    ...
+  });
 
       // Group
       const grouped = {};
