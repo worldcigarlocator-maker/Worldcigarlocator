@@ -55,8 +55,8 @@ export function setupAuth() {
    ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-  // BUILD SIDEBAR (nu skickar vi med getContinent)
-  buildFrontendSidebar(supabase, loadStores, getContinent);
+  // BUILD SIDEBAR 
+  buildFrontendSidebar(supabase, loadStores);
 
   // Search
   const input = qs("searchInput");
