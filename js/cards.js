@@ -4,13 +4,16 @@ import { supabase } from "./globals.js";
    RESET HERO VIEW
    ============================================================ */
 export function resetToHero() {
-  document.getElementById("storeGrid").innerHTML = "";
-  document.getElementById("resultHeading").style.display = "none";
-  document.getElementById("showAllBtn").style.display = "none";
+  const grid = document.getElementById("storeGrid");
+  const heading = document.getElementById("resultHeading");
+  const showAll = document.getElementById("showAllBtn");
 
-  // Visa hero + text
-  document.querySelector(".hero").style.display = "block";
-  document.querySelector(".hero-text").style.display = "block";
+  grid.innerHTML = "";
+  heading.style.display = "none";
+  showAll.style.display = "none";
+
+  document.getElementById("heroImage").style.display = "block";
+  document.getElementById("heroText").style.display = "block";
 }
 
 /* ============================================================
@@ -24,12 +27,10 @@ export function renderStores(list) {
     const card = document.createElement("div");
     card.className = "store-card";
 
-    const img = s.photo_cdn_url
-      ? s.photo_cdn_url
-      : "images/fallback.jpg";
+    const img = s.photo_cdn_url || "images/fallback.jpg";
 
     card.innerHTML = `
-      <img src="${img}" class="store-img">
+      <img src="${img}" class="store-img" />
 
       <div class="store-body">
         <div class="store-title">${s.name}</div>
@@ -40,7 +41,7 @@ export function renderStores(list) {
 
         <div class="locrow">
           <div class="loc-top">
-            <img src="flags/${(s.country_iso2 || "xx").toLowerCase()}.svg" class="flag">
+            <img src="flags/${(s.country_iso2 || "xx").toLowerCase()}.svg" class="flag" />
             <span>${s.city || ""}, ${s.country || ""}</span>
           </div>
         </div>
@@ -49,11 +50,17 @@ export function renderStores(list) {
           <div class="info-row">${s.address || ""}</div>
           <div class="info-row">${s.phone || ""}</div>
           <div class="info-row">
-            ${s.website ? `<a href="${s.website}" target="_blank">${s.website}</a>` : ""}
+            ${
+              s.website
+                ? `<a href="${s.website}" target="_blank">${s.website}</a>`
+                : ""
+            }
           </div>
         </div>
 
-        <button class="reviews-btn">Comments (${s.comment_count || 0})</button>
+        <button class="reviews-btn">
+          Comments (${s.comment_count || 0})
+        </button>
       </div>
     `;
 
@@ -62,33 +69,33 @@ export function renderStores(list) {
 }
 
 /* ============================================================
-   LOAD STORES (search + filters)
+   LOAD STORES
    ============================================================ */
 export async function loadStores(filters = {}, search = "") {
   const grid = document.getElementById("storeGrid");
   const heading = document.getElementById("resultHeading");
 
+  // Dölj hero
+  document.getElementById("heroImage").style.display = "none";
+  document.getElementById("heroText").style.display = "none";
+
   grid.innerHTML = "";
   heading.style.display = "block";
 
-  // Dölj hero
-  document.querySelector(".hero").style.display = "none";
-  document.querySelector(".hero-text").style.display = "none";
-
   let query = supabase.from("stores_frontend_public").select("*");
 
-  // Search
   if (search) {
     heading.textContent = `Results for "${search}"`;
-    query = query.or(`name.ilike.%${search}%,city.ilike.%${search}%,country.ilike.%${search}%`);
+    query = query.or(
+      `name.ilike.%${search}%,city.ilike.%${search}%,country.ilike.%${search}%`
+    );
   }
 
-  // Filters
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country) query = query.eq("country", filters.country);
   if (filters.city) query = query.eq("city", filters.city);
 
-  const { data, error } = await query;
+  const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
     console.error("Load error:", error);
@@ -100,6 +107,8 @@ export async function loadStores(filters = {}, search = "") {
     heading.textContent = "No results found.";
     return;
   }
+
+  heading.textContent = `${data.length} results`;
 
   renderStores(data);
 }
