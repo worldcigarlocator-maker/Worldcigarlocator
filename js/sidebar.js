@@ -1,78 +1,123 @@
 /* ============================================================
    SIDEBAR — Hierarchy (Continent → Country → City)
    ============================================================ */
-export function buildFrontendSidebar(supabase, loadStores) {
+
+export function buildFrontendSidebar(supabase, loadStores, getContinent) {
   const menu = document.getElementById("sidebarMenu");
   if (!menu) return;
 
-  menu.innerHTML = `<li style="color:#777">Loading…</li>`;
+  menu.innerHTML = `<li style="color:#999">Loading…</li>`;
 
-supabase
-  .from("stores_frontend_public")
-  .select("id,name,country,city")
-  .then(({ data, error }) => {
-    ...
-  });
+  supabase
+    .from("stores_frontend_public")   // ← NEW VIEW
+    .select("id,name,country,city")
+    .then(({ data, error }) => {
+      if (error || !data) {
+        console.error("Sidebar fetch error:", error);
+        menu.innerHTML = `<li style="color:#f55">Failed to load.</li>`;
+        return;
+      }
 
-      // Group
+      // group: continent → country → city
       const grouped = {};
       for (const s of data) {
-        if (!grouped[s.continent]) grouped[s.continent] = {};
-        if (!grouped[s.continent][s.country]) grouped[s.continent][s.country] = {};
-        if (!grouped[s.continent][s.country][s.city])
-          grouped[s.continent][s.country][s.city] = [];
-
-        grouped[s.continent][s.country][s.city].push(s);
+        const cont = getContinent(s.country);
+        if (!grouped[cont]) grouped[cont] = {};
+        const ctry = s.country || "Unknown";
+        if (!grouped[cont][ctry]) grouped[cont][ctry] = {};
+        const city = s.city || "Unknown";
+        if (!grouped[cont][ctry][city]) grouped[cont][ctry][city] = [];
+        grouped[cont][ctry][city].push(s);
       }
 
       menu.innerHTML = "";
 
-      Object.entries(grouped).forEach(([continent, countries]) => {
-        const contBtn = document.createElement("button");
-        contBtn.className = "line continent";
-        contBtn.innerHTML = `
-          <span class="label">${continent}</span>
-        `;
+      Object.entries(grouped)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .forEach(([continent, countries]) => {
+          const contBtn = document.createElement("button");
+          contBtn.className = "line continent";
 
-        const nest = document.createElement("div");
-        nest.className = "nested";
+          const storeCount = Object.values(countries).reduce(
+            (acc, cities) =>
+              acc +
+              Object.values(cities).reduce((a, list) => a + list.length, 0),
+            0
+          );
 
-        contBtn.onclick = () => {
-          nest.classList.toggle("show");
-          loadStores({ continent });
-        };
+          contBtn.innerHTML = `
+            <span class="arrow">▶</span>
+            <span class="label">${continent}</span>
+            <span class="pill">${storeCount}</span>
+          `;
 
-        Object.entries(countries).forEach(([country, cities]) => {
-          const cBtn = document.createElement("button");
-          cBtn.className = "line country";
-          cBtn.innerHTML = `<span class="label">${country}</span>`;
+          const nestedC = document.createElement("div");
+          nestedC.className = "nested";
 
-          const nestCity = document.createElement("div");
-          nestCity.className = "nested";
-
-          cBtn.onclick = (e) => {
-            e.stopPropagation();
-            nestCity.classList.toggle("show");
-            loadStores({ country });
-          };
-
-          Object.entries(cities).forEach(([city]) => {
-            const cityBtn = document.createElement("button");
-            cityBtn.className = "line city";
-            cityBtn.innerHTML = `<span class="label">${city}</span>`;
-            cityBtn.onclick = (e) => {
-              e.stopPropagation();
-              loadStores({ city });
-            };
-            nestCity.appendChild(cityBtn);
+          contBtn.addEventListener("click", () => {
+            const isOpen = nestedC.classList.toggle("show");
+            contBtn.classList.toggle("open", isOpen);
+            contBtn.querySelector(".arrow").style.transform = isOpen
+              ? "rotate(90deg)"
+              : "rotate(0deg)";
+            if (isOpen) loadStores({ continent });
           });
 
-          nest.appendChild(cBtn);
-          nest.appendChild(nestCity);
-        });
+          Object.entries(countries)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .forEach(([country, cities]) => {
+              const cBtn = document.createElement("button");
+              cBtn.className = "line country";
 
-        menu.appendChild(contBtn);
-        menu.appendChild(nest);
-      });
+              const cCount = Object.values(cities).reduce(
+                (a, list) => a + list.length,
+                0
+              );
+
+              cBtn.innerHTML = `
+                <span class="arrow">▶</span>
+                <span class="label">${country}</span>
+                <span class="pill">${cCount}</span>
+              `;
+
+              const nestedCity = document.createElement("div");
+              nestedCity.className = "nested";
+
+              cBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const isOpen = nestedCity.classList.toggle("show");
+                cBtn.classList.toggle("open", isOpen);
+                cBtn.querySelector(".arrow").style.transform = isOpen
+                  ? "rotate(90deg)"
+                  : "rotate(0deg)";
+                if (isOpen) loadStores({ country });
+              });
+
+              Object.entries(cities)
+                .sort(([, a], [, b]) => b.length - a.length) // cities with many stores first
+                .forEach(([city, cityStores]) => {
+                  const cityBtn = document.createElement("button");
+                  cityBtn.className = "line city";
+                  cityBtn.innerHTML = `
+                    <span class="label">${city}</span>
+                    <span class="pill">${cityStores.length}</span>
+                  `;
+                  cityBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    document
+                      .querySelector(".main")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                    loadStores({ city });
+                  });
+                  nestedCity.appendChild(cityBtn);
+                });
+
+              nestedC.appendChild(cBtn);
+              nestedC.appendChild(nestedCity);
+            });
+
+          menu.appendChild(contBtn);
+          menu.appendChild(nestedC);
+        });
     });
 }
