@@ -179,12 +179,16 @@ body {
 }
 
 .line .pill {
-  font-size: 0.7rem;
-  padding: 0.05rem 0.45rem;
+  padding: 2px 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #dddddd;
+  background: linear-gradient(135deg, #d5c080, #bfa568 60%, #e8d9a5);
+  color: #111;
+  font-weight: 600;
+  font-size: 0.75rem;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 0 6px rgba(213,192,128,0.45);
 }
+
 
 .line.continent {
   font-weight: 600;
