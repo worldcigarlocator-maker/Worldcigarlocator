@@ -85,8 +85,8 @@ export function renderStores(list) {
     const card = document.createElement("article");
     card.className = "store-card";
 
-    const imgSrc = getPhotoUrl(s);
-    const flagSlug = getFlagSlug(s.country);
+    src="${s.photo_final_url}"
+const flagSlug = getFlagSlug(s.country);
 
     card.innerHTML = `
       <div class="store-photo-wrap">
