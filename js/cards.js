@@ -83,11 +83,12 @@ export function renderStores(list) {
         <div class="locrow">
           <div class="loc-top">
             <img
-              src="flags/${flagIso}.svg"
-              class="flag"
-              alt="${s.country || ""}"
-              onerror="this.style.display='none';"
-            />
+              <img
+  src="assets/flags/${flagIso}.svg"
+  class="flag"
+  alt="${s.country || ""}"
+  onerror="this.style.display='none';"
+/>
             <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
           </div>
         </div>
