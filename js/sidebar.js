@@ -7,7 +7,7 @@ export function buildFrontendSidebar(supabase, loadStores) {
   menu.innerHTML = `<li style="color:#999">Loading…</li>`;
 
   supabase
-    .from("stores_frontend_public")
+    .from("stores_frontend_public_v2")
     .select("id,name,country,city")
     .then(({ data, error }) => {
       if (error || !data) {
