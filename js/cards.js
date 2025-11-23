@@ -5,25 +5,23 @@ import { supabase } from "./globals.js";
    PHOTO URL HELPER  (mirror backend behaviour)
    ============================================================ */
 
-const FALLBACK_PHOTO = "images/store.jpg";  // you also have lounge.jpg etc.
-const PHOTO_PROXY_URL =
-  "https://gbxxoeplkzbhsvagnfsr.supabase.co/functions/v1/photo-proxy";
-
+const FALLBACK_PHOTO = "images/store.jpg";  // t.ex. store.jpg / lounge.jpg
+const PHOTO_PROXY_URL = "/functions/v1/photo-proxy"; // din edge function
 
 function getPhotoUrl(store) {
-  // 1) CDN image (Cloudflare / Supabase Storage)
+  // 1) CDN-bild (Cloudflare / Supabase Storage)
   if (store.photo_cdn_url) return store.photo_cdn_url;
 
-  // 2) Direct URL already stored
+  // 2) Direkt URL
   if (store.photo_url) return store.photo_url;
 
-  // 3) Google Places reference via your proxy
+  // 3) Google Places via photo-proxy
   if (store.photo_reference) {
     const ref = encodeURIComponent(store.photo_reference);
     return `${PHOTO_PROXY_URL}?ref=${ref}&maxwidth=800`;
   }
 
-  // 4) Nothing -> fallback
+  // 4) Fallback
   return FALLBACK_PHOTO;
 }
 
@@ -48,6 +46,33 @@ export function resetToHero() {
 }
 
 /* ============================================================
+   FLAG HELPER  (kopierar backend-logik med alias)
+   ============================================================ */
+
+const FLAG_ALIASES = {
+  "united states": "united-states",
+  "united states of america": "united-states",
+  "usa": "united-states",
+
+  "united kingdom": "united-kingdom",
+  "uk": "united-kingdom",
+
+  "czech republic": "czechia",
+  "viet nam": "vietnam"
+  // lägg till fler specialfall om du ser 404 i nätverks-tabben
+};
+
+function getFlagSlug(country) {
+  if (!country) return null;
+  const raw = country.toLowerCase().trim();
+
+  if (FLAG_ALIASES[raw]) return FLAG_ALIASES[raw];
+
+  // standard: "United States" → "united-states"
+  return raw.replaceAll(" ", "-");
+}
+
+/* ============================================================
    RENDER STORE CARDS
    ============================================================ */
 export function renderStores(list) {
@@ -60,41 +85,44 @@ export function renderStores(list) {
     const card = document.createElement("article");
     card.className = "store-card";
 
-const flagFile = (s.country || "")
-  .toLowerCase()
-  .replaceAll(" ", "-");
+    const imgSrc = getPhotoUrl(s);
+    const flagSlug = getFlagSlug(s.country);
 
-card.innerHTML = `
-  <div class="store-photo-wrap">
-    <img
-      src="${getPhotoUrl(s)}"
-      alt="${s.name || "Cigar location"}"
-      class="store-img"
-      onerror="this.onerror=null;this.src='${FALLBACK_PHOTO}';"
-    />
-  </div>
-
-  <div class="store-body">
-    <h3 class="store-title">${s.name || "Unnamed location"}</h3>
-
-    <div class="stars">
-      ${"★".repeat(Math.round(s.rating || 0)) ||
-        '<span class="no-rating">No rating yet</span>'}
-    </div>
-
-    <div class="locrow">
-      <div class="loc-top">
+    card.innerHTML = `
+      <div class="store-photo-wrap">
         <img
-          src="assets/flags/${flagFile}.svg"
-          class="flag"
-          alt="${s.country || ""}"
-          onerror="this.style.display='none';"
+          src="${imgSrc}"
+          alt="${s.name || "Cigar location"}"
+          class="store-img"
+          onerror="this.onerror=null;this.src='${FALLBACK_PHOTO}';"
         />
-        <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
       </div>
-    </div>
 
+      <div class="store-body">
+        <h3 class="store-title">${s.name || "Unnamed location"}</h3>
 
+        <div class="stars">
+          ${
+            s.rating
+              ? "★".repeat(Math.round(s.rating || 0))
+              : '<span class="no-rating">No rating yet</span>'
+          }
+        </div>
+
+        <div class="locrow">
+          <div class="loc-top">
+            ${
+              flagSlug
+                ? `
+              <img
+                src="assets/flags/${flagSlug}.svg"
+                class="flag"
+                alt="${s.country || ""}"
+                onerror="this.style.display='none';"
+              />
+              `
+                : ""
+            }
             <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
           </div>
         </div>
@@ -129,7 +157,7 @@ export async function loadStores(filters = {}, search = "") {
   const heading = document.getElementById("resultHeading");
   const showAllBtn = document.getElementById("showAllBtn");
 
-  // hide hero when we actually load results
+  // Dölj hero när vi visar resultat
   const heroImg = document.getElementById("heroImage");
   const heroText = document.getElementById("heroText");
   if (heroImg) heroImg.style.display = "none";
@@ -142,21 +170,21 @@ export async function loadStores(filters = {}, search = "") {
   }
   if (showAllBtn) showAllBtn.style.display = "none";
 
+  // 🧠 Viktigt: spegla backend → samma view varje gång
   let query = supabase.from("stores_frontend_public_v2").select("*");
 
-  // Search string
+  // 🔎 Search-string
   if (search) {
     query = query.or(
       `name.ilike.%${search}%,city.ilike.%${search}%,country.ilike.%${search}%`
     );
   }
 
-  // Filters from sidebar
+  // 🌍 Filter från sidebar
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country) query = query.eq("country", filters.country);
   if (filters.city) query = query.eq("city", filters.city);
 
-  // Newest first – view already only has approved/clean rows
   const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
