@@ -61,3 +61,4 @@ export function getContinent(country = "") {
 
   return "Other";
 }
+window._supabase = supabase;
