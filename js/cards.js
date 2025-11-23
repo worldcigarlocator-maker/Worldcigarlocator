@@ -59,8 +59,9 @@ export function renderStores(list) {
     const card = document.createElement("article");
     card.className = "store-card";
 
-    const imgSrc = getPhotoUrl(s);
-    const flagIso = (s.country_iso2 || "xx").toLowerCase();
+    const flagFile = (s.country || "").toLowerCase().replaceAll(" ", "-");
+<img src="assets/flags/${flagFile}.svg"
+
 
     card.innerHTML = `
       <div class="store-photo-wrap">
