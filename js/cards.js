@@ -6,7 +6,8 @@ import { supabase } from "./globals.js";
    ============================================================ */
 
 const FALLBACK_PHOTO = "images/store.jpg";  // you also have lounge.jpg etc.
-const PHOTO_PROXY_URL = "/functions/v1/photo-proxy";
+const PHOTO_PROXY_URL =
+  "https://gbxxoeplkzbhsvagnfsr.supabase.co/functions/v1/photo-proxy";
 
 
 function getPhotoUrl(store) {
