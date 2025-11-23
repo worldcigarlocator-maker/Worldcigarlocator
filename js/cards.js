@@ -80,15 +80,18 @@ export function renderStores(list) {
             '<span class="no-rating">No rating yet</span>'}
         </div>
 
-        <div class="locrow">
-          <div class="loc-top">
-            <img
-              <img
-  src="assets/flags/${flagIso}.svg"
-  class="flag"
-  alt="${s.country || ""}"
-  onerror="this.style.display='none';"
-/>
+<div class="locrow">
+  <div class="loc-top">
+    <img
+      src="assets/flags/${flagIso}.svg"
+      class="flag"
+      alt="${s.country || ""}"
+      onerror="this.style.display='none';"
+    />
+    <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
+  </div>
+</div>
+
             <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
           </div>
         </div>
