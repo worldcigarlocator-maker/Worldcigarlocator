@@ -134,7 +134,7 @@ export async function loadStores(filters = {}, search = "") {
   }
   if (showAllBtn) showAllBtn.style.display = "none";
 
-  let query = supabase.from("stores_frontend_public").select("*");
+  let query = supabase.from("stores_frontend_public_v2").select("*");
 
   // Search string
   if (search) {
