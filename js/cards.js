@@ -59,39 +59,40 @@ export function renderStores(list) {
     const card = document.createElement("article");
     card.className = "store-card";
 
-    const flagFile = (s.country || "").toLowerCase().replaceAll(" ", "-");
-<img src="assets/flags/${flagFile}.svg"
+const flagFile = (s.country || "")
+  .toLowerCase()
+  .replaceAll(" ", "-");
 
-
-    card.innerHTML = `
-      <div class="store-photo-wrap">
-        <img
-          src="${imgSrc}"
-          alt="${s.name || "Cigar location"}"
-          class="store-img"
-          onerror="this.onerror=null;this.src='${FALLBACK_PHOTO}';"
-        />
-      </div>
-
-      <div class="store-body">
-        <h3 class="store-title">${s.name || "Unnamed location"}</h3>
-
-        <div class="stars">
-          ${"★".repeat(Math.round(s.rating || 0)) ||
-            '<span class="no-rating">No rating yet</span>'}
-        </div>
-
-<div class="locrow">
-  <div class="loc-top">
+card.innerHTML = `
+  <div class="store-photo-wrap">
     <img
-      src="assets/flags/${flagIso}.svg"
-      class="flag"
-      alt="${s.country || ""}"
-      onerror="this.style.display='none';"
+      src="${imgSrc}"
+      alt="${s.name || "Cigar location"}"
+      class="store-img"
+      onerror="this.onerror=null;this.src='${FALLBACK_PHOTO}';"
     />
-    <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
   </div>
-</div>
+
+  <div class="store-body">
+    <h3 class="store-title">${s.name || "Unnamed location"}</h3>
+
+    <div class="stars">
+      ${"★".repeat(Math.round(s.rating || 0)) ||
+        '<span class="no-rating">No rating yet</span>'}
+    </div>
+
+    <div class="locrow">
+      <div class="loc-top">
+        <img
+          src="assets/flags/${flagFile}.svg"
+          class="flag"
+          alt="${s.country || ""}"
+          onerror="this.style.display='none';"
+        />
+        <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
+      </div>
+    </div>
+
 
             <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
           </div>
