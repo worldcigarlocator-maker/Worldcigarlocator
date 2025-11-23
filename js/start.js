@@ -30,28 +30,52 @@ export function initAgeGate() {
    ============================================================ */
 function fakeOnline() {
   const el = qs("onlineText");
+  if (!el) return;
   el.textContent = Math.floor(28 + Math.random() * 23) + " online";
 }
 
 /* ============================================================
-   INIT
+   INIT FRONTEND
    ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
+  
+  /* ---------------------------
+     1. Ladda hierarkin
+  ----------------------------*/
   buildFrontendSidebar(supabase, loadStores);
 
+  /* ---------------------------
+     2. Sökning
+  ----------------------------*/
   const input = qs("searchInput");
 
-  qs("searchBtn").onclick = () => loadStores({}, input.value.trim());
+  // Klick på Search → sök & dölj hero
+  qs("searchBtn").onclick = () => {
+    const term = input.value.trim();
+    if (term.length > 0) loadStores({}, term);
+  };
 
+  // Enter → sök
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      const term = input.value.trim();
+      if (term.length > 0) loadStores({}, term);
+    }
+  });
+
+  // Clear → återställ hero
   qs("clearBtn").onclick = () => {
     input.value = "";
     resetToHero();
   };
 
-  input.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") loadStores({}, input.value.trim());
-  });
-
+  /* ---------------------------
+     3. Age Gate
+  ----------------------------*/
   initAgeGate();
+
+  /* ---------------------------
+     4. Fake Online
+  ----------------------------*/
   fakeOnline();
 });
