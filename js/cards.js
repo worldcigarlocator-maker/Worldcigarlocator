@@ -66,7 +66,7 @@ const flagFile = (s.country || "")
 card.innerHTML = `
   <div class="store-photo-wrap">
     <img
-      src="${imgSrc}"
+      src="${getPhotoUrl(s)}"
       alt="${s.name || "Cigar location"}"
       class="store-img"
       onerror="this.onerror=null;this.src='${FALLBACK_PHOTO}';"
