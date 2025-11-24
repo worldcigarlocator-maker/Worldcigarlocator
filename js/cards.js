@@ -35,7 +35,7 @@ export function resetToHero() {
   const grid = document.getElementById("storeGrid");
   const heading = document.getElementById("resultHeading");
   const showAllBtn = document.getElementById("showAllBtn");
-  const heroImg = document.getElementById("heroImage");
+  const hero = document.getElementById("heroImage");
   const heroText = document.getElementById("heroText");
 
   if (grid) grid.innerHTML = "";
@@ -44,7 +44,7 @@ export function resetToHero() {
     heading.textContent = "";
   }
   if (showAllBtn) showAllBtn.style.display = "none";
-  if (heroImg) heroImg.style.display = "block";
+  if (hero) hero.style.display = "block";
   if (heroText) heroText.style.display = "block";
 }
 
@@ -146,7 +146,7 @@ export async function loadStores(filters = {}, search = "") {
   }
   if (showAllBtn) showAllBtn.style.display = "none";
 
-  let query = supabase.from("stores_frontend_public_v2").select("*");
+ let query = supabase.from("stores_frontend_public_v3").select("*");
 
   if (search) {
     query = query.or(
