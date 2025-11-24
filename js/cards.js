@@ -2,32 +2,35 @@
 import { supabase } from "./globals.js";
 
 /* ============================================================
-   PHOTO URL HELPER  (mirror backend behaviour)
-   ============================================================ */
+   FALLBACK
+============================================================ */
+const FALLBACK_PHOTO = "images/store.jpg";
 
-const FALLBACK_PHOTO = "images/store.jpg";  // t.ex. store.jpg / lounge.jpg
-const PHOTO_PROXY_URL = "/functions/v1/photo-proxy"; // din edge function
+/* ============================================================
+   FLAG ALIASES — samma logik som backend
+============================================================ */
+const FLAG_ALIASES = {
+  "united states": "united-states",
+  "united states of america": "united-states",
+  "usa": "united-states",
 
-function getPhotoUrl(store) {
-  // 1) CDN-bild (Cloudflare / Supabase Storage)
-  if (store.photo_cdn_url) return store.photo_cdn_url;
+  "united kingdom": "united-kingdom",
+  "uk": "united-kingdom",
 
-  // 2) Direkt URL
-  if (store.photo_url) return store.photo_url;
+  "czech republic": "czechia",
+  "viet nam": "vietnam",
+};
 
-  // 3) Google Places via photo-proxy
-  if (store.photo_reference) {
-    const ref = encodeURIComponent(store.photo_reference);
-    return `${PHOTO_PROXY_URL}?ref=${ref}&maxwidth=800`;
-  }
-
-  // 4) Fallback
-  return FALLBACK_PHOTO;
+function getFlagSlug(country) {
+  if (!country) return null;
+  const raw = country.toLowerCase().trim();
+  if (FLAG_ALIASES[raw]) return FLAG_ALIASES[raw];
+  return raw.replaceAll(" ", "-");
 }
 
 /* ============================================================
    RESET HERO VIEW
-   ============================================================ */
+============================================================ */
 export function resetToHero() {
   const grid = document.getElementById("storeGrid");
   const heading = document.getElementById("resultHeading");
@@ -46,35 +49,8 @@ export function resetToHero() {
 }
 
 /* ============================================================
-   FLAG HELPER  (kopierar backend-logik med alias)
-   ============================================================ */
-
-const FLAG_ALIASES = {
-  "united states": "united-states",
-  "united states of america": "united-states",
-  "usa": "united-states",
-
-  "united kingdom": "united-kingdom",
-  "uk": "united-kingdom",
-
-  "czech republic": "czechia",
-  "viet nam": "vietnam"
-  // lägg till fler specialfall om du ser 404 i nätverks-tabben
-};
-
-function getFlagSlug(country) {
-  if (!country) return null;
-  const raw = country.toLowerCase().trim();
-
-  if (FLAG_ALIASES[raw]) return FLAG_ALIASES[raw];
-
-  // standard: "United States" → "united-states"
-  return raw.replaceAll(" ", "-");
-}
-
-/* ============================================================
    RENDER STORE CARDS
-   ============================================================ */
+============================================================ */
 export function renderStores(list) {
   const grid = document.getElementById("storeGrid");
   if (!grid) return;
@@ -85,8 +61,11 @@ export function renderStores(list) {
     const card = document.createElement("article");
     card.className = "store-card";
 
-    src="${s.photo_final_url}"
-const flagSlug = getFlagSlug(s.country);
+    // Bild från backend view (KAN EJ FAILA längre)
+    const imgSrc = s.photo_final_url || FALLBACK_PHOTO;
+
+    // Flag slug
+    const flagSlug = getFlagSlug(s.country);
 
     card.innerHTML = `
       <div class="store-photo-wrap">
@@ -104,7 +83,7 @@ const flagSlug = getFlagSlug(s.country);
         <div class="stars">
           ${
             s.rating
-              ? "★".repeat(Math.round(s.rating || 0))
+              ? "★".repeat(Math.round(s.rating))
               : '<span class="no-rating">No rating yet</span>'
           }
         </div>
@@ -113,14 +92,12 @@ const flagSlug = getFlagSlug(s.country);
           <div class="loc-top">
             ${
               flagSlug
-                ? `
-              <img
-                src="assets/flags/${flagSlug}.svg"
-                class="flag"
-                alt="${s.country || ""}"
-                onerror="this.style.display='none';"
-              />
-              `
+                ? `<img
+                     src="assets/flags/${flagSlug}.svg"
+                     class="flag"
+                     alt="${s.country || ""}"
+                     onerror="this.style.display='none';"
+                   />`
                 : ""
             }
             <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
@@ -150,14 +127,13 @@ const flagSlug = getFlagSlug(s.country);
 }
 
 /* ============================================================
-   LOAD STORES (search + filters)
-   ============================================================ */
+   LOAD STORES
+============================================================ */
 export async function loadStores(filters = {}, search = "") {
   const grid = document.getElementById("storeGrid");
   const heading = document.getElementById("resultHeading");
   const showAllBtn = document.getElementById("showAllBtn");
 
-  // Dölj hero när vi visar resultat
   const heroImg = document.getElementById("heroImage");
   const heroText = document.getElementById("heroText");
   if (heroImg) heroImg.style.display = "none";
@@ -170,17 +146,14 @@ export async function loadStores(filters = {}, search = "") {
   }
   if (showAllBtn) showAllBtn.style.display = "none";
 
-  // 🧠 Viktigt: spegla backend → samma view varje gång
   let query = supabase.from("stores_frontend_public_v2").select("*");
 
-  // 🔎 Search-string
   if (search) {
     query = query.or(
       `name.ilike.%${search}%,city.ilike.%${search}%,country.ilike.%${search}%`
     );
   }
 
-  // 🌍 Filter från sidebar
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country) query = query.eq("country", filters.country);
   if (filters.city) query = query.eq("city", filters.city);
@@ -193,11 +166,11 @@ export async function loadStores(filters = {}, search = "") {
     return;
   }
 
-  if (!data || !data.length) {
+  if (!data?.length) {
     if (heading) heading.textContent = "No results found.";
     return;
   }
 
-  if (heading) heading.textContent = `${data.length} results`;
+  heading.textContent = `${data.length} results`;
   renderStores(data);
 }
