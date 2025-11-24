@@ -6,9 +6,10 @@ export function buildFrontendSidebar(supabase, loadStores) {
 
   menu.innerHTML = `<li style="color:#999">Loading…</li>`;
 
-  supabase
-    .from("stores_frontend_public_v2")
-    .select("id,name,country,city")
+ 
+    supabase
+  .from("stores_frontend_public_v3")
+   .select("id,name,country,city")
     .then(({ data, error }) => {
       if (error || !data) {
         console.error("Sidebar fetch error:", error);
