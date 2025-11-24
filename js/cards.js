@@ -1,150 +1,176 @@
-/* ============================================================
-   CARD GRID
-============================================================ */
-.store-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
-  gap: 1.4rem;
-  padding: 1rem 0;
-}
+// js/cards.js
+import { supabase } from "./globals.js";
 
 /* ============================================================
-   CARD CONTAINER
+   FALLBACK IMAGE
 ============================================================ */
-.store-card {
-  background: #fff;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  display: flex;
-  flex-direction: column;
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-
-.store-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.10);
-}
+const FALLBACK_PHOTO = "images/store.jpg";
 
 /* ============================================================
-   PHOTO
+   FLAG ALIASES
 ============================================================ */
-.store-photo-wrap {
-  width: 100%;
-  height: 165px;
-  background: #111;
-  overflow: hidden;
-}
+const FLAG_ALIASES = {
+  "united states": "united-states",
+  "united states of america": "united-states",
+  "usa": "united-states",
+  "united kingdom": "united-kingdom",
+  "uk": "united-kingdom",
+  "czech republic": "czechia",
+  "viet nam": "vietnam",
+};
 
-.store-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+function getFlagSlug(country) {
+  if (!country) return null;
+  const raw = country.toLowerCase().trim();
+  if (FLAG_ALIASES[raw]) return FLAG_ALIASES[raw];
+  return raw.replaceAll(" ", "-");
 }
 
 /* ============================================================
-   CARD BODY
+   RESET HERO VIEW
 ============================================================ */
-.store-body {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: .6rem;
+export function resetToHero() {
+  const grid = document.getElementById("storeGrid");
+  const heading = document.getElementById("resultHeading");
+  const showAllBtn = document.getElementById("showAllBtn");
+  const hero = document.getElementById("heroImage");
+  const heroText = document.getElementById("heroText");
+
+  if (grid) grid.innerHTML = "";
+  if (heading) {
+    heading.style.display = "none";
+    heading.textContent = "";
+  }
+  if (showAllBtn) showAllBtn.style.display = "none";
+  if (hero) hero.style.display = "block";
+  if (heroText) heroText.style.display = "block";
 }
 
 /* ============================================================
-   TITLE
+   RENDER STORE CARDS
 ============================================================ */
-.store-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1.3;
-  color: #222;
-  min-height: 2.6rem; /* två rader stabilt */
+export function renderStores(list) {
+  const grid = document.getElementById("storeGrid");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+
+  list.forEach((s) => {
+    const card = document.createElement("article");
+    card.className = "store-card";
+
+    const imgSrc = s.photo_final_url || FALLBACK_PHOTO;
+    const flagSlug = getFlagSlug(s.country);
+
+    card.innerHTML = `
+      <div class="store-photo-wrap">
+        <img
+          src="${imgSrc}"
+          alt="${s.name || "Cigar location"}"
+          class="store-img"
+          onerror="this.onerror=null;this.src='${FALLBACK_PHOTO}';"
+        />
+      </div>
+
+      <div class="store-body">
+        <h3 class="store-title">${s.name || "Unnamed location"}</h3>
+
+        <div class="stars">
+          ${
+            s.rating
+              ? "★".repeat(Math.round(s.rating))
+              : '<span class="no-rating">No rating yet</span>'
+          }
+        </div>
+
+        <div class="locrow">
+          <div class="loc-top">
+            ${
+              flagSlug
+                ? `<img 
+                     src="assets/flags/${flagSlug}.svg" 
+                     class="flag"
+                     alt="${s.country || ""}"
+                     onerror="this.style.display='none';"
+                   />`
+                : ""
+            }
+            <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
+          </div>
+        </div>
+
+        <div class="infoblock">
+          <p class="info-row">${s.address || ""}</p>
+          <p class="info-row">${s.phone || ""}</p>
+          <p class="info-row">
+            ${
+              s.website
+                ? `<a href="${s.website}" target="_blank" rel="noopener">Visit website</a>`
+                : ""
+            }
+          </p>
+        </div>
+
+        <button class="reviews-btn">
+          Comments (${s.comment_count || 0})
+        </button>
+      </div>
+    `;
+
+    grid.appendChild(card);
+  });
 }
 
 /* ============================================================
-   STARS
+   LOAD STORES
 ============================================================ */
-.stars {
-  color: var(--gold);
-  font-size: 1rem;
-  margin-top: -4px;
-}
+export async function loadStores(filters = {}, search = "") {
+  const grid = document.getElementById("storeGrid");
+  const heading = document.getElementById("resultHeading");
+  const showAllBtn = document.getElementById("showAllBtn");
 
-.no-rating {
-  color: #bbb;
-  font-size: .85rem;
-}
+  const heroImg = document.getElementById("heroImage");
+  const heroText = document.getElementById("heroText");
+  if (heroImg) heroImg.style.display = "none";
+  if (heroText) heroText.style.display = "none";
 
-/* ============================================================
-   LOCATION ROW
-============================================================ */
-.locrow {
-  display: flex;
-  flex-direction: column;
-}
+  if (grid) grid.innerHTML = "";
+  if (heading) {
+    heading.style.display = "block";
+    heading.textContent = "Loading…";
+  }
+  if (showAllBtn) showAllBtn.style.display = "none";
 
-.loc-top {
-  display: flex;
-  align-items: center;
-  gap: .4rem;
-  font-size: .95rem;
-  color: #444;
-  font-weight: 500;
-}
+  // Correct view
+  let query = supabase.from("stores_frontend_public_v3").select("*");
 
-.flag {
-  width: 20px;
-  height: 14px;
-  object-fit: cover;
-  border-radius: 2px;
-  background: #eee;
-}
+  // Search
+  if (search) {
+    query = query.or(
+      `name.ilike.%${search}%,city.ilike.%${search}%,country.ilike.%${search}%`
+    );
+  }
 
-/* ============================================================
-   INFOBLOCK
-============================================================ */
-.infoblock {
-  margin-top: .4rem;
-}
+  // Filters
+  if (filters.continent) query = query.eq("continent", filters.continent);
+  if (filters.country) query = query.eq("country", filters.country);
+  if (filters.city) query = query.eq("city", filters.city);
 
-.info-row {
-  margin: 0;
-  padding: 1px 0;
-  font-size: .87rem;
-  color: #666;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  const { data, error } = await query.order("created_at", {
+    ascending: false,
+  });
 
-.infoblock a {
-  color: var(--gold);
-  text-decoration: none;
-}
+  if (error) {
+    console.error("Load error:", error);
+    if (heading) heading.textContent = "Error loading stores.";
+    return;
+  }
 
-.infoblock a:hover {
-  text-decoration: underline;
-}
+  if (!data?.length) {
+    if (heading) heading.textContent = "No results found.";
+    return;
+  }
 
-/* ============================================================
-   COMMENTS BUTTON
-============================================================ */
-.reviews-btn {
-  margin-top: .6rem;
-  padding: .5rem;
-  width: 100%;
-  background: var(--gold);
-  color: #222;
-  border-radius: 8px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background .2s ease;
-}
-
-.reviews-btn:hover {
-  background: #e3b300;
+  heading.textContent = `${data.length} results`;
+  renderStores(data);
 }
