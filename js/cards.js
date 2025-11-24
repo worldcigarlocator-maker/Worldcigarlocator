@@ -47,7 +47,7 @@ export function resetToHero() {
 }
 
 /* ============================================================
-   RENDER STORE CARDS
+   RENDER STORE CARDS — PREMIUM DARK (matches cards.css)
 ============================================================ */
 export function renderStores(list) {
   const grid = document.getElementById("storeGrid");
@@ -59,21 +59,39 @@ export function renderStores(list) {
     const card = document.createElement("article");
     card.className = "store-card";
 
+    // Bild
     const imgSrc = s.photo_final_url || FALLBACK_PHOTO;
+
+    // Flag slug
     const flagSlug = getFlagSlug(s.country);
 
+    // Badges
+    const typeBadge = s.type ? `<span class="badge blue">${s.type}</span>` : "";
+    const accessBadge = s.access
+      ? `<span class="badge access ${s.access}">${s.access}</span>`
+      : "";
+
+    // Continent label
+    const continentLabel = s.continent
+      ? `<p class="continent-label">${s.continent}</p>`
+      : "";
+
     card.innerHTML = `
-      <div class="store-photo-wrap">
-        <img
-          src="${imgSrc}"
-          alt="${s.name || "Cigar location"}"
-          class="store-img"
-          onerror="this.onerror=null;this.src='${FALLBACK_PHOTO}';"
-        />
-      </div>
+      <img 
+        src="${imgSrc}"
+        class="store-img"
+        alt="${s.name || "Cigar location"}"
+        onerror="this.onerror=null;this.src='${FALLBACK_PHOTO}';"
+      />
 
       <div class="store-body">
+
         <h3 class="store-title">${s.name || "Unnamed location"}</h3>
+
+        <div class="badge-row">
+          ${typeBadge}
+          ${accessBadge}
+        </div>
 
         <div class="stars">
           ${
@@ -88,15 +106,16 @@ export function renderStores(list) {
             ${
               flagSlug
                 ? `<img 
-                     src="assets/flags/${flagSlug}.svg" 
+                     src="assets/flags/${flagSlug}.svg"
                      class="flag"
                      alt="${s.country || ""}"
-                     onerror="this.style.display='none';"
                    />`
                 : ""
             }
             <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
           </div>
+
+          ${continentLabel}
         </div>
 
         <div class="infoblock">
@@ -114,12 +133,14 @@ export function renderStores(list) {
         <button class="reviews-btn">
           Comments (${s.comment_count || 0})
         </button>
+
       </div>
     `;
 
     grid.appendChild(card);
   });
 }
+
 
 /* ============================================================
    LOAD STORES
