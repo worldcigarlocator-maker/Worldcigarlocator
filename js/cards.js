@@ -124,6 +124,7 @@
   color: var(--gold);
   text-decoration: none;
 }
+
 .infoblock a:hover {
   text-decoration: underline;
 }
