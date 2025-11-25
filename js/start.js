@@ -25,6 +25,21 @@ export function initAgeGate() {
   leave.onclick = () => (window.location.href = "https://google.com");
 }
 
+<div id="loginPopup" class="age-modal hidden fade-in">
+  <div class="age-box">
+    <h2>Restricted Access</h2>
+    <p>Login to access the development site.</p>
+
+    <input id="loginEmail" type="email" placeholder="Email" class="login-field">
+    <input id="loginPassword" type="password" placeholder="Password" class="login-field">
+
+    <button id="loginSubmit" class="age-yes">Login</button>
+
+    <small style="color:#aaa;">Authorized developers only.</small>
+  </div>
+</div>
+
+
 /* ============================================================
    FAKE ONLINE COUNTER
    ============================================================ */
