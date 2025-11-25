@@ -8,7 +8,7 @@ import { buildFrontendSidebar } from "./sidebar.js";
 import "./start.js"; // Age gate
 
 // ============================================================
-// LOGIN POPUP
+// LOGIN POPUP LOGIC
 // ============================================================
 
 function showLoginPopup() {
@@ -17,28 +17,78 @@ function showLoginPopup() {
 
   box.classList.remove("hidden");
 
-  // Autofokus på email
   const emailField = document.getElementById("loginEmail");
-  if (emailField) setTimeout(() => emailField.focus(), 50);
+  const passwordField = document.getElementById("loginPassword");
+  const rememberBox = document.getElementById("rememberMe");
+  const submitBtn = document.getElementById("loginSubmit");
+  const spinner = document.getElementById("loginSpinner");
+  const forgotLink = document.getElementById("forgotPassword");
 
-  // SUBMIT
-  document.getElementById("loginSubmit").onclick = async () => {
+  // Autofokus
+  if (emailField) setTimeout(() => emailField.focus(), 80);
+
+  // Remember me autofill
+  const savedEmail = localStorage.getItem("wcl_saved_email");
+  if (savedEmail && emailField) {
+    emailField.value = savedEmail;
+    if (rememberBox) rememberBox.checked = true;
+  }
+
+  // SUBMIT HANDLER
+  submitBtn.onclick = async () => {
     const email = emailField.value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
+    const password = passwordField.value.trim();
 
     if (!email || !password) {
       alert("Please fill in both fields.");
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    // Save email if remember-me checked
+    if (rememberBox?.checked) {
+      localStorage.setItem("wcl_saved_email", email);
+    } else {
+      localStorage.removeItem("wcl_saved_email");
+    }
+
+    // Disable button + show spinner
+    submitBtn.disabled = true;
+    spinner.classList.remove("hidden");
+    submitBtn.textContent = "Logging in…";
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
 
     if (error) {
       alert("Login failed: " + error.message);
-    } else {
-      location.reload();
+      spinner.classList.add("hidden");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Login";
+      return;
     }
+
+    location.reload();
   };
+
+  // FORGOT PASSWORD LINK
+  if (forgotLink) {
+    forgotLink.onclick = async () => {
+      const email = emailField.value.trim();
+      if (!email) {
+        alert("Enter your email first.");
+        return;
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      if (error) {
+        alert("Could not send reset email: " + error.message);
+        return;
+      }
+      alert("A reset link has been sent to your email.");
+    };
+  }
 }
 
 // ============================================================
@@ -56,14 +106,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ============================================================
-// FRONTEND GUARD — BLOCK PUBLIC ACCESS
+// FRONTEND GUARD — PROTECTS PUBLIC SITE
 // ============================================================
 
 async function guardFrontend() {
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
-    // Hide the main UI
+    // Hide app UI
     const container = document.querySelector(".container");
     if (container) container.style.display = "none";
 
@@ -71,18 +121,17 @@ async function guardFrontend() {
     return;
   }
 
-  // Logged in → show UI
+  // Show UI when authenticated
   const container = document.querySelector(".container");
-  if (container) container.style.display = "flex";
+  if (container) container.style.display = "grid";
 
-  // Build sidebar
+  // Build sidebar + hero
   buildFrontendSidebar(supabase, loadStores);
-
   resetToHero();
 }
 
 // ============================================================
-// SEARCH
+// SEARCH BAR
 // ============================================================
 
 function setupSearch() {
