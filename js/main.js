@@ -21,8 +21,9 @@ function showLoginPopup() {
   const passwordField = document.getElementById("loginPassword");
   const rememberBox = document.getElementById("rememberMe");
   const submitBtn = document.getElementById("loginSubmit");
-  const spinner = document.getElementById("loginSpinner");
-  const forgotLink = document.getElementById("forgotPassword");
+  const spinner = submitBtn.querySelector(".spinner");
+  const textSpan = submitBtn.querySelector(".login-text");
+  const forgotLink = document.getElementById("forgotPasswordLink");
 
   // Autofokus
   if (emailField) setTimeout(() => emailField.focus(), 80);
@@ -54,7 +55,7 @@ function showLoginPopup() {
     // Disable button + show spinner
     submitBtn.disabled = true;
     spinner.classList.remove("hidden");
-    submitBtn.textContent = "Logging in…";
+    textSpan.textContent = "Logging in…";
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -65,7 +66,7 @@ function showLoginPopup() {
       alert("Login failed: " + error.message);
       spinner.classList.add("hidden");
       submitBtn.disabled = false;
-      submitBtn.textContent = "Login";
+      textSpan.textContent = "Login";
       return;
     }
 
@@ -74,7 +75,8 @@ function showLoginPopup() {
 
   // FORGOT PASSWORD LINK
   if (forgotLink) {
-    forgotLink.onclick = async () => {
+    forgotLink.onclick = async (e) => {
+      e.preventDefault();
       const email = emailField.value.trim();
       if (!email) {
         alert("Enter your email first.");
@@ -90,6 +92,19 @@ function showLoginPopup() {
     };
   }
 }
+
+// ============================================================
+// OPEN POPUP VIA SIDEBAR LOGIN BUTTON
+// ============================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+  const loginBtn = document.getElementById("loginBtn");
+  if (loginBtn) {
+    loginBtn.onclick = () => {
+      showLoginPopup();
+    };
+  }
+});
 
 // ============================================================
 // LOGOUT BUTTON
@@ -113,7 +128,6 @@ async function guardFrontend() {
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
-    // Hide app UI
     const container = document.querySelector(".container");
     if (container) container.style.display = "none";
 
@@ -121,11 +135,9 @@ async function guardFrontend() {
     return;
   }
 
-  // Show UI when authenticated
   const container = document.querySelector(".container");
   if (container) container.style.display = "grid";
 
-  // Build sidebar + hero
   buildFrontendSidebar(supabase, loadStores);
   resetToHero();
 }
