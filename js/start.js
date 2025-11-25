@@ -10,6 +10,8 @@ export function initAgeGate() {
   const enter = qs("enterBtn");
   const leave = qs("leaveBtn");
 
+  if (!modal) return;
+
   if (localStorage.getItem("ageVerified") === "yes") {
     modal.classList.add("hidden");
     return;
@@ -25,21 +27,6 @@ export function initAgeGate() {
   leave.onclick = () => (window.location.href = "https://google.com");
 }
 
-<div id="loginPopup" class="age-modal hidden fade-in">
-  <div class="age-box">
-    <h2>Restricted Access</h2>
-    <p>Login to access the development site.</p>
-
-    <input id="loginEmail" type="email" placeholder="Email" class="login-field">
-    <input id="loginPassword" type="password" placeholder="Password" class="login-field">
-
-    <button id="loginSubmit" class="age-yes">Login</button>
-
-    <small style="color:#aaa;">Authorized developers only.</small>
-  </div>
-</div>
-
-
 /* ============================================================
    FAKE ONLINE COUNTER
    ============================================================ */
@@ -53,44 +40,35 @@ function fakeOnline() {
    INIT FRONTEND
    ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
-  
-  /* ---------------------------
-     1. Ladda hierarkin
-  ----------------------------*/
+
+  /* 1. SIDEBAR */
   buildFrontendSidebar(supabase, loadStores);
 
-  /* ---------------------------
-     2. Sökning
-  ----------------------------*/
+  /* 2. SÖKNING */
   const input = qs("searchInput");
+  const searchBtn = qs("searchBtn");
+  const clearBtn = qs("clearBtn");
 
-  // Klick på Search → sök & dölj hero
-  qs("searchBtn").onclick = () => {
+  searchBtn.onclick = () => {
     const term = input.value.trim();
-    if (term.length > 0) loadStores({}, term);
+    if (term) loadStores({}, term);
   };
 
-  // Enter → sök
   input.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
       const term = input.value.trim();
-      if (term.length > 0) loadStores({}, term);
+      if (term) loadStores({}, term);
     }
   });
 
-  // Clear → återställ hero
-  qs("clearBtn").onclick = () => {
+  clearBtn.onclick = () => {
     input.value = "";
     resetToHero();
   };
 
-  /* ---------------------------
-     3. Age Gate
-  ----------------------------*/
+  /* 3. AGE GATE */
   initAgeGate();
 
-  /* ---------------------------
-     4. Fake Online
-  ----------------------------*/
+  /* 4. FAKE ONLINE */
   fakeOnline();
 });
