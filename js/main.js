@@ -33,6 +33,11 @@ export function showLoginPopup() {
   };
 }
 
+document.getElementById("logoutBtn").onclick = async () => {
+  await supabase.auth.signOut();
+  location.reload();
+};
+
 
 guardFrontend();
 supabase.auth.onAuthStateChange(() => guardFrontend());
