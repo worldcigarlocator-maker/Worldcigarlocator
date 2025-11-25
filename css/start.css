@@ -603,3 +603,54 @@ body {
 .login-btn-popup:hover {
   filter: brightness(1.05);
 }
+
+/* Remember me checkbox */
+.remember-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0.4rem 0 1rem 0;
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.remember-wrapper input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--gold);
+}
+
+/* Forgot password link */
+.forgot {
+  margin-top: 1rem;
+}
+
+.forgot a {
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.forgot a:hover {
+  text-decoration: underline;
+}
+
+/* Spinner in button */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 3px solid rgba(255,255,255,0.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 6px;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.hidden {
+  display: none !important;
+}
