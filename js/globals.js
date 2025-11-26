@@ -1,23 +1,14 @@
-// ============================================================
-// GLOBALS.JS — SINGLE SOURCE OF TRUTH
-// ============================================================
+// globals.js
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.5";
 
-// ✔️ Modern, stabil CDN import
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-
-// ✔️ Your project URL
+// ⭐ Your project URL
 export const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
 
-// ✔️ Your public anon key
-export const SUPABASE_ANON_KEY = "HÄR_DIN_PUBLIC_ANON_KEY";
+// ⭐ Public ANON key (only anon key, *never* service_role)
+export const SUPABASE_ANON_KEY = "PASTE-YOUR-ANON-KEY-HERE";
 
-// ✔️ Create global client
+// Create client
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-
-// ============================================================
-// Helper: Quick selector function
-// ============================================================
-export function qs(id) {
-  return document.getElementById(id);
-}
+// Small helper
+export const qs = (id) => document.getElementById(id);
