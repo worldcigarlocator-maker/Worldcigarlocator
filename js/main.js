@@ -149,28 +149,47 @@ async function guardFrontend() {
 
 function setupSearch() {
   const input = document.getElementById("searchInput");
-  const btn = document.getElementById("searchBtn");
-  const clear = document.getElementById("clearBtn");
+  const searchBtn = document.getElementById("searchBtn");
+  const clearBtn = document.getElementById("clearBtn");
 
-  if (!input || !btn || !clear) return;
+  let debounceTimer = null;
 
-  btn.onclick = () => {
+  // Live search (debounced)
+  input.addEventListener("input", () => {
     const term = input.value.trim();
-    loadStores({}, term);
+
+    clearTimeout(debounceTimer);
+
+    debounceTimer = setTimeout(() => {
+      if (term.length === 0) {
+        resetToHero();
+      } else {
+        loadStores({}, term);
+      }
+    }, 280); // perfekt balans: snabbt men inte spammigt
+  });
+
+  // Search button (optional)
+  searchBtn.onclick = () => {
+    const term = input.value.trim();
+    if (term) loadStores({}, term);
   };
 
-  clear.onclick = () => {
+  // Clear button
+  clearBtn.onclick = () => {
     input.value = "";
     resetToHero();
   };
 
+  // Enter → do search instantly
   input.addEventListener("keyup", (e) => {
     if (e.key === "Enter") {
-      const term = input.value.trim();
-      loadStores({}, term);
+      clearTimeout(debounceTimer);
+      loadStores({}, input.value.trim());
     }
   });
 }
+
 
 // ============================================================
 // INIT
