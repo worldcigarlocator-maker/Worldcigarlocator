@@ -1,46 +1,43 @@
 // ============================================================
-// START.JS — ONLY AGE GATE + SMALL HELPERS
+// START.JS — AGE GATE + FAKE ONLINE
 // ============================================================
 
-export function qs(id) {
-  return document.getElementById(id);
-}
-
-/* ============================================================
-   AGE GATE
-   ============================================================ */
+// 18+ age gate
 export function initAgeGate() {
-  const modal = qs("ageGate");
-  const enter = qs("enterBtn");
-  const leave = qs("leaveBtn");
+  const modal = document.getElementById("ageGate");
+  const enter = document.getElementById("enterBtn");
+  const leave = document.getElementById("leaveBtn");
 
   if (!modal) return;
 
-  // Already verified?
+  // Redan verifierad tidigare
   if (localStorage.getItem("ageVerified") === "yes") {
     modal.classList.add("hidden");
     return;
   }
 
-  // Show first time
+  // Visa modalen
   modal.classList.remove("hidden");
 
-  enter.onclick = () => {
-    localStorage.setItem("ageVerified", "yes");
-    modal.classList.add("hidden");
-  };
+  if (enter) {
+    enter.onclick = () => {
+      localStorage.setItem("ageVerified", "yes");
+      modal.classList.add("hidden");
+    };
+  }
 
-  leave.onclick = () => {
-    window.location.href = "https://google.com";
-  };
+  if (leave) {
+    leave.onclick = () => {
+      window.location.href = "https://google.com";
+    };
+  }
 }
 
-/* ============================================================
-   FAKE ONLINE COUNTER
-   ============================================================ */
-export function fakeOnline() {
-  const el = qs("onlineText");
+// Fake online counter
+export function initFakeOnline() {
+  const el = document.getElementById("onlineText");
   if (!el) return;
 
-  el.textContent = Math.floor(28 + Math.random() * 23) + " online";
+  const base = 28 + Math.floor(Math.random() * 23);
+  el.textContent = base + " online";
 }
