@@ -21,21 +21,20 @@ function showLoginPopup() {
   const passwordField = document.getElementById("loginPassword");
   const rememberBox = document.getElementById("rememberMe");
   const submitBtn = document.getElementById("loginSubmit");
-  const spinner = submitBtn.querySelector(".spinner");
-  const textSpan = submitBtn.querySelector(".login-text");
-  const forgotLink = document.getElementById("forgotPasswordLink");
+  const spinner = document.getElementById("loginSpinner");
+  const forgotLink = document.getElementById("forgotPassword");
 
   // Autofokus
   if (emailField) setTimeout(() => emailField.focus(), 80);
 
-  // Remember me autofill
+  // Remember-me autofyll
   const savedEmail = localStorage.getItem("wcl_saved_email");
-  if (savedEmail && emailField) {
+  if (savedEmail) {
     emailField.value = savedEmail;
-    if (rememberBox) rememberBox.checked = true;
+    rememberBox.checked = true;
   }
 
-  // SUBMIT HANDLER
+  // SUBMIT
   submitBtn.onclick = async () => {
     const email = emailField.value.trim();
     const password = passwordField.value.trim();
@@ -45,17 +44,17 @@ function showLoginPopup() {
       return;
     }
 
-    // Save email if remember-me checked
-    if (rememberBox?.checked) {
+    // Save email
+    if (rememberBox.checked) {
       localStorage.setItem("wcl_saved_email", email);
     } else {
       localStorage.removeItem("wcl_saved_email");
     }
 
-    // Disable button + show spinner
+    // Spinner ON
     submitBtn.disabled = true;
     spinner.classList.remove("hidden");
-    textSpan.textContent = "Logging in…";
+    submitBtn.querySelector(".login-text").textContent = "Logging in…";
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -64,19 +63,18 @@ function showLoginPopup() {
 
     if (error) {
       alert("Login failed: " + error.message);
-      spinner.classList.add("hidden");
       submitBtn.disabled = false;
-      textSpan.textContent = "Login";
+      spinner.classList.add("hidden");
+      submitBtn.querySelector(".login-text").textContent = "Login";
       return;
     }
 
     location.reload();
   };
 
-  // FORGOT PASSWORD LINK
+  // RESET PASSWORD
   if (forgotLink) {
-    forgotLink.onclick = async (e) => {
-      e.preventDefault();
+    forgotLink.onclick = async () => {
       const email = emailField.value.trim();
       if (!email) {
         alert("Enter your email first.");
@@ -84,26 +82,21 @@ function showLoginPopup() {
       }
 
       const { error } = await supabase.auth.resetPasswordForEmail(email);
+
       if (error) {
         alert("Could not send reset email: " + error.message);
         return;
       }
+
       alert("A reset link has been sent to your email.");
     };
   }
 }
 
-// ============================================================
-// OPEN POPUP VIA SIDEBAR LOGIN BUTTON
-// ============================================================
-
+// Sidebar login button
 document.addEventListener("DOMContentLoaded", () => {
   const loginBtn = document.getElementById("loginBtn");
-  if (loginBtn) {
-    loginBtn.onclick = () => {
-      showLoginPopup();
-    };
-  }
+  if (loginBtn) loginBtn.onclick = showLoginPopup;
 });
 
 // ============================================================
@@ -128,6 +121,7 @@ async function guardFrontend() {
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
+    // Hide UI
     const container = document.querySelector(".container");
     if (container) container.style.display = "none";
 
@@ -135,6 +129,7 @@ async function guardFrontend() {
     return;
   }
 
+  // Show UI
   const container = document.querySelector(".container");
   if (container) container.style.display = "grid";
 
@@ -143,7 +138,7 @@ async function guardFrontend() {
 }
 
 // ============================================================
-// SEARCH BAR
+// SEARCH
 // ============================================================
 
 function setupSearch() {
