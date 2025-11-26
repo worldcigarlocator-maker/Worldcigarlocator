@@ -46,6 +46,12 @@ body {
   min-height: 100vh;
 }
 
+/* Hide mobile menu button on desktop */
+.mobile-menu-btn {
+  display: none;
+}
+
+
 /* ============================================================
    PREMIUM SIDEBAR 2.0 — Luxury Gold Navigation
    ============================================================ */
