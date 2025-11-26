@@ -16,7 +16,7 @@ const FLAG_ALIASES = {
   "united kingdom": "united-kingdom",
   "uk": "united-kingdom",
   "czech republic": "czechia",
-  "viet nam": "vietnam",
+  "viet nam": "vietnam"
 };
 
 function getFlagSlug(country) {
@@ -24,6 +24,17 @@ function getFlagSlug(country) {
   const raw = country.toLowerCase().trim();
   if (FLAG_ALIASES[raw]) return FLAG_ALIASES[raw];
   return raw.replaceAll(" ", "-");
+}
+
+/* ============================================================
+   ⭐ RATING (Always 5 stars + count)
+============================================================ */
+function renderStars(avg, count) {
+  const value = Number(avg) || 0;
+  const rounded = Math.round(value);
+  const filled = "★".repeat(rounded);
+  const empty = "☆".repeat(5 - rounded);
+  return `${filled}${empty} (${count || 0})`;
 }
 
 /* ============================================================
@@ -47,34 +58,23 @@ export function resetToHero() {
 }
 
 /* ============================================================
-   RENDER STORE CARDS — PREMIUM DARK (matches cards.css)
+   RENDER STORE CARDS — PREMIUM DARK
 ============================================================ */
 export function renderStores(list) {
   const grid = document.getElementById("storeGrid");
   if (!grid) return;
-
   grid.innerHTML = "";
 
   list.forEach((s) => {
     const card = document.createElement("article");
     card.className = "store-card";
 
-    // Bild
     const imgSrc = s.photo_final_url || FALLBACK_PHOTO;
-
-    // Flag slug
     const flagSlug = getFlagSlug(s.country);
 
     // Badges
     const typeBadge = s.type ? `<span class="badge blue">${s.type}</span>` : "";
-    const accessBadge = s.access
-      ? `<span class="badge access ${s.access}">${s.access}</span>`
-      : "";
-
-    // Continent label
-    const continentLabel = s.continent
-      ? `<p class="continent-label">${s.continent}</p>`
-      : "";
+    const accessBadge = s.access ? `<span class="badge access ${s.access}">${s.access}</span>` : "";
 
     card.innerHTML = `
       <img 
@@ -86,50 +86,53 @@ export function renderStores(list) {
 
       <div class="store-body">
 
+        <!-- NAME -->
         <h3 class="store-title">${s.name || "Unnamed location"}</h3>
 
+        <!-- BADGES -->
         <div class="badge-row">
           ${typeBadge}
           ${accessBadge}
         </div>
 
+        <!-- ⭐ RATING -->
         <div class="stars">
-          ${
-            s.rating
-              ? "★".repeat(Math.round(s.rating))
-              : '<span class="no-rating">No rating yet</span>'
-          }
+          ${renderStars(s.rating_avg, s.rating_count)}
         </div>
 
+        <!-- LOCATION -->
         <div class="locrow">
           <div class="loc-top">
             ${
               flagSlug
-                ? `<img 
-                     src="assets/flags/${flagSlug}.svg"
-                     class="flag"
-                     alt="${s.country || ""}"
-                   />`
+                ? `<img src="assets/flags/${flagSlug}.svg" class="flag" alt="${s.country}" />`
                 : ""
             }
             <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
           </div>
 
-          ${continentLabel}
+          ${
+            s.continent
+              ? `<p class="continent-label">${s.continent}</p>`
+              : ""
+          }
         </div>
 
+        <!-- INFO BLOCK -->
         <div class="infoblock">
-          <p class="info-row">${s.address || ""}</p>
-          <p class="info-row">${s.phone || ""}</p>
+          <p class="info-row"><strong>Address:</strong> ${s.address || "—"}</p>
+          <p class="info-row"><strong>Phone:</strong> ${s.phone || "—"}</p>
           <p class="info-row">
+            <strong>Website:</strong> 
             ${
               s.website
-                ? `<a href="${s.website}" target="_blank" rel="noopener">Visit website</a>`
-                : ""
+                ? `<a href="${s.website}" target="_blank" rel="noopener">Visit</a>`
+                : "—"
             }
           </p>
         </div>
 
+        <!-- COMMENTS BUTTON -->
         <button class="reviews-btn">
           Comments (${s.comment_count || 0})
         </button>
@@ -140,7 +143,6 @@ export function renderStores(list) {
     grid.appendChild(card);
   });
 }
-
 
 /* ============================================================
    LOAD STORES
@@ -162,24 +164,21 @@ export async function loadStores(filters = {}, search = "") {
   }
   if (showAllBtn) showAllBtn.style.display = "none";
 
-  // Correct view
-  let query = supabase.from("stores_frontend_public_v3").select("*");
+  let query = supabase
+    .from("stores_frontend_public_v3")
+    .select("*");
 
-  // Search
   if (search) {
     query = query.or(
       `name.ilike.%${search}%,city.ilike.%${search}%,country.ilike.%${search}%`
     );
   }
 
-  // Filters
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country) query = query.eq("country", filters.country);
   if (filters.city) query = query.eq("city", filters.city);
 
-  const { data, error } = await query.order("created_at", {
-    ascending: false,
-  });
+  const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
     console.error("Load error:", error);
@@ -188,7 +187,7 @@ export async function loadStores(filters = {}, search = "") {
   }
 
   if (!data?.length) {
-    if (heading) heading.textContent = "No results found.";
+    heading.textContent = "No results found.";
     return;
   }
 
