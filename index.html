@@ -8,7 +8,10 @@
   <!-- DM Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
 
   <!-- CSS -->
   <link rel="stylesheet" href="css/start.css" />
@@ -18,7 +21,7 @@
 <body>
 
 <!-- ============================================================
-     AGE GATE (GLASS BLUR)
+     AGE GATE
 ============================================================ -->
 <div id="ageGate" class="age-modal hidden fade-in">
   <div class="age-box">
@@ -38,7 +41,7 @@
 </div>
 
 <!-- ============================================================
-     LOGIN POPUP (PREMIUM GLASS)
+     LOGIN POPUP
 ============================================================ -->
 <div id="loginPopup" class="login-modal hidden">
   <div class="login-box">
@@ -64,7 +67,12 @@
 </div>
 
 <!-- ============================================================
-     PAGE LAYOUT
+     MOBILE MENU BUTTON
+============================================================ -->
+<button id="mobileMenuBtn" class="mobile-menu-btn">☰</button>
+
+<!-- ============================================================
+     PAGE WRAPPER
 ============================================================ -->
 <div class="container">
 
@@ -91,19 +99,18 @@
       <a href="add-store.html" class="menu-link add-store">+ Add Store</a>
       <a href="mailto:support@worldcigarlocator.com" class="menu-link">Contact / Support</a>
     </div>
+
   </aside>
 
-  <!-- ======================= MAIN AREA ======================= -->
+  <!-- ======================= MAIN ======================= -->
   <main class="main">
 
-    <!-- SEARCH -->
     <div class="searchbar main-search">
       <input id="searchInput" type="text" placeholder="Search by name, city or country…" />
       <button id="searchBtn" class="btn">Search</button>
       <button id="clearBtn" class="btn outline">Clear</button>
     </div>
 
-    <!-- HERO TEXT -->
     <section id="heroText" class="hero-text">
       <h1>Welcome to World Cigar Locator</h1>
       <p>
@@ -113,18 +120,17 @@
       </p>
     </section>
 
-    <!-- HERO IMAGE -->
     <section id="heroImage" class="hero">
       <img src="images/paris.jpg" alt="Hero" class="hero-bg" />
     </section>
 
-    <!-- RESULTS -->
     <div id="resultHeading" class="result-heading" style="display:none;"></div>
     <button id="showAllBtn" class="btn outline" style="display:none;">Show All</button>
 
     <div id="storeGrid" class="store-grid"></div>
 
   </main>
+
 </div>
 
 <!-- ============================================================
