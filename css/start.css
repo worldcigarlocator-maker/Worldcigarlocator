@@ -372,8 +372,8 @@ body {
 .hero-bg {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  filter: brightness(0.7);
+  object-fit: none;        /* Ingen beskärning, ingen zoom */
+  object-position: center; /* Alltid centrerad */
 }
 .hero::after {
   content: "";
