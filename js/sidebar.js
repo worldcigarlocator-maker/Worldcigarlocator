@@ -1,18 +1,21 @@
 import { getContinent } from "./globals.js";
 
 export function buildFrontendSidebar(supabase, loadStores) {
+  console.log("🔥 Sidebar init…");
+
   const menu = document.getElementById("sidebarMenu");
   if (!menu) return;
 
   menu.innerHTML = `<li style="color:#999">Loading…</li>`;
 
- 
-    supabase
-  .from("stores_frontend_public_v3")
-   .select("id,name,country,city")
+  supabase
+    .from("stores_frontend_public_v3")
+    .select("id,name,country,city")
     .then(({ data, error }) => {
+      console.log("📦 SIDEBAR DATA:", data);
+      console.log("❌ SIDEBAR ERROR:", error);
+
       if (error || !data) {
-        console.error("Sidebar fetch error:", error);
         menu.innerHTML = `<li style="color:#f55">Failed to load.</li>`;
         return;
       }
@@ -20,7 +23,7 @@ export function buildFrontendSidebar(supabase, loadStores) {
       const grouped = {};
 
       data.forEach((s) => {
-        const cont = getContinent(s.country);
+        const cont = getContinent(s.country) || "Unknown";
         if (!grouped[cont]) grouped[cont] = {};
 
         const ctry = s.country || "Unknown";
@@ -56,15 +59,13 @@ export function buildFrontendSidebar(supabase, loadStores) {
           const nestedC = document.createElement("div");
           nestedC.className = "nested";
 
-          contBtn.addEventListener("click", () => {
-            const isOpen = nestedC.classList.toggle("show");
-            contBtn.classList.toggle("open", isOpen);
-            contBtn.querySelector(".arrow").style.transform = isOpen
-              ? "rotate(90deg)"
-              : "rotate(0deg)";
-
-            if (isOpen) loadStores({ continent });
-          });
+          contBtn.onclick = () => {
+            const open = nestedC.classList.toggle("show");
+            contBtn.classList.toggle("open", open);
+            contBtn.querySelector(".arrow").style.transform =
+              open ? "rotate(90deg)" : "rotate(0deg)";
+            if (open) loadStores({ continent });
+          };
 
           Object.entries(countries)
             .sort(([a], [b]) => a.localeCompare(b))
@@ -86,17 +87,14 @@ export function buildFrontendSidebar(supabase, loadStores) {
               const nestedCity = document.createElement("div");
               nestedCity.className = "nested";
 
-              cBtn.addEventListener("click", (e) => {
+              cBtn.onclick = (e) => {
                 e.stopPropagation();
-                const isOpen = nestedCity.classList.toggle("show");
-                cBtn.classList.toggle("open", isOpen);
-
-                cBtn.querySelector(".arrow").style.transform = isOpen
-                  ? "rotate(90deg)"
-                  : "rotate(0deg)";
-
-                if (isOpen) loadStores({ country });
-              });
+                const open = nestedCity.classList.toggle("show");
+                cBtn.classList.toggle("open", open);
+                cBtn.querySelector(".arrow").style.transform =
+                  open ? "rotate(90deg)" : "rotate(0deg)";
+                if (open) loadStores({ country });
+              };
 
               Object.entries(cities)
                 .sort(([, a], [, b]) => b.length - a.length)
@@ -109,10 +107,10 @@ export function buildFrontendSidebar(supabase, loadStores) {
                     <span class="pill">${cityStores.length}</span>
                   `;
 
-                  cityBtn.addEventListener("click", (e) => {
+                  cityBtn.onclick = (e) => {
                     e.stopPropagation();
                     loadStores({ city });
-                  });
+                  };
 
                   nestedCity.appendChild(cityBtn);
                 });
