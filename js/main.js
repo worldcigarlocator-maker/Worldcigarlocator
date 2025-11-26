@@ -1,11 +1,11 @@
 // ============================================================
-// MAIN.JS — FRONTEND AUTH + LOGIN POPUP + INITIALIZATION
+// MAIN.JS — AUTH, LOGIN POPUP, SIDEBAR, SÖK, INIT
 // ============================================================
 
 import { supabase } from "./globals.js";
 import { resetToHero, loadStores } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
-import "./start.js"; // Age gate
+import { initAgeGate, initFakeOnline } from "./start.js";
 
 // ============================================================
 // LOGIN POPUP LOGIC
@@ -24,19 +24,19 @@ function showLoginPopup() {
   const spinner = document.getElementById("loginSpinner");
   const forgot = document.getElementById("forgotPassword");
 
-  // Autofocus
-  if (email) setTimeout(() => email.focus(), 80);
+  if (!email || !password || !submit) return;
 
-  // Load saved email
+  // Autofocus
+  setTimeout(() => email.focus(), 80);
+
+  // Remember me – fyll i sparad email
   const saved = localStorage.getItem("wcl_saved_email");
   if (saved) {
     email.value = saved;
-    remember.checked = true;
+    if (remember) remember.checked = true;
   }
 
-  // -------------------------
-  // LOGIN ACTION
-  // -------------------------
+  // Undvik att binda flera gånger om man öppnar popupen igen
   submit.onclick = async () => {
     const e = email.value.trim();
     const p = password.value.trim();
@@ -46,14 +46,18 @@ function showLoginPopup() {
       return;
     }
 
-    // Remember me
-    if (remember.checked) localStorage.setItem("wcl_saved_email", e);
-    else localStorage.removeItem("wcl_saved_email");
+    // Spara / rensa email i localStorage
+    if (remember?.checked) {
+      localStorage.setItem("wcl_saved_email", e);
+    } else {
+      localStorage.removeItem("wcl_saved_email");
+    }
 
-    // Lock UI
+    // Lås knapp + visa spinner
     submit.disabled = true;
-    submit.querySelector(".login-text").textContent = "Logging in…";
-    spinner.classList.remove("hidden");
+    const labelSpan = submit.querySelector(".login-text");
+    if (labelSpan) labelSpan.textContent = "Logging in…";
+    if (spinner) spinner.classList.remove("hidden");
 
     const { error } = await supabase.auth.signInWithPassword({
       email: e,
@@ -63,19 +67,19 @@ function showLoginPopup() {
     if (error) {
       alert("Login failed: " + error.message);
       submit.disabled = false;
-      spinner.classList.add("hidden");
-      submit.querySelector(".login-text").textContent = "Login";
+      if (spinner) spinner.classList.add("hidden");
+      if (labelSpan) labelSpan.textContent = "Login";
       return;
     }
 
+    // Lyckad login
     location.reload();
   };
 
-  // -------------------------
-  // FORGOT PASSWORD
-  // -------------------------
+  // Forgot password
   if (forgot) {
-    forgot.onclick = async () => {
+    forgot.onclick = async (ev) => {
+      ev.preventDefault();
       const e = email.value.trim();
       if (!e) {
         alert("Enter your email first.");
@@ -83,52 +87,58 @@ function showLoginPopup() {
       }
 
       const { error } = await supabase.auth.resetPasswordForEmail(e);
-      if (error) alert("Could not send reset email: " + error.message);
-      else alert("A reset link has been sent to your email.");
+      if (error) {
+        alert("Could not send reset email: " + error.message);
+      } else {
+        alert("A reset link has been sent to your email.");
+      }
     };
   }
 }
 
-// ------------------------------------------------------------
-// OPEN POPUP WHEN CLICKING LOGIN IN SIDEBAR
-// ------------------------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("loginBtn");
-  if (btn) btn.onclick = () => showLoginPopup();
-});
-
-// ============================================================
-// LOGOUT BUTTON
-// ============================================================
-
-document.addEventListener("DOMContentLoaded", () => {
+// Sidebar-login-knapp öppnar popup
+function setupSidebarAuthButtons() {
+  const loginBtn = document.getElementById("loginBtn");
   const logoutBtn = document.getElementById("logoutBtn");
-  if (!logoutBtn) return;
 
-  logoutBtn.onclick = async () => {
-    await supabase.auth.signOut();
-    location.reload();
-  };
-});
+  if (loginBtn) {
+    loginBtn.onclick = () => {
+      showLoginPopup();
+    };
+  }
+
+  if (logoutBtn) {
+    logoutBtn.onclick = async () => {
+      await supabase.auth.signOut();
+      location.reload();
+    };
+  }
+}
 
 // ============================================================
 // FRONTEND GUARD — PROTECT FULL SITE
 // ============================================================
 
 async function guardFrontend() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session }, error } = await supabase.auth.getSession();
+
+  if (error) {
+    console.error("getSession error:", error);
+  }
 
   const container = document.querySelector(".container");
 
   if (!session) {
+    // Inte inloggad → göm hela appen, visa login-popup
     if (container) container.style.display = "none";
     showLoginPopup();
     return;
   }
 
-  // AUTH OK → SHOW UI
+  // Inloggad → visa UI
   if (container) container.style.display = "grid";
 
+  // Sidebar + hero
   buildFrontendSidebar(supabase, loadStores);
   resetToHero();
 }
@@ -142,7 +152,12 @@ function setupSearch() {
   const btn = document.getElementById("searchBtn");
   const clear = document.getElementById("clearBtn");
 
-  btn.onclick = () => loadStores({}, input.value.trim());
+  if (!input || !btn || !clear) return;
+
+  btn.onclick = () => {
+    const term = input.value.trim();
+    loadStores({}, term);
+  };
 
   clear.onclick = () => {
     input.value = "";
@@ -150,7 +165,10 @@ function setupSearch() {
   };
 
   input.addEventListener("keyup", (e) => {
-    if (e.key === "Enter") loadStores({}, input.value.trim());
+    if (e.key === "Enter") {
+      const term = input.value.trim();
+      loadStores({}, term);
+    }
   });
 }
 
@@ -158,9 +176,22 @@ function setupSearch() {
 // INIT
 // ============================================================
 
-supabase.auth.onAuthStateChange(() => guardFrontend());
+supabase.auth.onAuthStateChange(() => {
+  // Om session ändras (login/logout) → kör guard igen
+  guardFrontend();
+});
 
 document.addEventListener("DOMContentLoaded", () => {
+  // 1. Age gate + fake online
+  initAgeGate();
+  initFakeOnline();
+
+  // 2. Auth-knappar i sidebar
+  setupSidebarAuthButtons();
+
+  // 3. Skydda frontenden (visa login eller app)
   guardFrontend();
+
+  // 4. Sök
   setupSearch();
 });
