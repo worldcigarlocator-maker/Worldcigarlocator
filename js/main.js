@@ -1,11 +1,11 @@
 // ============================================================
-// MAIN.JS — AUTH, LOGIN POPUP, SIDEBAR, SÖK, INIT
+// MAIN.JS — FRONTEND AUTH + LOGIN POPUP + INITIALIZATION
 // ============================================================
 
 import { supabase } from "./globals.js";
 import { resetToHero, loadStores } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
-import { initAgeGate, initFakeOnline } from "./start.js";
+import "./start.js"; // Age gate
 
 // ============================================================
 // LOGIN POPUP LOGIC
@@ -24,19 +24,17 @@ function showLoginPopup() {
   const spinner = document.getElementById("loginSpinner");
   const forgot = document.getElementById("forgotPassword");
 
-  if (!email || !password || !submit) return;
-
   // Autofocus
-  setTimeout(() => email.focus(), 80);
+  if (email) setTimeout(() => email.focus(), 80);
 
-  // Remember me – fyll i sparad email
+  // Load saved email if exists
   const saved = localStorage.getItem("wcl_saved_email");
   if (saved) {
     email.value = saved;
-    if (remember) remember.checked = true;
+    remember.checked = true;
   }
 
-  // Undvik att binda flera gånger om man öppnar popupen igen
+  // Submit login
   submit.onclick = async () => {
     const e = email.value.trim();
     const p = password.value.trim();
@@ -46,18 +44,17 @@ function showLoginPopup() {
       return;
     }
 
-    // Spara / rensa email i localStorage
-    if (remember?.checked) {
+    // Save email?
+    if (remember.checked) {
       localStorage.setItem("wcl_saved_email", e);
     } else {
       localStorage.removeItem("wcl_saved_email");
     }
 
-    // Lås knapp + visa spinner
+    // Lock UI
     submit.disabled = true;
-    const labelSpan = submit.querySelector(".login-text");
-    if (labelSpan) labelSpan.textContent = "Logging in…";
-    if (spinner) spinner.classList.remove("hidden");
+    submit.querySelector(".login-text").textContent = "Logging in…";
+    spinner.classList.remove("hidden");
 
     const { error } = await supabase.auth.signInWithPassword({
       email: e,
@@ -67,150 +64,118 @@ function showLoginPopup() {
     if (error) {
       alert("Login failed: " + error.message);
       submit.disabled = false;
-      if (spinner) spinner.classList.add("hidden");
-      if (labelSpan) labelSpan.textContent = "Login";
+      spinner.classList.add("hidden");
+      submit.querySelector(".login-text").textContent = "Login";
       return;
     }
 
-    // Lyckad login
     location.reload();
   };
 
-  // Forgot password
+  // Forgot password handler
   if (forgot) {
-    forgot.onclick = async (ev) => {
-      ev.preventDefault();
+    forgot.onclick = async () => {
       const e = email.value.trim();
       if (!e) {
         alert("Enter your email first.");
         return;
       }
-
       const { error } = await supabase.auth.resetPasswordForEmail(e);
-      if (error) {
-        alert("Could not send reset email: " + error.message);
-      } else {
-        alert("A reset link has been sent to your email.");
-      }
+      if (error) alert(error.message);
+      else alert("A reset link has been sent to your email.");
     };
   }
 }
 
-// Sidebar-login-knapp öppnar popup
-function setupSidebarAuthButtons() {
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  if (loginBtn) {
-    loginBtn.onclick = () => {
-      showLoginPopup();
-    };
-  }
-
-  if (logoutBtn) {
-    logoutBtn.onclick = async () => {
-      await supabase.auth.signOut();
-      location.reload();
-    };
-  }
-}
+// Sidebar login button → open popup
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("loginBtn");
+  if (btn) btn.onclick = () => showLoginPopup();
+});
 
 // ============================================================
-// FRONTEND GUARD — PROTECT FULL SITE
+// LOGOUT BUTTON
+// ============================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (!logoutBtn) return;
+
+  logoutBtn.onclick = async () => {
+    await supabase.auth.signOut();
+    location.reload();
+  };
+});
+
+// ============================================================
+// FRONTEND GUARD
 // ============================================================
 
 async function guardFrontend() {
-  const { data: { session }, error } = await supabase.auth.getSession();
-
-  if (error) {
-    console.error("getSession error:", error);
-  }
-
+  const { data: { session } } = await supabase.auth.getSession();
   const container = document.querySelector(".container");
 
   if (!session) {
-    // Inte inloggad → göm hela appen, visa login-popup
     if (container) container.style.display = "none";
     showLoginPopup();
     return;
   }
 
-  // Inloggad → visa UI
+  // Logged in
   if (container) container.style.display = "grid";
 
-  // Sidebar + hero
+  // Load sidebar + hero
   buildFrontendSidebar(supabase, loadStores);
   resetToHero();
 }
 
 // ============================================================
-// SEARCH LOGIC
+// SEARCH LOGIC (including realtime search)
 // ============================================================
 
 function setupSearch() {
   const input = document.getElementById("searchInput");
-  const searchBtn = document.getElementById("searchBtn");
-  const clearBtn = document.getElementById("clearBtn");
+  const btn = document.getElementById("searchBtn");
+  const clear = document.getElementById("clearBtn");
 
-  let debounceTimer = null;
+  // Button click
+  btn.onclick = () => loadStores({}, input.value.trim());
 
-  // Live search (debounced)
-  input.addEventListener("input", () => {
-    const term = input.value.trim();
-
-    clearTimeout(debounceTimer);
-
-    debounceTimer = setTimeout(() => {
-      if (term.length === 0) {
-        resetToHero();
-      } else {
-        loadStores({}, term);
-      }
-    }, 280); // perfekt balans: snabbt men inte spammigt
-  });
-
-  // Search button (optional)
-  searchBtn.onclick = () => {
-    const term = input.value.trim();
-    if (term) loadStores({}, term);
-  };
-
-  // Clear button
-  clearBtn.onclick = () => {
+  // Clear
+  clear.onclick = () => {
     input.value = "";
     resetToHero();
   };
 
-  // Enter → do search instantly
+  // Enter key
   input.addEventListener("keyup", (e) => {
     if (e.key === "Enter") {
-      clearTimeout(debounceTimer);
       loadStores({}, input.value.trim());
     }
   });
-}
 
+  // ===============================================
+  // 🔥 REALTIME SEARCH (while typing)
+  // ===============================================
+  input.addEventListener("input", () => {
+    const term = input.value.trim();
+
+    if (term.length === 0) {
+      resetToHero();
+      return;
+    }
+
+    loadStores({}, term);
+  });
+}
 
 // ============================================================
 // INIT
 // ============================================================
 
-supabase.auth.onAuthStateChange(() => {
-  // Om session ändras (login/logout) → kör guard igen
-  guardFrontend();
-});
+supabase.auth.onAuthStateChange(() => guardFrontend());
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Age gate + fake online
-  initAgeGate();
-  initFakeOnline();
-
-  // 2. Auth-knappar i sidebar
-  setupSidebarAuthButtons();
-
-  // 3. Skydda frontenden (visa login eller app)
   guardFrontend();
-
-  // 4. Sök
   setupSearch();
 });
