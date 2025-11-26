@@ -12,91 +12,80 @@ import "./start.js"; // Age gate
 // ============================================================
 
 function showLoginPopup() {
-  const box = document.getElementById("loginPopup");
-  if (!box) return;
+  const popup = document.getElementById("loginPopup");
+  if (!popup) return;
 
-  box.classList.remove("hidden");
+  popup.classList.remove("hidden");
 
-  const emailField = document.getElementById("loginEmail");
-  const passwordField = document.getElementById("loginPassword");
-  const rememberBox = document.getElementById("rememberMe");
-  const submitBtn = document.getElementById("loginSubmit");
+  const email = document.getElementById("loginEmail");
+  const password = document.getElementById("loginPassword");
+  const remember = document.getElementById("rememberMe");
+  const submit = document.getElementById("loginSubmit");
   const spinner = document.getElementById("loginSpinner");
-  const forgotLink = document.getElementById("forgotPassword");
+  const forgot = document.getElementById("forgotPassword");
 
-  // Autofokus
-  if (emailField) setTimeout(() => emailField.focus(), 80);
+  // Autofocus
+  if (email) setTimeout(() => email.focus(), 80);
 
-  // Remember-me autofyll
-  const savedEmail = localStorage.getItem("wcl_saved_email");
-  if (savedEmail) {
-    emailField.value = savedEmail;
-    rememberBox.checked = true;
+  // Load saved email if exist
+  const saved = localStorage.getItem("wcl_saved_email");
+  if (saved) {
+    email.value = saved;
+    remember.checked = true;
   }
 
-  // SUBMIT
-  submitBtn.onclick = async () => {
-    const email = emailField.value.trim();
-    const password = passwordField.value.trim();
+  // Login action
+  submit.onclick = async () => {
+    const e = email.value.trim();
+    const p = password.value.trim();
 
-    if (!email || !password) {
-      alert("Please fill in both fields.");
+    if (!e || !p) {
+      alert("Please enter both email and password.");
       return;
     }
 
-    // Save email
-    if (rememberBox.checked) {
-      localStorage.setItem("wcl_saved_email", email);
-    } else {
-      localStorage.removeItem("wcl_saved_email");
-    }
+    // Save email?
+    if (remember.checked) localStorage.setItem("wcl_saved_email", e);
+    else localStorage.removeItem("wcl_saved_email");
 
-    // Spinner ON
-    submitBtn.disabled = true;
+    // UI lock
+    submit.disabled = true;
+    submit.querySelector(".login-text").textContent = "Logging in…";
     spinner.classList.remove("hidden");
-    submitBtn.querySelector(".login-text").textContent = "Logging in…";
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+    // Try login
+    const { error } = await supabase.auth.signInWithPassword({ email: e, password: p });
 
     if (error) {
       alert("Login failed: " + error.message);
-      submitBtn.disabled = false;
+      submit.disabled = false;
       spinner.classList.add("hidden");
-      submitBtn.querySelector(".login-text").textContent = "Login";
+      submit.querySelector(".login-text").textContent = "Login";
       return;
     }
 
     location.reload();
   };
 
-  // RESET PASSWORD
-  if (forgotLink) {
-    forgotLink.onclick = async () => {
-      const email = emailField.value.trim();
-      if (!email) {
+  // Forgot password
+  if (forgot) {
+    forgot.onclick = async () => {
+      const e = email.value.trim();
+      if (!e) {
         alert("Enter your email first.");
         return;
       }
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
-
-      if (error) {
-        alert("Could not send reset email: " + error.message);
-        return;
-      }
-
-      alert("A reset link has been sent to your email.");
+      const { error } = await supabase.auth.resetPasswordForEmail(e);
+      if (error) alert(error.message);
+      else alert("A reset link has been sent to your email.");
     };
   }
 }
 
-// Sidebar login button
+// Sidebar login button opens popup
 document.addEventListener("DOMContentLoaded", () => {
-  const loginBtn = document.getElementById("loginBtn");
-  if (loginBtn) loginBtn.onclick = showLoginPopup;
+  const btn = document.getElementById("loginBtn");
+  if (btn) btn.onclick = () => showLoginPopup();
 });
 
 // ============================================================
@@ -105,60 +94,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.onclick = async () => {
-      await supabase.auth.signOut();
-      location.reload();
-    };
-  }
+  if (!logoutBtn) return;
+
+  logoutBtn.onclick = async () => {
+    await supabase.auth.signOut();
+    location.reload();
+  };
 });
 
 // ============================================================
-// FRONTEND GUARD — PROTECTS PUBLIC SITE
+// FRONTEND GUARD — PROTECT FULL SITE
 // ============================================================
 
 async function guardFrontend() {
   const { data: { session } } = await supabase.auth.getSession();
 
-  if (!session) {
-    // Hide UI
-    const container = document.querySelector(".container");
-    if (container) container.style.display = "none";
+  const container = document.querySelector(".container");
 
+  if (!session) {
+    if (container) container.style.display = "none";
     showLoginPopup();
     return;
   }
 
-  // Show UI
-  const container = document.querySelector(".container");
+  // Logged in
   if (container) container.style.display = "grid";
 
+  // Sidebar + hero
   buildFrontendSidebar(supabase, loadStores);
   resetToHero();
 }
 
 // ============================================================
-// SEARCH
+// SEARCH LOGIC
 // ============================================================
 
 function setupSearch() {
-  const searchBtn = document.getElementById("searchBtn");
-  const clearBtn = document.getElementById("clearBtn");
-  const searchInput = document.getElementById("searchInput");
+  const input = document.getElementById("searchInput");
+  const btn = document.getElementById("searchBtn");
+  const clear = document.getElementById("clearBtn");
 
-  if (searchBtn)
-    searchBtn.onclick = () => loadStores({}, searchInput.value.trim());
+  btn.onclick = () => loadStores({}, input.value.trim());
 
-  if (clearBtn)
-    clearBtn.onclick = () => {
-      searchInput.value = "";
-      resetToHero();
-    };
+  clear.onclick = () => {
+    input.value = "";
+    resetToHero();
+  };
 
-  searchInput?.addEventListener("keyup", (e) => {
-    if (e.key === "Enter") {
-      loadStores({}, searchInput.value.trim());
-    }
+  input.addEventListener("keyup", (e) => {
+    if (e.key === "Enter") loadStores({}, input.value.trim());
   });
 }
 
