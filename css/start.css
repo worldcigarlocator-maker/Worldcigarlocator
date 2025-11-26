@@ -372,9 +372,12 @@ body {
 }
 .hero-bg {
   width: 100%;
-  height: 100%;
-  object-fit: none;        /* Ingen beskärning, ingen zoom */
-  object-position: center; /* Alltid centrerad */
+  height: auto;
+  display: block;         /* eliminerar whitespace */
+  object-fit: contain;    /* hela bilden alltid synlig */
+  object-position: center;
+  filter: brightness(0.7);
+
 }
 .hero::after {
   content: "";
