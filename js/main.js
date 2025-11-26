@@ -27,14 +27,16 @@ function showLoginPopup() {
   // Autofocus
   if (email) setTimeout(() => email.focus(), 80);
 
-  // Load saved email if exist
+  // Load saved email
   const saved = localStorage.getItem("wcl_saved_email");
   if (saved) {
     email.value = saved;
     remember.checked = true;
   }
 
-  // Login action
+  // -------------------------
+  // LOGIN ACTION
+  // -------------------------
   submit.onclick = async () => {
     const e = email.value.trim();
     const p = password.value.trim();
@@ -44,17 +46,19 @@ function showLoginPopup() {
       return;
     }
 
-    // Save email?
+    // Remember me
     if (remember.checked) localStorage.setItem("wcl_saved_email", e);
     else localStorage.removeItem("wcl_saved_email");
 
-    // UI lock
+    // Lock UI
     submit.disabled = true;
     submit.querySelector(".login-text").textContent = "Logging in…";
     spinner.classList.remove("hidden");
 
-    // Try login
-    const { error } = await supabase.auth.signInWithPassword({ email: e, password: p });
+    const { error } = await supabase.auth.signInWithPassword({
+      email: e,
+      password: p
+    });
 
     if (error) {
       alert("Login failed: " + error.message);
@@ -67,7 +71,9 @@ function showLoginPopup() {
     location.reload();
   };
 
-  // Forgot password
+  // -------------------------
+  // FORGOT PASSWORD
+  // -------------------------
   if (forgot) {
     forgot.onclick = async () => {
       const e = email.value.trim();
@@ -75,14 +81,17 @@ function showLoginPopup() {
         alert("Enter your email first.");
         return;
       }
+
       const { error } = await supabase.auth.resetPasswordForEmail(e);
-      if (error) alert(error.message);
+      if (error) alert("Could not send reset email: " + error.message);
       else alert("A reset link has been sent to your email.");
     };
   }
 }
 
-// Sidebar login button opens popup
+// ------------------------------------------------------------
+// OPEN POPUP WHEN CLICKING LOGIN IN SIDEBAR
+// ------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("loginBtn");
   if (btn) btn.onclick = () => showLoginPopup();
@@ -117,10 +126,9 @@ async function guardFrontend() {
     return;
   }
 
-  // Logged in
+  // AUTH OK → SHOW UI
   if (container) container.style.display = "grid";
 
-  // Sidebar + hero
   buildFrontendSidebar(supabase, loadStores);
   resetToHero();
 }
