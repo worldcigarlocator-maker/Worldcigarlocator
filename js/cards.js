@@ -1,30 +1,25 @@
 // ============================================================
-// CARDS.JS — Render + Store Loading + Hero Reset (Stable v2025)
+// CARDS.JS — FINAL VERSION FOR stores_frontend_public_v4
 // ============================================================
 
 import { supabase } from "./globals.js";
 
-// Flag used to avoid DOM race conditions
 let DOM_READY = false;
 document.addEventListener("DOMContentLoaded", () => DOM_READY = true);
 
-
-/* ============================================================
-   DOM Resolution Helper (WAIT UNTIL DOM EXISTS)
-============================================================ */
+/* ------------------------------------------------------------
+   DOM SAFE SELECTOR
+------------------------------------------------------------ */
 function dom(sel) {
-  const el = qs(sel);
-  if (!el) console.warn("DOM element not ready:", sel);
-  return el;
+  return document.querySelector(sel);
 }
 
-
-/* ============================================================
-   RESET TO HERO VIEW
-============================================================ */
+/* ------------------------------------------------------------
+   RESET TO HERO
+------------------------------------------------------------ */
 export function resetToHero() {
+
   if (!DOM_READY) {
-    // Retry once DOM is ready
     document.addEventListener("DOMContentLoaded", resetToHero, { once: true });
     return;
   }
@@ -35,28 +30,24 @@ export function resetToHero() {
   const heroImage = dom("#heroImage");
   const showAll = dom("#showAllBtn");
 
-  if (!grid) return;
-
-  // Hide result section
+  if (grid) grid.innerHTML = "";
   if (heading) heading.style.display = "none";
   if (showAll) showAll.style.display = "none";
 
-  // Clear stores
-  grid.innerHTML = "";
-
-  // Show hero
   if (heroText) heroText.style.display = "";
   if (heroImage) heroImage.style.display = "";
 }
 
+/* ------------------------------------------------------------
+   CARD HTML BUILDER
+------------------------------------------------------------ */
 
-/* ============================================================
-   CLEAN CARD HTML BUILDER
-============================================================ */
 function cardHTML(store) {
+  const photo = store.photo_final_url || "images/store.jpg";
+
   return `
     <div class="card">
-      <img class="card-photo" src="${store.photo_url || 'images/store.jpg'}" alt="">
+      <img class="card-photo" src="${photo}" alt="${store.name}">
       <div class="card-info">
         <h3>${store.name}</h3>
         <p>${store.city}, ${store.country}</p>
@@ -65,10 +56,9 @@ function cardHTML(store) {
   `;
 }
 
-
-/* ============================================================
-   RENDER CARDS INTO GRID
-============================================================ */
+/* ------------------------------------------------------------
+   RENDER CARDS
+------------------------------------------------------------ */
 function renderCards(stores) {
   const grid = dom("#storeGrid");
   if (!grid) return;
@@ -76,13 +66,11 @@ function renderCards(stores) {
   grid.innerHTML = stores.map(cardHTML).join("");
 }
 
-
-/* ============================================================
-   LOAD STORES (stable version)
-// ============================================================ */
+/* ------------------------------------------------------------
+   LOAD STORES (MATCHES YOUR TABLE)
+------------------------------------------------------------ */
 export async function loadStores(filters = {}, search = "") {
 
-  // Wait for DOM
   if (!DOM_READY) {
     document.addEventListener("DOMContentLoaded", () => loadStores(filters, search), { once: true });
     return;
@@ -94,20 +82,21 @@ export async function loadStores(filters = {}, search = "") {
   const heroImage = dom("#heroImage");
   const showAll = dom("#showAllBtn");
 
-  if (!grid || !heading) return;
-
-  // Switch to result UI
+  // Hide hero, show result-heading
   if (heroText) heroText.style.display = "none";
   if (heroImage) heroImage.style.display = "none";
 
-  heading.style.display = "block";
-  heading.textContent = "Loading…";
-  grid.innerHTML = "";
+  if (heading) {
+    heading.style.display = "block";
+    heading.textContent = "Loading…";
+  }
 
-  // Start query
+  if (grid) grid.innerHTML = "";
+
+  // Build query
   let query = supabase.from("stores_frontend_public_v4").select("*");
 
-  // TEXT SEARCH
+  // Search (name, city, country)
   if (search) {
     query = query.or(`
       name.ilike.%${search}%,
@@ -116,7 +105,7 @@ export async function loadStores(filters = {}, search = "") {
     `);
   }
 
-  // FILTERS
+  // Filters
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country)   query = query.eq("country", filters.country);
   if (filters.city)      query = query.eq("city", filters.city);
@@ -124,8 +113,8 @@ export async function loadStores(filters = {}, search = "") {
   const { data, error } = await query;
 
   if (error) {
-    heading.textContent = "Error loading stores";
-    console.error(error);
+    console.error("Error loading stores:", error);
+    heading.textContent = "Error loading stores.";
     return;
   }
 
@@ -134,13 +123,15 @@ export async function loadStores(filters = {}, search = "") {
     return;
   }
 
-  // Render
-  heading.textContent = `${data.length} locations found`;
+  // Render results
   renderCards(data);
 
-  // Show All button if needed
+  heading.textContent = `${data.length} locations found`;
+
+  // Show "Show All" if filtered
   if (showAll) {
-    showAll.style.display = search || Object.keys(filters).length ? "inline-block" : "none";
+    const filtered = search || Object.keys(filters).length > 0;
+    showAll.style.display = filtered ? "inline-block" : "none";
     showAll.onclick = resetToHero;
   }
 }
