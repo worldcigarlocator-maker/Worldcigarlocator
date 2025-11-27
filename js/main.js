@@ -2,32 +2,40 @@
 // MAIN.JS — FRONTEND AUTH + LOGIN POPUP + INITIALIZATION
 // ============================================================
 
-import { supabase, qs } from "./globals.js";
+// ---- Global Element Selectors ----
+window.qs  = (sel) => document.querySelector(sel);
+window.qsa = (sel) => document.querySelectorAll(sel);
+
+import { supabase } from "./globals.js";
 import { loadStores, resetToHero } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
-import "./start.js"; // endast age gate + online - INTE sidebar!
+import "./start.js"; // age gate + online tracker
+
 
 /* ============================================================
    LOGIN POPUP
 ============================================================ */
 function showLoginPopup() {
-  const popup = qs("loginPopup");
+  const popup = qs("#loginPopup");
   popup.classList.remove("hidden");
 
-  const email = qs("loginEmail");
-  const pass = qs("loginPassword");
-  const remember = qs("rememberMe");
-  const btn = qs("loginSubmit");
-  const spinner = qs("loginSpinner");
+  const email    = qs("#loginEmail");
+  const pass     = qs("#loginPassword");
+  const remember = qs("#rememberMe");
+  const btn      = qs("#loginSubmit");
+  const spinner  = qs("#loginSpinner");
 
+  // Autofocus
   setTimeout(() => email?.focus(), 80);
 
+  // Load saved email
   const saved = localStorage.getItem("wcl_saved_email");
   if (saved) {
     email.value = saved;
     remember.checked = true;
   }
 
+  // Login handler
   btn.onclick = async () => {
     const e = email.value.trim();
     const p = pass.value.trim();
@@ -37,72 +45,79 @@ function showLoginPopup() {
       return;
     }
 
-    // Save email
+    // Save email to localStorage
     if (remember.checked) localStorage.setItem("wcl_saved_email", e);
     else localStorage.removeItem("wcl_saved_email");
 
     // UI lock
     btn.disabled = true;
     spinner.classList.remove("hidden");
-    btn.querySelector(".login-text").textContent = "Logging in…";
+    qs(".login-text").textContent = "Logging in…";
 
-    const { error } = await supabase.auth.signInWithPassword({ email: e, password: p });
+    // Try to authenticate
+    const { error } = await supabase.auth.signInWithPassword({
+      email: e,
+      password: p,
+    });
 
     if (error) {
       alert("Login failed: " + error.message);
       btn.disabled = false;
       spinner.classList.add("hidden");
-      btn.querySelector(".login-text").textContent = "Login";
+      qs(".login-text").textContent = "Login";
       return;
     }
 
+    // Success → reload UI
     location.reload();
   };
 }
 
+
 /* ============================================================
    LOGOUT
 ============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  const logout = qs("logoutBtn");
+function setupLogout() {
+  const logout = qs("#logoutBtn");
   if (!logout) return;
 
   logout.onclick = async () => {
     await supabase.auth.signOut();
     location.reload();
   };
-});
+}
+
 
 /* ============================================================
    PROTECT FRONTEND
 ============================================================ */
 async function guard() {
   const { data: { session } } = await supabase.auth.getSession();
-  const container = document.querySelector(".container");
+  const container = qs(".container");
 
   if (!session) {
-    container.style.display = "none"; // hide UI
+    container.style.display = "none";
     showLoginPopup();
     return;
   }
 
-  // logged in → allow CSS to control layout
+  // Logged in → show UI
   container.style.removeProperty("display");
 
-  // Load sidebar + hero
+  // Initialize sidebar + hero view
   buildFrontendSidebar(supabase, loadStores);
   resetToHero();
 }
 
+
 /* ============================================================
-   REALTIME SEARCH
+   SEARCH
 ============================================================ */
 function setupSearch() {
-  const input = qs("searchInput");
-  const searchBtn = qs("searchBtn");
-  const clearBtn = qs("clearBtn");
+  const input = qs("#searchInput");
+  const searchBtn = qs("#searchBtn");
+  const clearBtn = qs("#clearBtn");
 
-  input.addEventListener("input", () => loadStores({}, input.value.trim()));
   searchBtn.onclick = () => loadStores({}, input.value.trim());
 
   clearBtn.onclick = () => {
@@ -110,17 +125,30 @@ function setupSearch() {
     resetToHero();
   };
 
+  input.addEventListener("input", () => {
+    if (input.value.trim().length > 0) {
+      loadStores({}, input.value.trim());
+    }
+  });
+
   input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") loadStores({}, input.value.trim());
+    if (e.key === "Enter") {
+      loadStores({}, input.value.trim());
+    }
   });
 }
+
 
 /* ============================================================
    INIT
 ============================================================ */
+
+// re-run guard on auth state change
 supabase.auth.onAuthStateChange(() => guard());
 
+// DOM loaded
 document.addEventListener("DOMContentLoaded", () => {
-  guard();
+  setupLogout();
   setupSearch();
+  guard();
 });
