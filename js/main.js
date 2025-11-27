@@ -1,7 +1,11 @@
+// ============================================================
+// MAIN.JS — FRONTEND AUTH + LOGIN POPUP + INITIALIZATION
+// ============================================================
+
 import { supabase, qs } from "./globals.js";
 import { loadStores, resetToHero } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
-import "./start.js"; // age gate + online
+import "./start.js"; // endast age gate + online - INTE sidebar!
 
 /* ============================================================
    LOGIN POPUP
@@ -25,25 +29,24 @@ function showLoginPopup() {
   }
 
   btn.onclick = async () => {
-    if (!email.value || !pass.value) {
+    const e = email.value.trim();
+    const p = pass.value.trim();
+
+    if (!e || !p) {
       alert("Please fill in all fields.");
       return;
     }
 
-    if (remember.checked) {
-      localStorage.setItem("wcl_saved_email", email.value);
-    } else {
-      localStorage.removeItem("wcl_saved_email");
-    }
+    // Save email
+    if (remember.checked) localStorage.setItem("wcl_saved_email", e);
+    else localStorage.removeItem("wcl_saved_email");
 
+    // UI lock
     btn.disabled = true;
     spinner.classList.remove("hidden");
     btn.querySelector(".login-text").textContent = "Logging in…";
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.value.trim(),
-      password: pass.value.trim()
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email: e, password: p });
 
     if (error) {
       alert("Login failed: " + error.message);
@@ -62,28 +65,31 @@ function showLoginPopup() {
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
   const logout = qs("logoutBtn");
-  if (logout) {
-    logout.onclick = async () => {
-      await supabase.auth.signOut();
-      location.reload();
-    };
-  }
+  if (!logout) return;
+
+  logout.onclick = async () => {
+    await supabase.auth.signOut();
+    location.reload();
+  };
 });
 
 /* ============================================================
-   GUARD (Block public)
+   PROTECT FRONTEND
 ============================================================ */
 async function guard() {
   const { data: { session } } = await supabase.auth.getSession();
   const container = document.querySelector(".container");
 
   if (!session) {
-    container.style.display = "none";
+    container.style.display = "none"; // hide UI
     showLoginPopup();
     return;
   }
 
-  container.style.display = "grid";
+  // logged in → allow CSS to control layout
+  container.style.removeProperty("display");
+
+  // Load sidebar + hero
   buildFrontendSidebar(supabase, loadStores);
   resetToHero();
 }
@@ -97,7 +103,6 @@ function setupSearch() {
   const clearBtn = qs("clearBtn");
 
   input.addEventListener("input", () => loadStores({}, input.value.trim()));
-
   searchBtn.onclick = () => loadStores({}, input.value.trim());
 
   clearBtn.onclick = () => {
