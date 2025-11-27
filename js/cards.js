@@ -16,7 +16,7 @@ function dom(sel) {
 }
 
 /* ------------------------------------------------------------
-   FLAG (ISO2) — matches your assets folder
+   FLAG (ISO2) — matches your /assets/flags/xx.svg
 ------------------------------------------------------------ */
 function getFlagUrl(store) {
   if (!store.country_iso2) return null;
@@ -51,7 +51,7 @@ export function resetToHero() {
 
 /* ------------------------------------------------------------
    PREMIUM CARD HTML (matches cards.css)
-// ============================================================ */
+------------------------------------------------------------ */
 function cardHTML(s) {
   const FALLBACK_PHOTO = "images/store.jpg";
   const imgSrc = s.photo_final_url || FALLBACK_PHOTO;
@@ -61,6 +61,7 @@ function cardHTML(s) {
   const typeBadge = s.type
     ? `<span class="badge blue">${s.type}</span>`
     : "";
+
   const accessBadge = s.access
     ? `<span class="badge access ${s.access}">${s.access}</span>`
     : "";
@@ -81,6 +82,7 @@ function cardHTML(s) {
       />
 
       <div class="store-body">
+
         <h3 class="store-title">${s.name || "Unnamed location"}</h3>
 
         <div class="badge-row">
@@ -92,11 +94,11 @@ function cardHTML(s) {
 
         <div class="locrow">
           <div class="loc-top">
-           ${
-  flagUrl
-    ? `<img src="${flagUrl}" class="flag" alt="${s.country}" />`
-    : ""
-}
+            ${
+              flagUrl
+                ? `<img src="${flagUrl}" class="flag" alt="${s.country}" />`
+                : ""
+            }
             <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
           </div>
           <p class="continent-label">${s.continent || ""}</p>
@@ -128,7 +130,6 @@ function cardHTML(s) {
 function renderCards(list) {
   const grid = dom("#storeGrid");
   if (!grid) return;
-
   grid.innerHTML = list.map(cardHTML).join("");
 }
 
@@ -141,7 +142,7 @@ export function renderStores(list) {
 
 /* ------------------------------------------------------------
    LOAD STORES (v4 TABLE)
-// ============================================================ */
+------------------------------------------------------------ */
 export async function loadStores(filters = {}, search = "") {
   if (!DOM_READY) {
     document.addEventListener(
@@ -158,9 +159,10 @@ export async function loadStores(filters = {}, search = "") {
   const hero = dom("#heroImage");
   const heroText = dom("#heroText");
 
-  // Switch from hero → results
+  // Hide hero
   if (hero) hero.style.display = "none";
   if (heroText) heroText.style.display = "none";
+
   if (heading) {
     heading.style.display = "block";
     heading.textContent = "Loading…";
@@ -169,7 +171,7 @@ export async function loadStores(filters = {}, search = "") {
   if (grid) grid.innerHTML = "";
   if (showAllBtn) showAllBtn.style.display = "none";
 
-  // Query
+  // Query table
   let query = supabase.from("stores_frontend_public_v4").select("*");
 
   // Search
@@ -206,7 +208,7 @@ export async function loadStores(filters = {}, search = "") {
 
   heading.textContent = `${data.length} results`;
 
-  // Show ALL inside filtered state
+  // Show "Show All" button if filtered
   if (showAllBtn) {
     const filtered = search || Object.keys(filters).length > 0;
     showAllBtn.style.display = filtered ? "inline-block" : "none";
