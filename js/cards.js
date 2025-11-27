@@ -77,7 +77,6 @@ const stars = `
   <span class="rating-count">(${count})</span>
 `;
 
-
   return `
     <article class="store-card">
       <img
