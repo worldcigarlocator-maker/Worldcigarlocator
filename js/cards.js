@@ -45,7 +45,8 @@ export function resetToHero() {
 const heading = qs("#resultHeading");
   const showAllBtn = qs("showAllBtn");
   const hero = qs("heroImage");
-  const heroText = qs("heroText");
+  const heroText = qs("#heroText")
+
 
   if (grid) grid.innerHTML = "";
   if (heading) heading.style.display = "none";
