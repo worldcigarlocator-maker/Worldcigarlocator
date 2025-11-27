@@ -134,20 +134,18 @@
 </div>
 
 <!-- ============================================================
-     JS (LOAD ORDER IS CRITICAL)
+     JS
 ============================================================ -->
 
-<!-- 1) Supabase SDK (måste laddas först!) -->
+<!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- 2) Globals.js (skapar Supabase-klienten) -->
-<script type="module" src="js/globals.js"></script>
+<!-- Ladda globals först -->
+<script type="module" src="/js/globals.js"></script>
 
-<!-- 3) Alla andra moduler som använder supabase -->
-<script type="module" src="js/sidebar.js"></script>
-<script type="module" src="js/cards.js"></script>
-<script type="module" src="js/start.js"></script>
-<script type="module" src="js/main.js"></script>
+<!-- Ladda main.js sist -->
+<script type="module" src="/js/main.js"></script>
+
 
 </body>
 </html>
