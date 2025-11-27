@@ -1,73 +1,96 @@
 /* ============================================================
-   PREMIUM STORE CARD GRID
+   WCL PREMIUM CARD GRID
 ============================================================ */
 
 .store-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
-  gap: 1.5rem;
-  padding: 1rem;
+  gap: 1.6rem;
+  padding: 1.5rem;
+  justify-items: center;
+  box-sizing: border-box;
+  width: 100%;
 }
 
-/* Card */
+/* ============================================================
+   STORE CARD (fixed size, premium)
+============================================================ */
 .store-card {
+  width: 265px;
+  height: 560px; /* längre kort */
   background: #111;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+
+  border: 1px solid rgba(255,215,0,0.4); /* GULD-RAM */
+  /* För silver: rgba(200,200,200,0.45) */
+
+  box-shadow: 0 6px 22px rgba(0,0,0,0.45);
   transition: transform .2s ease, box-shadow .2s ease;
 }
 
 .store-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.55);
 }
 
-/* Image */
+/* ============================================================
+   CARD IMAGE (fixed height)
+============================================================ */
 .store-img {
   width: 100%;
-  height: 220px;
+  height: 200px; /* fast bildhöjd */
   object-fit: cover;
   display: block;
+  flex-shrink: 0;
 }
 
-/* Body */
+/* ============================================================
+   BODY
+============================================================ */
 .store-body {
-  padding: 1rem;
+  padding: 1rem 1.1rem;
   display: flex;
   flex-direction: column;
-  gap: .5rem;
+  gap: 0.45rem;
+  flex: 1;
 }
 
 /* Title */
 .store-title {
-  font-size: 1rem;
+  color: #fff;
+  font-size: 1.05rem;
   font-weight: 600;
   margin: 0;
-  color: #fff;
+  line-height: 1.25rem;
+  min-height: 2.4rem; /* så alla titlar blir lika höga */
 }
 
-/* Badges */
+/* ============================================================
+   BADGES
+============================================================ */
 .badge-row {
   display: flex;
-  gap: .35rem;
   flex-wrap: wrap;
+  gap: .35rem;
+  margin-bottom: .25rem;
 }
 
 .badge {
-  padding: .15rem .45rem;
+  padding: .18rem .45rem;
   border-radius: 999px;
   font-size: .65rem;
   text-transform: uppercase;
-  background: rgba(255,255,255,0.1);
+  letter-spacing: .05em;
+  background: rgba(255,255,255,0.08);
   color: #eee;
 }
 
 .badge.blue {
   background: rgba(0,160,255,0.28);
-  color: #cceaff;
+  color: #cfeaff;
 }
 
 .badge.access.public {
@@ -75,18 +98,30 @@
   color: #c8f9df;
 }
 
-/* Stars */
+.badge.access.private {
+  background: rgba(255,80,80,0.25);
+  color: #ffd6d6;
+}
+
+/* ============================================================
+   STARS + RATING
+============================================================ */
 .stars {
-  font-size: .85rem;
-  color: #ffd65c;
+  font-size: .9rem;
+  color: #ffd666;
+  letter-spacing: 1px;
+  line-height: 1rem;
 }
 
-.no-rating {
-  color: #777;
-  font-style: italic;
+.rating-count {
+  font-size: .75rem;
+  color: #aaa;
+  margin-left: 3px;
 }
 
-/* Location */
+/* ============================================================
+   LOCATION
+============================================================ */
 .locrow {
   margin-top: .25rem;
 }
@@ -105,33 +140,50 @@
 }
 
 .continent-label {
+  margin: .1rem 0 0;
   font-size: .75rem;
   color: #888;
-  margin: .15rem 0 0;
 }
 
-/* Info block */
+/* ============================================================
+   INFO BLOCK (Address, Phone, Website)
+============================================================ */
 .infoblock {
   margin-top: .4rem;
   display: flex;
   flex-direction: column;
-  gap: .15rem;
+  gap: .18rem;
 }
 
 .info-row {
   margin: 0;
-  font-size: .8rem;
-  color: #bbb;
+  font-size: .83rem;
+  color: #ccc;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Comments button */
+.infoblock strong {
+  color: #fff;
+}
+
+/* Website links */
+.infoblock a {
+  color: #ffd666;
+  text-decoration: none;
+}
+.infoblock a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================
+   COMMENTS BUTTON
+============================================================ */
 .reviews-btn {
-  margin-top: .5rem;
+  margin-top: auto;
   align-self: flex-start;
-  padding: .25rem .7rem;
+  padding: .3rem .75rem;
   border-radius: 999px;
   background: rgba(255,255,255,0.08);
   color: #eee;
@@ -142,4 +194,20 @@
 
 .reviews-btn:hover {
   background: rgba(255,255,255,0.16);
+}
+
+/* ============================================================
+   RESULT HEADER
+============================================================ */
+#resultHeading {
+  font-size: 1.2rem;
+  font-weight: 600;
+  padding-left: 1.3rem;
+  margin-top: 1rem;
+  color: #fff;
+}
+
+#showAllBtn {
+  margin: .5rem auto;
+  display: none;
 }
