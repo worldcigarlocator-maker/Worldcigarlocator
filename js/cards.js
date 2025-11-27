@@ -1,24 +1,44 @@
 // ============================================================
-// CARDS.JS — FINAL VERSION FOR stores_frontend_public_v4
+// CARDS.JS — PREMIUM VERSION (matches cards.css)
+// For table: stores_frontend_public_v4
 // ============================================================
 
 import { supabase } from "./globals.js";
 
 let DOM_READY = false;
-document.addEventListener("DOMContentLoaded", () => DOM_READY = true);
+document.addEventListener("DOMContentLoaded", () => (DOM_READY = true));
 
 /* ------------------------------------------------------------
-   DOM SAFE SELECTOR
+   DOM HELPER
 ------------------------------------------------------------ */
 function dom(sel) {
   return document.querySelector(sel);
 }
 
 /* ------------------------------------------------------------
+   FLAG ALIASES
+------------------------------------------------------------ */
+const FLAG_ALIASES = {
+  "united states": "united-states",
+  "united states of america": "united-states",
+  usa: "united-states",
+  "united kingdom": "united-kingdom",
+  uk: "united-kingdom",
+  "czech republic": "czechia",
+  "viet nam": "vietnam",
+};
+
+function getFlagSlug(country) {
+  if (!country) return null;
+  const raw = country.toLowerCase().trim();
+  if (FLAG_ALIASES[raw]) return FLAG_ALIASES[raw];
+  return raw.replaceAll(" ", "-");
+}
+
+/* ------------------------------------------------------------
    RESET TO HERO
 ------------------------------------------------------------ */
 export function resetToHero() {
-
   if (!DOM_READY) {
     document.addEventListener("DOMContentLoaded", resetToHero, { once: true });
     return;
@@ -26,77 +46,145 @@ export function resetToHero() {
 
   const grid = dom("#storeGrid");
   const heading = dom("#resultHeading");
+  const showAllBtn = dom("#showAllBtn");
+  const hero = dom("#heroImage");
   const heroText = dom("#heroText");
-  const heroImage = dom("#heroImage");
-  const showAll = dom("#showAllBtn");
 
   if (grid) grid.innerHTML = "";
-  if (heading) heading.style.display = "none";
-  if (showAll) showAll.style.display = "none";
+  if (heading) {
+    heading.style.display = "none";
+    heading.textContent = "";
+  }
+  if (showAllBtn) showAllBtn.style.display = "none";
 
-  if (heroText) heroText.style.display = "";
-  if (heroImage) heroImage.style.display = "";
+  if (hero) hero.style.display = "block";
+  if (heroText) heroText.style.display = "block";
 }
 
 /* ------------------------------------------------------------
-   CARD HTML BUILDER
------------------------------------------------------------- */
+   PREMIUM CARD HTML (matches cards.css)
+// ============================================================ */
+function cardHTML(s) {
+  const FALLBACK_PHOTO = "images/store.jpg";
+  const imgSrc = s.photo_final_url || FALLBACK_PHOTO;
+  const flagSlug = getFlagSlug(s.country);
 
-function cardHTML(store) {
-  const photo = store.photo_final_url || "images/store.jpg";
+  // Badges
+  const typeBadge = s.type
+    ? `<span class="badge blue">${s.type}</span>`
+    : "";
+  const accessBadge = s.access
+    ? `<span class="badge access ${s.access}">${s.access}</span>`
+    : "";
+
+  // Stars
+  const stars =
+    s.rating_avg && Number(s.rating_avg) > 0
+      ? "★".repeat(Math.round(Number(s.rating_avg)))
+      : `<span class="no-rating">No rating yet</span>`;
 
   return `
-    <div class="card">
-      <img class="card-photo" src="${photo}" alt="${store.name}">
-      <div class="card-info">
-        <h3>${store.name}</h3>
-        <p>${store.city}, ${store.country}</p>
+    <article class="store-card">
+      <img
+        src="${imgSrc}"
+        class="store-img"
+        alt="${s.name}"
+        onerror="this.onerror=null;this.src='${FALLBACK_PHOTO}';"
+      />
+
+      <div class="store-body">
+        <h3 class="store-title">${s.name || "Unnamed location"}</h3>
+
+        <div class="badge-row">
+          ${typeBadge}
+          ${accessBadge}
+        </div>
+
+        <div class="stars">${stars}</div>
+
+        <div class="locrow">
+          <div class="loc-top">
+            ${
+              flagSlug
+                ? `<img src="assets/flags/${flagSlug}.svg" class="flag" alt="${s.country}" />`
+                : ""
+            }
+            <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
+          </div>
+          <p class="continent-label">${s.continent || ""}</p>
+        </div>
+
+        <div class="infoblock">
+          <p class="info-row">${s.address || ""}</p>
+          <p class="info-row">${s.phone || ""}</p>
+          <p class="info-row">
+            ${
+              s.website
+                ? `<a href="${s.website}" target="_blank" rel="noopener">Visit website</a>`
+                : ""
+            }
+          </p>
+        </div>
+
+        <button class="reviews-btn">
+          Comments (${s.comment_count || 0})
+        </button>
       </div>
-    </div>
+    </article>
   `;
 }
 
 /* ------------------------------------------------------------
-   RENDER CARDS
+   RENDER STORES
 ------------------------------------------------------------ */
-function renderCards(stores) {
+function renderCards(list) {
   const grid = dom("#storeGrid");
   if (!grid) return;
 
-  grid.innerHTML = stores.map(cardHTML).join("");
+  grid.innerHTML = list.map(cardHTML).join("");
 }
 
 /* ------------------------------------------------------------
-   LOAD STORES (MATCHES YOUR TABLE)
+   EXPORTED WRAPPER (NEEDED FOR main.js)
 ------------------------------------------------------------ */
-export async function loadStores(filters = {}, search = "") {
+export function renderStores(list) {
+  renderCards(list);
+}
 
+/* ------------------------------------------------------------
+   LOAD STORES (v4 TABLE)
+// ============================================================ */
+export async function loadStores(filters = {}, search = "") {
   if (!DOM_READY) {
-    document.addEventListener("DOMContentLoaded", () => loadStores(filters, search), { once: true });
+    document.addEventListener(
+      "DOMContentLoaded",
+      () => loadStores(filters, search),
+      { once: true }
+    );
     return;
   }
 
   const grid = dom("#storeGrid");
   const heading = dom("#resultHeading");
+  const showAllBtn = dom("#showAllBtn");
+  const hero = dom("#heroImage");
   const heroText = dom("#heroText");
-  const heroImage = dom("#heroImage");
-  const showAll = dom("#showAllBtn");
 
-  // Hide hero, show result-heading
+  // Switch from hero → results
+  if (hero) hero.style.display = "none";
   if (heroText) heroText.style.display = "none";
-  if (heroImage) heroImage.style.display = "none";
-
   if (heading) {
     heading.style.display = "block";
     heading.textContent = "Loading…";
   }
 
   if (grid) grid.innerHTML = "";
+  if (showAllBtn) showAllBtn.style.display = "none";
 
-  // Build query
+  // Query
   let query = supabase.from("stores_frontend_public_v4").select("*");
 
-  // Search (name, city, country)
+  // Search
   if (search) {
     query = query.or(`
       name.ilike.%${search}%,
@@ -107,32 +195,33 @@ export async function loadStores(filters = {}, search = "") {
 
   // Filters
   if (filters.continent) query = query.eq("continent", filters.continent);
-  if (filters.country)   query = query.eq("country", filters.country);
-  if (filters.city)      query = query.eq("city", filters.city);
+  if (filters.country) query = query.eq("country", filters.country);
+  if (filters.city) query = query.eq("city", filters.city);
 
-  const { data, error } = await query;
+  const { data, error } = await query.order("created_at", {
+    ascending: false,
+  });
 
   if (error) {
-    console.error("Error loading stores:", error);
+    console.error("Load error:", error);
     heading.textContent = "Error loading stores.";
     return;
   }
 
-  if (!data || data.length === 0) {
+  if (!data?.length) {
     heading.textContent = "No results found.";
     return;
   }
 
-  // Render results
+  // Render
   renderCards(data);
 
-  heading.textContent = `${data.length} locations found`;
+  heading.textContent = `${data.length} results`;
 
-  // Show "Show All" if filtered
-  if (showAll) {
+  // Show ALL inside filtered state
+  if (showAllBtn) {
     const filtered = search || Object.keys(filters).length > 0;
-    showAll.style.display = filtered ? "inline-block" : "none";
-    showAll.onclick = resetToHero;
+    showAllBtn.style.display = filtered ? "inline-block" : "none";
+    showAllBtn.onclick = resetToHero;
   }
 }
-
