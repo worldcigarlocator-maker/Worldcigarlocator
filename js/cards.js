@@ -66,11 +66,17 @@ function cardHTML(s) {
     ? `<span class="badge access ${s.access}">${s.access}</span>`
     : "";
 
-  // Stars
-  const stars =
-    s.rating_avg && Number(s.rating_avg) > 0
-      ? "★".repeat(Math.round(Number(s.rating_avg)))
-      : `<span class="no-rating">No rating yet</span>`;
+const avg = Number(s.rating_avg) || 0;
+const count = Number(s.rating_count) || 0;
+
+const filled = "★".repeat(Math.round(avg));
+const empty = "☆".repeat(5 - Math.round(avg));
+
+const stars = `
+  <span class="stars">${filled}${empty}</span>
+  <span class="rating-count">(${count})</span>
+`;
+
 
   return `
     <article class="store-card">
