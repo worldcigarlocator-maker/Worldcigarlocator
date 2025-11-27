@@ -92,11 +92,11 @@ function cardHTML(s) {
 
         <div class="locrow">
           <div class="loc-top">
-            ${
-              flagSlug
-                ? `<img src="assets/flags/${flagSlug}.svg" class="flag" alt="${s.country}" />`
-                : ""
-            }
+           ${
+  flagUrl
+    ? `<img src="${flagUrl}" class="flag" alt="${s.country}" />`
+    : ""
+}
             <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
           </div>
           <p class="continent-label">${s.continent || ""}</p>
