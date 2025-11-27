@@ -1,181 +1,121 @@
-// ============================================================
-// MAIN.JS — FRONTEND AUTH + LOGIN POPUP + INITIALIZATION
-// ============================================================
-
-import { supabase } from "./globals.js";
-import { resetToHero, loadStores } from "./cards.js";
+import { supabase, qs } from "./globals.js";
+import { loadStores, resetToHero } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
-import "./start.js"; // Age gate
+import "./start.js"; // age gate + online
 
-// ============================================================
-// LOGIN POPUP LOGIC
-// ============================================================
-
+/* ============================================================
+   LOGIN POPUP
+============================================================ */
 function showLoginPopup() {
-  const popup = document.getElementById("loginPopup");
-  if (!popup) return;
-
+  const popup = qs("loginPopup");
   popup.classList.remove("hidden");
 
-  const email = document.getElementById("loginEmail");
-  const password = document.getElementById("loginPassword");
-  const remember = document.getElementById("rememberMe");
-  const submit = document.getElementById("loginSubmit");
-  const spinner = document.getElementById("loginSpinner");
-  const forgot = document.getElementById("forgotPassword");
+  const email = qs("loginEmail");
+  const pass = qs("loginPassword");
+  const remember = qs("rememberMe");
+  const btn = qs("loginSubmit");
+  const spinner = qs("loginSpinner");
 
-  // Autofocus
-  if (email) setTimeout(() => email.focus(), 80);
+  setTimeout(() => email?.focus(), 80);
 
-  // Load saved email if exists
   const saved = localStorage.getItem("wcl_saved_email");
   if (saved) {
     email.value = saved;
     remember.checked = true;
   }
 
-  // Submit login
-  submit.onclick = async () => {
-    const e = email.value.trim();
-    const p = password.value.trim();
-
-    if (!e || !p) {
-      alert("Please enter both email and password.");
+  btn.onclick = async () => {
+    if (!email.value || !pass.value) {
+      alert("Please fill in all fields.");
       return;
     }
 
-    // Save email?
     if (remember.checked) {
-      localStorage.setItem("wcl_saved_email", e);
+      localStorage.setItem("wcl_saved_email", email.value);
     } else {
       localStorage.removeItem("wcl_saved_email");
     }
 
-    // Lock UI
-    submit.disabled = true;
-    submit.querySelector(".login-text").textContent = "Logging in…";
+    btn.disabled = true;
     spinner.classList.remove("hidden");
+    btn.querySelector(".login-text").textContent = "Logging in…";
 
     const { error } = await supabase.auth.signInWithPassword({
-      email: e,
-      password: p
+      email: email.value.trim(),
+      password: pass.value.trim()
     });
 
     if (error) {
       alert("Login failed: " + error.message);
-      submit.disabled = false;
+      btn.disabled = false;
       spinner.classList.add("hidden");
-      submit.querySelector(".login-text").textContent = "Login";
+      btn.querySelector(".login-text").textContent = "Login";
       return;
     }
 
     location.reload();
   };
-
-  // Forgot password handler
-  if (forgot) {
-    forgot.onclick = async () => {
-      const e = email.value.trim();
-      if (!e) {
-        alert("Enter your email first.");
-        return;
-      }
-      const { error } = await supabase.auth.resetPasswordForEmail(e);
-      if (error) alert(error.message);
-      else alert("A reset link has been sent to your email.");
-    };
-  }
 }
 
-// Sidebar login button → open popup
+/* ============================================================
+   LOGOUT
+============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("loginBtn");
-  if (btn) btn.onclick = () => showLoginPopup();
+  const logout = qs("logoutBtn");
+  if (logout) {
+    logout.onclick = async () => {
+      await supabase.auth.signOut();
+      location.reload();
+    };
+  }
 });
 
-// ============================================================
-// LOGOUT BUTTON
-// ============================================================
-
-document.addEventListener("DOMContentLoaded", () => {
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (!logoutBtn) return;
-
-  logoutBtn.onclick = async () => {
-    await supabase.auth.signOut();
-    location.reload();
-  };
-});
-
-// ============================================================
-// FRONTEND GUARD
-// ============================================================
-
-async function guardFrontend() {
+/* ============================================================
+   GUARD (Block public)
+============================================================ */
+async function guard() {
   const { data: { session } } = await supabase.auth.getSession();
   const container = document.querySelector(".container");
 
   if (!session) {
-    if (container) container.style.display = "none";
+    container.style.display = "none";
     showLoginPopup();
     return;
   }
 
-  // Logged in
-  if (container) container.style.display = "grid";
-
-  // Load sidebar + hero
+  container.style.display = "grid";
   buildFrontendSidebar(supabase, loadStores);
   resetToHero();
 }
 
-// ============================================================
-// SEARCH LOGIC (including realtime search)
-// ============================================================
-
+/* ============================================================
+   REALTIME SEARCH
+============================================================ */
 function setupSearch() {
-  const input = document.getElementById("searchInput");
-  const btn = document.getElementById("searchBtn");
-  const clear = document.getElementById("clearBtn");
+  const input = qs("searchInput");
+  const searchBtn = qs("searchBtn");
+  const clearBtn = qs("clearBtn");
 
-  // Button click
-  btn.onclick = () => loadStores({}, input.value.trim());
+  input.addEventListener("input", () => loadStores({}, input.value.trim()));
 
-  // Clear
-  clear.onclick = () => {
+  searchBtn.onclick = () => loadStores({}, input.value.trim());
+
+  clearBtn.onclick = () => {
     input.value = "";
     resetToHero();
   };
 
-  // Enter key
-  input.addEventListener("keyup", (e) => {
-    if (e.key === "Enter") {
-      loadStores({}, input.value.trim());
-    }
-  });
-
-  // ===============================================
-  // 🔥 REALTIME SEARCH (while typing)
-  // ===============================================
-  input.addEventListener("input", () => {
-    const term = input.value.trim();
-
-    if (term.length === 0) {
-      resetToHero();
-      return;
-    }
-
-    loadStores({}, term);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") loadStores({}, input.value.trim());
   });
 }
 
-// ============================================================
-// INIT
-// ============================================================
-
-supabase.auth.onAuthStateChange(() => guardFrontend());
+/* ============================================================
+   INIT
+============================================================ */
+supabase.auth.onAuthStateChange(() => guard());
 
 document.addEventListener("DOMContentLoaded", () => {
-  guardFrontend();
+  guard();
   setupSearch();
 });
