@@ -41,8 +41,8 @@ function renderStars(avg, count) {
    RESET HERO VIEW
 ============================================================ */
 export function resetToHero() {
-  const grid = qs("storeGrid");
-  const heading = qs("resultHeading");
+  const grid = qs("#storeGrid");
+const heading = qs("#resultHeading");
   const showAllBtn = qs("showAllBtn");
   const hero = qs("heroImage");
   const heroText = qs("heroText");
