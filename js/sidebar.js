@@ -1,16 +1,21 @@
-import { qs } from "./globals.js";
+import { supabase, qs } from "./globals.js";
 
-/* ============== Toggle Helper ============== */
+/* ============================================================
+   TOGGLE HELPERS
+============================================================ */
 function toggleNested(btn, box, onOpen) {
   const isOpen = box.classList.toggle("show");
   btn.classList.toggle("open", isOpen);
+
   const arrow = btn.querySelector(".arrow");
   if (arrow) arrow.style.transform = isOpen ? "rotate(90deg)" : "rotate(0deg)";
 
-  if (isOpen && onOpen) onOpen();
+  if (isOpen && typeof onOpen === "function") onOpen();
 }
 
-/* ============== Continent Resolver ============== */
+/* ============================================================
+   CONTINENT DETECTOR
+============================================================ */
 function getContinent(country) {
   if (!country) return "Other";
   const c = country.toLowerCase();
@@ -39,26 +44,30 @@ function getContinent(country) {
   return "Other";
 }
 
-/* ============== Build Sidebar ============== */
-export function buildFrontendSidebar(supabase, loadStores) {
+/* ============================================================
+   BUILD SIDEBAR
+============================================================ */
+export function buildFrontendSidebar(supabaseClient, loadStores) {
+
   const menu = qs("sidebarMenu");
   if (!menu) return;
 
   menu.innerHTML = `<li style="color:#888">Loading…</li>`;
 
-  supabase
+  supabaseClient
     .from("stores_frontend_public_v4")
     .select("id,name,country,city")
     .then(({ data, error }) => {
       if (error || !data) {
+        console.error("Sidebar load error:", error);
         menu.innerHTML = `<li style="color:#f33">Failed to load</li>`;
-        console.error(error);
         return;
       }
 
       const tree = {};
 
-      data.forEach((s) => {
+      // Build tree structure
+      data.forEach(s => {
         const cont = getContinent(s.country);
         tree[cont] ??= {};
         tree[cont][s.country] ??= {};
@@ -68,15 +77,18 @@ export function buildFrontendSidebar(supabase, loadStores) {
 
       menu.innerHTML = "";
 
+      // Render
       Object.entries(tree).forEach(([continent, countries]) => {
+
+        /* ------- CONTINENT ROW ------- */
         const contBtn = document.createElement("button");
         contBtn.className = "line continent";
 
-        const total = Object.values(countries).reduce(
-          (sum, cities) =>
-            sum + Object.values(cities).reduce((a, b) => a + b.length, 0),
-          0
-        );
+        const total = Object.values(countries)
+          .reduce((sum, cityMap) =>
+            sum +
+            Object.values(cityMap).reduce((n, arr) => n + arr.length, 0),
+          0);
 
         contBtn.innerHTML = `
           <span class="arrow">▶</span>
@@ -87,17 +99,18 @@ export function buildFrontendSidebar(supabase, loadStores) {
         const contBox = document.createElement("div");
         contBox.className = "nested";
 
-        contBtn.onclick = () =>
+        contBtn.onclick = (e) => {
+          e.stopPropagation();
           toggleNested(contBtn, contBox, () => loadStores({ continent }));
+        };
 
+        /* ------- COUNTRIES ------- */
         Object.entries(countries).forEach(([country, cities]) => {
           const cBtn = document.createElement("button");
           cBtn.className = "line country";
 
-          const count = Object.values(cities).reduce(
-            (sum, arr) => sum + arr.length,
-            0
-          );
+          const count = Object.values(cities)
+            .reduce((n, arr) => n + arr.length, 0);
 
           cBtn.innerHTML = `
             <span class="arrow">▶</span>
@@ -108,9 +121,12 @@ export function buildFrontendSidebar(supabase, loadStores) {
           const cBox = document.createElement("div");
           cBox.className = "nested";
 
-          cBtn.onclick = (ev) =>
+          cBtn.onclick = (e) => {
+            e.stopPropagation();
             toggleNested(cBtn, cBox, () => loadStores({ country }));
+          };
 
+          /* ------- CITIES ------- */
           Object.entries(cities).forEach(([city, list]) => {
             const cityBtn = document.createElement("button");
             cityBtn.className = "line city";
@@ -118,10 +134,12 @@ export function buildFrontendSidebar(supabase, loadStores) {
               <span class="label">${city}</span>
               <span class="pill">${list.length}</span>
             `;
+
             cityBtn.onclick = (e) => {
               e.stopPropagation();
               loadStores({ city });
             };
+
             cBox.appendChild(cityBtn);
           });
 
