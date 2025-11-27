@@ -1,206 +1,75 @@
 /* ============================================================
-   FRONTEND — PIXEL PERFECT CARD LAYOUT (Premium Dark)
-   ============================================================ */
+   CARD GRID LAYOUT
+============================================================ */
 
 .store-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 265px);
-  gap: 1.2rem;
-  justify-content: flex-start;
-}
-
-/* ============================================================
-   CARD WRAPPER
-   ============================================================ */
-.store-card {
-  width: 265px;
-  height: 540px;              /* fast höjd för perfekt grid */
-  background: #181818;
-  border-radius: 12px;
-  border: 1px solid var(--gold-soft);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
-}
-
-/* IMAGE */
-.store-img {
   width: 100%;
-  height: 160px;
-  object-fit: cover;
-}
-
-/* BODY CONTENT */
-.store-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 0.95rem 1rem 0.6rem;
-  gap: 0.45rem;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  box-sizing: border-box;
 }
 
 /* ============================================================
-   TITLE — 1 rad + spacing
-   ============================================================ */
-.store-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 8px 0 6px 0;
-
-  white-space: nowrap;
+   CARD CONTAINER
+============================================================ */
+.card {
+  background: #111;
+  border-radius: 12px;
   overflow: hidden;
-  text-overflow: ellipsis;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
 
-  line-height: 1.3rem;
-  height: 1.3rem;             /* exakt 1 rad */
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 22px rgba(0,0,0,0.35);
 }
 
 /* ============================================================
-   BADGES — typ + access
-   ============================================================ */
-.badge-row {
-  display: flex;
-  gap: 6px;
-  height: 22px;               /* fixerad radhöjd */
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.badge {
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.badge.blue {
-  background: #2574ff;
-  color: #ffffff;
-}
-
-.badge.gold {
-  background: var(--gold);
-  color: #222222;
-}
-
-.badge.access.public {
-  background: #28a745;
-  color: #ffffff;
-}
-
-.badge.access.members {
-  background: #8a2be2;
-  color: #ffffff;
+   CARD IMAGE
+============================================================ */
+.card-photo {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
 }
 
 /* ============================================================
-   STARS
-   ============================================================ */
-.stars {
-  color: var(--gold);
+   CARD TEXT
+============================================================ */
+.card-info {
+  padding: .8rem 1rem 1rem;
+}
+
+.card-info h3 {
   font-size: 1.05rem;
-
-  height: 20px;
-  line-height: 20px;
-  margin-bottom: 4px;
-}
-
-/* ============================================================
-   LOCATION (flag + country/city + continent)
-   ============================================================ */
-.locrow {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  height: 42px;               /* fast blockhöjd */
-}
-
-.loc-top {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  color: #f0f0f0;
-}
-
-.flag {
-  width: 18px;
-  height: 12px;
-  border-radius: 2px;
-  object-fit: cover;
-}
-
-.continent-label {
-  font-size: 0.75rem;
-  color: #888;
-  margin-left: 24px;
-}
-
-/* ============================================================
-   INFO BLOCK (Address / Phone / Website)
-   ============================================================ */
-.infoblock {
-  margin-top: 4px;
-}
-
-.info-row {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  line-height: 1.25rem;
-  height: 1.25rem;
-
-  font-size: 0.86rem;
-  color: #e3e3e3;
-}
-
-.info-row + .info-row {
-  margin-top: 6px;
-}
-
-.info-row strong {
   font-weight: 600;
-  color: var(--gold);
-  margin-right: 3px;
+  margin: 0;
+  color: #fff;
 }
 
-.info-row a {
-  color: var(--gold);
-  text-decoration: none;
-}
-.info-row a:hover {
-  text-decoration: underline;
+.card-info p {
+  margin: .2rem 0 0;
+  color: #ccc;
+  font-size: .9rem;
 }
 
 /* ============================================================
-   COMMENTS BUTTON — nederst + centrerad
-   ============================================================ */
-.reviews-btn {
-  margin-top: auto;
-  margin-bottom: 6px;
-
-  align-self: center;
-  text-align: center;
-
-  width: 85%;
-  padding: 0.35rem 0.6rem;
-
-  background: #101010;
-  border: 1px solid #3a3a3a;
-  border-radius: 8px;
-
-  color: #f3f3f3;
-  font-size: 0.8rem;
-  cursor: pointer;
+   RESULT HEADER + BUTTONS
+============================================================ */
+#resultHeading {
+  font-size: 1.2rem;
+  font-weight: 600;
+  padding-left: 1rem;
+  margin-top: 1rem;
+  color: #fff;
 }
 
-.reviews-btn:hover {
-  background: #181818;
+#showAllBtn {
+  margin: 0 auto;
+  margin-top: .2rem;
+  display: none;
 }
