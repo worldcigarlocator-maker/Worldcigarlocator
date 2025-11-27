@@ -1,6 +1,5 @@
 // ============================================================
-// CARDS.JS — PREMIUM VERSION (matches cards.css)
-// For table: stores_frontend_public_v4
+// CARDS.JS — FINAL WCL PREMIUM VERSION (4-cards layout)
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -16,7 +15,7 @@ function dom(sel) {
 }
 
 /* ------------------------------------------------------------
-   FLAG (ISO2) — matches your /assets/flags/xx.svg
+   GET FLAG BY ISO2
 ------------------------------------------------------------ */
 function getFlagUrl(store) {
   if (!store.country_iso2) return null;
@@ -50,40 +49,33 @@ export function resetToHero() {
 }
 
 /* ------------------------------------------------------------
-   PREMIUM CARD HTML (matches cards.css)
+   CARD HTML BUILDER
 ------------------------------------------------------------ */
 function cardHTML(s) {
   const FALLBACK_PHOTO = "images/store.jpg";
   const imgSrc = s.photo_final_url || FALLBACK_PHOTO;
   const flagUrl = getFlagUrl(s);
 
-  // Badges
-  const typeBadge = s.type
-    ? `<span class="badge blue">${s.type}</span>`
-    : "";
+  /* ---- STAR SYSTEM ---- */
+  const avg = Number(s.rating_avg) || 0;
+  const count = Number(s.rating_count) || 0;
 
-  const accessBadge = s.access
-    ? `<span class="badge access ${s.access}">${s.access}</span>`
-    : "";
+  const filled = "★".repeat(Math.round(avg));
+  const empty = "☆".repeat(5 - Math.round(avg));
 
-const avg = Number(s.rating_avg) || 0;
-const count = Number(s.rating_count) || 0;
-
-const filled = "★".repeat(Math.round(avg));
-const empty = "☆".repeat(5 - Math.round(avg));
-
-const stars = `
-  <span class="stars">${filled}${empty}</span>
-  <span class="rating-count">(${count})</span>
-`;
+  const stars = `
+    <span class="stars">${filled}${empty}</span>
+    <span class="rating-count">(${count})</span>
+  `;
 
   return `
     <article class="store-card">
-      <img
-        src="${imgSrc}"
-        class="store-img"
-        alt="${s.name}"
-        onerror="this.onerror=null;this.src='${FALLBACK_PHOTO}';"
+
+      <img 
+        src="${imgSrc}" 
+        class="store-img" 
+        alt="${s.name}" 
+        onerror="this.onerror=null;this.src='${FALLBACK_PHOTO}'"
       />
 
       <div class="store-body">
@@ -91,46 +83,46 @@ const stars = `
         <h3 class="store-title">${s.name || "Unnamed location"}</h3>
 
         <div class="badge-row">
-          ${typeBadge}
-          ${accessBadge}
+          ${s.type ? `<span class="badge blue">${s.type}</span>` : ""}
+          ${s.access ? `<span class="badge access ${s.access}">${s.access}</span>` : ""}
         </div>
 
-        <div class="stars">${stars}</div>
+        <div class="stars-row">${stars}</div>
 
         <div class="locrow">
           <div class="loc-top">
-            ${
-              flagUrl
-                ? `<img src="${flagUrl}" class="flag" alt="${s.country}" />`
-                : ""
-            }
+            ${flagUrl ? `<img src="${flagUrl}" class="flag" alt="${s.country}" />` : ""}
             <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
           </div>
           <p class="continent-label">${s.continent || ""}</p>
         </div>
 
         <div class="infoblock">
-          <p class="info-row">${s.address || ""}</p>
-          <p class="info-row">${s.phone || ""}</p>
+          <p class="info-row"><strong>Address:</strong> ${s.address || "N/A"}</p>
+          <p class="info-row"><strong>Phone:</strong> ${s.phone || "N/A"}</p>
           <p class="info-row">
+            <strong>Website:</strong> 
             ${
               s.website
                 ? `<a href="${s.website}" target="_blank" rel="noopener">Visit website</a>`
-                : ""
+                : "N/A"
             }
           </p>
         </div>
 
+        <hr class="card-divider" />
+
         <button class="reviews-btn">
           Comments (${s.comment_count || 0})
         </button>
+
       </div>
     </article>
   `;
 }
 
 /* ------------------------------------------------------------
-   RENDER STORES
+   RENDER CARDS
 ------------------------------------------------------------ */
 function renderCards(list) {
   const grid = dom("#storeGrid");
@@ -139,14 +131,14 @@ function renderCards(list) {
 }
 
 /* ------------------------------------------------------------
-   EXPORTED WRAPPER (NEEDED FOR main.js)
+   EXPORTED WRAPPER FOR main.js
 ------------------------------------------------------------ */
 export function renderStores(list) {
   renderCards(list);
 }
 
 /* ------------------------------------------------------------
-   LOAD STORES (v4 TABLE)
+   LOAD STORES FROM PUBLIC VIEW
 ------------------------------------------------------------ */
 export async function loadStores(filters = {}, search = "") {
   if (!DOM_READY) {
@@ -164,7 +156,6 @@ export async function loadStores(filters = {}, search = "") {
   const hero = dom("#heroImage");
   const heroText = dom("#heroText");
 
-  // Hide hero
   if (hero) hero.style.display = "none";
   if (heroText) heroText.style.display = "none";
 
@@ -176,10 +167,8 @@ export async function loadStores(filters = {}, search = "") {
   if (grid) grid.innerHTML = "";
   if (showAllBtn) showAllBtn.style.display = "none";
 
-  // Query table
   let query = supabase.from("stores_frontend_public_v4").select("*");
 
-  // Search
   if (search) {
     query = query.or(`
       name.ilike.%${search}%,
@@ -188,7 +177,6 @@ export async function loadStores(filters = {}, search = "") {
     `);
   }
 
-  // Filters
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country) query = query.eq("country", filters.country);
   if (filters.city) query = query.eq("city", filters.city);
@@ -208,12 +196,10 @@ export async function loadStores(filters = {}, search = "") {
     return;
   }
 
-  // Render
   renderCards(data);
 
   heading.textContent = `${data.length} results`;
 
-  // Show "Show All" button if filtered
   if (showAllBtn) {
     const filtered = search || Object.keys(filters).length > 0;
     showAllBtn.style.display = filtered ? "inline-block" : "none";
