@@ -1,47 +1,46 @@
 /* ============================================================
-   WCL PREMIUM CARD GRID
+   4-COLUMN FIXED GRID
 ============================================================ */
-
 .store-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+  grid-template-columns: repeat(4, 265px);
   gap: 1.6rem;
+  justify-content: center;
   padding: 1.5rem;
-  justify-items: center;
-  box-sizing: border-box;
   width: 100%;
+  box-sizing: border-box;
 }
 
 /* ============================================================
-   STORE CARD (fixed size, premium)
+   CARD CONTAINER
 ============================================================ */
 .store-card {
   width: 265px;
-  height: 560px; /* längre kort */
+  height: 560px;
   background: #111;
   border-radius: 16px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 
-  border: 1px solid rgba(255,215,0,0.4); /* GULD-RAM */
-  /* För silver: rgba(200,200,200,0.45) */
+  border: 1px solid rgba(255,215,0,0.4); /* guld */
+  /* silver: rgba(200,200,200,0.45); */
 
-  box-shadow: 0 6px 22px rgba(0,0,0,0.45);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.45);
   transition: transform .2s ease, box-shadow .2s ease;
 }
 
 .store-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 28px rgba(0,0,0,0.55);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.55);
 }
 
 /* ============================================================
-   CARD IMAGE (fixed height)
+   IMAGE
 ============================================================ */
 .store-img {
   width: 100%;
-  height: 200px; /* fast bildhöjd */
+  height: 200px;
   object-fit: cover;
   display: block;
   flex-shrink: 0;
@@ -54,7 +53,7 @@
   padding: 1rem 1.1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: .45rem;
   flex: 1;
 }
 
@@ -65,7 +64,7 @@
   font-weight: 600;
   margin: 0;
   line-height: 1.25rem;
-  min-height: 2.4rem; /* så alla titlar blir lika höga */
+  min-height: 2.4rem;
 }
 
 /* ============================================================
@@ -73,9 +72,8 @@
 ============================================================ */
 .badge-row {
   display: flex;
-  flex-wrap: wrap;
   gap: .35rem;
-  margin-bottom: .25rem;
+  flex-wrap: wrap;
 }
 
 .badge {
@@ -83,7 +81,6 @@
   border-radius: 999px;
   font-size: .65rem;
   text-transform: uppercase;
-  letter-spacing: .05em;
   background: rgba(255,255,255,0.08);
   color: #eee;
 }
@@ -98,19 +95,17 @@
   color: #c8f9df;
 }
 
-.badge.access.private {
-  background: rgba(255,80,80,0.25);
-  color: #ffd6d6;
+/* ============================================================
+   STARS
+============================================================ */
+.stars-row {
+  display: flex;
+  align-items: center;
 }
 
-/* ============================================================
-   STARS + RATING
-============================================================ */
 .stars {
   font-size: .9rem;
   color: #ffd666;
-  letter-spacing: 1px;
-  line-height: 1rem;
 }
 
 .rating-count {
@@ -140,13 +135,12 @@
 }
 
 .continent-label {
-  margin: .1rem 0 0;
   font-size: .75rem;
   color: #888;
 }
 
 /* ============================================================
-   INFO BLOCK (Address, Phone, Website)
+   INFO BLOCK
 ============================================================ */
 .infoblock {
   margin-top: .4rem;
@@ -168,13 +162,21 @@
   color: #fff;
 }
 
-/* Website links */
 .infoblock a {
   color: #ffd666;
   text-decoration: none;
 }
 .infoblock a:hover {
   text-decoration: underline;
+}
+
+/* ============================================================
+   DIVIDER LINE
+============================================================ */
+.card-divider {
+  border: 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  margin: .7rem 0 .4rem;
 }
 
 /* ============================================================
@@ -197,7 +199,7 @@
 }
 
 /* ============================================================
-   RESULT HEADER
+   RESULT HEADING
 ============================================================ */
 #resultHeading {
   font-size: 1.2rem;
