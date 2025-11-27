@@ -16,23 +16,11 @@ function dom(sel) {
 }
 
 /* ------------------------------------------------------------
-   FLAG ALIASES
+   FLAG (ISO2) — matches your assets folder
 ------------------------------------------------------------ */
-const FLAG_ALIASES = {
-  "united states": "united-states",
-  "united states of america": "united-states",
-  usa: "united-states",
-  "united kingdom": "united-kingdom",
-  uk: "united-kingdom",
-  "czech republic": "czechia",
-  "viet nam": "vietnam",
-};
-
-function getFlagSlug(country) {
-  if (!country) return null;
-  const raw = country.toLowerCase().trim();
-  if (FLAG_ALIASES[raw]) return FLAG_ALIASES[raw];
-  return raw.replaceAll(" ", "-");
+function getFlagUrl(store) {
+  if (!store.country_iso2) return null;
+  return `assets/flags/${store.country_iso2.toLowerCase()}.svg`;
 }
 
 /* ------------------------------------------------------------
@@ -67,7 +55,7 @@ export function resetToHero() {
 function cardHTML(s) {
   const FALLBACK_PHOTO = "images/store.jpg";
   const imgSrc = s.photo_final_url || FALLBACK_PHOTO;
-  const flagSlug = getFlagSlug(s.country);
+  const flagUrl = getFlagUrl(s);
 
   // Badges
   const typeBadge = s.type
