@@ -134,13 +134,19 @@
 </div>
 
 <!-- ============================================================
-     JS
+     JS (LOAD ORDER IS CRITICAL)
 ============================================================ -->
 
-<!-- Supabase CDN -->
+<!-- 1) Supabase SDK (måste laddas först!) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- Endast main.js laddas (globals.js importeras automatiskt) -->
+<!-- 2) Globals.js (skapar Supabase-klienten) -->
+<script type="module" src="js/globals.js"></script>
+
+<!-- 3) Alla andra moduler som använder supabase -->
+<script type="module" src="js/sidebar.js"></script>
+<script type="module" src="js/cards.js"></script>
+<script type="module" src="js/start.js"></script>
 <script type="module" src="js/main.js"></script>
 
 </body>
