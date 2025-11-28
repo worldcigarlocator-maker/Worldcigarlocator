@@ -108,35 +108,66 @@ body {
 }
 
 /* ------------------------------------------------------------
-   ARROW (left side, larger, clean gold)
+   CLEAN ARROW → LABEL → GOLD COUNT
 ------------------------------------------------------------ */
-.line .arrow {
-  order: 1;                     /* left side */
-  font-size: 1.3rem;              /* bigger arrow */
-  color: var(--gold);
-  margin-right: 10px;           /* spacing after arrow */
-  opacity: 0.85;
 
-  width: 16px;                  /* keeps arrow centered */
+/* =============== ARROW =============== */
+.line .arrow {
+  order: 1;
+  font-size: 1.25rem;          /* 🔥 större pil */
+  color: var(--gold);          /* guld */
+  opacity: 0.9;
+  width: 18px;
   display: flex;
   justify-content: center;
+  margin-right: 6px;
 
-  transition: transform 0.22s ease;
+  transition: transform .22s ease;
 }
 
-/* Rotate arrow when line is open */
+/* Rotate on open */
 .line.open .arrow {
   transform: rotate(90deg);
 }
 
-
-/* ------------------------------------------------------------
-   LABEL (center)
-   ------------------------------------------------------------ */
+/* =============== LABEL =============== */
 .line .label {
   order: 2;
   flex: 1;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =============== COUNT (PURE GOLD) =============== */
+.line .pill {
+  order: 3;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--gold);
+
+  /* inga bubblor, inga glow, inget background */
+  background: none !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+/* =============== NO HOVER, NO GLOW =============== */
+.line:hover {
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* =============== OPEN STATE (ONLY GOLD LINE) =============== */
+.line.open {
+  background: transparent !important;
+  border-left: 3px solid var(--gold);
+  padding-left: calc(0.55rem - 3px);
 }
 
 
@@ -270,35 +301,6 @@ body {
   transform: translateX(3px);
 }
 
-
-/* =========================== ONLINE BUBBLE =========================== */
-.online-box {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 11px;
-  border-radius: 999px;
-  border: 1px solid #444;
-  background: #111;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #d9d9d9;
-  box-shadow: 0 0 6px rgba(200,200,200,0.7);
-}
-
-
-.sidebar-divider {
-  border: none;
-  height: 1px;
-  background: #202020;
-  margin-top: 0.9rem;
-}
 
 /* ============================================================
    SIDEBAR TREE (CONTINENT → COUNTRY → CITY)
