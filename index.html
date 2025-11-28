@@ -77,31 +77,44 @@
 <div class="container">
 
   <!-- ======================= SIDEBAR ======================= -->
-  <div class="sidebar-top">
-      
-      <div class="online-box">
-        <span class="dot"></span>
-        <span id="onlineText">0 online</span>
-      </div>
+  <aside class="sidebar">
 
-      <button id="loginBtn" class="login-btn">Login</button>
-      <button id="logoutBtn" class="logout-btn" style="display:none;">Logout</button>
+    <!-- ================= LOGO ================= -->
+    <h1 class="logo">WORLD CIGAR LOCATOR</h1>
 
-      <div class="sidebar-ad">
-        <img src="images/lounge.jpg" class="ad-img" alt="Davidoff Promo">
+    <!-- ================= TOP AREA ================= -->
+    <div class="sidebar-top">
 
-        <p class="ad-title">20% discount on<br>new Davidoff LE 2026</p>
-        <p class="ad-code">Use code: <strong>WCL</strong></p>
-      </div>
+        <!-- Online status -->
+        <div class="online-box">
+            <span class="dot"></span>
+            <span id="onlineText">0 online</span>
+        </div>
 
-      <hr class="sidebar-divider" />
-</div>
+        <!-- Login / Logout -->
+        <button id="loginBtn" class="login-btn">Login</button>
+        <button id="logoutBtn" class="logout-btn" style="display:none;">Logout</button>
 
+        <!-- ================= AD BOX ================= -->
+        <div class="sidebar-ad">
+            <img src="images/lounge.jpg" class="ad-img" alt="Davidoff Promo">
+
+            <p class="ad-title">20% discount on<br>Davidoff LE 2026</p>
+            <p class="ad-code">Use code: <strong>WCL</strong></p>
+        </div>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider" />
+
+    </div>
+
+    <!-- ================= HIERARCHY MENU ================= -->
     <ul id="sidebarMenu" class="nav"></ul>
 
+    <!-- ================= BOTTOM LINKS ================= -->
     <div class="sidebar-bottom">
-      <a href="add-store.html" class="menu-link add-store">+ Add Store</a>
-      <a href="mailto:support@worldcigarlocator.com" class="menu-link">Contact / Support</a>
+        <a href="add-store.html" class="menu-link add-store">+ Add Store</a>
+                <a href="mailto:support@worldcigarlocator.com" class="menu-link">Contact / Support</a>
     </div>
 
   </aside>
