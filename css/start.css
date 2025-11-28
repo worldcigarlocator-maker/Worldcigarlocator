@@ -71,10 +71,51 @@ body {
   flex-direction: column;
 }
 
+/* ============================================================
+   PREMIUM SIDEBAR 2.0 — Luxury Gold Navigation (CLEAN VERSION)
+   ============================================================ */
+
+/* Sidebar container */
+.sidebar {
+  background: #050505;
+  border-right: 1px solid #191919;
+  padding: 1.6rem 1.2rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+}
+
 /* ------------------------------------------------------------
-   General line style
+   Line (continent / country / city)
 ------------------------------------------------------------ */
-/* CLEAN, SLEEK GOLD PILL — no double glow */
+.line {
+  width: 100%;
+  background: transparent;
+  color: #e5e5e5;
+  padding: 0.55rem 0.45rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-radius: 8px;
+  position: relative;
+
+  border: none;
+  transition: all 0.18s ease;
+}
+
+/* Hover (premium soft glow) */
+.line:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05) !important;
+  transform: translateX(2px) !important;
+}
+
+/* ------------------------------------------------------------
+   CLEAN, SLEEK GOLD PILL — no double glow
+------------------------------------------------------------ */
 .line .pill {
   padding: 3px 10px;
   border-radius: 20px;
@@ -88,32 +129,24 @@ body {
   z-index: 3;
 }
 
-/* REMOVE old duplicated glow systems */
+/* REMOVE old duplicated glow systems (critical) */
 .line .pill::before,
 .line .pill::after,
 .line.open::before {
   content: none !important;
 }
 
-
-/* Hover glow */
-.line:hover {
-  background: rgba(255, 255, 255, 0.03);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
-    0 0 6px rgba(214, 195, 135, 0.15);
-  transform: translateX(2px);
-}
-
-/* Active/open state */
+/* ------------------------------------------------------------
+   OPEN STATE (active)
+------------------------------------------------------------ */
 .line.open {
-  background: rgba(214, 195, 135, 0.08);
-  border-left: 2px solid var(--gold);
+  background: rgba(214, 195, 135, 0.08) !important;
+  border-left: 2px solid var(--gold) !important;
   padding-left: calc(0.45rem - 2px);
 }
 
 /* ------------------------------------------------------------
-   Arrows
+   Arrow
 ------------------------------------------------------------ */
 .line .arrow {
   font-size: 0.7rem;
@@ -123,13 +156,13 @@ body {
   transition: transform 0.22s cubic-bezier(.22, .61, .36, 1);
 }
 
-/* Rotate on open */
+/* Rotate arrow when open */
 .line.open .arrow {
   transform: rotate(90deg);
 }
 
 /* ------------------------------------------------------------
-   Nested groups — smooth slide
+   Nested groups (smooth expand)
 ------------------------------------------------------------ */
 .nested {
   max-height: 0;
@@ -137,17 +170,15 @@ body {
   margin-left: 0.7rem;
   border-left: 1px solid rgba(255, 255, 255, 0.05);
   padding-left: 0.7rem;
-
   transition: max-height 0.25s ease-in-out;
 }
 
-/* Expanded state */
 .nested.show {
-  max-height: 900px; /* Autogrow effect */
+  max-height: 900px; /* auto-expand */
 }
 
 /* ------------------------------------------------------------
-   Hierarchy styling
+   Hierarchy levels
 ------------------------------------------------------------ */
 .line.continent {
   font-size: 1rem;
@@ -170,6 +201,7 @@ body {
   background: rgba(255, 255, 255, 0.03);
   transform: translateX(3px);
 }
+
 
 /* =========================== ONLINE BUBBLE =========================== */
 .online-box {
