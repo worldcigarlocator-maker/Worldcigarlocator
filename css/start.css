@@ -60,23 +60,11 @@ body {
 }
 
 
-
 /* ============================================================
-   PREMIUM SIDEBAR 2.0 — Luxury Gold Navigation (CLEAN VERSION)
+   PREMIUM SIDEBAR — CLEAN VERSION (NO BUBBLE, ONLY NUMBER)
    ============================================================ */
 
-/* Sidebar container */
-.sidebar {
-  background: #050505;
-  border-right: 1px solid #191919;
-  padding: 1.6rem 1.2rem 1.4rem;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ------------------------------------------------------------
-   Line (continent / country / city)
------------------------------------------------------------- */
+/* General line style */
 .line {
   width: 100%;
   background: transparent;
@@ -90,18 +78,110 @@ body {
   justify-content: space-between;
 
   border-radius: 8px;
+  border: none;
   position: relative;
 
-  border: none;
   transition: all 0.18s ease;
 }
 
-/* Hover (premium soft glow) */
+/* Hover glow */
 .line:hover {
-  background: rgba(255, 255, 255, 0.03) !important;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05) !important;
-  transform: translateX(2px) !important;
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+  transform: translateX(2px);
 }
+
+/* ------------------------------------------------------------
+   CLEAN MINIMAL COUNT (NO BUBBLE)
+------------------------------------------------------------ */
+.line .pill {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+
+  color: var(--gold);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+
+  margin-right: 0.35rem !important;   /* ensures arrow stays visible */
+}
+
+/* Remove any old bubble pseudo-elements */
+.line .pill::before,
+.line .pill::after,
+.line.open::before {
+  content: none !important;
+}
+
+/* ------------------------------------------------------------
+   OPEN STATE
+------------------------------------------------------------ */
+.line.open {
+  background: rgba(214, 195, 135, 0.08);
+  border-left: 2px solid var(--gold);
+  padding-left: calc(0.45rem - 2px);
+}
+
+/* ------------------------------------------------------------
+   Arrow
+------------------------------------------------------------ */
+.line .arrow {
+  font-size: 0.7rem;
+  color: var(--gold);
+  opacity: 0.8;
+  margin-left: 0.35rem;
+  transition: transform 0.22s cubic-bezier(.22, .61, .36, 1);
+}
+
+/* Rotate arrow when open */
+.line.open .arrow {
+  transform: rotate(90deg);
+}
+
+/* ------------------------------------------------------------
+   Nested groups
+------------------------------------------------------------ */
+.nested {
+  max-height: 0;
+  overflow: hidden;
+  margin-left: 0.7rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  padding-left: 0.7rem;
+  transition: max-height 0.25s ease-in-out;
+}
+
+.nested.show {
+  max-height: 900px;
+}
+
+/* ------------------------------------------------------------
+   Hierarchy levels
+------------------------------------------------------------ */
+.line.continent {
+  font-size: 1rem;
+  color: #fff;
+  font-weight: 700;
+}
+
+.line.country {
+  font-size: 0.88rem;
+  padding-left: 0.8rem;
+}
+
+.line.city {
+  font-size: 0.82rem;
+  padding-left: 1.6rem;
+  color: #cfcfcf;
+}
+
+.line.city:hover {
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateX(3px);
+}
+
+
 
 /* ------------------------------------------------------------
    CLEAN, SLEEK GOLD PILL — no double glow
