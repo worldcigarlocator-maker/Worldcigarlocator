@@ -6,12 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- DM Sans -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="css/start.css" />
@@ -20,9 +17,7 @@
 
 <body>
 
-<!-- ============================================================
-     AGE GATE
-============================================================ -->
+<!-- ================= AGE GATE ================= -->
 <div id="ageGate" class="age-modal hidden fade-in">
   <div class="age-box">
     <h2>18+ Required</h2>
@@ -34,21 +29,18 @@
     </div>
 
     <small style="color:#aaa;">
-      World Cigar Locator does not promote tobacco use.
-      Please follow your local laws and guidelines.
+      World Cigar Locator does not promote tobacco use. Please follow local laws.
     </small>
   </div>
 </div>
 
-<!-- ============================================================
-     LOGIN POPUP
-============================================================ -->
+<!-- ================= LOGIN POPUP ================= -->
 <div id="loginPopup" class="login-modal hidden">
   <div class="login-box">
     <h2>Login Required</h2>
 
-    <input id="loginEmail" class="login-field" type="email" placeholder="Email" />
-    <input id="loginPassword" class="login-field" type="password" placeholder="Password" />
+    <input id="loginEmail" class="login-field" type="email" placeholder="Email">
+    <input id="loginPassword" class="login-field" type="password" placeholder="Password">
 
     <label class="remember-wrapper">
       <input type="checkbox" id="rememberMe" />
@@ -60,70 +52,60 @@
       <span id="loginSpinner" class="spinner hidden"></span>
     </button>
 
-    <p class="forgot">
-      <a href="#" id="forgotPassword">Forgot password?</a>
-    </p>
+    <p class="forgot"><a href="#" id="forgotPassword">Forgot password?</a></p>
   </div>
 </div>
 
-<!-- ============================================================
-     MOBILE MENU BUTTON
-============================================================ -->
+<!-- MOBILE MENU BUTTON -->
 <button id="mobileMenuBtn" class="mobile-menu-btn">☰</button>
 
-<!-- ============================================================
-     PAGE WRAPPER
-============================================================ -->
+<!-- ================= PAGE WRAPPER ================= -->
 <div class="container">
 
-  <!-- ======================= SIDEBAR ======================= -->
+  <!-- ================ SIDEBAR ================ -->
   <aside class="sidebar">
 
-    <!-- ================= LOGO ================= -->
+    <!-- LOGO -->
     <h1 class="logo">WORLD CIGAR LOCATOR</h1>
 
-    <!-- ================= TOP AREA ================= -->
+    <!-- TOP AREA -->
     <div class="sidebar-top">
 
-        <!-- Online status -->
-        <div class="online-box">
-            <span class="dot"></span>
-            <span id="onlineText">0 online</span>
-        </div>
+      <div class="online-box">
+        <span class="dot"></span>
+        <span id="onlineText">0 online</span>
+      </div>
 
-        <!-- Login / Logout -->
-        <button id="loginBtn" class="login-btn">Login</button>
-        <button id="logoutBtn" class="logout-btn" style="display:none;">Logout</button>
-
-        <!-- ================= AD BOX ================= -->
-        <div class="sidebar-ad">
-            <img src="images/lounge.jpg" class="ad-img" alt="Davidoff Promo">
-
-            <p class="ad-title">20% discount on<br>Davidoff LE 2026</p>
-            <p class="ad-code">Use code: <strong>WCL</strong></p>
-        </div>
-
-        <!-- Divider -->
-        <hr class="sidebar-divider" />
+      <button id="loginBtn" class="login-btn">Login</button>
+      <button id="logoutBtn" class="logout-btn" style="display:none;">Logout</button>
 
     </div>
 
-    <!-- ================= HIERARCHY MENU ================= -->
+    <!-- AD BOX -->
+    <div class="sidebar-ad">
+      <img src="images/lounge.jpg" class="ad-img" alt="Promo">
+      <p class="ad-title">20% discount on<br>Davidoff LE 2026</p>
+      <p class="ad-code">Use code: <strong>WCL</strong></p>
+    </div>
+
+    <hr class="sidebar-divider">
+
+    <!-- SIDEBAR MENU -->
     <ul id="sidebarMenu" class="nav"></ul>
 
-    <!-- ================= BOTTOM LINKS ================= -->
+    <!-- FOOTER LINKS -->
     <div class="sidebar-bottom">
-        <a href="add-store.html" class="menu-link add-store">+ Add Store</a>
-                <a href="mailto:support@worldcigarlocator.com" class="menu-link">Contact / Support</a>
+      <a href="add-store.html" class="menu-link add-store">+ Add Store</a>
+      <a href="mailto:support@worldcigarlocator.com" class="menu-link">Contact / Support</a>
     </div>
 
   </aside>
 
-  <!-- ======================= MAIN ======================= -->
+  <!-- ================ MAIN AREA ================ -->
   <main class="main">
 
     <div class="searchbar main-search">
-      <input id="searchInput" type="text" placeholder="Search by name, city or country…" />
+      <input id="searchInput" type="text" placeholder="Search by name, city or country…">
       <button id="searchBtn" class="btn">Search</button>
       <button id="clearBtn" class="btn outline">Clear</button>
     </div>
@@ -132,36 +114,27 @@
       <h1>Welcome to World Cigar Locator</h1>
       <p>
         Discover cigar shops, lounges and cigar-friendly venues around the globe.<br>
-        Help the community grow — add your favorite location using our
-        <strong>Google-powered Add Store form</strong>.
+        Help the community grow by adding your favorite location.
       </p>
     </section>
 
     <section id="heroImage" class="hero">
-      <img src="images/paris.jpg" alt="Hero" class="hero-bg" />
+      <img src="images/paris.jpg" class="hero-bg" alt="Hero">
     </section>
 
     <div id="resultHeading" class="result-heading" style="display:none;"></div>
 
-    
     <div id="storeGrid" class="store-grid"></div>
 
   </main>
 
 </div>
 
-<!-- ============================================================
-     JS
-============================================================ -->
-
-<!-- Supabase SDK -->
+<!-- ================= JS ================= -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- Ladda globals först -->
 <script type="module" src="js/globals.js"></script>
-
-<!-- Ladda cards.js innan main.js -->
 <script type="module" src="js/cards.js"></script>
-
-<!-- Ladda main.js sist -->
 <script type="module" src="js/main.js"></script>
+
+</body>
+</html>
