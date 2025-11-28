@@ -1,35 +1,88 @@
 /* ============================================================
-   PREMIUM CARD GRID
+   CARD GRID LAYOUT
    ============================================================ */
 
-/* desktop override ligger i start.css – här bara base */
 .store-grid {
+  width: 100%;
   display: grid;
-  gap: 1.6rem;
-  padding: 0.5rem 0;
+  justify-content: center;              /* centrera hela gridden */
+  gap: 2rem 1.6rem;                     /* vertikalt / horisontellt mellan kort */
+  padding: 1.5rem 0 3rem;
+  box-sizing: border-box;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+/* 🔒 Desktop – lås 4 kort i bredd när det finns plats */
+@media (min-width: 1280px) {
+  .store-grid {
+    grid-template-columns: repeat(4, 265px);
+  }
+}
+
+/* Tablet – lite smalare kort, fortfarande flera per rad */
+@media (max-width: 1024px) {
+  .store-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.8rem 1.2rem;
+  }
+}
+
+/* Mobil portrait – 2 kort per rad, nedskalade */
+@media (max-width: 768px) {
+  .store-grid {
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    gap: 1.4rem 0.9rem;
+    padding-inline: 0.5rem;
+  }
+
+  .store-card {
+    transform: scale(0.9);
+    transform-origin: top center;
+  }
+}
+
+/* Mycket liten mobil – fortfarande 2 per rad, lite mer scale */
+@media (max-width: 480px) {
+  .store-grid {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+    gap: 1.2rem 0.7rem;
+  }
+
+  .store-card {
+    transform: scale(0.86);
+  }
 }
 
 /* ============================================================
-   CARD WRAPPER
+   CARD CONTAINER
    ============================================================ */
 
 .store-card {
-  width: 265px;
-  background: #111;
-  border-radius: 14px;
+  background: #050505;
+  border-radius: 18px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 0 18px rgba(0,0,0,0.45);
-  transition: transform 0.22s ease,
-              box-shadow 0.22s ease,
-              border-color 0.22s ease;
+  border: 1px solid rgba(212,160,23,0.7); /* “deep gold” ram */
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.6),
+    0 18px 35px rgba(0,0,0,0.85);
+  display: flex;
+  flex-direction: column;
+  max-width: 265px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+/* Håll korten ungefär lika höga på desktop */
+@media (min-width: 769px) {
+  .store-card {
+    min-height: 460px;
+  }
 }
 
 .store-card:hover {
+  box-shadow:
+    0 0 0 1px rgba(212,160,23,0.35),
+    0 22px 40px rgba(0,0,0,0.95);
   transform: translateY(-4px);
-  border-color: var(--gold-soft);
-  box-shadow: 0 0 26px rgba(0,0,0,0.65),
-              0 0 12px var(--gold-soft);
 }
 
 /* ============================================================
@@ -38,7 +91,7 @@
 
 .store-img {
   width: 100%;
-  height: 170px;
+  height: 230px;
   object-fit: cover;
   display: block;
 }
@@ -48,156 +101,179 @@
    ============================================================ */
 
 .store-body {
-  padding: 1rem 1.2rem 1.4rem;
+  padding: 0.95rem 1.05rem 1.1rem;
   display: flex;
   flex-direction: column;
+  gap: 0.55rem;
+  flex: 1;
 }
 
 .store-title {
   font-size: 1.05rem;
-  font-weight: 600;
-  margin-bottom: 0.35rem;
-  color: #fff;
   line-height: 1.25;
+  font-weight: 650;
+  margin: 0;
 }
 
 /* ============================================================
-   BADGES
+   BADGES (LOUNGE / PUBLIC / MEMBERS etc)
    ============================================================ */
 
 .badge-row {
   display: flex;
-  gap: 0.4rem;
-  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+  gap: 0.35rem;
 }
 
 .badge {
-  padding: 3px 9px;
   border-radius: 999px;
-  font-size: 0.68rem;
+  padding: 0.12rem 0.55rem;
+  font-size: 0.7rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .badge.blue {
-  background: rgba(70,130,240,0.18);
-  border-color: rgba(70,130,240,0.35);
-  color: #9fc6ff;
+  background: rgba(35,96,210,0.9);
+  color: #f5f5f5;
 }
 
 .badge.access.public {
-  background: rgba(80,200,70,0.15);
-  color: #bfffbf;
-  border-color: rgba(110,255,110,0.4);
+  background: rgba(46,125,50,0.95);
+  color: #f5f5f5;
 }
 
-.badge.access.private {
-  background: rgba(255,70,70,0.15);
-  color: #ffb3b3;
-  border-color: rgba(255,90,90,0.4);
+.badge.access.members {
+  background: rgba(183,110,5,0.95);
+  color: #f5f5f5;
 }
 
 /* ============================================================
-   STARS + COUNT
+   STARS + RATING COUNT
+   (funkar både med .stars + .rating-count och .no-rating)
    ============================================================ */
 
-.stars {
-  font-size: 1rem;
-  color: var(--gold);
+.stars-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-.no-rating {
-  font-size: 0.82rem;
-  color: var(--muted);
+.stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  font-size: 0.9rem;
+  color: #f6d36a;
+  letter-spacing: 0.08em;
 }
 
 .rating-count {
-  margin-left: 4px;
+  font-size: 0.78rem;
+  color: #888;
+}
+
+.no-rating {
   font-size: 0.8rem;
-  color: var(--muted);
+  color: #777;
 }
 
 /* ============================================================
-   LOCATION
+   LOCATION (flagga + city, country + continent)
    ============================================================ */
 
 .locrow {
-  margin: 0.8rem 0;
+  margin-top: 0.2rem;
 }
 
 .loc-top {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.35rem;
+  font-size: 0.88rem;
 }
 
 .flag {
-  width: 20px;
-  height: 14px;
-  border-radius: 3px;
-  box-shadow: 0 0 3px rgba(0,0,0,0.4);
+  width: 18px;
+  height: 12px;
+  border-radius: 2px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
 }
 
 .continent-label {
-  font-size: 0.75rem;
-  color: var(--muted);
-  margin-top: 2px;
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: #888;
 }
 
 /* ============================================================
-   INFOBLOCK
+   INFOBLOCK (Address / Phone / Website)
    ============================================================ */
 
 .infoblock {
-  margin-top: 0.7rem;
-  padding-top: 0.8rem;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: #c2c2c2;
 }
 
 .info-row {
-  font-size: 0.85rem;
-  color: var(--muted);
-  line-height: 1.35;
-  margin-bottom: 4px;
+  margin: 0.08rem 0;
   white-space: nowrap;
-  text-overflow: ellipsis;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.infoblock strong {
-  color: #fff;
-  margin-right: 3px;
+.info-row strong {
+  color: #ffffff;
+  font-weight: 600;
+  margin-right: 4px;
 }
 
-.infoblock a {
+.info-row a {
   color: var(--gold);
   text-decoration: none;
 }
-.infoblock a:hover {
+
+.info-row a:hover {
   text-decoration: underline;
 }
 
 /* ============================================================
-   COMMENTS BUTTON
+   FOOTER / COMMENTS
    ============================================================ */
 
+/* “Comments”-knappen ligger längst ned i kortet */
 .reviews-btn {
-  margin-top: 0.6rem;
-  padding: 0.55rem;
-  border-radius: 10px;
   width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: var(--gold);
+  margin-top: auto; /* tryck ned till botten */
+  border-radius: 999px;
+  border: 1px solid rgba(212,160,23,0.6);
+  background: radial-gradient(circle at top, rgba(212,160,23,0.16), #111111);
+  color: #f5f5f5;
+  font-size: 0.83rem;
   font-weight: 600;
+  padding: 0.5rem 0.4rem;
   cursor: pointer;
-  transition: 0.18s ease;
+  transition: background 0.18s ease,
+              transform 0.18s ease,
+              box-shadow 0.18s ease;
+  position: relative;
+}
+
+/* tunn linje som delar av nederdelen av kortet */
+.reviews-btn::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  top: -0.55rem;
+  border-top: 1px solid rgba(255,255,255,0.07);
 }
 
 .reviews-btn:hover {
-  background: rgba(255,255,255,0.06);
-  box-shadow: 0 0 6px var(--gold-soft);
-  border-color: var(--gold-soft);
+  background: radial-gradient(circle at top, rgba(212,160,23,0.35), #171717);
+  box-shadow: 0 0 0 1px rgba(212,160,23,0.5);
+  transform: translateY(-1px);
 }
