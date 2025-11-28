@@ -74,23 +74,18 @@ body {
 /* ------------------------------------------------------------
    General line style
 ------------------------------------------------------------ */
-.line {
-  width: 100%;
-  border: none;
-  background: transparent;
-  color: #e5e5e5;
-  padding: 0.55rem 0.45rem;
-  font-size: 0.9rem;
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  border-radius: 8px;
+/* CLEAN, SLEEK GOLD PILL — no double glow */
+.line .pill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f4d77b, #c9a642);
+  border: 1px solid rgba(255,220,150,0.35);
+  color: #111;
+  font-size: 0.72rem;
+  font-weight: 600;
+  box-shadow: 0 0 4px rgba(255,215,130,0.25);
   position: relative;
-
-  transition: all 0.18s ease;
+  z-index: 3;
 }
 
 /* Hover glow */
