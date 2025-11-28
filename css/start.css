@@ -154,13 +154,20 @@ body {
 .ad-title {
   font-size: 0.78rem;
   color: var(--gold);
-  font-weight:
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.ad-code {
+  font-size: 0.75rem;
+  color: #ccc;
+}
 
 
 /* ============================================================
-   HIERARCHY LIST — arrow → label → gold count
+   WCL SIDEBAR — ULTRA CLEAN GOLD EDITION v7 (FINAL)
    ============================================================ */
 
+/* MAIN NAV WRAPPER */
 .nav {
   list-style: none;
   padding: 0;
@@ -169,11 +176,11 @@ body {
   overflow-y: auto;
 }
 
-/* BASE LINE (row) */
+/* BASE LINE */
 .line {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 0.55rem 0.65rem;
   background: transparent;
   cursor: pointer;
@@ -181,36 +188,36 @@ body {
   color: #e5e5e5;
 }
 
-/* No hover glow */
+/* NO hover glow */
 .line:hover {
   background: transparent !important;
   transform: none !important;
   box-shadow: none !important;
 }
 
-/* OPEN state (only thin gold border-left) */
+/* OPEN state — ONLY gold border-left */
 .line.open {
   border-left: 3px solid var(--gold);
   background: rgba(212,160,23,0.06);
 }
 
-/* ARROW (left, larger, gold) */
+/* ARROW (left) */
 .line .arrow {
   order: 1;
   font-size: 1.25rem;
   color: var(--gold);
   opacity: 0.95;
-  width: 16px;
+  width: 18px;
   display: flex;
   justify-content: center;
-  transition: transform .22s ease;
+  transition: transform 0.22s ease;
 }
 
 .line.open .arrow {
   transform: rotate(90deg);
 }
 
-/* LABEL (middle) */
+/* LABEL */
 .line .label {
   order: 2;
   flex: 1;
@@ -218,31 +225,30 @@ body {
   font-weight: 600;
 }
 
-/* GOLD COUNT (right side, clean numbers only) */
+/* COUNT — pure gold numbers */
 .line .pill {
   order: 3;
   font-size: 0.83rem;
   font-weight: 700;
   color: var(--gold);
-  background: none !important;
   padding: 0 !important;
+  background: none !important;
   border: none !important;
   box-shadow: none !important;
   margin-right: 4px;
 }
 
-/* remove old pill artifacts */
-.line .pill::after,
-.line .pill::before {
+.line .pill::before,
+.line .pill::after {
   content: none !important;
 }
 
-/* HIERARCHY LEVEL SIZES */
+/* HIERARCHY LEVEL FONT SIZES */
 .line.continent { font-size: 1rem; }
 .line.country   { font-size: 0.9rem; padding-left: 0.4rem; }
 .line.city      { font-size: 0.82rem; padding-left: 0.8rem; color: #ccc; }
 
-/* Remove old dashed lines */
+/* NESTED — clean expand */
 .nested {
   display: none;
   margin-left: 1.4rem;
