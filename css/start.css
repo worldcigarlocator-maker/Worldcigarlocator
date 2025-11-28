@@ -88,6 +88,14 @@ body {
   z-index: 3;
 }
 
+/* REMOVE old duplicated glow systems */
+.line .pill::before,
+.line .pill::after,
+.line.open::before {
+  content: none !important;
+}
+
+
 /* Hover glow */
 .line:hover {
   background: rgba(255, 255, 255, 0.03);
@@ -118,20 +126,6 @@ body {
 /* Rotate on open */
 .line.open .arrow {
   transform: rotate(90deg);
-}
-
-/* ------------------------------------------------------------
-   PILL COUNTS
------------------------------------------------------------- */
-.line .pill {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #e6d8a6, #c6b274 60%, #f0e4bd);
-  border: 1px solid rgba(214, 195, 135, 0.4);
-  box-shadow: 0 0 8px rgba(214, 195, 135, 0.4);
-  color: #222;
-  font-size: 0.75rem;
-  font-weight: 600;
 }
 
 /* ------------------------------------------------------------
