@@ -331,18 +331,6 @@ body {
   margin-left: 260px;
 }
 
-/* Centerat hero-system */
-.hero,
-.hero-text,
-.result-heading,
-.searchbar {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 0;
-  padding-right: 0;
-}
-
 
 /* =========================== SEARCH =========================== */
 .main-search {
