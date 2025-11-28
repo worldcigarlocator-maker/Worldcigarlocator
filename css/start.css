@@ -321,14 +321,27 @@ body {
    MAIN AREA
    ============================================================ */
 
-.main {
-  background: var(--main-bg);
-  padding: 1.4rem 1.4rem 3rem; /* mindre sidopadding */
-  display: flex;
-  flex-direction: column;
+.main > .hero-text,
+.main > .hero {
+  display: block;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-  /* Innehåll ska börja till höger om fixed sidebar */
-  margin-left: 260px;
+/* tvinga hero att få synlig höjd */
+.hero {
+  min-height: 260px;            /* lagom startvärde */
+  background: #000;             /* fallback */
+}
+
+/* hero-bild */
+.hero img.hero-bg {
+  width: 100%;
+  height: auto;
+  object-fit: cover;            /* fyller hela hero */
+  object-position: center;
 }
 
 
