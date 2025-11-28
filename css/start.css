@@ -90,15 +90,6 @@ body {
   margin-left: 260px;   /* samma bredd som sidebar */
 }
 
-header,
-.hero,
-.searchbar,
-.store-grid,
-.result-heading {
-  margin-left: 260px;   /* flytta ALLT innehåll */
-  max-width: calc(100% - 260px);
-}
-
 
 /* ============================================================
    WCL SIDEBAR — ULTRA CLEAN GOLD EDITION v7
@@ -329,18 +320,27 @@ header,
 /* ============================================================
    MAIN AREA
    ============================================================ */
-/* ============================================================
-   FIX #4 — Main layout offset for fixed sidebar
-   ============================================================ */
 
 .main {
   background: var(--main-bg);
-  padding: 1.4rem 2.4rem 3rem;
+  padding: 1.4rem 1.4rem 3rem; /* mindre sidopadding */
   display: flex;
   flex-direction: column;
 
-  /* CRITICAL FIX: pushes content right so it's not under sidebar */
+  /* Innehåll ska börja till höger om fixed sidebar */
   margin-left: 260px;
+}
+
+/* Centerat hero-system */
+.hero,
+.hero-text,
+.result-heading,
+.searchbar {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 
