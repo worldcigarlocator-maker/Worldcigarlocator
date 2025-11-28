@@ -1,154 +1,128 @@
-import { supabase, qs } from "./globals.js";
+// ============================================================
+// SIDEBAR.JS — Premium Hierarchy Navigation
+// ============================================================
+
+import { loadStores, resetToHero } from "./cards.js";
+
+/* DOM helper */
+const dom = (sel) => document.querySelector(sel);
+
+/* Container */
+const menu = dom("#sidebarMenu");
 
 /* ============================================================
-   TOGGLE HELPERS
-============================================================ */
-function toggleNested(btn, box, onOpen) {
-  const isOpen = box.classList.toggle("show");
-  btn.classList.toggle("open", isOpen);
+   BUILD SIDEBAR HIERARCHY
+   continents → countries → cities
+   ============================================================ */
+export function buildFrontendSidebar(supabase, loadFunc = loadStores) {
+  menu.innerHTML = "Loading…";
 
-  const arrow = btn.querySelector(".arrow");
-  if (arrow) arrow.style.transform = isOpen ? "rotate(90deg)" : "rotate(0deg)";
-
-  if (isOpen && typeof onOpen === "function") onOpen();
-}
-
-/* ============================================================
-   CONTINENT DETECTOR
-============================================================ */
-function getContinent(country) {
-  if (!country) return "Other";
-  const c = country.toLowerCase();
-
-  if (["usa", "united states", "canada", "mexico"].some(x => c.includes(x)))
-    return "North America";
-
-  if (
-    ["sweden","germany","france","uk","spain","italy","norway","poland","denmark"]
-      .some(x => c.includes(x))
-  )
-    return "Europe";
-
-  if (["china","japan","korea","india","thailand","vietnam"].some(x=>c.includes(x)))
-    return "Asia";
-
-  if (["south africa","nigeria","egypt"].some(x=>c.includes(x)))
-    return "Africa";
-
-  if (["australia","new zealand"].some(x=>c.includes(x)))
-    return "Oceania";
-
-  if (["brazil","argentina","chile"].some(x=>c.includes(x)))
-    return "South America";
-
-  return "Other";
-}
-
-/* ============================================================
-   BUILD SIDEBAR
-============================================================ */
-export function buildFrontendSidebar(supabaseClient, loadStores) {
-
-  const menu = qs("sidebarMenu");
-  if (!menu) return;
-
-  menu.innerHTML = `<li style="color:#888">Loading…</li>`;
-
-  supabaseClient
+  supabase
     .from("stores_frontend_public_v4")
-    .select("id,name,country,city")
+    .select("continent, country, city")
+    .order("continent", { ascending: true })
+    .order("country", { ascending: true })
+    .order("city", { ascending: true })
     .then(({ data, error }) => {
-      if (error || !data) {
-        console.error("Sidebar load error:", error);
-        menu.innerHTML = `<li style="color:#f33">Failed to load</li>`;
+      if (error) {
+        console.error(error);
+        menu.innerHTML = "Failed to load menu.";
         return;
       }
 
+      // Build tree structure
       const tree = {};
 
-      // Build tree structure
-      data.forEach(s => {
-        const cont = getContinent(s.country);
-        tree[cont] ??= {};
-        tree[cont][s.country] ??= {};
-        tree[cont][s.country][s.city] ??= [];
-        tree[cont][s.country][s.city].push(s);
+      data.forEach((row) => {
+        if (!row.continent) return;
+
+        if (!tree[row.continent]) tree[row.continent] = {};
+        if (!tree[row.continent][row.country]) tree[row.continent][row.country] = [];
+
+        if (row.city) tree[row.continent][row.country].push(row.city);
       });
 
+      /* Render menu */
       menu.innerHTML = "";
 
-      // Render
       Object.entries(tree).forEach(([continent, countries]) => {
+        const continentItem = createLine("continent", continent);
+        const contNested = createNested();
 
-        /* ------- CONTINENT ROW ------- */
-        const contBtn = document.createElement("button");
-        contBtn.className = "line continent";
+        // Insert continent block
+        menu.append(continentItem, contNested);
 
-        const total = Object.values(countries)
-          .reduce((sum, cityMap) =>
-            sum +
-            Object.values(cityMap).reduce((n, arr) => n + arr.length, 0),
-          0);
-
-        contBtn.innerHTML = `
-          <span class="arrow">▶</span>
-          <span class="label">${continent}</span>
-          <span class="pill">${total}</span>
-        `;
-
-        const contBox = document.createElement("div");
-        contBox.className = "nested";
-
-        contBtn.onclick = (e) => {
-          e.stopPropagation();
-          toggleNested(contBtn, contBox, () => loadStores({ continent }));
-        };
-
-        /* ------- COUNTRIES ------- */
+        // Add countries
         Object.entries(countries).forEach(([country, cities]) => {
-          const cBtn = document.createElement("button");
-          cBtn.className = "line country";
+          const countryItem = createLine("country", country);
+          const countryNested = createNested();
 
-          const count = Object.values(cities)
-            .reduce((n, arr) => n + arr.length, 0);
+          contNested.append(countryItem, countryNested);
 
-          cBtn.innerHTML = `
-            <span class="arrow">▶</span>
-            <span class="label">${country}</span>
-            <span class="pill">${count}</span>
-          `;
+          // Add cities
+          cities.forEach((city) => {
+            const cityItem = createLine("city", city);
+            cityItem.addEventListener("click", () => {
+              loadFunc({ city }, "");
+            });
 
-          const cBox = document.createElement("div");
-          cBox.className = "nested";
-
-          cBtn.onclick = (e) => {
-            e.stopPropagation();
-            toggleNested(cBtn, cBox, () => loadStores({ country }));
-          };
-
-          /* ------- CITIES ------- */
-          Object.entries(cities).forEach(([city, list]) => {
-            const cityBtn = document.createElement("button");
-            cityBtn.className = "line city";
-            cityBtn.innerHTML = `
-              <span class="label">${city}</span>
-              <span class="pill">${list.length}</span>
-            `;
-
-            cityBtn.onclick = (e) => {
-              e.stopPropagation();
-              loadStores({ city });
-            };
-
-            cBox.appendChild(cityBtn);
+            countryNested.append(cityItem);
           });
 
-          contBox.appendChild(cBtn);
-          contBox.appendChild(cBox);
+          /* COUNTRY CLICK → open + filter */
+          countryItem.addEventListener("click", () => {
+            toggle(countryItem, countryNested, ".country");
+            loadFunc({ country }, "");
+          });
         });
 
-        menu.appendChild(contBtn);
-        menu.appendChild(contBox);
+        /* CONTINENT CLICK → open + filter */
+        continentItem.addEventListener("click", () => {
+          toggle(continentItem, contNested, ".continent");
+          loadFunc({ continent }, "");
+        });
       });
     });
+}
+
+/* ============================================================
+   CREATE ELEMENT HELPERS
+   ============================================================ */
+
+function createLine(type, label) {
+  const el = document.createElement("div");
+  el.className = `line ${type}`;
+  el.innerHTML = `
+    <span class="label">${label}</span>
+    <span class="arrow">›</span>
+  `;
+  return el;
+}
+
+function createNested() {
+  const el = document.createElement("div");
+  el.className = "nested";
+  return el;
+}
+
+/* ============================================================
+   TOGGLE SYSTEM — only ONE open per level
+   ============================================================ */
+function toggle(clickedItem, clickedNested, selector) {
+  const allItems = document.querySelectorAll(selector);
+  const allNested = document.querySelectorAll(selector + " + .nested");
+
+  allItems.forEach((item, i) => {
+    const nest = allNested[i];
+
+    if (item === clickedItem) {
+      // Toggle clicked one
+      item.classList.toggle("open");
+      nest.classList.toggle("show");
+    } else {
+      // Close all others
+      item.classList.remove("open");
+      nest.classList.remove("show");
+    }
+  });
 }
