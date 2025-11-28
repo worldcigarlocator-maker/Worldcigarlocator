@@ -1,23 +1,40 @@
 /* ============================================================
    CARD GRID LAYOUT
    ============================================================ */
+/* ============================================================
+   FIX #3 — Smaller card scale (premium compact layout)
+   ============================================================ */
+
+.store-card {
+  transform: scale(0.92);
+  transform-origin: top center;
+}
+
+/* ============================================================
+   CARD GRID LAYOUT (clean merged version)
+   ============================================================ */
 
 .store-grid {
   width: 100%;
   display: grid;
-  justify-content: center;              /* centrera hela gridden */
-  gap: 2rem 1.6rem;                     /* vertikalt / horisontellt mellan kort */
-  padding: 1.5rem 0 3rem;
+  justify-content: center;
   box-sizing: border-box;
+
+  /* spacing */
+  gap: 1.4rem 1.2rem; 
+  padding: 1.2rem 0 2.4rem;
+
+  /* responsive auto layout */
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 }
 
-/* 🔒 Desktop – lås 4 kort i bredd när det finns plats */
+/* Desktop — lock 4 cards per row */
 @media (min-width: 1280px) {
   .store-grid {
     grid-template-columns: repeat(4, 265px);
   }
 }
+
 
 /* Tablet – lite smalare kort, fortfarande flera per rad */
 @media (max-width: 1024px) {
