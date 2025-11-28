@@ -61,122 +61,167 @@ body {
 
 
 /* ============================================================
-   PREMIUM SIDEBAR — ULTRA CLEAN (arrow → label → gold count)
+   WCL SIDEBAR — ULTRA CLEAN GOLD EDITION v7
    ============================================================ */
 
-.sidebar {
-  background: #050505;
-  border-right: 1px solid #191919;
-  padding: 1.6rem 1.2rem 1.4rem;
-  display: flex;
-  flex-direction: column;
+/* --------------------------------------------
+   LOGO (WORLD CIGAR LOCATOR — one line, gold)
+-------------------------------------------- */
+.sidebar .logo {
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--gold);
+  margin-bottom: 0.9rem;
+  white-space: nowrap;
 }
 
-/* ------------------------------------------------------------
-   Line base
-   ------------------------------------------------------------ */
-.line {
-  width: 100%;
-  padding: 0.55rem 0.55rem;
-  background: transparent;
-  color: #e5e5e5;
-  font-size: 0.9rem;
-
+/* --------------------------------------------
+   SIDEBAR TOP (Online + Login)
+-------------------------------------------- */
+.sidebar-top {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-bottom: 14px;
+}
 
+/* Guld prick + silver text */
+.online-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 50px;
+  border: 1px solid #888;        /* silver line */
+  background: #0e0e0e;
+  color: #ccc;                   /* silver text */
+  font-size: 0.82rem;
+}
+
+.online-box .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 6px rgba(212,160,23,0.7);
+}
+
+/* Login / Logout buttons */
+.login-btn,
+.logout-btn {
+  padding: 4px 14px;
+  border-radius: 50px;
+  border: 1px solid #999;
+  background: #1a1a1a;
+  color: #eaeaea;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.login-btn:hover,
+.logout-btn:hover {
+  filter: brightness(1.12);
+}
+
+/* Divider (silver) */
+.sidebar-divider {
+  border: none;
+  height: 1px;
+  background: #888;   /* clean silver */
+  margin: 14px 0;
+}
+
+
+/* ============================================================
+   HIERARCHY LIST — arrow → label → gold count
+   ============================================================ */
+
+.nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* BASE LINE (row) */
+.line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.55rem 0.65rem;
+  background: transparent;
   cursor: pointer;
   border-radius: 6px;
-
-  border: none !important;
-  transition: none !important;
+  color: #e5e5e5;
 }
 
-/* No hover, no glow */
+/* No hover glow */
 .line:hover {
   background: transparent !important;
-  box-shadow: none !important;
   transform: none !important;
+  box-shadow: none !important;
 }
 
-/* No open state highlight */
+/* OPEN state (only thin gold border-left) */
 .line.open {
   border-left: 3px solid var(--gold);
-  background: rgba(214,195,135,0.08);
-  padding-left: calc(0.45rem - 3px);
+  background: rgba(212,160,23,0.06);
 }
 
-/* ------------------------------------------------------------
-   CLEAN ARROW → LABEL → GOLD COUNT
------------------------------------------------------------- */
-
-/* =============== ARROW =============== */
+/* ARROW (left, larger, gold) */
 .line .arrow {
   order: 1;
-  font-size: 1.25rem;          /* 🔥 större pil */
-  color: var(--gold);          /* guld */
-  opacity: 0.9;
-  width: 18px;
+  font-size: 1.25rem;
+  color: var(--gold);
+  opacity: 0.95;
+  width: 16px;
   display: flex;
   justify-content: center;
-  margin-right: 6px;
-
   transition: transform .22s ease;
 }
 
-/* Rotate on open */
 .line.open .arrow {
   transform: rotate(90deg);
 }
 
-/* =============== LABEL =============== */
+/* LABEL (middle) */
 .line .label {
   order: 2;
   flex: 1;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: 600;
 }
 
-/* =============== COUNT (PURE GOLD) =============== */
+/* GOLD COUNT (right side, clean numbers only) */
 .line .pill {
   order: 3;
-  font-size: 0.78rem;
+  font-size: 0.83rem;
   font-weight: 700;
   color: var(--gold);
-
-  /* inga bubblor, inga glow, inget background */
   background: none !important;
   padding: 0 !important;
   border: none !important;
   box-shadow: none !important;
-
-  margin-left: 4px;
   margin-right: 4px;
 }
 
-/* =============== NO HOVER, NO GLOW =============== */
-.line:hover {
-  background: transparent !important;
-  box-shadow: none !important;
-  transform: none !important;
+/* remove old pill artifacts */
+.line .pill::after,
+.line .pill::before {
+  content: none !important;
 }
 
-/* =============== OPEN STATE (ONLY GOLD LINE) =============== */
-.line.open {
-  background: transparent !important;
-  border-left: 3px solid var(--gold);
-  padding-left: calc(0.55rem - 3px);
-}
+/* HIERARCHY LEVEL SIZES */
+.line.continent { font-size: 1rem; }
+.line.country   { font-size: 0.9rem; padding-left: 0.4rem; }
+.line.city      { font-size: 0.82rem; padding-left: 0.8rem; color: #ccc; }
 
-
-/* ------------------------------------------------------------
-   Nested groups (clean, no lines)
-   ------------------------------------------------------------ */
+/* Remove old dashed lines */
 .nested {
   display: none;
-  margin-left: 1.6rem;
+  margin-left: 1.4rem;
   padding-left: 0;
   border: none !important;
 }
@@ -185,205 +230,6 @@ body {
   display: block;
 }
 
-/* ------------------------------------------------------------
-   Hierarchy levels
-   ------------------------------------------------------------ */
-.line.continent { font-size: 1rem; font-weight: 700; }
-.line.country   { font-size: 0.88rem; }
-.line.city      { font-size: 0.82rem; color: #cfcfcf; }
-
-}
-
-.line.country {
-  font-size: 0.88rem;
-  padding-left: 0.8rem;
-}
-
-.line.city {
-  font-size: 0.82rem;
-  padding-left: 1.6rem;
-  color: #cfcfcf;
-}
-
-.line.city:hover {
-  background: rgba(255, 255, 255, 0.03);
-  transform: translateX(3px);
-}
-
-
-
-/* ------------------------------------------------------------
-   CLEAN, SLEEK GOLD PILL — no double glow
------------------------------------------------------------- */
-.line .pill {
-  padding: 3px 10px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #f4d77b, #c9a642);
-  border: 1px solid rgba(255,220,150,0.35);
-  color: #111;
-  font-size: 0.72rem;
-  font-weight: 600;
-  box-shadow: 0 0 4px rgba(255,215,130,0.25);
-  position: relative;
-  z-index: 3;
-}
-
-/* REMOVE old duplicated glow systems (critical) */
-.line .pill::before,
-.line .pill::after,
-.line.open::before {
-  content: none !important;
-}
-
-/* ------------------------------------------------------------
-   OPEN STATE (active)
------------------------------------------------------------- */
-.line.open {
-  background: rgba(214, 195, 135, 0.08) !important;
-  border-left: 2px solid var(--gold) !important;
-  padding-left: calc(0.45rem - 2px);
-}
-
-/* ------------------------------------------------------------
-   Arrow
------------------------------------------------------------- */
-.line .arrow {
-  font-size: 0.7rem;
-  color: var(--gold);
-  opacity: 0.8;
-  margin-right: 0.5rem;
-  transition: transform 0.22s cubic-bezier(.22, .61, .36, 1);
-}
-
-/* Rotate arrow when open */
-.line.open .arrow {
-  transform: rotate(90deg);
-}
-
-/* ------------------------------------------------------------
-   Nested groups (smooth expand)
------------------------------------------------------------- */
-.nested {
-  max-height: 0;
-  overflow: hidden;
-  margin-left: 0.7rem;
-  border-left: 1px solid rgba(255, 255, 255, 0.05);
-  padding-left: 0.7rem;
-  transition: max-height 0.25s ease-in-out;
-}
-
-.nested.show {
-  max-height: 900px; /* auto-expand */
-}
-
-/* ------------------------------------------------------------
-   Hierarchy levels
------------------------------------------------------------- */
-.line.continent {
-  font-size: 1rem;
-  color: #fff;
-  font-weight: 700;
-}
-
-.line.country {
-  font-size: 0.88rem;
-  padding-left: 0.8rem;
-}
-
-.line.city {
-  font-size: 0.82rem;
-  padding-left: 1.6rem;
-  color: #cfcfcf;
-}
-
-.line.city:hover {
-  background: rgba(255, 255, 255, 0.03);
-  transform: translateX(3px);
-}
-
-
-/* ============================================================
-   SIDEBAR TREE (CONTINENT → COUNTRY → CITY)
-   ============================================================ */
-.nav {
-  list-style: none;
-  margin: 0.8rem 0;
-  padding: 0;
-  flex: 1;
-  overflow-y: auto;
-  font-size: 0.84rem;
-}
-
-.line {
-  width: 100%;
-  padding: 0.45rem 0.4rem;
-  margin-bottom: 2px;
-  background: transparent;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  color: #e0e0e0;
-  transition: 0.15s;
-}
-
-.line:hover {
-  background: rgba(255, 255, 255, 0.04);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
-    0 0 6px rgba(214, 195, 135, 0.15);
-  transform: translateX(2px);
-}
-
-.line.open {
-  border-left: 3px solid var(--gold);
-  background: rgba(214,195,135,0.08);
-  padding-left: calc(0.45rem - 3px);
-}
-
-
-.line .label {
-  flex: 1;
-}
-
-.line .arrow {
-  font-size: 0.7rem;
-  color: var(--gold);
-  transition: transform 0.15s ease;
-  opacity: 0.8;
-}
-
-.pill {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #e6d8a6, #c6b274 60%, #f0e4bd);
-  box-shadow: 0 0 8px var(--gold-glow);
-  border: 1px solid var(--gold-soft);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #222;
-}
-
-/* Padding levels */
-.line.country {
-  padding-left: 1.2rem;
-}
-.line.city {
-  padding-left: 2.3rem;
-  font-size: 0.78rem;
-}
-
-/* Nested containers */
-.nested {
-  display: none;
-  padding-left: 0.3rem;
-  border-left: 1px dashed rgba(255, 255, 255, 0.08);
-  margin-left: 0.55rem;
-}
-.nested.show {
-  display: block;
-}
 
 /* ============================================================
    SIDEBAR BOTTOM LINKS
