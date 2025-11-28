@@ -102,29 +102,37 @@ body {
 
 /* No open state highlight */
 .line.open {
-  background: transparent !important;
-  border: none !important;
+  border-left: 3px solid var(--gold);
+  background: rgba(214,195,135,0.08);
+  padding-left: calc(0.45rem - 3px);
 }
+
 
 /* ------------------------------------------------------------
    ARROW (left aligned)
    ------------------------------------------------------------ */
+/* ------------------------------------------------------------
+   ARROW (left side, larger, clean gold)
+------------------------------------------------------------ */
 .line .arrow {
-  order: 1;
-  font-size: 0.8rem;
+  order: 1;                     /* left side */
+  font-size: 1rem;              /* bigger arrow */
   color: var(--gold);
+  margin-right: 10px;           /* spacing after arrow */
   opacity: 0.85;
 
-  width: 16px;
+  width: 16px;                  /* keeps arrow centered */
   display: flex;
   justify-content: center;
 
-  transition: transform .22s ease;
+  transition: transform 0.22s ease;
 }
 
+/* Rotate arrow when line is open */
 .line.open .arrow {
   transform: rotate(90deg);
 }
+
 
 /* ------------------------------------------------------------
    LABEL (center)
@@ -139,16 +147,16 @@ body {
    COUNT (right aligned, gold)
    ------------------------------------------------------------ */
 .line .pill {
-  order: 3;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--gold);
   background: none !important;
-  padding: 0 !important;
   border: none !important;
   box-shadow: none !important;
-  margin-right: 6px;
+  padding: 0 !important;
+  margin-left: 6px;
+  color: var(--gold) !important;
+  font-size: 0.82rem;
+  font-weight: 600;
 }
+
 
 /* ------------------------------------------------------------
    Nested groups (clean, no lines)
