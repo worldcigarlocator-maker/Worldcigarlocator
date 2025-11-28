@@ -59,17 +59,7 @@ body {
   display: none;
 }
 
-/* ============================================================
-   PREMIUM SIDEBAR 2.0 — Luxury Gold Navigation
-   ============================================================ */
 
-.sidebar {
-  background: #050505;
-  border-right: 1px solid #191919;
-  padding: 1.6rem 1.2rem 1.4rem;
-  display: flex;
-  flex-direction: column;
-}
 
 /* ============================================================
    PREMIUM SIDEBAR 2.0 — Luxury Gold Navigation (CLEAN VERSION)
