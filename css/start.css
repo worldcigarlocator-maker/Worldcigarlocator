@@ -61,6 +61,46 @@ body {
 
 
 /* ============================================================
+   FIX #1 — MAKE SIDEBAR FULL HEIGHT & FIXED
+   ============================================================ */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 260px;
+  height: 100vh;
+
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+
+  display: flex;
+  flex-direction: column;
+  padding: 1.6rem 1.2rem 1.4rem;
+
+  z-index: 3000;
+}
+
+/* ============================================================
+   FIX #2 — Shift main content to the right of fixed sidebar
+   ============================================================ */
+
+.main {
+  margin-left: 260px;   /* samma bredd som sidebar */
+}
+
+header,
+.hero,
+.searchbar,
+.store-grid,
+.result-heading {
+  margin-left: 260px;   /* flytta ALLT innehåll */
+  max-width: calc(100% - 260px);
+}
+
+
+/* ============================================================
    WCL SIDEBAR — ULTRA CLEAN GOLD EDITION v7
    ============================================================ */
 
