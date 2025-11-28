@@ -31,7 +31,6 @@ export function resetToHero() {
 
   const grid = dom("#storeGrid");
   const heading = dom("#resultHeading");
-  const showAll = dom("#showAllBtn");
   const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
 
@@ -40,8 +39,7 @@ export function resetToHero() {
     heading.style.display = "none";
     heading.textContent = "";
   }
-  if (showAll) showAll.style.display = "none";
-
+ 
   if (heroImage) heroImage.style.display = "block";
   if (heroText) heroText.style.display = "block";
 }
