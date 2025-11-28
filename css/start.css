@@ -116,7 +116,7 @@ body {
 ------------------------------------------------------------ */
 .line .arrow {
   order: 1;                     /* left side */
-  font-size: 1rem;              /* bigger arrow */
+  font-size: 1.3rem;              /* bigger arrow */
   color: var(--gold);
   margin-right: 10px;           /* spacing after arrow */
   opacity: 0.85;
@@ -141,20 +141,6 @@ body {
   order: 2;
   flex: 1;
   white-space: nowrap;
-}
-
-/* ------------------------------------------------------------
-   COUNT (right aligned, gold)
-   ------------------------------------------------------------ */
-.line .pill {
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin-left: 6px;
-  color: var(--gold) !important;
-  font-size: 0.82rem;
-  font-weight: 600;
 }
 
 
@@ -353,9 +339,11 @@ body {
 }
 
 .line.open {
-  background: rgba(214, 195, 135, 0.08);
-  border-left: 2px solid var(--gold);
+  border-left: 3px solid var(--gold);
+  background: rgba(214,195,135,0.08);
+  padding-left: calc(0.45rem - 3px);
 }
+
 
 .line .label {
   flex: 1;
