@@ -329,12 +329,20 @@ header,
 /* ============================================================
    MAIN AREA
    ============================================================ */
+/* ============================================================
+   FIX #4 — Main layout offset for fixed sidebar
+   ============================================================ */
+
 .main {
   background: var(--main-bg);
   padding: 1.4rem 2.4rem 3rem;
   display: flex;
   flex-direction: column;
+
+  /* CRITICAL FIX: pushes content right so it's not under sidebar */
+  margin-left: 260px;
 }
+
 
 /* =========================== SEARCH =========================== */
 .main-search {
@@ -625,8 +633,9 @@ header,
   }
 
   .main {
-    padding: 1.2rem;
-  }
+  padding: 1.2rem;
+  margin-left: 0 !important;   /* ← FIXAR MOBILEN */
+}
 
   /* Search bar sticky */
   .main-search {
