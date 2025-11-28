@@ -1,5 +1,5 @@
 // ============================================================
-// CARDS.JS — Premium Edition for stores_frontend_public_v4
+// CARDS.JS — PREMIUM VERSION FOR WCL FRONTEND
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -10,12 +10,10 @@ document.addEventListener("DOMContentLoaded", () => (DOM_READY = true));
 /* ------------------------------------------------------------
    DOM HELPER
 ------------------------------------------------------------ */
-function dom(sel) {
-  return document.querySelector(sel);
-}
+const dom = (sel) => document.querySelector(sel);
 
 /* ------------------------------------------------------------
-   FLAG — ISO2 → /assets/flags/xx.svg
+   FLAG HELPER (ISO2 → /assets/flags/xx.svg)
 ------------------------------------------------------------ */
 function getFlagUrl(store) {
   if (!store.country_iso2) return null;
@@ -33,32 +31,33 @@ export function resetToHero() {
 
   const grid = dom("#storeGrid");
   const heading = dom("#resultHeading");
-  const showAllBtn = dom("#showAllBtn");
-  const hero = dom("#heroImage");
+  const showAll = dom("#showAllBtn");
+  const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
 
   if (grid) grid.innerHTML = "";
-  if (heading) heading.style.display = "none";
-  if (showAllBtn) showAllBtn.style.display = "none";
+  if (heading) {
+    heading.style.display = "none";
+    heading.textContent = "";
+  }
+  if (showAll) showAll.style.display = "none";
 
-  if (hero) hero.style.display = "block";
+  if (heroImage) heroImage.style.display = "block";
   if (heroText) heroText.style.display = "block";
 }
 
 /* ------------------------------------------------------------
-   RATING SYSTEM — filled + empty stars + count
+   STAR BUILDER — ALWAYS 5 STARS + (count)
 ------------------------------------------------------------ */
-function renderStars(avg = 0, count = 0) {
-  avg = Number(avg) || 0;
-  count = Number(count) || 0;
-
-  const filled = "★".repeat(Math.round(avg));
-  const empty = "☆".repeat(5 - Math.round(avg));
+function buildStars(avg, count) {
+  const val = Number(avg) || 0;
+  const filled = "★".repeat(Math.round(val));
+  const empty = "☆".repeat(5 - Math.round(val));
 
   return `
-    <div class="stars">
-      ${filled}${empty}
-      <span class="rating-count">(${count})</span>
+    <div class="stars-row">
+      <span class="stars">${filled}${empty}</span>
+      <span class="rating-count">(${count || 0})</span>
     </div>
   `;
 }
@@ -67,57 +66,46 @@ function renderStars(avg = 0, count = 0) {
    CARD HTML
 ------------------------------------------------------------ */
 function cardHTML(s) {
-  const FALLBACK_PHOTO = "images/store.jpg";
-  const imgSrc = s.photo_final_url || FALLBACK_PHOTO;
-  const flagUrl = getFlagUrl(s);
-
-  // badges
-  const typeBadge = s.type
-    ? `<span class="badge blue">${s.type}</span>`
-    : "";
-
-  const accessBadge = s.access
-    ? `<span class="badge access ${s.access}">${s.access}</span>`
-    : "";
-
-  // rating
-  const stars = renderStars(s.rating_avg, s.rating_count);
+  const FALLBACK_IMAGE = "images/store.jpg";
+  const img = s.photo_final_url || FALLBACK_IMAGE;
+  const flag = getFlagUrl(s);
 
   return `
     <article class="store-card">
+
       <img
-        src="${imgSrc}"
+        src="${img}"
         class="store-img"
         alt="${s.name}"
-        onerror="this.onerror=null;this.src='${FALLBACK_PHOTO}';"
+        onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
       />
 
       <div class="store-body">
 
         <h3 class="store-title">${s.name || "Unnamed location"}</h3>
 
+        <!-- Badges -->
         <div class="badge-row">
-          ${typeBadge}
-          ${accessBadge}
+          ${s.type ? `<span class="badge blue">${s.type}</span>` : ""}
+          ${s.access ? `<span class="badge access ${s.access}">${s.access}</span>` : ""}
         </div>
 
-        ${stars}
+        <!-- Stars -->
+        ${buildStars(s.rating_avg, s.rating_count)}
 
+        <!-- Location -->
         <div class="locrow">
           <div class="loc-top">
-            ${flagUrl ? `<img src="${flagUrl}" class="flag" alt="${s.country}" />` : ""}
+            ${flag ? `<img src="${flag}" class="flag" alt="${s.country}" />` : ""}
             <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
           </div>
           <p class="continent-label">${s.continent || ""}</p>
         </div>
 
+        <!-- Info block -->
         <div class="infoblock">
-          <p class="info-row">
-            <strong>Address:</strong> ${s.address || ""}
-          </p>
-          <p class="info-row">
-            <strong>Phone:</strong> ${s.phone || ""}
-          </p>
+          <p class="info-row"><strong>Address:</strong> ${s.address || "—"}</p>
+          <p class="info-row"><strong>Phone:</strong> ${s.phone || "—"}</p>
           <p class="info-row">
             <strong>Website:</strong>
             ${
@@ -128,6 +116,7 @@ function cardHTML(s) {
           </p>
         </div>
 
+        <!-- Comments -->
         <button class="reviews-btn">
           Comments (${s.comment_count || 0})
         </button>
@@ -147,14 +136,14 @@ function renderCards(list) {
 }
 
 /* ------------------------------------------------------------
-   EXPORTED WRAPPER
+   EXPORT FOR main.js
 ------------------------------------------------------------ */
 export function renderStores(list) {
   renderCards(list);
 }
 
 /* ------------------------------------------------------------
-   LOAD STORES — v4 TABLE
+   LOAD STORES
 ------------------------------------------------------------ */
 export async function loadStores(filters = {}, search = "") {
   if (!DOM_READY) {
@@ -168,12 +157,12 @@ export async function loadStores(filters = {}, search = "") {
 
   const grid = dom("#storeGrid");
   const heading = dom("#resultHeading");
-  const showAllBtn = dom("#showAllBtn");
-  const hero = dom("#heroImage");
+  const showAll = dom("#showAllBtn");
+  const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
 
-  // hide hero
-  if (hero) hero.style.display = "none";
+  // Hide hero on results
+  if (heroImage) heroImage.style.display = "none";
   if (heroText) heroText.style.display = "none";
 
   if (heading) {
@@ -182,12 +171,12 @@ export async function loadStores(filters = {}, search = "") {
   }
 
   if (grid) grid.innerHTML = "";
-  if (showAllBtn) showAllBtn.style.display = "none";
+  if (showAll) showAll.style.display = "none";
 
-  // query
+  // Build query
   let query = supabase.from("stores_frontend_public_v4").select("*");
 
-  // search
+  // Search support
   if (search) {
     query = query.or(`
       name.ilike.%${search}%,
@@ -196,35 +185,34 @@ export async function loadStores(filters = {}, search = "") {
     `);
   }
 
-  // filters
+  // Filters
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country) query = query.eq("country", filters.country);
   if (filters.city) query = query.eq("city", filters.city);
 
-  const { data, error } = await query.order("created_at", {
-    ascending: false,
-  });
+  // Order newest first
+  const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Load error:", error);
-    heading.textContent = "Error loading stores.";
+    console.error("LOAD ERROR:", error);
+    if (heading) heading.textContent = "Error loading locations.";
     return;
   }
 
-  if (!data?.length) {
-    heading.textContent = "No results found.";
+  if (!data || data.length === 0) {
+    if (heading) heading.textContent = "No results found.";
     return;
   }
 
-  // render results
+  // Render cards
   renderCards(data);
 
-  heading.textContent = `${data.length} results`;
+  if (heading) heading.textContent = `${data.length} results`;
 
-  // show “show all”
-  if (showAllBtn) {
+  // Enable Show All if filtered or searched
+  if (showAll) {
     const filtered = search || Object.keys(filters).length > 0;
-    showAllBtn.style.display = filtered ? "inline-block" : "none";
-    showAllBtn.onclick = resetToHero;
+    showAll.style.display = filtered ? "inline-block" : "none";
+    showAll.onclick = resetToHero;
   }
 }
