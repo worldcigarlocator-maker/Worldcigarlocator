@@ -2,9 +2,11 @@
    WCL START.CSS v6.2.1 — PREMIUM DARK + DEEP GOLD
    ============================================================ */
 
+
 /* ============================================================
    GLOBAL COLORS — PREMIUM DARK + DEEP GOLD
    ============================================================ */
+
 :root {
   --gold: #d4a017;
   --gold-soft: rgba(212,160,23,0.25);
@@ -20,9 +22,11 @@
   --border: #333;
 }
 
+
 /* ============================================================
-   RESET
+   RESET & BASE
    ============================================================ */
+
 * {
   margin: 0;
   padding: 0;
@@ -39,15 +43,18 @@ body {
   opacity: 0;
   animation: fadeIn 0.7s ease forwards;
 }
+
 @keyframes fadeIn {
   to {
     opacity: 1;
   }
 }
 
+
 /* ============================================================
    LAYOUT
    ============================================================ */
+
 .container {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
@@ -61,33 +68,30 @@ body {
 
 
 /* ============================================================
-   FIX #1 — MAKE SIDEBAR FULL HEIGHT & FIXED
+   SIDEBAR — FIXED, FULL HEIGHT
    ============================================================ */
 
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
-
   width: 260px;
   height: 100vh;
-
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
-
   display: flex;
   flex-direction: column;
   padding: 1.6rem 1.2rem 1.4rem;
-
   z-index: 3000;
 }
 
+
 /* ============================================================
-   FIX #2 — Shift main content to the right of fixed sidebar
+   MAIN — SHIFTED FOR FIXED SIDEBAR
    ============================================================ */
 
 .main {
-  margin-left: 260px;   /* samma bredd som sidebar */
+  margin-left: 260px;  /* samma bredd som sidebar */
 }
 
 
@@ -95,9 +99,11 @@ body {
    WCL SIDEBAR — ULTRA CLEAN GOLD EDITION v7
    ============================================================ */
 
+
 /* --------------------------------------------
    LOGO (WORLD CIGAR LOCATOR — one line, gold)
--------------------------------------------- */
+   -------------------------------------------- */
+
 .sidebar .logo {
   font-size: 1.45rem;
   font-weight: 800;
@@ -107,9 +113,11 @@ body {
   white-space: nowrap;
 }
 
+
 /* --------------------------------------------
    SIDEBAR TOP (Online + Login)
--------------------------------------------- */
+   -------------------------------------------- */
+
 .sidebar-top {
   display: flex;
   align-items: center;
@@ -124,9 +132,9 @@ body {
   gap: 6px;
   padding: 4px 12px;
   border-radius: 50px;
-  border: 1px solid #888;        /* silver line */
+  border: 1px solid #888;    /* silver line */
   background: #0e0e0e;
-  color: #ccc;                   /* silver text */
+  color: #ccc;               /* silver text */
   font-size: 0.82rem;
 }
 
@@ -163,9 +171,10 @@ body {
   margin: 14px 0;
 }
 
-/* ==========================================
+
+/* --------------------------------------------
    SIDEBAR SMALL PREMIUM AD
-========================================== */
+   -------------------------------------------- */
 
 .sidebar-ad {
   width: 100%;
@@ -188,17 +197,17 @@ body {
   font-weight: 700;
   margin-bottom: 4px;
 }
+
 .ad-code {
   font-size: 0.75rem;
   color: #ccc;
 }
 
 
-/* ============================================================
-   WCL SIDEBAR — ULTRA CLEAN GOLD EDITION v7 (FINAL)
-   ============================================================ */
+/* --------------------------------------------
+   NAV / HIERARKI (continents / countries / cities)
+   -------------------------------------------- */
 
-/* MAIN NAV WRAPPER */
 .nav {
   list-style: none;
   padding: 0;
@@ -275,11 +284,22 @@ body {
 }
 
 /* HIERARCHY LEVEL FONT SIZES */
-.line.continent { font-size: 1rem; }
-.line.country   { font-size: 0.9rem; padding-left: 0.4rem; }
-.line.city      { font-size: 0.82rem; padding-left: 0.8rem; color: #ccc; }
+.line.continent {
+  font-size: 1rem;
+}
 
-/* NESTED — clean expand */
+.line.country {
+  font-size: 0.9rem;
+  padding-left: 0.4rem;
+}
+
+.line.city {
+  font-size: 0.82rem;
+  padding-left: 0.8rem;
+  color: #ccc;
+}
+
+/* NESTED LISTS */
 .nested {
   display: none;
   margin-left: 1.4rem;
@@ -292,9 +312,10 @@ body {
 }
 
 
-/* ============================================================
+/* --------------------------------------------
    SIDEBAR BOTTOM LINKS
-   ============================================================ */
+   -------------------------------------------- */
+
 .sidebar-bottom {
   margin-top: 0.8rem;
   display: flex;
@@ -308,6 +329,7 @@ body {
   font-size: 0.82rem;
   padding: 0.25rem 0;
 }
+
 .menu-link:hover {
   color: var(--gold);
 }
@@ -317,12 +339,15 @@ body {
   font-weight: 600;
 }
 
+
 /* ============================================================
-   MAIN AREA
+   MAIN AREA — HERO, SEARCH, RESULTS
    ============================================================ */
-/* ============================================================
+
+
+/* --------------------------------------------
    HERO — FINAL GOLD EDITION
-   ============================================================ */
+   -------------------------------------------- */
 
 .main > .hero-text,
 .main > .hero {
@@ -339,11 +364,13 @@ body {
   margin-bottom: 1.4rem;
   margin-top: 0.3rem;
 }
+
 .hero-text h1 {
   color: var(--gold);
   font-size: 1.9rem;
   margin-bottom: 0.4rem;
 }
+
 .hero-text p {
   color: var(--muted);
   max-width: 720px;
@@ -381,7 +408,10 @@ body {
 }
 
 
-/* =========================== SEARCH =========================== */
+/* --------------------------------------------
+   SEARCHBAR
+   -------------------------------------------- */
+
 .main-search {
   display: flex;
   gap: 0.6rem;
@@ -397,6 +427,7 @@ body {
   color: #f0f0f0;
   font-size: 0.9rem;
 }
+
 .searchbar input::placeholder {
   color: #666;
 }
@@ -416,7 +447,6 @@ body {
   filter: brightness(1.08);
 }
 
-
 .btn.outline {
   background: transparent;
   color: var(--muted);
@@ -424,20 +454,24 @@ body {
 }
 
 
-/* ============================================================
+/* --------------------------------------------
    RESULTS GRID
-   ============================================================ */
+   -------------------------------------------- */
+
 .result-heading {
   margin-bottom: 0.7rem;
   color: var(--muted);
 }
+
 .store-grid {
   padding-top: 0.4rem;
 }
 
+
 /* ============================================================
-   AGE GATE
+   AGE GATE MODAL
    ============================================================ */
+
 .age-modal {
   position: fixed;
   inset: 0;
@@ -448,6 +482,7 @@ body {
   align-items: center;
   z-index: 2000;
 }
+
 .age-modal.hidden {
   display: none;
 }
@@ -462,16 +497,19 @@ body {
   max-width: 90%;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6);
 }
+
 .age-box h2 {
   color: var(--gold);
   margin-bottom: 1rem;
 }
+
 .age-buttons {
   display: flex;
   justify-content: center;
   gap: 10px;
   margin-bottom: 0.9rem;
 }
+
 .age-yes,
 .age-no {
   padding: 0.6rem 1.4rem;
@@ -479,17 +517,21 @@ body {
   cursor: pointer;
   font-weight: 600;
 }
+
 .age-yes {
   background: linear-gradient(135deg, #f3e29c, #d9c06a);
   color: #111;
 }
+
 .age-no {
   background: #262626;
 }
 
+
 /* ============================================================
    LOGIN POPUP — GLASSY
    ============================================================ */
+
 #loginPopup {
   position: fixed;
   inset: 0;
@@ -500,6 +542,7 @@ body {
   align-items: center;
   z-index: 3000;
 }
+
 #loginPopup.hidden {
   display: none !important;
 }
@@ -530,6 +573,7 @@ body {
   color: #fff;
   font-size: 0.9rem;
 }
+
 .login-field:focus {
   border-color: var(--gold);
   box-shadow: 0 0 0 1px var(--gold);
@@ -543,6 +587,7 @@ body {
   color: #ccc;
   margin-bottom: 1rem;
 }
+
 .remember-wrapper input {
   accent-color: var(--gold);
 }
@@ -552,6 +597,7 @@ body {
   color: var(--gold);
   text-decoration: none;
 }
+
 .forgot a:hover {
   text-decoration: underline;
 }
@@ -572,6 +618,7 @@ body {
   align-items: center;
   gap: 8px;
 }
+
 .spinner {
   width: 16px;
   height: 16px;
@@ -580,75 +627,26 @@ body {
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
+
 .spinner.hidden {
   display: none;
 }
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
+
 /* ============================================================
    MOBILE LAYOUT
    ============================================================ */
+
 @media (max-width: 880px) {
   .container {
     grid-template-columns: 1fr;
   }
 
-  /* Hide sidebar initially */
+  /* Hide sidebar initially on mobile */
   .sidebar {
-    position: fixed;
-    inset: 0 0 0 0;
-    width: 260px;
-    transform: translateX(-100%);
-    transition: transform 0.28s ease;
-    z-index: 4000;
-    background: #050505;
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  /* Mobile menu button */
-  .mobile-menu-btn {
-    position: fixed;
-    top: 12px;
-    left: 12px;
-    z-index: 5000;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(6px);
-    color: var(--gold);
-    font-size: 1.4rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    padding: 6px 10px;
-    cursor: pointer;
-    display: block;
-  }
-
-  .main {
-  padding: 1.2rem;
-  margin-left: 0 !important;   /* ← FIXAR MOBILEN */
-}
-
-  /* Search bar sticky */
-  .main-search {
-    position: sticky;
-    top: 0;
-    background: #101010;
-    padding-top: 0.6rem;
-    padding-bottom: 0.8rem;
-    z-index: 300;
-  }
-
-  /* Grid: center cards (mer exakt layout styrs av cards.css) */
-  .store-grid {
-    justify-content: center;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, 265px);
-    gap: 1rem;
-  }
-}
