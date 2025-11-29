@@ -1,11 +1,10 @@
-
 /* ============================================================
-   WCL START.CSS v6.2.1 — PREMIUM DARK + DEEP GOLD
+   WCL START.CSS v7 — PREMIUM DARK + DEEP GOLD (BLOCK LAYOUT)
    ============================================================ */
 
 
 /* ============================================================
-   GLOBAL COLORS — PREMIUM DARK + DEEP GOLD
+   1. GLOBAL COLORS — PREMIUM DARK + DEEP GOLD
    ============================================================ */
 
 :root {
@@ -25,7 +24,7 @@
 
 
 /* ============================================================
-   RESET & BASE
+   2. RESET & BASE
    ============================================================ */
 
 * {
@@ -53,23 +52,21 @@ body {
 
 
 /* ============================================================
-   LAYOUT
+   3. PAGE WRAPPER / LAYOUT
    ============================================================ */
 
+/* Enkel wrapper (ingen grid längre, block-layout) */
 .container {
-  display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100vh;
 }
 
-/* Hide mobile menu button on desktop */
+/* Mobilknapp döljs på desktop */
 .mobile-menu-btn {
   display: none;
 }
 
-
 /* ============================================================
-   SIDEBAR — FIXED, FULL HEIGHT
+   4. SIDEBAR — FIXED, FULL HEIGHT
    ============================================================ */
 
 .sidebar {
@@ -86,17 +83,18 @@ body {
   z-index: 3000;
 }
 
-
 /* ============================================================
-   MAIN — FIXED SIDEBAR LAYOUT (no extra margin)
+   5. MAIN — FÖRSKJUTEN FÖR FIXED SIDEBAR
    ============================================================ */
 
 .main {
-  margin-left: 260px;
-  padding: 1.4rem 1.4rem 3rem;
-  width: 100%;
-  display: block;
+  margin-left: 260px; /* samma bredd som sidebar */
+  padding: 1.6rem 1.8rem 2.4rem 1.8rem;
+  background: transparent;
 }
+/* ============================================================
+   6. WCL SIDEBAR — ULTRA CLEAN GOLD EDITION v7
+   ============================================================ */
 
 
 /* --------------------------------------------
@@ -151,7 +149,7 @@ body {
   padding: 4px 14px;
   border-radius: 50px;
   border: 1px solid #999;
-  background: #1a1a1a;
+  background: #1a1aa;
   color: #eaeaea;
   font-size: 0.82rem;
   cursor: pointer;
@@ -337,10 +335,8 @@ body {
   color: var(--gold);
   font-weight: 600;
 }
-
-
 /* ============================================================
-   MAIN AREA — HERO, SEARCH, RESULTS
+   7. MAIN AREA — HERO, SEARCH, RESULTS
    ============================================================ */
 
 
@@ -454,7 +450,7 @@ body {
 
 
 /* --------------------------------------------
-   RESULTS GRID
+   RESULTS GRID (rubriken, inte korten)
    -------------------------------------------- */
 
 .result-heading {
@@ -468,7 +464,7 @@ body {
 
 
 /* ============================================================
-   AGE GATE MODAL
+   8. AGE GATE MODAL
    ============================================================ */
 
 .age-modal {
@@ -528,7 +524,7 @@ body {
 
 
 /* ============================================================
-   LOGIN POPUP — GLASSY
+   9. LOGIN POPUP — GLASSY
    ============================================================ */
 
 #loginPopup {
@@ -636,16 +632,67 @@ body {
     transform: rotate(360deg);
   }
 }
-
-
 /* ============================================================
-   MOBILE LAYOUT
+   10. MOBILE LAYOUT
    ============================================================ */
 
 @media (max-width: 880px) {
+
+  /* Container räcker med block */
   .container {
-    grid-template-columns: 1fr;
+    min-height: 100vh;
   }
 
-  /* Hide sidebar initially on mobile */
+  /* Sidebar: slide-in meny på mobil */
   .sidebar {
+    position: fixed;
+    inset: 0 0 0 0;
+    width: 260px;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    z-index: 4000;
+    background: #050505;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Mobilmeny-knapp */
+  .mobile-menu-btn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 5000;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(6px);
+    color: var(--gold);
+    font-size: 1.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    display: block;
+  }
+
+  /* Main: ingen extra margin-left när sidebar är överlagrad */
+  .main {
+    margin-left: 0;
+    padding: 1.2rem;
+  }
+
+  /* Searchbar sticky i toppen */
+  .main-search {
+    position: sticky;
+    top: 0;
+    background: #101010;
+    padding-top: 0.6rem;
+    padding-bottom: 0.8rem;
+    z-index: 300;
+  }
+
+  /* Grid-centrering av kort (layout styrs vidare av cards.css) */
+  .store-grid {
+    justify-content: center;
+  }
+}
