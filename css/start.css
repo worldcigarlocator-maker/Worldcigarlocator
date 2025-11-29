@@ -1,7 +1,6 @@
 body {
-  border: 10px solid red !important;
+  border: 10px solid lime !important;
 }
-
 
 /* ============================================================
    WCL START.CSS v6.2.1 — PREMIUM DARK + DEEP GOLD
@@ -92,12 +91,14 @@ body {
 
 
 /* ============================================================
-   MAIN — SHIFTED FOR FIXED SIDEBAR
+   MAIN — FIXED SIDEBAR LAYOUT (no extra margin)
    ============================================================ */
 
 .main {
-  margin-left: 260px;  /* samma bredd som sidebar */
+  margin-left: 0;  /* grid already creates the 260px sidebar column */
+  padding: 1.6rem 1.8rem 2.4rem 1.8rem;
 }
+
 
 
 /* ============================================================
