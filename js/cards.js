@@ -91,14 +91,16 @@ function cardHTML(s) {
         <!-- Stars -->
         ${buildStars(s.rating_avg, s.rating_count)}
 
-        <!-- Location -->
-        <div class="locrow">
-          <div class="loc-top">
-            ${flag ? `<img src="${flag}" class="flag" alt="${s.country}" />` : ""}
-            <span>${[s.city, s.country].filter(Boolean).join(", ")}</span>
-          </div>
-          <p class="continent-label">${s.continent || ""}</p>
-        </div>
+<!-- Location -->
+<div class="locrow" data-city="${s.city || ''}">
+  <div class="loc-top">
+    ${flag ? `<img src="${flag}" class="flag" alt="${s.country}" />` : ""}
+    <span>${[s.continent, s.country].filter(Boolean).join(", ")}</span>
+  </div>
+
+  <!-- City as its own row for golden highlight -->
+  <p class="city-label">${s.city || ""}</p>
+</div>
 
         <!-- Info block -->
         <div class="infoblock">
