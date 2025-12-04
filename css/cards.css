@@ -1,6 +1,12 @@
 /* ============================================================
-   CARD GRID LAYOUT — STABLE, PREMIUM, NO SCALING
-============================================================ */
+   CARD GRID LAYOUT
+   ============================================================ */
+
+/* Premium compact scaling */
+.store-card {
+  transform: scale(0.92);
+  transform-origin: top center;
+}
 
 .store-grid {
   width: 100%;
@@ -9,10 +15,10 @@
   box-sizing: border-box;
   gap: 1.4rem 1.2rem;
   padding: 1.2rem 0 2.4rem;
-  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 }
 
-/* Desktop — exakt 4 kort per rad */
+/* Desktop — exact 4 per row */
 @media (min-width: 1280px) {
   .store-grid {
     grid-template-columns: repeat(4, 265px);
@@ -34,23 +40,29 @@
     gap: 1.4rem 0.9rem;
     padding-inline: 0.5rem;
   }
+  .store-card {
+    transform: scale(0.9);
+  }
 }
 
-/* Smallest mobile */
+/* Tiny Mobile */
 @media (max-width: 480px) {
   .store-grid {
     grid-template-columns: repeat(2, minmax(140px, 1fr));
     gap: 1.2rem 0.7rem;
   }
+  .store-card {
+    transform: scale(0.86);
+  }
 }
 
 /* ============================================================
-   CARD CONTAINER — NO SCALE, FIXED TRUE SIZE
-============================================================ */
+   CARD CONTAINER — EXACT HEIGHT 495px
+   ============================================================ */
 
 .store-card {
   width: 265px;
-  height: 485px;
+  height: 495px; /* ← FINAL PERFECT HEIGHT */
   display: flex;
   flex-direction: column;
   background: #050505;
@@ -64,26 +76,25 @@
 }
 
 .store-card:hover {
-  transform: translateY(-4px);
   box-shadow:
     0 0 0 1px rgba(212,160,23,0.35),
     0 22px 40px rgba(0,0,0,0.95);
+  transform: translateY(-4px);
 }
 
 /* ============================================================
    IMAGE
-============================================================ */
+   ============================================================ */
 
 .store-img {
   width: 100%;
   height: 180px;
   object-fit: cover;
-  display: block;
 }
 
 /* ============================================================
-   CARD BODY
-============================================================ */
+   BODY CONTENT
+   ============================================================ */
 
 .store-body {
   flex: 1;
@@ -94,69 +105,58 @@
 }
 
 /* ============================================================
-   TITLE — EXACT 2 LINES
-============================================================ */
+   TITLE — 2 ROWS
+   ============================================================ */
 
 .store-title {
-  font-size: 1.05rem;
+  font-size: 1.07rem;
+  font-weight: 700;
+  color: var(--gold);
   line-height: 1.25;
   height: calc(1.25em * 2);
-  overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  overflow: hidden;
   margin: 0 0 6px 0;
-  color: var(--gold);
 }
 
 /* ============================================================
-   BADGES — FIXED, CENTERED, SMALLER FONT
-============================================================ */
+   BADGES — FIXED
+   ============================================================ */
 
 .badge-row {
   height: 22px;
-  margin-top: -2px;
-  margin-bottom: 6px;
   display: flex;
-  align-items: center;
   gap: 0.35rem;
+  margin-bottom: 6px;
   overflow: hidden;
 }
 
 .badge {
   border-radius: 999px;
-  padding: 0.10rem 0.50rem;
-  font-size: 0.62rem;
-  line-height: 1rem;
+  padding: 0.05rem 0.5rem;
+  font-size: 0.65rem; /* smaller for perfect vertical centering */
   font-weight: 600;
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
 }
 
-.badge.blue {
-  background: rgba(35,96,210,0.9);
-  color: #fff;
-}
-
-.badge.access.public {
-  background: rgba(46,125,50,0.95);
-  color: #fff;
-}
-
-.badge.access.members {
-  background: rgba(183,110,5,0.95);
-  color: #fff;
-}
+.badge.blue { background: #235fd2; color: #fff; }
+.badge.access.public { background: #2e7d32; color: #fff; }
+.badge.access.members { background: #b76e05; color: #fff; }
 
 /* ============================================================
-   STARS
-============================================================ */
+   STARS ROW — FIXED
+   ============================================================ */
 
 .stars-row {
   height: 20px;
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .stars {
@@ -170,27 +170,26 @@
 }
 
 /* ============================================================
-   LOCATION — 2-LINE BLOCK WITH GOLDEN CITY
-============================================================ */
+   LOCATION — NEW LAYOUT (2 LINES)
+   ============================================================ */
 
 .locrow {
-  margin-top: 8px;
-  margin-bottom: 8px;
+  margin: 0 0 6px 0;
 }
 
 .loc-top {
-  height: 20px;
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  overflow: hidden;
+  font-size: 0.80rem;
+  line-height: 18px;
+  white-space: nowrap;
 }
 
 .flag {
   width: 18px;
   height: 12px;
   border-radius: 2px;
-  object-fit: cover;
   box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
 }
 
@@ -199,25 +198,22 @@
   font-size: 0.86rem;
   font-weight: 600;
   color: var(--gold);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 18px;
 }
 
 /* ============================================================
-   INFO BLOCK — 1-LINE ADDRESS, ALIGNED ROWS
-============================================================ */
+   INFO BLOCK
+   ============================================================ */
 
 .infoblock {
-  margin-top: 6px;
+  margin-top: 3px;
   flex-shrink: 0;
 }
 
 .info-row {
   height: 16px;
   line-height: 16px;
-  display: flex;
-  gap: 6px;
+  font-size: 0.78rem; /* smaller text, clean look */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -225,13 +221,13 @@
 
 .info-row strong {
   color: #fff;
+  font-size: 0.80rem;
   font-weight: 600;
-  margin-right: 4px;
+  margin-right: 3px;
 }
 
 .info-row a {
   color: var(--gold);
-  text-decoration: none;
 }
 
 .info-row a:hover {
@@ -240,22 +236,19 @@
 
 /* ============================================================
    COMMENTS BUTTON
-============================================================ */
+   ============================================================ */
 
 .reviews-btn {
   margin-top: auto;
   height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 999px;
   border: 1px solid rgba(212,160,23,0.6);
-  background: radial-gradient(circle at top, rgba(212,160,23,0.16), #111);
+  background: radial-gradient(circle at top, rgba(212,160,23,0.15), #111);
   color: #f5f5f5;
   font-size: 0.83rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.18s ease, transform 0.18s ease;
+  transition: 0.18s ease;
 }
 
 .reviews-btn:hover {
