@@ -1,12 +1,6 @@
 /* ============================================================
-   CARD GRID LAYOUT
-   ============================================================ */
-
-/* Optional premium compact scale */
-.store-card {
-  transform: scale(0.92);
-  transform-origin: top center;
-}
+   CARD GRID LAYOUT — STABLE, PREMIUM, NO SCALING
+============================================================ */
 
 .store-grid {
   width: 100%;
@@ -15,15 +9,17 @@
   box-sizing: border-box;
   gap: 1.4rem 1.2rem;
   padding: 1.2rem 0 2.4rem;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
 }
 
+/* Desktop — exakt 4 kort per rad */
 @media (min-width: 1280px) {
   .store-grid {
-    grid-template-columns: repeat(4, 278px);
+    grid-template-columns: repeat(4, 265px);
   }
 }
 
+/* Tablet */
 @media (max-width: 1024px) {
   .store-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -31,35 +27,29 @@
   }
 }
 
+/* Mobile */
 @media (max-width: 768px) {
   .store-grid {
     grid-template-columns: repeat(2, minmax(150px, 1fr));
     gap: 1.4rem 0.9rem;
     padding-inline: 0.5rem;
   }
-
-  .store-card {
-    transform: scale(0.9);
-  }
 }
 
+/* Smallest mobile */
 @media (max-width: 480px) {
   .store-grid {
     grid-template-columns: repeat(2, minmax(140px, 1fr));
     gap: 1.2rem 0.7rem;
   }
-
-  .store-card {
-    transform: scale(0.86);
-  }
 }
 
 /* ============================================================
-   CARD CONTAINER – FIXED SIZE
-   ============================================================ */
+   CARD CONTAINER — NO SCALE, FIXED TRUE SIZE
+============================================================ */
 
 .store-card {
-  width: 278px;
+  width: 265px;
   height: 485px;
   display: flex;
   flex-direction: column;
@@ -74,15 +64,15 @@
 }
 
 .store-card:hover {
+  transform: translateY(-4px);
   box-shadow:
     0 0 0 1px rgba(212,160,23,0.35),
     0 22px 40px rgba(0,0,0,0.95);
-  transform: translateY(-4px);
 }
 
 /* ============================================================
-   IMAGE – FIXED HEIGHT
-   ============================================================ */
+   IMAGE
+============================================================ */
 
 .store-img {
   width: 100%;
@@ -93,7 +83,7 @@
 
 /* ============================================================
    CARD BODY
-   ============================================================ */
+============================================================ */
 
 .store-body {
   flex: 1;
@@ -104,68 +94,69 @@
 }
 
 /* ============================================================
-   TITLE – GOLD + EXACTLY 2 LINES
-   ============================================================ */
+   TITLE — EXACT 2 LINES
+============================================================ */
 
 .store-title {
-  color: var(--gold);
   font-size: 1.05rem;
-  font-weight: 650;
   line-height: 1.25;
   height: calc(1.25em * 2);
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  margin: 0 0 4px 0;
+  margin: 0 0 6px 0;
+  color: var(--gold);
 }
 
 /* ============================================================
-   BADGES – TIGHTER SPACING
-   ============================================================ */
+   BADGES — FIXED, CENTERED, SMALLER FONT
+============================================================ */
 
 .badge-row {
   height: 22px;
+  margin-top: -2px;
+  margin-bottom: 6px;
   display: flex;
+  align-items: center;
   gap: 0.35rem;
   overflow: hidden;
-  margin-top: -2px;
-  margin-bottom: 4px;
 }
 
 .badge {
   border-radius: 999px;
-  padding: 0.12rem 0.55rem;
-  font-size: 0.7rem;
+  padding: 0.10rem 0.50rem;
+  font-size: 0.62rem;
+  line-height: 1rem;
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .badge.blue {
   background: rgba(35,96,210,0.9);
-  color: #f5f5f5;
+  color: #fff;
 }
 
 .badge.access.public {
   background: rgba(46,125,50,0.95);
-  color: #f5f5f5;
+  color: #fff;
 }
 
 .badge.access.members {
   background: rgba(183,110,5,0.95);
-  color: #f5f5f5;
+  color: #fff;
 }
 
 /* ============================================================
-   STARS – CLEAN & EVEN
-   ============================================================ */
+   STARS
+============================================================ */
 
 .stars-row {
   height: 20px;
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .stars {
@@ -179,23 +170,20 @@
 }
 
 /* ============================================================
-   LOCATION – NEW PREMIUM LAYOUT
-   ============================================================ */
+   LOCATION — 2-LINE BLOCK WITH GOLDEN CITY
+============================================================ */
 
 .locrow {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin: 4px 0;
+  margin-top: 8px;
+  margin-bottom: 8px;
 }
 
-/* Rad 1 — Europe, France */
 .loc-top {
+  height: 20px;
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.82rem;
-  color: #aaa;
+  overflow: hidden;
 }
 
 .flag {
@@ -203,54 +191,56 @@
   height: 12px;
   border-radius: 2px;
   object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
 }
 
-/* Rad 2 — Paris (GOLD) */
 .city-label {
-  font-size: 0.92rem;
+  margin-top: 2px;
+  font-size: 0.86rem;
   font-weight: 600;
   color: var(--gold);
-  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ============================================================
-   INFO BLOCK – PERFECT ALIGNMENT
-   ============================================================ */
+   INFO BLOCK — 1-LINE ADDRESS, ALIGNED ROWS
+============================================================ */
 
 .infoblock {
   margin-top: 6px;
-  display: grid;
-  grid-template-columns: 78px 1fr;
-  row-gap: 2px;
+  flex-shrink: 0;
 }
 
 .info-row {
-  display: contents;
+  height: 16px;
+  line-height: 16px;
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .info-row strong {
-  font-size: 0.84rem;
   color: #fff;
   font-weight: 600;
-}
-
-.info-row a,
-.info-row span,
-.info-row {
-  font-size: 0.74rem;
-  color: #cfcfcf;
+  margin-right: 4px;
 }
 
 .info-row a {
   color: var(--gold);
+  text-decoration: none;
 }
+
 .info-row a:hover {
   text-decoration: underline;
 }
 
 /* ============================================================
    COMMENTS BUTTON
-   ============================================================ */
+============================================================ */
 
 .reviews-btn {
   margin-top: auto;
@@ -260,7 +250,7 @@
   justify-content: center;
   border-radius: 999px;
   border: 1px solid rgba(212,160,23,0.6);
-  background: radial-gradient(circle at top, rgba(212,160,23,0.16), #111111);
+  background: radial-gradient(circle at top, rgba(212,160,23,0.16), #111);
   color: #f5f5f5;
   font-size: 0.83rem;
   font-weight: 600;
