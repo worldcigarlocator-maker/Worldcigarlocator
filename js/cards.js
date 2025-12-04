@@ -61,7 +61,7 @@ function buildStars(avg, count) {
 }
 
 /* ------------------------------------------------------------
-   CARD HTML
+   CARD HTML — FULL PREMIUM VERSION
 ------------------------------------------------------------ */
 function cardHTML(s) {
   const FALLBACK_IMAGE = "images/store.jpg";
@@ -71,6 +71,7 @@ function cardHTML(s) {
   return `
     <article class="store-card">
 
+      <!-- Image -->
       <img
         src="${img}"
         class="store-img"
@@ -80,43 +81,57 @@ function cardHTML(s) {
 
       <div class="store-body">
 
+        <!-- TITLE -->
         <h3 class="store-title">${s.name || "Unnamed location"}</h3>
 
-        <!-- Badges -->
+        <!-- BADGES -->
         <div class="badge-row">
           ${s.type ? `<span class="badge blue">${s.type}</span>` : ""}
           ${s.access ? `<span class="badge access ${s.access}">${s.access}</span>` : ""}
         </div>
 
-        <!-- Stars -->
+        <!-- STARS -->
         ${buildStars(s.rating_avg, s.rating_count)}
 
-<!-- Location -->
-<div class="locrow" data-city="${s.city || ''}">
-  <div class="loc-top">
-    ${flag ? `<img src="${flag}" class="flag" alt="${s.country}" />` : ""}
-    <span>${[s.continent, s.country].filter(Boolean).join(", ")}</span>
-  </div>
+        <!-- LOCATION -->
+        <div class="locrow" data-city="${s.city || ''}">
+          <div class="loc-top">
+            ${flag ? `<img src="${flag}" class="flag" alt="${s.country}" />` : ""}
+            <span>
+              ${[s.continent, s.country].filter(Boolean).join(", ")}
+            </span>
+          </div>
 
-  <!-- City as its own row for golden highlight -->
-  <p class="city-label">${s.city || ""}</p>
-</div>
+          <p class="city-label">
+            ${s.city || ""}
+          </p>
+        </div>
 
-        <!-- Info block -->
+        <!-- INFO BLOCK -->
         <div class="infoblock">
-          <p class="info-row"><strong>Address:</strong> ${s.address || "—"}</p>
-          <p class="info-row"><strong>Phone:</strong> ${s.phone || "—"}</p>
+
+          <p class="info-row">
+            <strong>Address:</strong>
+            <span>${s.address || "—"}</span>
+          </p>
+
+          <p class="info-row">
+            <strong>Phone:</strong>
+            <span>${s.phone || "—"}</span>
+          </p>
+
           <p class="info-row">
             <strong>Website:</strong>
             ${
               s.website
                 ? `<a href="${s.website}" target="_blank" rel="noopener">Visit</a>`
-                : "—"
+                : "<span>—</span>"
             }
           </p>
+
         </div>
 
-        <!-- Comments -->
+        <!-- COMMENTS BUTTON -->
         <button class="reviews-btn">
           Comments (${s.comment_count || 0})
         </button>
