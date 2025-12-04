@@ -61,17 +61,21 @@ function buildStars(avg, count) {
 }
 
 /* ------------------------------------------------------------
-   CARD HTML — FULL PREMIUM VERSION
+   CARD HTML — PREMIUM STRUCTURE
 ------------------------------------------------------------ */
 function cardHTML(s) {
   const FALLBACK_IMAGE = "images/store.jpg";
   const img = s.photo_final_url || FALLBACK_IMAGE;
   const flag = getFlagUrl(s);
 
+  // Normalize badges (fix so STORE, Lounge, Shop etc always appear)
+  const type = s.type?.trim() || null;
+  const access = s.access?.trim() || null;
+
   return `
     <article class="store-card">
 
-      <!-- Image -->
+      <!-- IMAGE -->
       <img
         src="${img}"
         class="store-img"
@@ -86,8 +90,8 @@ function cardHTML(s) {
 
         <!-- BADGES -->
         <div class="badge-row">
-          ${s.type ? `<span class="badge blue">${s.type}</span>` : ""}
-          ${s.access ? `<span class="badge access ${s.access}">${s.access}</span>` : ""}
+          ${type ? `<span class="badge blue">${type}</span>` : ""}
+          ${access ? `<span class="badge access ${access.toLowerCase()}">${access}</span>` : ""}
         </div>
 
         <!-- STARS -->
@@ -97,29 +101,27 @@ function cardHTML(s) {
         <div class="locrow" data-city="${s.city || ''}">
           <div class="loc-top">
             ${flag ? `<img src="${flag}" class="flag" alt="${s.country}" />` : ""}
-            <span>
-              ${[s.continent, s.country].filter(Boolean).join(", ")}
-            </span>
+            <span>${[s.continent, s.country].filter(Boolean).join(", ")}</span>
           </div>
-
-          <p class="city-label">
-            ${s.city || ""}
-          </p>
+          <p class="city-label">${s.city || ""}</p>
         </div>
 
         <!-- INFO BLOCK -->
         <div class="infoblock">
 
+          <!-- Address: trunkeras till 1 rad -->
           <p class="info-row">
             <strong>Address:</strong>
-            <span>${s.address || "—"}</span>
+            <span>${(s.address || "—")}</span>
           </p>
 
+          <!-- Phone: FULLT nummer -->
           <p class="info-row">
             <strong>Phone:</strong>
             <span>${s.phone || "—"}</span>
           </p>
 
+          <!-- Website -->
           <p class="info-row">
             <strong>Website:</strong>
             ${
