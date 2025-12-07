@@ -13,6 +13,7 @@
   <!-- CSS -->
   <link rel="stylesheet" href="css/start.css" />
   <link rel="stylesheet" href="css/cards.css" />
+  <link rel="stylesheet" href="css/modal.css" />
 </head>
 
 <body>
@@ -114,7 +115,7 @@
       <p>
         Welcome to World Cigar Locator. 
         Here we want to help you find cigar shops, lounges and other cigar-friendly venues around the world.<br>
-        If your missing your favorite store, please use our Add-Store button to add your store or lounge.
+        If you're missing your favorite store, please use our Add-Store button to add your store or lounge.
       </p>
     </section>
 
@@ -149,17 +150,33 @@
 
       <div id="modalStars" class="modal-stars"></div>
 
+      <!-- ================= USER RATING ================= -->
+      <div class="modal-user-rating">
+        <p class="rating-label">Your rating:</p>
+        <div id="modalStarPicker" class="star-picker">
+          <span data-val="1">☆</span>
+          <span data-val="2">☆</span>
+          <span data-val="3">☆</span>
+          <span data-val="4">☆</span>
+          <span data-val="5">☆</span>
+        </div>
+        <button id="modalSendRating" class="rating-send-btn">Submit Rating</button>
+      </div>
+
+      <!-- LOCATION -->
       <div class="modal-location">
         <img id="modalFlag" class="flag" alt="" />
         <p id="modalLocation"></p>
       </div>
 
+      <!-- INFO -->
       <div class="modal-info">
         <p><strong>Address:</strong> <span id="modalAddress"></span></p>
         <p><strong>Phone:</strong> <span id="modalPhone"></span></p>
         <p><strong>Website:</strong> <a id="modalWebsite" href="#" target="_blank">Visit</a></p>
       </div>
 
+      <!-- COMMENTS -->
       <h3 class="modal-section-title">Comments</h3>
       <div id="modalComments" class="modal-comments"></div>
 
