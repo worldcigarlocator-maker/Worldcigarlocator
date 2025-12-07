@@ -1,5 +1,5 @@
 // ============================================================
-// CARDS.JS — PREMIUM VERSION FOR WCL FRONTEND + MODAL SUPPORT
+// CARDS.JS — PREMIUM VERSION WITH MODAL, RATING & COMMENTS
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -7,13 +7,11 @@ import { supabase } from "./globals.js";
 let DOM_READY = false;
 document.addEventListener("DOMContentLoaded", () => (DOM_READY = true));
 
-/* ------------------------------------------------------------
-   DOM HELPER
------------------------------------------------------------- */
 const dom = (sel) => document.querySelector(sel);
+const qs = (parent, sel) => parent.querySelector(sel);
 
 /* ------------------------------------------------------------
-   FLAG HELPER (ISO2 → /assets/flags/xx.svg)
+   FLAG HELPER
 ------------------------------------------------------------ */
 function getFlagUrl(store) {
   if (!store.country_iso2) return null;
@@ -21,7 +19,12 @@ function getFlagUrl(store) {
 }
 
 /* ------------------------------------------------------------
-   RESET TO HERO
+   FALLBACK IMAGE
+------------------------------------------------------------ */
+const FALLBACK_IMAGE = "images/store.jpg";
+
+/* ------------------------------------------------------------
+   RESET HERO
 ------------------------------------------------------------ */
 export function resetToHero() {
   if (!DOM_READY) {
@@ -29,192 +32,86 @@ export function resetToHero() {
     return;
   }
 
-  dom("#storeGrid").innerHTML = "";
-  dom("#resultHeading").style.display = "none";
-  dom("#heroImage").style.display = "block";
-  dom("#heroText").style.display = "block";
+  const grid = dom("#storeGrid");
+  const heading = dom("#resultHeading");
+  const heroImage = dom("#heroImage");
+  const heroText = dom("#heroText");
+
+  if (grid) grid.innerHTML = "";
+  if (heading) {
+    heading.style.display = "none";
+    heading.textContent = "";
+  }
+
+  if (heroImage) heroImage.style.display = "block";
+  if (heroText) heroText.style.display = "block";
 }
 
 /* ------------------------------------------------------------
-   STARS BUILDER
+   STARS FOR CARDS
 ------------------------------------------------------------ */
 function buildStars(avg, count) {
   const v = Number(avg) || 0;
-  const filled = "★".repeat(Math.round(v));
-  const empty = "☆".repeat(5 - Math.round(v));
+  const f = "★".repeat(Math.round(v));
+  const e = "☆".repeat(5 - Math.round(v));
 
   return `
     <div class="stars-row">
-      <span class="stars">${filled}${empty}</span>
+      <span class="stars">${f}${e}</span>
       <span class="rating-count">(${count || 0})</span>
     </div>
   `;
 }
 
 /* ------------------------------------------------------------
-   OPEN MODAL (CORE FUNCTION)
------------------------------------------------------------- */
-function openModal(store) {
-  const modal = dom("#storeModal");
-  if (!modal) return;
-
-  // Fill modal content
-  dom("#modalImg").src = store.photo_final_url || "images/store.jpg";
-  dom("#modalName").textContent = store.name || "Unnamed";
-
-  // Badges
-  dom("#modalBadges").innerHTML = `
-    ${store.type ? `<span class="badge blue">${store.type}</span>` : ""}
-    ${store.access ? `<span class="badge access ${store.access}">${store.access}</span>` : ""}
-  `;
-
-  // Stars
-  dom("#modalStars").innerHTML = buildStars(store.rating_avg, store.rating_count);
-
-  // Location
-  const flag = getFlagUrl(store);
-  dom("#modalFlag").src = flag || "";
-  dom("#modalLocation").textContent =
-    `${store.city || ""}, ${store.country || ""}`;
-
-  // Full info
-  dom("#modalAddress").textContent = store.address || "—";
-  dom("#modalPhone").textContent = store.phone || "—";
-
-  const websiteEl = dom("#modalWebsite");
-  if (store.website) {
-    websiteEl.href = store.website;
-    websiteEl.style.opacity = 1;
-  } else {
-    websiteEl.href = "#";
-    websiteEl.style.opacity = 0.3;
-  }
-
-  // Comments placeholder
-  dom("#modalComments").innerHTML = `
-    <p style="opacity:.7;">Loading comments…</p>
-  `;
-
-  // Load comments from Supabase
-  loadComments(store.id);
-
-  // OPEN
-  modal.classList.remove("hidden");
-  document.body.style.overflow = "hidden"; // lock scroll
-
-  // Save active store for rating/comments
-  modal.dataset.storeId = store.id;
-}
-
-/* ------------------------------------------------------------
-   CLOSE MODAL
------------------------------------------------------------- */
-function closeModal() {
-  const modal = dom("#storeModal");
-  if (!modal) return;
-
-  modal.classList.add("hidden");
-  document.body.style.overflow = "auto";
-}
-
-document.addEventListener("click", (e) => {
-  if (e.target.classList.contains("modal-backdrop")) closeModal();
-  if (e.target.classList.contains("modal-close")) closeModal();
-});
-
-/* ESC to close */
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeModal();
-});
-
-/* ------------------------------------------------------------
-   LOAD COMMENTS
------------------------------------------------------------- */
-async function loadComments(storeId) {
-  const box = dom("#modalComments");
-  if (!storeId) return;
-
-  const { data, error } = await supabase
-    .from("store_comments")
-    .select("*")
-    .eq("store_id", storeId)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    box.innerHTML = `<p style="color:#f66;">Error loading comments</p>`;
-    return;
-  }
-
-  if (!data || data.length === 0) {
-    box.innerHTML = `<p style="opacity:.7;">No comments yet.</p>`;
-    return;
-  }
-
-  box.innerHTML = data
-    .map((c) => `<p>• ${c.text}</p>`)
-    .join("");
-}
-
-/* ------------------------------------------------------------
    CARD HTML
 ------------------------------------------------------------ */
 function cardHTML(s) {
-
-  const FALLBACK_IMAGE = "images/store.jpg";
   const img = s.photo_final_url || FALLBACK_IMAGE;
   const flag = getFlagUrl(s);
 
-  // Truncate address after first comma
+  // Truncate address (clean version)
   let displayAddress = "—";
   if (s.address) {
     const trimmed = s.address.trim();
-    if (trimmed.includes(",")) {
-      displayAddress = trimmed.split(",")[0] + "…";
-    } else {
-      displayAddress = trimmed;
-    }
+    displayAddress = trimmed.includes(",")
+      ? trimmed.split(",")[0] + "…"
+      : trimmed;
   }
-
-  const type = s.type?.trim() || null;
-  const access = s.access?.trim() || null;
 
   return `
     <article class="store-card" data-id="${s.id}">
-
       <img src="${img}" class="store-img" alt="${s.name}"
-           onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
+        onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
 
       <div class="store-body">
 
         <h3 class="store-title">${s.name || "Unnamed"}</h3>
 
         <div class="badge-row">
-          ${type ? `<span class="badge blue">${type}</span>` : ""}
-          ${access ? `<span class="badge access ${access.toLowerCase()}">${access}</span>` : ""}
+          ${s.type ? `<span class="badge blue">${s.type}</span>` : ""}
+          ${s.access ? `<span class="badge access ${s.access}">${s.access}</span>` : ""}
         </div>
 
         ${buildStars(s.rating_avg, s.rating_count)}
 
-<div class="locrow">
-  <div class="loc-top">
-    ${flag ? `<img src="${flag}" class="flag" />` : ""}
-    <span>${[s.continent, s.country].filter(Boolean).join(", ")}</span>
-  </div>
-  <p class="city-label">${s.city || ""}</p>
-</div>
+        <div class="locrow">
+          <div class="loc-top">
+            ${flag ? `<img src="${flag}" class="flag" />` : ""}
+            <span>${[s.continent, s.country].filter(Boolean).join(", ")}</span>
+          </div>
+          <p class="city-label">${s.city || ""}</p>
+        </div>
 
         <div class="infoblock">
-          <p class="info-row"><strong>Address:</strong> ${displayAddress}</p>
-          <p class="info-row"><strong>Phone:</strong> ${s.phone || "—"}</p>
-          <p class="info-row">
-            <strong>Website:</strong>
-            ${s.website ? `<a href="${s.website}" target="_blank">Visit</a>` : "—"}
+          <p class="info-row"><strong>Address:</strong> <span>${displayAddress}</span></p>
+          <p class="info-row"><strong>Phone:</strong> <span>${s.phone || "—"}</span></p>
+          <p class="info-row"><strong>Website:</strong> 
+            ${s.website ? `<a href="${s.website}" target="_blank">Visit</a>` : "<span>—</span>"}
           </p>
         </div>
 
-        <button class="reviews-btn">
-          Comments (${s.comment_count || 0})
-        </button>
+        <button class="reviews-btn">Comments (${s.comment_count || 0})</button>
 
       </div>
     </article>
@@ -222,7 +119,7 @@ function cardHTML(s) {
 }
 
 /* ------------------------------------------------------------
-   RENDER CARDS + ATTACH CLICK HANDLERS
+   RENDER GRID
 ------------------------------------------------------------ */
 function renderCards(list) {
   const grid = dom("#storeGrid");
@@ -230,44 +127,43 @@ function renderCards(list) {
 
   grid.innerHTML = list.map(cardHTML).join("");
 
-  // Click handlers
+  // Attach modal opener
   grid.querySelectorAll(".store-card").forEach((card) => {
-    card.addEventListener("click", () => {
-      const id = card.dataset.id;
-      const store = list.find((s) => String(s.id) === String(id));
-      if (store) openModal(store);
-    });
+    card.addEventListener("click", () => openModal(card.dataset.id));
   });
 }
 
 /* ------------------------------------------------------------
-   PUBLIC EXPORT
+   EXPORT
 ------------------------------------------------------------ */
 export function renderStores(list) {
   renderCards(list);
 }
 
 /* ------------------------------------------------------------
-   LOAD STORES
+   LOAD STORES FROM SUPABASE
 ------------------------------------------------------------ */
 export async function loadStores(filters = {}, search = "") {
-
   if (!DOM_READY) {
-    document.addEventListener("DOMContentLoaded", () =>
-      loadStores(filters, search), { once: true }
+    document.addEventListener(
+      "DOMContentLoaded",
+      () => loadStores(filters, search),
+      { once: true }
     );
     return;
   }
 
   const grid = dom("#storeGrid");
   const heading = dom("#resultHeading");
+  const heroImage = dom("#heroImage");
+  const heroText = dom("#heroText");
+  const showAll = dom("#showAllBtn");
 
-  dom("#heroImage").style.display = "none";
-  dom("#heroText").style.display = "none";
+  if (heroImage) heroImage.style.display = "none";
+  if (heroText) heroText.style.display = "none";
 
   heading.style.display = "block";
   heading.textContent = "Loading…";
-
   grid.innerHTML = "";
 
   let query = supabase.from("stores_frontend_public_v4").select("*");
@@ -287,11 +183,12 @@ export async function loadStores(filters = {}, search = "") {
   const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
+    console.error(error);
     heading.textContent = "Error loading locations.";
     return;
   }
 
-  if (!data || data.length === 0) {
+  if (!data.length) {
     heading.textContent = "No results found.";
     return;
   }
@@ -299,3 +196,186 @@ export async function loadStores(filters = {}, search = "") {
   renderCards(data);
   heading.textContent = `${data.length} results`;
 }
+
+/* ============================================================
+   ===================  MODAL SYSTEM ==========================
+   ============================================================ */
+
+const modal = dom("#storeModal");
+const closeBtn = dom(".modal-close");
+const backdrop = dom(".modal-backdrop");
+
+let CURRENT_STORE = null;
+
+/* ------------------------------------------------------------
+   OPEN MODAL
+------------------------------------------------------------ */
+async function openModal(id) {
+  CURRENT_STORE = id;
+
+  const { data, error } = await supabase
+    .from("stores_frontend_public_v4")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !data) return;
+
+  fillModal(data);
+  loadComments(id);
+  loadUserRating(id);
+
+  modal.classList.remove("hidden");
+}
+
+/* ------------------------------------------------------------
+   CLOSE MODAL
+------------------------------------------------------------ */
+function closeModal() {
+  modal.classList.add("hidden");
+}
+
+closeBtn.addEventListener("click", closeModal);
+backdrop.addEventListener("click", closeModal);
+
+/* ------------------------------------------------------------
+   FILL MODAL CONTENT
+------------------------------------------------------------ */
+function fillModal(s) {
+  dom("#modalImg").src = s.photo_final_url || FALLBACK_IMAGE;
+  dom("#modalName").textContent = s.name;
+
+  const flag = getFlagUrl(s);
+  dom("#modalFlag").src = flag || "";
+  dom("#modalLocation").textContent = `${s.city || ""}, ${s.country || ""}`;
+
+  dom("#modalAddress").textContent = s.address || "—";
+  dom("#modalPhone").textContent = s.phone || "—";
+
+  const website = dom("#modalWebsite");
+  if (s.website) {
+    website.href = s.website;
+    website.style.display = "inline";
+  } else {
+    website.style.display = "none";
+  }
+
+  // Badges
+  const badgeBox = dom("#modalBadges");
+  badgeBox.innerHTML = "";
+  if (s.type) badgeBox.innerHTML += `<span class="badge blue">${s.type}</span>`;
+  if (s.access)
+    badgeBox.innerHTML += `<span class="badge access ${s.access}">${s.access}</span>`;
+
+  // Stars display
+  dom("#modalStars").innerHTML = buildStars(s.rating_avg, s.rating_count);
+}
+
+/* ============================================================
+   ===================  RATING SYSTEM =========================
+   ============================================================ */
+
+const starPicker = dom("#modalStarPicker");
+const ratingSendBtn = dom("#modalSendRating");
+let USER_TEMP_RATING = 0;
+
+/* Highlight stars */
+starPicker.querySelectorAll("span").forEach((star) => {
+  star.addEventListener("mouseenter", () => highlightStars(star.dataset.val));
+  star.addEventListener("mouseleave", () => highlightStars(USER_TEMP_RATING));
+  star.addEventListener("click", () => {
+    USER_TEMP_RATING = Number(star.dataset.val);
+    highlightStars(USER_TEMP_RATING);
+  });
+});
+
+function highlightStars(count) {
+  starPicker.querySelectorAll("span").forEach((s, i) => {
+    s.textContent = i < count ? "★" : "☆";
+  });
+}
+
+/* Load user's previous rating */
+async function loadUserRating(store_id) {
+  const user = (await supabase.auth.getUser()).data.user;
+  if (!user) return;
+
+  const { data } = await supabase
+    .from("ratings")
+    .select("rating")
+    .eq("store_id", store_id)
+    .eq("user_id", user.id)
+    .single();
+
+  USER_TEMP_RATING = data?.rating || 0;
+  highlightStars(USER_TEMP_RATING);
+}
+
+/* Send rating */
+ratingSendBtn.addEventListener("click", async () => {
+  const rating = USER_TEMP_RATING;
+  if (!rating) return alert("Select a rating first!");
+
+  const user = (await supabase.auth.getUser()).data.user;
+  if (!user) return alert("Login required.");
+
+  await supabase.from("ratings").upsert({
+    store_id: CURRENT_STORE,
+    user_id: user.id,
+    rating,
+  });
+
+  loadModalStore();
+});
+
+/* Reload modal store after rating */
+async function loadModalStore() {
+  const { data } = await supabase
+    .from("stores_frontend_public_v4")
+    .select("*")
+    .eq("id", CURRENT_STORE)
+    .single();
+
+  if (data) {
+    fillModal(data);
+  }
+}
+
+/* ============================================================
+   ====================  COMMENTS SYSTEM =======================
+   ============================================================ */
+
+const commentsBox = dom("#modalComments");
+const commentInput = dom("#modalCommentInput");
+const sendCommentBtn = dom("#modalSendComment");
+
+/* Load comments */
+async function loadComments(store_id) {
+  const { data } = await supabase
+    .from("comments")
+    .select("*")
+    .eq("store_id", store_id)
+    .order("created_at", { ascending: false });
+
+  commentsBox.innerHTML = "";
+
+  if (!data.length) {
+    commentsBox.innerHTML = "<p>No comments yet.</p>";
+    return;
+  }
+
+  commentsBox.innerHTML = data
+    .map(
+      (c) => `
+      <div class="comment">
+        <p>${c.text}</p>
+        <small>${new Date(c.created_at).toLocaleString()}</small>
+      </div>
+    `
+    )
+    .join("");
+}
+
+/* Send comment */
+sendCommentBtn.addEventListener("click", async () => {
+  const text = commentIn
