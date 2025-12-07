@@ -68,6 +68,17 @@ function cardHTML(s) {
   const img = s.photo_final_url || FALLBACK_IMAGE;
   const flag = getFlagUrl(s);
 
+   // 🔹 Address truncation (after first comma)
+let displayAddress = "—";
+if (s.address) {
+  const trimmed = s.address.trim();
+  if (trimmed.includes(",")) {
+    displayAddress = trimmed.split(",")[0] + "…";
+  } else {
+    displayAddress = trimmed;
+  }
+}
+
   // Normalize badges (fix so STORE, Lounge, Shop etc always appear)
   const type = s.type?.trim() || null;
   const access = s.access?.trim() || null;
@@ -113,7 +124,7 @@ function cardHTML(s) {
           <!-- Address: trunkeras till 1 rad -->
           <p class="info-row">
             <strong>Address:</strong>
-            <span>${(s.address || "—")}</span>
+           <span>${displayAddress}</span>
           </p>
 
           <!-- Phone: FULLT nummer -->
