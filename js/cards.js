@@ -86,7 +86,7 @@ function cardHTML(s) {
       <div class="store-body">
 
         <!-- TITLE -->
-        <h3 class="store-title">${s.name || "Unnamed location"}</h3>
+        <h3 class="store-title">${s.name || "Unnamed "}</h3>
 
         <!-- BADGES -->
         <div class="badge-row">
@@ -97,14 +97,15 @@ function cardHTML(s) {
         <!-- STARS -->
         ${buildStars(s.rating_avg, s.rating_count)}
 
-        <!-- LOCATION -->
-        <div class="locrow" data-city="${s.city || ''}">
-          <div class="loc-top">
-            ${flag ? `<img src="${flag}" class="flag" alt="${s.country}" />` : ""}
-            <span>${[s.continent, s.country].filter(Boolean).join(", ")}</span>
-          </div>
-          <p class="city-label">${s.city || ""}</p>
-        </div>
+<!-- Location -->
+<div class="locrow">
+  <div class="loc-top">
+    ${flag ? `<img src="${flag}" class="flag" alt="${s.country}" />` : ""}
+    <span>${[s.continent, s.country].filter(Boolean).join(", ")}</span>
+  </div>
+  <p class="city-label">${s.city || ""}</p>
+</div>
+
 
         <!-- INFO BLOCK -->
         <div class="infoblock">
