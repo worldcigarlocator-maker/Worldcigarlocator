@@ -378,4 +378,35 @@ async function loadComments(store_id) {
 
 /* Send comment */
 sendCommentBtn.addEventListener("click", async () => {
-  const text = commentIn
+  const text = commentInput.value.trim();
+  if (!text) return;
+
+  // Must know who the user is
+  const user = (await supabase.auth.getUser()).data.user;
+  if (!user) {
+    alert("Login required.");
+    return;
+  }
+
+  // Insert into DB
+  const { error } = await supabase
+    .from("comments")
+    .insert({
+      store_id: CURRENT_STORE,
+      user_id: user.id,
+      text,
+      created_at: new Date().toISOString()
+    });
+
+  if (error) {
+    console.error("COMMENT ERROR:", error);
+    alert("Could not send comment.");
+    return;
+  }
+
+  // Reset input
+  commentInput.value = "";
+
+  // Reload comments
+  loadComments(CURRENT_STORE);
+});
