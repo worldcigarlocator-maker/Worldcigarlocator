@@ -268,3 +268,36 @@
   box-shadow: 0 0 0 1px rgba(212,160,23,0.5);
   transform: translateY(-1px);
 }
+
+/* ==== USER RATING ==== */
+.modal-user-rating {
+  margin-bottom: 1.4rem;
+}
+
+.rating-label {
+  font-size: .95rem;
+  margin-bottom: .3rem;
+  color: #ccc;
+}
+
+.star-picker {
+  display: flex;
+  gap: .35rem;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #555;
+  margin-bottom: .6rem;
+}
+
+.star-picker span.active {
+  color: var(--gold);
+}
+
+.rating-send-btn {
+  padding: .5rem .8rem;
+  border-radius: 6px;
+  border: 1px solid rgba(212,160,23,0.7);
+  background: #111;
+  color: var(--gold);
+  cursor: pointer;
+}
