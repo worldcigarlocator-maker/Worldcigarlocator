@@ -1,0 +1,143 @@
+/* ====================== MODAL BASE ====================== */
+
+.modal.hidden {
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  justify-content: center;
+  padding-top: 3rem;
+}
+
+/* Backdrop */
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+}
+
+/* Modal card */
+.modal-content {
+  position: relative;
+  width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #0c0c0c;
+  border-radius: 16px;
+  border: 1px solid rgba(212,160,23,0.6);
+  box-shadow: 0 0 35px rgba(0,0,0,0.8);
+  z-index: 10;
+}
+
+/* Close button */
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+}
+
+/* Store image */
+.modal-img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-bottom: 1px solid rgba(212,160,23,0.4);
+}
+
+/* Body */
+.modal-body {
+  padding: 1.4rem 1.6rem 2rem;
+}
+
+/* Title */
+.modal-title {
+  font-size: 1.55rem;
+  margin: 0 0 0.4rem;
+  color: var(--gold);
+}
+
+/* Badges */
+.modal-badges {
+  display: flex;
+  gap: .4rem;
+  margin-bottom: .7rem;
+}
+
+/* Stars */
+.modal-stars {
+  margin-bottom: 1.1rem;
+  font-size: 1.1rem;
+}
+
+/* Location block */
+.modal-location {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: 1.2rem;
+}
+
+/* Info block */
+.modal-info p {
+  margin: .4rem 0;
+  font-size: .95rem;
+}
+
+.modal-info strong {
+  color: #fff;
+}
+
+/* Comments section */
+.modal-section-title {
+  margin-top: 1.4rem;
+  margin-bottom: .6rem;
+  font-size: 1.2rem;
+  color: var(--gold);
+}
+
+.modal-comments {
+  background: #111;
+  border-radius: 10px;
+  padding: .8rem 1rem;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: .9rem;
+}
+
+/* Add comment */
+.modal-add-comment {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+
+.modal-add-comment textarea {
+  width: 100%;
+  height: 65px;
+  padding: .6rem;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: #fff;
+  border: 1px solid #333;
+}
+
+.modal-add-comment button {
+  padding: .6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(212,160,23,0.7);
+  background: #111;
+  color: var(--gold);
+  cursor: pointer;
+}
