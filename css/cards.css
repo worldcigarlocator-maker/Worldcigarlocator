@@ -202,37 +202,49 @@
 }
 
 /* ============================================================
-   INFO BLOCK
+   INFO BLOCK — PERFECT COLUMN ALIGNMENT + SPACING
    ============================================================ */
 
 .infoblock {
-  margin-top: 3px;
+  margin-top: 8px;               /* mer luft ovanför blocket */
   flex-shrink: 0;
 }
 
 .info-row {
-  height: 16px;
-  line-height: 16px;
-  font-size: 0.78rem; /* smaller text, clean look */
+  display: flex;
+  align-items: center;
+  height: 18px;                  /* lite högre än innan (16px) för mer luft */
+  line-height: 18px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: 4px;            /* MER RADLUFT */
 }
 
 .info-row strong {
-  color: #fff;
-  font-size: 0.80rem;
+  width: 70px;                   /* 🟩 PERFECT COLUMN WIDTH */
+  flex-shrink: 0;                
+  color: #ffffff;
   font-weight: 600;
-  margin-right: 3px;
+  margin-right: 4px;
+}
+
+/* Mindre text för värdena */
+.info-row span,
+.info-row a {
+  font-size: 0.77rem;            /* två steg mindre än rubriker */
+  color: #ddd;
 }
 
 .info-row a {
   color: var(--gold);
+  text-decoration: none;
 }
 
 .info-row a:hover {
   text-decoration: underline;
 }
+
 
 /* ============================================================
    COMMENTS BUTTON
