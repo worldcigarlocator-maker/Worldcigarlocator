@@ -114,7 +114,7 @@
       <p>
         Welcome to World Cigar Locator. 
         Here we want to help you find cigar shops, lounges and other cigar-friendly venues around the world.<br>
-        If your missing your favorite store. Please use ar Add-Store button to add your store or lounge.
+        If your missing your favorite store, please use our Add-Store button to add your store or lounge.
       </p>
     </section>
 
@@ -128,6 +128,49 @@
 
   </main>
 
+</div>
+
+<!-- ====================== STORE MODAL ====================== -->
+<div id="storeModal" class="modal hidden">
+
+  <div class="modal-backdrop"></div>
+
+  <div class="modal-content">
+
+    <button class="modal-close">×</button>
+
+    <img id="modalImg" class="modal-img" src="" alt="Store image">
+
+    <div class="modal-body">
+
+      <h2 id="modalName" class="modal-title"></h2>
+
+      <div id="modalBadges" class="modal-badges"></div>
+
+      <div id="modalStars" class="modal-stars"></div>
+
+      <div class="modal-location">
+        <img id="modalFlag" class="flag" alt="" />
+        <p id="modalLocation"></p>
+      </div>
+
+      <div class="modal-info">
+        <p><strong>Address:</strong> <span id="modalAddress"></span></p>
+        <p><strong>Phone:</strong> <span id="modalPhone"></span></p>
+        <p><strong>Website:</strong> <a id="modalWebsite" href="#" target="_blank">Visit</a></p>
+      </div>
+
+      <h3 class="modal-section-title">Comments</h3>
+      <div id="modalComments" class="modal-comments"></div>
+
+      <div class="modal-add-comment">
+        <textarea id="modalCommentInput" placeholder="Write a comment..."></textarea>
+        <button id="modalSendComment">Send</button>
+      </div>
+
+    </div>
+
+  </div>
 </div>
 
 <!-- ================= JS ================= -->
