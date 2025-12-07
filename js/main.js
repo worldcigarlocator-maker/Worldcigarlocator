@@ -1,27 +1,31 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  await initSidebar();   // måste laddas först
-  resetToHero();         // visa starting layout
-  restoreMenuState();    // autocollapse fix
-});
-
-
 // ============================================================
-// MAIN.JS — FRONTEND AUTH + LOGIN POPUP + INITIALIZATION
+// MAIN.JS — FRONTEND BOOT, AUTH, SIDEBAR, SEARCH, HERO CONTROL
 // ============================================================
 
-// ---- Global Element Selectors ----
+// ----- Global selectors -----
 window.qs  = (sel) => document.querySelector(sel);
 window.qsa = (sel) => document.querySelectorAll(sel);
 
+// ----- Imports -----
 import { supabase } from "./globals.js";
 import { loadStores, resetToHero } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import "./start.js"; // age gate + online tracker
 
 
-/* ============================================================
-   LOGIN POPUP
-============================================================ */
+// ============================================================
+// INITIAL PAGE BOOT — MUST RUN FIRST (Safari-safe)
+// ============================================================
+document.addEventListener("DOMContentLoaded", async () => {
+  await initSidebar();      // 1. bygg sidomenyn
+  resetToHero();            // 2. visa hero mode
+  restoreMenuState();       // 3. öppna rätt kontinent i hierarkin
+});
+
+
+// ============================================================
+// LOGIN POPUP
+// ============================================================
 function showLoginPopup() {
   const popup = qs("#loginPopup");
   popup.classList.remove("hidden");
@@ -52,7 +56,6 @@ function showLoginPopup() {
       return;
     }
 
-    // Save email to localStorage
     if (remember.checked) localStorage.setItem("wcl_saved_email", e);
     else localStorage.removeItem("wcl_saved_email");
 
@@ -61,7 +64,6 @@ function showLoginPopup() {
     spinner.classList.remove("hidden");
     qs(".login-text").textContent = "Logging in…";
 
-    // Try to authenticate
     const { error } = await supabase.auth.signInWithPassword({
       email: e,
       password: p,
@@ -75,15 +77,14 @@ function showLoginPopup() {
       return;
     }
 
-    // Success → reload UI
-    location.reload();
+    location.reload(); // success
   };
 }
 
 
-/* ============================================================
-   LOGOUT
-============================================================ */
+// ============================================================
+// LOGOUT
+// ============================================================
 function setupLogout() {
   const logout = qs("#logoutBtn");
   if (!logout) return;
@@ -95,67 +96,94 @@ function setupLogout() {
 }
 
 
-/* ============================================================
-   PROTECT FRONTEND
-============================================================ */
+// ============================================================
+// PROTECT FRONTEND (Require Login)
+// ============================================================
 async function guard() {
   const { data: { session } } = await supabase.auth.getSession();
   const container = qs(".container");
 
   if (!session) {
+    // hide UI → show login popup
     container.style.display = "none";
     showLoginPopup();
     return;
   }
 
-  // Logged in → show UI
+  // logged in
   container.style.removeProperty("display");
-
-  // Initialize sidebar + hero view
-  buildFrontendSidebar(supabase, loadStores);
-  resetToHero();
+  // sidebar already built in initSidebar()
+  resetToHero(); // ensure hero is visible when login finishes
 }
 
 
-/* ============================================================
-   SEARCH
-============================================================ */
+// ============================================================
+// SIDEBAR STATE (autocollapse restore)
+// ============================================================
+function restoreMenuState() {
+  const open = localStorage.getItem("wclMenuOpen");
+  if (!open) return;
+
+  const item = document.querySelector(`[data-continent="${open}"]`);
+  if (item) item.classList.add("open");
+}
+
+
+// ============================================================
+// SIDEBAR INIT (build + event binding)
+// ============================================================
+async function initSidebar() {
+  await buildFrontendSidebar(supabase, loadStores);
+
+  // Save collapse state
+  document.querySelectorAll("[data-continent]").forEach((el) => {
+    el.addEventListener("click", () => {
+      localStorage.setItem("wclMenuOpen", el.dataset.continent);
+    });
+  });
+}
+
+
+// ============================================================
+// SEARCH
+// ============================================================
 function setupSearch() {
   const input = qs("#searchInput");
   const searchBtn = qs("#searchBtn");
   const clearBtn = qs("#clearBtn");
 
+  // Manual search button
   searchBtn.onclick = () => loadStores({}, input.value.trim());
 
+  // Clear button
   clearBtn.onclick = () => {
     input.value = "";
-    resetToHero();
+    resetToHero(); // back to hero mode
   };
 
+  // Live search
   input.addEventListener("input", () => {
-    if (input.value.trim().length > 0) {
-      loadStores({}, input.value.trim());
-    }
+    const s = input.value.trim();
+    if (s.length > 0) loadStores({}, s);
   });
 
+  // Enter key
   input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      loadStores({}, input.value.trim());
-    }
+    if (e.key === "Enter") loadStores({}, input.value.trim());
   });
 }
 
 
-/* ============================================================
-   INIT
-============================================================ */
+// ============================================================
+// FULL INITIALIZATION MAIN LOGIC
+// ============================================================
 
-// re-run guard on auth state change
+// Update UI when auth state changes
 supabase.auth.onAuthStateChange(() => guard());
 
-// DOM loaded
+// DOM loaded → run UI setup
 document.addEventListener("DOMContentLoaded", () => {
   setupLogout();
   setupSearch();
-  guard();
+  guard(); // requires login to show page
 });
