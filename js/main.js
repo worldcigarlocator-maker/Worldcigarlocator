@@ -1,3 +1,10 @@
+document.addEventListener("DOMContentLoaded", async () => {
+  await initSidebar();   // måste laddas först
+  resetToHero();         // visa starting layout
+  restoreMenuState();    // autocollapse fix
+});
+
+
 // ============================================================
 // MAIN.JS — FRONTEND AUTH + LOGIN POPUP + INITIALIZATION
 // ============================================================
