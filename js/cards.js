@@ -1,5 +1,5 @@
 // ============================================================
-// CARDS.JS — PREMIUM VERSION FOR WCL FRONTEND (with MODAL)
+// CARDS.JS — PREMIUM VERSION FOR WCL FRONTEND + MODAL SUPPORT
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => (DOM_READY = true));
 const dom = (sel) => document.querySelector(sel);
 
 /* ------------------------------------------------------------
-   FLAG HELPER
+   FLAG HELPER (ISO2 → /assets/flags/xx.svg)
 ------------------------------------------------------------ */
 function getFlagUrl(store) {
   if (!store.country_iso2) return null;
@@ -29,28 +29,19 @@ export function resetToHero() {
     return;
   }
 
-  const grid = dom("#storeGrid");
-  const heading = dom("#resultHeading");
-  const heroImage = dom("#heroImage");
-  const heroText = dom("#heroText");
-
-  if (grid) grid.innerHTML = "";
-  if (heading) {
-    heading.style.display = "none";
-    heading.textContent = "";
-  }
-
-  if (heroImage) heroImage.style.display = "block";
-  if (heroText) heroText.style.display = "block";
+  dom("#storeGrid").innerHTML = "";
+  dom("#resultHeading").style.display = "none";
+  dom("#heroImage").style.display = "block";
+  dom("#heroText").style.display = "block";
 }
 
 /* ------------------------------------------------------------
-   STAR BUILDER
+   STARS BUILDER
 ------------------------------------------------------------ */
 function buildStars(avg, count) {
-  const val = Number(avg) || 0;
-  const filled = "★".repeat(Math.round(val));
-  const empty = "☆".repeat(5 - Math.round(val));
+  const v = Number(avg) || 0;
+  const filled = "★".repeat(Math.round(v));
+  const empty = "☆".repeat(5 - Math.round(v));
 
   return `
     <div class="stars-row">
@@ -61,121 +52,169 @@ function buildStars(avg, count) {
 }
 
 /* ------------------------------------------------------------
-   MODAL OPEN
+   OPEN MODAL (CORE FUNCTION)
 ------------------------------------------------------------ */
-function openStoreModal(store) {
+function openModal(store) {
   const modal = dom("#storeModal");
   if (!modal) return;
 
-  // Elements
+  // Fill modal content
   dom("#modalImg").src = store.photo_final_url || "images/store.jpg";
-  dom("#modalName").textContent = store.name || "Unnamed location";
+  dom("#modalName").textContent = store.name || "Unnamed";
 
   // Badges
   dom("#modalBadges").innerHTML = `
     ${store.type ? `<span class="badge blue">${store.type}</span>` : ""}
-    ${store.access ? `<span class="badge access ${store.access.toLowerCase()}">${store.access}</span>` : ""}
+    ${store.access ? `<span class="badge access ${store.access}">${store.access}</span>` : ""}
   `;
 
   // Stars
   dom("#modalStars").innerHTML = buildStars(store.rating_avg, store.rating_count);
 
   // Location
-  dom("#modalFlag").src = getFlagUrl(store) || "";
+  const flag = getFlagUrl(store);
+  dom("#modalFlag").src = flag || "";
   dom("#modalLocation").textContent =
-    `${store.city || ""}, ${store.country || ""} (${store.continent || ""})`;
+    `${store.city || ""}, ${store.country || ""}`;
 
-  // Info
+  // Full info
   dom("#modalAddress").textContent = store.address || "—";
   dom("#modalPhone").textContent = store.phone || "—";
 
+  const websiteEl = dom("#modalWebsite");
   if (store.website) {
-    dom("#modalWebsite").href = store.website;
-    dom("#modalWebsite").style.display = "inline";
+    websiteEl.href = store.website;
+    websiteEl.style.opacity = 1;
   } else {
-    dom("#modalWebsite").style.display = "none";
+    websiteEl.href = "#";
+    websiteEl.style.opacity = 0.3;
   }
 
-  // Comments placeholder (later dynamic)
-  dom("#modalComments").innerHTML = `<p class="loading">Loading comments…</p>`;
+  // Comments placeholder
+  dom("#modalComments").innerHTML = `
+    <p style="opacity:.7;">Loading comments…</p>
+  `;
 
-  // Show modal
+  // Load comments from Supabase
+  loadComments(store.id);
+
+  // OPEN
   modal.classList.remove("hidden");
-  document.body.classList.add("no-scroll");
+  document.body.style.overflow = "hidden"; // lock scroll
+
+  // Save active store for rating/comments
+  modal.dataset.storeId = store.id;
 }
 
 /* ------------------------------------------------------------
-   MODAL CLOSE
+   CLOSE MODAL
 ------------------------------------------------------------ */
-function setupModalClose() {
+function closeModal() {
   const modal = dom("#storeModal");
   if (!modal) return;
 
-  dom(".modal-close").addEventListener("click", () => {
-    modal.classList.add("hidden");
-    document.body.classList.remove("no-scroll");
-  });
-
-  dom(".modal-backdrop").addEventListener("click", () => {
-    modal.classList.add("hidden");
-    document.body.classList.remove("no-scroll");
-  });
+  modal.classList.add("hidden");
+  document.body.style.overflow = "auto";
 }
 
-document.addEventListener("DOMContentLoaded", setupModalClose);
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("modal-backdrop")) closeModal();
+  if (e.target.classList.contains("modal-close")) closeModal();
+});
+
+/* ESC to close */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeModal();
+});
+
+/* ------------------------------------------------------------
+   LOAD COMMENTS
+------------------------------------------------------------ */
+async function loadComments(storeId) {
+  const box = dom("#modalComments");
+  if (!storeId) return;
+
+  const { data, error } = await supabase
+    .from("store_comments")
+    .select("*")
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    box.innerHTML = `<p style="color:#f66;">Error loading comments</p>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    box.innerHTML = `<p style="opacity:.7;">No comments yet.</p>`;
+    return;
+  }
+
+  box.innerHTML = data
+    .map((c) => `<p>• ${c.text}</p>`)
+    .join("");
+}
 
 /* ------------------------------------------------------------
    CARD HTML
 ------------------------------------------------------------ */
-function cardHTML(store) {
-  const FALLBACK_IMAGE = "images/store.jpg";
-  const img = store.photo_final_url || FALLBACK_IMAGE;
-  const flag = getFlagUrl(store);
+function cardHTML(s) {
 
-  // Address truncated
+  const FALLBACK_IMAGE = "images/store.jpg";
+  const img = s.photo_final_url || FALLBACK_IMAGE;
+  const flag = getFlagUrl(s);
+
+  // Truncate address after first comma
   let displayAddress = "—";
-  if (store.address) {
-    const trimmed = store.address.trim();
-    displayAddress = trimmed.includes(",")
-      ? trimmed.split(",")[0] + "…"
-      : trimmed;
+  if (s.address) {
+    const trimmed = s.address.trim();
+    if (trimmed.includes(",")) {
+      displayAddress = trimmed.split(",")[0] + "…";
+    } else {
+      displayAddress = trimmed;
+    }
   }
 
-  return `
-    <article class="store-card" data-store='${JSON.stringify(store)}'>
+  const type = s.type?.trim() || null;
+  const access = s.access?.trim() || null;
 
-      <img src="${img}" class="store-img" alt="${store.name}"
-        onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
+  return `
+    <article class="store-card" data-id="${s.id}">
+
+      <img src="${img}" class="store-img" alt="${s.name}"
+           onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
 
       <div class="store-body">
 
-        <h3 class="store-title">${store.name || "Unnamed"}</h3>
+        <h3 class="store-title">${s.name || "Unnamed"}</h3>
 
         <div class="badge-row">
-          ${store.type ? `<span class="badge blue">${store.type}</span>` : ""}
-          ${store.access ? `<span class="badge access ${store.access.toLowerCase()}">${store.access}</span>` : ""}
+          ${type ? `<span class="badge blue">${type}</span>` : ""}
+          ${access ? `<span class="badge access ${access.toLowerCase()}">${access}</span>` : ""}
         </div>
 
-        ${buildStars(store.rating_avg, store.rating_count)}
+        ${buildStars(s.rating_avg, s.rating_count)}
 
-        <div class="locrow">
-          <div class="loc-top">
-            ${flag ? `<img src="${flag}" class="flag" />` : ""}
-            <span>${[store.continent, store.country].filter(Boolean).join(", ")}</span>
-          </div>
-          <p class="city-label">${store.city || ""}</p>
-        </div>
+<div class="locrow">
+  <div class="loc-top">
+    ${flag ? `<img src="${flag}" class="flag" />` : ""}
+    <span>${[s.continent, s.country].filter(Boolean).join(", ")}</span>
+  </div>
+  <p class="city-label">${s.city || ""}</p>
+</div>
 
         <div class="infoblock">
-          <p class="info-row"><strong>Address:</strong> <span>${displayAddress}</span></p>
-          <p class="info-row"><strong>Phone:</strong> <span>${store.phone || "—"}</span></p>
+          <p class="info-row"><strong>Address:</strong> ${displayAddress}</p>
+          <p class="info-row"><strong>Phone:</strong> ${s.phone || "—"}</p>
           <p class="info-row">
             <strong>Website:</strong>
-            ${store.website ? `<a href="${store.website}" target="_blank">Visit</a>` : "—"}
+            ${s.website ? `<a href="${s.website}" target="_blank">Visit</a>` : "—"}
           </p>
         </div>
 
-        <button class="reviews-btn">Comments (${store.comment_count || 0})</button>
+        <button class="reviews-btn">
+          Comments (${s.comment_count || 0})
+        </button>
 
       </div>
     </article>
@@ -183,7 +222,7 @@ function cardHTML(store) {
 }
 
 /* ------------------------------------------------------------
-   RENDER CARDS
+   RENDER CARDS + ATTACH CLICK HANDLERS
 ------------------------------------------------------------ */
 function renderCards(list) {
   const grid = dom("#storeGrid");
@@ -191,18 +230,18 @@ function renderCards(list) {
 
   grid.innerHTML = list.map(cardHTML).join("");
 
-  // Make every card clickable
+  // Click handlers
   grid.querySelectorAll(".store-card").forEach((card) => {
-    const store = JSON.parse(card.dataset.store);
-
     card.addEventListener("click", () => {
-      openStoreModal(store);
+      const id = card.dataset.id;
+      const store = list.find((s) => String(s.id) === String(id));
+      if (store) openModal(store);
     });
   });
 }
 
 /* ------------------------------------------------------------
-   EXPORT FOR main.js
+   PUBLIC EXPORT
 ------------------------------------------------------------ */
 export function renderStores(list) {
   renderCards(list);
@@ -212,27 +251,24 @@ export function renderStores(list) {
    LOAD STORES
 ------------------------------------------------------------ */
 export async function loadStores(filters = {}, search = "") {
+
   if (!DOM_READY) {
-    document.addEventListener("DOMContentLoaded", () => loadStores(filters, search), { once: true });
+    document.addEventListener("DOMContentLoaded", () =>
+      loadStores(filters, search), { once: true }
+    );
     return;
   }
 
   const grid = dom("#storeGrid");
   const heading = dom("#resultHeading");
-  const showAll = dom("#showAllBtn");
-  const heroImage = dom("#heroImage");
-  const heroText = dom("#heroText");
 
-  if (heroImage) heroImage.style.display = "none";
-  if (heroText) heroText.style.display = "none";
+  dom("#heroImage").style.display = "none";
+  dom("#heroText").style.display = "none";
 
-  if (heading) {
-    heading.style.display = "block";
-    heading.textContent = "Loading…";
-  }
+  heading.style.display = "block";
+  heading.textContent = "Loading…";
 
-  if (grid) grid.innerHTML = "";
-  if (showAll) showAll.style.display = "none";
+  grid.innerHTML = "";
 
   let query = supabase.from("stores_frontend_public_v4").select("*");
 
@@ -251,23 +287,15 @@ export async function loadStores(filters = {}, search = "") {
   const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
-    console.error("LOAD ERROR:", error);
-    if (heading) heading.textContent = "Error loading locations.";
+    heading.textContent = "Error loading locations.";
     return;
   }
 
   if (!data || data.length === 0) {
-    if (heading) heading.textContent = "No results found.";
+    heading.textContent = "No results found.";
     return;
   }
 
   renderCards(data);
-
-  if (heading) heading.textContent = `${data.length} results`;
-
-  if (showAll) {
-    const filtered = search || Object.keys(filters).length > 0;
-    showAll.style.display = filtered ? "inline-block" : "none";
-    showAll.onclick = resetToHero;
-  }
+  heading.textContent = `${data.length} results`;
 }
