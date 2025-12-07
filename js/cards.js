@@ -140,9 +140,9 @@ export function renderStores(list) {
   renderCards(list);
 }
 
-/* ------------------------------------------------------------
-   LOAD STORES FROM SUPABASE
------------------------------------------------------------- */
+/* ============================================================
+   LOAD STORES — STABLE SAFARI + SUPABASE VERSION
+============================================================ */
 export async function loadStores(filters = {}, search = "") {
   if (!DOM_READY) {
     document.addEventListener(
@@ -157,25 +157,27 @@ export async function loadStores(filters = {}, search = "") {
   const heading = dom("#resultHeading");
   const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
-  const showAll = dom("#showAllBtn");
 
-  if (heroImage) heroImage.style.display = "none";
-  if (heroText) heroText.style.display = "none";
+  // Hide hero for results
+  heroImage.style.display = "none";
+  heroText.style.display = "none";
 
   heading.style.display = "block";
   heading.textContent = "Loading…";
   grid.innerHTML = "";
 
+  // Base query
   let query = supabase.from("stores_frontend_public_v4").select("*");
 
-  if (search) {
-    query = query.or(`
-      name.ilike.%${search}%,
-      city.ilike.%${search}%,
-      country.ilike.%${search}%
-    `);
+  // SAFARI-PROOF SEARCH
+  if (search && search.trim() !== "") {
+    const s = search.trim();
+    query = query.or(
+      `name.ilike.%${s}%,city.ilike.%${s}%,country.ilike.%${s}%`
+    );
   }
 
+  // Filters
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country) query = query.eq("country", filters.country);
   if (filters.city) query = query.eq("city", filters.city);
@@ -183,19 +185,21 @@ export async function loadStores(filters = {}, search = "") {
   const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
-    console.error(error);
+    console.error("LOAD STORES ERROR:", error);
     heading.textContent = "Error loading locations.";
     return;
   }
 
-  if (!data.length) {
+  if (!data || data.length === 0) {
     heading.textContent = "No results found.";
     return;
   }
 
-  renderCards(data);
+  // Render
+  renderStores(data);
   heading.textContent = `${data.length} results`;
 }
+
 
 /* ============================================================
    ===================  MODAL SYSTEM ==========================
