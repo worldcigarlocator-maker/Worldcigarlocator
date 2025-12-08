@@ -1,14 +1,19 @@
 // ============================================================
-// CARDS.JS — PREMIUM VERSION WITH MODAL, RATING & COMMENTS
+// CARDS.JS — PREMIUM WCL FRONTEND
+// With Modal, Rating, Comments & Safe Async Loading
 // ============================================================
 
 import { supabase } from "./globals.js";
 
+// Track DOM ready
 let DOM_READY = false;
 document.addEventListener("DOMContentLoaded", () => (DOM_READY = true));
 
+// Helper selectors
 const dom = (sel) => document.querySelector(sel);
-const qs = (parent, sel) => parent.querySelector(sel);
+
+// Cancel-token for safe loading:
+let ACTIVE_REQUEST = 0;
 
 /* ------------------------------------------------------------
    FLAG HELPER
@@ -38,29 +43,28 @@ export function resetToHero() {
   const heroText = dom("#heroText");
 
   if (grid) grid.innerHTML = "";
+
   if (heading) {
     heading.style.display = "none";
     heading.textContent = "";
   }
 
-  if (heroImage) heroImage.style.display = "block";
-  if (heroText) heroText.style.display = "block";
+  heroImage?.style.setProperty("display", "block");
+  heroText?.style.setProperty("display", "block");
 }
 
 /* ------------------------------------------------------------
-   STARS FOR CARDS
+   STARS BUILDER
 ------------------------------------------------------------ */
 function buildStars(avg, count) {
   const v = Number(avg) || 0;
   const f = "★".repeat(Math.round(v));
   const e = "☆".repeat(5 - Math.round(v));
-
   return `
     <div class="stars-row">
       <span class="stars">${f}${e}</span>
       <span class="rating-count">(${count || 0})</span>
-    </div>
-  `;
+    </div>`;
 }
 
 /* ------------------------------------------------------------
@@ -70,7 +74,7 @@ function cardHTML(s) {
   const img = s.photo_final_url || FALLBACK_IMAGE;
   const flag = getFlagUrl(s);
 
-  // Truncate address (clean version)
+  // Address truncation (clean)
   let displayAddress = "—";
   if (s.address) {
     const trimmed = s.address.trim();
@@ -82,7 +86,7 @@ function cardHTML(s) {
   return `
     <article class="store-card" data-id="${s.id}">
       <img src="${img}" class="store-img" alt="${s.name}"
-        onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
+           onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
 
       <div class="store-body">
 
@@ -106,20 +110,21 @@ function cardHTML(s) {
         <div class="infoblock">
           <p class="info-row"><strong>Address:</strong> <span>${displayAddress}</span></p>
           <p class="info-row"><strong>Phone:</strong> <span>${s.phone || "—"}</span></p>
-          <p class="info-row"><strong>Website:</strong> 
+          <p class="info-row"><strong>Website:</strong>
             ${s.website ? `<a href="${s.website}" target="_blank">Visit</a>` : "<span>—</span>"}
           </p>
         </div>
 
-        <button class="reviews-btn">Comments (${s.comment_count || 0})</button>
+        <button class="reviews-btn">
+          Comments (${s.comment_count || 0})
+        </button>
 
       </div>
-    </article>
-  `;
+    </article>`;
 }
 
 /* ------------------------------------------------------------
-   RENDER GRID
+   RENDER CARDS
 ------------------------------------------------------------ */
 function renderCards(list) {
   const grid = dom("#storeGrid");
@@ -128,78 +133,76 @@ function renderCards(list) {
   grid.innerHTML = list.map(cardHTML).join("");
 
   // Attach modal opener
-  grid.querySelectorAll(".store-card").forEach((card) => {
-    card.addEventListener("click", () => openModal(card.dataset.id));
+  grid.querySelectorAll(".store-card").forEach((c) => {
+    c.addEventListener("click", () => openModal(c.dataset.id));
   });
 }
 
-/* ------------------------------------------------------------
-   EXPORT
------------------------------------------------------------- */
 export function renderStores(list) {
   renderCards(list);
 }
 
-/* ============================================================
-   LOAD STORES — STABLE SAFARI + SUPABASE VERSION
-============================================================ */
+/* ------------------------------------------------------------
+   LOAD STORES (SAFE WITH ACTIVE_REQUEST)
+------------------------------------------------------------ */
 export async function loadStores(filters = {}, search = "") {
   if (!DOM_READY) {
-    document.addEventListener(
-      "DOMContentLoaded",
-      () => loadStores(filters, search),
-      { once: true }
-    );
+    document.addEventListener("DOMContentLoaded", () => loadStores(filters, search), { once: true });
     return;
   }
+
+  ACTIVE_REQUEST++;       // ← New request
+  const reqId = ACTIVE_REQUEST;
 
   const grid = dom("#storeGrid");
   const heading = dom("#resultHeading");
   const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
 
-  // Hide hero for results
   heroImage.style.display = "none";
   heroText.style.display = "none";
 
   heading.style.display = "block";
   heading.textContent = "Loading…";
+
   grid.innerHTML = "";
 
-  // Base query
+  // Build query
   let query = supabase.from("stores_frontend_public_v4").select("*");
 
-  // SAFARI-PROOF SEARCH
-  if (search && search.trim() !== "") {
-    const s = search.trim();
-    query = query.or(
-      `name.ilike.%${s}%,city.ilike.%${s}%,country.ilike.%${s}%`
-    );
+  if (search) {
+    query = query.or(`
+      name.ilike.%${search}%,
+      city.ilike.%${search}%,
+      country.ilike.%${search}%
+    `);
   }
 
-  // Filters
   if (filters.continent) query = query.eq("continent", filters.continent);
-  if (filters.country) query = query.eq("country", filters.country);
-  if (filters.city) query = query.eq("city", filters.city);
+  if (filters.country)   query = query.eq("country", filters.country);
+  if (filters.city)      query = query.eq("city", filters.city);
 
   const { data, error } = await query.order("created_at", { ascending: false });
 
+  // Check cancellation
+  if (reqId !== ACTIVE_REQUEST) return;
+
   if (error) {
-    console.error("LOAD STORES ERROR:", error);
+    console.error(error);
     heading.textContent = "Error loading locations.";
     return;
   }
 
-  if (!data || data.length === 0) {
+  if (!data.length) {
     heading.textContent = "No results found.";
     return;
   }
 
-  // Render
-  renderStores(data);
+  renderCards(data);
+
+  if (reqId !== ACTIVE_REQUEST) return;
   heading.textContent = `${data.length} results`;
 }
-
 
 /* ============================================================
    ===================  MODAL SYSTEM ==========================
@@ -217,13 +220,13 @@ let CURRENT_STORE = null;
 async function openModal(id) {
   CURRENT_STORE = id;
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("stores_frontend_public_v4")
     .select("*")
     .eq("id", id)
     .single();
 
-  if (error || !data) return;
+  if (!data) return;
 
   fillModal(data);
   loadComments(id);
@@ -238,30 +241,28 @@ async function openModal(id) {
 function closeModal() {
   modal.classList.add("hidden");
 }
-
 closeBtn.addEventListener("click", closeModal);
 backdrop.addEventListener("click", closeModal);
 
 /* ------------------------------------------------------------
-   FILL MODAL CONTENT
+   FILL MODAL
 ------------------------------------------------------------ */
 function fillModal(s) {
   dom("#modalImg").src = s.photo_final_url || FALLBACK_IMAGE;
   dom("#modalName").textContent = s.name;
-
-  const flag = getFlagUrl(s);
-  dom("#modalFlag").src = flag || "";
+  dom("#modalFlag").src = getFlagUrl(s) || "";
   dom("#modalLocation").textContent = `${s.city || ""}, ${s.country || ""}`;
 
   dom("#modalAddress").textContent = s.address || "—";
   dom("#modalPhone").textContent = s.phone || "—";
 
-  const website = dom("#modalWebsite");
+  // Website
+  const w = dom("#modalWebsite");
   if (s.website) {
-    website.href = s.website;
-    website.style.display = "inline";
+    w.href = s.website;
+    w.style.display = "inline";
   } else {
-    website.style.display = "none";
+    w.style.display = "none";
   }
 
   // Badges
@@ -271,19 +272,22 @@ function fillModal(s) {
   if (s.access)
     badgeBox.innerHTML += `<span class="badge access ${s.access}">${s.access}</span>`;
 
-  // Stars display
   dom("#modalStars").innerHTML = buildStars(s.rating_avg, s.rating_count);
 }
 
 /* ============================================================
-   ===================  RATING SYSTEM =========================
+   ================  RATING SYSTEM  ============================
    ============================================================ */
-
 const starPicker = dom("#modalStarPicker");
 const ratingSendBtn = dom("#modalSendRating");
 let USER_TEMP_RATING = 0;
 
-/* Highlight stars */
+function highlightStars(count) {
+  starPicker.querySelectorAll("span").forEach((s, i) => {
+    s.textContent = i < count ? "★" : "☆";
+  });
+}
+
 starPicker.querySelectorAll("span").forEach((star) => {
   star.addEventListener("mouseenter", () => highlightStars(star.dataset.val));
   star.addEventListener("mouseleave", () => highlightStars(USER_TEMP_RATING));
@@ -293,13 +297,6 @@ starPicker.querySelectorAll("span").forEach((star) => {
   });
 });
 
-function highlightStars(count) {
-  starPicker.querySelectorAll("span").forEach((s, i) => {
-    s.textContent = i < count ? "★" : "☆";
-  });
-}
-
-/* Load user's previous rating */
 async function loadUserRating(store_id) {
   const user = (await supabase.auth.getUser()).data.user;
   if (!user) return;
@@ -315,7 +312,6 @@ async function loadUserRating(store_id) {
   highlightStars(USER_TEMP_RATING);
 }
 
-/* Send rating */
 ratingSendBtn.addEventListener("click", async () => {
   const rating = USER_TEMP_RATING;
   if (!rating) return alert("Select a rating first!");
@@ -332,7 +328,6 @@ ratingSendBtn.addEventListener("click", async () => {
   loadModalStore();
 });
 
-/* Reload modal store after rating */
 async function loadModalStore() {
   const { data } = await supabase
     .from("stores_frontend_public_v4")
@@ -340,20 +335,16 @@ async function loadModalStore() {
     .eq("id", CURRENT_STORE)
     .single();
 
-  if (data) {
-    fillModal(data);
-  }
+  if (data) fillModal(data);
 }
 
 /* ============================================================
    ====================  COMMENTS SYSTEM =======================
    ============================================================ */
-
 const commentsBox = dom("#modalComments");
 const commentInput = dom("#modalCommentInput");
 const sendCommentBtn = dom("#modalSendComment");
 
-/* Load comments */
 async function loadComments(store_id) {
   const { data } = await supabase
     .from("comments")
@@ -371,46 +362,27 @@ async function loadComments(store_id) {
   commentsBox.innerHTML = data
     .map(
       (c) => `
-      <div class="comment">
-        <p>${c.text}</p>
-        <small>${new Date(c.created_at).toLocaleString()}</small>
-      </div>
-    `
+        <div class="comment">
+          <p>${c.text}</p>
+          <small>${new Date(c.created_at).toLocaleString()}</small>
+        </div>`
     )
     .join("");
 }
 
-/* Send comment */
 sendCommentBtn.addEventListener("click", async () => {
   const text = commentInput.value.trim();
   if (!text) return;
 
-  // Must know who the user is
   const user = (await supabase.auth.getUser()).data.user;
-  if (!user) {
-    alert("Login required.");
-    return;
-  }
+  if (!user) return alert("Login required.");
 
-  // Insert into DB
-  const { error } = await supabase
-    .from("comments")
-    .insert({
-      store_id: CURRENT_STORE,
-      user_id: user.id,
-      text,
-      created_at: new Date().toISOString()
-    });
+  await supabase.from("comments").insert({
+    store_id: CURRENT_STORE,
+    user_id: user.id,
+    text,
+  });
 
-  if (error) {
-    console.error("COMMENT ERROR:", error);
-    alert("Could not send comment.");
-    return;
-  }
-
-  // Reset input
   commentInput.value = "";
-
-  // Reload comments
   loadComments(CURRENT_STORE);
 });
