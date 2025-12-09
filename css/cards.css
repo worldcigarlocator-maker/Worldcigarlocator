@@ -122,7 +122,7 @@
 }
 
 /* ============================================================
-   BADGES — FIXED
+   BADGES — Match Backend Exactly
    ============================================================ */
 
 .badge-row {
@@ -135,17 +135,42 @@
 
 .badge {
   border-radius: 999px;
-  padding: 0.05rem 0.5rem;
-  font-size: 0.65rem; /* smaller for perfect vertical centering */
+  padding: 0.05rem 0.50rem;
+  font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
   display: flex;
   align-items: center;
+  line-height: 1;
+  white-space: nowrap;
 }
 
-.badge.blue { background: #235fd2; color: #fff; }
-.badge.access.public { background: #2e7d32; color: #fff; }
-.badge.access.members { background: #b76e05; color: #fff; }
+/* Category badges */
+.badge-store {
+  background: #235fd2; /* backend blå */
+  color: #fff;
+}
+
+.badge-lounge {
+  background: var(--gold); /* backend guld */
+  color: #000;
+}
+
+/* Access badges */
+.badge-access {
+  background: #444; /* neutral backend badge */
+  color: #fff;
+}
+
+.badge-access-public {
+  background: #2e7d32; /* backend green */
+  color: #fff;
+}
+
+.badge-access-members {
+  background: #b76e05; /* backend member orange-brown */
+  color: #fff;
+}
 
 /* ============================================================
    STARS ROW — FIXED
