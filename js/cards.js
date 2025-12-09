@@ -24,6 +24,39 @@ function getFlagUrl(store) {
 }
 
 /* ------------------------------------------------------------
+   BADGE BUILDER — Match Backend exactly
+------------------------------------------------------------ */
+function buildBadges(store) {
+  const badges = [];
+
+  // Read categories from types[]
+  const arr = Array.isArray(store.types)
+    ? store.types.map((t) => t.toLowerCase())
+    : [];
+
+  if (arr.includes("store"))
+    badges.push(`<span class="badge badge-store">Store</span>`);
+
+  if (arr.includes("lounge"))
+    badges.push(`<span class="badge badge-lounge">Lounge</span>`);
+
+  // Access badge
+  const A = (store.access || "").trim().toLowerCase();
+
+  if (A === "public") {
+    badges.push(
+      `<span class="badge badge-access badge-access-public">PUBLIC</span>`
+    );
+  } else if (A) {
+    badges.push(
+      `<span class="badge badge-access">${A.toUpperCase()}</span>`
+    );
+  }
+
+  return badges.join(" ");
+}
+
+/* ------------------------------------------------------------
    FALLBACK IMAGE
 ------------------------------------------------------------ */
 const FALLBACK_IMAGE = "images/store.jpg";
@@ -74,7 +107,7 @@ function cardHTML(s) {
   const img = s.photo_final_url || FALLBACK_IMAGE;
   const flag = getFlagUrl(s);
 
-  // Address truncation (clean)
+  // Address truncation
   let displayAddress = "—";
   if (s.address) {
     const trimmed = s.address.trim();
@@ -93,8 +126,7 @@ function cardHTML(s) {
         <h3 class="store-title">${s.name || "Unnamed"}</h3>
 
         <div class="badge-row">
-          ${s.type ? `<span class="badge blue">${s.type}</span>` : ""}
-          ${s.access ? `<span class="badge access ${s.access}">${s.access}</span>` : ""}
+          ${buildBadges(s)}
         </div>
 
         ${buildStars(s.rating_avg, s.rating_count)}
@@ -132,7 +164,6 @@ function renderCards(list) {
 
   grid.innerHTML = list.map(cardHTML).join("");
 
-  // Attach modal opener
   grid.querySelectorAll(".store-card").forEach((c) => {
     c.addEventListener("click", () => openModal(c.dataset.id));
   });
@@ -143,7 +174,7 @@ export function renderStores(list) {
 }
 
 /* ------------------------------------------------------------
-   LOAD STORES (SAFE WITH ACTIVE_REQUEST)
+   LOAD STORES
 ------------------------------------------------------------ */
 export async function loadStores(filters = {}, search = "") {
   if (!DOM_READY) {
@@ -151,7 +182,7 @@ export async function loadStores(filters = {}, search = "") {
     return;
   }
 
-  ACTIVE_REQUEST++;       // ← New request
+  ACTIVE_REQUEST++;
   const reqId = ACTIVE_REQUEST;
 
   const grid = dom("#storeGrid");
@@ -167,7 +198,6 @@ export async function loadStores(filters = {}, search = "") {
 
   grid.innerHTML = "";
 
-  // Build query
   let query = supabase.from("stores_frontend_public_v4").select("*");
 
   if (search) {
@@ -184,7 +214,6 @@ export async function loadStores(filters = {}, search = "") {
 
   const { data, error } = await query.order("created_at", { ascending: false });
 
-  // Check cancellation
   if (reqId !== ACTIVE_REQUEST) return;
 
   if (error) {
@@ -265,12 +294,9 @@ function fillModal(s) {
     w.style.display = "none";
   }
 
-  // Badges
+  // Badges in modal
   const badgeBox = dom("#modalBadges");
-  badgeBox.innerHTML = "";
-  if (s.type) badgeBox.innerHTML += `<span class="badge blue">${s.type}</span>`;
-  if (s.access)
-    badgeBox.innerHTML += `<span class="badge access ${s.access}">${s.access}</span>`;
+  badgeBox.innerHTML = buildBadges(s);
 
   dom("#modalStars").innerHTML = buildStars(s.rating_avg, s.rating_count);
 }
