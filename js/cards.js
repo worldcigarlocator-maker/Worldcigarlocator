@@ -16,15 +16,16 @@ const dom = (sel) => document.querySelector(sel);
 let ACTIVE_REQUEST = 0;
 
 /* ------------------------------------------------------------
-   FLAG HELPER
+   FLAG HELPER (Safe + lowercase)
 ------------------------------------------------------------ */
 function getFlagUrl(store) {
-  if (!store.country_iso2) return null;
-  return `assets/flags/${store.country_iso2.toLowerCase()}.svg`;
+  const iso = store.country_iso2?.toLowerCase();
+  if (!iso) return null;
+  return `assets/flags/${iso}.svg`;
 }
 
 /* ------------------------------------------------------------
-   BADGE BUILDER — Match Backend exactly
+   BADGE BUILDER — Identical to Backend Logic
 ------------------------------------------------------------ */
 function buildBadges(store) {
   const badges = [];
@@ -34,6 +35,7 @@ function buildBadges(store) {
     ? store.types.map((t) => t.toLowerCase())
     : [];
 
+  // Lounge & Store
   if (arr.includes("store"))
     badges.push(`<span class="badge badge-store">Store</span>`);
 
