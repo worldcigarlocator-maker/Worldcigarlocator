@@ -326,3 +326,11 @@
   color: var(--gold);
   cursor: pointer;
 }
+
+/* Modal badges (match same style as cards) */
+#modalBadges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin: 0.4rem 0 0.8rem;
+}
