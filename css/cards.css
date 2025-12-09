@@ -122,55 +122,100 @@
 }
 
 /* ============================================================
-   BADGES — Match Backend Exactly
+   BADGES — BACKEND MATCHING (Store / Lounge / Access)
    ============================================================ */
 
-.badge-row {
-  height: 22px;
-  display: flex;
-  gap: 0.35rem;
-  margin-bottom: 6px;
-  overflow: hidden;
-}
-
+/* Base badge styling */
 .badge {
+  display: inline-flex;
+  align-items: center;
   border-radius: 999px;
-  padding: 0.05rem 0.50rem;
-  font-size: 0.65rem;
+  padding: 0.05rem 0.55rem;
+  font-size: 0.68rem;
   font-weight: 600;
   text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  line-height: 1;
   white-space: nowrap;
 }
 
-/* Category badges */
+/* Store badge */
 .badge-store {
-  background: #235fd2; /* backend blå */
+  background: #2c7be5;
   color: #fff;
 }
 
+/* Lounge badge */
 .badge-lounge {
-  background: var(--gold); /* backend guld */
-  color: #000;
+  background: #9c27b0;
+  color: #fff;
 }
 
 /* Access badges */
 .badge-access {
-  background: #444; /* neutral backend badge */
+  background: #555;
   color: #fff;
 }
 
 .badge-access-public {
-  background: #2e7d32; /* backend green */
+  background: #2e7d32;   /* green */
   color: #fff;
 }
 
 .badge-access-members {
-  background: #b76e05; /* backend member orange-brown */
+  background: #b76e05;   /* gold-ish */
   color: #fff;
 }
+
+/* Badge row spacing fix */
+.badge-row {
+  display: flex;
+  gap: 0.35rem;
+  height: 22px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  align-items: center;
+}
+
+/* ============================================================
+   FLAG — MAKE SURE IT RENDERS CLEANLY
+   ============================================================ */
+
+.flag {
+  width: 18px;
+  height: 12px;
+  border-radius: 2px;
+  object-fit: cover;
+  object-position: center;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.5);
+}
+
+/* Keep flag & text aligned */
+.loc-top img.flag {
+  margin-top: -1px;
+}
+
+/* ============================================================
+   MODAL BADGES — SAME STYLE AS CARDS
+   ============================================================ */
+
+#modalBadges .badge {
+  margin-right: 0.3rem;
+  margin-bottom: 0.3rem;
+}
+
+#modalBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+/* Ensures modal layout looks premium */
+.modal-section-label {
+  font-size: 0.85rem;
+  color: #ccc;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
 
 /* ============================================================
    STARS ROW — FIXED
