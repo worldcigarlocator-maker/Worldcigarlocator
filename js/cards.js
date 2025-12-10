@@ -7,7 +7,11 @@ import { supabase } from "./globals.js";
 
 // Track DOM ready
 let DOM_READY = false;
-document.addEventListener("DOMContentLoaded", () => (DOM_READY = true));
+document.addEventListener("DOMContentLoaded", () => {
+  DOM_READY = true;
+  initAutocomplete();
+  initLiveSearch();
+});
 
 // Helper selectors
 const dom = (sel) => document.querySelector(sel);
@@ -30,19 +34,16 @@ function getFlagUrl(store) {
 function buildBadges(store) {
   const badges = [];
 
-  // Read categories from types[]
   const arr = Array.isArray(store.types)
     ? store.types.map((t) => t.toLowerCase())
     : [];
 
-  // Lounge & Store
   if (arr.includes("store"))
     badges.push(`<span class="badge badge-store">Store</span>`);
 
   if (arr.includes("lounge"))
     badges.push(`<span class="badge badge-lounge">Lounge</span>`);
 
-  // Access badge
   const A = (store.access || "").trim().toLowerCase();
 
   if (A === "public") {
@@ -103,13 +104,117 @@ function buildStars(avg, count) {
 }
 
 /* ------------------------------------------------------------
+   HIGHLIGHT HELPER (for search terms)
+------------------------------------------------------------ */
+function highlight(text, words) {
+  if (!text || !words || !words.length) return text;
+  let result = text;
+
+  words.forEach((w) => {
+    if (!w) return;
+    const escaped = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`(${escaped})`, "gi");
+    result = result.replace(regex, `<mark class="hl">$1</mark>`);
+  });
+
+  return result;
+}
+
+/* ------------------------------------------------------------
+   AUTOCOMPLETE STATE + INIT
+------------------------------------------------------------ */
+let AC_BOX = null;
+
+function initAutocomplete() {
+  AC_BOX = dom("#autocomplete");
+  if (!AC_BOX) return;
+
+  document.addEventListener("click", (e) => {
+    if (!AC_BOX) return;
+    if (!AC_BOX.contains(e.target) && e.target !== dom("#searchInput")) {
+      AC_BOX.classList.add("hidden");
+    }
+  });
+}
+
+function updateAutocomplete(list, words) {
+  if (!AC_BOX) return;
+  if (!words || words.length === 0) {
+    AC_BOX.classList.add("hidden");
+    return;
+  }
+
+  const lower = words.map((w) => w.toLowerCase());
+  const matches = [];
+
+  for (const s of list) {
+    const hay = `${s.name || ""} ${s.city || ""} ${s.country || ""} ${
+      Array.isArray(s.types) ? s.types.join(" ") : ""
+    }`.toLowerCase();
+
+    if (lower.every((w) => hay.includes(w))) {
+      matches.push({
+        id: s.id,
+        label: s.name || "Unnamed",
+        sub: s.city || s.country || "",
+      });
+    }
+    if (matches.length >= 12) break;
+  }
+
+  if (!matches.length) {
+    AC_BOX.classList.add("hidden");
+    return;
+  }
+
+  AC_BOX.innerHTML = matches
+    .map(
+      (m) => `
+      <div class="ac-item" data-name="${m.label}">
+        <strong>${m.label}</strong><br>
+        <small>${m.sub}</small>
+      </div>
+    `
+    )
+    .join("");
+
+  AC_BOX.classList.remove("hidden");
+
+  AC_BOX.querySelectorAll(".ac-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      const v = item.dataset.name;
+      const input = dom("#searchInput");
+      if (input) input.value = v;
+      AC_BOX.classList.add("hidden");
+      loadStores({}, v);
+    });
+  });
+}
+
+/* ------------------------------------------------------------
+   LIVE SEARCH INIT
+------------------------------------------------------------ */
+function initLiveSearch() {
+  const input = dom("#searchInput");
+  if (!input) return;
+
+  let t;
+  input.addEventListener("input", () => {
+    const val = input.value.trim();
+    clearTimeout(t);
+    t = setTimeout(() => {
+      loadStores({}, val);
+    }, 250);
+  });
+}
+
+/* ------------------------------------------------------------
    CARD HTML
 ------------------------------------------------------------ */
 function cardHTML(s) {
   const img = s.photo_final_url || FALLBACK_IMAGE;
   const flag = getFlagUrl(s);
 
-  // Address truncation
   let displayAddress = "—";
   if (s.address) {
     const trimmed = s.address.trim();
@@ -145,7 +250,11 @@ function cardHTML(s) {
           <p class="info-row"><strong>Address:</strong> <span>${displayAddress}</span></p>
           <p class="info-row"><strong>Phone:</strong> <span>${s.phone || "—"}</span></p>
           <p class="info-row"><strong>Website:</strong>
-            ${s.website ? `<a href="${s.website}" target="_blank">Visit</a>` : "<span>—</span>"}
+            ${
+              s.website
+                ? `<a href="${s.website}" target="_blank">Visit</a>`
+                : "<span>—</span>"
+            }
           </p>
         </div>
 
@@ -175,9 +284,16 @@ export function renderStores(list) {
   renderCards(list);
 }
 
+/* ------------------------------------------------------------
+   LOAD STORES — ADVANCED SEARCH ENGINE (FULL POWER)
+------------------------------------------------------------ */
 export async function loadStores(filters = {}, search = "") {
   if (!DOM_READY) {
-    document.addEventListener("DOMContentLoaded", () => loadStores(filters, search), { once: true });
+    document.addEventListener(
+      "DOMContentLoaded",
+      () => loadStores(filters, search),
+      { once: true }
+    );
     return;
   }
 
@@ -189,54 +305,139 @@ export async function loadStores(filters = {}, search = "") {
   const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
 
-  heroImage.style.display = "none";
-  heroText.style.display = "none";
+  heroImage?.style && (heroImage.style.display = "none");
+  heroText?.style && (heroText.style.display = "none");
 
-  heading.style.display = "block";
-  heading.textContent = "Loading…";
-
-  grid.innerHTML = "";
+  if (heading) {
+    heading.style.display = "block";
+    heading.textContent = "Loading…";
+  }
+  if (grid) grid.innerHTML = "";
 
   let query = supabase.from("stores_frontend_public_v4").select("*");
 
-  // 🔍 SEARCH FIX — 400-safe version
-  if (search) {
-    const s = search.trim();
-    query = query.or(
-      [
-        `name.ilike.%${s}%`,
-        `city.ilike.%${s}%`,
-        `country.ilike.%${s}%`
-      ].join(",")
-    );
+  /* ------------------------------------------------------------
+     1) NORMALISERA SÖKORD
+  ------------------------------------------------------------ */
+  search = (search || "").toLowerCase().trim();
+
+  const synonyms = {
+    usa: "united states",
+    us: "united states",
+    uk: "united kingdom",
+    españa: "spain",
+    espanja: "spain",
+    ldh: "la casa del habano",
+    nyc: "new york",
+    sverige: "sweden",
+  };
+
+  if (synonyms[search]) search = synonyms[search];
+
+  const words = search.split(/\s+/).filter(Boolean);
+
+  /* ------------------------------------------------------------
+     2) FÖRBERED FILTER
+  ------------------------------------------------------------ */
+  const textFilters = [];
+  let wantStore = false;
+  let wantLounge = false;
+  let wantMembers = false;
+  let wantPublic = false;
+
+  let cmdCity = null;
+  let cmdType = null;
+  let cmdAccess = null;
+
+  for (let word of words) {
+    if (word.startsWith("city:")) {
+      cmdCity = word.replace("city:", "").trim();
+      continue;
+    } else if (word.startsWith("type:")) {
+      cmdType = word.replace("type:", "").trim();
+      continue;
+    } else if (word.startsWith("access:")) {
+      cmdAccess = word.replace("access:", "").trim();
+      continue;
+    }
+
+    if (["store", "butik", "shop"].includes(word)) {
+      wantStore = true;
+      continue;
+    }
+    if (["lounge", "bar"].includes(word)) {
+      wantLounge = true;
+      continue;
+    }
+    if (["members", "member", "medlem"].includes(word)) {
+      wantMembers = true;
+      continue;
+    }
+    if (["public", "öppen"].includes(word)) {
+      wantPublic = true;
+      continue;
+    }
+
+    textFilters.push(`
+      name.ilike.%${word}%,
+      city.ilike.%${word}%,
+      country.ilike.%${word}%,
+      address.ilike.%${word}%,
+      continent.ilike.%${word}%
+    `);
   }
 
-  // 🌍 FILTERS
-  if (filters.continent) query = query.eq("continent", filters.continent);
-  if (filters.country)   query = query.eq("country", filters.country);
-  if (filters.city)      query = query.eq("city", filters.city);
+  if (textFilters.length > 0) {
+    query = query.or(textFilters.join(","));
+  }
 
-  const { data, error } = await query.order("created_at", { ascending: false });
+  if (wantStore) query = query.contains("types", ["store"]);
+  if (wantLounge) query = query.contains("types", ["lounge"]);
+
+  if (wantMembers) query = query.eq("access", "members");
+  if (wantPublic) query = query.eq("access", "public");
+
+  if (cmdCity) query = query.ilike("city", `%${cmdCity}%`);
+  if (cmdType) query = query.contains("types", [cmdType]);
+  if (cmdAccess) query = query.eq("access", cmdAccess);
+
+  if (filters.continent) query = query.eq("continent", filters.continent);
+  if (filters.country) query = query.eq("country", filters.country);
+  if (filters.city) query = query.eq("city", filters.city);
+
+  const { data, error } = await query.order("created_at", {
+    ascending: false,
+  });
 
   if (reqId !== ACTIVE_REQUEST) return;
 
   if (error) {
-    console.error("❌ Supabase error:", error);
-    heading.textContent = "Error loading locations.";
+    console.error(error);
+    if (heading) heading.textContent = "Error loading locations.";
     return;
   }
 
-  if (!data.length) {
-    heading.textContent = "No results found.";
+  if (!data || data.length === 0) {
+    if (heading) heading.textContent = "No results found.";
     return;
   }
 
-  renderCards(data);
+  // ---------------- HIGHLIGHT + AUTOCOMPLETE ----------------
+  const hlWords = words;
+
+  const highlighted = data.map((s) => ({
+    ...s,
+    name: highlight(s.name, hlWords),
+    city: highlight(s.city, hlWords),
+    country: highlight(s.country, hlWords),
+  }));
+
+  renderCards(highlighted);
+  updateAutocomplete(data, hlWords);
 
   if (reqId !== ACTIVE_REQUEST) return;
-  heading.textContent = `${data.length} results`;
+  if (heading) heading.textContent = `${data.length} results`;
 }
-
 
 /* ============================================================
    ===================  MODAL SYSTEM ==========================
@@ -275,8 +476,8 @@ async function openModal(id) {
 function closeModal() {
   modal.classList.add("hidden");
 }
-closeBtn.addEventListener("click", closeModal);
-backdrop.addEventListener("click", closeModal);
+closeBtn?.addEventListener("click", closeModal);
+backdrop?.addEventListener("click", closeModal);
 
 /* ------------------------------------------------------------
    FILL MODAL
@@ -290,7 +491,6 @@ function fillModal(s) {
   dom("#modalAddress").textContent = s.address || "—";
   dom("#modalPhone").textContent = s.phone || "—";
 
-  // Website
   const w = dom("#modalWebsite");
   if (s.website) {
     w.href = s.website;
@@ -299,7 +499,6 @@ function fillModal(s) {
     w.style.display = "none";
   }
 
-  // Badges in modal
   const badgeBox = dom("#modalBadges");
   badgeBox.innerHTML = buildBadges(s);
 
@@ -314,14 +513,19 @@ const ratingSendBtn = dom("#modalSendRating");
 let USER_TEMP_RATING = 0;
 
 function highlightStars(count) {
+  if (!starPicker) return;
   starPicker.querySelectorAll("span").forEach((s, i) => {
     s.textContent = i < count ? "★" : "☆";
   });
 }
 
-starPicker.querySelectorAll("span").forEach((star) => {
-  star.addEventListener("mouseenter", () => highlightStars(star.dataset.val));
-  star.addEventListener("mouseleave", () => highlightStars(USER_TEMP_RATING));
+starPicker?.querySelectorAll("span").forEach((star) => {
+  star.addEventListener("mouseenter", () =>
+    highlightStars(star.dataset.val)
+  );
+  star.addEventListener("mouseleave", () =>
+    highlightStars(USER_TEMP_RATING)
+  );
   star.addEventListener("click", () => {
     USER_TEMP_RATING = Number(star.dataset.val);
     highlightStars(USER_TEMP_RATING);
@@ -329,7 +533,8 @@ starPicker.querySelectorAll("span").forEach((star) => {
 });
 
 async function loadUserRating(store_id) {
-  const user = (await supabase.auth.getUser()).data.user;
+  const userResp = await supabase.auth.getUser();
+  const user = userResp.data.user;
   if (!user) return;
 
   const { data } = await supabase
@@ -343,11 +548,12 @@ async function loadUserRating(store_id) {
   highlightStars(USER_TEMP_RATING);
 }
 
-ratingSendBtn.addEventListener("click", async () => {
+ratingSendBtn?.addEventListener("click", async () => {
   const rating = USER_TEMP_RATING;
   if (!rating) return alert("Select a rating first!");
 
-  const user = (await supabase.auth.getUser()).data.user;
+  const userResp = await supabase.auth.getUser();
+  const user = userResp.data.user;
   if (!user) return alert("Login required.");
 
   await supabase.from("ratings").upsert({
@@ -383,9 +589,11 @@ async function loadComments(store_id) {
     .eq("store_id", store_id)
     .order("created_at", { ascending: false });
 
+  if (!commentsBox) return;
+
   commentsBox.innerHTML = "";
 
-  if (!data.length) {
+  if (!data || !data.length) {
     commentsBox.innerHTML = "<p>No comments yet.</p>";
     return;
   }
@@ -401,11 +609,12 @@ async function loadComments(store_id) {
     .join("");
 }
 
-sendCommentBtn.addEventListener("click", async () => {
+sendCommentBtn?.addEventListener("click", async () => {
   const text = commentInput.value.trim();
   if (!text) return;
 
-  const user = (await supabase.auth.getUser()).data.user;
+  const userResp = await supabase.auth.getUser();
+  const user = userResp.data.user;
   if (!user) return alert("Login required.");
 
   await supabase.from("comments").insert({
