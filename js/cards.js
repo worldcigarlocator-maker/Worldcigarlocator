@@ -175,9 +175,6 @@ export function renderStores(list) {
   renderCards(list);
 }
 
-/* ------------------------------------------------------------
-   LOAD STORES
------------------------------------------------------------- */
 export async function loadStores(filters = {}, search = "") {
   if (!DOM_READY) {
     document.addEventListener("DOMContentLoaded", () => loadStores(filters, search), { once: true });
@@ -202,14 +199,19 @@ export async function loadStores(filters = {}, search = "") {
 
   let query = supabase.from("stores_frontend_public_v4").select("*");
 
+  // 🔍 SEARCH FIX — 400-safe version
   if (search) {
-    query = query.or(`
-      name.ilike.%${search}%,
-      city.ilike.%${search}%,
-      country.ilike.%${search}%
-    `);
+    const s = search.trim();
+    query = query.or(
+      [
+        `name.ilike.%${s}%`,
+        `city.ilike.%${s}%`,
+        `country.ilike.%${s}%`
+      ].join(",")
+    );
   }
 
+  // 🌍 FILTERS
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country)   query = query.eq("country", filters.country);
   if (filters.city)      query = query.eq("city", filters.city);
@@ -219,7 +221,7 @@ export async function loadStores(filters = {}, search = "") {
   if (reqId !== ACTIVE_REQUEST) return;
 
   if (error) {
-    console.error(error);
+    console.error("❌ Supabase error:", error);
     heading.textContent = "Error loading locations.";
     return;
   }
@@ -234,6 +236,7 @@ export async function loadStores(filters = {}, search = "") {
   if (reqId !== ACTIVE_REQUEST) return;
   heading.textContent = `${data.length} results`;
 }
+
 
 /* ============================================================
    ===================  MODAL SYSTEM ==========================
