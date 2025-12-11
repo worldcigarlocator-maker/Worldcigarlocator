@@ -105,11 +105,15 @@
   <!-- ================ MAIN AREA ================ -->
   <main class="main">
 
-    <div class="searchbar main-search">
-      <input id="searchInput" type="text" placeholder="Search by name, city or country…">
-      <button id="searchBtn" class="btn">Search</button>
-      <button id="clearBtn" class="btn outline">Clear</button>
-    </div>
+   <div class="searchbar main-search" style="position:relative;">
+  <input id="searchInput" type="text" placeholder="Search by name, city or country…">
+  <button id="searchBtn" class="btn">Search</button>
+  <button id="clearBtn" class="btn outline">Clear</button>
+
+  <!-- 🔽 Autocomplete-listan -->
+  <div id="autocomplete" class="autocomplete hidden"></div>
+</div>
+
 
     <section id="heroText" class="hero-text">
       <p>
