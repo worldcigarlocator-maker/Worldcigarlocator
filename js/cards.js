@@ -215,6 +215,9 @@ function initLiveSearch() {
    CARD HTML
 ------------------------------------------------------------ */
 function cardHTML(s) {
+
+  console.log("CARD IMG:", s.id, s.photo_final_url);
+
   const img = s.photo_final_url || FALLBACK_IMAGE;
   const flag = getFlagUrl(s);
 
