@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initLiveSearch();
 });
 
-// Helper selectors
+// Helper selector
 const dom = (sel) => document.querySelector(sel);
 
 // Cancel-token for safe loading:
@@ -38,11 +38,13 @@ function buildBadges(store) {
     ? store.types.map((t) => t.toLowerCase())
     : [];
 
-  if (arr.includes("store"))
+  if (arr.includes("store")) {
     badges.push(`<span class="badge badge-store">Store</span>`);
+  }
 
-  if (arr.includes("lounge"))
+  if (arr.includes("lounge")) {
     badges.push(`<span class="badge badge-lounge">Lounge</span>`);
+  }
 
   const A = (store.access || "").trim().toLowerCase();
 
@@ -131,7 +133,8 @@ function initAutocomplete() {
 
   document.addEventListener("click", (e) => {
     if (!AC_BOX) return;
-    if (!AC_BOX.contains(e.target) && e.target !== dom("#searchInput")) {
+    const input = dom("#searchInput");
+    if (!AC_BOX.contains(e.target) && e.target !== input) {
       AC_BOX.classList.add("hidden");
     }
   });
@@ -285,7 +288,7 @@ export function renderStores(list) {
 }
 
 /* ------------------------------------------------------------
-   LOAD STORES — ADVANCED SEARCH ENGINE (FULL POWER)
+   LOAD STORES — ADVANCED SEARCH ENGINE (FULL POWER, SAFE)
 ------------------------------------------------------------ */
 export async function loadStores(filters = {}, search = "") {
   if (!DOM_READY) {
@@ -305,8 +308,8 @@ export async function loadStores(filters = {}, search = "") {
   const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
 
-  heroImage?.style && (heroImage.style.display = "none");
-  heroText?.style && (heroText.style.display = "none");
+  if (heroImage) heroImage.style.display = "none";
+  if (heroText) heroText.style.display = "none";
 
   if (heading) {
     heading.style.display = "block";
@@ -316,9 +319,7 @@ export async function loadStores(filters = {}, search = "") {
 
   let query = supabase.from("stores_frontend_public_v4").select("*");
 
-  /* ------------------------------------------------------------
-     1) NORMALISERA SÖKORD
-  ------------------------------------------------------------ */
+  // 1) Normalize search
   search = (search || "").toLowerCase().trim();
 
   const synonyms = {
@@ -336,9 +337,7 @@ export async function loadStores(filters = {}, search = "") {
 
   const words = search.split(/\s+/).filter(Boolean);
 
-  /* ------------------------------------------------------------
-     2) FÖRBERED FILTER
-  ------------------------------------------------------------ */
+  // 2) Prepare filters
   const textFilters = [];
   let wantStore = false;
   let wantLounge = false;
@@ -349,18 +348,22 @@ export async function loadStores(filters = {}, search = "") {
   let cmdType = null;
   let cmdAccess = null;
 
-  for (let word of words) {
+  for (const word of words) {
+    // Commands
     if (word.startsWith("city:")) {
       cmdCity = word.replace("city:", "").trim();
       continue;
-    } else if (word.startsWith("type:")) {
+    }
+    if (word.startsWith("type:")) {
       cmdType = word.replace("type:", "").trim();
       continue;
-    } else if (word.startsWith("access:")) {
+    }
+    if (word.startsWith("access:")) {
       cmdAccess = word.replace("access:", "").trim();
       continue;
     }
 
+    // Badge triggers
     if (["store", "butik", "shop"].includes(word)) {
       wantStore = true;
       continue;
@@ -378,6 +381,7 @@ export async function loadStores(filters = {}, search = "") {
       continue;
     }
 
+    // Text search
     textFilters.push(`
       name.ilike.%${word}%,
       city.ilike.%${word}%,
@@ -387,27 +391,41 @@ export async function loadStores(filters = {}, search = "") {
     `);
   }
 
+  // 3) Multiword text search
   if (textFilters.length > 0) {
     query = query.or(textFilters.join(","));
   }
 
+  // 4) TYPES (badges)
   if (wantStore) query = query.contains("types", ["store"]);
   if (wantLounge) query = query.contains("types", ["lounge"]);
 
+  // 5) ACCESS badges
   if (wantMembers) query = query.eq("access", "members");
   if (wantPublic) query = query.eq("access", "public");
 
+  // 6) Command filters
   if (cmdCity) query = query.ilike("city", `%${cmdCity}%`);
   if (cmdType) query = query.contains("types", [cmdType]);
   if (cmdAccess) query = query.eq("access", cmdAccess);
 
+  // 7) UI dropdown filters
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country) query = query.eq("country", filters.country);
   if (filters.city) query = query.eq("city", filters.city);
 
-  const { data, error } = await query.order("created_at", {
-    ascending: false,
-  });
+  // 8) Safe fetch
+  let data, error;
+  try {
+    const resp = await query.order("created_at", { ascending: false });
+    data = resp.data;
+    error = resp.error;
+  } catch (e) {
+    if (e.name === "AbortError") return;
+    console.error("Unexpected Supabase error:", e);
+    if (heading) heading.textContent = "Error loading locations.";
+    return;
+  }
 
   if (reqId !== ACTIVE_REQUEST) return;
 
@@ -422,7 +440,7 @@ export async function loadStores(filters = {}, search = "") {
     return;
   }
 
-  // ---------------- HIGHLIGHT + AUTOCOMPLETE ----------------
+  // 9) Highlight + autocomplete
   const hlWords = words;
 
   const highlighted = data.map((s) => ({
