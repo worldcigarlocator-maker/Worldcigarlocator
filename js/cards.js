@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initLiveSearch();
 });
 
-// Helper selector
+// Helper selectors
 const dom = (sel) => document.querySelector(sel);
 
 // Cancel-token for safe loading:
@@ -133,8 +133,8 @@ function initAutocomplete() {
 
   document.addEventListener("click", (e) => {
     if (!AC_BOX) return;
-    const input = dom("#searchInput");
-    if (!AC_BOX.contains(e.target) && e.target !== input) {
+    const searchInput = dom("#searchInput");
+    if (!AC_BOX.contains(e.target) && e.target !== searchInput) {
       AC_BOX.classList.add("hidden");
     }
   });
@@ -142,7 +142,7 @@ function initAutocomplete() {
 
 function updateAutocomplete(list, words) {
   if (!AC_BOX) return;
-  if (!words || words.length === 0) {
+  if (!words || !words.length) {
     AC_BOX.classList.add("hidden");
     return;
   }
@@ -218,6 +218,10 @@ function cardHTML(s) {
   const img = s.photo_final_url || FALLBACK_IMAGE;
   const flag = getFlagUrl(s);
 
+  const displayName = s.__hl?.name || s.name || "Unnamed";
+  const displayCity = s.__hl?.city || s.city || "";
+  const displayCountry = s.__hl?.country || s.country || "";
+
   let displayAddress = "—";
   if (s.address) {
     const trimmed = s.address.trim();
@@ -228,12 +232,12 @@ function cardHTML(s) {
 
   return `
     <article class="store-card" data-id="${s.id}">
-      <img src="${img}" class="store-img" alt="${s.name}"
+      <img src="${img}" class="store-img" alt="${s.name || "Store image"}"
            onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
 
       <div class="store-body">
 
-        <h3 class="store-title">${s.name || "Unnamed"}</h3>
+        <h3 class="store-title">${displayName}</h3>
 
         <div class="badge-row">
           ${buildBadges(s)}
@@ -244,9 +248,9 @@ function cardHTML(s) {
         <div class="locrow">
           <div class="loc-top">
             ${flag ? `<img src="${flag}" class="flag" />` : ""}
-            <span>${[s.continent, s.country].filter(Boolean).join(", ")}</span>
+            <span>${[s.continent, displayCountry].filter(Boolean).join(", ")}</span>
           </div>
-          <p class="city-label">${s.city || ""}</p>
+          <p class="city-label">${displayCity}</p>
         </div>
 
         <div class="infoblock">
@@ -319,8 +323,9 @@ export async function loadStores(filters = {}, search = "") {
 
   let query = supabase.from("stores_frontend_public_v4").select("*");
 
-  // 1) Normalize search
-  search = (search || "").toLowerCase().trim();
+  // 1) NORMALISE SEARCH TEXT
+  let normalized = (search || "").toString().trim();
+  let searchLower = normalized.toLowerCase();
 
   const synonyms = {
     usa: "united states",
@@ -333,11 +338,16 @@ export async function loadStores(filters = {}, search = "") {
     sverige: "sweden",
   };
 
-  if (synonyms[search]) search = synonyms[search];
+  if (synonyms[searchLower]) {
+    searchLower = synonyms[searchLower];
+    normalized = synonyms[searchLower];
+  }
 
-  const words = search.split(/\s+/).filter(Boolean);
+  const words = searchLower
+    ? searchLower.split(/\s+/).filter(Boolean)
+    : [];
 
-  // 2) Prepare filters
+  // 2) PREPARE FILTERS
   const textFilters = [];
   let wantStore = false;
   let wantLounge = false;
@@ -348,22 +358,18 @@ export async function loadStores(filters = {}, search = "") {
   let cmdType = null;
   let cmdAccess = null;
 
-  for (const word of words) {
-    // Commands
+  for (let word of words) {
     if (word.startsWith("city:")) {
       cmdCity = word.replace("city:", "").trim();
       continue;
-    }
-    if (word.startsWith("type:")) {
+    } else if (word.startsWith("type:")) {
       cmdType = word.replace("type:", "").trim();
       continue;
-    }
-    if (word.startsWith("access:")) {
+    } else if (word.startsWith("access:")) {
       cmdAccess = word.replace("access:", "").trim();
       continue;
     }
 
-    // Badge triggers
     if (["store", "butik", "shop"].includes(word)) {
       wantStore = true;
       continue;
@@ -381,17 +387,18 @@ export async function loadStores(filters = {}, search = "") {
       continue;
     }
 
-    // Text search
-    textFilters.push(`
+    textFilters.push(
+      `
       name.ilike.%${word}%,
       city.ilike.%${word}%,
       country.ilike.%${word}%,
       address.ilike.%${word}%,
       continent.ilike.%${word}%
-    `);
+    `
+    );
   }
 
-  // 3) Multiword text search
+  // 3) MULTIWORD TEXT SEARCH
   if (textFilters.length > 0) {
     query = query.or(textFilters.join(","));
   }
@@ -400,28 +407,30 @@ export async function loadStores(filters = {}, search = "") {
   if (wantStore) query = query.contains("types", ["store"]);
   if (wantLounge) query = query.contains("types", ["lounge"]);
 
-  // 5) ACCESS badges
+  // 5) ACCESS BADGES
   if (wantMembers) query = query.eq("access", "members");
   if (wantPublic) query = query.eq("access", "public");
 
-  // 6) Command filters
+  // 6) COMMAND FILTERS
   if (cmdCity) query = query.ilike("city", `%${cmdCity}%`);
   if (cmdType) query = query.contains("types", [cmdType]);
   if (cmdAccess) query = query.eq("access", cmdAccess);
 
-  // 7) UI dropdown filters
+  // 7) UI DROPDOWN FILTERS
   if (filters.continent) query = query.eq("continent", filters.continent);
   if (filters.country) query = query.eq("country", filters.country);
   if (filters.city) query = query.eq("city", filters.city);
 
-  // 8) Safe fetch
+  // 8) SAFE FETCH
   let data, error;
+
   try {
     const resp = await query.order("created_at", { ascending: false });
     data = resp.data;
     error = resp.error;
   } catch (e) {
-    if (e.name === "AbortError") return;
+    if (reqId !== ACTIVE_REQUEST) return;
+
     console.error("Unexpected Supabase error:", e);
     if (heading) heading.textContent = "Error loading locations.";
     return;
@@ -440,14 +449,16 @@ export async function loadStores(filters = {}, search = "") {
     return;
   }
 
-  // 9) Highlight + autocomplete
+  // 9) HIGHLIGHT + AUTOCOMPLETE
   const hlWords = words;
 
   const highlighted = data.map((s) => ({
     ...s,
-    name: highlight(s.name, hlWords),
-    city: highlight(s.city, hlWords),
-    country: highlight(s.country, hlWords),
+    __hl: {
+      name: highlight(s.name, hlWords),
+      city: highlight(s.city, hlWords),
+      country: highlight(s.country, hlWords),
+    },
   }));
 
   renderCards(highlighted);
