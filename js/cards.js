@@ -67,6 +67,37 @@ function buildBadges(store) {
 const FALLBACK_IMAGE = "images/store.jpg";
 
 /* ------------------------------------------------------------
+   PHOTO URL HELPER — LOCKED TO 900PX
+------------------------------------------------------------ */
+const PHOTO_PROXY_URL = "/functions/v1/photo-proxy";
+
+function getPhotoUrl(store) {
+
+  // 1) CDN (Cloudflare/Supabase)
+  if (store.photo_cdn_url) 
+    return store.photo_cdn_url;
+
+  // 2) Direkt extern URL
+  if (store.photo_url) 
+    return store.photo_url;
+
+  // 3) Google photo_reference → DRIVING LOGIC (900px)
+  if (store.photo_reference) {
+    const ref = encodeURIComponent(store.photo_reference);
+    return `${PHOTO_PROXY_URL}?ref=${ref}&maxwidth=900`;
+  }
+
+  // 4) Viewens final_url (backend genererar denna)
+  if (store.photo_final_url) 
+    return store.photo_final_url;
+
+  // 5) Fallback
+  return FALLBACK_IMAGE;
+}
+
+
+
+/* ------------------------------------------------------------
    RESET HERO
 ------------------------------------------------------------ */
 export function resetToHero() {
@@ -218,7 +249,7 @@ function cardHTML(s) {
 
   console.log("CARD IMG:", s.id, s.photo_final_url);
 
-  const img = s.photo_final_url || FALLBACK_IMAGE;
+ const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
 
   const displayName = s.__hl?.name || s.name || "Unnamed";
@@ -515,7 +546,7 @@ backdrop?.addEventListener("click", closeModal);
    FILL MODAL
 ------------------------------------------------------------ */
 function fillModal(s) {
-  dom("#modalImg").src = s.photo_final_url || FALLBACK_IMAGE;
+ dom("#modalImg").src = getPhotoUrl(s);
   dom("#modalName").textContent = s.name;
   dom("#modalFlag").src = getFlagUrl(s) || "";
   dom("#modalLocation").textContent = `${s.city || ""}, ${s.country || ""}`;
