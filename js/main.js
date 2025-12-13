@@ -1,5 +1,5 @@
 // ============================================================
-// MAIN.JS — FRONTEND BOOT, AUTH, SIDEBAR, SEARCH, HERO CONTROL
+// MAIN.JS — WCL Frontend (Auth-first, Stable Sidebar & Search)
 // ============================================================
 
 // ----- Global selectors -----
@@ -11,16 +11,6 @@ import { supabase } from "./globals.js";
 import { loadStores, resetToHero } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import "./start.js"; // age gate + online tracker
-
-
-// ============================================================
-// INITIAL PAGE BOOT — MUST RUN FIRST (Safari-safe)
-// ============================================================
-document.addEventListener("DOMContentLoaded", async () => {
-  await initSidebar();      // 1. bygg sidomenyn
-  resetToHero();            // 2. visa hero mode
-  restoreMenuState();       // 3. öppna rätt kontinent i hierarkin
-});
 
 
 // ============================================================
@@ -36,30 +26,22 @@ function showLoginPopup() {
   const btn      = qs("#loginSubmit");
   const spinner  = qs("#loginSpinner");
 
-  // Autofocus
   setTimeout(() => email?.focus(), 80);
 
-  // Load saved email
   const saved = localStorage.getItem("wcl_saved_email");
   if (saved) {
     email.value = saved;
     remember.checked = true;
   }
 
-  // Login handler
   btn.onclick = async () => {
     const e = email.value.trim();
     const p = pass.value.trim();
-
-    if (!e || !p) {
-      alert("Please fill in all fields.");
-      return;
-    }
+    if (!e || !p) return alert("Please fill in all fields.");
 
     if (remember.checked) localStorage.setItem("wcl_saved_email", e);
     else localStorage.removeItem("wcl_saved_email");
 
-    // UI lock
     btn.disabled = true;
     spinner.classList.remove("hidden");
     qs(".login-text").textContent = "Logging in…";
@@ -77,7 +59,7 @@ function showLoginPopup() {
       return;
     }
 
-    location.reload(); // success
+    location.reload();
   };
 }
 
@@ -97,63 +79,97 @@ function setupLogout() {
 
 
 // ============================================================
-// PROTECT FRONTEND (Require Login)
+// SIDEBAR STATE (restore open continent)
+// ============================================================
+function restoreMenuState() {
+  const open = localStorage.getItem("wclMenuOpen");
+  if (!open) return;
+
+  const el = document.querySelector(`[data-continent="${open}"]`);
+  if (el) el.classList.add("open");
+}
+
+
+// ============================================================
+// SIDEBAR INIT (build once, after auth)
+// ============================================================
+let SIDEBAR_BUILT = false;
+
+async function initSidebar() {
+  if (SIDEBAR_BUILT) return;
+  SIDEBAR_BUILT = true;
+
+  await buildFrontendSidebar(supabase, loadStores);
+
+  // persist open continent
+  document.querySelectorAll("[data-continent]").forEach((el) => {
+    el.addEventListener("click", () => {
+      localStorage.setItem("wclMenuOpen", el.dataset.continent);
+    });
+  });
+
+  restoreMenuState();
+}
+
+
+// ============================================================
+// SEARCH — STABLE MODE (NO LIVE SPAM)
+// ============================================================
+function setupSearch() {
+  const input = qs("#searchInput");
+  const searchBtn = qs("#searchBtn");
+  const clearBtn = qs("#clearBtn");
+
+  if (!input || !searchBtn || !clearBtn) return;
+
+  const runSearch = () => {
+    const q = input.value.trim();
+    loadStores({}, q);
+  };
+
+  searchBtn.onclick = runSearch;
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") runSearch();
+  });
+
+  clearBtn.onclick = () => {
+    input.value = "";
+    resetToHero();
+  };
+}
+
+
+// ============================================================
+// AUTH GUARD — SINGLE SOURCE OF TRUTH
 // ============================================================
 async function guard() {
   const { data: { session } } = await supabase.auth.getSession();
   const container = qs(".container");
 
   if (!session) {
-    // hide UI → show login popup
     container.style.display = "none";
     showLoginPopup();
     return;
   }
 
-  // logged in
   container.style.removeProperty("display");
-  // sidebar already built in initSidebar()
-  resetToHero(); // ensure hero is visible when login finishes
+
+  // ✅ correct order
+  await initSidebar();
+  resetToHero();
 }
 
 
 // ============================================================
-// SIDEBAR STATE (autocollapse restore)
+// BOOT SEQUENCE
 // ============================================================
-function restoreMenuState() {
-  const open = localStorage.getItem("wclMenuOpen");
-  if (!open) return;
-
-  const item = document.querySelector(`[data-continent="${open}"]`);
-  if (item) item.classList.add("open");
-}
-
-
-// ============================================================
-// SIDEBAR INIT (build + event binding)
-// ============================================================
-async function initSidebar() {
-  await buildFrontendSidebar(supabase, loadStores);
-
-  // Save collapse state
-  document.querySelectorAll("[data-continent]").forEach((el) => {
-    el.addEventListener("click", () => {
-      localStorage.setItem("wclMenuOpen", el.dataset.continent);
-    });
-  });
-}
-
-
-// ============================================================
-// FULL INITIALIZATION MAIN LOGIC
-// ============================================================
-
-// Update UI when auth state changes
-supabase.auth.onAuthStateChange(() => guard());
-
-// DOM loaded → run UI setup
 document.addEventListener("DOMContentLoaded", () => {
   setupLogout();
   setupSearch();
-  guard(); // requires login to show page
+  guard();
+});
+
+supabase.auth.onAuthStateChange(() => {
+  guard();
 });
