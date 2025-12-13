@@ -153,6 +153,16 @@ function highlight(text, words) {
   return result;
 }
 
+function safeWord(w) {
+  return (w || "")
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[%_]/g, "\\$&")   // escape ilike wildcards
+    .replace(/,/g, " ");       // comma kan knäcka .or()-syntax
+}
+
+
 /* ------------------------------------------------------------
    AUTOCOMPLETE STATE + INIT
 ------------------------------------------------------------ */
@@ -421,21 +431,21 @@ export async function loadStores(filters = {}, search = "") {
       continue;
     }
 
-    textFilters.push(
-      `
-      name.ilike.%${word}%,
-      city.ilike.%${word}%,
-      country.ilike.%${word}%,
-      address.ilike.%${word}%,
-      continent.ilike.%${word}%
+const w = safeWord(word);
+if (!w) continue;
+
+orParts.push(`name.ilike.%${w}%`);
+orParts.push(`city.ilike.%${w}%`);
+orParts.push(`country.ilike.%${w}%`);
+orParts.push(`address.ilike.%${w}%`);
+orParts.push(`continent.ilike.%${w}%`);
     `
-    );
   }
 
   // 3) MULTIWORD TEXT SEARCH
-  if (textFilters.length > 0) {
-    query = query.or(textFilters.join(","));
-  }
+if (orParts.length > 0) {
+  query = query.or(orParts.join(","));
+}
 
   // 4) TYPES (badges)
   if (wantStore) query = query.contains("types", ["store"]);
