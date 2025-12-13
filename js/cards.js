@@ -87,10 +87,6 @@ function getPhotoUrl(store) {
     return `${PHOTO_PROXY_URL}?ref=${ref}&maxwidth=900`;
   }
 
-  // 4) Viewens final_url (backend genererar denna)
-  if (store.photo_final_url) 
-    return store.photo_final_url;
-
   // 5) Fallback
   return FALLBACK_IMAGE;
 }
@@ -235,22 +231,6 @@ function updateAutocomplete(list, words) {
   });
 }
 
-/* ------------------------------------------------------------
-   LIVE SEARCH INIT
------------------------------------------------------------- */
-function initLiveSearch() {
-  const input = dom("#searchInput");
-  if (!input) return;
-
-  let t;
-  input.addEventListener("input", () => {
-    const val = input.value.trim();
-    clearTimeout(t);
-    t = setTimeout(() => {
-      loadStores({}, val);
-    }, 250);
-  });
-}
 
 /* ------------------------------------------------------------
    CARD HTML
@@ -310,7 +290,7 @@ function cardHTML(s) {
         </div>
 
         <button class="reviews-btn">
-          Comments (${s.comment_count || 0})
+           (${s.comment_count || 0})
         </button>
 
       </div>
@@ -416,7 +396,7 @@ async function openModal(id) {
   if (!data) return;
 
   fillModal(data);
-  loadComments(id);
+  load(id);
   loadUserRating(id);
 
   modal.classList.remove("hidden");
@@ -528,15 +508,15 @@ async function loadModalStore() {
 }
 
 /* ============================================================
-   ====================  COMMENTS SYSTEM =======================
+   ====================   SYSTEM =======================
    ============================================================ */
-const commentsBox = dom("#modalComments");
+const Box = dom("#modal");
 const commentInput = dom("#modalCommentInput");
 const sendCommentBtn = dom("#modalSendComment");
 
-async function loadComments(store_id) {
+async function load(store_id) {
   const { data } = await supabase
-    .from("comments")
+  + .from("store_comments")
     .select("*")
     .eq("store_id", store_id)
     .order("created_at", { ascending: false });
@@ -569,7 +549,7 @@ sendCommentBtn?.addEventListener("click", async () => {
   const user = userResp.data.user;
   if (!user) return alert("Login required.");
 
-  await supabase.from("comments").insert({
+  await supabase.from("store_comments").insert({
     store_id: CURRENT_STORE,
     user_id: user.id,
     text,
