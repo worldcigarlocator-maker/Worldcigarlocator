@@ -9,9 +9,9 @@ import { supabase } from "./globals.js";
 let DOM_READY = false;
 document.addEventListener("DOMContentLoaded", () => {
   DOM_READY = true;
-  initAutocomplete();
-  initLiveSearch();
+  initAutocomplete(); // ✅ autocomplete får vara kvar
 });
+
 
 // Helper selectors
 const dom = (sel) => document.querySelector(sel);
