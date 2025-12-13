@@ -365,120 +365,13 @@ export async function loadStores(filters = {}, search = "") {
   }
   if (grid) grid.innerHTML = "";
 
-  let query = supabase.from("stores_frontend_public_v4").select("*");
-
-  // 1) NORMALISE SEARCH TEXT
-  let normalized = (search || "").toString().trim();
-  let searchLower = normalized.toLowerCase();
-
-  const synonyms = {
-    usa: "united states",
-    us: "united states",
-    uk: "united kingdom",
-    españa: "spain",
-    espanja: "spain",
-    ldh: "la casa del habano",
-    nyc: "new york",
-    sverige: "sweden",
-  };
-
-  if (synonyms[searchLower]) {
-    searchLower = synonyms[searchLower];
-    normalized = synonyms[searchLower];
-  }
-
-  const words = searchLower
-    ? searchLower.split(/\s+/).filter(Boolean)
-    : [];
-
-  // 2) PREPARE FILTERS
-  const textFilters = [];
-  let wantStore = false;
-  let wantLounge = false;
-  let wantMembers = false;
-  let wantPublic = false;
-
-  let cmdCity = null;
-  let cmdType = null;
-  let cmdAccess = null;
-
-  for (let word of words) {
-    if (word.startsWith("city:")) {
-      cmdCity = word.replace("city:", "").trim();
-      continue;
-    } else if (word.startsWith("type:")) {
-      cmdType = word.replace("type:", "").trim();
-      continue;
-    } else if (word.startsWith("access:")) {
-      cmdAccess = word.replace("access:", "").trim();
-      continue;
-    }
-
-    if (["store", "butik", "shop"].includes(word)) {
-      wantStore = true;
-      continue;
-    }
-    if (["lounge", "bar"].includes(word)) {
-      wantLounge = true;
-      continue;
-    }
-    if (["members", "member", "medlem"].includes(word)) {
-      wantMembers = true;
-      continue;
-    }
-    if (["public", "öppen"].includes(word)) {
-      wantPublic = true;
-      continue;
-    }
-
-const w = safeWord(word);
-if (!w) continue;
-
-orParts.push(`name.ilike.%${w}%`);
-orParts.push(`city.ilike.%${w}%`);
-orParts.push(`country.ilike.%${w}%`);
-orParts.push(`address.ilike.%${w}%`);
-orParts.push(`continent.ilike.%${w}%`);
-    `
-  }
-
-  // 3) MULTIWORD TEXT SEARCH
-if (orParts.length > 0) {
-  query = query.or(orParts.join(","));
-}
-
-  // 4) TYPES (badges)
-  if (wantStore) query = query.contains("types", ["store"]);
-  if (wantLounge) query = query.contains("types", ["lounge"]);
-
-  // 5) ACCESS BADGES
-  if (wantMembers) query = query.eq("access", "members");
-  if (wantPublic) query = query.eq("access", "public");
-
-  // 6) COMMAND FILTERS
-  if (cmdCity) query = query.ilike("city", `%${cmdCity}%`);
-  if (cmdType) query = query.contains("types", [cmdType]);
-  if (cmdAccess) query = query.eq("access", cmdAccess);
-
-  // 7) UI DROPDOWN FILTERS
-  if (filters.continent) query = query.eq("continent", filters.continent);
-  if (filters.country) query = query.eq("country", filters.country);
-  if (filters.city) query = query.eq("city", filters.city);
-
-  // 8) SAFE FETCH
-  let data, error;
-
-  try {
-    const resp = await query.order("created_at", { ascending: false });
-    data = resp.data;
-    error = resp.error;
-  } catch (e) {
-    if (reqId !== ACTIVE_REQUEST) return;
-
-    console.error("Unexpected Supabase error:", e);
-    if (heading) heading.textContent = "Error loading locations.";
-    return;
-  }
+  // ✅ ENDA datakällan
+  const { data, error } = await supabase.rpc("search_stores_v1", {
+    p_search: search?.trim() || null,
+    p_continent: filters.continent || null,
+    p_country: filters.country || null,
+    p_city: filters.city || null,
+  });
 
   if (reqId !== ACTIVE_REQUEST) return;
 
@@ -493,22 +386,8 @@ if (orParts.length > 0) {
     return;
   }
 
-  // 9) HIGHLIGHT + AUTOCOMPLETE
-  const hlWords = words;
+  renderCards(data);
 
-  const highlighted = data.map((s) => ({
-    ...s,
-    __hl: {
-      name: highlight(s.name, hlWords),
-      city: highlight(s.city, hlWords),
-      country: highlight(s.country, hlWords),
-    },
-  }));
-
-  renderCards(highlighted);
-  updateAutocomplete(data, hlWords);
-
-  if (reqId !== ACTIVE_REQUEST) return;
   if (heading) heading.textContent = `${data.length} results`;
 }
 
