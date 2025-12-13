@@ -132,32 +132,6 @@ function buildStars(avg, count) {
     </div>`;
 }
 
-/* ------------------------------------------------------------
-   HIGHLIGHT HELPER (for search terms)
------------------------------------------------------------- */
-function highlight(text, words) {
-  if (!text || !words || !words.length) return text;
-  let result = text;
-
-  words.forEach((w) => {
-    if (!w) return;
-    const escaped = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const regex = new RegExp(`(${escaped})`, "gi");
-    result = result.replace(regex, `<mark class="hl">$1</mark>`);
-  });
-
-  return result;
-}
-
-function safeWord(w) {
-  return (w || "")
-    .toString()
-    .trim()
-    .toLowerCase()
-    .replace(/[%_]/g, "\\$&")   // escape ilike wildcards
-    .replace(/,/g, " ");       // comma kan knäcka .or()-syntax
-}
-
 
 /* ------------------------------------------------------------
    AUTOCOMPLETE STATE + INIT
@@ -237,14 +211,13 @@ function updateAutocomplete(list, words) {
 ------------------------------------------------------------ */
 function cardHTML(s) {
 
-  console.log("CARD IMG:", s.id, s.photo_final_url);
-
  const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
+  
+const displayName = s.name || "Unnamed";
+const displayCity = s.city || "";
+const displayCountry = s.country || "";
 
-  const displayName = s.__hl?.name || s.name || "Unnamed";
-  const displayCity = s.__hl?.city || s.city || "";
-  const displayCountry = s.__hl?.country || s.country || "";
 
   let displayAddress = "—";
   if (s.address) {
@@ -394,10 +367,9 @@ async function openModal(id) {
     .single();
 
   if (!data) return;
-
-  fillModal(data);
-  load(id);
-  loadUserRating(id);
+fillModal(data);
+loadComments(id);
+loadUserRating(id);
 
   modal.classList.remove("hidden");
 }
@@ -508,15 +480,16 @@ async function loadModalStore() {
 }
 
 /* ============================================================
-   ====================   SYSTEM =======================
+   ==================== COMMENTS SYSTEM =======================
    ============================================================ */
-const Box = dom("#modal");
+
+const commentsBox = dom("#modalComments");
 const commentInput = dom("#modalCommentInput");
 const sendCommentBtn = dom("#modalSendComment");
 
-async function load(store_id) {
+async function loadComments(store_id) {
   const { data } = await supabase
-  + .from("store_comments")
+    .from("store_comments")
     .select("*")
     .eq("store_id", store_id)
     .order("created_at", { ascending: false });
