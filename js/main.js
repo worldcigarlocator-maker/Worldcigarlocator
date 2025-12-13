@@ -145,36 +145,6 @@ async function initSidebar() {
 
 
 // ============================================================
-// SEARCH
-// ============================================================
-function setupSearch() {
-  const input = qs("#searchInput");
-  const searchBtn = qs("#searchBtn");
-  const clearBtn = qs("#clearBtn");
-
-  // Manual search button
-  searchBtn.onclick = () => loadStores({}, input.value.trim());
-
-  // Clear button
-  clearBtn.onclick = () => {
-    input.value = "";
-    resetToHero(); // back to hero mode
-  };
-
-  // Live search
-  input.addEventListener("input", () => {
-    const s = input.value.trim();
-    if (s.length > 0) loadStores({}, s);
-  });
-
-  // Enter key
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") loadStores({}, input.value.trim());
-  });
-}
-
-
-// ============================================================
 // FULL INITIALIZATION MAIN LOGIC
 // ============================================================
 
