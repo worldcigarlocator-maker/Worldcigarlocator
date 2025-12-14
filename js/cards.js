@@ -211,6 +211,18 @@ function updateAutocomplete(list, words) {
 ------------------------------------------------------------ */
 function cardHTML(s) {
 
+function cardHTML(s) {
+  console.log("STORE OBJECT:", s);
+  console.log("PHOTO FIELDS:", {
+    cdn: s.photo_cdn_url,
+    url: s.photo_url,
+    ref: s.photo_reference
+  });
+
+  const img = getPhotoUrl(s);
+  const flag = getFlagUrl(s);
+
+  
  const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
   
