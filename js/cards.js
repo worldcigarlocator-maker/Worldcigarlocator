@@ -210,8 +210,6 @@ function updateAutocomplete(list, words) {
    CARD HTML
 ------------------------------------------------------------ */
 function cardHTML(s) {
-
-function cardHTML(s) {
   console.log("STORE OBJECT:", s);
   console.log("PHOTO FIELDS:", {
     cdn: s.photo_cdn_url,
@@ -219,17 +217,12 @@ function cardHTML(s) {
     ref: s.photo_reference
   });
 
-  const img = getPhotoUrl(s);
+  const img  = getPhotoUrl(s);
   const flag = getFlagUrl(s);
 
-  
- const img = getPhotoUrl(s);
-  const flag = getFlagUrl(s);
-  
-const displayName = s.name || "Unnamed";
-const displayCity = s.city || "";
-const displayCountry = s.country || "";
-
+  const displayName    = s.name || "Unnamed";
+  const displayCity    = s.city || "";
+  const displayCountry = s.country || "";
 
   let displayAddress = "—";
   if (s.address) {
@@ -241,7 +234,7 @@ const displayCountry = s.country || "";
 
   return `
     <article class="store-card" data-id="${s.id}">
-      <img src="${img}" class="store-img" alt="${s.name || "Store image"}"
+      <img src="${img}" class="store-img" alt="${displayName}"
            onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
 
       <div class="store-body">
@@ -275,7 +268,7 @@ const displayCountry = s.country || "";
         </div>
 
         <button class="reviews-btn">
-           (${s.comment_count || 0})
+          (${s.comment_count || 0})
         </button>
 
       </div>
