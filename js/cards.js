@@ -69,7 +69,9 @@ const FALLBACK_IMAGE = "images/store.jpg";
 /* ------------------------------------------------------------
    PHOTO URL HELPER — LOCKED TO 900PX
 ------------------------------------------------------------ */
-const PHOTO_PROXY_URL = "/functions/v1/photo-proxy";
+const PHOTO_PROXY_URL =
+  "https://DIN-PROJECT-REF.supabase.co/functions/v1/photo-proxy";
+
 
 function getPhotoUrl(store) {
 
