@@ -365,21 +365,23 @@ let CURRENT_STORE = null;
    OPEN MODAL
 ------------------------------------------------------------ */
 async function openModal(id) {
-  CURRENT_STORE = id;
+  const storeId = Number(id);
 
   const { data } = await supabase
     .from("stores_frontend_public_v4")
     .select("*")
-    .eq("id", id)
+    .eq("id", storeId)
     .single();
 
   if (!data) return;
-fillModal(data);
-loadComments(id);
-loadUserRating(id);
+
+  fillModal(data);
+  loadComments(storeId);
+  loadUserRating(storeId);
 
   modal.classList.remove("hidden");
 }
+
 
 /* ------------------------------------------------------------
    CLOSE MODAL
