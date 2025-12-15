@@ -70,30 +70,24 @@ const FALLBACK_IMAGE = "images/store.jpg";
    PHOTO URL HELPER — LOCKED TO 900PX
 ------------------------------------------------------------ */
 const PHOTO_PROXY_URL =
-  "https://DIN-PROJECT-REF.supabase.co/functions/v1/photo-proxy";
-
+  "https://gbxxoeplkzbhsvagnfsr.supabase.co/functions/v1/photo-proxy";
 
 function getPhotoUrl(store) {
-
-  // 1) CDN (Cloudflare/Supabase)
-  if (store.photo_cdn_url) 
-    return store.photo_cdn_url;
+  // 1) CDN (Cloudflare / Supabase Storage)
+  if (store.photo_cdn_url) return store.photo_cdn_url;
 
   // 2) Direkt extern URL
-  if (store.photo_url) 
-    return store.photo_url;
+  if (store.photo_url) return store.photo_url;
 
-  // 3) Google photo_reference → DRIVING LOGIC (900px)
+  // 3) Google Places → Edge Function (900px)
   if (store.photo_reference) {
     const ref = encodeURIComponent(store.photo_reference);
     return `${PHOTO_PROXY_URL}?ref=${ref}&maxwidth=900`;
   }
 
-  // 5) Fallback
+  // 4) Fallback
   return FALLBACK_IMAGE;
 }
-
-
 
 /* ------------------------------------------------------------
    RESET HERO
