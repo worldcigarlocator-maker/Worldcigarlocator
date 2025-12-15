@@ -206,13 +206,6 @@ function updateAutocomplete(list, words) {
    CARD HTML
 ------------------------------------------------------------ */
 function cardHTML(s) {
-  console.log("STORE OBJECT:", s);
-  console.log("PHOTO FIELDS:", {
-    cdn: s.photo_cdn_url,
-    url: s.photo_url,
-    ref: s.photo_reference
-  });
-
   const img  = getPhotoUrl(s);
   const flag = getFlagUrl(s);
 
@@ -230,11 +223,14 @@ function cardHTML(s) {
 
   return `
     <article class="store-card" data-id="${s.id}">
-      <img src="${img}" class="store-img" alt="${displayName}"
-           onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
+      <img
+        src="${img}"
+        class="store-img"
+        alt="${displayName}"
+        onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
+      />
 
       <div class="store-body">
-
         <h3 class="store-title">${displayName}</h3>
 
         <div class="badge-row">
@@ -252,23 +248,19 @@ function cardHTML(s) {
         </div>
 
         <div class="infoblock">
-          <p class="info-row"><strong>Address:</strong> <span>${displayAddress}</span></p>
-          <p class="info-row"><strong>Phone:</strong> <span>${s.phone || "—"}</span></p>
-          <p class="info-row"><strong>Website:</strong>
-            ${
-              s.website
-                ? `<a href="${s.website}" target="_blank">Visit</a>`
-                : "<span>—</span>"
-            }
+          <p><strong>Address:</strong> ${displayAddress}</p>
+          <p><strong>Phone:</strong> ${s.phone || "—"}</p>
+          <p><strong>Website:</strong>
+            ${s.website ? `<a href="${s.website}" target="_blank">Visit</a>` : "—"}
           </p>
         </div>
 
         <button class="reviews-btn">
           (${s.comment_count || 0})
         </button>
-
       </div>
-    </article>`;
+    </article>
+  `;
 }
 
 /* ------------------------------------------------------------
