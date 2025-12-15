@@ -66,26 +66,17 @@ function buildBadges(store) {
 ------------------------------------------------------------ */
 const FALLBACK_IMAGE = "images/store.jpg";
 
+
 /* ------------------------------------------------------------
-   PHOTO URL HELPER — LOCKED TO 900PX
+   PHOTO URL HELPER — BACKEND SINGLE SOURCE OF TRUTH
 ------------------------------------------------------------ */
-const PHOTO_PROXY_URL =
-  "https://gbxxoeplkzbhsvagnfsr.supabase.co/functions/v1/photo-proxy";
-
 function getPhotoUrl(store) {
-  // 1) CDN (Cloudflare / Supabase Storage)
-  if (store.photo_cdn_url) return store.photo_cdn_url;
-
-  // 2) Direkt extern URL
-  if (store.photo_url) return store.photo_url;
-
-  // 3) Google Places → Edge Function (900px)
-  if (store.photo_reference) {
-    const ref = encodeURIComponent(store.photo_reference);
-    return `${PHOTO_PROXY_URL}?ref=${ref}&maxwidth=900`;
+  // ✅ backend-view genererar redan korrekt bild-URL
+  if (store.photo_final_url) {
+    return store.photo_final_url;
   }
 
-  // 4) Fallback
+  // fallback endast om backend saknar bild
   return FALLBACK_IMAGE;
 }
 
