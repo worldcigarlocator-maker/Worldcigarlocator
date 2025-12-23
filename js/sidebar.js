@@ -15,7 +15,7 @@ export function buildFrontendSidebar(supabase, loadFunc = loadStores) {
 
   supabase
     .from("stores_frontend_public_v4")
-    .select("continent, country, city")
+    .select("id, continent, country, city")
     .order("continent")
     .order("country")
     .order("city")
