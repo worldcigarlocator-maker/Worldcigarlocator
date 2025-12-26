@@ -204,39 +204,60 @@
     return countryContinentMap[c] || "Unknown";
   }
 
-  /* ============================================================
-     REGION COUNTS — ENDA SANNINGEN (ALL_STORES)
-     ============================================================ */
-  function updateRegionCounts() {
-    const list = ALL_STORES;
+/* ============================================================
+   REGION COUNTS — KORREKT & STABIL
+   Approved = backend truth (frontend derives from this)
+   ============================================================ */
+async function updateRegionCounts() {
+  const resp = await WCL_BO.supabase
+    .from("stores")
+    .select("id, approved, flagged, deleted, photo_reference");
 
-    const counts = {
-      all: list.filter((s) => !s.deleted).length,
-      approved: list.filter((s) => s.approved && !s.deleted).length,
-      pending: list.filter((s) => !s.approved && !s.flagged && !s.deleted).length,
-      flagged: list.filter((s) => s.flagged && !s.deleted).length,
-      deleted: list.filter((s) => s.deleted).length,
-      repair: list.filter((s) => !s.photo_reference && !s.deleted).length,
-    };
+  const rows = resp.data || [];
 
-    $$(".filters .pill").forEach((p) => {
-      const tab = p.dataset.tab;
-      if (counts[tab] !== undefined) {
-        let badge = p.querySelector(".badge-count");
-        if (!badge) {
-          badge = document.createElement("span");
-          badge.className = "badge-count";
-          badge.style.marginLeft = "6px";
-          badge.style.fontSize = ".85rem";
-          badge.style.opacity = "0.7";
-          p.appendChild(badge);
-        }
-        badge.textContent = `(${counts[tab]})`;
+  const counts = {
+    // ALL — alla ej deleted (arbetsyta)
+    all: rows.filter(s => !s.deleted).length,
+
+    // ✅ APPROVED — det som frontend bygger på
+    approved: rows.filter(
+      s => s.approved === true && !s.deleted
+    ).length,
+
+    pending: rows.filter(
+      s => !s.approved && !s.flagged && !s.deleted
+    ).length,
+
+    flagged: rows.filter(
+      s => s.flagged && !s.deleted
+    ).length,
+
+    deleted: rows.filter(s => s.deleted).length,
+
+    repair: rows.filter(
+      s => !s.photo_reference && !s.deleted
+    ).length
+  };
+
+  $$(".filters .pill").forEach(p => {
+    const tab = p.dataset.tab;
+    if (counts[tab] !== undefined) {
+      let badge = p.querySelector(".badge-count");
+      if (!badge) {
+        badge = document.createElement("span");
+        badge.className = "badge-count";
+        badge.style.marginLeft = "6px";
+        badge.style.fontSize = ".85rem";
+        badge.style.opacity = "0.7";
+        p.appendChild(badge);
       }
-    });
+      badge.textContent = `(${counts[tab]})`;
+    }
+  });
 
-    console.log("🔢 Backoffice counts (GLOBAL):", counts);
-  }
+  console.log("🔢 Backoffice counts (FINAL, CORRECT):", counts);
+}
+
 
   /* ============================================================
      LIST VIEW
@@ -463,78 +484,112 @@
   }
 
   /* ============================================================
-     DATA LOADING — EN KÄLLA FÖR LISTA, EN FÖR COUNTS
-     ============================================================ */
-  async function reloadData(tab = CURRENT_TAB) {
-    CURRENT_TAB = tab;
+   DATA LOADING — EN KÄLLA FÖR LISTA, EN FÖR COUNTS
+   Approved = frontend (view v4)
+   ============================================================ */
+async function reloadData(tab = CURRENT_TAB) {
+  CURRENT_TAB = tab;
 
-    // Mark active tab (same UI)
-    $$(".filters .pill").forEach((p) =>
-      p.classList.toggle("active", p.dataset.tab === CURRENT_TAB)
-    );
+  /* ===================== UI STATE ===================== */
+  $$(".filters .pill").forEach(p =>
+    p.classList.toggle("active", p.dataset.tab === CURRENT_TAB)
+  );
 
-    // Toggle view (same UI)
-    if (CURRENT_VIEW === "cards") {
-      $("#cards") && ($("#cards").style.display = "grid");
-      $(".listview-wrap") && ($(".listview-wrap").style.display = "none");
-    } else {
-      $("#cards") && ($("#cards").style.display = "none");
-      $(".listview-wrap") && ($(".listview-wrap").style.display = "flex");
-    }
+  if (CURRENT_VIEW === "cards") {
+    $("#cards") && ($("#cards").style.display = "grid");
+    $(".listview-wrap") && ($(".listview-wrap").style.display = "none");
+  } else {
+    $("#cards") && ($("#cards").style.display = "none");
+    $(".listview-wrap") && ($(".listview-wrap").style.display = "flex");
+  }
 
-    const grid = $("#cards");
-    if (grid) grid.innerHTML = "<p class='muted center'>Loading…</p>";
+  const grid = $("#cards");
+  if (grid) grid.innerHTML = "<p class='muted center'>Loading…</p>";
 
-    // 1) ALL rows for counts
-    const allResp = await WCL_BO.supabase
-      .from("stores")
-      .select("id,approved,flagged,deleted,photo_reference");
+  /* ===================== COUNTS BASE ===================== */
+  const allResp = await WCL_BO.supabase
+    .from("stores")
+    .select("id,approved,flagged,deleted,photo_reference");
 
-    ALL_STORES = allResp.data || [];
+  ALL_STORES = allResp.data || [];
 
-    // 2) Build query for current tab
-    const SELECT_FIELDS =
-      "id,name,city,country,continent,type,types,address,phone,access,rating," +
-      "approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason,country_iso2";
+  /* ===================== BASE QUERY ===================== */
+  const SELECT_FIELDS =
+    "id,name,city,country,continent,type,types,address,phone,access,rating," +
+    "approved,flagged,deleted,status,photo_reference,place_id,website," +
+    "created_at,flag_reason,country_iso2";
 
-    let base = WCL_BO.supabase
-      .from("stores")
-      .select(SELECT_FIELDS)
+  let base = WCL_BO.supabase
+    .from("stores")
+    .select(SELECT_FIELDS)
+    .order("id", { ascending: false });
+
+  /* ======================================================
+     APPROVED — FRONTEND (VIEW v4)
+     ====================================================== */
+  if (tab === "approved") {
+    const approvedResp = await WCL_BO.supabase
+      .from("view_v4")
+      .select("*")
       .order("id", { ascending: false });
 
-    if (tab === "approved") {
-      base = base.eq("approved", true).eq("deleted", false);
-    } else if (tab === "pending") {
-      base = base.eq("approved", false).eq("flagged", false).eq("deleted", false);
-    } else if (tab === "flagged") {
-      base = base.eq("flagged", true).eq("deleted", false);
-    } else if (tab === "deleted") {
-      base = base.eq("deleted", true);
-    } else {
-      base = base.eq("deleted", false); // all
-    }
-
-    // 3) Fetch display rows
-    const { data, error } = await base;
-    if (error) {
-      console.error(error);
-      if (grid) grid.innerHTML = "<p class='error center'>Error loading stores</p>";
+    if (approvedResp.error) {
+      console.error(approvedResp.error);
+      if (grid) {
+        grid.innerHTML =
+          "<p class='error center'>Error loading approved (frontend)</p>";
+      }
       return;
     }
 
-    STORES = (data || []).map((s) => ({
-      ...s,
-      continent: s.continent || countryToContinent(s.country),
-    }));
+    STORES = approvedResp.data || [];
 
-    // 4) Render + counts
     render();
-    updateRegionCounts();
-
-    console.log(
-      `reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}, total=${ALL_STORES.length}`
-    );
+    await updateRegionCounts();
+    return;
   }
+
+  /* ======================================================
+     ALL OTHER TABS — STORES
+     ====================================================== */
+  if (tab === "pending") {
+    base = base.eq("approved", false).eq("flagged", false).eq("deleted", false);
+
+  } else if (tab === "flagged") {
+    base = base.eq("flagged", true).eq("deleted", false);
+
+  } else if (tab === "deleted") {
+    base = base.eq("deleted", true);
+
+  } else {
+    // ALL — arbetsyta / sök
+    base = base.eq("deleted", false);
+  }
+
+  /* ===================== FETCH STORES ===================== */
+  const { data, error } = await base;
+  if (error) {
+    console.error(error);
+    if (grid) {
+      grid.innerHTML = "<p class='error center'>Error loading stores</p>";
+    }
+    return;
+  }
+
+  STORES = (data || []).map(s => ({
+    ...s,
+    continent: s.continent || countryToContinent(s.country),
+  }));
+
+  render();
+  await updateRegionCounts();
+
+  console.log(
+    `reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}`
+  );
+}
+
+
 
   /* ============================================================
      MOD ACTIONS
