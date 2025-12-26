@@ -66,12 +66,6 @@ window.logout = async () => {
 };
 
 
-/* ======================== STATE ========================= */
-let STORES = [];
-let CURRENT_TAB = "pending"; // all | approved | pending | flagged | deleted | repair
-let CURRENT_VIEW = "cards";  // cards | list
-let HIER_SEL = { continent: null, country: null, city: null };
-
 /* ======================== HELPERS ======================== */
 const $  = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
