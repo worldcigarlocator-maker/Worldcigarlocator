@@ -527,27 +527,26 @@ async function reloadData(tab = CURRENT_TAB) {
   /* ======================================================
      APPROVED — FRONTEND (VIEW v4)
      ====================================================== */
-  if (tab === "approved") {
-    const approvedResp = await WCL_BO.supabase
-      .from("view_v4")
-      .select("*")
-      .order("id", { ascending: false });
+if (tab === "approved") {
+  const approvedResp = await WCL_BO.supabase
+    .from("stores_frontend_public_v4")
+    .select("*")
+    .order("id", { ascending: false });
 
-    if (approvedResp.error) {
-      console.error(approvedResp.error);
-      if (grid) {
-        grid.innerHTML =
-          "<p class='error center'>Error loading approved (frontend)</p>";
-      }
-      return;
+  if (approvedResp.error) {
+    console.error(approvedResp.error);
+    if (grid) {
+      grid.innerHTML =
+        "<p class='error center'>Error loading approved (frontend)</p>";
     }
-
-    STORES = approvedResp.data || [];
-
-    render();
-    await updateRegionCounts();
     return;
   }
+
+  STORES = approvedResp.data || [];
+  render();
+  await updateRegionCounts();
+  return;
+}
 
   /* ======================================================
      ALL OTHER TABS — STORES
