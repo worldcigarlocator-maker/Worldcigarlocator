@@ -423,23 +423,32 @@ function countryToFlag(country) {
 
 
 /* ============================================================
-   REGION COUNTS — uppdaterar topbar badges
+   GLOBAL STATE (läggs tillsammans med övriga globals)
    ============================================================ */
-function updateRegionCounts(list = STORES) {
+let STORES = [];
+let ALL_STORES = [];
+let CURRENT_TAB = "pending";
+let CURRENT_VIEW = "cards";
+
+
+/* ============================================================
+   REGION COUNTS — ENDA SANNINGEN (ALL_STORES)
+   ============================================================ */
+function updateRegionCounts() {
+  const list = ALL_STORES;
+
   const counts = {
-    all: list.length,
+    all:      list.filter(s => !s.deleted).length,
     approved: list.filter(s => s.approved && !s.deleted).length,
-    pending: list.filter(s => !s.approved && !s.flagged && !s.deleted).length,
-    flagged: list.filter(s => s.flagged && !s.deleted).length,
-    deleted: list.filter(s => s.deleted).length,
-    repair: list.filter(s => !s.photo_reference && !s.deleted).length
+    pending:  list.filter(s => !s.approved && !s.flagged && !s.deleted).length,
+    flagged:  list.filter(s => s.flagged && !s.deleted).length,
+    deleted:  list.filter(s => s.deleted).length,
+    repair:   list.filter(s => !s.photo_reference && !s.deleted).length
   };
 
-  // uppdatera siffrorna i filtren (om badges finns)
   $$(".filters .pill").forEach(p => {
     const tab = p.dataset.tab;
-    const n = counts[tab];
-    if (n !== undefined) {
+    if (counts[tab] !== undefined) {
       let badge = p.querySelector(".badge-count");
       if (!badge) {
         badge = document.createElement("span");
@@ -449,41 +458,26 @@ function updateRegionCounts(list = STORES) {
         badge.style.opacity = "0.7";
         p.appendChild(badge);
       }
-      badge.textContent = `(${n})`;
+      badge.textContent = `(${counts[tab]})`;
     }
   });
 
-  console.log("🔢 Region counts updated:", counts);
+  console.log("🔢 Backoffice counts (GLOBAL):", counts);
 }
 
-/* ============================================================
-   RENDER SWITCH — Cards vs List
-   ============================================================ */
-function render() {
-  const term = ($("#searchInput")?.value || "").trim().toLowerCase();
-  const matches = (s) => [s.name, s.city, s.country]
-    .some((v) => safe(v).toLowerCase().includes(term));
-  const list = term ? STORES.filter(matches) : STORES;
-
-  if (CURRENT_VIEW === "cards") {
-    renderCards(list);
-  } else {
-    renderListView(list);
-  }
-}
 
 /* ============================================================
-   DATA LOADING — hämtar från Supabase och växlar vy
+   DATA LOADING — EN KÄLLA FÖR LISTA, EN FÖR COUNTS
    ============================================================ */
 async function reloadData(tab = CURRENT_TAB) {
   CURRENT_TAB = tab;
 
-  // 🔹 markera aktiv flik
-  $$(".filters .pill").forEach((b) =>
-    b.classList.toggle("active", b.dataset.tab === CURRENT_TAB)
+  // Markera aktiv flik
+  $$(".filters .pill").forEach(p =>
+    p.classList.toggle("active", p.dataset.tab === CURRENT_TAB)
   );
 
-  // 🔹 växla vy
+  // Växla vy
   if (CURRENT_VIEW === "cards") {
     $("#cards").style.display = "grid";
     $(".listview-wrap").style.display = "none";
@@ -492,34 +486,21 @@ async function reloadData(tab = CURRENT_TAB) {
     $(".listview-wrap").style.display = "flex";
   }
 
-  // 🔹 visa “loading” i card-vyn
   const grid = $("#cards");
   grid.innerHTML = "<p class='muted center'>Loading…</p>";
 
   /* ============================================================
-     1️⃣ HÄMTA DATA FÖR COUNTS (ENDA SANNINGEN)
+     1️⃣ HÄMTA ALLA RADER (COUNTS)
      ============================================================ */
+  const allResp = await WCL.supabase
+    .from("stores")
+    .select("id,approved,flagged,deleted,photo_reference");
 
-  // ⚠️ VIKTIGT: exakt samma logik som flikarna använder
-  const COUNT_FIELDS = "id,approved,flagged,deleted";
-  let allData = [];
-
-  try {
-    const { data, error } = await WCL.supabase
-      .from("stores")
-      .select(COUNT_FIELDS)
-      .order("id", { ascending: false });
-
-    if (error) console.warn("⚠️ Count fetch failed:", error);
-    if (data) allData = data;
-  } catch (err) {
-    console.warn("⚠️ Count fetch crashed:", err);
-  }
+  ALL_STORES = allResp.data || [];
 
   /* ============================================================
-     2️⃣ HÄMTA LISTDATA FÖR AKTIV FLIK
+     2️⃣ BYGG QUERY FÖR AKTIV FLIK (VISNING)
      ============================================================ */
-
   const SELECT_FIELDS =
     "id,name,city,country,continent,type,types,address,phone,access,rating," +
     "approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason";
@@ -529,26 +510,21 @@ async function reloadData(tab = CURRENT_TAB) {
     .select(SELECT_FIELDS)
     .order("id", { ascending: false });
 
-  // 🔹 EXAKTA FILTER — samma som counts
   if (tab === "approved") {
     base = base.eq("approved", true).eq("deleted", false);
+  } else if (tab === "pending") {
+    base = base.eq("approved", false).eq("flagged", false).eq("deleted", false);
   } else if (tab === "flagged") {
     base = base.eq("flagged", true).eq("deleted", false);
   } else if (tab === "deleted") {
     base = base.eq("deleted", true);
-  } else if (tab === "pending") {
-    base = base
-      .eq("approved", false)
-      .eq("flagged", false)
-      .eq("deleted", false);
   } else {
-    base = base.eq("deleted", false); // all
+    base = base.eq("deleted", false); // ALL
   }
 
   /* ============================================================
-     3️⃣ KÖR QUERY
+     3️⃣ HÄMTA VISNINGSRADER
      ============================================================ */
-
   const { data, error } = await base;
   if (error) {
     console.error(error);
@@ -556,20 +532,19 @@ async function reloadData(tab = CURRENT_TAB) {
     return;
   }
 
-  STORES = (data || []).map((s) => ({
+  STORES = (data || []).map(s => ({
     ...s,
     continent: s.continent || countryToContinent(s.country),
   }));
 
   /* ============================================================
-     4️⃣ RENDER + COUNTS (MATCHAR ALLTID)
+     4️⃣ RENDERA + UPPDATERA COUNTS
      ============================================================ */
-
   render();
-  updateRegionCounts(allData);
+  updateRegionCounts();
 
   console.log(
-    `✅ reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}, total=${allData.length}`
+    `reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}, total=${ALL_STORES.length}`
   );
 }
 
