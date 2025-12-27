@@ -2,7 +2,7 @@
 // SIDEBAR.JS — WCL Frontend Hierarchy (CLEAN VERSION)
 // ============================================================
 
-import { loadStores } from "./cards.js";
+import { setLocationFilter, runSearch, resetToHero } from "./cards.js";
 
 const menu = document.querySelector("#sidebarMenu");
 
