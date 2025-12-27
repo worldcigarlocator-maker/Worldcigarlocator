@@ -254,6 +254,7 @@ export function renderStores(list) {
    LOAD STORES — ADVANCED SEARCH ENGINE
 ------------------------------------------------------------ */
 export async function loadStores(filters = {}, search = "") {
+  console.log("LOAD STORES CALLED WITH:", { filters, search });
   if (!DOM_READY) {
     document.addEventListener(
       "DOMContentLoaded",
