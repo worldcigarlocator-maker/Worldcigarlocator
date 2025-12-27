@@ -1,33 +1,37 @@
-import { qs } from "./globals.js";
+/* ============================================================
+   start.js — Age Gate + small boot helpers (NO MODULES)
+   ============================================================ */
+(function () {
+  "use strict";
 
-export function initAgeGate() {
-  const modal = qs("ageGate");
-  if (!modal) return;
-
-  if (localStorage.getItem("ageVerified") === "yes") {
-    modal.classList.add("hidden");
-    return;
+  function showAgeGate() {
+    const gate = qs("#ageGate");
+    gate?.classList.remove("hidden");
   }
 
-  modal.classList.remove("hidden");
+  function hideAgeGate() {
+    const gate = qs("#ageGate");
+    gate?.classList.add("hidden");
+  }
 
-  qs("enterBtn").onclick = () => {
-    localStorage.setItem("ageVerified", "yes");
-    modal.classList.add("hidden");
-  };
+  function initAgeGate() {
+    const entered = localStorage.getItem("wcl_age_ok") === "1";
+    if (!entered) showAgeGate();
 
-  qs("leaveBtn").onclick = () => {
-    window.location.href = "https://google.com";
-  };
-}
+    qs("#enterBtn")?.addEventListener("click", () => {
+      localStorage.setItem("wcl_age_ok", "1");
+      hideAgeGate();
+    });
 
-export function fakeOnline() {
-  const el = qs("onlineText");
-  if (!el) return;
-  el.textContent = `${28 + Math.round(Math.random()*14)} online`;
-}
+    qs("#leaveBtn")?.addEventListener("click", () => {
+      // simple safe behavior
+      window.location.href = "https://www.google.com";
+    });
+  }
 
-document.addEventListener("DOMContentLoaded", () => {
-  fakeOnline();
-  setInterval(fakeOnline, 8000);
-});
+  document.addEventListener("DOMContentLoaded", () => {
+    initAgeGate();
+  });
+
+  console.log("✅ start.js loaded");
+})();
