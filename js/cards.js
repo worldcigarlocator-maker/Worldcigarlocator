@@ -5,18 +5,25 @@
 
 import { supabase } from "./globals.js";
 
+// ============================================================
+// CONFIG — SINGLE SOURCE OF TRUTH
+// ============================================================
+const PHOTO_PROXY_URL =
+  "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
+
+const FALLBACK_IMAGE = "images/store.jpg";
+
 // Track DOM ready
 let DOM_READY = false;
 document.addEventListener("DOMContentLoaded", () => {
   DOM_READY = true;
-  initAutocomplete(); // ✅ autocomplete får vara kvar
+  initAutocomplete();
 });
-
 
 // Helper selectors
 const dom = (sel) => document.querySelector(sel);
 
-// Cancel-token for safe loading:
+// Cancel-token for safe loading
 let ACTIVE_REQUEST = 0;
 
 /* ------------------------------------------------------------
@@ -62,21 +69,14 @@ function buildBadges(store) {
 }
 
 /* ------------------------------------------------------------
-   FALLBACK IMAGE
+   PHOTO URL HELPER — PROXY ONLY (CORRECT)
 ------------------------------------------------------------ */
-const FALLBACK_IMAGE = "images/store.jpg";
-
-
-/* ------------------------------------------------------------
-   PHOTO URL HELPER — BACKEND SINGLE SOURCE OF TRUTH
------------------------------------------------------------- */
-function getPhotoUrl(store) {
-  // ✅ backend-view genererar redan korrekt bild-URL
-  if (store.photo_final_url) {
-    return store.photo_final_url;
+function getPhotoUrl(store, maxwidth = 800) {
+  if (store.photo_reference) {
+    return `${PHOTO_PROXY_URL}?ref=${encodeURIComponent(
+      store.photo_reference
+    )}&maxwidth=${maxwidth}`;
   }
-
-  // fallback endast om backend saknar bild
   return FALLBACK_IMAGE;
 }
 
@@ -119,7 +119,6 @@ function buildStars(avg, count) {
     </div>`;
 }
 
-
 /* ------------------------------------------------------------
    AUTOCOMPLETE STATE + INIT
 ------------------------------------------------------------ */
@@ -130,7 +129,6 @@ function initAutocomplete() {
   if (!AC_BOX) return;
 
   document.addEventListener("click", (e) => {
-    if (!AC_BOX) return;
     const searchInput = dom("#searchInput");
     if (!AC_BOX.contains(e.target) && e.target !== searchInput) {
       AC_BOX.classList.add("hidden");
@@ -138,70 +136,15 @@ function initAutocomplete() {
   });
 }
 
-function updateAutocomplete(list, words) {
-  if (!AC_BOX) return;
-  if (!words || !words.length) {
-    AC_BOX.classList.add("hidden");
-    return;
-  }
-
-  const lower = words.map((w) => w.toLowerCase());
-  const matches = [];
-
-  for (const s of list) {
-    const hay = `${s.name || ""} ${s.city || ""} ${s.country || ""} ${
-      Array.isArray(s.types) ? s.types.join(" ") : ""
-    }`.toLowerCase();
-
-    if (lower.every((w) => hay.includes(w))) {
-      matches.push({
-        id: s.id,
-        label: s.name || "Unnamed",
-        sub: s.city || s.country || "",
-      });
-    }
-    if (matches.length >= 12) break;
-  }
-
-  if (!matches.length) {
-    AC_BOX.classList.add("hidden");
-    return;
-  }
-
-  AC_BOX.innerHTML = matches
-    .map(
-      (m) => `
-      <div class="ac-item" data-name="${m.label}">
-        <strong>${m.label}</strong><br>
-        <small>${m.sub}</small>
-      </div>
-    `
-    )
-    .join("");
-
-  AC_BOX.classList.remove("hidden");
-
-  AC_BOX.querySelectorAll(".ac-item").forEach((item) => {
-    item.addEventListener("click", () => {
-      const v = item.dataset.name;
-      const input = dom("#searchInput");
-      if (input) input.value = v;
-      AC_BOX.classList.add("hidden");
-      loadStores({}, v);
-    });
-  });
-}
-
-
 /* ------------------------------------------------------------
    CARD HTML
 ------------------------------------------------------------ */
 function cardHTML(s) {
-  const img  = getPhotoUrl(s);
+  const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
 
-  const displayName    = s.name || "Unnamed";
-  const displayCity    = s.city || "";
+  const displayName = s.name || "Unnamed";
+  const displayCity = s.city || "";
   const displayCountry = s.country || "";
 
   let displayAddress = "—";
@@ -218,15 +161,14 @@ function cardHTML(s) {
         src="${img}"
         class="store-img"
         alt="${displayName}"
+        loading="lazy"
         onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
       />
 
       <div class="store-body">
         <h3 class="store-title">${displayName}</h3>
 
-        <div class="badge-row">
-          ${buildBadges(s)}
-        </div>
+        <div class="badge-row">${buildBadges(s)}</div>
 
         ${buildStars(s.rating_avg, s.rating_count)}
 
@@ -273,7 +215,7 @@ export function renderStores(list) {
 }
 
 /* ------------------------------------------------------------
-   LOAD STORES — ADVANCED SEARCH ENGINE (FULL POWER, SAFE)
+   LOAD STORES — ADVANCED SEARCH ENGINE
 ------------------------------------------------------------ */
 export async function loadStores(filters = {}, search = "") {
   if (!DOM_READY) {
@@ -293,39 +235,34 @@ export async function loadStores(filters = {}, search = "") {
   const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
 
-  if (heroImage) heroImage.style.display = "none";
-  if (heroText) heroText.style.display = "none";
+  heroImage && (heroImage.style.display = "none");
+  heroText && (heroText.style.display = "none");
 
-  if (heading) {
-    heading.style.display = "block";
-    heading.textContent = "Loading…";
-  }
-  if (grid) grid.innerHTML = "";
+  heading && (heading.textContent = "Loading…", heading.style.display = "block");
+  grid && (grid.innerHTML = "");
 
-  // ✅ ENDA datakällan
-const { data, error } = await supabase.rpc("search_stores_v1", {
-  q: search || null,
-  continent: filters?.continent || null,
-  country: filters?.country || null,
-  city: filters?.city || null,
-});
+  const { data, error } = await supabase.rpc("search_stores_v1", {
+    q: search || null,
+    continent: filters?.continent || null,
+    country: filters?.country || null,
+    city: filters?.city || null,
+  });
 
   if (reqId !== ACTIVE_REQUEST) return;
 
   if (error) {
     console.error(error);
-    if (heading) heading.textContent = "Error loading locations.";
+    heading && (heading.textContent = "Error loading locations.");
     return;
   }
 
-  if (!data || data.length === 0) {
-    if (heading) heading.textContent = "No results found.";
+  if (!data || !data.length) {
+    heading && (heading.textContent = "No results found.");
     return;
   }
 
   renderCards(data);
-
-  if (heading) heading.textContent = `${data.length} results`;
+  heading && (heading.textContent = `${data.length} results`);
 }
 
 /* ============================================================
