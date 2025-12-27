@@ -1,146 +1,134 @@
 // ============================================================
-// SIDEBAR.JS — WCL Frontend Hierarchy (FINAL, SYNCED WITH CARDS)
+// SIDEBAR.JS — WCL Frontend Hierarchy (CLEAN VERSION)
 // ============================================================
 
 import { loadStores } from "./cards.js";
 
-const dom = (sel) => document.querySelector(sel);
-const menu = dom("#sidebarMenu");
+const menu = document.querySelector("#sidebarMenu");
 
 /* ============================================================
-   BUILD SIDEBAR
-   ============================================================ */
+   INIT
+============================================================ */
 export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
   menu.innerHTML = "Loading…";
 
   const { data, error } = await supabase
     .from("stores_frontend_public_v4")
-    .select("id, continent, country, city")
-    .order("continent")
-    .order("country")
-    .order("city");
+    .select("id, continent, country, city");
 
   if (error) {
     console.error(error);
-    menu.innerHTML = "Failed to load menu.";
+    menu.innerHTML = "Failed to load sidebar";
     return;
   }
 
-  /* ------------------------------------------------------------
-     BUILD TREE
-     ------------------------------------------------------------ */
+  const tree = buildTree(data);
+  renderSidebar(tree);
+}
+
+/* ============================================================
+   TREE BUILDER (BACKEND = FACIT)
+============================================================ */
+function buildTree(rows) {
   const tree = {};
 
-  data.forEach(({ continent, country, city }) => {
+  rows.forEach(({ continent, country, city }) => {
     if (!continent || !country) return;
 
-    if (!tree[continent]) tree[continent] = {};
-    if (!tree[continent][country]) tree[continent][country] = {};
-
-    if (city) {
-      tree[continent][country][city] =
-        (tree[continent][country][city] || 0) + 1;
-    }
+    tree[continent] ??= {};
+    tree[continent][country] ??= {};
+    tree[continent][country][city ?? "__none__"] ??= 0;
+    tree[continent][country][city ?? "__none__"]++;
   });
 
-  /* ------------------------------------------------------------
-     RENDER SIDEBAR
-     ------------------------------------------------------------ */
+  return tree;
+}
+
+/* ============================================================
+   RENDER
+============================================================ */
+function renderSidebar(tree) {
   menu.innerHTML = "";
 
   Object.entries(tree).forEach(([continent, countries]) => {
-    const continentCount = countTotal(countries);
+    const contLine = line("continent", continent, count(countries));
+    const contWrap = nested();
 
-    const contLine = createLine("continent", continent, continentCount);
-    const contNested = createNested();
-
-    menu.append(contLine, contNested);
-
-    contLine.addEventListener("click", () => {
-      toggle(contLine, contNested, ".continent");
+    contLine.onclick = () => {
+      toggle(contLine, contWrap, ".continent");
       loadStores({ continent }, "");
-    });
+    };
+
+    menu.append(contLine, contWrap);
 
     Object.entries(countries).forEach(([country, cities]) => {
-      const countryCount = countTotal(cities);
+      const countryLine = line("country", country, count(cities));
+      const countryWrap = nested();
 
-      const countryLine = createLine("country", country, countryCount);
-      const countryNested = createNested();
-
-      contNested.append(countryLine, countryNested);
-
-      countryLine.addEventListener("click", () => {
-        toggle(countryLine, countryNested, ".country");
+      countryLine.onclick = (e) => {
+        e.stopPropagation();
+        toggle(countryLine, countryWrap, ".country");
         loadStores({ country }, "");
-      });
+      };
 
-      Object.entries(cities).forEach(([city, count]) => {
-        const cityLine = createLine("city", city, count);
+      contWrap.append(countryLine, countryWrap);
 
-        cityLine.addEventListener("click", (e) => {
+      Object.entries(cities).forEach(([city, cnt]) => {
+        if (city === "__none__") return;
+
+        const cityLine = line("city", city, cnt);
+
+        cityLine.onclick = (e) => {
           e.stopPropagation();
           loadStores({ city }, "");
-        });
+        };
 
-        countryNested.append(cityLine);
+        countryWrap.append(cityLine);
       });
     });
   });
 }
 
 /* ============================================================
-   HELPERS
-   ============================================================ */
-
-function createLine(type, label, count) {
+   UI HELPERS
+============================================================ */
+function line(type, label, count) {
   const el = document.createElement("div");
-
-  // continent / country / city
   el.className = `line ${type}`;
-
-  // 🔑 KRITISKT: gör klicket synligt för cards.js
-  el.dataset[type] = label;
-
   el.innerHTML = `
     <span class="label">${label}</span>
     <span class="pill">${count}</span>
     ${type !== "city" ? `<span class="arrow">›</span>` : ""}
   `;
-
   return el;
 }
 
-function createNested() {
+function nested() {
   const el = document.createElement("div");
   el.className = "nested";
   return el;
 }
 
-function countTotal(obj) {
-  return Object.values(obj).reduce((sum, val) => {
-    if (typeof val === "number") return sum + val;
-    if (typeof val === "object") return sum + countTotal(val);
-    return sum;
-  }, 0);
+function count(obj) {
+  return Object.values(obj).reduce(
+    (sum, v) => sum + (typeof v === "number" ? v : count(v)),
+    0
+  );
 }
 
 /* ============================================================
-   TOGGLE SYSTEM (ONE OPEN PER LEVEL)
-   ============================================================ */
-function toggle(clickedItem, clickedNested, selector) {
-  const allItems = document.querySelectorAll(selector);
-  const allNesteds = [...allItems].map((i) => i.nextElementSibling);
-
-  allItems.forEach((item, i) => {
-    const nest = allNesteds[i];
-    if (item === clickedItem) {
-      const isOpen = item.classList.contains("open");
-      item.classList.toggle("open", !isOpen);
-      nest.classList.toggle("show", !isOpen);
+   TOGGLE (ONE OPEN PER LEVEL)
+============================================================ */
+function toggle(active, wrap, selector) {
+  document.querySelectorAll(selector).forEach((el) => {
+    const next = el.nextElementSibling;
+    if (el === active) {
+      el.classList.toggle("open");
+      next?.classList.toggle("show");
     } else {
-      item.classList.remove("open");
-      nest.classList.remove("show");
+      el.classList.remove("open");
+      next?.classList.remove("show");
     }
   });
 }
