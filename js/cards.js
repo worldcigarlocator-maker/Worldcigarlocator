@@ -154,14 +154,19 @@ searchInput?.addEventListener("input", () => {
    CONTINENT FILTER — FINAL
 ------------------------------------------------------------ */
 document.addEventListener("click", (e) => {
-  const el = e.target.closest("[data-continent]");
+  const el = e.target.closest("[data-continent], [data-country], [data-city]");
   if (!el) return;
 
   loadStores(
-    { continent: el.dataset.continent },
+    {
+      continent: el.dataset.continent || null,
+      country: el.dataset.country || null,
+      city: el.dataset.city || null,
+    },
     dom("#searchInput")?.value.trim() || ""
   );
 });
+
 
 
 
