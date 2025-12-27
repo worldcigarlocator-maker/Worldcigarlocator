@@ -69,16 +69,20 @@ function buildBadges(store) {
 }
 
 /* ------------------------------------------------------------
-   PHOTO URL HELPER — PROXY ONLY (CORRECT)
+   PHOTO URL HELPER — BACKEND SINGLE SOURCE OF TRUTH
 ------------------------------------------------------------ */
-function getPhotoUrl(store, maxwidth = 800) {
+function getPhotoUrl(store) {
+  // ✅ Google Places via photo-proxy
   if (store.photo_reference) {
-    return `${PHOTO_PROXY_URL}?ref=${encodeURIComponent(
+    return `${supabase.functions.url}/photo-proxy?photo_reference=${encodeURIComponent(
       store.photo_reference
-    )}&maxwidth=${maxwidth}`;
+    )}&maxwidth=800`;
   }
+
+  // fallback endast om ingen photo_reference finns
   return FALLBACK_IMAGE;
 }
+
 
 /* ------------------------------------------------------------
    RESET HERO
