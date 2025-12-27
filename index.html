@@ -105,13 +105,24 @@
   <!-- ================ MAIN AREA ================ -->
   <main class="main">
 
-   <div class="searchbar main-search" style="position:relative;">
-  <input id="searchInput" type="text" placeholder="Search by name, city or country…">
+<div class="searchbar main-search" style="position:relative;">
+  <input id="searchInput" type="text" placeholder="Search (e.g. london members lounge)…">
   <button id="searchBtn" class="btn">Search</button>
   <button id="clearBtn" class="btn outline">Clear</button>
 
   <!-- 🔽 Autocomplete-listan -->
   <div id="autocomplete" class="autocomplete hidden"></div>
+
+  <!-- ✅ FILTER CHIPS -->
+  <div id="searchFilters" class="search-filters" style="margin-top:.65rem; display:flex; gap:.5rem; flex-wrap:wrap;">
+    <button class="chip" data-filter="type" data-value="store"  type="button">Store</button>
+    <button class="chip" data-filter="type" data-value="lounge" type="button">Lounge</button>
+
+    <span style="opacity:.35; padding:0 .15rem;">|</span>
+
+    <button class="chip" data-filter="access" data-value="public"  type="button">Public</button>
+    <button class="chip" data-filter="access" data-value="members" type="button">Members</button>
+  </div>
 </div>
 
 <section id="heroText" class="hero-text">
