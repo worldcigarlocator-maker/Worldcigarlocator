@@ -472,97 +472,106 @@ function render() {
   }
 }
 
-
 /* ============================================================
-   DATA LOADING — hämtar från Supabase och växlar vy
+   DATA LOADING — STABIL, FÖRUTSÄGBAR & UX-SÄKER
    ============================================================ */
 async function reloadData(tab = CURRENT_TAB) {
   CURRENT_TAB = tab;
 
-  // 🔹 markera aktiv flik
-  $$(".filters .pill").forEach((b) =>
-    b.classList.toggle("active", b.dataset.tab === CURRENT_TAB)
+  /* =========================
+     UI: active tab
+     ========================= */
+  $$(".filters .pill").forEach((p) =>
+    p.classList.toggle("active", p.dataset.tab === CURRENT_TAB)
   );
 
-  // 🔹 växla vy
+  /* =========================
+     Bevara scroll-position
+     ========================= */
+  const scrollY = window.scrollY;
+
+  /* =========================
+     Cards/List toggle (orörd)
+     ========================= */
   if (CURRENT_VIEW === "cards") {
-    $("#cards").style.display = "grid";
-    $(".listview-wrap").style.display = "none";
+    $("#cards") && ($("#cards").style.display = "grid");
+    $(".listview-wrap") && ($(".listview-wrap").style.display = "none");
   } else {
-    $("#cards").style.display = "none";
-    $(".listview-wrap").style.display = "flex";
+    $("#cards") && ($("#cards").style.display = "none");
+    $(".listview-wrap") && ($(".listview-wrap").style.display = "flex");
   }
 
-  // 🔹 visa “loading” i card-vyn
   const grid = $("#cards");
-  grid.innerHTML = "<p class='muted center'>Loading…</p>";
+  if (grid) grid.innerHTML = "<p class='muted center'>Loading…</p>";
 
-  // -----------------------------------------------------------
-  // 1️⃣  Hämta alla rader för counts (oberoende av flik)
-  // -----------------------------------------------------------
-  const COUNT_FIELDS = "id,approved,flagged,deleted,photo_reference";
-  let allData = [];
-  try {
-    const { data, error } = await WCL.supabase
-      .from("stores")
-      .select(COUNT_FIELDS, { head: false }) // 🔹 hämtar bara minimala fält
-      .order("id", { ascending: false });
-
-    if (error) console.warn("⚠️ Count fetch failed:", error);
-    if (data) allData = data;
-  } catch (err) {
-    console.warn("⚠️ Count fetch crashed:", err);
-  }
-
-  // -----------------------------------------------------------
-  // 2️⃣  Hämta filtrerad lista beroende på flik
-  // -----------------------------------------------------------
-const SELECT_FIELDS =
-  "id,name,city,country,continent,type,types,address,phone,access,rating," +
-  "approved,flagged,deleted,status,photo_reference,place_id,website,created_at,flag_reason";
-
-  let base = WCL.supabase
+  /* =========================
+     1) Hämta ALLA för counts
+     ========================= */
+  const allResp = await WCL_BO.supabase
     .from("stores")
-    .select(SELECT_FIELDS)
-    .order("id", { ascending: false });
+    .select("id,approved,flagged,deleted,photo_reference");
 
-  if (tab === "approved") base = base.eq("approved", true).eq("deleted", false);
-  else if (tab === "flagged") base = base.eq("flagged", true).eq("deleted", false);
-  else if (tab === "deleted") base = base.eq("deleted", true);
-  else if (tab === "pending") base = base.eq("approved", false).eq("flagged", false).eq("deleted", false);
-  else base = base.eq("deleted", false); // all
+  const allData = allResp.data || [];
+  ALL_STORES = allData;
 
-  // “Needs Repair” specialflik
-  if (tab === "repair") {
-    const { data, error } = await WCL.supabase
-      .from("stores")
-      .select(SELECT_FIELDS)
+  /* =========================
+     2) Bas-query (stores)
+     ========================= */
+  const SELECT_FIELDS =
+    "id,name,city,country,continent,type,types,address,phone,access,rating," +
+    "approved,flagged,deleted,status,photo_reference,place_id,website," +
+    "created_at,flag_reason,country_iso2";
+
+  let base = WCL_BO.supabase
+    .from("stores")
+    .select(SELECT_FIELDS);
+
+  /* ============================================================
+     TAB LOGIC — FAST SORTERING
+     ============================================================ */
+
+  // 🔵 PENDING = arbetskö (äldst först)
+  if (tab === "pending") {
+    base = base
+      .eq("approved", false)
+      .eq("flagged", false)
+      .eq("deleted", false)
+      .order("id", { ascending: true });
+
+  // 🟢 APPROVED = nyast först
+  } else if (tab === "approved") {
+    base = base
+      .eq("approved", true)
       .eq("deleted", false)
       .order("id", { ascending: false });
 
-    if (error) {
-      grid.innerHTML = "<p class='error center'>Error loading stores</p>";
-      return;
-    }
+  // 🟠 FLAGGED = nyast först
+  } else if (tab === "flagged") {
+    base = base
+      .eq("flagged", true)
+      .eq("deleted", false)
+      .order("id", { ascending: false });
 
-    const fallbackList = (data || []).filter(s => !s.photo_reference);
-    STORES = fallbackList.map(s => ({
-      ...s,
-      continent: s.continent || countryToContinent(s.country)
-    }));
+  // 🔴 DELETED = nyast först
+  } else if (tab === "deleted") {
+    base = base
+      .eq("deleted", true)
+      .order("id", { ascending: false });
 
-    render();
-    updateRegionCounts(allData); // ✅ alltid uppdaterad
-    return;
+  // ⚪ ALL = arbetsvy (ej deleted, nyast först)
+  } else {
+    base = base
+      .eq("deleted", false)
+      .order("id", { ascending: false });
   }
 
-  // -----------------------------------------------------------
-  // 3️⃣  Kör huvudqueryn för aktiv flik
-  // -----------------------------------------------------------
+  /* =========================
+     3) Fetch rows
+     ========================= */
   const { data, error } = await base;
   if (error) {
     console.error(error);
-    grid.innerHTML = "<p class='error center'>Error loading stores</p>";
+    if (grid) grid.innerHTML = "<p class='error center'>Error loading stores</p>";
     return;
   }
 
@@ -571,14 +580,22 @@ const SELECT_FIELDS =
     continent: s.continent || countryToContinent(s.country),
   }));
 
-  // -----------------------------------------------------------
-  // 4️⃣  Rendera + uppdatera counts korrekt
-  // -----------------------------------------------------------
+  /* =========================
+     4) Render + counts
+     ========================= */
   render();
-  updateRegionCounts(allData); // 💥 baseras på *hela databasen*
+  updateRegionCounts(allData);
 
-  console.log(`✅ reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}, total=${allData.length}`);
+  /* =========================
+     Återställ scroll-position
+     ========================= */
+  window.scrollTo(0, scrollY);
+
+  console.log(
+    `✅ reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}, total=${allData.length}`
+  );
 }
+
 
 /* ===================== CARDS ===================== */
 function renderCards(list) {
