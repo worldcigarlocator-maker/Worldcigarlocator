@@ -1,10 +1,11 @@
 // ============================================================
-// globals.js — WCL Frontend Globals (ES MODULE)
+// globals.js — Frontend Supabase Client (ES MODULE)
 // ============================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-export const supabase = createClient(
+// 🔴 SKAPA KLIENTEN (detta saknades funktionellt)
+const supabase = createClient(
   "https://gbxxoeplkzbhsvagnfsr.supabase.co",
   "DIN_ANON_KEY",
   {
@@ -16,4 +17,8 @@ export const supabase = createClient(
   }
 );
 
-console.log("✅ Frontend globals.js loaded — Supabase ready");
+// 🔵 EXPORTERA SJÄLVA KLIENTEN – INTE BIBLIOTEKET
+export { supabase };
+
+// Debug (tillfälligt)
+console.log("✅ Supabase CLIENT created:", supabase);
