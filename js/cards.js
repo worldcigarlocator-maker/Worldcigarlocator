@@ -303,12 +303,12 @@ export async function loadStores(filters = {}, search = "") {
   if (grid) grid.innerHTML = "";
 
   // ✅ ENDA datakällan
-  const { data, error } = await supabase.rpc("search_stores_v1", {
-    p_search: search?.trim() || null,
-    p_continent: filters.continent || null,
-    p_country: filters.country || null,
-    p_city: filters.city || null,
-  });
+const { data, error } = await supabase.rpc("search_stores_v1", {
+  q: search || null,
+  continent: filters?.continent || null,
+  country: filters?.country || null,
+  city: filters?.city || null,
+});
 
   if (reqId !== ACTIVE_REQUEST) return;
 
