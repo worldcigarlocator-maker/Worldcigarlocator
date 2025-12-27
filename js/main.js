@@ -1,23 +1,36 @@
 // ============================================================
-// MAIN.JS — WCL Frontend (Auth-first, Stable Sidebar & Search)
+// MAIN.JS — WCL Frontend (NO MODULES / GLOBAL SUPABASE)
+// Auth-first, Stable Sidebar & Search
 // ============================================================
 
-// ----- Global selectors -----
+"use strict";
+
+/* ============================================================
+   GLOBAL HELPERS
+   ============================================================ */
 window.qs  = (sel) => document.querySelector(sel);
-window.qsa = (sel) => document.querySelectorAll(sel);
+window.qsa = (sel) => Array.from(document.querySelectorAll(sel));
 
-// ----- Imports -----
-import { supabase } from "./globals.js";
-import { loadStores, resetToHero } from "./cards.js";
-import { buildFrontendSidebar } from "./sidebar.js";
-import "./start.js"; // age gate + online tracker
+/* ============================================================
+   GLOBAL DEPENDENCIES (must already be loaded by <script>)
+   - globals.js   → window.supabase (client)
+   - cards.js     → window.loadStores, window.resetToHero
+   - sidebar.js   → window.buildFrontendSidebar
+   - start.js     → age gate, online tracker
+   ============================================================ */
 
+const supabase = window.supabase;
+if (!supabase) {
+  console.error("❌ supabase not found on window. globals.js not loaded?");
+}
 
-// ============================================================
-// LOGIN POPUP
-// ============================================================
+/* ============================================================
+   LOGIN POPUP
+   ============================================================ */
 function showLoginPopup() {
   const popup = qs("#loginPopup");
+  if (!popup) return;
+
   popup.classList.remove("hidden");
 
   const email    = qs("#loginEmail");
@@ -29,22 +42,25 @@ function showLoginPopup() {
   setTimeout(() => email?.focus(), 80);
 
   const saved = localStorage.getItem("wcl_saved_email");
-  if (saved) {
+  if (saved && email && remember) {
     email.value = saved;
     remember.checked = true;
   }
 
   btn.onclick = async () => {
-    const e = email.value.trim();
-    const p = pass.value.trim();
-    if (!e || !p) return alert("Please fill in all fields.");
+    const e = email?.value.trim();
+    const p = pass?.value.trim();
+    if (!e || !p) {
+      alert("Please fill in all fields.");
+      return;
+    }
 
-    if (remember.checked) localStorage.setItem("wcl_saved_email", e);
+    if (remember?.checked) localStorage.setItem("wcl_saved_email", e);
     else localStorage.removeItem("wcl_saved_email");
 
     btn.disabled = true;
-    spinner.classList.remove("hidden");
-    qs(".login-text").textContent = "Logging in…";
+    spinner?.classList.remove("hidden");
+    qs(".login-text") && (qs(".login-text").textContent = "Logging in…");
 
     const { error } = await supabase.auth.signInWithPassword({
       email: e,
@@ -54,8 +70,8 @@ function showLoginPopup() {
     if (error) {
       alert("Login failed: " + error.message);
       btn.disabled = false;
-      spinner.classList.add("hidden");
-      qs(".login-text").textContent = "Login";
+      spinner?.classList.add("hidden");
+      qs(".login-text") && (qs(".login-text").textContent = "Login");
       return;
     }
 
@@ -63,10 +79,9 @@ function showLoginPopup() {
   };
 }
 
-
-// ============================================================
-// LOGOUT
-// ============================================================
+/* ============================================================
+   LOGOUT
+   ============================================================ */
 function setupLogout() {
   const logout = qs("#logoutBtn");
   if (!logout) return;
@@ -77,10 +92,9 @@ function setupLogout() {
   };
 }
 
-
-// ============================================================
-// SIDEBAR STATE (restore open continent)
-// ============================================================
+/* ============================================================
+   SIDEBAR STATE (restore open continent)
+   ============================================================ */
 function restoreMenuState() {
   const open = localStorage.getItem("wclMenuOpen");
   if (!open) return;
@@ -89,19 +103,28 @@ function restoreMenuState() {
   if (el) el.classList.add("open");
 }
 
-
-// ============================================================
-// SIDEBAR INIT (build once, after auth)
-// ============================================================
+/* ============================================================
+   SIDEBAR INIT (build once, after auth)
+   ============================================================ */
 let SIDEBAR_BUILT = false;
 
 async function initSidebar() {
   if (SIDEBAR_BUILT) return;
   SIDEBAR_BUILT = true;
 
-  await buildFrontendSidebar(supabase, loadStores);
+  if (typeof window.buildFrontendSidebar !== "function") {
+    console.error("❌ buildFrontendSidebar not found (sidebar.js missing?)");
+    return;
+  }
 
-  // persist open continent
+  if (typeof window.loadStores !== "function") {
+    console.error("❌ loadStores not found (cards.js missing?)");
+    return;
+  }
+
+  await window.buildFrontendSidebar(supabase, window.loadStores);
+
+  // Persist open continent
   document.querySelectorAll("[data-continent]").forEach((el) => {
     el.addEventListener("click", () => {
       localStorage.setItem("wclMenuOpen", el.dataset.continent);
@@ -111,20 +134,21 @@ async function initSidebar() {
   restoreMenuState();
 }
 
-
-// ============================================================
-// SEARCH — STABLE MODE (NO LIVE SPAM)
-// ============================================================
+/* ============================================================
+   SEARCH — STABLE MODE (NO LIVE SPAM)
+   ============================================================ */
 function setupSearch() {
-  const input = qs("#searchInput");
+  const input    = qs("#searchInput");
   const searchBtn = qs("#searchBtn");
-  const clearBtn = qs("#clearBtn");
+  const clearBtn  = qs("#clearBtn");
 
   if (!input || !searchBtn || !clearBtn) return;
 
   const runSearch = () => {
     const q = input.value.trim();
-    loadStores({}, q);
+    if (typeof window.loadStores === "function") {
+      window.loadStores({}, q);
+    }
   };
 
   searchBtn.onclick = runSearch;
@@ -135,35 +159,37 @@ function setupSearch() {
 
   clearBtn.onclick = () => {
     input.value = "";
-    resetToHero();
+    if (typeof window.resetToHero === "function") {
+      window.resetToHero();
+    }
   };
 }
 
-
-// ============================================================
-// AUTH GUARD — SINGLE SOURCE OF TRUTH
-// ============================================================
+/* ============================================================
+   AUTH GUARD — SINGLE SOURCE OF TRUTH
+   ============================================================ */
 async function guard() {
   const { data: { session } } = await supabase.auth.getSession();
   const container = qs(".container");
 
   if (!session) {
-    container.style.display = "none";
+    container && (container.style.display = "none");
     showLoginPopup();
     return;
   }
 
-  container.style.removeProperty("display");
+  container && container.style.removeProperty("display");
 
-  // ✅ correct order
+  // Correct boot order
   await initSidebar();
-  resetToHero();
+  if (typeof window.resetToHero === "function") {
+    window.resetToHero();
+  }
 }
 
-
-// ============================================================
-// BOOT SEQUENCE
-// ============================================================
+/* ============================================================
+   BOOT SEQUENCE
+   ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
   setupLogout();
   setupSearch();
