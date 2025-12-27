@@ -149,6 +149,7 @@ const searchInput = dom("#searchInput");
 searchInput?.addEventListener("input", () => {
   loadStores({}, searchInput.value.trim());
 });
+
 /* ------------------------------------------------------------
    CONTINENT FILTER — EVENT DELEGATION (KORREKT)
 ------------------------------------------------------------ */
@@ -163,6 +164,7 @@ document.addEventListener("click", (e) => {
     dom("#searchInput")?.value.trim() || ""
   );
 });
+
 
 
 /* ------------------------------------------------------------
