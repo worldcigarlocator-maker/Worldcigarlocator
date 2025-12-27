@@ -221,12 +221,13 @@ export async function loadStores(filters = {}, search = "") {
   heading && (heading.textContent = "Loading…", heading.style.display = "block");
   grid && (grid.innerHTML = "");
 
-  const { data, error } = await supabase.rpc("search_stores_v1", {
-    q: search || null,
-    continent: filters?.continent || null,
-    country: filters?.country || null,
-    city: filters?.city || null,
-  });
+const { data, error } = await supabase.rpc("search_stores_v1", {
+  p_q: search || null,
+  p_continent: filters?.continent || null,
+  p_country: filters?.country || null,
+  p_city: filters?.city || null,
+});
+
 
   if (reqId !== ACTIVE_REQUEST) return;
 
