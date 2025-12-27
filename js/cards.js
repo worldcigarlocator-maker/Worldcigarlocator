@@ -197,12 +197,15 @@ export function renderStores(list) {
 // LOAD STORES (ONLY WAY TO FILL GRID)
 // ============================================================
 export async function loadStores(filters = {}, search = "") {
+  console.trace("loadStores called", { filters, search });
+
   if (!DOM_READY) {
     document.addEventListener("DOMContentLoaded", () => loadStores(filters, search), {
       once: true,
     });
     return;
   }
+
 
   ACTIVE_REQUEST++;
   const reqId = ACTIVE_REQUEST;
