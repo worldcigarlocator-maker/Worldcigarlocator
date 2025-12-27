@@ -151,10 +151,12 @@ searchInput?.addEventListener("input", () => {
 });
 
 /* ------------------------------------------------------------
-   CONTINENT FILTER — FINAL
+   HIERARCHY FILTER — FINAL & SAFE
 ------------------------------------------------------------ */
 document.addEventListener("click", (e) => {
-  const el = e.target.closest("[data-continent], [data-country], [data-city]");
+  const el = e.target.closest(
+    ".label[data-continent], .label[data-country], .label[data-city]"
+  );
   if (!el) return;
 
   loadStores(
