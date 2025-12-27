@@ -256,6 +256,8 @@ export function renderStores(list) {
    LOAD STORES — ADVANCED SEARCH ENGINE
 ------------------------------------------------------------ */
 export async function loadStores(filters = {}, search = "") {
+  console.trace("LOAD STORES TRACE", { filters, search });
+
   if (!DOM_READY) {
     document.addEventListener(
       "DOMContentLoaded",
@@ -264,6 +266,12 @@ export async function loadStores(filters = {}, search = "") {
     );
     return;
   }
+
+  ACTIVE_REQUEST++;
+  const reqId = ACTIVE_REQUEST;
+
+  // resten av funktionen orörd ↓
+
 
   ACTIVE_REQUEST++;
   const reqId = ACTIVE_REQUEST;
