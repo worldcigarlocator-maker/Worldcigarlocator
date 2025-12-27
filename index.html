@@ -5,15 +5,12 @@
   <title>World Cigar Locator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ================= GOOGLE FONTS ================= -->
+  <!-- DM Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- ================= CSS ================= -->
+  <!-- CSS -->
   <link rel="stylesheet" href="css/start.css" />
   <link rel="stylesheet" href="css/cards.css" />
   <link rel="stylesheet" href="css/modal.css" />
@@ -21,9 +18,7 @@
 
 <body>
 
-<!-- =================================================
-     AGE GATE
-================================================= -->
+<!-- ================= AGE GATE ================= -->
 <div id="ageGate" class="age-modal hidden fade-in">
   <div class="age-box">
     <h2>18+ Required</h2>
@@ -40,9 +35,7 @@
   </div>
 </div>
 
-<!-- =================================================
-     LOGIN MODAL
-================================================= -->
+<!-- ================= LOGIN POPUP ================= -->
 <div id="loginPopup" class="login-modal hidden">
   <div class="login-box">
     <h2>Login Required</h2>
@@ -60,30 +53,25 @@
       <span id="loginSpinner" class="spinner hidden"></span>
     </button>
 
-    <p class="forgot">
-      <a href="#" id="forgotPassword">Forgot password?</a>
-    </p>
+    <p class="forgot"><a href="#" id="forgotPassword">Forgot password?</a></p>
   </div>
 </div>
 
 <!-- MOBILE MENU BUTTON -->
 <button id="mobileMenuBtn" class="mobile-menu-btn">☰</button>
 
-<!-- =================================================
-     PAGE WRAPPER
-================================================= -->
+<!-- ================= PAGE WRAPPER ================= -->
 <div class="container">
 
-  <!-- =================================================
-       SIDEBAR
-  ================================================= -->
+  <!-- ================ SIDEBAR ================ -->
   <aside class="sidebar">
 
     <!-- LOGO -->
     <h1 class="logo">WORLD CIGAR LOCATOR</h1>
 
-    <!-- TOP STATUS -->
+    <!-- TOP AREA -->
     <div class="sidebar-top">
+
       <div class="online-box">
         <span class="dot"></span>
         <span id="onlineText">0 online</span>
@@ -91,9 +79,10 @@
 
       <button id="loginBtn" class="login-btn">Login</button>
       <button id="logoutBtn" class="logout-btn" style="display:none;">Logout</button>
+
     </div>
 
-    <!-- PROMO -->
+    <!-- AD BOX -->
     <div class="sidebar-ad">
       <img src="images/lounge.jpg" class="ad-img" alt="Promo">
       <p class="ad-title">20% discount on<br>Davidoff LE 2026</p>
@@ -102,7 +91,7 @@
 
     <hr class="sidebar-divider">
 
-    <!-- HIERARCHY MENU -->
+    <!-- SIDEBAR MENU -->
     <ul id="sidebarMenu" class="nav"></ul>
 
     <!-- FOOTER LINKS -->
@@ -113,61 +102,40 @@
 
   </aside>
 
-  <!-- =================================================
-       MAIN CONTENT
-  ================================================= -->
+  <!-- ================ MAIN AREA ================ -->
   <main class="main">
 
-    <!-- SEARCH BAR -->
-    <div class="searchbar main-search">
-      <input
-        id="searchInput"
-        type="text"
-        placeholder="Search by name, city or country…"
-      >
-      <button id="searchBtn" class="btn">Search</button>
-      <button id="clearBtn" class="btn outline">Clear</button>
+   <div class="searchbar main-search" style="position:relative;">
+  <input id="searchInput" type="text" placeholder="Search by name, city or country…">
+  <button id="searchBtn" class="btn">Search</button>
+  <button id="clearBtn" class="btn outline">Clear</button>
 
-      <!-- AUTOCOMPLETE -->
-      <div id="autocomplete" class="autocomplete hidden"></div>
-    </div>
+  <!-- 🔽 Autocomplete-listan -->
+  <div id="autocomplete" class="autocomplete hidden"></div>
+</div>
 
-    <!-- HERO TEXT -->
-    <section id="heroText" class="hero-text">
-      <p>
-        <strong>Welcome to World Cigar Locator.</strong><br>
-        Step into our global humidor and explore cigar lounges, verified stores,
-        cigar bars, and carefully curated places for a great smoke —
-        anywhere in the world.
-      </p>
-    </section>
+<section id="heroText" class="hero-text">
+  <p>
+    <strong>Welcome to World Cigar Locator.</strong><br>
+    Step into our global humidor and discover cigar lounges, verified stores, cigar bars, 
+    and remarkable places to enjoy a fine smoke — anywhere in the world.
+  </p>
+</section>
 
-    <!-- HERO IMAGE -->
+
     <section id="heroImage" class="hero">
-      <img
-        src="images/world-cigar-locator-hero.jpg"
-        class="hero-bg"
-        alt="World Cigar Locator — Global Humidor"
-      >
+      <img src="images/world-cigar-locator-hero.jpg" class="hero-bg" alt="Hero">
     </section>
 
-    <!-- RESULT HEADING -->
-    <div
-      id="resultHeading"
-      class="result-heading"
-      style="display:none;"
-    ></div>
+    <div id="resultHeading" class="result-heading" style="display:none;"></div>
 
-    <!-- STORE GRID -->
     <div id="storeGrid" class="store-grid"></div>
 
   </main>
 
 </div>
 
-<!-- =================================================
-     STORE MODAL
-================================================= -->
+<!-- ====================== STORE MODAL ====================== -->
 <div id="storeModal" class="modal hidden">
 
   <div class="modal-backdrop"></div>
@@ -183,9 +151,10 @@
       <h2 id="modalName" class="modal-title"></h2>
 
       <div id="modalBadges" class="modal-badges"></div>
+
       <div id="modalStars" class="modal-stars"></div>
 
-      <!-- USER RATING -->
+      <!-- ================= USER RATING ================= -->
       <div class="modal-user-rating">
         <p class="rating-label">Your rating:</p>
         <div id="modalStarPicker" class="star-picker">
@@ -195,14 +164,12 @@
           <span data-val="4">☆</span>
           <span data-val="5">☆</span>
         </div>
-        <button id="modalSendRating" class="rating-send-btn">
-          Submit Rating
-        </button>
+        <button id="modalSendRating" class="rating-send-btn">Submit Rating</button>
       </div>
 
       <!-- LOCATION -->
       <div class="modal-location">
-        <img id="modalFlag" class="flag" alt="">
+        <img id="modalFlag" class="flag" alt="" />
         <p id="modalLocation"></p>
       </div>
 
@@ -210,10 +177,7 @@
       <div class="modal-info">
         <p><strong>Address:</strong> <span id="modalAddress"></span></p>
         <p><strong>Phone:</strong> <span id="modalPhone"></span></p>
-        <p>
-          <strong>Website:</strong>
-          <a id="modalWebsite" href="#" target="_blank">Visit</a>
-        </p>
+        <p><strong>Website:</strong> <a id="modalWebsite" href="#" target="_blank">Visit</a></p>
       </div>
 
       <!-- COMMENTS -->
@@ -221,10 +185,7 @@
       <div id="modalComments" class="modal-comments"></div>
 
       <div class="modal-add-comment">
-        <textarea
-          id="modalCommentInput"
-          placeholder="Write a comment..."
-        ></textarea>
+        <textarea id="modalCommentInput" placeholder="Write a comment..."></textarea>
         <button id="modalSendComment">Send</button>
       </div>
 
@@ -233,17 +194,11 @@
   </div>
 </div>
 
-<!-- =================================================
-     JAVASCRIPT
-================================================= -->
+<!-- ================= JS ================= -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script src="js/globals.js"></script>
-<script src="js/cards.js"></script>
-<script src="js/sidebar.js"></script>
-<script src="js/start.js"></script>
-<script src="js/main.js"></script>
-
+<script type="module" src="js/globals.js"></script>
+<script type="module" src="js/cards.js"></script>
+<script type="module" src="js/main.js"></script>
 
 </body>
 </html>
