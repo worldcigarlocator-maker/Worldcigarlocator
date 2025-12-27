@@ -1,24 +1,18 @@
 // ============================================================
-// globals.js — Frontend Supabase Client (ES MODULE)
+// globals.js — FRONTEND (NO MODULES, RESTORED)
 // ============================================================
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+"use strict";
 
-// 🔴 SKAPA KLIENTEN (detta saknades funktionellt)
-const supabase = createClient(
+// Supabase CDN must be loaded first
+if (!window.supabase || !window.supabase.createClient) {
+  console.error("❌ Supabase CDN not loaded");
+}
+
+// 🔑 CREATE THE CLIENT (THIS IS WHAT WAS MISSING)
+window.supabase = window.supabase.createClient(
   "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-  "DIN_ANON_KEY",
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-    },
-  }
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
 );
 
-// 🔵 EXPORTERA SJÄLVA KLIENTEN – INTE BIBLIOTEKET
-export { supabase };
-
-// Debug (tillfälligt)
-console.log("✅ Supabase CLIENT created:", supabase);
+console.log("✅ Frontend Supabase client restored");
