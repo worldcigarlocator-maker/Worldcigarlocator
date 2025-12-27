@@ -1,26 +1,14 @@
 // ============================================================
-// CARDS.JS — PREMIUM WCL FRONTEND
-// With Modal, Rating, Comments & Safe Async Loading
+// CARDS.JS — WCL FRONTEND (STABLE, SINGLE SOURCE)
+// Cards render + loadStores RPC + modal/comments/ratings
 // ============================================================
 
 import { supabase } from "./globals.js";
 
 // ============================================================
-// CONFIG — SINGLE SOURCE OF TRUTH
+// CONFIG
 // ============================================================
-const PHOTO_PROXY_URL =
-  "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
-
 const FALLBACK_IMAGE = "images/store.jpg";
-
-// Track DOM ready
-let DOM_READY = false;
-document.addEventListener("DOMContentLoaded", () => {
-  DOM_READY = true;
-  initAutocomplete();
-  loadStores(); // ✅ STARTAR SIDAN
-});
-
 
 // Helper selectors
 const dom = (sel) => document.querySelector(sel);
@@ -28,67 +16,57 @@ const dom = (sel) => document.querySelector(sel);
 // Cancel-token for safe loading
 let ACTIVE_REQUEST = 0;
 
-/* ------------------------------------------------------------
-   FLAG HELPER (Safe + lowercase)
------------------------------------------------------------- */
+// Track DOM ready
+let DOM_READY = false;
+document.addEventListener("DOMContentLoaded", () => {
+  DOM_READY = true;
+  initAutocomplete();
+});
+
+// ============================================================
+// FLAG HELPER
+// ============================================================
 function getFlagUrl(store) {
   const iso = store.country_iso2?.toLowerCase();
   if (!iso) return null;
   return `assets/flags/${iso}.svg`;
 }
 
-/* ------------------------------------------------------------
-   BADGE BUILDER — Identical to Backend Logic
------------------------------------------------------------- */
+// ============================================================
+// BADGES
+// ============================================================
 function buildBadges(store) {
   const badges = [];
+  const arr = Array.isArray(store.types) ? store.types.map((t) => t.toLowerCase()) : [];
 
-  const arr = Array.isArray(store.types)
-    ? store.types.map((t) => t.toLowerCase())
-    : [];
-
-  if (arr.includes("store")) {
-    badges.push(`<span class="badge badge-store">Store</span>`);
-  }
-
-  if (arr.includes("lounge")) {
-    badges.push(`<span class="badge badge-lounge">Lounge</span>`);
-  }
+  if (arr.includes("store"))  badges.push(`<span class="badge badge-store">Store</span>`);
+  if (arr.includes("lounge")) badges.push(`<span class="badge badge-lounge">Lounge</span>`);
 
   const A = (store.access || "").trim().toLowerCase();
-
   if (A === "public") {
-    badges.push(
-      `<span class="badge badge-access badge-access-public">PUBLIC</span>`
-    );
+    badges.push(`<span class="badge badge-access badge-access-public">PUBLIC</span>`);
   } else if (A) {
-    badges.push(
-      `<span class="badge badge-access">${A.toUpperCase()}</span>`
-    );
+    badges.push(`<span class="badge badge-access">${A.toUpperCase()}</span>`);
   }
 
   return badges.join(" ");
 }
 
-/* ------------------------------------------------------------
-   PHOTO URL HELPER — BACKEND SINGLE SOURCE OF TRUTH
------------------------------------------------------------- */
+// ============================================================
+// PHOTO URL
+// ============================================================
 function getPhotoUrl(store) {
-  // ✅ Google Places via photo-proxy
   if (store.photo_reference) {
     return `${supabase.functions.url}/photo-proxy?photo_reference=${encodeURIComponent(
       store.photo_reference
     )}&maxwidth=800`;
   }
-
-  // fallback endast om ingen photo_reference finns
   return FALLBACK_IMAGE;
 }
 
-
-/* ------------------------------------------------------------
-   RESET HERO
------------------------------------------------------------- */
+// ============================================================
+// RESET HERO
+// ============================================================
 export function resetToHero() {
   if (!DOM_READY) {
     document.addEventListener("DOMContentLoaded", resetToHero, { once: true });
@@ -111,9 +89,9 @@ export function resetToHero() {
   heroText?.style.setProperty("display", "block");
 }
 
-/* ------------------------------------------------------------
-   STARS BUILDER
------------------------------------------------------------- */
+// ============================================================
+// STARS
+// ============================================================
 function buildStars(avg, count) {
   const v = Number(avg) || 0;
   const f = "★".repeat(Math.round(v));
@@ -125,11 +103,10 @@ function buildStars(avg, count) {
     </div>`;
 }
 
-/* ------------------------------------------------------------
-   AUTOCOMPLETE STATE + INIT
------------------------------------------------------------- */
+// ============================================================
+// AUTOCOMPLETE (UI only, does not trigger search)
+// ============================================================
 let AC_BOX = null;
-
 function initAutocomplete() {
   AC_BOX = dom("#autocomplete");
   if (!AC_BOX) return;
@@ -142,41 +119,9 @@ function initAutocomplete() {
   });
 }
 
-/* ------------------------------------------------------------
-   SEARCH HANDLER — BACKEND FILTER
------------------------------------------------------------- */
-const searchInput = dom("#searchInput");
-searchInput?.addEventListener("input", () => {
-  // tillfälligt: live-search avstängd för att inte nolla sidebar-filter
-  return;
-});
-
-
-/* ------------------------------------------------------------
-   HIERARCHY FILTER — FINAL & SAFE
------------------------------------------------------------- */
-document.addEventListener("click", (e) => {
-  const el = e.target.closest(
-    ".label[data-continent], .label[data-country], .label[data-city]"
-  );
-  if (!el) return;
-
-  loadStores(
-    {
-      continent: el.dataset.continent || null,
-      country: el.dataset.country || null,
-      city: el.dataset.city || null,
-    },
-    dom("#searchInput")?.value.trim() || ""
-  );
-});
-
-
-
-
-/* ------------------------------------------------------------
-   CARD HTML
------------------------------------------------------------- */
+// ============================================================
+// CARD HTML
+// ============================================================
 function cardHTML(s) {
   const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
@@ -188,9 +133,7 @@ function cardHTML(s) {
   let displayAddress = "—";
   if (s.address) {
     const trimmed = s.address.trim();
-    displayAddress = trimmed.includes(",")
-      ? trimmed.split(",")[0] + "…"
-      : trimmed;
+    displayAddress = trimmed.includes(",") ? trimmed.split(",")[0] + "…" : trimmed;
   }
 
   return `
@@ -226,17 +169,15 @@ function cardHTML(s) {
           </p>
         </div>
 
-        <button class="reviews-btn">
-          (${s.comment_count || 0})
-        </button>
+        <button class="reviews-btn">(${s.comment_count || 0})</button>
       </div>
     </article>
   `;
 }
 
-/* ------------------------------------------------------------
-   RENDER CARDS
------------------------------------------------------------- */
+// ============================================================
+// RENDER
+// ============================================================
 function renderCards(list) {
   const grid = dom("#storeGrid");
   if (!grid) return;
@@ -252,26 +193,16 @@ export function renderStores(list) {
   renderCards(list);
 }
 
-/* ------------------------------------------------------------
-   LOAD STORES — ADVANCED SEARCH ENGINE
------------------------------------------------------------- */
+// ============================================================
+// LOAD STORES (ONLY WAY TO FILL GRID)
+// ============================================================
 export async function loadStores(filters = {}, search = "") {
-  console.trace("LOAD STORES TRACE", { filters, search });
-
   if (!DOM_READY) {
-    document.addEventListener(
-      "DOMContentLoaded",
-      () => loadStores(filters, search),
-      { once: true }
-    );
+    document.addEventListener("DOMContentLoaded", () => loadStores(filters, search), {
+      once: true,
+    });
     return;
   }
-
-  ACTIVE_REQUEST++;
-  const reqId = ACTIVE_REQUEST;
-
-  // resten av funktionen orörd ↓
-
 
   ACTIVE_REQUEST++;
   const reqId = ACTIVE_REQUEST;
@@ -311,21 +242,19 @@ export async function loadStores(filters = {}, search = "") {
   heading && (heading.textContent = `${data.length} results`);
 }
 
-/* ============================================================
-   ===================  MODAL SYSTEM ==========================
-   ============================================================ */
-
+// ============================================================
+// MODAL SYSTEM
+// ============================================================
 const modal = dom("#storeModal");
 const closeBtn = dom(".modal-close");
 const backdrop = dom(".modal-backdrop");
 
 let CURRENT_STORE = null;
 
-/* ------------------------------------------------------------
-   OPEN MODAL
------------------------------------------------------------- */
+// OPEN MODAL
 async function openModal(id) {
   const storeId = Number(id);
+  CURRENT_STORE = storeId;
 
   const { data } = await supabase
     .from("stores_frontend_public_v4")
@@ -339,24 +268,19 @@ async function openModal(id) {
   loadComments(storeId);
   loadUserRating(storeId);
 
-  modal.classList.remove("hidden");
+  modal?.classList.remove("hidden");
 }
 
-
-/* ------------------------------------------------------------
-   CLOSE MODAL
------------------------------------------------------------- */
+// CLOSE MODAL
 function closeModal() {
-  modal.classList.add("hidden");
+  modal?.classList.add("hidden");
 }
 closeBtn?.addEventListener("click", closeModal);
 backdrop?.addEventListener("click", closeModal);
 
-/* ------------------------------------------------------------
-   FILL MODAL
------------------------------------------------------------- */
+// FILL MODAL
 function fillModal(s) {
- dom("#modalImg").src = getPhotoUrl(s);
+  dom("#modalImg").src = getPhotoUrl(s);
   dom("#modalName").textContent = s.name;
   dom("#modalFlag").src = getFlagUrl(s) || "";
   dom("#modalLocation").textContent = `${s.city || ""}, ${s.country || ""}`;
@@ -378,9 +302,9 @@ function fillModal(s) {
   dom("#modalStars").innerHTML = buildStars(s.rating_avg, s.rating_count);
 }
 
-/* ============================================================
-   ================  RATING SYSTEM  ============================
-   ============================================================ */
+// ============================================================
+// RATING SYSTEM
+// ============================================================
 const starPicker = dom("#modalStarPicker");
 const ratingSendBtn = dom("#modalSendRating");
 let USER_TEMP_RATING = 0;
@@ -393,12 +317,8 @@ function highlightStars(count) {
 }
 
 starPicker?.querySelectorAll("span").forEach((star) => {
-  star.addEventListener("mouseenter", () =>
-    highlightStars(star.dataset.val)
-  );
-  star.addEventListener("mouseleave", () =>
-    highlightStars(USER_TEMP_RATING)
-  );
+  star.addEventListener("mouseenter", () => highlightStars(star.dataset.val));
+  star.addEventListener("mouseleave", () => highlightStars(USER_TEMP_RATING));
   star.addEventListener("click", () => {
     USER_TEMP_RATING = Number(star.dataset.val);
     highlightStars(USER_TEMP_RATING);
@@ -448,10 +368,9 @@ async function loadModalStore() {
   if (data) fillModal(data);
 }
 
-/* ============================================================
-   ==================== COMMENTS SYSTEM =======================
-   ============================================================ */
-
+// ============================================================
+// COMMENTS SYSTEM
+// ============================================================
 const commentsBox = dom("#modalComments");
 const commentInput = dom("#modalCommentInput");
 const sendCommentBtn = dom("#modalSendComment");
