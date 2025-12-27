@@ -507,7 +507,7 @@ async function reloadData(tab = CURRENT_TAB) {
   /* =========================
      1) Hämta ALLA för counts
      ========================= */
-  const allResp = await WCL_BO.supabase
+  const allResp = await WCL.supabase
     .from("stores")
     .select("id,approved,flagged,deleted,photo_reference");
 
@@ -522,7 +522,7 @@ async function reloadData(tab = CURRENT_TAB) {
     "approved,flagged,deleted,status,photo_reference,place_id,website," +
     "created_at,flag_reason,country_iso2";
 
-  let base = WCL_BO.supabase
+  let base = WCL.supabase
     .from("stores")
     .select(SELECT_FIELDS);
 
