@@ -99,7 +99,7 @@ async function initSidebar() {
   if (SIDEBAR_BUILT) return;
   SIDEBAR_BUILT = true;
 
-  await buildFrontendSidebar(supabase, loadStores);
+  await buildFrontendSidebar(supabase);
 
   // persist open continent
   document.querySelectorAll("[data-continent]").forEach((el) => {
