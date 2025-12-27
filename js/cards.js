@@ -150,17 +150,18 @@ searchInput?.addEventListener("input", () => {
   loadStores({}, searchInput.value.trim());
 });
 /* ------------------------------------------------------------
-   CONTINENT FILTER — BACKEND DRIVEN (OBLIGATORISK)
+   CONTINENT FILTER — EVENT DELEGATION (KORREKT)
 ------------------------------------------------------------ */
-document.querySelectorAll("[data-continent]").forEach(el => {
-  el.addEventListener("click", () => {
-    const continent = el.dataset.continent;
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-continent]");
+  if (!el) return;
 
-    loadStores(
-      { continent },
-      dom("#searchInput")?.value.trim() || ""
-    );
-  });
+  const continent = el.dataset.continent;
+
+  loadStores(
+    { continent },
+    dom("#searchInput")?.value.trim() || ""
+  );
 });
 
 
