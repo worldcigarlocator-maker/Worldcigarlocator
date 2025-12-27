@@ -1,99 +1,88 @@
 // ============================================================
-// SIDEBAR.JS — WCL Premium Hierarchy Navigation v3.1 (FIXED)
+// SIDEBAR.JS — WCL Premium Hierarchy Navigation (CLEAN VERSION)
+// UI ONLY — NO FILTER LOGIC
 // ============================================================
-
-import { loadStores, resetToHero } from "./cards.js";
 
 const dom = (sel) => document.querySelector(sel);
 const menu = dom("#sidebarMenu");
 
 /* ============================================================
-   BUILD SIDEBAR HIERARCHY WITH CORRECT COUNTS (DEDUPED)
+   BUILD SIDEBAR HIERARCHY (DEDUPED, READ-ONLY)
    ============================================================ */
-export function buildFrontendSidebar(supabase, loadFunc = loadStores) {
+export async function buildFrontendSidebar(supabase) {
   menu.innerHTML = "Loading…";
 
-  supabase
+  const { data, error } = await supabase
     .from("stores_frontend_public_v4")
     .select("id, continent, country, city")
     .order("continent")
     .order("country")
-    .order("city")
-    .then(({ data, error }) => {
-      if (error) {
-        console.error(error);
-        menu.innerHTML = "Failed to load menu.";
-        return;
-      }
+    .order("city");
 
-      /* --------------------------------------------------
-         ✅ DEDUPLICATE STORES (CRITICAL FIX)
-         One store = one count, always
-      -------------------------------------------------- */
-      const uniqueStores = Array.from(
-        new Map(data.map((s) => [s.id, s])).values()
-      );
+  if (error) {
+    console.error(error);
+    menu.innerHTML = "Failed to load menu.";
+    return;
+  }
 
-      /* --------------------------------------------------
-         BUILD TREE STRUCTURE
-      -------------------------------------------------- */
-      const tree = {};
+  /* --------------------------------------------------
+     DEDUPLICATE STORES (ID SAFE)
+  -------------------------------------------------- */
+  const uniqueStores = Array.from(
+    new Map(data.map((s) => [s.id, s])).values()
+  );
 
-      uniqueStores.forEach((row) => {
-        const { continent, country, city } = row;
-        if (!continent || !country) return;
+  /* --------------------------------------------------
+     BUILD TREE STRUCTURE
+  -------------------------------------------------- */
+  const tree = {};
 
-        if (!tree[continent]) tree[continent] = {};
-        if (!tree[continent][country]) tree[continent][country] = {};
+  uniqueStores.forEach(({ continent, country, city }) => {
+    if (!continent || !country) return;
 
-        if (city) {
-          tree[continent][country][city] =
-            (tree[continent][country][city] || 0) + 1;
-        }
+    tree[continent] ??= {};
+    tree[continent][country] ??= {};
+    if (city) {
+      tree[continent][country][city] =
+        (tree[continent][country][city] || 0) + 1;
+    }
+  });
+
+  /* --------------------------------------------------
+     RENDER SIDEBAR
+  -------------------------------------------------- */
+  menu.innerHTML = "";
+
+  Object.entries(tree).forEach(([continent, countries]) => {
+    const continentCount = countTotal(countries);
+
+    const contLine = createLine("continent", continent, continentCount);
+    const contNested = createNested();
+
+    menu.append(contLine, contNested);
+
+    contLine.addEventListener("click", () => {
+      toggle(contLine, contNested, ".continent");
+    });
+
+    Object.entries(countries).forEach(([country, cities]) => {
+      const countryCount = countTotal(cities);
+
+      const countryLine = createLine("country", country, countryCount);
+      const countryNested = createNested();
+
+      contNested.append(countryLine, countryNested);
+
+      countryLine.addEventListener("click", () => {
+        toggle(countryLine, countryNested, ".country");
       });
 
-      /* --------------------------------------------------
-         RENDER SIDEBAR
-      -------------------------------------------------- */
-      menu.innerHTML = "";
-
-      Object.entries(tree).forEach(([continent, countries]) => {
-        const continentCount = countTotal(countries);
-        const contItem = createLine("continent", continent, continentCount);
-        const contNested = createNested();
-
-        menu.append(contItem, contNested);
-
-        contItem.addEventListener("click", () => {
-          toggle(contItem, contNested, ".continent");
-          loadFunc({ continent }, "");
-        });
-
-        Object.entries(countries).forEach(([country, cities]) => {
-          const countryCount = countTotal(cities);
-          const countryItem = createLine("country", country, countryCount);
-          const countryNested = createNested();
-
-          contNested.append(countryItem, countryNested);
-
-          countryItem.addEventListener("click", () => {
-            toggle(countryItem, countryNested, ".country");
-            loadFunc({ country }, "");
-          });
-
-          Object.entries(cities).forEach(([city, count]) => {
-            const cityItem = createLine("city", city, count);
-
-            cityItem.addEventListener("click", (e) => {
-              e.stopPropagation();
-              loadFunc({ city }, "");
-            });
-
-            countryNested.append(cityItem);
-          });
-        });
+      Object.entries(cities).forEach(([city, count]) => {
+        const cityLine = createLine("city", city, count);
+        countryNested.append(cityLine);
       });
     });
+  });
 }
 
 /* ============================================================
@@ -111,7 +100,9 @@ function createLine(type, label, count) {
   const el = document.createElement("div");
   el.className = `line ${type}`;
   el.innerHTML = `
-    <span class="label">${label}</span>
+    <span class="label" data-${type}="${label}">
+      ${label}
+    </span>
     <span class="pill">${count}</span>
     ${type !== "city" ? `<span class="arrow">›</span>` : ""}
   `;
@@ -125,7 +116,7 @@ function createNested() {
 }
 
 /* ============================================================
-   TOGGLE SYSTEM — one open per level
+   TOGGLE SYSTEM — ONE OPEN PER LEVEL
    ============================================================ */
 function toggle(clickedItem, clickedNested, selector) {
   const allItems = document.querySelectorAll(selector);
