@@ -147,8 +147,10 @@ function initAutocomplete() {
 ------------------------------------------------------------ */
 const searchInput = dom("#searchInput");
 searchInput?.addEventListener("input", () => {
-  loadStores({}, searchInput.value.trim());
+  // tillfälligt: live-search avstängd för att inte nolla sidebar-filter
+  return;
 });
+
 
 /* ------------------------------------------------------------
    HIERARCHY FILTER — FINAL & SAFE
