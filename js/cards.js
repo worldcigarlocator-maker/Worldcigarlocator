@@ -151,21 +151,14 @@ searchInput?.addEventListener("input", () => {
 });
 
 /* ------------------------------------------------------------
-   CONTINENT FILTER — DEBUG MODE
+   CONTINENT FILTER — FINAL
 ------------------------------------------------------------ */
 document.addEventListener("click", (e) => {
-  console.log("CLICK TARGET:", e.target);
-
   const el = e.target.closest("[data-continent]");
-  console.log("MATCHED ELEMENT:", el);
-
   if (!el) return;
 
-  const continent = el.dataset.continent;
-  console.log("CONTINENT CLICKED:", continent);
-
   loadStores(
-    { continent },
+    { continent: el.dataset.continent },
     dom("#searchInput")?.value.trim() || ""
   );
 });
