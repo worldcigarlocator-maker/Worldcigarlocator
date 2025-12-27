@@ -1,12 +1,16 @@
 // ============================================================
-// MAIN.JS — WCL Frontend (Auth-first, Stable Sidebar & Search)
+// MAIN.JS — WCL Frontend (Auth-first, Hero-first, Stable UI)
 // ============================================================
 
-// ----- Global selectors -----
+// ------------------------------------------------------------
+// Global selectors
+// ------------------------------------------------------------
 window.qs  = (sel) => document.querySelector(sel);
 window.qsa = (sel) => document.querySelectorAll(sel);
 
-// ----- Imports -----
+// ------------------------------------------------------------
+// Imports
+// ------------------------------------------------------------
 import { supabase } from "./globals.js";
 import { loadStores, resetToHero } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
@@ -99,9 +103,10 @@ async function initSidebar() {
   if (SIDEBAR_BUILT) return;
   SIDEBAR_BUILT = true;
 
+  // ⚠️ Sidebar bygger hierarkin men renderar INGA cards själv
   await buildFrontendSidebar(supabase, loadStores);
 
-  // persist open continent
+  // Persist open continent
   document.querySelectorAll("[data-continent]").forEach((el) => {
     el.addEventListener("click", () => {
       localStorage.setItem("wclMenuOpen", el.dataset.continent);
@@ -113,7 +118,7 @@ async function initSidebar() {
 
 
 // ============================================================
-// SEARCH — STABLE MODE (NO LIVE SPAM)
+// SEARCH — EXPLICIT ONLY (NO AUTO LOAD)
 // ============================================================
 function setupSearch() {
   const input = qs("#searchInput");
@@ -124,6 +129,7 @@ function setupSearch() {
 
   const runSearch = () => {
     const q = input.value.trim();
+    if (!q) return;
     loadStores({}, q);
   };
 
@@ -153,11 +159,12 @@ async function guard() {
     return;
   }
 
+  // Logged in
   container.style.removeProperty("display");
 
-  // ✅ correct order
+  // ✅ CRITICAL ORDER (DO NOT CHANGE)
   await initSidebar();
-  resetToHero();
+  resetToHero(); // ⬅️ NO cards rendered here
 }
 
 
