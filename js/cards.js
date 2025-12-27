@@ -18,7 +18,9 @@ let DOM_READY = false;
 document.addEventListener("DOMContentLoaded", () => {
   DOM_READY = true;
   initAutocomplete();
+  loadStores(); // ✅ STARTAR SIDAN
 });
+
 
 // Helper selectors
 const dom = (sel) => document.querySelector(sel);
@@ -139,6 +141,28 @@ function initAutocomplete() {
     }
   });
 }
+
+/* ------------------------------------------------------------
+   SEARCH HANDLER — BACKEND FILTER
+------------------------------------------------------------ */
+const searchInput = dom("#searchInput");
+searchInput?.addEventListener("input", () => {
+  loadStores({}, searchInput.value.trim());
+});
+/* ------------------------------------------------------------
+   CONTINENT FILTER — BACKEND DRIVEN (OBLIGATORISK)
+------------------------------------------------------------ */
+document.querySelectorAll("[data-continent]").forEach(el => {
+  el.addEventListener("click", () => {
+    const continent = el.dataset.continent;
+
+    loadStores(
+      { continent },
+      dom("#searchInput")?.value.trim() || ""
+    );
+  });
+});
+
 
 /* ------------------------------------------------------------
    CARD HTML
