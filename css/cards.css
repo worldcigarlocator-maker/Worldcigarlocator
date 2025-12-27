@@ -432,3 +432,26 @@ mark.hl {
   padding: 0 2px;
   border-radius: 3px;
 }
+
+/* ============================
+   SEARCH FILTER CHIPS
+============================ */
+.search-filters .chip{
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.92);
+  padding: .45rem .7rem;
+  border-radius: 999px;
+  font-size: .85rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.search-filters .chip:hover{
+  background: rgba(255,255,255,.07);
+}
+
+.search-filters .chip.active{
+  border-color: rgba(255,255,255,.32);
+  background: rgba(255,255,255,.14);
+}
