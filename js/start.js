@@ -1,37 +1,33 @@
-/* ============================================================
-   start.js — Age Gate + small boot helpers (NO MODULES)
-   ============================================================ */
-(function () {
-  "use strict";
+import { qs } from "./globals.js";
 
-  function showAgeGate() {
-    const gate = qs("#ageGate");
-    gate?.classList.remove("hidden");
+export function initAgeGate() {
+  const modal = qs("ageGate");
+  if (!modal) return;
+
+  if (localStorage.getItem("ageVerified") === "yes") {
+    modal.classList.add("hidden");
+    return;
   }
 
-  function hideAgeGate() {
-    const gate = qs("#ageGate");
-    gate?.classList.add("hidden");
-  }
+  modal.classList.remove("hidden");
 
-  function initAgeGate() {
-    const entered = localStorage.getItem("wcl_age_ok") === "1";
-    if (!entered) showAgeGate();
+  qs("enterBtn").onclick = () => {
+    localStorage.setItem("ageVerified", "yes");
+    modal.classList.add("hidden");
+  };
 
-    qs("#enterBtn")?.addEventListener("click", () => {
-      localStorage.setItem("wcl_age_ok", "1");
-      hideAgeGate();
-    });
+  qs("leaveBtn").onclick = () => {
+    window.location.href = "https://google.com";
+  };
+}
 
-    qs("#leaveBtn")?.addEventListener("click", () => {
-      // simple safe behavior
-      window.location.href = "https://www.google.com";
-    });
-  }
+export function fakeOnline() {
+  const el = qs("onlineText");
+  if (!el) return;
+  el.textContent = `${28 + Math.round(Math.random()*14)} online`;
+}
 
-  document.addEventListener("DOMContentLoaded", () => {
-    initAgeGate();
-  });
-
-  console.log("✅ start.js loaded");
-})();
+document.addEventListener("DOMContentLoaded", () => {
+  fakeOnline();
+  setInterval(fakeOnline, 8000);
+});

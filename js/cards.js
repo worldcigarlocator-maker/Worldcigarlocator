@@ -1,219 +1,519 @@
-/* ============================================================
-   cards.js — WCL Frontend Cards (NO MODULES)
-   Exposes: window.loadStores, window.resetToHero
-   Depends on: globals.js (window.WCL)
-   ============================================================ */
-(function () {
-  "use strict";
+// ============================================================
+// CARDS.JS — PREMIUM WCL FRONTEND
+// With Modal, Rating, Comments & Safe Async Loading
+// ============================================================
 
-  const WCL = window.WCL;
-  if (!WCL || !WCL.supabase) {
-    console.error("cards.js: WCL or supabase missing (globals.js failed?)");
+import { supabase } from "./globals.js";
+
+// Track DOM ready
+let DOM_READY = false;
+document.addEventListener("DOMContentLoaded", () => {
+  DOM_READY = true;
+  initAutocomplete(); // ✅ autocomplete får vara kvar
+});
+
+
+// Helper selectors
+const dom = (sel) => document.querySelector(sel);
+
+// Cancel-token for safe loading:
+let ACTIVE_REQUEST = 0;
+
+/* ------------------------------------------------------------
+   FLAG HELPER (Safe + lowercase)
+------------------------------------------------------------ */
+function getFlagUrl(store) {
+  const iso = store.country_iso2?.toLowerCase();
+  if (!iso) return null;
+  return `assets/flags/${iso}.svg`;
+}
+
+/* ------------------------------------------------------------
+   BADGE BUILDER — Identical to Backend Logic
+------------------------------------------------------------ */
+function buildBadges(store) {
+  const badges = [];
+
+  const arr = Array.isArray(store.types)
+    ? store.types.map((t) => t.toLowerCase())
+    : [];
+
+  if (arr.includes("store")) {
+    badges.push(`<span class="badge badge-store">Store</span>`);
+  }
+
+  if (arr.includes("lounge")) {
+    badges.push(`<span class="badge badge-lounge">Lounge</span>`);
+  }
+
+  const A = (store.access || "").trim().toLowerCase();
+
+  if (A === "public") {
+    badges.push(
+      `<span class="badge badge-access badge-access-public">PUBLIC</span>`
+    );
+  } else if (A) {
+    badges.push(
+      `<span class="badge badge-access">${A.toUpperCase()}</span>`
+    );
+  }
+
+  return badges.join(" ");
+}
+
+/* ------------------------------------------------------------
+   FALLBACK IMAGE
+------------------------------------------------------------ */
+const FALLBACK_IMAGE = "images/store.jpg";
+
+
+/* ------------------------------------------------------------
+   PHOTO URL HELPER — BACKEND SINGLE SOURCE OF TRUTH
+------------------------------------------------------------ */
+function getPhotoUrl(store) {
+  // ✅ backend-view genererar redan korrekt bild-URL
+  if (store.photo_final_url) {
+    return store.photo_final_url;
+  }
+
+  // fallback endast om backend saknar bild
+  return FALLBACK_IMAGE;
+}
+
+/* ------------------------------------------------------------
+   RESET HERO
+------------------------------------------------------------ */
+export function resetToHero() {
+  if (!DOM_READY) {
+    document.addEventListener("DOMContentLoaded", resetToHero, { once: true });
     return;
   }
 
-  const CFG = WCL.config;
+  const grid = dom("#storeGrid");
+  const heading = dom("#resultHeading");
+  const heroImage = dom("#heroImage");
+  const heroText = dom("#heroText");
 
-  function safe(v) { return (v ?? "").toString(); }
+  if (grid) grid.innerHTML = "";
 
-  function buildPhoto(photo_reference, maxwidth = 1000) {
-    if (!photo_reference) return CFG.FALLBACK_IMG;
-    return `${CFG.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(photo_reference)}&maxwidth=${maxwidth}`;
-  }
-
-  function flagUrl(country_iso2) {
-    if (!country_iso2) return "";
-    return `${CFG.FLAGS_BASE}/${String(country_iso2).toLowerCase()}.svg`;
-  }
-
-  // ---------- HERO ----------
-  function resetToHero() {
-    const heroText = qs("#heroText");
-    const heroImage = qs("#heroImage");
-    const heading = qs("#resultHeading");
-    const grid = qs("#storeGrid");
-
+  if (heading) {
     heading.style.display = "none";
     heading.textContent = "";
-    grid.innerHTML = "";
-
-    heroText && (heroText.style.display = "block");
-    heroImage && (heroImage.style.display = "block");
   }
 
-  // ---------- RENDER ----------
-  function renderHeading(text) {
-    const heroText = qs("#heroText");
-    const heroImage = qs("#heroImage");
-    const heading = qs("#resultHeading");
+  heroImage?.style.setProperty("display", "block");
+  heroText?.style.setProperty("display", "block");
+}
 
-    heroText && (heroText.style.display = "none");
-    heroImage && (heroImage.style.display = "none");
+/* ------------------------------------------------------------
+   STARS BUILDER
+------------------------------------------------------------ */
+function buildStars(avg, count) {
+  const v = Number(avg) || 0;
+  const f = "★".repeat(Math.round(v));
+  const e = "☆".repeat(5 - Math.round(v));
+  return `
+    <div class="stars-row">
+      <span class="stars">${f}${e}</span>
+      <span class="rating-count">(${count || 0})</span>
+    </div>`;
+}
 
+
+/* ------------------------------------------------------------
+   AUTOCOMPLETE STATE + INIT
+------------------------------------------------------------ */
+let AC_BOX = null;
+
+function initAutocomplete() {
+  AC_BOX = dom("#autocomplete");
+  if (!AC_BOX) return;
+
+  document.addEventListener("click", (e) => {
+    if (!AC_BOX) return;
+    const searchInput = dom("#searchInput");
+    if (!AC_BOX.contains(e.target) && e.target !== searchInput) {
+      AC_BOX.classList.add("hidden");
+    }
+  });
+}
+
+function updateAutocomplete(list, words) {
+  if (!AC_BOX) return;
+  if (!words || !words.length) {
+    AC_BOX.classList.add("hidden");
+    return;
+  }
+
+  const lower = words.map((w) => w.toLowerCase());
+  const matches = [];
+
+  for (const s of list) {
+    const hay = `${s.name || ""} ${s.city || ""} ${s.country || ""} ${
+      Array.isArray(s.types) ? s.types.join(" ") : ""
+    }`.toLowerCase();
+
+    if (lower.every((w) => hay.includes(w))) {
+      matches.push({
+        id: s.id,
+        label: s.name || "Unnamed",
+        sub: s.city || s.country || "",
+      });
+    }
+    if (matches.length >= 12) break;
+  }
+
+  if (!matches.length) {
+    AC_BOX.classList.add("hidden");
+    return;
+  }
+
+  AC_BOX.innerHTML = matches
+    .map(
+      (m) => `
+      <div class="ac-item" data-name="${m.label}">
+        <strong>${m.label}</strong><br>
+        <small>${m.sub}</small>
+      </div>
+    `
+    )
+    .join("");
+
+  AC_BOX.classList.remove("hidden");
+
+  AC_BOX.querySelectorAll(".ac-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      const v = item.dataset.name;
+      const input = dom("#searchInput");
+      if (input) input.value = v;
+      AC_BOX.classList.add("hidden");
+      loadStores({}, v);
+    });
+  });
+}
+
+
+/* ------------------------------------------------------------
+   CARD HTML
+------------------------------------------------------------ */
+function cardHTML(s) {
+  const img  = getPhotoUrl(s);
+  const flag = getFlagUrl(s);
+
+  const displayName    = s.name || "Unnamed";
+  const displayCity    = s.city || "";
+  const displayCountry = s.country || "";
+
+  let displayAddress = "—";
+  if (s.address) {
+    const trimmed = s.address.trim();
+    displayAddress = trimmed.includes(",")
+      ? trimmed.split(",")[0] + "…"
+      : trimmed;
+  }
+
+  return `
+    <article class="store-card" data-id="${s.id}">
+      <img
+        src="${img}"
+        class="store-img"
+        alt="${displayName}"
+        onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
+      />
+
+      <div class="store-body">
+        <h3 class="store-title">${displayName}</h3>
+
+        <div class="badge-row">
+          ${buildBadges(s)}
+        </div>
+
+        ${buildStars(s.rating_avg, s.rating_count)}
+
+        <div class="locrow">
+          <div class="loc-top">
+            ${flag ? `<img src="${flag}" class="flag" />` : ""}
+            <span>${[s.continent, displayCountry].filter(Boolean).join(", ")}</span>
+          </div>
+          <p class="city-label">${displayCity}</p>
+        </div>
+
+        <div class="infoblock">
+          <p><strong>Address:</strong> ${displayAddress}</p>
+          <p><strong>Phone:</strong> ${s.phone || "—"}</p>
+          <p><strong>Website:</strong>
+            ${s.website ? `<a href="${s.website}" target="_blank">Visit</a>` : "—"}
+          </p>
+        </div>
+
+        <button class="reviews-btn">
+          (${s.comment_count || 0})
+        </button>
+      </div>
+    </article>
+  `;
+}
+
+/* ------------------------------------------------------------
+   RENDER CARDS
+------------------------------------------------------------ */
+function renderCards(list) {
+  const grid = dom("#storeGrid");
+  if (!grid) return;
+
+  grid.innerHTML = list.map(cardHTML).join("");
+
+  grid.querySelectorAll(".store-card").forEach((c) => {
+    c.addEventListener("click", () => openModal(c.dataset.id));
+  });
+}
+
+export function renderStores(list) {
+  renderCards(list);
+}
+
+/* ------------------------------------------------------------
+   LOAD STORES — ADVANCED SEARCH ENGINE (FULL POWER, SAFE)
+------------------------------------------------------------ */
+export async function loadStores(filters = {}, search = "") {
+  if (!DOM_READY) {
+    document.addEventListener(
+      "DOMContentLoaded",
+      () => loadStores(filters, search),
+      { once: true }
+    );
+    return;
+  }
+
+  ACTIVE_REQUEST++;
+  const reqId = ACTIVE_REQUEST;
+
+  const grid = dom("#storeGrid");
+  const heading = dom("#resultHeading");
+  const heroImage = dom("#heroImage");
+  const heroText = dom("#heroText");
+
+  if (heroImage) heroImage.style.display = "none";
+  if (heroText) heroText.style.display = "none";
+
+  if (heading) {
     heading.style.display = "block";
-    heading.textContent = text || "";
+    heading.textContent = "Loading…";
+  }
+  if (grid) grid.innerHTML = "";
+
+  // ✅ ENDA datakällan
+  const { data, error } = await supabase.rpc("search_stores_v1", {
+    p_search: search?.trim() || null,
+    p_continent: filters.continent || null,
+    p_country: filters.country || null,
+    p_city: filters.city || null,
+  });
+
+  if (reqId !== ACTIVE_REQUEST) return;
+
+  if (error) {
+    console.error(error);
+    if (heading) heading.textContent = "Error loading locations.";
+    return;
   }
 
-  function renderCards(rows) {
-    const grid = qs("#storeGrid");
-    grid.innerHTML = "";
-
-    if (!rows.length) {
-      grid.innerHTML = `<p class="muted center">No results.</p>`;
-      return;
-    }
-
-    rows.forEach((s) => {
-      const card = document.createElement("div");
-      card.className = "store-card";
-
-      const img = document.createElement("img");
-      img.className = "store-img";
-      img.src = buildPhoto(s.photo_reference, 900);
-      img.onerror = () => (img.src = CFG.FALLBACK_IMG);
-
-      const body = document.createElement("div");
-      body.className = "store-body";
-
-      const name = document.createElement("h3");
-      name.className = "store-name";
-      name.textContent = safe(s.name);
-
-      const loc = document.createElement("div");
-      loc.className = "store-loc";
-
-      const flag = document.createElement("img");
-      flag.className = "flag";
-      const f = flagUrl(s.country_iso2);
-      if (f) {
-        flag.src = f;
-        flag.onerror = () => (flag.style.display = "none");
-        loc.appendChild(flag);
-      }
-
-      const locText = document.createElement("span");
-      locText.textContent = `${safe(s.country)}${s.city ? ", " + safe(s.city) : ""}`;
-      loc.appendChild(locText);
-
-      const meta = document.createElement("div");
-      meta.className = "store-meta";
-      meta.innerHTML = `
-        <span class="meta-line"><strong>Type:</strong> ${safe(s.type || (Array.isArray(s.types) ? s.types.join(", ") : "–"))}</span>
-        <span class="meta-line"><strong>Rating:</strong> ${s.rating ?? "–"}</span>
-      `;
-
-      body.append(name, loc, meta);
-      card.append(img, body);
-
-      card.addEventListener("click", () => openModal(s));
-      grid.appendChild(card);
-    });
+  if (!data || data.length === 0) {
+    if (heading) heading.textContent = "No results found.";
+    return;
   }
 
-  // ---------- DATA ----------
-  async function loadStores(filters = {}, searchQuery = "") {
-    const sb = WCL.supabase;
+  renderCards(data);
 
-    // base query from your approved frontend view
-    let q = sb
-      .from("stores_frontend_public_v4")
-      .select("*")
-      .order("id", { ascending: false });
+  if (heading) heading.textContent = `${data.length} results`;
+}
 
-    // filters from sidebar
-    if (filters.continent) q = q.eq("continent", filters.continent);
-    if (filters.country) q = q.eq("country", filters.country);
-    if (filters.city) q = q.eq("city", filters.city);
+/* ============================================================
+   ===================  MODAL SYSTEM ==========================
+   ============================================================ */
 
-    // simple search (name/city/country)
-    const term = (searchQuery || "").trim();
-    if (term) {
-      // ilike across 3 columns (OR)
-      q = q.or(
-        `name.ilike.%${term}%,city.ilike.%${term}%,country.ilike.%${term}%`
-      );
-    }
+const modal = dom("#storeModal");
+const closeBtn = dom(".modal-close");
+const backdrop = dom(".modal-backdrop");
 
-    const { data, error } = await q;
-    if (error) {
-      console.error(error);
-      renderHeading("Error loading stores");
-      qs("#storeGrid").innerHTML = `<p class="error center">Failed to load stores.</p>`;
-      return;
-    }
+let CURRENT_STORE = null;
 
-    renderHeading(term ? `Results for "${term}"` : "Results");
-    renderCards(data || []);
+/* ------------------------------------------------------------
+   OPEN MODAL
+------------------------------------------------------------ */
+async function openModal(id) {
+  const storeId = Number(id);
+
+  const { data } = await supabase
+    .from("stores_frontend_public_v4")
+    .select("*")
+    .eq("id", storeId)
+    .single();
+
+  if (!data) return;
+
+  fillModal(data);
+  loadComments(storeId);
+  loadUserRating(storeId);
+
+  modal.classList.remove("hidden");
+}
+
+
+/* ------------------------------------------------------------
+   CLOSE MODAL
+------------------------------------------------------------ */
+function closeModal() {
+  modal.classList.add("hidden");
+}
+closeBtn?.addEventListener("click", closeModal);
+backdrop?.addEventListener("click", closeModal);
+
+/* ------------------------------------------------------------
+   FILL MODAL
+------------------------------------------------------------ */
+function fillModal(s) {
+ dom("#modalImg").src = getPhotoUrl(s);
+  dom("#modalName").textContent = s.name;
+  dom("#modalFlag").src = getFlagUrl(s) || "";
+  dom("#modalLocation").textContent = `${s.city || ""}, ${s.country || ""}`;
+
+  dom("#modalAddress").textContent = s.address || "—";
+  dom("#modalPhone").textContent = s.phone || "—";
+
+  const w = dom("#modalWebsite");
+  if (s.website) {
+    w.href = s.website;
+    w.style.display = "inline";
+  } else {
+    w.style.display = "none";
   }
 
-  // ---------- MODAL (uses your existing markup ids) ----------
-  function openModal(s) {
-    const modal = qs("#storeModal");
-    modal.classList.remove("hidden");
+  const badgeBox = dom("#modalBadges");
+  badgeBox.innerHTML = buildBadges(s);
 
-    qs("#modalImg").src = buildPhoto(s.photo_reference, 1200);
-    qs("#modalImg").onerror = () => (qs("#modalImg").src = CFG.FALLBACK_IMG);
+  dom("#modalStars").innerHTML = buildStars(s.rating_avg, s.rating_count);
+}
 
-    qs("#modalName").textContent = safe(s.name);
+/* ============================================================
+   ================  RATING SYSTEM  ============================
+   ============================================================ */
+const starPicker = dom("#modalStarPicker");
+const ratingSendBtn = dom("#modalSendRating");
+let USER_TEMP_RATING = 0;
 
-    const badges = qs("#modalBadges");
-    badges.innerHTML = "";
-    // Basic badges
-    const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
-    types.forEach((t) => {
-      const b = document.createElement("span");
-      b.className = "badge";
-      b.textContent = t;
-      badges.appendChild(b);
-    });
-    if (s.access) {
-      const a = document.createElement("span");
-      a.className = "badge";
-      a.textContent = String(s.access).toUpperCase();
-      badges.appendChild(a);
-    }
+function highlightStars(count) {
+  if (!starPicker) return;
+  starPicker.querySelectorAll("span").forEach((s, i) => {
+    s.textContent = i < count ? "★" : "☆";
+  });
+}
 
-    qs("#modalStars").textContent = `⭐ ${s.rating ?? "–"}`;
+starPicker?.querySelectorAll("span").forEach((star) => {
+  star.addEventListener("mouseenter", () =>
+    highlightStars(star.dataset.val)
+  );
+  star.addEventListener("mouseleave", () =>
+    highlightStars(USER_TEMP_RATING)
+  );
+  star.addEventListener("click", () => {
+    USER_TEMP_RATING = Number(star.dataset.val);
+    highlightStars(USER_TEMP_RATING);
+  });
+});
 
-    const flag = qs("#modalFlag");
-    const f = flagUrl(s.country_iso2);
-    if (f) {
-      flag.src = f;
-      flag.style.display = "";
-      flag.onerror = () => (flag.style.display = "none");
-    } else {
-      flag.style.display = "none";
-    }
+async function loadUserRating(store_id) {
+  const userResp = await supabase.auth.getUser();
+  const user = userResp.data.user;
+  if (!user) return;
 
-    qs("#modalLocation").textContent = `${safe(s.country)}${s.city ? ", " + safe(s.city) : ""}`;
-    qs("#modalAddress").textContent = safe(s.address || "–");
-    qs("#modalPhone").textContent = safe(s.phone || "–");
+  const { data } = await supabase
+    .from("ratings")
+    .select("rating")
+    .eq("store_id", store_id)
+    .eq("user_id", user.id)
+    .single();
 
-    const web = qs("#modalWebsite");
-    if (s.website) {
-      web.href = s.website;
-      web.textContent = "Visit";
-      web.style.pointerEvents = "";
-      web.style.opacity = "";
-    } else {
-      web.href = "#";
-      web.textContent = "–";
-      web.style.pointerEvents = "none";
-      web.style.opacity = "0.6";
-    }
+  USER_TEMP_RATING = data?.rating || 0;
+  highlightStars(USER_TEMP_RATING);
+}
 
-    // Close handlers
-    modal.querySelector(".modal-close")?.addEventListener("click", closeModal, { once: true });
-    modal.querySelector(".modal-backdrop")?.addEventListener("click", closeModal, { once: true });
+ratingSendBtn?.addEventListener("click", async () => {
+  const rating = USER_TEMP_RATING;
+  if (!rating) return alert("Select a rating first!");
+
+  const userResp = await supabase.auth.getUser();
+  const user = userResp.data.user;
+  if (!user) return alert("Login required.");
+
+  await supabase.from("ratings").upsert({
+    store_id: CURRENT_STORE,
+    user_id: user.id,
+    rating,
+  });
+
+  loadModalStore();
+});
+
+async function loadModalStore() {
+  const { data } = await supabase
+    .from("stores_frontend_public_v4")
+    .select("*")
+    .eq("id", CURRENT_STORE)
+    .single();
+
+  if (data) fillModal(data);
+}
+
+/* ============================================================
+   ==================== COMMENTS SYSTEM =======================
+   ============================================================ */
+
+const commentsBox = dom("#modalComments");
+const commentInput = dom("#modalCommentInput");
+const sendCommentBtn = dom("#modalSendComment");
+
+async function loadComments(store_id) {
+  const { data } = await supabase
+    .from("store_comments")
+    .select("*")
+    .eq("store_id", store_id)
+    .order("created_at", { ascending: false });
+
+  if (!commentsBox) return;
+
+  commentsBox.innerHTML = "";
+
+  if (!data || !data.length) {
+    commentsBox.innerHTML = "<p>No comments yet.</p>";
+    return;
   }
 
-  function closeModal() {
-    qs("#storeModal").classList.add("hidden");
-  }
+  commentsBox.innerHTML = data
+    .map(
+      (c) => `
+        <div class="comment">
+          <p>${c.text}</p>
+          <small>${new Date(c.created_at).toLocaleString()}</small>
+        </div>`
+    )
+    .join("");
+}
 
-  // expose
-  window.loadStores = loadStores;
-  window.resetToHero = resetToHero;
+sendCommentBtn?.addEventListener("click", async () => {
+  const text = commentInput.value.trim();
+  if (!text) return;
 
-  console.log("✅ cards.js loaded");
-})();
+  const userResp = await supabase.auth.getUser();
+  const user = userResp.data.user;
+  if (!user) return alert("Login required.");
+
+  await supabase.from("store_comments").insert({
+    store_id: CURRENT_STORE,
+    user_id: user.id,
+    text,
+  });
+
+  commentInput.value = "";
+  loadComments(CURRENT_STORE);
+});
