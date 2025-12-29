@@ -1,6 +1,6 @@
 // ============================================================
-// SIDEBAR.JS — WCL Premium Hierarchy Navigation (Frontend)
-// Uses: setLocationFilter + runSearch (single search pipeline)
+// SIDEBAR.JS — WCL Premium Hierarchy Navigation (USA = State level)
+// Single search pipeline via setLocationFilter + runSearch
 // ============================================================
 
 import { setLocationFilter, runSearch, resetToHero } from "./cards.js";
@@ -9,7 +9,7 @@ const dom = (sel) => document.querySelector(sel);
 const menu = dom("#sidebarMenu");
 
 /* ============================================================
-   BUILD SIDEBAR HIERARCHY WITH CORRECT COUNTS (DEDUPED)
+   BUILD SIDEBAR HIERARCHY (DEDUPED, USA HAS STATE LEVEL)
    ============================================================ */
 export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
@@ -17,9 +17,10 @@ export async function buildFrontendSidebar(supabase) {
 
   const { data, error } = await supabase
     .from("stores_frontend_public_v4")
-    .select("id, continent, country, city")
+    .select("id, continent, country, state, city")
     .order("continent")
     .order("country")
+    .order("state")
     .order("city");
 
   if (error) {
@@ -28,32 +29,57 @@ export async function buildFrontendSidebar(supabase) {
     return;
   }
 
-  // ✅ DEDUP (one store = one count)
-  const uniqueStores = Array.from(new Map((data || []).map((s) => [s.id, s])).values());
+  // ============================================================
+  // DEDUP — one store = one count
+  // ============================================================
+  const uniqueStores = Array.from(
+    new Map((data || []).map((s) => [s.id, s])).values()
+  );
 
+  // ============================================================
   // BUILD TREE
+  // Structure:
+  // continent
+  //   └─ country
+  //       ├─ (USA) state -> city
+  //       └─ (else) city
+  // ============================================================
   const tree = {};
-  uniqueStores.forEach((row) => {
-    const continent = row.continent;
-    const country = row.country;
-    const city = row.city;
 
+  uniqueStores.forEach((row) => {
+    const { continent, country, state, city } = row;
     if (!continent || !country) return;
 
     if (!tree[continent]) tree[continent] = {};
     if (!tree[continent][country]) tree[continent][country] = {};
 
-    if (city) {
-      tree[continent][country][city] = (tree[continent][country][city] || 0) + 1;
+    // 🇺🇸 United States → state → city
+    if (country === "United States") {
+      const st = state || "Unknown";
+      if (!tree[continent][country][st]) {
+        tree[continent][country][st] = {};
+      }
+      if (city) {
+        tree[continent][country][st][city] =
+          (tree[continent][country][st][city] || 0) + 1;
+      }
+    }
+    // 🌍 All other countries → city
+    else {
+      if (city) {
+        tree[continent][country][city] =
+          (tree[continent][country][city] || 0) + 1;
+      }
     }
   });
 
-  // RENDER
+  // ============================================================
+  // RENDER SIDEBAR
+  // ============================================================
   menu.innerHTML = "";
 
   Object.entries(tree).forEach(([continent, countries]) => {
     const continentCount = countTotal(countries);
-
     const contLine = createLine("continent", continent, continentCount);
     const contNested = createNested();
 
@@ -61,15 +87,12 @@ export async function buildFrontendSidebar(supabase) {
 
     contLine.addEventListener("click", () => {
       toggle(contLine, contNested, ".continent");
-
-      // ✅ set location filter + run search
-      setLocationFilter({ continent, country: null, city: null });
+      setLocationFilter({ continent, country: null, state: null, city: null });
       runSearch();
     });
 
-    Object.entries(countries).forEach(([country, cities]) => {
-      const countryCount = countTotal(cities);
-
+    Object.entries(countries).forEach(([country, node]) => {
+      const countryCount = countTotal(node);
       const countryLine = createLine("country", country, countryCount);
       const countryNested = createNested();
 
@@ -78,24 +101,51 @@ export async function buildFrontendSidebar(supabase) {
       countryLine.addEventListener("click", (e) => {
         e.stopPropagation();
         toggle(countryLine, countryNested, ".country");
-
-        // ✅ set location filter + run search
-        setLocationFilter({ continent, country, city: null });
+        setLocationFilter({ continent, country, state: null, city: null });
         runSearch();
       });
 
-      Object.entries(cities).forEach(([city, count]) => {
-        const cityLine = createLine("city", city, count);
-        countryNested.append(cityLine);
+      // 🇺🇸 USA → state level
+      if (country === "United States") {
+        Object.entries(node).forEach(([state, cities]) => {
+          const stateCount = countTotal(cities);
+          const stateLine = createLine("state", state, stateCount);
+          const stateNested = createNested();
 
-        cityLine.addEventListener("click", (e) => {
-          e.stopPropagation();
+          countryNested.append(stateLine, stateNested);
 
-          // ✅ set location filter + run search
-          setLocationFilter({ continent, country, city });
-          runSearch();
+          stateLine.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggle(stateLine, stateNested, ".state");
+            setLocationFilter({ continent, country, state, city: null });
+            runSearch();
+          });
+
+          Object.entries(cities).forEach(([city, count]) => {
+            const cityLine = createLine("city", city, count);
+            stateNested.append(cityLine);
+
+            cityLine.addEventListener("click", (e) => {
+              e.stopPropagation();
+              setLocationFilter({ continent, country, state, city });
+              runSearch();
+            });
+          });
         });
-      });
+      }
+      // 🌍 Other countries → city directly
+      else {
+        Object.entries(node).forEach(([city, count]) => {
+          const cityLine = createLine("city", city, count);
+          countryNested.append(cityLine);
+
+          cityLine.addEventListener("click", (e) => {
+            e.stopPropagation();
+            setLocationFilter({ continent, country, state: null, city });
+            runSearch();
+          });
+        });
+      }
     });
   });
 }
@@ -114,14 +164,11 @@ function countTotal(obj) {
 function createLine(type, label, count) {
   const el = document.createElement("div");
   el.className = `line ${type}`;
-
-  // NOTE: keep exact markup you had (label, pill, arrow)
   el.innerHTML = `
     <span class="label">${label}</span>
     <span class="pill">${count}</span>
     ${type !== "city" ? `<span class="arrow">›</span>` : ""}
   `;
-
   return el;
 }
 
@@ -140,7 +187,6 @@ function toggle(clickedItem, clickedNested, selector) {
 
   allItems.forEach((item, i) => {
     const nest = allNesteds[i];
-
     if (!nest) return;
 
     if (item === clickedItem) {
