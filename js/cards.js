@@ -274,11 +274,15 @@ function initLiveSearchAndFilters() {
 // ============================================================
 // PUBLIC API FOR SIDEBAR (location filters)
 // ============================================================
-export function setLocationFilter({ continent = null, country = null, city = null } = {}) {
-  FILTER_STATE.continent = continent;
-  FILTER_STATE.country = country;
-  FILTER_STATE.city = city;
+export function setLocationFilter(next) {
+  CURRENT_FILTERS = {
+    continent: next.continent ?? null,
+    country: next.country ?? null,
+    state: next.state ?? null,
+    city: next.city ?? null,
+  };
 }
+
 
 // ============================================================
 // CARD HTML
