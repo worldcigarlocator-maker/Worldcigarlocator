@@ -25,10 +25,11 @@ export function resolveStoreImage(store) {
 
   // 2️⃣ Google Places via photo-proxy
   if (store?.photo_reference) {
-    return `${supabase.functions.url}/photo-proxy?photo_reference=${encodeURIComponent(
-      store.photo_reference
-    )}&maxwidth=800`;
-  }
+  return `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?photo_reference=${encodeURIComponent(
+    store.photo_reference
+  )}&maxwidth=800`;
+}
+
 
   // 3️⃣ Fallback
   return FALLBACK_IMAGE;
