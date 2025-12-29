@@ -75,16 +75,33 @@ function buildBadges(store) {
 }
 
 // ============================================================
-// PHOTO URL
+// PHOTO URL — DEBUG VERSION (STEGET FÖRE FIX)
 // ============================================================
 function getPhotoUrl(store) {
+  console.log("🖼️ PHOTO DEBUG", {
+    id: store.id,
+    photo_reference: store.photo_reference,
+    photo_url: store.photo_url,
+    photo_cdn_url: store.photo_cdn_url,
+  });
+
+  // 1️⃣ CDN (snabbast)
+  if (store.photo_cdn_url) return store.photo_cdn_url;
+
+  // 2️⃣ Direkt URL
+  if (store.photo_url) return store.photo_url;
+
+  // 3️⃣ Google Places → proxy
   if (store.photo_reference) {
     return `${supabase.functions.url}/photo-proxy?photo_reference=${encodeURIComponent(
       store.photo_reference
     )}&maxwidth=800`;
   }
+
+  // 4️⃣ Fallback
   return FALLBACK_IMAGE;
 }
+
 
 // ============================================================
 // RESET HERO
