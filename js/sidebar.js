@@ -1,12 +1,45 @@
 // ============================================================
 // SIDEBAR.JS — WCL Premium Hierarchy Navigation (USA = State level)
-// Single search pipeline via setLocationFilter + runSearch
+// STABLE VERSION — safe with live-search + debounce
 // ============================================================
 
-import { setLocationFilter, runSearch, resetToHero } from "./cards.js";
+import { setLocationFilter, runSearch } from "./cards.js";
 
 const dom = (sel) => document.querySelector(sel);
 const menu = dom("#sidebarMenu");
+
+/* ============================================================
+   INTERNAL GUARD — prevent duplicate / empty searches
+   ============================================================ */
+let LAST_LOCATION = {
+  continent: null,
+  country: null,
+  state: null,
+  city: null,
+};
+
+function isSameLocation(next) {
+  return (
+    LAST_LOCATION.continent === (next.continent ?? null) &&
+    LAST_LOCATION.country === (next.country ?? null) &&
+    LAST_LOCATION.state === (next.state ?? null) &&
+    LAST_LOCATION.city === (next.city ?? null)
+  );
+}
+
+function applyLocation(next) {
+  if (isSameLocation(next)) return; // 🔒 STOP duplicates
+
+  LAST_LOCATION = {
+    continent: next.continent ?? null,
+    country: next.country ?? null,
+    state: next.state ?? null,
+    city: next.city ?? null,
+  };
+
+  setLocationFilter(LAST_LOCATION);
+  runSearch();
+}
 
 /* ============================================================
    BUILD SIDEBAR HIERARCHY (DEDUPED, USA HAS STATE LEVEL)
@@ -38,22 +71,16 @@ export async function buildFrontendSidebar(supabase) {
 
   // ============================================================
   // BUILD TREE
-  // Structure:
-  // continent
-  //   └─ country
-  //       ├─ (USA) state -> city
-  //       └─ (else) city
   // ============================================================
   const tree = {};
 
-  uniqueStores.forEach((row) => {
-    const { continent, country, state, city } = row;
+  uniqueStores.forEach(({ continent, country, state, city }) => {
     if (!continent || !country) return;
 
     if (!tree[continent]) tree[continent] = {};
     if (!tree[continent][country]) tree[continent][country] = {};
 
-    // 🇺🇸 United States → state → city
+    // 🇺🇸 USA → state → city
     if (country === "United States") {
       const st = state || "Unknown";
       if (!tree[continent][country][st]) {
@@ -64,7 +91,7 @@ export async function buildFrontendSidebar(supabase) {
           (tree[continent][country][st][city] || 0) + 1;
       }
     }
-    // 🌍 All other countries → city
+    // 🌍 Other countries → city
     else {
       if (city) {
         tree[continent][country][city] =
@@ -74,26 +101,23 @@ export async function buildFrontendSidebar(supabase) {
   });
 
   // ============================================================
-  // RENDER SIDEBAR
+  // RENDER
   // ============================================================
   menu.innerHTML = "";
 
   Object.entries(tree).forEach(([continent, countries]) => {
-    const continentCount = countTotal(countries);
-    const contLine = createLine("continent", continent, continentCount);
+    const contLine = createLine("continent", continent, countTotal(countries));
     const contNested = createNested();
 
     menu.append(contLine, contNested);
 
     contLine.addEventListener("click", () => {
       toggle(contLine, contNested, ".continent");
-      setLocationFilter({ continent, country: null, state: null, city: null });
-      runSearch();
+      applyLocation({ continent, country: null, state: null, city: null });
     });
 
     Object.entries(countries).forEach(([country, node]) => {
-      const countryCount = countTotal(node);
-      const countryLine = createLine("country", country, countryCount);
+      const countryLine = createLine("country", country, countTotal(node));
       const countryNested = createNested();
 
       contNested.append(countryLine, countryNested);
@@ -101,15 +125,13 @@ export async function buildFrontendSidebar(supabase) {
       countryLine.addEventListener("click", (e) => {
         e.stopPropagation();
         toggle(countryLine, countryNested, ".country");
-        setLocationFilter({ continent, country, state: null, city: null });
-        runSearch();
+        applyLocation({ continent, country, state: null, city: null });
       });
 
-      // 🇺🇸 USA → state level
+      // 🇺🇸 USA → STATE LEVEL
       if (country === "United States") {
         Object.entries(node).forEach(([state, cities]) => {
-          const stateCount = countTotal(cities);
-          const stateLine = createLine("state", state, stateCount);
+          const stateLine = createLine("state", state, countTotal(cities));
           const stateNested = createNested();
 
           countryNested.append(stateLine, stateNested);
@@ -117,8 +139,7 @@ export async function buildFrontendSidebar(supabase) {
           stateLine.addEventListener("click", (e) => {
             e.stopPropagation();
             toggle(stateLine, stateNested, ".state");
-            setLocationFilter({ continent, country, state, city: null });
-            runSearch();
+            applyLocation({ continent, country, state, city: null });
           });
 
           Object.entries(cities).forEach(([city, count]) => {
@@ -127,13 +148,12 @@ export async function buildFrontendSidebar(supabase) {
 
             cityLine.addEventListener("click", (e) => {
               e.stopPropagation();
-              setLocationFilter({ continent, country, state, city });
-              runSearch();
+              applyLocation({ continent, country, state, city });
             });
           });
         });
       }
-      // 🌍 Other countries → city directly
+      // 🌍 OTHER COUNTRIES → CITY
       else {
         Object.entries(node).forEach(([city, count]) => {
           const cityLine = createLine("city", city, count);
@@ -141,8 +161,7 @@ export async function buildFrontendSidebar(supabase) {
 
           cityLine.addEventListener("click", (e) => {
             e.stopPropagation();
-            setLocationFilter({ continent, country, state: null, city });
-            runSearch();
+            applyLocation({ continent, country, state: null, city });
           });
         });
       }
