@@ -108,24 +108,26 @@ function renderListView(list) {
   if (!wrap) return;
 
   wrap.innerHTML = `
-    <table id="listTable">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Continent</th>
-          <th>Country</th>
-          <th>City</th>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Access</th>
-          <th>Rating</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="listBody"></tbody>
-    </table>
-  `;
+  <table id="listTable">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Continent</th>
+        <th>Country</th>
+        <th>State</th>
+        <th>City</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Access</th>
+        <th>Rating</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="listBody"></tbody>
+  </table>
+`;
+
 
   const tbody = $("#listBody");
   tbody.innerHTML = "";
@@ -141,14 +143,19 @@ function renderListView(list) {
 
 /* ============================================================
    HELPER — Skapar expanderbar rad
+   Continent → Country → City → Store
+   (State visas på store-nivå)
    ============================================================ */
 function makeExpandableRow(label, items, level) {
   const tr = document.createElement("tr");
   tr.className = `expandable ${level}`;
+
+  // 👉 11 kolumner totalt → arrow + 10 data-kolumner
   tr.innerHTML = `
     <td class="arrow-cell">▶</td>
-    <td colspan="9" class="line-label">
-      <strong>${label}</strong> <span class="muted">(${items.length})</span>
+    <td colspan="10" class="line-label">
+      <strong>${label}</strong>
+      <span class="muted">(${items.length})</span>
     </td>
   `;
 
@@ -158,37 +165,53 @@ function makeExpandableRow(label, items, level) {
   tr.addEventListener("click", (e) => {
     e.stopPropagation();
 
-    // Collapse existing
+    /* =========================
+       COLLAPSE
+       ========================= */
     if (expanded) {
-      subRows.forEach(r => r.remove());
+      subRows.forEach((r) => r.remove());
+      subRows.length = 0;
       tr.querySelector(".arrow-cell").textContent = "▶";
       expanded = false;
       return;
     }
 
-    // Expand level
+    /* =========================
+       EXPAND
+       ========================= */
     tr.querySelector(".arrow-cell").textContent = "▼";
     expanded = true;
 
-    // Nästa nivå
+    /* =========================
+       CONTINENT → COUNTRY
+       ========================= */
     if (level === "continent") {
-      const byCountry = groupBy(items, s => s.country || "Unknown");
+      const byCountry = groupBy(items, (s) => s.country || "Unknown");
+
       Object.entries(byCountry).forEach(([country, countryStores]) => {
         const sub = makeExpandableRow(country, countryStores, "country");
         subRows.push(sub);
         tr.parentNode.insertBefore(sub, tr.nextSibling);
       });
+    }
 
-    } else if (level === "country") {
-      const byCity = groupBy(items, s => s.city || "Unknown");
+    /* =========================
+       COUNTRY → CITY
+       ========================= */
+    else if (level === "country") {
+      const byCity = groupBy(items, (s) => s.city || "Unknown");
+
       Object.entries(byCity).forEach(([city, cityStores]) => {
         const sub = makeExpandableRow(city, cityStores, "city");
         subRows.push(sub);
         tr.parentNode.insertBefore(sub, tr.nextSibling);
       });
+    }
 
-    } else if (level === "city") {
-      // Visa butiker
+    /* =========================
+       CITY → STORES
+       ========================= */
+    else if (level === "city") {
       items.forEach((s) => {
         const row = document.createElement("tr");
         row.className = "store-row";
@@ -197,29 +220,74 @@ function makeExpandableRow(label, items, level) {
 
         row.innerHTML = `
           <td></td>
+
+          <!-- Continent -->
           <td>${safe(s.continent)}</td>
+
+          <!-- Country + flag -->
           <td>
-            ${flagURL(s.country, s.country_iso2)
-              ? `<img src="${flagURL(s.country, s.country_iso2)}" class="flag">`
-              : ""}
+            ${
+              flagURL(s.country, s.country_iso2)
+                ? `<img src="${flagURL(
+                    s.country,
+                    s.country_iso2
+                  )}" class="flag">`
+                : ""
+            }
             ${safe(s.country)}
           </td>
-          <td>${safe(s.city)}</td>
+
+          <!-- State -->
+          <td>${safe(s.state) || "—"}</td>
+
+          <!-- City -->
+          <td>${safe(s.city) || "—"}</td>
+
+          <!-- Name -->
           <td>${safe(s.name)}</td>
+
+          <!-- Type -->
           <td>${safe(s.type)}</td>
+
+          <!-- Access -->
           <td>${safe(s.access) || "–"}</td>
+
+          <!-- Rating -->
           <td>${s.rating ?? "–"}</td>
+
+          <!-- Status -->
           <td>
-            ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
-            ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
-            ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
-            ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
+            ${s.approved ? `<span class="badge green">APPROVED</span>` : ""}
+            ${s.flagged ? `<span class="badge red">FLAGGED</span>` : ""}
+            ${s.deleted ? `<span class="badge gray">DELETED</span>` : ""}
+            ${
+              !s.approved && !s.flagged && !s.deleted
+                ? `<span class="badge gold">PENDING</span>`
+                : ""
+            }
           </td>
+
+          <!-- Actions -->
           <td class="action-td">
-            <button class="btn small blue" onclick="editStore(${s.id})">Edit</button>
-            <button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
-            ${!hasPhoto ? `<button class="btn small orange" onclick="repairPhoto(${s.id}, '${(s.place_id || "").replace(/'/g, "\\'")}')">Repair</button>` : ""}
-            <button class="btn small danger" onclick="toggleDelete(${s.id})">Delete</button>
+            <button class="btn small blue" onclick="editStore(${s.id})">
+              Edit
+            </button>
+            <button class="btn small green" onclick="approveStore(${s.id})">
+              Approve
+            </button>
+            ${
+              !hasPhoto
+                ? `<button class="btn small orange"
+                     onclick="repairPhoto(${s.id}, '${(
+                    s.place_id || ""
+                  ).replace(/'/g, "\\'")}')">
+                     Repair
+                   </button>`
+                : ""
+            }
+            <button class="btn small danger" onclick="toggleDelete(${s.id})">
+              Delete
+            </button>
           </td>
         `;
 
@@ -231,6 +299,7 @@ function makeExpandableRow(label, items, level) {
 
   return tr;
 }
+
 
 
 /* ========================= FLAGS =========================
