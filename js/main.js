@@ -1,14 +1,15 @@
 // ============================================================
-// MAIN.JS — WCL Frontend (Auth-first, Stable Sidebar & Search)
+// MAIN.JS — WCL Frontend
+// AUTH-FIRST · STABLE · SINGLE SEARCH PIPELINE
 // ============================================================
 
-// ----- Global selectors -----
+// ----- Global helpers -----
 window.qs  = (sel) => document.querySelector(sel);
 window.qsa = (sel) => document.querySelectorAll(sel);
 
 // ----- Imports -----
 import { supabase } from "./globals.js";
-import { loadStores, resetToHero } from "./cards.js";
+import { resetToHero } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import "./start.js"; // age gate + online tracker
 
@@ -18,6 +19,8 @@ import "./start.js"; // age gate + online tracker
 // ============================================================
 function showLoginPopup() {
   const popup = qs("#loginPopup");
+  if (!popup) return;
+
   popup.classList.remove("hidden");
 
   const email    = qs("#loginEmail");
@@ -25,11 +28,12 @@ function showLoginPopup() {
   const remember = qs("#rememberMe");
   const btn      = qs("#loginSubmit");
   const spinner  = qs("#loginSpinner");
+  const label    = qs(".login-text");
 
   setTimeout(() => email?.focus(), 80);
 
   const saved = localStorage.getItem("wcl_saved_email");
-  if (saved) {
+  if (saved && email && remember) {
     email.value = saved;
     remember.checked = true;
   }
@@ -43,8 +47,8 @@ function showLoginPopup() {
     else localStorage.removeItem("wcl_saved_email");
 
     btn.disabled = true;
-    spinner.classList.remove("hidden");
-    qs(".login-text").textContent = "Logging in…";
+    spinner?.classList.remove("hidden");
+    label && (label.textContent = "Logging in…");
 
     const { error } = await supabase.auth.signInWithPassword({
       email: e,
@@ -54,8 +58,8 @@ function showLoginPopup() {
     if (error) {
       alert("Login failed: " + error.message);
       btn.disabled = false;
-      spinner.classList.add("hidden");
-      qs(".login-text").textContent = "Login";
+      spinner?.classList.add("hidden");
+      label && (label.textContent = "Login");
       return;
     }
 
@@ -79,64 +83,15 @@ function setupLogout() {
 
 
 // ============================================================
-// SIDEBAR STATE (restore open continent)
+// SIDEBAR INIT — BUILD ONCE (AFTER AUTH)
 // ============================================================
-function restoreMenuState() {
-  const open = localStorage.getItem("wclMenuOpen");
-  if (!open) return;
-
-  const el = document.querySelector(`[data-continent="${open}"]`);
-  if (el) el.classList.add("open");
-}
-
-
-// ============================================================
-// SIDEBAR INIT (build once, after auth)
-// ============================================================
-let SIDEBAR_BUILT = false;
+let SIDEBAR_READY = false;
 
 async function initSidebar() {
-  if (SIDEBAR_BUILT) return;
-  SIDEBAR_BUILT = true;
+  if (SIDEBAR_READY) return;
+  SIDEBAR_READY = true;
 
-  await buildFrontendSidebar(supabase, loadStores);
-
-  // persist open continent
-  document.querySelectorAll("[data-continent]").forEach((el) => {
-    el.addEventListener("click", () => {
-      localStorage.setItem("wclMenuOpen", el.dataset.continent);
-    });
-  });
-
-  restoreMenuState();
-}
-
-
-// ============================================================
-// SEARCH — STABLE MODE (NO LIVE SPAM)
-// ============================================================
-function setupSearch() {
-  const input = qs("#searchInput");
-  const searchBtn = qs("#searchBtn");
-  const clearBtn = qs("#clearBtn");
-
-  if (!input || !searchBtn || !clearBtn) return;
-
-  const runSearch = () => {
-    const q = input.value.trim();
-    loadStores({}, q);
-  };
-
-  searchBtn.onclick = runSearch;
-
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") runSearch();
-  });
-
-  clearBtn.onclick = () => {
-    input.value = "";
-    resetToHero();
-  };
+  await buildFrontendSidebar(supabase);
 }
 
 
@@ -148,12 +103,12 @@ async function guard() {
   const container = qs(".container");
 
   if (!session) {
-    container.style.display = "none";
+    container?.style.setProperty("display", "none");
     showLoginPopup();
     return;
   }
 
-  container.style.removeProperty("display");
+  container?.style.removeProperty("display");
 
   // ✅ correct order
   await initSidebar();
@@ -162,11 +117,10 @@ async function guard() {
 
 
 // ============================================================
-// BOOT SEQUENCE
+// BOOT
 // ============================================================
 document.addEventListener("DOMContentLoaded", () => {
   setupLogout();
-  setupSearch();
   guard();
 });
 
