@@ -10,3 +10,26 @@ export const supabase = window.supabase?.createClient(
 
 // Quick selector
 export const qs = (id) => document.getElementById(id);
+
+// ============================================================
+// IMAGE RESOLVER — SINGLE SOURCE OF TRUTH
+// ============================================================
+
+export const FALLBACK_IMAGE = "images/store.jpg";
+
+export function resolveStoreImage(store) {
+  // 1️⃣ Manuell / CDN-bild (HELIG – får aldrig skrivas över)
+  if (store?.photo_cdn_url) {
+    return store.photo_cdn_url;
+  }
+
+  // 2️⃣ Google Places via photo-proxy
+  if (store?.photo_reference) {
+    return `${supabase.functions.url}/photo-proxy?photo_reference=${encodeURIComponent(
+      store.photo_reference
+    )}&maxwidth=800`;
+  }
+
+  // 3️⃣ Fallback
+  return FALLBACK_IMAGE;
+}
