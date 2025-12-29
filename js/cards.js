@@ -86,13 +86,17 @@ function getPhotoUrl(store) {
     photo_cdn_url: store.photo_cdn_url,
   });
 
-  // 1️⃣ CDN (snabbast)
-  if (store.photo_cdn_url) return store.photo_cdn_url;
+  // 1️⃣ Helig: manuellt satt CDN-bild
+  if (store.photo_cdn_url) {
+    return store.photo_cdn_url;
+  }
 
-  // 2️⃣ Direkt URL
-  if (store.photo_url) return store.photo_url;
+  // 2️⃣ Äldre direkt-URL (om den finns kvar i DB)
+  if (store.photo_url) {
+    return store.photo_url;
+  }
 
-  // 3️⃣ Google Places → proxy
+  // 3️⃣ Google Places via proxy (som FÖRR)
   if (store.photo_reference) {
     return `${supabase.functions.url}/photo-proxy?photo_reference=${encodeURIComponent(
       store.photo_reference
