@@ -1,220 +1,175 @@
 // ============================================================
-// SIDEBAR.JS — WCL Premium Hierarchy Navigation (USA = State level)
-// STABLE VERSION — safe with live-search + debounce
+// MAIN.JS — WCL Frontend (Auth-first, Stable Sidebar & Search)
 // ============================================================
 
-import { setLocationFilter, runSearch } from "./cards.js";
+// ----- Global selectors -----
+window.qs  = (sel) => document.querySelector(sel);
+window.qsa = (sel) => document.querySelectorAll(sel);
 
-const dom = (sel) => document.querySelector(sel);
-const menu = dom("#sidebarMenu");
+// ----- Imports -----
+import { supabase } from "./globals.js";
+import { loadStores, resetToHero } from "./cards.js";
+import { buildFrontendSidebar } from "./sidebar.js";
+import "./start.js"; // age gate + online tracker
 
-/* ============================================================
-   INTERNAL GUARD — prevent duplicate / empty searches
-   ============================================================ */
-let LAST_LOCATION = {
-  continent: null,
-  country: null,
-  state: null,
-  city: null,
-};
 
-function isSameLocation(next) {
-  return (
-    LAST_LOCATION.continent === (next.continent ?? null) &&
-    LAST_LOCATION.country === (next.country ?? null) &&
-    LAST_LOCATION.state === (next.state ?? null) &&
-    LAST_LOCATION.city === (next.city ?? null)
-  );
+// ============================================================
+// LOGIN POPUP
+// ============================================================
+function showLoginPopup() {
+  const popup = qs("#loginPopup");
+  popup.classList.remove("hidden");
+
+  const email    = qs("#loginEmail");
+  const pass     = qs("#loginPassword");
+  const remember = qs("#rememberMe");
+  const btn      = qs("#loginSubmit");
+  const spinner  = qs("#loginSpinner");
+
+  setTimeout(() => email?.focus(), 80);
+
+  const saved = localStorage.getItem("wcl_saved_email");
+  if (saved) {
+    email.value = saved;
+    remember.checked = true;
+  }
+
+  btn.onclick = async () => {
+    const e = email.value.trim();
+    const p = pass.value.trim();
+    if (!e || !p) return alert("Please fill in all fields.");
+
+    if (remember.checked) localStorage.setItem("wcl_saved_email", e);
+    else localStorage.removeItem("wcl_saved_email");
+
+    btn.disabled = true;
+    spinner.classList.remove("hidden");
+    qs(".login-text").textContent = "Logging in…";
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: e,
+      password: p,
+    });
+
+    if (error) {
+      alert("Login failed: " + error.message);
+      btn.disabled = false;
+      spinner.classList.add("hidden");
+      qs(".login-text").textContent = "Login";
+      return;
+    }
+
+    location.reload();
+  };
 }
 
-function applyLocation(next) {
-  if (isSameLocation(next)) return; // 🔒 STOP duplicates
 
-  LAST_LOCATION = {
-    continent: next.continent ?? null,
-    country: next.country ?? null,
-    state: next.state ?? null,
-    city: next.city ?? null,
+// ============================================================
+// LOGOUT
+// ============================================================
+function setupLogout() {
+  const logout = qs("#logoutBtn");
+  if (!logout) return;
+
+  logout.onclick = async () => {
+    await supabase.auth.signOut();
+    location.reload();
+  };
+}
+
+
+// ============================================================
+// SIDEBAR STATE (restore open continent)
+// ============================================================
+function restoreMenuState() {
+  const open = localStorage.getItem("wclMenuOpen");
+  if (!open) return;
+
+  const el = document.querySelector(`[data-continent="${open}"]`);
+  if (el) el.classList.add("open");
+}
+
+
+// ============================================================
+// SIDEBAR INIT (build once, after auth)
+// ============================================================
+let SIDEBAR_BUILT = false;
+
+async function initSidebar() {
+  if (SIDEBAR_BUILT) return;
+  SIDEBAR_BUILT = true;
+
+  await buildFrontendSidebar(supabase, loadStores);
+
+  // persist open continent
+  document.querySelectorAll("[data-continent]").forEach((el) => {
+    el.addEventListener("click", () => {
+      localStorage.setItem("wclMenuOpen", el.dataset.continent);
+    });
+  });
+
+  restoreMenuState();
+}
+
+
+// ============================================================
+// SEARCH — STABLE MODE (NO LIVE SPAM)
+// ============================================================
+function setupSearch() {
+  const input = qs("#searchInput");
+  const searchBtn = qs("#searchBtn");
+  const clearBtn = qs("#clearBtn");
+
+  if (!input || !searchBtn || !clearBtn) return;
+
+  const runSearch = () => {
+    const q = input.value.trim();
+    loadStores({}, q);
   };
 
-  setLocationFilter(LAST_LOCATION);
-  runSearch();
+  searchBtn.onclick = runSearch;
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") runSearch();
+  });
+
+  clearBtn.onclick = () => {
+    input.value = "";
+    resetToHero();
+  };
 }
 
-/* ============================================================
-   BUILD SIDEBAR HIERARCHY (DEDUPED, USA HAS STATE LEVEL)
-   ============================================================ */
-export async function buildFrontendSidebar(supabase) {
-  if (!menu) return;
-  menu.innerHTML = "Loading…";
 
-  const { data, error } = await supabase
-    .from("stores_frontend_public_v4")
-    .select("id, continent, country, state, city")
-    .order("continent")
-    .order("country")
-    .order("state")
-    .order("city");
+// ============================================================
+// AUTH GUARD — SINGLE SOURCE OF TRUTH
+// ============================================================
+async function guard() {
+  const { data: { session } } = await supabase.auth.getSession();
+  const container = qs(".container");
 
-  if (error) {
-    console.error(error);
-    menu.innerHTML = "Failed to load menu.";
+  if (!session) {
+    container.style.display = "none";
+    showLoginPopup();
     return;
   }
 
-  // ============================================================
-  // DEDUP — one store = one count
-  // ============================================================
-  const uniqueStores = Array.from(
-    new Map((data || []).map((s) => [s.id, s])).values()
-  );
+  container.style.removeProperty("display");
 
-  // ============================================================
-  // BUILD TREE
-  // ============================================================
-  const tree = {};
-
-  uniqueStores.forEach(({ continent, country, state, city }) => {
-    if (!continent || !country) return;
-
-    if (!tree[continent]) tree[continent] = {};
-    if (!tree[continent][country]) tree[continent][country] = {};
-
-    // 🇺🇸 USA → state → city
-    if (country === "United States") {
-      const st = state || "Unknown";
-      if (!tree[continent][country][st]) {
-        tree[continent][country][st] = {};
-      }
-      if (city) {
-        tree[continent][country][st][city] =
-          (tree[continent][country][st][city] || 0) + 1;
-      }
-    }
-    // 🌍 Other countries → city
-    else {
-      if (city) {
-        tree[continent][country][city] =
-          (tree[continent][country][city] || 0) + 1;
-      }
-    }
-  });
-
-  // ============================================================
-  // RENDER
-  // ============================================================
-  menu.innerHTML = "";
-
-  Object.entries(tree).forEach(([continent, countries]) => {
-    const contLine = createLine("continent", continent, countTotal(countries));
-    const contNested = createNested();
-
-    menu.append(contLine, contNested);
-
-    contLine.addEventListener("click", () => {
-      toggle(contLine, contNested, ".continent");
-      applyLocation({ continent, country: null, state: null, city: null });
-    });
-
-    Object.entries(countries).forEach(([country, node]) => {
-      const countryLine = createLine("country", country, countTotal(node));
-      const countryNested = createNested();
-
-      contNested.append(countryLine, countryNested);
-
-      countryLine.addEventListener("click", (e) => {
-        e.stopPropagation();
-        toggle(countryLine, countryNested, ".country");
-        applyLocation({ continent, country, state: null, city: null });
-      });
-
-      // 🇺🇸 USA → STATE LEVEL
-      if (country === "United States") {
-        Object.entries(node).forEach(([state, cities]) => {
-          const stateLine = createLine("state", state, countTotal(cities));
-          const stateNested = createNested();
-
-          countryNested.append(stateLine, stateNested);
-
-          stateLine.addEventListener("click", (e) => {
-            e.stopPropagation();
-            toggle(stateLine, stateNested, ".state");
-            applyLocation({ continent, country, state, city: null });
-          });
-
-          Object.entries(cities).forEach(([city, count]) => {
-            const cityLine = createLine("city", city, count);
-            stateNested.append(cityLine);
-
-            cityLine.addEventListener("click", (e) => {
-              e.stopPropagation();
-              applyLocation({ continent, country, state, city });
-            });
-          });
-        });
-      }
-      // 🌍 OTHER COUNTRIES → CITY
-      else {
-        Object.entries(node).forEach(([city, count]) => {
-          const cityLine = createLine("city", city, count);
-          countryNested.append(cityLine);
-
-          cityLine.addEventListener("click", (e) => {
-            e.stopPropagation();
-            applyLocation({ continent, country, state: null, city });
-          });
-        });
-      }
-    });
-  });
+  // ✅ correct order
+  await initSidebar();
+  resetToHero();
 }
 
-/* ============================================================
-   HELPERS
-   ============================================================ */
-function countTotal(obj) {
-  return Object.values(obj).reduce((sum, val) => {
-    if (typeof val === "number") return sum + val;
-    if (typeof val === "object") return sum + countTotal(val);
-    return sum;
-  }, 0);
-}
 
-function createLine(type, label, count) {
-  const el = document.createElement("div");
-  el.className = `line ${type}`;
-  el.innerHTML = `
-    <span class="label">${label}</span>
-    <span class="pill">${count}</span>
-    ${type !== "city" ? `<span class="arrow">›</span>` : ""}
-  `;
-  return el;
-}
+// ============================================================
+// BOOT SEQUENCE
+// ============================================================
+document.addEventListener("DOMContentLoaded", () => {
+  setupLogout();
+  setupSearch();
+  guard();
+});
 
-function createNested() {
-  const el = document.createElement("div");
-  el.className = "nested";
-  return el;
-}
-
-/* ============================================================
-   TOGGLE SYSTEM — one open per level
-   ============================================================ */
-function toggle(clickedItem, clickedNested, selector) {
-  const allItems = document.querySelectorAll(selector);
-  const allNesteds = [...allItems].map((i) => i.nextElementSibling);
-
-  allItems.forEach((item, i) => {
-    const nest = allNesteds[i];
-    if (!nest) return;
-
-    if (item === clickedItem) {
-      const isOpen = item.classList.contains("open");
-      item.classList.toggle("open", !isOpen);
-      nest.classList.toggle("show", !isOpen);
-    } else {
-      item.classList.remove("open");
-      nest.classList.remove("show");
-    }
-  });
-}
+supabase.auth.onAuthStateChange(() => {
+  guard();
+});
