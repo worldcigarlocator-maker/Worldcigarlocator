@@ -1,5 +1,6 @@
 // ============================================================
 // CARDS.JS — WCL FRONTEND (STABLE + LIVE SEARCH + FILTER CHIPS)
+// Single pipeline: FILTER_STATE -> runSearch() -> fetch -> frontend filter -> render
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -8,14 +9,17 @@ import { supabase } from "./globals.js";
 // CONFIG
 // ============================================================
 const FALLBACK_IMAGE = "images/store.jpg";
-
-// Helper selectors
 const dom = (sel) => document.querySelector(sel);
 
-// Cancel-token for safe loading
-let ACTIVE_REQUEST = 0;
+// ============================================================
+// RACE / REQUEST CONTROL (prevents "locks" + wrong "not found")
+// ============================================================
+let RUN_SEQ = 0;           // increases for every runSearch call
+let ACTIVE_REQUEST = 0;    // increases for every backend fetch
 
-// Track DOM ready
+// ============================================================
+// DOM READY
+// ============================================================
 let DOM_READY = false;
 document.addEventListener("DOMContentLoaded", () => {
   DOM_READY = true;
@@ -27,14 +31,18 @@ document.addEventListener("DOMContentLoaded", () => {
 // GLOBAL FILTER STATE — SINGLE SOURCE OF TRUTH
 // ============================================================
 const FILTER_STATE = {
+  // location (from sidebar)
   continent: null,
   country: null,
+  state: null,
   city: null,
+
   // free text (after token parsing)
   search: "",
+
   // chips
-  type: null,   // "store" | "lounge" | null
-  access: null, // "public" | "members" | null
+  type: null,    // "store" | "lounge" | null
+  access: null,  // "public" | "members" | null
 };
 
 // ============================================================
@@ -51,12 +59,12 @@ function getFlagUrl(store) {
 // ============================================================
 function buildBadges(store) {
   const badges = [];
-  const arr = Array.isArray(store.types) ? store.types.map((t) => t.toLowerCase()) : [];
+  const arr = Array.isArray(store.types) ? store.types.map((t) => String(t).toLowerCase()) : [];
 
   if (arr.includes("store"))  badges.push(`<span class="badge badge-store">Store</span>`);
   if (arr.includes("lounge")) badges.push(`<span class="badge badge-lounge">Lounge</span>`);
 
-  const A = (store.access || "").trim().toLowerCase();
+  const A = String(store.access || "").trim().toLowerCase();
   if (A === "public") {
     badges.push(`<span class="badge badge-access badge-access-public">PUBLIC</span>`);
   } else if (A) {
@@ -163,6 +171,9 @@ function parseSearchTokens(raw) {
   return { text: keep.join(" ").trim(), type, access };
 }
 
+// ============================================================
+// CHIP UI
+// ============================================================
 function updateChipUI() {
   const box = dom("#searchFilters");
   if (!box) return;
@@ -184,6 +195,25 @@ function updateChipUI() {
 // ============================================================
 let SEARCH_TIMER = null;
 
+function cancelDebounce() {
+  if (SEARCH_TIMER) {
+    clearTimeout(SEARCH_TIMER);
+    SEARCH_TIMER = null;
+  }
+}
+
+function hasAnyFilterActive() {
+  return !!(
+    FILTER_STATE.search ||
+    FILTER_STATE.type ||
+    FILTER_STATE.access ||
+    FILTER_STATE.continent ||
+    FILTER_STATE.country ||
+    FILTER_STATE.state ||
+    FILTER_STATE.city
+  );
+}
+
 function initLiveSearchAndFilters() {
   const input = dom("#searchInput");
   const searchBtn = dom("#searchBtn");
@@ -195,38 +225,43 @@ function initLiveSearchAndFilters() {
     const btn = e.target.closest(".chip");
     if (!btn) return;
 
-    const filter = btn.dataset.filter;   // "type" | "access"
-    const value = btn.dataset.value;     // "store"/"lounge"/"public"/"members"
+    cancelDebounce();
+
+    const filter = btn.dataset.filter; // "type" | "access"
+    const value = btn.dataset.value;   // "store"/"lounge"/"public"/"members"
 
     if (filter === "type") {
       FILTER_STATE.type = (FILTER_STATE.type === value) ? null : value;
-    }
-    if (filter === "access") {
+    } else if (filter === "access") {
       FILTER_STATE.access = (FILTER_STATE.access === value) ? null : value;
     }
 
     updateChipUI();
-    runSearch(); // ✅ immediate
+
+    if (!hasAnyFilterActive()) {
+      resetToHero();
+      return;
+    }
+
+    runSearch(); // ✅ immediate + safe
   });
 
   // --- live input (debounced) ---
   input?.addEventListener("input", () => {
     const raw = input.value;
 
-    // parse power tokens from input
     const parsed = parseSearchTokens(raw);
 
-    // If user typed tokens, sync them into state (but don't override chips if already set)
+    // sync tokens into state
     if (parsed.type) FILTER_STATE.type = parsed.type;
     if (parsed.access) FILTER_STATE.access = parsed.access;
 
     FILTER_STATE.search = parsed.text;
     updateChipUI();
 
-    clearTimeout(SEARCH_TIMER);
+    cancelDebounce();
     SEARCH_TIMER = setTimeout(() => {
-      // if nothing selected and no text -> show hero
-      if (!FILTER_STATE.search && !FILTER_STATE.continent && !FILTER_STATE.country && !FILTER_STATE.city) {
+      if (!hasAnyFilterActive()) {
         resetToHero();
         return;
       }
@@ -234,9 +269,11 @@ function initLiveSearchAndFilters() {
     }, 350);
   });
 
-  // --- explicit search button / Enter (instant, no debounce) ---
+  // --- explicit search button / Enter (instant) ---
   const triggerInstant = () => {
     if (!input) return;
+
+    cancelDebounce();
 
     const parsed = parseSearchTokens(input.value);
     if (parsed.type) FILTER_STATE.type = parsed.type;
@@ -245,7 +282,7 @@ function initLiveSearchAndFilters() {
     FILTER_STATE.search = parsed.text;
     updateChipUI();
 
-    if (!FILTER_STATE.search && !FILTER_STATE.continent && !FILTER_STATE.country && !FILTER_STATE.city) {
+    if (!hasAnyFilterActive()) {
       resetToHero();
       return;
     }
@@ -253,20 +290,33 @@ function initLiveSearchAndFilters() {
     runSearch();
   };
 
-  searchBtn && (searchBtn.onclick = triggerInstant);
+  if (searchBtn) searchBtn.onclick = triggerInstant;
+
   input?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") triggerInstant();
   });
 
-  // --- clear ---
-  clearBtn && (clearBtn.onclick = () => {
-    if (input) input.value = "";
-    FILTER_STATE.search = "";
-    FILTER_STATE.type = null;
-    FILTER_STATE.access = null;
-    updateChipUI();
-    resetToHero();
-  });
+  // --- clear (clears search+chips, keeps sidebar location) ---
+  if (clearBtn) {
+    clearBtn.onclick = () => {
+      cancelDebounce();
+
+      if (input) input.value = "";
+
+      FILTER_STATE.search = "";
+      FILTER_STATE.type = null;
+      FILTER_STATE.access = null;
+
+      updateChipUI();
+
+      // if location is selected -> show that location (not hero)
+      if (FILTER_STATE.continent || FILTER_STATE.country || FILTER_STATE.state || FILTER_STATE.city) {
+        runSearch();
+      } else {
+        resetToHero();
+      }
+    };
+  }
 
   updateChipUI();
 }
@@ -275,14 +325,13 @@ function initLiveSearchAndFilters() {
 // PUBLIC API FOR SIDEBAR (location filters)
 // ============================================================
 export function setLocationFilter(next) {
-  CURRENT_FILTERS = {
-    continent: next.continent ?? null,
-    country: next.country ?? null,
-    state: next.state ?? null,
-    city: next.city ?? null,
-  };
-}
+  cancelDebounce();
 
+  FILTER_STATE.continent = next?.continent ?? null;
+  FILTER_STATE.country = next?.country ?? null;
+  FILTER_STATE.state = next?.state ?? null;
+  FILTER_STATE.city = next?.city ?? null;
+}
 
 // ============================================================
 // CARD HTML
@@ -341,11 +390,16 @@ function renderCards(list) {
   const grid = dom("#storeGrid");
   if (!grid) return;
 
-  grid.innerHTML = list.map(cardHTML).join("");
+  grid.innerHTML = (list || []).map(cardHTML).join("");
 
   grid.querySelectorAll(".store-card").forEach((c) => {
     c.addEventListener("click", () => openModal(c.dataset.id));
   });
+}
+
+// Backwards compat (if something imports renderStores)
+export function renderStores(list) {
+  renderCards(list);
 }
 
 // ============================================================
@@ -363,9 +417,11 @@ function matchesText(store, text) {
   const hay = [
     store.name,
     store.city,
+    store.state,
     store.country,
     store.continent,
     store.address,
+    store.website,
   ].map(normalize).join(" | ");
 
   return hay.includes(q);
@@ -382,33 +438,67 @@ function matchesAccess(store, access) {
   return normalize(store.access) === access;
 }
 
-function applyFrontendFilters(rows) {
+function applyFrontendFilters(rows, snapshot) {
   return (rows || []).filter((s) => {
     return (
-      matchesText(s, FILTER_STATE.search) &&
-      matchesType(s, FILTER_STATE.type) &&
-      matchesAccess(s, FILTER_STATE.access)
+      matchesText(s, snapshot.search) &&
+      matchesType(s, snapshot.type) &&
+      matchesAccess(s, snapshot.access)
     );
   });
+}
+
+// ============================================================
+// LOAD STORES (RPC) — PURE FETCH (no DOM writes)
+// ============================================================
+export async function loadStores(filters = {}, search = null) {
+  if (!DOM_READY) {
+    await new Promise((res) => document.addEventListener("DOMContentLoaded", res, { once: true }));
+  }
+
+  ACTIVE_REQUEST++;
+  const reqId = ACTIVE_REQUEST;
+
+  const { data, error } = await supabase.rpc("search_stores_v1", {
+    p_q: search || null,
+    p_continent: filters?.continent || null,
+    p_country: filters?.country || null,
+    p_state: filters?.state || null,
+    p_city: filters?.city || null,
+  });
+
+  // if a newer fetch started, ignore this one
+  if (reqId !== ACTIVE_REQUEST) return null;
+
+  if (error) {
+    console.error(error);
+    return { error };
+  }
+
+  return { data: data || [] };
 }
 
 // ============================================================
 // RUN SEARCH (single entry point)
 // ============================================================
 export async function runSearch() {
-  // fetch by location from backend, then filter locally by q/type/access
-  const rows = await loadStores(
-    {
-      continent: FILTER_STATE.continent,
-      country: FILTER_STATE.country,
-      city: FILTER_STATE.city,
-    },
-    null // IMPORTANT: we do frontend text match for "superpower" now
-  );
+  if (!DOM_READY) {
+    await new Promise((res) => document.addEventListener("DOMContentLoaded", res, { once: true }));
+  }
 
-  if (!rows) return;
+  RUN_SEQ++;
+  const runId = RUN_SEQ;
 
-  const filtered = applyFrontendFilters(rows);
+  // snapshot to prevent "state drift" while awaiting
+  const snapshot = {
+    continent: FILTER_STATE.continent,
+    country: FILTER_STATE.country,
+    state: FILTER_STATE.state,
+    city: FILTER_STATE.city,
+    search: FILTER_STATE.search,
+    type: FILTER_STATE.type,
+    access: FILTER_STATE.access,
+  };
 
   const heading = dom("#resultHeading");
   const heroImage = dom("#heroImage");
@@ -416,6 +506,31 @@ export async function runSearch() {
 
   heroImage && (heroImage.style.display = "none");
   heroText && (heroText.style.display = "none");
+
+  heading && (heading.textContent = "Loading…", heading.style.display = "block");
+  renderCards([]); // clear grid while loading
+
+  const resp = await loadStores(
+    {
+      continent: snapshot.continent,
+      country: snapshot.country,
+      state: snapshot.state,
+      city: snapshot.city,
+    },
+    null // IMPORTANT: we do frontend text match for "superpower"
+  );
+
+  // if a newer runSearch started, stop here
+  if (runId !== RUN_SEQ) return;
+
+  if (!resp) return; // canceled request
+  if (resp.error) {
+    heading && (heading.textContent = "Error loading locations.", heading.style.display = "block");
+    return;
+  }
+
+  const rows = resp.data || [];
+  const filtered = applyFrontendFilters(rows, snapshot);
 
   if (!filtered.length) {
     heading && (heading.textContent = "No results found.", heading.style.display = "block");
@@ -425,50 +540,6 @@ export async function runSearch() {
 
   renderCards(filtered);
   heading && (heading.textContent = `${filtered.length} results`, heading.style.display = "block");
-}
-
-// ============================================================
-// LOAD STORES (RPC) — returns rows (no rendering here)
-// ============================================================
-export async function loadStores(filters = {}, search = null) {
-  if (!DOM_READY) {
-    document.addEventListener("DOMContentLoaded", () => loadStores(filters, search), { once: true });
-    return null;
-  }
-
-  ACTIVE_REQUEST++;
-  const reqId = ACTIVE_REQUEST;
-
-  const grid = dom("#storeGrid");
-  const heading = dom("#resultHeading");
-  const heroImage = dom("#heroImage");
-  const heroText = dom("#heroText");
-
-  heroImage && (heroImage.style.display = "none");
-  heroText && (heroText.style.display = "none");
-
-  heading && (heading.textContent = "Loading…", heading.style.display = "block");
-  grid && (grid.innerHTML = "");
-
-const { data, error } = await supabase.rpc("search_stores_v1", {
-  p_q: search || null,
-  p_continent: filters?.continent || null,
-  p_country: filters?.country || null,
-  p_state: filters?.state || null,   // ✅ VIKTIG RAD
-  p_city: filters?.city || null,
-});
-
-
-
-  if (reqId !== ACTIVE_REQUEST) return null;
-
-  if (error) {
-    console.error(error);
-    heading && (heading.textContent = "Error loading locations.", heading.style.display = "block");
-    return null;
-  }
-
-  return data || [];
 }
 
 // ============================================================
