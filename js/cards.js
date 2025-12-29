@@ -447,11 +447,13 @@ export async function loadStores(filters = {}, search = null) {
   grid && (grid.innerHTML = "");
 
 const { data, error } = await supabase.rpc("search_stores_v1", {
-  p_q: search,
+  p_q: search || null,
   p_continent: filters?.continent || null,
   p_country: filters?.country || null,
+  p_state: filters?.state || null,   // ✅ VIKTIG RAD
   p_city: filters?.city || null,
 });
+
 
 
   if (reqId !== ACTIVE_REQUEST) return null;
