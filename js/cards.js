@@ -3,7 +3,8 @@
 // Single pipeline: FILTER_STATE -> runSearch() -> fetch -> frontend filter -> render
 // ============================================================
 
-import { supabase } from "./globals.js";
+import { supabase, resolveStoreImage } from "./globals.js";
+
 
 // ============================================================
 // CONFIG
