@@ -158,17 +158,22 @@ function toastShared(msg, type = "info") {
    ✅ EXPORTS (alla funktioner till WCL)
    ========================================================== */
 Object.assign(window.WCL, {
-  supabase,
+  supabase: supabaseClient,
+
   GOOGLE_BROWSER_KEY,
   PHOTO_PROXY_URL,
   PHOTO_REFS_URL,
+
   GITHUB_STORE_FALLBACK,
   GITHUB_LOUNGE_FALLBACK,
+
   buildProxyUrl,
   fallbackForType,
   fetchPhotoRefs,
   loadProxyPhotoInto,
+
   countryToContinent,
   ratingToStars,
   toastShared
 });
+
