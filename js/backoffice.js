@@ -583,10 +583,6 @@ if (countsError) {
   };
 }
 
-
-  const allData = allResp.data || [];
-  ALL_STORES = allData;
-
   /* =========================
      2) Bas-query (stores)
      ========================= */
