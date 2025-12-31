@@ -665,8 +665,8 @@ if (countsError) {
   /* =========================
      4) Render + counts
      ========================= */
-  render();
-  updateRegionCounts;
+render();
+updateRegionCounts();
 
   /* =========================
      Återställ scroll-position
