@@ -491,24 +491,28 @@ function countryToFlag(country) {
 }
 
 /* ============================================================
-   REGION COUNTS — 
+   REGION COUNTS — använder RPC (ingen 1000-limit)
    ============================================================ */
 function updateRegionCounts() {
-  const c = window.STORE_COUNTS || {};
+  const c = window.STORE_COUNTS;
+  if (!c) {
+    console.warn("⚠️ STORE_COUNTS saknas");
+    return;
+  }
 
-  const TAB_TO_KEY = {
-    all: "total",
-    approved: "approved",
-    pending: "pending",
-    flagged: "flagged",
-    trash: "deleted",   // om din tab heter Trash
-    deleted: "deleted", // om den heter deleted
-    repair: "repair",
+  const counts = {
+    all: c.all_count,
+    approved: c.approved_count,
+    pending: c.pending_count,
+    flagged: c.flagged_count,
+    deleted: c.deleted_count,
+    repair: c.repair_count,
   };
 
   $$(".filters .pill").forEach(p => {
     const tab = p.dataset.tab;
-    const key = TAB_TO_KEY[tab];
+    const n = counts[tab];
+    if (n === undefined) return;
 
     let badge = p.querySelector(".badge-count");
     if (!badge) {
@@ -519,9 +523,10 @@ function updateRegionCounts() {
       badge.style.opacity = "0.7";
       p.appendChild(badge);
     }
-
-    badge.textContent = `(${key && c[key] != null ? c[key] : 0})`;
+    badge.textContent = `(${n})`;
   });
+
+  console.log("🔢 Region counts (RPC):", counts);
 }
 
 /* ============================================================
@@ -661,7 +666,7 @@ if (countsError) {
      4) Render + counts
      ========================= */
   render();
-  updateRegionCounts(allData);
+  updateRegionCounts;
 
   /* =========================
      Återställ scroll-position
