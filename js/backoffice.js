@@ -491,14 +491,24 @@ function countryToFlag(country) {
 }
 
 /* ============================================================
-   REGION COUNTS — DB som sanning
+   REGION COUNTS — 
    ============================================================ */
 function updateRegionCounts() {
   const c = window.STORE_COUNTS || {};
 
+  const TAB_TO_KEY = {
+    all: "total",
+    approved: "approved",
+    pending: "pending",
+    flagged: "flagged",
+    trash: "deleted",   // om din tab heter Trash
+    deleted: "deleted", // om den heter deleted
+    repair: "repair",
+  };
+
   $$(".filters .pill").forEach(p => {
     const tab = p.dataset.tab;
-    if (!(tab in c)) return;
+    const key = TAB_TO_KEY[tab];
 
     let badge = p.querySelector(".badge-count");
     if (!badge) {
@@ -510,10 +520,8 @@ function updateRegionCounts() {
       p.appendChild(badge);
     }
 
-    badge.textContent = `(${c[tab] ?? 0})`;
+    badge.textContent = `(${key && c[key] != null ? c[key] : 0})`;
   });
-
-  console.log("🔢 STORE COUNTS:", c);
 }
 
 /* ============================================================
