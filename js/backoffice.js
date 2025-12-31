@@ -576,9 +576,19 @@ async function reloadData(tab = CURRENT_TAB) {
   /* =========================
      1) Hämta ALLA för counts
      ========================= */
-  const allResp = await WCL.supabase
-    .from("stores")
-    .select("id,approved,flagged,deleted,photo_reference");
+const allResp = await WCL.supabase
+  .from("stores")
+  .select(`
+    id,
+    approved,
+    flagged,
+    deleted,
+    photo_reference,
+    status,
+    types,
+    type
+  `);
+
 
   const allData = allResp.data || [];
   ALL_STORES = allData;
