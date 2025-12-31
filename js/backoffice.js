@@ -490,11 +490,12 @@ function countryToFlag(country) {
   return String.fromCodePoint(...[...code].map(ch => 0x1F1E6 - 65 + ch.charCodeAt(0))) || "🏳️";
 }
 
-
 /* ============================================================
-   REGION COUNTS — uppdaterar topbar badges
+   REGION COUNTS — GLOBALA (oberoende av vy & filter)
    ============================================================ */
-function updateRegionCounts(list = STORES) {
+function updateRegionCounts() {
+  const list = ALL_STORES || [];
+
   const counts = {
     all: list.length,
     approved: list.filter(s => s.approved && !s.deleted).length,
@@ -504,26 +505,26 @@ function updateRegionCounts(list = STORES) {
     repair: list.filter(s => !s.photo_reference && !s.deleted).length
   };
 
-  // uppdatera siffrorna i filtren (om badges finns)
   $$(".filters .pill").forEach(p => {
     const tab = p.dataset.tab;
-    const n = counts[tab];
-    if (n !== undefined) {
-      let badge = p.querySelector(".badge-count");
-      if (!badge) {
-        badge = document.createElement("span");
-        badge.className = "badge-count";
-        badge.style.marginLeft = "6px";
-        badge.style.fontSize = ".85rem";
-        badge.style.opacity = "0.7";
-        p.appendChild(badge);
-      }
-      badge.textContent = `(${n})`;
+    if (!(tab in counts)) return;
+
+    let badge = p.querySelector(".badge-count");
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.className = "badge-count";
+      badge.style.marginLeft = "6px";
+      badge.style.fontSize = ".85rem";
+      badge.style.opacity = "0.7";
+      p.appendChild(badge);
     }
+
+    badge.textContent = `(${counts[tab]})`;
   });
 
-  console.log("🔢 Region counts updated:", counts);
+  console.log("🔢 GLOBAL region counts:", counts);
 }
+
 
 /* ============================================================
    RENDER SWITCH — Cards vs List
