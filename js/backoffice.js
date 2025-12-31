@@ -491,23 +491,14 @@ function countryToFlag(country) {
 }
 
 /* ============================================================
-   REGION COUNTS — GLOBALA (oberoende av vy & filter)
+   REGION COUNTS — DB som sanning
    ============================================================ */
 function updateRegionCounts() {
-  const list = ALL_STORES || [];
-
-  const counts = {
-    all: list.length,
-    approved: list.filter(s => s.approved && !s.deleted).length,
-    pending: list.filter(s => !s.approved && !s.flagged && !s.deleted).length,
-    flagged: list.filter(s => s.flagged && !s.deleted).length,
-    deleted: list.filter(s => s.deleted).length,
-    repair: list.filter(s => !s.photo_reference && !s.deleted).length
-  };
+  const c = window.STORE_COUNTS || {};
 
   $$(".filters .pill").forEach(p => {
     const tab = p.dataset.tab;
-    if (!(tab in counts)) return;
+    if (!(tab in c)) return;
 
     let badge = p.querySelector(".badge-count");
     if (!badge) {
@@ -519,12 +510,11 @@ function updateRegionCounts() {
       p.appendChild(badge);
     }
 
-    badge.textContent = `(${counts[tab]})`;
+    badge.textContent = `(${c[tab] ?? 0})`;
   });
 
-  console.log("🔢 GLOBAL region counts:", counts);
+  console.log("🔢 STORE COUNTS:", c);
 }
-
 
 /* ============================================================
    RENDER SWITCH — Cards vs List
@@ -574,21 +564,24 @@ async function reloadData(tab = CURRENT_TAB) {
   const grid = $("#cards");
   if (grid) grid.innerHTML = "<p class='muted center'>Loading…</p>";
 
-  /* =========================
-     1) Hämta ALLA för counts
-     ========================= */
-const allResp = await WCL.supabase
-  .from("stores")
-  .select(`
-    id,
-    approved,
-    flagged,
-    deleted,
-    photo_reference,
-    status,
-    types,
-    type
-  `);
+ /* =========================
+   1) HÄMTA COUNTS (utan 1000-limit)
+   ========================= */
+const { data: countsData, error: countsError } = await WCL.supabase
+  .rpc("stores_counts");
+
+if (countsError) {
+  console.error("❌ Count RPC error:", countsError);
+} else {
+  window.STORE_COUNTS = countsData?.[0] || {
+    all: 0,
+    approved: 0,
+    pending: 0,
+    flagged: 0,
+    deleted: 0,
+    repair: 0,
+  };
+}
 
 
   const allData = allResp.data || [];
