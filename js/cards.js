@@ -49,15 +49,7 @@ function sendAnalyticsEvent(event_type, payload) {
     ...payload
   });
 
-  // sendBeacon först (bäst vid navigation), annars fetch keepalive
-  try {
-    if (navigator.sendBeacon) {
-      const ok = navigator.sendBeacon(ANALYTICS_INGEST_URL, new Blob([body], { type: "application/json" }));
-      if (ok) return;
-    }
-  } catch {}
-
-  // fallback: non-blocking fetch
+  // fetch keepalive (stabilt i Safari)
   try {
     fetch(ANALYTICS_INGEST_URL, {
       method: "POST",
@@ -68,6 +60,7 @@ function sendAnalyticsEvent(event_type, payload) {
     }).catch(() => {});
   } catch {}
 }
+
 
 // ============================================================
 // EXPOSE ANALYTICS (DEBUG / GLOBAL ACCESS)
