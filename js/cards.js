@@ -887,7 +887,9 @@ document.addEventListener("click", (e) => {
   const storeId = Number(a.dataset.storeId);
   if (!storeId) return;
 
-  sendAnalyticsEvent("website_clicked", {
+  console.log("🔥 website_clicked", storeId);
+
+  window.WCL_ANALYTICS?.send("website_clicked", {
     store_id: storeId
   });
 });
