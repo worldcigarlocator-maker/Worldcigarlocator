@@ -1,3 +1,77 @@
+/* ============================================================
+   WCL Analytics Client (V1) — frontend
+   - session_hash
+   - fire-and-forget event sender
+   ============================================================ */
+
+// 1) Var events ska skickas (Edge Function / endpoint)
+// Byt till din riktiga ingest-endpoint när du har den.
+const ANALYTICS_INGEST_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/analytics-ingest";
+
+// 2) Session: 30 min idle → ny session
+const SESSION_IDLE_MS = 30 * 60 * 1000;
+
+function getOrCreateSession() {
+  const now = Date.now();
+  const raw = localStorage.getItem("wcl_session_v1");
+  if (raw) {
+    try {
+      const s = JSON.parse(raw);
+      if (s?.id && s?.t && (now - s.t) < SESSION_IDLE_MS) {
+        s.t = now; // bump
+        localStorage.setItem("wcl_session_v1", JSON.stringify(s));
+        return s.id;
+      }
+    } catch {}
+  }
+  // ny session
+  const id = crypto?.randomUUID ? crypto.randomUUID() : `${now}-${Math.random().toString(16).slice(2)}`;
+  localStorage.setItem("wcl_session_v1", JSON.stringify({ id, t: now }));
+  return id;
+}
+
+// 3) Dedup: 1 view per store per session
+function hasViewedThisSession(storeId) {
+  return localStorage.getItem(`wcl_viewed_v1:${getOrCreateSession()}:${storeId}`) === "1";
+}
+function markViewedThisSession(storeId) {
+  localStorage.setItem(`wcl_viewed_v1:${getOrCreateSession()}:${storeId}`, "1");
+}
+
+// 4) Fire-and-forget sender (blockar aldrig UX)
+function sendAnalyticsEvent(event_type, payload) {
+  const body = JSON.stringify({
+    event_type,
+    timestamp: new Date().toISOString(),
+    source: "frontend",
+    actor_type: "anon",
+    session_hash: getOrCreateSession(),
+    ...payload
+  });
+
+  // sendBeacon först (bäst vid navigation), annars fetch keepalive
+  try {
+    if (navigator.sendBeacon) {
+      const ok = navigator.sendBeacon(ANALYTICS_INGEST_URL, new Blob([body], { type: "application/json" }));
+      if (ok) return;
+    }
+  } catch {}
+
+  // fallback: non-blocking fetch
+  try {
+    fetch(ANALYTICS_INGEST_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body,
+      keepalive: true,
+      credentials: "omit"
+    }).catch(() => {});
+  } catch {}
+}
+
+
+
+
 // ============================================================
 // CARDS.JS — WCL FRONTEND (STABLE + LIVE SEARCH + FILTER CHIPS)
 // Single pipeline: FILTER_STATE -> runSearch() -> fetch -> frontend filter -> render
