@@ -69,6 +69,13 @@ function sendAnalyticsEvent(event_type, payload) {
   } catch {}
 }
 
+// ============================================================
+// EXPOSE ANALYTICS (DEBUG / GLOBAL ACCESS)
+// ============================================================
+window.WCL_ANALYTICS = {
+  send: sendAnalyticsEvent
+};
+
 /* ============================================================
    3A — store_viewed (viewport impression, 1x per session/store)
    ============================================================ */
