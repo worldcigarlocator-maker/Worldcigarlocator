@@ -508,14 +508,19 @@ function cardHTML(s) {
           <p><strong>Address:</strong> ${displayAddress}</p>
           <p><strong>Phone:</strong> ${s.phone || "—"}</p>
           <p><strong>Website:</strong>
-            ${s.website ? `<a href="${s.website}" target="_blank">Visit</a>` : "—"}
-          </p>
-        </div>
-        <button class="reviews-btn">(${s.comment_count || 0})</button>
-      </div>
-    </article>
-  `;
-}
+  ${
+    s.website
+      ? `<a href="${s.website}"
+           target="_blank"
+           rel="noopener"
+           class="visit-website"
+           data-store-id="${s.id}">
+           Visit
+         </a>`
+      : "—"
+  }
+</p>
+
 
 // ============================================================
 // RENDER
@@ -526,10 +531,15 @@ function renderCards(list) {
 
   grid.innerHTML = (list || []).map(cardHTML).join("");
 
-  grid.querySelectorAll(".store-card").forEach((c) => {
-    c.addEventListener("click", () => openModal(c.dataset.id));
+grid.querySelectorAll(".store-card").forEach((c) => {
+  c.addEventListener("click", (e) => {
+    // ⛔️ Klick på länkar (t.ex. Visit website) ska INTE öppna modal
+    if (e.target.closest("a")) return;
+
+    openModal(c.dataset.id);
   });
-}
+});
+
 
 // Backwards compat (if something imports renderStores)
 export function renderStores(list) {
