@@ -69,6 +69,44 @@ function sendAnalyticsEvent(event_type, payload) {
   } catch {}
 }
 
+/* ============================================================
+   3A — store_viewed (viewport impression, 1x per session/store)
+   ============================================================ */
+
+const VIEW_OBSERVER = new IntersectionObserver((entries) => {
+  for (const entry of entries) {
+    if (!entry.isIntersecting) continue;
+
+    const el = entry.target;
+    const storeId = el?.dataset?.storeId;
+    if (!storeId) continue;
+
+    // Dedup per session/store
+    if (hasViewedThisSession(storeId)) {
+      VIEW_OBSERVER.unobserve(el);
+      continue;
+    }
+
+    // Markera direkt så vi inte dubbelräknar
+    markViewedThisSession(storeId);
+
+    // plocka geo från dataset (sätts när du renderar card)
+    const payload = {
+      store_id: Number(storeId),
+      country: el.dataset.country || null,
+      city: el.dataset.city || null,
+      continent: el.dataset.continent || null
+    };
+
+    sendAnalyticsEvent("store_viewed", payload);
+
+    // Vi behöver bara första view
+    VIEW_OBSERVER.unobserve(el);
+  }
+}, {
+  // 40% synligt = räknas som view (lagom strict)
+  threshold: 0.4
+});
 
 
 
