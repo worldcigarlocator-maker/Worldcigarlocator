@@ -484,42 +484,51 @@ function cardHTML(s) {
     displayAddress = trimmed.includes(",") ? trimmed.split(",")[0] + "…" : trimmed;
   }
 
-  return `
-    <article class="store-card" data-id="${s.id}">
-      <img
-        src="${img}"
-        class="store-img"
-        alt="${displayName}"
-        loading="lazy"
-        onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
-      />
-      <div class="store-body">
-        <h3 class="store-title">${displayName}</h3>
-        <div class="badge-row">${buildBadges(s)}</div>
-        ${buildStars(s.rating_avg, s.rating_count)}
-        <div class="locrow">
-          <div class="loc-top">
-            ${flag ? `<img src="${flag}" class="flag" />` : ""}
-            <span>${[s.continent, displayCountry].filter(Boolean).join(", ")}</span>
-          </div>
-          <p class="city-label">${displayCity}</p>
+ return `
+  <article class="store-card" data-id="${s.id}">
+    <img
+      src="${img}"
+      class="store-img"
+      alt="${displayName}"
+      loading="lazy"
+      onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
+    />
+    <div class="store-body">
+      <h3 class="store-title">${displayName}</h3>
+      <div class="badge-row">${buildBadges(s)}</div>
+      ${buildStars(s.rating_avg, s.rating_count)}
+
+      <div class="locrow">
+        <div class="loc-top">
+          ${flag ? `<img src="${flag}" class="flag" />` : ""}
+          <span>${[s.continent, displayCountry].filter(Boolean).join(", ")}</span>
         </div>
-        <div class="infoblock">
-          <p><strong>Address:</strong> ${displayAddress}</p>
-          <p><strong>Phone:</strong> ${s.phone || "—"}</p>
-          <p><strong>Website:</strong>
-  ${
-    s.website
-      ? `<a href="${s.website}"
-           target="_blank"
-           rel="noopener"
-           class="visit-website"
-           data-store-id="${s.id}">
-           Visit
-         </a>`
-      : "—"
-  }
-</p>
+        <p class="city-label">${displayCity}</p>
+      </div>
+
+      <div class="infoblock">
+        <p><strong>Address:</strong> ${displayAddress}</p>
+        <p><strong>Phone:</strong> ${s.phone || "—"}</p>
+        <p><strong>Website:</strong>
+          ${
+            s.website
+              ? `<a href="${s.website}"
+                   target="_blank"
+                   rel="noopener"
+                   class="visit-website"
+                   data-store-id="${s.id}">
+                   Visit
+                 </a>`
+              : "—"
+          }
+        </p>
+      </div>
+
+      <button class="reviews-btn">(${s.comment_count || 0})</button>
+    </div>
+  </article>
+`;
+
 
 
 // ============================================================
