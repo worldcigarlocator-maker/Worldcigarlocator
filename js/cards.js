@@ -485,7 +485,14 @@ function cardHTML(s) {
   }
 
  return `
-  <article class="store-card" data-id="${s.id}">
+ <article
+  class="store-card"
+  data-store-id="${s.id}"
+  data-country="${s.country || ""}"
+  data-city="${s.city || ""}"
+  data-continent="${s.continent || ""}"
+>
+
     <img
       src="${img}"
       class="store-img"
@@ -526,9 +533,9 @@ function cardHTML(s) {
 
       <button class="reviews-btn">(${s.comment_count || 0})</button>
     </div>
-  </article>
+   </article>
 `;
-
+}
 
 
 // ============================================================
@@ -540,15 +547,19 @@ function renderCards(list) {
 
   grid.innerHTML = (list || []).map(cardHTML).join("");
 
-grid.querySelectorAll(".store-card").forEach((c) => {
-  c.addEventListener("click", (e) => {
-    // ⛔️ Klick på länkar (t.ex. Visit website) ska INTE öppna modal
-    if (e.target.closest("a")) return;
-
-    openModal(c.dataset.id);
+  // 👁️ Analytics: store_viewed (1x per session/store)
+  grid.querySelectorAll(".store-card").forEach((el) => {
+    VIEW_OBSERVER.observe(el);
   });
-});
 
+  // 🖱️ Öppna modal (men inte vid länk-klick)
+  grid.querySelectorAll(".store-card").forEach((c) => {
+    c.addEventListener("click", (e) => {
+      if (e.target.closest("a")) return;
+      openModal(c.dataset.id);
+    });
+  });
+}
 
 // Backwards compat (if something imports renderStores)
 export function renderStores(list) {
@@ -868,4 +879,15 @@ sendCommentBtn?.addEventListener("click", async () => {
 
   commentInput.value = "";
   loadComments(CURRENT_STORE);
+});
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("a.visit-website");
+  if (!a) return;
+
+  const storeId = Number(a.dataset.storeId);
+  if (!storeId) return;
+
+  sendAnalyticsEvent("website_clicked", {
+    store_id: storeId
+  });
 });
