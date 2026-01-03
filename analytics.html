@@ -1,4 +1,3 @@
-<!-- Analytics V4 (Country, Continent, Type) — 2025-10-27 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,29 +5,114 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Analytics — World Cigar Locator</title>
 
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
 
   <style>
-    :root{--primary:#2f78c4;--primary-dark:#2466a8;--bg:#f5f6f8;--card:#fff;--text:#1f2937;--border:#e5e7eb;}
+    :root{
+      --primary:#2f78c4;
+      --primary-dark:#2466a8;
+      --bg:#f5f6f8;
+      --card:#fff;
+      --text:#1f2937;
+      --border:#e5e7eb;
+    }
+
     *{box-sizing:border-box}
-    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:1.2rem;color:var(--text);font-size:10px;}
-    h1{text-align:center;margin:0 0 1rem;color:#2b2b2b;font-weight:800;font-size:1.4rem;}
-    nav{display:flex;justify-content:center;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
-    nav a{background:#fff;border:1.4px solid var(--primary);color:var(--primary);padding:.35rem .6rem;border-radius:7px;font-weight:800;text-decoration:none;font-size:.9rem}
-    nav a:hover{background:var(--primary);color:#fff;}
-    .panel{background:var(--card);border:1px solid var(--border);border-radius:9px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:1rem;margin-bottom:1rem;}
-    .row{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center}
-    .btn{background:#fff;border:1.4px solid var(--primary);color:var(--primary);padding:.35rem .6rem;border-radius:7px;font-weight:800;font-size:.9rem;cursor:pointer;}
-    .btn:hover{background:var(--primary);color:#fff;}
-    .btn.active{background:var(--primary);color:#fff;}
-    .chart-title{text-align:center;font-weight:900;font-size:1rem;margin:.4rem 0;}
-    table{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:.6rem}
-    th,td{padding:.5rem;border-bottom:1px solid #eee;text-align:left;font-size:.9rem;}
-    th{background:#f3f4f6;color:#333;}
-    td.num{text-align:center;}
+
+    body{
+      font-family:Arial,Helvetica,sans-serif;
+      background:var(--bg);
+      margin:0;
+      padding:1.2rem;
+      color:var(--text);
+      font-size:10px;
+    }
+
+    h1{
+      text-align:center;
+      margin:0 0 1rem;
+      font-weight:800;
+      font-size:1.4rem;
+    }
+
+    nav{
+      display:flex;
+      justify-content:center;
+      gap:.5rem;
+      margin-bottom:1rem;
+      flex-wrap:wrap;
+    }
+
+    nav a{
+      background:#fff;
+      border:1.4px solid var(--primary);
+      color:var(--primary);
+      padding:.35rem .6rem;
+      border-radius:7px;
+      font-weight:800;
+      text-decoration:none;
+      font-size:.9rem;
+    }
+
+    nav a:hover{
+      background:var(--primary);
+      color:#fff;
+    }
+
+    .panel{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:9px;
+      box-shadow:0 1px 3px rgba(0,0,0,.05);
+      padding:1rem;
+      margin-bottom:1rem;
+    }
+
+    .panel h2{
+      margin:.2rem 0 .6rem;
+      font-size:1.05rem;
+      font-weight:900;
+      text-align:center;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+      margin-top:.6rem;
+    }
+
+    th,td{
+      padding:.55rem;
+      border-bottom:1px solid #eee;
+      text-align:left;
+      font-size:.9rem;
+    }
+
+    th{
+      background:#f3f4f6;
+      color:#333;
+      font-weight:800;
+    }
+
+    td.num{
+      text-align:center;
+      font-weight:700;
+    }
+
+    tr:hover td{
+      background:#fafafa;
+    }
+
+    .muted{
+      color:#777;
+      text-align:center;
+      padding:1rem;
+    }
   </style>
 </head>
+
 <body>
   <h1>World Cigar Locator — Analytics</h1>
 
@@ -37,126 +121,79 @@
     <a href="add-store-backoffice.html">Add Store</a>
   </nav>
 
+  <!-- =========================================================
+       PANEL A — TOP WEBSITE CLICKS (Affiliate Core)
+       ========================================================= -->
   <div class="panel">
-    <div class="row">
-      <button class="btn active" id="btnCountry">By Country</button>
-      <button class="btn" id="btnContinent">By Continent</button>
-      <button class="btn" id="btnType">By Type</button>
-    </div>
-    <div class="chart-title" id="chartTitle">Locations by Country</div>
-    <canvas id="chartCanvas" height="90"></canvas>
-  </div>
+    <h2>Top Website Clicks — Last 7 Days</h2>
 
-  <div class="panel">
-    <table id="summaryTable">
+    <table>
       <thead>
-        <tr><th>Key</th><th class="num">Locations</th><th class="num">Views</th><th class="num">Clicks</th></tr>
+        <tr>
+          <th>Store</th>
+          <th>City</th>
+          <th>Country</th>
+          <th class="num">Clicks</th>
+        </tr>
       </thead>
-      <tbody></tbody>
+      <tbody id="topClicksBody">
+        <tr>
+          <td colspan="4" class="muted">Loading…</td>
+        </tr>
+      </tbody>
     </table>
   </div>
 
   <script>
+    // =========================================================
+    // SUPABASE CLIENT (ANON READ)
+    // =========================================================
     const supabase = window.supabase.createClient(
       "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+      "YOUR_PUBLIC_ANON_KEY"
     );
 
-    let all = [], mode = "country", chart = null;
+    // =========================================================
+    // LOAD: TOP WEBSITE CLICKS (7 DAYS)
+    // Source: analytics_top_stores_7d (VIEW)
+    // =========================================================
+    async function loadTopWebsiteClicks() {
+      const tbody = document.getElementById("topClicksBody");
 
-    function continentFromCountry(country){
-      if(!country) return "Other";
-      const c = country.trim().toLowerCase();
-      const m = {"sweden":"Europe","norway":"Europe","denmark":"Europe","finland":"Europe","iceland":"Europe","usa":"North America","united states":"North America","canada":"North America","france":"Europe","germany":"Europe","italy":"Europe","spain":"Europe","brazil":"South America","argentina":"South America","australia":"Oceania","japan":"Asia","china":"Asia","india":"Asia","south africa":"Africa"};
-      return m[c] || "Other";
-    }
-
-    async function load(){
       const { data, error } = await supabase
-        .from("stores")
+        .from("analytics_top_stores_7d")
         .select("*")
-        .eq("deleted", false)
-        .eq("flagged", false);
+        .order("clicks", { ascending: false })
+        .limit(50);
 
-      if(error){ console.error(error); return; }
+      if (error) {
+        console.error(error);
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="muted">Error loading data</td>
+          </tr>`;
+        return;
+      }
 
-      all = (data || []).map(s => ({
-        ...s,
-        views: +(s.views || 0),
-        clicks: +(s.link_clicks || 0),
-        continent: s.continent || continentFromCountry(s.country)
-      }));
+      if (!data || !data.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="muted">No data yet</td>
+          </tr>`;
+        return;
+      }
 
-      renderChart();
-      renderTable();
-    }
-
-    function aggregate(key){
-      const agg = new Map();
-      all.forEach(s => {
-        const k = (s[key] || "Unknown").trim();
-        if(!agg.has(k)) agg.set(k, { n:0, views:0, clicks:0 });
-        const o = agg.get(k);
-        o.n++;
-        o.views += s.views || 0;
-        o.clicks += s.clicks || 0;
-      });
-      return [...agg.entries()].map(([k,v]) => ({k,...v})).sort((a,b) => b.n - a.n);
-    }
-
-    function renderChart(){
-      const ctx = document.getElementById("chartCanvas").getContext("2d");
-      const key = mode==="country" ? "country" : mode==="continent" ? "continent" : "type";
-      const data = aggregate(key).slice(0,15);
-      if(chart) chart.destroy();
-      chart = new Chart(ctx, {
-        type:"bar",
-        data:{
-          labels: data.map(x=>x.k),
-          datasets:[{ label:"Locations", data:data.map(x=>x.n), backgroundColor:"#2f78c4" }]
-        },
-        options:{
-          responsive:true,
-          plugins:{ legend:{ display:false } },
-          scales:{ y:{ beginAtZero:true } }
-        }
-      });
-      document.getElementById("chartTitle").textContent = `Locations by ${mode[0].toUpperCase()+mode.slice(1)}`;
-    }
-
-    function renderTable(){
-      const key = mode==="country" ? "country" : mode==="continent" ? "continent" : "type";
-      const rows = aggregate(key).slice(0,100).map(x=>`
+      tbody.innerHTML = data.map(row => `
         <tr>
-          <td>${x.k || "–"}</td>
-          <td class="num">${x.n}</td>
-          <td class="num">${x.views}</td>
-          <td class="num">${x.clicks}</td>
-        </tr>`).join("");
-      document.querySelector("#summaryTable tbody").innerHTML = rows || 
-        `<tr><td colspan="4" style="text-align:center;color:#777;">No data</td></tr>`;
+          <td>${row.name}</td>
+          <td>${row.city || "–"}</td>
+          <td>${row.country || "–"}</td>
+          <td class="num">${row.clicks}</td>
+        </tr>
+      `).join("");
     }
 
-    document.getElementById("btnCountry").addEventListener("click",()=>{
-      document.querySelectorAll(".btn").forEach(b=>b.classList.remove("active"));
-      btnCountry.classList.add("active");
-      mode="country";
-      renderChart(); renderTable();
-    });
-    document.getElementById("btnContinent").addEventListener("click",()=>{
-      document.querySelectorAll(".btn").forEach(b=>b.classList.remove("active"));
-      btnContinent.classList.add("active");
-      mode="continent";
-      renderChart(); renderTable();
-    });
-    document.getElementById("btnType").addEventListener("click",()=>{
-      document.querySelectorAll(".btn").forEach(b=>b.classList.remove("active"));
-      btnType.classList.add("active");
-      mode="type";
-      renderChart(); renderTable();
-    });
-
-    load();
+    loadTopWebsiteClicks();
   </script>
 </body>
 </html>
