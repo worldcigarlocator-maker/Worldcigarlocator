@@ -409,9 +409,12 @@ const photoURL = (ref, w = 800) =>
   ref ? `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=${w}` : WCL.FALLBACK_IMG;
 
 function buildPhotoProxyUrl(photo_reference, maxwidth = 800) {
-  if (!photo_reference) return WCL.FALLBACK_IMG;
+  if (!photo_reference) {
+    return `${WCL.PHOTO_PROXY_URL}?fallback=1`;
+  }
   return `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(photo_reference)}&maxwidth=${maxwidth}`;
 }
+
 
 /* ---------- Google photo refs ---------- */
 async function fetchPhotoRefs(placeId) {
@@ -1074,11 +1077,12 @@ async function editStore(id) {
   const metaEl = modal.querySelector("#photo-meta");
 
 function showCurrent() {
-  if (!refs.length) {
-    imgEl.src = WCL.FALLBACK_IMG;
-    metaEl.textContent = "No photo loaded";
-    return;
-  }
+if (!refs.length) {
+  imgEl.src = buildPhotoProxyUrl(null);
+  metaEl.textContent = "No photo loaded";
+  return;
+}
+
 
   // 🔁 Reset src först (Safari-fix)
   imgEl.src = "";
