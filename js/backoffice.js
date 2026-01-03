@@ -852,34 +852,51 @@ function makeBtn(label, onclick, cls = "") {
 }
 
 /* ==================== MOD ACTIONS ================= */
-async function approveStore(id) {
-  const res = await fetch("/functions/v1/approve-store", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ store_id: id })
-  });
 
-  if (!res.ok) {
+/* ✅ APPROVE — enda sanningen (ingen edge, ingen fetch) */
+async function approveStore(id) {
+  const { error } = await WCL.supabase
+    .from("stores")
+    .update({
+      approved: true,
+      flagged: false,
+      deleted: false
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Approve failed:", error);
     toast("Error approving", "error");
     return;
   }
 
-  toast("Approved & image locked ✅");
+  toast("Approved ✅");
   await reloadData(CURRENT_TAB);
 }
 
+
+/* 🟡 UNFLAG */
 async function unflagStore(id) {
   const { error } = await WCL.supabase
     .from("stores")
-    .update({ flagged: false, flag_reason: null })
+    .update({
+      flagged: false,
+      flag_reason: null
+    })
     .eq("id", id);
 
-  if (error) return toast("Error unflagging", "error");
+  if (error) {
+    console.error("Unflag failed:", error);
+    toast("Error unflagging", "error");
+    return;
+  }
 
   toast("Unflagged ✅");
   await reloadData(CURRENT_TAB);
 }
 
+
+/* 🗑️ DELETE / RESTORE */
 async function toggleDelete(s) {
   const next = !s.deleted;
 
@@ -888,11 +905,16 @@ async function toggleDelete(s) {
     .update({ deleted: next })
     .eq("id", s.id);
 
-  if (error) return toast("Error updating delete", "error");
+  if (error) {
+    console.error("Delete toggle failed:", error);
+    toast("Error updating delete", "error");
+    return;
+  }
 
   toast(next ? "Moved to Trash 🗑️" : "Restored ♻️");
   await reloadData(CURRENT_TAB);
 }
+
 
 /* ==================== REPAIR PHOTO ================= */
 async function repairPhoto(id, place_id, imgEl) {
