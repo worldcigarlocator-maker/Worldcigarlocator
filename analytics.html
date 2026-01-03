@@ -479,15 +479,31 @@
       }).join("");
       showDropdown(html);
     }
+async function searchStores(q){
+  const term = (q || "").trim();
+  if (!term) return [];
 
-    async function searchStores(q){
-      // NEXT STEP: Replace this with a real query / RPC.
-      // For now: empty result to keep UI stable.
-      // Example later:
-      // const { data } = await supabase.from("stores").select("id,name,city,country,types,access,website").ilike("name", `%${q}%`).limit(10)
-      return [];
-    }
+  // Vi söker i name/city/country (och ev address om du vill)
+  // OBS: or() kräver "kolumn.operator.värde" format
+  const like = `%${term}%`;
 
+  const { data, error } = await supabase
+    .from("stores")
+    .select("id,name,city,country,types,access,website,deleted,flagged")
+    .eq("deleted", false)
+    .eq("flagged", false)
+    .or(`name.ilike.${like},city.ilike.${like},country.ilike.${like}`)
+    .limit(12);
+
+  if (error) {
+    console.error("searchStores error:", error);
+    return [];
+  }
+
+  return data || [];
+}
+
+   
     searchInput.addEventListener("input", () => {
       const q = (searchInput.value || "").trim();
       clearTimeout(SEARCH_TIMER);
@@ -503,16 +519,31 @@
       }, 250);
     });
 
-    dropdown.addEventListener("click", (e) => {
-      const item = e.target.closest(".dd-item");
-      if(!item) return;
-      const storeId = Number(item.dataset.storeId);
-      if(!storeId) return;
+dropdown.addEventListener("click", async (e) => {
+  const item = e.target.closest(".dd-item");
+  if (!item) return;
 
-      // NEXT STEP: load full store object from DB by id
-      // For now we just hide dropdown
-      showDropdown("");
-    });
+  const storeId = Number(item.dataset.storeId);
+  if (!storeId) return;
+
+  showDropdown(""); // stäng dropdown direkt
+
+  // Ladda full store för dossier
+  const { data, error } = await supabase
+    .from("stores")
+    .select("id,name,city,country,types,access,website,deleted,flagged")
+    .eq("id", storeId)
+    .single();
+
+  if (error || !data) {
+    console.error("load store by id error:", error);
+    alert("Could not load store.");
+    return;
+  }
+
+  openDossier(data);
+});
+
 
     document.addEventListener("click", (e) => {
       if(e.target === searchInput) return;
