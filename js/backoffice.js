@@ -1070,17 +1070,23 @@ async function editStore(id) {
   if (!refs.length && store.photo_reference) refs = [store.photo_reference];
   let currentIndex = Math.max(0, refs.indexOf(store.photo_reference));
   const imgEl = modal.querySelector("#edit-photo");
+   imgEl.setAttribute("crossorigin", "anonymous");
   const metaEl = modal.querySelector("#photo-meta");
 
-  function showCurrent() {
-    if (!refs.length) {
-      imgEl.src = WCL.FALLBACK_IMG;
-      metaEl.textContent = "No photo loaded";
-      return;
-    }
-    imgEl.src = buildPhotoProxyUrl(refs[currentIndex]);
-    metaEl.textContent = `Photo ${currentIndex + 1} / ${refs.length} — via proxy`;
+function showCurrent() {
+  if (!refs.length) {
+    imgEl.src = WCL.FALLBACK_IMG;
+    metaEl.textContent = "No photo loaded";
+    return;
   }
+
+  // 🔁 Reset src först (Safari-fix)
+  imgEl.src = "";
+  imgEl.src = buildPhotoProxyUrl(refs[currentIndex]);
+
+  metaEl.textContent = `Photo ${currentIndex + 1} / ${refs.length} — via proxy`;
+}
+
   showCurrent();
 
   $("#edit-prev").onclick = () => {
