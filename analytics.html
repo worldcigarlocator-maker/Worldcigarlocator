@@ -8,192 +8,208 @@
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+
   <style>
     :root{
       --primary:#2f78c4;
-      --primary-dark:#2466a8;
       --bg:#f5f6f8;
       --card:#fff;
       --text:#1f2937;
       --border:#e5e7eb;
     }
-
     *{box-sizing:border-box}
-
     body{
       font-family:Arial,Helvetica,sans-serif;
       background:var(--bg);
       margin:0;
       padding:1.2rem;
       color:var(--text);
-      font-size:10px;
+      font-size:12px;
     }
-
     h1{
       text-align:center;
       margin:0 0 1rem;
-      font-weight:800;
       font-size:1.4rem;
+      font-weight:800;
     }
-
     nav{
       display:flex;
       justify-content:center;
       gap:.5rem;
       margin-bottom:1rem;
-      flex-wrap:wrap;
     }
-
     nav a{
       background:#fff;
-      border:1.4px solid var(--primary);
+      border:1px solid var(--primary);
       color:var(--primary);
       padding:.35rem .6rem;
       border-radius:7px;
       font-weight:800;
       text-decoration:none;
-      font-size:.9rem;
     }
-
     nav a:hover{
       background:var(--primary);
       color:#fff;
     }
-
     .panel{
       background:var(--card);
       border:1px solid var(--border);
       border-radius:9px;
-      box-shadow:0 1px 3px rgba(0,0,0,.05);
       padding:1rem;
       margin-bottom:1rem;
     }
-
-    .panel h2{
-      margin:.2rem 0 .6rem;
-      font-size:1.05rem;
-      font-weight:900;
+    .panel-title{
       text-align:center;
+      font-weight:900;
+      margin-bottom:.6rem;
     }
-
     table{
       width:100%;
       border-collapse:collapse;
-      table-layout:fixed;
       margin-top:.6rem;
     }
-
     th,td{
-      padding:.55rem;
+      padding:.45rem;
       border-bottom:1px solid #eee;
       text-align:left;
-      font-size:.9rem;
     }
-
     th{
       background:#f3f4f6;
-      color:#333;
-      font-weight:800;
     }
-
     td.num{
       text-align:center;
       font-weight:700;
-    }
-
-    tr:hover td{
-      background:#fafafa;
-    }
-
-    .muted{
-      color:#777;
-      text-align:center;
-      padding:1rem;
     }
   </style>
 </head>
 
 <body>
-  <h1>World Cigar Locator — Analytics</h1>
 
-  <nav>
-    <a href="backoffice.html">Backoffice</a>
-    <a href="add-store-backoffice.html">Add Store</a>
-  </nav>
+<h1>World Cigar Locator — Analytics</h1>
 
-  <!-- =========================================================
-       PANEL A — TOP WEBSITE CLICKS (Affiliate Core)
-       ========================================================= -->
-  <div class="panel">
-    <h2>Top Website Clicks — Last 7 Days</h2>
+<nav>
+  <a href="backoffice.html">Backoffice</a>
+  <a href="add-store-backoffice.html">Add Store</a>
+</nav>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Store</th>
-          <th>City</th>
-          <th>Country</th>
-          <th class="num">Clicks</th>
-        </tr>
-      </thead>
-      <tbody id="topClicksBody">
-        <tr>
-          <td colspan="4" class="muted">Loading…</td>
-        </tr>
-      </tbody>
-    </table>
+<!-- ===================== PANEL: TOP CITIES ===================== -->
+<div class="panel">
+  <div class="panel-title">
+    Top Cities by Website Clicks — Last 7 Days
   </div>
 
-  <script>
-    // =========================================================
-    // SUPABASE CLIENT (ANON READ)
-    // =========================================================
-    const supabase = window.supabase.createClient(
-      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      "YOUR_PUBLIC_ANON_KEY"
-    );
+  <canvas id="cityChart" height="90"></canvas>
 
-    // =========================================================
-    // LOAD: TOP WEBSITE CLICKS (7 DAYS)
-    // Source: analytics_top_stores_7d (VIEW)
-    // =========================================================
-    async function loadTopWebsiteClicks() {
-      const tbody = document.getElementById("topClicksBody");
+  <table>
+    <thead>
+      <tr>
+        <th>City</th>
+        <th>Country</th>
+        <th class="num">Clicks</th>
+      </tr>
+    </thead>
+    <tbody id="cityTableBody"></tbody>
+  </table>
+</div>
 
-      const { data, error } = await supabase
-        .from("analytics_top_stores_7d")
-        .select("*")
-        .order("clicks", { ascending: false })
-        .limit(50);
+<script>
+  /* ============================================================
+     SUPABASE INIT
+     ============================================================ */
+  const supabase = window.supabase.createClient(
+    "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+    "YOUR_PUBLIC_ANON_KEY_HERE"
+  );
 
-      if (error) {
-        console.error(error);
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="4" class="muted">Error loading data</td>
-          </tr>`;
-        return;
-      }
+  let chart = null;
 
-      if (!data || !data.length) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="4" class="muted">No data yet</td>
-          </tr>`;
-        return;
-      }
+  /* ============================================================
+     LOAD DATA — TOP CITIES (LAST 7 DAYS)
+     ============================================================ */
+  async function loadTopCities() {
+    const since = new Date();
+    since.setDate(since.getDate() - 7);
 
-      tbody.innerHTML = data.map(row => `
-        <tr>
-          <td>${row.name}</td>
-          <td>${row.city || "–"}</td>
-          <td>${row.country || "–"}</td>
-          <td class="num">${row.clicks}</td>
-        </tr>
-      `).join("");
+    const { data, error } = await supabase
+      .from("analytics_events")
+      .select("payload, timestamp")
+      .eq("event_type", "website_clicked")
+      .gte("timestamp", since.toISOString());
+
+    if (error) {
+      console.error(error);
+      return;
     }
 
-    loadTopWebsiteClicks();
-  </script>
+    // Aggregate by city + country
+    const map = new Map();
+
+    (data || []).forEach(e => {
+      const city = e.payload?.city || "Unknown";
+      const country = e.payload?.country || "Unknown";
+      const key = city + "||" + country;
+
+      if (!map.has(key)) {
+        map.set(key, { city, country, clicks: 0 });
+      }
+      map.get(key).clicks++;
+    });
+
+    const rows = [...map.values()].sort((a,b)=>b.clicks-a.clicks);
+
+    renderTable(rows);
+    renderChart(rows.slice(0,15));
+  }
+
+  /* ============================================================
+     RENDER TABLE
+     ============================================================ */
+  function renderTable(rows) {
+    const tbody = document.getElementById("cityTableBody");
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:#777;">No data</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td>${r.city}</td>
+        <td>${r.country}</td>
+        <td class="num">${r.clicks}</td>
+      </tr>
+    `).join("");
+  }
+
+  /* ============================================================
+     RENDER CHART
+     ============================================================ */
+  function renderChart(rows) {
+    const ctx = document.getElementById("cityChart").getContext("2d");
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: rows.map(r => r.city),
+        datasets: [{
+          data: rows.map(r => r.clicks),
+          backgroundColor: "#2f78c4"
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  loadTopCities();
+</script>
+
 </body>
 </html>
