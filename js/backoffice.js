@@ -850,14 +850,18 @@ function makeBtn(label, onclick, cls = "") {
 
 /* ==================== MOD ACTIONS ================= */
 async function approveStore(id) {
-  const { error } = await WCL.supabase
-    .from("stores")
-    .update({ approved: true, flagged: false, deleted: false })
-    .eq("id", id);
+  const res = await fetch("/functions/v1/approve-store", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ store_id: id })
+  });
 
-  if (error) return toast("Error approving", "error");
+  if (!res.ok) {
+    toast("Error approving", "error");
+    return;
+  }
 
-  toast("Approved ✅");
+  toast("Approved & image locked ✅");
   await reloadData(CURRENT_TAB);
 }
 
