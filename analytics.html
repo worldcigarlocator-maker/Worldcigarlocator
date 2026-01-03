@@ -1,3 +1,4 @@
+<!-- Backoffice Analytics — VNext (Search-first + Store Dossier) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,19 +6,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Analytics — World Cigar Locator</title>
 
-  <!-- Supabase -->
+  <!-- Supabase + Chart.js (vi använder Chart.js senare för top-listor, men UI:t är klart nu) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
 
   <style>
     :root{
       --primary:#2f78c4;
+      --primary-dark:#2466a8;
       --bg:#f5f6f8;
       --card:#fff;
       --text:#1f2937;
+      --muted:#6b7280;
       --border:#e5e7eb;
+      --good:#16a34a;
+      --warn:#f59e0b;
+      --bad:#dc2626;
+      --shadow:0 1px 3px rgba(0,0,0,.06);
+      --radius:10px;
     }
     *{box-sizing:border-box}
     body{
@@ -31,185 +37,587 @@
     h1{
       text-align:center;
       margin:0 0 1rem;
-      font-size:1.4rem;
-      font-weight:800;
+      color:#2b2b2b;
+      font-weight:900;
+      font-size:1.35rem;
+      letter-spacing:.2px;
     }
     nav{
       display:flex;
       justify-content:center;
       gap:.5rem;
       margin-bottom:1rem;
+      flex-wrap:wrap
     }
     nav a{
       background:#fff;
-      border:1px solid var(--primary);
+      border:1.4px solid var(--primary);
       color:var(--primary);
       padding:.35rem .6rem;
-      border-radius:7px;
-      font-weight:800;
+      border-radius:8px;
+      font-weight:900;
       text-decoration:none;
+      font-size:.95rem
     }
-    nav a:hover{
-      background:var(--primary);
-      color:#fff;
-    }
+    nav a:hover{background:var(--primary);color:#fff;}
     .panel{
       background:var(--card);
       border:1px solid var(--border);
-      border-radius:9px;
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
       padding:1rem;
       margin-bottom:1rem;
     }
-    .panel-title{
-      text-align:center;
+    .row{
+      display:flex;
+      gap:.6rem;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .row.center{justify-content:center}
+    .row.between{justify-content:space-between}
+    .grow{flex:1}
+    .btn{
+      background:#fff;
+      border:1.4px solid var(--primary);
+      color:var(--primary);
+      padding:.45rem .7rem;
+      border-radius:8px;
       font-weight:900;
-      margin-bottom:.6rem;
+      font-size:.95rem;
+      cursor:pointer;
+      user-select:none;
     }
-    table{
+    .btn:hover{background:var(--primary);color:#fff;}
+    .btn.primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .btn.primary:hover{background:var(--primary-dark);border-color:var(--primary-dark);}
+    .btn.ghost{border-color:var(--border);color:#111827;background:#fff;}
+    .btn.ghost:hover{background:#f3f4f6;color:#111827;border-color:#d1d5db;}
+    .btn.danger{border-color:var(--bad);color:var(--bad);}
+    .btn.danger:hover{background:var(--bad);color:#fff;}
+    .pillbar{display:flex;gap:.45rem;flex-wrap:wrap}
+    .pill{
+      border:1px solid var(--border);
+      padding:.35rem .6rem;
+      border-radius:999px;
+      background:#fff;
+      color:#111827;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .pill.active{border-color:var(--primary);color:var(--primary);}
+    .input{
       width:100%;
-      border-collapse:collapse;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:.6rem .75rem;
+      font-size:1rem;
+      outline:none;
+    }
+    .input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(47,120,196,.15);}
+    .subtle{color:var(--muted)}
+    .divider{height:1px;background:var(--border);margin:.9rem 0}
+    .hidden{display:none !important}
+
+    /* Search dropdown */
+    .search-wrap{position:relative;max-width:840px;margin:0 auto}
+    .dropdown{
+      position:absolute;
+      top:calc(100% + 6px);
+      left:0;
+      right:0;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+      overflow:hidden;
+      z-index:100;
+    }
+    .dd-item{
+      padding:.65rem .75rem;
+      border-bottom:1px solid #f2f3f5;
+      cursor:pointer;
+      display:flex;
+      justify-content:space-between;
+      gap:.8rem;
+      align-items:center;
+    }
+    .dd-item:hover{background:#f8fafc}
+    .dd-item:last-child{border-bottom:none}
+    .dd-left{min-width:0}
+    .dd-title{font-weight:900;font-size:.98rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .dd-meta{color:var(--muted);font-weight:700;margin-top:2px;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tag{
+      font-size:.78rem;
+      font-weight:900;
+      border:1px solid var(--border);
+      padding:.25rem .45rem;
+      border-radius:999px;
+      background:#fff;
+      white-space:nowrap;
+    }
+
+    /* Store dossier */
+    .dossier-head{
+      display:flex;
+      justify-content:space-between;
+      gap:1rem;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+    .store-title{
+      font-size:1.2rem;
+      font-weight:1000;
+      margin:0;
+    }
+    .store-line{
+      margin:.25rem 0 0;
+      color:var(--muted);
+      font-weight:800;
+    }
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap:.6rem;
+      margin-top:.9rem;
+    }
+    @media (max-width: 880px){
+      .kpis{grid-template-columns: repeat(2, minmax(0, 1fr));}
+    }
+    .kpi{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:.75rem;
+      background:#fff;
+    }
+    .kpi .label{color:var(--muted);font-weight:900;font-size:.85rem}
+    .kpi .value{font-weight:1000;font-size:1.25rem;margin-top:.2rem}
+    .kpi .hint{color:var(--muted);font-weight:800;margin-top:.2rem;font-size:.85rem}
+    .status{
+      display:flex;
+      gap:.4rem;
+      flex-wrap:wrap;
       margin-top:.6rem;
+      align-items:center;
     }
-    th,td{
-      padding:.45rem;
-      border-bottom:1px solid #eee;
-      text-align:left;
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+      padding:.28rem .5rem;
+      border-radius:999px;
+      font-weight:1000;
+      font-size:.8rem;
+      border:1px solid var(--border);
+      background:#fff;
     }
-    th{
-      background:#f3f4f6;
+    .badge.good{border-color:rgba(22,163,74,.35);color:var(--good)}
+    .badge.warn{border-color:rgba(245,158,11,.45);color:var(--warn)}
+    .badge.bad{border-color:rgba(220,38,38,.45);color:var(--bad)}
+    .actions{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end}
+    .mini{
+      font-size:.85rem;
+      font-weight:900;
+      color:var(--muted);
     }
-    td.num{
-      text-align:center;
-      font-weight:700;
+
+    /* Print */
+    @media print{
+      nav, .search-panel, .below-search, .actions, .pillbar, .hintline { display:none !important; }
+      body{background:#fff;padding:0}
+      .panel{box-shadow:none;border:none}
+      .kpi{break-inside:avoid}
     }
+
+    /* Table (later) */
+    table{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:.6rem}
+    th,td{padding:.55rem;border-bottom:1px solid #eee;text-align:left;font-size:.95rem;vertical-align:top}
+    th{background:#f3f4f6;color:#111827;font-weight:1000;}
+    td.num{text-align:center;font-weight:900;}
   </style>
 </head>
 
 <body>
+  <h1>World Cigar Locator — Analytics</h1>
 
-<h1>World Cigar Locator — Analytics</h1>
+  <nav>
+    <a href="backoffice.html">Backoffice</a>
+    <a href="add-store-backoffice.html">Add Store</a>
+  </nav>
 
-<nav>
-  <a href="backoffice.html">Backoffice</a>
-  <a href="add-store-backoffice.html">Add Store</a>
-</nav>
+  <!-- ============================================================
+       PANEL 1: SEARCH (store-first)
+       ============================================================ -->
+  <div class="panel search-panel">
+    <div class="row center" style="margin-bottom:.5rem;">
+      <div class="search-wrap grow">
+        <input
+          id="storeSearchInput"
+          class="input"
+          type="text"
+          placeholder="Search store, city, country… (e.g. Ciggarrummet)"
+          autocomplete="off"
+        />
+        <div id="storeSearchDropdown" class="dropdown hidden"></div>
+      </div>
+      <button id="btnClearStore" class="btn ghost">Clear</button>
+    </div>
 
-<!-- ===================== PANEL: TOP CITIES ===================== -->
-<div class="panel">
-  <div class="panel-title">
-    Top Cities by Website Clicks — Last 7 Days
+    <div class="row center hintline" style="margin-top:.25rem;">
+      <div class="subtle" style="font-weight:800;">
+        Store-first: pick 1 result → get a full dossier with Views, Website clicks, CTR + export.
+      </div>
+    </div>
   </div>
 
-  <canvas id="cityChart" height="90"></canvas>
+  <!-- ============================================================
+       PANEL 2: STORE DOSSIER (hidden until store selected)
+       ============================================================ -->
+  <div id="storeDossierPanel" class="panel hidden">
+    <div class="dossier-head">
+      <div class="grow">
+        <h2 id="dStoreName" class="store-title">—</h2>
+        <div id="dStoreMeta" class="store-line">—</div>
+        <div class="status">
+          <span id="dTypeBadge" class="badge">—</span>
+          <span id="dAccessBadge" class="badge">—</span>
+          <span id="dSafetyBadge" class="badge good">✓ Clean</span>
+          <span class="mini" id="dPeriodLabel">Last 30 days</span>
+        </div>
+      </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>City</th>
-        <th>Country</th>
-        <th class="num">Clicks</th>
-      </tr>
-    </thead>
-    <tbody id="cityTableBody"></tbody>
-  </table>
-</div>
+      <div class="actions">
+        <a id="dWebsiteLink" class="btn" href="#" target="_blank" rel="noopener">Open website</a>
+        <button id="btnPrint" class="btn">Print</button>
+        <button id="btnEmail" class="btn primary">Email summary</button>
+      </div>
+    </div>
 
-<script>
-  /* ============================================================
-     SUPABASE INIT
-     ============================================================ */
-  const supabase = window.supabase.createClient(
-    "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-    "YOUR_PUBLIC_ANON_KEY_HERE"
-  );
+    <div class="divider"></div>
 
-  let chart = null;
+    <!-- Date range pills -->
+    <div class="row between" style="margin-bottom:.6rem;">
+      <div class="pillbar" id="dateRangePills">
+        <span class="pill" data-days="7">Last 7</span>
+        <span class="pill active" data-days="30">Last 30</span>
+        <span class="pill" data-days="90">Last 90</span>
+      </div>
 
-  /* ============================================================
-     LOAD DATA — TOP CITIES (LAST 7 DAYS)
-     ============================================================ */
-  async function loadTopCities() {
-    const since = new Date();
-    since.setDate(since.getDate() - 7);
+      <div class="mini subtle">
+        Store ID: <span id="dStoreId">—</span>
+      </div>
+    </div>
 
-    const { data, error } = await supabase
-      .from("analytics_events")
-      .select("payload, timestamp")
-      .eq("event_type", "website_clicked")
-      .gte("timestamp", since.toISOString());
+    <!-- KPI grid -->
+    <div class="kpis">
+      <div class="kpi">
+        <div class="label">Views</div>
+        <div class="value" id="kpiViews">—</div>
+        <div class="hint">Seen in WCL</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Website clicks</div>
+        <div class="value" id="kpiClicks">—</div>
+        <div class="hint">Visitors clicked to website</div>
+      </div>
+      <div class="kpi">
+        <div class="label">CTR</div>
+        <div class="value" id="kpiCtr">—</div>
+        <div class="hint">Clicks / Views</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Search demand</div>
+        <div class="value" id="kpiSearchDemand">—</div>
+        <div class="hint">Queries leading here (soon)</div>
+      </div>
+    </div>
 
-    if (error) {
-      console.error(error);
-      return;
+    <div class="divider"></div>
+
+    <!-- Demand list + Safety details -->
+    <div class="row" style="align-items:flex-start;">
+      <div class="grow">
+        <div style="font-weight:1000;margin-bottom:.35rem;">Top queries (when available)</div>
+        <div id="dQueryList" class="subtle" style="font-weight:800;">
+          No data yet.
+        </div>
+      </div>
+
+      <div class="grow">
+        <div style="font-weight:1000;margin-bottom:.35rem;">Trust & Safety (internal)</div>
+        <div id="dSafetyDetails" class="subtle" style="font-weight:800;">
+          No flags.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PANEL 3: BELOW SEARCH (later: top lists, charts, etc.)
+       We keep your existing chart + table area, but it's secondary.
+       ============================================================ -->
+  <div class="panel below-search">
+    <div class="row between">
+      <div style="font-weight:1000;">Overview (secondary)</div>
+      <div class="subtle" style="font-weight:800;">We’ll wire this after Search is locked.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row center">
+      <button class="btn active" id="btnTopCountries">Top Countries</button>
+      <button class="btn" id="btnTopCities">Top Cities</button>
+      <button class="btn" id="btnTopStores">Top Stores</button>
+    </div>
+
+    <div class="subtle" style="text-align:center;font-weight:900;margin:.55rem 0;" id="chartTitle">
+      Top summary (placeholder)
+    </div>
+    <canvas id="chartCanvas" height="90"></canvas>
+
+    <table id="summaryTable">
+      <thead>
+        <tr>
+          <th>Key</th>
+          <th class="num">Views</th>
+          <th class="num">Website clicks</th>
+          <th class="num">CTR</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="4" style="text-align:center;color:#777;font-weight:800;">No data yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    /* ============================================================
+       CONFIG (we will wire real queries in the next step)
+       ============================================================ */
+
+    // NOTE: Keep your anon key here for now like before (same style as your old analytics.html).
+    // Later we can switch to a safer pattern if you want.
+    const supabase = window.supabase.createClient(
+      "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+    );
+
+    // UI state (locked)
+    let SELECTED_STORE = null; // { id, name, city, country, types, access, website, ... }
+    let DAYS = 30;
+
+    // DOM
+    const $ = (s) => document.querySelector(s);
+    const searchInput = $("#storeSearchInput");
+    const dropdown = $("#storeSearchDropdown");
+    const btnClearStore = $("#btnClearStore");
+
+    const dossier = $("#storeDossierPanel");
+    const dStoreName = $("#dStoreName");
+    const dStoreMeta = $("#dStoreMeta");
+    const dTypeBadge = $("#dTypeBadge");
+    const dAccessBadge = $("#dAccessBadge");
+    const dSafetyBadge = $("#dSafetyBadge");
+    const dSafetyDetails = $("#dSafetyDetails");
+    const dPeriodLabel = $("#dPeriodLabel");
+    const dWebsiteLink = $("#dWebsiteLink");
+    const dStoreId = $("#dStoreId");
+
+    const kpiViews = $("#kpiViews");
+    const kpiClicks = $("#kpiClicks");
+    const kpiCtr = $("#kpiCtr");
+    const kpiSearchDemand = $("#kpiSearchDemand");
+    const dQueryList = $("#dQueryList");
+
+    const btnPrint = $("#btnPrint");
+    const btnEmail = $("#btnEmail");
+
+    /* ============================================================
+       SEARCH UI (placeholder data until we wire DB)
+       - next step: live search against stores table/view
+       ============================================================ */
+    let SEARCH_TIMER = null;
+
+    function showDropdown(html){
+      dropdown.innerHTML = html || "";
+      dropdown.classList.toggle("hidden", !html);
     }
 
-    // Aggregate by city + country
-    const map = new Map();
-
-    (data || []).forEach(e => {
-      const city = e.payload?.city || "Unknown";
-      const country = e.payload?.country || "Unknown";
-      const key = city + "||" + country;
-
-      if (!map.has(key)) {
-        map.set(key, { city, country, clicks: 0 });
-      }
-      map.get(key).clicks++;
-    });
-
-    const rows = [...map.values()].sort((a,b)=>b.clicks-a.clicks);
-
-    renderTable(rows);
-    renderChart(rows.slice(0,15));
-  }
-
-  /* ============================================================
-     RENDER TABLE
-     ============================================================ */
-  function renderTable(rows) {
-    const tbody = document.getElementById("cityTableBody");
-    if (!rows.length) {
-      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:#777;">No data</td></tr>`;
-      return;
+    function escapeHtml(s){
+      return String(s || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
     }
 
-    tbody.innerHTML = rows.map(r => `
-      <tr>
-        <td>${r.city}</td>
-        <td>${r.country}</td>
-        <td class="num">${r.clicks}</td>
-      </tr>
-    `).join("");
-  }
-
-  /* ============================================================
-     RENDER CHART
-     ============================================================ */
-  function renderChart(rows) {
-    const ctx = document.getElementById("cityChart").getContext("2d");
-
-    if (chart) chart.destroy();
-
-    chart = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: rows.map(r => r.city),
-        datasets: [{
-          data: rows.map(r => r.clicks),
-          backgroundColor: "#2f78c4"
-        }]
-      },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true }
-        }
+    function renderDropdownItems(items){
+      if(!items || !items.length){
+        showDropdown(`<div class="dd-item"><div class="dd-left"><div class="dd-title">No results</div><div class="dd-meta">Try another name or city</div></div></div>`);
+        return;
       }
+      const html = items.map(s => {
+        const name = escapeHtml(s.name);
+        const city = escapeHtml(s.city);
+        const country = escapeHtml(s.country);
+        const type = escapeHtml((s.types || [])[0] || "store");
+        const access = escapeHtml(s.access || "public");
+        return `
+          <div class="dd-item" data-store-id="${s.id}">
+            <div class="dd-left">
+              <div class="dd-title">${name}</div>
+              <div class="dd-meta">${city}${city && country ? ", " : ""}${country}</div>
+            </div>
+            <div class="row" style="gap:.35rem;">
+              <span class="tag">${type}</span>
+              <span class="tag">${access}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+      showDropdown(html);
+    }
+
+    async function searchStores(q){
+      // NEXT STEP: Replace this with a real query / RPC.
+      // For now: empty result to keep UI stable.
+      // Example later:
+      // const { data } = await supabase.from("stores").select("id,name,city,country,types,access,website").ilike("name", `%${q}%`).limit(10)
+      return [];
+    }
+
+    searchInput.addEventListener("input", () => {
+      const q = (searchInput.value || "").trim();
+      clearTimeout(SEARCH_TIMER);
+
+      if(!q){
+        showDropdown("");
+        return;
+      }
+
+      SEARCH_TIMER = setTimeout(async () => {
+        const items = await searchStores(q);
+        renderDropdownItems(items);
+      }, 250);
     });
-  }
 
-  loadTopCities();
-</script>
+    dropdown.addEventListener("click", (e) => {
+      const item = e.target.closest(".dd-item");
+      if(!item) return;
+      const storeId = Number(item.dataset.storeId);
+      if(!storeId) return;
 
+      // NEXT STEP: load full store object from DB by id
+      // For now we just hide dropdown
+      showDropdown("");
+    });
+
+    document.addEventListener("click", (e) => {
+      if(e.target === searchInput) return;
+      if(dropdown.contains(e.target)) return;
+      showDropdown("");
+    });
+
+    btnClearStore.addEventListener("click", () => {
+      SELECTED_STORE = null;
+      searchInput.value = "";
+      showDropdown("");
+      dossier.classList.add("hidden");
+    });
+
+    /* ============================================================
+       DATE RANGE PILLS (locked)
+       ============================================================ */
+    $("#dateRangePills").addEventListener("click", (e) => {
+      const pill = e.target.closest(".pill");
+      if(!pill) return;
+      $("#dateRangePills").querySelectorAll(".pill").forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      DAYS = Number(pill.dataset.days) || 30;
+
+      dPeriodLabel.textContent = `Last ${DAYS} days`;
+
+      // NEXT STEP: reload KPI metrics for selected store
+    });
+
+    /* ============================================================
+       ACTIONS (Print + Email) — locked
+       ============================================================ */
+    btnPrint.addEventListener("click", () => window.print());
+
+    btnEmail.addEventListener("click", () => {
+      if(!SELECTED_STORE){
+        alert("Select a store first.");
+        return;
+      }
+
+      const subject = encodeURIComponent(`Your visibility on World Cigar Locator — Last ${DAYS} days`);
+      const body = encodeURIComponent(
+`Hi ${SELECTED_STORE.name || "there"},
+
+Here’s how customers found and visited you via World Cigar Locator in the last ${DAYS} days:
+
+• Seen ${kpiViews.textContent || "0"} times in WCL
+• ${kpiClicks.textContent || "0"} visitors clicked to your website
+• CTR ${kpiCtr.textContent || "0%"}
+
+If you’d like, we can help you get even more visibility.
+
+— World Cigar Locator`
+      );
+
+      // We don’t know store email yet; use generic mailto for now.
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    });
+
+    /* ============================================================
+       STORE DOSSIER RENDER (called after store selected)
+       ============================================================ */
+    function openDossier(store){
+      SELECTED_STORE = store;
+
+      dossier.classList.remove("hidden");
+
+      dStoreName.textContent = store.name || "—";
+      dStoreMeta.textContent = [store.city, store.country].filter(Boolean).join(", ") || "—";
+      dStoreId.textContent = store.id ?? "—";
+
+      const typeLabel = (store.types && store.types.length) ? store.types.join(", ") : (store.type || "store");
+      dTypeBadge.textContent = typeLabel;
+      dAccessBadge.textContent = (store.access || "public").toUpperCase();
+
+      if(store.website){
+        dWebsiteLink.href = store.website;
+        dWebsiteLink.classList.remove("hidden");
+      } else {
+        dWebsiteLink.href = "#";
+        dWebsiteLink.classList.add("hidden");
+      }
+
+      // placeholders until we wire real metrics
+      dPeriodLabel.textContent = `Last ${DAYS} days`;
+      kpiViews.textContent = "0";
+      kpiClicks.textContent = "0";
+      kpiCtr.textContent = "0%";
+      kpiSearchDemand.textContent = "—";
+      dQueryList.textContent = "No data yet.";
+
+      dSafetyBadge.className = "badge good";
+      dSafetyBadge.textContent = "✓ Clean";
+      dSafetyDetails.textContent = "No flags.";
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // TEMP: Demo helper (we’ll remove after wiring DB)
+    // openDossier({ id: 10, name:"Roberts Tobak", city:"Stockholm", country:"Sweden", types:["store"], access:"public", website:"https://example.com" });
+
+    /* ============================================================
+       Overview area stays for later (we wire after Search)
+       ============================================================ */
+    // (intentionally empty)
+  </script>
 </body>
 </html>
