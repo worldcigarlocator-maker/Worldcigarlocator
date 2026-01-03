@@ -673,9 +673,9 @@ updateRegionCounts();
      ========================= */
   window.scrollTo(0, scrollY);
 
-  console.log(
-    `✅ reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}, total=${allData.length}`
-  );
+console.log(
+  `✅ reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}, total=${STORES.length}`
+);
 }
 
 
