@@ -96,14 +96,13 @@ function bindUI() {
 /* =========================
    STORES INDEX (autocomplete source)
    ========================= */
-
 async function loadStoresIndex() {
-  // Approved + not deleted is enough for search suggestions
   const { data, error } = await sb
-    .from("stores")
-    .select("id, name, city, country, website, types, access")
+    .from("analytics_store_search_v1")
+    .select("store_id, name, city, country, types, access")
     .eq("deleted", false)
     .eq("approved", true)
+    .order("name", { ascending: true }) // 🔑 viktigt
     .limit(50000);
 
   if (error) {
@@ -111,9 +110,17 @@ async function loadStoresIndex() {
     return;
   }
 
-  STORES_INDEX = data || [];
-  console.log("Stores index:", STORES_INDEX.length);
+  // normalisera till samma shape
+  STORES_INDEX = (data || []).map(s => ({
+    id: s.store_id,
+    name: s.name,
+    city: s.city,
+    country: s.country,
+    types: s.types,
+    access: s.access
+  }));
 }
+
 
 /* =========================
    AUTOCOMPLETE
