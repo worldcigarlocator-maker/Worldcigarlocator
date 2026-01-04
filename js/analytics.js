@@ -1,156 +1,251 @@
 /* ============================================================
-   WCL Analytics — Search + Autocomplete (Phase 1)
+   World Cigar Locator — Analytics JS (V1)
+   Store-first, autocomplete, no charts yet
    ============================================================ */
 
-// ---- Supabase client (anon, read-only) ----
-const supabase = window.supabase.createClient(
+/* =========================
+   SUPABASE CLIENT
+   ========================= */
+
+// OBS: window.supabase kommer från CDN
+const sb = window.supabase.createClient(
   "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-  "PUBLIC_ANON_KEY_HÄR"
+  "YOUR_PUBLIC_ANON_KEY"
 );
 
-// ---- DOM ----
-const input = document.getElementById("analyticsSearch");
-const btnSearch = document.getElementById("searchBtn");
-const box = document.getElementById("autocomplete");
+/* =========================
+   STATE
+   ========================= */
 
-const storePanel = document.getElementById("storeSummary");
-const storeName = document.getElementById("storeName");
-const storeMeta = document.getElementById("storeMeta");
+let STORES_INDEX = [];       // alla butiker (för autocomplete)
+let ACTIVE_STORE = null;    // vald butik
 
-// ---- State ----
-let AUTOCOMPLETE_RESULTS = [];
-let SELECTED_STORE = null;
-let TIMER = null;
+/* =========================
+   DOM HELPERS
+   ========================= */
 
-// ============================================================
-// AUTOCOMPLETE
-// ============================================================
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
 
-async function fetchAutocomplete(q) {
-  if (!q || q.length < 2) return [];
+const searchInput   = $("#searchInput");
+const searchResults = $("#searchResults");
+const clearBtn      = $("#clearSearch");
+const resultPanel   = $("#storeResult");
 
-  const { data, error } = await supabase
+/* =========================
+   INIT
+   ========================= */
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadStoresIndex();
+  bindSearch();
+});
+
+/* =========================
+   LOAD STORES (AUTOCOMPLETE SOURCE)
+   ========================= */
+
+async function loadStoresIndex() {
+  const { data, error } = await sb
     .from("stores")
     .select("id, name, city, country")
-    .ilike("name", `%${q}%`)
-    .limit(10);
+    .eq("deleted", false)
+    .eq("approved", true);
 
   if (error) {
-    console.error(error);
-    return [];
+    console.error("Failed to load stores index", error);
+    return;
   }
 
-  return data || [];
+  STORES_INDEX = data || [];
+  console.log("Stores loaded for search:", STORES_INDEX.length);
 }
+
+/* =========================
+   SEARCH + AUTOCOMPLETE
+   ========================= */
+
+function bindSearch() {
+  if (!searchInput) return;
+
+  searchInput.addEventListener("input", onSearchInput);
+  searchInput.addEventListener("keydown", onSearchKeyDown);
+
+  clearBtn?.addEventListener("click", resetSearch);
+}
+
+function onSearchInput(e) {
+  const q = e.target.value.trim().toLowerCase();
+  if (!q) {
+    clearResults();
+    return;
+  }
+
+  const matches = STORES_INDEX
+    .filter(s =>
+      s.name.toLowerCase().includes(q) ||
+      (s.city || "").toLowerCase().includes(q) ||
+      (s.country || "").toLowerCase().includes(q)
+    )
+    .slice(0, 10);
+
+  renderAutocomplete(matches);
+}
+
+function onSearchKeyDown(e) {
+  if (e.key === "Enter") {
+    const first = searchResults?.querySelector(".search-item");
+    if (first) {
+      const id = first.dataset.id;
+      selectStoreById(id);
+    }
+  }
+}
+
+/* =========================
+   AUTOCOMPLETE UI
+   ========================= */
 
 function renderAutocomplete(list) {
+  if (!searchResults) return;
+
   if (!list.length) {
-    box.classList.add("hidden");
+    searchResults.innerHTML = "";
     return;
   }
 
-  box.innerHTML = list
-    .map(
-      (s) => `
-        <div class="ac-item" data-id="${s.id}">
-          <strong>${s.name}</strong><br/>
-          <small>${[s.city, s.country].filter(Boolean).join(", ")}</small>
-        </div>
-      `
-    )
-    .join("");
+  searchResults.innerHTML = list.map(s => `
+    <div class="search-item" data-id="${s.id}">
+      <strong>${escapeHtml(s.name)}</strong><br>
+      <small>${[s.city, s.country].filter(Boolean).join(", ")}</small>
+    </div>
+  `).join("");
 
-  box.classList.remove("hidden");
+  $$(".search-item").forEach(el => {
+    el.addEventListener("click", () => {
+      selectStoreById(el.dataset.id);
+    });
+  });
 }
 
-input.addEventListener("input", () => {
-  const q = input.value.trim();
+function clearResults() {
+  if (searchResults) searchResults.innerHTML = "";
+}
 
-  clearTimeout(TIMER);
+/* =========================
+   SELECT STORE
+   ========================= */
 
-  TIMER = setTimeout(async () => {
-    AUTOCOMPLETE_RESULTS = await fetchAutocomplete(q);
-    renderAutocomplete(AUTOCOMPLETE_RESULTS);
-  }, 250);
-});
+async function selectStoreById(storeId) {
+  clearResults();
+  searchInput.value = "";
 
-// Klick i autocomplete
-box.addEventListener("click", (e) => {
-  const row = e.target.closest(".ac-item");
-  if (!row) return;
+  const { data, error } = await sb
+    .from("stores")
+    .select("*")
+    .eq("id", storeId)
+    .single();
 
-  const id = Number(row.dataset.id);
-  const store = AUTOCOMPLETE_RESULTS.find((s) => s.id === id);
-  if (!store) return;
-
-  input.value = store.name;
-  box.classList.add("hidden");
-
-  runSearch(store.id);
-});
-
-// ============================================================
-// SEARCH
-// ============================================================
-
-async function runSearch(storeIdOrText) {
-  let store = null;
-
-  // 1) Om ID
-  if (typeof storeIdOrText === "number") {
-    const { data } = await supabase
-      .from("stores")
-      .select("*")
-      .eq("id", storeIdOrText)
-      .single();
-
-    store = data;
-  }
-
-  // 2) Annars försök via namn
-  if (!store) {
-    const q = input.value.trim();
-    if (!q) return;
-
-    const { data } = await supabase
-      .from("stores")
-      .select("*")
-      .ilike("name", `%${q}%`)
-      .limit(1)
-      .single();
-
-    store = data;
-  }
-
-  if (!store) {
-    alert("No matching store found.");
+  if (error || !data) {
+    console.error("Failed to load store", error);
     return;
   }
 
-  SELECTED_STORE = store;
-  renderStoreSummary(store);
+  ACTIVE_STORE = data;
+  renderStoreResult(data);
+  await loadStoreAnalytics(data.id);
 }
 
-// Klick på Search
-btnSearch.addEventListener("click", () => runSearch());
+/* =========================
+   STORE RESULT UI
+   ========================= */
 
-// Enter
-input.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") runSearch();
-});
+function renderStoreResult(s) {
+  if (!resultPanel) return;
 
-// ============================================================
-// STORE SUMMARY (ENDAST UI JUST NU)
-// ============================================================
+  resultPanel.innerHTML = `
+    <h2>${escapeHtml(s.name)}</h2>
+    <p><strong>Location:</strong> ${[s.city, s.country].filter(Boolean).join(", ")}</p>
+    <p><strong>Type:</strong> ${(s.types || []).join(", ")}</p>
+    <p><strong>Website:</strong> ${
+      s.website
+        ? `<a href="${s.website}" target="_blank" rel="noopener">${s.website}</a>`
+        : "—"
+    }</p>
 
-function renderStoreSummary(s) {
-  storeName.textContent = s.name;
-  storeMeta.textContent = [
-    s.city,
-    s.country,
-    `ID: ${s.id}`,
-  ].filter(Boolean).join(" • ");
+    <hr>
 
-  storePanel.classList.remove("hidden");
+    <div class="metrics">
+      <div><strong>Views:</strong> <span id="metricViews">—</span></div>
+      <div><strong>Website clicks:</strong> <span id="metricClicks">—</span></div>
+      <div><strong>CTR:</strong> <span id="metricCTR">—</span></div>
+    </div>
+
+    <button id="exportStore" class="btn">Export</button>
+    <button id="emailStore" class="btn">Email store</button>
+  `;
+
+  $("#exportStore")?.addEventListener("click", exportStore);
+  $("#emailStore")?.addEventListener("click", emailStore);
 }
 
+/* =========================
+   LOAD ANALYTICS (STORE)
+   ========================= */
+
+async function loadStoreAnalytics(storeId) {
+  const { data, error } = await sb
+    .from("analytics_store_summary")
+    .select("*")
+    .eq("store_id", storeId)
+    .single();
+
+  if (error || !data) {
+    console.warn("No analytics yet for store", storeId);
+    return;
+  }
+
+  const views  = data.views || 0;
+  const clicks = data.clicks || 0;
+  const ctr    = views ? ((clicks / views) * 100).toFixed(1) + "%" : "0%";
+
+  $("#metricViews").textContent  = views;
+  $("#metricClicks").textContent = clicks;
+  $("#metricCTR").textContent    = ctr;
+}
+
+/* =========================
+   EXPORT / EMAIL (PLACEHOLDER)
+   ========================= */
+
+function exportStore() {
+  if (!ACTIVE_STORE) return;
+  alert("Export coming next phase.");
+}
+
+function emailStore() {
+  if (!ACTIVE_STORE) return;
+  alert("Email flow coming next phase.");
+}
+
+/* =========================
+   RESET
+   ========================= */
+
+function resetSearch() {
+  searchInput.value = "";
+  clearResults();
+  ACTIVE_STORE = null;
+  if (resultPanel) resultPanel.innerHTML = "";
+}
+
+/* =========================
+   UTILS
+   ========================= */
+
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
