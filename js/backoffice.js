@@ -2,7 +2,7 @@
    Backoffice V5.2.1 — Moderation + Hierarki + Edit + Proxy + ISO Flags
    ============================================================ */
 
-console.log("🚀 Backoffice V5.2.1 loaded ✅");
+console.log(" Backoffice V5.2.1 loaded ");
 
 /* ======================== CONFIG ======================== */
 const WCL = {
@@ -46,13 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = document.getElementById("password").value.trim();
     const { error } = await WCL.supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      document.getElementById("login-error").textContent = "❌ Wrong email or password";
+      document.getElementById("login-error").textContent = " Wrong email or password";
       return;
     }
     await showApp();
   });
 
-   console.log("🧩 Auth init – DOM loaded");
+   console.log(" Auth init – DOM loaded");
 
 
   // kontrollera session vid sidstart
@@ -174,7 +174,7 @@ function makeExpandableRow(label, items, level) {
   const tr = document.createElement("tr");
   tr.className = `expandable ${level}`;
 
-  // 👉 11 kolumner totalt → arrow + 10 data-kolumner
+  //  11 kolumner totalt → arrow + 10 data-kolumner
   tr.innerHTML = `
     <td class="arrow-cell">▶</td>
     <td colspan="10" class="line-label">
@@ -459,7 +459,7 @@ async function fetchPhotoRefs(placeId) {
    COUNTRY HELPERS
    ============================================================ */
 
-// 🔹 Normaliserar namn (så "Germany", "germany", "GERMANY" blir samma)
+// Normaliserar namn (så "Germany", "germany", "GERMANY" blir samma)
 function normalizeCountry(name) {
   if (!name) return "";
   return name
@@ -472,7 +472,7 @@ function normalizeCountry(name) {
     .replaceAll("è", "e");
 }
 
-// 🔹 Mappning från land → kontinent (för flaggor & hierarki)
+//  Mappning från land → kontinent (för flaggor & hierarki)
 const countryContinentMap = {
   germany: "Europe",
   sweden: "Europe",
@@ -499,23 +499,13 @@ const countryContinentMap = {
   new_zealand: "Oceania",
 };
 
-// 🔹 Omvandla land → kontinent
+//  Omvandla land → kontinent
 function countryToContinent(country) {
   if (!country) return "Unknown";
   const c = normalizeCountry(country).replaceAll(" ", "_");
   return countryContinentMap[c] || "Unknown";
 }
 
-// 🔹 Land → Flagga (fallback emoji om ISO saknas)
-function countryToFlag(country) {
-  if (!country) return "🏳️";
-  const c = normalizeCountry(country)
-    .replaceAll(" ", "_")
-    .replaceAll("united_kingdom", "gb")
-    .replaceAll("united_states", "us");
-  const code = c.slice(0, 2).toUpperCase();
-  return String.fromCodePoint(...[...code].map(ch => 0x1F1E6 - 65 + ch.charCodeAt(0))) || "🏳️";
-}
 
 /* ============================================================
    REGION COUNTS — använder RPC (ingen 1000-limit)
@@ -523,7 +513,7 @@ function countryToFlag(country) {
 function updateRegionCounts() {
   const c = window.STORE_COUNTS;
   if (!c) {
-    console.warn("⚠️ STORE_COUNTS saknas");
+    console.warn(" STORE_COUNTS saknas");
     return;
   }
 
@@ -553,7 +543,7 @@ function updateRegionCounts() {
     badge.textContent = `(${n})`;
   });
 
-  console.log("🔢 Region counts (RPC):", counts);
+  console.log(" Region counts (RPC):", counts);
 }
 
 /* ============================================================
@@ -602,7 +592,8 @@ async function reloadData(tab = CURRENT_TAB) {
   }
 
   const grid = $("#cards");
-  if (grid) grid.innerHTML = "<p class='muted center'>Loading…</p>";
+if (grid) grid.innerHTML = "<p class='muted center'>Loading...</p>";
+
 
  /* =========================
    1) HÄMTA COUNTS (utan 1000-limit)
@@ -611,7 +602,7 @@ const { data: countsData, error: countsError } = await WCL.supabase
   .rpc("stores_counts");
 
 if (countsError) {
-  console.error("❌ Count RPC error:", countsError);
+  console.error(" Count RPC error:", countsError);
 } else {
   window.STORE_COUNTS = countsData?.[0] || {
     all: 0,
@@ -639,7 +630,7 @@ if (countsError) {
      TAB LOGIC — FAST SORTERING
      ============================================================ */
 
-  // 🔵 PENDING = arbetskö (äldst först)
+  //  PENDING = arbetskö (äldst först)
   if (tab === "pending") {
     base = base
       .eq("approved", false)
@@ -647,21 +638,21 @@ if (countsError) {
       .eq("deleted", false)
       .order("id", { ascending: true });
 
-  // 🟢 APPROVED = nyast först
+  //  APPROVED = nyast först
   } else if (tab === "approved") {
     base = base
       .eq("approved", true)
       .eq("deleted", false)
       .order("id", { ascending: false });
 
-  // 🟠 FLAGGED = nyast först
+  //  FLAGGED = nyast först
   } else if (tab === "flagged") {
     base = base
       .eq("flagged", true)
       .eq("deleted", false)
       .order("id", { ascending: false });
 
-  // 🔴 DELETED = nyast först
+  //  DELETED = nyast först
   } else if (tab === "deleted") {
     base = base
       .eq("deleted", true)
@@ -713,7 +704,7 @@ updateRegionCounts();
   window.scrollTo(0, scrollY);
 
 console.log(
-  `✅ reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}, total=${STORES.length}`
+  ` reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}, total=${STORES.length}`
 );
 }
 
@@ -758,7 +749,7 @@ const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
     t === "lounge" ? "gold" : "gray";
   let html = `<span class="badge ${color}">${t}</span>`;
 
-  // 🟣 Lägg till access-badge direkt efter LOUNGE
+  //  Lägg till access-badge direkt efter LOUNGE
   if (t === "lounge" && s.access) {
     const accessColor =
       s.access === "public" ? "green" :
@@ -830,7 +821,7 @@ body.appendChild(loc);
     reviewsLink.className = "reviewslink";
     reviewsLink.innerHTML = `
       <button class="btn small ghost" onclick="editStore(${s.id})">
-        💬 View Comments / Reviews
+         View Comments / Reviews
       </button>
     `;
     body.appendChild(reviewsLink);
@@ -843,7 +834,7 @@ body.appendChild(loc);
       ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
       ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
       ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
-      <span style="margin-left:6px;color:var(--muted)">⭐ ${s.rating ?? "–"}</span>
+      <span style="margin-left:6px;color:var(--muted)"> ${s.rating ?? "–"}</span>
     `;
     body.appendChild(status);
 
@@ -889,7 +880,7 @@ function makeBtn(label, onclick, cls = "") {
 
 /* ==================== MOD ACTIONS ================= */
 
-/* ✅ APPROVE — enda sanningen (ingen edge, ingen fetch) */
+/*  APPROVE — enda sanningen (ingen edge, ingen fetch) */
 async function approveStore(id) {
   const { error } = await WCL.supabase
     .from("stores")
@@ -906,12 +897,12 @@ async function approveStore(id) {
     return;
   }
 
-  toast("Approved ✅");
+  toast("Approved ");
   await reloadData(CURRENT_TAB);
 }
 
 
-/* 🟡 UNFLAG */
+/*  UNFLAG */
 async function unflagStore(id) {
   const { error } = await WCL.supabase
     .from("stores")
@@ -927,7 +918,7 @@ async function unflagStore(id) {
     return;
   }
 
-  toast("Unflagged ✅");
+  toast("Unflagged ");
   await reloadData(CURRENT_TAB);
 }
 
@@ -947,7 +938,7 @@ async function toggleDelete(s) {
     return;
   }
 
-  toast(next ? "Moved to Trash 🗑️" : "Restored ♻️");
+  toast(next ? "Moved to Trash " : "Restored ");
   await reloadData(CURRENT_TAB);
 }
 
@@ -962,9 +953,9 @@ async function repairPhoto(id, place_id, imgEl) {
     return;
   }
 
-  // 🔶 Markera raden under arbete
+  //  Markera raden under arbete
   if (row) row.style.backgroundColor = "rgba(255,165,0,0.25)";
-  toast("Repairing photo…", "info");
+  toast("Repairing photo...", "info");
 
   try {
     const refs = await fetchPhotoRefs(place_id);
@@ -987,8 +978,8 @@ async function repairPhoto(id, place_id, imgEl) {
       return;
     }
 
-    // ✅ Lyckades — grön blink!
-    toast("Photo repaired ✅");
+    //  Lyckades — grön blink!
+    toast("Photo repaired ");
     if (imgEl) imgEl.src = buildPhotoProxyUrl(newRef);
     if (row) {
       row.style.backgroundColor = "rgba(144,238,144,0.4)"; // ljusgrön
@@ -1006,7 +997,7 @@ async function repairPhoto(id, place_id, imgEl) {
 async function editStore(id) {
   closeEdit();
 
-  // 🔹 Hämta store + kommentarer parallellt
+  //  Hämta store + kommentarer parallellt
   const [storeResp, commentsResp] = await Promise.all([
     WCL.supabase.from("stores").select("*").eq("id", id).single(),
     WCL.supabase.from("store_comments").select("*").eq("store_id", id).order("created_at", { ascending: false })
@@ -1022,7 +1013,7 @@ async function editStore(id) {
     return;
   }
 
-  // 🔹 Bygg modal
+  //  Bygg modal
   const modal = document.createElement("div");
   modal.className = "modal-backdrop";
   modal.innerHTML = `
@@ -1111,22 +1102,22 @@ async function editStore(id) {
   `;
   document.body.appendChild(modal);
 
-  // 🔹 Fyll kontinent
+  //  Fyll kontinent
   const contSel = $("#edit-continent");
   const defaultCont = store.continent || countryToContinent(store.country);
   if (defaultCont) contSel.value = defaultCont;
 
-  // 🔹 Typval – återställ
+  //  Typval – återställ
   modal.querySelectorAll(".type-btn input").forEach(cb => {
     cb.checked = (store.types || []).includes(cb.value);
   });
 
-  // 🔹 Access
+  //  Access
   modal.querySelectorAll(".access-pill input").forEach(radio => {
     radio.checked = store.access === radio.value;
   });
 
-  // 🔹 Foto-navigation
+  //  Foto-navigation
   let refs = await fetchPhotoRefs(store.place_id);
   if (!refs.length && store.photo_reference) refs = [store.photo_reference];
   let currentIndex = Math.max(0, refs.indexOf(store.photo_reference));
@@ -1142,11 +1133,11 @@ if (!refs.length) {
 }
 
 
-  // 🔁 Reset src först (Safari-fix)
+  //  Reset src först (Safari-fix)
   imgEl.src = "";
   imgEl.src = buildPhotoProxyUrl(refs[currentIndex]);
 
-  metaEl.textContent = `Photo ${currentIndex + 1} / ${refs.length} — via proxy`;
+  `Photo ${currentIndex + 1} / ${refs.length} - via proxy`
 }
 
   showCurrent();
@@ -1163,20 +1154,20 @@ if (!refs.length) {
     showCurrent();
   };
 
-  // 🔹 Delete comment
+  //  Delete comment
   modal.querySelectorAll(".del-comment").forEach((btn) => {
     btn.addEventListener("click", async () => {
       if (!confirm("Delete this comment?")) return;
       const cid = btn.dataset.id;
       const { error } = await WCL.supabase.from("store_comments").delete().eq("id", cid);
       if (error) return toast("Error deleting comment", "error");
-      toast("Comment deleted 🗑️");
+      toast("Comment deleted ");
       closeEdit();
       editStore(id);
     });
   });
 
-  // 🔹 Save button
+  //  Save button
   $("#edit-save").onclick = async () => {
     const selectedTypes = Array.from(modal.querySelectorAll(".type-btn input:checked")).map(cb => cb.value);
     const selectedAccess = modal.querySelector("input[name='access']:checked")?.value || null;
@@ -1189,18 +1180,18 @@ if (!refs.length) {
       country: $("#edit-country").value.trim(),
       continent: $("#edit-continent").value || null,
       website: $("#edit-website").value.trim(),
-      types: selectedTypes, // ✅ array
+      types: selectedTypes, //  array
       access: selectedAccess,
       photo_reference: refs.length ? refs[currentIndex] : null,
     };
 
     const { error } = await WCL.supabase.from("stores").update(payload).eq("id", id);
     if (error) {
-      console.error("❌ Supabase update failed:", error);
+      console.error(" Supabase update failed:", error);
       return toast("Error saving", "error");
     }
 
-    toast("✅ Store updated!");
+    toast(" Store updated!");
     closeEdit();
     reloadData(CURRENT_TAB);
   };
@@ -1215,9 +1206,9 @@ function closeEdit() {
 
 /* ===================== UI WIRING ========================= */
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ DOM fully loaded — Backoffice ready");
+  console.log(" DOM fully loaded — Backoffice ready");
 
-  // 🔹 Filterknappar
+  //  Filterknappar
   $$(".filters .pill").forEach((p) =>
     p.addEventListener("click", () => {
       CURRENT_TAB = p.dataset.tab;
@@ -1225,7 +1216,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   );
 
-  // 🔹 Växla vy (kort / lista)
+  //  Växla vy (kort / lista)
   $$(".viewtoggle .seg").forEach((seg) =>
     seg.addEventListener("click", () => {
       $$(".viewtoggle .seg").forEach((x) => x.classList.remove("active"));
@@ -1243,7 +1234,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   );
 
-  // 🔹 Sökfält
+  //  Sökfält
   $("#searchInput")?.addEventListener("input", () => render());
 });
 
