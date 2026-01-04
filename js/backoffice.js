@@ -88,6 +88,30 @@ const toast = (msg, cls = "success") => {
 };
 
 /* ============================================================
+   FETCH ALL STORES — Supabase pagination (no 1000 limit)
+   ============================================================ */
+async function fetchAllStores(query) {
+  const PAGE_SIZE = 1000;
+  let from = 0;
+  let all = [];
+
+  while (true) {
+    const { data, error } = await query.range(from, from + PAGE_SIZE - 1);
+
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+
+    all = all.concat(data);
+
+    if (data.length < PAGE_SIZE) break;
+    from += PAGE_SIZE;
+  }
+
+  return all;
+}
+
+
+/* ============================================================
    HELPER: groupBy
    ============================================================ */
 function groupBy(arr, keyFn) {
@@ -653,12 +677,15 @@ if (countsError) {
   /* =========================
      3) Fetch rows
      ========================= */
-  const { data, error } = await base;
-  if (error) {
-    console.error(error);
-    if (grid) grid.innerHTML = "<p class='error center'>Error loading stores</p>";
-    return;
-  }
+ let data;
+try {
+  data = await fetchAllStores(base);
+} catch (error) {
+  console.error(error);
+  if (grid) grid.innerHTML = "<p class='error center'>Error loading stores</p>";
+  return;
+}
+
 
   STORES = (data || []).map((s) => ({
     ...s,
