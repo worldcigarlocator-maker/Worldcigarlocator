@@ -1,1 +1,131 @@
+/* ============================================================
+   WCL Analytics — Base UI
+   ============================================================ */
+
+:root {
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --blue: #2f78c4;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 1.5rem;
+}
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+
+.analytics-search {
+  position: relative;
+  max-width: 520px;
+  margin: 0 auto 1.2rem;
+}
+
+.analytics-search input {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  outline: none;
+}
+
+.analytics-search input:focus {
+  border-color: var(--blue);
+}
+
+.analytics-search button {
+  margin-top: 0.6rem;
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--blue);
+  background: var(--blue);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.analytics-search button:hover {
+  opacity: 0.9;
+}
+
+/* ============================================================
+   AUTOCOMPLETE
+   ============================================================ */
+
+.autocomplete {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-top: 4px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  z-index: 20;
+}
+
+.ac-item {
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ac-item:last-child {
+  border-bottom: none;
+}
+
+.ac-item:hover {
+  background: #f3f6fb;
+}
+
+.ac-item strong {
+  font-size: 0.9rem;
+}
+
+.ac-item small {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* ============================================================
+   STORE SUMMARY
+   ============================================================ */
+
+.store-summary {
+  max-width: 640px;
+  margin: 1.5rem auto 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+}
+
+.store-summary h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+}
+
+.store-meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+
+.hidden {
+  display: none !important;
+}
 
