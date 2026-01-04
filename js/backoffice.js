@@ -674,17 +674,26 @@ if (countsError) {
       .order("id", { ascending: false });
   }
 
-  /* =========================
-     3) Fetch rows
-     ========================= */
- let data;
+/* =========================
+   3) Fetch rows
+   ========================= */
+let data;
 try {
   data = await fetchAllStores(base);
+
+  console.log("🧪 fetchAllStores result:", {
+    length: data.length,
+    hasCigarrummet: data.some(s => s.name === "Cigarrummet"),
+    sampleFirst5: data.slice(0, 5).map(s => ({ id: s.id, name: s.name })),
+    sampleLast5: data.slice(-5).map(s => ({ id: s.id, name: s.name })),
+  });
+
 } catch (error) {
   console.error(error);
   if (grid) grid.innerHTML = "<p class='error center'>Error loading stores</p>";
   return;
 }
+
 
 
   STORES = (data || []).map((s) => ({
