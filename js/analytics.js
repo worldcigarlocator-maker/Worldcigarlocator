@@ -1,251 +1,178 @@
-/* ============================================================
-   World Cigar Locator — Analytics JS (V1)
-   Store-first, autocomplete, no charts yet
-   ============================================================ */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics — World Cigar Locator</title>
 
-/* =========================
-   SUPABASE CLIENT
-   ========================= */
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-// OBS: window.supabase kommer från CDN
-const sb = window.supabase.createClient(
-  "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-  "YOUR_PUBLIC_ANON_KEY"
-);
+  <link rel="stylesheet" href="css/analytics.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>World Cigar Locator — Analytics</h1>
 
-/* =========================
-   STATE
-   ========================= */
+    <nav class="nav">
+      <a class="navlink" href="backoffice.html">Backoffice</a>
+      <a class="navlink" href="add-store-backoffice.html">Add Store</a>
+    </nav>
+  </header>
 
-let STORES_INDEX = [];       // alla butiker (för autocomplete)
-let ACTIVE_STORE = null;    // vald butik
+  <!-- SEARCH (store-first) -->
+  <section class="panel">
+    <div class="searchrow">
+      <div class="searchbox">
+        <input
+          id="searchInput"
+          type="text"
+          autocomplete="off"
+          placeholder="Search store, city, country… (e.g. Cigarrummet)"
+        />
+        <div id="searchResults" class="search-results hidden"></div>
+      </div>
 
-/* =========================
-   DOM HELPERS
-   ========================= */
-
-const $ = (sel) => document.querySelector(sel);
-const $$ = (sel) => document.querySelectorAll(sel);
-
-const searchInput   = $("#searchInput");
-const searchResults = $("#searchResults");
-const clearBtn      = $("#clearSearch");
-const resultPanel   = $("#storeResult");
-
-/* =========================
-   INIT
-   ========================= */
-
-document.addEventListener("DOMContentLoaded", async () => {
-  await loadStoresIndex();
-  bindSearch();
-});
-
-/* =========================
-   LOAD STORES (AUTOCOMPLETE SOURCE)
-   ========================= */
-
-async function loadStoresIndex() {
-  const { data, error } = await sb
-    .from("stores")
-    .select("id, name, city, country")
-    .eq("deleted", false)
-    .eq("approved", true);
-
-  if (error) {
-    console.error("Failed to load stores index", error);
-    return;
-  }
-
-  STORES_INDEX = data || [];
-  console.log("Stores loaded for search:", STORES_INDEX.length);
-}
-
-/* =========================
-   SEARCH + AUTOCOMPLETE
-   ========================= */
-
-function bindSearch() {
-  if (!searchInput) return;
-
-  searchInput.addEventListener("input", onSearchInput);
-  searchInput.addEventListener("keydown", onSearchKeyDown);
-
-  clearBtn?.addEventListener("click", resetSearch);
-}
-
-function onSearchInput(e) {
-  const q = e.target.value.trim().toLowerCase();
-  if (!q) {
-    clearResults();
-    return;
-  }
-
-  const matches = STORES_INDEX
-    .filter(s =>
-      s.name.toLowerCase().includes(q) ||
-      (s.city || "").toLowerCase().includes(q) ||
-      (s.country || "").toLowerCase().includes(q)
-    )
-    .slice(0, 10);
-
-  renderAutocomplete(matches);
-}
-
-function onSearchKeyDown(e) {
-  if (e.key === "Enter") {
-    const first = searchResults?.querySelector(".search-item");
-    if (first) {
-      const id = first.dataset.id;
-      selectStoreById(id);
-    }
-  }
-}
-
-/* =========================
-   AUTOCOMPLETE UI
-   ========================= */
-
-function renderAutocomplete(list) {
-  if (!searchResults) return;
-
-  if (!list.length) {
-    searchResults.innerHTML = "";
-    return;
-  }
-
-  searchResults.innerHTML = list.map(s => `
-    <div class="search-item" data-id="${s.id}">
-      <strong>${escapeHtml(s.name)}</strong><br>
-      <small>${[s.city, s.country].filter(Boolean).join(", ")}</small>
-    </div>
-  `).join("");
-
-  $$(".search-item").forEach(el => {
-    el.addEventListener("click", () => {
-      selectStoreById(el.dataset.id);
-    });
-  });
-}
-
-function clearResults() {
-  if (searchResults) searchResults.innerHTML = "";
-}
-
-/* =========================
-   SELECT STORE
-   ========================= */
-
-async function selectStoreById(storeId) {
-  clearResults();
-  searchInput.value = "";
-
-  const { data, error } = await sb
-    .from("stores")
-    .select("*")
-    .eq("id", storeId)
-    .single();
-
-  if (error || !data) {
-    console.error("Failed to load store", error);
-    return;
-  }
-
-  ACTIVE_STORE = data;
-  renderStoreResult(data);
-  await loadStoreAnalytics(data.id);
-}
-
-/* =========================
-   STORE RESULT UI
-   ========================= */
-
-function renderStoreResult(s) {
-  if (!resultPanel) return;
-
-  resultPanel.innerHTML = `
-    <h2>${escapeHtml(s.name)}</h2>
-    <p><strong>Location:</strong> ${[s.city, s.country].filter(Boolean).join(", ")}</p>
-    <p><strong>Type:</strong> ${(s.types || []).join(", ")}</p>
-    <p><strong>Website:</strong> ${
-      s.website
-        ? `<a href="${s.website}" target="_blank" rel="noopener">${s.website}</a>`
-        : "—"
-    }</p>
-
-    <hr>
-
-    <div class="metrics">
-      <div><strong>Views:</strong> <span id="metricViews">—</span></div>
-      <div><strong>Website clicks:</strong> <span id="metricClicks">—</span></div>
-      <div><strong>CTR:</strong> <span id="metricCTR">—</span></div>
+      <button id="searchBtn" class="btn primary">Search</button>
+      <button id="clearBtn" class="btn ghost">Clear</button>
     </div>
 
-    <button id="exportStore" class="btn">Export</button>
-    <button id="emailStore" class="btn">Email store</button>
-  `;
+    <div class="hint">
+      Store-first: pick 1 result → get a full dossier with Views, Website clicks, CTR + export.
+    </div>
+  </section>
 
-  $("#exportStore")?.addEventListener("click", exportStore);
-  $("#emailStore")?.addEventListener("click", emailStore);
-}
+  <!-- STORE DOSSIER -->
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Store dossier</h2>
 
-/* =========================
-   LOAD ANALYTICS (STORE)
-   ========================= */
+      <div class="row gap">
+        <label class="label">Range:</label>
+        <select id="rangeSelect" class="select">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="0">All time</option>
+        </select>
 
-async function loadStoreAnalytics(storeId) {
-  const { data, error } = await sb
-    .from("analytics_store_summary")
-    .select("*")
-    .eq("store_id", storeId)
-    .single();
+        <button id="exportBtn" class="btn">Export CSV</button>
+        <button id="printBtn" class="btn">Print</button>
+        <button id="mailBtn" class="btn">Email store</button>
+      </div>
+    </div>
 
-  if (error || !data) {
-    console.warn("No analytics yet for store", storeId);
-    return;
-  }
+    <div id="storeEmpty" class="empty">
+      Pick a store from Search to see metrics.
+    </div>
 
-  const views  = data.views || 0;
-  const clicks = data.clicks || 0;
-  const ctr    = views ? ((clicks / views) * 100).toFixed(1) + "%" : "0%";
+    <div id="storePanel" class="store-panel hidden">
+      <div class="storegrid">
+        <div class="card">
+          <div class="cardtitle" id="storeName">—</div>
+          <div class="cardmeta" id="storeLocation">—</div>
+          <div class="cardmeta" id="storeTypeAccess">—</div>
+          <div class="cardmeta" id="storeWebsite">—</div>
+        </div>
 
-  $("#metricViews").textContent  = views;
-  $("#metricClicks").textContent = clicks;
-  $("#metricCTR").textContent    = ctr;
-}
+        <div class="kpis">
+          <div class="kpi">
+            <div class="kpiLabel">Views</div>
+            <div class="kpiVal" id="kpiViews">—</div>
+          </div>
+          <div class="kpi">
+            <div class="kpiLabel">Website clicks</div>
+            <div class="kpiVal" id="kpiClicks">—</div>
+          </div>
+          <div class="kpi">
+            <div class="kpiLabel">CTR</div>
+            <div class="kpiVal" id="kpiCtr">—</div>
+          </div>
+        </div>
+      </div>
 
-/* =========================
-   EXPORT / EMAIL (PLACEHOLDER)
-   ========================= */
+      <div class="subhead">Daily trend</div>
+      <div class="tablewrap">
+        <table class="table" id="trendTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th class="num">Views</th>
+              <th class="num">Clicks</th>
+              <th class="num">CTR</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-function exportStore() {
-  if (!ACTIVE_STORE) return;
-  alert("Export coming next phase.");
-}
+      <div class="subhead">Latest events (debug)</div>
+      <div class="tablewrap">
+        <table class="table" id="eventsTable">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Event</th>
+              <th class="num">Store ID</th>
+              <th>Source</th>
+              <th>Session</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-function emailStore() {
-  if (!ACTIVE_STORE) return;
-  alert("Email flow coming next phase.");
-}
+    </div>
+  </section>
 
-/* =========================
-   RESET
-   ========================= */
+  <!-- OVERVIEW -->
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Overview</h2>
 
-function resetSearch() {
-  searchInput.value = "";
-  clearResults();
-  ACTIVE_STORE = null;
-  if (resultPanel) resultPanel.innerHTML = "";
-}
+      <div class="row gap">
+        <button class="btn tab active" data-tab="countries">Top Countries</button>
+        <button class="btn tab" data-tab="cities">Top Cities</button>
+        <button class="btn tab" data-tab="stores">Top Stores</button>
 
-/* =========================
-   UTILS
-   ========================= */
+        <div class="spacer"></div>
 
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
+        <label class="label">Range:</label>
+        <select id="overviewRange" class="select">
+          <option value="7">7d</option>
+          <option value="30" selected>30d</option>
+          <option value="90">90d</option>
+          <option value="0">All</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="tablewrap">
+      <table class="table" id="overviewTable">
+        <thead>
+          <tr>
+            <th id="ovKeyHeader">Key</th>
+            <th class="num">Views</th>
+            <th class="num">Clicks</th>
+            <th class="num">CTR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="4" class="muted center">No data yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CONFIG -->
+  <script>
+    window.WCL_ANALYTICS_CFG = {
+      supabaseUrl: "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+      supabaseAnonKey: "YOUR_ANON_KEY_HERE"
+    };
+  </script>
+
+  <!-- JS -->
+  <script src="js/analytics.js"></script>
+</body>
+</html>
