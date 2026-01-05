@@ -3,162 +3,273 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Analytics — World Cigar Locator</title>
+  <title>Backoffice — Add Store</title>
 
-  <!-- Supabase -->
+  <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Charts -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+  <style>
+    :root {
+      --accent: #007bff;
+      --bg: #f9fafb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success: #28a745;
+      --error: #dc3545;
+    }
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="css/analytics.css" />
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+
+    header {
+      background: white;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    header h1 {
+      font-size: 0.95rem;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    header .btn.home {
+      background: white;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    header .btn.home:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .wrap { max-width: 850px; margin: 0 auto; }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,.05);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .6rem 1rem;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: .2rem;
+      font-size: 0.85rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: .4rem .5rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      background: #fff;
+    }
+
+    textarea { resize: vertical; min-height: 60px; }
+
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.45rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    .btn:hover { background: #005ec4; }
+
+    .type-group, .access-group {
+      display: flex;
+      gap: .5rem;
+      margin-top: .25rem;
+      flex-wrap: wrap;
+    }
+
+    .type-btn, .access-pill span {
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      padding: .3rem .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.85rem;
+    }
+
+    .type-btn { background: white; color: var(--accent); }
+    .type-btn.active { background: var(--accent); color: white; }
+
+    .access-pill input { display: none; }
+    .access-pill span { color: var(--accent); background: white; }
+    .access-pill input:checked + span { background: var(--accent); color: white; }
+
+    .photo-picker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4rem;
+      margin-top: .4rem;
+    }
+
+    .photo-nav {
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      background: white;
+      border-radius: 6px;
+      padding: .25rem .55rem;
+      cursor: pointer;
+    }
+
+    .photo-nav:hover { background: #eef5ff; }
+
+    .preview-photo {
+      width: 200px;
+      height: 130px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    #toast-container {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+      z-index: 9999;
+    }
+
+    .toast {
+      background: #333;
+      color: #fff;
+      padding: .45rem .8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--error); }
+  </style>
 </head>
 
 <body>
+  <header>
+    <h1>Backoffice — Add Store</h1>
+    <a href="backoffice.html" class="btn home">🏠 Home</a>
+  </header>
 
-<!-- ================= TOP BAR ================= -->
-<header class="topbar">
-  <div class="topbar-left">
-    <h1>Analytics</h1>
-  </div>
-  <div class="topbar-right">
-    <a href="backoffice.html" class="btn ghost">← Backoffice</a>
-  </div>
-</header>
+  <div class="wrap">
+    <div class="card">
+      <div class="grid">
 
-<!-- ================= SEARCH ================= -->
-<section class="panel search-panel">
-  <div class="search-box">
-    <input
-      id="analyticsSearch"
-      type="text"
-      placeholder="Search store… (ex: Cigarrummet, Stockholm, store id)"
-      autocomplete="off"
-    />
-    <button id="searchBtn" class="btn primary">Search</button>
+        <div class="full">
+          <label>Search with Google</label>
+          <input id="gAddress" type="text" placeholder="Start typing a place..." />
+        </div>
 
-    <!-- AUTOCOMPLETE -->
-    <div id="autocomplete" class="autocomplete hidden"></div>
-  </div>
+        <div><label>Name</label><input id="name" type="text"></div>
+        <div><label>Phone</label><input id="phone" type="tel"></div>
+        <div class="full"><label>Address</label><input id="addr" type="text"></div>
+        <div><label>City</label><input id="city" type="text"></div>
+        <div><label>Country</label><input id="country" type="text"></div>
 
-  <div class="search-hint">
-    Search by store name, city, country or ID.  
-    Result = full analytics profile for that store.
-  </div>
-</section>
+        <div>
+          <label>Continent</label>
+          <select id="continent">
+            <option value="">(Auto)</option>
+            <option>Europe</option>
+            <option>North America</option>
+            <option>South America</option>
+            <option>Asia</option>
+            <option>Africa</option>
+            <option>Oceania</option>
+            <option>Other</option>
+          </select>
+        </div>
 
-<!-- ================= STORE SUMMARY ================= -->
-<section id="storeSummary" class="panel hidden">
-  <div class="store-header">
-    <h2 id="storeName">—</h2>
-    <span id="storeMeta">—</span>
-  </div>
+        <div><label>Website</label><input id="website" type="url" placeholder="https://"></div>
 
-  <div class="store-actions">
-    <button class="btn" id="btnPrint">Print</button>
-    <button class="btn" id="btnEmail">Email report</button>
-  </div>
+        <div class="full">
+          <label>Type</label>
+          <div class="type-group">
+            <label class="type-btn"><input type="checkbox" value="store"> Store</label>
+            <label class="type-btn"><input type="checkbox" value="lounge"> Lounge</label>
+          </div>
+        </div>
 
-  <div class="store-stats-grid">
-    <div class="stat">
-      <span class="label">Website clicks</span>
-      <span class="value" id="statClicks">—</span>
+        <div class="full">
+          <label>Access</label>
+          <div class="access-group">
+            <label class="access-pill"><input type="radio" name="access" value="public"><span>Public</span></label>
+            <label class="access-pill"><input type="radio" name="access" value="members"><span>Members Only</span></label>
+          </div>
+        </div>
+
+        <div class="full">
+          <label>Comment</label>
+          <textarea id="comment" placeholder="Add an optional comment…"></textarea>
+        </div>
+
+        <div class="full">
+          <label>Photo Preview</label>
+          <div class="photo-picker">
+            <button id="prev-photo" class="photo-nav">◀</button>
+            <img id="preview-photo" class="preview-photo" src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg" alt="Preview" />
+            <button id="next-photo" class="photo-nav">▶</button>
+          </div>
+          <div id="photo-meta" class="muted" style="text-align:center;">No photo loaded</div>
+        </div>
+
+        <div class="full" style="display:flex;justify-content:flex-end;gap:.6rem;">
+          <button id="clearBtn" class="btn">Clear</button>
+          <button id="saveBtn" class="btn">Save</button>
+        </div>
+
+      </div>
     </div>
-    <div class="stat">
-      <span class="label">Views</span>
-      <span class="value" id="statViews">—</span>
-    </div>
-    <div class="stat">
-      <span class="label">Comments</span>
-      <span class="value" id="statComments">—</span>
-    </div>
-    <div class="stat">
-      <span class="label">Rating</span>
-      <span class="value" id="statRating">—</span>
-    </div>
-  </div>
-</section>
-
-<!-- ================= CHARTS ================= -->
-<section class="panel">
-  <h3>Traffic over time</h3>
-  <canvas id="trafficChart" height="100"></canvas>
-</section>
-
-<section class="panel">
-  <h3>Clicks vs Views</h3>
-  <canvas id="conversionChart" height="100"></canvas>
-</section>
-
-<!-- ================= TABLES ================= -->
-<section class="panel">
-  <h3>Recent activity</h3>
-
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Time</th>
-        <th>Event</th>
-        <th>Source</th>
-      </tr>
-    </thead>
-    <tbody id="activityTable">
-      <tr>
-        <td colspan="3" class="muted">No data</td>
-      </tr>
-    </tbody>
-  </table>
-</section>
-
-<!-- ================= FLAG / TRUST ================= -->
-<section class="panel">
-  <h3>Trust & Safety</h3>
-
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Matched word</th>
-        <th>Source</th>
-      </tr>
-    </thead>
-    <tbody id="flagTable">
-      <tr>
-        <td colspan="3" class="muted">No flags</td>
-      </tr>
-    </tbody>
-  </table>
-</section>
-
-<!-- ================= GLOBAL TOP LISTS ================= -->
-<section class="panel">
-  <h3>Top stores</h3>
-
-  <div class="tabs">
-    <button class="tab active" data-mode="clicks">Most clicks</button>
-    <button class="tab" data-mode="views">Most views</button>
-    <button class="tab" data-mode="rating">Highest rated</button>
   </div>
 
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Store</th>
-        <th>City</th>
-        <th class="num">Value</th>
-      </tr>
-    </thead>
-    <tbody id="topTable">
-      <tr>
-        <td colspan="3" class="muted">No data</td>
-      </tr>
-    </tbody>
-  </table>
-</section>
+  <div id="toast-container"></div>
 
-<!-- ================= JS ================= -->
-<script src="js/analytics.js"></script>
+  <!-- 🔗 Shared logic -->
+  <script src="js/add-shared.js"></script>
 
+  <!-- 🔗 Page-specific logic -->
+  <script src="js/add-store.js"></script>
+
+  <!-- ✅ Google Places API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete&language=en" async defer></script>
 </body>
 </html>
