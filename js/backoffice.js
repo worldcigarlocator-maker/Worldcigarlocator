@@ -267,19 +267,26 @@ function makeExpandableRow(label, items, level) {
           <!-- City -->
           <td>${safe(s.city) || "—"}</td>
 
-          <!-- Name -->
-          <td>${safe(s.name)}</td>
+   <!-- Name -->
+<td>${safe(s.name)}</td>
 
-          <!-- Type -->
-          <td>${safe(s.type)}</td>
+<!-- Type -->
+<td>
+  ${
+    Array.isArray(s.types) && s.types.length
+      ? s.types.join(" + ")
+      : safe(s.type) || "–"
+  }
+</td>
 
-          <!-- Access -->
-          <td>${safe(s.access) || "–"}</td>
+<!-- Access -->
+<td>${safe(s.access) || "–"}</td>
 
-          <!-- Rating -->
-          <td>${s.rating ?? "–"}</td>
+<!-- Rating -->
+<td>${s.rating ?? "–"}</td>
 
-          <!-- Status -->
+<!-- Status -->
+
           <td>
             ${s.approved ? `<span class="badge green">APPROVED</span>` : ""}
             ${s.flagged ? `<span class="badge red">FLAGGED</span>` : ""}
