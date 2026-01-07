@@ -118,6 +118,23 @@ const VIEW_OBSERVER = new IntersectionObserver((entries) => {
 import { supabase, resolveStoreImage } from "./globals.js";
 
 
+// 🔢 COUNT HELPERS (isolated, no UI logic)
+async function fetchApprovedCount(continent) {
+  const { data, error } = await supabase.rpc(
+    "count_approved_by_continent",
+    { p_continent: continent }
+  );
+
+  if (error) {
+    console.error("Count RPC error", error);
+    return null;
+  }
+
+  return data?.[0]?.count ?? 0;
+}
+
+
+
 // ============================================================
 // CONFIG
 // ============================================================
@@ -663,7 +680,13 @@ export async function runSearch() {
     type: FILTER_STATE.type,
     access: FILTER_STATE.access,
   };
+// 🔢 OFFICIAL COUNT (system-approved, not UI-dependent)
+let approvedCount = null;
 
+if (snapshot.continent) {
+  approvedCount = await fetchApprovedCount(snapshot.continent);
+}
+   
   const heading = dom("#resultHeading");
   const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
@@ -703,7 +726,14 @@ export async function runSearch() {
   }
 
   renderCards(filtered);
-  heading && (heading.textContent = `${filtered.length} results`, heading.style.display = "block");
+  if (heading) {
+  heading.textContent =
+    approvedCount !== null
+      ? `${approvedCount} results`
+      : `${filtered.length} results`;
+
+  heading.style.display = "block";
+  }
 }
 
 // ============================================================
