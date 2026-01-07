@@ -57,6 +57,8 @@ export async function buildFrontendSidebar(supabase) {
     .order("country")
     .order("state")
     .order("city");
+   console.log("📊 SIDEBAR ROWS LOADED:", data?.length);
+
 
   if (error) {
     console.error(error);
