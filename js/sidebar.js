@@ -1,3 +1,5 @@
+console.log("🚨 ACTIVE SIDEBAR FILE LOADED");
+
 // ============================================================
 // SIDEBAR.JS — WCL Premium Hierarchy Navigation (USA = State level)
 // STABLE VERSION — safe with live-search + debounce
