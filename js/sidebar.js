@@ -50,14 +50,8 @@ export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
   menu.innerHTML = "Loading…";
 
-  const { data, error } = await supabase
-    .from("stores_frontend_public_v4")
-    .select("id, continent, country, state, city")
-    .order("continent")
-    .order("country")
-    .order("state")
-    .order("city");
-   console.log("📊 SIDEBAR ROWS LOADED:", data?.length);
+ const { data, error } = await supabase
+  .rpc("sidebar_counts_v1");
 
 
   if (error) {
