@@ -60,112 +60,79 @@ export async function buildFrontendSidebar(supabase) {
     return;
   }
 
-  // ============================================================
-  // DEDUP — one store = one count
-  // ============================================================
-  const uniqueStores = Array.from(
-    new Map((data || []).map((s) => [s.id, s])).values()
-  );
+// ============================================================
+// BUILD TREE (from aggregated backend counts)
+// ============================================================
+const tree = {};
+
+data.forEach(({ continent, country, region, city, count }) => {
+  if (!continent || !country || !region || !city) return;
+
+  if (!tree[continent]) tree[continent] = {};
+  if (!tree[continent][country]) tree[continent][country] = {};
+  if (!tree[continent][country][region]) {
+    tree[continent][country][region] = {};
+  }
+
+  tree[continent][country][region][city] =
+    (tree[continent][country][region][city] || 0) + count;
+});
+
 
   // ============================================================
-  // BUILD TREE
-  // ============================================================
-  const tree = {};
+// RENDER
+// ============================================================
+menu.innerHTML = "";
 
-  uniqueStores.forEach(({ continent, country, state, city }) => {
-    if (!continent || !country) return;
+Object.entries(tree).forEach(([continent, countries]) => {
+  const contLine = createLine("continent", continent, countTotal(countries));
+  const contNested = createNested();
 
-    if (!tree[continent]) tree[continent] = {};
-    if (!tree[continent][country]) tree[continent][country] = {};
+  menu.append(contLine, contNested);
 
-    // 🇺🇸 USA → state → city
-    if (country === "United States") {
-      const st = state || "Unknown";
-      if (!tree[continent][country][st]) {
-        tree[continent][country][st] = {};
-      }
-      if (city) {
-        tree[continent][country][st][city] =
-          (tree[continent][country][st][city] || 0) + 1;
-      }
-    }
-    // 🌍 Other countries → city
-    else {
-      if (city) {
-        tree[continent][country][city] =
-          (tree[continent][country][city] || 0) + 1;
-      }
-    }
+  contLine.addEventListener("click", () => {
+    toggle(contLine, contNested, ".continent");
+    applyLocation({ continent, country: null, state: null, city: null });
   });
 
-  // ============================================================
-  // RENDER
-  // ============================================================
-  menu.innerHTML = "";
+  Object.entries(countries).forEach(([country, regions]) => {
+    const countryLine = createLine("country", country, countTotal(regions));
+    const countryNested = createNested();
 
-  Object.entries(tree).forEach(([continent, countries]) => {
-    const contLine = createLine("continent", continent, countTotal(countries));
-    const contNested = createNested();
+    contNested.append(countryLine, countryNested);
 
-    menu.append(contLine, contNested);
-
-    contLine.addEventListener("click", () => {
-      toggle(contLine, contNested, ".continent");
-      applyLocation({ continent, country: null, state: null, city: null });
+    countryLine.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggle(countryLine, countryNested, ".country");
+      applyLocation({ continent, country, state: null, city: null });
     });
 
-    Object.entries(countries).forEach(([country, node]) => {
-      const countryLine = createLine("country", country, countTotal(node));
-      const countryNested = createNested();
+    // 🌍 ALL COUNTRIES → REGION → CITY
+    Object.entries(regions).forEach(([region, cities]) => {
+      const regionLine = createLine("state", region, countTotal(cities));
+      const regionNested = createNested();
 
-      contNested.append(countryLine, countryNested);
+      countryNested.append(regionLine, regionNested);
 
-      countryLine.addEventListener("click", (e) => {
+      regionLine.addEventListener("click", (e) => {
         e.stopPropagation();
-        toggle(countryLine, countryNested, ".country");
-        applyLocation({ continent, country, state: null, city: null });
+        toggle(regionLine, regionNested, ".state");
+        applyLocation({ continent, country, state: region, city: null });
       });
 
-      // 🇺🇸 USA → STATE LEVEL
-      if (country === "United States") {
-        Object.entries(node).forEach(([state, cities]) => {
-          const stateLine = createLine("state", state, countTotal(cities));
-          const stateNested = createNested();
+      Object.entries(cities).forEach(([city, count]) => {
+        const cityLine = createLine("city", city, count);
+        regionNested.append(cityLine);
 
-          countryNested.append(stateLine, stateNested);
-
-          stateLine.addEventListener("click", (e) => {
-            e.stopPropagation();
-            toggle(stateLine, stateNested, ".state");
-            applyLocation({ continent, country, state, city: null });
-          });
-
-          Object.entries(cities).forEach(([city, count]) => {
-            const cityLine = createLine("city", city, count);
-            stateNested.append(cityLine);
-
-            cityLine.addEventListener("click", (e) => {
-              e.stopPropagation();
-              applyLocation({ continent, country, state, city });
-            });
-          });
+        cityLine.addEventListener("click", (e) => {
+          e.stopPropagation();
+          applyLocation({ continent, country, state: region, city });
         });
-      }
-      // 🌍 OTHER COUNTRIES → CITY
-      else {
-        Object.entries(node).forEach(([city, count]) => {
-          const cityLine = createLine("city", city, count);
-          countryNested.append(cityLine);
-
-          cityLine.addEventListener("click", (e) => {
-            e.stopPropagation();
-            applyLocation({ continent, country, state: null, city });
-          });
-        });
-      }
+      });
     });
   });
-}
+});
+
 
 /* ============================================================
    HELPERS
