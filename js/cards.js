@@ -718,7 +718,8 @@ if (snapshot.continent) {
   }
 
   const rows = resp.data || [];
-  const filtered = applyFrontendFilters(rows, snapshot);
+console.log("📦 RAW ROWS FROM RPC:", rows.length);
+const filtered = applyFrontendFilters(rows, snapshot);
 
   if (!filtered.length) {
     heading && (heading.textContent = "No results found.", heading.style.display = "block");
