@@ -181,12 +181,14 @@ function toggle(clickedItem, clickedNested, selector) {
     if (!nest) return;
 
     if (item === clickedItem) {
-      const isOpen = item.classList.contains("open");
-      item.classList.toggle("open", !isOpen);
-      nest.classList.toggle("show", !isOpen);
-    } else {
-      item.classList.remove("open");
-      nest.classList.remove("show");
-    }
-  });
+    const isOpen = item.classList.contains("open");
+    item.classList.toggle("open", !isOpen);
+    nest.classList.toggle("show", !isOpen);
+  } else {
+    item.classList.remove("open");
+    nest.classList.remove("show");
+  }
+});
 }
+
+} //
