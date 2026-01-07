@@ -1,11 +1,11 @@
+// ============================================================
+// SIDEBAR.JS — WCL Premium Hierarchy Navigation
+// ============================================================
+
 console.log("🚨 ACTIVE SIDEBAR FILE LOADED");
 
-// ============================================================
-// SIDEBAR.JS — WCL Premium Hierarchy Navigation (USA = State level)
-// STABLE VERSION — safe with live-search + debounce
-// ============================================================
-
 import { setLocationFilter, runSearch } from "./cards.js";
+
 
 const dom = (sel) => document.querySelector(sel);
 const menu = dom("#sidebarMenu");
