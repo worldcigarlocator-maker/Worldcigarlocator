@@ -482,8 +482,6 @@ export function setLocationFilter(next) {
   FILTER_STATE.country = next?.country ?? null;
   FILTER_STATE.state = next?.state ?? null;
   FILTER_STATE.city = next?.city ?? null;
-
-  runSearch(); // 🔑 THIS WAS MISSING
 }
 
 
