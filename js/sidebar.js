@@ -185,6 +185,12 @@ function countTotal(obj) {
 function createLine(type, label, count) {
   const el = document.createElement("div");
   el.className = `line ${type}`;
+
+  // 🔍 DEBUG – BEVISA ATT KLICKET NÅR ELEMENTET
+  el.addEventListener("click", () => {
+    console.log("🧪 CLICK ON LINE", { type, label, count });
+  });
+
   el.innerHTML = `
     <span class="label">${label}</span>
     <span class="pill">${count}</span>
@@ -192,6 +198,7 @@ function createLine(type, label, count) {
   `;
   return el;
 }
+
 
 function createNested() {
   const el = document.createElement("div");
