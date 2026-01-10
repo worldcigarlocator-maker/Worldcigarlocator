@@ -77,6 +77,29 @@ function countryToContinent(countryName = null, iso2 = null) {
 }
 
 /* ==========================================================
+   🏴 UK State Normalization
+   ========================================================== */
+function normalizeUKState(state, country, city) {
+  const c = (country || "").toLowerCase();
+  if (c !== "united kingdom" && c !== "uk") return state || null;
+
+  const s = (state || "").toLowerCase();
+  const cityLc = (city || "").toLowerCase();
+
+  if (s.includes("scotland") || cityLc.match(/edinburgh|glasgow|aberdeen/))
+    return "Scotland";
+
+  if (s.includes("wales") || cityLc.match(/cardiff|swansea|newport/))
+    return "Wales";
+
+  if (s.includes("northern ireland") || cityLc.match(/belfast|derry|lisburn/))
+    return "Northern Ireland";
+
+  return "England"; // default & industry standard
+}
+
+
+/* ==========================================================
    📸 Photo Helpers
    ========================================================== */
 function buildProxyUrl(ref, w = 800) {
