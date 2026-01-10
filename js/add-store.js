@@ -1,49 +1,43 @@
 /* ================================================================
    js/add-store.js
-   Backoffice — Add Store (FIXED: Places Details + Proxy Photos)
-   Date: 2025-12-29
+   Backoffice — Add Store (CANONICAL + SAFE)
    ================================================================ */
 
-console.log("🚀 Add Store Backoffice loaded (fixed)");
+console.log("🚀 Add Store Backoffice loaded (canonical)");
 
-/* 🌍 Globals */
+/* ================================================================
+   GLOBAL STATE
+   ================================================================ */
 window.selectedPlace = {};
-window.photoRefs = [];        // array of photo_reference strings
+window.photoRefs = [];
 let currentIndex = 0;
 let selectedTypes = [];
 
 /* ================================================================
-   GOOGLE AUTOCOMPLETE (stable: place_id -> getDetails)
+   GOOGLE AUTOCOMPLETE
    ================================================================ */
 window.initAutocomplete = function initAutocomplete() {
-  console.log("✅ initAutocomplete ready (fixed)");
-
   const input = document.getElementById("gAddress");
   if (!input) {
     console.error("❌ Input #gAddress not found");
     return;
   }
 
-  // Only request place_id from autocomplete (reliable)
   const autocomplete = new google.maps.places.Autocomplete(input, {
     fields: ["place_id"],
     types: ["establishment"],
   });
 
-  // Places Details service
-  const svc = new google.maps.places.PlacesService(document.createElement("div"));
+  const svc = new google.maps.places.PlacesService(
+    document.createElement("div")
+  );
 
   autocomplete.addListener("place_changed", () => {
     const basic = autocomplete.getPlace();
-    if (!basic?.place_id) {
-      console.warn("⚠️ Invalid place (no place_id)");
-      return;
-    }
+    if (!basic?.place_id) return;
 
     const placeId = basic.place_id;
-    console.log("📍 place_id:", placeId);
 
-    // Ask for full details
     svc.getDetails(
       {
         placeId,
@@ -59,127 +53,144 @@ window.initAutocomplete = function initAutocomplete() {
       },
       async (place, status) => {
         try {
-          if (status !== google.maps.places.PlacesServiceStatus.OK || !place) {
-            console.error("❌ getDetails failed:", status);
-            WCL.toastShared("Failed to load place details", "error");
-            return;
+          if (
+            status !== google.maps.places.PlacesServiceStatus.OK ||
+            !place
+          ) {
+            throw new Error("getDetails failed");
           }
 
-          console.log("✅ Place details:", place);
-
-          /* -----------------------------
-             Parse address components
-          ----------------------------- */
+          /* ====================================================
+             ADDRESS PARSING — STRICT ORDER
+             ==================================================== */
           const comp = place.address_components || [];
-          const getLong = (type) =>
-            comp.find((c) => c.types?.includes(type))?.long_name || "";
-          const getShort = (type) =>
-            comp.find((c) => c.types?.includes(type))?.short_name || "";
+          const getLong = (t) =>
+            comp.find((c) => c.types?.includes(t))?.long_name || "";
+          const getShort = (t) =>
+            comp.find((c) => c.types?.includes(t))?.short_name || "";
 
-          // City: locality -> postal_town -> admin_area_level_2 fallback
           const city =
             getLong("locality") ||
             getLong("postal_town") ||
             getLong("administrative_area_level_2") ||
             "";
 
-          // State (US etc)
-          let rawState = getLong("administrative_area_level_1") || "";
-const state = WCL.normalizeUKState(rawState, country, city);
-
-
           const country = getLong("country") || "";
           const country_iso2 = (getShort("country") || "").toLowerCase();
 
-          // Build selectedPlace
+          const rawState =
+            getLong("administrative_area_level_1") || "";
+
+          const state = WCL.normalizeUKState(
+            rawState,
+            country,
+            city
+          );
+
+          /* ====================================================
+             BUILD CANONICAL selectedPlace
+             ==================================================== */
           window.selectedPlace = {
             name: place.name || "",
             address: place.formatted_address || "",
             place_id: place.place_id,
+
             lat: place.geometry?.location?.lat() || null,
             lng: place.geometry?.location?.lng() || null,
+
             city,
             state,
             country,
             country_iso2,
             continent: WCL.countryToContinent(country, country_iso2),
+
             phone: place.international_phone_number || "",
             website: place.website || "",
-            photo_reference: null, // set after refs load
+
+            photo_reference: null,
           };
 
-          /* -----------------------------
-             Photos via your Edge Function (photo-refs -> photo-proxy)
-          ----------------------------- */
+          /* ====================================================
+             PHOTOS
+             ==================================================== */
           const previewImg = document.getElementById("preview-photo");
           const meta = document.getElementById("photo-meta");
           const prevBtn = document.getElementById("prev-photo");
           const nextBtn = document.getElementById("next-photo");
 
-          // Default UI
           if (meta) meta.textContent = "Loading photos…";
-          if (previewImg) previewImg.src = WCL.fallbackForType("store");
+          if (previewImg)
+            previewImg.src = WCL.fallbackForType("store");
 
           const refs = await WCL.fetchPhotoRefs(placeId);
           window.photoRefs = Array.isArray(refs) ? refs : [];
 
           if (window.photoRefs.length) {
             currentIndex = 0;
-            window.selectedPlace.photo_reference = window.photoRefs[0];
+            window.selectedPlace.photo_reference =
+              window.photoRefs[0];
 
-            // Load first photo via proxy (blob safe)
-            await WCL.loadProxyPhotoInto(previewImg, window.photoRefs[0], "store");
+            await WCL.loadProxyPhotoInto(
+              previewImg,
+              window.photoRefs[0],
+              "store"
+            );
 
-            if (meta) meta.textContent = `Photo 1 / ${window.photoRefs.length}`;
+            if (meta)
+              meta.textContent = `Photo 1 / ${window.photoRefs.length}`;
 
-            // Navigation
-            if (prevBtn) {
-              prevBtn.onclick = async () => {
-                currentIndex = (currentIndex - 1 + window.photoRefs.length) % window.photoRefs.length;
-                const ref = window.photoRefs[currentIndex];
-                window.selectedPlace.photo_reference = ref;
-                await WCL.loadProxyPhotoInto(previewImg, ref, "store");
-                if (meta) meta.textContent = `Photo ${currentIndex + 1} / ${window.photoRefs.length}`;
-              };
-            }
+            prevBtn.onclick = async () => {
+              currentIndex =
+                (currentIndex - 1 + window.photoRefs.length) %
+                window.photoRefs.length;
+              const ref = window.photoRefs[currentIndex];
+              window.selectedPlace.photo_reference = ref;
+              await WCL.loadProxyPhotoInto(previewImg, ref, "store");
+              if (meta)
+                meta.textContent = `Photo ${
+                  currentIndex + 1
+                } / ${window.photoRefs.length}`;
+            };
 
-            if (nextBtn) {
-              nextBtn.onclick = async () => {
-                currentIndex = (currentIndex + 1) % window.photoRefs.length;
-                const ref = window.photoRefs[currentIndex];
-                window.selectedPlace.photo_reference = ref;
-                await WCL.loadProxyPhotoInto(previewImg, ref, "store");
-                if (meta) meta.textContent = `Photo ${currentIndex + 1} / ${window.photoRefs.length}`;
-              };
-            }
+            nextBtn.onclick = async () => {
+              currentIndex =
+                (currentIndex + 1) % window.photoRefs.length;
+              const ref = window.photoRefs[currentIndex];
+              window.selectedPlace.photo_reference = ref;
+              await WCL.loadProxyPhotoInto(previewImg, ref, "store");
+              if (meta)
+                meta.textContent = `Photo ${
+                  currentIndex + 1
+                } / ${window.photoRefs.length}`;
+            };
           } else {
-            if (previewImg) previewImg.src = WCL.fallbackForType("store");
             if (meta) meta.textContent = "No photo found";
-            if (prevBtn) prevBtn.onclick = null;
-            if (nextBtn) nextBtn.onclick = null;
           }
 
-          /* -----------------------------
-             Autofill form fields
-          ----------------------------- */
-          const setVal = (id, val) => {
+          /* ====================================================
+             AUTOFILL FORM
+             ==================================================== */
+          const setVal = (id, v) => {
             const el = document.getElementById(id);
-            if (el) el.value = val || "";
+            if (el) el.value = v || "";
           };
 
           setVal("name", window.selectedPlace.name);
           setVal("addr", window.selectedPlace.address);
           setVal("city", window.selectedPlace.city);
-          setVal("state", window.selectedPlace.state);           // ✅ IMPORTANT (if you have the input)
+          setVal("state", window.selectedPlace.state);
           setVal("country", window.selectedPlace.country);
           setVal("continent", window.selectedPlace.continent);
           setVal("phone", window.selectedPlace.phone);
           setVal("website", window.selectedPlace.website);
 
-          WCL.toastShared(`✅ Data loaded for ${window.selectedPlace.name}`, "success");
+          WCL.toastShared(
+            `✅ Loaded ${window.selectedPlace.name}`,
+            "success"
+          );
         } catch (err) {
           console.error("❌ place_changed failed:", err);
-          WCL.toastShared("Error fetching place details", "error");
+          WCL.toastShared("Failed to load place", "error");
         }
       }
     );
@@ -187,122 +198,56 @@ const state = WCL.normalizeUKState(rawState, country, city);
 };
 
 /* ================================================================
-   TYPE SELECTOR + BUTTONS
-   ================================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".type-btn input").forEach((cb) => {
-    cb.addEventListener("change", () => {
-      const val = cb.value;
-      if (cb.checked && !selectedTypes.includes(val)) selectedTypes.push(val);
-      else selectedTypes = selectedTypes.filter((t) => t !== val);
-      console.log("🟩 Selected types:", selectedTypes);
-    });
-  });
-
-  const clearBtn = document.getElementById("clearBtn");
-  if (clearBtn) clearBtn.addEventListener("click", resetForm);
-
-  const saveBtn = document.getElementById("saveBtn");
-  if (saveBtn) saveBtn.addEventListener("click", saveStore);
-});
-
-/* ================================================================
-   RESET FORM
-   ================================================================ */
-function resetForm() {
-  document.querySelectorAll("input, textarea").forEach((el) => {
-    if (!["checkbox", "radio"].includes(el.type)) el.value = "";
-    else el.checked = false;
-  });
-
-  const img = document.getElementById("preview-photo");
-  const meta = document.getElementById("photo-meta");
-  if (img) img.src = WCL.fallbackForType("store");
-  if (meta) meta.textContent = "No photo loaded";
-
-  window.selectedPlace = {};
-  window.photoRefs = [];
-  currentIndex = 0;
-  selectedTypes = [];
-
-  const prevBtn = document.getElementById("prev-photo");
-  const nextBtn = document.getElementById("next-photo");
-  if (prevBtn) prevBtn.onclick = null;
-  if (nextBtn) nextBtn.onclick = null;
-
-  WCL.toastShared("Form cleared", "info");
-}
-
-/* ================================================================
-   SAVE STORE — CANONICAL VERSION
+   SAVE STORE — SINGLE SOURCE OF TRUTH
    ================================================================ */
 async function saveStore() {
-  /* -----------------------------
-     Read form values
-  ----------------------------- */
-  const name = document.getElementById("name")?.value.trim() || "";
-  const address = document.getElementById("addr")?.value.trim() || "";
-  const city = document.getElementById("city")?.value.trim() || "";
-  const rawState = document.getElementById("state")?.value.trim() || "";
-  const country = document.getElementById("country")?.value.trim() || "";
+  const name = document.getElementById("name")?.value.trim();
+  const address = document.getElementById("addr")?.value.trim();
+  const city = document.getElementById("city")?.value.trim();
+  const rawState = document.getElementById("state")?.value.trim();
+  const country = document.getElementById("country")?.value.trim();
 
-  const continent =
-    (document.getElementById("continent")?.value || "").trim() ||
-    WCL.countryToContinent(country, window.selectedPlace.country_iso2);
-
-  const phone = (document.getElementById("phone")?.value || "").trim() || null;
-  const website = (document.getElementById("website")?.value || "").trim() || null;
-  const commentText = (document.getElementById("comment")?.value || "").trim();
-
-  /* -----------------------------
-     Basic validation
-  ----------------------------- */
   if (!name || !address || !city || !country) {
-    WCL.toastShared("⚠️ Please fill all required fields", "error");
+    WCL.toastShared("⚠️ Missing required fields", "error");
     return;
   }
 
-  /* -----------------------------
-     Canonical state resolution
-     (UK-aware, global-safe)
-  ----------------------------- */
   const finalState = WCL.normalizeUKState(
-    rawState || window.selectedPlace.state || null,
+    rawState || window.selectedPlace.state,
     country,
     city
   );
 
-  /* -----------------------------
-     Build payload (single source of truth)
-  ----------------------------- */
   const payload = {
-    ...window.selectedPlace, // lat/lng, place_id, iso2, etc
+    ...window.selectedPlace,
 
     name,
     address,
     city,
     state: finalState,
     country,
-    continent,
+    continent:
+      window.selectedPlace.continent ||
+      WCL.countryToContinent(
+        country,
+        window.selectedPlace.country_iso2
+      ),
 
-    phone,
-    website,
+    phone: document.getElementById("phone")?.value || null,
+    website: document.getElementById("website")?.value || null,
 
     types: selectedTypes.length ? selectedTypes : ["store"],
-    access: document.querySelector("input[name='access']:checked")?.value || null,
-
-    photo_reference: window.selectedPlace.photo_reference || null,
+    access:
+      document.querySelector("input[name='access']:checked")
+        ?.value || null,
 
     approved: false,
     flagged: false,
     deleted: false,
   };
 
-  /* -----------------------------
-     Persist
-  ----------------------------- */
   try {
-    const { data, error } = await WCL.supabase
+    const { error, data } = await WCL.supabase
       .from("stores")
       .insert([payload])
       .select()
@@ -310,25 +255,12 @@ async function saveStore() {
 
     if (error) throw error;
 
-    /* Optional comment */
-    if (commentText) {
-      await WCL.supabase.from("store_comments").insert([
-        {
-          store_id: data.id,
-          comment: commentText,
-          user_name: "Backoffice",
-        },
-      ]);
-    }
-
-    WCL.toastShared("✅ Store saved successfully!", "success");
+    WCL.toastShared("✅ Store saved", "success");
     resetForm();
-
   } catch (err) {
-    console.error("❌ Error saving store:", err);
-    WCL.toastShared("Error saving store", "error");
+    console.error(err);
+    WCL.toastShared("Save failed", "error");
   }
 }
 
-/* Expose if needed */
 window.saveStore = saveStore;
