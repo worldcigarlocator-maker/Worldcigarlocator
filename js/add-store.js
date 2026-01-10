@@ -1,12 +1,12 @@
 /* ================================================================
    js/add-store.js
-   Backoffice — Add Store (CANONICAL + SAFE)
+   Backoffice — Add Store (CANONICAL, SAFE, DEBUGGABLE)
    ================================================================ */
 
 console.log("🚀 Add Store Backoffice loaded (canonical)");
 
 /* ================================================================
-   GLOBAL STATE
+   GLOBAL STATE (single source of truth)
    ================================================================ */
 window.selectedPlace = {};
 window.photoRefs = [];
@@ -14,7 +14,7 @@ let currentIndex = 0;
 let selectedTypes = [];
 
 /* ================================================================
-   GOOGLE AUTOCOMPLETE
+   GOOGLE AUTOCOMPLETE (place_id → getDetails)
    ================================================================ */
 window.initAutocomplete = function initAutocomplete() {
   const input = document.getElementById("gAddress");
@@ -37,6 +37,7 @@ window.initAutocomplete = function initAutocomplete() {
     if (!basic?.place_id) return;
 
     const placeId = basic.place_id;
+    console.log("📍 place_id:", placeId);
 
     svc.getDetails(
       {
@@ -60,42 +61,41 @@ window.initAutocomplete = function initAutocomplete() {
             throw new Error("getDetails failed");
           }
 
-/* ====================================================
-   ADDRESS PARSING — STRICT ORDER (VIKTIG)
-==================================================== */
-const comp = place.address_components || [];
+          /* ====================================================
+             ADDRESS PARSING — STRICT ORDER (VIKTIG)
+             ==================================================== */
+          const comp = place.address_components || [];
 
-const getLong = (t) =>
-  comp.find((c) => c.types?.includes(t))?.long_name || "";
+          const getLong = (t) =>
+            comp.find((c) => c.types?.includes(t))?.long_name || "";
 
-const getShort = (t) =>
-  comp.find((c) => c.types?.includes(t))?.short_name || "";
+          const getShort = (t) =>
+            comp.find((c) => c.types?.includes(t))?.short_name || "";
 
-// 1️⃣ City först
-const city =
-  getLong("locality") ||
-  getLong("postal_town") ||
-  getLong("administrative_area_level_2") ||
-  "";
+          // 1️⃣ City
+          const city =
+            getLong("locality") ||
+            getLong("postal_town") ||
+            getLong("administrative_area_level_2") ||
+            "";
 
-// 2️⃣ Country MÅSTE komma före state-normalisering
-const country = getLong("country") || "";
-const country_iso2 = (getShort("country") || "").toLowerCase();
+          // 2️⃣ Country (måste vara före state-normalisering)
+          const country = getLong("country") || "";
+          const country_iso2 = (getShort("country") || "").toLowerCase();
 
-// 3️⃣ Raw state från Google
-const rawState = getLong("administrative_area_level_1") || "";
+          // 3️⃣ Raw state från Google
+          const rawState =
+            getLong("administrative_area_level_1") || "";
 
-// 4️⃣ Canonical state (UK-aware)
-const state = WCL.normalizeUKState(
-  rawState,
-  country,
-  city
-);
-
-
+          // 4️⃣ Canonical state (UK-aware)
+          const state = WCL.normalizeUKState(
+            rawState,
+            country,
+            city
+          );
 
           /* ====================================================
-             BUILD CANONICAL selectedPlace
+             BUILD selectedPlace (canonical)
              ==================================================== */
           window.selectedPlace = {
             name: place.name || "",
@@ -109,13 +109,18 @@ const state = WCL.normalizeUKState(
             state,
             country,
             country_iso2,
-            continent: WCL.countryToContinent(country, country_iso2),
+            continent: WCL.countryToContinent(
+              country,
+              country_iso2
+            ),
 
             phone: place.international_phone_number || "",
             website: place.website || "",
 
             photo_reference: null,
           };
+
+          console.log("📦 selectedPlace =", window.selectedPlace);
 
           /* ====================================================
              PHOTOS
@@ -205,6 +210,25 @@ const state = WCL.normalizeUKState(
 };
 
 /* ================================================================
+   TYPE SELECTOR — FIXED & EXPLICIT
+   ================================================================ */
+document.querySelectorAll(".type-btn input").forEach((cb) => {
+  cb.addEventListener("change", () => {
+    const val = cb.value;
+
+    if (cb.checked) {
+      if (!selectedTypes.includes(val)) selectedTypes.push(val);
+      cb.parentElement.classList.add("active");
+    } else {
+      selectedTypes = selectedTypes.filter((t) => t !== val);
+      cb.parentElement.classList.remove("active");
+    }
+
+    console.log("🟩 selectedTypes =", selectedTypes);
+  });
+});
+
+/* ================================================================
    SAVE STORE — SINGLE SOURCE OF TRUTH
    ================================================================ */
 async function saveStore() {
@@ -219,6 +243,11 @@ async function saveStore() {
     return;
   }
 
+  if (!selectedTypes.length) {
+    WCL.toastShared("⚠️ Select at least one type", "error");
+    return;
+  }
+
   const finalState = WCL.normalizeUKState(
     rawState || window.selectedPlace.state || null,
     country,
@@ -226,7 +255,6 @@ async function saveStore() {
   );
 
   const payload = {
-    // 🔒 EXPLICIT ONLY — NO SPREAD
     place_id: window.selectedPlace.place_id || null,
     lat: window.selectedPlace.lat || null,
     lng: window.selectedPlace.lng || null,
@@ -239,27 +267,32 @@ async function saveStore() {
     country,
     continent:
       window.selectedPlace.continent ||
-      WCL.countryToContinent(country, window.selectedPlace.country_iso2),
+      WCL.countryToContinent(
+        country,
+        window.selectedPlace.country_iso2
+      ),
 
     phone: document.getElementById("phone")?.value || null,
     website: document.getElementById("website")?.value || null,
 
-    // ✅ JSONB-safe
-    types: selectedTypes.length ? [...selectedTypes] : ["store"],
+    // ✅ JSONB
+    types: [...selectedTypes],
     access:
-      document.querySelector("input[name='access']:checked")?.value || null,
+      document.querySelector(
+        "input[name='access']:checked"
+      )?.value || null,
 
     approved: false,
     flagged: false,
     deleted: false,
   };
 
-  console.log("📦 INSERT payload", payload);
+  console.log("📦 INSERT payload =", payload);
 
   try {
     const { data, error } = await WCL.supabase
       .from("stores")
-.insert([payload])
+      .insert([payload])
       .select()
       .single();
 
@@ -273,5 +306,33 @@ async function saveStore() {
   }
 }
 
+/* ================================================================
+   RESET FORM
+   ================================================================ */
+function resetForm() {
+  document.querySelectorAll("input, textarea").forEach((el) => {
+    if (!["checkbox", "radio"].includes(el.type)) el.value = "";
+    else el.checked = false;
+  });
 
+  document
+    .querySelectorAll(".type-btn")
+    .forEach((b) => b.classList.remove("active"));
+
+  selectedTypes = [];
+  window.selectedPlace = {};
+  window.photoRefs = [];
+  currentIndex = 0;
+
+  const img = document.getElementById("preview-photo");
+  const meta = document.getElementById("photo-meta");
+  if (img) img.src = WCL.fallbackForType("store");
+  if (meta) meta.textContent = "No photo loaded";
+
+  WCL.toastShared("Form cleared", "info");
+}
+
+/* ================================================================
+   EXPOSE
+   ================================================================ */
 window.saveStore = saveStore;
