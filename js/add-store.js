@@ -259,7 +259,7 @@ async function saveStore() {
   try {
     const { data, error } = await WCL.supabase
       .from("stores")
-      .insert(payload)
+.insert([payload])
       .select()
       .single();
 
