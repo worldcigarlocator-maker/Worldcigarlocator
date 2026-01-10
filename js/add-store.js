@@ -60,32 +60,48 @@ window.initAutocomplete = function initAutocomplete() {
             throw new Error("getDetails failed");
           }
 
-          /* ====================================================
-             ADDRESS PARSING — STRICT ORDER
-             ==================================================== */
-          const comp = place.address_components || [];
-          const getLong = (t) =>
-            comp.find((c) => c.types?.includes(t))?.long_name || "";
-          const getShort = (t) =>
-            comp.find((c) => c.types?.includes(t))?.short_name || "";
+         /* ====================================================
+   ADDRESS PARSING — STRICT ORDER (CANONICAL)
+   ==================================================== */
+const comp = place.address_components || [];
 
-          const city =
-            getLong("locality") ||
-            getLong("postal_town") ||
-            getLong("administrative_area_level_2") ||
-            "";
+const getLong = (type) =>
+  comp.find((c) => c.types?.includes(type))?.long_name || "";
 
-          const country = getLong("country") || "";
-          const country_iso2 = (getShort("country") || "").toLowerCase();
+const getShort = (type) =>
+  comp.find((c) => c.types?.includes(type))?.short_name || "";
 
-          const rawState =
-            getLong("administrative_area_level_1") || "";
+/* ----------------------------
+   1️⃣ City (priority order)
+---------------------------- */
+const city =
+  getLong("locality") ||
+  getLong("postal_town") ||
+  getLong("administrative_area_level_2") ||
+  "";
 
-          const state = WCL.normalizeUKState(
-            rawState,
-            country,
-            city
-          );
+/* ----------------------------
+   2️⃣ Country (ALWAYS before state)
+---------------------------- */
+const country = getLong("country") || "";
+const country_iso2 = (getShort("country") || "").toLowerCase();
+
+/* ----------------------------
+   3️⃣ Raw state / region
+---------------------------- */
+const rawState =
+  getLong("administrative_area_level_1") || "";
+
+/* ----------------------------
+   4️⃣ Canonical state
+   (UK-aware, global-safe)
+---------------------------- */
+const state = WCL.normalizeUKState(
+  rawState,
+  country,
+  city
+);
+
 
           /* ====================================================
              BUILD CANONICAL selectedPlace
