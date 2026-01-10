@@ -196,7 +196,7 @@ Object.assign(window.WCL, {
   loadProxyPhotoInto,
 
   countryToContinent,
+  normalizeUKState, // ✅ DEN HÄR RADEN
   ratingToStars,
   toastShared
 });
-
