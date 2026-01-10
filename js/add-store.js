@@ -60,47 +60,38 @@ window.initAutocomplete = function initAutocomplete() {
             throw new Error("getDetails failed");
           }
 
-         /* ====================================================
-   ADDRESS PARSING — STRICT ORDER (CANONICAL)
-   ==================================================== */
+/* ====================================================
+   ADDRESS PARSING — STRICT ORDER (VIKTIG)
+==================================================== */
 const comp = place.address_components || [];
 
-const getLong = (type) =>
-  comp.find((c) => c.types?.includes(type))?.long_name || "";
+const getLong = (t) =>
+  comp.find((c) => c.types?.includes(t))?.long_name || "";
 
-const getShort = (type) =>
-  comp.find((c) => c.types?.includes(type))?.short_name || "";
+const getShort = (t) =>
+  comp.find((c) => c.types?.includes(t))?.short_name || "";
 
-/* ----------------------------
-   1️⃣ City (priority order)
----------------------------- */
+// 1️⃣ City först
 const city =
   getLong("locality") ||
   getLong("postal_town") ||
   getLong("administrative_area_level_2") ||
   "";
 
-/* ----------------------------
-   2️⃣ Country (ALWAYS before state)
----------------------------- */
+// 2️⃣ Country MÅSTE komma före state-normalisering
 const country = getLong("country") || "";
 const country_iso2 = (getShort("country") || "").toLowerCase();
 
-/* ----------------------------
-   3️⃣ Raw state / region
----------------------------- */
-const rawState =
-  getLong("administrative_area_level_1") || "";
+// 3️⃣ Raw state från Google
+const rawState = getLong("administrative_area_level_1") || "";
 
-/* ----------------------------
-   4️⃣ Canonical state
-   (UK-aware, global-safe)
----------------------------- */
+// 4️⃣ Canonical state (UK-aware)
 const state = WCL.normalizeUKState(
   rawState,
   country,
   city
 );
+
 
 
           /* ====================================================
