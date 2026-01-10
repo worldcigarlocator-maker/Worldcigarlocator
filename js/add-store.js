@@ -213,13 +213,17 @@ async function saveStore() {
   }
 
   const finalState = WCL.normalizeUKState(
-    rawState || window.selectedPlace.state,
+    rawState || window.selectedPlace.state || null,
     country,
     city
   );
 
   const payload = {
-    ...window.selectedPlace,
+    // 🔒 EXPLICIT ONLY — NO SPREAD
+    place_id: window.selectedPlace.place_id || null,
+    lat: window.selectedPlace.lat || null,
+    lng: window.selectedPlace.lng || null,
+    country_iso2: window.selectedPlace.country_iso2 || null,
 
     name,
     address,
@@ -228,28 +232,27 @@ async function saveStore() {
     country,
     continent:
       window.selectedPlace.continent ||
-      WCL.countryToContinent(
-        country,
-        window.selectedPlace.country_iso2
-      ),
+      WCL.countryToContinent(country, window.selectedPlace.country_iso2),
 
     phone: document.getElementById("phone")?.value || null,
     website: document.getElementById("website")?.value || null,
 
-    types: selectedTypes.length ? selectedTypes : ["store"],
+    // ✅ JSONB-safe
+    types: selectedTypes.length ? [...selectedTypes] : ["store"],
     access:
-      document.querySelector("input[name='access']:checked")
-        ?.value || null,
+      document.querySelector("input[name='access']:checked")?.value || null,
 
     approved: false,
     flagged: false,
     deleted: false,
   };
 
+  console.log("📦 INSERT payload", payload);
+
   try {
-    const { error, data } = await WCL.supabase
+    const { data, error } = await WCL.supabase
       .from("stores")
-      .insert([payload])
+      .insert(payload)
       .select()
       .single();
 
@@ -258,9 +261,10 @@ async function saveStore() {
     WCL.toastShared("✅ Store saved", "success");
     resetForm();
   } catch (err) {
-    console.error(err);
+    console.error("❌ SAVE FAILED", err);
     WCL.toastShared("Save failed", "error");
   }
 }
+
 
 window.saveStore = saveStore;
