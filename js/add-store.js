@@ -84,7 +84,9 @@ window.initAutocomplete = function initAutocomplete() {
             "";
 
           // State (US etc)
-          const state = getLong("administrative_area_level_1") || "";
+          let rawState = getLong("administrative_area_level_1") || "";
+const state = WCL.normalizeUKState(rawState, country, city);
+
 
           const country = getLong("country") || "";
           const country_iso2 = (getShort("country") || "").toLowerCase();
@@ -232,13 +234,16 @@ function resetForm() {
 }
 
 /* ================================================================
-   SAVE STORE
+   SAVE STORE — CANONICAL VERSION
    ================================================================ */
 async function saveStore() {
+  /* -----------------------------
+     Read form values
+  ----------------------------- */
   const name = document.getElementById("name")?.value.trim() || "";
   const address = document.getElementById("addr")?.value.trim() || "";
   const city = document.getElementById("city")?.value.trim() || "";
-  const state = document.getElementById("state")?.value.trim() || ""; // ✅
+  const rawState = document.getElementById("state")?.value.trim() || "";
   const country = document.getElementById("country")?.value.trim() || "";
 
   const continent =
@@ -249,19 +254,34 @@ async function saveStore() {
   const website = (document.getElementById("website")?.value || "").trim() || null;
   const commentText = (document.getElementById("comment")?.value || "").trim();
 
+  /* -----------------------------
+     Basic validation
+  ----------------------------- */
   if (!name || !address || !city || !country) {
     WCL.toastShared("⚠️ Please fill all required fields", "error");
     return;
   }
 
-  const payload = {
-    ...window.selectedPlace,
+  /* -----------------------------
+     Canonical state resolution
+     (UK-aware, global-safe)
+  ----------------------------- */
+  const finalState = WCL.normalizeUKState(
+    rawState || window.selectedPlace.state || null,
+    country,
+    city
+  );
 
-    // Always use current form values (user can edit)
+  /* -----------------------------
+     Build payload (single source of truth)
+  ----------------------------- */
+  const payload = {
+    ...window.selectedPlace, // lat/lng, place_id, iso2, etc
+
     name,
     address,
     city,
-    state: state || window.selectedPlace.state || null, // ✅
+    state: finalState,
     country,
     continent,
 
@@ -278,6 +298,9 @@ async function saveStore() {
     deleted: false,
   };
 
+  /* -----------------------------
+     Persist
+  ----------------------------- */
   try {
     const { data, error } = await WCL.supabase
       .from("stores")
@@ -287,20 +310,25 @@ async function saveStore() {
 
     if (error) throw error;
 
+    /* Optional comment */
     if (commentText) {
       await WCL.supabase.from("store_comments").insert([
-        { store_id: data.id, comment: commentText, user_name: "Backoffice" },
+        {
+          store_id: data.id,
+          comment: commentText,
+          user_name: "Backoffice",
+        },
       ]);
     }
 
     WCL.toastShared("✅ Store saved successfully!", "success");
     resetForm();
+
   } catch (err) {
     console.error("❌ Error saving store:", err);
     WCL.toastShared("Error saving store", "error");
   }
 }
 
-// Expose for external buttons (if needed)
+/* Expose if needed */
 window.saveStore = saveStore;
-window.resetForm = resetForm;
