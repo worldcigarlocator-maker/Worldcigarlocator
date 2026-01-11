@@ -1,17 +1,25 @@
 /* ================================================================
    js/add-store.js
-   Backoffice — Add Store (CANONICAL, SAFE, DEBUGGABLE)
+   Backoffice — Add Store (CANONICAL, SAFE, STABLE)
    ================================================================ */
 
-console.log("🚀 Add Store Backoffice loaded (canonical)");
+console.log("🚀 Add Store Backoffice loaded");
 
 /* ================================================================
-   GLOBAL STATE (single source of truth)
+   GLOBAL STATE — SINGLE SOURCE OF TRUTH
    ================================================================ */
-window.selectedPlace = {};
+window.selectedPlace = null;
 window.photoRefs = [];
-let currentIndex = 0;
+let currentPhotoIndex = 0;
 let selectedTypes = [];
+
+/* ================================================================
+   INIT (DOM READY)
+   ================================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  bindTypeSelector();
+  bindButtons();
+});
 
 /* ================================================================
    GOOGLE AUTOCOMPLETE (place_id → getDetails)
@@ -19,7 +27,7 @@ let selectedTypes = [];
 window.initAutocomplete = function initAutocomplete() {
   const input = document.getElementById("gAddress");
   if (!input) {
-    console.error("❌ Input #gAddress not found");
+    console.error("❌ #gAddress not found");
     return;
   }
 
@@ -28,7 +36,7 @@ window.initAutocomplete = function initAutocomplete() {
     types: ["establishment"],
   });
 
-  const svc = new google.maps.places.PlacesService(
+  const service = new google.maps.places.PlacesService(
     document.createElement("div")
   );
 
@@ -36,12 +44,9 @@ window.initAutocomplete = function initAutocomplete() {
     const basic = autocomplete.getPlace();
     if (!basic?.place_id) return;
 
-    const placeId = basic.place_id;
-    console.log("📍 place_id:", placeId);
-
-    svc.getDetails(
+    service.getDetails(
       {
-        placeId,
+        placeId: basic.place_id,
         fields: [
           "place_id",
           "geometry",
@@ -52,230 +57,228 @@ window.initAutocomplete = function initAutocomplete() {
           "website",
         ],
       },
-      async (place, status) => {
-        try {
-          if (
-            status !== google.maps.places.PlacesServiceStatus.OK ||
-            !place
-          ) {
-            throw new Error("getDetails failed");
-          }
-
-          /* ====================================================
-             ADDRESS PARSING — STRICT ORDER (VIKTIG)
-             ==================================================== */
-          const comp = place.address_components || [];
-
-          const getLong = (t) =>
-            comp.find((c) => c.types?.includes(t))?.long_name || "";
-
-          const getShort = (t) =>
-            comp.find((c) => c.types?.includes(t))?.short_name || "";
-
-          // 1️⃣ City
-          const city =
-            getLong("locality") ||
-            getLong("postal_town") ||
-            getLong("administrative_area_level_2") ||
-            "";
-
-          // 2️⃣ Country (måste vara före state-normalisering)
-          const country = getLong("country") || "";
-          const country_iso2 = (getShort("country") || "").toLowerCase();
-
-          // 3️⃣ Raw state från Google
-          const rawState =
-            getLong("administrative_area_level_1") || "";
-
-          // 4️⃣ Canonical state (UK-aware)
-          const state = WCL.normalizeUKState(
-            rawState,
-            country,
-            city
-          );
-
-          /* ====================================================
-             BUILD selectedPlace (canonical)
-             ==================================================== */
-          window.selectedPlace = {
-            name: place.name || "",
-            address: place.formatted_address || "",
-            place_id: place.place_id,
-
-            lat: place.geometry?.location?.lat() || null,
-            lng: place.geometry?.location?.lng() || null,
-
-            city,
-            state,
-            country,
-            country_iso2,
-            continent: WCL.countryToContinent(
-              country,
-              country_iso2
-            ),
-
-            phone: place.international_phone_number || "",
-            website: place.website || "",
-
-            photo_reference: null,
-          };
-
-          console.log("📦 selectedPlace =", window.selectedPlace);
-
-          /* ====================================================
-             PHOTOS
-             ==================================================== */
-          const previewImg = document.getElementById("preview-photo");
-          const meta = document.getElementById("photo-meta");
-          const prevBtn = document.getElementById("prev-photo");
-          const nextBtn = document.getElementById("next-photo");
-
-          if (meta) meta.textContent = "Loading photos…";
-          if (previewImg)
-            previewImg.src = WCL.fallbackForType("store");
-
-          const refs = await WCL.fetchPhotoRefs(placeId);
-          window.photoRefs = Array.isArray(refs) ? refs : [];
-
-          if (window.photoRefs.length) {
-            currentIndex = 0;
-            window.selectedPlace.photo_reference =
-              window.photoRefs[0];
-
-            await WCL.loadProxyPhotoInto(
-              previewImg,
-              window.photoRefs[0],
-              "store"
-            );
-
-            if (meta)
-              meta.textContent = `Photo 1 / ${window.photoRefs.length}`;
-
-            prevBtn.onclick = async () => {
-              currentIndex =
-                (currentIndex - 1 + window.photoRefs.length) %
-                window.photoRefs.length;
-              const ref = window.photoRefs[currentIndex];
-              window.selectedPlace.photo_reference = ref;
-              await WCL.loadProxyPhotoInto(previewImg, ref, "store");
-              if (meta)
-                meta.textContent = `Photo ${
-                  currentIndex + 1
-                } / ${window.photoRefs.length}`;
-            };
-
-            nextBtn.onclick = async () => {
-              currentIndex =
-                (currentIndex + 1) % window.photoRefs.length;
-              const ref = window.photoRefs[currentIndex];
-              window.selectedPlace.photo_reference = ref;
-              await WCL.loadProxyPhotoInto(previewImg, ref, "store");
-              if (meta)
-                meta.textContent = `Photo ${
-                  currentIndex + 1
-                } / ${window.photoRefs.length}`;
-            };
-          } else {
-            if (meta) meta.textContent = "No photo found";
-          }
-
-          /* ====================================================
-             AUTOFILL FORM
-             ==================================================== */
-          const setVal = (id, v) => {
-            const el = document.getElementById(id);
-            if (el) el.value = v || "";
-          };
-
-          setVal("name", window.selectedPlace.name);
-          setVal("addr", window.selectedPlace.address);
-          setVal("city", window.selectedPlace.city);
-          setVal("state", window.selectedPlace.state);
-          setVal("country", window.selectedPlace.country);
-          setVal("continent", window.selectedPlace.continent);
-          setVal("phone", window.selectedPlace.phone);
-          setVal("website", window.selectedPlace.website);
-
-          WCL.toastShared(
-            `✅ Loaded ${window.selectedPlace.name}`,
-            "success"
-          );
-        } catch (err) {
-          console.error("❌ place_changed failed:", err);
-          WCL.toastShared("Failed to load place", "error");
-        }
-      }
+      onPlaceDetails
     );
   });
 };
 
 /* ================================================================
-   TYPE SELECTOR — FIXED & EXPLICIT
+   PLACE DETAILS HANDLER
    ================================================================ */
-document.querySelectorAll(".type-btn input").forEach((cb) => {
-  cb.addEventListener("change", () => {
-    const val = cb.value;
-
-    if (cb.checked) {
-      if (!selectedTypes.includes(val)) selectedTypes.push(val);
-      cb.parentElement.classList.add("active");
-    } else {
-      selectedTypes = selectedTypes.filter((t) => t !== val);
-      cb.parentElement.classList.remove("active");
+async function onPlaceDetails(place, status) {
+  try {
+    if (
+      status !== google.maps.places.PlacesServiceStatus.OK ||
+      !place
+    ) {
+      throw new Error("getDetails failed");
     }
 
-    console.log("🟩 selectedTypes =", selectedTypes);
-  });
-});
+    /* -------------------------------
+       ADDRESS PARSING (STRICT ORDER)
+       ------------------------------- */
+    const comp = place.address_components || [];
+    const getLong = (t) =>
+      comp.find((c) => c.types?.includes(t))?.long_name || "";
+    const getShort = (t) =>
+      comp.find((c) => c.types?.includes(t))?.short_name || "";
+
+    const city =
+      getLong("locality") ||
+      getLong("postal_town") ||
+      getLong("administrative_area_level_2") ||
+      "";
+
+    const country = getLong("country") || "";
+    const country_iso2 = (getShort("country") || "").toLowerCase();
+
+    const rawState =
+      getLong("administrative_area_level_1") || "";
+
+    const state = WCL.normalizeUKState(rawState, country, city);
+
+    /* -------------------------------
+       BUILD CANONICAL selectedPlace
+       ------------------------------- */
+    window.selectedPlace = {
+      place_id: place.place_id,
+      lat: place.geometry?.location?.lat() || null,
+      lng: place.geometry?.location?.lng() || null,
+
+      name: place.name || "",
+      address: place.formatted_address || "",
+      city,
+      state,
+      country,
+      country_iso2,
+      continent: WCL.countryToContinent(country, country_iso2),
+
+      phone: place.international_phone_number || "",
+      website: place.website || "",
+
+      photo_reference: null,
+    };
+
+    console.log("📦 selectedPlace =", window.selectedPlace);
+
+    autofillForm();
+    await loadPhotos(place.place_id);
+
+    WCL.toastShared(`✅ Loaded ${place.name}`, "success");
+  } catch (err) {
+    console.error("❌ Place load failed", err);
+    WCL.toastShared("Failed to load place", "error");
+  }
+}
 
 /* ================================================================
-   SAVE STORE — SINGLE SOURCE OF TRUTH
+   AUTOFILL FORM
+   ================================================================ */
+function autofillForm() {
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val || "";
+  };
+
+  set("name", window.selectedPlace.name);
+  set("addr", window.selectedPlace.address);
+  set("city", window.selectedPlace.city);
+  set("state", window.selectedPlace.state);
+  set("country", window.selectedPlace.country);
+  set("continent", window.selectedPlace.continent);
+  set("phone", window.selectedPlace.phone);
+  set("website", window.selectedPlace.website);
+}
+
+/* ================================================================
+   PHOTOS
+   ================================================================ */
+async function loadPhotos(placeId) {
+  const img = document.getElementById("preview-photo");
+  const meta = document.getElementById("photo-meta");
+
+  if (meta) meta.textContent = "Loading photos…";
+  if (img) img.src = WCL.fallbackForType("store");
+
+  const refs = await WCL.fetchPhotoRefs(placeId);
+  window.photoRefs = Array.isArray(refs) ? refs : [];
+  currentPhotoIndex = 0;
+
+  if (!window.photoRefs.length) {
+    if (meta) meta.textContent = "No photo found";
+    return;
+  }
+
+  window.selectedPlace.photo_reference =
+    window.photoRefs[0];
+
+  await WCL.loadProxyPhotoInto(
+    img,
+    window.photoRefs[0],
+    "store"
+  );
+
+  if (meta)
+    meta.textContent = `Photo 1 / ${window.photoRefs.length}`;
+
+  document.getElementById("prev-photo").onclick =
+    () => changePhoto(-1);
+  document.getElementById("next-photo").onclick =
+    () => changePhoto(1);
+}
+
+async function changePhoto(dir) {
+  const img = document.getElementById("preview-photo");
+  const meta = document.getElementById("photo-meta");
+
+  currentPhotoIndex =
+    (currentPhotoIndex + dir + window.photoRefs.length) %
+    window.photoRefs.length;
+
+  const ref = window.photoRefs[currentPhotoIndex];
+  window.selectedPlace.photo_reference = ref;
+
+  await WCL.loadProxyPhotoInto(img, ref, "store");
+
+  if (meta)
+    meta.textContent = `Photo ${
+      currentPhotoIndex + 1
+    } / ${window.photoRefs.length}`;
+}
+
+/* ================================================================
+   TYPE SELECTOR
+   ================================================================ */
+function bindTypeSelector() {
+  document.querySelectorAll(".type-btn input").forEach((cb) => {
+    cb.addEventListener("change", () => {
+      const val = cb.value;
+
+      if (cb.checked) {
+        if (!selectedTypes.includes(val))
+          selectedTypes.push(val);
+        cb.parentElement.classList.add("active");
+      } else {
+        selectedTypes = selectedTypes.filter(
+          (t) => t !== val
+        );
+        cb.parentElement.classList.remove("active");
+      }
+
+      console.log("🟩 selectedTypes =", selectedTypes);
+    });
+  });
+}
+
+/* ================================================================
+   SAVE STORE
    ================================================================ */
 async function saveStore() {
-  const name = document.getElementById("name")?.value.trim();
-  const address = document.getElementById("addr")?.value.trim();
-  const city = document.getElementById("city")?.value.trim();
-  const rawState = document.getElementById("state")?.value.trim();
-  const country = document.getElementById("country")?.value.trim();
+  if (!window.selectedPlace) {
+    WCL.toastShared("Select a place first", "error");
+    return;
+  }
+
+  const name = document.getElementById("name").value.trim();
+  const address = document.getElementById("addr").value.trim();
+  const city = document.getElementById("city").value.trim();
+  const rawState = document.getElementById("state").value.trim();
+  const country = document.getElementById("country").value.trim();
 
   if (!name || !address || !city || !country) {
-    WCL.toastShared("⚠️ Missing required fields", "error");
+    WCL.toastShared("Missing required fields", "error");
     return;
   }
 
   if (!selectedTypes.length) {
-    WCL.toastShared("⚠️ Select at least one type", "error");
+    WCL.toastShared("Select at least one type", "error");
     return;
   }
 
-  const finalState = WCL.normalizeUKState(
-    rawState || window.selectedPlace.state || null,
+  const state = WCL.normalizeUKState(
+    rawState,
     country,
     city
   );
 
   const payload = {
-    place_id: window.selectedPlace.place_id || null,
-    lat: window.selectedPlace.lat || null,
-    lng: window.selectedPlace.lng || null,
-    country_iso2: window.selectedPlace.country_iso2 || null,
+    place_id: window.selectedPlace.place_id,
+    lat: window.selectedPlace.lat,
+    lng: window.selectedPlace.lng,
+    country_iso2: window.selectedPlace.country_iso2,
 
     name,
     address,
     city,
-    state: finalState,
+    state,
     country,
     continent:
-      window.selectedPlace.continent ||
-      WCL.countryToContinent(
-        country,
-        window.selectedPlace.country_iso2
-      ),
+      document.getElementById("continent").value ||
+      window.selectedPlace.continent,
 
-    phone: document.getElementById("phone")?.value || null,
-    website: document.getElementById("website")?.value || null,
+    phone: document.getElementById("phone").value || null,
+    website: document.getElementById("website").value || null,
 
-    // ✅ JSONB
     types: [...selectedTypes],
     access:
       document.querySelector(
@@ -290,11 +293,9 @@ async function saveStore() {
   console.log("📦 INSERT payload =", payload);
 
   try {
-    const { data, error } = await WCL.supabase
+    const { error } = await WCL.supabase
       .from("stores")
-      .insert([payload])
-      .select()
-      .single();
+      .insert([payload]);
 
     if (error) throw error;
 
@@ -302,16 +303,17 @@ async function saveStore() {
     resetForm();
   } catch (err) {
     console.error("❌ SAVE FAILED", err);
-    WCL.toastShared("Save failed", "error");
+    WCL.toastShared(err.message || "Save failed", "error");
   }
 }
 
 /* ================================================================
-   RESET FORM
+   RESET
    ================================================================ */
 function resetForm() {
   document.querySelectorAll("input, textarea").forEach((el) => {
-    if (!["checkbox", "radio"].includes(el.type)) el.value = "";
+    if (!["checkbox", "radio"].includes(el.type))
+      el.value = "";
     else el.checked = false;
   });
 
@@ -319,20 +321,24 @@ function resetForm() {
     .querySelectorAll(".type-btn")
     .forEach((b) => b.classList.remove("active"));
 
-  selectedTypes = [];
-  window.selectedPlace = {};
+  window.selectedPlace = null;
   window.photoRefs = [];
-  currentIndex = 0;
+  selectedTypes = [];
+  currentPhotoIndex = 0;
 
   const img = document.getElementById("preview-photo");
   const meta = document.getElementById("photo-meta");
   if (img) img.src = WCL.fallbackForType("store");
   if (meta) meta.textContent = "No photo loaded";
-
-  WCL.toastShared("Form cleared", "info");
 }
 
 /* ================================================================
-   EXPOSE
+   BUTTON BINDINGS
    ================================================================ */
-window.saveStore = saveStore;
+function bindButtons() {
+  const saveBtn = document.getElementById("saveBtn");
+  const clearBtn = document.getElementById("clearBtn");
+
+  if (saveBtn) saveBtn.addEventListener("click", saveStore);
+  if (clearBtn) clearBtn.addEventListener("click", resetForm);
+}
