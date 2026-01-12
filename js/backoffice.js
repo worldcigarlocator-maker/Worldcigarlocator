@@ -742,11 +742,18 @@ function renderCards(list) {
     const body = document.createElement("div");
     body.className = "body";
 
-    /* ----------- Name (2 lines) ----------- */
-    const h3 = document.createElement("h3");
-    h3.className = "twoline";
-    h3.textContent = safe(s.name);
-    body.appendChild(h3);
+/* ----------- Store ID (admin only) ----------- */
+const idRow = document.createElement("div");
+idRow.className = "store-id";
+idRow.textContent = `ID: ${s.id}`;
+body.appendChild(idRow);
+
+/* ----------- Name (2 lines) ----------- */
+const h3 = document.createElement("h3");
+h3.className = "twoline";
+h3.textContent = safe(s.name);
+body.appendChild(h3);
+
 
     /* ----------- Type Badges (inline under name) ----------- */
 const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
