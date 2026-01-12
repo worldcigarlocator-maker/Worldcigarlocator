@@ -1,200 +1,203 @@
 /* ==========================================================
-   add-shared.js
-   Shared logic for Add/Edit Store (Public + Backoffice)
-   Canonical & Safe
+   add-shared.js — Shared logic for Add/Edit Store (PUBLIC + BO)
+   Canonical / Safe / Explicit
    ========================================================== */
 
-(function () {
-  "use strict";
+/* ===================== SUPABASE ===================== */
+const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 
-  /* ==========================================================
-     🔐 CONFIG (read-only)
-     ========================================================== */
-  const CONFIG = Object.freeze({
-    SUPABASE_URL: "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-    SUPABASE_ANON_KEY:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4",
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
-    GOOGLE_BROWSER_KEY:
-      "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ",
+/* ===================== GLOBAL WCL ===================== */
+window.WCL = window.WCL || {};
+WCL.supabase = supabase;
 
-    PHOTO_PROXY_URL:
-      "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy",
+/* ===================== GOOGLE ===================== */
+WCL.GOOGLE_BROWSER_KEY =
+  "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
 
-    PHOTO_REFS_URL:
-      "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs",
+/* ===================== MEDIA ===================== */
+WCL.PHOTO_PROXY_URL =
+  "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
+WCL.PHOTO_REFS_URL =
+  "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs";
 
-    STORE_FALLBACK:
-      "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg",
+WCL.GITHUB_STORE_FALLBACK =
+  "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
+WCL.GITHUB_LOUNGE_FALLBACK =
+  "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
 
-    LOUNGE_FALLBACK:
-      "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg",
-  });
+/* ==========================================================
+   🌍 COUNTRY → CONTINENT
+   ========================================================== */
+function countryToContinent(countryName = null, iso2 = null) {
+  const c = (countryName || "").toLowerCase().trim();
+  const i = (iso2 || "").toLowerCase().trim();
 
-  /* ==========================================================
-     🧩 GLOBAL NAMESPACE (safe)
-     ========================================================== */
-  window.WCL = window.WCL || {};
+  const MAP = {
+    gb: "Europe", se: "Europe", no: "Europe", fi: "Europe", dk: "Europe",
+    fr: "Europe", de: "Europe", es: "Europe", it: "Europe",
+    us: "North America", ca: "North America", mx: "North America",
+    br: "South America", ar: "South America",
+    cn: "Asia", jp: "Asia", in: "Asia",
+    za: "Africa",
+    au: "Oceania", nz: "Oceania",
+  };
 
-  /* ==========================================================
-     🧩 SUPABASE CLIENT (single instance)
-     ========================================================== */
-  const supabase =
-    window.WCL.supabase ||
-    window.supabase.createClient(
-      CONFIG.SUPABASE_URL,
-      CONFIG.SUPABASE_ANON_KEY
+  if (MAP[i]) return MAP[i];
+
+  if (c.includes("united states") || c === "usa") return "North America";
+  if (c.includes("united kingdom") || c === "uk") return "Europe";
+
+  return "Other";
+}
+
+/* ==========================================================
+   🏴 UK STATE NORMALIZATION
+   ========================================================== */
+function normalizeUKState(state, country, city) {
+  if (!country) return state || null;
+  if (!country.toLowerCase().includes("united kingdom")) return state || null;
+
+  const c = (city || "").toLowerCase();
+  const s = (state || "").toLowerCase();
+
+  if (s.includes("scotland") || c.includes("edinburgh")) return "Scotland";
+  if (s.includes("wales") || c.includes("cardiff")) return "Wales";
+  if (s.includes("northern")) return "Northern Ireland";
+
+  return "England";
+}
+
+/* ==========================================================
+   📸 PHOTO HELPERS
+   ========================================================== */
+function fallbackForType(type = "store") {
+  return String(type).includes("lounge")
+    ? WCL.GITHUB_LOUNGE_FALLBACK
+    : WCL.GITHUB_STORE_FALLBACK;
+}
+
+function buildProxyUrl(ref, w = 800) {
+  if (!ref) return null;
+  return `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=${w}`;
+}
+
+async function fetchPhotoRefs(placeId) {
+  if (!placeId) return [];
+  try {
+    const res = await fetch(
+      `${WCL.PHOTO_REFS_URL}?place_id=${encodeURIComponent(placeId)}`
     );
+    const json = await res.json();
+    return Array.isArray(json?.refs) ? json.refs : [];
+  } catch {
+    return [];
+  }
+}
 
-  /* ==========================================================
-     🌍 COUNTRY → CONTINENT (deterministic)
-     ========================================================== */
-  function countryToContinent(country = "", iso2 = "") {
-    const i = iso2.toLowerCase().trim();
-    const c = country.toLowerCase().trim();
+async function loadProxyPhotoInto(img, ref, type = "store") {
+  if (!img) return;
+  if (!ref) {
+    img.src = fallbackForType(type);
+    return;
+  }
+  try {
+    const res = await fetch(buildProxyUrl(ref));
+    const blob = await res.blob();
+    img.src = URL.createObjectURL(blob);
+  } catch {
+    img.src = fallbackForType(type);
+  }
+}
 
-    const ISO_MAP = {
-      gb: "Europe", se: "Europe", no: "Europe", fi: "Europe", dk: "Europe",
-      fr: "Europe", de: "Europe", es: "Europe", it: "Europe", nl: "Europe",
-      be: "Europe", pt: "Europe", pl: "Europe", ch: "Europe", at: "Europe",
-
-      us: "North America", ca: "North America", mx: "North America",
-      br: "South America", ar: "South America", cl: "South America",
-
-      cn: "Asia", jp: "Asia", in: "Asia", tr: "Asia", ae: "Asia", sg: "Asia",
-
-      za: "Africa", ng: "Africa", eg: "Africa",
-
-      au: "Oceania", nz: "Oceania",
-    };
-
-    if (ISO_MAP[i]) return ISO_MAP[i];
-
-    if (c.includes("united kingdom") || c.includes("england")) return "Europe";
-    if (c.includes("united states") || c === "usa") return "North America";
-    if (c.includes("brazil") || c.includes("argentina")) return "South America";
-    if (c.includes("china") || c.includes("japan")) return "Asia";
-    if (c.includes("south africa")) return "Africa";
-    if (c.includes("australia")) return "Oceania";
-
-    return "Other";
+/* ==========================================================
+   🔍 DUPLICATE CHECK — CANONICAL (A-MODEL)
+   ========================================================== */
+/*
+  return:
+  {
+    exact:    [stores with same name + address + city + country],
+    possible: [stores with same street + city + country]
+  }
+*/
+async function checkDuplicates(place) {
+  if (!place?.address || !place?.city || !place?.country) {
+    return { exact: [], possible: [] };
   }
 
-  /* ==========================================================
-     🏴 UK STATE NORMALIZATION (explicit)
-     ========================================================== */
-  function normalizeUKState(state = "", country = "", city = "") {
-    if (!country.toLowerCase().includes("united kingdom")) {
-      return state || null;
-    }
+  const street = place.address.split(",")[0].trim();
 
-    const s = state.toLowerCase();
-    const c = city.toLowerCase();
+  const { data, error } = await supabase
+    .from("stores")
+    .select("id,name,address,city,country,types,approved,deleted")
+    .eq("deleted", false)
+    .ilike("city", place.city)
+    .ilike("country", place.country)
+    .ilike("address", `%${street}%`);
 
-    if (s.includes("scotland") || /edinburgh|glasgow/.test(c)) return "Scotland";
-    if (s.includes("wales") || /cardiff|swansea/.test(c)) return "Wales";
-    if (s.includes("northern ireland") || /belfast/.test(c))
-      return "Northern Ireland";
+  if (error || !data) return { exact: [], possible: [] };
 
-    return "England";
-  }
+  const exact = [];
+  const possible = [];
 
-  /* ==========================================================
-     📸 PHOTO HELPERS (safe)
-     ========================================================== */
-  function fallbackForType(type = "store") {
-    return String(type).includes("lounge")
-      ? CONFIG.LOUNGE_FALLBACK
-      : CONFIG.STORE_FALLBACK;
-  }
+  data.forEach((s) => {
+    const sameName =
+      s.name?.toLowerCase() === place.name?.toLowerCase();
+    const sameAddress =
+      s.address?.toLowerCase() === place.address?.toLowerCase();
 
-  function buildProxyUrl(ref, width = 800) {
-    if (!ref) return null;
-    return `${CONFIG.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(
-      ref
-    )}&maxwidth=${width}`;
-  }
-
-  async function fetchPhotoRefs(placeId) {
-    if (!placeId) return [];
-    try {
-      const res = await fetch(
-        `${CONFIG.PHOTO_REFS_URL}?place_id=${encodeURIComponent(placeId)}`
-      );
-      if (!res.ok) return [];
-      const json = await res.json();
-      return Array.isArray(json?.refs) ? json.refs : [];
-    } catch {
-      return [];
-    }
-  }
-
-  async function loadProxyPhotoInto(img, ref, type = "store") {
-    if (!img) return;
-    if (!ref) {
-      img.src = fallbackForType(type);
-      return;
-    }
-
-    try {
-      const res = await fetch(buildProxyUrl(ref));
-      if (!res.ok) throw new Error();
-      const blob = await res.blob();
-      img.src = URL.createObjectURL(blob);
-    } catch {
-      img.src = fallbackForType(type);
-    }
-  }
-
-  /* ==========================================================
-     🔔 TOAST (shared UI utility)
-     ========================================================== */
-  function toastShared(msg, level = "info") {
-    let wrap = document.getElementById("toast-container");
-    if (!wrap) {
-      wrap = document.createElement("div");
-      wrap.id = "toast-container";
-      wrap.style.cssText =
-        "position:fixed;bottom:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:.4rem";
-      document.body.appendChild(wrap);
-    }
-
-    const t = document.createElement("div");
-    t.textContent = msg;
-    t.style.cssText = `
-      padding:.6rem 1rem;
-      border-radius:6px;
-      font-size:.9rem;
-      color:#fff;
-      background:${
-        level === "error" ? "#dc3545" :
-        level === "success" ? "#28a745" : "#333"
-      };
-    `;
-
-    wrap.appendChild(t);
-    setTimeout(() => t.remove(), 3000);
-  }
-
-  /* ==========================================================
-     ✅ EXPORT (single source of truth)
-     ========================================================== */
-  Object.assign(window.WCL, {
-    supabase,
-
-    GOOGLE_BROWSER_KEY: CONFIG.GOOGLE_BROWSER_KEY,
-
-    PHOTO_PROXY_URL: CONFIG.PHOTO_PROXY_URL,
-    PHOTO_REFS_URL: CONFIG.PHOTO_REFS_URL,
-
-    fallbackForType,
-    buildProxyUrl,
-    fetchPhotoRefs,
-    loadProxyPhotoInto,
-
-    countryToContinent,
-    normalizeUKState,
-
-    toastShared,
+    if (sameName && sameAddress) exact.push(s);
+    else possible.push(s);
   });
-})();
+
+  return { exact, possible };
+}
+
+/* ==========================================================
+   🔔 TOAST (SHARED)
+   ========================================================== */
+function toastShared(msg, type = "info") {
+  let c = document.getElementById("toast-container");
+  if (!c) {
+    c = document.createElement("div");
+    c.id = "toast-container";
+    c.style.position = "fixed";
+    c.style.bottom = "1rem";
+    c.style.right = "1rem";
+    c.style.zIndex = "9999";
+    document.body.appendChild(c);
+  }
+  const t = document.createElement("div");
+  t.textContent = msg;
+  t.style.background =
+    type === "error" ? "#dc3545" :
+    type === "success" ? "#28a745" : "#333";
+  t.style.color = "#fff";
+  t.style.padding = ".6rem 1rem";
+  t.style.borderRadius = "6px";
+  t.style.marginTop = ".4rem";
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+/* ==========================================================
+   EXPORTS
+   ========================================================== */
+Object.assign(window.WCL, {
+  countryToContinent,
+  normalizeUKState,
+
+  fallbackForType,
+  buildProxyUrl,
+  fetchPhotoRefs,
+  loadProxyPhotoInto,
+
+  checkDuplicates,
+  toastShared,
+});
