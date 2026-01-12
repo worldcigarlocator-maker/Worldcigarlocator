@@ -22,14 +22,36 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ================================================================
+   POSSIBLE MATCH — DB CHECK (soft, non-blocking)
+   ================================================================ */
+async function checkPossibleMatch(place) {
+  if (!place?.address || !place?.city || !place?.country) return [];
+
+  try {
+    const street = place.address.split(",")[0];
+
+    const { data, error } = await WCL.supabase
+      .from("stores")
+      .select("id,name,address,city,country,types,approved")
+      .ilike("address", `%${street}%`)
+      .ilike("city", place.city)
+      .ilike("country", place.country)
+      .eq("deleted", false);
+
+    if (error) throw error;
+    return data || [];
+  } catch (e) {
+    console.warn("Possible match check failed:", e);
+    return [];
+  }
+}
+
+/* ================================================================
    GOOGLE AUTOCOMPLETE (place_id → getDetails)
    ================================================================ */
 window.initAutocomplete = function initAutocomplete() {
   const input = document.getElementById("gAddress");
-  if (!input) {
-    console.error("❌ #gAddress not found");
-    return;
-  }
+  if (!input) return;
 
   const autocomplete = new google.maps.places.Autocomplete(input, {
     fields: ["place_id"],
@@ -63,7 +85,7 @@ window.initAutocomplete = function initAutocomplete() {
 };
 
 /* ================================================================
-   PLACE DETAILS HANDLER
+   PLACE DETAILS HANDLER (CANONICAL)
    ================================================================ */
 async function onPlaceDetails(place, status) {
   try {
@@ -74,9 +96,7 @@ async function onPlaceDetails(place, status) {
       throw new Error("getDetails failed");
     }
 
-    /* -------------------------------
-       ADDRESS PARSING (STRICT ORDER)
-       ------------------------------- */
+    /* ---------- ADDRESS PARSING ---------- */
     const comp = place.address_components || [];
     const getLong = (t) =>
       comp.find((c) => c.types?.includes(t))?.long_name || "";
@@ -91,15 +111,11 @@ async function onPlaceDetails(place, status) {
 
     const country = getLong("country") || "";
     const country_iso2 = (getShort("country") || "").toLowerCase();
-
-    const rawState =
-      getLong("administrative_area_level_1") || "";
+    const rawState = getLong("administrative_area_level_1") || "";
 
     const state = WCL.normalizeUKState(rawState, country, city);
 
-    /* -------------------------------
-       BUILD CANONICAL selectedPlace
-       ------------------------------- */
+    /* ---------- CANONICAL PLACE ---------- */
     window.selectedPlace = {
       place_id: place.place_id,
       lat: place.geometry?.location?.lat() || null,
@@ -119,14 +135,36 @@ async function onPlaceDetails(place, status) {
       photo_reference: null,
     };
 
-    console.log("📦 selectedPlace =", window.selectedPlace);
+console.log("🔍 checkPossibleMatch() start", {
+  address: window.selectedPlace.address,
+  city: window.selectedPlace.city,
+  country: window.selectedPlace.country
+});
+
+const matches = await checkPossibleMatch(window.selectedPlace);
+
+console.log("🔍 possible matches result:", matches);
+
+     
+    /* ---------- POSSIBLE MATCH (SOFT) ---------- */
+    const matches = await checkPossibleMatch(window.selectedPlace);
+    if (matches.length) {
+      window.selectedPlace._possibleMatches = matches;
+      renderPossibleMatchNotice(matches);
+      WCL.toastShared(
+        `⚠️ Possible match found (${matches.length})`,
+        "info"
+      );
+    } else {
+      clearPossibleMatchNotice();
+    }
 
     autofillForm();
     await loadPhotos(place.place_id);
 
     WCL.toastShared(`✅ Loaded ${place.name}`, "success");
   } catch (err) {
-    console.error("❌ Place load failed", err);
+    console.error("Place load failed:", err);
     WCL.toastShared("Failed to load place", "error");
   }
 }
@@ -151,6 +189,41 @@ function autofillForm() {
 }
 
 /* ================================================================
+   POSSIBLE MATCH — UI (minimal, no CSS collision)
+   ================================================================ */
+function renderPossibleMatchNotice(matches) {
+  let box = document.getElementById("possible-match-box");
+
+  if (!box) {
+    box = document.createElement("div");
+    box.id = "possible-match-box";
+    box.style.margin = "0.75rem 0";
+    box.style.padding = "0.4rem 0";
+    box.style.fontSize = "0.75rem";
+    box.style.color = "#a07900";
+
+    const form =
+      document.getElementById("add-store-form") ||
+      document.querySelector("form");
+
+    if (form) form.prepend(box);
+  }
+
+  box.innerHTML = `
+    ⚠️ Possible existing store(s):
+    ${matches
+      .map(
+        (m) => `<div>#${m.id} — ${m.name}</div>`
+      )
+      .join("")}
+  `;
+}
+
+function clearPossibleMatchNotice() {
+  document.getElementById("possible-match-box")?.remove();
+}
+
+/* ================================================================
    PHOTOS
    ================================================================ */
 async function loadPhotos(placeId) {
@@ -169,14 +242,8 @@ async function loadPhotos(placeId) {
     return;
   }
 
-  window.selectedPlace.photo_reference =
-    window.photoRefs[0];
-
-  await WCL.loadProxyPhotoInto(
-    img,
-    window.photoRefs[0],
-    "store"
-  );
+  window.selectedPlace.photo_reference = window.photoRefs[0];
+  await WCL.loadProxyPhotoInto(img, window.photoRefs[0], "store");
 
   if (meta)
     meta.textContent = `Photo 1 / ${window.photoRefs.length}`;
@@ -215,23 +282,18 @@ function bindTypeSelector() {
       const val = cb.value;
 
       if (cb.checked) {
-        if (!selectedTypes.includes(val))
-          selectedTypes.push(val);
+        if (!selectedTypes.includes(val)) selectedTypes.push(val);
         cb.parentElement.classList.add("active");
       } else {
-        selectedTypes = selectedTypes.filter(
-          (t) => t !== val
-        );
+        selectedTypes = selectedTypes.filter((t) => t !== val);
         cb.parentElement.classList.remove("active");
       }
-
-      console.log("🟩 selectedTypes =", selectedTypes);
     });
   });
 }
 
 /* ================================================================
-   SAVE STORE
+   SAVE STORE (SOFT DUPLICATE GUARD)
    ================================================================ */
 async function saveStore() {
   if (!window.selectedPlace) {
@@ -239,15 +301,13 @@ async function saveStore() {
     return;
   }
 
-  const name = document.getElementById("name").value.trim();
-  const address = document.getElementById("addr").value.trim();
-  const city = document.getElementById("city").value.trim();
-  const rawState = document.getElementById("state").value.trim();
-  const country = document.getElementById("country").value.trim();
-
-  if (!name || !address || !city || !country) {
-    WCL.toastShared("Missing required fields", "error");
-    return;
+  if (window.selectedPlace._possibleMatches?.length) {
+    const ok = confirm(
+      "Possible duplicate detected.\n\n" +
+      "If this is the SAME place, do NOT create a new one.\n\n" +
+      "Press OK to continue anyway."
+    );
+    if (!ok) return;
   }
 
   if (!selectedTypes.length) {
@@ -255,23 +315,17 @@ async function saveStore() {
     return;
   }
 
-  const state = WCL.normalizeUKState(
-    rawState,
-    country,
-    city
-  );
-
   const payload = {
     place_id: window.selectedPlace.place_id,
     lat: window.selectedPlace.lat,
     lng: window.selectedPlace.lng,
     country_iso2: window.selectedPlace.country_iso2,
 
-    name,
-    address,
-    city,
-    state,
-    country,
+    name: document.getElementById("name").value.trim(),
+    address: document.getElementById("addr").value.trim(),
+    city: document.getElementById("city").value.trim(),
+    state: document.getElementById("state").value.trim(),
+    country: document.getElementById("country").value.trim(),
     continent:
       document.getElementById("continent").value ||
       window.selectedPlace.continent,
@@ -281,16 +335,13 @@ async function saveStore() {
 
     types: [...selectedTypes],
     access:
-      document.querySelector(
-        "input[name='access']:checked"
-      )?.value || null,
+      document.querySelector("input[name='access']:checked")?.value ||
+      null,
 
     approved: false,
     flagged: false,
     deleted: false,
   };
-
-  console.log("📦 INSERT payload =", payload);
 
   try {
     const { error } = await WCL.supabase
@@ -302,8 +353,8 @@ async function saveStore() {
     WCL.toastShared("✅ Store saved", "success");
     resetForm();
   } catch (err) {
-    console.error("❌ SAVE FAILED", err);
-    WCL.toastShared(err.message || "Save failed", "error");
+    console.error("Save failed:", err);
+    WCL.toastShared("Save failed", "error");
   }
 }
 
@@ -312,8 +363,7 @@ async function saveStore() {
    ================================================================ */
 function resetForm() {
   document.querySelectorAll("input, textarea").forEach((el) => {
-    if (!["checkbox", "radio"].includes(el.type))
-      el.value = "";
+    if (!["checkbox", "radio"].includes(el.type)) el.value = "";
     else el.checked = false;
   });
 
@@ -326,6 +376,8 @@ function resetForm() {
   selectedTypes = [];
   currentPhotoIndex = 0;
 
+  clearPossibleMatchNotice();
+
   const img = document.getElementById("preview-photo");
   const meta = document.getElementById("photo-meta");
   if (img) img.src = WCL.fallbackForType("store");
@@ -333,12 +385,9 @@ function resetForm() {
 }
 
 /* ================================================================
-   BUTTON BINDINGS
+   BUTTONS
    ================================================================ */
 function bindButtons() {
-  const saveBtn = document.getElementById("saveBtn");
-  const clearBtn = document.getElementById("clearBtn");
-
-  if (saveBtn) saveBtn.addEventListener("click", saveStore);
-  if (clearBtn) clearBtn.addEventListener("click", resetForm);
+  document.getElementById("saveBtn")?.addEventListener("click", saveStore);
+  document.getElementById("clearBtn")?.addEventListener("click", resetForm);
 }
