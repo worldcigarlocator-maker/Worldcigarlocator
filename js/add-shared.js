@@ -1,202 +1,200 @@
 /* ==========================================================
-   add-shared.js — Shared logic for Add/Edit Store pages
-   Version: Fixed 2025-11-11
+   add-shared.js
+   Shared logic for Add/Edit Store (Public + Backoffice)
+   Canonical & Safe
    ========================================================== */
 
-// 🧩 Supabase setup
-const SUPABASE_URL = "https://gbxxoeplkzbhsvagnfsr.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
+(function () {
+  "use strict";
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+  /* ==========================================================
+     🔐 CONFIG (read-only)
+     ========================================================== */
+  const CONFIG = Object.freeze({
+    SUPABASE_URL: "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+    SUPABASE_ANON_KEY:
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4",
 
+    GOOGLE_BROWSER_KEY:
+      "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ",
 
-// 🔑 Google browser key
-const GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+    PHOTO_PROXY_URL:
+      "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy",
 
-// 🖼️ Supabase Functions
-const PHOTO_PROXY_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy";
-const PHOTO_REFS_URL  = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs";
+    PHOTO_REFS_URL:
+      "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs",
 
-// 🏞️ Fallback images
-const GITHUB_STORE_FALLBACK =
-  "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg";
-const GITHUB_LOUNGE_FALLBACK =
-  "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
+    STORE_FALLBACK:
+      "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg",
 
-// Init WCL
-window.WCL = window.WCL || {};
+    LOUNGE_FALLBACK:
+      "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg",
+  });
 
-/* ==========================================================
-   🌍 Country → Continent
-   ========================================================== */
-function countryToContinent(countryName = null, iso2 = null) {
-  const c = (countryName || "").toLowerCase().trim();
-  const i = (iso2 || "").toLowerCase().trim();
+  /* ==========================================================
+     🧩 GLOBAL NAMESPACE (safe)
+     ========================================================== */
+  window.WCL = window.WCL || {};
 
-  const MAP = {
-    gb: "Europe", uk: "Europe", se: "Europe", no: "Europe", fi: "Europe", dk: "Europe",
-    fr: "Europe", de: "Europe", es: "Europe", it: "Europe", nl: "Europe", be: "Europe",
-    pt: "Europe", pl: "Europe", cz: "Europe", ch: "Europe", at: "Europe",
-    us: "North America", ca: "North America", mx: "North America",
-    br: "South America", ar: "South America", cl: "South America",
-    cn: "Asia", jp: "Asia", in: "Asia", tr: "Asia", ae: "Asia", sg: "Asia",
-    za: "Africa", ng: "Africa", eg: "Africa",
-    au: "Oceania", nz: "Oceania"
-  };
+  /* ==========================================================
+     🧩 SUPABASE CLIENT (single instance)
+     ========================================================== */
+  const supabase =
+    window.WCL.supabase ||
+    window.supabase.createClient(
+      CONFIG.SUPABASE_URL,
+      CONFIG.SUPABASE_ANON_KEY
+    );
 
-  if (MAP[i]) return MAP[i];
+  /* ==========================================================
+     🌍 COUNTRY → CONTINENT (deterministic)
+     ========================================================== */
+  function countryToContinent(country = "", iso2 = "") {
+    const i = iso2.toLowerCase().trim();
+    const c = country.toLowerCase().trim();
 
-  const n = c.replace(/’/g, "'").replace(/\./g, "").replace(/-/g, " ");
-  if ([
-    "united kingdom","england","wales","scotland","northern ireland",
-    "sweden","germany","france","italy","spain","norway","finland",
-    "denmark","netherlands","belgium","austria","switzerland",
-    "poland","czech republic","czechia","portugal","ireland","iceland"
-  ].includes(n)) return "Europe";
+    const ISO_MAP = {
+      gb: "Europe", se: "Europe", no: "Europe", fi: "Europe", dk: "Europe",
+      fr: "Europe", de: "Europe", es: "Europe", it: "Europe", nl: "Europe",
+      be: "Europe", pt: "Europe", pl: "Europe", ch: "Europe", at: "Europe",
 
-  if (["united states","usa","canada","mexico"].includes(n))
-    return "North America";
+      us: "North America", ca: "North America", mx: "North America",
+      br: "South America", ar: "South America", cl: "South America",
 
-  if (["brazil","argentina","chile","peru","colombia"].includes(n))
-    return "South America";
+      cn: "Asia", jp: "Asia", in: "Asia", tr: "Asia", ae: "Asia", sg: "Asia",
 
-  if (["china","japan","india","thailand","singapore","israel","turkey","uae"].includes(n))
-    return "Asia";
+      za: "Africa", ng: "Africa", eg: "Africa",
 
-  if (["south africa","nigeria","kenya","egypt","morocco"].includes(n))
-    return "Africa";
+      au: "Oceania", nz: "Oceania",
+    };
 
-  if (["australia","new zealand","fiji"].includes(n))
-    return "Oceania";
+    if (ISO_MAP[i]) return ISO_MAP[i];
 
-  return "Other";
-}
+    if (c.includes("united kingdom") || c.includes("england")) return "Europe";
+    if (c.includes("united states") || c === "usa") return "North America";
+    if (c.includes("brazil") || c.includes("argentina")) return "South America";
+    if (c.includes("china") || c.includes("japan")) return "Asia";
+    if (c.includes("south africa")) return "Africa";
+    if (c.includes("australia")) return "Oceania";
 
-/* ==========================================================
-   🏴 UK State Normalization
-   ========================================================== */
-function normalizeUKState(state, country, city) {
-  const c = (country || "").toLowerCase();
-  if (c !== "united kingdom" && c !== "uk") return state || null;
-
-  const s = (state || "").toLowerCase();
-  const cityLc = (city || "").toLowerCase();
-
-  if (s.includes("scotland") || cityLc.match(/edinburgh|glasgow|aberdeen/))
-    return "Scotland";
-
-  if (s.includes("wales") || cityLc.match(/cardiff|swansea|newport/))
-    return "Wales";
-
-  if (s.includes("northern ireland") || cityLc.match(/belfast|derry|lisburn/))
-    return "Northern Ireland";
-
-  return "England"; // default & industry standard
-}
-
-
-/* ==========================================================
-   📸 Photo Helpers
-   ========================================================== */
-function buildProxyUrl(ref, w = 800) {
-  if (!ref) return null;
-  return `${PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=${w}`;
-}
-
-function fallbackForType(type = "store") {
-  const t = String(type || "").toLowerCase();
-  return t.includes("lounge") ? GITHUB_LOUNGE_FALLBACK : GITHUB_STORE_FALLBACK;
-}
-
-async function fetchPhotoRefs(placeId) {
-  if (!placeId) return [];
-  try {
-    const res = await fetch(`${PHOTO_REFS_URL}?place_id=${encodeURIComponent(placeId)}`);
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data.refs) ? data.refs : [];
-  } catch (err) {
-    console.warn("fetchPhotoRefs failed:", err);
-    return [];
+    return "Other";
   }
-}
 
-async function loadProxyPhotoInto(imgEl, ref, type = "store") {
-  if (!imgEl) return;
-  const fallback = fallbackForType(type);
-  if (!ref) return (imgEl.src = fallback);
-  const proxyUrl = buildProxyUrl(ref);
-  try {
-    const res = await fetch(proxyUrl);
-    if (!res.ok) return (imgEl.src = fallback);
-    const blob = await res.blob();
-    imgEl.src = URL.createObjectURL(blob);
-  } catch {
-    imgEl.src = fallback;
+  /* ==========================================================
+     🏴 UK STATE NORMALIZATION (explicit)
+     ========================================================== */
+  function normalizeUKState(state = "", country = "", city = "") {
+    if (!country.toLowerCase().includes("united kingdom")) {
+      return state || null;
+    }
+
+    const s = state.toLowerCase();
+    const c = city.toLowerCase();
+
+    if (s.includes("scotland") || /edinburgh|glasgow/.test(c)) return "Scotland";
+    if (s.includes("wales") || /cardiff|swansea/.test(c)) return "Wales";
+    if (s.includes("northern ireland") || /belfast/.test(c))
+      return "Northern Ireland";
+
+    return "England";
   }
-}
 
-/* ==========================================================
-   ⭐ Rating + Toast
-   ========================================================== */
-function ratingToStars(rating) {
-  if (!rating) return "";
-  const full = "★".repeat(Math.round(rating));
-  const empty = "☆".repeat(5 - Math.round(rating));
-  return full + empty;
-}
-
-function toastShared(msg, type = "info") {
-  let c = document.getElementById("toast-container");
-  if (!c) {
-    c = document.createElement("div");
-    c.id = "toast-container";
-    c.style.position = "fixed";
-    c.style.bottom = "1rem";
-    c.style.right = "1rem";
-    c.style.display = "flex";
-    c.style.flexDirection = "column";
-    c.style.gap = ".4rem";
-    c.style.zIndex = "9999";
-    document.body.appendChild(c);
+  /* ==========================================================
+     📸 PHOTO HELPERS (safe)
+     ========================================================== */
+  function fallbackForType(type = "store") {
+    return String(type).includes("lounge")
+      ? CONFIG.LOUNGE_FALLBACK
+      : CONFIG.STORE_FALLBACK;
   }
-  const t = document.createElement("div");
-  t.className = "toast " + type;
-  t.textContent = msg;
-  t.style.background =
-    type === "error" ? "#dc3545" : type === "success" ? "#28a745" : "#333";
-  t.style.color = "#fff";
-  t.style.padding = ".6rem 1rem";
-  t.style.borderRadius = "6px";
-  t.style.fontSize = ".9rem";
-  c.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
-}
 
-/* ==========================================================
-   ✅ EXPORTS (alla funktioner till WCL)
-   ========================================================== */
-Object.assign(window.WCL, {
-  supabase: supabaseClient,
+  function buildProxyUrl(ref, width = 800) {
+    if (!ref) return null;
+    return `${CONFIG.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(
+      ref
+    )}&maxwidth=${width}`;
+  }
 
-  GOOGLE_BROWSER_KEY,
-  PHOTO_PROXY_URL,
-  PHOTO_REFS_URL,
+  async function fetchPhotoRefs(placeId) {
+    if (!placeId) return [];
+    try {
+      const res = await fetch(
+        `${CONFIG.PHOTO_REFS_URL}?place_id=${encodeURIComponent(placeId)}`
+      );
+      if (!res.ok) return [];
+      const json = await res.json();
+      return Array.isArray(json?.refs) ? json.refs : [];
+    } catch {
+      return [];
+    }
+  }
 
-  GITHUB_STORE_FALLBACK,
-  GITHUB_LOUNGE_FALLBACK,
+  async function loadProxyPhotoInto(img, ref, type = "store") {
+    if (!img) return;
+    if (!ref) {
+      img.src = fallbackForType(type);
+      return;
+    }
 
-  buildProxyUrl,
-  fallbackForType,
-  fetchPhotoRefs,
-  loadProxyPhotoInto,
+    try {
+      const res = await fetch(buildProxyUrl(ref));
+      if (!res.ok) throw new Error();
+      const blob = await res.blob();
+      img.src = URL.createObjectURL(blob);
+    } catch {
+      img.src = fallbackForType(type);
+    }
+  }
 
-  countryToContinent,
-  normalizeUKState, // ✅ DEN HÄR RADEN
-  ratingToStars,
-  toastShared
-});
+  /* ==========================================================
+     🔔 TOAST (shared UI utility)
+     ========================================================== */
+  function toastShared(msg, level = "info") {
+    let wrap = document.getElementById("toast-container");
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.id = "toast-container";
+      wrap.style.cssText =
+        "position:fixed;bottom:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:.4rem";
+      document.body.appendChild(wrap);
+    }
+
+    const t = document.createElement("div");
+    t.textContent = msg;
+    t.style.cssText = `
+      padding:.6rem 1rem;
+      border-radius:6px;
+      font-size:.9rem;
+      color:#fff;
+      background:${
+        level === "error" ? "#dc3545" :
+        level === "success" ? "#28a745" : "#333"
+      };
+    `;
+
+    wrap.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
+
+  /* ==========================================================
+     ✅ EXPORT (single source of truth)
+     ========================================================== */
+  Object.assign(window.WCL, {
+    supabase,
+
+    GOOGLE_BROWSER_KEY: CONFIG.GOOGLE_BROWSER_KEY,
+
+    PHOTO_PROXY_URL: CONFIG.PHOTO_PROXY_URL,
+    PHOTO_REFS_URL: CONFIG.PHOTO_REFS_URL,
+
+    fallbackForType,
+    buildProxyUrl,
+    fetchPhotoRefs,
+    loadProxyPhotoInto,
+
+    countryToContinent,
+    normalizeUKState,
+
+    toastShared,
+  });
+})();
