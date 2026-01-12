@@ -1,0 +1,116 @@
+/* ============================================================
+   SIDEBAR — COMPACT HIERARCHY (CSS ONLY)
+   ============================================================ */
+
+#sidebarMenu {
+  font-size: 0.78rem;
+  line-height: 1.15;
+  user-select: none;
+}
+
+/* =========================
+   BASE LINE
+   ========================= */
+#sidebarMenu .line {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 4px 6px;
+  cursor: default;
+  color: #e6e6e6;
+}
+
+/* vänsterdelen (hover-zon) */
+#sidebarMenu .line:hover .label,
+#sidebarMenu .line:hover .arrow {
+  color: #fff;
+}
+
+/* =========================
+   LEVEL DIFFERENCES (SUBTLE)
+   ========================= */
+#sidebarMenu .continent .label {
+  font-weight: 600;
+}
+
+#sidebarMenu .country .label {
+  font-weight: 500;
+}
+
+#sidebarMenu .state .label,
+#sidebarMenu .city .label {
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+/* =========================
+   LABEL
+   ========================= */
+#sidebarMenu .label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+/* =========================
+   COUNT (RIGHT COLUMN)
+   ========================= */
+#sidebarMenu .pill {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: #aaa;
+  opacity: 0.9;
+}
+
+/* =========================
+   ARROW (CHEVRON)
+   ========================= */
+#sidebarMenu .arrow {
+  font-size: 0.65rem;
+  opacity: 0.7;
+  cursor: pointer;
+  padding-right: 2px;
+}
+
+/* rotate when open */
+#sidebarMenu .line.open .arrow {
+  transform: rotate(90deg);
+}
+
+/* =========================
+   NESTING
+   ========================= */
+#sidebarMenu .nested {
+  display: none;
+  margin-left: 10px; /* very small indent */
+}
+
+#sidebarMenu .nested.show {
+  display: block;
+}
+
+/* =========================
+   ACTIVE (TEXT ONLY)
+   ========================= */
+#sidebarMenu .line.active .label {
+  color: var(--gold);
+}
+
+/* =========================
+   SCROLL OPTIMIZATION
+   ========================= */
+#sidebarMenu {
+  max-height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+#sidebarMenu::-webkit-scrollbar {
+  width: 6px;
+}
+
+#sidebarMenu::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+}
