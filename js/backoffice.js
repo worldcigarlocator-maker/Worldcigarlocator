@@ -527,6 +527,7 @@ function updateRegionCounts() {
   const counts = {
     all: c.all_count,
     approved: c.approved_count,
+     duplicates: c.duplicates_count,
     pending: c.pending_count,
     flagged: c.flagged_count,
     deleted: c.deleted_count,
@@ -659,6 +660,15 @@ if (countsError) {
       .eq("deleted", false)
       .order("id", { ascending: false });
 
+     //  DUPLICATES = flagged + possible_duplicate
+} else if (tab === "duplicates") {
+  base = base
+    .eq("flagged", true)
+    .eq("deleted", false)
+    .eq("flag_reason", "possible_duplicate")
+    .order("id", { ascending: false });
+
+
   //  DELETED = nyast först
   } else if (tab === "deleted") {
     base = base
@@ -722,11 +732,17 @@ function renderCards(list) {
   grid.innerHTML = "";
 
   list.forEach((s) => {
-    const borderClass =
-      s.deleted ? "border-gray" :
-      s.flagged ? "border-red" :
-      s.approved ? "border-green" :
-      "border-gold";
+  const borderClass =
+  s.flag_reason === "possible_duplicate"
+    ? "border-turquoise"
+    : s.deleted
+    ? "border-gray"
+    : s.flagged
+    ? "border-red"
+    : s.approved
+    ? "border-green"
+    : "border-gold";
+
 
     const card = document.createElement("div");
     card.className = `card ${borderClass}`;
