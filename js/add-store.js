@@ -22,31 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ================================================================
-   POSSIBLE MATCH — SOFT CHECK (DB)
-   ================================================================ */
-async function checkPossibleMatch(place) {
-  if (!place?.address || !place?.city || !place?.country) return [];
-
-  try {
-    const street = place.address.split(",")[0];
-
-    const { data, error } = await WCL.supabase
-      .from("stores")
-      .select("id,name,address,city,country,types,approved")
-      .ilike("address", `%${street}%`)
-      .ilike("city", place.city)
-      .ilike("country", place.country)
-      .eq("deleted", false);
-
-    if (error) throw error;
-    return data || [];
-  } catch (e) {
-    console.warn("Possible match check failed:", e);
-    return [];
-  }
-}
-
-/* ================================================================
    GOOGLE AUTOCOMPLETE (GLOBAL)
    ================================================================ */
 window.initAutocomplete = function initAutocomplete() {
@@ -85,7 +60,7 @@ window.initAutocomplete = function initAutocomplete() {
 };
 
 /* ================================================================
-   PLACE DETAILS
+   PLACE DETAILS (CANONICAL FLOW)
    ================================================================ */
 async function onPlaceDetails(place, status) {
   try {
@@ -96,7 +71,7 @@ async function onPlaceDetails(place, status) {
       throw new Error("getDetails failed");
     }
 
-    /* ---------- ADDRESS ---------- */
+    /* ---------- ADDRESS PARSING ---------- */
     const comp = place.address_components || [];
     const getLong = (t) =>
       comp.find((c) => c.types?.includes(t))?.long_name || "";
@@ -135,21 +110,31 @@ async function onPlaceDetails(place, status) {
       photo_reference: null,
     };
 
-    /* ---------- POSSIBLE MATCH ---------- */
-    const matches = await checkPossibleMatch(window.selectedPlace);
+    /* ============================================================
+       DUPLICATE CHECK (SHARED, CANONICAL)
+       ============================================================ */
+    const { exact, possible } =
+      await WCL.checkDuplicates(window.selectedPlace);
 
-    if (matches.length > 0) {
-      window.selectedPlace._possibleMatches = matches;
-      renderPossibleMatchNotice(matches);
+    if (exact.length > 0) {
+      window.selectedPlace._exactMatches = exact;
+      renderPossibleMatchNotice(exact);
       WCL.toastShared(
-        `⚠️ Possible match found (${matches.length})`,
+        `⛔ Exact duplicate found (${exact.length})`,
+        "error"
+      );
+    } else if (possible.length > 0) {
+      window.selectedPlace._possibleMatches = possible;
+      renderPossibleMatchNotice(possible);
+      WCL.toastShared(
+        `⚠️ Possible match found (${possible.length})`,
         "info"
       );
     } else {
       clearPossibleMatchNotice();
     }
 
-    /* ---------- CONTINUE ---------- */
+    /* ---------- CONTINUE NORMAL FLOW ---------- */
     autofillForm();
     await loadPhotos(place.place_id);
 
@@ -162,7 +147,7 @@ async function onPlaceDetails(place, status) {
 }
 
 /* ================================================================
-   AUTOFILL
+   AUTOFILL FORM
    ================================================================ */
 function autofillForm() {
   const set = (id, val) => {
@@ -181,9 +166,9 @@ function autofillForm() {
 }
 
 /* ================================================================
-   POSSIBLE MATCH UI
+   DUPLICATE NOTICE UI (MINIMAL, SAFE)
    ================================================================ */
-function renderPossibleMatchNotice(matches) {
+function renderPossibleMatchNotice(list) {
   let box = document.getElementById("possible-match-box");
 
   if (!box) {
@@ -202,7 +187,7 @@ function renderPossibleMatchNotice(matches) {
 
   box.innerHTML =
     "⚠️ Possible existing store(s):" +
-    matches.map((m) => `<div>#${m.id} — ${m.name}</div>`).join("");
+    list.map((s) => `<div>#${s.id} — ${s.name}</div>`).join("");
 }
 
 function clearPossibleMatchNotice() {
@@ -220,7 +205,7 @@ async function loadPhotos(placeId) {
   if (img) img.src = WCL.fallbackForType("store");
 
   const refs = await WCL.fetchPhotoRefs(placeId);
-  window.photoRefs = refs || [];
+  window.photoRefs = Array.isArray(refs) ? refs : [];
   currentPhotoIndex = 0;
 
   if (!window.photoRefs.length) {
@@ -254,7 +239,8 @@ async function changePhoto(dir) {
   await WCL.loadProxyPhotoInto(img, ref, "store");
 
   if (meta)
-    meta.textContent = `Photo ${currentPhotoIndex + 1} / ${window.photoRefs.length}`;
+    meta.textContent =
+      `Photo ${currentPhotoIndex + 1} / ${window.photoRefs.length}`;
 }
 
 /* ================================================================
@@ -285,12 +271,20 @@ async function saveStore() {
     return;
   }
 
-  // ⚠️ Soft duplicate warning (Add Store only)
+  /* ⛔ HARD BLOCK ON EXACT DUPLICATE */
+  if (window.selectedPlace._exactMatches?.length) {
+    alert(
+      "Exact duplicate detected.\n\n" +
+      "This place already exists and cannot be added again."
+    );
+    return;
+  }
+
+  /* ⚠️ SOFT WARNING ON POSSIBLE */
   if (window.selectedPlace._possibleMatches?.length) {
     const ok = confirm(
       "Possible duplicate detected.\n\n" +
-      "If this is the SAME place, do NOT create a new one.\n\n" +
-      "Press OK to continue anyway."
+      "Press OK only if this is a DIFFERENT place."
     );
     if (!ok) return;
   }
@@ -307,7 +301,6 @@ async function saveStore() {
     access:
       document.querySelector("input[name='access']:checked")?.value || null,
 
-    // 🔐 Moderation defaults (EXTREMVIKTIGT)
     approved: false,
     flagged: false,
     flag_reason: null,
