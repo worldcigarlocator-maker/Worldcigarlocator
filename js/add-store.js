@@ -6,7 +6,7 @@
 console.log("🚀 Add Store Backoffice loaded");
 
 /* ================================================================
-   GLOBAL STATE — SINGLE SOURCE OF TRUTH
+   GLOBAL STATE
    ================================================================ */
 window.selectedPlace = null;
 window.photoRefs = [];
@@ -14,7 +14,7 @@ let currentPhotoIndex = 0;
 let selectedTypes = [];
 
 /* ================================================================
-   INIT (DOM READY)
+   INIT
    ================================================================ */
 document.addEventListener("DOMContentLoaded", () => {
   bindTypeSelector();
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ================================================================
-   POSSIBLE MATCH — DB CHECK (soft, non-blocking)
+   POSSIBLE MATCH — SOFT CHECK (DB)
    ================================================================ */
 async function checkPossibleMatch(place) {
   if (!place?.address || !place?.city || !place?.country) return [];
@@ -47,7 +47,7 @@ async function checkPossibleMatch(place) {
 }
 
 /* ================================================================
-   GOOGLE AUTOCOMPLETE (place_id → getDetails)
+   GOOGLE AUTOCOMPLETE (GLOBAL)
    ================================================================ */
 window.initAutocomplete = function initAutocomplete() {
   const input = document.getElementById("gAddress");
@@ -85,7 +85,7 @@ window.initAutocomplete = function initAutocomplete() {
 };
 
 /* ================================================================
-   PLACE DETAILS HANDLER (CANONICAL)
+   PLACE DETAILS
    ================================================================ */
 async function onPlaceDetails(place, status) {
   try {
@@ -96,7 +96,7 @@ async function onPlaceDetails(place, status) {
       throw new Error("getDetails failed");
     }
 
-    /* ---------- ADDRESS PARSING ---------- */
+    /* ---------- ADDRESS ---------- */
     const comp = place.address_components || [];
     const getLong = (t) =>
       comp.find((c) => c.types?.includes(t))?.long_name || "";
@@ -116,57 +116,53 @@ async function onPlaceDetails(place, status) {
     const state = WCL.normalizeUKState(rawState, country, city);
 
     /* ---------- CANONICAL PLACE ---------- */
-window.selectedPlace = {
-  place_id: place.place_id,
-  lat: place.geometry?.location?.lat() || null,
-  lng: place.geometry?.location?.lng() || null,
+    window.selectedPlace = {
+      place_id: place.place_id,
+      lat: place.geometry?.location?.lat() || null,
+      lng: place.geometry?.location?.lng() || null,
 
-  name: place.name || "",
-  address: place.formatted_address || "",
-  city,
-  state,
-  country,
-  country_iso2,
-  continent: WCL.countryToContinent(country, country_iso2),
+      name: place.name || "",
+      address: place.formatted_address || "",
+      city,
+      state,
+      country,
+      country_iso2,
+      continent: WCL.countryToContinent(country, country_iso2),
 
-  phone: place.international_phone_number || "",
-  website: place.website || "",
+      phone: place.international_phone_number || "",
+      website: place.website || "",
 
-  photo_reference: null,
-};
+      photo_reference: null,
+    };
 
-/* ---------- POSSIBLE MATCH (SOFT CHECK) ---------- */
-console.log("🔍 checkPossibleMatch() start", {
-  address: window.selectedPlace.address,
-  city: window.selectedPlace.city,
-  country: window.selectedPlace.country
-});
+    /* ---------- POSSIBLE MATCH ---------- */
+    const matches = await checkPossibleMatch(window.selectedPlace);
 
-const matches = await checkPossibleMatch(window.selectedPlace);
+    if (matches.length > 0) {
+      window.selectedPlace._possibleMatches = matches;
+      renderPossibleMatchNotice(matches);
+      WCL.toastShared(
+        `⚠️ Possible match found (${matches.length})`,
+        "info"
+      );
+    } else {
+      clearPossibleMatchNotice();
+    }
 
-console.log("🔍 possible matches result:", matches);
+    /* ---------- CONTINUE ---------- */
+    autofillForm();
+    await loadPhotos(place.place_id);
 
-if (matches.length > 0) {
-  window.selectedPlace._possibleMatches = matches;
+    WCL.toastShared(`✅ Loaded ${place.name}`, "success");
 
-  renderPossibleMatchNotice(matches);
-
-  WCL.toastShared(
-    `⚠️ Possible match found (${matches.length})`,
-    "info"
-  );
-} else {
-  clearPossibleMatchNotice();
+  } catch (err) {
+    console.error("Place load failed:", err);
+    WCL.toastShared("Failed to load place", "error");
+  }
 }
 
-/* ---------- CONTINUE NORMAL FLOW ---------- */
-autofillForm();
-await loadPhotos(place.place_id);
-
-WCL.toastShared(`✅ Loaded ${place.name}`, "success");
-
 /* ================================================================
-   AUTOFILL FORM
+   AUTOFILL
    ================================================================ */
 function autofillForm() {
   const set = (id, val) => {
@@ -185,7 +181,7 @@ function autofillForm() {
 }
 
 /* ================================================================
-   POSSIBLE MATCH — UI (minimal, no CSS collision)
+   POSSIBLE MATCH UI
    ================================================================ */
 function renderPossibleMatchNotice(matches) {
   let box = document.getElementById("possible-match-box");
@@ -194,7 +190,6 @@ function renderPossibleMatchNotice(matches) {
     box = document.createElement("div");
     box.id = "possible-match-box";
     box.style.margin = "0.75rem 0";
-    box.style.padding = "0.4rem 0";
     box.style.fontSize = "0.75rem";
     box.style.color = "#a07900";
 
@@ -205,14 +200,9 @@ function renderPossibleMatchNotice(matches) {
     if (form) form.prepend(box);
   }
 
-  box.innerHTML = `
-    ⚠️ Possible existing store(s):
-    ${matches
-      .map(
-        (m) => `<div>#${m.id} — ${m.name}</div>`
-      )
-      .join("")}
-  `;
+  box.innerHTML =
+    "⚠️ Possible existing store(s):" +
+    matches.map((m) => `<div>#${m.id} — ${m.name}</div>`).join("");
 }
 
 function clearPossibleMatchNotice() {
@@ -230,7 +220,7 @@ async function loadPhotos(placeId) {
   if (img) img.src = WCL.fallbackForType("store");
 
   const refs = await WCL.fetchPhotoRefs(placeId);
-  window.photoRefs = Array.isArray(refs) ? refs : [];
+  window.photoRefs = refs || [];
   currentPhotoIndex = 0;
 
   if (!window.photoRefs.length) {
@@ -264,9 +254,7 @@ async function changePhoto(dir) {
   await WCL.loadProxyPhotoInto(img, ref, "store");
 
   if (meta)
-    meta.textContent = `Photo ${
-      currentPhotoIndex + 1
-    } / ${window.photoRefs.length}`;
+    meta.textContent = `Photo ${currentPhotoIndex + 1} / ${window.photoRefs.length}`;
 }
 
 /* ================================================================
@@ -289,7 +277,7 @@ function bindTypeSelector() {
 }
 
 /* ================================================================
-   SAVE STORE (SOFT DUPLICATE GUARD)
+   SAVE STORE
    ================================================================ */
 async function saveStore() {
   if (!window.selectedPlace) {
@@ -312,28 +300,10 @@ async function saveStore() {
   }
 
   const payload = {
-    place_id: window.selectedPlace.place_id,
-    lat: window.selectedPlace.lat,
-    lng: window.selectedPlace.lng,
-    country_iso2: window.selectedPlace.country_iso2,
-
-    name: document.getElementById("name").value.trim(),
-    address: document.getElementById("addr").value.trim(),
-    city: document.getElementById("city").value.trim(),
-    state: document.getElementById("state").value.trim(),
-    country: document.getElementById("country").value.trim(),
-    continent:
-      document.getElementById("continent").value ||
-      window.selectedPlace.continent,
-
-    phone: document.getElementById("phone").value || null,
-    website: document.getElementById("website").value || null,
-
+    ...window.selectedPlace,
     types: [...selectedTypes],
     access:
-      document.querySelector("input[name='access']:checked")?.value ||
-      null,
-
+      document.querySelector("input[name='access']:checked")?.value || null,
     approved: false,
     flagged: false,
     deleted: false,
@@ -355,7 +325,7 @@ async function saveStore() {
 }
 
 /* ================================================================
-   RESET
+   RESET + BUTTONS
    ================================================================ */
 function resetForm() {
   document.querySelectorAll("input, textarea").forEach((el) => {
@@ -374,15 +344,12 @@ function resetForm() {
 
   clearPossibleMatchNotice();
 
-  const img = document.getElementById("preview-photo");
-  const meta = document.getElementById("photo-meta");
-  if (img) img.src = WCL.fallbackForType("store");
-  if (meta) meta.textContent = "No photo loaded";
+  document.getElementById("preview-photo").src =
+    WCL.fallbackForType("store");
+  document.getElementById("photo-meta").textContent =
+    "No photo loaded";
 }
 
-/* ================================================================
-   BUTTONS
-   ================================================================ */
 function bindButtons() {
   document.getElementById("saveBtn")?.addEventListener("click", saveStore);
   document.getElementById("clearBtn")?.addEventListener("click", resetForm);
