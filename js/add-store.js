@@ -285,6 +285,7 @@ async function saveStore() {
     return;
   }
 
+  // ⚠️ Soft duplicate warning (Add Store only)
   if (window.selectedPlace._possibleMatches?.length) {
     const ok = confirm(
       "Possible duplicate detected.\n\n" +
@@ -301,11 +302,15 @@ async function saveStore() {
 
   const payload = {
     ...window.selectedPlace,
+
     types: [...selectedTypes],
     access:
       document.querySelector("input[name='access']:checked")?.value || null,
+
+    // 🔐 Moderation defaults (EXTREMVIKTIGT)
     approved: false,
     flagged: false,
+    flag_reason: null,
     deleted: false,
   };
 
