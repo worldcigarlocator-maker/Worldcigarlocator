@@ -679,3 +679,12 @@ td .flag {
   margin-left: 22px; /* linjera med texten efter flaggan */
   letter-spacing: 0.4px;
 }
+/* === Store ID (admin-only, ultra subtle) === */
+.store-id {
+  font-size: 10px;
+  line-height: 1;
+  color: #c7c7c7;
+  margin-bottom: 2px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  user-select: none;
+}
