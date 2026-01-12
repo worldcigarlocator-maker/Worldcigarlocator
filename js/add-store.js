@@ -116,25 +116,26 @@ async function onPlaceDetails(place, status) {
     const state = WCL.normalizeUKState(rawState, country, city);
 
     /* ---------- CANONICAL PLACE ---------- */
-    window.selectedPlace = {
-      place_id: place.place_id,
-      lat: place.geometry?.location?.lat() || null,
-      lng: place.geometry?.location?.lng() || null,
+window.selectedPlace = {
+  place_id: place.place_id,
+  lat: place.geometry?.location?.lat() || null,
+  lng: place.geometry?.location?.lng() || null,
 
-      name: place.name || "",
-      address: place.formatted_address || "",
-      city,
-      state,
-      country,
-      country_iso2,
-      continent: WCL.countryToContinent(country, country_iso2),
+  name: place.name || "",
+  address: place.formatted_address || "",
+  city,
+  state,
+  country,
+  country_iso2,
+  continent: WCL.countryToContinent(country, country_iso2),
 
-      phone: place.international_phone_number || "",
-      website: place.website || "",
+  phone: place.international_phone_number || "",
+  website: place.website || "",
 
-      photo_reference: null,
-    };
+  photo_reference: null,
+};
 
+/* ---------- POSSIBLE MATCH (SOFT CHECK) ---------- */
 console.log("🔍 checkPossibleMatch() start", {
   address: window.selectedPlace.address,
   city: window.selectedPlace.city,
@@ -145,29 +146,24 @@ const matches = await checkPossibleMatch(window.selectedPlace);
 
 console.log("🔍 possible matches result:", matches);
 
-     
-    /* ---------- POSSIBLE MATCH (SOFT) ---------- */
-    const matches = await checkPossibleMatch(window.selectedPlace);
-    if (matches.length) {
-      window.selectedPlace._possibleMatches = matches;
-      renderPossibleMatchNotice(matches);
-      WCL.toastShared(
-        `⚠️ Possible match found (${matches.length})`,
-        "info"
-      );
-    } else {
-      clearPossibleMatchNotice();
-    }
+if (matches.length > 0) {
+  window.selectedPlace._possibleMatches = matches;
 
-    autofillForm();
-    await loadPhotos(place.place_id);
+  renderPossibleMatchNotice(matches);
 
-    WCL.toastShared(`✅ Loaded ${place.name}`, "success");
-  } catch (err) {
-    console.error("Place load failed:", err);
-    WCL.toastShared("Failed to load place", "error");
-  }
+  WCL.toastShared(
+    `⚠️ Possible match found (${matches.length})`,
+    "info"
+  );
+} else {
+  clearPossibleMatchNotice();
 }
+
+/* ---------- CONTINUE NORMAL FLOW ---------- */
+autofillForm();
+await loadPhotos(place.place_id);
+
+WCL.toastShared(`✅ Loaded ${place.name}`, "success");
 
 /* ================================================================
    AUTOFILL FORM
