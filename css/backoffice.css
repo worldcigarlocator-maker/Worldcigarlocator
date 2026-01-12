@@ -688,3 +688,23 @@ td .flag {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   user-select: none;
 }
+/* ============================================================
+   DUPLICATES — Visual only (SAFE ADD-ON)
+   ============================================================ */
+
+/* --- Pill (inactive) --- */
+.pill[data-tab="duplicates"] {
+  border-color: #20c997;     /* turkos */
+  color: #20c997;
+}
+
+/* --- Pill (active) --- */
+.pill.active[data-tab="duplicates"] {
+  background: #20c997;
+  color: #fff;
+}
+
+/* --- Card border --- */
+.card.border-turquoise {
+  border-color: #20c997;
+}
