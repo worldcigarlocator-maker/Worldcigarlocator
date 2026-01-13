@@ -1,11 +1,10 @@
 // ============================================================
-// SIDEBAR.JS — WCL Premium Hierarchy Navigation
+// SIDEBAR.JS — WCL Premium Hierarchy Navigation (CANONICAL)
 // ============================================================
 
 console.log("🚨 ACTIVE SIDEBAR FILE LOADED");
 
 import { setLocationFilter, runSearch } from "./cards.js";
-
 
 const dom = (sel) => document.querySelector(sel);
 const menu = dom("#sidebarMenu");
@@ -44,15 +43,13 @@ function applyLocation(next) {
 }
 
 /* ============================================================
-   BUILD SIDEBAR HIERARCHY (DEDUPED, USA HAS STATE LEVEL)
+   BUILD SIDEBAR HIERARCHY (USA = STATE → CITY)
    ============================================================ */
 export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
   menu.innerHTML = "Loading…";
 
- const { data, error } = await supabase
-  .rpc("sidebar_counts_v1");
-
+  const { data, error } = await supabase.rpc("sidebar_counts_v1");
 
   if (error) {
     console.error(error);
@@ -60,99 +57,116 @@ export async function buildFrontendSidebar(supabase) {
     return;
   }
 
-// ============================================================
-// BUILD TREE (from aggregated backend counts)
-// ============================================================
-const tree = {};
+  /* ============================================================
+     TOTAL COUNTS — MUST NOT DEPEND ON UI STATE
+     ============================================================ */
+  const totals = {
+    continent: {},
+    country: {},
+    region: {},
+  };
 
-data.forEach(({ continent, country, region, city, count }) => {
-  if (!continent || !country || !region || !city) return;
+  data.forEach(({ continent, country, region, count }) => {
+    totals.continent[continent] =
+      (totals.continent[continent] || 0) + count;
 
-  if (!tree[continent]) tree[continent] = {};
-  if (!tree[continent][country]) tree[continent][country] = {};
-  if (!tree[continent][country][region]) {
-    tree[continent][country][region] = {};
-  }
+    totals.country[country] =
+      (totals.country[country] || 0) + count;
 
-  tree[continent][country][region][city] =
-    (tree[continent][country][region][city] || 0) + count;
-});
-
-
-  // ============================================================
-// RENDER
-// ============================================================
-menu.innerHTML = "";
-
-Object.entries(tree).forEach(([continent, countries]) => {
-  const contLine = createLine("continent", continent, countTotal(countries));
-  const contNested = createNested();
-
-  menu.append(contLine, contNested);
-
-  contLine.addEventListener("click", () => {
-    toggle(contLine, contNested, ".continent");
-    applyLocation({ continent, country: null, state: null, city: null });
+    totals.region[region] =
+      (totals.region[region] || 0) + count;
   });
 
-  Object.entries(countries).forEach(([country, regions]) => {
-    const countryLine = createLine("country", country, countTotal(regions));
-    const countryNested = createNested();
+  /* ============================================================
+     BUILD TREE (STRUCTURE ONLY — NO COUNTS)
+     ============================================================ */
+  const tree = {};
 
-    contNested.append(countryLine, countryNested);
+  data.forEach(({ continent, country, region, city, count }) => {
+    if (!continent || !country || !region || !city) return;
 
-    countryLine.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggle(countryLine, countryNested, ".country");
-      applyLocation({ continent, country, state: null, city: null });
+    if (!tree[continent]) tree[continent] = {};
+    if (!tree[continent][country]) tree[continent][country] = {};
+    if (!tree[continent][country][region]) {
+      tree[continent][country][region] = {};
+    }
+
+    tree[continent][country][region][city] =
+      (tree[continent][country][region][city] || 0) + count;
+  });
+
+  /* ============================================================
+     RENDER
+     ============================================================ */
+  menu.innerHTML = "";
+
+  Object.entries(tree).forEach(([continent, countries]) => {
+    const contLine = createLine(
+      "continent",
+      continent,
+      totals.continent[continent]
+    );
+    const contNested = createNested();
+
+    menu.append(contLine, contNested);
+
+    contLine.addEventListener("click", () => {
+      toggle(contLine, contNested, ".continent");
+      applyLocation({ continent, country: null, state: null, city: null });
     });
 
-    // 🌍 ALL COUNTRIES → REGION → CITY
-    Object.entries(regions).forEach(([region, cities]) => {
-      const regionLine = createLine("state", region, countTotal(cities));
-      const regionNested = createNested();
+    Object.entries(countries).forEach(([country, regions]) => {
+      const countryLine = createLine(
+        "country",
+        country,
+        totals.country[country]
+      );
+      const countryNested = createNested();
 
-      countryNested.append(regionLine, regionNested);
+      contNested.append(countryLine, countryNested);
 
-      regionLine.addEventListener("click", (e) => {
+      countryLine.addEventListener("click", (e) => {
         e.stopPropagation();
-        toggle(regionLine, regionNested, ".state");
-        applyLocation({ continent, country, state: region, city: null });
+        toggle(countryLine, countryNested, ".country");
+        applyLocation({ continent, country, state: null, city: null });
       });
 
-      Object.entries(cities).forEach(([city, count]) => {
-        const cityLine = createLine("city", city, count);
-        regionNested.append(cityLine);
+      Object.entries(regions).forEach(([region, cities]) => {
+        const regionLine = createLine(
+          "state",
+          region,
+          totals.region[region]
+        );
+        const regionNested = createNested();
 
-        cityLine.addEventListener("click", (e) => {
+        countryNested.append(regionLine, regionNested);
+
+        regionLine.addEventListener("click", (e) => {
           e.stopPropagation();
-          applyLocation({ continent, country, state: region, city });
+          toggle(regionLine, regionNested, ".state");
+          applyLocation({ continent, country, state: region, city: null });
+        });
+
+        Object.entries(cities).forEach(([city, count]) => {
+          const cityLine = createLine("city", city, count);
+          regionNested.append(cityLine);
+
+          cityLine.addEventListener("click", (e) => {
+            e.stopPropagation();
+            applyLocation({ continent, country, state: region, city });
+          });
         });
       });
     });
   });
-});
-
+}
 
 /* ============================================================
    HELPERS
    ============================================================ */
-function countTotal(obj) {
-  return Object.values(obj).reduce((sum, val) => {
-    if (typeof val === "number") return sum + val;
-    if (typeof val === "object") return sum + countTotal(val);
-    return sum;
-  }, 0);
-}
-
 function createLine(type, label, count) {
   const el = document.createElement("div");
   el.className = `line ${type}`;
-
-  // 🔍 DEBUG – BEVISA ATT KLICKET NÅR ELEMENTET
-  el.addEventListener("click", () => {
-    console.log("🧪 CLICK ON LINE", { type, label, count });
-  });
 
   el.innerHTML = `
     <span class="label">${label}</span>
@@ -161,7 +175,6 @@ function createLine(type, label, count) {
   `;
   return el;
 }
-
 
 function createNested() {
   const el = document.createElement("div");
@@ -181,14 +194,12 @@ function toggle(clickedItem, clickedNested, selector) {
     if (!nest) return;
 
     if (item === clickedItem) {
-    const isOpen = item.classList.contains("open");
-    item.classList.toggle("open", !isOpen);
-    nest.classList.toggle("show", !isOpen);
-  } else {
-    item.classList.remove("open");
-    nest.classList.remove("show");
-  }
-});
+      const isOpen = item.classList.contains("open");
+      item.classList.toggle("open", !isOpen);
+      nest.classList.toggle("show", !isOpen);
+    } else {
+      item.classList.remove("open");
+      nest.classList.remove("show");
+    }
+  });
 }
-
-} //
