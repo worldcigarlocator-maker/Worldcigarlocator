@@ -10,6 +10,7 @@ import { setLocationFilter, runSearch } from "./cards.js";
 const dom = (sel) => document.querySelector(sel);
 const menu = dom("#sidebarMenu");
 
+
 /* ============================================================
    INTERNAL GUARD — prevent duplicate searches
    ============================================================ */
