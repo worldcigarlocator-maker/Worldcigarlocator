@@ -1,5 +1,5 @@
 // ============================================================
-// SIDEBAR.JS — WCL Premium Hierarchy  Navigation (CANONICAL)
+// SIDEBAR.JS — WCL Premium Hierarchy Navigation (CANONICAL)
 // Sidebar is STATIC. Backend is single source of truth.
 // ============================================================
 
