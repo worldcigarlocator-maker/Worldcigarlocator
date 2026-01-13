@@ -1,5 +1,6 @@
 // ============================================================
 // SIDEBAR.JS — WCL Premium Hierarchy Navigation (CANONICAL)
+// Sidebar is STATIC. Backend is single source of truth.
 // ============================================================
 
 console.log("🚨 ACTIVE SIDEBAR FILE LOADED");
@@ -10,7 +11,7 @@ const dom = (sel) => document.querySelector(sel);
 const menu = dom("#sidebarMenu");
 
 /* ============================================================
-   INTERNAL GUARD — prevent duplicate / empty searches
+   INTERNAL GUARD — prevent duplicate searches
    ============================================================ */
 let LAST_LOCATION = {
   continent: null,
@@ -29,7 +30,7 @@ function isSameLocation(next) {
 }
 
 function applyLocation(next) {
-  if (isSameLocation(next)) return; // 🔒 STOP duplicates
+  if (isSameLocation(next)) return;
 
   LAST_LOCATION = {
     continent: next.continent ?? null,
@@ -43,61 +44,52 @@ function applyLocation(next) {
 }
 
 /* ============================================================
-   BUILD SIDEBAR HIERARCHY (USA = STATE → CITY)
+   BUILD SIDEBAR — CANONICAL
+   No frontend aggregation
+   No recursive totals
    ============================================================ */
 export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
   menu.innerHTML = "Loading…";
 
   const { data, error } = await supabase.rpc("sidebar_counts_v1");
-   console.log(
-  "RPC CONTINENTS:",
-  [...new Set(data.map(r => r.continent))]
-);
-
 
   if (error) {
-    console.error(error);
+    console.error("Sidebar RPC error:", error);
     menu.innerHTML = "Failed to load menu.";
     return;
   }
 
   /* ============================================================
-     TOTAL COUNTS — MUST NOT DEPEND ON UI STATE
-     ============================================================ */
-  const totals = {
-    continent: {},
-    country: {},
-    region: {},
-  };
-
-  data.forEach(({ continent, country, region, count }) => {
-    totals.continent[continent] =
-      (totals.continent[continent] || 0) + count;
-
-    totals.country[country] =
-      (totals.country[country] || 0) + count;
-
-    totals.region[region] =
-      (totals.region[region] || 0) + count;
-  });
-
-  /* ============================================================
-     BUILD TREE (STRUCTURE ONLY — NO COUNTS)
+     BUILD TREE — structure + backend counts only
      ============================================================ */
   const tree = {};
 
   data.forEach(({ continent, country, region, city, count }) => {
     if (!continent || !country || !region || !city) return;
 
-    if (!tree[continent]) tree[continent] = {};
-    if (!tree[continent][country]) tree[continent][country] = {};
-    if (!tree[continent][country][region]) {
-      tree[continent][country][region] = {};
+    if (!tree[continent]) {
+      tree[continent] = { count: 0, countries: {} };
     }
+    tree[continent].count += count;
 
-    tree[continent][country][region][city] =
-      (tree[continent][country][region][city] || 0) + count;
+    if (!tree[continent].countries[country]) {
+      tree[continent].countries[country] = {
+        count: 0,
+        regions: {},
+      };
+    }
+    tree[continent].countries[country].count += count;
+
+    if (!tree[continent].countries[country].regions[region]) {
+      tree[continent].countries[country].regions[region] = {
+        count: 0,
+        cities: {},
+      };
+    }
+    tree[continent].countries[country].regions[region].count += count;
+
+    tree[continent].countries[country].regions[region].cities[city] = count;
   });
 
   /* ============================================================
@@ -105,27 +97,19 @@ export async function buildFrontendSidebar(supabase) {
      ============================================================ */
   menu.innerHTML = "";
 
-  Object.entries(tree).forEach(([continent, countries]) => {
-    const contLine = createLine(
-      "continent",
-      continent,
-      totals.continent[continent]
-    );
+  Object.entries(tree).forEach(([continent, cData]) => {
+    const contLine = createLine("continent", continent, cData.count);
     const contNested = createNested();
 
     menu.append(contLine, contNested);
 
     contLine.addEventListener("click", () => {
       toggle(contLine, contNested, ".continent");
-      applyLocation({ continent, country: null, state: null, city: null });
+      applyLocation({ continent });
     });
 
-    Object.entries(countries).forEach(([country, regions]) => {
-      const countryLine = createLine(
-        "country",
-        country,
-        totals.country[country]
-      );
+    Object.entries(cData.countries).forEach(([country, coData]) => {
+      const countryLine = createLine("country", country, coData.count);
       const countryNested = createNested();
 
       contNested.append(countryLine, countryNested);
@@ -133,15 +117,11 @@ export async function buildFrontendSidebar(supabase) {
       countryLine.addEventListener("click", (e) => {
         e.stopPropagation();
         toggle(countryLine, countryNested, ".country");
-        applyLocation({ continent, country, state: null, city: null });
+        applyLocation({ continent, country });
       });
 
-      Object.entries(regions).forEach(([region, cities]) => {
-        const regionLine = createLine(
-          "state",
-          region,
-          totals.region[region]
-        );
+      Object.entries(coData.regions).forEach(([region, rData]) => {
+        const regionLine = createLine("state", region, rData.count);
         const regionNested = createNested();
 
         countryNested.append(regionLine, regionNested);
@@ -149,10 +129,10 @@ export async function buildFrontendSidebar(supabase) {
         regionLine.addEventListener("click", (e) => {
           e.stopPropagation();
           toggle(regionLine, regionNested, ".state");
-          applyLocation({ continent, country, state: region, city: null });
+          applyLocation({ continent, country, state: region });
         });
 
-        Object.entries(cities).forEach(([city, count]) => {
+        Object.entries(rData.cities).forEach(([city, count]) => {
           const cityLine = createLine("city", city, count);
           regionNested.append(cityLine);
 
@@ -167,7 +147,7 @@ export async function buildFrontendSidebar(supabase) {
 }
 
 /* ============================================================
-   HELPERS
+   UI HELPERS
    ============================================================ */
 function createLine(type, label, count) {
   const el = document.createElement("div");
@@ -188,7 +168,7 @@ function createNested() {
 }
 
 /* ============================================================
-   TOGGLE SYSTEM — one open per level
+   TOGGLE — one open per level
    ============================================================ */
 function toggle(clickedItem, clickedNested, selector) {
   const allItems = document.querySelectorAll(selector);
