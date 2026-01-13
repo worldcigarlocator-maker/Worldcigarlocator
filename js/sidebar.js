@@ -52,7 +52,7 @@ export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
   menu.innerHTML = "Loading…";
 
-  const { data, error } = await supabase.rpc("sidebar_counts_v1");
+const { data, error } = await supabase.rpc("sidebar_counts_frontend_v1");
 
   if (error) {
     console.error("Sidebar RPC error:", error);
