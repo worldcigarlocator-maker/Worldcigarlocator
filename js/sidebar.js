@@ -50,6 +50,11 @@ export async function buildFrontendSidebar(supabase) {
   menu.innerHTML = "Loading…";
 
   const { data, error } = await supabase.rpc("sidebar_counts_v1");
+   console.log(
+  "RPC CONTINENTS:",
+  [...new Set(data.map(r => r.continent))]
+);
+
 
   if (error) {
     console.error(error);
