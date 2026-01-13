@@ -9,7 +9,7 @@ window.qsa = (sel) => document.querySelectorAll(sel);
 
 // ----- Imports -----
 import { supabase } from "./globals.js";
-import { resetToHero } from "./cards.js";
+import { resetToHero, runSearch } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import "./start.js"; // age gate + online tracker
 
@@ -113,6 +113,9 @@ async function guard() {
   // ✅ correct order
   await initSidebar();
   resetToHero();
+
+  // 🔑 INITIAL LOAD — render full catalog
+  runSearch();
 }
 
 
