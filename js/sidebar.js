@@ -50,9 +50,8 @@ export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
   menu.innerHTML = "Loading…";
 
-  const { data, error } = await supabase.rpc(
-    "sidebar_counts_frontend_v2"
-  );
+ const { data, error } = await supabase.rpc("sidebar_hierarchy_v1");
+
 
   console.log("SIDEBAR RAW DATA:", data?.length, data);
 
