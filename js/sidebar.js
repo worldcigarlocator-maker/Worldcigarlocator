@@ -1,18 +1,17 @@
 // ============================================================
 // SIDEBAR.JS — WCL Premium Hierarchy Navigation (CANONICAL)
-// Sidebar is STATIC. Backend is single source of truth.
+// Sidebar is STATIC. Backend is the single source of truth.
 // ============================================================
 
-console.log("🚨 ACTIVE SIDEBAR FILE LOADED");
+console.log("🚨 ACTIVE SIDEBAR FILE LOADED (CANONICAL)");
 
 import { setLocationFilter, runSearch } from "./cards.js";
 
 const dom = (sel) => document.querySelector(sel);
 const menu = dom("#sidebarMenu");
 
-
 /* ============================================================
-   INTERNAL GUARD — prevent duplicate searches
+   INTERNAL STATE — prevent duplicate searches
    ============================================================ */
 let LAST_LOCATION = {
   continent: null,
@@ -21,81 +20,90 @@ let LAST_LOCATION = {
   city: null,
 };
 
-function isSameLocation(next) {
+function sameLocation(a, b) {
   return (
-    LAST_LOCATION.continent === (next.continent ?? null) &&
-    LAST_LOCATION.country === (next.country ?? null) &&
-    LAST_LOCATION.state === (next.state ?? null) &&
-    LAST_LOCATION.city === (next.city ?? null)
+    a.continent === b.continent &&
+    a.country === b.country &&
+    a.state === b.state &&
+    a.city === b.city
   );
 }
 
 function applyLocation(next) {
-  if (isSameLocation(next)) return;
-
-  LAST_LOCATION = {
+  const normalized = {
     continent: next.continent ?? null,
     country: next.country ?? null,
     state: next.state ?? null,
     city: next.city ?? null,
   };
 
-  setLocationFilter(LAST_LOCATION);
+  if (sameLocation(LAST_LOCATION, normalized)) return;
+
+  LAST_LOCATION = normalized;
+  setLocationFilter(normalized);
   runSearch();
 }
 
 /* ============================================================
-   BUILD SIDEBAR — CANONICAL
-   No frontend aggregation
-   No recursive totals
+   BUILD SIDEBAR — CANONICAL (NO FRONTEND COUNTS)
    ============================================================ */
 export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
   menu.innerHTML = "Loading…";
 
-const { data, error } = await supabase.rpc("sidebar_counts_frontend_v1");
+  const { data, error } = await supabase.rpc(
+    "sidebar_counts_frontend_v1"
+  );
 
   if (error) {
-    console.error("Sidebar RPC error:", error);
-    menu.innerHTML = "Failed to load menu.";
+    console.error("❌ Sidebar RPC error:", error);
+    menu.innerHTML = "Failed to load sidebar.";
     return;
   }
 
-  /* ============================================================
-     BUILD TREE — structure + backend counts only
-     ============================================================ */
+  // ----------------------------------------------------------
+  // TREE STRUCTURE
+  // ----------------------------------------------------------
   const tree = {};
 
   data.forEach(({ continent, country, region, city, count }) => {
-    if (!continent || !country || !region || !city) return;
+    if (!continent) return;
 
-    if (!tree[continent]) {
-      tree[continent] = { count: 0, countries: {} };
-    }
+    // ---- Continent ----
+    tree[continent] ??= {
+      count: 0,
+      countries: {},
+    };
     tree[continent].count += count;
 
-    if (!tree[continent].countries[country]) {
-      tree[continent].countries[country] = {
-        count: 0,
-        regions: {},
-      };
-    }
+    if (!country) return;
+
+    // ---- Country ----
+    tree[continent].countries[country] ??= {
+      count: 0,
+      regions: {},
+    };
     tree[continent].countries[country].count += count;
 
-    if (!tree[continent].countries[country].regions[region]) {
-      tree[continent].countries[country].regions[region] = {
-        count: 0,
-        cities: {},
-      };
-    }
+    if (!region) return;
+
+    // ---- Region / State ----
+    tree[continent].countries[country].regions[region] ??= {
+      count: 0,
+      cities: {},
+    };
     tree[continent].countries[country].regions[region].count += count;
 
-    tree[continent].countries[country].regions[region].cities[city] = count;
+    if (!city) return;
+
+    // ---- City ----
+    tree[continent].countries[country].regions[region].cities[city] =
+      count;
   });
 
-  /* ============================================================
-     RENDER
-     ============================================================ */
+  // ----------------------------------------------------------
+  // RENDER
+  // ----------------------------------------------------------
   menu.innerHTML = "";
 
   Object.entries(tree).forEach(([continent, cData]) => {
@@ -110,7 +118,11 @@ const { data, error } = await supabase.rpc("sidebar_counts_frontend_v1");
     });
 
     Object.entries(cData.countries).forEach(([country, coData]) => {
-      const countryLine = createLine("country", country, coData.count);
+      const countryLine = createLine(
+        "country",
+        country,
+        coData.count
+      );
       const countryNested = createNested();
 
       contNested.append(countryLine, countryNested);
@@ -122,7 +134,11 @@ const { data, error } = await supabase.rpc("sidebar_counts_frontend_v1");
       });
 
       Object.entries(coData.regions).forEach(([region, rData]) => {
-        const regionLine = createLine("state", region, rData.count);
+        const regionLine = createLine(
+          "state",
+          region,
+          rData.count
+        );
         const regionNested = createNested();
 
         countryNested.append(regionLine, regionNested);
@@ -139,12 +155,19 @@ const { data, error } = await supabase.rpc("sidebar_counts_frontend_v1");
 
           cityLine.addEventListener("click", (e) => {
             e.stopPropagation();
-            applyLocation({ continent, country, state: region, city });
+            applyLocation({
+              continent,
+              country,
+              state: region,
+              city,
+            });
           });
         });
       });
     });
   });
+
+  console.log("✅ Sidebar built:", tree);
 }
 
 /* ============================================================
@@ -169,20 +192,22 @@ function createNested() {
 }
 
 /* ============================================================
-   TOGGLE — one open per level
+   TOGGLE SYSTEM — one open per level
    ============================================================ */
 function toggle(clickedItem, clickedNested, selector) {
   const allItems = document.querySelectorAll(selector);
-  const allNesteds = [...allItems].map((i) => i.nextElementSibling);
+  const allNesteds = [...allItems].map(
+    (i) => i.nextElementSibling
+  );
 
   allItems.forEach((item, i) => {
     const nest = allNesteds[i];
     if (!nest) return;
 
     if (item === clickedItem) {
-      const isOpen = item.classList.contains("open");
-      item.classList.toggle("open", !isOpen);
-      nest.classList.toggle("show", !isOpen);
+      const open = item.classList.contains("open");
+      item.classList.toggle("open", !open);
+      nest.classList.toggle("show", !open);
     } else {
       item.classList.remove("open");
       nest.classList.remove("show");
