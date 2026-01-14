@@ -1,6 +1,7 @@
 // ============================================================
 // SIDEBAR.JS — WCL Premium Hierarchy Navigation (CANONICAL)
 // Sidebar is STATIC. Backend is the single source of truth.
+// Levels: Continent → Country → State
 // ============================================================
 
 console.log("🚨 ACTIVE SIDEBAR FILE LOADED (CANONICAL)");
@@ -17,15 +18,13 @@ let LAST_LOCATION = {
   continent: null,
   country: null,
   state: null,
-  city: null,
 };
 
 function sameLocation(a, b) {
   return (
     a.continent === b.continent &&
     a.country === b.country &&
-    a.state === b.state &&
-    a.city === b.city
+    a.state === b.state
   );
 }
 
@@ -34,7 +33,6 @@ function applyLocation(next) {
     continent: next.continent ?? null,
     country: next.country ?? null,
     state: next.state ?? null,
-    city: next.city ?? null,
   };
 
   if (sameLocation(LAST_LOCATION, normalized)) return;
@@ -45,23 +43,19 @@ function applyLocation(next) {
 }
 
 /* ============================================================
-   BUILD SIDEBAR — CANONICAL (NO FRONTEND COUNTS)
+   BUILD SIDEBAR — CANONICAL
+   NO frontend aggregation
    ============================================================ */
 export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
   menu.innerHTML = "Loading…";
 
   const { data, error } = await supabase.rpc(
-    "sidebar_counts_frontend_v1"
+    "sidebar_counts_frontend_v2"
   );
 
-   console.log(
-  "SIDEBAR RAW DATA:",
-  data?.length,
-  data
-);
+  console.log("SIDEBAR RAW DATA:", data?.length, data);
 
-   
   if (error) {
     console.error("❌ Sidebar RPC error:", error);
     menu.innerHTML = "Failed to load sidebar.";
@@ -69,43 +63,29 @@ export async function buildFrontendSidebar(supabase) {
   }
 
   // ----------------------------------------------------------
-  // TREE STRUCTURE
+  // TREE STRUCTURE (continent → country → state)
   // ----------------------------------------------------------
   const tree = {};
 
-  data.forEach(({ continent, country, region, city, count }) => {
-    if (!continent) return;
+  data.forEach(({ continent, country, state, count }) => {
+    if (!continent || !country || !state) return;
 
-    // ---- Continent ----
-    tree[continent] ??= {
-      count: 0,
-      countries: {},
-    };
+    if (!tree[continent]) {
+      tree[continent] = { count: 0, countries: {} };
+    }
     tree[continent].count += count;
 
-    if (!country) return;
-
-    // ---- Country ----
-    tree[continent].countries[country] ??= {
-      count: 0,
-      regions: {},
-    };
+    if (!tree[continent].countries[country]) {
+      tree[continent].countries[country] = {
+        count: 0,
+        states: {},
+      };
+    }
     tree[continent].countries[country].count += count;
 
-    if (!region) return;
-
-    // ---- Region / State ----
-    tree[continent].countries[country].regions[region] ??= {
-      count: 0,
-      cities: {},
+    tree[continent].countries[country].states[state] = {
+      count,
     };
-    tree[continent].countries[country].regions[region].count += count;
-
-    if (!city) return;
-
-    // ---- City ----
-    tree[continent].countries[country].regions[region].cities[city] =
-      count;
   });
 
   // ----------------------------------------------------------
@@ -140,41 +120,24 @@ export async function buildFrontendSidebar(supabase) {
         applyLocation({ continent, country });
       });
 
-      Object.entries(coData.regions).forEach(([region, rData]) => {
-        const regionLine = createLine(
+      Object.entries(coData.states).forEach(([state, sData]) => {
+        const stateLine = createLine(
           "state",
-          region,
-          rData.count
+          state,
+          sData.count
         );
-        const regionNested = createNested();
 
-        countryNested.append(regionLine, regionNested);
+        countryNested.append(stateLine);
 
-        regionLine.addEventListener("click", (e) => {
+        stateLine.addEventListener("click", (e) => {
           e.stopPropagation();
-          toggle(regionLine, regionNested, ".state");
-          applyLocation({ continent, country, state: region });
-        });
-
-        Object.entries(rData.cities).forEach(([city, count]) => {
-          const cityLine = createLine("city", city, count);
-          regionNested.append(cityLine);
-
-          cityLine.addEventListener("click", (e) => {
-            e.stopPropagation();
-            applyLocation({
-              continent,
-              country,
-              state: region,
-              city,
-            });
-          });
+          applyLocation({ continent, country, state });
         });
       });
     });
   });
 
-  console.log("✅ Sidebar built:", tree);
+  console.log("✅ Sidebar built correctly");
 }
 
 /* ============================================================
@@ -187,7 +150,7 @@ function createLine(type, label, count) {
   el.innerHTML = `
     <span class="label">${label}</span>
     <span class="pill">${count}</span>
-    ${type !== "city" ? `<span class="arrow">›</span>` : ""}
+    ${type !== "state" ? `<span class="arrow">›</span>` : ""}
   `;
   return el;
 }
@@ -199,7 +162,7 @@ function createNested() {
 }
 
 /* ============================================================
-   TOGGLE SYSTEM — one open per level
+   TOGGLE — one open per level
    ============================================================ */
 function toggle(clickedItem, clickedNested, selector) {
   const allItems = document.querySelectorAll(selector);
