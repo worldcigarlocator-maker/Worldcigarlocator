@@ -55,6 +55,13 @@ export async function buildFrontendSidebar(supabase) {
     "sidebar_counts_frontend_v1"
   );
 
+   console.log(
+  "SIDEBAR RAW DATA:",
+  data?.length,
+  data
+);
+
+   
   if (error) {
     console.error("❌ Sidebar RPC error:", error);
     menu.innerHTML = "Failed to load sidebar.";
