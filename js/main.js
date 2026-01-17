@@ -114,8 +114,6 @@ async function guard() {
   await initSidebar();
   resetToHero();
 
-  // 🔑 INITIAL LOAD — render full catalog
-  runSearch();
 }
 
 
