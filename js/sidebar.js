@@ -1,144 +1,204 @@
-/* ============================================================
-   SIDEBAR — CLEAN LIST HIERARCHY (INSPIRED BY REF IMAGE 2)
-   Scope: sidebar menu only
-   ============================================================ */
+// ============================================================
+// SIDEBAR.JS — WCL Premium Hierarchy Navigation (CANONICAL)
+// Sidebar is STATIC. Backend is the single source of truth.
+// ============================================================
 
-/* ROOT */
-#sidebarMenu {
-  font-size: 0.78rem;
-  line-height: 1.2;
-  user-select: none;
-  max-height: 100%;
-  overflow-y: auto;
-  scrollbar-width: thin;
-}
+console.log("🚨 ACTIVE SIDEBAR FILE LOADED (CANONICAL)");
 
-/* Scrollbar */
-#sidebarMenu::-webkit-scrollbar {
-  width: 6px;
-}
-#sidebarMenu::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.12);
-  border-radius: 6px;
-}
+import { setLocationFilter, runSearch } from "./cards.js";
+
+const dom = (sel) => document.querySelector(sel);
+const menu = dom("#sidebarMenu");
 
 /* ============================================================
-   BASE LINE — ALL ROWS
+   INTERNAL STATE — prevent duplicate searches
    ============================================================ */
-#sidebarMenu .line {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 6px 6px;
-  color: #ffffff;
-  cursor: default;
+let LAST_LOCATION = { continent: null, country: null, state: null, city: null };
 
-  /* divider line */
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+function sameLocation(a, b) {
+  return (
+    a.continent === b.continent &&
+    a.country === b.country &&
+    a.state === b.state &&
+    a.city === b.city
+  );
 }
 
-/* hover = light clarity only */
-#sidebarMenu .line:hover {
-  background: rgba(255,255,255,0.04);
+function applyLocation(next) {
+  const normalized = {
+    continent: next.continent ?? null,
+    country: next.country ?? null,
+    state: next.state ?? null,
+    city: next.city ?? null,
+  };
+
+  if (sameLocation(LAST_LOCATION, normalized)) return;
+
+  LAST_LOCATION = normalized;
+  setLocationFilter(normalized);
+  runSearch();
 }
 
 /* ============================================================
-   LABEL
+   FETCH ALL RPC ROWS (bypass PostgREST 1000 cap)
    ============================================================ */
-#sidebarMenu .label {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+async function fetchAllSidebarRows(supabase) {
+  const PAGE = 1000;
+  let from = 0;
+  let all = [];
+
+  while (true) {
+    const { data, error } = await supabase
+      .rpc("sidebar_counts_frontend_v1")
+      .range(from, from + PAGE - 1);
+
+    if (error) throw error;
+
+    all = all.concat(data || []);
+
+    if (!data || data.length < PAGE) break;
+    from += PAGE;
+  }
+
+  return all;
 }
 
 /* ============================================================
-   COUNT (RIGHT COLUMN)
+   BUILD SIDEBAR — CANONICAL
+   continent → country → state → city
    ============================================================ */
-#sidebarMenu .pill {
-  font-size: 0.7rem;
-  color: #bfbfbf;
-  margin-left: auto;
+export async function buildFrontendSidebar(supabase) {
+  if (!menu) return;
+  menu.innerHTML = "Loading…";
+
+  let data = [];
+  try {
+    data = await fetchAllSidebarRows(supabase);
+  } catch (e) {
+    console.error("❌ Sidebar RPC error:", e);
+    menu.innerHTML = "Failed to load sidebar.";
+    return;
+  }
+
+  const tree = {};
+
+  for (const row of data) {
+    const continent = row.continent ?? "Unknown";
+    const country   = row.country ?? "Unknown";
+    const state     = row.state ?? "Unknown";
+    const city      = row.city ?? "Unknown";
+    const count     = Number(row.count || 0);
+
+    if (!tree[continent]) tree[continent] = { count: 0, countries: {} };
+    tree[continent].count += count;
+
+    if (!tree[continent].countries[country]) {
+      tree[continent].countries[country] = { count: 0, states: {} };
+    }
+    tree[continent].countries[country].count += count;
+
+    if (!tree[continent].countries[country].states[state]) {
+      tree[continent].countries[country].states[state] = { count: 0, cities: {} };
+    }
+    tree[continent].countries[country].states[state].count += count;
+
+    tree[continent].countries[country].states[state].cities[city] =
+      (tree[continent].countries[country].states[state].cities[city] || 0) + count;
+  }
+
+  menu.innerHTML = "";
+
+  // ==========================================================
+  // RENDER — CONTINENTS OPEN BY DEFAULT
+  // ==========================================================
+  Object.entries(tree).forEach(([continent, cData]) => {
+    const contLine = createLine("continent", continent, cData.count);
+    const contNested = createNested();
+
+    // 👇 continents OPEN by default
+    contLine.classList.add("open");
+    contNested.classList.add("show");
+
+    menu.append(contLine, contNested);
+
+    contLine.addEventListener("click", () => {
+      applyLocation({ continent });
+    });
+
+    Object.entries(cData.countries).forEach(([country, coData]) => {
+      const countryLine = createLine("country", country, coData.count);
+      const countryNested = createNested();
+      contNested.append(countryLine, countryNested);
+
+      countryLine.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggle(countryLine, countryNested, ".country");
+        applyLocation({ continent, country });
+      });
+
+      Object.entries(coData.states).forEach(([state, sData]) => {
+        const stateLine = createLine("state", state, sData.count);
+        const stateNested = createNested();
+        countryNested.append(stateLine, stateNested);
+
+        stateLine.addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggle(stateLine, stateNested, ".state");
+          applyLocation({ continent, country, state });
+        });
+
+        Object.entries(sData.cities).forEach(([city, count]) => {
+          const cityLine = createLine("city", city, count);
+          stateNested.append(cityLine);
+
+          cityLine.addEventListener("click", (e) => {
+            e.stopPropagation();
+            applyLocation({ continent, country, state, city });
+          });
+        });
+      });
+    });
+  });
 }
 
 /* ============================================================
-   CHEVRON (NO COLOR DECORATION)
+   UI HELPERS
    ============================================================ */
-#sidebarMenu .arrow {
-  font-size: 0.6rem;
-  opacity: 0.6;
-  transition: transform 0.12s ease;
+function createLine(type, label, count) {
+  const el = document.createElement("div");
+  el.className = `line ${type}`;
+  el.innerHTML = `
+    <span class="label">${label}</span>
+    <span class="pill">${count}</span>
+    ${type !== "city" ? `<span class="arrow">›</span>` : ""}
+  `;
+  return el;
 }
 
-/* rotate when open */
-#sidebarMenu .line.open .arrow {
-  transform: rotate(90deg);
-  opacity: 0.85;
+function createNested() {
+  const el = document.createElement("div");
+  el.className = "nested";
+  return el;
 }
 
 /* ============================================================
-   LEVEL SIZES — KEY PART
+   TOGGLE — one open per level (country / state)
    ============================================================ */
+function toggle(clickedItem, clickedNested, selector) {
+  const allItems = document.querySelectorAll(selector);
+  const allNesteds = [...allItems].map((i) => i.nextElementSibling);
 
-/* Continents */
-#sidebarMenu .continent .label {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
+  allItems.forEach((item, i) => {
+    const nest = allNesteds[i];
+    if (!nest) return;
 
-/* Countries — MUCH SMALLER (like ref) */
-#sidebarMenu .country .label {
-  font-size: 0.78rem;
-  font-weight: 400;
-}
-
-/* States */
-#sidebarMenu .state .label {
-  font-size: 0.74rem;
-  opacity: 0.9;
-}
-
-/* Cities */
-#sidebarMenu .city .label {
-  font-size: 0.72rem;
-  opacity: 0.85;
-}
-
-/* ============================================================
-   NESTING — PURE LIST FEEL
-   ============================================================ */
-#sidebarMenu .nested {
-  display: none;
-  margin-left: 12px;
-}
-
-#sidebarMenu .nested.show {
-  display: block;
-}
-
-/* slightly tighter rows inside nests */
-#sidebarMenu .nested .line {
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-/* ============================================================
-   ACTIVE STATE — GOLD TEXT ONLY
-   ============================================================ */
-#sidebarMenu .line.active .label,
-#sidebarMenu .line.active .pill {
-  color: var(--gold);
-}
-
-/* chevron stays neutral */
-#sidebarMenu .line.active .arrow {
-  color: #fff;
-  opacity: 0.8;
-}
-
-/* ============================================================
-   REMOVE ALL LEFT DECORATIONS (SAFETY)
-   ============================================================ */
-#sidebarMenu .line::before {
-  content: none !important;
+    if (item === clickedItem) {
+      const isOpen = item.classList.contains("open");
+      item.classList.toggle("open", !isOpen);
+      nest.classList.toggle("show", !isOpen);
+    } else {
+      item.classList.remove("open");
+      nest.classList.remove("show");
+    }
+  });
 }
