@@ -118,6 +118,7 @@ export async function buildFrontendSidebar(supabase) {
     const contNested = createNested();
     menu.append(contLine, contNested);
 
+    // CONTINENT CLICK → SEARCH ONLY (no toggle)
     contLine.addEventListener("click", () => {
       applyLocation({ continent });
     });
@@ -157,6 +158,11 @@ export async function buildFrontendSidebar(supabase) {
       });
     });
   });
+
+  // ----------------------------------------------------------
+  // DEFAULT STATE — OPEN ALL CONTINENTS
+  // ----------------------------------------------------------
+  openAllContinents();
 }
 
 /* ============================================================
@@ -199,5 +205,20 @@ function toggle(clickedItem, clickedNested, selector) {
       nest.classList.remove("show");
       nest.classList.remove("group-active");
     }
+  });
+}
+
+/* ============================================================
+   DEFAULT OPEN — CONTINENTS ONLY
+   ============================================================ */
+function openAllContinents() {
+  const continentLines = document.querySelectorAll(".line.continent");
+
+  continentLines.forEach((line) => {
+    const nested = line.nextElementSibling;
+    if (!nested) return;
+
+    line.classList.add("open");
+    nested.classList.add("show");
   });
 }
