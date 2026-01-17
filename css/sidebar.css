@@ -1,141 +1,106 @@
 /* ============================================================
-   SIDEBAR — COMPACT HIERARCHY (CANONICAL)
-   Scope: sidebar ONLY
-   Cards are NOT affected
+   SIDEBAR — VISUAL DOWNSCALE (STEP B)
+   Pure CSS. No JS. No cards affected.
    ============================================================ */
 
 /* ============================================================
-   ROOT LIST
+   GLOBAL SIDEBAR SCALE
+   ============================================================ */
+.sidebar {
+  font-size: 0.82rem;           /* 🔽 main text scale */
+  line-height: 1.25;
+}
+
+/* ============================================================
+   LOGO
+   ============================================================ */
+.sidebar .logo {
+  font-size: 1.05rem;           /* was visually dominant */
+  letter-spacing: 0.04em;
+  margin-bottom: 0.6rem;
+}
+
+/* ============================================================
+   TOP AREA (online + login)
+   ============================================================ */
+.sidebar-top {
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.online-box {
+  font-size: 0.72rem;
+}
+
+.login-btn,
+.logout-btn {
+  font-size: 0.72rem;
+  padding: 0.3rem 0.55rem;
+}
+
+/* ============================================================
+   SIDEBAR MENU (HIERARCHY LIST)
    ============================================================ */
 #sidebarMenu {
-  font-size: 0.78rem;
+  font-size: 0.74rem;           /* tighter than rest of sidebar */
   line-height: 1.15;
-  user-select: none;
-  max-height: 100%;
-  overflow-y: auto;
-  scrollbar-width: thin;
 }
 
-/* WebKit scrollbar */
-#sidebarMenu::-webkit-scrollbar {
-  width: 6px;
-}
-#sidebarMenu::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.15);
-  border-radius: 6px;
-}
-
-/* ============================================================
-   BASE LINE (ALL LEVELS)
-   ============================================================ */
+/* tighten rows further */
 #sidebarMenu .line {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 4px 6px;
-  color: #e6e6e6;
-  cursor: default;
+  padding: 3px 6px;
 }
 
-/* Hover = subtle clarity, no layout shift */
-#sidebarMenu .line:hover .label,
-#sidebarMenu .line:hover .arrow {
-  color: #ffffff;
-}
-
-/* ============================================================
-   LABEL
-   ============================================================ */
-#sidebarMenu .label {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* ============================================================
-   COUNT (RIGHT SIDE)
-   ============================================================ */
+/* counts smaller */
 #sidebarMenu .pill {
-  margin-left: auto;
-  font-size: 0.7rem;
-  color: #9a9a9a;
-  opacity: 0.9;
-}
-
-/* ============================================================
-   CHEVRON
-   ============================================================ */
-#sidebarMenu .arrow {
   font-size: 0.65rem;
-  opacity: 0.65;
-  padding-right: 2px;
-  cursor: pointer;
-  transition: transform 0.12s ease, opacity 0.12s ease;
 }
 
-/* Rotate when open */
-#sidebarMenu .line.open .arrow {
-  transform: rotate(90deg);
-  opacity: 0.9;
+/* chevron smaller */
+#sidebarMenu .arrow {
+  font-size: 0.6rem;
 }
 
 /* ============================================================
-   LEVEL TUNING (NO BOLD HIERARCHY)
-   Only subtle opacity differences
+   AD BOX — MAJOR SPACE SAVER
    ============================================================ */
-#sidebarMenu .continent .label {
-  opacity: 1;
+.sidebar-ad {
+  margin: 0.6rem 0;
+  padding: 0.45rem;
+  border-radius: 10px;
 }
 
-#sidebarMenu .country .label {
-  opacity: 0.95;
+.sidebar-ad img.ad-img {
+  height: 78px;                /* 🔽 was too tall */
+  object-fit: cover;
+  border-radius: 8px;
 }
 
-#sidebarMenu .state .label,
-#sidebarMenu .city .label {
-  opacity: 0.9;
+.sidebar-ad .ad-title {
+  font-size: 0.72rem;
+  line-height: 1.15;
+  margin-top: 0.35rem;
+}
+
+.sidebar-ad .ad-code {
+  font-size: 0.68rem;
 }
 
 /* ============================================================
-   NESTING
+   DIVIDER
    ============================================================ */
-#sidebarMenu .nested {
-  display: none;
-  margin-left: 10px; /* compact indent */
-  border-left: 1px solid rgba(255,255,255,0.06); /* hierarchy line */
-}
-
-#sidebarMenu .nested.show {
-  display: block;
-}
-
-/* Slight vertical rhythm tightening inside nests */
-#sidebarMenu .nested .line {
-  padding-top: 3px;
-  padding-bottom: 3px;
+.sidebar-divider {
+  margin: 0.6rem 0;
 }
 
 /* ============================================================
-   ACTIVE STATE — TEXT ONLY
+   FOOTER LINKS
    ============================================================ */
-#sidebarMenu .line.active .label {
-  color: var(--gold);
+.sidebar-bottom {
+  margin-top: 0.6rem;
 }
 
-/* Optional: keep chevron readable on active row */
-#sidebarMenu .line.active .arrow {
-  color: var(--gold);
-  opacity: 0.9;
-}
-
-/* ============================================================
-   CITY GROUPING (UNDER ACTIVE COUNTRY)
-   Applied via JS by toggling .group-active on nested container
-   ============================================================ */
-#sidebarMenu .nested.group-active {
-  background: rgba(212,160,23,0.06);
-  border-left-color: rgba(212,160,23,0.25);
-  border-radius: 6px;
-  padding-left: 2px;
+.sidebar-bottom .menu-link {
+  font-size: 0.72rem;
+  padding: 0.25rem 0;
 }
