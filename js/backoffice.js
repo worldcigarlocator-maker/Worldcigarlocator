@@ -559,9 +559,22 @@ function updateRegionCounts() {
    ============================================================ */
 function render() {
   const term = ($("#searchInput")?.value || "").trim().toLowerCase();
-  const matches = (s) => [s.name, s.city, s.country]
-    .some((v) => safe(v).toLowerCase().includes(term));
-  const list = term ? STORES.filter(matches) : STORES;
+
+  let list = STORES;
+
+  // 🔎 EXAKT ID-sök (prioritet 1)
+  if (/^\d+$/.test(term)) {
+    const id = Number(term);
+    list = STORES.filter(s => s.id === id);
+  }
+
+  // 🔍 Text-sök (fallback)
+  else if (term) {
+    list = STORES.filter(s =>
+      [s.name, s.city, s.country]
+        .some(v => safe(v).toLowerCase().includes(term))
+    );
+  }
 
   if (CURRENT_VIEW === "cards") {
     renderCards(list);
@@ -569,6 +582,7 @@ function render() {
     renderListView(list);
   }
 }
+
 
 /* ============================================================
    DATA LOADING — STABIL, FÖRUTSÄGBAR & UX-SÄKER
@@ -1266,6 +1280,6 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   //  Sökfält
-  $("#searchInput")?.addEventListener("input", () => render());
+ $("#searchInput")?.addEventListener("input", () => render());
 });
 
