@@ -91,24 +91,25 @@ async function onPlaceDetails(place, status) {
     const state = WCL.normalizeUKState(rawState, country, city);
 
     /* ---------- CANONICAL PLACE ---------- */
-    window.selectedPlace = {
-      place_id: place.place_id,
-      lat: place.geometry?.location?.lat() || null,
-      lng: place.geometry?.location?.lng() || null,
+window.selectedPlace = {
+  place_id: place.place_id,
+  lat: place.geometry?.location?.lat() || null,
+  lng: place.geometry?.location?.lng() || null,
 
-      name: place.name || "",
-      address: place.formatted_address || "",
-      city,
-      state,
-      country,
-      country_iso2,
-      continent: WCL.countryToContinent(country, country_iso2),
+  name: place.name || "",
+  address: place.formatted_address || "",
+  city,
+  state,
+  country,
+  country_iso2,
 
-      phone: place.international_phone_number || "",
-      website: place.website || "",
 
-      photo_reference: null,
-    };
+  phone: place.international_phone_number || "",
+  website: place.website || "",
+
+  photo_reference: null,
+};
+
 
     /* ============================================================
        DUPLICATE CHECK (SHARED, CANONICAL)
