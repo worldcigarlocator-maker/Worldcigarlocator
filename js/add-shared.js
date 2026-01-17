@@ -1,6 +1,6 @@
 /* ==========================================================
    add-shared.js — Shared logic for Add/Edit Store (PUBLIC + BO)
-   Canonical / Safe / Explicit
+   CANONICAL • SAFE • BACKEND-DRIVEN GEO
    ========================================================== */
 
 (() => {
@@ -11,10 +11,9 @@
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 
-  // ✅ ALDRIG kalla variabeln "supabase" (kan krocka/shadowa global)
   const sb = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
   if (!sb) {
-    console.error("❌ Supabase SDK missing. Did you load supabase-js before add-shared.js?");
+    console.error("❌ Supabase SDK missing. Load supabase-js before add-shared.js");
     return;
   }
 
@@ -23,7 +22,8 @@
   window.WCL.supabase = sb;
 
   /* ===================== GOOGLE ===================== */
-  window.WCL.GOOGLE_BROWSER_KEY = "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
+  window.WCL.GOOGLE_BROWSER_KEY =
+    "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
 
   /* ===================== MEDIA ===================== */
   window.WCL.PHOTO_PROXY_URL =
@@ -37,58 +37,41 @@
     "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
 
   /* ==========================================================
-     🌍 COUNTRY → CONTINENT (minimal + safe)
-     ========================================================== */
-  function countryToContinent(countryName = null, iso2 = null) {
-    const c = String(countryName || "").toLowerCase().trim();
-    const i = String(iso2 || "").toLowerCase().trim();
+     🚫 GEO-PRINCIP
+     ==========================================================
+     Frontend:
+       - skickar country + country_iso2
+       - SÄTTER ALDRIG continent
 
-    const MAP = {
-      gb: "Europe", uk: "Europe", se: "Europe", no: "Europe", fi: "Europe", dk: "Europe",
-      fr: "Europe", de: "Europe", es: "Europe", it: "Europe",
-      us: "North America", ca: "North America", mx: "North America",
-      br: "South America", ar: "South America",
-      cn: "Asia", jp: "Asia", in: "Asia",
-      za: "Africa",
-      au: "Oceania", nz: "Oceania",
-    };
+     Backend:
+       - geo_countries (iso2 → continent)
+       - trigger sätter continent
+  ========================================================== */
 
-    if (MAP[i]) return MAP[i];
-
-    if (c.includes("united states") || c === "usa") return "North America";
-    if (c.includes("united kingdom") || c === "uk" || c === "gb") return "Europe";
-
-    return "Other";
-  }
-
-  /* ==========================================================
-     🏴 UK STATE NORMALIZATION (safe)
-     ========================================================== */
+  /* ===================== UK STATE NORMALIZATION ===================== */
   function normalizeUKState(state, country, city) {
-    const countryLc = String(country || "").toLowerCase();
-    if (!countryLc) return state || null;
-
-    // matchar både "United Kingdom" och "UK"
-    const isUK =
-      countryLc.includes("united kingdom") ||
-      countryLc === "uk" ||
-      countryLc === "gb";
-
-    if (!isUK) return state || null;
+    const ctry = String(country || "").toLowerCase();
+    if (!ctry.includes("united kingdom") && ctry !== "uk" && ctry !== "gb") {
+      return state || null;
+    }
 
     const c = String(city || "").toLowerCase();
     const s = String(state || "").toLowerCase();
 
-    if (s.includes("scotland") || c.match(/edinburgh|glasgow|aberdeen/)) return "Scotland";
-    if (s.includes("wales") || c.match(/cardiff|swansea|newport/)) return "Wales";
-    if (s.includes("northern") || c.match(/belfast|derry|lisburn/)) return "Northern Ireland";
+    if (s.includes("scotland") || c.match(/edinburgh|glasgow|aberdeen/)) {
+      return "Scotland";
+    }
+    if (s.includes("wales") || c.match(/cardiff|swansea|newport/)) {
+      return "Wales";
+    }
+    if (s.includes("northern") || c.match(/belfast|derry|lisburn/)) {
+      return "Northern Ireland";
+    }
 
     return "England";
   }
 
-  /* ==========================================================
-     📸 PHOTO HELPERS (safe)
-     ========================================================== */
+  /* ===================== PHOTO HELPERS ===================== */
   function fallbackForType(type = "store") {
     const t = String(type || "").toLowerCase();
     return t.includes("lounge")
@@ -96,9 +79,11 @@
       : window.WCL.GITHUB_STORE_FALLBACK;
   }
 
-  function buildProxyUrl(ref, w = 800) {
+  function buildProxyUrl(ref, maxwidth = 800) {
     if (!ref) return null;
-    return `${window.WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=${w}`;
+    return `${window.WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(
+      ref
+    )}&maxwidth=${maxwidth}`;
   }
 
   async function fetchPhotoRefs(placeId) {
@@ -125,9 +110,8 @@
       return;
     }
 
-    const url = buildProxyUrl(ref);
     try {
-      const res = await fetch(url);
+      const res = await fetch(buildProxyUrl(ref));
       if (!res.ok) {
         img.src = fallback;
         return;
@@ -140,13 +124,9 @@
     }
   }
 
-  /* ==========================================================
-     🔍 DUPLICATE CHECK — canonical
-     return:
-       { exact: [...], possible: [...] }
-     ========================================================== */
-  function norm(s) {
-    return String(s || "").trim().toLowerCase();
+  /* ===================== DUPLICATE CHECK ===================== */
+  function norm(v) {
+    return String(v || "").trim().toLowerCase();
   }
 
   function streetFromAddress(address) {
@@ -154,18 +134,19 @@
   }
 
   async function checkDuplicates(place) {
-    const address = place?.address;
-    const city = place?.city;
-    const country = place?.country;
-
-    if (!address || !city || !country) return { exact: [], possible: [] };
+    const { address, city, country } = place || {};
+    if (!address || !city || !country) {
+      return { exact: [], possible: [] };
+    }
 
     const street = streetFromAddress(address);
 
     try {
       const { data, error } = await sb
         .from("stores")
-        .select("id,name,address,city,country,types,approved,deleted,flagged,flag_reason")
+        .select(
+          "id,name,address,city,country,types,approved,deleted,flagged,flag_reason"
+        )
         .eq("deleted", false)
         .ilike("city", city)
         .ilike("country", country)
@@ -194,9 +175,7 @@
     }
   }
 
-  /* ==========================================================
-     🔔 TOAST (shared)
-     ========================================================== */
+  /* ===================== TOAST ===================== */
   function toastShared(msg, type = "info") {
     let c = document.getElementById("toast-container");
     if (!c) {
@@ -215,8 +194,11 @@
     const t = document.createElement("div");
     t.textContent = msg;
     t.style.background =
-      type === "error" ? "#dc3545" :
-      type === "success" ? "#28a745" : "#333";
+      type === "error"
+        ? "#dc3545"
+        : type === "success"
+        ? "#28a745"
+        : "#333";
     t.style.color = "#fff";
     t.style.padding = ".6rem 1rem";
     t.style.borderRadius = "6px";
@@ -228,7 +210,6 @@
 
   /* ===================== EXPORTS ===================== */
   Object.assign(window.WCL, {
-    countryToContinent,
     normalizeUKState,
     fallbackForType,
     buildProxyUrl,
@@ -238,5 +219,5 @@
     toastShared,
   });
 
-  console.log("✅ add-shared.js loaded (safe)");
+  console.log("✅ add-shared.js loaded (canonical, backend-driven geo)");
 })();
