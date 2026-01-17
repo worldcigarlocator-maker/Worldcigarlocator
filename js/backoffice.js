@@ -720,7 +720,11 @@ try {
 
   STORES = (data || []).map((s) => ({
     ...s,
-    continent: s.continent || countryToContinent(s.country),
+continent:
+  s.continent && s.continent.trim()
+    ? s.continent
+    : countryToContinent(s.country),
+
   }));
 
   /* =========================
