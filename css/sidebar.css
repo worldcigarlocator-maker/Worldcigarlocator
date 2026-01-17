@@ -104,3 +104,22 @@
   font-size: 0.72rem;
   padding: 0.25rem 0;
 }
+
+/* ============================================================
+   SIDEBAR — CONTINENT DOWNSCALE ONLY (−30%)
+   ============================================================ */
+
+#sidebarMenu .continent {
+  font-size: 0.70em;      /* ≈ −30% jämfört med övrig sidebar */
+  line-height: 1.1;
+}
+
+/* Säkerställ att count + chevron följer med proportionellt */
+#sidebarMenu .continent .pill {
+  font-size: 0.95em;
+}
+
+#sidebarMenu .continent .arrow {
+  font-size: 0.9em;
+}
+
