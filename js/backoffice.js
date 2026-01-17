@@ -914,11 +914,12 @@ function makeBtn(label, onclick, cls = "") {
 async function approveStore(id) {
   const { error } = await WCL.supabase
     .from("stores")
-    .update({
-      approved: true,
-      flagged: false,
-      deleted: false
-    })
+.update({
+  approved: true,
+  status: "approved",
+  flagged: false
+})
+
     .eq("id", id);
 
   if (error) {
