@@ -1162,42 +1162,58 @@ async function editStore(id) {
     radio.checked = store.access === radio.value;
   });
 
-  //  Foto-navigation
-  let refs = await fetchPhotoRefs(store.place_id);
-  if (!refs.length && store.photo_reference) refs = [store.photo_reference];
-  let currentIndex = Math.max(0, refs.indexOf(store.photo_reference));
-  const imgEl = modal.querySelector("#edit-photo");
-   imgEl.setAttribute("crossorigin", "anonymous");
-  const metaEl = modal.querySelector("#photo-meta");
+ // ==================== FOTO-NAVIGATION (LOCKED START) ====================
 
-function showCurrent() {
-if (!refs.length) {
-  imgEl.src = buildPhotoProxyUrl(null);
-  metaEl.textContent = "No photo loaded";
-  return;
+// 1) Hämta refs från Google
+let refs = await fetchPhotoRefs(store.place_id);
+
+// 2) 🔒 LÅS: säkerställ att sparad bild alltid ligger först
+if (store.photo_reference) {
+  refs = [
+    store.photo_reference,
+    ...refs.filter(r => r !== store.photo_reference)
+  ];
 }
 
+// 3) Starta ALLTID på låst bild
+let currentIndex = 0;
 
-  //  Reset src först (Safari-fix)
+// 4) DOM
+const imgEl = modal.querySelector("#edit-photo");
+imgEl.setAttribute("crossorigin", "anonymous");
+const metaEl = modal.querySelector("#photo-meta");
+
+// 5) Render-funktion
+function showCurrent() {
+  if (!refs.length) {
+    imgEl.src = buildPhotoProxyUrl(null);
+    metaEl.textContent = "No photo loaded";
+    return;
+  }
+
+  // Safari-fix: reset src först
   imgEl.src = "";
   imgEl.src = buildPhotoProxyUrl(refs[currentIndex]);
 
-  `Photo ${currentIndex + 1} / ${refs.length} - via proxy`
+  metaEl.textContent = `Photo ${currentIndex + 1} / ${refs.length} (locked start)`;
 }
 
+// 6) Init
+showCurrent();
+
+// 7) Navigation
+$("#edit-prev").onclick = () => {
+  if (!refs.length) return;
+  currentIndex = (currentIndex - 1 + refs.length) % refs.length;
   showCurrent();
+};
 
-  $("#edit-prev").onclick = () => {
-    if (!refs.length) return;
-    currentIndex = (currentIndex - 1 + refs.length) % refs.length;
-    showCurrent();
-  };
+$("#edit-next").onclick = () => {
+  if (!refs.length) return;
+  currentIndex = (currentIndex + 1) % refs.length;
+  showCurrent();
+};
 
-  $("#edit-next").onclick = () => {
-    if (!refs.length) return;
-    currentIndex = (currentIndex + 1) % refs.length;
-    showCurrent();
-  };
 
   //  Delete comment
   modal.querySelectorAll(".del-comment").forEach((btn) => {
