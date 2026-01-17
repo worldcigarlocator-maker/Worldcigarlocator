@@ -1,141 +1,203 @@
-/* ============================================================
-   SIDEBAR — COMPACT HIERARCHY (CANONICAL)
-   Scope: sidebar ONLY
-   Cards are NOT affected
-   ============================================================ */
+// ============================================================
+// SIDEBAR.JS — WCL Premium Hierarchy Navigation (CANONICAL)
+// Sidebar is STATIC. Backend is the single source of truth.
+// ============================================================
+
+console.log("🚨 ACTIVE SIDEBAR FILE LOADED (CANONICAL)");
+
+import { setLocationFilter, runSearch } from "./cards.js";
+
+const dom = (sel) => document.querySelector(sel);
+const menu = dom("#sidebarMenu");
 
 /* ============================================================
-   ROOT LIST
+   INTERNAL STATE — prevent duplicate searches
    ============================================================ */
-#sidebarMenu {
-  font-size: 0.78rem;
-  line-height: 1.15;
-  user-select: none;
-  max-height: 100%;
-  overflow-y: auto;
-  scrollbar-width: thin;
+let LAST_LOCATION = { continent: null, country: null, state: null, city: null };
+
+function sameLocation(a, b) {
+  return (
+    a.continent === b.continent &&
+    a.country === b.country &&
+    a.state === b.state &&
+    a.city === b.city
+  );
 }
 
-/* WebKit scrollbar */
-#sidebarMenu::-webkit-scrollbar {
-  width: 6px;
-}
-#sidebarMenu::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.15);
-  border-radius: 6px;
-}
+function applyLocation(next) {
+  const normalized = {
+    continent: next.continent ?? null,
+    country: next.country ?? null,
+    state: next.state ?? null,
+    city: next.city ?? null,
+  };
 
-/* ============================================================
-   BASE LINE (ALL LEVELS)
-   ============================================================ */
-#sidebarMenu .line {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 4px 6px;
-  color: #e6e6e6;
-  cursor: default;
-}
+  if (sameLocation(LAST_LOCATION, normalized)) return;
 
-/* Hover = subtle clarity, no layout shift */
-#sidebarMenu .line:hover .label,
-#sidebarMenu .line:hover .arrow {
-  color: #ffffff;
+  LAST_LOCATION = normalized;
+  setLocationFilter(normalized);
+  runSearch();
 }
 
 /* ============================================================
-   LABEL
+   FETCH ALL RPC ROWS (bypass PostgREST 1000 cap)
    ============================================================ */
-#sidebarMenu .label {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+async function fetchAllSidebarRows(supabase) {
+  const PAGE = 1000;
+  let from = 0;
+  let all = [];
+
+  while (true) {
+    const { data, error } = await supabase
+      .rpc("sidebar_counts_frontend_v1")
+      .range(from, from + PAGE - 1);
+
+    if (error) throw error;
+
+    all = all.concat(data || []);
+
+    if (!data || data.length < PAGE) break;
+    from += PAGE;
+  }
+
+  return all;
 }
 
 /* ============================================================
-   COUNT (RIGHT SIDE)
+   BUILD SIDEBAR — CANONICAL (continent → country → state → city)
    ============================================================ */
-#sidebarMenu .pill {
-  margin-left: auto;
-  font-size: 0.7rem;
-  color: #9a9a9a;
-  opacity: 0.9;
+export async function buildFrontendSidebar(supabase) {
+  if (!menu) return;
+  menu.innerHTML = "Loading…";
+
+  let data = [];
+  try {
+    data = await fetchAllSidebarRows(supabase);
+  } catch (e) {
+    console.error("❌ Sidebar RPC error:", e);
+    menu.innerHTML = "Failed to load sidebar.";
+    return;
+  }
+
+  // ----------------------------------------------------------
+  // TREE STRUCTURE
+  // ----------------------------------------------------------
+  const tree = {};
+
+  for (const row of data) {
+    const continent = row.continent ?? "Unknown";
+    const country   = row.country ?? "Unknown";
+    const state     = row.state ?? "Unknown";
+    const city      = row.city ?? "Unknown";
+    const count     = Number(row.count || 0);
+
+    if (!tree[continent]) tree[continent] = { count: 0, countries: {} };
+    tree[continent].count += count;
+
+    if (!tree[continent].countries[country]) {
+      tree[continent].countries[country] = { count: 0, states: {} };
+    }
+    tree[continent].countries[country].count += count;
+
+    if (!tree[continent].countries[country].states[state]) {
+      tree[continent].countries[country].states[state] = { count: 0, cities: {} };
+    }
+    tree[continent].countries[country].states[state].count += count;
+
+    tree[continent].countries[country].states[state].cities[city] =
+      (tree[continent].countries[country].states[state].cities[city] || 0) + count;
+  }
+
+  // ----------------------------------------------------------
+  // RENDER
+  // ----------------------------------------------------------
+  menu.innerHTML = "";
+
+  Object.entries(tree).forEach(([continent, cData]) => {
+    const contLine = createLine("continent", continent, cData.count);
+    const contNested = createNested();
+    menu.append(contLine, contNested);
+
+    contLine.addEventListener("click", () => {
+      applyLocation({ continent });
+    });
+
+    Object.entries(cData.countries).forEach(([country, coData]) => {
+      const countryLine = createLine("country", country, coData.count);
+      const countryNested = createNested();
+      contNested.append(countryLine, countryNested);
+
+      countryLine.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggle(countryLine, countryNested, ".country");
+        applyLocation({ continent, country });
+        countryNested.classList.add("group-active");
+      });
+
+      Object.entries(coData.states).forEach(([state, sData]) => {
+        const stateLine = createLine("state", state, sData.count);
+        const stateNested = createNested();
+        countryNested.append(stateLine, stateNested);
+
+        stateLine.addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggle(stateLine, stateNested, ".state");
+          applyLocation({ continent, country, state });
+        });
+
+        Object.entries(sData.cities).forEach(([city, count]) => {
+          const cityLine = createLine("city", city, count);
+          stateNested.append(cityLine);
+
+          cityLine.addEventListener("click", (e) => {
+            e.stopPropagation();
+            applyLocation({ continent, country, state, city });
+          });
+        });
+      });
+    });
+  });
 }
 
 /* ============================================================
-   CHEVRON
+   UI HELPERS
    ============================================================ */
-#sidebarMenu .arrow {
-  font-size: 0.65rem;
-  opacity: 0.65;
-  padding-right: 2px;
-  cursor: pointer;
-  transition: transform 0.12s ease, opacity 0.12s ease;
+function createLine(type, label, count) {
+  const el = document.createElement("div");
+  el.className = `line ${type}`;
+  el.innerHTML = `
+    <span class="label">${label}</span>
+    <span class="pill">${count}</span>
+    ${type !== "city" ? `<span class="arrow">›</span>` : ""}
+  `;
+  return el;
 }
 
-/* Rotate when open */
-#sidebarMenu .line.open .arrow {
-  transform: rotate(90deg);
-  opacity: 0.9;
+function createNested() {
+  const el = document.createElement("div");
+  el.className = "nested";
+  return el;
 }
 
 /* ============================================================
-   LEVEL TUNING (NO BOLD HIERARCHY)
-   Only subtle opacity differences
+   TOGGLE — one open per level (country/state)
    ============================================================ */
-#sidebarMenu .continent .label {
-  opacity: 1;
-}
+function toggle(clickedItem, clickedNested, selector) {
+  const allItems = document.querySelectorAll(selector);
+  const allNesteds = [...allItems].map((i) => i.nextElementSibling);
 
-#sidebarMenu .country .label {
-  opacity: 0.95;
-}
+  allItems.forEach((item, i) => {
+    const nest = allNesteds[i];
+    if (!nest) return;
 
-#sidebarMenu .state .label,
-#sidebarMenu .city .label {
-  opacity: 0.9;
-}
-
-/* ============================================================
-   NESTING
-   ============================================================ */
-#sidebarMenu .nested {
-  display: none;
-  margin-left: 10px; /* compact indent */
-  border-left: 1px solid rgba(255,255,255,0.06); /* hierarchy line */
-}
-
-#sidebarMenu .nested.show {
-  display: block;
-}
-
-/* Slight vertical rhythm tightening inside nests */
-#sidebarMenu .nested .line {
-  padding-top: 3px;
-  padding-bottom: 3px;
-}
-
-/* ============================================================
-   ACTIVE STATE — TEXT ONLY
-   ============================================================ */
-#sidebarMenu .line.active .label {
-  color: var(--gold);
-}
-
-/* Optional: keep chevron readable on active row */
-#sidebarMenu .line.active .arrow {
-  color: var(--gold);
-  opacity: 0.9;
-}
-
-/* ============================================================
-   CITY GROUPING (UNDER ACTIVE COUNTRY)
-   Applied via JS by toggling .group-active on nested container
-   ============================================================ */
-#sidebarMenu .nested.group-active {
-  background: rgba(212,160,23,0.06);
-  border-left-color: rgba(212,160,23,0.25);
-  border-radius: 6px;
-  padding-left: 2px;
+    if (item === clickedItem) {
+      const isOpen = item.classList.contains("open");
+      item.classList.toggle("open", !isOpen);
+      nest.classList.toggle("show", !isOpen);
+    } else {
+      item.classList.remove("open");
+      nest.classList.remove("show");
+      nest.classList.remove("group-active");
+    }
+  });
 }
