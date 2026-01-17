@@ -110,7 +110,7 @@
    ============================================================ */
 
 #sidebarMenu .continent {
-  font-size: 0.80em;      /* ≈ −30% jämfört med övrig sidebar */
+  font-size: 1.0em;      /* ≈ −30% jämfört med övrig sidebar */
   line-height: 1.1;
 }
 
