@@ -1,5 +1,5 @@
 // ============================================================
-// SIDEBAR.JS — WCL Canonical Sidebar (STEP 1: ROW STRUCTURE)
+// SIDEBAR.JS — WCL Hierarchy Navigation (CANONICAL, FIXED)
 // ============================================================
 
 import { setLocationFilter, runSearch } from "./cards.js";
@@ -9,34 +9,15 @@ const menu = document.querySelector("#sidebarMenu");
 /* ============================================================
    INTERNAL STATE
    ============================================================ */
-let LAST_LOCATION = { continent: null, country: null, state: null, city: null };
-
-function sameLocation(a, b) {
-  return (
-    a.continent === b.continent &&
-    a.country === b.country &&
-    a.state === b.state &&
-    a.city === b.city
-  );
-}
-
-function applyLocation(next) {
-  const normalized = {
-    continent: next.continent ?? null,
-    country: next.country ?? null,
-    state: next.state ?? null,
-    city: next.city ?? null,
-  };
-
-  if (sameLocation(LAST_LOCATION, normalized)) return;
-  LAST_LOCATION = normalized;
-
-  setLocationFilter(normalized);
-  runSearch();
-}
+let ACTIVE = {
+  continent: null,
+  country: null,
+  state: null,
+  city: null,
+};
 
 /* ============================================================
-   FETCH ALL SIDEBAR ROWS
+   FETCH ALL ROWS
    ============================================================ */
 async function fetchAllSidebarRows(supabase) {
   const PAGE = 1000;
@@ -49,9 +30,10 @@ async function fetchAllSidebarRows(supabase) {
       .range(from, from + PAGE - 1);
 
     if (error) throw error;
-    all = all.concat(data || []);
-    if (!data || data.length < PAGE) break;
+    if (!data || !data.length) break;
 
+    all.push(...data);
+    if (data.length < PAGE) break;
     from += PAGE;
   }
 
@@ -63,79 +45,72 @@ async function fetchAllSidebarRows(supabase) {
    ============================================================ */
 export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
-  menu.innerHTML = "Loading…";
+  menu.innerHTML = "";
 
   const rows = await fetchAllSidebarRows(supabase);
 
-  // ---------- Build tree ----------
   const tree = {};
-
   for (const r of rows) {
-    const c1 = r.continent ?? "Unknown";
-    const c2 = r.country ?? "Unknown";
-    const c3 = r.state ?? "Unknown";
-    const c4 = r.city ?? "Unknown";
-    const count = Number(r.count || 0);
+    const c = r.continent;
+    const co = r.country;
+    const s = r.state;
+    const city = r.city;
+    const n = Number(r.count || 0);
 
-    tree[c1] ??= { count: 0, countries: {} };
-    tree[c1].count += count;
+    tree[c] ??= { count: 0, countries: {} };
+    tree[c].count += n;
 
-    tree[c1].countries[c2] ??= { count: 0, states: {} };
-    tree[c1].countries[c2].count += count;
+    tree[c].countries[co] ??= { count: 0, states: {} };
+    tree[c].countries[co].count += n;
 
-    tree[c1].countries[c2].states[c3] ??= { count: 0, cities: {} };
-    tree[c1].countries[c2].states[c3].count += count;
+    tree[c].countries[co].states[s] ??= { count: 0, cities: {} };
+    tree[c].countries[co].states[s].count += n;
 
-    tree[c1].countries[c2].states[c3].cities[c4] =
-      (tree[c1].countries[c2].states[c3].cities[c4] || 0) + count;
+    tree[c].countries[co].states[s].cities[city] =
+      (tree[c].countries[co].states[s].cities[city] || 0) + n;
   }
 
-  // ---------- Render ----------
-  menu.innerHTML = "";
-
   Object.entries(tree).forEach(([continent, cData]) => {
-    const contLine = createLine("continent", continent, cData.count);
-    const contNest = createNested();
+    const cont = line("continent", continent, cData.count);
+    const contBox = nested(true); // OPEN BY DEFAULT
 
-    menu.append(contLine, contNest);
+    menu.append(cont, contBox);
 
-    contLine.addEventListener("click", () =>
-      applyLocation({ continent })
-    );
+    cont.onclick = () => activate({ continent });
 
     Object.entries(cData.countries).forEach(([country, coData]) => {
-      const countryLine = createLine("country", country, coData.count, country);
-      const countryNest = createNested();
+      const co = line("country", country, coData.count, country);
+      const coBox = nested(false);
 
-      contNest.append(countryLine, countryNest);
+      contBox.append(co, coBox);
 
-      countryLine.addEventListener("click", (e) => {
+      co.onclick = (e) => {
         e.stopPropagation();
-        toggle(countryLine, countryNest);
-        applyLocation({ continent, country });
-      });
+        toggle(coBox);
+        activate({ continent, country });
+      };
 
       Object.entries(coData.states).forEach(([state, sData]) => {
-        const stateLine = createLine("state", state, sData.count);
-        const stateNest = createNested();
+        const st = line("state", state, sData.count);
+        const stBox = nested(false);
 
-        countryNest.append(stateLine, stateNest);
+        coBox.append(st, stBox);
 
-        stateLine.addEventListener("click", (e) => {
+        st.onclick = (e) => {
           e.stopPropagation();
-          toggle(stateLine, stateNest);
-          applyLocation({ continent, country, state });
-        });
+          toggle(stBox);
+          activate({ continent, country, state });
+        };
 
         Object.entries(sData.cities).forEach(([city, count]) => {
-          const cityLine = createLine("city", city, count);
+          const ci = line("city", city, count);
 
-          stateNest.append(cityLine);
-
-          cityLine.addEventListener("click", (e) => {
+          ci.onclick = (e) => {
             e.stopPropagation();
-            applyLocation({ continent, country, state, city });
-          });
+            activate({ continent, country, state, city });
+          };
+
+          stBox.append(ci);
         });
       });
     });
@@ -143,57 +118,60 @@ export async function buildFrontendSidebar(supabase) {
 }
 
 /* ============================================================
-   UI HELPERS — STRUCTURE LOCKED HERE
+   LINE BUILDER — THIS IS THE KEY FIX
    ============================================================ */
-function createLine(type, label, count, countryName = null) {
+function line(type, label, count, countryCode = null) {
   const el = document.createElement("div");
   el.className = `line ${type}`;
 
-  const left = document.createElement("div");
-  left.className = "left";
+  el.innerHTML = `
+    <div class="left">
+      ${type !== "city" ? `<span class="arrow">▸</span>` : `<span class="dot">•</span>`}
+      ${countryCode ? `<img class="flag" src="assets/flags/${countryCode.toLowerCase()}.svg">` : ``}
+      <span class="label">${label}</span>
+    </div>
+    <span class="pill">${count}</span>
+  `;
 
-  if (type !== "city") {
-    const arrow = document.createElement("span");
-    arrow.className = "arrow";
-    arrow.textContent = "▸";
-    left.appendChild(arrow);
-  }
-
-  if (type === "country" && countryName) {
-    const img = document.createElement("img");
-    img.className = "flag";
-    img.src = `assets/flags/${countryName.toLowerCase().slice(0,2)}.svg`;
-    img.onerror = () => img.remove();
-    left.appendChild(img);
-  }
-
-  const text = document.createElement("span");
-  text.className = "label";
-  text.textContent = label;
-
-  left.appendChild(text);
-
-  const pill = document.createElement("span");
-  pill.className = "pill";
-  pill.textContent = count;
-
-  el.append(left, pill);
-  return el;
-}
-
-function createNested() {
-  const el = document.createElement("div");
-  el.className = "nested";
   return el;
 }
 
 /* ============================================================
-   TOGGLE (OPEN / CLOSE)
+   NESTED CONTAINER (NO X-INDENT)
    ============================================================ */
-function toggle(line, nested) {
-  const open = line.classList.toggle("open");
-  nested.classList.toggle("show", open);
+function nested(open) {
+  const el = document.createElement("div");
+  el.className = "nested";
+  if (open) el.classList.add("show");
+  return el;
+}
 
-  const arrow = line.querySelector(".arrow");
-  if (arrow) arrow.textContent = open ? "▾" : "▸";
+/* ============================================================
+   TOGGLE (VISUAL ONLY)
+   ============================================================ */
+function toggle(box) {
+  box.classList.toggle("show");
+}
+
+/* ============================================================
+   ACTIVATE (GOLD CHAIN)
+   ============================================================ */
+function activate(next) {
+  ACTIVE = { continent: null, country: null, state: null, city: null, ...next };
+
+  document.querySelectorAll("#sidebarMenu .line").forEach((l) =>
+    l.classList.remove("active")
+  );
+
+  Object.entries(ACTIVE).forEach(([k, v]) => {
+    if (!v) return;
+    document
+      .querySelectorAll(`#sidebarMenu .${k} .label`)
+      .forEach((el) => {
+        if (el.textContent === v) el.closest(".line").classList.add("active");
+      });
+  });
+
+  setLocationFilter(ACTIVE);
+  runSearch();
 }
