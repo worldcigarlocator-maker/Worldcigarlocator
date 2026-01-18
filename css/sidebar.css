@@ -1,104 +1,160 @@
 /* ============================================================
-   SIDEBAR MENU — CANONICAL (2-COLUMN GRID)
-   Left: chevron + flag + label
-   Right: count (tabular, right aligned)
-   No indentation by level (hierarchy is vertical only)
+   SIDEBAR — CLEAN CANONICAL (V2)
+   NO LEGACY — NO PSEUDO — NO GOLD BARS
    ============================================================ */
 
-#sidebarMenu{
-  font-size: 0.72rem;
-  line-height: 1.15;
+/* =========================
+   ROOT
+   ========================= */
+.sidebar {
+  background: #000;
+  color: #fff;
+}
+
+#sidebarMenu {
+  display: flex;
+  flex-direction: column;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
   user-select: none;
 }
 
-/* One row */
-#sidebarMenu .line{
+/* =========================
+   GENERIC ROW
+   ========================= */
+#sidebarMenu .line {
   display: grid;
-  grid-template-columns: 1fr 64px; /* ← fixed count column */
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  padding: 8px 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.10);
-  color: #fff;
-}
 
-/* Left column */
-#sidebarMenu .cell-left{
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
+  gap: 0.6rem;
+  padding: 10px 12px;
 
-/* Chevron / dot column (fixed width so text aligns perfectly) */
-#sidebarMenu .icon{
-  width: 14px;
-  text-align: center;
-  color: rgba(255,255,255,0.55);
-  flex: 0 0 14px;
-}
+  color: #e6e6e6;
+  cursor: pointer;
 
-/* Flag */
-#sidebarMenu .flag{
-  width: 16px;
-  height: 11px;
-  border-radius: 2px;
-  object-fit: cover;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.65);
-}
-
-/* Label */
-#sidebarMenu .label{
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-  color: #fff;
-}
-
-/* Count */
-#sidebarMenu .count{
-  text-align: right;
-  font-variant-numeric: tabular-nums; /* ← aligns 1056 vs 11 */
-  color: rgba(255,255,255,0.65);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 /* Hover */
-#sidebarMenu .line:hover{
-  background: rgba(255,255,255,0.03);
+#sidebarMenu .line:hover {
+  background: rgba(255,255,255,0.04);
 }
 
-/* Active chain (continent/country/state/city) */
-#sidebarMenu .line.active{
-  background: rgba(212,160,23,0.10);
+/* =========================
+   LEFT GROUP (chevron + flag + label)
+   ========================= */
+#sidebarMenu .left {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
 }
-#sidebarMenu .line.active .label,
-#sidebarMenu .line.active .count,
-#sidebarMenu .line.active .icon{
+
+/* Chevron */
+#sidebarMenu .arrow {
+  width: 12px;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+/* Rotate on open */
+#sidebarMenu .line.open .arrow {
+  transform: rotate(90deg);
+  opacity: 1;
+}
+
+/* Flag */
+#sidebarMenu .flag {
+  width: 18px;
+  height: 12px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Label */
+#sidebarMenu .label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================
+   COUNT (RIGHT COLUMN)
+   ========================= */
+#sidebarMenu .pill {
+  min-width: 42px;
+  text-align: right;
+
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+/* =========================
+   LEVEL SIZING (SUBTLE)
+   ========================= */
+#sidebarMenu .continent .label {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+#sidebarMenu .country .label {
+  font-size: 0.85rem;
+}
+
+#sidebarMenu .state .label {
+  font-size: 0.82rem;
+}
+
+#sidebarMenu .city .label {
+  font-size: 0.8rem;
+}
+
+/* =========================
+   ACTIVE STATE (TEXT ONLY)
+   ========================= */
+#sidebarMenu .line.active {
   color: var(--gold);
 }
 
-/* Level sizing */
-#sidebarMenu .line.continent .label { font-size: 0.76rem; font-weight: 700; }
-#sidebarMenu .line.country   .label { font-size: 0.70rem; font-weight: 600; }
-#sidebarMenu .line.state     .label { font-size: 0.68rem; font-weight: 600; }
-#sidebarMenu .line.city      .label { font-size: 0.66rem; font-weight: 600; }
+#sidebarMenu .line.active .pill {
+  color: var(--gold);
+}
 
-/* Children containers — NO INDENT */
-#sidebarMenu .children{
+#sidebarMenu .line.active .arrow {
+  opacity: 1;
+}
+
+/* =========================
+   NESTED CONTAINERS
+   ========================= */
+#sidebarMenu .nested {
   display: none;
 }
-#sidebarMenu .children.show{
+
+#sidebarMenu .nested.show {
   display: block;
 }
 
-/* Rotate chevron when open */
-#sidebarMenu .line.open .icon{
-  transform: rotate(90deg);
-  transform-origin: center;
-  color: rgba(255,255,255,0.75);
+/* No indentation creep */
+#sidebarMenu .nested .line {
+  padding-left: 12px;
 }
 
-/* Make icon rotation not affect dot */
-#sidebarMenu .line.city .icon{
-  transform: none !important;
+/* =========================
+   SCROLLBAR
+   ========================= */
+#sidebarMenu {
+  overflow-y: auto;
+}
+
+#sidebarMenu::-webkit-scrollbar {
+  width: 6px;
+}
+
+#sidebarMenu::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.18);
+  border-radius: 6px;
 }
