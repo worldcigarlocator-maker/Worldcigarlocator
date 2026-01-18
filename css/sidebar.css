@@ -1,119 +1,180 @@
 /* ============================================================
-   SIDEBAR — HIERARCHY (GRID, HARD-LOCKED)
-   Scope: #sidebarMenu ONLY
+   SIDEBAR.CSS — WCL Sidebar (CANONICAL, CLEAN, GRID-BASED)
+   Scope: sidebar only
    ============================================================ */
 
-#sidebarMenu {
+/* ============================================================
+   1. SIDEBAR CONTAINER
+   ============================================================ */
+
+.sidebar {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: 0.88rem;
+  overflow: hidden; /* ❗ sidebar itself never scrolls */
 }
 
 /* ============================================================
-   BASE LINE
+   2. NAV SCROLL AREA (CRITICAL FIX)
    ============================================================ */
-#sidebarMenu .line {
+
+#sidebarMenu.nav {
+  flex: 1;                 /* takes remaining height */
+  overflow-y: auto;        /* ✅ scroll works */
+  padding-bottom: 1rem;
+}
+
+/* ============================================================
+   3. BASE LINE — GRID MODEL
+   Columns:
+   [arrow] [label/flag] [count]
+   ============================================================ */
+
+.line {
   display: grid;
-
-  /* arrow | flag | label | spacer | count */
-  grid-template-columns: 18px 20px minmax(0, 1fr) 1fr auto;
-
+  grid-template-columns: 18px 1fr auto;
   align-items: center;
-  column-gap: 8px;
+  gap: 10px;
 
-  padding: 6px 6px;
+  padding: 0.55rem 0.6rem;
   border-bottom: 1px solid rgba(255,255,255,0.08);
+
+  color: #eaeaea;
   cursor: pointer;
+  background: none;
+}
+
+/* No hover effects (premium calm) */
+.line:hover {
+  background: none;
 }
 
 /* ============================================================
-   ARROW — column 1
+   4. CONTINENT — SILVER SECTION BAR (STRUCTURE)
    ============================================================ */
-#sidebarMenu .arrow {
-  grid-column: 1;
-  font-size: 0.9rem;
-  color: #bbb;
-  text-align: center;
+
+.line.continent {
+  background: linear-gradient(
+    to right,
+    rgba(255,255,255,0.10),
+    rgba(255,255,255,0.04)
+  );
+  border-radius: 8px;
+  margin: 0.4rem 0;
+  font-weight: 700;
 }
 
-#sidebarMenu .line.open .arrow {
+/* ============================================================
+   5. ARROW (LEFT COLUMN)
+   ============================================================ */
+
+.line .arrow {
+  font-size: 0.95rem;
+  color: #cfcfcf;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.line.open .arrow {
   transform: rotate(90deg);
 }
 
 /* ============================================================
-   FLAG — column 2 (RESERVED ALWAYS)
+   6. LABEL + FLAG (MIDDLE COLUMN)
    ============================================================ */
-#sidebarMenu .flag {
-  grid-column: 2;
-  width: 16px;
-  height: 12px;
-  object-fit: cover;
-  border-radius: 2px;
+
+.label-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0; /* allows ellipsis */
 }
 
-/* hide flag image but KEEP column */
-#sidebarMenu .line:not(.country) .flag {
-  visibility: hidden;
-}
-
-/* ============================================================
-   LABEL — column 3 (CAN TRUNCATE, NEVER OVERLAP)
-   ============================================================ */
-#sidebarMenu .label {
-  grid-column: 3;
+.label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+/* Flags — country only */
+.flag {
+  width: 18px;
+  height: 12px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
 /* ============================================================
-   COUNT — column 5 (HARD RIGHT)
+   7. COUNT (RIGHT COLUMN — PRESERVED LOGIC)
    ============================================================ */
-#sidebarMenu .pill {
-  grid-column: 5;
-  font-size: 0.8rem;
-  color: #aaa;
-  white-space: nowrap;
+
+.pill {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #bdbdbd;
 }
 
 /* ============================================================
-   ACTIVE PATH
+   8. ACTIVE PATH — GOLD CONTENT ONLY
    ============================================================ */
-#sidebarMenu .line.active .label,
-#sidebarMenu .line.active .pill {
+
+.line.active .label,
+.line.active .pill,
+.line.active .arrow {
   color: var(--gold);
 }
 
-/* ============================================================
-   LEVEL SIZES
-   ============================================================ */
-#sidebarMenu .continent .label {
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-#sidebarMenu .country .label {
-  font-size: 0.88rem;
-}
-
-#sidebarMenu .state .label {
-  font-size: 0.82rem;
-  color: #ddd;
-}
-
-#sidebarMenu .city .label {
-  font-size: 0.78rem;
-  color: #bbb;
+/* 🚫 Ensure NO background leaks into active */
+.line.active {
+  background: none !important;
+  box-shadow: none !important;
 }
 
 /* ============================================================
-   CHILDREN (STACKED, NO INDENT)
+   9. HIERARCHY SIZES (COMPACT)
    ============================================================ */
-#sidebarMenu .children {
+
+.line.continent { font-size: 0.95rem; }
+.line.country   { font-size: 0.85rem; }
+.line.state     { font-size: 0.82rem; }
+.line.city      { font-size: 0.80rem; color: #cfcfcf; }
+
+/* ============================================================
+   10. CHILD CONTAINERS (NO INDENT DRIFT)
+   ============================================================ */
+
+.children {
   display: none;
 }
 
-#sidebarMenu .children.show {
+.children.show {
   display: block;
+}
+
+/* ============================================================
+   11. FOOTER LINKS (SIDEBAR BOTTOM)
+   ============================================================ */
+
+.sidebar-bottom {
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+
+.sidebar-bottom .menu-link {
+  font-size: 0.8rem;
+  color: #aaa;
+  text-decoration: none;
+  padding: 0.25rem 0;
+}
+
+.sidebar-bottom .menu-link:hover {
+  color: var(--gold);
+}
+
+.sidebar-bottom .add-store {
+  color: var(--gold);
+  font-weight: 600;
 }
