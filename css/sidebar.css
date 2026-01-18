@@ -1,147 +1,87 @@
 /* ============================================================
-   SIDEBAR — SINGLE COLUMN HIERARCHY (FINAL)
+   SIDEBAR — CANONICAL GRID MODEL
    ============================================================ */
 
 #sidebarMenu {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   user-select: none;
 }
 
-/* ------------------------------------------------------------
-   ROW
------------------------------------------------------------- */
+/* =========================
+   ROW GRID (LOCKED)
+   ========================= */
 #sidebarMenu .line {
   display: grid;
-  grid-template-columns: auto auto 1fr auto;
+  grid-template-columns: 1fr 56px; /* ← FAST COUNT KOLUMN */
   align-items: center;
-  gap: 8px;
-  padding: 8px 6px;
+  padding: 6px 8px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
-  color: #fff;
-  cursor: pointer;
+  color: #ffffff;
 }
 
-/* ------------------------------------------------------------
-   CHEVRON
------------------------------------------------------------- */
-#sidebarMenu .chevron {
-  width: 14px;
-  text-align: center;
-  opacity: 0.7;
+/* =========================
+   LEFT CELL
+   ========================= */
+.cell-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
-/* ------------------------------------------------------------
-   FLAG
------------------------------------------------------------- */
-#sidebarMenu .flag {
-  width: 18px;
-  height: 12px;
-  object-fit: cover;
-  border-radius: 2px;
-}
-
-/* ------------------------------------------------------------
-   LABEL
------------------------------------------------------------- */
-#sidebarMenu .label {
+/* =========================
+   TEXT
+   ========================= */
+.label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Smaller text for deeper levels */
-#sidebarMenu .country .label { font-size: 0.75rem; }
-#sidebarMenu .state .label   { font-size: 0.72rem; }
-#sidebarMenu .city .label    { font-size: 0.7rem; }
-
-/* ------------------------------------------------------------
-   COUNT (RIGHT)
------------------------------------------------------------- */
-#sidebarMenu .count {
-  color: #aaa;
-  font-size: 0.7rem;
+/* =========================
+   COUNT
+   ========================= */
+.cell-count {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: #bdbdbd;
 }
 
-/* ------------------------------------------------------------
-   ACTIVE PATH
------------------------------------------------------------- */
-#sidebarMenu .line.active {
+/* =========================
+   ICONS
+   ========================= */
+.chevron,
+.dot {
+  width: 12px;
+  text-align: center;
+  color: #9a9a9a;
+}
+
+.flag {
+  width: 16px;
+  height: 11px;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+/* =========================
+   LEVEL SIZING
+   ========================= */
+.line.continent .label { font-size: 0.75rem; font-weight: 600; }
+.line.country   .label { font-size: 0.70rem; }
+.line.state     .label { font-size: 0.68rem; }
+.line.city      .label { font-size: 0.66rem; }
+
+/* =========================
+   ACTIVE CHAIN
+   ========================= */
+.line.active {
+  background: rgba(212,160,23,0.08);
+}
+
+.line.active .label,
+.line.active .cell-count,
+.line.active .chevron,
+.line.active .dot {
   color: var(--gold);
-}
-
-#sidebarMenu .line.active .count {
-  color: var(--gold);
-}
-
-/* ------------------------------------------------------------
-   NESTING — VERTICAL ONLY (NO INDENT)
------------------------------------------------------------- */
-#sidebarMenu .nested {
-  display: none;
-}
-
-#sidebarMenu .nested.show {
-  display: block;
-}
-
-/* ============================================================
-   COMPACT UI — ADD / HERO AREA
-   Purpose: free vertical space for sidebar hierarchy
-   ============================================================ */
-
-/* ---------- HERO IMAGE ---------- */
-#heroImage {
-  max-height: 140px;          /* tidigare ~220–260 */
-  border-radius: 12px;
-}
-
-/* ---------- HERO TEXT ---------- */
-#heroText {
-  margin-top: 0.6rem;
-}
-
-#heroText h2 {
-  font-size: 1.05rem;         /* ↓ ca 30 % */
-  line-height: 1.25;
-}
-
-#heroText p {
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
-}
-
-/* ---------- ADD / PROMO CARD ---------- */
-.add-card,
-.hero-card,
-.promo-card {
-  padding: 0.7rem 0.9rem;     /* ↓ padding */
-}
-
-/* ---------- LOGIN / ONLINE ROW ---------- */
-.top-bar,
-.hero-top {
-  margin-bottom: 0.6rem;
-}
-
-.online-pill {
-  font-size: 0.8rem;
-  padding: 0.25rem 0.6rem;
-}
-
-.login-btn {
-  font-size: 0.8rem;
-  padding: 0.35rem 0.7rem;
-}
-
-/* ---------- DIVIDER ---------- */
-.hero-divider,
-.sidebar-divider {
-  margin: 0.7rem 0;
-  opacity: 0.5;
-}
-
-/* ---------- GENERAL TEXT TIGHTEN ---------- */
-.hero-card *,
-.add-card * {
-  line-height: 1.25;
 }
