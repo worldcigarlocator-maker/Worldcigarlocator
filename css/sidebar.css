@@ -1,144 +1,125 @@
 /* ============================================================
-   SIDEBAR — CLEAN LIST HIERARCHY (INSPIRED BY REF IMAGE 2)
-   Scope: sidebar menu only
+   SIDEBAR — FLAT HIERARCHY (CANONICAL)
+   - No indentation
+   - Chevron + color = hierarchy
+   - Active path = gold
    ============================================================ */
 
-/* ROOT */
 #sidebarMenu {
-  font-size: 0.78rem;
-  line-height: 1.2;
+  font-size: 0.74rem;              /* mindre text generellt */
+  line-height: 1.15;
   user-select: none;
   max-height: 100%;
   overflow-y: auto;
   scrollbar-width: thin;
 }
 
-/* Scrollbar */
+/* scrollbar */
 #sidebarMenu::-webkit-scrollbar {
   width: 6px;
 }
 #sidebarMenu::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.15);
   border-radius: 6px;
 }
 
 /* ============================================================
-   BASE LINE — ALL ROWS
+   BASE ROW — ALL LEVELS SHARE SAME LEFT EDGE
    ============================================================ */
 #sidebarMenu .line {
-  display: flex;
+  display: grid;
+  grid-template-columns: 14px auto 1fr auto;
   align-items: center;
-  gap: 0.45rem;
-  padding: 6px 6px;
+  gap: 6px;
+  padding: 4px 6px;
   color: #ffffff;
   cursor: default;
-
-  /* divider line */
-  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-/* hover = light clarity only */
-#sidebarMenu .line:hover {
-  background: rgba(255,255,255,0.04);
+/* divider line between rows */
+#sidebarMenu .line {
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ============================================================
+   CHEVRON (LEFT, FIXED COLUMN)
+   ============================================================ */
+#sidebarMenu .arrow {
+  font-size: 0.65rem;
+  opacity: 0.6;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+#sidebarMenu .line.open .arrow {
+  transform: rotate(90deg);
+  opacity: 0.9;
+}
+
+/* city dot (no chevron) */
+#sidebarMenu .city .arrow {
+  visibility: hidden;
 }
 
 /* ============================================================
    LABEL
    ============================================================ */
 #sidebarMenu .label {
-  flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* level sizing */
+#sidebarMenu .continent .label {
+  font-size: 0.70em;   /* ~30% mindre */
+}
+
+#sidebarMenu .country .label {
+  font-size: 0.72em;
+}
+
+#sidebarMenu .state .label {
+  font-size: 0.74em;
+}
+
+#sidebarMenu .city .label {
+  font-size: 0.76em;
 }
 
 /* ============================================================
    COUNT (RIGHT COLUMN)
    ============================================================ */
 #sidebarMenu .pill {
-  font-size: 0.7rem;
-  color: #bfbfbf;
-  margin-left: auto;
+  font-size: 0.68rem;
+  color: #9a9a9a;
 }
 
 /* ============================================================
-   CHEVRON (NO COLOR DECORATION)
-   ============================================================ */
-#sidebarMenu .arrow {
-  font-size: 0.6rem;
-  opacity: 0.6;
-  transition: transform 0.12s ease;
-}
-
-/* rotate when open */
-#sidebarMenu .line.open .arrow {
-  transform: rotate(90deg);
-  opacity: 0.85;
-}
-
-/* ============================================================
-   LEVEL SIZES — KEY PART
-   ============================================================ */
-
-/* Continents */
-#sidebarMenu .continent .label {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-/* Countries — MUCH SMALLER (like ref) */
-#sidebarMenu .country .label {
-  font-size: 0.78rem;
-  font-weight: 400;
-}
-
-/* States */
-#sidebarMenu .state .label {
-  font-size: 0.74rem;
-  opacity: 0.9;
-}
-
-/* Cities */
-#sidebarMenu .city .label {
-  font-size: 0.72rem;
-  opacity: 0.85;
-}
-
-/* ============================================================
-   NESTING — PURE LIST FEEL
+   NESTING — FLAT (NO INDENT)
    ============================================================ */
 #sidebarMenu .nested {
   display: none;
-  margin-left: 12px;
 }
 
 #sidebarMenu .nested.show {
   display: block;
 }
 
-/* slightly tighter rows inside nests */
-#sidebarMenu .nested .line {
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
 /* ============================================================
-   ACTIVE STATE — GOLD TEXT ONLY
+   ACTIVE PATH — GOLD TEXT ONLY
    ============================================================ */
-#sidebarMenu .line.active .label,
-#sidebarMenu .line.active .pill {
+#sidebarMenu .line.active .label {
   color: var(--gold);
 }
 
-/* chevron stays neutral */
 #sidebarMenu .line.active .arrow {
-  color: #fff;
-  opacity: 0.8;
+  color: var(--gold);
+  opacity: 0.9;
 }
 
 /* ============================================================
-   REMOVE ALL LEFT DECORATIONS (SAFETY)
+   OPEN GROUP BACKGROUND (SUBTLE)
    ============================================================ */
-#sidebarMenu .line::before {
-  content: none !important;
+#sidebarMenu .nested.group-active {
+  background: rgba(212,160,23,0.05);
 }
