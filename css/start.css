@@ -200,6 +200,43 @@ body {
   color: #ccc;
 }
 
+/* ============================================================
+   SIDEBAR AD — COMPACT MODE (STEP 1)
+   ============================================================ */
+
+/* Tightare block */
+.sidebar-ad {
+  padding: 0.6rem 0 0.7rem;
+  text-align: center;
+}
+
+/* Mindre bild (≈50%) */
+.sidebar-ad .ad-img {
+  width: 68%;
+  max-width: 120px;
+  margin-bottom: 0.45rem;
+  border-radius: 10px;
+}
+
+/* Mindre rubrik */
+.sidebar-ad .ad-title {
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 2px;
+}
+
+/* Mindre kodrad */
+.sidebar-ad .ad-code {
+  font-size: 0.64rem;
+  line-height: 1.1;
+}
+
+/* Divider närmare för mer plats nedåt */
+.sidebar-divider {
+  margin: 10px 0;
+}
+
 
 /* --------------------------------------------
    NAV / HIERARKI (continents / countries / cities)
