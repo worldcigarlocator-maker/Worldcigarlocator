@@ -1,166 +1,147 @@
-// ============================================================
-// SIDEBAR.JS — WCL Hierarchy Navigation (CANONICAL, FIXED)
-// ============================================================
-
-import { setLocationFilter, runSearch } from "./cards.js";
-
-const menu = document.querySelector("#sidebarMenu");
-
 /* ============================================================
-   INTERNAL STATE
+   SIDEBAR — SINGLE COLUMN HIERARCHY (FINAL)
    ============================================================ */
-let ACTIVE = {
-  continent: null,
-  country: null,
-  state: null,
-  city: null,
-};
 
-/* ============================================================
-   FETCH ALL ROWS
-   ============================================================ */
-async function fetchAllSidebarRows(supabase) {
-  const PAGE = 1000;
-  let from = 0;
-  let all = [];
+#sidebarMenu {
+  font-size: 0.78rem;
+  user-select: none;
+}
 
-  while (true) {
-    const { data, error } = await supabase
-      .rpc("sidebar_counts_frontend_v1")
-      .range(from, from + PAGE - 1);
+/* ------------------------------------------------------------
+   ROW
+------------------------------------------------------------ */
+#sidebarMenu .line {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  color: #fff;
+  cursor: pointer;
+}
 
-    if (error) throw error;
-    if (!data || !data.length) break;
+/* ------------------------------------------------------------
+   CHEVRON
+------------------------------------------------------------ */
+#sidebarMenu .chevron {
+  width: 14px;
+  text-align: center;
+  opacity: 0.7;
+}
 
-    all.push(...data);
-    if (data.length < PAGE) break;
-    from += PAGE;
-  }
+/* ------------------------------------------------------------
+   FLAG
+------------------------------------------------------------ */
+#sidebarMenu .flag {
+  width: 18px;
+  height: 12px;
+  object-fit: cover;
+  border-radius: 2px;
+}
 
-  return all;
+/* ------------------------------------------------------------
+   LABEL
+------------------------------------------------------------ */
+#sidebarMenu .label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Smaller text for deeper levels */
+#sidebarMenu .country .label { font-size: 0.75rem; }
+#sidebarMenu .state .label   { font-size: 0.72rem; }
+#sidebarMenu .city .label    { font-size: 0.7rem; }
+
+/* ------------------------------------------------------------
+   COUNT (RIGHT)
+------------------------------------------------------------ */
+#sidebarMenu .count {
+  color: #aaa;
+  font-size: 0.7rem;
+}
+
+/* ------------------------------------------------------------
+   ACTIVE PATH
+------------------------------------------------------------ */
+#sidebarMenu .line.active {
+  color: var(--gold);
+}
+
+#sidebarMenu .line.active .count {
+  color: var(--gold);
+}
+
+/* ------------------------------------------------------------
+   NESTING — VERTICAL ONLY (NO INDENT)
+------------------------------------------------------------ */
+#sidebarMenu .nested {
+  display: none;
+}
+
+#sidebarMenu .nested.show {
+  display: block;
 }
 
 /* ============================================================
-   BUILD SIDEBAR
+   COMPACT UI — ADD / HERO AREA
+   Purpose: free vertical space for sidebar hierarchy
    ============================================================ */
-export async function buildFrontendSidebar(supabase) {
-  if (!menu) return;
-  menu.innerHTML = "";
 
-  const rows = await fetchAllSidebarRows(supabase);
-
-  const tree = {};
-  for (const r of rows) {
-    const c = r.continent;
-    const co = r.country;
-    const s = r.state;
-    const city = r.city;
-    const n = Number(r.count || 0);
-
-    tree[c] ??= { count: 0, countries: {} };
-    tree[c].count += n;
-
-    tree[c].countries[co] ??= { count: 0, states: {} };
-    tree[c].countries[co].count += n;
-
-    tree[c].countries[co].states[s] ??= { count: 0, cities: {} };
-    tree[c].countries[co].states[s].count += n;
-
-    tree[c].countries[co].states[s].cities[city] =
-      (tree[c].countries[co].states[s].cities[city] || 0) + n;
-  }
-
-  Object.entries(tree).forEach(([continent, cData]) => {
-    const cont = line("continent", continent, cData.count);
-    const contBox = nested(true); // OPEN BY DEFAULT
-
-    menu.append(cont, contBox);
-
-    cont.onclick = () => activate({ continent });
-
-    Object.entries(cData.countries).forEach(([country, coData]) => {
-      const co = line("country", country, coData.count, country);
-      const coBox = nested(false);
-
-      contBox.append(co, coBox);
-
-      co.onclick = (e) => {
-        e.stopPropagation();
-        toggle(coBox);
-        activate({ continent, country });
-      };
-
-      Object.entries(coData.states).forEach(([state, sData]) => {
-        const st = line("state", state, sData.count);
-        const stBox = nested(false);
-
-        coBox.append(st, stBox);
-
-        st.onclick = (e) => {
-          e.stopPropagation();
-          toggle(stBox);
-          activate({ continent, country, state });
-        };
-
-        Object.entries(sData.cities).forEach(([city, count]) => {
-          const ci = line("city", city, count);
-
-          ci.onclick = (e) => {
-            e.stopPropagation();
-            activate({ continent, country, state, city });
-          };
-
-          stBox.append(ci);
-        });
-      });
-    });
-  });
+/* ---------- HERO IMAGE ---------- */
+#heroImage {
+  max-height: 140px;          /* tidigare ~220–260 */
+  border-radius: 12px;
 }
 
-/* ============================================================
-   LINE BUILDER — THIS IS THE KEY FIX
-   ============================================================ */
-function line(type, label, count, countryCode = null) {
-  const el = document.createElement("div");
-  el.className = `line ${type}`;
-
-  el.innerHTML = `
-    <div class="left">
-      ${type !== "city" ? `<span class="arrow">▸</span>` : `<span class="dot">•</span>`}
-      ${countryCode ? `<img class="flag" src="assets/flags/${countryCode.toLowerCase()}.svg">` : ``}
-      <span class="label">${label}</span>
-    </div>
-    <span class="pill">${count}</span>
-  `;
-
-  return el;
+/* ---------- HERO TEXT ---------- */
+#heroText {
+  margin-top: 0.6rem;
 }
 
-/* ============================================================
-   NESTED CONTAINER (NO X-INDENT)
-   ============================================================ */
-function nested(open) {
-  const el = document.createElement("div");
-  el.className = "nested";
-  if (open) el.classList.add("show");
-  return el;
+#heroText h2 {
+  font-size: 1.05rem;         /* ↓ ca 30 % */
+  line-height: 1.25;
 }
 
-/* ============================================================
-   TOGGLE (VISUAL ONLY)
-   ============================================================ */
-function toggle(box) {
-  box.classList.toggle("show");
+#heroText p {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
 }
 
-/* ============================================================
-   ACTIVATE (GOLD CHAIN)
-   ============================================================ */
-function activate(next) {
-  ACTIVE = { continent: null, country: null, state: null, city: null, ...next };
+/* ---------- ADD / PROMO CARD ---------- */
+.add-card,
+.hero-card,
+.promo-card {
+  padding: 0.7rem 0.9rem;     /* ↓ padding */
+}
 
-  document.querySelectorAll("#sidebarMenu .line").forEach((l) =>
-    l.classList.remove("active")
-  );
+/* ---------- LOGIN / ONLINE ROW ---------- */
+.top-bar,
+.hero-top {
+  margin-bottom: 0.6rem;
+}
 
-  Object.entri
+.online-pill {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.6rem;
+}
+
+.login-btn {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.7rem;
+}
+
+/* ---------- DIVIDER ---------- */
+.hero-divider,
+.sidebar-divider {
+  margin: 0.7rem 0;
+  opacity: 0.5;
+}
+
+/* ---------- GENERAL TEXT TIGHTEN ---------- */
+.hero-card *,
+.add-card * {
+  line-height: 1.25;
+}
