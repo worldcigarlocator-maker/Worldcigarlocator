@@ -1,5 +1,5 @@
 /* ============================================================
-   SIDEBAR — HIERARCHY (GRID, CANONICAL)
+   SIDEBAR — HIERARCHY (GRID, HARD-LOCKED)
    Scope: #sidebarMenu ONLY
    ============================================================ */
 
@@ -11,25 +11,27 @@
 }
 
 /* ============================================================
-   BASE LINE (ALL LEVELS)
+   BASE LINE
    ============================================================ */
 #sidebarMenu .line {
   display: grid;
-  grid-template-columns: 18px 20px auto 1fr auto;
+
+  /* arrow | flag | label | spacer | count */
+  grid-template-columns: 18px 20px minmax(0, 1fr) 1fr auto;
+
   align-items: center;
   column-gap: 8px;
 
   padding: 6px 6px;
-  color: #f0f0f0;
-  cursor: pointer;
-
   border-bottom: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
 }
 
 /* ============================================================
-   ARROW (COLUMN 1)
+   ARROW — column 1
    ============================================================ */
 #sidebarMenu .arrow {
+  grid-column: 1;
   font-size: 0.9rem;
   color: #bbb;
   text-align: center;
@@ -40,39 +42,43 @@
 }
 
 /* ============================================================
-   FLAG (COLUMN 2 — COUNTRY ONLY)
+   FLAG — column 2 (RESERVED ALWAYS)
    ============================================================ */
 #sidebarMenu .flag {
+  grid-column: 2;
   width: 16px;
   height: 12px;
   object-fit: cover;
   border-radius: 2px;
 }
 
-/* hide flag slot for non-country rows */
+/* hide flag image but KEEP column */
 #sidebarMenu .line:not(.country) .flag {
-  display: none;
+  visibility: hidden;
 }
 
 /* ============================================================
-   LABEL (COLUMN 3)
+   LABEL — column 3 (CAN TRUNCATE, NEVER OVERLAP)
    ============================================================ */
 #sidebarMenu .label {
+  grid-column: 3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 /* ============================================================
-   COUNT (COLUMN 5 — LOCKED RIGHT)
+   COUNT — column 5 (HARD RIGHT)
    ============================================================ */
 #sidebarMenu .pill {
+  grid-column: 5;
   font-size: 0.8rem;
   color: #aaa;
+  white-space: nowrap;
 }
 
 /* ============================================================
-   ACTIVE PATH (TEXT ONLY)
+   ACTIVE PATH
    ============================================================ */
 #sidebarMenu .line.active .label,
 #sidebarMenu .line.active .pill {
@@ -80,7 +86,7 @@
 }
 
 /* ============================================================
-   LEVEL SIZING (COMPACT)
+   LEVEL SIZES
    ============================================================ */
 #sidebarMenu .continent .label {
   font-size: 0.95rem;
@@ -102,7 +108,7 @@
 }
 
 /* ============================================================
-   CHILDREN (NO INDENT — STACKED)
+   CHILDREN (STACKED, NO INDENT)
    ============================================================ */
 #sidebarMenu .children {
   display: none;
