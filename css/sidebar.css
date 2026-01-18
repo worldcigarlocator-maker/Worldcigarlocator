@@ -158,3 +158,26 @@
   background: rgba(255,255,255,0.18);
   border-radius: 6px;
 }
+
+/* ============================================
+   REMOVE GOLD LEFT ACCENT (CANONICAL)
+   ============================================ */
+
+/* Remove any left border / accent */
+#sidebarMenu .line {
+  border-left: none !important;
+}
+
+/* Remove pseudo-element accents */
+#sidebarMenu .line::before,
+#sidebarMenu .line::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Remove background glow used as accent */
+#sidebarMenu .line,
+#sidebarMenu .line.active,
+#sidebarMenu .line.open {
+  background: none !important;
+}
