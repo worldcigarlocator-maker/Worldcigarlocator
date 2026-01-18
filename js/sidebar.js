@@ -1,5 +1,5 @@
 // ============================================================
-// SIDEBAR.JS — WCL Hierarchy (CANONICAL, SAFE, COUNT-PRESERVING)
+// SIDEBAR.JS — WCL Sidebar Hierarchy (CANONICAL FINAL)
 // ============================================================
 
 import { setLocationFilter, runSearch } from "./cards.js";
@@ -7,7 +7,7 @@ import { setLocationFilter, runSearch } from "./cards.js";
 const menu = document.querySelector("#sidebarMenu");
 
 /* ============================================================
-   INTERNAL STATE — active navigation path
+   STATE
    ============================================================ */
 let ACTIVE_PATH = {
   continent: null,
@@ -17,7 +17,7 @@ let ACTIVE_PATH = {
 };
 
 /* ============================================================
-   FETCH — ALL ROWS (NO 1000 CAP, NO LOGIC CHANGE)
+   FETCH ALL ROWS (NO 1000 CAP)
    ============================================================ */
 async function fetchAllRows(supabase) {
   const PAGE = 1000;
@@ -41,37 +41,44 @@ async function fetchAllRows(supabase) {
 }
 
 /* ============================================================
-   BUILD TREE (structure identical to before)
+   BUILD TREE (COUNT LOGIC UNCHANGED)
    ============================================================ */
 function buildTree(rows) {
   const tree = {};
 
   rows.forEach(r => {
-    const { continent, country, country_iso2, state, city } = r;
-    const count = Number(r.count || 0);
+    const {
+      continent,
+      country,
+      country_iso2,
+      state,
+      city,
+      count
+    } = r;
 
     if (!continent || !country) return;
 
     tree[continent] ??= { count: 0, countries: {} };
-    tree[continent].count += count;
+    tree[continent].count += Number(count);
 
     tree[continent].countries[country] ??= {
       count: 0,
       iso2: country_iso2 || null,
       states: {}
     };
-    tree[continent].countries[country].count += count;
+    tree[continent].countries[country].count += Number(count);
 
     if (state) {
       tree[continent].countries[country].states[state] ??= {
         count: 0,
         cities: {}
       };
-      tree[continent].countries[country].states[state].count += count;
+      tree[continent].countries[country].states[state].count += Number(count);
 
       if (city) {
         tree[continent].countries[country].states[state].cities[city] =
-          (tree[continent].countries[country].states[state].cities[city] || 0) + count;
+          (tree[continent].countries[country].states[state].cities[city] || 0) +
+          Number(count);
       }
     }
   });
@@ -80,7 +87,7 @@ function buildTree(rows) {
 }
 
 /* ============================================================
-   APPLY LOCATION (single source of truth)
+   APPLY LOCATION
    ============================================================ */
 function applyLocation(next) {
   ACTIVE_PATH = { ...ACTIVE_PATH, ...next };
@@ -90,7 +97,7 @@ function applyLocation(next) {
 }
 
 /* ============================================================
-   RENDER SIDEBAR
+   BUILD SIDEBAR
    ============================================================ */
 export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
@@ -115,11 +122,13 @@ export async function buildFrontendSidebar(supabase) {
       label: continent,
       count: cData.count
     });
-    cont.classList.add("open");
 
     const contChildren = createChildren(true);
-    cont.onclick = () =>
-      applyLocation({ continent, country: null, state: null, city: null });
+    cont.classList.add("open");
+
+    cont.addEventListener("click", () =>
+      applyLocation({ continent, country: null, state: null, city: null })
+    );
 
     menu.append(cont, contChildren);
 
@@ -138,8 +147,9 @@ export async function buildFrontendSidebar(supabase) {
         toggle(co, coChildren);
       });
 
-      co.onclick = () =>
-        applyLocation({ continent, country, state: null, city: null });
+      co.addEventListener("click", () =>
+        applyLocation({ continent, country, state: null, city: null })
+      );
 
       contChildren.append(co, coChildren);
 
@@ -157,8 +167,9 @@ export async function buildFrontendSidebar(supabase) {
           toggle(st, stChildren);
         });
 
-        st.onclick = () =>
-          applyLocation({ continent, country, state, city: null });
+        st.addEventListener("click", () =>
+          applyLocation({ continent, country, state, city: null })
+        );
 
         coChildren.append(st, stChildren);
 
@@ -169,8 +180,9 @@ export async function buildFrontendSidebar(supabase) {
             count
           });
 
-          ct.onclick = () =>
-            applyLocation({ continent, country, state, city });
+          ct.addEventListener("click", () =>
+            applyLocation({ continent, country, state, city })
+          );
 
           stChildren.append(ct);
         });
@@ -182,22 +194,23 @@ export async function buildFrontendSidebar(supabase) {
 }
 
 /* ============================================================
-   LINE FACTORY (flag only on country)
+   LINE FACTORY (GRID-COMPATIBLE)
    ============================================================ */
 function createLine({ type, label, count, iso2 = null }) {
   const el = document.createElement("div");
   el.className = `line ${type}`;
   el.dataset.label = label;
 
-  const flagHTML =
+  const flag =
     type === "country" && iso2
-      ? `<img class="flag" src="assets/flags/${iso2.toLowerCase()}.svg" alt="" onerror="this.style.display='none'">`
+      ? `<img class="flag" src="assets/flags/${iso2.toLowerCase()}.svg"
+              alt="" onerror="this.style.display='none'">`
       : "";
 
   el.innerHTML = `
     <span class="arrow">${type === "city" ? "•" : "▸"}</span>
     <span class="label-wrap">
-      ${flagHTML}
+      ${flag}
       <span class="label">${label}</span>
     </span>
     <span class="pill">${count}</span>
@@ -213,7 +226,7 @@ function createChildren(show = false) {
 }
 
 /* ============================================================
-   TOGGLE (no side effects)
+   TOGGLE
    ============================================================ */
 function toggle(line, children) {
   const open = line.classList.toggle("open");
@@ -221,7 +234,7 @@ function toggle(line, children) {
 }
 
 /* ============================================================
-   ACTIVE PATH HIGHLIGHT
+   ACTIVE PATH
    ============================================================ */
 function updateActiveClasses() {
   document
