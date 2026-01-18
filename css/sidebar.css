@@ -83,3 +83,65 @@
 #sidebarMenu .nested.show {
   display: block;
 }
+
+/* ============================================================
+   COMPACT UI — ADD / HERO AREA
+   Purpose: free vertical space for sidebar hierarchy
+   ============================================================ */
+
+/* ---------- HERO IMAGE ---------- */
+#heroImage {
+  max-height: 140px;          /* tidigare ~220–260 */
+  border-radius: 12px;
+}
+
+/* ---------- HERO TEXT ---------- */
+#heroText {
+  margin-top: 0.6rem;
+}
+
+#heroText h2 {
+  font-size: 1.05rem;         /* ↓ ca 30 % */
+  line-height: 1.25;
+}
+
+#heroText p {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+/* ---------- ADD / PROMO CARD ---------- */
+.add-card,
+.hero-card,
+.promo-card {
+  padding: 0.7rem 0.9rem;     /* ↓ padding */
+}
+
+/* ---------- LOGIN / ONLINE ROW ---------- */
+.top-bar,
+.hero-top {
+  margin-bottom: 0.6rem;
+}
+
+.online-pill {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.6rem;
+}
+
+.login-btn {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.7rem;
+}
+
+/* ---------- DIVIDER ---------- */
+.hero-divider,
+.sidebar-divider {
+  margin: 0.7rem 0;
+  opacity: 0.5;
+}
+
+/* ---------- GENERAL TEXT TIGHTEN ---------- */
+.hero-card *,
+.add-card * {
+  line-height: 1.25;
+}
