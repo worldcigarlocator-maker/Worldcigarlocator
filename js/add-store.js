@@ -78,11 +78,12 @@ async function onPlaceDetails(place, status) {
     const getShort = (t) =>
       comp.find((c) => c.types?.includes(t))?.short_name || "";
 
-    const city =
-      getLong("locality") ||
-      getLong("postal_town") ||
-      getLong("administrative_area_level_2") ||
-      "";
+     const city =
+  getShort("locality") ||
+  getShort("postal_town") ||
+  getShort("administrative_area_level_2") ||
+  getLong("locality") ||   // fallback
+  "";
 
     const country = getLong("country") || "";
     const country_iso2 = (getShort("country") || "").toLowerCase();
