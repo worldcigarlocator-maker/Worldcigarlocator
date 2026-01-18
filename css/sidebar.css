@@ -1,102 +1,82 @@
 /* ============================================================
    SIDEBAR — FLAT HIERARCHY (CANONICAL)
-   - No indentation
-   - Chevron + color = hierarchy
-   - Active path = gold
+   - Continents open by default
+   - No horizontal indent
+   - Chevron far left
+   - Flag → name → (space) → count
+   - White text, gold when ACTIVE
    ============================================================ */
 
 #sidebarMenu {
-  font-size: 0.74rem;              /* mindre text generellt */
-  line-height: 1.15;
+  font-size: 0.82rem;
+  line-height: 1.25;
   user-select: none;
-  max-height: 100%;
   overflow-y: auto;
-  scrollbar-width: thin;
 }
 
-/* scrollbar */
-#sidebarMenu::-webkit-scrollbar {
-  width: 6px;
-}
-#sidebarMenu::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.15);
-  border-radius: 6px;
-}
-
-/* ============================================================
-   BASE ROW — ALL LEVELS SHARE SAME LEFT EDGE
-   ============================================================ */
+/* =========================
+   BASE ROW
+   ========================= */
 #sidebarMenu .line {
   display: grid;
   grid-template-columns: 14px auto 1fr auto;
   align-items: center;
-  gap: 6px;
-  padding: 4px 6px;
+  gap: 8px;
+  padding: 8px 10px;
   color: #ffffff;
-  cursor: default;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-/* divider line between rows */
-#sidebarMenu .line {
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-/* ============================================================
-   CHEVRON (LEFT, FIXED COLUMN)
-   ============================================================ */
+/* Chevron */
 #sidebarMenu .arrow {
-  font-size: 0.65rem;
-  opacity: 0.6;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  font-size: 0.7rem;
+  opacity: 0.75;
 }
 
+/* Rotate when open */
 #sidebarMenu .line.open .arrow {
   transform: rotate(90deg);
-  opacity: 0.9;
 }
 
-/* city dot (no chevron) */
-#sidebarMenu .city .arrow {
-  visibility: hidden;
-}
-
-/* ============================================================
-   LABEL
-   ============================================================ */
+/* Label */
 #sidebarMenu .label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* level sizing */
+/* Count */
+#sidebarMenu .pill {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: #bdbdbd;
+}
+
+/* =========================
+   LEVEL SIZING
+   ========================= */
 #sidebarMenu .continent .label {
-  font-size: 0.70em;   /* ~30% mindre */
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 #sidebarMenu .country .label {
-  font-size: 0.72em;
+  font-size: 0.82rem;
+  font-weight: 500;
 }
 
 #sidebarMenu .state .label {
-  font-size: 0.74em;
+  font-size: 0.78rem;
 }
 
 #sidebarMenu .city .label {
-  font-size: 0.76em;
+  font-size: 0.76rem;
 }
 
-/* ============================================================
-   COUNT (RIGHT COLUMN)
-   ============================================================ */
-#sidebarMenu .pill {
-  font-size: 0.68rem;
-  color: #9a9a9a;
-}
-
-/* ============================================================
+/* =========================
    NESTING — FLAT (NO INDENT)
-   ============================================================ */
+   ========================= */
 #sidebarMenu .nested {
   display: none;
 }
@@ -105,21 +85,17 @@
   display: block;
 }
 
-/* ============================================================
+/* =========================
    ACTIVE PATH — GOLD TEXT ONLY
-   ============================================================ */
-#sidebarMenu .line.active .label {
+   ========================= */
+#sidebarMenu .line.active {
+  color: var(--gold);
+}
+
+#sidebarMenu .line.active .pill {
   color: var(--gold);
 }
 
 #sidebarMenu .line.active .arrow {
   color: var(--gold);
-  opacity: 0.9;
-}
-
-/* ============================================================
-   OPEN GROUP BACKGROUND (SUBTLE)
-   ============================================================ */
-#sidebarMenu .nested.group-active {
-  background: rgba(212,160,23,0.05);
 }
