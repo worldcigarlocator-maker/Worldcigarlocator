@@ -1,82 +1,81 @@
 /* ============================================================
-   SIDEBAR — FLAT HIERARCHY (CANONICAL)
-   - Continents open by default
-   - No horizontal indent
-   - Chevron far left
-   - Flag → name → (space) → count
-   - White text, gold when ACTIVE
+   SIDEBAR — SINGLE COLUMN HIERARCHY (FINAL)
    ============================================================ */
 
 #sidebarMenu {
-  font-size: 0.82rem;
-  line-height: 1.25;
+  font-size: 0.78rem;
   user-select: none;
-  overflow-y: auto;
 }
 
-/* =========================
-   BASE ROW
-   ========================= */
+/* ------------------------------------------------------------
+   ROW
+------------------------------------------------------------ */
 #sidebarMenu .line {
   display: grid;
-  grid-template-columns: 14px auto 1fr auto;
+  grid-template-columns: auto auto 1fr auto;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
-  color: #ffffff;
-  cursor: pointer;
+  padding: 8px 6px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
+  color: #fff;
+  cursor: pointer;
 }
 
-/* Chevron */
-#sidebarMenu .arrow {
-  font-size: 0.7rem;
-  opacity: 0.75;
+/* ------------------------------------------------------------
+   CHEVRON
+------------------------------------------------------------ */
+#sidebarMenu .chevron {
+  width: 14px;
+  text-align: center;
+  opacity: 0.7;
 }
 
-/* Rotate when open */
-#sidebarMenu .line.open .arrow {
-  transform: rotate(90deg);
+/* ------------------------------------------------------------
+   FLAG
+------------------------------------------------------------ */
+#sidebarMenu .flag {
+  width: 18px;
+  height: 12px;
+  object-fit: cover;
+  border-radius: 2px;
 }
 
-/* Label */
+/* ------------------------------------------------------------
+   LABEL
+------------------------------------------------------------ */
 #sidebarMenu .label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Count */
-#sidebarMenu .pill {
-  margin-left: auto;
-  font-size: 0.75rem;
-  color: #bdbdbd;
+/* Smaller text for deeper levels */
+#sidebarMenu .country .label { font-size: 0.75rem; }
+#sidebarMenu .state .label   { font-size: 0.72rem; }
+#sidebarMenu .city .label    { font-size: 0.7rem; }
+
+/* ------------------------------------------------------------
+   COUNT (RIGHT)
+------------------------------------------------------------ */
+#sidebarMenu .count {
+  color: #aaa;
+  font-size: 0.7rem;
 }
 
-/* =========================
-   LEVEL SIZING
-   ========================= */
-#sidebarMenu .continent .label {
-  font-size: 0.9rem;
-  font-weight: 600;
+/* ------------------------------------------------------------
+   ACTIVE PATH
+------------------------------------------------------------ */
+#sidebarMenu .line.active {
+  color: var(--gold);
 }
 
-#sidebarMenu .country .label {
-  font-size: 0.82rem;
-  font-weight: 500;
+#sidebarMenu .line.active .count {
+  color: var(--gold);
 }
 
-#sidebarMenu .state .label {
-  font-size: 0.78rem;
-}
-
-#sidebarMenu .city .label {
-  font-size: 0.76rem;
-}
-
-/* =========================
-   NESTING — FLAT (NO INDENT)
-   ========================= */
+/* ------------------------------------------------------------
+   NESTING — VERTICAL ONLY (NO INDENT)
+------------------------------------------------------------ */
 #sidebarMenu .nested {
   display: none;
 }
@@ -84,102 +83,3 @@
 #sidebarMenu .nested.show {
   display: block;
 }
-
-/* =========================
-   ACTIVE PATH — GOLD TEXT ONLY
-   ========================= */
-#sidebarMenu .line.active {
-  color: var(--gold);
-}
-
-#sidebarMenu .line.active .pill {
-  color: var(--gold);
-}
-
-#sidebarMenu .line.active .arrow {
-  color: var(--gold);
-}
-
-/* ============================================================
-   SIDEBAR OVERRIDE (FORCE FLAT LIST) — PUT LAST IN sidebar.css
-   Kills legacy .nav/.menu styles that create gold brackets/cards
-   ============================================================ */
-
-/* 1) Kill any legacy list/card look */
-#sidebarMenu,
-#sidebarMenu * {
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-/* 2) Kill common legacy pseudo markers (gold brackets) */
-#sidebarMenu::before,
-#sidebarMenu::after,
-#sidebarMenu *::before,
-#sidebarMenu *::after {
-  content: none !important;
-}
-
-/* 3) Force flat rows with separators */
-#sidebarMenu .line {
-  display: grid !important;
-  grid-template-columns: 14px auto 1fr auto !important;
-  align-items: center !important;
-  gap: 8px !important;
-  padding: 8px 10px !important;
-
-  color: #fff !important;
-  border-bottom: 1px solid rgba(255,255,255,0.12) !important;
-}
-
-/* 4) Chevron far left */
-#sidebarMenu .arrow {
-  font-size: 0.7rem !important;
-  opacity: 0.7 !important;
-  color: #fff !important;
-  transform: none !important;
-}
-
-/* rotate when open */
-#sidebarMenu .line.open .arrow {
-  transform: rotate(90deg) !important;
-  opacity: 0.9 !important;
-}
-
-/* 5) Label + count */
-#sidebarMenu .label {
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  color: #fff !important;
-}
-
-#sidebarMenu .pill {
-  color: rgba(255,255,255,0.65) !important;
-  font-size: 0.75rem !important;
-}
-
-/* 6) Smaller countries (and below) */
-#sidebarMenu .continent .label { font-size: 0.90rem !important; font-weight: 600 !important; }
-#sidebarMenu .country   .label { font-size: 0.80rem !important; font-weight: 500 !important; }
-#sidebarMenu .state     .label { font-size: 0.76rem !important; font-weight: 400 !important; }
-#sidebarMenu .city      .label { font-size: 0.74rem !important; font-weight: 400 !important; }
-
-/* 7) ACTIVE PATH = gold text only */
-#sidebarMenu .line.active,
-#sidebarMenu .line.active .label,
-#sidebarMenu .line.active .arrow,
-#sidebarMenu .line.active .pill {
-  color: var(--gold) !important;
-}
-
-/* 8) No indent ever (flat stacking) */
-#sidebarMenu .nested {
-  margin-left: 0 !important;
-  padding-left: 0 !important;
-  border-left: 0 !important;
-}
-
-#sidebarMenu .nested { display: none !important; }
-#sidebarMenu .nested.show { display: block !important; }
