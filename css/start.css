@@ -201,40 +201,42 @@ body {
 }
 
 /* ============================================================
-   SIDEBAR AD — COMPACT MODE (STEP 1)
+   SIDEBAR AD — TRUE COMPACT MODE
    ============================================================ */
 
-/* Tightare block */
 .sidebar-ad {
-  padding: 0.6rem 0 0.7rem;
+  padding: 0.35rem 0 0.45rem;   /* ⬅️ detta är nyckeln */
   text-align: center;
+  line-height: 1.05;
 }
 
-/* Mindre bild (≈50%) */
+/* Bild */
 .sidebar-ad .ad-img {
-  width: 68%;
-  max-width: 120px;
-  margin-bottom: 0.45rem;
-  border-radius: 10px;
+  width: 65%;
+  max-width: 110px;
+  margin: 0 auto 0.25rem;
+  border-radius: 8px;
 }
 
-/* Mindre rubrik */
+/* Titel */
 .sidebar-ad .ad-title {
-  font-size: 0.66rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  line-height: 1.15;
-  margin-bottom: 2px;
+  line-height: 1.05;
+  margin: 0 0 1px 0;           /* ⬅️ ingen vertikal luft */
 }
 
-/* Mindre kodrad */
+/* Kodrad */
 .sidebar-ad .ad-code {
-  font-size: 0.64rem;
-  line-height: 1.1;
+  font-size: 0.60rem;
+  line-height: 1.05;
+  margin: 0;
 }
+
 
 /* Divider närmare för mer plats nedåt */
 .sidebar-divider {
-  margin: 10px 0;
+  margin: 8px 0;
 }
 
 
