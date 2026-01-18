@@ -1,109 +1,113 @@
 /* ============================================================
-   SIDEBAR.CSS — WCL Hierarchy (CANONICAL, ISOLATED)
-   Controls ONLY #sidebarMenu and children
+   SIDEBAR — HIERARCHY (GRID, CANONICAL)
+   Scope: #sidebarMenu ONLY
    ============================================================ */
 
 #sidebarMenu {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  font-size: 0.9rem;
-  overflow-y: auto;
+  font-size: 0.88rem;
 }
 
-/* --------------------------------------------
-   BASE LINE
--------------------------------------------- */
+/* ============================================================
+   BASE LINE (ALL LEVELS)
+   ============================================================ */
 #sidebarMenu .line {
-  display: flex;
+  display: grid;
+  grid-template-columns: 18px 20px auto 1fr auto;
   align-items: center;
-  gap: 8px;
-  padding: 8px 6px;
+  column-gap: 8px;
+
+  padding: 6px 6px;
+  color: #f0f0f0;
   cursor: pointer;
-  color: #f2f2f2;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-/* --------------------------------------------
-   ARROW (LEFTMOST)
--------------------------------------------- */
+/* ============================================================
+   ARROW (COLUMN 1)
+   ============================================================ */
 #sidebarMenu .arrow {
-  width: 14px;
-  flex-shrink: 0;
+  font-size: 0.9rem;
+  color: #bbb;
   text-align: center;
-  font-size: 0.75rem;
-  opacity: 0.8;
 }
 
-#sidebarMenu .line.open > .arrow {
+#sidebarMenu .line.open .arrow {
   transform: rotate(90deg);
 }
 
-/* --------------------------------------------
-   LABEL + FLAG WRAP
--------------------------------------------- */
-#sidebarMenu .label-wrap {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex: 1;
-  min-width: 0;
+/* ============================================================
+   FLAG (COLUMN 2 — COUNTRY ONLY)
+   ============================================================ */
+#sidebarMenu .flag {
+  width: 16px;
+  height: 12px;
+  object-fit: cover;
+  border-radius: 2px;
 }
 
+/* hide flag slot for non-country rows */
+#sidebarMenu .line:not(.country) .flag {
+  display: none;
+}
+
+/* ============================================================
+   LABEL (COLUMN 3)
+   ============================================================ */
 #sidebarMenu .label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* --------------------------------------------
-   FLAG (COUNTRY ONLY)
--------------------------------------------- */
-#sidebarMenu .flag {
-  width: 16px;
-  height: 12px;
-  object-fit: cover;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
-/* --------------------------------------------
-   COUNT (RIGHT COLUMN — LOCKED)
--------------------------------------------- */
+/* ============================================================
+   COUNT (COLUMN 5 — LOCKED RIGHT)
+   ============================================================ */
 #sidebarMenu .pill {
-  margin-left: auto;
   font-size: 0.8rem;
-  color: #bdbdbd;
-  flex-shrink: 0;
+  color: #aaa;
 }
 
-/* --------------------------------------------
-   HIERARCHY SIZES
--------------------------------------------- */
-#sidebarMenu .continent { font-size: 1rem; font-weight: 600; }
-#sidebarMenu .country   { font-size: 0.9rem; }
-#sidebarMenu .state     { font-size: 0.85rem; color: #ddd; }
-#sidebarMenu .city      { font-size: 0.8rem;  color: #bbb; }
+/* ============================================================
+   ACTIVE PATH (TEXT ONLY)
+   ============================================================ */
+#sidebarMenu .line.active .label,
+#sidebarMenu .line.active .pill {
+  color: var(--gold);
+}
 
-/* --------------------------------------------
-   CHILDREN (NO INDENT DRIFT)
--------------------------------------------- */
+/* ============================================================
+   LEVEL SIZING (COMPACT)
+   ============================================================ */
+#sidebarMenu .continent .label {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+#sidebarMenu .country .label {
+  font-size: 0.88rem;
+}
+
+#sidebarMenu .state .label {
+  font-size: 0.82rem;
+  color: #ddd;
+}
+
+#sidebarMenu .city .label {
+  font-size: 0.78rem;
+  color: #bbb;
+}
+
+/* ============================================================
+   CHILDREN (NO INDENT — STACKED)
+   ============================================================ */
 #sidebarMenu .children {
   display: none;
-  flex-direction: column;
 }
 
 #sidebarMenu .children.show {
-  display: flex;
-}
-
-/* --------------------------------------------
-   ACTIVE PATH (TEXT ONLY)
--------------------------------------------- */
-#sidebarMenu .line.active {
-  color: var(--gold);
-}
-
-#sidebarMenu .line.active .pill {
-  color: var(--gold);
+  display: block;
 }
