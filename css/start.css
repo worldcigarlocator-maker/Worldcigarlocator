@@ -126,17 +126,17 @@ body {
 .online-box {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 50px;
-  border: 1px solid #888;    /* silver line */
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #777;    /* silver line */
   background: #0e0e0e;
   color: #ccc;               /* silver text */
-  font-size: 0.82rem;
+  font-size: 0.68rem;
 }
 
 .online-box .dot {
-  width: 9px;
+  width: 6px;
   height: 9px;
   border-radius: 50%;
   background: var(--gold);
