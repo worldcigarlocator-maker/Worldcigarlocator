@@ -1,309 +1,109 @@
 /* ============================================================
-   SIDEBAR — CLEAN CANONICAL (V2)
-   NO LEGACY — NO PSEUDO — NO GOLD BARS
+   SIDEBAR.CSS — WCL Hierarchy (CANONICAL, ISOLATED)
+   Controls ONLY #sidebarMenu and children
    ============================================================ */
-
-/* =========================
-   ROOT
-   ========================= */
-.sidebar {
-  background: #000;
-  color: #fff;
-}
 
 #sidebarMenu {
   display: flex;
   flex-direction: column;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
-  user-select: none;
+  gap: 2px;
+  font-size: 0.9rem;
+  overflow-y: auto;
 }
 
-/* =========================
-   GENERIC ROW
-   ========================= */
+/* --------------------------------------------
+   BASE LINE
+-------------------------------------------- */
 #sidebarMenu .line {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-
-  gap: 0.6rem;
-  padding: 10px 12px;
-
-  color: #e6e6e6;
-  cursor: pointer;
-
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-/* Hover */
-#sidebarMenu .line:hover {
-  background: rgba(255,255,255,0.04);
-}
-
-/* =========================
-   LEFT GROUP (chevron + flag + label)
-   ========================= */
-#sidebarMenu .left {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 8px;
+  padding: 8px 6px;
+  cursor: pointer;
+  color: #f2f2f2;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* --------------------------------------------
+   ARROW (LEFTMOST)
+-------------------------------------------- */
+#sidebarMenu .arrow {
+  width: 14px;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+#sidebarMenu .line.open > .arrow {
+  transform: rotate(90deg);
+}
+
+/* --------------------------------------------
+   LABEL + FLAG WRAP
+-------------------------------------------- */
+#sidebarMenu .label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
   min-width: 0;
 }
 
-/* Chevron */
-#sidebarMenu .arrow {
-  width: 12px;
-  font-size: 0.7rem;
-  opacity: 0.7;
-  flex-shrink: 0;
-}
-
-/* Rotate on open */
-#sidebarMenu .line.open .arrow {
-  transform: rotate(90deg);
-  opacity: 1;
-}
-
-/* Flag */
-#sidebarMenu .flag {
-  width: 18px;
-  height: 12px;
-  object-fit: cover;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
-/* Label */
 #sidebarMenu .label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* =========================
-   COUNT (RIGHT COLUMN)
-   ========================= */
+/* --------------------------------------------
+   FLAG (COUNTRY ONLY)
+-------------------------------------------- */
+#sidebarMenu .flag {
+  width: 16px;
+  height: 12px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------
+   COUNT (RIGHT COLUMN — LOCKED)
+-------------------------------------------- */
 #sidebarMenu .pill {
-  min-width: 42px;
-  text-align: right;
-
+  margin-left: auto;
   font-size: 0.8rem;
-  color: #aaa;
+  color: #bdbdbd;
+  flex-shrink: 0;
 }
 
-/* =========================
-   LEVEL SIZING (SUBTLE)
-   ========================= */
-#sidebarMenu .continent .label {
-  font-size: 0.95rem;
-  font-weight: 600;
+/* --------------------------------------------
+   HIERARCHY SIZES
+-------------------------------------------- */
+#sidebarMenu .continent { font-size: 1rem; font-weight: 600; }
+#sidebarMenu .country   { font-size: 0.9rem; }
+#sidebarMenu .state     { font-size: 0.85rem; color: #ddd; }
+#sidebarMenu .city      { font-size: 0.8rem;  color: #bbb; }
+
+/* --------------------------------------------
+   CHILDREN (NO INDENT DRIFT)
+-------------------------------------------- */
+#sidebarMenu .children {
+  display: none;
+  flex-direction: column;
 }
 
-#sidebarMenu .country .label {
-  font-size: 0.85rem;
+#sidebarMenu .children.show {
+  display: flex;
 }
 
-#sidebarMenu .state .label {
-  font-size: 0.82rem;
-}
-
-#sidebarMenu .city .label {
-  font-size: 0.8rem;
-}
-
-/* =========================
-   ACTIVE STATE (TEXT ONLY)
-   ========================= */
+/* --------------------------------------------
+   ACTIVE PATH (TEXT ONLY)
+-------------------------------------------- */
 #sidebarMenu .line.active {
   color: var(--gold);
 }
 
 #sidebarMenu .line.active .pill {
   color: var(--gold);
-}
-
-#sidebarMenu .line.active .arrow {
-  opacity: 1;
-}
-
-/* =========================
-   NESTED CONTAINERS
-   ========================= */
-#sidebarMenu .nested {
-  display: none;
-}
-
-#sidebarMenu .nested.show {
-  display: block;
-}
-
-/* No indentation creep */
-#sidebarMenu .nested .line {
-  padding-left: 12px;
-}
-
-/* =========================
-   SCROLLBAR
-   ========================= */
-#sidebarMenu {
-  overflow-y: auto;
-}
-
-#sidebarMenu::-webkit-scrollbar {
-  width: 6px;
-}
-
-#sidebarMenu::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.18);
-  border-radius: 6px;
-}
-
-/* ============================================
-   REMOVE GOLD LEFT ACCENT (CANONICAL)
-   ============================================ */
-
-/* Remove any left border / accent */
-#sidebarMenu .line {
-  border-left: none !important;
-}
-
-/* Remove pseudo-element accents */
-#sidebarMenu .line::before,
-#sidebarMenu .line::after {
-  content: none !important;
-  display: none !important;
-}
-
-/* Remove background glow used as accent */
-#sidebarMenu .line,
-#sidebarMenu .line.active,
-#sidebarMenu .line.open {
-  background: none !important;
-}
-
-/* ============================================================
-   SIDEBAR — AD BOX (COMPACT MODE)
-   ============================================================ */
-
-.sidebar-ad {
-  padding: 0.6rem 0.6rem 0.7rem;
-  margin-bottom: 0.6rem;
-  text-align: center;
-}
-
-/* Bilden */
-.sidebar-ad .ad-img {
-  width: 100%;
-  height: 110px;           /* ⬅️ var tidigare mycket större */
-  object-fit: cover;
-  border-radius: 10px;
-  margin-bottom: 0.4rem;
-}
-
-/* Titel */
-.sidebar-ad .ad-title {
-  font-size: 0.85rem;      /* ⬅️ mindre text */
-  line-height: 1.2;
-  margin: 0.2rem 0 0.1rem;
-  font-weight: 600;
-}
-
-/* Kodrad */
-.sidebar-ad .ad-code {
-  font-size: 0.75rem;
-  margin: 0;
-  opacity: 0.9;
-}
-/* ============================================================
-   SIDEBAR HIERARCHY — COLUMN MODEL (CANONICAL)
-   ============================================================ */
-
-/* LINE = 3 kolumner */
-#sidebarMenu .line {
-  display: grid;
-  grid-template-columns: auto 1fr auto; /* left | spacer | count */
-  align-items: center;
-  column-gap: 10px;
-  padding: 3px 6px;
-  color: #ffffff;
-  background: transparent;
-}
-
-/* LEFT GROUP: arrow + flag + label */
-#sidebarMenu .line .arrow {
-  grid-column: 1;
-  margin-right: 6px;
-  font-size: 0.7rem;
-  opacity: 0.75;
-  transform: rotate(0deg);
-  transition: transform 0.15s ease;
-}
-
-#sidebarMenu .line.open .arrow {
-  transform: rotate(90deg);
-}
-
-/* flag */
-#sidebarMenu .line .flag {
-  width: 14px;
-  height: 10px;
-  margin-right: 6px;
-}
-
-/* label */
-#sidebarMenu .line .label {
-  font-size: 0.70rem;   /* COUNTRIES smaller */
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* continent slightly larger */
-#sidebarMenu .continent .label {
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-
-/* city slightly smaller */
-#sidebarMenu .city .label {
-  font-size: 0.66rem;
-  font-weight: 500;
-}
-
-/* COUNT — always far right */
-#sidebarMenu .line .pill {
-  grid-column: 3;
-  font-size: 0.68rem;
-  color: #aaa;
-  margin-left: auto;
-}
-
-/* no indentation creep */
-#sidebarMenu .nested {
-  margin-left: 0 !important;
-  padding-left: 0 !important;
-  border-left: none !important;
-}
-
-/* divider line between ALL rows */
-#sidebarMenu .line {
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-/* ACTIVE PATH — gold text only */
-#sidebarMenu .line.active .label,
-#sidebarMenu .line.active .pill {
-  color: var(--gold);
-}
-
-/* hover = text only */
-#sidebarMenu .line:hover .label {
-  color: #fff;
-}
-
-/* Ta bort all extra luft runt */
-.sidebar-ad p {
-  margin: 0;
 }
