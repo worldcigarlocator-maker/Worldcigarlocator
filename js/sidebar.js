@@ -1,47 +1,25 @@
 // ============================================================
-// SIDEBAR.JS — WCL Canonical Hierarchy Navigation (V2)
-// - 2-column grid rows (left: icon/flag/label, right: count)
-// - NO indentation at deeper levels (vertical-only hierarchy)
-// - Continents OPEN by default (but collapsible)
-// - Active chain: continent + country + state + city all gold
-// - Backend RPC is single source of truth
+// SIDEBAR.JS — WCL Hierarchy (CANONICAL, STRUCTURE-FIRST)
 // ============================================================
-
-console.log("🚨 sidebar.js loaded (CANONICAL V2)");
 
 import { setLocationFilter, runSearch } from "./cards.js";
 
-const dom  = (sel) => document.querySelector(sel);
-const menu = dom("#sidebarMenu");
+const menu = document.querySelector("#sidebarMenu");
 
-let LAST_LOCATION = { continent: null, country: null, state: null, city: null };
+/* ============================================================
+   INTERNAL STATE
+   ============================================================ */
+let ACTIVE_PATH = {
+  continent: null,
+  country: null,
+  state: null,
+  city: null,
+};
 
-function sameLocation(a, b) {
-  return a.continent === b.continent &&
-         a.country   === b.country &&
-         a.state     === b.state &&
-         a.city      === b.city;
-}
-
-function applyLocation(next) {
-  const normalized = {
-    continent: next.continent ?? null,
-    country:   next.country   ?? null,
-    state:     next.state     ?? null,
-    city:      next.city      ?? null,
-  };
-
-  if (sameLocation(LAST_LOCATION, normalized)) return;
-
-  LAST_LOCATION = normalized;
-  setLocationFilter(normalized);
-  runSearch();
-}
-
-// ------------------------------------------------------------
-// Fetch ALL sidebar rows (bypass 1000 cap)
-// ------------------------------------------------------------
-async function fetchAllSidebarRows(supabase) {
+/* ============================================================
+   FETCH — ALL ROWS (NO 1000 CAP)
+   ============================================================ */
+async function fetchAllRows(supabase) {
   const PAGE = 1000;
   let from = 0;
   let all = [];
@@ -52,9 +30,10 @@ async function fetchAllSidebarRows(supabase) {
       .range(from, from + PAGE - 1);
 
     if (error) throw error;
+    if (!data || data.length === 0) break;
 
-    all = all.concat(data || []);
-    if (!data || data.length < PAGE) break;
+    all.push(...data);
+    if (data.length < PAGE) break;
 
     from += PAGE;
   }
@@ -62,278 +41,192 @@ async function fetchAllSidebarRows(supabase) {
   return all;
 }
 
-// ------------------------------------------------------------
-// Build tree (continent -> country -> state -> city)
-// and keep iso2 per country if available from rows
-// ------------------------------------------------------------
+/* ============================================================
+   BUILD TREE
+   ============================================================ */
 function buildTree(rows) {
   const tree = {};
 
-  for (const r of rows) {
-    const continent = r.continent ?? "Unknown";
-    const country   = r.country   ?? "Unknown";
-    const state     = r.state     ?? "Unknown";
-    const city      = r.city      ?? "Unknown";
+  rows.forEach(r => {
+    const continent = r.continent;
+    const country   = r.country;
+    const state     = r.state;
+    const city      = r.city;
     const count     = Number(r.count || 0);
 
-    // Optional: if your RPC returns iso2, use it. Otherwise we just render without flag.
-    const iso2 = (r.country_iso2 || r.iso2 || null);
+    // ❌ Drop Unknown completely
+    if (
+      !continent || continent === "Unknown" ||
+      !country   || country   === "Unknown"
+    ) return;
 
-    if (!tree[continent]) tree[continent] = { count: 0, countries: {} };
+    tree[continent] ??= { count: 0, countries: {} };
     tree[continent].count += count;
 
-    if (!tree[continent].countries[country]) {
-      tree[continent].countries[country] = { count: 0, iso2, states: {} };
-    }
+    tree[continent].countries[country] ??= { count: 0, states: {} };
     tree[continent].countries[country].count += count;
 
-    // Keep first non-null iso2
-    if (!tree[continent].countries[country].iso2 && iso2) {
-      tree[continent].countries[country].iso2 = iso2;
-    }
+    if (state && state !== "Unknown") {
+      tree[continent].countries[country].states[state] ??= {
+        count: 0,
+        cities: {}
+      };
+      tree[continent].countries[country].states[state].count += count;
 
-    if (!tree[continent].countries[country].states[state]) {
-      tree[continent].countries[country].states[state] = { count: 0, cities: {} };
+      if (city && city !== "Unknown") {
+        tree[continent].countries[country].states[state].cities[city] =
+          (tree[continent].countries[country].states[state].cities[city] || 0) + count;
+      }
     }
-    tree[continent].countries[country].states[state].count += count;
-
-    tree[continent].countries[country].states[state].cities[city] =
-      (tree[continent].countries[country].states[state].cities[city] || 0) + count;
-  }
+  });
 
   return tree;
 }
 
-// ------------------------------------------------------------
-// Render helpers
-// ------------------------------------------------------------
-function flagUrlFromIso2(iso2) {
-  if (!iso2) return null;
-  return `assets/flags/${String(iso2).toLowerCase()}.svg`;
+/* ============================================================
+   APPLY LOCATION (SINGLE SOURCE)
+   ============================================================ */
+function applyLocation(path) {
+  ACTIVE_PATH = { ...ACTIVE_PATH, ...path };
+  setLocationFilter(ACTIVE_PATH);
+  runSearch();
+  updateActiveClasses();
 }
 
-function createRow({ level, id, parentId, label, count, hasChildren, iso2 }) {
-  const row = document.createElement("div");
-  row.className = `line ${level}`;
-  row.dataset.id = id;
-  if (parentId) row.dataset.parent = parentId;
-
-  const left = document.createElement("div");
-  left.className = "cell-left";
-
-  const icon = document.createElement("span");
-  icon.className = "icon";
-
-  // icon choice
-  if (level === "city") icon.textContent = "•";
-  else icon.textContent = hasChildren ? "▸" : "•";
-
-  left.appendChild(icon);
-
-  // country flag
-  if (level === "country") {
-    const url = flagUrlFromIso2(iso2);
-    if (url) {
-      const img = document.createElement("img");
-      img.className = "flag";
-      img.src = url;
-      img.alt = "";
-      img.onerror = () => { img.remove(); };
-      left.appendChild(img);
-    }
-  }
-
-  const name = document.createElement("span");
-  name.className = "label";
-  name.textContent = label;
-
-  left.appendChild(name);
-
-  const right = document.createElement("div");
-  right.className = "count";
-  right.textContent = String(count);
-
-  row.appendChild(left);
-  row.appendChild(right);
-
-  return row;
-}
-
-function createChildrenContainer() {
-  const box = document.createElement("div");
-  box.className = "children";
-  return box;
-}
-
-// ------------------------------------------------------------
-// Active chain (gold up the parents)
-// ------------------------------------------------------------
-function clearActive(root) {
-  root.querySelectorAll(".line.active").forEach((el) => el.classList.remove("active"));
-}
-
-function setActiveChain(root, lineEl) {
-  clearActive(root);
-
-  let cur = lineEl;
-  while (cur) {
-    cur.classList.add("active");
-    const pid = cur.dataset.parent;
-    cur = pid ? root.querySelector(`.line[data-id="${CSS.escape(pid)}"]`) : null;
-  }
-}
-
-// ------------------------------------------------------------
-// Toggle open/close (ONLY for elements with children container)
-// Continents OPEN by default after render
-// ------------------------------------------------------------
-function setOpen(lineEl, childrenEl, isOpen) {
-  lineEl.classList.toggle("open", isOpen);
-
-  // chevron arrow state
-  const icon = lineEl.querySelector(".icon");
-  if (icon && !lineEl.classList.contains("city")) {
-    icon.textContent = isOpen ? "▾" : "▸";
-  }
-
-  childrenEl.classList.toggle("show", isOpen);
-}
-
-// ------------------------------------------------------------
-// Build sidebar (public)
-// ------------------------------------------------------------
+/* ============================================================
+   RENDER
+   ============================================================ */
 export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
 
   menu.innerHTML = "Loading…";
 
-  let rows = [];
+  let rows;
   try {
-    rows = await fetchAllSidebarRows(supabase);
+    rows = await fetchAllRows(supabase);
   } catch (e) {
-    console.error("❌ Sidebar RPC error:", e);
-    menu.innerHTML = "Failed to load sidebar.";
+    console.error("Sidebar RPC failed", e);
+    menu.innerHTML = "Failed to load";
     return;
   }
 
   const tree = buildTree(rows);
-
-  // Clear
   menu.innerHTML = "";
 
-  // Render continents
-  for (const [continent, cData] of Object.entries(tree)) {
-    const contId = `continent:${continent}`;
+  Object.entries(tree).forEach(([continent, cData]) => {
+    const cont = createNode("continent", continent, cData.count);
+    cont.classList.add("open"); // ✅ open by default
 
-    const contRow = createRow({
-      level: "continent",
-      id: contId,
-      parentId: null,
-      label: continent,
-      count: cData.count,
-      hasChildren: true,
-      iso2: null
+    const contWrap = document.createElement("div");
+    contWrap.className = "node";
+
+    const contChildren = document.createElement("div");
+    contChildren.className = "children show";
+
+    cont.onclick = () => applyLocation({
+      continent,
+      country: null,
+      state: null,
+      city: null
     });
 
-    const contChildren = createChildrenContainer();
+    contWrap.append(cont, contChildren);
+    menu.append(contWrap);
 
-    menu.appendChild(contRow);
-    menu.appendChild(contChildren);
+    Object.entries(cData.countries).forEach(([country, coData]) => {
+      const co = createNode("country", country, coData.count);
+      const coChildren = document.createElement("div");
+      coChildren.className = "children";
 
-    // Countries
-    for (const [country, coData] of Object.entries(cData.countries)) {
-      const countryId = `country:${continent}:${country}`;
-
-      const countryRow = createRow({
-        level: "country",
-        id: countryId,
-        parentId: contId,
-        label: country,
-        count: coData.count,
-        hasChildren: true,
-        iso2: coData.iso2
-      });
-
-      const countryChildren = createChildrenContainer();
-
-      contChildren.appendChild(countryRow);
-      contChildren.appendChild(countryChildren);
-
-      // States
-      for (const [state, sData] of Object.entries(coData.states)) {
-        const stateId = `state:${continent}:${country}:${state}`;
-
-        const stateRow = createRow({
-          level: "state",
-          id: stateId,
-          parentId: countryId,
-          label: state,
-          count: sData.count,
-          hasChildren: true,
-          iso2: null
-        });
-
-        const stateChildren = createChildrenContainer();
-
-        countryChildren.appendChild(stateRow);
-        countryChildren.appendChild(stateChildren);
-
-        // Cities
-        for (const [city, cityCount] of Object.entries(sData.cities)) {
-          const cityId = `city:${continent}:${country}:${state}:${city}`;
-
-          const cityRow = createRow({
-            level: "city",
-            id: cityId,
-            parentId: stateId,
-            label: city,
-            count: cityCount,
-            hasChildren: false,
-            iso2: null
-          });
-
-          stateChildren.appendChild(cityRow);
-
-          cityRow.addEventListener("click", (e) => {
-            e.stopPropagation();
-            setActiveChain(menu, cityRow);
-            applyLocation({ continent, country, state, city });
-          });
-        }
-
-        stateRow.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const isOpen = !stateRow.classList.contains("open");
-          setOpen(stateRow, stateChildren, isOpen);
-
-          setActiveChain(menu, stateRow);
-          applyLocation({ continent, country, state, city: null });
-        });
-      }
-
-      countryRow.addEventListener("click", (e) => {
+      co.querySelector(".arrow").onclick = e => {
         e.stopPropagation();
-        const isOpen = !countryRow.classList.contains("open");
-        setOpen(countryRow, countryChildren, isOpen);
+        toggle(co, coChildren);
+      };
 
-        setActiveChain(menu, countryRow);
-        applyLocation({ continent, country, state: null, city: null });
+      co.onclick = () => applyLocation({
+        continent,
+        country,
+        state: null,
+        city: null
       });
-    }
 
-    contRow.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const isOpen = !contRow.classList.contains("open");
-      setOpen(contRow, contChildren, isOpen);
+      contChildren.append(co, coChildren);
 
-      setActiveChain(menu, contRow);
-      applyLocation({ continent, country: null, state: null, city: null });
+      Object.entries(coData.states).forEach(([state, sData]) => {
+        const st = createNode("state", state, sData.count);
+        const stChildren = document.createElement("div");
+        stChildren.className = "children";
+
+        st.querySelector(".arrow").onclick = e => {
+          e.stopPropagation();
+          toggle(st, stChildren);
+        };
+
+        st.onclick = () => applyLocation({
+          continent,
+          country,
+          state,
+          city: null
+        });
+
+        coChildren.append(st, stChildren);
+
+        Object.entries(sData.cities).forEach(([city, count]) => {
+          const ct = createNode("city", city, count);
+          ct.onclick = () => applyLocation({
+            continent,
+            country,
+            state,
+            city
+          });
+          stChildren.append(ct);
+        });
+      });
     });
+  });
 
-    // ✅ Continents OPEN by default
-    setOpen(contRow, contChildren, true);
-  }
+  updateActiveClasses();
+}
 
-  // Default: no active selection initially (keeps hero behavior untouched)
-  // If you WANT a default active continent, say so.
+/* ============================================================
+   NODE FACTORY
+   ============================================================ */
+function createNode(type, label, count) {
+  const el = document.createElement("div");
+  el.className = `line ${type}`;
+  el.dataset.label = label;
+
+  el.innerHTML = `
+    <span class="arrow">${type === "city" ? "•" : "▸"}</span>
+    <span class="label">${label}</span>
+    <span class="pill">${count}</span>
+  `;
+
+  return el;
+}
+
+/* ============================================================
+   TOGGLE
+   ============================================================ */
+function toggle(line, children) {
+  const open = line.classList.toggle("open");
+  children.classList.toggle("show", open);
+}
+
+/* ============================================================
+   ACTIVE PATH HIGHLIGHT
+   ============================================================ */
+function updateActiveClasses() {
+  document
+    .querySelectorAll("#sidebarMenu .line")
+    .forEach(el => {
+      const label = el.dataset.label;
+      el.classList.toggle(
+        "active",
+        label === ACTIVE_PATH.continent ||
+        label === ACTIVE_PATH.country ||
+        label === ACTIVE_PATH.state ||
+        label === ACTIVE_PATH.city
+      );
+    });
 }
