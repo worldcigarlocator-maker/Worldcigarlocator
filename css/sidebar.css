@@ -215,6 +215,93 @@
   margin: 0;
   opacity: 0.9;
 }
+/* ============================================================
+   SIDEBAR HIERARCHY — COLUMN MODEL (CANONICAL)
+   ============================================================ */
+
+/* LINE = 3 kolumner */
+#sidebarMenu .line {
+  display: grid;
+  grid-template-columns: auto 1fr auto; /* left | spacer | count */
+  align-items: center;
+  column-gap: 10px;
+  padding: 3px 6px;
+  color: #ffffff;
+  background: transparent;
+}
+
+/* LEFT GROUP: arrow + flag + label */
+#sidebarMenu .line .arrow {
+  grid-column: 1;
+  margin-right: 6px;
+  font-size: 0.7rem;
+  opacity: 0.75;
+  transform: rotate(0deg);
+  transition: transform 0.15s ease;
+}
+
+#sidebarMenu .line.open .arrow {
+  transform: rotate(90deg);
+}
+
+/* flag */
+#sidebarMenu .line .flag {
+  width: 14px;
+  height: 10px;
+  margin-right: 6px;
+}
+
+/* label */
+#sidebarMenu .line .label {
+  font-size: 0.70rem;   /* COUNTRIES smaller */
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* continent slightly larger */
+#sidebarMenu .continent .label {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* city slightly smaller */
+#sidebarMenu .city .label {
+  font-size: 0.66rem;
+  font-weight: 500;
+}
+
+/* COUNT — always far right */
+#sidebarMenu .line .pill {
+  grid-column: 3;
+  font-size: 0.68rem;
+  color: #aaa;
+  margin-left: auto;
+}
+
+/* no indentation creep */
+#sidebarMenu .nested {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  border-left: none !important;
+}
+
+/* divider line between ALL rows */
+#sidebarMenu .line {
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ACTIVE PATH — gold text only */
+#sidebarMenu .line.active .label,
+#sidebarMenu .line.active .pill {
+  color: var(--gold);
+}
+
+/* hover = text only */
+#sidebarMenu .line:hover .label {
+  color: #fff;
+}
 
 /* Ta bort all extra luft runt */
 .sidebar-ad p {
