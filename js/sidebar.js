@@ -1,5 +1,6 @@
 // ============================================================
-// SIDEBAR.JS — WCL Sidebar Hierarchy (CANONICAL FINAL)
+// SIDEBAR.JS — WCL Sidebar (CANONICAL v1)
+// DOM-first · Count-safe · Backend-neutral
 // ============================================================
 
 import { setLocationFilter, runSearch } from "./cards.js";
@@ -7,7 +8,7 @@ import { setLocationFilter, runSearch } from "./cards.js";
 const menu = document.querySelector("#sidebarMenu");
 
 /* ============================================================
-   STATE
+   ACTIVE PATH (frontend only)
    ============================================================ */
 let ACTIVE_PATH = {
   continent: null,
@@ -17,73 +18,14 @@ let ACTIVE_PATH = {
 };
 
 /* ============================================================
-   FETCH ALL ROWS (NO 1000 CAP)
+   FETCH — READ ONLY
    ============================================================ */
-async function fetchAllRows(supabase) {
-  const PAGE = 1000;
-  let from = 0;
-  let all = [];
+async function fetchSidebarData(supabase) {
+  const { data, error } = await supabase
+    .rpc("sidebar_hierarchy_v1"); // 🔒 canonical read
 
-  while (true) {
-    const { data, error } = await supabase
-      .rpc("sidebar_counts_frontend_v1")
-      .range(from, from + PAGE - 1);
-
-    if (error) throw error;
-    if (!data || data.length === 0) break;
-
-    all.push(...data);
-    if (data.length < PAGE) break;
-    from += PAGE;
-  }
-
-  return all;
-}
-
-/* ============================================================
-   BUILD TREE (COUNT LOGIC UNCHANGED)
-   ============================================================ */
-function buildTree(rows) {
-  const tree = {};
-
-  rows.forEach(r => {
-    const {
-      continent,
-      country,
-      country_iso2,
-      state,
-      city,
-      count
-    } = r;
-
-    if (!continent || !country) return;
-
-    tree[continent] ??= { count: 0, countries: {} };
-    tree[continent].count += Number(count);
-
-    tree[continent].countries[country] ??= {
-      count: 0,
-      iso2: country_iso2 || null,
-      states: {}
-    };
-    tree[continent].countries[country].count += Number(count);
-
-    if (state) {
-      tree[continent].countries[country].states[state] ??= {
-        count: 0,
-        cities: {}
-      };
-      tree[continent].countries[country].states[state].count += Number(count);
-
-      if (city) {
-        tree[continent].countries[country].states[state].cities[city] =
-          (tree[continent].countries[country].states[state].cities[city] || 0) +
-          Number(count);
-      }
-    }
-  });
-
-  return tree;
+  if (error) throw error;
+  return data;
 }
 
 /* ============================================================
@@ -106,97 +48,97 @@ export async function buildFrontendSidebar(supabase) {
 
   let rows;
   try {
-    rows = await fetchAllRows(supabase);
+    rows = await fetchSidebarData(supabase);
   } catch (e) {
     console.error("Sidebar RPC failed", e);
     menu.innerHTML = "Failed to load";
     return;
   }
 
-  const tree = buildTree(rows);
   menu.innerHTML = "";
 
-  Object.entries(tree).forEach(([continent, cData]) => {
-    const cont = createLine({
-      type: "continent",
-      label: continent,
-      count: cData.count
-    });
+  let lastContinent = null;
+  let lastCountry = null;
+  let lastState = null;
 
-    const contChildren = createChildren(true);
-    cont.classList.add("open");
+  let continentChildren, countryChildren, stateChildren;
 
-    cont.addEventListener("click", () =>
-      applyLocation({ continent, country: null, state: null, city: null })
-    );
+  rows.forEach(r => {
+    const { continent, country, state, city, count, country_iso2 } = r;
 
-    menu.append(cont, contChildren);
+    // -------- CONTINENT ----------
+    if (continent !== lastContinent) {
+      const cont = createLine("continent", continent, count);
+      cont.classList.add("open");
 
-    Object.entries(cData.countries).forEach(([country, coData]) => {
-      const co = createLine({
-        type: "country",
-        label: country,
-        count: coData.count,
-        iso2: coData.iso2
-      });
+      continentChildren = createChildren(true);
 
-      const coChildren = createChildren();
+      cont.addEventListener("click", () =>
+        applyLocation({ continent, country: null, state: null, city: null })
+      );
 
-      co.querySelector(".arrow")?.addEventListener("click", e => {
+      menu.append(cont, continentChildren);
+
+      lastContinent = continent;
+      lastCountry = null;
+      lastState = null;
+    }
+
+    // -------- COUNTRY ----------
+    if (country !== lastCountry) {
+      const co = createLine("country", country, count, country_iso2);
+      countryChildren = createChildren();
+
+      co.querySelector(".arrow").addEventListener("click", e => {
         e.stopPropagation();
-        toggle(co, coChildren);
+        toggle(co, countryChildren);
       });
 
       co.addEventListener("click", () =>
         applyLocation({ continent, country, state: null, city: null })
       );
 
-      contChildren.append(co, coChildren);
+      continentChildren.append(co, countryChildren);
 
-      Object.entries(coData.states).forEach(([state, sData]) => {
-        const st = createLine({
-          type: "state",
-          label: state,
-          count: sData.count
-        });
+      lastCountry = country;
+      lastState = null;
+    }
 
-        const stChildren = createChildren();
+    // -------- STATE ----------
+    if (state !== lastState) {
+      const st = createLine("state", state, count);
+      stateChildren = createChildren();
 
-        st.querySelector(".arrow")?.addEventListener("click", e => {
-          e.stopPropagation();
-          toggle(st, stChildren);
-        });
-
-        st.addEventListener("click", () =>
-          applyLocation({ continent, country, state, city: null })
-        );
-
-        coChildren.append(st, stChildren);
-
-        Object.entries(sData.cities).forEach(([city, count]) => {
-          const ct = createLine({
-            type: "city",
-            label: city,
-            count
-          });
-
-          ct.addEventListener("click", () =>
-            applyLocation({ continent, country, state, city })
-          );
-
-          stChildren.append(ct);
-        });
+      st.querySelector(".arrow").addEventListener("click", e => {
+        e.stopPropagation();
+        toggle(st, stateChildren);
       });
-    });
+
+      st.addEventListener("click", () =>
+        applyLocation({ continent, country, state, city: null })
+      );
+
+      countryChildren.append(st, stateChildren);
+
+      lastState = state;
+    }
+
+    // -------- CITY ----------
+    const ct = createLine("city", city, count);
+    ct.addEventListener("click", () =>
+      applyLocation({ continent, country, state, city })
+    );
+
+    stateChildren.append(ct);
   });
 
   updateActiveClasses();
 }
 
 /* ============================================================
-   LINE FACTORY (GRID-COMPATIBLE)
+   LINE FACTORY — DOM 3.3 EXACT
    ============================================================ */
-function createLine({ type, label, count, iso2 = null }) {
+function createLine(type, label, count, iso2 = null) {
   const el = document.createElement("div");
   el.className = `line ${type}`;
   el.dataset.label = label;
@@ -204,7 +146,7 @@ function createLine({ type, label, count, iso2 = null }) {
   const flag =
     type === "country" && iso2
       ? `<img class="flag" src="assets/flags/${iso2.toLowerCase()}.svg"
-              alt="" onerror="this.style.display='none'">`
+              alt="" onerror="this.remove()">`
       : "";
 
   el.innerHTML = `
@@ -219,6 +161,9 @@ function createLine({ type, label, count, iso2 = null }) {
   return el;
 }
 
+/* ============================================================
+   CHILDREN CONTAINER
+   ============================================================ */
 function createChildren(show = false) {
   const el = document.createElement("div");
   el.className = "children" + (show ? " show" : "");
@@ -226,7 +171,7 @@ function createChildren(show = false) {
 }
 
 /* ============================================================
-   TOGGLE
+   TOGGLE (arrow only)
    ============================================================ */
 function toggle(line, children) {
   const open = line.classList.toggle("open");
@@ -234,7 +179,7 @@ function toggle(line, children) {
 }
 
 /* ============================================================
-   ACTIVE PATH
+   ACTIVE PATH HIGHLIGHT
    ============================================================ */
 function updateActiveClasses() {
   document
