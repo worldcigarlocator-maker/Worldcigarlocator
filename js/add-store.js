@@ -86,8 +86,8 @@ async function onPlaceDetails(place, status) {
   "";
 
     const country = getLong("country") || "";
-    const country_iso2 = (getShort("country") || "").toLowerCase();
-    const rawState = getLong("administrative_area_level_1") || "";
+   const country_iso2 = (getShort("country") || "").toUpperCase();
+const rawState = getLong("administrative_area_level_1") || "";
 
     const state = WCL.normalizeUKState(rawState, country, city);
 
