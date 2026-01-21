@@ -216,31 +216,46 @@ function makeExpandableRow(label, items, level) {
     tr.querySelector(".arrow-cell").textContent = "▼";
     expanded = true;
 
-    /* CONTINENT → COUNTRY */
-    if (level === "continent") {
-      const byCountry = groupBy(items, s => s.country || "Unknown");
+   /* =========================
+   CONTINENT → COUNTRY (A–Z)
+   ========================= */
+if (level === "continent") {
+  const byCountry = groupBy(items, s => s.country || "Unknown");
 
-      Object.entries(byCountry)
-        .sort(([a], [b]) => a.localeCompare(b, undefined, { sensitivity: "base" }))
-        .forEach(([country, countryStores]) => {
-          const sub = makeExpandableRow(country, countryStores, "country");
-          subRows.push(sub);
-          tr.parentNode.insertBefore(sub, tr.nextSibling);
-        });
-    }
+  let anchor = tr.nextSibling;
 
-    /* COUNTRY → CITY */
-    else if (level === "country") {
-      const byCity = groupBy(items, s => s.city || "Unknown");
+  Object.entries(byCountry)
+    .sort(([a], [b]) =>
+      a.localeCompare(b, undefined, { sensitivity: "base" })
+    )
+    .forEach(([country, countryStores]) => {
+      const sub = makeExpandableRow(country, countryStores, "country");
+      subRows.push(sub);
+      tr.parentNode.insertBefore(sub, anchor);
+      anchor = sub.nextSibling; // ⬅️ kritisk rad
+    });
+}
 
-      Object.entries(byCity)
-        .sort(([a], [b]) => a.localeCompare(b, undefined, { sensitivity: "base" }))
-        .forEach(([city, cityStores]) => {
-          const sub = makeExpandableRow(city, cityStores, "city");
-          subRows.push(sub);
-          tr.parentNode.insertBefore(sub, tr.nextSibling);
-        });
-    }
+/* =========================
+   COUNTRY → CITY (A–Z)
+   ========================= */
+else if (level === "country") {
+  const byCity = groupBy(items, s => s.city || "Unknown");
+
+  let anchor = tr.nextSibling;
+
+  Object.entries(byCity)
+    .sort(([a], [b]) =>
+      a.localeCompare(b, undefined, { sensitivity: "base" })
+    )
+    .forEach(([city, cityStores]) => {
+      const sub = makeExpandableRow(city, cityStores, "city");
+      subRows.push(sub);
+      tr.parentNode.insertBefore(sub, anchor);
+      anchor = sub.nextSibling; // ⬅️ kritisk rad
+    });
+}
+
 
     /* CITY → STORES */
     else if (level === "city") {
