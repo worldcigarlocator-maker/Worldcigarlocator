@@ -124,6 +124,15 @@ function groupBy(arr, keyFn) {
 }
 
 
+function sortAlpha(arr, keyFn) {
+  return [...arr].sort((a, b) =>
+    safe(keyFn(a)).localeCompare(safe(keyFn(b)), undefined, {
+      sensitivity: "base"
+    })
+  );
+}
+
+
 /* ============================================================
    INLINE LISTVIEW — Expandable Continent → Country → City → Store
    ============================================================ */
@@ -157,12 +166,15 @@ function renderListView(list) {
   tbody.innerHTML = "";
 
   // Grupp efter kontinent
-  const byContinent = groupBy(list, s => s.continent || "Other");
+const byContinent = groupBy(list, s => s.continent || "Other");
 
-  Object.entries(byContinent).forEach(([continent, contStores]) => {
+Object.entries(byContinent)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .forEach(([continent, contStores]) => {
     const row = makeExpandableRow(continent, contStores, "continent");
     tbody.appendChild(row);
   });
+
 }
 
 /* ============================================================
@@ -212,25 +224,31 @@ function makeExpandableRow(label, items, level) {
     if (level === "continent") {
       const byCountry = groupBy(items, (s) => s.country || "Unknown");
 
-      Object.entries(byCountry).forEach(([country, countryStores]) => {
-        const sub = makeExpandableRow(country, countryStores, "country");
-        subRows.push(sub);
-        tr.parentNode.insertBefore(sub, tr.nextSibling);
-      });
+       Object.entries(byCountry)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .forEach(([country, countryStores]) => {
+    const sub = makeExpandableRow(country, countryStores, "country");
+    subRows.push(sub);
+    tr.parentNode.insertBefore(sub, tr.nextSibling);
+  });
+
     }
 
     /* =========================
        COUNTRY → CITY
        ========================= */
-    else if (level === "country") {
-      const byCity = groupBy(items, (s) => s.city || "Unknown");
+else if (level === "country") {
+  const byCity = groupBy(items, (s) => s.city || "Unknown");
 
-      Object.entries(byCity).forEach(([city, cityStores]) => {
-        const sub = makeExpandableRow(city, cityStores, "city");
-        subRows.push(sub);
-        tr.parentNode.insertBefore(sub, tr.nextSibling);
-      });
-    }
+  Object.entries(byCity)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .forEach(([city, cityStores]) => {
+      const sub = makeExpandableRow(city, cityStores, "city");
+      subRows.push(sub);
+      tr.parentNode.insertBefore(sub, tr.nextSibling);
+    });
+}
+
 
     /* =========================
        CITY → STORES
@@ -247,19 +265,6 @@ function makeExpandableRow(label, items, level) {
 
           <!-- Continent -->
           <td>${safe(s.continent)}</td>
-
-          <!-- Country + flag -->
-          <td>
-            ${
-              flagURL(s.country, s.country_iso2)
-                ? `<img src="${flagURL(
-                    s.country,
-                    s.country_iso2
-                  )}" class="flag">`
-                : ""
-            }
-            ${safe(s.country)}
-          </td>
 
           <!-- State -->
           <td>${safe(s.state) || "—"}</td>
