@@ -242,22 +242,20 @@ if (level === "continent") {
 
     }
 
-/* =========================
-   COUNTRY → CITY
-   ========================= */
-else if (level === "country") {
-  const byCity = groupBy(items, s => s.city || "Unknown");
+if (level === "continent") {
+  const byCountry = groupBy(items, s => s.country || "Unknown");
 
-  Object.entries(byCity)
+  Object.entries(byCountry)
     .sort(([a], [b]) =>
       a.localeCompare(b, undefined, { sensitivity: "base" })
     )
-    .forEach(([city, cityStores]) => {
-      const sub = makeExpandableRow(city, cityStores, "city");
+    .forEach(([country, countryStores]) => {
+      const sub = makeExpandableRow(country, countryStores, "country");
       subRows.push(sub);
       tr.parentNode.insertBefore(sub, tr.nextSibling);
     });
-}
+}   // ✅ DENNA var den som saknades
+
 
 
 
