@@ -189,7 +189,6 @@ function makeExpandableRow(label, items, level) {
   const tr = document.createElement("tr");
   tr.className = `expandable ${level}`;
 
-  //  11 kolumner totalt → arrow + 10 data-kolumner
   tr.innerHTML = `
     <td class="arrow-cell">▶</td>
     <td colspan="10" class="line-label">
@@ -204,66 +203,48 @@ function makeExpandableRow(label, items, level) {
   tr.addEventListener("click", (e) => {
     e.stopPropagation();
 
-    /* =========================
-       COLLAPSE
-       ========================= */
+    /* COLLAPSE */
     if (expanded) {
-      subRows.forEach((r) => r.remove());
+      subRows.forEach(r => r.remove());
       subRows.length = 0;
       tr.querySelector(".arrow-cell").textContent = "▶";
       expanded = false;
       return;
     }
 
-    /* =========================
-       EXPAND
-       ========================= */
+    /* EXPAND */
     tr.querySelector(".arrow-cell").textContent = "▼";
     expanded = true;
 
+    /* CONTINENT → COUNTRY */
+    if (level === "continent") {
+      const byCountry = groupBy(items, s => s.country || "Unknown");
 
-/* =========================
-   CONTINENT → COUNTRY
-   ========================= */
-if (level === "continent") {
-  const byCountry = groupBy(items, s => s.country || "Unknown");
-
-  Object.entries(byCountry)
-    .sort(([a], [b]) =>
-      a.localeCompare(b, undefined, { sensitivity: "base" })
-    )
-    .forEach(([country, countryStores]) => {
-      const sub = makeExpandableRow(country, countryStores, "country");
-      subRows.push(sub);
-      tr.parentNode.insertBefore(sub, tr.nextSibling);
-    });
-}
-
-
+      Object.entries(byCountry)
+        .sort(([a], [b]) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+        .forEach(([country, countryStores]) => {
+          const sub = makeExpandableRow(country, countryStores, "country");
+          subRows.push(sub);
+          tr.parentNode.insertBefore(sub, tr.nextSibling);
+        });
     }
 
-if (level === "continent") {
-  const byCountry = groupBy(items, s => s.country || "Unknown");
+    /* COUNTRY → CITY */
+    else if (level === "country") {
+      const byCity = groupBy(items, s => s.city || "Unknown");
 
-  Object.entries(byCountry)
-    .sort(([a], [b]) =>
-      a.localeCompare(b, undefined, { sensitivity: "base" })
-    )
-    .forEach(([country, countryStores]) => {
-      const sub = makeExpandableRow(country, countryStores, "country");
-      subRows.push(sub);
-      tr.parentNode.insertBefore(sub, tr.nextSibling);
-    });
-}   // ✅ DENNA var den som saknades
+      Object.entries(byCity)
+        .sort(([a], [b]) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+        .forEach(([city, cityStores]) => {
+          const sub = makeExpandableRow(city, cityStores, "city");
+          subRows.push(sub);
+          tr.parentNode.insertBefore(sub, tr.nextSibling);
+        });
+    }
 
-
-
-
-    /* =========================
-       CITY → STORES
-       ========================= */
+    /* CITY → STORES */
     else if (level === "city") {
-      items.forEach((s) => {
+      items.forEach(s => {
         const row = document.createElement("tr");
         row.className = "store-row";
 
@@ -271,36 +252,17 @@ if (level === "continent") {
 
         row.innerHTML = `
           <td></td>
-
-          <!-- Continent -->
           <td>${safe(s.continent)}</td>
-
-          <!-- State -->
           <td>${safe(s.state) || "—"}</td>
-
-          <!-- City -->
           <td>${safe(s.city) || "—"}</td>
-
-   <!-- Name -->
-<td>${safe(s.name)}</td>
-
-<!-- Type -->
-<td>
-  ${
-    Array.isArray(s.types) && s.types.length
-      ? s.types.join(" + ")
-      : safe(s.type) || "–"
-  }
-</td>
-
-<!-- Access -->
-<td>${safe(s.access) || "–"}</td>
-
-<!-- Rating -->
-<td>${s.rating ?? "–"}</td>
-
-<!-- Status -->
-
+          <td>${safe(s.name)}</td>
+          <td>${
+            Array.isArray(s.types) && s.types.length
+              ? s.types.join(" + ")
+              : safe(s.type) || "–"
+          }</td>
+          <td>${safe(s.access) || "–"}</td>
+          <td>${s.rating ?? "–"}</td>
           <td>
             ${s.approved ? `<span class="badge green">APPROVED</span>` : ""}
             ${s.flagged ? `<span class="badge red">FLAGGED</span>` : ""}
@@ -311,28 +273,18 @@ if (level === "continent") {
                 : ""
             }
           </td>
-
-          <!-- Actions -->
           <td class="action-td">
-            <button class="btn small blue" onclick="editStore(${s.id})">
-              Edit
-            </button>
-            <button class="btn small green" onclick="approveStore(${s.id})">
-              Approve
-            </button>
+            <button class="btn small blue" onclick="editStore(${s.id})">Edit</button>
+            <button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
             ${
               !hasPhoto
                 ? `<button class="btn small orange"
-                     onclick="repairPhoto(${s.id}, '${(
-                    s.place_id || ""
-                  ).replace(/'/g, "\\'")}')">
+                     onclick="repairPhoto(${s.id}, '${(s.place_id || "").replace(/'/g, "\\'")}')">
                      Repair
                    </button>`
                 : ""
             }
-            <button class="btn small danger" onclick="toggleDelete(${s.id})">
-              Delete
-            </button>
+            <button class="btn small danger" onclick="toggleDelete(${s.id})">Delete</button>
           </td>
         `;
 
@@ -342,9 +294,8 @@ if (level === "continent") {
     }
   });
 
-  return tr;
+  return tr; // ✅ VIKTIG
 }
-
 
 
 /* ========================= FLAGS =========================
