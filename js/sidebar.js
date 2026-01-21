@@ -114,10 +114,14 @@ export async function buildFrontendSidebar(supabase) {
 
       const coChildren = createChildren();
 
-      co.querySelector(".arrow")?.onclick = e => {
-        e.stopPropagation();
-        toggle(co, coChildren);
-      };
+ const coArrow = co.querySelector(".arrow");
+if (coArrow) {
+  coArrow.addEventListener("click", e => {
+    e.stopPropagation();
+    toggle(co, coChildren);
+  });
+}
+
 
       co.onclick = () =>
         applyLocation({ continent, country, state: null, city: null });
@@ -133,10 +137,14 @@ export async function buildFrontendSidebar(supabase) {
 
         const stChildren = createChildren();
 
-        st.querySelector(".arrow")?.onclick = e => {
-          e.stopPropagation();
-          toggle(st, stChildren);
-        };
+   const stArrow = st.querySelector(".arrow");
+if (stArrow) {
+  stArrow.addEventListener("click", e => {
+    e.stopPropagation();
+    toggle(st, stChildren);
+  });
+}
+
 
         st.onclick = () =>
           applyLocation({ continent, country, state, city: null });
