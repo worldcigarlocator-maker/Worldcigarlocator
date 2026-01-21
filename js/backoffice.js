@@ -169,11 +169,14 @@ function renderListView(list) {
 const byContinent = groupBy(list, s => s.continent || "Other");
 
 Object.entries(byContinent)
-  .sort(([a], [b]) => a.localeCompare(b))
+  .sort(([a], [b]) =>
+    a.localeCompare(b, undefined, { sensitivity: "base" })
+  )
   .forEach(([continent, contStores]) => {
     const row = makeExpandableRow(continent, contStores, "continent");
     tbody.appendChild(row);
   });
+
 
 }
 
@@ -218,36 +221,44 @@ function makeExpandableRow(label, items, level) {
     tr.querySelector(".arrow-cell").textContent = "▼";
     expanded = true;
 
-    /* =========================
-       CONTINENT → COUNTRY
-       ========================= */
-    if (level === "continent") {
-      const byCountry = groupBy(items, (s) => s.country || "Unknown");
 
-       Object.entries(byCountry)
-  .sort(([a], [b]) => a.localeCompare(b))
-  .forEach(([country, countryStores]) => {
-    const sub = makeExpandableRow(country, countryStores, "country");
-    subRows.push(sub);
-    tr.parentNode.insertBefore(sub, tr.nextSibling);
-  });
+/* =========================
+   CONTINENT → COUNTRY
+   ========================= */
+if (level === "continent") {
+  const byCountry = groupBy(items, s => s.country || "Unknown");
+
+  Object.entries(byCountry)
+    .sort(([a], [b]) =>
+      a.localeCompare(b, undefined, { sensitivity: "base" })
+    )
+    .forEach(([country, countryStores]) => {
+      const sub = makeExpandableRow(country, countryStores, "country");
+      subRows.push(sub);
+      tr.parentNode.insertBefore(sub, tr.nextSibling);
+    });
+}
+
 
     }
 
-    /* =========================
-       COUNTRY → CITY
-       ========================= */
+/* =========================
+   COUNTRY → CITY
+   ========================= */
 else if (level === "country") {
-  const byCity = groupBy(items, (s) => s.city || "Unknown");
+  const byCity = groupBy(items, s => s.city || "Unknown");
 
   Object.entries(byCity)
-    .sort(([a], [b]) => a.localeCompare(b))
+    .sort(([a], [b]) =>
+      a.localeCompare(b, undefined, { sensitivity: "base" })
+    )
     .forEach(([city, cityStores]) => {
       const sub = makeExpandableRow(city, cityStores, "city");
       subRows.push(sub);
       tr.parentNode.insertBefore(sub, tr.nextSibling);
     });
 }
+
 
 
     /* =========================
