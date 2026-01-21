@@ -661,17 +661,19 @@ export async function loadStores(filters = {}, search = null) {
 }
 
 // ============================================================
-// RUN SEARCH (single entry point)
+// RUN SEARCH (SINGLE OWNER OF MAIN COUNT + HEADING)
 // ============================================================
 export async function runSearch() {
   if (!DOM_READY) {
-    await new Promise((res) => document.addEventListener("DOMContentLoaded", res, { once: true }));
+    await new Promise((res) =>
+      document.addEventListener("DOMContentLoaded", res, { once: true })
+    );
   }
 
   RUN_SEQ++;
   const runId = RUN_SEQ;
 
-  // snapshot to prevent "state drift" while awaiting
+  // Snapshot = deterministisk input
   const snapshot = {
     continent: FILTER_STATE.continent,
     country: FILTER_STATE.country,
@@ -681,23 +683,23 @@ export async function runSearch() {
     type: FILTER_STATE.type,
     access: FILTER_STATE.access,
   };
-// 🔢 OFFICIAL COUNT (system-approved, not UI-dependent)
-let approvedCount = null;
 
-if (snapshot.continent) {
-  approvedCount = await fetchApprovedCount(snapshot.continent);
-}
-   
   const heading = dom("#resultHeading");
   const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
 
+  // ---- UI reset ----
   heroImage && (heroImage.style.display = "none");
   heroText && (heroText.style.display = "none");
 
-  heading && (heading.textContent = "Loading…", heading.style.display = "block");
-  renderCards([]); // clear grid while loading
+  if (heading) {
+    heading.textContent = "Loading…";
+    heading.style.display = "block";
+  }
 
+  renderCards([]); // tom grid under load
+
+  // ---- Fetch stores (PURE DATA) ----
   const resp = await loadStores(
     {
       continent: snapshot.continent,
@@ -705,38 +707,63 @@ if (snapshot.continent) {
       state: snapshot.state,
       city: snapshot.city,
     },
-    null // IMPORTANT: we do frontend text match for "superpower"
+    null // frontend search gäller
   );
 
-  // if a newer runSearch started, stop here
   if (runId !== RUN_SEQ) return;
-
-  if (!resp) return; // canceled request
-  if (resp.error) {
-    heading && (heading.textContent = "Error loading locations.", heading.style.display = "block");
+  if (!resp || resp.error) {
+    heading && (heading.textContent = "Error loading results");
     return;
   }
 
   const rows = resp.data || [];
-console.log("📦 RAW ROWS FROM RPC:", rows.length);
-const filtered = applyFrontendFilters(rows, snapshot);
+  const filtered = applyFrontendFilters(rows, snapshot);
 
+  // ============================================================
+  // ✅ MAIN COUNT DECISION TREE (THE IMPORTANT PART)
+  // ============================================================
+
+  let finalCount = 0;
+
+  const hasSearch =
+    !!snapshot.search || !!snapshot.type || !!snapshot.access;
+
+  const hasLocation =
+    !!snapshot.continent ||
+    !!snapshot.country ||
+    !!snapshot.state ||
+    !!snapshot.city;
+
+  if (hasSearch) {
+    // 1️⃣ SEARCH OVERRIDES EVERYTHING
+    finalCount = filtered.length;
+
+  } else if (hasLocation) {
+    // 2️⃣ HIERARCHY CONTEXT (sidebar navigation)
+    finalCount = rows.length;
+
+  } else {
+    // 3️⃣ DEFAULT = TOTAL APPROVED (GLOBAL VALUE)
+    // OBS: backend-RPC, stabil siffra
+    const { data } = await supabase.rpc("count_all_approved_v1");
+    finalCount = data?.[0]?.count ?? rows.length;
+  }
+
+  // ---- Render ----
   if (!filtered.length) {
-    heading && (heading.textContent = "No results found.", heading.style.display = "block");
+    heading && (heading.textContent = "0 results");
     renderCards([]);
     return;
   }
 
   renderCards(filtered);
-  if (heading) {
-  heading.textContent =
-    approvedCount !== null
-      ? `${approvedCount} results`
-      : `${filtered.length} results`;
 
-  heading.style.display = "block";
+  if (heading) {
+    heading.textContent = `${finalCount} results`;
+    heading.style.display = "block";
   }
 }
+
 
 // ============================================================
 // MODAL SYSTEM
