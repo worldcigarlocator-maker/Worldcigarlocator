@@ -23,7 +23,8 @@ const { data, error } = await supabase.rpc("sidebar_hierarchy_v2");
 }
 
 // ============================================================
-// BUILD TREE — COUNT = sum of children (deterministiskt)
+// BUILD TREE — DETERMINISTIC & FRONTEND-SAFE
+// Counts come ONLY from country-level rows
 // ============================================================
 function buildTree(rows) {
   const tree = {};
@@ -32,23 +33,39 @@ function buildTree(rows) {
     const { continent, country, state, city, count, country_iso2 } = r;
     if (!continent || !country) return;
 
-    tree[continent] ??= { count: 0, countries: {} };
-    tree[continent].count += Number(count);
+    // Init continent
+    tree[continent] ??= {
+      count: 0,
+      countries: {}
+    };
 
+    // Init country
     tree[continent].countries[country] ??= {
       count: 0,
       iso2: country_iso2 || null,
       states: {}
     };
-    tree[continent].countries[country].count += Number(count);
 
+    const isCountryRow = state === null && city === null;
+
+    // ✅ ONLY country-level rows affect continent & country counts
+    if (isCountryRow) {
+      tree[continent].count += Number(count);
+      tree[continent].countries[country].count += Number(count);
+      return; // nothing more to do on this row
+    }
+
+    // ---------- State level ----------
     if (state) {
       tree[continent].countries[country].states[state] ??= {
         count: 0,
         cities: {}
       };
+
+      // State count = sum of its cities
       tree[continent].countries[country].states[state].count += Number(count);
 
+      // ---------- City level ----------
       if (city) {
         tree[continent].countries[country].states[state].cities[city] =
           (tree[continent].countries[country].states[state].cities[city] || 0) +
@@ -59,6 +76,7 @@ function buildTree(rows) {
 
   return tree;
 }
+
 
 // ============================================================
 // APPLY LOCATION (single source)
