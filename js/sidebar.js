@@ -22,11 +22,6 @@ const { data, error } = await supabase.rpc("sidebar_hierarchy_v2");
   return data || [];
 }
 
-select level, continent, country, count
-from sidebar_hierarchy_v2()
-where continent = 'North America'
-order by level, country;
-
 
 // ============================================================
 // APPLY LOCATION (single source)
