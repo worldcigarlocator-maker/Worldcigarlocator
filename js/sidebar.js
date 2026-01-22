@@ -120,14 +120,24 @@ export async function buildFrontendSidebar(supabase) {
 
   menu.innerHTML = "Loading…";
 
-  let rows;
-  try {
-    rows = await fetchRows(supabase);
-  } catch (e) {
-    console.error("Sidebar load failed", e);
-    menu.innerHTML = "Failed to load";
-    return;
-  }
+let rows;
+try {
+  rows = await fetchRows(supabase);
+
+  // 🔎 DEBUG — verifiera vad frontend faktiskt får
+  console.log("[SIDEBAR] rows length:", rows.length);
+  console.log(
+    "[SIDEBAR] levels:",
+    [...new Set(rows.map(r => String(r.level)))]
+  );
+  console.log("[SIDEBAR] sample rows:", rows.slice(0, 5));
+
+} catch (e) {
+  console.error("Sidebar load failed", e);
+  menu.innerHTML = "Failed to load";
+  return;
+}
+
 
   const tree = buildTree(rows);
   menu.innerHTML = "";
