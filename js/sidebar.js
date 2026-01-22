@@ -32,13 +32,24 @@ async function fetchRows(supabase) {
 }
 
 // ============================================================
-// BUILD TREE — v2 rows are already aggregated
+// BUILD TREE — v2 rows are already aggregated (ROBUST)
 // ============================================================
 function buildTree(rows) {
   const tree = {};
 
   rows.forEach(r => {
-    const { level, continent, country, state, city, count, country_iso2 } = r;
+    const {
+      continent,
+      country,
+      state,
+      city,
+      count,
+      country_iso2
+    } = r;
+
+    // 🔒 Normalisera level (SQL kan returnera ANY case)
+    const level = String(r.level || "").toLowerCase();
+
     if (!continent) return;
 
     // ---------- CONTINENT ----------
@@ -89,6 +100,7 @@ function buildTree(rows) {
 
   return tree;
 }
+
 
 // ============================================================
 // APPLY LOCATION — single source of truth
