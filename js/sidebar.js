@@ -6,12 +6,21 @@ import { setLocationFilter, runSearch } from "./cards.js";
 
 const menu = document.querySelector("#sidebarMenu");
 
+// ============================================================
+// STATE
+// ============================================================
 let ACTIVE_PATH = {
   continent: null,
   country: null,
   state: null,
   city: null,
 };
+
+// ============================================================
+// HELPERS
+// ============================================================
+const sortAZ = (a, b) =>
+  String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
 
 // ============================================================
 // FETCH — canonical frontend-safe hierarchy
@@ -111,75 +120,83 @@ export async function buildFrontendSidebar(supabase) {
   const tree = buildTree(rows);
   menu.innerHTML = "";
 
-  Object.entries(tree).forEach(([continent, cData]) => {
-    const cont = createLine({
-      type: "continent",
-      label: continent,
-      count: cData.count
-    });
-
-    const contChildren = createChildren(true);
-    cont.classList.add("open");
-
-    cont.onclick = () =>
-      applyLocation({ continent, country: null, state: null, city: null });
-
-    menu.append(cont, contChildren);
-
-    Object.entries(cData.countries).forEach(([country, coData]) => {
-      const co = createLine({
-        type: "country",
-        label: country,
-        count: coData.count,
-        iso2: coData.iso2
+  Object.entries(tree)
+    .sort(([a], [b]) => sortAZ(a, b))
+    .forEach(([continent, cData]) => {
+      const cont = createLine({
+        type: "continent",
+        label: continent,
+        count: cData.count
       });
 
-      const coChildren = createChildren();
+      const contChildren = createChildren(true);
+      cont.classList.add("open");
 
-      co.querySelector(".arrow")?.addEventListener("click", e => {
-        e.stopPropagation();
-        toggle(co, coChildren);
-      });
+      cont.onclick = () =>
+        applyLocation({ continent, country: null, state: null, city: null });
 
-      co.onclick = () =>
-        applyLocation({ continent, country, state: null, city: null });
+      menu.append(cont, contChildren);
 
-      contChildren.append(co, coChildren);
-
-      Object.entries(coData.states).forEach(([state, sData]) => {
-        const st = createLine({
-          type: "state",
-          label: state,
-          count: sData.count
-        });
-
-        const stChildren = createChildren();
-
-        st.querySelector(".arrow")?.addEventListener("click", e => {
-          e.stopPropagation();
-          toggle(st, stChildren);
-        });
-
-        st.onclick = () =>
-          applyLocation({ continent, country, state, city: null });
-
-        coChildren.append(st, stChildren);
-
-        Object.entries(sData.cities).forEach(([city, count]) => {
-          const ct = createLine({
-            type: "city",
-            label: city,
-            count
+      Object.entries(cData.countries)
+        .sort(([a], [b]) => sortAZ(a, b))
+        .forEach(([country, coData]) => {
+          const co = createLine({
+            type: "country",
+            label: country,
+            count: coData.count,
+            iso2: coData.iso2
           });
 
-          ct.onclick = () =>
-            applyLocation({ continent, country, state, city });
+          const coChildren = createChildren();
 
-          stChildren.append(ct);
+          co.querySelector(".arrow")?.addEventListener("click", e => {
+            e.stopPropagation();
+            toggle(co, coChildren);
+          });
+
+          co.onclick = () =>
+            applyLocation({ continent, country, state: null, city: null });
+
+          contChildren.append(co, coChildren);
+
+          Object.entries(coData.states)
+            .sort(([a], [b]) => sortAZ(a, b))
+            .forEach(([state, sData]) => {
+              const st = createLine({
+                type: "state",
+                label: state,
+                count: sData.count
+              });
+
+              const stChildren = createChildren();
+
+              st.querySelector(".arrow")?.addEventListener("click", e => {
+                e.stopPropagation();
+                toggle(st, stChildren);
+              });
+
+              st.onclick = () =>
+                applyLocation({ continent, country, state, city: null });
+
+              coChildren.append(st, stChildren);
+
+              Object.entries(sData.cities)
+                .sort(([a], [b]) => sortAZ(a, b))
+                .forEach(([city, count]) => {
+                  const ct = createLine({
+                    type: "city",
+                    label: city,
+                    count
+                  });
+
+                  ct.onclick = () =>
+                    applyLocation({ continent, country, state, city });
+
+                  stChildren.append(ct);
+                });
+            });
         });
-      });
     });
-  });
 
   updateActiveClasses();
 }
