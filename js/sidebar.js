@@ -17,7 +17,7 @@ let ACTIVE_PATH = {
 // FETCH — use canonical hierarchy function
 // ============================================================
 async function fetchRows(supabase) {
-  + const { data, error } = await supabase.rpc("sidebar_hierarchy_v2");
+const { data, error } = await supabase.rpc("sidebar_hierarchy_v2");
   if (error) throw error;
   return data || [];
 }
