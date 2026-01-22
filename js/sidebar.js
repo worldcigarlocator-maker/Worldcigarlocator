@@ -22,60 +22,10 @@ const { data, error } = await supabase.rpc("sidebar_hierarchy_v2");
   return data || [];
 }
 
-// ============================================================
-// BUILD TREE — DETERMINISTIC & FRONTEND-SAFE
-// Counts come ONLY from country-level rows
-// ============================================================
-function buildTree(rows) {
-  const tree = {};
-
-  rows.forEach(r => {
-    const { continent, country, state, city, count, country_iso2 } = r;
-    if (!continent || !country) return;
-
-    // Init continent
-    tree[continent] ??= {
-      count: 0,
-      countries: {}
-    };
-
-    // Init country
-    tree[continent].countries[country] ??= {
-      count: 0,
-      iso2: country_iso2 || null,
-      states: {}
-    };
-
-    const isCountryRow = state === null && city === null;
-
-    // ✅ ONLY country-level rows affect continent & country counts
-    if (isCountryRow) {
-      tree[continent].count += Number(count);
-      tree[continent].countries[country].count += Number(count);
-      return; // nothing more to do on this row
-    }
-
-    // ---------- State level ----------
-    if (state) {
-      tree[continent].countries[country].states[state] ??= {
-        count: 0,
-        cities: {}
-      };
-
-      // State count = sum of its cities
-      tree[continent].countries[country].states[state].count += Number(count);
-
-      // ---------- City level ----------
-      if (city) {
-        tree[continent].countries[country].states[state].cities[city] =
-          (tree[continent].countries[country].states[state].cities[city] || 0) +
-          Number(count);
-      }
-    }
-  });
-
-  return tree;
-}
+select level, continent, country, count
+from sidebar_hierarchy_v2()
+where continent = 'North America'
+order by level, country;
 
 
 // ============================================================
