@@ -161,11 +161,30 @@ document.addEventListener("DOMContentLoaded", () => {
 // CANONICAL FILTER STATE & MASTER CONTROLLER (WCL)
 // ============================================================
 
-export const MASTER = { ... };
+export const MASTER = {
+  IDLE: "idle",
+  SEARCH: "search",
+  LOCATION: "location",
+};
 
 let MASTER_MODE = MASTER.IDLE;
 
-const STATE = { ... };
+const STATE = {
+  location: {
+    continent: null,
+    country: null,
+    state: null,
+    city: null,
+  },
+  search: {
+    text: "",
+  },
+  chips: {
+    type: null,    // "store" | "lounge" | null
+    access: null,  // "public" | "members" | null
+  },
+};
+
 
 // ------------------------------------------------------------
 // TEMP BRIDGE — legacy UI helpers expect FILTER_STATE
