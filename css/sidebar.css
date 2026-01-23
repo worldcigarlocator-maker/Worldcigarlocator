@@ -17,11 +17,12 @@
    2. NAV SCROLL AREA (CRITICAL FIX)
    ============================================================ */
 
-#sidebarMenu.nav {
-  flex: 1;                 /* takes remaining height */
-  overflow-y: auto;        /* ✅ scroll works */
+#sidebarMenu {
+  flex: 1;
+  overflow-y: auto;
   padding-bottom: 1rem;
 }
+
 
 /* ============================================================
    3. BASE LINE — GRID MODEL
