@@ -158,22 +158,121 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ============================================================
-// GLOBAL FILTER STATE — SINGLE SOURCE OF TRUTH
+// CANONICAL FILTER STATE & MASTER CONTROLLER (WCL)
+// ------------------------------------------------------------
+// - Last-Action-Wins mellan SEARCH och LOCATION
+// - Chips (type/access) är alltid modifiers
+// - ENDA platsen där filter muteras
 // ============================================================
-const FILTER_STATE = {
-  // location (from sidebar)
-  continent: null,
-  country: null,
-  state: null,
-  city: null,
 
-  // free text (after token parsing)
-  search: "",
-
-  // chips
-  type: null,    // "store" | "lounge" | null
-  access: null,  // "public" | "members" | null
+export const MASTER = {
+  IDLE: "idle",
+  SEARCH: "search",
+  LOCATION: "location",
 };
+
+let MASTER_MODE = MASTER.IDLE;
+
+const STATE = {
+  location: {
+    continent: null,
+    country: null,
+    state: null,
+    city: null,
+  },
+  search: {
+    text: "",
+  },
+  chips: {
+    type: null,    // "store" | "lounge" | null
+    access: null,  // "public" | "members" | null
+  },
+};
+
+// ------------------------------------------------------------
+// INTERNAL HELPERS (private)
+// ------------------------------------------------------------
+function clearLocation() {
+  STATE.location.continent = null;
+  STATE.location.country = null;
+  STATE.location.state = null;
+  STATE.location.city = null;
+}
+
+function clearSearch() {
+  STATE.search.text = "";
+}
+
+function snapshotState() {
+  return {
+    master: MASTER_MODE,
+    location: { ...STATE.location },
+    search: { ...STATE.search },
+    chips: { ...STATE.chips },
+  };
+}
+
+// ------------------------------------------------------------
+// PUBLIC API — ENDA SÄTTET ATT ÄNDRA FILTER
+// ------------------------------------------------------------
+
+// 🔍 SEARCH becomes master
+export function activateSearch({ text = "" } = {}) {
+  MASTER_MODE = MASTER.SEARCH;
+  clearLocation();
+  STATE.search.text = text;
+  runSearch();
+}
+
+// 📍 LOCATION becomes master (from sidebar)
+export function activateLocation(next) {
+  MASTER_MODE = MASTER.LOCATION;
+  clearSearch();
+
+  STATE.location.continent = next?.continent ?? null;
+  STATE.location.country   = next?.country   ?? null;
+  STATE.location.state     = next?.state     ?? null;
+  STATE.location.city      = next?.city      ?? null;
+
+  runSearch();
+}
+
+// 🧩 Chips — modifiers only (never change master)
+export function toggleChip({ type, access }) {
+  if (type !== undefined) {
+    STATE.chips.type = STATE.chips.type === type ? null : type;
+  }
+  if (access !== undefined) {
+    STATE.chips.access = STATE.chips.access === access ? null : access;
+  }
+  runSearch();
+}
+
+// ❌ Clear search (only meaningful if search is master)
+export function clearSearchMaster() {
+  if (MASTER_MODE === MASTER.SEARCH) {
+    clearSearch();
+    MASTER_MODE = MASTER.IDLE;
+    runSearch();
+  }
+}
+
+// ❌ Clear location (optional, future)
+export function clearLocationMaster() {
+  if (MASTER_MODE === MASTER.LOCATION) {
+    clearLocation();
+    MASTER_MODE = MASTER.IDLE;
+    runSearch();
+  }
+}
+
+// ------------------------------------------------------------
+// READ-ONLY ACCESS FOR runSearch()
+// ------------------------------------------------------------
+export function getActiveFilterSnapshot() {
+  return snapshotState();
+}
+
 
 // ============================================================
 // FLAG HELPER
