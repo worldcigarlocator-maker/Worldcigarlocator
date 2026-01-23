@@ -28,15 +28,6 @@ const sortAZ = (a, b) =>
 const IS_USA = (country) =>
   country === "United States" || country === "United States of America";
 
-// ============================================================
-// FETCH — canonical frontend-safe hierarchy
-// ============================================================
-async function fetchRows(supabase) {
-  const { data, error } = await supabase.rpc("sidebar_hierarchy_v2");
-  if (error) throw error;
-  return data || [];
-}
-
 function buildTree(rows) {
   const tree = {};
 
@@ -83,14 +74,18 @@ function buildTree(rows) {
       if (!state) return;
 
       tree[continent].countries[country].states[state] ??= {
-        count: Number(count),
+        count: 0,
         cities: {}
       };
+
+      tree[continent].countries[country].states[state].count += Number(count);
       return;
     }
 
     // ---------- CITY ----------
     if (level === "city" && city) {
+      const cityKey = city.trim(); // 🔒 canonical key
+
       if (isUS && state) {
         // USA: city under state
         tree[continent]
@@ -100,12 +95,16 @@ function buildTree(rows) {
         tree[continent]
           .countries[country]
           .states[state]
-          .cities[city] = Number(count);
+          .cities[cityKey] =
+            (tree[continent].countries[country].states[state].cities[cityKey] || 0)
+            + Number(count);
       } else {
         // Rest of world: city directly under country
         tree[continent]
           .countries[country]
-          .cities[city] = Number(count);
+          .cities[cityKey] =
+            (tree[continent].countries[country].cities[cityKey] || 0)
+            + Number(count);
       }
     }
   });
