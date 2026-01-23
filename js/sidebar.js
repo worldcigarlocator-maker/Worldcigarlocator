@@ -62,18 +62,30 @@ function buildTree(nodes, counts) {
   // ---- preload counts lookup ----
   const countMap = {};
   counts.forEach(r => {
-    const key = [
-      r.continent,
-      r.country,
-      r.state,
-      r.city,
-      r.level
-    ].join("|");
+ const norm = (v) => v ?? "";
+
+const key = [
+  norm(r.continent),
+  norm(r.country),
+  norm(r.state),
+  norm(r.city),
+  r.level
+].join("|");
+
     countMap[key] = Number(r.count || 0);
   });
 
-  const getCount = (continent, country, state, city, level) =>
-    countMap[[continent, country, state, city, level].join("|")] || 0;
+ const getCount = (continent, country, state, city, level) =>
+  countMap[
+    [
+      continent ?? "",
+      country ?? "",
+      state ?? "",
+      city ?? "",
+      level
+    ].join("|")
+  ] || 0;
+
 
   // ---- build nodes ----
   nodes.forEach(n => {
