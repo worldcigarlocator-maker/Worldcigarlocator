@@ -131,6 +131,8 @@ function applyLocation(next) {
 // BUILD SIDEBAR (ENTRY POINT)
 // ============================================================
 export async function buildFrontendSidebar(supabase) {
+  console.count("SIDEBAR BUILD");
+
   if (!menu) return;
 
   menu.innerHTML = "Loading…";
