@@ -5,8 +5,8 @@
    ============================================================ */
 
 // 1) Var events ska skickas (Edge Function / endpoint)
-// Byt till din riktiga ingest-endpoint när du har den.
-const ANALYTICS_INGEST_URL = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/analytics-ingest";
+const ANALYTICS_INGEST_URL =
+  "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/analytics-ingest";
 
 // 2) Session: 30 min idle → ny session
 const SESSION_IDLE_MS = 30 * 60 * 1000;
@@ -17,25 +17,33 @@ function getOrCreateSession() {
   if (raw) {
     try {
       const s = JSON.parse(raw);
-      if (s?.id && s?.t && (now - s.t) < SESSION_IDLE_MS) {
+      if (s?.id && s?.t && now - s.t < SESSION_IDLE_MS) {
         s.t = now; // bump
         localStorage.setItem("wcl_session_v1", JSON.stringify(s));
         return s.id;
       }
     } catch {}
   }
-  // ny session
-  const id = crypto?.randomUUID ? crypto.randomUUID() : `${now}-${Math.random().toString(16).slice(2)}`;
+  const id = crypto?.randomUUID
+    ? crypto.randomUUID()
+    : `${now}-${Math.random().toString(16).slice(2)}`;
   localStorage.setItem("wcl_session_v1", JSON.stringify({ id, t: now }));
   return id;
 }
 
 // 3) Dedup: 1 view per store per session
 function hasViewedThisSession(storeId) {
-  return localStorage.getItem(`wcl_viewed_v1:${getOrCreateSession()}:${storeId}`) === "1";
+  return (
+    localStorage.getItem(
+      `wcl_viewed_v1:${getOrCreateSession()}:${storeId}`
+    ) === "1"
+  );
 }
 function markViewedThisSession(storeId) {
-  localStorage.setItem(`wcl_viewed_v1:${getOrCreateSession()}:${storeId}`, "1");
+  localStorage.setItem(
+    `wcl_viewed_v1:${getOrCreateSession()}:${storeId}`,
+    "1"
+  );
 }
 
 // 4) Fire-and-forget sender (blockar aldrig UX)
@@ -46,94 +54,70 @@ function sendAnalyticsEvent(event_type, payload) {
     source: "frontend",
     actor_type: "anon",
     session_hash: getOrCreateSession(),
-    ...payload
+    ...payload,
   });
 
-  // fetch keepalive (stabilt i Safari)
   try {
     fetch(ANALYTICS_INGEST_URL, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body,
       keepalive: true,
-      credentials: "omit"
+      credentials: "omit",
     }).catch(() => {});
   } catch {}
 }
-
 
 // ============================================================
 // EXPOSE ANALYTICS (DEBUG / GLOBAL ACCESS)
 // ============================================================
 window.WCL_ANALYTICS = {
-  send: sendAnalyticsEvent
+  send: sendAnalyticsEvent,
 };
 
 /* ============================================================
    3A — store_viewed (viewport impression, 1x per session/store)
    ============================================================ */
 
-const VIEW_OBSERVER = new IntersectionObserver((entries) => {
-  for (const entry of entries) {
-    if (!entry.isIntersecting) continue;
+const VIEW_OBSERVER = new IntersectionObserver(
+  (entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
 
-    const el = entry.target;
-    const storeId = el?.dataset?.storeId;
-    if (!storeId) continue;
+      const el = entry.target;
+      const storeId = el?.dataset?.storeId;
+      if (!storeId) continue;
 
-    // Dedup per session/store
-    if (hasViewedThisSession(storeId)) {
+      if (hasViewedThisSession(storeId)) {
+        VIEW_OBSERVER.unobserve(el);
+        continue;
+      }
+
+      markViewedThisSession(storeId);
+
+      const payload = {
+        store_id: Number(storeId),
+        country: el.dataset.country || null,
+        city: el.dataset.city || null,
+        continent: el.dataset.continent || null,
+      };
+
+      sendAnalyticsEvent("store_viewed", payload);
       VIEW_OBSERVER.unobserve(el);
-      continue;
     }
-
-    // Markera direkt så vi inte dubbelräknar
-    markViewedThisSession(storeId);
-
-    // plocka geo från dataset (sätts när du renderar card)
-    const payload = {
-      store_id: Number(storeId),
-      country: el.dataset.country || null,
-      city: el.dataset.city || null,
-      continent: el.dataset.continent || null
-    };
-
-    sendAnalyticsEvent("store_viewed", payload);
-
-    // Vi behöver bara första view
-    VIEW_OBSERVER.unobserve(el);
-  }
-}, {
-  // 40% synligt = räknas som view (lagom strict)
-  threshold: 0.4
-});
-
-
+  },
+  { threshold: 0.4 }
+);
 
 // ============================================================
-// CARDS.JS — WCL FRONTEND (STABLE + LIVE SEARCH + FILTER CHIPS)
-// Single pipeline: FILTER_STATE -> runSearch() -> fetch -> frontend filter -> render
+// CARDS.JS — WCL FRONTEND (CANONICAL, LAW + SMART SEARCH)
+// - Single source of truth: STATE + MASTER_MODE
+// - LAW: last action wins between SEARCH and LOCATION
+// - Chips are always modifiers
+// - Search intent: city-mode (single token) vs discovery-mode (multi token/space)
 // ============================================================
 
-import { supabase, resolveStoreImage } from "./globals.js";
-
-
-// 🔢 COUNT HELPERS (isolated, no UI logic)
-async function fetchApprovedCount(continent) {
-  const { data, error } = await supabase.rpc(
-    "count_approved_by_continent",
-    { p_continent: continent }
-  );
-
-  if (error) {
-    console.error("Count RPC error", error);
-    return null;
-  }
-
-  return data?.[0]?.count ?? 0;
-}
-
-
+import { supabase } from "./globals.js";
 
 // ============================================================
 // CONFIG
@@ -142,10 +126,10 @@ const FALLBACK_IMAGE = "images/store.jpg";
 const dom = (sel) => document.querySelector(sel);
 
 // ============================================================
-// RACE / REQUEST CONTROL (prevents "locks" + wrong "not found")
+// RACE / REQUEST CONTROL
 // ============================================================
-let RUN_SEQ = 0;           // increases for every runSearch call
-let ACTIVE_REQUEST = 0;    // increases for every backend fetch
+let RUN_SEQ = 0;
+let ACTIVE_REQUEST = 0;
 
 // ============================================================
 // DOM READY
@@ -154,7 +138,7 @@ let DOM_READY = false;
 document.addEventListener("DOMContentLoaded", () => {
   DOM_READY = true;
   initAutocomplete();
-  initLiveSearchAndFilters(); // ✅ enables live-search + chips
+  initLiveSearchAndFilters();
 });
 
 // ============================================================
@@ -180,30 +164,13 @@ const STATE = {
     text: "",
   },
   chips: {
-    type: null,    // "store" | "lounge" | null
-    access: null,  // "public" | "members" | null
+    type: null, // "store" | "lounge" | null
+    access: null, // "public" | "members" | null
   },
 };
 
-
 // ------------------------------------------------------------
-// TEMP BRIDGE — legacy UI helpers expect FILTER_STATE
-// ------------------------------------------------------------
-const FILTER_STATE = {
-  get continent() { return STATE.location.continent; },
-  get country()   { return STATE.location.country; },
-  get state()     { return STATE.location.state; },
-  get city()      { return STATE.location.city; },
-
-  get search()    { return STATE.search.text; },
-
-  get type()      { return STATE.chips.type; },
-  get access()    { return STATE.chips.access; }
-};
-
-
-// ------------------------------------------------------------
-// INTERNAL HELPERS (private)
+// INTERNAL HELPERS
 // ------------------------------------------------------------
 function clearLocation() {
   STATE.location.continent = null;
@@ -211,11 +178,23 @@ function clearLocation() {
   STATE.location.state = null;
   STATE.location.city = null;
 }
-
 function clearSearch() {
   STATE.search.text = "";
 }
-
+function hasAnyLocation() {
+  return !!(
+    STATE.location.continent ||
+    STATE.location.country ||
+    STATE.location.state ||
+    STATE.location.city
+  );
+}
+function hasAnyChips() {
+  return !!(STATE.chips.type || STATE.chips.access);
+}
+function hasAnySearchText() {
+  return !!(STATE.search.text && STATE.search.text.trim());
+}
 function snapshotState() {
   return {
     master: MASTER_MODE,
@@ -243,9 +222,9 @@ export function activateLocation(next) {
   clearSearch();
 
   STATE.location.continent = next?.continent ?? null;
-  STATE.location.country   = next?.country   ?? null;
-  STATE.location.state     = next?.state     ?? null;
-  STATE.location.city      = next?.city      ?? null;
+  STATE.location.country = next?.country ?? null;
+  STATE.location.state = next?.state ?? null;
+  STATE.location.city = next?.city ?? null;
 
   runSearch();
 }
@@ -270,7 +249,7 @@ export function clearSearchMaster() {
   }
 }
 
-// ❌ Clear location (optional, future)
+// (optional future) clear location master
 export function clearLocationMaster() {
   if (MASTER_MODE === MASTER.LOCATION) {
     clearLocation();
@@ -279,13 +258,10 @@ export function clearLocationMaster() {
   }
 }
 
-// ------------------------------------------------------------
-// READ-ONLY ACCESS FOR runSearch()
-// ------------------------------------------------------------
+// Read-only snapshot for runSearch
 export function getActiveFilterSnapshot() {
   return snapshotState();
 }
-
 
 // ============================================================
 // FLAG HELPER
@@ -301,14 +277,20 @@ function getFlagUrl(store) {
 // ============================================================
 function buildBadges(store) {
   const badges = [];
-  const arr = Array.isArray(store.types) ? store.types.map((t) => String(t).toLowerCase()) : [];
+  const arr = Array.isArray(store.types)
+    ? store.types.map((t) => String(t).toLowerCase())
+    : [];
 
-  if (arr.includes("store"))  badges.push(`<span class="badge badge-store">Store</span>`);
-  if (arr.includes("lounge")) badges.push(`<span class="badge badge-lounge">Lounge</span>`);
+  if (arr.includes("store"))
+    badges.push(`<span class="badge badge-store">Store</span>`);
+  if (arr.includes("lounge"))
+    badges.push(`<span class="badge badge-lounge">Lounge</span>`);
 
   const A = String(store.access || "").trim().toLowerCase();
   if (A === "public") {
-    badges.push(`<span class="badge badge-access badge-access-public">PUBLIC</span>`);
+    badges.push(
+      `<span class="badge badge-access badge-access-public">PUBLIC</span>`
+    );
   } else if (A) {
     badges.push(`<span class="badge badge-access">${A.toUpperCase()}</span>`);
   }
@@ -317,37 +299,24 @@ function buildBadges(store) {
 }
 
 // ============================================================
-// PHOTO URL — DEBUG VERSION (STEGET FÖRE FIX)
+// PHOTO URL
 // ============================================================
 function getPhotoUrl(store) {
-  console.log("🖼️ PHOTO DEBUG", {
-    id: store.id,
-    photo_reference: store.photo_reference,
-    photo_url: store.photo_url,
-    photo_cdn_url: store.photo_cdn_url,
-  });
+  // 1) Helig: manuellt satt CDN-bild
+  if (store.photo_cdn_url) return store.photo_cdn_url;
 
-  // 1️⃣ Helig: manuellt satt CDN-bild
-  if (store.photo_cdn_url) {
-    return store.photo_cdn_url;
-  }
+  // 2) Äldre direkt-URL (om den finns kvar i DB)
+  if (store.photo_url) return store.photo_url;
 
-  // 2️⃣ Äldre direkt-URL (om den finns kvar i DB)
-  if (store.photo_url) {
-    return store.photo_url;
-  }
-
-  // 3️⃣ Google Places via proxy (som FÖRR)
+  // 3) Google Places via proxy
   if (store.photo_reference) {
     return `${supabase.functions.url}/photo-proxy?photo_reference=${encodeURIComponent(
       store.photo_reference
     )}&maxwidth=800`;
   }
 
-  // 4️⃣ Fallback
   return FALLBACK_IMAGE;
 }
-
 
 // ============================================================
 // RESET HERO
@@ -420,13 +389,23 @@ function parseSearchTokens(raw) {
   for (const t0 of tokens) {
     const t = t0.toLowerCase();
 
-    // type tokens
-    if (t === "store" || t === "stores") { type = "store"; continue; }
-    if (t === "lounge" || t === "lounges") { type = "lounge"; continue; }
+    if (t === "store" || t === "stores") {
+      type = "store";
+      continue;
+    }
+    if (t === "lounge" || t === "lounges") {
+      type = "lounge";
+      continue;
+    }
 
-    // access tokens
-    if (t === "public") { access = "public"; continue; }
-    if (t === "member" || t === "members") { access = "members"; continue; }
+    if (t === "public") {
+      access = "public";
+      continue;
+    }
+    if (t === "member" || t === "members") {
+      access = "members";
+      continue;
+    }
 
     keep.push(t0);
   }
@@ -446,8 +425,8 @@ function updateChipUI() {
     const val = btn.dataset.value;
 
     const isActive =
-      (filter === "type" && FILTER_STATE.type === val) ||
-      (filter === "access" && FILTER_STATE.access === val);
+      (filter === "type" && STATE.chips.type === val) ||
+      (filter === "access" && STATE.chips.access === val);
 
     btn.classList.toggle("active", !!isActive);
   });
@@ -455,11 +434,7 @@ function updateChipUI() {
 
 // ============================================================
 // LIVE SEARCH + FILTER CHIPS (LAW, CANONICAL)
-// - Search-text vs Sidebar = Last-Action-Wins
-// - Chips är alltid modifiers
-// - Ingen direkt FILTER_STATE-mutation
 // ============================================================
-
 let SEARCH_TIMER = null;
 
 function cancelDebounce() {
@@ -475,9 +450,7 @@ function initLiveSearchAndFilters() {
   const clearBtn = dom("#clearBtn");
   const chips = dom("#searchFilters");
 
-  // ----------------------------------------------------------
-  // CHIPS (type / access) — modifiers only
-  // ----------------------------------------------------------
+  // CHIPS — modifiers only
   chips?.addEventListener("click", (e) => {
     const btn = e.target.closest(".chip");
     if (!btn) return;
@@ -485,46 +458,42 @@ function initLiveSearchAndFilters() {
     cancelDebounce();
 
     const filter = btn.dataset.filter; // "type" | "access"
-    const value  = btn.dataset.value;
+    const value = btn.dataset.value;
 
     if (filter === "type") {
       toggleChip({ type: value });
     } else if (filter === "access") {
       toggleChip({ access: value });
     }
+
+    updateChipUI();
   });
 
-  // ----------------------------------------------------------
-  // LIVE SEARCH INPUT — SEARCH becomes master (LAW)
-  // ----------------------------------------------------------
+  // LIVE INPUT — SEARCH becomes master
   input?.addEventListener("input", () => {
     const raw = input.value;
     const parsed = parseSearchTokens(raw);
 
     cancelDebounce();
     SEARCH_TIMER = setTimeout(() => {
-      // Ingenting skrivet → lämna SEARCH-mode
       if (!parsed.text && !parsed.type && !parsed.access) {
         clearSearchMaster();
+        updateChipUI();
         return;
       }
 
-      // Search blir master
       activateSearch({ text: parsed.text });
 
-      // Chips är modifiers
       if (parsed.type || parsed.access) {
-        toggleChip({
-          type: parsed.type ?? undefined,
-          access: parsed.access ?? undefined,
-        });
+        if (parsed.type) toggleChip({ type: parsed.type });
+        if (parsed.access) toggleChip({ access: parsed.access });
       }
+
+      updateChipUI();
     }, 350);
   });
 
-  // ----------------------------------------------------------
-  // SEARCH BUTTON / ENTER — instant search
-  // ----------------------------------------------------------
+  // SEARCH BUTTON / ENTER — instant
   const triggerInstant = () => {
     if (!input) return;
 
@@ -534,17 +503,18 @@ function initLiveSearchAndFilters() {
 
     if (!parsed.text && !parsed.type && !parsed.access) {
       clearSearchMaster();
+      updateChipUI();
       return;
     }
 
     activateSearch({ text: parsed.text });
 
     if (parsed.type || parsed.access) {
-      toggleChip({
-        type: parsed.type ?? undefined,
-        access: parsed.access ?? undefined,
-      });
+      if (parsed.type) toggleChip({ type: parsed.type });
+      if (parsed.access) toggleChip({ access: parsed.access });
     }
+
+    updateChipUI();
   };
 
   if (searchBtn) searchBtn.onclick = triggerInstant;
@@ -553,9 +523,7 @@ function initLiveSearchAndFilters() {
     if (e.key === "Enter") triggerInstant();
   });
 
-  // ----------------------------------------------------------
-  // CLEAR SEARCH — clear SEARCH master only
-  // ----------------------------------------------------------
+  // CLEAR SEARCH — clears only search master (chips remain as-is)
   if (clearBtn) {
     clearBtn.onclick = () => {
       cancelDebounce();
@@ -567,20 +535,6 @@ function initLiveSearchAndFilters() {
 
   updateChipUI();
 }
-
-
-// ============================================================
-// PUBLIC API FOR SIDEBAR (location filters)
-// ============================================================
-export function setLocationFilter(next) {
-  cancelDebounce();
-
-  FILTER_STATE.continent = next?.continent ?? null;
-  FILTER_STATE.country = next?.country ?? null;
-  FILTER_STATE.state = next?.state ?? null;
-  FILTER_STATE.city = next?.city ?? null;
-}
-
 
 // ============================================================
 // CARD HTML
@@ -596,10 +550,12 @@ function cardHTML(s) {
   let displayAddress = "—";
   if (s.address) {
     const trimmed = s.address.trim();
-    displayAddress = trimmed.includes(",") ? trimmed.split(",")[0] + "…" : trimmed;
+    displayAddress = trimmed.includes(",")
+      ? trimmed.split(",")[0] + "…"
+      : trimmed;
   }
 
- return `
+  return `
  <article
   class="store-card"
   data-store-id="${s.id}"
@@ -607,7 +563,6 @@ function cardHTML(s) {
   data-city="${s.city || ""}"
   data-continent="${s.continent || ""}"
 >
-
     <img
       src="${img}"
       class="store-img"
@@ -652,7 +607,6 @@ function cardHTML(s) {
 `;
 }
 
-
 // ============================================================
 // RENDER
 // ============================================================
@@ -662,65 +616,93 @@ function renderCards(list) {
 
   grid.innerHTML = (list || []).map(cardHTML).join("");
 
-  // 👁️ Analytics: store_viewed (1x per session/store)
+  // Analytics: store_viewed
   grid.querySelectorAll(".store-card").forEach((el) => {
     VIEW_OBSERVER.observe(el);
   });
 
-  // 🖱️ Öppna modal (men inte vid länk-klick)
+  // Open modal (but not when clicking link)
   grid.querySelectorAll(".store-card").forEach((c) => {
     c.addEventListener("click", (e) => {
       if (e.target.closest("a")) return;
-      openModal(c.dataset.id);
+
+      // ✅ FIX: dataset key is storeId (data-store-id)
+      openModal(c.dataset.storeId);
     });
   });
 }
 
-// Backwards compat (if something imports renderStores)
 export function renderStores(list) {
   renderCards(list);
 }
 
 // ============================================================
-// FRONTEND FILTERING (type/access + powerful text match)
+// SEARCH MATCHING — CANONICAL INTENT LOGIC (LOCKED)
+// - Single token (no spaces) => CITY MODE
+// - Any spaces / multi tokens => DISCOVERY MODE
 // ============================================================
-function normalize(s) {
+function _norm(s) {
   return (s || "").toString().toLowerCase().trim();
 }
 
-function matchesText(store, text) {
-  const q = normalize(text);
+function getSearchMode(raw) {
+  const q = _norm(raw);
+  if (!q) return "none";
+  if (q.includes(" ") || q.split(/\s+/).length > 1) return "discovery";
+  return "city";
+}
+
+function matchesCity(store, raw) {
+  const q = _norm(raw);
+  if (!q) return true;
+  const city = _norm(store.city);
+  if (!city) return false;
+  return city.startsWith(q);
+}
+
+function matchesDiscovery(store, raw) {
+  const q = _norm(raw);
   if (!q) return true;
 
-  // power search across multiple fields (frontend)
   const hay = [
     store.name,
     store.city,
     store.state,
     store.country,
-    store.continent,
     store.address,
     store.website,
-  ].map(normalize).join(" | ");
+  ]
+    .map(_norm)
+    .filter(Boolean)
+    .join(" | ");
 
   return hay.includes(q);
 }
 
+function matchesSearch(store, raw) {
+  const mode = getSearchMode(raw);
+  if (mode === "city") return matchesCity(store, raw);
+  if (mode === "discovery") return matchesDiscovery(store, raw);
+  return true;
+}
+
 function matchesType(store, type) {
   if (!type) return true;
-  const types = Array.isArray(store.types) ? store.types.map((t) => normalize(t)) : [];
-  return types.includes(type);
+  const types = Array.isArray(store.types)
+    ? store.types.map((t) => _norm(t))
+    : [];
+  return types.includes(_norm(type));
 }
 
 function matchesAccess(store, access) {
   if (!access) return true;
-  return normalize(store.access) === access;
+  return _norm(store.access) === _norm(access);
 }
 
 function applyFrontendFilters(rows, snapshot) {
   return (rows || []).filter((s) => {
     return (
-      matchesText(s, snapshot.search) &&
+      matchesSearch(s, snapshot.search) &&
       matchesType(s, snapshot.type) &&
       matchesAccess(s, snapshot.access)
     );
@@ -728,25 +710,26 @@ function applyFrontendFilters(rows, snapshot) {
 }
 
 // ============================================================
-// LOAD STORES (RPC) — PURE FETCH (no DOM writes)
+// LOAD STORES (RPC) — PURE FETCH
 // ============================================================
-export async function loadStores(filters = {}, search = null) {
+export async function loadStores(filters = {}) {
   if (!DOM_READY) {
-    await new Promise((res) => document.addEventListener("DOMContentLoaded", res, { once: true }));
+    await new Promise((res) =>
+      document.addEventListener("DOMContentLoaded", res, { once: true })
+    );
   }
 
   ACTIVE_REQUEST++;
   const reqId = ACTIVE_REQUEST;
 
   const { data, error } = await supabase.rpc("search_stores_v1", {
-    p_q: search || null,
+    p_q: null, // frontend search only
     p_continent: filters?.continent || null,
     p_country: filters?.country || null,
     p_state: filters?.state || null,
     p_city: filters?.city || null,
   });
 
-  // if a newer fetch started, ignore this one
   if (reqId !== ACTIVE_REQUEST) return null;
 
   if (error) {
@@ -758,7 +741,9 @@ export async function loadStores(filters = {}, search = null) {
 }
 
 // ============================================================
-// RUN SEARCH (SINGLE OWNER OF MAIN COUNT + HEADING)
+// RUN SEARCH (CANONICAL)
+// - main count = filtered.length (locked by your decision)
+// - hero shown only when truly idle (no master, no chips)
 // ============================================================
 export async function runSearch() {
   if (!DOM_READY) {
@@ -770,22 +755,34 @@ export async function runSearch() {
   RUN_SEQ++;
   const runId = RUN_SEQ;
 
-  // Snapshot = deterministisk input
+  const snap = getActiveFilterSnapshot();
+
   const snapshot = {
-    continent: FILTER_STATE.continent,
-    country: FILTER_STATE.country,
-    state: FILTER_STATE.state,
-    city: FILTER_STATE.city,
-    search: FILTER_STATE.search,
-    type: FILTER_STATE.type,
-    access: FILTER_STATE.access,
+    master: snap.master,
+    continent: snap.location.continent,
+    country: snap.location.country,
+    state: snap.location.state,
+    city: snap.location.city,
+    search: snap.search.text,
+    type: snap.chips.type,
+    access: snap.chips.access,
   };
 
   const heading = dom("#resultHeading");
   const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
 
-  // ---- UI reset ----
+  // ✅ show hero ONLY when truly idle: no master + no location + no search + no chips
+  if (
+    snapshot.master === MASTER.IDLE &&
+    !snapshot.search &&
+    !hasAnyLocation() &&
+    !hasAnyChips()
+  ) {
+    resetToHero();
+    return;
+  }
+
   heroImage && (heroImage.style.display = "none");
   heroText && (heroText.style.display = "none");
 
@@ -794,18 +791,14 @@ export async function runSearch() {
     heading.style.display = "block";
   }
 
-  renderCards([]); // tom grid under load
+  renderCards([]);
 
-  // ---- Fetch stores (PURE DATA) ----
-  const resp = await loadStores(
-    {
-      continent: snapshot.continent,
-      country: snapshot.country,
-      state: snapshot.state,
-      city: snapshot.city,
-    },
-    null // frontend search gäller
-  );
+  const resp = await loadStores({
+    continent: snapshot.continent,
+    country: snapshot.country,
+    state: snapshot.state,
+    city: snapshot.city,
+  });
 
   if (runId !== RUN_SEQ) return;
   if (!resp || resp.error) {
@@ -816,51 +809,19 @@ export async function runSearch() {
   const rows = resp.data || [];
   const filtered = applyFrontendFilters(rows, snapshot);
 
-  // ============================================================
-  // ✅ MAIN COUNT DECISION TREE (THE IMPORTANT PART)
-  // ============================================================
-
-  let finalCount = 0;
-
-  const hasSearch =
-    !!snapshot.search || !!snapshot.type || !!snapshot.access;
-
-  const hasLocation =
-    !!snapshot.continent ||
-    !!snapshot.country ||
-    !!snapshot.state ||
-    !!snapshot.city;
-
-  if (hasSearch) {
-    // 1️⃣ SEARCH OVERRIDES EVERYTHING
-    finalCount = filtered.length;
-
-  } else if (hasLocation) {
-    // 2️⃣ HIERARCHY CONTEXT (sidebar navigation)
-    finalCount = rows.length;
-
-  } else {
-    // 3️⃣ DEFAULT = TOTAL APPROVED (GLOBAL VALUE)
-    // OBS: backend-RPC, stabil siffra
-    const { data } = await supabase.rpc("count_all_approved_v1");
-    finalCount = data?.[0]?.count ?? rows.length;
+  // ✅ locked: main count is just results on screen
+  if (heading) {
+    heading.textContent = `${filtered.length} results`;
+    heading.style.display = "block";
   }
 
-  // ---- Render ----
   if (!filtered.length) {
-    heading && (heading.textContent = "0 results");
     renderCards([]);
     return;
   }
 
   renderCards(filtered);
-
-  if (heading) {
-    heading.textContent = `${finalCount} results`;
-    heading.style.display = "block";
-  }
 }
-
 
 // ============================================================
 // MODAL SYSTEM
@@ -873,6 +834,8 @@ let CURRENT_STORE = null;
 
 async function openModal(id) {
   const storeId = Number(id);
+  if (!storeId) return;
+
   CURRENT_STORE = storeId;
 
   const { data } = await supabase
@@ -1036,6 +999,8 @@ sendCommentBtn?.addEventListener("click", async () => {
   commentInput.value = "";
   loadComments(CURRENT_STORE);
 });
+
+// Website click analytics
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a.visit-website");
   if (!a) return;
@@ -1044,7 +1009,6 @@ document.addEventListener("click", (e) => {
   if (!storeId) return;
 
   window.WCL_ANALYTICS.send("website_clicked", {
-    store_id: storeId
+    store_id: storeId,
   });
 });
-
