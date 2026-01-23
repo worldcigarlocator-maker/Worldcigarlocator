@@ -1,21 +1,24 @@
 // ============================================================
-// SIDEBAR.JS — WCL Sidebar Hierarchy (CANONICAL, LOCKED)
+// SIDEBAR.JS — WCL Sidebar (CANONICAL, NODE-DRIVEN)
 // ------------------------------------------------------------
-// RULES (NON-NEGOTIABLE):
-// - Sidebar visar ALLA noder som backend skickar
-// - USA: Continent → Country → State → City
-// - NON-US: Continent → Country → City (state ignoreras helt)
-// - Sidebar sätter LOCATION som master (LAW)
+// DATA:
+// - Structure: sidebar_nodes_v1 (flat, ALL cities)
+// - Counts: sidebar_hierarchy_v1 (aggregated, trusted)
+//
+// RULES:
+// - USA: Country → State → City
+// - Rest: Country → City
+// - Sidebar sets LOCATION as master (LAW)
 // ============================================================
 
-import { activateLocation } from "./cards.js";
+console.log("✅ SIDEBAR.JS LOADED (nodes_v1)");
 
-console.log("SIDEBAR.JS LOADED");
+import { activateLocation } from "./cards.js";
 
 const menu = document.querySelector("#sidebarMenu");
 
 // ============================================================
-// UI STATE (highlight only)
+// UI STATE (only for highlighting)
 // ============================================================
 let ACTIVE_PATH = {
   continent: null,
@@ -30,98 +33,80 @@ let ACTIVE_PATH = {
 const sortAZ = (a, b) =>
   String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
 
-const isUS = (iso2) => String(iso2 || "").toLowerCase() === "us";
+const IS_US = (iso2) => String(iso2 || "").toUpperCase() === "US";
 
 // ============================================================
-// FETCH — canonical frontend-safe hierarchy
+// FETCH DATA
 // ============================================================
-async function fetchRows(supabase) {
-  const { data, error } = await supabase.rpc("sidebar_hierarchy_v2");
+async function fetchNodes(supabase) {
+  const { data, error } = await supabase
+    .from("sidebar_nodes_v1")
+    .select("*");
+
+  if (error) throw error;
+  return data || [];
+}
+
+async function fetchCounts(supabase) {
+  const { data, error } = await supabase.rpc("sidebar_hierarchy_v1");
   if (error) throw error;
   return data || [];
 }
 
 // ============================================================
-// BUILD TREE (ORDER-INDEPENDENT, SAFE)
+// BUILD TREE (NO AGGREGATION, PURE STRUCTURE)
 // ============================================================
-function buildTree(rows) {
+function buildTree(nodes, counts) {
   const tree = {};
 
-  for (const r of rows) {
-    const {
-      level,
-      continent,
-      country,
-      state,
-      city,
-      count,
-      country_iso2,
-    } = r;
+  // ---- preload counts lookup ----
+  const countMap = {};
+  counts.forEach(r => {
+    const key = [
+      r.continent,
+      r.country,
+      r.state,
+      r.city,
+      r.level
+    ].join("|");
+    countMap[key] = Number(r.count || 0);
+  });
 
-    if (!continent) continue;
+  const getCount = (continent, country, state, city, level) =>
+    countMap[[continent, country, state, city, level].join("|")] || 0;
 
-    // ---------- CONTINENT ----------
+  // ---- build nodes ----
+  nodes.forEach(n => {
+    const { continent, country, country_iso2, state, city } = n;
+    if (!continent || !country || !city) return;
+
     tree[continent] ??= {
-      count: 0,
-      countries: {},
+      count: getCount(continent, null, null, null, "continent"),
+      countries: {}
     };
 
-    if (level === "continent") {
-      tree[continent].count = Number(count);
-      continue;
-    }
-
-    if (!country) continue;
-
-    // ---------- COUNTRY ----------
     tree[continent].countries[country] ??= {
-      count: 0,
       iso2: country_iso2 || null,
-      states: {},   // USA only
-      cities: {},   // NON-US only
+      count: getCount(continent, country, null, null, "country"),
+      states: {},
+      cities: {}
     };
 
-    if (level === "country") {
-      tree[continent].countries[country].count = Number(count);
-      continue;
-    }
+    const isUS = IS_US(country_iso2);
 
-    // ========================================================
-    // USA LOGIC
-    // ========================================================
-    if (isUS(country_iso2)) {
-      if (level === "state" && state) {
-        tree[continent].countries[country].states[state] ??= {
-          count: 0,
-          cities: {},
-        };
-        tree[continent].countries[country].states[state].count = Number(count);
-        continue;
-      }
+    if (isUS && state) {
+      tree[continent].countries[country].states[state] ??= {
+        count: getCount(continent, country, state, null, "state"),
+        cities: {}
+      };
 
-      if (level === "city" && city && state) {
-        tree[continent].countries[country].states[state] ??= {
-          count: 0,
-          cities: {},
-        };
-
-        tree[continent].countries[country].states[state].cities[city] =
-          (tree[continent].countries[country].states[state].cities[city] || 0) +
-          Number(count);
-      }
-
-      continue;
-    }
-
-    // ========================================================
-    // NON-US LOGIC (STATE IS 100 % IGNORED)
-    // ========================================================
-    if (level === "city" && city) {
+      tree[continent].countries[country].states[state].cities[city] =
+        getCount(continent, country, state, city, "city");
+    } else {
       tree[continent].countries[country].cities[city] =
-        (tree[continent].countries[country].cities[city] || 0) +
-        Number(count);
+        getCount(continent, country, null, city, "city");
     }
-  }
+  });
 
   return tree;
 }
@@ -136,25 +121,27 @@ function applyLocation(next) {
 }
 
 // ============================================================
-// BUILD SIDEBAR (ENTRYPOINT)
+// BUILD SIDEBAR
 // ============================================================
 export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
 
-  console.log("SIDEBAR BUILD");
-
+  console.log("🧱 SIDEBAR BUILD START");
   menu.innerHTML = "Loading…";
 
-  let rows;
+  let nodes, counts;
   try {
-    rows = await fetchRows(supabase);
+    [nodes, counts] = await Promise.all([
+      fetchNodes(supabase),
+      fetchCounts(supabase)
+    ]);
   } catch (e) {
     console.error("Sidebar load failed", e);
     menu.innerHTML = "Failed to load";
     return;
   }
 
-  const tree = buildTree(rows);
+  const tree = buildTree(nodes, counts);
   menu.innerHTML = "";
 
   Object.entries(tree)
@@ -163,7 +150,7 @@ export async function buildFrontendSidebar(supabase) {
       const cont = createLine({
         type: "continent",
         label: continent,
-        count: cData.count,
+        count: cData.count
       });
 
       const contChildren = createChildren(true);
@@ -181,12 +168,12 @@ export async function buildFrontendSidebar(supabase) {
             type: "country",
             label: country,
             count: coData.count,
-            iso2: coData.iso2,
+            iso2: coData.iso2
           });
 
           const coChildren = createChildren();
 
-          co.querySelector(".arrow")?.addEventListener("click", (e) => {
+          co.querySelector(".arrow")?.addEventListener("click", e => {
             e.stopPropagation();
             toggle(co, coChildren);
           });
@@ -196,20 +183,20 @@ export async function buildFrontendSidebar(supabase) {
 
           contChildren.append(co, coChildren);
 
-          // ---------- USA ----------
-          if (isUS(coData.iso2)) {
+          // 🇺🇸 USA
+          if (IS_US(coData.iso2)) {
             Object.entries(coData.states)
               .sort(([a], [b]) => sortAZ(a, b))
               .forEach(([state, sData]) => {
                 const st = createLine({
                   type: "state",
                   label: state,
-                  count: sData.count,
+                  count: sData.count
                 });
 
                 const stChildren = createChildren();
 
-                st.querySelector(".arrow")?.addEventListener("click", (e) => {
+                st.querySelector(".arrow")?.addEventListener("click", e => {
                   e.stopPropagation();
                   toggle(st, stChildren);
                 });
@@ -225,7 +212,7 @@ export async function buildFrontendSidebar(supabase) {
                     const ct = createLine({
                       type: "city",
                       label: city,
-                      count,
+                      count
                     });
 
                     ct.onclick = () =>
@@ -234,18 +221,17 @@ export async function buildFrontendSidebar(supabase) {
                     stChildren.append(ct);
                   });
               });
-
             return;
           }
 
-          // ---------- NON-US ----------
+          // 🌍 Rest of world
           Object.entries(coData.cities)
             .sort(([a], [b]) => sortAZ(a, b))
             .forEach(([city, count]) => {
               const ct = createLine({
                 type: "city",
                 label: city,
-                count,
+                count
               });
 
               ct.onclick = () =>
@@ -257,6 +243,7 @@ export async function buildFrontendSidebar(supabase) {
     });
 
   updateActiveClasses();
+  console.log("✅ SIDEBAR BUILD DONE");
 }
 
 // ============================================================
@@ -269,9 +256,7 @@ function createLine({ type, label, count, iso2 = null }) {
 
   const flag =
     type === "country" && iso2
-      ? `<img class="flag"
-              src="assets/flags/${iso2.toLowerCase()}.svg"
-              alt=""
+      ? `<img class="flag" src="assets/flags/${iso2.toLowerCase()}.svg"
               onerror="this.style.display='none'">`
       : "";
 
@@ -301,14 +286,14 @@ function toggle(line, children) {
 function updateActiveClasses() {
   document
     .querySelectorAll("#sidebarMenu .line")
-    .forEach((el) => {
+    .forEach(el => {
       const label = el.dataset.label;
       el.classList.toggle(
         "active",
         label === ACTIVE_PATH.continent ||
-          label === ACTIVE_PATH.country ||
-          label === ACTIVE_PATH.state ||
-          label === ACTIVE_PATH.city
+        label === ACTIVE_PATH.country ||
+        label === ACTIVE_PATH.state ||
+        label === ACTIVE_PATH.city
       );
     });
 }
