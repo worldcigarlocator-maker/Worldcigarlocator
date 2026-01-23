@@ -454,8 +454,12 @@ function updateChipUI() {
 }
 
 // ============================================================
-// LIVE SEARCH + FILTER CHIPS (debounced + safe)
+// LIVE SEARCH + FILTER CHIPS (LAW, CANONICAL)
+// - Search-text vs Sidebar = Last-Action-Wins
+// - Chips är alltid modifiers
+// - Ingen direkt FILTER_STATE-mutation
 // ============================================================
+
 let SEARCH_TIMER = null;
 
 function cancelDebounce() {
@@ -465,25 +469,15 @@ function cancelDebounce() {
   }
 }
 
-function hasAnyFilterActive() {
-  return !!(
-    FILTER_STATE.search ||
-    FILTER_STATE.type ||
-    FILTER_STATE.access ||
-    FILTER_STATE.continent ||
-    FILTER_STATE.country ||
-    FILTER_STATE.state ||
-    FILTER_STATE.city
-  );
-}
-
 function initLiveSearchAndFilters() {
   const input = dom("#searchInput");
   const searchBtn = dom("#searchBtn");
   const clearBtn = dom("#clearBtn");
   const chips = dom("#searchFilters");
 
-  // --- chips (toggle on/off) ---
+  // ----------------------------------------------------------
+  // CHIPS (type / access) — modifiers only
+  // ----------------------------------------------------------
   chips?.addEventListener("click", (e) => {
     const btn = e.target.closest(".chip");
     if (!btn) return;
@@ -491,66 +485,66 @@ function initLiveSearchAndFilters() {
     cancelDebounce();
 
     const filter = btn.dataset.filter; // "type" | "access"
-    const value = btn.dataset.value;   // "store"/"lounge"/"public"/"members"
+    const value  = btn.dataset.value;
 
     if (filter === "type") {
-      FILTER_STATE.type = (FILTER_STATE.type === value) ? null : value;
+      toggleChip({ type: value });
     } else if (filter === "access") {
-      FILTER_STATE.access = (FILTER_STATE.access === value) ? null : value;
+      toggleChip({ access: value });
     }
-
-    updateChipUI();
-
-    if (!hasAnyFilterActive()) {
-      resetToHero();
-      return;
-    }
-
-    runSearch(); // ✅ immediate + safe
   });
 
-  // --- live input (debounced) ---
+  // ----------------------------------------------------------
+  // LIVE SEARCH INPUT — SEARCH becomes master (LAW)
+  // ----------------------------------------------------------
   input?.addEventListener("input", () => {
     const raw = input.value;
-
     const parsed = parseSearchTokens(raw);
-
-    // sync tokens into state
-    if (parsed.type) FILTER_STATE.type = parsed.type;
-    if (parsed.access) FILTER_STATE.access = parsed.access;
-
-    FILTER_STATE.search = parsed.text;
-    updateChipUI();
 
     cancelDebounce();
     SEARCH_TIMER = setTimeout(() => {
-      if (!hasAnyFilterActive()) {
-        resetToHero();
+      // Ingenting skrivet → lämna SEARCH-mode
+      if (!parsed.text && !parsed.type && !parsed.access) {
+        clearSearchMaster();
         return;
       }
-      runSearch();
+
+      // Search blir master
+      activateSearch({ text: parsed.text });
+
+      // Chips är modifiers
+      if (parsed.type || parsed.access) {
+        toggleChip({
+          type: parsed.type ?? undefined,
+          access: parsed.access ?? undefined,
+        });
+      }
     }, 350);
   });
 
-  // --- explicit search button / Enter (instant) ---
+  // ----------------------------------------------------------
+  // SEARCH BUTTON / ENTER — instant search
+  // ----------------------------------------------------------
   const triggerInstant = () => {
     if (!input) return;
 
     cancelDebounce();
 
     const parsed = parseSearchTokens(input.value);
-    if (parsed.type) FILTER_STATE.type = parsed.type;
-    if (parsed.access) FILTER_STATE.access = parsed.access;
 
-    FILTER_STATE.search = parsed.text;
-    updateChipUI();
-
-    if (!hasAnyFilterActive()) {
-      resetToHero();
+    if (!parsed.text && !parsed.type && !parsed.access) {
+      clearSearchMaster();
       return;
     }
 
-    runSearch();
+    activateSearch({ text: parsed.text });
+
+    if (parsed.type || parsed.access) {
+      toggleChip({
+        type: parsed.type ?? undefined,
+        access: parsed.access ?? undefined,
+      });
+    }
   };
 
   if (searchBtn) searchBtn.onclick = triggerInstant;
@@ -559,30 +553,21 @@ function initLiveSearchAndFilters() {
     if (e.key === "Enter") triggerInstant();
   });
 
-  // --- clear (clears search+chips, keeps sidebar location) ---
+  // ----------------------------------------------------------
+  // CLEAR SEARCH — clear SEARCH master only
+  // ----------------------------------------------------------
   if (clearBtn) {
     clearBtn.onclick = () => {
       cancelDebounce();
-
       if (input) input.value = "";
-
-      FILTER_STATE.search = "";
-      FILTER_STATE.type = null;
-      FILTER_STATE.access = null;
-
+      clearSearchMaster();
       updateChipUI();
-
-      // if location is selected -> show that location (not hero)
-      if (FILTER_STATE.continent || FILTER_STATE.country || FILTER_STATE.state || FILTER_STATE.city) {
-        runSearch();
-      } else {
-        resetToHero();
-      }
     };
   }
 
   updateChipUI();
 }
+
 
 // ============================================================
 // PUBLIC API FOR SIDEBAR (location filters)
