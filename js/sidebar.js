@@ -37,13 +37,10 @@ async function fetchRows(supabase) {
   return data || [];
 }
 
-// ============================================================
-// BUILD TREE — normalized for UI rules
-// ============================================================
 function buildTree(rows) {
   const tree = {};
 
-  rows.forEach((r) => {
+  rows.forEach(r => {
     const {
       continent,
       country,
@@ -51,64 +48,71 @@ function buildTree(rows) {
       city,
       count,
       country_iso2,
-      level,
+      level
     } = r;
 
     if (!continent) return;
 
-    const lvl = String(level || "").toLowerCase();
-
-    // ---------- CONTINENT ----------
     tree[continent] ??= { count: 0, countries: {} };
 
-    if (lvl === "continent") {
+    // ---------- CONTINENT ----------
+    if (level === "continent") {
       tree[continent].count = Number(count);
       return;
     }
 
     if (!country) return;
 
-    // ---------- COUNTRY ----------
     tree[continent].countries[country] ??= {
       count: 0,
       iso2: country_iso2 || null,
-      states: {},   // used ONLY for USA
-      cities: {},   // used for non-USA
+      states: {},
+      cities: {}
     };
 
-    const cNode = tree[continent].countries[country];
-
-    if (lvl === "country") {
-      cNode.count = Number(count);
+    // ---------- COUNTRY ----------
+    if (level === "country") {
+      tree[continent].countries[country].count = Number(count);
       return;
     }
 
-    // ---------- USA: STATE → CITY ----------
-    if (IS_USA(country)) {
+    const isUS = country_iso2?.toLowerCase() === "us";
+
+    // ---------- STATE (USA ONLY) ----------
+    if (isUS && level === "state") {
       if (!state) return;
 
-      cNode.states[state] ??= { count: 0, cities: {} };
-
-      if (lvl === "state") {
-        cNode.states[state].count = Number(count);
-        return;
-      }
-
-      if (lvl === "city" && city) {
-        cNode.states[state].cities[city] = Number(count);
-      }
-
+      tree[continent].countries[country].states[state] ??= {
+        count: Number(count),
+        cities: {}
+      };
       return;
     }
 
-    // ---------- NON-USA: CITY directly under COUNTRY ----------
-    if (lvl === "city" && city) {
-      cNode.cities[city] = Number(count);
+    // ---------- CITY ----------
+    if (level === "city" && city) {
+      if (isUS && state) {
+        // USA: city under state
+        tree[continent]
+          .countries[country]
+          .states[state] ??= { count: 0, cities: {} };
+
+        tree[continent]
+          .countries[country]
+          .states[state]
+          .cities[city] = Number(count);
+      } else {
+        // Rest of world: city directly under country
+        tree[continent]
+          .countries[country]
+          .cities[city] = Number(count);
+      }
     }
   });
 
   return tree;
 }
+
 
 // ============================================================
 // APPLY LOCATION — CANONICAL
