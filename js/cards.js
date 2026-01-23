@@ -159,35 +159,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ============================================================
 // CANONICAL FILTER STATE & MASTER CONTROLLER (WCL)
-// ------------------------------------------------------------
-// - Last-Action-Wins mellan SEARCH och LOCATION
-// - Chips (type/access) är alltid modifiers
-// - ENDA platsen där filter muteras
 // ============================================================
 
-export const MASTER = {
-  IDLE: "idle",
-  SEARCH: "search",
-  LOCATION: "location",
-};
+export const MASTER = { ... };
 
 let MASTER_MODE = MASTER.IDLE;
 
-const STATE = {
-  location: {
-    continent: null,
-    country: null,
-    state: null,
-    city: null,
-  },
-  search: {
-    text: "",
-  },
-  chips: {
-    type: null,    // "store" | "lounge" | null
-    access: null,  // "public" | "members" | null
-  },
+const STATE = { ... };
+
+// ------------------------------------------------------------
+// TEMP BRIDGE — legacy UI helpers expect FILTER_STATE
+// ------------------------------------------------------------
+const FILTER_STATE = {
+  get continent() { return STATE.location.continent; },
+  get country()   { return STATE.location.country; },
+  get state()     { return STATE.location.state; },
+  get city()      { return STATE.location.city; },
+
+  get search()    { return STATE.search.text; },
+
+  get type()      { return STATE.chips.type; },
+  get access()    { return STATE.chips.access; }
 };
+
 
 // ------------------------------------------------------------
 // INTERNAL HELPERS (private)
