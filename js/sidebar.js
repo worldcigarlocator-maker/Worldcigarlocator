@@ -107,7 +107,7 @@ function buildTree(rows) {
 // ============================================================
 function applyLocation(next) {
   ACTIVE_PATH = { ...ACTIVE_PATH, ...next };
-  setLocationFilter(ACTIVE_PATH);
+ activateLocation(ACTIVE_PATH);
   runSearch();
   updateActiveClasses();
 }
