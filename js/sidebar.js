@@ -6,6 +6,7 @@
 // - Övriga länder: Continent → Country → City
 // - Sidebar sätter LOCATION som master (LAW)
 // ============================================================
+console.log("SIDEBAR.JS LOADED");
 
 import { activateLocation } from "./cards.js";
 
