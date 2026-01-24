@@ -178,7 +178,7 @@ function applyLocation(next) {
 }
 
 // ============================================================
-// BUILD SIDEBAR (PUBLIC)
+// BUILD SIDEBAR (PUBLIC, CANONICAL)
 // ============================================================
 export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
@@ -200,6 +200,7 @@ export async function buildFrontendSidebar(supabase) {
   Object.entries(tree)
     .sort(([a], [b]) => sortAZ(a, b))
     .forEach(([continent, cData]) => {
+
       // ---------- CONTINENT ----------
       const cont = createLine({
         type: "continent",
@@ -207,21 +208,18 @@ export async function buildFrontendSidebar(supabase) {
         count: cData.count,
       });
 
-      // continents öppna default, men toggelbara
-      const contChildren = createChildren(true);
+      const contChildren = createChildren(true); // 👈 open by default
       cont.classList.add("open");
 
-      // arrow = toggle only
+      // arrow = toggle
       cont.querySelector(".arrow")?.addEventListener("click", (e) => {
         e.stopPropagation();
         toggle(cont, contChildren);
       });
 
-      // row click = location + toggle
-      cont.onclick = () => {
+      // label = location master
+      cont.onclick = () =>
         applyLocation({ continent, country: null, state: null, city: null });
-        toggle(cont, contChildren);
-      };
 
       menu.append(cont, contChildren);
 
@@ -229,6 +227,7 @@ export async function buildFrontendSidebar(supabase) {
       Object.entries(cData.countries)
         .sort(([a], [b]) => sortAZ(a, b))
         .forEach(([country, coData]) => {
+
           const co = createLine({
             type: "country",
             label: country,
@@ -236,28 +235,28 @@ export async function buildFrontendSidebar(supabase) {
             iso2: coData.iso2,
           });
 
-          const coChildren = createChildren(false);
+          const coChildren = createChildren(false); // 👈 closed default
 
-          // arrow = toggle only
+          // arrow toggle
           co.querySelector(".arrow")?.addEventListener("click", (e) => {
             e.stopPropagation();
             toggle(co, coChildren);
           });
 
-          // row click = location + open
-          co.onclick = () => {
+          // label click = location
+          co.onclick = () =>
             applyLocation({ continent, country, state: null, city: null });
-            co.classList.add("open");
-            coChildren.classList.add("show");
-          };
 
           contChildren.append(co, coChildren);
 
-          // ---------- USA ----------
-          if (IS_US(coData.iso2)) {
+          const isUS = IS_US(coData.iso2);
+
+          // ---------- USA: STATES ----------
+          if (isUS) {
             Object.entries(coData.states)
               .sort(([a], [b]) => sortAZ(a, b))
               .forEach(([state, sData]) => {
+
                 const st = createLine({
                   type: "state",
                   label: state,
@@ -271,17 +270,15 @@ export async function buildFrontendSidebar(supabase) {
                   toggle(st, stChildren);
                 });
 
-                st.onclick = () => {
+                st.onclick = () =>
                   applyLocation({ continent, country, state, city: null });
-                  st.classList.add("open");
-                  stChildren.classList.add("show");
-                };
 
                 coChildren.append(st, stChildren);
 
                 Object.entries(sData.cities)
                   .sort(([a], [b]) => sortAZ(a, b))
                   .forEach(([city, count]) => {
+
                     const ct = createLine({
                       type: "city",
                       label: city,
@@ -295,13 +292,14 @@ export async function buildFrontendSidebar(supabase) {
                   });
               });
 
-            return;
+            return; // ✅ exit USA handling only
           }
 
-          // ---------- NON-USA ----------
+          // ---------- NON-USA: CITIES ----------
           Object.entries(coData.cities)
             .sort(([a], [b]) => sortAZ(a, b))
             .forEach(([city, count]) => {
+
               const ct = createLine({
                 type: "city",
                 label: city,
