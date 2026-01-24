@@ -209,8 +209,17 @@ export async function buildFrontendSidebar(supabase) {
       const contChildren = createChildren(true);
       cont.classList.add("open");
 
-      cont.onclick = () =>
-        applyLocation({ continent, country: null, state: null, city: null });
+ cont.onclick = () => {
+  applyLocation({ continent, country: null, state: null, city: null });
+  toggle(cont, contChildren); // 👈 gör att den kan stängas
+};
+
+
+  // 🔓 ensure open on click
+  co.classList.add("open");
+  coChildren.classList.add("show");
+};
+
 
       menu.append(cont, contChildren);
 
@@ -231,8 +240,12 @@ export async function buildFrontendSidebar(supabase) {
             toggle(co, coChildren);
           });
 
-          co.onclick = () =>
-            applyLocation({ continent, country, state: null, city: null });
+    cont.onclick = () => {
+  applyLocation({ continent, country: null, state: null, city: null });
+  cont.classList.add("open");
+  contChildren.classList.add("show");
+};
+
 
           contChildren.append(co, coChildren);
 
