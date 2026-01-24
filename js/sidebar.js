@@ -200,29 +200,32 @@ export async function buildFrontendSidebar(supabase) {
   Object.entries(tree)
     .sort(([a], [b]) => sortAZ(a, b))
     .forEach(([continent, cData]) => {
+      // ---------- CONTINENT ----------
       const cont = createLine({
         type: "continent",
         label: continent,
         count: cData.count,
       });
 
+      // continents öppna default, men toggelbara
       const contChildren = createChildren(true);
       cont.classList.add("open");
 
- cont.onclick = () => {
-  applyLocation({ continent, country: null, state: null, city: null });
-  toggle(cont, contChildren); // 👈 gör att den kan stängas
-};
+      // arrow = toggle only
+      cont.querySelector(".arrow")?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggle(cont, contChildren);
+      });
 
-
-  // 🔓 ensure open on click
-  co.classList.add("open");
-  coChildren.classList.add("show");
-};
-
+      // row click = location + toggle
+      cont.onclick = () => {
+        applyLocation({ continent, country: null, state: null, city: null });
+        toggle(cont, contChildren);
+      };
 
       menu.append(cont, contChildren);
 
+      // ---------- COUNTRIES ----------
       Object.entries(cData.countries)
         .sort(([a], [b]) => sortAZ(a, b))
         .forEach(([country, coData]) => {
@@ -233,19 +236,20 @@ export async function buildFrontendSidebar(supabase) {
             iso2: coData.iso2,
           });
 
-          const coChildren = createChildren();
+          const coChildren = createChildren(false);
 
+          // arrow = toggle only
           co.querySelector(".arrow")?.addEventListener("click", (e) => {
             e.stopPropagation();
             toggle(co, coChildren);
           });
 
-    cont.onclick = () => {
-  applyLocation({ continent, country: null, state: null, city: null });
-  cont.classList.add("open");
-  contChildren.classList.add("show");
-};
-
+          // row click = location + open
+          co.onclick = () => {
+            applyLocation({ continent, country, state: null, city: null });
+            co.classList.add("open");
+            coChildren.classList.add("show");
+          };
 
           contChildren.append(co, coChildren);
 
@@ -260,15 +264,18 @@ export async function buildFrontendSidebar(supabase) {
                   count: sData.count,
                 });
 
-                const stChildren = createChildren();
+                const stChildren = createChildren(false);
 
                 st.querySelector(".arrow")?.addEventListener("click", (e) => {
                   e.stopPropagation();
                   toggle(st, stChildren);
                 });
 
-                st.onclick = () =>
+                st.onclick = () => {
                   applyLocation({ continent, country, state, city: null });
+                  st.classList.add("open");
+                  stChildren.classList.add("show");
+                };
 
                 coChildren.append(st, stChildren);
 
@@ -311,6 +318,7 @@ export async function buildFrontendSidebar(supabase) {
 
   updateActiveClasses();
 }
+
 
 // ============================================================
 // UI HELPERS
