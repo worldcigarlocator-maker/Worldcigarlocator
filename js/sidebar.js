@@ -1,11 +1,11 @@
 // ============================================================
-// SIDEBAR.JS — WCL Sidebar (CANONICAL, FINAL)
+// SIDEBAR.JS — WCL Sidebar (CANONICAL, DETERMINISTIC)
 // ------------------------------------------------------------
-// DATA CONTRACT:
-// - sidebar_nodes_v1  → REN STRUKTUR (continent/country/state/city)
-// - sidebar_counts_v1 → ENDA KÄLLA FÖR SIFFROR
-//
-// RULES:
+// STRATEGI (LÅST):
+// - Backend är korrekt (nodes + counts)
+// - Frontend ansvarar för korrekt matchning
+// - En (1) canonical key-funktion
+// - Inga cities visas om count = 0
 // - USA: Continent → Country → State → City
 // - Övriga: Continent → Country → City
 // - Sidebar sätter LOCATION som master (LAW)
@@ -13,12 +13,156 @@
 
 import { activateLocation } from "./cards.js";
 
-console.log("✅ SIDEBAR.JS (NODES + COUNTS) LOADED");
-
+// ============================================================
+// DOM
+// ============================================================
 const menu = document.querySelector("#sidebarMenu");
 
 // ============================================================
-// UI STATE (highlight only)
+// HELPERS — CANONICAL NORMALIZATION
+// ============================================================
+const norm = (v) => (v ?? "").toString().trim();
+
+const makeKey = ({
+  continent = "",
+  country = "",
+  state = "",
+  city = "",
+  level = "",
+}) =>
+  [
+    norm(continent),
+    norm(country),
+    norm(state),
+    norm(city),
+    norm(level),
+  ].join("|");
+
+// USA check (ISO2 är canonical)
+const IS_US = (iso2) => iso2?.toLowerCase() === "us";
+
+// Sort A–Z (UI only)
+const sortAZ = (a, b) =>
+  String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
+
+// ============================================================
+// FETCH
+// ============================================================
+async function fetchNodesAndCounts(supabase) {
+  const [nodesRes, countsRes] = await Promise.all([
+    supabase.rpc("sidebar_nodes_v1"),
+    supabase.rpc("sidebar_counts_v1"),
+  ]);
+
+  if (nodesRes.error) throw nodesRes.error;
+  if (countsRes.error) throw countsRes.error;
+
+  return {
+    nodes: nodesRes.data || [],
+    counts: countsRes.data || [],
+  };
+}
+
+// ============================================================
+// BUILD TREE — PURE, NO GUESSING
+// ============================================================
+function buildTree(nodes, counts) {
+  const tree = {};
+
+  // ---- build count lookup ----
+  const countMap = {};
+  counts.forEach((r) => {
+    const key = makeKey({
+      continent: r.continent,
+      country: r.country,
+      state: r.state,
+      city: r.city,
+      level: r.level,
+    });
+    countMap[key] = Number(r.count || 0);
+  });
+
+  const getCount = (args) => countMap[makeKey(args)] || 0;
+
+  // ---- build structure from nodes ----
+  nodes.forEach((n) => {
+    const { continent, country, country_iso2, state, city, level } = n;
+    if (!continent || !country) return;
+
+    // ---------- CONTINENT ----------
+    tree[continent] ??= {
+      count: getCount({ continent, level: "continent" }),
+      countries: {},
+    };
+
+    // ---------- COUNTRY ----------
+    tree[continent].countries[country] ??= {
+      iso2: country_iso2 || null,
+      count: getCount({ continent, country, level: "country" }),
+      states: {},
+      cities: {},
+    };
+
+    const isUS = IS_US(country_iso2);
+
+    // ---------- STATE (USA ONLY) ----------
+    if (isUS && level === "state" && state) {
+      tree[continent].countries[country].states[state] ??= {
+        count: getCount({
+          continent,
+          country,
+          state,
+          level: "state",
+        }),
+        cities: {},
+      };
+      return;
+    }
+
+    // ---------- CITY ----------
+    if (level === "city" && city) {
+      const cityCount = isUS
+        ? getCount({
+            continent,
+            country,
+            state,
+            city,
+            level: "city",
+          })
+        : getCount({
+            continent,
+            country,
+            city,
+            level: "city",
+          });
+
+      // 🔒 RULE: city without cards is NOT rendered
+      if (cityCount <= 0) return;
+
+      if (isUS && state) {
+        tree[continent].countries[country].states[state] ??= {
+          count: getCount({
+            continent,
+            country,
+            state,
+            level: "state",
+          }),
+          cities: {},
+        };
+
+        tree[continent].countries[country].states[state].cities[city] =
+          cityCount;
+      } else {
+        tree[continent].countries[country].cities[city] = cityCount;
+      }
+    }
+  });
+
+  return tree;
+}
+
+// ============================================================
+// APPLY LOCATION (LAW)
 // ============================================================
 let ACTIVE_PATH = {
   continent: null,
@@ -27,90 +171,6 @@ let ACTIVE_PATH = {
   city: null,
 };
 
-// ============================================================
-// HELPERS
-// ============================================================
-const sortAZ = (a, b) =>
-  String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
-
-const isUS = (iso2) => String(iso2 || "").toLowerCase() === "us";
-
-// ============================================================
-// FETCH
-// ============================================================
-async function fetchNodes(supabase) {
-  const { data, error } = await supabase.rpc("sidebar_nodes_v1");
-  if (error) throw error;
-  return data || [];
-}
-
-async function fetchCounts(supabase) {
-  const { data, error } = await supabase.rpc("sidebar_counts_v1");
-  if (error) throw error;
-  return data || [];
-}
-
-// ============================================================
-// BUILD TREE — PURE + DETERMINISTIC
-// ============================================================
-function buildTree(nodes, counts) {
-  const tree = {};
-
-  // ---- count lookup (single source of truth) ----
-  const countMap = {};
-  counts.forEach((r) => {
-    const key = [
-      r.level,
-      r.continent ?? "",
-      r.country ?? "",
-      r.state ?? "",
-      r.city ?? "",
-    ].join("|");
-    countMap[key] = Number(r.count || 0);
-  });
-
-  const getCount = (level, continent, country, state, city) =>
-    countMap[[level, continent ?? "", country ?? "", state ?? "", city ?? ""].join("|")] || 0;
-
-  // ---- build structure from nodes ----
-  nodes.forEach((n) => {
-    const { continent, country, country_iso2, state, city } = n;
-    if (!continent || !country || !city) return;
-
-    tree[continent] ??= {
-      count: getCount("continent", continent),
-      countries: {},
-    };
-
-    tree[continent].countries[country] ??= {
-      iso2: country_iso2 || null,
-      count: getCount("country", continent, country),
-      states: {},
-      cities: {},
-    };
-
-    const usa = isUS(country_iso2);
-
-    if (usa && state) {
-      tree[continent].countries[country].states[state] ??= {
-        count: getCount("state", continent, country, state),
-        cities: {},
-      };
-
-      tree[continent].countries[country].states[state].cities[city] =
-        getCount("city", continent, country, state, city);
-    } else {
-      tree[continent].countries[country].cities[city] =
-        getCount("city", continent, country, null, city);
-    }
-  });
-
-  return tree;
-}
-
-// ============================================================
-// APPLY LOCATION — LAW
-// ============================================================
 function applyLocation(next) {
   ACTIVE_PATH = { ...ACTIVE_PATH, ...next };
   activateLocation(ACTIVE_PATH);
@@ -118,26 +178,23 @@ function applyLocation(next) {
 }
 
 // ============================================================
-// BUILD SIDEBAR
+// BUILD SIDEBAR (PUBLIC)
 // ============================================================
 export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
 
   menu.innerHTML = "Loading…";
 
-  let nodes, counts;
+  let payload;
   try {
-    [nodes, counts] = await Promise.all([
-      fetchNodes(supabase),
-      fetchCounts(supabase),
-    ]);
+    payload = await fetchNodesAndCounts(supabase);
   } catch (e) {
     console.error("❌ Sidebar fetch failed", e);
     menu.innerHTML = "Failed to load";
     return;
   }
 
-  const tree = buildTree(nodes, counts);
+  const tree = buildTree(payload.nodes, payload.counts);
   menu.innerHTML = "";
 
   Object.entries(tree)
@@ -180,7 +237,7 @@ export async function buildFrontendSidebar(supabase) {
           contChildren.append(co, coChildren);
 
           // ---------- USA ----------
-          if (isUS(coData.iso2)) {
+          if (IS_US(coData.iso2)) {
             Object.entries(coData.states)
               .sort(([a], [b]) => sortAZ(a, b))
               .forEach(([state, sData]) => {
@@ -282,17 +339,14 @@ function toggle(line, children) {
 }
 
 function updateActiveClasses() {
-  document
-    .querySelectorAll("#sidebarMenu .line")
-    .forEach((el) => {
-      const label = el.dataset.label;
-      el.classList.toggle(
-        "active",
-        label === ACTIVE_PATH.continent ||
-          label === ACTIVE_PATH.country ||
-          label === ACTIVE_PATH.state ||
-          label === ACTIVE_PATH.city
-      );
-    });
+  document.querySelectorAll("#sidebarMenu .line").forEach((el) => {
+    const label = el.dataset.label;
+    el.classList.toggle(
+      "active",
+      label === ACTIVE_PATH.continent ||
+        label === ACTIVE_PATH.country ||
+        label === ACTIVE_PATH.state ||
+        label === ACTIVE_PATH.city
+    );
+  });
 }
-
