@@ -1,133 +1,137 @@
 // ============================================================
-// SIDEBAR.JS — WCL Sidebar (CANONICAL, NODE-DRIVEN)
+// SIDEBAR.JS — WCL Sidebar Hierarchy (CANONICAL v4)
 // ------------------------------------------------------------
-// DATA:
-// - Structure: sidebar_nodes_v1 (flat, ALL cities)
-// - Counts: sidebar_hierarchy_v1 (aggregated, trusted)
-//
-// RULES:
-// - USA: Country → State → City
-// - Rest: Country → City
-// - Sidebar sets LOCATION as master (LAW)
+// - Enumererar ALLA noder från backend (ingen frontend-aggregation)
+// - USA: Continent → Country → State → City
+// - Övriga länder: Continent → Country → City
+// - Counts matchas deterministiskt (state ignoreras utanför USA)
+// - Sidebar sätter LOCATION som master (LAW)
 // ============================================================
 
-console.log("✅ SIDEBAR.JS LOADED (nodes_v1)");
+console.log("✅ SIDEBAR.JS LOADED (v4)");
 
 import { activateLocation } from "./cards.js";
 
 const menu = document.querySelector("#sidebarMenu");
 
 // ============================================================
-// UI STATE (only for highlighting)
-// ============================================================
-let ACTIVE_PATH = {
-  continent: null,
-  country: null,
-  state: null,
-  city: null,
-};
-
-// ============================================================
 // HELPERS
 // ============================================================
+
 const sortAZ = (a, b) =>
   String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
 
-const IS_US = (iso2) => String(iso2 || "").toUpperCase() === "US";
+const IS_US = (iso2) => String(iso2 || "").toLowerCase() === "us";
 
 // ============================================================
-// FETCH DATA
+// FETCH
 // ============================================================
+
 async function fetchNodes(supabase) {
-  const { data, error } = await supabase
-    .from("sidebar_nodes_v1")
-    .select("*");
-
+  const { data, error } = await supabase.rpc("sidebar_nodes_v1");
   if (error) throw error;
   return data || [];
 }
 
 async function fetchCounts(supabase) {
-  const { data, error } = await supabase.rpc("sidebar_hierarchy_v1");
+  const { data, error } = await supabase.rpc("sidebar_hierarchy_v2");
   if (error) throw error;
   return data || [];
 }
 
 // ============================================================
-// BUILD TREE (NO AGGREGATION, PURE STRUCTURE)
+// BUILD TREE — PURE STRUCTURE + CANONICAL COUNTS
 // ============================================================
-console.log("🔥 buildTree v3 ACTIVE");
 
 function buildTree(nodes, counts) {
+  console.log("🔥 buildTree v4 ACTIVE");
+
   const tree = {};
 
-  // ---- preload counts lookup ----
+  // ---- build count lookup (CANONICAL KEYS) ----
   const countMap = {};
   counts.forEach(r => {
- const norm = (v) => v ?? "";
-
-const key = [
-  norm(r.continent),
-  norm(r.country),
-  norm(r.state),
-  norm(r.city),
-  r.level
-].join("|");
+    const key = [
+      r.continent ?? "",
+      r.country ?? "",
+      IS_US(r.country_iso2) ? (r.state ?? "") : "", // 🔒 ignore state outside US
+      r.city ?? "",
+      r.level
+    ].join("|");
 
     countMap[key] = Number(r.count || 0);
   });
 
- const getCount = (continent, country, state, city, level) =>
-  countMap[
-    [
+  const getCount = (continent, country, state, city, level, iso2) => {
+    const key = [
       continent ?? "",
       country ?? "",
-      state ?? "",
+      IS_US(iso2) ? (state ?? "") : "",
       city ?? "",
       level
-    ].join("|")
-  ] || 0;
+    ].join("|");
 
+    return countMap[key] || 0;
+  };
 
-  // ---- build nodes ----
+  // ---- build structural tree ----
   nodes.forEach(n => {
     const { continent, country, country_iso2, state, city } = n;
     if (!continent || !country || !city) return;
 
+    // CONTINENT
     tree[continent] ??= {
-      count: getCount(continent, null, null, null, "continent"),
+      count: getCount(continent, null, null, null, "continent", null),
       countries: {}
     };
 
+    // COUNTRY
     tree[continent].countries[country] ??= {
       iso2: country_iso2 || null,
-      count: getCount(continent, country, null, null, "country"),
+      count: getCount(continent, country, null, null, "country", country_iso2),
       states: {},
       cities: {}
     };
 
     const isUS = IS_US(country_iso2);
 
+    // USA → STATE → CITY
     if (isUS && state) {
       tree[continent].countries[country].states[state] ??= {
-        count: getCount(continent, country, state, null, "state"),
+        count: getCount(continent, country, state, null, "state", country_iso2),
         cities: {}
       };
 
-      tree[continent].countries[country].states[state].cities[city] =
-        getCount(continent, country, state, city, "city");
-    } else {
-      tree[continent].countries[country].cities[city] =
-        getCount(continent, country, null, city, "city");
+      tree[continent]
+        .countries[country]
+        .states[state]
+        .cities[city] =
+          getCount(continent, country, state, city, "city", country_iso2);
+
+      return;
     }
+
+    // NON-USA → CITY
+    tree[continent]
+      .countries[country]
+      .cities[city] =
+        getCount(continent, country, null, city, "city", country_iso2);
   });
 
   return tree;
 }
 
 // ============================================================
-// APPLY LOCATION (LAW)
+// UI STATE (ACTIVE PATH ONLY)
 // ============================================================
+
+let ACTIVE_PATH = {
+  continent: null,
+  country: null,
+  state: null,
+  city: null
+};
+
 function applyLocation(next) {
   ACTIVE_PATH = { ...ACTIVE_PATH, ...next };
   activateLocation(ACTIVE_PATH);
@@ -137,10 +141,11 @@ function applyLocation(next) {
 // ============================================================
 // BUILD SIDEBAR
 // ============================================================
+
 export async function buildFrontendSidebar(supabase) {
   if (!menu) return;
 
-  console.log("🧱 SIDEBAR BUILD START");
+  console.log("📦 SIDEBAR BUILD START");
   menu.innerHTML = "Loading…";
 
   let nodes, counts;
@@ -150,7 +155,7 @@ export async function buildFrontendSidebar(supabase) {
       fetchCounts(supabase)
     ]);
   } catch (e) {
-    console.error("Sidebar load failed", e);
+    console.error("❌ Sidebar fetch failed", e);
     menu.innerHTML = "Failed to load";
     return;
   }
@@ -197,7 +202,7 @@ export async function buildFrontendSidebar(supabase) {
 
           contChildren.append(co, coChildren);
 
-          // 🇺🇸 USA
+          // ---------- USA ----------
           if (IS_US(coData.iso2)) {
             Object.entries(coData.states)
               .sort(([a], [b]) => sortAZ(a, b))
@@ -235,10 +240,11 @@ export async function buildFrontendSidebar(supabase) {
                     stChildren.append(ct);
                   });
               });
+
             return;
           }
 
-          // 🌍 Rest of world
+          // ---------- NON-USA ----------
           Object.entries(coData.cities)
             .sort(([a], [b]) => sortAZ(a, b))
             .forEach(([city, count]) => {
@@ -261,8 +267,9 @@ export async function buildFrontendSidebar(supabase) {
 }
 
 // ============================================================
-// UI HELPERS
+// LINE FACTORY
 // ============================================================
+
 function createLine({ type, label, count, iso2 = null }) {
   const el = document.createElement("div");
   el.className = `line ${type}`;
@@ -270,7 +277,9 @@ function createLine({ type, label, count, iso2 = null }) {
 
   const flag =
     type === "country" && iso2
-      ? `<img class="flag" src="assets/flags/${iso2.toLowerCase()}.svg"
+      ? `<img class="flag"
+              src="assets/flags/${iso2.toLowerCase()}.svg"
+              alt=""
               onerror="this.style.display='none'">`
       : "";
 
@@ -286,29 +295,34 @@ function createLine({ type, label, count, iso2 = null }) {
   return el;
 }
 
-function createChildren(show = false) {
+function createChildren(open = false) {
   const el = document.createElement("div");
-  el.className = "children" + (show ? " show" : "");
+  el.className = "children" + (open ? " show" : "");
   return el;
 }
+
+// ============================================================
+// TOGGLE
+// ============================================================
 
 function toggle(line, children) {
   const open = line.classList.toggle("open");
   children.classList.toggle("show", open);
 }
 
+// ============================================================
+// ACTIVE PATH HIGHLIGHT
+// ============================================================
+
 function updateActiveClasses() {
-  document
-    .querySelectorAll("#sidebarMenu .line")
-    .forEach(el => {
-      const label = el.dataset.label;
-      el.classList.toggle(
-        "active",
-        label === ACTIVE_PATH.continent ||
+  document.querySelectorAll("#sidebarMenu .line").forEach(el => {
+    const label = el.dataset.label;
+    el.classList.toggle(
+      "active",
+      label === ACTIVE_PATH.continent ||
         label === ACTIVE_PATH.country ||
         label === ACTIVE_PATH.state ||
         label === ACTIVE_PATH.city
-      );
-    });
+    );
+  });
 }
-
