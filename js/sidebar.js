@@ -56,6 +56,8 @@ async function fetchCounts(supabase) {
 // ============================================================
 // BUILD TREE (NO AGGREGATION, PURE STRUCTURE)
 // ============================================================
+console.log("🔥 buildTree v3 ACTIVE");
+
 function buildTree(nodes, counts) {
   const tree = {};
 
