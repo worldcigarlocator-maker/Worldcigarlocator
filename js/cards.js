@@ -1,37 +1,54 @@
+
 /* ============================================================
-   WCL Analytics Client (V1) — frontend
-   - session_hash
-   - fire-and-forget event sender
+   WCL Analytics Client (V1) — frontend (CANONICAL)
+   - session_hash (30 min idle)
+   - fire-and-forget events
+   - zero coupling to search / sidebar
    ============================================================ */
 
-// 1) Var events ska skickas (Edge Function / endpoint)
+// ============================================================
+// CONFIG
+// ============================================================
 const ANALYTICS_INGEST_URL =
   "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/analytics-ingest";
 
-// 2) Session: 30 min idle → ny session
 const SESSION_IDLE_MS = 30 * 60 * 1000;
 
+// ============================================================
+// SESSION HANDLING
+// ============================================================
 function getOrCreateSession() {
   const now = Date.now();
   const raw = localStorage.getItem("wcl_session_v1");
+
   if (raw) {
     try {
       const s = JSON.parse(raw);
       if (s?.id && s?.t && now - s.t < SESSION_IDLE_MS) {
-        s.t = now; // bump
+        s.t = now; // bump timestamp
         localStorage.setItem("wcl_session_v1", JSON.stringify(s));
         return s.id;
       }
-    } catch {}
+    } catch {
+      // fall through → create new
+    }
   }
-  const id = crypto?.randomUUID
-    ? crypto.randomUUID()
-    : `${now}-${Math.random().toString(16).slice(2)}`;
-  localStorage.setItem("wcl_session_v1", JSON.stringify({ id, t: now }));
+
+  const id =
+    crypto?.randomUUID?.() ??
+    `${now}-${Math.random().toString(16).slice(2)}`;
+
+  localStorage.setItem(
+    "wcl_session_v1",
+    JSON.stringify({ id, t: now })
+  );
+
   return id;
 }
 
-// 3) Dedup: 1 view per store per session
+// ============================================================
+// DEDUP — 1 view / store / session
+// ============================================================
 function hasViewedThisSession(storeId) {
   return (
     localStorage.getItem(
@@ -39,6 +56,7 @@ function hasViewedThisSession(storeId) {
     ) === "1"
   );
 }
+
 function markViewedThisSession(storeId) {
   localStorage.setItem(
     `wcl_viewed_v1:${getOrCreateSession()}:${storeId}`,
@@ -46,8 +64,10 @@ function markViewedThisSession(storeId) {
   );
 }
 
-// 4) Fire-and-forget sender (blockar aldrig UX)
-function sendAnalyticsEvent(event_type, payload) {
+// ============================================================
+// FIRE-AND-FORGET SENDER (NEVER BLOCKS UX)
+// ============================================================
+function sendAnalyticsEvent(event_type, payload = {}) {
   const body = JSON.stringify({
     event_type,
     timestamp: new Date().toISOString(),
@@ -65,8 +85,49 @@ function sendAnalyticsEvent(event_type, payload) {
       keepalive: true,
       credentials: "omit",
     }).catch(() => {});
-  } catch {}
+  } catch {
+    // silent by design
+  }
 }
+
+// ============================================================
+// VIEW OBSERVER — store_viewed (1x / store / session)
+// ============================================================
+export const VIEW_OBSERVER = new IntersectionObserver(
+  (entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+
+      const el = entry.target;
+      const storeId = el?.dataset?.storeId;
+      if (!storeId) continue;
+
+      if (hasViewedThisSession(storeId)) {
+        VIEW_OBSERVER.unobserve(el);
+        continue;
+      }
+
+      markViewedThisSession(storeId);
+
+      sendAnalyticsEvent("store_viewed", {
+        store_id: Number(storeId),
+        continent: el.dataset.continent || null,
+        country: el.dataset.country || null,
+        city: el.dataset.city || null,
+      });
+
+      VIEW_OBSERVER.unobserve(el);
+    }
+  },
+  { threshold: 0.4 }
+);
+
+// ============================================================
+// PUBLIC API (DEBUG + GLOBAL ACCESS)
+// ============================================================
+window.WCL_ANALYTICS = {
+  send: sendAnalyticsEvent,
+};
 
 // ============================================================
 // EXPOSE ANALYTICS (DEBUG / GLOBAL ACCESS)
