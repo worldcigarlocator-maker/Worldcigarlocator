@@ -27,11 +27,15 @@ const IS_US = (iso2) => iso2?.toLowerCase() === "us";
 // ============================================================
 // FETCH — CANONICAL BACKEND VIEW
 // ============================================================
-async function fetchSidebarRows(supabase) {
-  const { data, error } = await supabase.rpc("sidebar_hierarchy_frontend_v1");
+async function fetchSidebarRows() {
+  const client = window.supabase;
+  if (!client?.rpc) throw new Error("Supabase not ready");
+
+  const { data, error } = await client.rpc("sidebar_hierarchy_frontend_v1");
   if (error) throw error;
   return data || [];
 }
+
 
 // ============================================================
 // BUILD TREE (NO LOGIC, NO GUESSING)
@@ -110,7 +114,7 @@ export async function buildFrontendSidebar(supabase) {
 
   let rows;
   try {
-    rows = await fetchSidebarRows(supabase);
+    rows = await fetchSidebarRows();
   } catch (e) {
     console.error("❌ Sidebar load failed", e);
     menu.innerHTML = "Failed to load";
