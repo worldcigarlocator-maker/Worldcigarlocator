@@ -1,113 +1,27 @@
 // ============================================================
 // SIDEBAR.JS — WCL Sidebar (STATIC, CANONICAL)
-// ------------------------------------------------------------
-// - Byggs EN GÅNG
-// - Backend är single source of truth
-// - Sidebar = navigation + overview
-// - Main hanterar search (LAW)
 // ============================================================
 
 import { activateLocation } from "./cards.js";
 import { supabase } from "./globals.js";
 
-
-// ============================================================
-// DOM
-// ============================================================
 const menu = document.querySelector("#sidebarMenu");
 
-// ============================================================
-// HELPERS
-// ============================================================
-const sortAZ = (a, b) =>
-  String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
-
-const IS_US = (iso2) => iso2?.toLowerCase() === "us";
-
-// ============================================================
-// FETCH — CANONICAL BACKEND VIEW
-// ============================================================
+// ------------------------------------------------------------
+// FETCH — BACKEND IS SOURCE OF TRUTH
+// ------------------------------------------------------------
 async function fetchSidebarRows() {
-  const client = window.supabase;
-  if (!client?.rpc) throw new Error("Supabase not ready");
-
-  const { data, error } = await client.rpc("sidebar_hierarchy_frontend_v1");
+  const { data, error } = await supabase.rpc(
+    "sidebar_hierarchy_frontend_v1"
+  );
   if (error) throw error;
   return data || [];
 }
 
-
-// ============================================================
-// BUILD TREE (NO LOGIC, NO GUESSING)
-// ============================================================
-function buildTree(rows) {
-  const tree = {};
-
-  rows.forEach((r) => {
-    const {
-      level,
-      continent,
-      country,
-      state,
-      city,
-      count,
-      country_iso2,
-    } = r;
-
-    if (!continent) return;
-
-    tree[continent] ??= { count: 0, countries: {} };
-
-    if (level === "continent") {
-      tree[continent].count = Number(count);
-      return;
-    }
-
-    if (!country) return;
-
-    tree[continent].countries[country] ??= {
-      count: 0,
-      iso2: country_iso2,
-      states: {},
-      cities: {},
-    };
-
-    if (level === "country") {
-      tree[continent].countries[country].count = Number(count);
-      return;
-    }
-
-    const isUS = IS_US(country_iso2);
-
-    if (isUS && level === "state" && state) {
-      tree[continent].countries[country].states[state] ??= {
-        count: Number(count),
-        cities: {},
-      };
-      return;
-    }
-
-    if (level === "city" && city) {
-      if (isUS && state) {
-        tree[continent].countries[country].states[state] ??= {
-          count: 0,
-          cities: {},
-        };
-        tree[continent].countries[country].states[state].cities[city] =
-          Number(count);
-      } else {
-        tree[continent].countries[country].cities[city] = Number(count);
-      }
-    }
-  });
-
-  return tree;
-}
-
-// ============================================================
-// BUILD SIDEBAR — PUBLIC
-// ============================================================
-export async function buildFrontendSidebar(supabase) {
+// ------------------------------------------------------------
+// BUILD SIDEBAR — RUN ONCE
+// ------------------------------------------------------------
+export async function buildFrontendSidebar() {
   if (!menu) return;
 
   menu.innerHTML = "Loading…";
@@ -121,118 +35,24 @@ export async function buildFrontendSidebar(supabase) {
     return;
   }
 
-  const tree = buildTree(rows);
   menu.innerHTML = "";
 
-  Object.entries(tree)
-    .sort(([a], [b]) => sortAZ(a, b))
-    .forEach(([continent, cData]) => {
-      const cont = createLine("continent", continent, cData.count);
-      const contChildren = createChildren(true);
-      cont.classList.add("open");
+  rows.forEach((r) => {
+    const el = document.createElement("div");
+    el.className = "line city";
+    el.innerHTML = `
+      <span class="label">${r.city}</span>
+      <span class="pill">${r.count}</span>
+    `;
 
-      cont.querySelector(".arrow")?.addEventListener("click", (e) => {
-        e.stopPropagation();
-        toggle(cont, contChildren);
+    el.onclick = () =>
+      activateLocation({
+        continent: r.continent,
+        country: r.country,
+        state: r.state,
+        city: r.city,
       });
 
-      cont.onclick = () =>
-        activateLocation({ continent, country: null, state: null, city: null });
-
-      menu.append(cont, contChildren);
-
-      Object.entries(cData.countries)
-        .sort(([a], [b]) => sortAZ(a, b))
-        .forEach(([country, coData]) => {
-          const co = createLine(
-            "country",
-            country,
-            coData.count,
-            coData.iso2
-          );
-          const coChildren = createChildren(false);
-
-          co.querySelector(".arrow")?.addEventListener("click", (e) => {
-            e.stopPropagation();
-            toggle(co, coChildren);
-          });
-
-          co.onclick = () =>
-            activateLocation({ continent, country, state: null, city: null });
-
-          contChildren.append(co, coChildren);
-
-          if (IS_US(coData.iso2)) {
-            Object.entries(coData.states)
-              .sort(([a], [b]) => sortAZ(a, b))
-              .forEach(([state, sData]) => {
-                const st = createLine("state", state, sData.count);
-                const stChildren = createChildren(false);
-
-                st.querySelector(".arrow")?.addEventListener("click", (e) => {
-                  e.stopPropagation();
-                  toggle(st, stChildren);
-                });
-
-                st.onclick = () =>
-                  activateLocation({ continent, country, state, city: null });
-
-                coChildren.append(st, stChildren);
-
-                Object.entries(sData.cities)
-                  .sort(([a], [b]) => sortAZ(a, b))
-                  .forEach(([city, count]) => {
-                    const ct = createLine("city", city, count);
-                    ct.onclick = () =>
-                      activateLocation({ continent, country, state, city });
-                    stChildren.append(ct);
-                  });
-              });
-
-            return;
-          }
-
-          Object.entries(coData.cities)
-            .sort(([a], [b]) => sortAZ(a, b))
-            .forEach(([city, count]) => {
-              const ct = createLine("city", city, count);
-              ct.onclick = () =>
-                activateLocation({ continent, country, state: null, city });
-              coChildren.append(ct);
-            });
-        });
-    });
-}
-
-// ============================================================
-// UI HELPERS
-// ============================================================
-function createLine(type, label, count, iso2 = null) {
-  const el = document.createElement("div");
-  el.className = `line ${type}`;
-  el.dataset.label = label;
-
-  const flag =
-    type === "country" && iso2
-      ? `<img class="flag" src="assets/flags/${iso2.toLowerCase()}.svg">`
-      : "";
-
-  el.innerHTML = `
-    <span class="arrow">${type === "city" ? "•" : "▸"}</span>
-    <span class="label-wrap">${flag}<span class="label">${label}</span></span>
-    <span class="pill">${count}</span>
-  `;
-
-  return el;
-}
-
-function createChildren(show = false) {
-  const el = document.createElement("div");
-  el.className = "children" + (show ? " show" : "");
-  return el;
-}
-
-function toggle(line, children) {
-  const open = line.classList.toggle("open");
-  children.classList.toggle("show", open);
+    menu.appendChild(el);
+  });
 }
