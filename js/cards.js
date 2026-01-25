@@ -117,7 +117,6 @@ const VIEW_OBSERVER = new IntersectionObserver(
 // - Search intent: city-mode (single token) vs discovery-mode (multi token/space)
 // ============================================================
 
-import { supabase } from "./globals.js";
 
 // ============================================================
 // CONFIG
