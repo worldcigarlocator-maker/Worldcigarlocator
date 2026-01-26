@@ -8,10 +8,11 @@ window.qs  = (sel) => document.querySelector(sel);
 window.qsa = (sel) => document.querySelectorAll(sel);
 
 // ----- Imports -----
+import "./analytics-frontend.js"; // MUST load first (sets window.WCL_ANALYTICS)
 import { supabase } from "./globals.js";
 import { resetToHero, runSearch } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
-import "./start.js"; // age gate + online tracker
+import "./start.js";
 
 
 // ============================================================
