@@ -27,7 +27,7 @@ const IS_US = (iso2) => iso2?.toLowerCase() === "us";
 // FETCH — CANONICAL BACKEND VIEW
 // ============================================================
 async function fetchSidebarRows() {
-  const { data, error } = await supabase.rpc("sidebar_nodes_v1");
+ const { data, error } = await supabase.rpc("sidebar_nodes_v2");
   if (error) throw error;
   return data || [];
 }
@@ -63,10 +63,10 @@ export async function buildFrontendSidebar() {
       level,
     } = r;
 
-    const n = Number(r.count) || 0;
+const n = Number(r.count) || 0;
 
-    continents[continent] ??= { count: 0, countries: {} };
-    continents[continent].count += n;
+continents[continent] ??= { count: 0, countries: {} };
+continents[continent].count += n;
 
     if (level === "continent") return;
 
