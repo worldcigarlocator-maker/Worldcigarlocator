@@ -903,3 +903,4 @@ document.addEventListener("click", (e) => {
     store_id: storeId,
   });
 });
+window.__WCL_DEBUG_SNAPSHOT = getActiveFilterSnapshot;
