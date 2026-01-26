@@ -207,3 +207,61 @@ export async function buildFrontendSidebar() {
                     const ct = createLine("city", city, n);
                     ct.onclick = () =>
                       activateLocation({
+                        continent,
+                        country,
+                        state,
+                        city,
+                      });
+                    stChildren.append(ct);
+                  });
+              });
+          } else {
+            Object.entries(coData.cities)
+              .sort(([a], [b]) => sortAZ(a, b))
+              .forEach(([city, n]) => {
+                const ct = createLine("city", city, n);
+                ct.onclick = () =>
+                  activateLocation({
+                    continent,
+                    country,
+                    state: null,
+                    city,
+                  });
+                coChildren.append(ct);
+              });
+          }
+        });
+    });
+}
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function createLine(type, label, count, iso2 = null) {
+  const el = document.createElement("div");
+  el.className = `line ${type}`;
+
+  const flag =
+    type === "country" && iso2
+      ? `<img class="flag" src="assets/flags/${iso2.toLowerCase()}.svg" />`
+      : "";
+
+  el.innerHTML = `
+    <span class="arrow">${type === "city" ? "•" : "▸"}</span>
+    <span class="label-wrap">${flag}<span class="label">${label}</span></span>
+    <span class="pill">${count}</span>
+  `;
+
+  return el;
+}
+
+function createChildren(show = false) {
+  const el = document.createElement("div");
+  el.className = "children" + (show ? " show" : "");
+  return el;
+}
+
+function toggle(line, children) {
+  const open = line.classList.toggle("open");
+  children.classList.toggle("show", open);
+}
