@@ -3,7 +3,8 @@
 // - Single source of truth: STATE + MASTER_MODE
 // - LAW: last action wins between SEARCH and LOCATION
 // - Chips are always modifiers
-// - Search intent: city-mode (single token) vs discovery-mode (multi token/space)
+// - Search intent handled in backend (search_stores_v1)
+// - Frontend search = trigger only, no semantic matching
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -528,66 +529,26 @@ export function renderStores(list) {
 }
 
 // ============================================================
-// SEARCH MATCHING — CANONICAL INTENT LOGIC (LOCKED)
-// - Single token (no spaces) => CITY MODE
-// - Any spaces / multi tokens => DISCOVERY MODE
+// SEARCH MATCHING — CANONICAL (LOCKED)
+// City & text hanteras i backend (search_stores_v1)
+// Frontend filtrerar ENDAST chips
 // ============================================================
-function _norm(s) {
-  return (s || "").toString().toLowerCase().trim();
-}
-
-function getSearchMode(raw) {
-  const q = _norm(raw);
-  if (!q) return "none";
-  if (q.includes(" ") || q.split(/\s+/).length > 1) return "discovery";
-  return "city";
-}
-
-function matchesCity(store, raw) {
-  const q = _norm(raw);
-  if (!q) return true;
-  const city = _norm(store.city);
-  if (!city) return false;
-  return city.startsWith(q);
-}
-
-function matchesDiscovery(store, raw) {
-  const q = _norm(raw);
-  if (!q) return true;
-
-  const hay = [
-    store.name,
-    store.city,
-    store.state,
-    store.country,
-    store.address,
-    store.website,
-  ]
-    .map(_norm)
-    .filter(Boolean)
-    .join(" | ");
-
-  return hay.includes(q);
-}
 
 function matchesSearch(store, raw) {
-  const mode = getSearchMode(raw);
-  if (mode === "city") return matchesCity(store, raw);
-  if (mode === "discovery") return matchesDiscovery(store, raw);
   return true;
 }
 
 function matchesType(store, type) {
   if (!type) return true;
   const types = Array.isArray(store.types)
-    ? store.types.map((t) => _norm(t))
+    ? store.types.map((t) => String(t).toLowerCase())
     : [];
-  return types.includes(_norm(type));
+  return types.includes(String(type).toLowerCase());
 }
 
 function matchesAccess(store, access) {
   if (!access) return true;
-  return _norm(store.access) === _norm(access);
+  return String(store.access || "").toLowerCase() === String(access).toLowerCase();
 }
 
 function applyFrontendFilters(rows, snapshot) {
@@ -614,7 +575,7 @@ export async function loadStores(filters = {}) {
   const reqId = ACTIVE_REQUEST;
 
   const { data, error } = await supabase.rpc("search_stores_v1", {
-    p_q: null, // frontend search only
+    p_q: null, // text search handled canonically in backend
     p_continent: filters?.continent || null,
     p_country: filters?.country || null,
     p_state: filters?.state || null,
@@ -903,6 +864,3 @@ document.addEventListener("click", (e) => {
     store_id: storeId,
   });
 });
-window.__WCL_DEBUG_SNAPSHOT = getActiveFilterSnapshot;
-window.__WCL_DEBUG_SEARCH = activateSearch;
-
