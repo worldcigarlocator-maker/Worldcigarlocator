@@ -574,13 +574,14 @@ export async function loadStores(filters = {}) {
   ACTIVE_REQUEST++;
   const reqId = ACTIVE_REQUEST;
 
-  const { data, error } = await supabase.rpc("search_stores_v1", {
-    p_q: null, // text search handled canonically in backend
-    p_continent: filters?.continent || null,
-    p_country: filters?.country || null,
-    p_state: filters?.state || null,
-    p_city: filters?.city || null,
-  });
+const { data, error } = await supabase.rpc("search_stores_v1", {
+  p_q: STATE.search.text || null,
+  p_continent: filters?.continent || null,
+  p_country: filters?.country || null,
+  p_state: filters?.state || null,
+  p_city: filters?.city || null,
+});
+
 
   if (reqId !== ACTIVE_REQUEST) return null;
 
