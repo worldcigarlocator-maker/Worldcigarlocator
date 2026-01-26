@@ -904,3 +904,5 @@ document.addEventListener("click", (e) => {
   });
 });
 window.__WCL_DEBUG_SNAPSHOT = getActiveFilterSnapshot;
+window.__WCL_DEBUG_SEARCH = activateSearch;
+
