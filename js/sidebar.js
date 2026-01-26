@@ -142,19 +142,27 @@ export async function buildFrontendSidebar() {
   Object.entries(continents)
     .sort(([a], [b]) => sortAZ(a, b))
     .forEach(([continent, cData]) => {
-      const cont = createLine("continent", continent, cData.count);
-      const contChildren = createChildren(true);
-      cont.classList.add("open");
+     const cont = createLine("continent", continent, cData.count);
+const contChildren = createChildren(false); // ⬅️ start CLOSED
 
-      cont.onclick = () =>
-        activateLocation({
-          continent,
-          country: null,
-          state: null,
-          city: null,
-        });
+// arrow = toggle
+cont.querySelector(".arrow")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggle(cont, contChildren);
+});
 
-      menu.append(cont, contChildren);
+// label = navigate
+cont.querySelector(".label-wrap")?.addEventListener("click", () => {
+  activateLocation({
+    continent,
+    country: null,
+    state: null,
+    city: null,
+  });
+});
+
+menu.append(cont, contChildren);
+
 
       Object.entries(cData.countries)
         .sort(([a], [b]) => sortAZ(a, b))
