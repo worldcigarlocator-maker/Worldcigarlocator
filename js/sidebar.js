@@ -59,15 +59,17 @@ export async function buildFrontendSidebar() {
   const continents = {};
 
   rows.forEach((r) => {
-    const {
-      continent,
-      country,
-      country_iso2,
-      state,
-      city,
-      count,
-      level,
-    } = r;
+const {
+  continent,
+  country,
+  country_iso2,
+  state,
+  city,
+  level,
+} = r;
+
+const n = Number(r.count) || 0;
+
 
     continents[continent] ??= { count: 0, countries: {} };
     continents[continent].count += count;
