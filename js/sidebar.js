@@ -27,12 +27,12 @@ const IS_US = (iso2) => iso2?.toLowerCase() === "us";
 // FETCH — CANONICAL BACKEND VIEW
 // ============================================================
 async function fetchSidebarRows() {
-  const { data, error } = await supabase.rpc(
-    "sidebar_hierarchy_frontend_v1"
-  );
+  const { data, error } = await supabase.rpc("sidebar_nodes_v1");
   if (error) throw error;
   return data || [];
 }
+
+
 
 // ============================================================
 // BUILD SIDEBAR (STATIC)
