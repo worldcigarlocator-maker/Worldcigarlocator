@@ -32,8 +32,6 @@ async function fetchSidebarRows() {
   return data || [];
 }
 
-
-
 // ============================================================
 // BUILD SIDEBAR (STATIC)
 // ============================================================
@@ -53,26 +51,22 @@ export async function buildFrontendSidebar() {
 
   menu.innerHTML = "";
 
-  // rows är redan färdigaggregerade från backend
-  // struktur: continent → country → state? → city
-
   const continents = {};
 
   rows.forEach((r) => {
-const {
-  continent,
-  country,
-  country_iso2,
-  state,
-  city,
-  level,
-} = r;
+    const {
+      continent,
+      country,
+      country_iso2,
+      state,
+      city,
+      level,
+    } = r;
 
-const n = Number(r.count) || 0;
-
+    const n = Number(r.count) || 0;
 
     continents[continent] ??= { count: 0, countries: {} };
-    continents[continent].count += count;
+    continents[continent].count += n;
 
     if (level === "continent") return;
 
@@ -82,7 +76,7 @@ const n = Number(r.count) || 0;
       states: {},
       cities: {},
     };
-    continents[continent].countries[country].count += count;
+    continents[continent].countries[country].count += n;
 
     if (level === "country") return;
 
@@ -93,15 +87,14 @@ const n = Number(r.count) || 0;
         count: 0,
         cities: {},
       };
-      continents[continent].countries[country].states[state].count += count;
+      continents[continent].countries[country].states[state].count += n;
 
       if (level === "city") {
-        continents[continent].countries[country].states[state].cities[city] =
-          count;
+        continents[continent].countries[country].states[state].cities[city] = n;
       }
     } else {
       if (level === "city") {
-        continents[continent].countries[country].cities[city] = count;
+        continents[continent].countries[country].cities[city] = n;
       }
     }
   });
@@ -178,8 +171,8 @@ const n = Number(r.count) || 0;
 
                 Object.entries(sData.cities)
                   .sort(([a], [b]) => sortAZ(a, b))
-                  .forEach(([city, count]) => {
-                    const ct = createLine("city", city, count);
+                  .forEach(([city, n]) => {
+                    const ct = createLine("city", city, n);
                     ct.onclick = () =>
                       activateLocation({
                         continent,
@@ -193,8 +186,8 @@ const n = Number(r.count) || 0;
           } else {
             Object.entries(coData.cities)
               .sort(([a], [b]) => sortAZ(a, b))
-              .forEach(([city, count]) => {
-                const ct = createLine("city", city, count);
+              .forEach(([city, n]) => {
+                const ct = createLine("city", city, n);
                 ct.onclick = () =>
                   activateLocation({
                     continent,
