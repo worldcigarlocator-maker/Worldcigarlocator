@@ -16,12 +16,34 @@ import { supabase } from "./globals.js";
 const menu = document.querySelector("#sidebarMenu");
 
 // ============================================================
-// HELPERS
+// HELPERS (CANONICAL, GLOBAL)
 // ============================================================
+
 const sortAZ = (a, b) =>
   String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
 
 const IS_US = (iso2) => iso2?.toLowerCase() === "us";
+
+// 🌍 Resolve user's default continent via backend sidebar rows (ISO2 → continent)
+function getUserCountryISO2() {
+  const lang = navigator.language || "";
+  const parts = lang.split("-");
+  return parts[1] ? parts[1].toUpperCase() : null;
+}
+
+function getDefaultContinentFromRows(rows) {
+  const iso2 = getUserCountryISO2();
+  if (!iso2) return null;
+
+  const hit = rows.find(
+    (r) =>
+      r.level === "country" &&
+      r.country_iso2 &&
+      r.country_iso2.toUpperCase() === iso2
+  );
+
+  return hit?.continent || null;
+}
 
 // ============================================================
 // FETCH — CANONICAL RPC (FACIT)
