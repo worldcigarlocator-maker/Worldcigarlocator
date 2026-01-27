@@ -10,84 +10,37 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
- <!-- CSS -->
-<link rel="stylesheet" href="css/start.css" />
-<link rel="stylesheet" href="css/cards.css" />
-<link rel="stylesheet" href="css/modal.css" />
-<link rel="stylesheet" href="css/sidebar.css" />
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/start.css" />
+  <link rel="stylesheet" href="css/sidebar.css" />
 </head>
 
 <body>
 
-<!-- ================= AGE GATE ================= -->
-<div id="ageGate" class="age-modal hidden fade-in">
-  <div class="age-box">
-    <h2>18+ Required</h2>
-    <p>You must be at least 18 years old to enter World Cigar Locator.</p>
-
-    <div class="age-buttons">
-      <button id="enterBtn" class="age-yes">Enter — I am 18+</button>
-      <button id="leaveBtn" class="age-no">Leave</button>
-    </div>
-
-    <small style="color:#aaa;">
-      World Cigar Locator does not promote tobacco use. Please follow local laws.
-    </small>
-  </div>
-</div>
-
-<!-- ================= LOGIN POPUP ================= -->
-<div id="loginPopup" class="login-modal hidden">
-  <div class="login-box">
-    <h2>Login Required</h2>
-
-    <input id="loginEmail" class="login-field" type="email" placeholder="Email">
-    <input id="loginPassword" class="login-field" type="password" placeholder="Password">
-
-    <label class="remember-wrapper">
-      <input type="checkbox" id="rememberMe" />
-      <span>Remember me</span>
-    </label>
-
-    <button id="loginSubmit" class="login-btn-popup">
-      <span class="login-text">Login</span>
-      <span id="loginSpinner" class="spinner hidden"></span>
-    </button>
-
-    <p class="forgot"><a href="#" id="forgotPassword">Forgot password?</a></p>
-  </div>
-</div>
-
-<!-- MOBILE MENU BUTTON -->
 <button id="mobileMenuBtn" class="mobile-menu-btn">☰</button>
 
-<!-- ================= PAGE WRAPPER ================= -->
 <div class="container">
 
-  <!-- ================ SIDEBAR ================ -->
+  <!-- ================= SIDEBAR ================= -->
   <aside class="sidebar">
 
-    <!-- ================= HEADER / TOPBAR ================= -->
-<div class="sidebar-header">
+    <!-- HEADER / TOPBAR -->
+    <div class="sidebar-header">
 
-  <!-- LOGO = HOME -->
-  <div
-    class="sidebar-logo"
-    data-text="WORLD CIGAR LOCATOR"
-  >
-    WORLD CIGAR LOCATOR
-  </div>
+      <!-- LOGO = HOME -->
+      <div class="sidebar-logo" data-text="WORLD CIGAR LOCATOR">
+        WORLD CIGAR LOCATOR
+      </div>
 
-  <!-- ACTIONS -->
-  <div class="sidebar-actions">
-    <button class="sidebar-btn" id="loginBtn">Login</button>
-    <button class="sidebar-btn add-store">Add store</button>
-  </div>
+      <!-- ACTIONS -->
+      <div class="sidebar-actions">
+        <button id="loginBtn" class="sidebar-btn">Login</button>
+        <button class="sidebar-btn add-store">Add store</button>
+      </div>
 
-</div>
+    </div>
 
-<hr class="sidebar-divider">
-
+    <hr class="sidebar-divider">
 
     <!-- AD BOX -->
     <div class="sidebar-ad">
@@ -98,122 +51,22 @@
 
     <hr class="sidebar-divider">
 
-    <!-- SIDEBAR MENU -->
-    <div id="sidebarMenu" class="nav"></div>
+    <!-- SIDEBAR MENU (JS fyller) -->
+    <div id="sidebarMenu"></div>
 
-    <!-- FOOTER LINKS -->
+    <!-- FOOTER -->
     <div class="sidebar-bottom">
-      <a href="add-store.html" class="menu-link add-store">+ Add Store</a>
+      <a href="add-store.html" class="menu-link">+ Add store</a>
       <a href="mailto:support@worldcigarlocator.com" class="menu-link">Contact / Support</a>
+      <div class="online-text">28 online</div>
     </div>
 
   </aside>
 
-  <!-- ================ MAIN AREA ================ -->
-  <main class="main">
-
-<div class="searchbar main-search" style="position:relative;">
-  <input id="searchInput" type="text" placeholder="Search (e.g. london members lounge)…">
-  <button id="searchBtn" class="btn">Search</button>
-  <button id="clearBtn" class="btn outline">Clear</button>
-
-  <!-- 🔽 Autocomplete-listan -->
-  <div id="autocomplete" class="autocomplete hidden"></div>
-
-  <!-- ✅ FILTER CHIPS -->
-  <div id="searchFilters" class="search-filters" style="margin-top:.65rem; display:flex; gap:.5rem; flex-wrap:wrap;">
-    <button class="chip" data-filter="type" data-value="store"  type="button">Store</button>
-    <button class="chip" data-filter="type" data-value="lounge" type="button">Lounge</button>
-
-    <span style="opacity:.35; padding:0 .15rem;">|</span>
-
-    <button class="chip" data-filter="access" data-value="public"  type="button">Public</button>
-    <button class="chip" data-filter="access" data-value="members" type="button">Members</button>
-  </div>
-</div>
-
-<section id="heroText" class="hero-text">
-  <p>
-    <strong>Welcome to World Cigar Locator.</strong><br>
-    Step into our global humidor and discover cigar lounges, verified stores, cigar bars, 
-    and remarkable places to enjoy a fine smoke — anywhere in the world.
-  </p>
-</section>
-
-
-    <section id="heroImage" class="hero">
-      <img src="images/world-cigar-locator-hero.jpg" class="hero-bg" alt="Hero">
-    </section>
-
-    <div id="resultHeading" class="result-heading" style="display:none;"></div>
-
-    <div id="storeGrid" class="store-grid"></div>
-
-  </main>
+  <!-- MAIN (placeholder just now) -->
+  <main class="main"></main>
 
 </div>
-
-<!-- ====================== STORE MODAL ====================== -->
-<div id="storeModal" class="modal hidden">
-
-  <div class="modal-backdrop"></div>
-
-  <div class="modal-content">
-
-    <button class="modal-close">×</button>
-
-    <img id="modalImg" class="modal-img" src="" alt="Store image">
-
-    <div class="modal-body">
-
-      <h2 id="modalName" class="modal-title"></h2>
-
-      <div id="modalBadges" class="modal-badges"></div>
-
-      <div id="modalStars" class="modal-stars"></div>
-
-      <!-- ================= USER RATING ================= -->
-      <div class="modal-user-rating">
-        <p class="rating-label">Your rating:</p>
-        <div id="modalStarPicker" class="star-picker">
-          <span data-val="1">☆</span>
-          <span data-val="2">☆</span>
-          <span data-val="3">☆</span>
-          <span data-val="4">☆</span>
-          <span data-val="5">☆</span>
-        </div>
-        <button id="modalSendRating" class="rating-send-btn">Submit Rating</button>
-      </div>
-
-      <!-- LOCATION -->
-      <div class="modal-location">
-        <img id="modalFlag" class="flag" alt="" />
-        <p id="modalLocation"></p>
-      </div>
-
-      <!-- INFO -->
-      <div class="modal-info">
-        <p><strong>Address:</strong> <span id="modalAddress"></span></p>
-        <p><strong>Phone:</strong> <span id="modalPhone"></span></p>
-        <p><strong>Website:</strong> <a id="modalWebsite" href="#" target="_blank">Visit</a></p>
-      </div>
-
-      <!-- COMMENTS -->
-      <h3 class="modal-section-title">Comments</h3>
-      <div id="modalComments" class="modal-comments"></div>
-
-      <div class="modal-add-comment">
-        <textarea id="modalCommentInput" placeholder="Write a comment..."></textarea>
-        <button id="modalSendComment">Send</button>
-      </div>
-
-    </div>
-
-  </div>
-</div>
-
-<!-- ================= JS ================= -->
-<script type="module" src="js/main.js"></script>
 
 </body>
 </html>
