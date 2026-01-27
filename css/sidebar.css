@@ -24,9 +24,9 @@
 /* LOGO (HOME) */
 .sidebar-logo {
   position: relative;
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 0.98rem;      /* ↓ mindre */
+  font-weight: 600;
+  letter-spacing: 0.10em; /* ↓ lugnare */
   color: var(--gold);
   cursor: pointer;
   user-select: none;
@@ -39,12 +39,24 @@
   top: 100%;
   left: 0;
   width: 100%;
-  transform: scaleY(-1);
-  opacity: 0.18;
+  transform: scaleY(-1) translateY(-1px);
+  opacity: 0.12; /* ↓ svagare */
   pointer-events: none;
-  mask-image: linear-gradient(to bottom, rgba(0,0,0,.6), transparent);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.6), transparent);
+
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.45),
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.45),
+    transparent
+  );
 }
+
+
+
 
 /* ACTION BUTTONS */
 .sidebar-actions {
@@ -55,12 +67,13 @@
 /* FLOATING BUTTON */
 .sidebar-btn {
   position: relative;
-  padding: 0.35rem 0.9rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  padding: 0.28rem 0.75rem; /* ↓ mindre */
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.35);
+  border: 1px solid rgba(255,255,255,0.30);
   color: #eaeaea;
   border-radius: 999px;
   cursor: pointer;
@@ -73,11 +86,12 @@
   inset: -1px;
   border-radius: inherit;
   box-shadow:
-    0 6px 14px rgba(0,0,0,0.55),
-    0 0 0 1px rgba(255,255,255,0.08);
-  opacity: 0.55;
+    0 4px 10px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(255,255,255,0.06);
+  opacity: 0.35; /* ↓ subtil */
   pointer-events: none;
 }
+
 
 .sidebar-btn:hover {
   border-color: var(--gold);
