@@ -261,4 +261,3 @@ function setActivePath(lineEl) {
     el = el.parentElement;
   }
 }
-}
