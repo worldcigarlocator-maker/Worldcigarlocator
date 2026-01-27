@@ -2,7 +2,7 @@
 // SIDEBAR.JS — WCL Sidebar (STATIC, FINAL, CANONICAL)
 // ------------------------------------------------------------
 // - Byggs EN GÅNG vid inloggning
-// - Backend (sidebar_nodes_v2) är single source of truth
+// - Backend: sidebar_nodes_v2 = single source of truth
 // - Sidebar = statisk navigation + overview
 // - Reagerar ALDRIG på search
 // ============================================================
@@ -16,7 +16,7 @@ import { supabase } from "./globals.js";
 const menu = document.querySelector("#sidebarMenu");
 
 // ============================================================
-// HELPERS
+// HELPERS (GLOBAL, DETERMINISTIC)
 // ============================================================
 const sortAZ = (a, b) =>
   String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
@@ -51,102 +51,82 @@ export async function buildFrontendSidebar() {
 
   menu.innerHTML = "";
 
- // ==========================================================
-// DATA STRUCTURE (frontend = dumb renderer)
-// ==========================================================
-const continents = {};
+  // ==========================================================
+  // DATA STRUCTURE (frontend = dumb renderer)
+  // ==========================================================
+  const continents = {};
 
-rows.forEach((r) => {
-  const {
-    continent,
-    country,
-    country_iso2,
-    state,
-    city,
-    level,
-    count,
-  } = r;
+  rows.forEach((r) => {
+    const {
+      continent,
+      country,
+      country_iso2,
+      state,
+      city,
+      level,
+      count,
+    } = r;
 
-  const n = Number(count) || 0;
+    const n = Number(count) || 0;
 
-  // --------------------------
-  // CONTINENT
-  // --------------------------
-  if (level === "continent") {
-    continents[continent] ??= {
-      count: n,
-      countries: {},
-    };
-    return;
-  }
+    // ---------- CONTINENT ----------
+    if (level === "continent") {
+      continents[continent] = {
+        count: n,
+        countries: {},
+      };
+      return;
+    }
 
-  continents[continent] ??= { count: 0, countries: {} };
+    // säkerställ continent
+    continents[continent] ??= { count: 0, countries: {} };
 
-  // --------------------------
-  // COUNTRY
-  // --------------------------
-  if (level === "country") {
-    continents[continent].countries[country] ??= {
-      iso2: country_iso2,
-      count: n,
-      states: {},
-      cities: {},
-    };
-    return;
-  }
-
-  const isUS = IS_US(country_iso2);
-
-  // --------------------------
-  // STATE (USA ONLY)
-  // --------------------------
-  if (level === "state" && isUS && state) {
-    continents[continent].countries[country] ??= {
-      iso2: country_iso2,
-      count: 0,
-      states: {},
-      cities: {},
-    };
-
-    continents[continent].countries[country].states[state] ??= {
-      count: n,
-      cities: {},
-    };
-    return;
-  }
-
-  // --------------------------
-  // CITY (ALL COUNTRIES)
-  // --------------------------
-  if (level === "city") {
-    continents[continent].countries[country] ??= {
-      iso2: country_iso2,
-      count: 0,
-      states: {},
-      cities: {},
-    };
-
-    if (isUS && state) {
-      continents[continent].countries[country].states[state] ??= {
-        count: 0,
+    // ---------- COUNTRY ----------
+    if (level === "country") {
+      continents[continent].countries[country] = {
+        iso2: country_iso2,
+        count: n,
+        states: {},
         cities: {},
       };
-      continents[continent].countries[country].states[state].cities[city] = n;
-    } else {
-      continents[continent].countries[country].cities[city] = n;
+      return;
     }
-    return;
-  }
-});
 
-console.log(
-  "SIDEBAR DEBUG — continents object:",
-  JSON.stringify(continents, null, 2)
-);
+    // säkerställ country
+    continents[continent].countries[country] ??= {
+      iso2: country_iso2,
+      count: 0,
+      states: {},
+      cities: {},
+    };
 
-renderSidebar(continents);
+    const isUS = IS_US(country_iso2);
+
+    // ---------- STATE (USA ONLY) ----------
+    if (level === "state" && isUS && state) {
+      continents[continent].countries[country].states[state] = {
+        count: n,
+        cities: {},
+      };
+      return;
+    }
+
+    // ---------- CITY (ALL COUNTRIES) ----------
+    if (level === "city") {
+      if (isUS && state) {
+        continents[continent].countries[country].states[state] ??= {
+          count: 0,
+          cities: {},
+        };
+        continents[continent].countries[country].states[state].cities[city] = n;
+      } else {
+        continents[continent].countries[country].cities[city] = n;
+      }
+    }
+  });
+
+  renderSidebar(continents);
 }
-
 
 // ============================================================
 // RENDER
@@ -191,9 +171,7 @@ function renderSidebar(continents) {
 
           contChildren.append(co, coChildren);
 
-          const isUS = IS_US(coData.iso2);
-
-          if (isUS) {
+          if (IS_US(coData.iso2)) {
             Object.entries(coData.states)
               .sort(([a], [b]) => sortAZ(a, b))
               .forEach(([state, sData]) => {
