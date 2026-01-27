@@ -244,11 +244,11 @@ function toggle(line, children) {
 // Klick var som helst på raden (utom label)
 // → öppna / stäng
 function bindRowToggle(line, children) {
-  line.addEventListener("click", (e) => {
-    if (e.target.closest(".label-wrap")) return;
+  line.addEventListener("click", () => {
     toggle(line, children);
   });
 }
+
 
 // ============================================================
 // ACTIVE PATH — HIGHLIGHT + AUTO-EXPAND
