@@ -139,11 +139,14 @@ rows.forEach((r) => {
   }
 });
 
-// 🔍 DEBUG — exakt facit för vad frontend faktiskt bygger
 console.log(
   "SIDEBAR DEBUG — continents object:",
   JSON.stringify(continents, null, 2)
 );
+
+renderSidebar(continents);
+}
+
 
 // ============================================================
 // RENDER
