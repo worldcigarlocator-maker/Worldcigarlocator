@@ -1,6 +1,11 @@
 // ============================================================
 // SIDEBAR.JS — WCL Sidebar (STATIC, FINAL, CANONICAL)
 // ============================================================
+// - Byggs EN GÅNG efter auth
+// - Backend: sidebar_nodes_v2 (single source of truth)
+// - Sidebar = navigation + overview
+// - Påverkas ALDRIG av search
+// ============================================================
 
 import { activateLocation } from "./cards.js";
 import { supabase } from "./globals.js";
@@ -112,10 +117,7 @@ function renderSidebar(continents) {
       const cont = createLine("continent", continent, cData.count);
       const contChildren = createChildren();
 
-      cont.querySelector(".arrow")?.addEventListener("click", (e) => {
-        e.stopPropagation();
-        toggle(cont, contChildren);
-      });
+      bindRowToggle(cont, contChildren);
 
       cont.querySelector(".label-wrap")?.addEventListener("click", () => {
         setActivePath(cont);
@@ -130,14 +132,16 @@ function renderSidebar(continents) {
           const co = createLine("country", country, coData.count, coData.iso2);
           const coChildren = createChildren();
 
-          co.querySelector(".arrow")?.addEventListener("click", (e) => {
-            e.stopPropagation();
-            toggle(co, coChildren);
-          });
+          bindRowToggle(co, coChildren);
 
           co.querySelector(".label-wrap")?.addEventListener("click", () => {
             setActivePath(co);
-            activateLocation({ continent, country, state: null, city: null });
+            activateLocation({
+              continent,
+              country,
+              state: null,
+              city: null,
+            });
           });
 
           contChildren.append(co, coChildren);
@@ -149,14 +153,16 @@ function renderSidebar(continents) {
                 const st = createLine("state", state, sData.count);
                 const stChildren = createChildren();
 
-                st.querySelector(".arrow")?.addEventListener("click", (e) => {
-                  e.stopPropagation();
-                  toggle(st, stChildren);
-                });
+                bindRowToggle(st, stChildren);
 
                 st.querySelector(".label-wrap")?.addEventListener("click", () => {
                   setActivePath(st);
-                  activateLocation({ continent, country, state, city: null });
+                  activateLocation({
+                    continent,
+                    country,
+                    state,
+                    city: null,
+                  });
                 });
 
                 coChildren.append(st, stChildren);
@@ -165,10 +171,17 @@ function renderSidebar(continents) {
                   .sort(([a], [b]) => sortAZ(a, b))
                   .forEach(([city, n]) => {
                     const ct = createLine("city", city, n);
-                    ct.querySelector(".label-wrap")?.addEventListener("click", () => {
+
+                    ct.addEventListener("click", () => {
                       setActivePath(ct);
-                      activateLocation({ continent, country, state, city });
+                      activateLocation({
+                        continent,
+                        country,
+                        state,
+                        city,
+                      });
                     });
+
                     stChildren.append(ct);
                   });
               });
@@ -177,10 +190,17 @@ function renderSidebar(continents) {
               .sort(([a], [b]) => sortAZ(a, b))
               .forEach(([city, n]) => {
                 const ct = createLine("city", city, n);
-                ct.querySelector(".label-wrap")?.addEventListener("click", () => {
+
+                ct.addEventListener("click", () => {
                   setActivePath(ct);
-                  activateLocation({ continent, country, state: null, city });
+                  activateLocation({
+                    continent,
+                    country,
+                    state: null,
+                    city,
+                  });
                 });
+
                 coChildren.append(ct);
               });
           }
@@ -221,44 +241,32 @@ function toggle(line, children) {
   children.classList.toggle("show", open);
 }
 
-/**
- * Klick var som helst på raden (utom label)
- * → öppna / stäng children
- */
+// Klick var som helst på raden (utom label)
+// → öppna / stäng
 function bindRowToggle(line, children) {
   line.addEventListener("click", (e) => {
-    // label-wrap har eget beteende (highlight + activateLocation)
     if (e.target.closest(".label-wrap")) return;
     toggle(line, children);
   });
 }
 
-/**
- * Highlight + auto-expand
- * Klickad rad + alla föräldrar blir aktiva
- */
+// ============================================================
+// ACTIVE PATH — HIGHLIGHT + AUTO-EXPAND
+// ============================================================
 function setActivePath(lineEl) {
-  // rensa ALLA highlights
   document
     .querySelectorAll("#sidebarMenu .line.active")
-    .forEach(el => el.classList.remove("active"));
+    .forEach((el) => el.classList.remove("active"));
 
-  // stäng ALLA öppna children
   document
     .querySelectorAll("#sidebarMenu .children.show")
-    .forEach(el => el.classList.remove("show"));
+    .forEach((el) => el.classList.remove("show"));
 
-  // markera + öppna path uppåt
   let el = lineEl;
 
   while (el && el !== document) {
-    if (el.classList.contains("line")) {
-      el.classList.add("active");
-    }
-    if (el.classList.contains("children")) {
-      el.classList.add("show");
-    }
+    if (el.classList.contains("line")) el.classList.add("active");
+    if (el.classList.contains("children")) el.classList.add("show");
     el = el.parentElement;
   }
 }
-
