@@ -35,38 +35,40 @@
   cursor: pointer;
 }
 
-/* TIGHT, ELEGANT REFLECTION */
+
 .sidebar-logo::after {
   content: attr(data-text);
   position: absolute;
   left: 0;
   right: 0;
   top: 100%;
+
   transform: scaleY(-1);
-  line-height: 1.05;
+  line-height: 1.1;
 
   color: inherit;
-  opacity: 0.22;
+  opacity: 0.28;               /* ⬅️ tydligare men fortfarande lyx */
 
-  height: 0.55em;
+  height: 0.9em;               /* ⬅️ längre reflektion */
   overflow: hidden;
 
   mask-image: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.5),
-    rgba(0,0,0,0.2),
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0.18),
     transparent
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.5),
-    rgba(0,0,0,0.2),
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0.18),
     transparent
   );
 
-  filter: blur(0.15px);
+  filter: blur(0.2px);
   pointer-events: none;
 }
+
 
 
   /* fade out */
