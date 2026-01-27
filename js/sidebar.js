@@ -1,10 +1,5 @@
 // ============================================================
 // SIDEBAR.JS — WCL Sidebar (STATIC, FINAL, CANONICAL)
-// ------------------------------------------------------------
-// - Byggs EN GÅNG vid inloggning
-// - Backend: sidebar_nodes_v2 = single source of truth
-// - Sidebar = statisk navigation + overview
-// - Reagerar ALDRIG på search
 // ============================================================
 
 import { activateLocation } from "./cards.js";
@@ -16,7 +11,7 @@ import { supabase } from "./globals.js";
 const menu = document.querySelector("#sidebarMenu");
 
 // ============================================================
-// HELPERS (GLOBAL, DETERMINISTIC)
+// HELPERS
 // ============================================================
 const sortAZ = (a, b) =>
   String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
@@ -33,7 +28,7 @@ async function fetchSidebarRows() {
 }
 
 // ============================================================
-// BUILD SIDEBAR (ENTRY POINT)
+// ENTRY POINT
 // ============================================================
 export async function buildFrontendSidebar() {
   if (!menu) return;
@@ -51,37 +46,19 @@ export async function buildFrontendSidebar() {
 
   menu.innerHTML = "";
 
-  // ==========================================================
-  // DATA STRUCTURE (frontend = dumb renderer)
-  // ==========================================================
   const continents = {};
 
   rows.forEach((r) => {
-    const {
-      continent,
-      country,
-      country_iso2,
-      state,
-      city,
-      level,
-      count,
-    } = r;
-
+    const { continent, country, country_iso2, state, city, level, count } = r;
     const n = Number(count) || 0;
 
-    // ---------- CONTINENT ----------
     if (level === "continent") {
-      continents[continent] = {
-        count: n,
-        countries: {},
-      };
+      continents[continent] = { count: n, countries: {} };
       return;
     }
 
-    // säkerställ continent
     continents[continent] ??= { count: 0, countries: {} };
 
-    // ---------- COUNTRY ----------
     if (level === "country") {
       continents[continent].countries[country] = {
         iso2: country_iso2,
@@ -92,7 +69,6 @@ export async function buildFrontendSidebar() {
       return;
     }
 
-    // säkerställ country
     continents[continent].countries[country] ??= {
       iso2: country_iso2,
       count: 0,
@@ -102,7 +78,6 @@ export async function buildFrontendSidebar() {
 
     const isUS = IS_US(country_iso2);
 
-    // ---------- STATE (USA ONLY) ----------
     if (level === "state" && isUS && state) {
       continents[continent].countries[country].states[state] = {
         count: n,
@@ -111,7 +86,6 @@ export async function buildFrontendSidebar() {
       return;
     }
 
-    // ---------- CITY (ALL COUNTRIES) ----------
     if (level === "city") {
       if (isUS && state) {
         continents[continent].countries[country].states[state] ??= {
@@ -136,7 +110,7 @@ function renderSidebar(continents) {
     .sort(([a], [b]) => sortAZ(a, b))
     .forEach(([continent, cData]) => {
       const cont = createLine("continent", continent, cData.count);
-      const contChildren = createChildren(false);
+      const contChildren = createChildren();
 
       cont.querySelector(".arrow")?.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -144,6 +118,7 @@ function renderSidebar(continents) {
       });
 
       cont.querySelector(".label-wrap")?.addEventListener("click", () => {
+        setActivePath(cont);
         activateLocation({ continent, country: null, state: null, city: null });
       });
 
@@ -153,7 +128,7 @@ function renderSidebar(continents) {
         .sort(([a], [b]) => sortAZ(a, b))
         .forEach(([country, coData]) => {
           const co = createLine("country", country, coData.count, coData.iso2);
-          const coChildren = createChildren(false);
+          const coChildren = createChildren();
 
           co.querySelector(".arrow")?.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -161,12 +136,8 @@ function renderSidebar(continents) {
           });
 
           co.querySelector(".label-wrap")?.addEventListener("click", () => {
-            activateLocation({
-              continent,
-              country,
-              state: null,
-              city: null,
-            });
+            setActivePath(co);
+            activateLocation({ continent, country, state: null, city: null });
           });
 
           contChildren.append(co, coChildren);
@@ -176,7 +147,7 @@ function renderSidebar(continents) {
               .sort(([a], [b]) => sortAZ(a, b))
               .forEach(([state, sData]) => {
                 const st = createLine("state", state, sData.count);
-                const stChildren = createChildren(false);
+                const stChildren = createChildren();
 
                 st.querySelector(".arrow")?.addEventListener("click", (e) => {
                   e.stopPropagation();
@@ -184,12 +155,8 @@ function renderSidebar(continents) {
                 });
 
                 st.querySelector(".label-wrap")?.addEventListener("click", () => {
-                  activateLocation({
-                    continent,
-                    country,
-                    state,
-                    city: null,
-                  });
+                  setActivePath(st);
+                  activateLocation({ continent, country, state, city: null });
                 });
 
                 coChildren.append(st, stChildren);
@@ -198,14 +165,10 @@ function renderSidebar(continents) {
                   .sort(([a], [b]) => sortAZ(a, b))
                   .forEach(([city, n]) => {
                     const ct = createLine("city", city, n);
-                    ct.querySelector(".label-wrap")?.addEventListener("click", () =>
-                      activateLocation({
-                        continent,
-                        country,
-                        state,
-                        city,
-                      })
-                    );
+                    ct.querySelector(".label-wrap")?.addEventListener("click", () => {
+                      setActivePath(ct);
+                      activateLocation({ continent, country, state, city });
+                    });
                     stChildren.append(ct);
                   });
               });
@@ -214,19 +177,42 @@ function renderSidebar(continents) {
               .sort(([a], [b]) => sortAZ(a, b))
               .forEach(([city, n]) => {
                 const ct = createLine("city", city, n);
-                ct.querySelector(".label-wrap")?.addEventListener("click", () =>
-                  activateLocation({
-                    continent,
-                    country,
-                    state: null,
-                    city,
-                  })
-                );
+                ct.querySelector(".label-wrap")?.addEventListener("click", () => {
+                  setActivePath(ct);
+                  activateLocation({ continent, country, state: null, city });
+                });
                 coChildren.append(ct);
               });
           }
         });
     });
+}
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function createLine(type, label, count, iso2 = null) {
+  const el = document.createElement("div");
+  el.className = `line ${type}`;
+
+  const flag =
+    type === "country" && iso2
+      ? `<img class="flag" src="assets/flags/${iso2.toLowerCase()}.svg" />`
+      : "";
+
+  el.innerHTML = `
+    <span class="arrow">${type === "city" ? "•" : "▸"}</span>
+    <span class="label-wrap">${flag}<span class="label">${label}</span></span>
+    <span class="pill">${count}</span>
+  `;
+
+  return el;
+}
+
+function createChildren() {
+  const el = document.createElement("div");
+  el.className = "children";
+  return el;
 }
 
 function toggle(line, children) {
@@ -235,29 +221,22 @@ function toggle(line, children) {
 }
 
 // ============================================================
-// ACTIVE PATH (HIGHLIGHT + AUTO-EXPAND)
+// ACTIVE PATH — HIGHLIGHT + AUTO-EXPAND
 // ============================================================
 function setActivePath(lineEl) {
-  // rensa ALLA highlights
   document
     .querySelectorAll("#sidebarMenu .line.active")
     .forEach(el => el.classList.remove("active"));
 
-  // stäng ALLA öppna children
   document
     .querySelectorAll("#sidebarMenu .children.show")
     .forEach(el => el.classList.remove("show"));
 
-  // markera + öppna path uppåt
   let el = lineEl;
 
   while (el && el !== document) {
-    if (el.classList.contains("line")) {
-      el.classList.add("active");
-    }
-    if (el.classList.contains("children")) {
-      el.classList.add("show");
-    }
+    if (el.classList.contains("line")) el.classList.add("active");
+    if (el.classList.contains("children")) el.classList.add("show");
     el = el.parentElement;
   }
 }
