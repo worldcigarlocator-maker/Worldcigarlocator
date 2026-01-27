@@ -229,34 +229,36 @@ function renderSidebar(continents) {
     });
 }
 
-// ============================================================
-// UI HELPERS
-// ============================================================
-function createLine(type, label, count, iso2 = null) {
-  const el = document.createElement("div");
-  el.className = `line ${type}`;
-
-  const flag =
-    type === "country" && iso2
-      ? `<img class="flag" src="assets/flags/${iso2.toLowerCase()}.svg" />`
-      : "";
-
-  el.innerHTML = `
-    <span class="arrow">${type === "city" ? "•" : "▸"}</span>
-    <span class="label-wrap">${flag}<span class="label">${label}</span></span>
-    <span class="pill">${count}</span>
-  `;
-
-  return el;
-}
-
-function createChildren(show = false) {
-  const el = document.createElement("div");
-  el.className = "children" + (show ? " show" : "");
-  return el;
-}
-
 function toggle(line, children) {
   const open = line.classList.toggle("open");
   children.classList.toggle("show", open);
+}
+
+// ============================================================
+// ACTIVE PATH (HIGHLIGHT + AUTO-EXPAND)
+// ============================================================
+function setActivePath(lineEl) {
+  // rensa ALLA highlights
+  document
+    .querySelectorAll("#sidebarMenu .line.active")
+    .forEach(el => el.classList.remove("active"));
+
+  // stäng ALLA öppna children
+  document
+    .querySelectorAll("#sidebarMenu .children.show")
+    .forEach(el => el.classList.remove("show"));
+
+  // markera + öppna path uppåt
+  let el = lineEl;
+
+  while (el && el !== document) {
+    if (el.classList.contains("line")) {
+      el.classList.add("active");
+    }
+    if (el.classList.contains("children")) {
+      el.classList.add("show");
+    }
+    el = el.parentElement;
+  }
+}
 }
