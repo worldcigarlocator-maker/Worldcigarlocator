@@ -55,23 +55,65 @@ async function fetchSidebarRows() {
 }
 
 // ============================================================
+// SIDEBAR.JS — WCL Sidebar (STATIC, FINAL, CANONICAL)
+// ------------------------------------------------------------
+// - Byggs EN GÅNG vid inloggning
+// - Backend är single source of truth
+// - Sidebar = statisk navigation + overview
+// - Reagerar ALDRIG på search
+// ============================================================
+
+import { activateLocation } from "./cards.js";
+import { supabase } from "./globals.js";
+
+// ============================================================
+// DOM
+// ============================================================
+const menu = document.querySelector("#sidebarMenu");
+
+// ============================================================
+// HELPERS (CANONICAL, GLOBAL)
+// ============================================================
+
+const sortAZ = (a, b) =>
+  String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
+
+const IS_US = (iso2) => iso2?.toLowerCase() === "us";
+
+// 🌍 Resolve user's default continent via backend sidebar rows (ISO2 → continent)
+function getUserCountryISO2() {
+  const lang = navigator.language || "";
+  const parts = lang.split("-");
+  return parts[1] ? parts[1].toUpperCase() : null;
+}
+
+function getDefaultContinentFromRows(rows) {
+  const iso2 = getUserCountryISO2();
+  if (!iso2) return null;
+
+  const hit = rows.find(
+    (r) =>
+      r.level === "country" &&
+      r.country_iso2 &&
+      r.country_iso2.toUpperCase() === iso2
+  );
+
+  return hit?.continent || null;
+}
+
+// ============================================================
+// FETCH — CANONICAL RPC (FACIT)
+// ============================================================
+async function fetchSidebarRows() {
+  const { data, error } = await supabase.rpc("sidebar_nodes_v2");
+  if (error) throw error;
+  return data || [];
+}
+
+// ============================================================
 // BUILD SIDEBAR (STATIC, NO FRONTEND LOGIC)
 // ============================================================
-export async function buildFrontendSidebar() {
-  if (!menu) return;
 
-  menu.innerHTML = "Loading…";
-
-  let rows;
-  try {
-    rows = await fetchSidebarRows();
-  } catch (e) {
-    console.error("❌ Sidebar load failed", e);
-    menu.innerHTML = "Failed to load";
-    return;
-  }
-
-  menu.innerHTML = "";
 
   // ==========================================================
   // DATA STRUCTURE (frontend = dumb renderer)
@@ -263,6 +305,39 @@ menu.append(cont, contChildren);
         });
     });
 }
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function createLine(type, label, count, iso2 = null) {
+  const el = document.createElement("div");
+  el.className = `line ${type}`;
+
+  const flag =
+    type === "country" && iso2
+      ? `<img class="flag" src="assets/flags/${iso2.toLowerCase()}.svg" />`
+      : "";
+
+  el.innerHTML = `
+    <span class="arrow">${type === "city" ? "•" : "▸"}</span>
+    <span class="label-wrap">${flag}<span class="label">${label}</span></span>
+    <span class="pill">${count}</span>
+  `;
+
+  return el;
+}
+
+function createChildren(show = false) {
+  const el = document.createElement("div");
+  el.className = "children" + (show ? " show" : "");
+  return el;
+}
+
+function toggle(line, children) {
+  const open = line.classList.toggle("open");
+  children.classList.toggle("show", open);
+}
+
 
 // ============================================================
 // UI HELPERS
