@@ -191,6 +191,7 @@ function renderSidebar(continents) {
 // ============================================================
 // UI HELPERS
 // ============================================================
+
 function createLine(type, label, count, iso2 = null) {
   const el = document.createElement("div");
   el.className = `line ${type}`;
@@ -218,6 +219,47 @@ function createChildren() {
 function toggle(line, children) {
   const open = line.classList.toggle("open");
   children.classList.toggle("show", open);
+}
+
+/**
+ * Klick var som helst på raden (utom label)
+ * → öppna / stäng children
+ */
+function bindRowToggle(line, children) {
+  line.addEventListener("click", (e) => {
+    // label-wrap har eget beteende (highlight + activateLocation)
+    if (e.target.closest(".label-wrap")) return;
+    toggle(line, children);
+  });
+}
+
+/**
+ * Highlight + auto-expand
+ * Klickad rad + alla föräldrar blir aktiva
+ */
+function setActivePath(lineEl) {
+  // rensa ALLA highlights
+  document
+    .querySelectorAll("#sidebarMenu .line.active")
+    .forEach(el => el.classList.remove("active"));
+
+  // stäng ALLA öppna children
+  document
+    .querySelectorAll("#sidebarMenu .children.show")
+    .forEach(el => el.classList.remove("show"));
+
+  // markera + öppna path uppåt
+  let el = lineEl;
+
+  while (el && el !== document) {
+    if (el.classList.contains("line")) {
+      el.classList.add("active");
+    }
+    if (el.classList.contains("children")) {
+      el.classList.add("show");
+    }
+    el = el.parentElement;
+  }
 }
 
 // ============================================================
