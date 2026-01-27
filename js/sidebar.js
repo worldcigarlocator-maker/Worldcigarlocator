@@ -51,89 +51,99 @@ export async function buildFrontendSidebar() {
 
   menu.innerHTML = "";
 
-  // ==========================================================
-  // DATA STRUCTURE (frontend = dumb renderer)
-  // ==========================================================
-  const continents = {};
+ // ==========================================================
+// DATA STRUCTURE (frontend = dumb renderer)
+// ==========================================================
+const continents = {};
 
-  rows.forEach((r) => {
-    const {
-      continent,
-      country,
-      country_iso2,
-      state,
-      city,
-      level,
-      count,
-    } = r;
+rows.forEach((r) => {
+  const {
+    continent,
+    country,
+    country_iso2,
+    state,
+    city,
+    level,
+    count,
+  } = r;
 
-    const n = Number(count) || 0;
+  const n = Number(count) || 0;
 
-    // ---------- CONTINENT ----------
-    if (level === "continent") {
-      continents[continent] ??= {
-        count: n,
-        countries: {},
-      };
-      return;
-    }
+  // --------------------------
+  // CONTINENT
+  // --------------------------
+  if (level === "continent") {
+    continents[continent] ??= {
+      count: n,
+      countries: {},
+    };
+    return;
+  }
 
-    continents[continent] ??= { count: 0, countries: {} };
+  continents[continent] ??= { count: 0, countries: {} };
 
-    // ---------- COUNTRY ----------
-    if (level === "country") {
-      continents[continent].countries[country] ??= {
-        iso2: country_iso2,
-        count: n,
-        states: {},
-        cities: {},
-      };
-      return;
-    }
+  // --------------------------
+  // COUNTRY
+  // --------------------------
+  if (level === "country") {
+    continents[continent].countries[country] ??= {
+      iso2: country_iso2,
+      count: n,
+      states: {},
+      cities: {},
+    };
+    return;
+  }
 
-    const isUS = IS_US(country_iso2);
+  const isUS = IS_US(country_iso2);
 
-    // ---------- STATE (US ONLY) ----------
-    if (level === "state" && isUS && state) {
-      continents[continent].countries[country] ??= {
-        iso2: country_iso2,
-        count: 0,
-        states: {},
-        cities: {},
-      };
+  // --------------------------
+  // STATE (USA ONLY)
+  // --------------------------
+  if (level === "state" && isUS && state) {
+    continents[continent].countries[country] ??= {
+      iso2: country_iso2,
+      count: 0,
+      states: {},
+      cities: {},
+    };
 
+    continents[continent].countries[country].states[state] ??= {
+      count: n,
+      cities: {},
+    };
+    return;
+  }
+
+  // --------------------------
+  // CITY (ALL COUNTRIES)
+  // --------------------------
+  if (level === "city") {
+    continents[continent].countries[country] ??= {
+      iso2: country_iso2,
+      count: 0,
+      states: {},
+      cities: {},
+    };
+
+    if (isUS && state) {
       continents[continent].countries[country].states[state] ??= {
-        count: n,
-        cities: {},
-      };
-      return;
-    }
-
-    // ---------- CITY (ALL COUNTRIES) ----------
-    if (level === "city") {
-      continents[continent].countries[country] ??= {
-        iso2: country_iso2,
         count: 0,
-        states: {},
         cities: {},
       };
-
-      if (isUS && state) {
-        continents[continent].countries[country].states[state] ??= {
-          count: 0,
-          cities: {},
-        };
-        continents[continent].countries[country].states[state].cities[city] = n;
-      } else {
-        continents[continent].countries[country].cities[city] = n;
-      }
-      return;
+      continents[continent].countries[country].states[state].cities[city] = n;
+    } else {
+      continents[continent].countries[country].cities[city] = n;
     }
-  });
+    return;
+  }
+});
 
-  // ✅ KRITISK RAD — rendera trädet
-  renderSidebar(continents);
-}
+// 🔍 DEBUG — exakt facit för vad frontend faktiskt bygger
+console.log(
+  "SIDEBAR DEBUG — continents object:",
+  JSON.stringify(continents, null, 2)
+);
 
 // ============================================================
 // RENDER
