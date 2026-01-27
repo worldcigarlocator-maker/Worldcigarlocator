@@ -25,13 +25,16 @@
 .sidebar-logo {
   position: relative;
   font-family: "Playfair Display", serif;
-  font-size: 1.55rem;
+  font-size: 1.32rem;          /* ⬅️ mindre = plats på en rad */
   font-weight: 600;
-  letter-spacing: 0.02em;
-  color: #e0b44a; /* varm print-guld */
-  line-height: 1.05;
+  letter-spacing: 0.015em;
+  color: #e0b44a;
+  line-height: 1.1;
+
+  white-space: nowrap;         /* ⬅️ TVINGAR EN RAD */
   cursor: pointer;
 }
+
 /* TIGHT, ELEGANT REFLECTION */
 .sidebar-logo::after {
   content: attr(data-text);
