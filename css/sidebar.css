@@ -16,21 +16,18 @@
    HEADER / TOPBAR
 ------------------------------------------------------------ */
 .sidebar-header {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+
+  /* gör headern större NEDÅT (för spegling + luft) */
+  padding-top: 0.2rem;
+  padding-bottom: 2.4rem;
+
+  margin-bottom: 0.6rem;
 }
 
-/* LOGO (HOME) */
-.sidebar-logo {
-  position: relative;
-  font-size: 0.98rem;      /* ↓ mindre */
-  font-weight: 600;
-  letter-spacing: 0.10em; /* ↓ lugnare */
-  color: var(--gold);
-  cursor: pointer;
-  user-select: none;
-}
 
 /* LOGO REFLECTION */
 .sidebar-logo::after {
