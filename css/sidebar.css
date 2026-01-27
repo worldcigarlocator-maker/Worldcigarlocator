@@ -31,7 +31,7 @@
 .sidebar-logo::after {
   content: attr(data-text);
   position: absolute;
-  top: calc(100% + 2px);
+  top: calc(100% + 1px);
   left: 0;
   width: 100%;
   transform: scaleY(-1);
