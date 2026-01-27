@@ -117,31 +117,33 @@ if (level === "state" && IS_US(country_iso2) && state) {
 }
 
 
-     if (level === "city") {
-      continents[continent].countries[country] ??= {
-        iso2: country_iso2,
-        count: 0,
-        states: {},
-        cities: {},
-      };
+     // --------------------------
+// CITY (ALL COUNTRIES)
+// --------------------------
+if (level === "city") {
+  // 🔒 GARANTERA country-noden ALLTID
+  continents[continent] ??= { count: 0, countries: {} };
 
-      if (isUS && state) {
-        continents[continent].countries[country].states[state] ??= {
-          count: 0,
-          cities: {},
-        };
-        continents[continent].countries[country].states[state].cities[city] = n;
-      } else {
-        continents[continent].countries[country].cities[city] = n;
-      }
+  continents[continent].countries[country] ??= {
+    iso2: country_iso2,
+    count: 0,
+    states: {},
+    cities: {},
+  };
 
-      return;
-    }
-  }); // ✅ VIKTIG – stänger rows.forEach
+  if (IS_US(country_iso2) && state) {
+    continents[continent].countries[country].states[state] ??= {
+      count: 0,
+      cities: {},
+    };
+    continents[continent].countries[country].states[state].cities[city] = n;
+  } else {
+    continents[continent].countries[country].cities[city] = n;
+  }
 
-  renderSidebar(continents); // ✅ VIKTIG – bygger sidebar
-}
-
+  return;
+  }
+}); // 
 
 // ============================================================
 // RENDER
