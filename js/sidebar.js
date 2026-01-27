@@ -118,27 +118,27 @@ if (level === "state" && IS_US(country_iso2) && state) {
 
 
     // --------------------------
-    // CITY
-    // --------------------------
-    continents[continent].countries[country] ??= {
-      iso2: country_iso2,
+// CITY
+// --------------------------
+if (level === "city") {
+  continents[continent].countries[country] ??= {
+    iso2: country_iso2,
+    count: 0,
+    states: {},
+    cities: {},
+  };
+
+  if (isUS && state) {
+    continents[continent].countries[country].states[state] ??= {
       count: 0,
-      states: {},
       cities: {},
     };
+    continents[continent].countries[country].states[state].cities[city] = n;
+  } else {
+    continents[continent].countries[country].cities[city] = n;
+  }
 
-    if (isUS && state) {
-      continents[continent].countries[country].states[state] ??= {
-        count: 0,
-        cities: {},
-      };
-      continents[continent].countries[country].states[state].cities[city] = n;
-    } else {
-      continents[continent].countries[country].cities[city] = n;
-    }
-  });
-
-  renderSidebar(continents);
+  return;
 }
 
 // ============================================================
