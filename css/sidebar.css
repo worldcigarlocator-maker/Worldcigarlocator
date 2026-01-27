@@ -6,12 +6,12 @@
 /* -----------------------------
    SIDEBAR CONTAINER
 ----------------------------- */
-.sidebar{
-  display:flex;
-  flex-direction:column;
-  height:100%;
-  overflow:hidden;
+.sidebar-header{
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
 }
+
 
 /* -----------------------------
    HEADER (own zone)
