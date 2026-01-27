@@ -81,8 +81,8 @@
 /* ACTIONS */
 .sidebar-actions{
   display:flex;
-  gap: 2.6rem;
-  margin-top: 2.35rem;
+  gap: 4.0rem;
+  margin-top: 3.35rem;
 }
 
 /* OUTLINE FLOAT BUTTON (subtle, not flashy) */
@@ -127,7 +127,7 @@
   );
 
   transform: scaleY(-1);
-  opacity: .18;
+  opacity: 1.18;
   pointer-events:none;
 }
 
