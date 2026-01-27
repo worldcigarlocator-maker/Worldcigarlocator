@@ -258,9 +258,7 @@ function setActivePath(lineEl) {
     .querySelectorAll("#sidebarMenu .line.active")
     .forEach((el) => el.classList.remove("active"));
 
-  document
-    .querySelectorAll("#sidebarMenu .children.show")
-    .forEach((el) => el.classList.remove("show"));
+ 
 
   let el = lineEl;
 
