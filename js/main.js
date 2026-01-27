@@ -92,7 +92,7 @@ async function initSidebar() {
   if (SIDEBAR_READY) return;
   SIDEBAR_READY = true;
 
-  await buildFrontendSidebar(supabase);
+  await buildFrontendSidebar();
 }
 
 
