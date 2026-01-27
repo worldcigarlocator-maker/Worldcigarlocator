@@ -47,7 +47,7 @@
   line-height: 1.1;
 
   color: inherit;
-  opacity: 0.48;               /* ⬅️ tydligare men fortfarande lyx */
+  opacity: 1.48;               /* ⬅️ tydligare men fortfarande lyx */
 
   height: 0.6em;               /* ⬅️ längre reflektion */
   overflow: hidden;
@@ -81,7 +81,7 @@
 /* ACTIONS */
 .sidebar-actions{
   display:flex;
-  gap: 4.0rem;
+  gap: 6.0rem;
   margin-top: 3.35rem;
 }
 
