@@ -262,23 +262,3 @@ function setActivePath(lineEl) {
   }
 }
 
-// ============================================================
-// ACTIVE PATH — HIGHLIGHT + AUTO-EXPAND
-// ============================================================
-function setActivePath(lineEl) {
-  document
-    .querySelectorAll("#sidebarMenu .line.active")
-    .forEach(el => el.classList.remove("active"));
-
-  document
-    .querySelectorAll("#sidebarMenu .children.show")
-    .forEach(el => el.classList.remove("show"));
-
-  let el = lineEl;
-
-  while (el && el !== document) {
-    if (el.classList.contains("line")) el.classList.add("active");
-    if (el.classList.contains("children")) el.classList.add("show");
-    el = el.parentElement;
-  }
-}
