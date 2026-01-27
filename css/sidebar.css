@@ -1,258 +1,160 @@
 /* ============================================================
-   SIDEBAR.CSS — WCL Sidebar (CANONICAL, CLEAN, GRID-BASED)
-   Scope: sidebar only
+   SIDEBAR.CSS — WCL (CLEAN, MODERN, LUXURY)
    ============================================================ */
 
-/* ============================================================
-   1. SIDEBAR CONTAINER
-   ============================================================ */
-
+/* ------------------------------------------------------------
+   SIDEBAR CONTAINER
+------------------------------------------------------------ */
 .sidebar {
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* ❗ sidebar itself never scrolls */
-}
-
-/* ============================================================
-   2. NAV SCROLL AREA (CRITICAL FIX)
-   ============================================================ */
-
-#sidebarMenu {
-  flex: 1;
-  overflow-y: auto;
-  padding-bottom: 1rem;
-}
-
-
-/* ============================================================
-   3. BASE LINE — GRID MODEL
-   Columns:
-   [arrow] [label/flag] [count]
-   ============================================================ */
-
-.line {
-  display: grid;
-  grid-template-columns: 18px 1fr auto;
-  align-items: center;
-  gap: 10px;
-
-  padding: 0.55rem 0.6rem;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-
-  color: #eaeaea;
-  cursor: pointer;
-  background: none;
-}
-
-/* No hover effects (premium calm) */
-.line:hover {
-  background: none;
-}
-
-/* ============================================================
-   4. CONTINENT — SILVER SECTION BAR (STRUCTURE)
-   ============================================================ */
-
-.line.continent {
-  background: linear-gradient(
-    to right,
-    rgba(255,255,255,0.10),
-    rgba(255,255,255,0.04)
-  );
-  border-radius: 8px;
-  margin: 0.4rem 0;
-  font-weight: 700;
-}
-
-/* ============================================================
-   5. ARROW (LEFT COLUMN)
-   ============================================================ */
-
-.line .arrow {
-  font-size: 0.95rem;
-  color: #cfcfcf;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: transform 0.2s ease;
-}
-
-.line.open .arrow {
-  transform: rotate(90deg);
-}
-
-/* ============================================================
-   6. LABEL + FLAG (MIDDLE COLUMN)
-   ============================================================ */
-
-.label-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0; /* allows ellipsis */
-}
-
-.label {
-  white-space: nowrap;
+  height: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
-  font-weight: 500;
 }
 
-/* Flags — country only */
-.flag {
-  width: 18px;
-  height: 12px;
-  object-fit: cover;
-  border-radius: 2px;
-  flex-shrink: 0;
+/* ------------------------------------------------------------
+   HEADER / TOPBAR
+------------------------------------------------------------ */
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
 }
 
-/* ============================================================
-   7. COUNT (RIGHT COLUMN — PRESERVED LOGIC)
-   ============================================================ */
-
-.pill {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #bdbdbd;
+/* LOGO (HOME) */
+.sidebar-logo {
+  position: relative;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  cursor: pointer;
+  user-select: none;
 }
 
-/* ============================================================
-   8. ACTIVE PATH — GOLD CONTENT ONLY
-   ============================================================ */
+/* LOGO REFLECTION */
+.sidebar-logo::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  transform: scaleY(-1);
+  opacity: 0.18;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,.6), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.6), transparent);
+}
 
-.line.active .label,
-.line.active .pill,
-.line.active .arrow {
+/* ACTION BUTTONS */
+.sidebar-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* FLOATING BUTTON */
+.sidebar-btn {
+  position: relative;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.35);
+  color: #eaeaea;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+/* FLOAT EFFECT */
+.sidebar-btn::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  box-shadow:
+    0 6px 14px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(255,255,255,0.08);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.sidebar-btn:hover {
+  border-color: var(--gold);
   color: var(--gold);
 }
 
-/* 🚫 Ensure NO background leaks into active */
-.line.active {
-  background: none !important;
-  box-shadow: none !important;
+/* ADD STORE (WARM GOLD) */
+.sidebar-btn.add-store {
+  border-color: rgba(212,160,23,0.6);
+  color: var(--gold);
 }
 
-/* ============================================================
-   9. HIERARCHY SIZES (COMPACT)
-   ============================================================ */
-
-.line.continent { font-size: 0.95rem; }
-.line.country   { font-size: 0.85rem; }
-.line.state     { font-size: 0.82rem; }
-.line.city      { font-size: 0.80rem; color: #cfcfcf; }
-
-/* ============================================================
-   10. CHILD CONTAINERS (NO INDENT DRIFT)
-   ============================================================ */
-
-.children {
-  display: none;
+/* ------------------------------------------------------------
+   DIVIDERS
+------------------------------------------------------------ */
+.sidebar-divider {
+  border: none;
+  height: 1px;
+  background: rgba(255,255,255,0.15);
+  margin: 1rem 0;
 }
 
-.children.show {
-  display: block;
+/* ------------------------------------------------------------
+   AD BOX
+------------------------------------------------------------ */
+.sidebar-ad {
+  text-align: center;
 }
 
-/* ============================================================
-   11. FOOTER LINKS (SIDEBAR BOTTOM)
-   ============================================================ */
+.sidebar-ad .ad-img {
+  width: 70%;
+  max-width: 140px;
+  border-radius: 10px;
+  margin-bottom: 0.4rem;
+}
 
+.sidebar-ad .ad-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.sidebar-ad .ad-code {
+  font-size: 0.6rem;
+  color: #ccc;
+}
+
+/* ------------------------------------------------------------
+   SIDEBAR MENU
+------------------------------------------------------------ */
+#sidebarMenu {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.4rem 0;
+}
+
+/* ------------------------------------------------------------
+   FOOTER
+------------------------------------------------------------ */
 .sidebar-bottom {
-  padding-top: 0.6rem;
   border-top: 1px solid rgba(255,255,255,0.12);
+  padding-top: 0.6rem;
+  font-size: 0.75rem;
 }
 
 .sidebar-bottom .menu-link {
-  font-size: 0.8rem;
+  display: block;
   color: #aaa;
   text-decoration: none;
-  padding: 0.25rem 0;
+  margin-bottom: 0.35rem;
 }
 
 .sidebar-bottom .menu-link:hover {
   color: var(--gold);
 }
 
-.sidebar-bottom .add-store {
-  color: var(--gold);
-  font-weight: 600;
-}
-
-/* ============================================================
-   12. TOP BAR BUTTONS — FLOATING OUTLINE (PREMIUM)
-   ============================================================ */
-
-.sidebar-top {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Base floating button */
-.sidebar .btn-float {
-  position: relative;
-  padding: 0.38rem 0.85rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.28);
-  color: rgba(255,255,255,0.88);
-
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-/* Subtle hover – no drama */
-.sidebar .btn-float:hover {
-  border-color: rgba(255,255,255,0.45);
-  color: #fff;
-}
-
-/* ---------- Reflection (the luxury part) ---------- */
-.sidebar .btn-float::after {
-  content: "";
-  position: absolute;
-  left: 10%;
-  right: 10%;
-  top: 100%;
-  height: 12px;
-
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.18),
-    rgba(255,255,255,0.02),
-    transparent
-  );
-
-  transform: scaleY(-1);
-  opacity: 0.35;
-  pointer-events: none;
-}
-
-/* ============================================================
-   ADD STORE — WARMER / GOLD TONE
-   ============================================================ */
-
-.sidebar .btn-float.add-store {
-  border-color: rgba(212,160,23,0.55);
-  color: var(--gold);
-}
-
-.sidebar .btn-float.add-store:hover {
-  border-color: rgba(212,160,23,0.85);
-  color: #ffd86b;
-}
-
-.sidebar .btn-float.add-store::after {
-  background: linear-gradient(
-    to bottom,
-    rgba(212,160,23,0.35),
-    rgba(212,160,23,0.06),
-    transparent
-  );
-  opacity: 0.45;
+.sidebar-bottom .online-text {
+  margin-top: 0.4rem;
+  color: #777;
 }
