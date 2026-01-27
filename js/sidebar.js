@@ -98,22 +98,24 @@ export async function buildFrontendSidebar() {
     const isUS = IS_US(country_iso2);
 
     // --------------------------
-    // STATE (USA only)
-    // --------------------------
-    if (level === "state" && isUS && state) {
-      continents[continent].countries[country] ??= {
-        iso2: country_iso2,
-        count: 0,
-        states: {},
-        cities: {},
-      };
+// STATE (USA ONLY — CANONICAL)
+// --------------------------
+if (level === "state" && IS_US(country_iso2) && state) {
+  continents[continent].countries[country] ??= {
+    iso2: country_iso2,
+    count: 0,
+    states: {},
+    cities: {}, // används aldrig för US, men hålls för struktur-paritet
+  };
 
-      continents[continent].countries[country].states[state] ??= {
-        count: n,
-        cities: {},
-      };
-      return;
-    }
+  continents[continent].countries[country].states[state] ??= {
+    count: n,
+    cities: {},
+  };
+
+  return; // 🔒 viktigt: stoppa vidare city-logik
+}
+
 
     // --------------------------
     // CITY
