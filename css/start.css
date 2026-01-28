@@ -225,20 +225,32 @@ body {
 
 /* ============================================================
    10. RAD 5 — HERO (IDLE ONLY)
-   Actual height reduced ~35%
+   Scaled down ~35% WITHOUT changing image composition
    ============================================================ */
 
 .hero {
   width: 100%;
   max-width: 1200px;
-  height: 170px;              /* ⬅️ DETTA gör skillnaden */
+  min-height: 260px;                 /* ⬅️ behåll originalhöjd */
   border-radius: 16px;
   overflow: hidden;
   margin: 0 auto 2.1rem;
   position: relative;
   background: #000;
+
+  /* 🔑 actual visual reduction */
+  transform: scale(0.65);            /* ⬅️ 35% mindre visuellt */
+  transform-origin: top center;       /* ⬅️ ingen "flytt" av motiv */
 }
 
+/* layout compensation so hero doesn't leave dead space */
+.hero::before {
+  content: "";
+  display: block;
+  height: calc(260px * (1 - 0.65));   /* ⬅️ kompenserar layout-höjd */
+}
+
+/* hero image — unchanged */
 .hero img.hero-bg {
   width: 100%;
   height: 100%;
@@ -248,6 +260,7 @@ body {
   filter: brightness(0.75);
 }
 
+/* gradient overlay — unchanged */
 .hero::after {
   content: "";
   position: absolute;
