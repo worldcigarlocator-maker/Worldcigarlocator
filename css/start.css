@@ -1,5 +1,5 @@
 /* ============================================================
-   WCL START.CSS v7 — PREMIUM DARK + DEEP GOLD (BLOCK LAYOUT)
+   WCL START.CSS v8 — CANONICAL LAYOUT + BRAND SPINE
    ============================================================ */
 
 
@@ -45,28 +45,25 @@ body {
 }
 
 @keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
+  to { opacity: 1; }
 }
 
 
 /* ============================================================
-   3. PAGE WRAPPER / LAYOUT
+   3. PAGE WRAPPER
    ============================================================ */
 
-/* Enkel wrapper (ingen grid längre, block-layout) */
 .container {
   min-height: 100vh;
 }
 
-/* Mobilknapp döljs på desktop */
 .mobile-menu-btn {
   display: none;
 }
 
+
 /* ============================================================
-   4. SIDEBAR — FIXED, FULL HEIGHT
+   4. SIDEBAR — FIXED ANCHOR
    ============================================================ */
 
 .sidebar {
@@ -83,238 +80,82 @@ body {
   z-index: 3000;
 }
 
+
 /* ============================================================
-   5. MAIN — FÖRSKJUTEN FÖR FIXED SIDEBAR
+   5. TOP HEAD — RAD 1 (BRAND SPINE)
    ============================================================ */
 
-.main {
-  margin-left: 260px; /* samma bredd som sidebar */
-  padding: 4.8rem 2.2rem 2.4rem 2.6rem;
-  background: transparent;
+.tophead {
+  margin-left: 260px;
+  padding: 1.15rem 2.2rem 0.65rem 2.6rem;
 }
-/* ============================================================
-   6. WCL SIDEBAR — ULTRA CLEAN GOLD EDITION v7
-   ============================================================ */
 
+.tophead-logo {
+  position: relative;
+  display: inline-block;
+  left: 50%;
+  transform: translateX(-50%);
 
-/* --------------------------------------------
-   LOGO (WORLD CIGAR LOCATOR — one line, gold)
-   -------------------------------------------- */
-
-.sidebar .logo {
-  font-size: 1.15rem;
-  font-weight: 800;
-  line-height: 1.8;
-  color: var(--gold);
-  margin-bottom: 1.5rem;
+  font-family: "Playfair Display", serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  color: #e0b44a;
+  line-height: 1.1;
   white-space: nowrap;
 }
 
-
-/* --------------------------------------------
-   SIDEBAR TOP (Online + Login)
-   -------------------------------------------- */
-
-.sidebar-top {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-/* Guld prick + silver text */
-.online-box {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid #777;    /* silver line */
-  background: #0e0e0e;
-  color: #ccc;               /* silver text */
-  font-size: 0.68rem;
-}
-
-.online-box .dot {
-  width: 6px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--gold);
-  box-shadow: 0 0 6px rgba(212,160,23,0.7);
-}
-
-/* Login / Logout buttons */
-.login-btn,
-.logout-btn {
-  padding: 4px 14px;
-  border-radius: 50px;
-  border: 1px solid #999;
-  background: #1a1aa;
-  color: #eaeaea;
-  font-size: 0.82rem;
-  cursor: pointer;
-}
-
-.login-btn:hover,
-.logout-btn:hover {
-  filter: brightness(1.12);
-}
-
-/* Divider (silver) */
-.sidebar-divider {
-  border: none;
-  height: 1px;
-  background: #888;   /* clean silver */
-  margin: 14px 0;
-}
-
-
-/* --------------------------------------------
-   SIDEBAR SMALL PREMIUM AD
-   -------------------------------------------- */
-
-.sidebar-ad {
-  width: 100%;
-  padding: 1.2rem 0;
-  text-align: center;
-}
-
-.ad-img {
-  width: 80%;
-  max-width: 180px;
-  border-radius: 14px;
-  display: block;
-  margin: 0 auto 0.9rem auto;
-  box-shadow: 0 0 12px rgba(0,0,0,0.35);
-}
-
-.ad-title {
-  font-size: 0.78rem;
-  color: var(--gold);
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.ad-code {
-  font-size: 0.75rem;
-  color: #ccc;
-}
-
-/* ============================================================
-   SIDEBAR AD — TRUE COMPACT MODE
-   ============================================================ */
-
-.sidebar-ad {
-  padding: 0.35rem 0 0.45rem;   /* ⬅️ detta är nyckeln */
-  text-align: center;
-  line-height: 1.05;
-}
-
-/* Bild */
-.sidebar-ad .ad-img {
-  width: 65%;
-  max-width: 110px;
-  margin: 0 auto 0.25rem;
-  border-radius: 8px;
-}
-
-/* Titel */
-.sidebar-ad .ad-title {
-  font-size: 0.62rem;
-  font-weight: 700;
-  line-height: 1.05;
-  margin: 0 0 1px 0;           /* ⬅️ ingen vertikal luft */
-}
-
-/* Kodrad */
-.sidebar-ad .ad-code {
-  font-size: 0.60rem;
-  line-height: 1.05;
-  margin: 0;
-}
-
-
-/* Divider närmare för mer plats nedåt */
-.sidebar-divider {
-  margin: 8px 0;
-}
-
-/* ============================================================
-   7. MAIN AREA — HERO, SEARCH, RESULTS
-   ============================================================ */
-
-
-/* --------------------------------------------
-   HERO — FINAL GOLD EDITION
-   -------------------------------------------- */
-
-.main > .hero-text,
-.main > .hero {
-  display: block;
-  width: 100%;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* text */
-.hero-text {
-  text-align: center;
-  margin-bottom: 1.4rem;
-  margin-top: 0.3rem;
-}
-
-.hero-text h1 {
-  color: var(--gold);
-  font-size: 1.9rem;
-  margin-bottom: 0.4rem;
-}
-
-.hero-text p {
-  color: var(--muted);
-  max-width: 720px;
-  margin: 0 auto;
-  line-height: 1.55;
-}
-
-/* hero wrapper */
-.hero {
-  width: 100%;
-  min-height: 260px;
-  border-radius: 16px;
-  overflow: hidden;
-  margin-bottom: 2.1rem;
-  position: relative;
-  background: #000;
-}
-
-/* hero image */
-.hero img.hero-bg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-  filter: brightness(0.75);
-}
-
-/* gradient overlay */
-.hero::after {
-  content: "";
+.tophead-logo::after {
+  content: attr(data-text);
   position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.55));
+  left: 0;
+  right: 0;
+  top: 100%;
+
+  transform: scaleY(-1);
+  line-height: 1.1;
+  color: inherit;
+
+  height: 0.6em;
+  overflow: hidden;
+
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0.18),
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0.18),
+    transparent
+  );
+
+  filter: blur(0.2px);
+  pointer-events: none;
 }
 
 
-/* --------------------------------------------
-   SEARCHBAR
-   -------------------------------------------- */
+/* ============================================================
+   6. MAIN AREA — CONTENT AXIS
+   ============================================================ */
+
+.main {
+  margin-left: 260px;
+  padding: 1.2rem 2.2rem 2.4rem 2.6rem;
+  background: transparent;
+}
+
+
+/* ============================================================
+   7. RAD 2 — SEARCH BAR
+   ============================================================ */
 
 .main-search {
   display: flex;
   gap: 0.6rem;
-  margin-bottom: 1.6rem;
+  margin-bottom: 0.8rem;
 }
 
 .searchbar input {
@@ -353,9 +194,70 @@ body {
 }
 
 
-/* --------------------------------------------
-   RESULTS GRID (rubriken, inte korten)
-   -------------------------------------------- */
+/* ============================================================
+   8. RAD 3 — WELCOME TEXT (IDLE ONLY)
+   ============================================================ */
+
+.hero-text {
+  text-align: center;
+  margin: 0.6rem auto 0.6rem;
+  max-width: 720px;
+}
+
+.hero-text p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+
+/* ============================================================
+   9. RAD 4 — SPACING BLOCK
+   ============================================================ */
+
+.main-spacing {
+  height: 0.9rem;
+}
+
+
+/* ============================================================
+   10. RAD 5 — HERO (IDLE ONLY)
+   ============================================================ */
+
+.hero {
+  width: 100%;
+  max-width: 1200px;
+  min-height: 260px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 0 auto 2.1rem;
+  position: relative;
+  background: #000;
+}
+
+.hero img.hero-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  filter: brightness(0.75);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(0,0,0,0.55)
+  );
+}
+
+
+/* ============================================================
+   11. RESULTS
+   ============================================================ */
 
 .result-heading {
   margin-bottom: 0.7rem;
@@ -368,7 +270,7 @@ body {
 
 
 /* ============================================================
-   8. AGE GATE MODAL
+   12. AGE GATE MODAL
    ============================================================ */
 
 .age-modal {
@@ -397,157 +299,13 @@ body {
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6);
 }
 
-.age-box h2 {
-  color: var(--gold);
-  margin-bottom: 1rem;
-}
-
-.age-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 0.9rem;
-}
-
-.age-yes,
-.age-no {
-  padding: 0.6rem 1.4rem;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.age-yes {
-  background: linear-gradient(135deg, #f3e29c, #d9c06a);
-  color: #111;
-}
-
-.age-no {
-  background: #262626;
-}
-
 
 /* ============================================================
-   9. LOGIN POPUP — GLASSY
-   ============================================================ */
-
-#loginPopup {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 3000;
-}
-
-#loginPopup.hidden {
-  display: none !important;
-}
-
-.login-box {
-  background: rgba(20, 20, 20, 0.88);
-  padding: 2.4rem 2.2rem;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  width: 360px;
-  text-align: center;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
-}
-
-.login-box h2 {
-  color: var(--gold);
-  margin-bottom: 1.2rem;
-  font-size: 1.4rem;
-}
-
-.login-field {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  margin-bottom: 0.9rem;
-  background: #0d0d0d;
-  border: 1px solid #333;
-  border-radius: 10px;
-  color: #fff;
-  font-size: 0.9rem;
-}
-
-.login-field:focus {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 1px var(--gold);
-}
-
-/* Remember me */
-.remember-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #ccc;
-  margin-bottom: 1rem;
-}
-
-.remember-wrapper input {
-  accent-color: var(--gold);
-}
-
-/* Forgot link */
-.forgot a {
-  color: var(--gold);
-  text-decoration: none;
-}
-
-.forgot a:hover {
-  text-decoration: underline;
-}
-
-/* Login button + spinner */
-.login-btn-popup {
-  width: 100%;
-  padding: 0.7rem;
-  background: linear-gradient(135deg, #f3e29c, #d9c06a);
-  border-radius: 10px;
-  border: none;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #111;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-}
-
-.spinner {
-  width: 16px;
-  height: 16px;
-  border: 3px solid rgba(255, 255, 255, 0.25);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-.spinner.hidden {
-  display: none;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-/* ============================================================
-   10. MOBILE LAYOUT
+   13. MOBILE LAYOUT
    ============================================================ */
 
 @media (max-width: 880px) {
 
-  /* Container räcker med block */
-  .container {
-    min-height: 100vh;
-  }
-
-  /* Sidebar: slide-in meny på mobil */
   .sidebar {
     position: fixed;
     inset: 0 0 0 0;
@@ -562,7 +320,6 @@ body {
     transform: translateX(0);
   }
 
-  /* Mobilmeny-knapp */
   .mobile-menu-btn {
     position: fixed;
     top: 12px;
@@ -579,13 +336,16 @@ body {
     display: block;
   }
 
-  /* Main: ingen extra margin-left när sidebar är överlagrad */
+  .tophead {
+    margin-left: 0;
+    padding: 0.9rem 1rem 0.4rem;
+  }
+
   .main {
     margin-left: 0;
     padding: 1.2rem;
   }
 
-  /* Searchbar sticky i toppen */
   .main-search {
     position: sticky;
     top: 0;
@@ -595,7 +355,6 @@ body {
     z-index: 300;
   }
 
-  /* Grid-centrering av kort (layout styrs vidare av cards.css) */
   .store-grid {
     justify-content: center;
   }
