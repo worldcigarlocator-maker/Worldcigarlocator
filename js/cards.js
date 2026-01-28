@@ -348,24 +348,27 @@ function initLiveSearchAndFilters() {
   const clearBtn = dom("#clearBtn");
   const chips = dom("#searchFilters");
 
-  // CHIPS — modifiers only
-  chips?.addEventListener("click", (e) => {
-    const btn = e.target.closest(".chip");
-    if (!btn) return;
+// ============================================================
+// FILTER TOGGLES — MODIFIERS ONLY (CHECKBOX)
+// ============================================================
+chips?.addEventListener("change", (e) => {
+  const cb = e.target.closest("input[type='checkbox'][data-filter]");
+  if (!cb) return;
 
-    cancelDebounce();
+  STARTUP_HERO = false;
+  cancelDebounce();
 
-    const filter = btn.dataset.filter; // "type" | "access"
-    const value = btn.dataset.value;
+  const filter = cb.dataset.filter; // "type" | "access"
+  const value = cb.dataset.value;
 
-    if (filter === "type") {
-      toggleChip({ type: value });
-    } else if (filter === "access") {
-      toggleChip({ access: value });
-    }
+  if (filter === "type") {
+    toggleChip({ type: value });
+  } else if (filter === "access") {
+    toggleChip({ access: value });
+  }
 
-    updateChipUI();
-  });
+  updateChipUI();
+});
 
   // LIVE INPUT — SEARCH becomes master
   input?.addEventListener("input", () => {
