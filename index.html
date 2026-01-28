@@ -64,65 +64,50 @@
   <!-- ================= PAGE WRAPPER ================= -->
   <div class="container">
 
-    <!-- ================ SIDEBAR ================ -->
+    <!-- ================ SIDEBAR (UTILITY + NAVIGATION) ================ -->
     <aside class="sidebar">
 
-      <!-- HEADER (HOME + ACTIONS) -->
+      <!-- HEADER / UTILITY -->
       <header class="sidebar-header">
 
-        <!-- LOGO / HOME -->
-        <div
-          class="sidebar-logo"
-          id="sidebarHome"
-          data-text="WORLD CIGAR LOCATOR"
-          role="button"
-          tabindex="0"
-          aria-label="Home"
-        >
-          WORLD CIGAR LOCATOR
-        </div>
-
-        <!-- ACTIONS -->
         <div class="sidebar-actions">
           <button id="loginBtn" class="sidebar-btn" type="button">Login</button>
           <a href="add-store.html" class="sidebar-btn" id="addStoreBtn">Add store</a>
           <button id="logoutBtn" class="sidebar-btn hidden" type="button">Logout</button>
         </div>
 
-      </header>
-
-      <!-- divider above ad -->
-      <hr class="sidebar-divider" />
-
-      <!-- AD BOX -->
-      <div class="sidebar-ad">
-        <img src="images/lounge.jpg" class="ad-img" alt="Promo">
-        <p class="ad-title">20% discount on<br>Davidoff LE 2026</p>
-        <p class="ad-code">Use code: <strong>WCL</strong></p>
-      </div>
-
-      <!-- divider under ad -->
-      <hr class="sidebar-divider" />
-
-      <!-- SIDEBAR MENU -->
-      <div id="sidebarMenu" class="nav"></div>
-
-      <!-- FOOTER -->
-      <footer class="sidebar-footer">
-        <a href="mailto:support@worldcigarlocator.com" class="footer-link">Contact / Support</a>
-        <div class="footer-row">
+        <div class="sidebar-status">
           <span class="footer-online">
             <span class="dot"></span>
             <span id="onlineText">0 online</span>
           </span>
         </div>
+
+      </header>
+
+      <hr class="sidebar-divider" />
+
+      <!-- NAVIGATION -->
+      <div id="sidebarMenu" class="nav"></div>
+
+      <!-- FOOTER -->
+      <footer class="sidebar-footer">
+        <a href="mailto:support@worldcigarlocator.com" class="footer-link">Contact / Support</a>
       </footer>
 
     </aside>
 
+    <!-- ================ TOP HEAD (RAD 1 — BRAND SPINE) ================ -->
+    <header class="tophead" aria-label="World Cigar Locator">
+      <div class="tophead-logo" data-text="WORLD CIGAR LOCATOR">
+        WORLD CIGAR LOCATOR
+      </div>
+    </header>
+
     <!-- ================ MAIN AREA ================ -->
     <main class="main">
 
+      <!-- ================= RAD 2 — SEARCH + FILTERS ================= -->
       <div class="searchbar main-search" style="position:relative;">
         <input id="searchInput" type="text" placeholder="Search (e.g. london members lounge)…">
         <button id="searchBtn" class="btn">Search</button>
@@ -130,25 +115,44 @@
 
         <div id="autocomplete" class="autocomplete hidden"></div>
 
-        <div id="searchFilters" class="search-filters" style="margin-top:.65rem; display:flex; gap:.5rem; flex-wrap:wrap;">
-          <button class="chip" data-filter="type" data-value="store"  type="button">Store</button>
-          <button class="chip" data-filter="type" data-value="lounge" type="button">Lounge</button>
+        <div id="searchFilters" class="search-filters" aria-label="Filters">
+          <label class="filter-toggle">
+            <input type="checkbox" data-filter="type" data-value="store" />
+            <span>Store</span>
+          </label>
 
-          <span style="opacity:.35; padding:0 .15rem;">|</span>
+          <label class="filter-toggle">
+            <input type="checkbox" data-filter="type" data-value="lounge" />
+            <span>Lounge</span>
+          </label>
 
-          <button class="chip" data-filter="access" data-value="public"  type="button">Public</button>
-          <button class="chip" data-filter="access" data-value="members" type="button">Members</button>
+          <span class="filter-sep" aria-hidden="true">|</span>
+
+          <label class="filter-toggle">
+            <input type="checkbox" data-filter="access" data-value="public" />
+            <span>Public</span>
+          </label>
+
+          <label class="filter-toggle">
+            <input type="checkbox" data-filter="access" data-value="members" />
+            <span>Members</span>
+          </label>
         </div>
       </div>
 
+      <!-- ================= RAD 3 — WELCOME (IDLE ONLY) ================= -->
       <section id="heroText" class="hero-text">
         <p>
           <strong>Welcome to World Cigar Locator.</strong><br>
-          Step into our global humidor and discover cigar lounges, verified stores, cigar bars,
-          and remarkable places to enjoy a fine smoke — anywhere in the world.
+          Step into our global humidor and discover cigar lounges, verified stores,
+          cigar bars, and remarkable places to enjoy a fine smoke — anywhere in the world.
         </p>
       </section>
 
+      <!-- ================= RAD 4 — SPACING ================= -->
+      <div class="main-spacing"></div>
+
+      <!-- ================= RAD 5 — HERO (IDLE) / CARDS (ACTIVE) ================= -->
       <section id="heroImage" class="hero">
         <img src="images/world-cigar-locator-hero.jpg" class="hero-bg" alt="Hero">
       </section>
