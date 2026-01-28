@@ -223,17 +223,21 @@ body {
    Height reduced ~35%, proportions untouched
    ============================================================ */
 
+/* ============================================================
+   10. RAD 5 — HERO (IDLE ONLY)
+   Actual height reduced ~35%
+   ============================================================ */
+
 .hero {
   width: 100%;
   max-width: 1200px;
-  min-height: 170px;          /* ⬅️ 260px → ~170px (≈ −35%) */
+  height: 170px;              /* ⬅️ DETTA gör skillnaden */
   border-radius: 16px;
   overflow: hidden;
   margin: 0 auto 2.1rem;
   position: relative;
   background: #000;
 }
-
 
 .hero img.hero-bg {
   width: 100%;
