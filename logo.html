@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>WCL Logo Lab</title>
+
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: radial-gradient(circle at top, #111 0%, #000 70%);
+    height: 100%;
+    font-family: "Times New Roman", Georgia, serif;
+  }
+
+  .stage {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ============================
+     LOGO TEXT
+     ============================ */
+  .logo {
+    position: relative;
+    font-size: 72px;
+    letter-spacing: 4px;
+    color: #e6c15a;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  /* REFLECTION */
+  .logo::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+
+    transform: scaleY(-1);
+    transform-origin: top;
+
+    color: #e6c15a;
+    opacity: 0.35;
+
+    /* THIS is the magic */
+    mask-image: linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.6) 0%,
+      rgba(0,0,0,0.3) 20%,
+      rgba(0,0,0,0.0) 60%
+    );
+
+    pointer-events: none;
+  }
+
+  /* ============================
+     BUTTONS
+     ============================ */
+  .actions {
+    display: flex;
+    gap: 32px;
+    margin-top: 64px;
+  }
+
+  .btn {
+    position: relative;
+    padding: 18px 48px;
+    border-radius: 999px;
+    border: 2px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.88);
+   
