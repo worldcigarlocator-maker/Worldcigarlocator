@@ -1,109 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>WCL Logo Lab</title>
+  <meta charset="UTF-8" />
+  <title>WCL Logo Lab</title>
 
-<style>
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background: radial-gradient(circle at top, #141414 0%, #000 70%);
-}
+  <style>
+    /* =========================
+       RESET
+       ========================= */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-.stage {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
+    body {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0b0b0b; /* ändra till #fff för ljus test */
+      font-family: "Times New Roman", Georgia, serif;
+    }
 
-/* =========================
-   LOGO
-   ========================= */
-.logo-wrap {
-  position: relative;
-}
+    /* =========================
+       LOGO WRAPPER
+       ========================= */
+    .logo-stage {
+      position: relative;
+      text-align: center;
+    }
 
-.logo {
-  font-family: "Times New Roman", Georgia, serif;
-  font-size: 72px;
-  letter-spacing: 4px;
-  color: #e6c15a;
-  text-transform: uppercase;
-  line-height: 1;
-  position: relative;
-  z-index: 2;
-}
+    /* =========================
+       LOGO TEXT
+       ========================= */
+    .logo-text {
+      font-size: 96px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: #d6b25e; /* guld */
+    }
 
-/* =========================
-   REFLECTION (REAL)
-   ========================= */
-.reflection {
-  font-family: "Times New Roman", Georgia, serif;
-  font-size: 72px;
-  letter-spacing: 4px;
-  color: #e6c15a;
-  text-transform: uppercase;
-  line-height: 1;
+    /* =========================
+       REFLECTION
+       ========================= */
+    .logo-reflection {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      transform: scaleY(-1);
+      opacity: 0.35;
+      filter: blur(1px);
+      mask-image: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.4),
+        rgba(0,0,0,0)
+      );
+    }
 
-  transform: scaleY(-1);
-  margin-top: 6px;
-
-  opacity: 0.35;
-
-  /* Fade out */
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.6) 0%,
-    rgba(0,0,0,0.25) 30%,
-    rgba(0,0,0,0.0) 65%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.6) 0%,
-    rgba(0,0,0,0.25) 30%,
-    rgba(0,0,0,0.0) 65%
-  );
-}
-
-/* =========================
-   BUTTONS
-   ========================= */
-.actions {
-  display: flex;
-  gap: 32px;
-  margin-top: 64px;
-}
-
-.btn {
-  padding: 18px 48px;
-  border-radius: 999px;
-  border: 2px solid rgba(255,255,255,0.25);
-  color: rgba(255,255,255,0.85);
-  font-family: system-ui, sans-serif;
-  font-size: 14px;
-  letter-spacing: 2px;
-  background: transparent;
-}
-</style>
+    .logo-reflection .logo-text {
+      color: #d6b25e;
+    }
+  </style>
 </head>
-
 <body>
-  <div class="stage">
 
-    <div class="logo-wrap">
-      <div class="logo">WORLD CIGAR LOCATOR</div>
-      <div class="reflection">WORLD CIGAR LOCATOR</div>
+  <div class="logo-stage">
+    <div class="logo-text">WORLD CIGAR LOCATOR</div>
+    <div class="logo-reflection">
+      <div class="logo-text">WORLD CIGAR LOCATOR</div>
     </div>
-
-    <div class="actions">
-      <div class="btn">LOGIN</div>
-      <div class="btn">ADD STORE</div>
-    </div>
-
   </div>
+
 </body>
 </html>
