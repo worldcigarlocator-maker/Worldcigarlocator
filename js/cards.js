@@ -45,6 +45,9 @@ export const MASTER = {
 
 let MASTER_MODE = MASTER.IDLE;
 
+/* NEW — hero & welcome only on first load */
+let STARTUP_HERO = true;
+
 const STATE = {
   location: {
     continent: null,
@@ -56,10 +59,11 @@ const STATE = {
     text: "",
   },
   chips: {
-    type: null, // "store" | "lounge" | null
-    access: null, // "public" | "members" | null
+    type: null,    // "store" | "lounge" | null
+    access: null,  // "public" | "members" | null
   },
 };
+
 
 // ------------------------------------------------------------
 // INTERNAL HELPERS
@@ -306,22 +310,24 @@ function parseSearchTokens(raw) {
 }
 
 // ============================================================
-// CHIP UI
+// FILTER UI — CHECKBOX SYNC (NOT CARDS)
 // ============================================================
 function updateChipUI() {
   const box = dom("#searchFilters");
   if (!box) return;
 
-  box.querySelectorAll(".chip").forEach((btn) => {
-    const filter = btn.dataset.filter;
-    const val = btn.dataset.value;
+  box
+    .querySelectorAll("input[type='checkbox'][data-filter]")
+    .forEach((cb) => {
+      const filter = cb.dataset.filter;
+      const val = cb.dataset.value;
 
-    const isActive =
-      (filter === "type" && STATE.chips.type === val) ||
-      (filter === "access" && STATE.chips.access === val);
+      const isActive =
+        (filter === "type" && STATE.chips.type === val) ||
+        (filter === "access" && STATE.chips.access === val);
 
-    btn.classList.toggle("active", !!isActive);
-  });
+      cb.checked = !!isActive;
+    });
 }
 
 // ============================================================
