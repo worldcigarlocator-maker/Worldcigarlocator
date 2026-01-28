@@ -634,16 +634,21 @@ export async function runSearch() {
   const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
 
-  // ✅ show hero ONLY when truly idle: no master + no location + no search + no chips
-  if (
-    snapshot.master === MASTER.IDLE &&
-    !snapshot.search &&
-    !hasAnyLocation() &&
-    !hasAnyChips()
-  ) {
-    resetToHero();
+ // ============================================================
+// HERO VISIBILITY — STARTUP ONLY
+// ============================================================
+if (
+  snapshot.master === MASTER.IDLE &&
+  !snapshot.search &&
+  !hasAnyLocation() &&
+  !hasAnyChips()
+) {
+  if (STARTUP_HERO) {
+    resetToHero();   // first load only
     return;
   }
+  // after first interaction: cards take full height
+}
 
   heroImage && (heroImage.style.display = "none");
   heroText && (heroText.style.display = "none");
