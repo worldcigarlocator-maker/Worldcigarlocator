@@ -383,3 +383,30 @@ body {
     justify-content: center;
   }
 }
+
+
+/* ============================================================
+   FIX 4 — MAIN TOP SPACING
+   Move label, search and hero down for polish & reflection room
+   ============================================================ */
+
+/* Main top breathing room */
+.main {
+  padding-top: 6.2rem;   /* was ~4.8rem → more calm at the top */
+}
+
+/* Start / welcome text (label zone) */
+.hero-text {
+  margin-top: 1.2rem;    /* moves label down slightly */
+}
+
+/* Search block */
+.main-search {
+  margin-top: 1.4rem;    /* separates from label */
+  margin-bottom: 2.0rem;
+}
+
+/* Hero block */
+.hero {
+  margin-top: 0.8rem;    /* hero follows search, not glued */
+}
