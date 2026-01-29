@@ -239,20 +239,3 @@
 #sidebarMenu .line:hover .pill {
   background: none;
 }
-/* ============================================================
-   LABEL — WORLD CIGAR LOCATOR (FORCED OVERRIDE)
-   ============================================================ */
-
-.sidebar .sidebar-header .sidebar-logo{
-  font-size: 1.35rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-
-  color: #766148;              /* RGB(118,97,72) */
-  line-height: 1.15;
-}
-
-.sidebar .sidebar-header .sidebar-logo::after{
-  color: #766148;
-  opacity: 0.42;
-}
