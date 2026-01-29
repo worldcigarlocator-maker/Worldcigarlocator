@@ -211,3 +211,31 @@
 .hidden {
   display: none !important;
 }
+
+
+/* ============================================================
+   FIX 3 — SIDEBAR COUNTS (TEXT ONLY, NO BUTTON LOOK)
+   ============================================================ */
+
+/* count number (was pill/button-like) */
+#sidebarMenu .pill {
+  background: none;                 /* ⬅️ remove button feel */
+  border: none;                     /* ⬅️ no outline */
+  padding: 0;                       /* ⬅️ no chip spacing */
+  margin-left: auto;
+
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);    /* subtle, informational */
+  border-radius: 0;                 /* ⬅️ kill pill shape */
+}
+
+/* active row count slightly clearer */
+#sidebarMenu .line.active .pill {
+  color: rgba(255,255,255,0.75);
+}
+
+/* hover should NOT look clickable */
+#sidebarMenu .line:hover .pill {
+  background: none;
+}
