@@ -1,4 +1,4 @@
-/* ============================================================
+4/* ============================================================
    WCL START.CSS v8 — CANONICAL LAYOUT + BRAND SPINE
    ============================================================ */
 
@@ -489,4 +489,18 @@ body {
 
   filter: blur(0.25px);
   pointer-events: none;
+}
+/* ============================================================
+   FIX 1 — MAIN DIVIDER (ALIGNED WITH SIDEBAR)
+   ============================================================ */
+
+.main-divider {
+  margin-left: 260px;               /* samma som sidebar-offset */
+  margin-right: 2.6rem;             /* linjerar med main */
+  height: 1px;
+
+  background: rgba(255,255,255,0.12); /* exakt som sidebar-divider */
+
+  margin-top: 0.25rem;              /* samma rad visuellt */
+  margin-bottom: 1.2rem;            /* luft ner till search */
 }
