@@ -504,3 +504,25 @@ body {
   margin-top: 0.25rem;              /* samma rad visuellt */
   margin-bottom: 1.2rem;            /* luft ner till search */
 }
+ /* ============================================================
+   FIX 2 — STICKY SEARCH (LOCKED UNDER MAIN DIVIDER)
+   ============================================================ */
+
+/* Wrapper already exists: .main-search */
+.main-search {
+  position: sticky;
+  top: 0;                             /* låser mot viewport */
+  z-index: 900;                       /* över cards, under modals */
+
+  background: #050505;                /* samma svarta canvas */
+  padding-top: 1.2rem;                /* luft från divider */
+  padding-bottom: 1.2rem;
+
+  border-bottom: 1px solid rgba(255,255,255,0.12); /* subtil avslutning */
+}
+
+/* Prevent jump when hero/cards load */
+.main {
+  scroll-padding-top: 6.5rem;         /* exakt höjd för sticky-zon */
+}
+
