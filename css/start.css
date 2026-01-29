@@ -526,3 +526,29 @@ body {
   scroll-padding-top: 6.5rem;         /* exakt höjd för sticky-zon */
 }
 
+/* ============================================================
+   FIX 2A — LABEL + SEARCH (TIGHT / EDITORIAL)
+   Purpose:
+   - Divider aligns with sidebar divider
+   - Search belongs to label zone
+   - No divider under search
+   ============================================================ */
+
+/* LABEL / TOPHEAD */
+.tophead {
+  margin-left: 260px;
+  padding: 1.2rem 2.2rem 0.4rem 2.6rem; /* tighter bottom */
+  border-bottom: 1px solid rgba(255,255,255,0.12); /* MAIN divider */
+}
+
+/* SEARCH — part of label zone */
+.main-search {
+  margin-top: 0.55rem;     /* tight to divider */
+  margin-bottom: 0.9rem;   /* small breathing room before cards */
+}
+
+/* REMOVE any accidental divider under search */
+.main-search + hr,
+.main-search::after {
+  display: none !important;
+}
