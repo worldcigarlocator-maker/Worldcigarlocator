@@ -239,24 +239,20 @@
 #sidebarMenu .line:hover .pill {
   background: none;
 }
-
 /* ============================================================
-   LABEL — WORLD CIGAR LOCATOR
-   Size + Color Polish (Hero-matched)
+   LABEL — WORLD CIGAR LOCATOR (FORCED OVERRIDE)
    ============================================================ */
 
-.sidebar-logo{
-  font-size: 1.35rem;          /* ⬅️ större, men elegant */
+.sidebar .sidebar-header .sidebar-logo{
+  font-size: 1.35rem;
   font-weight: 600;
   letter-spacing: 0.03em;
 
-  color: #766148;              /* ⬅️ RGB(118,97,72) */
-
+  color: #766148;              /* RGB(118,97,72) */
   line-height: 1.15;
 }
 
-/* Reflection inherits same tone */
-.sidebar-logo::after{
+.sidebar .sidebar-header .sidebar-logo::after{
   color: #766148;
-  opacity: 0.42;               /* ⬅️ lite mer subtil spegling */
+  opacity: 0.42;
 }
