@@ -415,8 +415,8 @@ body {
    MAIN LABEL — WORLD CIGAR LOCATOR (ACTIVE)
    ============================================================ */
 
-.main-logo{
-  font-size: 1.35rem;           /* ⬅️ större */
+.tophead-logo{
+  font-size: 1.35rem;           /* större */
   font-weight: 600;
   letter-spacing: 0.03em;
   line-height: 1.15;
@@ -424,7 +424,7 @@ body {
   color: #766148;               /* RGB(118,97,72) */
 }
 
-.main-logo::after{
+.tophead-logo::after{
   color: #766148;
   opacity: 0.42;
 }
