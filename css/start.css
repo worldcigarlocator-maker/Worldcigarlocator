@@ -203,7 +203,7 @@ body {
 .hero {
   width: 100%;
   max-width: 1200px;
-  min-height: 260px;
+  min-height: 200px;
   margin: 0 auto 2.2rem;
 
   border-radius: 16px;
