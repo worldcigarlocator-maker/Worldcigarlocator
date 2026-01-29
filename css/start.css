@@ -428,3 +428,65 @@ body {
   color: #766148;
   opacity: 0.42;
 }
+
+/* ============================================================
+   BRAND SPINE — TOPHEAD LOGO (FINAL OVERRIDE)
+   Controls size, position & reflection together
+   ============================================================ */
+
+.tophead {
+  margin-left: 260px;
+  padding-top: 2.2rem;     /* ⬅️ flyttar ner hela label-blocket */
+  padding-bottom: 1.2rem;
+}
+
+/* Main label */
+.tophead-logo {
+  position: relative;
+  display: inline-block;
+  left: 50%;
+  transform: translateX(-50%);
+
+  font-family: "Playfair Display", serif;
+  font-size: 3.4rem;       /* ⬅️ JUSTERA STORLEK HÄR */
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+
+  color: #766148;          /* RGB(118,97,72) */
+  white-space: nowrap;
+}
+
+/* Reflection follows automatically */
+.tophead-logo::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+
+  transform: scaleY(-1);
+  line-height: inherit;    /* ⬅️ följer font-size */
+  color: #766148;
+
+  height: 0.55em;          /* ⬅️ reflektionens längd */
+  opacity: 0.42;
+
+  overflow: hidden;
+
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0.18),
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0.18),
+    transparent
+  );
+
+  filter: blur(0.25px);
+  pointer-events: none;
+}
