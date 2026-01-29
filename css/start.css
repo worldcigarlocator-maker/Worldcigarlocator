@@ -33,11 +33,17 @@
   box-sizing: border-box;
 }
 
+/* ============================================================
+   2. RESET & BASE — CANVAS
+   ============================================================ */
+
 body {
   font-family: "DM Sans", sans-serif;
-  background: radial-gradient(circle at top, #202020 0, #050505 55%);
+  background: #050505;          /* seamless deep black */
+  background-image: none;
   color: var(--text);
 }
+
 
 .fade-in {
   opacity: 0;
