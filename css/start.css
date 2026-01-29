@@ -1,27 +1,18 @@
-4/* ============================================================
-   WCL START.CSS v8 — CANONICAL LAYOUT + BRAND SPINE
+/* ============================================================
+   WCL START.CSS v9 — CLEAN CANONICAL RESET
    ============================================================ */
 
-
 /* ============================================================
-   1. GLOBAL COLORS — PREMIUM DARK + DEEP GOLD
+   1. GLOBAL COLORS
    ============================================================ */
 
 :root {
-  --gold: #d4a017;
-  --gold-soft: rgba(212,160,23,0.25);
-  --gold-glow: rgba(212,160,23,0.55);
-
+  --gold: #766148;
   --sidebar-bg: #050505;
   --sidebar-border: #191919;
-
-  --main-bg: #101010;
   --text: #f5f5f5;
   --muted: #aaaaaa;
-
-  --border: #333;
 }
-
 
 /* ============================================================
    2. RESET & BASE
@@ -33,30 +24,14 @@
   box-sizing: border-box;
 }
 
-/* ============================================================
-   2. RESET & BASE — CANVAS
-   ============================================================ */
-
 body {
   font-family: "DM Sans", sans-serif;
-  background: #050505;          /* seamless deep black */
-  background-image: none;
+  background: #050505;
   color: var(--text);
 }
 
-
-.fade-in {
-  opacity: 0;
-  animation: fadeIn 0.7s ease forwards;
-}
-
-@keyframes fadeIn {
-  to { opacity: 1; }
-}
-
-
 /* ============================================================
-   3. PAGE WRAPPER
+   3. LAYOUT WRAPPER
    ============================================================ */
 
 .container {
@@ -67,9 +42,8 @@ body {
   display: none;
 }
 
-
 /* ============================================================
-   4. SIDEBAR — FIXED ANCHOR
+   4. SIDEBAR
    ============================================================ */
 
 .sidebar {
@@ -86,14 +60,14 @@ body {
   z-index: 3000;
 }
 
-
 /* ============================================================
-   5. TOP HEAD — RAD 1 (BRAND SPINE)
+   5. TOPHEAD — BRAND SPINE
    ============================================================ */
 
 .tophead {
   margin-left: 260px;
-  padding: 1.15rem 2.2rem 0.65rem 2.6rem;
+  padding: 2.1rem 2.2rem 0.9rem 2.6rem;
+  border-bottom: 1px solid rgba(255,255,255,0.12); /* ← ENDA linjen */
 }
 
 .tophead-logo {
@@ -103,361 +77,14 @@ body {
   transform: translateX(-50%);
 
   font-family: "Playfair Display", serif;
-  font-size: 7.35rem;
-  font-weight: 600;
-  letter-spacing: 0.015em;
-  color: #e0b44a;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-
-.tophead-logo::after {
-  content: attr(data-text);
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 100%;
-
-  transform: scaleY(-1);
-  line-height: 1.1;
-  color: inherit;
-
-  height: 0.6em;
-  overflow: hidden;
-
-  mask-image: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.55),
-    rgba(0,0,0,0.18),
-    transparent
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.55),
-    rgba(0,0,0,0.18),
-    transparent
-  );
-
-  filter: blur(0.2px);
-  pointer-events: none;
-}
-
-
-/* ============================================================
-   6. MAIN AREA — CONTENT AXIS
-   ============================================================ */
-
-.main {
-  margin-left: 260px;
-  padding: 1.2rem 2.2rem 2.4rem 2.6rem;
-  background: transparent;
-}
-
-
-/* ============================================================
-   7. RAD 2 — SEARCH BAR
-   ============================================================ */
-
-.main-search {
-  display: flex;
-  gap: 0.6rem;
-  margin-bottom: 0.8rem;
-}
-
-.searchbar input {
-  flex: 1;
-  padding: 0.6rem 1rem;
-  border-radius: 999px;
-  border: 1px solid #333;
-  background: #0a0a0a;
-  color: #f0f0f0;
-  font-size: 0.9rem;
-}
-
-.searchbar input::placeholder {
-  color: #666;
-}
-
-.btn {
-  padding: 0.55rem 1.05rem;
-  border-radius: 999px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  background: linear-gradient(135deg, #d9d9d9, #a8a8a8);
-  color: #111;
-}
-
-.btn:hover {
-  filter: brightness(1.08);
-}
-
-.btn.outline {
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid #444;
-}
-
-
-/* ============================================================
-   8. RAD 3 — WELCOME TEXT (IDLE ONLY)
-   ============================================================ */
-
-.hero-text {
-  text-align: center;
-  margin: 0.6rem auto 0.6rem;
-  max-width: 720px;
-}
-
-.hero-text p {
-  color: var(--muted);
-  line-height: 1.55;
-}
-
-
-/* ============================================================
-   9. RAD 4 — SPACING BLOCK
-   ============================================================ */
-
-.main-spacing {
-  height: 0.9rem;
-}
-
-/* ============================================================
-   10. RAD 5 — HERO (IDLE ONLY)
-   Height reduced ~35%, proportions untouched
-   ============================================================ */
-
-/* ============================================================
-   10. RAD 5 — HERO (IDLE ONLY)
-   Scaled down ~35% WITHOUT changing image composition
-   ============================================================ */
-
-.hero {
-  width: 100%;
-  max-width: 1200px;
-  min-height: 260px;                 /* ⬅️ behåll originalhöjd */
-  border-radius: 16px;
-  overflow: hidden;
-  margin: 0 auto 2.1rem;
-  position: relative;
-  background: #000;
-
-  /* 🔑 actual visual reduction */
-  transform: scale(0.65);            /* ⬅️ 35% mindre visuellt */
-  transform-origin: top center;       /* ⬅️ ingen "flytt" av motiv */
-}
-
-/* layout compensation so hero doesn't leave dead space */
-.hero::before {
-  content: "";
-  display: block;
-  height: calc(260px * (1 - 0.65));   /* ⬅️ kompenserar layout-höjd */
-}
-
-/* hero image — unchanged */
-.hero img.hero-bg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-  filter: brightness(0.75);
-}
-
-/* gradient overlay — unchanged */
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(0,0,0,0.55)
-  );
-}
-
-
-/* ============================================================
-   11. RESULTS
-   ============================================================ */
-
-.result-heading {
-  margin-bottom: 0.7rem;
-  color: var(--muted);
-}
-
-.store-grid {
-  padding-top: 0.4rem;
-}
-
-
-/* ============================================================
-   12. AGE GATE MODAL
-   ============================================================ */
-
-.age-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.82);
-  backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-}
-
-.age-modal.hidden {
-  display: none;
-}
-
-.age-box {
-  background: rgba(20, 20, 20, 0.92);
-  padding: 2.4rem 2.6rem;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  text-align: center;
-  width: 420px;
-  max-width: 90%;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6);
-}
-
-
-/* ============================================================
-   13. MOBILE LAYOUT
-   ============================================================ */
-
-@media (max-width: 880px) {
-
-  .sidebar {
-    position: fixed;
-    inset: 0 0 0 0;
-    width: 260px;
-    transform: translateX(-100%);
-    transition: transform 0.28s ease;
-    z-index: 4000;
-    background: #050505;
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .mobile-menu-btn {
-    position: fixed;
-    top: 12px;
-    left: 12px;
-    z-index: 5000;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(6px);
-    color: var(--gold);
-    font-size: 1.4rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    padding: 6px 10px;
-    cursor: pointer;
-    display: block;
-  }
-
-  .tophead {
-    margin-left: 0;
-    padding: 0.9rem 1rem 0.4rem;
-  }
-
-  .main {
-    margin-left: 0;
-    padding: 1.2rem;
-  }
-
-  .main-search {
-    position: sticky;
-    top: 0;
-    background: #101010;
-    padding-top: 0.6rem;
-    padding-bottom: 0.8rem;
-    z-index: 300;
-  }
-
-  .store-grid {
-    justify-content: center;
-  }
-}
-
-
-/* ============================================================
-   FIX 4 — MAIN TOP SPACING
-   Move label, search and hero down for polish & reflection room
-   ============================================================ */
-
-/* Main top breathing room */
-.main {
-  padding-top: 6.2rem;   /* was ~4.8rem → more calm at the top */
-}
-
-/* Start / welcome text (label zone) */
-.hero-text {
-  margin-top: 1.2rem;    /* moves label down slightly */
-}
-
-/* Search block */
-.main-search {
-  margin-top: 1.4rem;    /* separates from label */
-  margin-bottom: 2.0rem;
-}
-
-/* Hero block */
-.hero {
-  margin-top: 0.8rem;    /* hero follows search, not glued */
-}
-
-/* ============================================================
-   MAIN LABEL — WORLD CIGAR LOCATOR (ACTIVE)
-   ============================================================ */
-
-.tophead-logo{
-  font-size: 1.35rem;           /* större */
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  line-height: 1.15;
-
-  color: #766148;               /* RGB(118,97,72) */
-}
-
-.tophead-logo::after{
-  color: #766148;
-  opacity: 0.42;
-}
-
-/* ============================================================
-   BRAND SPINE — TOPHEAD LOGO (FINAL OVERRIDE)
-   Controls size, position & reflection together
-   ============================================================ */
-
-.tophead {
-  margin-left: 260px;
-  padding-top: 2.2rem;     /* ⬅️ flyttar ner hela label-blocket */
-  padding-bottom: 1.2rem;
-}
-
-/* Main label */
-.tophead-logo {
-  position: relative;
-  display: inline-block;
-  left: 50%;
-  transform: translateX(-50%);
-
-  font-family: "Playfair Display", serif;
-  font-size: 2.4rem;       /* ⬅️ JUSTERA STORLEK HÄR */
+  font-size: 2.4rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   line-height: 1.05;
-
-  color: #766148;          /* RGB(118,97,72) */
+  color: var(--gold);
   white-space: nowrap;
 }
 
-/* Reflection follows automatically */
 .tophead-logo::after {
   content: attr(data-text);
   position: absolute;
@@ -466,12 +93,11 @@ body {
   top: 100%;
 
   transform: scaleY(-1);
-  line-height: inherit;    /* ⬅️ följer font-size */
-  color: #766148;
-
-  height: 0.55em;          /* ⬅️ reflektionens längd */
+  line-height: inherit;
+  color: var(--gold);
   opacity: 0.42;
 
+  height: 0.55em;
   overflow: hidden;
 
   mask-image: linear-gradient(
@@ -490,65 +116,105 @@ body {
   filter: blur(0.25px);
   pointer-events: none;
 }
+
 /* ============================================================
-   FIX 1 — MAIN DIVIDER (ALIGNED WITH SIDEBAR)
+   6. MAIN AREA
    ============================================================ */
 
-.main-divider {
-  margin-left: 260px;               /* samma som sidebar-offset */
-  margin-right: 2.6rem;             /* linjerar med main */
-  height: 1px;
-
-  background: rgba(255,255,255,0.12); /* exakt som sidebar-divider */
-
-  margin-top: 0.25rem;              /* samma rad visuellt */
-  margin-bottom: 1.2rem;            /* luft ner till search */
-}
- /* ============================================================
-   FIX 2 — STICKY SEARCH (LOCKED UNDER MAIN DIVIDER)
-   ============================================================ */
-
-/* Wrapper already exists: .main-search */
-.main-search {
-  position: sticky;
-  top: 0;                             /* låser mot viewport */
-  z-index: 900;                       /* över cards, under modals */
-
-  background: #050505;                /* samma svarta canvas */
-  padding-top: 1.2rem;                /* luft från divider */
-  padding-bottom: 1.2rem;
-
-  border-bottom: 1px solid rgba(255,255,255,0.12); /* subtil avslutning */
-}
-
-/* Prevent jump when hero/cards load */
 .main {
-  scroll-padding-top: 6.5rem;         /* exakt höjd för sticky-zon */
+  margin-left: 260px;
+  padding: 1.4rem 2.2rem 2.4rem 2.6rem;
 }
 
 /* ============================================================
-   FIX 2A — LABEL + SEARCH (TIGHT / EDITORIAL)
-   Purpose:
-   - Divider aligns with sidebar divider
-   - Search belongs to label zone
-   - No divider under search
+   7. SEARCH (UNDER LABEL DIVIDER)
    ============================================================ */
 
-/* LABEL / TOPHEAD */
-.tophead {
-  margin-left: 260px;
-  padding: 1.2rem 2.2rem 0.4rem 2.6rem; /* tighter bottom */
-  border-bottom: 1px solid rgba(255,255,255,0.12); /* MAIN divider */
-}
-
-/* SEARCH — part of label zone */
 .main-search {
-  margin-top: 0.55rem;     /* tight to divider */
-  margin-bottom: 0.9rem;   /* small breathing room before cards */
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+  margin-bottom: 1.6rem;
 }
 
-/* REMOVE any accidental divider under search */
-.main-search + hr,
-.main-search::after {
-  display: none !important;
+/* input */
+.searchbar input {
+  flex: 1;
+  padding: 0.65rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid #333;
+  background: #0a0a0a;
+  color: #f0f0f0;
+  font-size: 0.9rem;
+}
+
+.searchbar input::placeholder {
+  color: #666;
+}
+
+/* buttons */
+.btn {
+  padding: 0.55rem 1.05rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(135deg, #d9d9d9, #a8a8a8);
+  color: #111;
+}
+
+.btn.outline {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid #444;
+}
+
+/* ============================================================
+   8. HERO
+   ============================================================ */
+
+.hero {
+  width: 100%;
+  max-width: 1200px;
+  height: 170px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 0 auto 2.2rem;
+  position: relative;
+  background: #000;
+}
+
+.hero img.hero-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.75);
+}
+
+/* ============================================================
+   9. RESULTS
+   ============================================================ */
+
+.store-grid {
+  padding-top: 0.4rem;
+}
+
+/* ============================================================
+   10. MOBILE
+   ============================================================ */
+
+@media (max-width: 880px) {
+
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .tophead,
+  .main {
+    margin-left: 0;
+    padding-left: 1.2rem;
+    padding-right: 1.2rem;
+  }
+
 }
