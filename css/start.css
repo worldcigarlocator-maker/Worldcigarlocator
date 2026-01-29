@@ -206,7 +206,7 @@ body {
   height: 150px;          /* ⬅️ JUSTERA HÄR (var t.ex. 260px) */
   border-radius: 16px;
   overflow: hidden;
-  margin: 0 auto 2.1rem;
+margin: 0 0 2.1rem;
   position: relative;
   background: #000;
 }
