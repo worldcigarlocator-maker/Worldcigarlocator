@@ -197,17 +197,16 @@ body {
 
 
 /* ============================================================
-   8. HERO (IDLE STATE)
+   HERO — SIZE CONTROL (SAFE)
    ============================================================ */
 
 .hero {
   width: 100%;
   max-width: 1200px;
-  min-height: 200px;
-  margin: 0 auto 2.2rem;
-
+  height: 180px;          /* ⬅️ ändra DENNA för storlek */
   border-radius: 16px;
   overflow: hidden;
+  margin: 0 auto 2.1rem;
   position: relative;
   background: #000;
 }
@@ -215,7 +214,7 @@ body {
 .hero img.hero-bg {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover;     /* ⬅️ ska vara kvar */
   object-position: center;
   display: block;
   filter: brightness(0.75);
