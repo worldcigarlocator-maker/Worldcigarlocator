@@ -221,18 +221,33 @@
   box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
 }
 /* ============================================================
-   5. CHILDREN (EXPAND / COLLAPSE)
+   5. CHILDREN (EXPAND / COLLAPSE + COUNTRY HIGHLIGHT)
    ============================================================ */
 
 .children {
   display: none;
-  padding-left: 0.75rem;
+  padding: 0;                 /* ⬅️ ingen indragning */
 }
 
+/* show when open */
 .children.show {
   display: block;
 }
 
+/* subtle highlight for active country block (cities only) */
+.line.country.open + .children {
+  background: rgba(255,255,255,0.035);   /* lätt, premium */
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* cities inside highlighted block */
+.line.country.open + .children .line.city {
+  padding-left: 0.6rem;       /* optisk luft utan hierarki */
+  padding-right: 0.6rem;
+}
+
+/* arrow emphasis when open */
 .line.open > .arrow {
   opacity: 0.85;
 }
@@ -269,20 +284,33 @@
 
 
 /* ============================================================
-   FIX 3 — SIDEBAR COUNTS (TEXT ONLY, NO BUTTON LOOK)
+   FIX 3 — SIDEBAR COUNTS (PARENTHESIS, TEXT ONLY)
    ============================================================ */
 
-/* count number (was pill/button-like) */
+/* count number — editorial, non-interactive */
 #sidebarMenu .pill {
-  background: none;                 /* ⬅️ remove button feel */
-  border: none;                     /* ⬅️ no outline */
-  padding: 0;                       /* ⬅️ no chip spacing */
-  margin-left: auto;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 0.6rem;              /* luft från kanten */
 
   font-size: 0.72rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.45);    /* subtle, informational */
-  border-radius: 0;                 /* ⬅️ kill pill shape */
+  font-weight: 500;
+  color: rgba(255,255,255,0.45);
+  border-radius: 0;
+}
+
+/* add parentheses via CSS (no JS, no markup change) */
+#sidebarMenu .pill::before {
+  content: "(";
+  margin-right: 1px;
+  color: rgba(255,255,255,0.35);
+}
+
+#sidebarMenu .pill::after {
+  content: ")";
+  margin-left: 1px;
+  color: rgba(255,255,255,0.35);
 }
 
 /* active row count slightly clearer */
