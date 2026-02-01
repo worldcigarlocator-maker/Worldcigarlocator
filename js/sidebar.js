@@ -245,13 +245,12 @@ function toggle(line, children) {
   children.classList.toggle("show", open);
 }
 
-// ▶️ Toggle ONLY via arrow — never the full row
+// ▶️ Toggle via arrow OR row (except city)
 function bindRowToggle(line, children) {
-  const arrow = line.querySelector(".arrow");
-  if (!arrow) return;
+  const isCity = line.classList.contains("city");
+  if (isCity) return;
 
-  arrow.addEventListener("click", (e) => {
-    e.stopPropagation();      // 🔒 critical: don't eat scroll / label clicks
+  line.addEventListener("click", () => {
     toggle(line, children);
   });
 }
