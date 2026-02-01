@@ -222,8 +222,12 @@ function createLine(type, label, count, iso2 = null) {
       : "";
 
   el.innerHTML = `
-    <span class="arrow">${type === "city" ? "•" : "▸"}</span>
-    <span class="label-wrap">${flag}<span class="label">${label}</span></span>
+    <span class="arrow" role="button" aria-label="Toggle">
+      ${type === "city" ? "•" : "▸"}
+    </span>
+    <span class="label-wrap">
+      ${flag}<span class="label">${label}</span>
+    </span>
     <span class="pill">${count}</span>
   `;
 
@@ -241,14 +245,16 @@ function toggle(line, children) {
   children.classList.toggle("show", open);
 }
 
-// Klick var som helst på raden (utom label)
-// → öppna / stäng
+// ▶️ Toggle ONLY via arrow — never the full row
 function bindRowToggle(line, children) {
-  line.addEventListener("click", () => {
+  const arrow = line.querySelector(".arrow");
+  if (!arrow) return;
+
+  arrow.addEventListener("click", (e) => {
+    e.stopPropagation();      // 🔒 critical: don't eat scroll / label clicks
     toggle(line, children);
   });
 }
-
 
 // ============================================================
 // ACTIVE PATH — HIGHLIGHT + AUTO-EXPAND
