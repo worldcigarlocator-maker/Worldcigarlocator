@@ -144,10 +144,12 @@ body {
    ============================================================ */
 
 .main {
+  position: relative;   /* ⬅️ VIKTIG */
+  z-index: 1;           /* ⬅️ VIKTIG */
+
   margin-left: 260px;
   padding: 1.8rem 2.6rem 2.8rem;
 }
-
 
 /* ============================================================
    7. SEARCH BAR (NON-STICKY BASE)
