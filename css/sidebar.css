@@ -19,13 +19,16 @@
 }
 
 /* -----------------------------
-   ACTIONS: LOGIN / ADD / LOGOUT (REFINED)
+   ACTIONS: LOGIN / ADD / LOGOUT (CENTERED + COLOR FIX)
 ----------------------------- */
 
 .sidebar-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.55rem;
+
+  /* ↓ centrerar zonen bättre visuellt */
+  padding-left: 0.6rem;
 }
 
 /* Base button */
@@ -54,8 +57,8 @@
 
 /* Primary action — Add store */
 #addStoreBtn {
-  background: var(--gold);
-  border-color: var(--gold);
+  background: #766148;          /* ⬅️ korrekt färg */
+  border-color: #766148;
   color: #111;
 }
 
@@ -66,9 +69,8 @@
 }
 
 #addStoreBtn:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.06);
 }
-
 /* -----------------------------
    ONLINE STATUS (REFINED & REPOSITIONED)
 ----------------------------- */
