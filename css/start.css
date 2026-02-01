@@ -72,11 +72,15 @@ body {
   left: 0;
   width: 260px;
   height: 100vh;
+
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
   z-index: 3000;
-}
 
+  /* ⬇️ KRITISKT */
+  display: flex;
+  flex-direction: column;
+}
 
 /* ============================================================
    5. TOPHEAD — BRAND LABEL
