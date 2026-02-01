@@ -216,7 +216,7 @@ body {
   margin-top: 3.2rem;
   margin-bottom: 3.2rem;
 
-  height: 220px;          /* ⬅️ kompakt: hela bilden syns utan scroll */
+  height: 240px;          /* ⬅️ kompakt: hela bilden syns utan scroll */
   background: #000;
   overflow: hidden;
 }
