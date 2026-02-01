@@ -203,15 +203,17 @@ body {
 
 
 /* ============================================================
-   HERO — ORIGINAL BEHAVIOUR (JUST SMALLER)
+   HERO — MAIN LANDING VISUAL
    ============================================================ */
 
 .hero {
   width: 100%;
   max-width: 1200px;
-  height: 260px;                 /* återställ hero-känsla */
-  margin: 3.2rem auto 3.2rem;    /* ⬅️ ner + centrerad */
-  border-radius: 18px;
+
+  height: 280px;                 /* riktig hero-känsla */
+  margin: 3.8rem auto 3.6rem;    /* ⬅️ ner + centrerad */
+
+  border-radius: 20px;
   overflow: hidden;
   position: relative;
   background: #000;
