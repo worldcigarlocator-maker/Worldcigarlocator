@@ -96,11 +96,12 @@
    ============================================================ */
 
 #sidebarMenu {
-  flex: 1;
-  overflow-y: auto;
+  flex: 1;                 /* ⬅️ tar all kvarvarande höjd */
+  overflow-y: auto;        /* ⬅️ scroll HÄR */
+  overscroll-behavior: contain;
+
   padding: 0.35rem 0 0.8rem;
 }
-
 
 /* ============================================================
    4. NAV TREE — CLEAN, FLAT & HIERARCHICAL (LOCKED)
