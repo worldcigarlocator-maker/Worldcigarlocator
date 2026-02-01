@@ -103,18 +103,23 @@
 
 
 /* ============================================================
-   4. NAV TREE — CLEAN & COMPACT
+   4. NAV TREE — CLEAN, FLAT & HIERARCHICAL (LOCKED)
    ============================================================ */
 
+/* BASE ROW */
 .line {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.32rem 0.15rem;
+  gap: 0.45rem;
+
+  padding: 0.42rem 0.6rem;   /* luft från kanter */
   font-size: 0.78rem;
+
   color: rgba(255,255,255,0.82);
   cursor: pointer;
   user-select: none;
+
+  border-bottom: 1px solid rgba(255,255,255,0.08); /* default separators */
 }
 
 .line:hover {
@@ -125,19 +130,56 @@
   color: var(--gold);
 }
 
-/* Arrow / bullet */
+/* ------------------------------------------------------------
+   CONTINENT (LEVEL 1)
+------------------------------------------------------------ */
+.line.continent {
+  font-size: 0.9rem;          /* större */
+  font-weight: 600;
+  color: #766148;             /* brand-färg */
+
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+
+  border-bottom: 1px solid rgba(255,255,255,0.16); /* starkare block-separator */
+}
+
+/* ------------------------------------------------------------
+   COUNTRY (LEVEL 2)
+------------------------------------------------------------ */
+.line.country {
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------
+   STATE / CITY (LEVEL 3–4)
+------------------------------------------------------------ */
+.line.state,
+.line.city {
+  font-size: 0.74rem;
+  color: rgba(255,255,255,0.7);
+
+  border-bottom: none;        /* inga linjer mellan cities */
+}
+
+/* ------------------------------------------------------------
+   ARROW / TOGGLE
+------------------------------------------------------------ */
 .line .arrow {
   width: 14px;
   text-align: center;
   opacity: 0.55;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
-/* Label */
+/* ------------------------------------------------------------
+   LABEL
+------------------------------------------------------------ */
 .label-wrap {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
   flex: 1;
   overflow: hidden;
 }
@@ -148,16 +190,29 @@
   text-overflow: ellipsis;
 }
 
-/* Count pill */
+/* ------------------------------------------------------------
+   COUNT — INFORMATIVE ONLY
+------------------------------------------------------------ */
 .pill {
-  font-size: 0.7rem;
-  padding: 0.05rem 0.45rem;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.1);
+  margin-left: 0.6rem;        /* luft från kanten */
+  padding: 0;
+
+  font-size: 0.72rem;
+  font-weight: 500;
+
+  color: rgba(255,255,255,0.55);
+  background: none;
+  border-radius: 0;
+}
+
+/* active row count något tydligare */
+.line.active .pill {
   color: rgba(255,255,255,0.75);
 }
 
-/* Country flag */
+/* ------------------------------------------------------------
+   FLAG (COUNTRY ONLY)
+------------------------------------------------------------ */
 .line .flag {
   width: 16px;
   height: 11px;
@@ -165,8 +220,6 @@
   object-fit: cover;
   box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
 }
-
-
 /* ============================================================
    5. CHILDREN (EXPAND / COLLAPSE)
    ============================================================ */
