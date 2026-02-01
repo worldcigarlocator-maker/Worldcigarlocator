@@ -72,30 +72,11 @@
   filter: brightness(1.06);
 }
 /* -----------------------------
-   ONLINE STATUS (REFINED & REPOSITIONED)
+   ONLINE STATUS (TEMPORARILY DISABLED)
 ----------------------------- */
 
 .sidebar-status {
-  margin-top: 0.55rem;   /* ↓ tydligare separation från actions */
-}
-
-.footer-online {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-
-  font-size: 0.7rem;     /* ↓ lite mindre, mer diskret */
-  color: rgba(255,255,255,0.55);
-}
-
-/* Status dot */
-.footer-online .dot {
-  width: 6px;            /* ↓ mindre */
-  height: 6px;
-  border-radius: 999px;
-
-  background: var(--gold);
-  box-shadow: 0 0 6px rgba(212,160,23,0.35); /* ↓ mjukare glow */
+  display: none;
 }
 
 /* ============================================================
