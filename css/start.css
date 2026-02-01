@@ -209,10 +209,10 @@ body {
 .hero {
   width: 100%;
   max-width: 1200px;
-  height: 150px;          /* ⬅️ JUSTERA HÄR (var t.ex. 260px) */
-  border-radius: 16px;
+  height: 260px;                 /* återställ hero-känsla */
+  margin: 3.2rem auto 3.2rem;    /* ⬅️ ner + centrerad */
+  border-radius: 18px;
   overflow: hidden;
-margin: 0 0 2.1rem;
   position: relative;
   background: #000;
 }
