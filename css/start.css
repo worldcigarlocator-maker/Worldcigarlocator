@@ -201,21 +201,25 @@ body {
   filter: brightness(1.08);
 }
 
-
 /* ============================================================
-   HERO — MAIN LANDING VISUAL
+   HERO — FULL-WIDTH INSIDE MAIN
    ============================================================ */
 
 .hero {
-  width: 100%;
-  max-width: 1200px;
-
-  height: 280px;                 /* riktig hero-känsla */
-  margin: 3.8rem auto 3.6rem;    /* ⬅️ ner + centrerad */
-
-  border-radius: 20px;
-  overflow: hidden;
   position: relative;
+
+  /* Bryt ut hero ur main-padding */
+  margin-left: -2.6rem;
+  margin-right: -2.6rem;
+
+  /* Vertikal placering */
+  margin-top: 3.6rem;
+  margin-bottom: 3.8rem;
+
+  height: 320px;
+
+  border-radius: 22px;
+  overflow: hidden;
   background: #000;
 }
 
