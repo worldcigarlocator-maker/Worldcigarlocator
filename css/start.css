@@ -201,9 +201,25 @@ body {
   filter: brightness(1.08);
 }
 
+
 /* ============================================================
-   HERO — FULL-WIDTH INSIDE MAIN
+   HERO — FULL IMAGE, COMPACT, NO SCROLL
    ============================================================ */
+
+.hero {
+  position: relative;
+
+  /* bryt ut ur main-padding */
+  margin-left: -2.6rem;
+  margin-right: -2.6rem;
+
+  margin-top: 3.2rem;
+  margin-bottom: 3.2rem;
+
+  height: 220px;          /* ⬅️ kompakt: hela bilden syns utan scroll */
+  background: #000;
+  overflow: hidden;
+}
 
 .hero img.hero-bg {
   width: 100%;
