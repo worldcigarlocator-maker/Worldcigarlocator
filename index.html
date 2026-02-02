@@ -111,38 +111,72 @@
     <!-- ================ MAIN AREA ================ -->
     <main class="main">
 
-      <!-- ================= RAD 2 — SEARCH + FILTERS ================= -->
-      <div class="searchbar main-search" style="position:relative;">
-        <input id="searchInput" type="text" placeholder="Search (e.g. london members lounge)…">
-        <button id="searchBtn" class="btn">Search</button>
-        <button id="clearBtn" class="btn outline">Clear</button>
+     <!-- ================= SEARCH v2 — CAPSULE ================= -->
+<section class="search-shell">
 
-        <div id="autocomplete" class="autocomplete hidden"></div>
+  <div class="search-capsule">
 
-        <div id="searchFilters" class="search-filters" aria-label="Filters">
-          <label class="filter-toggle">
+    <!-- TEXT SEARCH -->
+    <div class="searchbar main-search" style="position:relative;">
+
+      <div class="search-text">
+        <span class="search-label">VAR</span>
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Sök plats, stad, land…"
+        />
+      </div>
+
+      <!-- FILTERS (existing logic, new UI) -->
+      <div id="searchFilters" class="search-filters">
+
+        <div class="filter-group">
+          <span class="filter-label">Typ</span>
+          <label class="filter-chip">
             <input type="checkbox" data-filter="type" data-value="store" />
             <span>Store</span>
           </label>
-
-          <label class="filter-toggle">
+          <label class="filter-chip">
             <input type="checkbox" data-filter="type" data-value="lounge" />
             <span>Lounge</span>
           </label>
+        </div>
 
-          <span class="filter-sep" aria-hidden="true">|</span>
-
-          <label class="filter-toggle">
+        <div class="filter-group">
+          <span class="filter-label">Access</span>
+          <label class="filter-chip">
             <input type="checkbox" data-filter="access" data-value="public" />
             <span>Public</span>
           </label>
-
-          <label class="filter-toggle">
+          <label class="filter-chip">
             <input type="checkbox" data-filter="access" data-value="members" />
             <span>Members</span>
           </label>
         </div>
+
       </div>
+
+      <!-- SEARCH ACTION -->
+      <button id="searchBtn" class="search-action" aria-label="Search">
+        <!-- HERO GLASS (SVG placeholder – replace path if needed) -->
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
+          <line x1="16.5" y1="16.5" x2="22" y2="22" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+
+      <!-- CLEAR (existing JS will bind) -->
+      <button id="clearBtn" class="search-clear hidden" aria-label="Clear">×</button>
+
+      <!-- AUTOCOMPLETE -->
+      <div id="autocomplete" class="autocomplete hidden"></div>
+
+    </div>
+
+  </div>
+
+</section>
 
       <!-- ================= RAD 4 — SPACING ================= -->
       <div class="main-spacing"></div>
