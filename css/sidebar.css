@@ -94,6 +94,10 @@
   margin: 0.75rem 0;
 }
 
+/* Hide divider directly under sidebar header */
+.sidebar-header + .sidebar-divider {
+  display: none;
+}
 
 /* ============================================================
    3. NAVIGATION SCROLL AREA
