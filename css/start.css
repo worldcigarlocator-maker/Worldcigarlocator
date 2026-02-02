@@ -86,20 +86,29 @@ body {
 }
 
 /* ============================================================
-   5. TOPHEAD — BRAND LABEL
+   5. TOPHEAD — BRAND LABEL (LOCKED HEIGHT, INNER AIR)
    ============================================================ */
 
 .tophead {
+  /* layout frame */
+  height: var(--header-height);     /* 🔒 samma höjd som sidebar */
   margin-left: 260px;
-  padding: 2.0rem 2.6rem 1.2rem;
+
+  /* inner air */
+  padding-top: 22px;                /* ⬅️ luft från taket */
+  padding-left: 2.6rem;
+  padding-right: 2.6rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   border-bottom: 1px solid var(--border);
 }
 
 .tophead-logo {
   position: relative;
   display: inline-block;
-  left: 50%;
-  transform: translateX(-50%);
 
   font-family: "Playfair Display", serif;
   font-size: 2.4rem;
@@ -107,7 +116,7 @@ body {
   letter-spacing: 0.04em;
   line-height: 1.05;
 
-  color: #766148; /* RGB(118,97,72) */
+  color: #766148;
   white-space: nowrap;
 }
 
@@ -123,7 +132,7 @@ body {
   line-height: inherit;
 
   color: #766148;
-  opacity: 1.8;
+  opacity: 0.45;                    /* ⬅️ något lugnare, mer premium */
 
   height: 0.35em;
   overflow: hidden;
@@ -144,7 +153,6 @@ body {
   filter: blur(0.25px);
   pointer-events: none;
 }
-
 
 /* ============================================================
    6. MAIN AREA
