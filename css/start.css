@@ -331,125 +331,100 @@ body {
 }
 
 /* ============================================================
-   SEARCH v2 — AIRBNB CAPSULE (A + B + C)
-   UI ONLY · NO LOGIC
+   SEARCH v2 — AIRY CAPSULE (UI ONLY)
    ============================================================ */
 
 .search-shell {
   display: flex;
   justify-content: center;
-  margin: 3.2rem 0 3.6rem;
+  margin: 2rem 0 2.6rem;
 }
 
+/* Capsule */
 .search-capsule {
-  width: 100%;
-  max-width: 1100px;
+  display: flex;
+  align-items: center;
 
-  padding: 0.9rem 1.1rem;
+  height: 56px;                 /* ⬅️ NYCKELN: låg höjd */
+  padding: 0 0.6rem 0 1.2rem;
+
   border-radius: 999px;
-
   background: #0a0a0a;
   border: 1px solid rgba(255,255,255,0.14);
 }
 
-.searchbar.main-search {
-  display: flex;
-  align-items: center;
-  gap: 1.4rem;
-  background: transparent;
-}
-
-/* TEXT */
-.search-text {
+/* Sections */
+.search-part {
   display: flex;
   flex-direction: column;
-  min-width: 260px;
+  justify-content: center;
+
+  padding: 0 1.2rem;
+  min-width: max-content;
 }
 
-.search-label {
+/* WHERE */
+.search-where label {
   font-size: 0.62rem;
   letter-spacing: 0.12em;
-  color: var(--muted);
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 0.15rem;
 }
 
-.search-text input {
+.search-where input {
   background: transparent;
   border: none;
   outline: none;
-  color: var(--text);
-  font-size: 0.95rem;
+
+  font-size: 0.85rem;
+  color: #fff;
+  width: 220px;
 }
 
-/* FILTERS */
+/* Filters (Store / Lounge / etc) */
 .search-filters {
-  display: flex;
-  gap: 1.6rem;
-}
+  flex-direction: row;
+  gap: 1.1rem;
 
-.filter-group {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-}
-
-.filter-label {
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-}
-
-/* Chips (no checkbox look) */
-.filter-chip input {
-  display: none;
-}
-
-.filter-chip span {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 500;
   color: rgba(255,255,255,0.75);
+}
+
+.search-filters span {
   cursor: pointer;
+  white-space: nowrap;
 }
 
-.filter-chip input:checked + span {
-  color: var(--gold);
+.search-filters span:hover {
+  color: #fff;
 }
 
-/* SEARCH ICON */
-.search-action {
-  margin-left: auto;
-  width: 42px;
-  height: 42px;
+/* Dividers */
+.search-divider {
+  width: 1px;
+  height: 60%;
+  background: rgba(255,255,255,0.18);
+}
+
+/* Search icon */
+.search-icon {
+  margin-left: 0.6rem;
+
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: none;
 
   background: #766148;
-  color: #111;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-/* CLEAR */
-.search-clear {
-  margin-left: 0.4rem;
-  background: transparent;
   border: none;
-  font-size: 1.2rem;
-  color: rgba(255,255,255,0.6);
   cursor: pointer;
+
+  background-image: url("/assets/icons/search.svg"); /* hero-magnifier */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px;
 }
 
-/* AUTOCOMPLETE — integrated */
-.autocomplete {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-
-  background: #0c0c0c;
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 14px;
-  overflow: hidden;
-  z-index: 50;
+.search-icon:hover {
+  filter: brightness(1.08);
 }
