@@ -213,7 +213,7 @@ body {
   margin: 5.5rem auto 5rem;   /* ⬅️ ca 3 rader ner */
 
   width: 100%;
-  max-width: 1400px;          /* ⬅️ ~30 % större än tidigare 1100 */
+  max-width: 1700px;          /* ⬅️ ~30 % större än tidigare 1100 */
 
   aspect-ratio: 16 / 9;
   max-height: 50vh;           /* ⬅️ större men fortfarande ingen scroll */
