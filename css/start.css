@@ -90,9 +90,10 @@ body {
    ============================================================ */
 
 .tophead {
-  /* layout frame */
-  height: var(--header-height);     /* 🔒 samma höjd som sidebar */
   margin-left: 260px;
+  padding: 2.0rem 2.6rem 1.2rem;
+  border-bottom: none;
+}
 
   /* inner air */
   padding-top: 22px;                /* ⬅️ luft från taket */
