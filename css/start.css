@@ -216,7 +216,7 @@ body {
   max-width: 1700px;          /* ⬅️ ~30 % större än tidigare 1100 */
 
   aspect-ratio: 16 / 9;
-  max-height: 70vh;           /* ⬅️ större men fortfarande ingen scroll */
+  max-height: 65vh;           /* ⬅️ större men fortfarande ingen scroll */
 
   background: #000;
   overflow: hidden;
