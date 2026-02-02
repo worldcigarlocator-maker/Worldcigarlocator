@@ -329,3 +329,127 @@ body {
   }
 
 }
+
+/* ============================================================
+   SEARCH v2 — AIRBNB CAPSULE (A + B + C)
+   UI ONLY · NO LOGIC
+   ============================================================ */
+
+.search-shell {
+  display: flex;
+  justify-content: center;
+  margin: 3.2rem 0 3.6rem;
+}
+
+.search-capsule {
+  width: 100%;
+  max-width: 1100px;
+
+  padding: 0.9rem 1.1rem;
+  border-radius: 999px;
+
+  background: #0a0a0a;
+  border: 1px solid rgba(255,255,255,0.14);
+}
+
+.searchbar.main-search {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  background: transparent;
+}
+
+/* TEXT */
+.search-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 260px;
+}
+
+.search-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.search-text input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+/* FILTERS */
+.search-filters {
+  display: flex;
+  gap: 1.6rem;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.filter-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+/* Chips (no checkbox look) */
+.filter-chip input {
+  display: none;
+}
+
+.filter-chip span {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+}
+
+.filter-chip input:checked + span {
+  color: var(--gold);
+}
+
+/* SEARCH ICON */
+.search-action {
+  margin-left: auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+
+  background: #766148;
+  color: #111;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* CLEAR */
+.search-clear {
+  margin-left: 0.4rem;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+}
+
+/* AUTOCOMPLETE — integrated */
+.autocomplete {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+
+  background: #0c0c0c;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  overflow: hidden;
+  z-index: 50;
+}
