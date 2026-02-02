@@ -209,14 +209,14 @@ body {
 .hero {
   position: relative;
 
-  /* bryt ut ur main-padding */
   margin-left: -2.6rem;
   margin-right: -2.6rem;
 
   margin-top: 3.2rem;
   margin-bottom: 3.2rem;
 
-  height: 240px;          /* ⬅️ kompakt: hela bilden syns utan scroll */
+  aspect-ratio: 16 / 9;   /* ⬅️ nyckeln */
+  max-height: 420px;      /* säkerhet */
   background: #000;
   overflow: hidden;
 }
