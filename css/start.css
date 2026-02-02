@@ -203,19 +203,20 @@ body {
 
 
 /* ============================================================
-   HERO — PROPORTIONAL, NO CROP, NO SCROLL
+   HERO — PROPORTIONAL, STÖRRE, NERFLYTTAD
    ============================================================ */
 
 .hero {
   position: relative;
 
-  margin: 3rem auto 4rem;
+  /* placering */
+  margin: 5.5rem auto 5rem;   /* ⬅️ ca 3 rader ner */
 
   width: 100%;
-  max-width: 1100px;
+  max-width: 1400px;          /* ⬅️ ~30 % större än tidigare 1100 */
 
-  aspect-ratio: 16 / 9;     /* ⬅️ BEHÅLL PROPORTIONER */
-  max-height: 38vh;         /* ⬅️ ALDRIG för stor → ingen scroll */
+  aspect-ratio: 16 / 9;
+  max-height: 50vh;           /* ⬅️ större men fortfarande ingen scroll */
 
   background: #000;
   overflow: hidden;
@@ -225,7 +226,7 @@ body {
 .hero img.hero-bg {
   width: 100%;
   height: 100%;
-  object-fit: contain;      /* ⬅️ HELA bilden, ingen crop */
+  object-fit: contain;        /* HELA bilden */
   object-position: center;
   display: block;
 }
