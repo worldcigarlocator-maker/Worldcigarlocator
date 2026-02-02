@@ -4,42 +4,45 @@
 
 
 /* ============================================================
-   SIDEBAR HEADER — INNER AIR (LOCKED HEIGHT)
+   SIDEBAR HEADER — ALIGN WITH TOPHEAD
    ============================================================ */
 
 .sidebar-header {
-  height: var(--header-height);     /* 🔒 samma höjd som main */
-  padding-top: 18px;                /* ⬅️ luft från taket */
-  padding-left: 14px;
-  padding-right: 14px;
-  padding-bottom: 10px;
+  height: var(--header-height);   /* 🔒 samma höjd som tophead */
+  padding-top: 22px;              /* ⬅️ samma luft från taket */
+  padding-left: 1.2rem;
+  padding-right: 1.2rem;
 
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;   /* buttons up, meta down */
+  align-items: center;            /* ⬅️ nyckeln */
+  gap: 0.6rem;
+
+  border-bottom: 1px solid var(--border);
 }
 
-/* -----------------------------
-   ACTIONS: LOGIN / ADD / LOGOUT (CENTERED + COLOR FIX)
------------------------------ */
+/* ============================================================
+   SIDEBAR ACTIONS — LOGIN / ADD STORE
+   Aligned with top brand label · Equal size · Calm hierarchy
+   ============================================================ */
 
 .sidebar-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
+  align-items: center;          /* 🔒 exakt vertikal linjering */
+  gap: 0.6rem;
 
-  /* ↓ centrerar zonen bättre visuellt */
-  padding-left: 0.6rem;
+  padding: 0.9rem 0.8rem 0.6rem; /* luft från “taket”, inte inklämt */
 }
 
-/* Base button */
+/* Base button — same size, same baseline */
 .sidebar-btn {
-  position: relative;
+  height: 36px;                /* 🔒 SINGLE SOURCE OF RHYTHM */
+  min-width: 92px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  padding: 0.42rem 0.95rem;
+  padding: 0 1.05rem;
   border-radius: 999px;
 
   font-size: 0.72rem;
@@ -56,21 +59,21 @@
   white-space: nowrap;
 }
 
-/* Primary action — Add store */
+/* Primary action — Add Store */
 #addStoreBtn {
-  background: #766148;          /* ⬅️ korrekt färg */
+  background: #766148;          /* canonical gold */
   border-color: #766148;
   color: #111;
 }
 
-/* Hover states */
+/* Hover states — subtle, no jump */
 .sidebar-btn:hover {
-  border-color: rgba(255,255,255,0.35);
+  border-color: rgba(255,255,255,0.38);
   color: #fff;
 }
 
 #addStoreBtn:hover {
-  filter: brightness(1.06);
+  filter: brightness(1.05);
 }
 /* -----------------------------
    ONLINE STATUS (TEMPORARILY DISABLED)
