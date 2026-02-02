@@ -4,18 +4,19 @@
 
 
 /* ============================================================
-   1. SIDEBAR HEADER — UTILITY ZONE (ADJUSTED)
+   SIDEBAR HEADER — INNER AIR (LOCKED HEIGHT)
    ============================================================ */
 
 .sidebar-header {
+  height: var(--header-height);     /* 🔒 samma höjd som main */
+  padding-top: 18px;                /* ⬅️ luft från taket */
+  padding-left: 14px;
+  padding-right: 14px;
+  padding-bottom: 10px;
+
   display: flex;
   flex-direction: column;
-
-  /* ↓ flyttar ner hela utility-zonen */
-  padding: 1.1rem 0 1.0rem;
-
-  /* ↓ tydligare separation mot nav */
-  gap: 0.85rem;
+  justify-content: space-between;   /* buttons up, meta down */
 }
 
 /* -----------------------------
