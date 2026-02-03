@@ -71,23 +71,35 @@ async function onPlaceDetails(place, status) {
       throw new Error("getDetails failed");
     }
 
-    /* ---------- ADDRESS PARSING ---------- */
+       /* ---------- ADDRESS PARSING ---------- */
     const comp = place.address_components || [];
     const getLong = (t) =>
       comp.find((c) => c.types?.includes(t))?.long_name || "";
     const getShort = (t) =>
       comp.find((c) => c.types?.includes(t))?.short_name || "";
 
-     const city =
-  getShort("locality") ||
-  getShort("postal_town") ||
-  getShort("administrative_area_level_2") ||
-  getLong("locality") ||   // fallback
-  "";
-
     const country = getLong("country") || "";
-   const country_iso2 = (getShort("country") || "").toUpperCase();
-const rawState = getLong("administrative_area_level_1") || "";
+    const country_iso2 = (getShort("country") || "").toUpperCase();
+    const rawState = getLong("administrative_area_level_1") || "";
+
+    // City: prefer true city fields; allow Asia-only fallback to admin_area_level_1
+    const ASIA_ISO2 = new Set([
+      "AF","AM","AZ","BH","BD","BT","BN","KH","CN","GE","HK","ID","IN","IQ","IR","IL","JO","JP","KG","KP","KR",
+      "KW","KZ","LA","LB","LK","MM","MN","MO","MV","MY","NP","OM","PH","PK","PS","QA","SA","SG","SY","TH","TJ",
+      "TL","TM","TR","TW","AE","UZ","VN","YE"
+    ]);
+    const isAsia = ASIA_ISO2.has(country_iso2);
+
+    let city =
+      getLong("locality") ||
+      getLong("postal_town") ||
+      getLong("administrative_area_level_2") ||
+      "";
+
+    // Asia megacity pattern: no locality -> admin_area_level_1 holds the city name (e.g., Seoul)
+    if (!city && isAsia && rawState) {
+      city = rawState;
+    }
 
     const state = WCL.normalizeUKState(rawState, country, city);
 
