@@ -110,39 +110,42 @@
     <!-- ================ MAIN AREA ================ -->
     <main class="main">
 
-     <!-- ================= SEARCH v2 — CAPSULE ================= -->
-<div class="search-shell">
-  <div class="search-capsule">
+    <!-- ============================================================
+     SEARCH v2 — AIRY CAPSULE (UI ONLY) — HTML (canonical)
+     Labels: Search / Filters
+     ============================================================ -->
 
-    <!-- WHERE -->
-    <div class="search-part search-where">
-      <label>WHERE</label>
+<div class="search-shell">
+  <div class="search-capsule" role="search" aria-label="WCL search">
+
+    <!-- LEFT: Search -->
+    <div class="search-left">
+      <span class="search-label">Search</span>
+
       <input
         id="searchInput"
+        class="search-input"
         type="text"
         placeholder="Search city, country or place"
         autocomplete="off"
       />
     </div>
 
-    <span class="search-divider"></span>
+    <span class="search-divider" aria-hidden="true"></span>
 
-    <!-- TYPE -->
-    <div class="search-part search-filters">
-      <span>Store</span>
-      <span>Lounge</span>
+    <!-- RIGHT: Filters -->
+    <div class="search-right" aria-label="Filters">
+      <span class="search-label">Filters</span>
+
+      <div class="search-zones" role="group" aria-label="Search filters">
+        <button class="search-zone" type="button" data-zone="store">Store</button>
+        <button class="search-zone" type="button" data-zone="lounge">Lounge</button>
+        <button class="search-zone" type="button" data-zone="public">Public</button>
+        <button class="search-zone" type="button" data-zone="members">Members</button>
+      </div>
     </div>
 
-    <span class="search-divider"></span>
-
-    <!-- ACCESS -->
-    <div class="search-part search-filters">
-      <span>Public</span>
-      <span>Members</span>
-    </div>
-
-    <!-- ICON -->
-    <button class="search-icon" aria-label="Search"></button>
+    <button class="search-icon" type="button" aria-label="Search"></button>
 
   </div>
 </div>
