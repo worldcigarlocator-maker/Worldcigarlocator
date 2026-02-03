@@ -111,17 +111,16 @@
     <main class="main">
 
     <!-- ============================================================
-     SEARCH v2 — AIRY CAPSULE (UI ONLY) — HTML (canonical)
-     Labels: Search / Filters
+     SEARCH v2 — AIRY CAPSULE (UI ONLY) — HTML (CANONICAL)
+     Layout: labels above zones, one divider, no pills
      ============================================================ -->
 
 <div class="search-shell">
   <div class="search-capsule" role="search" aria-label="WCL search">
 
-    <!-- LEFT: Search -->
+    <!-- LEFT: SEARCH -->
     <div class="search-left">
       <span class="search-label">Search</span>
-
       <input
         id="searchInput"
         class="search-input"
@@ -131,20 +130,21 @@
       />
     </div>
 
+    <!-- MAIN DIVIDER -->
     <span class="search-divider" aria-hidden="true"></span>
 
-    <!-- RIGHT: Filters -->
-    <div class="search-right" aria-label="Filters">
+    <!-- RIGHT: FILTERS -->
+    <div class="search-right">
       <span class="search-label">Filters</span>
-
       <div class="search-zones" role="group" aria-label="Search filters">
-        <button class="search-zone" type="button" data-zone="store">Store</button>
-        <button class="search-zone" type="button" data-zone="lounge">Lounge</button>
-        <button class="search-zone" type="button" data-zone="public">Public</button>
-        <button class="search-zone" type="button" data-zone="members">Members</button>
+        <span class="search-zone" data-zone="store">Store</span>
+        <span class="search-zone" data-zone="lounge">Lounge</span>
+        <span class="search-zone" data-zone="public">Public</span>
+        <span class="search-zone" data-zone="members">Members</span>
       </div>
     </div>
 
+    <!-- SEARCH ICON -->
     <button class="search-icon" type="button" aria-label="Search"></button>
 
   </div>
