@@ -329,92 +329,88 @@ body {
   }
 
 }
-
 /* ============================================================
-   SEARCH v2 — AIRY CAPSULE (UI ONLY) — CSS (CANONICAL v2)
-   Fixes:
-   - Labels centered vertically
-   - Divider moved left
-   - Filters zone +10% width
-   - Placeholder smaller, greyer, italic
-   - Hover works via CSS (no JS)
-   - Search icon = HERO magnifier (not a circle)
+   SEARCH v2 — AIRY CAPSULE (UI ONLY)
+   SAFE / ISOLATED / CANONICAL
    ============================================================ */
 
+/* ---------- Wrapper ---------- */
 .search-shell {
   display: flex;
   justify-content: center;
   margin: 2rem 0 2.6rem;
 }
 
-/* --- Capsule --- */
+/* ---------- Capsule ---------- */
 .search-capsule {
   display: flex;
   align-items: center;
 
   min-width: 1040px;
   height: 56px;
-  padding: 0 1rem 0 1.4rem;
+  padding: 0 1.2rem;
 
   border-radius: 999px;
   background: #0a0a0a;
   border: 1px solid rgba(255,255,255,0.14);
 }
 
-/* --- Zones --- */
+/* ---------- Zones ---------- */
 .search-left,
 .search-right {
   display: flex;
-  align-items: center;          /* vertical centering */
-  gap: 1rem;
+  flex-direction: column;       /* två rader */
+  justify-content: center;      /* centrerat vertikalt */
+  gap: 0.25rem;
 }
 
-/* proportions */
 .search-left  { flex: 1.1; }
-.search-right { flex: 0.9; }    /* ~10% wider than before */
+.search-right { flex: 0.9; }
 
-/* --- Labels --- */
+/* ---------- Labels (rad 1) ---------- */
 .search-label {
   font-size: 0.62rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+
   color: rgba(255,255,255,0.55);
+  font-style: normal;
   line-height: 1;
 }
 
-/* --- Input --- */
+/* ---------- Content text (rad 2) ---------- */
+.search-input,
+.search-zones {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: rgba(255,255,255,0.55);
+}
+
+/* ---------- Input ---------- */
 .search-input {
-  width: 100%;
   background: transparent;
   border: none;
   outline: none;
-
-  font-size: 0.92rem;
-  color: #fff;
+  padding: 0;
 }
 
 .search-input::placeholder {
-  font-size: 0.85rem;
-  color: rgba(255,255,255,0.38);
-  font-style: italic;
+  color: rgba(255,255,255,0.55);
 }
 
-/* --- Divider (single, shifted left) --- */
+/* ---------- Divider ---------- */
 .search-divider {
   width: 1px;
   height: 58%;
-  margin: 0 1.2rem 0 0.6rem; /* pulls divider left */
+  margin: 0 1.2rem 0 0.6rem;   /* lätt vänsterförskjuten */
   background: rgba(255,255,255,0.18);
 }
 
-/* --- Filters (text only, no pills) --- */
+/* ---------- Filters (text only) ---------- */
 .search-zones {
   display: flex;
   align-items: center;
   gap: 1.3rem;
-
-  font-size: 0.88rem;
-  color: rgba(255,255,255,0.7);
 }
 
 .search-zone {
@@ -423,16 +419,13 @@ body {
   transition: color 0.15s ease;
 }
 
-/* force hover to win over global styles */
-.search-zone:hover {
-  color: var(--accent-color) !important;
-}
-
+/* hover + active (CSS only) */
+.search-zone:hover,
 .search-zone.is-active {
-  color: var(--accent-color) !important;
+  color: var(--accent-color);
 }
 
-/* --- Search icon = HERO magnifier (branding) --- */
+/* ---------- Search icon (hero magnifier) ---------- */
 .search-icon {
   margin-left: 0.8rem;
 
@@ -443,7 +436,7 @@ body {
   border: none;
   cursor: pointer;
 
-  background-image: url("/assets/hero/hero-magnifier.svg"); /* SAME AS HERO */
+  background-image: url("/assets/hero/hero-magnifier.svg");
   background-repeat: no-repeat;
   background-position: center;
   background-size: 38px;
