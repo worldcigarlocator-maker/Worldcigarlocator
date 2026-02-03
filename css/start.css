@@ -331,14 +331,13 @@ body {
 }
 /* ============================================================
    SEARCH v2 — AIRY CAPSULE (UI ONLY)
-   SAFE / ISOLATED / CANONICAL
+   FINAL POLISH — height + centered labels
    ============================================================ */
 
-/* ---------- Wrapper ---------- */
 .search-shell {
   display: flex;
   justify-content: center;
-  margin: 2rem 0 2.6rem;
+  margin: 2.2rem 0 2.8rem;
 }
 
 /* ---------- Capsule ---------- */
@@ -347,8 +346,8 @@ body {
   align-items: center;
 
   min-width: 1040px;
-  height: 56px;
-  padding: 0 1.2rem;
+  height: 60px;                 /* +4px luft */
+  padding: 0 1.4rem;
 
   border-radius: 999px;
   background: #0a0a0a;
@@ -359,9 +358,9 @@ body {
 .search-left,
 .search-right {
   display: flex;
-  flex-direction: column;       /* två rader */
-  justify-content: center;      /* centrerat vertikalt */
-  gap: 0.25rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35rem;                 /* lite mer vertikal luft */
 }
 
 .search-left  { flex: 1.1; }
@@ -376,12 +375,23 @@ body {
   color: rgba(255,255,255,0.55);
   font-style: normal;
   line-height: 1;
+
+  text-align: center;           /* CENTRERAD */
+}
+
+/* centrera labels exakt över sitt innehåll */
+.search-left .search-label {
+  align-self: center;
+}
+
+.search-right .search-label {
+  align-self: center;
 }
 
 /* ---------- Content text (rad 2) ---------- */
 .search-input,
 .search-zones {
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   font-style: italic;
   color: rgba(255,255,255,0.55);
 }
@@ -402,15 +412,15 @@ body {
 .search-divider {
   width: 1px;
   height: 58%;
-  margin: 0 1.2rem 0 0.6rem;   /* lätt vänsterförskjuten */
+  margin: 0 1.3rem 0 0.7rem;
   background: rgba(255,255,255,0.18);
 }
 
-/* ---------- Filters (text only) ---------- */
+/* ---------- Filters ---------- */
 .search-zones {
   display: flex;
   align-items: center;
-  gap: 1.3rem;
+  gap: 1.4rem;
 }
 
 .search-zone {
@@ -419,7 +429,6 @@ body {
   transition: color 0.15s ease;
 }
 
-/* hover + active (CSS only) */
 .search-zone:hover,
 .search-zone.is-active {
   color: var(--accent-color);
@@ -427,10 +436,10 @@ body {
 
 /* ---------- Search icon (hero magnifier) ---------- */
 .search-icon {
-  margin-left: 0.8rem;
+  margin-left: 0.9rem;
 
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
 
   background: transparent;
   border: none;
@@ -439,5 +448,5 @@ body {
   background-image: url("/assets/hero/hero-magnifier.svg");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 38px;
+  background-size: 40px;
 }
