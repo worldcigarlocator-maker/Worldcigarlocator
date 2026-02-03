@@ -71,39 +71,81 @@ async function onPlaceDetails(place, status) {
       throw new Error("getDetails failed");
     }
 
-       /* ---------- ADDRESS PARSING ---------- */
-    const comp = place.address_components || [];
-    const getLong = (t) =>
-      comp.find((c) => c.types?.includes(t))?.long_name || "";
-    const getShort = (t) =>
-      comp.find((c) => c.types?.includes(t))?.short_name || "";
+/* ---------- ADDRESS PARSING ---------- */
+const comp = place.address_components || [];
+const getLong = (t) =>
+  comp.find((c) => c.types?.includes(t))?.long_name || "";
+const getShort = (t) =>
+  comp.find((c) => c.types?.includes(t))?.short_name || "";
 
-    const country = getLong("country") || "";
-    const country_iso2 = (getShort("country") || "").toUpperCase();
-    const rawState = getLong("administrative_area_level_1") || "";
+const country = getLong("country") || "";
+const country_iso2 = (getShort("country") || "").toUpperCase();
+const rawState = getLong("administrative_area_level_1") || "";
 
-    // City: prefer true city fields; allow Asia-only fallback to admin_area_level_1
-    const ASIA_ISO2 = new Set([
-      "AF","AM","AZ","BH","BD","BT","BN","KH","CN","GE","HK","ID","IN","IQ","IR","IL","JO","JP","KG","KP","KR",
-      "KW","KZ","LA","LB","LK","MM","MN","MO","MV","MY","NP","OM","PH","PK","PS","QA","SA","SG","SY","TH","TJ",
-      "TL","TM","TR","TW","AE","UZ","VN","YE"
-    ]);
-    const isAsia = ASIA_ISO2.has(country_iso2);
+/* ---------- CITY RESOLUTION ---------- */
 
-    let city =
-      getLong("locality") ||
-      getLong("postal_town") ||
-      getLong("administrative_area_level_2") ||
-      "";
+// Asia ISO2 set (general fallback kept)
+const ASIA_ISO2 = new Set([
+  "AF","AM","AZ","BH","BD","BT","BN","KH","CN","GE","HK","ID","IN","IQ","IR","IL","JO","JP","KG","KP","KR",
+  "KW","KZ","LA","LB","LK","MM","MN","MO","MV","MY","NP","OM","PH","PK","PS","QA","SA","SG","SY","TH","TJ",
+  "TL","TM","TR","TW","AE","UZ","VN","YE"
+]);
+const isAsia = ASIA_ISO2.has(country_iso2);
 
-    // Asia megacity pattern: no locality -> admin_area_level_1 holds the city name (e.g., Seoul)
-    if (!city && isAsia && rawState) {
-      city = rawState;
-    }
+// Base city priority (global)
+let city =
+  getLong("locality") ||
+  getLong("postal_town") ||
+  getLong("administrative_area_level_2") ||
+  "";
 
-    const state = WCL.normalizeUKState(rawState, country, city);
+// Asia general fallback (KEPT)
+// Used for megacities where admin_area_level_1 represents the city
+if (!city && isAsia && rawState) {
+  city = rawState;
+}
 
-    /* ---------- CANONICAL PLACE ---------- */
+/* ---------- CHINA OVERRIDE (ADD-ONLY, HIGHER PRIORITY) ---------- */
+if (country_iso2 === "CN") {
+  const strip = (s) =>
+    (s || "")
+      .replace(/\bShi\b$/i, "")
+      .replace(/\bSheng\b$/i, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  // Re-evaluate city with China-specific priority
+  let cnCity =
+    getLong("locality") ||
+    getLong("administrative_area_level_2") ||
+    "";
+
+  // Allow admin_area_level_1 ONLY if it ends with 'Shi'
+  if (!cnCity && /\bShi\b$/i.test(rawState)) {
+    cnCity = rawState;
+  }
+
+  cnCity = strip(cnCity);
+
+  // Canonical China mappings
+  const CN_MAP = {
+    "Bei Jing": "Beijing",
+    "Shang Hai": "Shanghai",
+    "Hai Kou": "Haikou",
+    "San Ya": "Sanya",
+  };
+
+  if (CN_MAP[cnCity]) cnCity = CN_MAP[cnCity];
+
+  if (cnCity) {
+    city = cnCity; // China override wins
+  }
+}
+
+/* ---------- STATE NORMALIZATION ---------- */
+const state = WCL.normalizeUKState(rawState, country, city);
+
+/* ---------- CANONICAL PLACE ---------- */
 window.selectedPlace = {
   place_id: place.place_id,
   lat: place.geometry?.location?.lat() || null,
@@ -116,13 +158,11 @@ window.selectedPlace = {
   country,
   country_iso2,
 
-
   phone: place.international_phone_number || "",
   website: place.website || "",
 
   photo_reference: null,
 };
-
 
     /* ============================================================
        DUPLICATE CHECK (SHARED, CANONICAL)
