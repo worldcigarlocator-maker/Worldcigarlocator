@@ -386,7 +386,7 @@ body {
   font-style: normal;
   color: var(--accent-color);         /* same as continents */
   font-weight: 700;
-  font-size: 1.25rem;                 /* clearly larger */
+  font-size: 1.45rem;                 /* clearly larger */
   margin-right: 0.4rem;
 }
 
@@ -394,7 +394,7 @@ body {
 .filter-items {
   display: inline-flex;
   gap: 2.8rem;                        /* ⬅️ CONTROL SPACING HERE */
-  margin-left: 0.6rem;               /* air after "Filters:" */
+  margin-left: 1.4rem;               /* air after "Filters:" */
 }
 
 .filter-items span {
