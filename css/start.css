@@ -348,7 +348,7 @@ body {
 
   min-width: 1040px;
   height: 62px;
-  padding: 0 1.6rem;
+  padding: 0 1.8rem;
 
   border-radius: 999px;
   background: #0a0a0a;
@@ -371,7 +371,7 @@ body {
 
 /* ---------- Labels (rad 1) ---------- */
 .search-label {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 
