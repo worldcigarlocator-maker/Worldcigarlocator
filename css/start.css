@@ -448,19 +448,17 @@ body {
 }
 
 /* ============================================================
-   SEARCH v2 — TEXT REFLECTION / MIRRORING
-   Short, subtle light-reflection (NOT long mirror)
-   Requires data-text attribute in HTML
+   SEARCH v2 — TEXT REFLECTION (PROFESSIONAL COMPONENT)
+   Explicit .reflect abstraction
    ============================================================ */
 
-/* Base positioning for mirrored elements */
-.search-line strong,
-.filter-items span {
+.reflect {
   position: relative;
+  display: inline-block;
 }
 
-/* ---------- Search label reflection (SHORT & SUBTLE) ---------- */
-.search-line strong::after {
+/* ---------- Reflection ---------- */
+.reflect::after {
   content: attr(data-text);
   position: absolute;
   left: 0;
@@ -471,56 +469,24 @@ body {
   line-height: inherit;
 
   color: var(--accent-color);
-  opacity: 0.14;          /* lugn */
-  height: 0.14em;         /* kort */
+
+  opacity: 0.12;      /* lugn */
+  height: 0.12em;     /* kort */
   overflow: hidden;
 
   mask-image: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.45),
-    rgba(0,0,0,0.12),
+    rgba(0,0,0,0.4),
+    rgba(0,0,0,0.1),
     transparent
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.45),
-    rgba(0,0,0,0.12),
+    rgba(0,0,0,0.4),
+    rgba(0,0,0,0.1),
     transparent
   );
 
   filter: blur(0.25px);
-  pointer-events: none;
-}
-
-/* ---------- Filter items reflection (EVEN CALMER) ---------- */
-.filter-items span::after {
-  content: attr(data-text);
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 100%;
-
-  transform: scaleY(-1);
-  line-height: inherit;
-
-  color: var(--accent-color);
-  opacity: 0.10;          /* ännu lugnare */
-  height: 0.10em;         /* ännu kortare */
-  overflow: hidden;
-
-  mask-image: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.35),
-    rgba(0,0,0,0.10),
-    transparent
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.35),
-    rgba(0,0,0,0.10),
-    transparent
-  );
-
-  filter: blur(0.3px);
   pointer-events: none;
 }
