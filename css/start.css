@@ -267,29 +267,24 @@ body {
   margin-left: 0.6rem;
 }
 
-/* ============================================================
-   9. TEXT REFLECTION — PROFESSIONAL COMPONENT
-   ============================================================ */
-
-.reflect {
-  position: relative;
-  display: inline-block;
-  overflow: visible;
-}
-
 .reflect::after {
   content: attr(data-text);
   position: absolute;
   left: 0;
   right: 0;
   top: calc(100% + 2px);
+
   transform: scaleY(-1);
+  transform-origin: top;
   line-height: inherit;
-  color: var(--accent-color);
-  opacity: 0.18;
-  height: 0.22em;
-  overflow: hidden;
-  filter: blur(0.45px);
+
+  color: #ffffff !important;
+  opacity: 1 !important;
+  height: 0.8em !important;
+  overflow: visible !important;
+
+  filter: none !important;
+  background: rgba(255,0,0,0.25) !important; /* debug */
   pointer-events: none;
 }
 
