@@ -390,6 +390,13 @@ body {
   margin-right: 0.4rem;
 }
 
+/* ---------- FILTER ITEMS (WRAPPER) ---------- */
+.filter-items {
+  display: inline-flex;     /* ⬅️ AKTIVERAR GAP */
+  gap: 2.4rem;              /* ⬅️ HÄR styrs avståndet */
+  margin-left: 0.6rem;      /* luft från divider/Search */
+}
+
 /* ---------- FILTER ITEMS — MATCH SEARCH ---------- */
 .filter-items span {
   color: var(--accent-color);   /* samma färg som Search */
