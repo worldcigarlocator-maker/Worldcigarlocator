@@ -266,13 +266,6 @@ body {
   height: 1px;
   margin-left: 0.6rem;
 }
-.reflect {
-  position: relative;
-  display: inline-block;
-  vertical-align: baseline;
-  z-index: 1;
-}
-
 
 /* ============================================================
    10. MOBILE
