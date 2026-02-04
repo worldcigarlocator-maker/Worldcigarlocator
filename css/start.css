@@ -374,9 +374,8 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 
-  color: var(--accent-color);
-  font-weight: 700;           /* BOLD */
-  font-style: normal;
+  color: var(--accent-color) !important;
+  font-weight: 700;
   line-height: 1;
 }
 
