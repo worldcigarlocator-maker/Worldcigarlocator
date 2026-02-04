@@ -490,3 +490,12 @@ body {
   filter: blur(0.25px);
   pointer-events: none;
 }
+/* ===== DEBUG: FORCE REFLECTION VISIBLE ===== */
+.reflect::after {
+  content: "DEBUG";
+  background: red !important;
+  color: white !important;
+  height: 1em !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
