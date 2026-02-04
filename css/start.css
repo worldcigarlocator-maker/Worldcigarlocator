@@ -360,15 +360,15 @@ body {
   white-space: nowrap;
 }
 
-/* Search area — dominant */
+/* Search — ge mindre plats */
 .search-left {
-  flex: 1.4;
+  flex: 1.1;        /* ⬅️ mindre än tidigare */
 }
 
-/* Filters area — tight to divider */
+/* Filters — kommer närmare Search */
 .search-right {
   flex: 1;
-  margin-left: 0.35rem; /* ⬅️ tight mot divider */
+  margin-left: 0.2rem;  /* ⬅️ divider + filters dras vänster */
 }
 
 /* ---------- Single line text ---------- */
