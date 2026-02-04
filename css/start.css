@@ -457,39 +457,6 @@ body {
   display: inline-block;
 }
 
-/* ---------- Reflection ---------- */
-.reflect::after {
-  content: attr(data-text);
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 100%;
-
-  transform: scaleY(-1);
-  line-height: inherit;
-
-  color: var(--accent-color);
-
-  opacity: 0.12;      /* lugn */
-  height: 0.12em;     /* kort */
-  overflow: hidden;
-
-  mask-image: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.4),
-    rgba(0,0,0,0.1),
-    transparent
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.4),
-    rgba(0,0,0,0.1),
-    transparent
-  );
-
-  filter: blur(0.25px);
-  pointer-events: none;
-}
 /* ---------- Reflection (ROBUST, CROSS-BROWSER) ---------- */
 .reflect::after {
   content: attr(data-text);
