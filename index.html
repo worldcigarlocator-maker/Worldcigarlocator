@@ -110,39 +110,39 @@
     <!-- ================ MAIN AREA ================ -->
     <main class="main">
 
-    <!-- ============================================================
-     SEARCH v2 — AIRY CAPSULE (UI ONLY) — HTML (CANONICAL)
-     Layout: labels above zones, one divider, no pills
-     ============================================================ -->
-
-<div class="search-shell">
+    <div class="search-shell">
   <div class="search-capsule">
 
-    <!-- SEARCH (left) -->
+    <!-- SEARCH -->
     <div class="search-left">
       <span class="search-line">
-        <strong>Search:</strong> Search city, country or place
+        <strong>Search:</strong>
+        <em>Search city, country or place</em>
       </span>
     </div>
 
     <!-- DIVIDER -->
     <div class="search-divider"></div>
 
-    <!-- FILTERS (right) -->
+    <!-- FILTERS -->
     <div class="search-right">
       <span class="search-line">
-        <strong>Filters:</strong> Store · Lounge · Members
+        <strong>Filters:</strong>
+        <span class="filter-items">
+          <span>Store</span>
+          <span>Lounge</span>
+          <span>Members</span>
+        </span>
       </span>
     </div>
 
     <!-- SEARCH ICON -->
     <button class="search-icon" aria-label="Search">
-      <img
-        src="/assets/icons/search.svg"
-        alt=""
-        class="search-icon-svg"
-      />
+      <img src="/assets/icons/search.svg" class="search-icon-svg" />
     </button>
+
+    <!-- CLEAR SLOT (future) -->
+    <div class="search-clear"></div>
 
   </div>
 </div>
