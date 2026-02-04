@@ -395,7 +395,7 @@ body {
   height: 58%;                    /* Hur hög linjen är i kapseln */
 
   /* margin: TOP RIGHT BOTTOM LEFT */
-  margin: 0        1.2rem   0      1.6rem;
+  margin: 0        2.6rem   0      1.6rem;
   /*        ↑        ↑       ↑       ↑
            topp     höger   botten  vänster
            (ingen)  luft    (ingen) luft
