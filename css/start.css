@@ -273,21 +273,6 @@ body {
   z-index: 1;
 }
 
-.reflect::after {
-  content: attr(data-text);
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% + 2px);
-
-  transform: scaleY(-1);
-  transform-origin: top;
-  line-height: inherit;
-
-  color: #ffffff !important;
-   height: 0.8em !important;
-  pointer-events: none;
-}
 
 /* ============================================================
    10. MOBILE
