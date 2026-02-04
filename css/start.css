@@ -382,7 +382,7 @@ body {
 /* ---------- Undertext (rad 2) ---------- */
 .search-input,
 .search-zones {
-  font-size: 0.80rem;         /* mindre */
+  font-size: 0.70rem;         /* mindre */
   font-style: italic;
   color: rgba(255,255,255,0.55);
 }
@@ -451,4 +451,7 @@ body {
 .search-icon:hover .search-icon-svg {
   opacity: 1;
   filter: brightness(1.08);
+}
+.search-capsule {
+  outline: 3px solid red !important;
 }
