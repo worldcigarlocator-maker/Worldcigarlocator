@@ -385,7 +385,7 @@ body {
   font-style: normal;                 /* ⬅️ NOT italic */
   color: var(--accent-color);         /* ⬅️ continents / brand */
   font-weight: 700;
-  font-size: 1.05rem;                 /* ⬅️ 2 steps larger */
+  font-size: 1.15rem;                 /* ⬅️ 2 steps larger */
   margin-right: 0.4rem;
 }
 
@@ -395,7 +395,7 @@ body {
   height: 58%;                    /* Hur hög linjen är i kapseln */
 
   /* margin: TOP RIGHT BOTTOM LEFT */
-  margin: 0        2.6rem   0      1.6rem;
+  margin: 0        3.6rem   0      1.6rem;
   /*        ↑        ↑       ↑       ↑
            topp     höger   botten  vänster
            (ingen)  luft    (ingen) luft
