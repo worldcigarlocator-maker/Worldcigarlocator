@@ -490,36 +490,23 @@ body {
   filter: blur(0.25px);
   pointer-events: none;
 }
-/* ---------- Reflection (FINAL) ---------- */
+/* ---------- Reflection (ROBUST, CROSS-BROWSER) ---------- */
 .reflect::after {
   content: attr(data-text);
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(100% + 1px);   /* ⬅️ VIKTIGT: lyfter loss från baseline */
+  top: calc(100% + 1px);
 
   transform: scaleY(-1);
   line-height: inherit;
 
   color: var(--accent-color);
 
-  opacity: 0.14;
-  height: 0.12em;
+  opacity: 0.10;
+  height: 0.16em;
   overflow: hidden;
 
-  mask-image: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.45),
-    rgba(0,0,0,0.12),
-    transparent
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.45),
-    rgba(0,0,0,0.12),
-    transparent
-  );
-
-  filter: blur(0.25px);
+  filter: blur(0.4px);
   pointer-events: none;
 }
