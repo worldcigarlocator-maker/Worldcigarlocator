@@ -370,7 +370,7 @@ body {
 
 /* ---------- Labels (rad 1) ---------- */
 .search-label {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 
@@ -452,7 +452,7 @@ body {
   opacity: 1;
   filter: brightness(1.08);
 }
-.search-capsule .search-label {
+.search-shell .search-capsule span.search-label {
   color: var(--accent-color) !important;
   font-weight: 700;
 }
