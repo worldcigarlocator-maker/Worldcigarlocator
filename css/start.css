@@ -390,16 +390,12 @@ body {
   margin-right: 0.4rem;
 }
 
-/* ---------- FILTER ITEMS (Store / Lounge / Members) ---------- */
-.filter-items {
-  display: inline-flex;
-  gap: 3.5rem;                        /* ⬅️ CONTROL SPACING HERE */
-  margin-left: 2.0rem;               /* air after "Filters:" */
-}
-
+/* ---------- FILTER ITEMS — MATCH SEARCH ---------- */
 .filter-items span {
-  font-style: italic;
-  color: rgba(255,255,255,0.65);
+  color: var(--accent-color);   /* samma färg som Search */
+  font-size: 1.25rem;           /* samma storlek som Search */
+  font-weight: 700;             /* matchar Search */
+  font-style: normal;           /* INTE kursiv */
 }
 
 /* ---------- Divider ---------- */
