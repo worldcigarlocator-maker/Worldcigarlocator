@@ -393,8 +393,8 @@ body {
 /* ---------- FILTER ITEMS (Store / Lounge / Members) ---------- */
 .filter-items {
   display: inline-flex;
-  gap: 2.8rem;                        /* ⬅️ CONTROL SPACING HERE */
-  margin-left: 1.4rem;               /* air after "Filters:" */
+  gap: 3.2rem;                        /* ⬅️ CONTROL SPACING HERE */
+  margin-left: 2.0rem;               /* air after "Filters:" */
 }
 
 .filter-items span {
