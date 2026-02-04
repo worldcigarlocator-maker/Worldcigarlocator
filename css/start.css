@@ -326,7 +326,6 @@ body {
   }
 
 }
-
 /* ============================================================
    SEARCH v2 — SINGLE LINE · FINAL (WITH FILTER ITEMS)
    Labels larger · Text italic smaller · Icon accent
@@ -374,46 +373,42 @@ body {
 
 /* ---------- Single line text ---------- */
 .search-line {
-  font-size: 0.75rem;                 /* smaller body text */
+  font-size: 0.75rem;
   line-height: 1.25;
   font-style: italic;
   color: rgba(255,255,255,0.65);
   letter-spacing: 0.015em;
 }
 
-/* ---------- Labels (Search: / Filters:) ---------- */
+/* ---------- Label (Search) ---------- */
 .search-line strong {
   font-style: normal;
-  color: var(--accent-color);         /* same as continents */
+  color: var(--accent-color);
   font-weight: 700;
-  font-size: 1.45rem;                 /* clearly larger */
+  font-size: 1.45rem;
   margin-right: 0.4rem;
 }
 
 /* ---------- FILTER ITEMS (WRAPPER) ---------- */
 .filter-items {
-  display: inline-flex;     /* ⬅️ AKTIVERAR GAP */
-  gap: 2.4rem;              /* ⬅️ HÄR styrs avståndet */
-  margin-left: 0.6rem;      /* luft från divider/Search */
+  display: inline-flex;
+  gap: 2.4rem;
+  margin-left: 0.6rem;
 }
 
 /* ---------- FILTER ITEMS — MATCH SEARCH ---------- */
 .filter-items span {
-  color: var(--accent-color);   /* samma färg som Search */
-  font-size: 1.25rem;           /* samma storlek som Search */
-  font-weight: 700;             /* matchar Search */
-  font-style: normal;           /* INTE kursiv */
+  color: var(--accent-color);
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-style: normal;
 }
 
 /* ---------- Divider ---------- */
 .search-divider {
   width: 1px;
   height: 58%;
-
-  /* TOP | RIGHT | BOTTOM | LEFT */
   margin: 0 0.8rem 0 0.2rem;
-  /* divider tight to Search, filters close */
-
   background: rgba(255,255,255,0.18);
 }
 
@@ -421,25 +416,20 @@ body {
 .search-icon {
   margin-left: auto;
   padding-left: 1.4rem;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   background: transparent;
   border: none;
   cursor: pointer;
 }
 
-/* SVG inherits accent color */
 .search-icon-svg {
   width: 44px;
   height: auto;
   display: block;
-
   stroke: var(--accent-color);
   fill: none;
-
   opacity: 0.9;
   transition: opacity 0.15s ease, filter 0.15s ease;
 }
@@ -452,14 +442,14 @@ body {
 /* ---------- Reserved space for CLEAR (future) ---------- */
 .search-capsule::after {
   content: "";
-  width: 34px;                        /* clear icon slot */
+  width: 34px;
   height: 1px;
   margin-left: 0.6rem;
 }
 
 /* ============================================================
    SEARCH v2 — TEXT REFLECTION / MIRRORING
-   Subtle brand-style reflection (matches top logo)
+   Short, subtle light-reflection (NOT long mirror)
    Requires data-text attribute in HTML
    ============================================================ */
 
@@ -469,41 +459,40 @@ body {
   position: relative;
 }
 
-/* ---------- Search label reflection ---------- */
+/* ---------- Search label reflection (SHORT & SUBTLE) ---------- */
 .search-line strong::after {
-  content: attr(data-text);        /* text source */
+  content: attr(data-text);
   position: absolute;
   left: 0;
   right: 0;
   top: 100%;
 
-  transform: scaleY(-1);           /* vertical mirror */
+  transform: scaleY(-1);
   line-height: inherit;
 
   color: var(--accent-color);
-  opacity: 0.32;                   /* subtle */
-
-  height: 0.35em;                  /* reflection length */
+  opacity: 0.14;          /* lugn */
+  height: 0.14em;         /* kort */
   overflow: hidden;
 
   mask-image: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.55),
-    rgba(0,0,0,0.18),
+    rgba(0,0,0,0.45),
+    rgba(0,0,0,0.12),
     transparent
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.55),
-    rgba(0,0,0,0.18),
+    rgba(0,0,0,0.45),
+    rgba(0,0,0,0.12),
     transparent
   );
 
-  filter: blur(0.35px);
+  filter: blur(0.25px);
   pointer-events: none;
 }
 
-/* ---------- Filter items reflection ---------- */
+/* ---------- Filter items reflection (EVEN CALMER) ---------- */
 .filter-items span::after {
   content: attr(data-text);
   position: absolute;
@@ -515,24 +504,23 @@ body {
   line-height: inherit;
 
   color: var(--accent-color);
-  opacity: 0.25;                   /* slightly calmer */
-
-  height: 0.3em;
+  opacity: 0.10;          /* ännu lugnare */
+  height: 0.10em;         /* ännu kortare */
   overflow: hidden;
 
   mask-image: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.45),
-    rgba(0,0,0,0.15),
+    rgba(0,0,0,0.35),
+    rgba(0,0,0,0.10),
     transparent
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.45),
-    rgba(0,0,0,0.15),
+    rgba(0,0,0,0.35),
+    rgba(0,0,0,0.10),
     transparent
   );
 
-  filter: blur(0.4px);
+  filter: blur(0.3px);
   pointer-events: none;
 }
