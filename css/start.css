@@ -360,15 +360,15 @@ body {
   white-space: nowrap;
 }
 
-/* Left gets more room */
+/* Search area — dominant */
 .search-left {
-  flex: 1.2;
+  flex: 1.4;
 }
 
-/* Right pushed slightly right to make room for clear later */
+/* Filters area — tight to divider */
 .search-right {
-  flex: 0.8;
-  margin-left: 2.2rem; /* ⬅️ EXTRA AIR FOR CLEAR ICON */
+  flex: 1;
+  margin-left: 0.35rem; /* ⬅️ tight mot divider */
 }
 
 /* ---------- Single line text ---------- */
@@ -391,17 +391,16 @@ body {
 
 /* ---------- Divider ---------- */
 .search-divider {
-  width: 1px;                     /* Själva linjens tjocklek */
-  height: 58%;                    /* Hur hög linjen är i kapseln */
+  width: 1px;
+  height: 58%;
 
-  /* margin: TOP RIGHT BOTTOM LEFT */
-  margin: 0        3.6rem   0      1.6rem;
-  /*        ↑        ↑       ↑       ↑
-           topp     höger   botten  vänster
-           (ingen)  luft    (ingen) luft
-  */
+  /* TOP | RIGHT | BOTTOM | LEFT */
+  margin: 0 0.9rem 0 0.25rem;
+  /*                ↑
+     extremt lite luft mot Search
+     mer luft mot Filters */
 
-  background: rgba(255,255,255,0.18); /* Divider-färg (lugn, diskret) */
+  background: rgba(255,255,255,0.18);
 }
 /* ---------- Search icon ---------- */
 .search-icon {
