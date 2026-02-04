@@ -458,30 +458,32 @@ body {
 }
 
 /* ============================================================
-   SEARCH v2 — REFLECTION (SUBTLE, PREMIUM)
-   Matches brand logo language
+   SEARCH v2 — TEXT REFLECTION / MIRRORING
+   Subtle brand-style reflection (matches top logo)
+   Requires data-text attribute in HTML
    ============================================================ */
 
-/* Labels: Search: / Filters: */
-.search-line strong {
+/* Base positioning for mirrored elements */
+.search-line strong,
+.filter-items span {
   position: relative;
 }
 
-/* Reflection under labels */
+/* ---------- Search label reflection ---------- */
 .search-line strong::after {
-  content: attr(data-text);
+  content: attr(data-text);        /* text source */
   position: absolute;
   left: 0;
   right: 0;
   top: 100%;
 
-  transform: scaleY(-1);
+  transform: scaleY(-1);           /* vertical mirror */
   line-height: inherit;
 
   color: var(--accent-color);
-  opacity: 0.35;
+  opacity: 0.32;                   /* subtle */
 
-  height: 0.35em;
+  height: 0.35em;                  /* reflection length */
   overflow: hidden;
 
   mask-image: linear-gradient(
@@ -501,12 +503,7 @@ body {
   pointer-events: none;
 }
 
-/* Filter items: Store / Lounge / Members */
-.filter-items span {
-  position: relative;
-}
-
-/* Reflection under filter items */
+/* ---------- Filter items reflection ---------- */
 .filter-items span::after {
   content: attr(data-text);
   position: absolute;
@@ -518,7 +515,7 @@ body {
   line-height: inherit;
 
   color: var(--accent-color);
-  opacity: 0.28;
+  opacity: 0.25;                   /* slightly calmer */
 
   height: 0.3em;
   overflow: hidden;
