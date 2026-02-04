@@ -385,7 +385,7 @@ body {
   font-style: normal;                 /* ⬅️ NOT italic */
   color: var(--accent-color);         /* ⬅️ continents / brand */
   font-weight: 700;
-  font-size: 2.15rem;                 /* ⬅️ 2 steps larger */
+  font-size: 1.25rem;                 /* ⬅️ 2 steps larger */
   margin-right: 0.4rem;
 }
 
