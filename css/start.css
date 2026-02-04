@@ -203,7 +203,7 @@ body {
   font-style: italic;
   color: rgba(255,255,255,0.65);
   letter-spacing: 0.015em;
-  overflow: visible; /* allow reflection */
+  overflow: visible;   /* ⬅️ KRITISK RAD */
 }
 
 /* Search label */
