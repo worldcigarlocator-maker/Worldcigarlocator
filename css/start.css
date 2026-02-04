@@ -326,9 +326,10 @@ body {
   }
 
 }
+
 /* ============================================================
-   SEARCH v2 — AIRY CAPSULE (UI ONLY)
-   FINAL — LEFT ALIGNED / GLOBAL ACCENT LABELS (BOLD)
+   SEARCH v2 — SINGLE LINE · FINAL COLOR & SIZE TUNING
+   Labels larger · Text italic smaller · Icon accent · Space for clear
    ============================================================ */
 
 .search-shell {
@@ -344,7 +345,7 @@ body {
 
   min-width: 1040px;
   height: 62px;
-  padding: 0 1.8rem;
+  padding: 0 1.6rem;
 
   border-radius: 999px;
   background: #0a0a0a;
@@ -355,77 +356,51 @@ body {
 .search-left,
 .search-right {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.35rem;
-
-  text-align: left;
+  align-items: center;
+  white-space: nowrap;
 }
 
-.search-left  { flex: 1.15; }
-.search-right { flex: 0.85; }
+/* Left gets more room */
+.search-left {
+  flex: 1.2;
+}
 
-/* ---------- Labels (rad 1) ---------- */
-.search-label {
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+/* Right pushed slightly right to make room for clear later */
+.search-right {
+  flex: 0.8;
+  margin-left: 2.2rem; /* ⬅️ EXTRA AIR FOR CLEAR ICON */
+}
 
-  color: var(--accent-color) !important;
+/* ---------- Single line text ---------- */
+.search-line {
+  font-size: 0.75rem;                 /* ⬅️ 1 step smaller */
+  line-height: 1.25;
+  font-style: italic;                 /* ⬅️ italic */
+  color: rgba(255,255,255,0.65);      /* ⬅️ calmer text */
+  letter-spacing: 0.015em;
+}
+
+/* ---------- Labels (Search: / Filters:) ---------- */
+.search-line strong {
+  font-style: normal;                 /* ⬅️ NOT italic */
+  color: var(--accent-color);         /* ⬅️ continents / brand */
   font-weight: 700;
-  line-height: 1;
-}
-
-/* ---------- Undertext (rad 2) ---------- */
-.search-input,
-.search-zones {
-  font-size: 0.70rem;         /* mindre */
-  font-style: italic;
-  color: rgba(255,255,255,0.55);
-}
-
-/* ---------- Input ---------- */
-.search-input {
-  background: transparent;
-  border: none;
-  outline: none;
-  padding: 0;
-}
-
-.search-input::placeholder {
-  color: rgba(255,255,255,0.55);
+  font-size: 0.95rem;                 /* ⬅️ 2 steps larger */
+  margin-right: 0.4rem;
 }
 
 /* ---------- Divider ---------- */
 .search-divider {
   width: 1px;
   height: 58%;
-  margin: 0 1.4rem 0 0.9rem;
+  margin: 0 1.6rem;
   background: rgba(255,255,255,0.18);
 }
 
-/* ---------- Filters (Public borttagen) ---------- */
-.search-zones {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.search-zone {
-  cursor: pointer;
-  white-space: nowrap;
-  transition: color 0.15s ease;
-}
-
-.search-zone:hover,
-.search-zone.is-active {
-  color: var(--accent-color);
-}
-
-/* ---------- Search icon (SVG, längst till höger) ---------- */
+/* ---------- Search icon ---------- */
 .search-icon {
   margin-left: auto;
-  padding-left: 1.2rem;
+  padding-left: 1.4rem;               /* ⬅️ space before icon */
 
   display: flex;
   align-items: center;
@@ -436,18 +411,28 @@ body {
   cursor: pointer;
 }
 
+/* SVG inherits accent color */
 .search-icon-svg {
   width: 44px;
   height: auto;
   display: block;
 
-  opacity: 0.85;
+  stroke: var(--accent-color);
+  fill: none;
+
+  opacity: 0.9;
   transition: opacity 0.15s ease, filter 0.15s ease;
 }
 
 .search-icon:hover .search-icon-svg {
   opacity: 1;
-  filter: brightness(1.08);
+  filter: brightness(1.1);
 }
 
-
+/* ---------- Reserved space for CLEAR (future) ---------- */
+.search-capsule::after {
+  content: "";
+  width: 34px;                        /* ⬅️ clear icon slot */
+  height: 1px;
+  margin-left: 0.6rem;
+}
