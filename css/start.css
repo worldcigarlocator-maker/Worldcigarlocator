@@ -328,8 +328,9 @@ body {
 }
 
 /* ============================================================
-   SEARCH v2 — SINGLE LINE · FINAL COLOR & SIZE TUNING
-   Labels larger · Text italic smaller · Icon accent · Space for clear
+   SEARCH v2 — SINGLE LINE · FINAL (WITH FILTER ITEMS)
+   Labels larger · Text italic smaller · Icon accent
+   Controlled spacing · Space for clear
    ============================================================ */
 
 .search-shell {
@@ -360,33 +361,45 @@ body {
   white-space: nowrap;
 }
 
-/* Search — ge mindre plats */
+/* Search — slightly smaller area */
 .search-left {
-  flex: 1.1;        /* ⬅️ mindre än tidigare */
+  flex: 1.1;
 }
 
-/* Filters — kommer närmare Search */
+/* Filters — pulled left, close to divider */
 .search-right {
   flex: 1;
-  margin-left: 0.2rem;  /* ⬅️ divider + filters dras vänster */
+  margin-left: 0.2rem;
 }
 
 /* ---------- Single line text ---------- */
 .search-line {
-  font-size: 0.75rem;                 /* ⬅️ 1 step smaller */
+  font-size: 0.75rem;                 /* smaller body text */
   line-height: 1.25;
-  font-style: italic;                 /* ⬅️ italic */
-  color: rgba(255,255,255,0.65);      /* ⬅️ calmer text */
+  font-style: italic;
+  color: rgba(255,255,255,0.65);
   letter-spacing: 0.015em;
 }
 
 /* ---------- Labels (Search: / Filters:) ---------- */
 .search-line strong {
-  font-style: normal;                 /* ⬅️ NOT italic */
-  color: var(--accent-color);         /* ⬅️ continents / brand */
+  font-style: normal;
+  color: var(--accent-color);         /* same as continents */
   font-weight: 700;
-  font-size: 1.25rem;                 /* ⬅️ 2 steps larger */
+  font-size: 1.25rem;                 /* clearly larger */
   margin-right: 0.4rem;
+}
+
+/* ---------- FILTER ITEMS (Store / Lounge / Members) ---------- */
+.filter-items {
+  display: inline-flex;
+  gap: 2.8rem;                        /* ⬅️ CONTROL SPACING HERE */
+  margin-left: 0.6rem;               /* air after "Filters:" */
+}
+
+.filter-items span {
+  font-style: italic;
+  color: rgba(255,255,255,0.65);
 }
 
 /* ---------- Divider ---------- */
@@ -396,15 +409,15 @@ body {
 
   /* TOP | RIGHT | BOTTOM | LEFT */
   margin: 0 0.8rem 0 0.2rem;
-  /*                 ↑
-     nästan klistrad mot Search */
+  /* divider tight to Search, filters close */
 
   background: rgba(255,255,255,0.18);
 }
+
 /* ---------- Search icon ---------- */
 .search-icon {
   margin-left: auto;
-  padding-left: 1.4rem;               /* ⬅️ space before icon */
+  padding-left: 1.4rem;
 
   display: flex;
   align-items: center;
@@ -436,7 +449,7 @@ body {
 /* ---------- Reserved space for CLEAR (future) ---------- */
 .search-capsule::after {
   content: "";
-  width: 34px;                        /* ⬅️ clear icon slot */
+  width: 34px;                        /* clear icon slot */
   height: 1px;
   margin-left: 0.6rem;
 }
