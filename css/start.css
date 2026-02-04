@@ -331,13 +331,13 @@ body {
 }
 /* ============================================================
    SEARCH v2 — AIRY CAPSULE (UI ONLY)
-   FINAL POLISH — height + centered labels
+   FINAL — LEFT ALIGNED / GLOBAL ACCENT LABELS
    ============================================================ */
 
 .search-shell {
   display: flex;
   justify-content: center;
-  margin: 2.2rem 0 2.8rem;
+  margin: 2.4rem 0 3rem;
 }
 
 /* ---------- Capsule ---------- */
@@ -346,8 +346,8 @@ body {
   align-items: center;
 
   min-width: 1040px;
-  height: 60px;                 /* +4px luft */
-  padding: 0 1.4rem;
+  height: 62px;                 /* lite mer luft */
+  padding: 0 1.6rem;
 
   border-radius: 999px;
   background: #0a0a0a;
@@ -360,38 +360,29 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.35rem;                 /* lite mer vertikal luft */
+  gap: 0.35rem;
+
+  text-align: left;             /* VÄNSTERJUSTERAT */
 }
 
-.search-left  { flex: 1.1; }
-.search-right { flex: 0.9; }
+.search-left  { flex: 1.15; }
+.search-right { flex: 0.85; }
 
 /* ---------- Labels (rad 1) ---------- */
 .search-label {
-  font-size: 0.62rem;
+  font-size: 0.65rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 
-  color: rgba(255,255,255,0.55);
+  color: var(--accent-color);   /* GLOBAL FÄRG */
   font-style: normal;
   line-height: 1;
-
-  text-align: center;           /* CENTRERAD */
 }
 
-/* centrera labels exakt över sitt innehåll */
-.search-left .search-label {
-  align-self: center;
-}
-
-.search-right .search-label {
-  align-self: center;
-}
-
-/* ---------- Content text (rad 2) ---------- */
+/* ---------- Undertext (rad 2) ---------- */
 .search-input,
 .search-zones {
-  font-size: 0.86rem;
+  font-size: 0.85rem;
   font-style: italic;
   color: rgba(255,255,255,0.55);
 }
@@ -412,15 +403,15 @@ body {
 .search-divider {
   width: 1px;
   height: 58%;
-  margin: 0 1.3rem 0 0.7rem;
+  margin: 0 1.4rem 0 0.9rem;
   background: rgba(255,255,255,0.18);
 }
 
-/* ---------- Filters ---------- */
+/* ---------- Filters (Public borttagen) ---------- */
 .search-zones {
   display: flex;
   align-items: center;
-  gap: 1.4rem;
+  gap: 1.5rem;
 }
 
 .search-zone {
@@ -434,19 +425,30 @@ body {
   color: var(--accent-color);
 }
 
-/* ---------- Search icon (hero magnifier) ---------- */
+/* ---------- Search icon (SVG, längst till höger) ---------- */
 .search-icon {
-  margin-left: 0.9rem;
+  margin-left: auto;            /* trycks längst till höger */
+  padding-left: 1.2rem;
 
-  width: 44px;
-  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   background: transparent;
   border: none;
   cursor: pointer;
+}
 
-  background-image: url("/assets/hero/hero-magnifier.svg");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 40px;
+.search-icon-svg {
+  width: 44px;
+  height: auto;
+  display: block;
+
+  opacity: 0.85;
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+.search-icon:hover .search-icon-svg {
+  opacity: 1;
+  filter: brightness(1.08);
 }
