@@ -363,7 +363,7 @@ body {
 
 /* Search — slightly smaller area */
 .search-left {
-  flex: 1.1;
+  flex: 0.8;
 }
 
 /* Filters — pulled left, close to divider */
