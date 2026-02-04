@@ -363,7 +363,7 @@ body {
 
 /* Search — slightly smaller area */
 .search-left {
-  flex: 1.0;
+  flex: 0.9;
 }
 
 /* Filters — pulled left, close to divider */
@@ -393,7 +393,7 @@ body {
 /* ---------- FILTER ITEMS (Store / Lounge / Members) ---------- */
 .filter-items {
   display: inline-flex;
-  gap: 3.2rem;                        /* ⬅️ CONTROL SPACING HERE */
+  gap: 3.5rem;                        /* ⬅️ CONTROL SPACING HERE */
   margin-left: 2.0rem;               /* air after "Filters:" */
 }
 
