@@ -453,3 +453,86 @@ body {
   height: 1px;
   margin-left: 0.6rem;
 }
+
+/* ============================================================
+   SEARCH v2 — REFLECTION (SUBTLE, PREMIUM)
+   Matches brand logo language
+   ============================================================ */
+
+/* Labels: Search: / Filters: */
+.search-line strong {
+  position: relative;
+}
+
+/* Reflection under labels */
+.search-line strong::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+
+  transform: scaleY(-1);
+  line-height: inherit;
+
+  color: var(--accent-color);
+  opacity: 0.35;
+
+  height: 0.35em;
+  overflow: hidden;
+
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0.18),
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0.18),
+    transparent
+  );
+
+  filter: blur(0.35px);
+  pointer-events: none;
+}
+
+/* Filter items: Store / Lounge / Members */
+.filter-items span {
+  position: relative;
+}
+
+/* Reflection under filter items */
+.filter-items span::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+
+  transform: scaleY(-1);
+  line-height: inherit;
+
+  color: var(--accent-color);
+  opacity: 0.28;
+
+  height: 0.3em;
+  overflow: hidden;
+
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.45),
+    rgba(0,0,0,0.15),
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.45),
+    rgba(0,0,0,0.15),
+    transparent
+  );
+
+  filter: blur(0.4px);
+  pointer-events: none;
+}
