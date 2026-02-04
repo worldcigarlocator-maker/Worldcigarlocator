@@ -456,3 +456,5 @@ body {
   color: var(--accent-color) !important;
   font-weight: 700;
 }
+
+.search-label { color: red !important; }
