@@ -361,7 +361,8 @@ const ISO2_BASE = {
   "ph":"philippines","qa":"qatar","sa":"saudi arabia","sg":"singapore",
   "kr":"south korea","lk":"sri lanka","sy":"syria","tw":"taiwan","tj":"tajikistan",
   "th":"thailand","tl":"timor-leste","tm":"turkmenistan","ae":"united arab emirates",
-  "uz":"uzbekistan","vn":"vietnam","ye":"yemen",
+  "uz":"uzbekistan","vn":"vietnam","ye":"yemen","hk": "hong kong",
+  "mo": "macao",
 
   "au":"australia","fj":"fiji","nz":"new zealand","pg":"papua new guinea",
   "ws":"samoa","to":"tonga","vu":"vanuatu"
