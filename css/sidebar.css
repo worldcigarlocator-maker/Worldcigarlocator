@@ -331,3 +331,23 @@
 #sidebarMenu .line:hover .pill {
   background: none;
 }
+
+/* ===============================
+   SIDEBAR BRAND (LABEL)
+   =============================== */
+
+.sidebar-brand {
+  margin-bottom: 0.6rem;
+  color: #bfa36a; /* varm mässing – justeras sen */
+}
+
+.sidebar-brand-svg {
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+}
+
+.sidebar-brand-svg text {
+  font-family: Georgia, "Times New Roman", serif;
+  fill: currentColor;
+}
