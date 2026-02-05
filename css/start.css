@@ -305,4 +305,10 @@ body {
   }
 }
 
+/* DEBUG — FORCE MAIN VISIBILITY */
+.main {
+  min-height: 100vh;
+  position: relative;
+  overflow: visible;
+}
 
