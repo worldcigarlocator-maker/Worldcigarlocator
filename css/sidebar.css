@@ -2,20 +2,29 @@
    SIDEBAR.CSS — WCL (CANONICAL · UTILITY + NAVIGATION ONLY)
    ============================================================ */
 
+
 /* ============================================================
-   SIDEBAR HEADER — BRAND + ACTIONS (CANONICAL)
+   SIDEBAR HEADER — BRAND (TOP LEFT) + ACTIONS
    ============================================================ */
 
 .sidebar-header {
-  height: auto;                 /* 🔒 inte toolbar-höjd */
-  padding: 1rem 1.2rem;
-
   display: flex;
-  flex-direction: column;       /* 🔥 KRITISK RAD */
+  flex-direction: column;   /* 🔴 KRITISK RAD */
   align-items: flex-start;
-  gap: 0.6rem;
+  gap: 0.8rem;
 
+  padding: 1rem 1.2rem;
   border-bottom: 1px solid var(--border);
+}
+.sidebar-brand {
+  width: 100%;
+  color: #bfa36a;
+}
+
+.sidebar-brand-svg {
+  width: 160px;   /* synlig, inte Airbnb-mini ännu */
+  height: auto;
+  display: block;
 }
 
 
