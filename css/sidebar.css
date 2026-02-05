@@ -351,3 +351,17 @@
   font-family: Georgia, "Times New Roman", serif;
   fill: currentColor;
 }
+/* DEBUG + FIX — SIDEBAR BRAND VISIBILITY */
+.sidebar-header {
+  padding-top: 1rem;
+}
+
+.sidebar-brand {
+  display: block;
+  height: 48px;        /* tvingar render-yta */
+}
+
+.sidebar-brand-svg {
+  display: block;
+  height: 100%;
+}
