@@ -304,3 +304,18 @@ body {
     padding-right: 1.2rem;
   }
 }
+
+/* ===============================
+   TEMP TEST — GLOBAL WHITE MODE
+   =============================== */
+
+html,
+body,
+.container,
+.main,
+.hero,
+.sidebar,
+.tophead {
+  background: #ffffff !important;
+  color: #111 !important;
+}
