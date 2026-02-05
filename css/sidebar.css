@@ -373,3 +373,13 @@
   display: block;
   height: 100%;
 }
+.sidebar-brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.6rem;
+}
+
+.sidebar-brand-svg {
+  width: 180px;
+  height: auto;
+}
