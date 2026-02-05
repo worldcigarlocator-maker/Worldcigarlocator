@@ -20,8 +20,8 @@ body {
 }
 
 .container {
-  display: flex;
   min-height: 100vh;
+  display: flex;
 }
 
 .main {
