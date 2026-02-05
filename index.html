@@ -19,14 +19,35 @@
 
 <div class="container">
 
- <!-- ================= SIDEBAR ================= -->
+<!-- ================= SIDEBAR ================= -->
 <aside class="sidebar">
 
   <header class="sidebar-header">
 
-    <!-- BRAND (TEXT · ONE LINE · GLOBAL COLOUR) -->
-    <div class="sidebar-brand">
-      <span class="sidebar-brand-text">World Cigar Locator</span>
+    <!-- BRAND (SVG · ONE LINE · GLOBAL COLOUR) -->
+    <div class="sidebar-brand" aria-hidden="true">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 520 160"
+        class="sidebar-brand-svg"
+      >
+        <style>
+          .text {
+            fill: rgb(115, 98, 75); /* 🔒 global colour */
+            font-family: Georgia, 'Times New Roman', serif;
+          }
+        </style>
+
+        <text
+          x="260"
+          y="100"
+          text-anchor="middle"
+          class="text"
+          font-size="56"
+        >
+          World Cigar Locator
+        </text>
+      </svg>
     </div>
 
     <!-- ACTIONS -->
@@ -46,6 +67,7 @@
   </footer>
 
 </aside>
+
 
 <!-- ================= MAIN ================= -->
 
