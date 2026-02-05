@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" aria-hidden="true">
+  <style>
+    .ink { fill: none; stroke: currentColor; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+  <circle cx="60" cy="60" r="44" class="ink"/>
+  <line x1="92" y1="92" x2="130" y2="130" class="ink"/>
+</svg>
