@@ -35,26 +35,30 @@
   flex-direction: column;
   gap: 0.9rem;
 }
-
-/* ================= BRAND ================= */
+/* ============================================================
+   SIDEBAR BRAND — TEXT ONLY (GLOBAL COLOUR)
+   ============================================================ */
 
 .sidebar-brand {
   display: flex;
-  justify-content: center;
-  color: var(--gold);
+  align-items: center;
 }
 
-.sidebar-brand svg {
-  width: 180px;
-  height: auto;
-  display: block;
+.sidebar-brand-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+
+  color: rgb(115, 98, 75); /* 🔒 global colour */
+
+  line-height: 1;
+  white-space: nowrap;
+
+  pointer-events: none; /* 🔒 not interactive */
 }
 
-.sidebar-brand text {
-  font-family: Georgia, "Times New Roman", serif;
-  fill: currentColor;
-  font-size: 56px;
-}
+
 
 /* ================= ACTIONS ================= */
 
