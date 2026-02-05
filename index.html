@@ -64,38 +64,47 @@
   <!-- ================= PAGE WRAPPER ================= -->
   <div class="container">
 
-    <!-- ================ SIDEBAR (UTILITY + NAVIGATION) ================ -->
-    <aside class="sidebar">
+  <!-- ================ SIDEBAR (UTILITY + NAVIGATION) ================ -->
+<aside class="sidebar">
 
-      <!-- HEADER / UTILITY -->
-      <header class="sidebar-header">
+  <!-- HEADER / BRAND + UTILITY -->
+  <header class="sidebar-header">
 
-        <div class="sidebar-actions">
-          <button id="loginBtn" class="sidebar-btn" type="button">Login</button>
-          <a href="add-store.html" class="sidebar-btn" id="addStoreBtn">Add store</a>
-          <button id="logoutBtn" class="sidebar-btn hidden" type="button">Logout</button>
-        </div>
+    <!-- BRAND LABEL (SVG · CANONICAL) -->
+    <div class="sidebar-brand">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 520 160"
+        aria-hidden="true"
+        class="sidebar-brand-svg"
+      >
+        <text x="260" y="70" text-anchor="middle">World Cigar</text>
+        <text x="260" y="130" text-anchor="middle">Locator</text>
+      </svg>
+    </div>
 
-        <div class="sidebar-status">
-          <span class="footer-online">
-            <span class="dot"></span>
-            <span id="onlineText">0 online</span>
-          </span>
-        </div>
+    <!-- ACTIONS -->
+    <div class="sidebar-actions">
+      <button id="loginBtn" class="sidebar-btn" type="button">Login</button>
+      <a href="add-store.html" class="sidebar-btn" id="addStoreBtn">Add store</a>
+      <button id="logoutBtn" class="sidebar-btn hidden" type="button">Logout</button>
+    </div>
 
-      </header>
+    <!-- STATUS -->
+    <div class="sidebar-status">
+      <span class="footer-online">
+        <span class="dot"></span>
+        <span id="onlineText">0 online</span>
+      </span>
+    </div>
 
-      <hr class="sidebar-divider" />
+  </header>
 
-      <!-- NAVIGATION -->
-      <div id="sidebarMenu" class="nav"></div>
+  <hr class="sidebar-divider" />
 
-      <!-- FOOTER -->
-      <footer class="sidebar-footer">
-        <a href="mailto:support@worldcigarlocator.com" class="footer-link">Contact / Support</a>
-      </footer>
+  <!-- NAVIGATION -->
+  <div id="sidebarMenu" c
 
-    </aside>
 
 
    <!-- ================ MAIN AREA ================ -->
