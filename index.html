@@ -5,42 +5,91 @@
   <title>World Cigar Locator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- DM Sans -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/start.css" />
-  <link rel="stylesheet" href="css/sidebar.css" />
+  <link rel="stylesheet" href="css/start.css">
+  <link rel="stylesheet" href="css/sidebar.css">
 </head>
 
 <body>
 
-  <!-- MOBILE MENU -->
-  <button id="mobileMenuBtn" class="mobile-menu-btn">☰</button>
+<div class="container">
 
-  <div class="container">
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
 
-    <!-- ================= SIDEBAR ================= -->
-    <aside class="sidebar">
+    <header class="sidebar-header">
 
-      <header class="sidebar-header">
+      <!-- BRAND -->
+      <div class="sidebar-brand">
+        <svg viewBox="0 0 520 160" aria-hidden="true">
+          <text x="260" y="70" text-anchor="middle">World Cigar</text>
+          <text x="260" y="130" text-anchor="middle">Locator</text>
+        </svg>
+      </div>
 
-        <!-- BRAND -->
-        <div class="sidebar-brand">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 520 160"
-            aria-hidden="true"
-            class="sidebar-brand-svg"
-          >
-            <text x="260" y="68" text-anchor="middle">World Cigar</text>
-            <text x="260" y="128" text-anchor="middle">Locator</text>
-          </svg>
+      <!-- ACTIONS -->
+      <div class="sidebar-actions">
+        <button class="sidebar-btn">Login</button>
+        <button class="sidebar-btn primary">Add Store</button>
+      </div>
+
+    </header>
+
+    <div id="sidebarMenu" class="sidebar-menu">
+      <!-- sidebar.js bygger innehållet -->
+    </div>
+
+    <footer class="sidebar-footer">
+      <a href="mailto:support@worldcigarlocator.com">Contact / Support</a>
+    </footer>
+
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+
+    <!-- SEARCH -->
+    <div class="search-shell">
+      <div class="search-capsule">
+        <div class="search-left">
+          <strong>Search</strong>
+          <em>e.g. London, New York, Bangkok</em>
         </div>
 
-        <!-- ACTIONS -->
-        <div class="sidebar-actions">
-          <button class="sidebar-btn">Login</button>
-          <a href="add-store.html" class="
+        <div class="search-divider"></div>
+
+        <div class="search-right">
+          <span>Store</span>
+          <span>Lounge</span>
+          <span>Members</span>
+        </div>
+
+        <button class="search-icon" aria-label="Search">
+          <svg viewBox="0 0 140 140">
+            <circle cx="60" cy="60" r="44" />
+            <line x1="92" y1="92" x2="130" y2="130" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+      <img src="images/world-cigar-locator-hero.jpg" alt="World Cigar Locator">
+    </section>
+
+    <!-- RESULTS -->
+    <div id="storeGrid"></div>
+
+  </main>
+
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
