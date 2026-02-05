@@ -63,11 +63,12 @@
 
 /* MENU */
 
-.sidebar-menu {
+#sidebarMenu {
   flex: 1;
   overflow-y: auto;
   padding: .6rem;
 }
+
 
 /* FOOTER */
 
