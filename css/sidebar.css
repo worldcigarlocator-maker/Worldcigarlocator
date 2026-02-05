@@ -36,7 +36,7 @@
   gap: 0.9rem;
 }
 /* ============================================================
-   SIDEBAR BRAND — TEXT ONLY (GLOBAL COLOUR)
+   SIDEBAR BRAND — SVG (ONE LINE · GLOBAL COLOUR)
    ============================================================ */
 
 .sidebar-brand {
@@ -44,23 +44,14 @@
   align-items: center;
 }
 
-.sidebar-brand-text {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+.sidebar-brand-svg {
+  width: 180px;          /* 🔒 anpassad för sidebar */
+  height: auto;
+  display: block;
 
-  color: rgb(115, 98, 75); /* 🔒 global colour */
-
-  line-height: 1;
-  white-space: nowrap;
-
-  pointer-events: none; /* 🔒 not interactive */
+  pointer-events: none; /* 🔒 inte klickbar */
 }
 
-
-
-/* ================= ACTIONS ================= */
 
 .sidebar-actions {
   display: flex;
