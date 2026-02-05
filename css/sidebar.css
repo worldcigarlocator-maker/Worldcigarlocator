@@ -1,381 +1,80 @@
+.sidebar {
+  width: 260px;
+  background: #050505;
+  border-right: 1px solid rgba(255,255,255,0.12);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  inset: 0 auto 0 0;
+}
 
-/* ============================================================
-   SIDEBAR HEADER — BRAND (TOP LEFT) + ACTIONS
-   ============================================================ */
-
+/* HEADER */
 .sidebar-header {
+  padding: 1.1rem 1.2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
   display: flex;
-  flex-direction: column;   /* 🔴 KRITISK RAD */
-  align-items: flex-start;
-  gap: 0.8rem;
-
-  padding: 1rem 1.2rem;
-  border-bottom: 1px solid var(--border);
+  flex-direction: column;
+  gap: 1rem;
 }
+
+/* BRAND */
 .sidebar-brand {
-  width: 100%;
-  color: #bfa36a;
-}
-
-.sidebar-brand-svg {
-  width: 160px;   /* synlig, inte Airbnb-mini ännu */
-  height: auto;
-  display: block;
-}
-
-
-/* ============================================================
-   SIDEBAR ACTIONS — LOGIN / ADD STORE
-   Aligned with top brand label · Equal size · Calm hierarchy
-   ============================================================ */
-
-.sidebar-actions {
-  display: flex;
-  align-items: center;          /* 🔒 exakt vertikal linjering */
-  gap: 0.6rem;
-
-  padding: 0.9rem 0.8rem 0.6rem; /* luft från “taket”, inte inklämt */
-}
-
-/* Base button — same size, same baseline */
-.sidebar-btn {
-  height: 36px;                /* 🔒 SINGLE SOURCE OF RHYTHM */
-  min-width: 92px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0 1.05rem;
-  border-radius: 999px;
-
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.22);
-  color: rgba(255,255,255,0.86);
-
-  cursor: pointer;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-/* Primary action — Add Store */
-#addStoreBtn {
-  background: #766148;          /* canonical gold */
-  border-color: #766148;
-  color: #111;
-}
-
-/* Hover states — subtle, no jump */
-.sidebar-btn:hover {
-  border-color: rgba(255,255,255,0.38);
-  color: #fff;
-}
-
-#addStoreBtn:hover {
-  filter: brightness(1.05);
-}
-/* -----------------------------
-   ONLINE STATUS (TEMPORARILY DISABLED)
------------------------------ */
-
-.sidebar-status {
-  display: none;
-}
-
-/* ============================================================
-   2. DIVIDER
-   ============================================================ */
-
-.sidebar-divider {
-  border: none;
-  height: 1px;
-  background: rgba(255,255,255,0.12);
-  margin: 0.75rem 0;
-}
-
-/* Hide divider directly under sidebar header */
-.sidebar-header + .sidebar-divider {
-  display: none;
-}
-
-/* ============================================================
-   3. NAVIGATION SCROLL AREA
-   ============================================================ */
-
-#sidebarMenu {
-  flex: 1;                 /* ⬅️ tar all kvarvarande höjd */
-  overflow-y: auto;        /* ⬅️ scroll HÄR */
-  overscroll-behavior: contain;
-
-  padding: 0.35rem 0 0.8rem;
-}
-
-/* ============================================================
-   4. NAV TREE — CLEAN, FLAT & HIERARCHICAL (LOCKED)
-   ============================================================ */
-
-/* BASE ROW */
-.line {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-
-  padding: 0.42rem 0.6rem;   /* luft från kanter */
-  font-size: 0.78rem;
-
-  color: rgba(255,255,255,0.82);
-  cursor: pointer;
-  user-select: none;
-
-  border-bottom: 1px solid rgba(255,255,255,0.08); /* default separators */
-}
-
-.line:hover {
-  background: rgba(255,255,255,0.04);
-}
-
-.line.active {
-  color: var(--gold);
-}
-
-/* ------------------------------------------------------------
-   CONTINENT (LEVEL 1)
------------------------------------------------------------- */
-.line.continent {
-  font-size: 0.9rem;          /* större */
-  font-weight: 600;
-  color: #766148;             /* brand-färg */
-
-  padding-top: 0.65rem;
-  padding-bottom: 0.65rem;
-
-  border-bottom: 1px solid rgba(255,255,255,0.16); /* starkare block-separator */
-}
-
-/* ------------------------------------------------------------
-   COUNTRY (LEVEL 2)
------------------------------------------------------------- */
-.line.country {
-  font-size: 0.78rem;
-  font-weight: 500;
-}
-
-/* ------------------------------------------------------------
-   STATE / CITY (LEVEL 3–4)
------------------------------------------------------------- */
-.line.state,
-.line.city {
-  font-size: 0.74rem;
-  color: rgba(255,255,255,0.7);
-
-  border-bottom: none;        /* inga linjer mellan cities */
-}
-
-/* ------------------------------------------------------------
-   ARROW / TOGGLE
------------------------------------------------------------- */
-.line .arrow {
-  width: 14px;
-  text-align: center;
-  opacity: 0.55;
-  font-size: 0.7rem;
-}
-
-/* ------------------------------------------------------------
-   LABEL
------------------------------------------------------------- */
-.label-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex: 1;
-  overflow: hidden;
-}
-
-.label {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* ------------------------------------------------------------
-   COUNT — INFORMATIVE ONLY
------------------------------------------------------------- */
-.pill {
-  margin-left: 0.6rem;        /* luft från kanten */
-  padding: 0;
-
-  font-size: 0.72rem;
-  font-weight: 500;
-
-  color: rgba(255,255,255,0.55);
-  background: none;
-  border-radius: 0;
-}
-
-/* active row count något tydligare */
-.line.active .pill {
-  color: rgba(255,255,255,0.75);
-}
-
-/* ------------------------------------------------------------
-   FLAG (COUNTRY ONLY)
------------------------------------------------------------- */
-.line .flag {
-  width: 16px;
-  height: 11px;
-  border-radius: 2px;
-  object-fit: cover;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
-}
-/* ============================================================
-   5. CHILDREN (EXPAND / COLLAPSE + COUNTRY HIGHLIGHT)
-   ============================================================ */
-
-.children {
-  display: none;
-  padding: 0;                 /* ⬅️ ingen indragning */
-}
-
-/* show when open */
-.children.show {
-  display: block;
-}
-
-/* subtle highlight for active country block (cities only) */
-.line.country.open + .children {
-  background: rgba(255,255,255,0.035);   /* lätt, premium */
-  border-top: 1px solid rgba(255,255,255,0.06);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-/* cities inside highlighted block */
-.line.country.open + .children .line.city {
-  padding-left: 0.6rem;       /* optisk luft utan hierarki */
-  padding-right: 0.6rem;
-}
-
-/* arrow emphasis when open */
-.line.open > .arrow {
-  opacity: 0.85;
-}
-
-
-/* ============================================================
-   6. FOOTER
-   ============================================================ */
-
-.sidebar-footer {
-  border-top: 1px solid rgba(255,255,255,0.1);
-  padding-top: 0.65rem;
-  font-size: 0.78rem;
-}
-
-.footer-link {
-  display: inline-block;
-  color: #a9a9a9;
-  text-decoration: none;
-}
-
-.footer-link:hover {
-  color: var(--gold);
-}
-
-
-/* ============================================================
-   7. HELPERS
-   ============================================================ */
-
-.hidden {
-  display: none !important;
-}
-
-
-/* ============================================================
-   FIX 3 — SIDEBAR COUNTS (PARENTHESIS, TEXT ONLY)
-   ============================================================ */
-
-/* count number — editorial, non-interactive */
-#sidebarMenu .pill {
-  background: none;
-  border: none;
-  padding: 0;
-  margin-left: 0.6rem;              /* luft från kanten */
-
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: rgba(255,255,255,0.45);
-  border-radius: 0;
-}
-
-/* add parentheses via CSS (no JS, no markup change) */
-#sidebarMenu .pill::before {
-  content: "(";
-  margin-right: 1px;
-  color: rgba(255,255,255,0.35);
-}
-
-#sidebarMenu .pill::after {
-  content: ")";
-  margin-left: 1px;
-  color: rgba(255,255,255,0.35);
-}
-
-/* active row count slightly clearer */
-#sidebarMenu .line.active .pill {
-  color: rgba(255,255,255,0.75);
-}
-
-/* hover should NOT look clickable */
-#sidebarMenu .line:hover .pill {
-  background: none;
-}
-
-/* ===============================
-   SIDEBAR BRAND (LABEL)
-   =============================== */
-
-.sidebar-brand {
-  margin-bottom: 0.6rem;
-  color: #bfa36a; /* varm mässing – justeras sen */
-}
-
-.sidebar-brand-svg {
-  width: 100%;
-  max-width: 180px;
-  height: auto;
-}
-
-.sidebar-brand-svg text {
-  font-family: Georgia, "Times New Roman", serif;
-  fill: currentColor;
-}
-/* DEBUG + FIX — SIDEBAR BRAND VISIBILITY */
-.sidebar-header {
-  padding-top: 1rem;
-}
-
-.sidebar-brand {
-  display: block;
-  height: 48px;        /* tvingar render-yta */
-}
-
-.sidebar-brand-svg {
-  display: block;
-  height: 100%;
-}
-.sidebar-brand {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 0.6rem;
+  color: rgb(222,195,155);
 }
 
 .sidebar-brand-svg {
   width: 180px;
   height: auto;
+  display: block;
+}
+
+.sidebar-brand-svg text {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 56px;
+  fill: currentColor;
+  letter-spacing: 0.02em;
+}
+
+/* ACTIONS */
+.sidebar-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.sidebar-btn {
+  height: 36px;
+  padding: 0 1rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.sidebar-btn.primary {
+  background: rgb(222,195,155);
+  border-color: rgb(222,195,155);
+  color: #111;
+}
+
+/* NAV */
+.nav {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* FOOTER */
+.sidebar-footer {
+  padding: 0.8rem 1.2rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  font-size: 0.75rem;
+}
+
+.sidebar-footer a {
+  color: #aaa;
+  text-decoration: none;
 }
