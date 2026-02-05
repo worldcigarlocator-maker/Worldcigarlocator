@@ -2,23 +2,22 @@
    SIDEBAR.CSS — WCL (CANONICAL · UTILITY + NAVIGATION ONLY)
    ============================================================ */
 
-
 /* ============================================================
-   SIDEBAR HEADER — ALIGN WITH TOPHEAD
+   SIDEBAR HEADER — BRAND + ACTIONS (CANONICAL)
    ============================================================ */
 
 .sidebar-header {
-  height: var(--header-height);   /* 🔒 samma höjd som tophead */
-  padding-top: 22px;              /* ⬅️ samma luft från taket */
-  padding-left: 1.2rem;
-  padding-right: 1.2rem;
+  height: auto;                 /* 🔒 inte toolbar-höjd */
+  padding: 1rem 1.2rem;
 
   display: flex;
-  align-items: center;            /* ⬅️ nyckeln */
+  flex-direction: column;       /* 🔥 KRITISK RAD */
+  align-items: flex-start;
   gap: 0.6rem;
 
   border-bottom: 1px solid var(--border);
 }
+
 
 /* ============================================================
    SIDEBAR ACTIONS — LOGIN / ADD STORE
