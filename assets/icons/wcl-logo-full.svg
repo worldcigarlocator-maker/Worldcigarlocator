@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" aria-hidden="true">
+  <!-- WCL • Full Logo • Single-color master -->
+  <defs>
+    <!-- Subtle map tone -->
+    <style>
+      .ink { fill: none; stroke: currentColor; stroke-width: 6; }
+      .text { fill: currentColor; }
+      .map { fill: currentColor; opacity: 0.28; }
+    </style>
+  </defs>
+
+  <!-- Ring -->
+  <circle cx="300" cy="300" r="220" class="ink"/>
+  <circle cx="300" cy="300" r="200" class="ink"/>
+
+  <!-- Map (simplified continents as background) -->
+  <g class="map" transform="translate(300 330) scale(1.05)">
+    <!-- Americas -->
+    <path d="M-165 -10c25-35 55-55 70-90 10-22 0-45-20-55-18-9-42 6-55 20-18 20-32 44-44 72-10 22-5 43 12 53 12 7 24 8 37 0z"/>
+    <!-- Afro-Eurasia -->
+    <path d="M10 -65c65-35 140-10 170 20 18 18 12 40-12 52-30 14-62 18-88 32-28 15-42 44-28 64 12 18 44 16 64 6 26-14 40-38 66-44 18-4 34 2 40 16 10 22-8 50-30 64-30 18-72 26-108 24-58-4-108-28-130-78-14-30-12-64 10-86 12-12 28-18 46-14z"/>
+    <!-- Australia -->
+    <path d="M120 70c24-8 52 2 64 18 10 14 4 30-14 38-20 10-44 8-58-6-12-12-10-32 8-40z"/>
+  </g>
+
+  <!-- Text -->
+  <g class="text" text-anchor="middle">
+    <text x="300" y="250" font-size="54" font-family="Georgia, 'Times New Roman', serif">World Cigar</text>
+    <text x="300" y="305" font-size="54" font-family="Georgia, 'Times New Roman', serif">Locator</text>
+  </g>
+
+  <!-- Magnifier (separate object, looking into ring) -->
+  <g transform="translate(420 380)">
+    <circle cx="0" cy="0" r="70" class="ink"/>
+    <line x1="48" y1="48" x2="110" y2="110" class="ink"/>
+  </g>
+</svg>
