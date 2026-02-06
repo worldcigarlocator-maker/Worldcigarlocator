@@ -80,7 +80,7 @@ body {
 .search-left {
   display: flex;
   align-items: center;
-  gap: 1.0rem;              /* ⬅️ spacing between Search and example */
+  gap: 1.6rem;              /* ⬅️ spacing between Search and example */
 }
 
 .search-left strong {
@@ -103,8 +103,8 @@ body {
   height: 28px;
   background: rgba(255,255,255,0.18);
 
-  margin-left: 5.0rem;     /* ⬅️ space from example text */
-  margin-right: 2.4rem;    /* ⬅️ space to filters */
+  margin-left: 6.0rem;     /* ⬅️ space from example text */
+  margin-right: 2.0rem;    /* ⬅️ space to filters */
 }
 
 /* ============================================================
