@@ -80,7 +80,7 @@ body {
 .search-left {
   display: flex;
   align-items: center;
-  gap: 0.5rem;              /* ⬅️ spacing between Search and example */
+  gap: 1.0rem;              /* ⬅️ spacing between Search and example */
 }
 
 .search-left strong {
@@ -103,8 +103,8 @@ body {
   height: 28px;
   background: rgba(255,255,255,0.18);
 
-  margin-left: 4.0rem;     /* ⬅️ space from example text */
-  margin-right: 2.0rem;    /* ⬅️ space to filters */
+  margin-left: 5.0rem;     /* ⬅️ space from example text */
+  margin-right: 2.4rem;    /* ⬅️ space to filters */
 }
 
 /* ============================================================
@@ -115,7 +115,7 @@ body {
 .search-right {
   display: flex;
   align-items: center;
-  gap: 1.6rem;             /* ⬅️ spacing BETWEEN filter words */
+  gap: 2.0rem;             /* ⬅️ spacing BETWEEN filter words */
 }
 
 .search-right span {
