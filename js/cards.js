@@ -9,6 +9,9 @@
 
 import { supabase } from "./globals.js";
 import { VIEW_OBSERVER } from "./analytics-frontend.js";
+const PHOTO_PROXY_BASE =
+  "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co";
+
 
 
 // ============================================================
@@ -204,12 +207,13 @@ function getPhotoUrl(store) {
   // 2) Äldre direkt-URL (om den finns kvar i DB)
   if (store.photo_url) return store.photo_url;
 
-  // 3) Google Places via proxy
-  if (store.photo_reference) {
-    return `${supabase.functions.url}/photo-proxy?photo_reference=${encodeURIComponent(
-      store.photo_reference
-    )}&maxwidth=800`;
-  }
+ // 3) Google Places via proxy (FRONTEND SAFE)
+if (store.photo_reference) {
+  return `${PHOTO_PROXY_BASE}/photo-proxy?photo_reference=${encodeURIComponent(
+    store.photo_reference
+  )}&maxwidth=800`;
+}
+
 
   return FALLBACK_IMAGE;
 }
