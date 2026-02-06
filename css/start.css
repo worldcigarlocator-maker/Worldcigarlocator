@@ -224,7 +224,7 @@ body {
   align-items: center;
   justify-content: flex-end;
 
-  padding-left: 3.6rem;   /* ⬅️ LINJE → första ikon */
+  padding-left: 4.6rem;   /* ⬅️ LINJE → första ikon */
   padding-right: 2.8rem;  /* ⬅️ sista ikon → LINJE */
 
   gap: 1.6rem;            /* ⬅️ MELLAN ikon & clear */
