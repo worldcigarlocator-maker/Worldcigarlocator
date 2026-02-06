@@ -151,7 +151,7 @@ body {
   white-space: nowrap;            /* 🔒 ingen radbrytning */
   line-height: 1.2;
 
-  transform: translateY(2px);     /* 🔑 sänkt ~1mm */
+  transform: translateY(-1px);     /* 🔑 sänkt ~1mm */
 }
 
 
