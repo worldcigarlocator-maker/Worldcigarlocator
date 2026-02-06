@@ -154,11 +154,13 @@ body {
 .zone-search em {
   font-size: 0.6rem;
   opacity: 0.7;
-  line-height: 1.4;
-  margin-top: 0.35rem;       /* ⬅️ styr visuellt centrum */
-  white-space: normal;       /* ⬅️ tillåt radbrytning */
-}
 
+  white-space: nowrap;     /* 🔒 ingen radbrytning */
+  line-height: 1.2;
+
+  position: relative;
+  top: 0.2rem;             /* 🔑 optisk centrering mot "Search" */
+}
 
 
 
