@@ -51,7 +51,7 @@ body {
 
 /* ============================================================
    SEARCH — SHELL
-   Centers search + draws top/bottom guide lines
+   Centerar search + ritar top/bottom guide-linjer
    ============================================================ */
 
 .search-shell {
@@ -61,21 +61,17 @@ body {
   margin-bottom: 3rem;
 }
 
-/* Top & bottom guide lines
-   These replace the old rounded capsule border */
-
+/* Top & bottom guide lines (ersätter capsule-border) */
 .search-shell::before,
 .search-shell::after {
   content: "";
   position: absolute;
-  width: 60%;                 /* ⬅️ total visual width of search */
+  width: 60%;                     /* 🔒 visuell totalbredd */
   height: 1px;
   background: rgba(255,255,255,0.12);
   left: 50%;
   transform: translateX(-50%);
 }
-
-/* Tight alignment to panel background */
 
 .search-shell::before { top: -3px; }
 .search-shell::after  { bottom: -3px; }
@@ -83,7 +79,7 @@ body {
 
 /* ============================================================
    SEARCH — ROW
-   Horizontal layout (NOT an input field)
+   Själva raden (ingen input, bara layout)
    ============================================================ */
 
 .search-capsule {
@@ -93,32 +89,28 @@ body {
   min-width: 900px;
   height: 60px;
 
-  padding: 2px 1.6rem 0; /* ⬅️ sänker ALLT innehåll optiskt */
-
+  padding: 2px 1.6rem 0;          /* ⬅️ sänker ALLT optiskt ~1px */
   background: var(--bg);
 }
 
 
-
 /* ============================================================
-   SEARCH — DIVIDER (GLOBAL)
-   Used before and after EVERY zone
+   SEARCH — DIVIDER
+   Små vertikala skiljelinjer
    ============================================================ */
 
 .search-divider {
   width: 2px;
   height: 28px;
   background: rgba(255,255,255,0.18);
-  flex-shrink: 0;             /* divider never collapses */
+  flex-shrink: 0;                 /* 🔒 får aldrig kollapsa */
 }
 
 
 /* ============================================================
-   SEARCH — ZONES (STRUCTURAL)
-   Controls width + internal spacing per zone
+   SEARCH — ZONES (grund)
    ============================================================ */
 
-/* Base zone */
 .search-zone {
   display: flex;
   align-items: center;
@@ -126,47 +118,46 @@ body {
 
 
 /* ------------------------------------------------------------
-   ZONE 1 — SEARCH (Search + example)
-   - Dominant zone (~2x width)
-   - Entire zone is one click surface
+   ZONE 1 — SEARCH
+   Search + example
    ------------------------------------------------------------ */
 
 .zone-search {
-  flex: 2;
+  flex: 2;                        /* ⬅️ dominant zon */
   display: flex;
-  align-items: flex-start;   /* ⬅️ NYCKELN */
-  
-  padding-left: 2.8rem;
-  padding-right: 4.4rem;
+  align-items: flex-start;        /* 🔑 låter example justeras separat */
 
-  gap: 1.8rem;
+  padding-left: 2.8rem;           /* linje → Search */
+  padding-right: 4.4rem;          /* Search → nästa linje */
+
+  gap: 1.8rem;                    /* mellan Search & example */
 }
 
-
+/* "Search" */
 .zone-search strong {
   font-size: 1.4rem;
   font-weight: 600;
   color: var(--global);
-  line-height: 1;            /* ⬅️ tajt baseline */
-  margin-top: 0.15rem;       /* ⬅️ finjustering */
+
+  line-height: 1;                 /* tajt baseline */
+  margin-top: 0.15rem;            /* optisk centrering */
 }
 
+/* example-text */
 .zone-search em {
   font-size: 0.6rem;
   opacity: 0.7;
 
-  white-space: nowrap;     /* 🔒 ingen radbrytning */
+  white-space: nowrap;            /* 🔒 ingen radbrytning */
   line-height: 1.2;
 
-  position: relative;
-  top: 0.4rem;             /* 🔑 optisk centrering mot "Search" */
+  transform: translateY(1px);     /* 🔑 sänkt ~1mm */
 }
 
 
 /* ------------------------------------------------------------
    ZONE 2 — FILTERS
-   - Store / Lounge / Members
-   - Modifier zone (never master)
+   Store / Lounge / Members
    ------------------------------------------------------------ */
 
 .zone-filters {
@@ -174,27 +165,22 @@ body {
   display: flex;
   align-items: center;
 
-  padding-left: 2.8rem;   /* ⬅️ LINJE → första filterordet */
-  padding-right: 2.8rem;  /* ⬅️ sista filterordet → nästa linje */
+  padding-left: 2.8rem;           /* linje → första ordet */
+  padding-right: 2.8rem;          /* sista ordet → linje */
 
-  gap: 2rem;              /* ⬅️ MELLAN filterorden */
+  gap: 2rem;                      /* mellan orden */
 
-  position: relative;
-  top: -0.5px;            /* ⬅️ optisk vertikal centrering */
+  transform: translateY(-0.5px);  /* optisk centrering */
 }
 
-
-/* ------------------------------------------------------------
-   FILTER BUTTONS — FULL RESET (NO BROWSER UI)
-   ------------------------------------------------------------ */
-
+/* Filter-knappar (reset) */
 .filter-btn {
   background: transparent;
   border: none;
   padding: 0;
 
   font-family: "DM Sans", sans-serif;
-  font-size: 1rem;        /* ⬅️ filter font size */
+  font-size: 1rem;
   font-weight: 600;
   color: var(--global);
 
@@ -208,27 +194,24 @@ body {
 
 /* ------------------------------------------------------------
    ZONE 3 — ACTIONS
-   - Search icon + Clear
+   Förstoringsglas + clear
    ------------------------------------------------------------ */
 
 .zone-actions {
-  flex: 0 0 auto;          /* 🔑 sluta sträcka zonen */
+  flex: 0 0 auto;                 /* 🔒 zonen får INTE sträcka sig */
   display: flex;
   align-items: center;
   justify-content: flex-end;
 
-  padding-left: 6.6rem;    /* linje → första ikon */
-  padding-right: 2.8rem;   /* sista ikon → linje */
+  padding: 0 2.2rem;              /* 🔑 drar in ikonerna symmetriskt */
+  gap: 1.6rem;                    /* mellan ikon & ✕ */
 
-  gap: 1.6rem;
-
-  position: relative;
-  top: -0.5px;
+  transform: translateY(-0.5px);  /* optisk centrering */
 }
 
 
 /* ------------------------------------------------------------
-   SEARCH — ICON
+   SEARCH ICON
    ------------------------------------------------------------ */
 
 .search-icon {
@@ -238,10 +221,34 @@ body {
   cursor: pointer;
 }
 
-.search-icon svg,
+.search-icon svg {
+  width: 22px;
+  height: 22px;
+
+  stroke: var(--global);
+  fill: none;
+  stroke-width: 8;
+
+  transform: translateY(0.5px);   /* matchar clear visuellt */
+}
+
+
+/* ------------------------------------------------------------
+   CLEAR BUTTON
+   ------------------------------------------------------------ */
+
 .clear-btn {
-  position: relative;
-  top: 0.5px;
+  background: none;
+  border: none;
+  padding: 0;
+
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--global);
+
+  cursor: pointer;
+
+  transform: translateY(0.5px);   /* exakt samma optiska nivå */
 }
 
 
