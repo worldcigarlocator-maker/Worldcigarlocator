@@ -132,11 +132,17 @@ body {
    ------------------------------------------------------------ */
 
 .zone-search {
-  flex: 2;                    /* ⬅️ ~2x wider than other zones */
-  gap: 1.8rem;                /* ⬅️ gap between Search & example */
-  padding-right: 4.4rem;      /* ⬅️ air before divider */
+  flex: 2;                    /* ~2x wider than other zones */
+  display: flex;
+  align-items: center;
+
+  gap: 1.8rem;                /* spacing between Search & example */
+  padding-right: 4.4rem;      /* air before divider */
   cursor: text;
+
+  transform: translateY(1px); /* 🔑 optisk centrering */
 }
+
 
 .zone-search strong {
   font-size: 1.4rem;          /* ⬅️ Search label size */
@@ -181,7 +187,6 @@ body {
   -webkit-appearance: none;
 }
 
-
 /* ------------------------------------------------------------
    ZONE 3 — ACTIONS
    - Icon + Clear
@@ -189,11 +194,15 @@ body {
 
 .zone-actions {
   flex: 1;
+  display: flex;
+  align-items: center;
   justify-content: flex-end;
-  gap: 1.6rem;                /* ⬅️ space between icon & clear */
-  padding-left: 4.4rem;       /* ⬅️ air after divider */
-}
 
+  gap: 1.6rem;                /* space between icon & clear */
+  padding-left: 4.4rem;       /* air after divider */
+
+  transform: translateY(1px); /* 🔑 optisk centrering */
+}
 
 /* ============================================================
    SEARCH — ICON & CLEAR
