@@ -134,16 +134,31 @@ body {
 .zone-search {
   flex: 2;
   display: flex;
-  align-items: center;
+  align-items: flex-start;   /* ⬅️ NYCKELN */
+  
+  padding-left: 2.8rem;
+  padding-right: 4.4rem;
 
-  padding-left: 2.8rem;   /* ⬅️ DETTA är linje → Search */
-  padding-right: 4.4rem;  /* ⬅️ detta är Search → nästa linje */
-
-  gap: 1.8rem;            /* ⬅️ ENDAST mellan Search och example */
-
-  position: relative;
-  top: -0.5px;            /* ⬅️ optisk vertikal centrering */
+  gap: 1.8rem;
 }
+
+
+.zone-search strong {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--global);
+  line-height: 1;            /* ⬅️ tajt baseline */
+  margin-top: 0.15rem;       /* ⬅️ finjustering */
+}
+
+.zone-search em {
+  font-size: 0.6rem;
+  opacity: 0.7;
+  line-height: 1.4;
+  margin-top: 0.35rem;       /* ⬅️ styr visuellt centrum */
+  white-space: normal;       /* ⬅️ tillåt radbrytning */
+}
+
 
 
 
