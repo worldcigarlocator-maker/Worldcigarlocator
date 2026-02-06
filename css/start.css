@@ -92,11 +92,12 @@ body {
 
   min-width: 900px;
   height: 60px;
-  padding: 0 1.6rem;
 
-.search-capsule {
+  padding: 2px 1.6rem 0; /* ⬅️ sänker ALLT innehåll optiskt */
+
   background: var(--bg);
 }
+
 
 
 /* ============================================================
