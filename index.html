@@ -8,7 +8,10 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
 
   <!-- CSS -->
   <link rel="stylesheet" href="css/start.css">
@@ -68,45 +71,67 @@
 
 </aside>
 
-
 <!-- ================= MAIN ================= -->
+<main class="main">
 
-  <main class="main">
+  <!-- ================= SEARCH ================= -->
+  <div class="search-shell">
+    <div class="search-capsule">
 
-    <!-- SEARCH -->
-    <div class="search-shell">
-      <div class="search-capsule">
-        <div class="search-left">
-          <strong>Search</strong>
-          <em>e.g. London, New York, Bangkok</em>
-        </div>
+      <!-- Divider: before zone 1 -->
+      <div class="search-divider"></div>
 
-        <div class="search-divider"></div>
+      <!-- ZONE 1 — SEARCH (≈ 2.0x) -->
+      <div class="search-zone zone-search" role="button" tabindex="0">
+        <strong>Search</strong>
+        <em>e.g. London, New York, Bangkok</em>
+      </div>
 
-        <div class="search-right">
-          <span>Store</span>
-          <span>Lounge</span>
-          <span>Members</span>
-        </div>
+      <!-- Divider: between zone 1 & 2 -->
+      <div class="search-divider"></div>
 
+      <!-- ZONE 2 — FILTERS -->
+      <div class="search-zone zone-filters">
+        <button type="button" class="filter-btn">Store</button>
+        <button type="button" class="filter-btn">Lounge</button>
+        <button type="button" class="filter-btn">Members</button>
+      </div>
+
+      <!-- Divider: between zone 2 & 3 -->
+      <div class="search-divider"></div>
+
+      <!-- ZONE 3 — ACTIONS -->
+      <div class="search-zone zone-actions">
         <button class="search-icon" aria-label="Search">
           <svg viewBox="0 0 140 140">
             <circle cx="60" cy="60" r="44" />
             <line x1="92" y1="92" x2="130" y2="130" />
           </svg>
         </button>
+
+        <button class="clear-btn" aria-label="Clear search">
+          ✕
+        </button>
       </div>
+
+      <!-- Divider: after zone 3 -->
+      <div class="search-divider"></div>
+
     </div>
+  </div>
 
-    <!-- HERO -->
-    <section class="hero">
-      <img src="images/world-cigar-locator-hero.jpg" alt="World Cigar Locator">
-    </section>
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <img
+      src="images/world-cigar-locator-hero.jpg"
+      alt="World Cigar Locator"
+    >
+  </section>
 
-    <!-- RESULTS -->
-    <div id="storeGrid"></div>
+  <!-- ================= RESULTS ================= -->
+  <div id="storeGrid"></div>
 
-  </main>
+</main>
 
 </div>
 
