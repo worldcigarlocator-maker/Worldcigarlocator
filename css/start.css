@@ -132,29 +132,20 @@ body {
    ------------------------------------------------------------ */
 
 .zone-search {
-  flex: 2;                    /* ~2x wider than other zones */
+  flex: 2;
   display: flex;
   align-items: center;
 
-  gap: 1.8rem;                /* spacing between Search & example */
-  padding-right: 4.4rem;      /* air before divider */
-  cursor: text;
+  padding-left: 2.8rem;   /* ⬅️ DETTA är linje → Search */
+  padding-right: 4.4rem;  /* ⬅️ detta är Search → nästa linje */
 
-  transform: translateY(1px); /* 🔑 optisk centrering */
+  gap: 1.8rem;            /* ⬅️ ENDAST mellan Search och example */
+
+  position: relative;
+  top: -0.5px;            /* ⬅️ optisk vertikal centrering */
 }
 
 
-.zone-search strong {
-  font-size: 1.4rem;          /* ⬅️ Search label size */
-  font-weight: 600;
-  color: var(--global);
-}
-
-.zone-search em {
-  font-size: 0.6rem;          /* ⬅️ example text size */
-  opacity: 0.7;
-  white-space: nowrap;
-}
 
 
 /* ------------------------------------------------------------
