@@ -1,8 +1,9 @@
 /* ============================================================
    START.CSS — WCL
    MAIN / SEARCH / HERO
-   CLEAN · STRUCTURED · COMMENTED
+   ZONE-BASED · CLEAN · COMMENTED
    ============================================================ */
+
 
 /* ================= ROOT ================= */
 
@@ -11,11 +12,13 @@
   --panel: #0a0a0a;
   --border: rgba(255,255,255,0.12);
 
-  /* Global system colour (brand / continent tone) */
+  /* Global system colour
+     Used for brand, continents, search, filters, icons */
   --global: rgb(115, 98, 75);
 
   --text: #f5f5f5;
 }
+
 
 /* ================= RESET ================= */
 
@@ -36,6 +39,7 @@ body {
   min-height: 100vh;
 }
 
+
 /* ================= MAIN LAYOUT ================= */
 
 .main {
@@ -44,9 +48,10 @@ body {
   width: calc(100% - 260px);
 }
 
+
 /* ============================================================
    SEARCH — SHELL
-   Handles centering + top/bottom guide lines
+   Centers search + draws top/bottom guide lines
    ============================================================ */
 
 .search-shell {
@@ -56,28 +61,29 @@ body {
   margin-bottom: 3rem;
 }
 
-/* top + bottom guide lines (80% width) */
+/* Top & bottom guide lines
+   These replace the old rounded capsule border */
+
 .search-shell::before,
 .search-shell::after {
   content: "";
   position: absolute;
-  width: 60%;
+  width: 60%;                 /* ⬅️ total visual width of search */
   height: 1px;
   background: rgba(255,255,255,0.12);
   left: 50%;
   transform: translateX(-50%);
 }
 
-.search-shell::before {
-  top: -14px;
-}
+/* Tight alignment to panel background */
 
-.search-shell::after {
-  bottom: -14px;
-}
+.search-shell::before { top: -6px; }
+.search-shell::after  { bottom: -6px; }
+
 
 /* ============================================================
-   SEARCH — ROW (NO CAPSULE / NO RADIUS)
+   SEARCH — ROW
+   Horizontal layout (NOT an input field)
    ============================================================ */
 
 .search-capsule {
@@ -91,74 +97,107 @@ body {
   background: var(--panel);
 }
 
-/* ============================================================
-   SEARCH — LEFT GROUP
-   Search label + example text
-   ============================================================ */
-
-.search-left {
-  display: flex;
-  align-items: center;
-  gap: 1.6rem; /* ← your chosen spacing */
-}
-
-.search-left strong {
-  color: var(--global);
-  font-size: 1.4rem;
-}
-
-.search-left em {
-  font-size: 0.6rem;
-  opacity: 0.7;
-}
 
 /* ============================================================
    SEARCH — DIVIDER (GLOBAL)
-   Used everywhere for consistency
+   Used before and after EVERY zone
    ============================================================ */
 
 .search-divider {
   width: 2px;
   height: 28px;
   background: rgba(255,255,255,0.18);
+  flex-shrink: 0;             /* divider never collapses */
 }
 
-/* spacing: after search / example */
-.search-divider.after-left {
-  margin-left: 10rem;
-  margin-right: 3.2rem;
-}
 
 /* ============================================================
-   SEARCH — FILTER GROUP
-   Store / Lounge / Members
+   SEARCH — ZONES (STRUCTURAL)
+   Controls width + internal spacing per zone
    ============================================================ */
 
-.search-right {
+/* Base zone */
+.search-zone {
   display: flex;
   align-items: center;
-  gap: 2rem; /* ← your chosen rhythm */
 }
 
-.search-right span {
-  font-size: 1rem;
+
+/* ------------------------------------------------------------
+   ZONE 1 — SEARCH (Search + example)
+   - Dominant zone (~2x width)
+   - Entire zone is one click surface
+   ------------------------------------------------------------ */
+
+.zone-search {
+  flex: 2;                    /* ⬅️ ~2x wider than other zones */
+  gap: 1.8rem;                /* ⬅️ gap between Search & example */
+  padding-right: 2.4rem;      /* ⬅️ air before divider */
+  cursor: text;
+}
+
+.zone-search strong {
+  font-size: 1.4rem;          /* ⬅️ Search label size */
   font-weight: 600;
   color: var(--global);
+}
+
+.zone-search em {
+  font-size: 0.6rem;          /* ⬅️ example text size */
+  opacity: 0.7;
   white-space: nowrap;
 }
 
-/* spacing: after filters */
-.search-divider.after-filters {
-  margin-left: 1.6rem;
-  margin-right: 1rem;
+
+/* ------------------------------------------------------------
+   ZONE 2 — FILTERS
+   - Three independent buttons
+   ------------------------------------------------------------ */
+
+.zone-filters {
+  flex: 1;
+  gap: 2rem;                  /* ⬅️ spacing BETWEEN filter words */
+  padding: 0 2.4rem;          /* ⬅️ air before & after zone */
 }
 
+/* Filter buttons — FULL RESET (no browser UI) */
+
+.filter-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+
+  font-family: "DM Sans", sans-serif;
+  font-size: 1rem;            /* ⬅️ filter font size */
+  font-weight: 600;
+  color: var(--global);
+
+  cursor: pointer;
+  white-space: nowrap;
+
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+
+/* ------------------------------------------------------------
+   ZONE 3 — ACTIONS
+   - Icon + Clear
+   ------------------------------------------------------------ */
+
+.zone-actions {
+  flex: 1;
+  justify-content: flex-end;
+  gap: 1.6rem;                /* ⬅️ space between icon & clear */
+  padding-left: 2.4rem;       /* ⬅️ air after divider */
+}
+
+
 /* ============================================================
-   SEARCH — ICON
+   SEARCH — ICON & CLEAR
    ============================================================ */
 
 .search-icon {
-  margin-left: auto;
   background: none;
   border: none;
   cursor: pointer;
@@ -171,6 +210,15 @@ body {
   fill: none;
   stroke-width: 8;
 }
+
+.clear-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--global);
+  cursor: pointer;
+}
+
 
 /* ============================================================
    HERO
