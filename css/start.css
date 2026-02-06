@@ -153,13 +153,30 @@ body {
    - Three independent buttons
    ------------------------------------------------------------ */
 
+/* ------------------------------------------------------------
+   ZONE 2 — FILTERS
+   - Store / Lounge / Members
+   - Modifier zone (never master)
+   ------------------------------------------------------------ */
+
 .zone-filters {
   flex: 1;
-  gap: 2rem;                  /* ⬅️ spacing BETWEEN filter words */
-  padding: 0 2.4rem;          /* ⬅️ air before & after zone */
+  display: flex;
+  align-items: center;
+
+  padding-left: 2.8rem;   /* ⬅️ LINJE → första filterordet */
+  padding-right: 2.8rem;  /* ⬅️ sista filterordet → nästa linje */
+
+  gap: 2rem;              /* ⬅️ MELLAN filterorden */
+
+  position: relative;
+  top: -0.5px;            /* ⬅️ optisk vertikal centrering */
 }
 
-/* Filter buttons — FULL RESET (no browser UI) */
+
+/* ------------------------------------------------------------
+   FILTER BUTTONS — FULL RESET (NO BROWSER UI)
+   ------------------------------------------------------------ */
 
 .filter-btn {
   background: transparent;
@@ -167,7 +184,7 @@ body {
   padding: 0;
 
   font-family: "DM Sans", sans-serif;
-  font-size: 1rem;            /* ⬅️ filter font size */
+  font-size: 1rem;        /* ⬅️ filter font size */
   font-weight: 600;
   color: var(--global);
 
@@ -178,9 +195,10 @@ body {
   -webkit-appearance: none;
 }
 
+
 /* ------------------------------------------------------------
    ZONE 3 — ACTIONS
-   - Icon + Clear
+   - Search icon + Clear
    ------------------------------------------------------------ */
 
 .zone-actions {
@@ -189,19 +207,24 @@ body {
   align-items: center;
   justify-content: flex-end;
 
-  gap: 1.6rem;                /* space between icon & clear */
-  padding-left: 4.4rem;       /* air after divider */
+  padding-left: 2.8rem;   /* ⬅️ LINJE → första ikon */
+  padding-right: 2.8rem;  /* ⬅️ sista ikon → LINJE */
 
-  transform: translateY(1px); /* 🔑 optisk centrering */
+  gap: 1.6rem;            /* ⬅️ MELLAN ikon & clear */
+
+  position: relative;
+  top: -0.5px;            /* ⬅️ optisk vertikal centrering */
 }
 
-/* ============================================================
-   SEARCH — ICON & CLEAR
-   ============================================================ */
+
+/* ------------------------------------------------------------
+   SEARCH — ICON
+   ------------------------------------------------------------ */
 
 .search-icon {
   background: none;
   border: none;
+  padding: 0;
   cursor: pointer;
 }
 
@@ -213,11 +236,20 @@ body {
   stroke-width: 8;
 }
 
+
+/* ------------------------------------------------------------
+   CLEAR BUTTON
+   ------------------------------------------------------------ */
+
 .clear-btn {
   background: none;
   border: none;
+  padding: 0;
+
   font-size: 1.1rem;
+  line-height: 1;
   color: var(--global);
+
   cursor: pointer;
 }
 
