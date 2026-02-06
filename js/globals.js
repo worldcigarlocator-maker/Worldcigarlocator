@@ -2,7 +2,8 @@
 // GLOBALS.JS — Supabase (SINGLE SOURCE OF TRUTH)
 // ============================================================
 
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.95.0/+esm";
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.94.1/+esm";
+
 
 
 export const supabase = createClient(
