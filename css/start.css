@@ -66,7 +66,7 @@ body {
   width: 2px;              /* ⬅️ lite kraftigare linje */
   height: 28px;
   background: rgba(255,255,255,0.18);
-  margin: 0 1.4rem;        /* ⬅️ MER LUFT på båda sidor */
+  margin: 0 1.6rem;        /* ⬅️ MER LUFT på båda sidor */
 }
 
 
@@ -82,7 +82,7 @@ body {
 .search-right {
   display: flex;
   align-items: center;
-  gap: 1.1rem; /* ⬅️ tydligare rytm mellan orden */
+  gap: 1.6rem; /* ⬅️ tydligare rytm mellan orden */
 }
 
 .search-icon {
