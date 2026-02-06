@@ -89,7 +89,7 @@ body {
 }
 
 .search-left em {
-  font-size: 0.8rem;
+  font-size: 0.6rem;
   opacity: 0.7;
 }
 
@@ -119,10 +119,11 @@ body {
 }
 
 .search-right span {
-  color: var(--global);
+  font-size: 1.4rem;   
   font-weight: 600;
-  white-space: nowrap;
+  color: var(--global);
 }
+
 
 /* ============================================================
    SEARCH — DIVIDER (RIGHT)
