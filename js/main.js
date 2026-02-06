@@ -8,11 +8,17 @@ window.qs  = (sel) => document.querySelector(sel);
 window.qsa = (sel) => document.querySelectorAll(sel);
 
 // ----- Imports -----
-import "./analytics-frontend.js"; // MUST load first (sets window.WCL_ANALYTICS)
+// 🔒 Supabase MUST load first (global runtime)
 import { supabase } from "./globals.js";
+
+// 🔒 Analytics AFTER Supabase (never before)
+import "./analytics-frontend.js";
+
+// App modules
 import { resetToHero, runSearch } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import "./start.js";
+
 
 
 // ============================================================
