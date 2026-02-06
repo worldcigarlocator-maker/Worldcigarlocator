@@ -46,17 +46,38 @@ body {
 
 /* ============================================================
    SEARCH — SHELL
-   Centers the capsule on page
+   Handles centering + top/bottom guide lines
    ============================================================ */
 
 .search-shell {
+  position: relative;
   display: flex;
   justify-content: center;
   margin-bottom: 3rem;
 }
 
+/* top + bottom guide lines (80% width) */
+.search-shell::before,
+.search-shell::after {
+  content: "";
+  position: absolute;
+  width: 80%;
+  height: 1px;
+  background: rgba(255,255,255,0.12);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.search-shell::before {
+  top: -14px;
+}
+
+.search-shell::after {
+  bottom: -14px;
+}
+
 /* ============================================================
-   SEARCH — CAPSULE (THE BAR)
+   SEARCH — ROW (NO CAPSULE / NO RADIUS)
    ============================================================ */
 
 .search-capsule {
@@ -67,20 +88,18 @@ body {
   height: 60px;
   padding: 0 1.6rem;
 
-  border-radius: 999px;
   background: var(--panel);
-  border: 1px solid var(--border);
 }
 
 /* ============================================================
-   SEARCH — LEFT SIDE
-   "Search" + example text
+   SEARCH — LEFT GROUP
+   Search label + example text
    ============================================================ */
 
 .search-left {
   display: flex;
   align-items: center;
-  gap: 1.6rem;              /* ⬅️ spacing between Search and example */
+  gap: 1.6rem; /* ← your chosen spacing */
 }
 
 .search-left strong {
@@ -94,17 +113,20 @@ body {
 }
 
 /* ============================================================
-   SEARCH — DIVIDER (LEFT)
-   Space between example and filters
+   SEARCH — DIVIDER (GLOBAL)
+   Used everywhere for consistency
    ============================================================ */
 
 .search-divider {
   width: 2px;
   height: 28px;
   background: rgba(255,255,255,0.18);
+}
 
-  margin-left: 7.0rem;     /* ⬅️ space from example text */
-  margin-right: 2.0rem;    /* ⬅️ space to filters */
+/* spacing: after search / example */
+.search-divider.after-left {
+  margin-left: 7rem;
+  margin-right: 2rem;
 }
 
 /* ============================================================
@@ -115,24 +137,20 @@ body {
 .search-right {
   display: flex;
   align-items: center;
-  gap: 2.0rem;             /* ⬅️ spacing BETWEEN filter words */
+  gap: 2rem; /* ← your chosen rhythm */
 }
 
 .search-right span {
-  font-size: 1.0rem;   
+  font-size: 1rem;
   font-weight: 600;
   color: var(--global);
+  white-space: nowrap;
 }
 
-
-/* ============================================================
-   SEARCH — DIVIDER (RIGHT)
-   Mirrors the left divider spacing
-   ============================================================ */
-
+/* spacing: after filters */
 .search-divider.after-filters {
-  margin-left: 1.6rem;     /* ⬅️ same rhythm as before filters */
-  margin-right: 1.0rem;
+  margin-left: 1.6rem;
+  margin-right: 1rem;
 }
 
 /* ============================================================
