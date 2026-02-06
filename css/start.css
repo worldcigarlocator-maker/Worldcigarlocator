@@ -103,8 +103,8 @@ body {
   height: 28px;
   background: rgba(255,255,255,0.18);
 
-  margin-left: 1.0rem;     /* ⬅️ space from example text */
-  margin-right: 4.0rem;    /* ⬅️ space to filters */
+  margin-left: 4.0rem;     /* ⬅️ space from example text */
+  margin-right: 2.0rem;    /* ⬅️ space to filters */
 }
 
 /* ============================================================
