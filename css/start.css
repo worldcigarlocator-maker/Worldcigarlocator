@@ -77,8 +77,8 @@ body {
 
 /* Tight alignment to panel background */
 
-.search-shell::before { top: -6px; }
-.search-shell::after  { bottom: -6px; }
+.search-shell::before { top: -3px; }
+.search-shell::after  { bottom: -3px; }
 
 
 /* ============================================================
@@ -94,7 +94,8 @@ body {
   height: 60px;
   padding: 0 1.6rem;
 
-  background: var(--panel);
+.search-capsule {
+  background: var(--bg);
 }
 
 
@@ -132,7 +133,7 @@ body {
 .zone-search {
   flex: 2;                    /* ⬅️ ~2x wider than other zones */
   gap: 1.8rem;                /* ⬅️ gap between Search & example */
-  padding-right: 2.4rem;      /* ⬅️ air before divider */
+  padding-right: 4.4rem;      /* ⬅️ air before divider */
   cursor: text;
 }
 
@@ -189,7 +190,7 @@ body {
   flex: 1;
   justify-content: flex-end;
   gap: 1.6rem;                /* ⬅️ space between icon & clear */
-  padding-left: 2.4rem;       /* ⬅️ air after divider */
+  padding-left: 4.4rem;       /* ⬅️ air after divider */
 }
 
 
