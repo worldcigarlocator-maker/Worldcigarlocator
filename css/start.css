@@ -52,7 +52,7 @@ body {
 }
 
 .search-left strong {
-  color: var(--gold);
+  color: rgb(115, 98, 75); /* 🔒 global colour */
   font-size: 1.4rem;
 }
 
@@ -68,11 +68,15 @@ body {
   background: var(--border);
 }
 
+/* ============================================================
+   SEARCH — TYPE LABELS (GLOBAL COLOUR)
+   ============================================================ */
+
 .search-right span {
-  margin-right: 1.6rem;
-  color: var(--gold);
+  color: rgb(115, 98, 75); /* 🔒 global colour */
   font-weight: 600;
 }
+
 
 .search-icon {
   margin-left: auto;
@@ -84,10 +88,12 @@ body {
 .search-icon svg {
   width: 22px;
   height: 22px;
-  stroke: currentColor;
+
+  stroke: rgb(115, 98, 75); /* 🔒 global colour */
   fill: none;
   stroke-width: 8;
 }
+
 
 /* ================= HERO ================= */
 
