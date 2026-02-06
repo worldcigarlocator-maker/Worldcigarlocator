@@ -163,13 +163,6 @@ body {
 }
 
 
-
-
-/* ------------------------------------------------------------
-   ZONE 2 — FILTERS
-   - Three independent buttons
-   ------------------------------------------------------------ */
-
 /* ------------------------------------------------------------
    ZONE 2 — FILTERS
    - Store / Lounge / Members
@@ -219,18 +212,18 @@ body {
    ------------------------------------------------------------ */
 
 .zone-actions {
-  flex: 0 0 auto;
+  flex: 0 0 auto;          /* 🔑 sluta sträcka zonen */
   display: flex;
   align-items: center;
   justify-content: flex-end;
 
-  padding-left: 6.6rem;   /* ⬅️ LINJE → första ikon */
-  padding-right: 2.8rem;  /* ⬅️ sista ikon → LINJE */
+  padding-left: 6.6rem;    /* linje → första ikon */
+  padding-right: 2.8rem;   /* sista ikon → linje */
 
-  gap: 1.6rem;            /* ⬅️ MELLAN ikon & clear */
+  gap: 1.6rem;
 
   position: relative;
-  top: -0.5px;            /* ⬅️ optisk vertikal centrering */
+  top: -0.5px;
 }
 
 
@@ -245,12 +238,10 @@ body {
   cursor: pointer;
 }
 
-.search-icon svg {
-  width: 22px;
-  height: 22px;
-  stroke: var(--global);
-  fill: none;
-  stroke-width: 8;
+.search-icon svg,
+.clear-btn {
+  position: relative;
+  top: 0.5px;
 }
 
 
