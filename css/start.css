@@ -83,7 +83,7 @@ body {
   display: flex;
   align-items: center;
   gap: 2.0rem; /* ⬅️ tydligare rytm mellan orden */
-  margin-left: -0.8rem; /* ⬅️ flyttar linje + filter mot search */
+  margin-left: -1,4rem; /* ⬅️ flyttar linje + filter mot search */
 }
 
 .search-icon {
