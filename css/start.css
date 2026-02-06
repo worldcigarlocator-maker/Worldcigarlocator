@@ -1,10 +1,23 @@
+/* ============================================================
+   START.CSS — WCL
+   MAIN / SEARCH / HERO
+   CLEAN · STRUCTURED · COMMENTED
+   ============================================================ */
+
+/* ================= ROOT ================= */
+
 :root {
   --bg: #050505;
   --panel: #0a0a0a;
   --border: rgba(255,255,255,0.12);
-  --gold: #debf9b;
+
+  /* Global system colour (brand / continent tone) */
+  --global: rgb(115, 98, 75);
+
   --text: #f5f5f5;
 }
+
+/* ================= RESET ================= */
 
 * {
   box-sizing: border-box;
@@ -23,7 +36,7 @@ body {
   min-height: 100vh;
 }
 
-/* ================= MAIN ================= */
+/* ================= MAIN LAYOUT ================= */
 
 .main {
   margin-left: 260px;
@@ -31,7 +44,10 @@ body {
   width: calc(100% - 260px);
 }
 
-/* ================= SEARCH ================= */
+/* ============================================================
+   SEARCH — SHELL
+   Centers the capsule on page
+   ============================================================ */
 
 .search-shell {
   display: flex;
@@ -39,52 +55,88 @@ body {
   margin-bottom: 3rem;
 }
 
+/* ============================================================
+   SEARCH — CAPSULE (THE BAR)
+   ============================================================ */
+
 .search-capsule {
   display: flex;
   align-items: center;
-  gap: 1.4rem;
+
   min-width: 900px;
   height: 60px;
   padding: 0 1.6rem;
+
   border-radius: 999px;
   background: var(--panel);
   border: 1px solid var(--border);
 }
 
+/* ============================================================
+   SEARCH — LEFT SIDE
+   "Search" + example text
+   ============================================================ */
+
+.search-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;              /* ⬅️ spacing between Search and example */
+}
+
 .search-left strong {
-  color: rgb(115, 98, 75); /* 🔒 global colour */
+  color: var(--global);
   font-size: 1.4rem;
 }
 
 .search-left em {
-  margin-left: .6rem;
-  font-size: .8rem;
-  opacity: .7;
+  font-size: 0.8rem;
+  opacity: 0.7;
 }
-
-.search-divider {
-  width: 2px;              /* ⬅️ lite kraftigare linje */
-  height: 28px;
-  background: rgba(255,255,255,0.18);
-  margin: 0 2.0rem;        /* ⬅️ MER LUFT på båda sidor */
-}
-
 
 /* ============================================================
-   SEARCH — TYPE LABELS (GLOBAL COLOUR)
+   SEARCH — DIVIDER (LEFT)
+   Space between example and filters
    ============================================================ */
 
-.search-right span {
-  color: rgb(115, 98, 75); /* 🔒 global colour */
-  font-weight: 600;
+.search-divider {
+  width: 2px;
+  height: 28px;
+  background: rgba(255,255,255,0.18);
+
+  margin-left: 1.0rem;     /* ⬅️ space from example text */
+  margin-right: 1.6rem;    /* ⬅️ space to filters */
 }
+
+/* ============================================================
+   SEARCH — FILTER GROUP
+   Store / Lounge / Members
+   ============================================================ */
 
 .search-right {
   display: flex;
   align-items: center;
-  gap: 2.0rem; /* ⬅️ tydligare rytm mellan orden */
-  margin-left: -4.0rem; /* ⬅️ flyttar linje + filter mot search */
+  gap: 1.6rem;             /* ⬅️ spacing BETWEEN filter words */
 }
+
+.search-right span {
+  color: var(--global);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   SEARCH — DIVIDER (RIGHT)
+   Mirrors the left divider spacing
+   ============================================================ */
+
+.search-divider.after-filters {
+  margin-left: 1.6rem;     /* ⬅️ same rhythm as before filters */
+  margin-right: 1.0rem;
+}
+
+/* ============================================================
+   SEARCH — ICON
+   ============================================================ */
 
 .search-icon {
   margin-left: auto;
@@ -96,14 +148,14 @@ body {
 .search-icon svg {
   width: 22px;
   height: 22px;
-
-  stroke: rgb(115, 98, 75); /* 🔒 global colour */
+  stroke: var(--global);
   fill: none;
   stroke-width: 8;
 }
 
-
-/* ================= HERO ================= */
+/* ============================================================
+   HERO
+   ============================================================ */
 
 .hero {
   max-width: 1600px;
