@@ -159,7 +159,7 @@ body {
   line-height: 1.2;
 
   position: relative;
-  top: 0.2rem;             /* 🔑 optisk centrering mot "Search" */
+  top: 0.35rem;             /* 🔑 optisk centrering mot "Search" */
 }
 
 
@@ -224,7 +224,7 @@ body {
   align-items: center;
   justify-content: flex-end;
 
-  padding-left: 2.8rem;   /* ⬅️ LINJE → första ikon */
+  padding-left: 3.6rem;   /* ⬅️ LINJE → första ikon */
   padding-right: 2.8rem;  /* ⬅️ sista ikon → LINJE */
 
   gap: 1.6rem;            /* ⬅️ MELLAN ikon & clear */
