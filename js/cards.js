@@ -9,15 +9,12 @@
 
 import { supabase } from "./globals.js";
 import { VIEW_OBSERVER } from "./analytics-frontend.js";
-const PHOTO_PROXY_BASE =
-  "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co";
-
-
 
 // ============================================================
 // CONFIG
 // ============================================================
 const FALLBACK_IMAGE = "images/store.jpg";
+const PHOTO_PROXY_BASE = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co";
 const dom = (sel) => document.querySelector(sel);
 
 // ============================================================
@@ -48,7 +45,7 @@ export const MASTER = {
 
 let MASTER_MODE = MASTER.IDLE;
 
-/* NEW — hero & welcome only on first load */
+// hero & welcome only on first load
 let STARTUP_HERO = true;
 
 const STATE = {
@@ -67,33 +64,33 @@ const STATE = {
   },
 };
 
-
-// ------------------------------------------------------------
+// ============================================================
 // INTERNAL HELPERS
-// ------------------------------------------------------------
+// ============================================================
 function clearLocation() {
   STATE.location.continent = null;
   STATE.location.country = null;
   STATE.location.state = null;
   STATE.location.city = null;
 }
+
 function clearSearch() {
   STATE.search.text = "";
 }
+
 function hasAnyLocation() {
-  return !!(
+  return Boolean(
     STATE.location.continent ||
     STATE.location.country ||
     STATE.location.state ||
     STATE.location.city
   );
 }
+
 function hasAnyChips() {
-  return !!(STATE.chips.type || STATE.chips.access);
+  return Boolean(STATE.chips.type || STATE.chips.access);
 }
-function hasAnySearchText() {
-  return !!(STATE.search.text && STATE.search.text.trim());
-}
+
 function snapshotState() {
   return {
     master: MASTER_MODE,
@@ -103,9 +100,9 @@ function snapshotState() {
   };
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // PUBLIC API — ENDA SÄTTET ATT ÄNDRA FILTER
-// ------------------------------------------------------------
+// ============================================================
 
 // 🔍 SEARCH becomes master
 export function activateSearch({ text = "" } = {}) {
@@ -115,20 +112,20 @@ export function activateSearch({ text = "" } = {}) {
   runSearch();
 }
 
-// 📍 LOCATION becomes master (from sidebar)
+// 📍 LOCATION becomes master
 export function activateLocation(next) {
   MASTER_MODE = MASTER.LOCATION;
   clearSearch();
 
   STATE.location.continent = next?.continent ?? null;
-  STATE.location.country = next?.country ?? null;
-  STATE.location.state = next?.state ?? null;
-  STATE.location.city = next?.city ?? null;
+  STATE.location.country   = next?.country   ?? null;
+  STATE.location.state     = next?.state     ?? null;
+  STATE.location.city      = next?.city      ?? null;
 
   runSearch();
 }
 
-// 🧩 Chips — modifiers only (never change master)
+// 🧩 Chips — modifiers only
 export function toggleChip({ type, access }) {
   if (type !== undefined) {
     STATE.chips.type = STATE.chips.type === type ? null : type;
@@ -139,7 +136,7 @@ export function toggleChip({ type, access }) {
   runSearch();
 }
 
-// ❌ Clear search (only meaningful if search is master)
+// ❌ Clear search (only if search is master)
 export function clearSearchMaster() {
   if (MASTER_MODE === MASTER.SEARCH) {
     clearSearch();
@@ -148,7 +145,7 @@ export function clearSearchMaster() {
   }
 }
 
-// (optional future) clear location master
+// optional future
 export function clearLocationMaster() {
   if (MASTER_MODE === MASTER.LOCATION) {
     clearLocation();
@@ -157,7 +154,6 @@ export function clearLocationMaster() {
   }
 }
 
-// Read-only snapshot for runSearch
 export function getActiveFilterSnapshot() {
   return snapshotState();
 }
@@ -187,9 +183,7 @@ function buildBadges(store) {
 
   const A = String(store.access || "").trim().toLowerCase();
   if (A === "public") {
-    badges.push(
-      `<span class="badge badge-access badge-access-public">PUBLIC</span>`
-    );
+    badges.push(`<span class="badge badge-access badge-access-public">PUBLIC</span>`);
   } else if (A) {
     badges.push(`<span class="badge badge-access">${A.toUpperCase()}</span>`);
   }
@@ -201,25 +195,24 @@ function buildBadges(store) {
 // PHOTO URL
 // ============================================================
 function getPhotoUrl(store) {
-  // 1) Helig: manuellt satt CDN-bild
+  // 1) Helig CDN-bild
   if (store.photo_cdn_url) return store.photo_cdn_url;
 
-  // 2) Äldre direkt-URL (om den finns kvar i DB)
+  // 2) Legacy direkt-URL
   if (store.photo_url) return store.photo_url;
 
- // 3) Google Places via proxy (FRONTEND SAFE)
-if (store.photo_reference) {
-  return `${PHOTO_PROXY_BASE}/photo-proxy?photo_reference=${encodeURIComponent(
-    store.photo_reference
-  )}&maxwidth=800`;
-}
-
+  // 3) Google Places via proxy
+  if (store.photo_reference) {
+    return `${PHOTO_PROXY_BASE}/photo-proxy?photo_reference=${encodeURIComponent(
+      store.photo_reference
+    )}&maxwidth=800`;
+  }
 
   return FALLBACK_IMAGE;
 }
 
 // ============================================================
-// RESET HERO
+// HERO RESET
 // ============================================================
 export function resetToHero() {
   if (!DOM_READY) {
@@ -233,7 +226,6 @@ export function resetToHero() {
   const heroText = dom("#heroText");
 
   if (grid) grid.innerHTML = "";
-
   if (heading) {
     heading.style.display = "none";
     heading.textContent = "";
@@ -274,7 +266,7 @@ function initAutocomplete() {
 }
 
 // ============================================================
-// FILTER TOKEN PARSER (power input: "london members lounge")
+// SEARCH TOKEN PARSER
 // ============================================================
 function parseSearchTokens(raw) {
   const s = (raw || "").trim();
@@ -289,23 +281,10 @@ function parseSearchTokens(raw) {
   for (const t0 of tokens) {
     const t = t0.toLowerCase();
 
-    if (t === "store" || t === "stores") {
-      type = "store";
-      continue;
-    }
-    if (t === "lounge" || t === "lounges") {
-      type = "lounge";
-      continue;
-    }
-
-    if (t === "public") {
-      access = "public";
-      continue;
-    }
-    if (t === "member" || t === "members") {
-      access = "members";
-      continue;
-    }
+    if (t === "store" || t === "stores") { type = "store"; continue; }
+    if (t === "lounge" || t === "lounges") { type = "lounge"; continue; }
+    if (t === "public") { access = "public"; continue; }
+    if (t === "member" || t === "members") { access = "members"; continue; }
 
     keep.push(t0);
   }
@@ -314,28 +293,26 @@ function parseSearchTokens(raw) {
 }
 
 // ============================================================
-// FILTER UI — CHECKBOX SYNC (NOT CARDS)
+// FILTER UI SYNC
 // ============================================================
 function updateChipUI() {
   const box = dom("#searchFilters");
   if (!box) return;
 
-  box
-    .querySelectorAll("input[type='checkbox'][data-filter]")
-    .forEach((cb) => {
-      const filter = cb.dataset.filter;
-      const val = cb.dataset.value;
+  box.querySelectorAll("input[type='checkbox'][data-filter]").forEach((cb) => {
+    const filter = cb.dataset.filter;
+    const val = cb.dataset.value;
 
-      const isActive =
-        (filter === "type" && STATE.chips.type === val) ||
-        (filter === "access" && STATE.chips.access === val);
+    const isActive =
+      (filter === "type" && STATE.chips.type === val) ||
+      (filter === "access" && STATE.chips.access === val);
 
-      cb.checked = !!isActive;
-    });
+    cb.checked = Boolean(isActive);
+  });
 }
 
 // ============================================================
-// LIVE SEARCH + FILTER CHIPS (LAW, CANONICAL)
+// LIVE SEARCH + FILTER CHIPS (LAW)
 // ============================================================
 let SEARCH_TIMER = null;
 
@@ -352,32 +329,26 @@ function initLiveSearchAndFilters() {
   const clearBtn = dom("#clearBtn");
   const chips = dom("#searchFilters");
 
-// ============================================================
-// FILTER TOGGLES — MODIFIERS ONLY (CHECKBOX)
-// ============================================================
-chips?.addEventListener("change", (e) => {
-  const cb = e.target.closest("input[type='checkbox'][data-filter]");
-  if (!cb) return;
+  // FILTER TOGGLES
+  chips?.addEventListener("change", (e) => {
+    const cb = e.target.closest("input[type='checkbox'][data-filter]");
+    if (!cb) return;
 
-  STARTUP_HERO = false;
-  cancelDebounce();
+    STARTUP_HERO = false;
+    cancelDebounce();
 
-  const filter = cb.dataset.filter; // "type" | "access"
-  const value = cb.dataset.value;
+    const filter = cb.dataset.filter;
+    const value = cb.dataset.value;
 
-  if (filter === "type") {
-    toggleChip({ type: value });
-  } else if (filter === "access") {
-    toggleChip({ access: value });
-  }
+    if (filter === "type") toggleChip({ type: value });
+    if (filter === "access") toggleChip({ access: value });
 
-  updateChipUI();
-});
+    updateChipUI();
+  });
 
-  // LIVE INPUT — SEARCH becomes master
+  // LIVE INPUT
   input?.addEventListener("input", () => {
-    const raw = input.value;
-    const parsed = parseSearchTokens(raw);
+    const parsed = parseSearchTokens(input.value);
 
     cancelDebounce();
     SEARCH_TIMER = setTimeout(() => {
@@ -389,22 +360,17 @@ chips?.addEventListener("change", (e) => {
 
       activateSearch({ text: parsed.text });
 
-      if (parsed.type || parsed.access) {
-        if (parsed.type) toggleChip({ type: parsed.type });
-        if (parsed.access) toggleChip({ access: parsed.access });
-      }
+      if (parsed.type) toggleChip({ type: parsed.type });
+      if (parsed.access) toggleChip({ access: parsed.access });
 
       updateChipUI();
     }, 350);
   });
 
-  // SEARCH BUTTON / ENTER — instant
+  // SEARCH BUTTON / ENTER
   const triggerInstant = () => {
-    if (!input) return;
-
     cancelDebounce();
-
-    const parsed = parseSearchTokens(input.value);
+    const parsed = parseSearchTokens(input?.value);
 
     if (!parsed.text && !parsed.type && !parsed.access) {
       clearSearchMaster();
@@ -413,22 +379,14 @@ chips?.addEventListener("change", (e) => {
     }
 
     activateSearch({ text: parsed.text });
-
-    if (parsed.type || parsed.access) {
-      if (parsed.type) toggleChip({ type: parsed.type });
-      if (parsed.access) toggleChip({ access: parsed.access });
-    }
-
+    if (parsed.type) toggleChip({ type: parsed.type });
+    if (parsed.access) toggleChip({ access: parsed.access });
     updateChipUI();
   };
 
   if (searchBtn) searchBtn.onclick = triggerInstant;
+  input?.addEventListener("keydown", (e) => e.key === "Enter" && triggerInstant());
 
-  input?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") triggerInstant();
-  });
-
-  // CLEAR SEARCH — clears only search master (chips remain as-is)
   if (clearBtn) {
     clearBtn.onclick = () => {
       cancelDebounce();
@@ -455,26 +413,19 @@ function cardHTML(s) {
   let displayAddress = "—";
   if (s.address) {
     const trimmed = s.address.trim();
-    displayAddress = trimmed.includes(",")
-      ? trimmed.split(",")[0] + "…"
-      : trimmed;
+    displayAddress = trimmed.includes(",") ? trimmed.split(",")[0] + "…" : trimmed;
   }
 
   return `
- <article
-  class="store-card"
-  data-store-id="${s.id}"
-  data-country="${s.country || ""}"
-  data-city="${s.city || ""}"
-  data-continent="${s.continent || ""}"
->
-    <img
-      src="${img}"
-      class="store-img"
-      alt="${displayName}"
-      loading="lazy"
-      onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
-    />
+  <article class="store-card"
+    data-store-id="${s.id}"
+    data-country="${s.country || ""}"
+    data-city="${s.city || ""}"
+    data-continent="${s.continent || ""}">
+
+    <img src="${img}" class="store-img" alt="${displayName}" loading="lazy"
+      onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
+
     <div class="store-body">
       <h3 class="store-title">${displayName}</h3>
       <div class="badge-row">${buildBadges(s)}</div>
@@ -492,24 +443,13 @@ function cardHTML(s) {
         <p><strong>Address:</strong> ${displayAddress}</p>
         <p><strong>Phone:</strong> ${s.phone || "—"}</p>
         <p><strong>Website:</strong>
-          ${
-            s.website
-              ? `<a href="${s.website}"
-                   target="_blank"
-                   rel="noopener"
-                   class="visit-website"
-                   data-store-id="${s.id}">
-                   Visit
-                 </a>`
-              : "—"
-          }
+          ${s.website ? `<a href="${s.website}" target="_blank" rel="noopener" class="visit-website" data-store-id="${s.id}">Visit</a>` : "—"}
         </p>
       </div>
 
       <button class="reviews-btn">(${s.comment_count || 0})</button>
     </div>
-   </article>
-`;
+  </article>`;
 }
 
 // ============================================================
@@ -521,17 +461,13 @@ function renderCards(list) {
 
   grid.innerHTML = (list || []).map(cardHTML).join("");
 
-  // Analytics: store_viewed
   grid.querySelectorAll(".store-card").forEach((el) => {
     VIEW_OBSERVER.observe(el);
   });
 
-  // Open modal (but not when clicking link)
   grid.querySelectorAll(".store-card").forEach((c) => {
     c.addEventListener("click", (e) => {
       if (e.target.closest("a")) return;
-
-      // ✅ FIX: dataset key is storeId (data-store-id)
       openModal(c.dataset.storeId);
     });
   });
@@ -542,15 +478,8 @@ export function renderStores(list) {
 }
 
 // ============================================================
-// SEARCH MATCHING — CANONICAL (LOCKED)
-// City & text hanteras i backend (search_stores_v1)
-// Frontend filtrerar ENDAST chips
+// FRONTEND FILTERS (CHIPS ONLY)
 // ============================================================
-
-function matchesSearch(store, raw) {
-  return true;
-}
-
 function matchesType(store, type) {
   if (!type) return true;
   const types = Array.isArray(store.types)
@@ -567,7 +496,6 @@ function matchesAccess(store, access) {
 function applyFrontendFilters(rows, snapshot) {
   return (rows || []).filter((s) => {
     return (
-      matchesSearch(s, snapshot.search) &&
       matchesType(s, snapshot.type) &&
       matchesAccess(s, snapshot.access)
     );
@@ -575,7 +503,7 @@ function applyFrontendFilters(rows, snapshot) {
 }
 
 // ============================================================
-// LOAD STORES (RPC) — PURE FETCH
+// LOAD STORES (RPC)
 // ============================================================
 export async function loadStores(filters = {}) {
   if (!DOM_READY) {
@@ -587,14 +515,13 @@ export async function loadStores(filters = {}) {
   ACTIVE_REQUEST++;
   const reqId = ACTIVE_REQUEST;
 
-const { data, error } = await supabase.rpc("search_stores_v1", {
-  p_q: STATE.search.text || null,
-  p_continent: filters?.continent || null,
-  p_country: filters?.country || null,
-  p_state: filters?.state || null,
-  p_city: filters?.city || null,
-});
-
+  const { data, error } = await supabase.rpc("search_stores_v1", {
+    p_q: STATE.search.text || null,
+    p_continent: filters?.continent || null,
+    p_country: filters?.country || null,
+    p_state: filters?.state || null,
+    p_city: filters?.city || null,
+  });
 
   if (reqId !== ACTIVE_REQUEST) return null;
 
@@ -608,8 +535,6 @@ const { data, error } = await supabase.rpc("search_stores_v1", {
 
 // ============================================================
 // RUN SEARCH (CANONICAL)
-// - main count = filtered.length (locked by your decision)
-// - hero shown only when truly idle (no master, no chips)
 // ============================================================
 export async function runSearch() {
   if (!DOM_READY) {
@@ -638,21 +563,17 @@ export async function runSearch() {
   const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
 
- // ============================================================
-// HERO VISIBILITY — STARTUP ONLY
-// ============================================================
-if (
-  snapshot.master === MASTER.IDLE &&
-  !snapshot.search &&
-  !hasAnyLocation() &&
-  !hasAnyChips()
-) {
-  if (STARTUP_HERO) {
-    resetToHero();   // first load only
-    return;
+  if (
+    snapshot.master === MASTER.IDLE &&
+    !snapshot.search &&
+    !hasAnyLocation() &&
+    !hasAnyChips()
+  ) {
+    if (STARTUP_HERO) {
+      resetToHero();
+      return;
+    }
   }
-  // after first interaction: cards take full height
-}
 
   heroImage && (heroImage.style.display = "none");
   heroText && (heroText.style.display = "none");
@@ -680,7 +601,6 @@ if (
   const rows = resp.data || [];
   const filtered = applyFrontendFilters(rows, snapshot);
 
-  // ✅ locked: main count is just results on screen
   if (heading) {
     heading.textContent = `${filtered.length} results`;
     heading.style.display = "block";
@@ -727,6 +647,7 @@ async function openModal(id) {
 function closeModal() {
   modal?.classList.add("hidden");
 }
+
 closeBtn?.addEventListener("click", closeModal);
 backdrop?.addEventListener("click", closeModal);
 
@@ -747,14 +668,12 @@ function fillModal(s) {
     w.style.display = "none";
   }
 
-  const badgeBox = dom("#modalBadges");
-  badgeBox.innerHTML = buildBadges(s);
-
+  dom("#modalBadges").innerHTML = buildBadges(s);
   dom("#modalStars").innerHTML = buildStars(s.rating_avg, s.rating_count);
 }
 
 // ============================================================
-// RATING SYSTEM
+// RATINGS
 // ============================================================
 const starPicker = dom("#modalStarPicker");
 const ratingSendBtn = dom("#modalSendRating");
@@ -820,7 +739,7 @@ async function loadModalStore() {
 }
 
 // ============================================================
-// COMMENTS SYSTEM
+// COMMENTS
 // ============================================================
 const commentsBox = dom("#modalComments");
 const commentInput = dom("#modalCommentInput");
@@ -871,7 +790,9 @@ sendCommentBtn?.addEventListener("click", async () => {
   loadComments(CURRENT_STORE);
 });
 
-// Website click analytics
+// ============================================================
+// WEBSITE CLICK ANALYTICS
+// ============================================================
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a.visit-website");
   if (!a) return;
@@ -879,7 +800,5 @@ document.addEventListener("click", (e) => {
   const storeId = Number(a.dataset.storeId);
   if (!storeId) return;
 
-  window.WCL_ANALYTICS.send("website_clicked", {
-    store_id: storeId,
-  });
+  window.WCL_ANALYTICS.send("website_clicked", { store_id: storeId });
 });
