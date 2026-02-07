@@ -7,21 +7,20 @@
 const qs  = (sel) => document.querySelector(sel);
 const qsa = (sel) => document.querySelectorAll(sel);
 
+// ============================================================
+// IMPORTS (SAFE ORDER)
+// ============================================================
 
-// ----- Imports -----
-// 🔒 Supabase MUST load first (global runtime)
+// 🔒 Supabase MUST load first
 import { supabase } from "./globals.js";
 
-// 🔒 Analytics AFTER Supabase (never before)
+// ❌ Analytics DISABLED until explicitly re-enabled
 // import "./analytics-frontend.js";
 
-
 // App modules
-import { resetToHero, runSearch } from "./cards.js";
+import { resetToHero } from "./cards.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import "./start.js";
-
-
 
 // ============================================================
 // LOGIN POPUP
@@ -50,14 +49,20 @@ function showLoginPopup() {
   btn.onclick = async () => {
     const e = email.value.trim();
     const p = pass.value.trim();
-    if (!e || !p) return alert("Please fill in all fields.");
+    if (!e || !p) {
+      alert("Please fill in all fields.");
+      return;
+    }
 
-    if (remember.checked) localStorage.setItem("wcl_saved_email", e);
-    else localStorage.removeItem("wcl_saved_email");
+    if (remember?.checked) {
+      localStorage.setItem("wcl_saved_email", e);
+    } else {
+      localStorage.removeItem("wcl_saved_email");
+    }
 
     btn.disabled = true;
     spinner?.classList.remove("hidden");
-    label && (label.textContent = "Logging in…");
+    if (label) label.textContent = "Logging in…";
 
     const { error } = await supabase.auth.signInWithPassword({
       email: e,
@@ -68,14 +73,13 @@ function showLoginPopup() {
       alert("Login failed: " + error.message);
       btn.disabled = false;
       spinner?.classList.add("hidden");
-      label && (label.textContent = "Login");
+      if (label) label.textContent = "Login";
       return;
     }
 
     location.reload();
   };
 }
-
 
 // ============================================================
 // LOGOUT
@@ -90,7 +94,6 @@ function setupLogout() {
   };
 }
 
-
 // ============================================================
 // SIDEBAR INIT — BUILD ONCE (AFTER AUTH)
 // ============================================================
@@ -100,31 +103,34 @@ async function initSidebar() {
   if (SIDEBAR_READY) return;
   SIDEBAR_READY = true;
 
-  await buildFrontendSidebar();
+  try {
+    await buildFrontendSidebar();
+  } catch (e) {
+    console.error("❌ Sidebar init failed", e);
+  }
 }
-
 
 // ============================================================
 // AUTH GUARD — SINGLE SOURCE OF TRUTH
 // ============================================================
 async function guard() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   const container = qs(".container");
 
   if (!session) {
-    container?.style.setProperty("display", "none");
+    if (container) container.style.display = "none";
     showLoginPopup();
     return;
   }
 
-  container?.style.removeProperty("display");
+  if (container) container.style.display = "";
 
-  // ✅ correct order
   await initSidebar();
   resetToHero();
-
 }
-
 
 // ============================================================
 // BOOT
