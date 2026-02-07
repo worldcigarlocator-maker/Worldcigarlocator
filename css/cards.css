@@ -8,7 +8,7 @@
   transform-origin: top center;
 }
 
-.store-grid {
+#storeGrid {
   width: 100%;
   display: grid;
   justify-content: center;
@@ -20,14 +20,14 @@
 
 /* Desktop — exact 4 per row */
 @media (min-width: 1280px) {
-  .store-grid {
+  #storeGrid {
     grid-template-columns: repeat(4, 265px);
   }
 }
 
 /* Tablet */
 @media (max-width: 1024px) {
-  .store-grid {
+  #storeGrid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 1.8rem 1.2rem;
   }
@@ -35,7 +35,7 @@
 
 /* Mobile */
 @media (max-width: 768px) {
-  .store-grid {
+  #storeGrid {
     grid-template-columns: repeat(2, minmax(150px, 1fr));
     gap: 1.4rem 0.9rem;
     padding-inline: 0.5rem;
@@ -47,7 +47,7 @@
 
 /* Tiny Mobile */
 @media (max-width: 480px) {
-  .store-grid {
+  #storeGrid {
     grid-template-columns: repeat(2, minmax(140px, 1fr));
     gap: 1.2rem 0.7rem;
   }
