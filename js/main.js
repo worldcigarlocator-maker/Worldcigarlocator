@@ -123,11 +123,11 @@ async function guard() {
 
   const container = qs(".container");
 
-  if (!session) {
-    if (container) container.style.display = "none";
-    showLoginPopup();
-    return;
-  }
+if (!session) {
+  console.warn("No session – running in public mode");
+  return;
+}
+
 
   if (container) container.style.display = "";
 
