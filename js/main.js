@@ -3,9 +3,10 @@
 // AUTH-FIRST · STABLE · SINGLE SEARCH PIPELINE
 // ============================================================
 
-// ----- Global helpers -----
-window.qs  = (sel) => document.querySelector(sel);
-window.qsa = (sel) => document.querySelectorAll(sel);
+// ----- Local helpers (ESM-safe) -----
+const qs  = (sel) => document.querySelector(sel);
+const qsa = (sel) => document.querySelectorAll(sel);
+
 
 // ----- Imports -----
 // 🔒 Supabase MUST load first (global runtime)
