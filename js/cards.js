@@ -1,14 +1,29 @@
 // ============================================================
-// CARDS.JS — WCL FRONTEND (CANONICAL, LAW + SMART SEARCH)
-// - Single source of truth: STATE + MASTER_MODE
-// - LAW: last action wins between SEARCH and LOCATION
-// - Chips are always modifiers
-// - Search intent handled in backend (search_stores_v1)
-// - Frontend search = trigger only, no semantic matching
+// CARDS.JS — WCL Frontend (CANONICAL · CORE UI)
+// ------------------------------------------------------------
+// • Single source of truth: STATE + MASTER_MODE
+// • LAW: last action wins between SEARCH and LOCATION
+// • Chips are modifiers only (never master)
+// • Search intent resolved in backend (search_stores_v1)
+// • Frontend search = trigger & render only
+//
+// 🔒 IMPORTANT:
+// cards.js is CORE UI and must NEVER hard-depend on analytics.
+// Analytics is optional, append-only, and injected if present.
 // ============================================================
 
 import { supabase } from "./globals.js";
-import { VIEW_OBSERVER } from "./analytics-frontend.js";
+
+// ============================================================
+// ANALYTICS SAFE FALLBACK (NO HARD DEPENDENCY)
+// ============================================================
+// If analytics is loaded, it may expose a VIEW_OBSERVER.
+// If not, we fall back to a no-op observer.
+// This guarantees cards.js can NEVER crash on boot.
+
+const VIEW_OBSERVER =
+  window?.WCL_ANALYTICS?.VIEW_OBSERVER ??
+  { observe() {}, unobserve() {} };
 
 // ============================================================
 // CONFIG
@@ -16,6 +31,7 @@ import { VIEW_OBSERVER } from "./analytics-frontend.js";
 const FALLBACK_IMAGE = "images/store.jpg";
 const PHOTO_PROXY_BASE = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co";
 const dom = (sel) => document.querySelector(sel);
+
 
 // ============================================================
 // RACE / REQUEST CONTROL
