@@ -12,7 +12,8 @@ window.qsa = (sel) => document.querySelectorAll(sel);
 import { supabase } from "./globals.js";
 
 // 🔒 Analytics AFTER Supabase (never before)
-import "./analytics-frontend.js";
+// import "./analytics-frontend.js";
+
 
 // App modules
 import { resetToHero, runSearch } from "./cards.js";
