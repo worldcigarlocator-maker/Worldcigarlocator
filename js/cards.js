@@ -40,14 +40,10 @@ let RUN_SEQ = 0;
 let ACTIVE_REQUEST = 0;
 
 // ============================================================
-// DOM READY
+// DOM READY (locked – UI init handled by search-v2.js)
 // ============================================================
-let DOM_READY = false;
-document.addEventListener("DOMContentLoaded", () => {
-  DOM_READY = true;
-  initAutocomplete();
-  initLiveSearchAndFilters();
-});
+let DOM_READY = true;
+
 
 // ============================================================
 // CANONICAL FILTER STATE & MASTER CONTROLLER (WCL)
