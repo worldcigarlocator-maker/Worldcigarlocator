@@ -130,6 +130,8 @@ export function activateSearch({ text = "" } = {}) {
 
 // 📍 LOCATION becomes master
 export function activateLocation(next) {
+  console.log("📍 activateLocation fired", next);
+
   MASTER_MODE = MASTER.LOCATION;
   clearSearch();
 
@@ -140,6 +142,7 @@ export function activateLocation(next) {
 
   runSearch();
 }
+
 
 // 🧩 Chips — modifiers only
 export function toggleChip({ type, access }) {
