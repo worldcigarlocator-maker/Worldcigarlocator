@@ -130,7 +130,7 @@ export function activateSearch({ text = "" } = {}) {
 
 // 📍 LOCATION becomes master
 export function activateLocation(next) {
-  console.log("📍 activateLocation fired", next);
+  STARTUP_HERO = false; // 🔑 VIKTIGASTE RADEN
 
   MASTER_MODE = MASTER.LOCATION;
   clearSearch();
@@ -142,6 +142,7 @@ export function activateLocation(next) {
 
   runSearch();
 }
+
 
 
 // 🧩 Chips — modifiers only
