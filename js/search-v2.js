@@ -2,6 +2,8 @@
 // search-v2.js — WCL Frontend (Search v2 · DOM-first)
 // ============================================================
 
+import { activateSearch, clearSearchMaster } from "./cards.js";
+
 const qs = (sel) => document.querySelector(sel);
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -21,22 +23,28 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("🔍 Search zone activated");
   });
 
-  // Run search
+  // Run search → cards.js
   searchBtn.addEventListener("click", () => {
-    console.log("🚀 Run search (v2)");
+    activateSearch({ text: "" });
+    console.log("🚀 Run search (v2 → cards)");
   });
 
-  // Clear
+  // Clear search → cards.js
   clearBtn?.addEventListener("click", () => {
-    console.log("✕ Clear search (v2)");
+    clearSearchMaster();
+    console.log("✕ Clear search (v2 → cards)");
   });
 
-  // Filter buttons
+  // Filter buttons (UI only for now)
   filters?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-filter]");
     if (!btn) return;
 
     btn.classList.toggle("active");
-    console.log("🧩 Filter toggled", btn.dataset.filter, btn.dataset.value);
+    console.log(
+      "🧩 Filter toggled",
+      btn.dataset.filter,
+      btn.dataset.value
+    );
   });
 });
