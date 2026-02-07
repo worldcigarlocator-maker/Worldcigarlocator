@@ -266,158 +266,6 @@ function buildStars(avg, count) {
 }
 
 // ============================================================
-// AUTOCOMPLETE (UI only)
-// ============================================================
-let AC_BOX = null;
-function initAutocomplete() {
-  AC_BOX = dom("#autocomplete");
-  if (!AC_BOX) return;
-
-  document.addEventListener("click", (e) => {
-    const searchInput = dom("#searchInput");
-    if (!AC_BOX.contains(e.target) && e.target !== searchInput) {
-      AC_BOX.classList.add("hidden");
-    }
-  });
-}
-
-// ============================================================
-// SEARCH TOKEN PARSER
-// ============================================================
-function parseSearchTokens(raw) {
-  const s = (raw || "").trim();
-  if (!s) return { text: "", type: null, access: null };
-
-  const tokens = s.split(/\s+/);
-  const keep = [];
-
-  let type = null;
-  let access = null;
-
-  for (const t0 of tokens) {
-    const t = t0.toLowerCase();
-
-    if (t === "store" || t === "stores") { type = "store"; continue; }
-    if (t === "lounge" || t === "lounges") { type = "lounge"; continue; }
-    if (t === "public") { access = "public"; continue; }
-    if (t === "member" || t === "members") { access = "members"; continue; }
-
-    keep.push(t0);
-  }
-
-  return { text: keep.join(" ").trim(), type, access };
-}
-
-// ============================================================
-// FILTER UI SYNC
-// ============================================================
-function updateChipUI() {
-  const box = dom("#searchFilters");
-  if (!box) return;
-
-  box.querySelectorAll("input[type='checkbox'][data-filter]").forEach((cb) => {
-    const filter = cb.dataset.filter;
-    const val = cb.dataset.value;
-
-    const isActive =
-      (filter === "type" && STATE.chips.type === val) ||
-      (filter === "access" && STATE.chips.access === val);
-
-    cb.checked = Boolean(isActive);
-  });
-}
-
-function initLiveSearchAndFilters() {
-  const input    = dom("#searchInput");
-  const searchBtn = dom("#searchBtn");
-  const clearBtn  = dom("#clearBtn");
-  const chips     = dom("#searchFilters");
-
-  // ============================================================
-  // FILTER TOGGLES — modifiers only
-  // ============================================================
-  chips?.addEventListener("change", (e) => {
-    const cb = e.target.closest("input[type='checkbox'][data-filter]");
-    if (!cb) return;
-
-    STARTUP_HERO = false;   // 🔑 lämna startup-state
-    cancelDebounce();
-
-    const filter = cb.dataset.filter;
-    const value  = cb.dataset.value;
-
-    if (filter === "type")   toggleChip({ type: value });
-    if (filter === "access") toggleChip({ access: value });
-
-    updateChipUI();
-  });
-
-  // ============================================================
-  // LIVE SEARCH INPUT — SEARCH blir master
-  // ============================================================
-  input?.addEventListener("input", () => {
-    STARTUP_HERO = false;   // 🔑 VIKTIGAST AV ALLT
-
-    cancelDebounce();
-
-    const text = input.value.trim();
-
-    SEARCH_TIMER = setTimeout(() => {
-      if (!text) {
-        clearSearchMaster();   // går tillbaka till IDLE
-        updateChipUI();
-        return;
-      }
-
-      activateSearch({ text }); // 🔥 detta saknades tidigare
-      updateChipUI();
-    }, 300);
-  });
-
-  // ============================================================
-  // SEARCH BUTTON / ENTER — instant search
-  // ============================================================
-  const triggerSearch = () => {
-    if (!input) return;
-
-    STARTUP_HERO = false;
-    cancelDebounce();
-
-    const text = input.value.trim();
-
-    if (!text) {
-      clearSearchMaster();
-      updateChipUI();
-      return;
-    }
-
-    activateSearch({ text });
-    updateChipUI();
-  };
-
-  searchBtn && (searchBtn.onclick = triggerSearch);
-
-  input?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") triggerSearch();
-  });
-
-  // ============================================================
-  // CLEAR BUTTON — rensar SEARCH master
-  // ============================================================
-  clearBtn && (clearBtn.onclick = () => {
-    cancelDebounce();
-    STARTUP_HERO = false;
-
-    if (input) input.value = "";
-    clearSearchMaster();
-    updateChipUI();
-  });
-
-  updateChipUI();
-}
-
-
-// ============================================================
 // CARD HTML
 // ============================================================
 function cardHTML(s) {
@@ -471,26 +319,35 @@ function cardHTML(s) {
 }
 
 // ============================================================
-// RENDER
+// RENDER CARDS (CANONICAL · SAFE · MODAL-AWARE)
 // ============================================================
 function renderCards(list) {
   const grid = dom("#storeGrid");
   if (!grid) return;
 
+  // 1️⃣ Render HTML
   grid.innerHTML = (list || []).map(cardHTML).join("");
 
-  grid.querySelectorAll(".store-card").forEach((el) => {
-    VIEW_OBSERVER.observe(el);
+  // 2️⃣ Analytics-safe observer (no-op if analytics not loaded)
+  grid.querySelectorAll(".store-card").forEach((card) => {
+    VIEW_OBSERVER.observe(card);
   });
 
-  grid.querySelectorAll(".store-card").forEach((c) => {
-    c.addEventListener("click", (e) => {
+  // 3️⃣ Card click → open modal (except links)
+  grid.querySelectorAll(".store-card").forEach((card) => {
+    card.addEventListener("click", (e) => {
+      // Allow normal link behavior (website, etc)
       if (e.target.closest("a")) return;
-      openModal(c.dataset.storeId);
+
+      const storeId = Number(card.dataset.storeId);
+      if (!storeId) return;
+
+      openModal(storeId);
     });
   });
 }
 
+// 🔓 Public export (used by search + sidebar)
 export function renderStores(list) {
   renderCards(list);
 }
@@ -631,6 +488,23 @@ export async function runSearch() {
 
   renderCards(filtered);
 }
+
+
+// ============================================================
+// WEBSITE CLICK ANALYTICS
+// ============================================================
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("a.visit-website");
+  if (!a) return;
+
+  const storeId = Number(a.dataset.storeId);
+  if (!storeId) return;
+
+  if (window.WCL_ANALYTICS?.send) {
+    window.WCL_ANALYTICS.send("website_clicked", { store_id: storeId });
+  }
+});
+
 
 // ============================================================
 // MODAL SYSTEM
@@ -806,17 +680,4 @@ sendCommentBtn?.addEventListener("click", async () => {
 
   commentInput.value = "";
   loadComments(CURRENT_STORE);
-});
-
-// ============================================================
-// WEBSITE CLICK ANALYTICS
-// ============================================================
-document.addEventListener("click", (e) => {
-  const a = e.target.closest("a.visit-website");
-  if (!a) return;
-
-  const storeId = Number(a.dataset.storeId);
-  if (!storeId) return;
-
-  window.WCL_ANALYTICS.send("website_clicked", { store_id: storeId });
 });
