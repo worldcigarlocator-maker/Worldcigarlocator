@@ -1,3 +1,6 @@
+console.log("🔥 main.js executing");
+
+
 // ============================================================
 // MAIN.JS — WCL Frontend
 // AUTH-FIRST · STABLE · SINGLE SEARCH PIPELINE
