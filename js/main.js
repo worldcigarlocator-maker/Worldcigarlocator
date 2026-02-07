@@ -1,12 +1,15 @@
 console.log("🔥 main.js executing");
 
+// ============================================================
+// MAIN.JS — WCL Frontend (PUBLIC-FIRST)
+// - Sidebar always builds
+// - Page always renders
+// - Auth only gates auth-required actions
+// ============================================================
 
 // ============================================================
-// MAIN.JS — WCL Frontend
-// AUTH-FIRST · STABLE · SINGLE SEARCH PIPELINE
+// LOCAL HELPERS (ESM-safe)
 // ============================================================
-
-// ----- Local helpers (ESM-safe) -----
 const qs  = (sel) => document.querySelector(sel);
 const qsa = (sel) => document.querySelectorAll(sel);
 
@@ -17,7 +20,7 @@ const qsa = (sel) => document.querySelectorAll(sel);
 // 🔒 Supabase MUST load first
 import { supabase } from "./globals.js";
 
-// ❌ Analytics DISABLED until explicitly re-enabled
+// ❌ Analytics DISABLED (explicitly)
 // import "./analytics-frontend.js";
 
 // App modules
@@ -50,8 +53,9 @@ function showLoginPopup() {
   }
 
   btn.onclick = async () => {
-    const e = email.value.trim();
-    const p = pass.value.trim();
+    const e = email?.value?.trim();
+    const p = pass?.value?.trim();
+
     if (!e || !p) {
       alert("Please fill in all fields.");
       return;
@@ -98,7 +102,7 @@ function setupLogout() {
 }
 
 // ============================================================
-// SIDEBAR INIT — BUILD ONCE (AFTER AUTH)
+// SIDEBAR — PUBLIC, BUILD ONCE
 // ============================================================
 let SIDEBAR_READY = false;
 
@@ -107,14 +111,15 @@ async function initSidebar() {
   SIDEBAR_READY = true;
 
   try {
+    console.log("🧭 Building sidebar (public)");
     await buildFrontendSidebar();
-  } catch (e) {
-    console.error("❌ Sidebar init failed", e);
+  } catch (err) {
+    console.error("❌ Sidebar failed to build", err);
   }
 }
 
 // ============================================================
-// AUTH GUARD — SINGLE SOURCE OF TRUTH
+// AUTH GUARD — DOES NOT BLOCK RENDER
 // ============================================================
 async function guard() {
   const {
@@ -122,16 +127,20 @@ async function guard() {
   } = await supabase.auth.getSession();
 
   const container = qs(".container");
-
-if (!session) {
-  console.warn("No session – running in public mode");
-  return;
-}
-
-
   if (container) container.style.display = "";
 
+  // 🔒 Sidebar ALWAYS builds
   await initSidebar();
+
+  // 🌍 Public mode
+  if (!session) {
+    console.info("🌍 Public mode (no auth)");
+    resetToHero();
+    return;
+  }
+
+  // 🔐 Logged in
+  console.info("🔐 Authenticated session");
   resetToHero();
 }
 
