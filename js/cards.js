@@ -311,93 +311,95 @@ function updateChipUI() {
   });
 }
 
-// ============================================================
-// LIVE SEARCH + FILTER CHIPS (LAW)
-// ============================================================
-let SEARCH_TIMER = null;
-
-function cancelDebounce() {
-  if (SEARCH_TIMER) {
-    clearTimeout(SEARCH_TIMER);
-    SEARCH_TIMER = null;
-  }
-}
-
 function initLiveSearchAndFilters() {
-  const input = dom("#searchInput");
+  const input    = dom("#searchInput");
   const searchBtn = dom("#searchBtn");
-  const clearBtn = dom("#clearBtn");
-  const chips = dom("#searchFilters");
+  const clearBtn  = dom("#clearBtn");
+  const chips     = dom("#searchFilters");
 
-  // FILTER TOGGLES
+  // ============================================================
+  // FILTER TOGGLES — modifiers only
+  // ============================================================
   chips?.addEventListener("change", (e) => {
     const cb = e.target.closest("input[type='checkbox'][data-filter]");
     if (!cb) return;
 
-    STARTUP_HERO = false;
+    STARTUP_HERO = false;   // 🔑 lämna startup-state
     cancelDebounce();
 
     const filter = cb.dataset.filter;
-    const value = cb.dataset.value;
+    const value  = cb.dataset.value;
 
-    if (filter === "type") toggleChip({ type: value });
+    if (filter === "type")   toggleChip({ type: value });
     if (filter === "access") toggleChip({ access: value });
 
     updateChipUI();
   });
 
-  // LIVE INPUT
+  // ============================================================
+  // LIVE SEARCH INPUT — SEARCH blir master
+  // ============================================================
   input?.addEventListener("input", () => {
-    const parsed = parseSearchTokens(input.value);
+    STARTUP_HERO = false;   // 🔑 VIKTIGAST AV ALLT
 
     cancelDebounce();
+
+    const text = input.value.trim();
+
     SEARCH_TIMER = setTimeout(() => {
-      if (!parsed.text && !parsed.type && !parsed.access) {
-        clearSearchMaster();
+      if (!text) {
+        clearSearchMaster();   // går tillbaka till IDLE
         updateChipUI();
         return;
       }
 
-      activateSearch({ text: parsed.text });
-
-      if (parsed.type) toggleChip({ type: parsed.type });
-      if (parsed.access) toggleChip({ access: parsed.access });
-
+      activateSearch({ text }); // 🔥 detta saknades tidigare
       updateChipUI();
-    }, 350);
+    }, 300);
   });
 
-  // SEARCH BUTTON / ENTER
-  const triggerInstant = () => {
-    cancelDebounce();
-    const parsed = parseSearchTokens(input?.value);
+  // ============================================================
+  // SEARCH BUTTON / ENTER — instant search
+  // ============================================================
+  const triggerSearch = () => {
+    if (!input) return;
 
-    if (!parsed.text && !parsed.type && !parsed.access) {
+    STARTUP_HERO = false;
+    cancelDebounce();
+
+    const text = input.value.trim();
+
+    if (!text) {
       clearSearchMaster();
       updateChipUI();
       return;
     }
 
-    activateSearch({ text: parsed.text });
-    if (parsed.type) toggleChip({ type: parsed.type });
-    if (parsed.access) toggleChip({ access: parsed.access });
+    activateSearch({ text });
     updateChipUI();
   };
 
-  if (searchBtn) searchBtn.onclick = triggerInstant;
-  input?.addEventListener("keydown", (e) => e.key === "Enter" && triggerInstant());
+  searchBtn && (searchBtn.onclick = triggerSearch);
 
-  if (clearBtn) {
-    clearBtn.onclick = () => {
-      cancelDebounce();
-      if (input) input.value = "";
-      clearSearchMaster();
-      updateChipUI();
-    };
-  }
+  input?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") triggerSearch();
+  });
+
+  // ============================================================
+  // CLEAR BUTTON — rensar SEARCH master
+  // ============================================================
+  clearBtn && (clearBtn.onclick = () => {
+    cancelDebounce();
+    STARTUP_HERO = false;
+
+    if (input) input.value = "";
+    clearSearchMaster();
+    updateChipUI();
+  });
 
   updateChipUI();
 }
+
 
 // ============================================================
 // CARD HTML
