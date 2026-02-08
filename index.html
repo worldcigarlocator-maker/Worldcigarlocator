@@ -76,87 +76,47 @@
 <!-- ================= MAIN ================= -->
 <main class="main">
 
-<div
-  class="search-zone zone-search"
-  id="searchZone"
->
-  <span class="search-label">Search</span>
+<!-- ================= SEARCH ================= -->
+<div class="search-shell">
+  <div class="search-capsule">
 
-  <input
-    id="searchInput"
-    type="text"
-    placeholder="e.g. London, New York, Bangkok"
-    autocomplete="off"
-  />
-</div>
+    <!-- ZONE 1 — SEARCH -->
+    <div class="search-zone zone-search" id="searchZone">
+      <span class="search-label">Search</span>
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="e.g. London, New York, Bangkok"
+        autocomplete="off"
+      />
+    </div>
 
-
-    <!-- Divider: between zone 1 & 2 -->
     <div class="search-divider"></div>
 
     <!-- ZONE 2 — FILTERS -->
     <div class="search-zone zone-filters" id="searchFilters">
-      <button
-        type="button"
-        class="filter-btn"
-        data-filter="type"
-        data-value="store"
-        id="filterStore"
-      >
-        Store
-      </button>
-
-      <button
-        type="button"
-        class="filter-btn"
-        data-filter="type"
-        data-value="lounge"
-        id="filterLounge"
-      >
-        Lounge
-      </button>
-
-      <button
-        type="button"
-        class="filter-btn"
-        data-filter="access"
-        data-value="members"
-        id="filterMembers"
-      >
-        Members
-      </button>
+      <button class="filter-btn" data-filter="type" data-value="store">Store</button>
+      <button class="filter-btn" data-filter="type" data-value="lounge">Lounge</button>
+      <button class="filter-btn" data-filter="access" data-value="members">Members</button>
     </div>
 
-    <!-- Divider: between zone 2 & 3 -->
     <div class="search-divider"></div>
 
     <!-- ZONE 3 — ACTIONS -->
     <div class="search-zone zone-actions">
-      <button
-        class="search-icon"
-        id="searchBtn"
-        aria-label="Run search"
-      >
+      <button class="search-icon" id="searchBtn" aria-label="Run search">
         <svg viewBox="0 0 140 140" aria-hidden="true">
           <circle cx="60" cy="60" r="44" />
           <line x1="92" y1="92" x2="130" y2="130" />
         </svg>
       </button>
 
-      <button
-        class="clear-btn"
-        id="clearBtn"
-        aria-label="Clear search"
-      >
-        ✕
-      </button>
+      <button class="clear-btn" id="clearBtn" aria-label="Clear search">✕</button>
     </div>
-
-    <!-- Divider: after zone 3 -->
-    <div class="search-divider"></div>
 
   </div>
 </div>
+
 
 <!-- ================= HERO ================= -->
 <section class="hero" id="heroImage">
