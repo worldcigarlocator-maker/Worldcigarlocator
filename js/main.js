@@ -122,17 +122,18 @@ async function initSidebar() {
 // AUTH GUARD — DOES NOT BLOCK RENDER
 // ============================================================
 async function guard() {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
+
+  await initSidebar();
 
   if (!session) {
-    window.location.href = "/login.html";
+    showLoginPopup();   // 🔑 HÄR
+    resetToHero();
     return;
   }
 
-  // 🔐 Auth OK — fortsätt som vanligt
-  await initSidebar();
+  // inloggad
+  hideLoginPopup();
   resetToHero();
 }
 
