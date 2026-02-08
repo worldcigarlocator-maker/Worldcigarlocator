@@ -36,17 +36,25 @@ document.addEventListener("DOMContentLoaded", () => {
   // RESPONSIVE PLACEHOLDER (desktop ↔ collapsed)
   // ============================================================
   const mq = window.matchMedia("(max-width: 900px)");
+const label = qs(".search-label");
 
-  const syncPlaceholder = () => {
-    input.placeholder = mq.matches
-      ? "Search — e.g. London, New York, Bangkok"
-      : "e.g. London, New York, Bangkok";
-  };
+const syncSearchUI = () => {
+  if (mq.matches) {
+    // collapsed
+    input.placeholder = "Search";
+    if (label) label.style.display = "none";
+  } else {
+    // desktop
+    input.placeholder = "e.g. London, New York, Bangkok";
+    if (label) label.style.display = "inline";
+  }
+};
 
-  // initial sync + on resize
-  syncPlaceholder();
-  mq.addEventListener("change", syncPlaceholder);
+// initial sync + on resize
+syncSearchUI();
+mq.addEventListener("change", syncSearchUI);
 });
+
   
 
   // ----------------------------------------------------------
