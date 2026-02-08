@@ -1,0 +1,161 @@
+/* ============================================================
+   SEARCH.CSS — WCL
+   ISOLATED · PILL-BASED · CANONICAL
+   ============================================================ */
+
+/* ================= WRAPPER ================= */
+
+.search-shell {
+  display: flex;
+  justify-content: center;
+  margin: 2.5rem 0 3rem;
+}
+
+/* ================= CAPSULE (OUTER PILL) ================= */
+
+.search-capsule {
+  display: flex;
+  align-items: center;
+
+  min-width: 900px;
+  height: 60px;
+
+  background: var(--bg);
+  border: 1px solid rgba(255,255,255,0.22); /* silver pill */
+  border-radius: 999px;
+
+  overflow: hidden; /* 🔒 clip dividers */
+}
+
+/* ================= DIVIDERS ================= */
+
+.search-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255,255,255,0.25);
+  flex-shrink: 0;
+}
+
+/* ================= ZONES (BASE) ================= */
+
+.search-zone {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* ============================================================
+   ZONE 1 — SEARCH INPUT
+   ============================================================ */
+
+.zone-search {
+  flex: 2;
+  min-width: 0;
+
+  padding: 0 2.2rem;
+  gap: 1.4rem;
+
+  cursor: text;
+}
+
+/* Label "Search" */
+.search-label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--global);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Actual input */
+#searchInput {
+  flex: 1;
+  min-width: 0;
+
+  border: none;
+  outline: none;
+  background: transparent;
+
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+#searchInput::placeholder {
+  color: rgba(255,255,255,0.55);
+  font-weight: 400;
+}
+
+/* ============================================================
+   ZONE 2 — FILTERS
+   ============================================================ */
+
+.zone-filters {
+  flex: 1;
+  padding: 0 2.2rem;
+  gap: 2rem;
+  white-space: nowrap;
+}
+
+/* Filter buttons */
+.filter-btn {
+  background: none;
+  border: none;
+  padding: 0;
+
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--global);
+
+  cursor: pointer;
+}
+
+.filter-btn:hover {
+  opacity: 0.8;
+}
+
+/* ============================================================
+   ZONE 3 — ACTIONS
+   ============================================================ */
+
+.zone-actions {
+  flex: 0 0 auto;
+  padding: 0 2rem;
+  gap: 1.4rem;
+}
+
+/* Search icon */
+.search-icon {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.search-icon svg {
+  width: 22px;
+  height: 22px;
+
+  stroke: var(--global);
+  fill: none;
+  stroke-width: 8;
+}
+
+/* Clear button */
+.clear-btn {
+  background: none;
+  border: none;
+  padding: 0;
+
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--global);
+
+  cursor: pointer;
+}
+
+.clear-btn:hover {
+  opacity: 0.75;
+}
