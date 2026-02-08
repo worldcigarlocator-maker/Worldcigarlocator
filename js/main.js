@@ -127,16 +127,16 @@ async function guard() {
   await initSidebar();
 
   if (!session) {
-    showLoginPopup();   // 🔑 HÄR
+    document.body.classList.add("auth-locked"); // 🔑
+    showLoginPopup();
     resetToHero();
     return;
   }
 
   // inloggad
-  hideLoginPopup();
+  document.body.classList.remove("auth-locked"); // 🔓
   resetToHero();
 }
-
 
 // ============================================================
 // BOOT
