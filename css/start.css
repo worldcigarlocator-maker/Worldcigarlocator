@@ -170,6 +170,37 @@ body {
 .search-shell::before { top: -3px; }
 .search-shell::after  { bottom: -3px; }
 
+/* ============================================================
+   SEARCH — ZONES (KRITISK)
+   ============================================================ */
+
+.search-zone {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* ZONE 1 — SEARCH */
+.zone-search {
+  flex: 1;
+  min-width: 0; /* 🔑 gör att input inte spränger layouten */
+}
+
+/* ZONE 2 — FILTERS */
+.zone-filters {
+  display: flex;
+  gap: 1.4rem;
+  white-space: nowrap;
+}
+
+/* ZONE 3 — ACTIONS */
+.zone-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+
 /* ================= SEARCH INPUT ================= */
 
 #searchZone {
