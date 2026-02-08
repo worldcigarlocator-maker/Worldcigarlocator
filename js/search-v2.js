@@ -1,16 +1,15 @@
 // ============================================================
 // search-v2.js — WCL Frontend (Search v2 · CANONICAL)
 // ------------------------------------------------------------
-// • Binds REAL input field to cards.js
+// • REAL input field → cards.js
 // • cards.js owns ALL state
-// • No autocomplete
-// • No tokens
-// • No analytics
+// • UI only (no analytics, no auth)
 // ============================================================
 
 import {
   activateSearch,
-  clearSearchMaster
+  clearSearchMaster,
+  toggleChip
 } from "./cards.js";
 
 // ------------------------------------------------------------
@@ -27,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const clearBtn  = qs("#clearBtn");
   const zone      = qs("#searchZone");
   const label     = qs(".search-label");
+  const filters   = qs("#searchFilters");
 
   if (!input) {
     console.warn("❌ searchInput not found");
@@ -40,11 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const syncSearchUI = () => {
     if (mq.matches) {
-      // collapsed
       input.placeholder = "Search";
       if (label) label.style.display = "none";
     } else {
-      // desktop
       input.placeholder = "e.g. London, New York, Bangkok";
       if (label) label.style.display = "inline";
     }
@@ -106,11 +104,30 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ============================================================
-  // CLEAR
+  // CLEAR BUTTON
   // ============================================================
   clearBtn?.addEventListener("click", () => {
     input.value = "";
     clearSearchMaster();
     input.focus();
   });
+
+  // ============================================================
+  // FILTER BUTTONS (chips only)
+  // ============================================================
+  filters?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-filter]");
+    if (!btn) return;
+
+    const { filter, value } = btn.dataset;
+
+    if (filter === "type") {
+      toggleChip({ type: value });
+    }
+
+    if (filter === "access") {
+      toggleChip({ access: value });
+    }
+  });
 });
+
