@@ -78,3 +78,17 @@ body.auth-locked .container {
   filter: blur(6px);
   pointer-events: none;
 }
+
+/* ============================================================
+   LOGIN POPUP — FADE OUT
+   ============================================================ */
+
+.login-popup {
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+.login-popup.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
