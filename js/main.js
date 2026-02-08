@@ -126,23 +126,16 @@ async function guard() {
     data: { session },
   } = await supabase.auth.getSession();
 
-  const container = qs(".container");
-  if (container) container.style.display = "";
-
-  // 🔒 Sidebar ALWAYS builds
-  await initSidebar();
-
-  // 🌍 Public mode
   if (!session) {
-    console.info("🌍 Public mode (no auth)");
-    resetToHero();
+    window.location.href = "/login.html";
     return;
   }
 
-  // 🔐 Logged in
-  console.info("🔐 Authenticated session");
+  // 🔐 Auth OK — fortsätt som vanligt
+  await initSidebar();
   resetToHero();
 }
+
 
 // ============================================================
 // BOOT
