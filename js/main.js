@@ -13,6 +13,13 @@ console.log("🔥 main.js executing");
 const qs  = (sel) => document.querySelector(sel);
 const qsa = (sel) => document.querySelectorAll(sel);
 
+// 👇 LÄGG DEN HÄR
+function hideLoginPopup() {
+  const popup = qs("#loginPopup");
+  if (!popup) return;
+  popup.classList.add("hidden");
+}
+
 // ============================================================
 // IMPORTS (SAFE ORDER)
 // ============================================================
@@ -119,24 +126,29 @@ async function initSidebar() {
 }
 
 // ============================================================
-// AUTH GUARD — DOES NOT BLOCK RENDER
+// AUTH GUARD — BLOCKS UI UNTIL AUTH
 // ============================================================
 async function guard() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   await initSidebar();
 
   if (!session) {
-    document.body.classList.add("auth-locked"); // 🔑
+    // 🔒 PUBLIC / LOCKED
+    document.body.classList.add("auth-locked");
     showLoginPopup();
     resetToHero();
     return;
   }
 
-  // inloggad
-  document.body.classList.remove("auth-locked"); // 🔓
+  // 🔓 LOGGED IN
+  document.body.classList.remove("auth-locked");
+  hideLoginPopup();        // 🔑 DENNA RAD SAKNADES
   resetToHero();
 }
+
 
 // ============================================================
 // BOOT
