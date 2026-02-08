@@ -66,3 +66,16 @@ body {
   height: 100%;
   object-fit: contain;
 }
+/* ============================================================
+   AUTH LOCK (PUBLIC MODE)
+   ============================================================ */
+
+body.auth-locked .main {
+  pointer-events: none;     /* 🔒 inget klickbart */
+  filter: blur(6px);        /* visuellt låst */
+}
+
+body.auth-locked .sidebar {
+  pointer-events: none;
+  filter: blur(6px);
+}
