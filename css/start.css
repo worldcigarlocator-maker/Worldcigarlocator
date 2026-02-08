@@ -105,11 +105,7 @@ body {
   align-items: center;
   flex: 1;
   cursor: text;
-}
-
-#searchZone strong,
-#searchZone em {
-  pointer-events: none; /* så klick går till input */
+  pointer-events: auto;   /* 🔑 */
 }
 
 #searchInput {
@@ -124,6 +120,9 @@ body {
 
   padding: 0;
   margin: 0;
+
+  pointer-events: auto;   /* 🔑 */
+  z-index: 1;             /* 🔑 */
 }
 
 #searchInput::placeholder {
