@@ -150,9 +150,10 @@ async function guard() {
 
   // 🔓 LOGGED IN
   document.body.classList.remove("auth-locked");
-  hideLoginPopup();        // 🔑 DENNA RAD SAKNADES
+  hideLoginPopup();   // 🔑 DENNA RAD VAR DET SOM SAKNADES
   resetToHero();
 }
+
 
 
 // ============================================================
