@@ -1,8 +1,8 @@
 // ============================================================
-// search-v2.js — WCL Frontend (Search v2 · CANONICAL STEP 2)
+// search-v2.js — WCL Frontend (Search v2 · CANONICAL)
 // ------------------------------------------------------------
 // • Binds REAL input field to cards.js
-// • cards.js owns all state
+// • cards.js owns ALL state
 // • No autocomplete
 // • No tokens
 // • No analytics
@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchBtn = qs("#searchBtn");
   const clearBtn  = qs("#clearBtn");
   const zone      = qs("#searchZone");
+  const label     = qs(".search-label");
 
   if (!input) {
     console.warn("❌ searchInput not found");
@@ -33,40 +34,35 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ============================================================
-  // RESPONSIVE PLACEHOLDER (desktop ↔ collapsed)
+  // RESPONSIVE SEARCH UI (desktop ↔ collapsed)
   // ============================================================
   const mq = window.matchMedia("(max-width: 900px)");
-const label = qs(".search-label");
 
-const syncSearchUI = () => {
-  if (mq.matches) {
-    // collapsed
-    input.placeholder = "Search";
-    if (label) label.style.display = "none";
-  } else {
-    // desktop
-    input.placeholder = "e.g. London, New York, Bangkok";
-    if (label) label.style.display = "inline";
-  }
-};
+  const syncSearchUI = () => {
+    if (mq.matches) {
+      // collapsed
+      input.placeholder = "Search";
+      if (label) label.style.display = "none";
+    } else {
+      // desktop
+      input.placeholder = "e.g. London, New York, Bangkok";
+      if (label) label.style.display = "inline";
+    }
+  };
 
-// initial sync + on resize
-syncSearchUI();
-mq.addEventListener("change", syncSearchUI);
-});
+  syncSearchUI();
+  mq.addEventListener("change", syncSearchUI);
 
-  
-
-  // ----------------------------------------------------------
-  // Click anywhere in zone → focus input
-  // ----------------------------------------------------------
+  // ============================================================
+  // Click anywhere in search zone → focus input
+  // ============================================================
   zone?.addEventListener("click", () => {
     input.focus();
   });
 
-  // ----------------------------------------------------------
-  // LIVE INPUT → SEARCH
-  // ----------------------------------------------------------
+  // ============================================================
+  // LIVE INPUT → SEARCH (debounced)
+  // ============================================================
   let TIMER = null;
 
   input.addEventListener("input", () => {
@@ -78,28 +74,28 @@ mq.addEventListener("change", syncSearchUI);
         clearSearchMaster();
         return;
       }
-
       activateSearch({ text });
     }, 250);
   });
 
-  // ----------------------------------------------------------
+  // ============================================================
   // ENTER → SEARCH
-  // ----------------------------------------------------------
+  // ============================================================
   input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      const text = input.value.trim();
-      if (!text) {
-        clearSearchMaster();
-        return;
-      }
-      activateSearch({ text });
+    if (e.key !== "Enter") return;
+
+    const text = input.value.trim();
+    if (!text) {
+      clearSearchMaster();
+      return;
     }
+
+    activateSearch({ text });
   });
 
-  // ----------------------------------------------------------
-  // SEARCH ICON
-  // ----------------------------------------------------------
+  // ============================================================
+  // SEARCH ICON CLICK
+  // ============================================================
   searchBtn?.addEventListener("click", () => {
     const text = input.value.trim();
     if (!text) {
@@ -109,9 +105,9 @@ mq.addEventListener("change", syncSearchUI);
     activateSearch({ text });
   });
 
-  // ----------------------------------------------------------
+  // ============================================================
   // CLEAR
-  // ----------------------------------------------------------
+  // ============================================================
   clearBtn?.addEventListener("click", () => {
     input.value = "";
     clearSearchMaster();
