@@ -1,17 +1,16 @@
 // ============================================================
 // search-v2.js — WCL Frontend (Search v2 · DOM-first · CANONICAL)
 // ------------------------------------------------------------
-// • Binds Search v2 HTML to cards.js state machine
-// • No local state (cards.js is Single Source of Truth)
-// • No auth logic
-// • No analytics
-// • No sidebar logic
+// • Handles ALL search UI (input, buttons, chips, autocomplete)
+// • Converts user intent → cards.js state machine
+// • Owns NO data, NO state
+// • cards.js is Single Source of Truth
 // ============================================================
 
 import {
   activateSearch,
   clearSearchMaster,
-  toggleChip
+  toggleChip,
 } from "./cards.js";
 
 // ------------------------------------------------------------
@@ -20,60 +19,127 @@ import {
 const qs = (sel) => document.querySelector(sel);
 
 // ------------------------------------------------------------
-// Boot
+// Debounce
 // ------------------------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-  const searchZone = qs("#searchZone");
-  const filters   = qs("#searchFilters");
-  const searchBtn = qs("#searchBtn");
-  const clearBtn  = qs("#clearBtn");
+let SEARCH_TIMER = null;
+function debounce(fn, delay = 300) {
+  clearTimeout(SEARCH_TIMER);
+  SEARCH_TIMER = setTimeout(fn, delay);
+}
 
-  if (!searchZone || !searchBtn) {
-    console.warn("Search v2 DOM not ready");
-    return;
+// ------------------------------------------------------------
+// Token parser (input → intent)
+// ------------------------------------------------------------
+function parseSearchTokens(raw) {
+  const s = (raw || "").trim();
+  if (!s) return { text: "", type: null, access: null };
+
+  const tokens = s.split(/\s+/);
+  const keep = [];
+
+  let type = null;
+  let access = null;
+
+  for (const t0 of tokens) {
+    const t = t0.toLowerCase();
+
+    if (t === "store" || t === "stores") { type = "store"; continue; }
+    if (t === "lounge" || t === "lounges") { type = "lounge"; continue; }
+    if (t === "public") { access = "public"; continue; }
+    if (t === "member" || t === "members") { access = "members"; continue; }
+
+    keep.push(t0);
   }
 
-  // ============================================================
-  // SEARCH ZONE — visual activation only
-  // ============================================================
-  searchZone.addEventListener("click", () => {
-    searchZone.classList.add("active");
-    console.log("🔍 Search zone activated");
+  return { text: keep.join(" ").trim(), type, access };
+}
+
+// ------------------------------------------------------------
+// Autocomplete (UI only)
+// ------------------------------------------------------------
+function initAutocomplete() {
+  const box = qs("#autocomplete");
+  const input = qs("#searchInput");
+  if (!box || !input) return;
+
+  document.addEventListener("click", (e) => {
+    if (!box.contains(e.target) && e.target !== input) {
+      box.classList.add("hidden");
+    }
+  });
+}
+
+// ------------------------------------------------------------
+// Live search + filters
+// ------------------------------------------------------------
+function initLiveSearchAndFilters() {
+  const input     = qs("#searchInput");
+  const searchBtn = qs("#searchBtn");
+  const clearBtn  = qs("#clearBtn");
+  const filters   = qs("#searchFilters");
+
+  if (!input || !searchBtn) return;
+
+  // ----------------------------
+  // INPUT — live search
+  // ----------------------------
+  input.addEventListener("input", () => {
+    debounce(() => {
+      const { text, type, access } = parseSearchTokens(input.value);
+
+      if (!text && !type && !access) {
+        clearSearchMaster();
+        return;
+      }
+
+      if (type)   toggleChip({ type });
+      if (access) toggleChip({ access });
+
+      activateSearch({ text });
+    });
   });
 
-  // ============================================================
-  // SEARCH BUTTON — trigger cards.js pipeline
-  // ============================================================
+  // ----------------------------
+  // SEARCH BUTTON
+  // ----------------------------
   searchBtn.addEventListener("click", () => {
-    activateSearch({ text: "" });
-    console.log("🚀 Search triggered (v2 → cards)");
+    const { text, type, access } = parseSearchTokens(input.value);
+
+    if (type)   toggleChip({ type });
+    if (access) toggleChip({ access });
+
+    activateSearch({ text });
   });
 
-  // ============================================================
-  // CLEAR BUTTON — reset SEARCH master
-  // ============================================================
+  // ----------------------------
+  // CLEAR BUTTON
+  // ----------------------------
   clearBtn?.addEventListener("click", () => {
+    input.value = "";
     clearSearchMaster();
-    console.log("✕ Search cleared (v2 → cards)");
   });
 
-  // ============================================================
-  // FILTER BUTTONS — chips only (delegated)
-  // ============================================================
+  // ----------------------------
+  // FILTER CHIPS (delegated)
+  // ----------------------------
   filters?.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-filter]");
-    if (!btn) return;
+    const el = e.target.closest("[data-filter]");
+    if (!el) return;
 
-    const { filter, value } = btn.dataset;
+    const { filter, value } = el.dataset;
 
-    if (filter === "type") {
-      toggleChip({ type: value });
-    }
-
-    if (filter === "access") {
-      toggleChip({ access: value });
-    }
-
-    console.log("🧩 Filter toggled (v2 → cards)", filter, value);
+    if (filter === "type")   toggleChip({ type: value });
+    if (filter === "access") toggleChip({ access: value });
   });
-});
+}
+
+// ------------------------------------------------------------
+// Boot
+// ------------------------------------------------------------
+function bootSearchV2() {
+  initAutocomplete();
+  initLiveSearchAndFilters();
+  console.log("✅ Search v2 booted");
+}
+
+document.addEventListener("DOMContentLoaded", bootSearchV2);
