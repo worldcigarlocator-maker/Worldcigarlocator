@@ -159,3 +159,38 @@
 .clear-btn:hover {
   opacity: 0.75;
 }
+
+/* ============================================================
+   SEARCH — RESPONSIVE (COMPACT MODE)
+   Airbnb-style collapse
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+  /* Dölj filters & actions */
+  .zone-filters,
+  .zone-actions {
+    display: none;
+  }
+
+  /* Dölj etiketten "Search" */
+  .search-label {
+    display: none;
+  }
+
+  /* Gör pillen flexibel */
+  .search-capsule {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Ge input mer luft */
+  .zone-search {
+    padding: 0 1.6rem;
+  }
+
+  /* Placeholder blir huvudtext */
+  #searchInput {
+    font-size: 1rem;
+  }
+}
