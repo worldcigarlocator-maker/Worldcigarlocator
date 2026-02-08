@@ -32,6 +32,23 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  // ============================================================
+  // RESPONSIVE PLACEHOLDER (desktop ↔ collapsed)
+  // ============================================================
+  const mq = window.matchMedia("(max-width: 900px)");
+
+  const syncPlaceholder = () => {
+    input.placeholder = mq.matches
+      ? "Search — e.g. London, New York, Bangkok"
+      : "e.g. London, New York, Bangkok";
+  };
+
+  // initial sync + on resize
+  syncPlaceholder();
+  mq.addEventListener("change", syncPlaceholder);
+});
+  
+
   // ----------------------------------------------------------
   // Click anywhere in zone → focus input
   // ----------------------------------------------------------
