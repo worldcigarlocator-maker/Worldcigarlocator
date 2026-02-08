@@ -71,10 +71,139 @@ body {
   background: rgba(255,255,255,0.12);
   left: 50%;
   transform: translateX(-50%);
+}/* ============================================================
+   SEARCH — SHELL
+   Centerar search + ritar top/bottom guide-linjer
+   ============================================================ */
+
+.search-shell {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+/* Top & bottom guide lines (ersätter capsule-border) */
+.search-shell::before,
+.search-shell::after {
+  content: "";
+  position: absolute;
+  width: 60%;                     /* 🔒 visuell totalbredd */
+  height: 1px;
+  background: rgba(255,255,255,0.12);
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .search-shell::before { top: -3px; }
 .search-shell::after  { bottom: -3px; }
+
+/* ================= SEARCH INPUT ================= */
+
+#searchZone {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  cursor: text;
+}
+
+#searchZone strong,
+#searchZone em {
+  pointer-events: none; /* så klick går till input */
+}
+
+#searchInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+
+  padding: 0;
+  margin: 0;
+}
+
+#searchInput::placeholder {
+  color: rgba(255,255,255,0.55);
+  font-weight: 400;
+}
+
+
+
+/* ============================================================
+   SEARCH — ROW
+   Själva raden (ingen input, bara layout)
+   ============================================================ */
+
+.search-capsule {
+  display: flex;
+  align-items: center;
+
+  min-width: 900px;
+  height: 60px;
+
+  padding: 2px 1.6rem 0;          /* ⬅️ sänker ALLT optiskt ~1px */
+  background: var(--bg);
+}
+
+
+/* ============================================================
+   SEARCH — DIVIDER
+   Små vertikala skiljelinjer
+   ============================================================ */
+
+.search-divider {
+  width: 2px;
+  height: 28px;
+  background: rgba(255,255,255,0.18);
+  flex-shrink: 0;                 /* 🔒 får aldrig kollapsa */
+}
+
+
+/* ============================================================
+   SEARCH — ZONES (grund)
+   ============================================================ */
+
+
+.search-shell::before { top: -3px; }
+.search-shell::after  { bottom: -3px; }
+
+/* ================= SEARCH INPUT ================= */
+
+#searchZone {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  cursor: text;
+}
+
+#searchZone strong,
+#searchZone em {
+  pointer-events: none; /* så klick går till input */
+}
+
+#searchInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+
+  padding: 0;
+  margin: 0;
+}
+
+#searchInput::placeholder {
+  color: rgba(255,255,255,0.55);
+  font-weight: 400;
+}
+
 
 
 /* ============================================================
