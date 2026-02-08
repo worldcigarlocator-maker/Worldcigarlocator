@@ -68,9 +68,13 @@ body {
 }
 /* ============================================================
    AUTH LOCK (PUBLIC MODE)
-   Login popup owns blur
    ============================================================ */
 
 body.auth-locked {
-  overflow: hidden; /* 🔒 ingen scroll bakom */
+  overflow: hidden;
+}
+
+body.auth-locked .container {
+  filter: blur(6px);
+  pointer-events: none;
 }
