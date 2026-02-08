@@ -1,7 +1,7 @@
 /* ============================================================
    START.CSS — WCL
    MAIN / SEARCH / HERO
-   ZONE-BASED · CLEAN · COMMENTED
+   CLEAN · ZONE-BASED · CANONICAL
    ============================================================ */
 
 
@@ -12,8 +12,7 @@
   --panel: #0a0a0a;
   --border: rgba(255,255,255,0.12);
 
-  /* Global system colour
-     Used for brand, continents, search, filters, icons */
+  /* Global system colour */
   --global: rgb(115, 98, 75);
 
   --text: #f5f5f5;
@@ -51,7 +50,7 @@ body {
 
 /* ============================================================
    SEARCH — SHELL
-   Centerar search + ritar top/bottom guide-linjer
+   Center + top/bottom guide lines
    ============================================================ */
 
 .search-shell {
@@ -61,34 +60,11 @@ body {
   margin-bottom: 3rem;
 }
 
-/* Top & bottom guide lines (ersätter capsule-border) */
 .search-shell::before,
 .search-shell::after {
   content: "";
   position: absolute;
-  width: 60%;                     /* 🔒 visuell totalbredd */
-  height: 1px;
-  background: rgba(255,255,255,0.12);
-  left: 50%;
-  transform: translateX(-50%);
-}/* ============================================================
-   SEARCH — SHELL
-   Centerar search + ritar top/bottom guide-linjer
-   ============================================================ */
-
-.search-shell {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 3rem;
-}
-
-/* Top & bottom guide lines (ersätter capsule-border) */
-.search-shell::before,
-.search-shell::after {
-  content: "";
-  position: absolute;
-  width: 60%;                     /* 🔒 visuell totalbredd */
+  width: 60%;
   height: 1px;
   background: rgba(255,255,255,0.12);
   left: 50%;
@@ -98,43 +74,9 @@ body {
 .search-shell::before { top: -3px; }
 .search-shell::after  { bottom: -3px; }
 
-/* ================= SEARCH INPUT ================= */
-
-#searchZone {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  cursor: text;
-  pointer-events: auto;   /* 🔑 */
-}
-
-#searchInput {
-  width: 100%;
-  border: none;
-  outline: none;
-  background: transparent;
-
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-
-  padding: 0;
-  margin: 0;
-
-  pointer-events: auto;   /* 🔑 */
-  z-index: 1;             /* 🔑 */
-}
-
-#searchInput::placeholder {
-  color: rgba(255,255,255,0.55);
-  font-weight: 400;
-}
-
-
 
 /* ============================================================
-   SEARCH — ROW
-   Själva raden (ingen input, bara layout)
+   SEARCH — CAPSULE (ROW)
    ============================================================ */
 
 .search-capsule {
@@ -144,34 +86,25 @@ body {
   min-width: 900px;
   height: 60px;
 
-  padding: 2px 1.6rem 0;          /* ⬅️ sänker ALLT optiskt ~1px */
+  padding: 2px 1.6rem 0;
   background: var(--bg);
 }
 
 
 /* ============================================================
-   SEARCH — DIVIDER
-   Små vertikala skiljelinjer
+   SEARCH — DIVIDERS
    ============================================================ */
 
 .search-divider {
   width: 2px;
   height: 28px;
   background: rgba(255,255,255,0.18);
-  flex-shrink: 0;                 /* 🔒 får aldrig kollapsa */
+  flex-shrink: 0;
 }
 
 
 /* ============================================================
-   SEARCH — ZONES (grund)
-   ============================================================ */
-
-
-.search-shell::before { top: -3px; }
-.search-shell::after  { bottom: -3px; }
-
-/* ============================================================
-   SEARCH — ZONES (KRITISK)
+   SEARCH — ZONES (BASE)
    ============================================================ */
 
 .search-zone {
@@ -180,52 +113,40 @@ body {
   height: 100%;
 }
 
-/* ZONE 1 — SEARCH */
+
+/* ============================================================
+   ZONE 1 — SEARCH (INPUT)
+   ============================================================ */
+
 .zone-search {
-  flex: 1;
-  min-width: 0; /* 🔑 gör att input inte spränger layouten */
+  flex: 2;
+  min-width: 0;
+  padding-left: 2.8rem;
+  padding-right: 2rem;
 }
 
-/* ZONE 2 — FILTERS */
-.zone-filters {
-  display: flex;
-  gap: 1.4rem;
-  white-space: nowrap;
-}
-
-/* ZONE 3 — ACTIONS */
-.zone-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-
-/* ================= SEARCH INPUT ================= */
-
+/* Wrapper so clicking anywhere focuses input */
 #searchZone {
   display: flex;
   align-items: center;
-  flex: 1;
+  width: 100%;
   cursor: text;
 }
 
+/* Optional label ("Search") */
 .search-label {
   margin-right: 1rem;
   font-weight: 700;
-  color: var(--gold);
-  pointer-events: none;
+  color: var(--global);
   white-space: nowrap;
+  pointer-events: none;
 }
 
-
-#searchZone strong,
-#searchZone em {
-  pointer-events: none; /* så klick går till input */
-}
-
+/* Actual input */
 #searchInput {
+  flex: 1;
   width: 100%;
+
   border: none;
   outline: none;
   background: transparent;
@@ -234,8 +155,7 @@ body {
   font-weight: 600;
   color: #fff;
 
-  padding: 0;
-  margin: 0;
+  pointer-events: auto;
 }
 
 #searchInput::placeholder {
@@ -244,106 +164,25 @@ body {
 }
 
 
-
 /* ============================================================
-   SEARCH — ROW
-   Själva raden (ingen input, bara layout)
-   ============================================================ */
-
-.search-capsule {
-  display: flex;
-  align-items: center;
-
-  min-width: 900px;
-  height: 60px;
-
-  padding: 2px 1.6rem 0;          /* ⬅️ sänker ALLT optiskt ~1px */
-  background: var(--bg);
-}
-
-
-/* ============================================================
-   SEARCH — DIVIDER
-   Små vertikala skiljelinjer
-   ============================================================ */
-
-.search-divider {
-  width: 2px;
-  height: 28px;
-  background: rgba(255,255,255,0.18);
-  flex-shrink: 0;                 /* 🔒 får aldrig kollapsa */
-}
-
-
-/* ============================================================
-   SEARCH — ZONES (grund)
-   ============================================================ */
-
-.search-zone {
-  display: flex;
-  align-items: center;
-}
-
-
-/* ------------------------------------------------------------
-   ZONE 1 — SEARCH
-   Search + example
-   ------------------------------------------------------------ */
-
-.zone-search {
-  flex: 2;                        /* ⬅️ dominant zon */
-  display: flex;
-  align-items: flex-start;        /* 🔑 låter example justeras separat */
-
-  padding-left: 2.8rem;           /* linje → Search */
-  padding-right: 2.0rem;          /* Search → nästa linje */
-
-  gap: 1.8rem;                    /* mellan Search & example */
-}
-
-/* "Search" */
-.zone-search strong {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--global);
-
-  line-height: 1;                 /* tajt baseline */
-  margin-top: 0.15rem;            /* optisk centrering */
-}
-
-/* example-text */
-.zone-search em {
-  font-size: 0.6rem;
-  opacity: 0.7;
-
-  white-space: nowrap;            /* 🔒 ingen radbrytning */
-  line-height: 1.2;
-
-  transform: translateY(8px);     /* 🔑 sänkt ~1mm */
-}
-
-
-/* ------------------------------------------------------------
    ZONE 2 — FILTERS
-   Store / Lounge / Members
-   ------------------------------------------------------------ */
+   ============================================================ */
 
 .zone-filters {
   flex: 1;
   display: flex;
   align-items: center;
 
-  padding-left: 2.8rem;           /* linje → första ordet */
-  padding-right: 2.8rem;          /* sista ordet → linje */
+  padding-left: 2.8rem;
+  padding-right: 2.8rem;
 
-  gap: 2rem;                      /* mellan orden */
-
-  transform: translateY(-0.5px);  /* optisk centrering */
+  gap: 2rem;
+  white-space: nowrap;
 }
 
-/* Filter-knappar (reset) */
+/* Filter buttons */
 .filter-btn {
-  background: transparent;
+  background: none;
   border: none;
   padding: 0;
 
@@ -353,34 +192,28 @@ body {
   color: var(--global);
 
   cursor: pointer;
-  white-space: nowrap;
-
   appearance: none;
-  -webkit-appearance: none;
 }
 
 
-/* ------------------------------------------------------------
+/* ============================================================
    ZONE 3 — ACTIONS
-   Förstoringsglas + clear
-   ------------------------------------------------------------ */
+   ============================================================ */
 
 .zone-actions {
-  flex: 0 0 auto;                 /* 🔒 zonen får INTE sträcka sig */
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: flex-end;
 
-  padding: 0 2.2rem;              /* 🔑 drar in ikonerna symmetriskt */
-  gap: 1.6rem;                    /* mellan ikon & ✕ */
-
-  transform: translateY(-0.5px);  /* optisk centrering */
+  padding: 0 2.2rem;
+  gap: 1.6rem;
 }
 
 
-/* ------------------------------------------------------------
+/* ============================================================
    SEARCH ICON
-   ------------------------------------------------------------ */
+   ============================================================ */
 
 .search-icon {
   background: none;
@@ -396,33 +229,12 @@ body {
   stroke: var(--global);
   fill: none;
   stroke-width: 8;
-
-  transform: translateY(0.5px);   /* matchar clear visuellt */
 }
 
 
-/* ------------------------------------------------------------
+/* ============================================================
    CLEAR BUTTON
-   ------------------------------------------------------------ */
-
-.clear-btn {
-  background: none;
-  border: none;
-  padding: 0;
-
-  font-size: 1.1rem;
-  line-height: 1;
-  color: var(--global);
-
-  cursor: pointer;
-
-  transform: translateY(0.5px);   /* exakt samma optiska nivå */
-}
-
-
-/* ------------------------------------------------------------
-   CLEAR BUTTON
-   ------------------------------------------------------------ */
+   ============================================================ */
 
 .clear-btn {
   background: none;
