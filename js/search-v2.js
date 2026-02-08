@@ -9,7 +9,8 @@
 import {
   activateSearch,
   clearSearchMaster,
-  toggleChip
+  toggleChip,
+  clearLocationMaster   // ⬅️ LÄGG TILL
 } from "./cards.js";
 
 // ------------------------------------------------------------
@@ -106,11 +107,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
   // CLEAR BUTTON
   // ============================================================
-  clearBtn?.addEventListener("click", () => {
-    input.value = "";
-    clearSearchMaster();
-    input.focus();
-  });
+ clearBtn?.addEventListener("click", () => {
+  input.value = "";
+
+  clearSearchMaster();     // rensar search
+  clearLocationMaster();   // 🔑 rensar sidebar / location
+
+  input.focus();
+});
+;
 
   // ============================================================
   // FILTER BUTTONS (chips only)
