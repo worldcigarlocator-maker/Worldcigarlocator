@@ -128,7 +128,7 @@ body {
   align-items: flex-start;        /* 🔑 låter example justeras separat */
 
   padding-left: 2.8rem;           /* linje → Search */
-  padding-right: 3.6rem;          /* Search → nästa linje */
+  padding-right: 2.0rem;          /* Search → nästa linje */
 
   gap: 1.8rem;                    /* mellan Search & example */
 }
