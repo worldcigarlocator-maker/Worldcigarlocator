@@ -13,11 +13,16 @@ console.log("🔥 main.js executing");
 const qs  = (sel) => document.querySelector(sel);
 const qsa = (sel) => document.querySelectorAll(sel);
 
-// 👇 LÄGG DEN HÄR
 function hideLoginPopup() {
   const popup = qs("#loginPopup");
   if (!popup) return;
+
   popup.classList.add("hidden");
+
+  // säkerhetsbälte: plocka bort helt efter animation
+  setTimeout(() => {
+    popup.style.display = "none";
+  }, 260);
 }
 
 // ============================================================
