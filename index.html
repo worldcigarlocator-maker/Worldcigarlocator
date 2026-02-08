@@ -13,130 +13,151 @@
     rel="stylesheet"
   >
 
+  <!-- CSS -->
   <link rel="stylesheet" href="css/start.css">
-<link rel="stylesheet" href="css/search.css">
-<link rel="stylesheet" href="css/sidebar.css">
-<link rel="stylesheet" href="css/cards.css">
-
+  <link rel="stylesheet" href="css/search.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/cards.css">
 </head>
 
 <body>
 
+<!-- ============================================================
+     LOGIN POPUP (BLOCKS APP UNTIL AUTH)
+     ============================================================ -->
+<div id="loginPopup" class="login-popup hidden">
+  <div class="login-box">
+    <h2>Login</h2>
+
+    <input
+      id="loginEmail"
+      type="email"
+      placeholder="Email"
+      autocomplete="email"
+    />
+
+    <input
+      id="loginPassword"
+      type="password"
+      placeholder="Password"
+      autocomplete="current-password"
+    />
+
+    <label class="remember">
+      <input type="checkbox" id="rememberMe" />
+      Remember me
+    </label>
+
+    <button id="loginSubmit">
+      <span class="login-text">Login</span>
+      <span id="loginSpinner" class="hidden">⏳</span>
+    </button>
+  </div>
+</div>
+
+<!-- ============================================================
+     APP CONTAINER
+     ============================================================ -->
 <div class="container">
 
-<!-- ================= SIDEBAR ================= -->
-<aside class="sidebar">
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <header class="sidebar-header">
 
-  <header class="sidebar-header">
-
-    <!-- BRAND (SVG · ONE LINE · GLOBAL COLOUR) -->
-    <div class="sidebar-brand" aria-hidden="true">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 520 160"
-        class="sidebar-brand-svg"
-      >
-        <style>
-          .text {
-            fill: rgb(115, 98, 75); /* 🔒 global colour */
-            font-family: Georgia, 'Times New Roman', serif;
-          }
-        </style>
-
-        <text
-          x="260"
-          y="100"
-          text-anchor="middle"
-          class="text"
-          font-size="56"
-        >
-          World Cigar Locator
-        </text>
-      </svg>
-    </div>
-
-    <!-- ACTIONS -->
-    <div class="sidebar-actions">
-      <button class="sidebar-btn">Login</button>
-      <button class="sidebar-btn primary">Add Store</button>
-    </div>
-
-  </header>
-
-  <div id="sidebarMenu" class="sidebar-menu">
-    <!-- sidebar.js bygger innehållet -->
-  </div>
-
-  <footer class="sidebar-footer">
-    <a href="mailto:support@worldcigarlocator.com">Contact / Support</a>
-  </footer>
-
-</aside>
-
-<!-- ================= MAIN ================= -->
-<main class="main">
-
-<!-- ================= SEARCH ================= -->
-<div class="search-shell">
-  <div class="search-capsule">
-
-    <!-- ZONE 1 — SEARCH -->
-    <div class="search-zone zone-search" id="searchZone">
-      <span class="search-label">Search</span>
-      <input
-        id="searchInput"
-        type="text"
-        placeholder="e.g. London, New York, Bangkok"
-        autocomplete="off"
-      />
-    </div>
-
-    <div class="search-divider"></div>
-
-    <!-- ZONE 2 — FILTERS -->
-    <div class="search-zone zone-filters" id="searchFilters">
-      <button class="filter-btn" data-filter="type" data-value="store">Store</button>
-      <button class="filter-btn" data-filter="type" data-value="lounge">Lounge</button>
-      <button class="filter-btn" data-filter="access" data-value="members">Members</button>
-    </div>
-
-    <div class="search-divider"></div>
-
-    <!-- ZONE 3 — ACTIONS -->
-    <div class="search-zone zone-actions">
-      <button class="search-icon" id="searchBtn" aria-label="Run search">
-        <svg viewBox="0 0 140 140" aria-hidden="true">
-          <circle cx="60" cy="60" r="44" />
-          <line x1="92" y1="92" x2="130" y2="130" />
+      <!-- BRAND -->
+      <div class="sidebar-brand" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160">
+          <text
+            x="260"
+            y="100"
+            text-anchor="middle"
+            font-size="56"
+            fill="rgb(115, 98, 75)"
+            font-family="Georgia, 'Times New Roman', serif"
+          >
+            World Cigar Locator
+          </text>
         </svg>
-      </button>
+      </div>
 
-      <button class="clear-btn" id="clearBtn" aria-label="Clear search">✕</button>
+      <!-- ACTIONS -->
+      <div class="sidebar-actions">
+        <button class="sidebar-btn">Login</button>
+        <button class="sidebar-btn primary">Add Store</button>
+      </div>
+
+    </header>
+
+    <div id="sidebarMenu" class="sidebar-menu"></div>
+
+    <footer class="sidebar-footer">
+      <a href="mailto:support@worldcigarlocator.com">Contact / Support</a>
+    </footer>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+
+    <!-- ================= SEARCH ================= -->
+    <div class="search-shell">
+      <div class="search-capsule">
+
+        <!-- ZONE 1 -->
+        <div class="search-zone zone-search" id="searchZone">
+          <span class="search-label">Search</span>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="e.g. London, New York, Bangkok"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="search-divider"></div>
+
+        <!-- ZONE 2 -->
+        <div class="search-zone zone-filters" id="searchFilters">
+          <button class="filter-btn" data-filter="type" data-value="store">Store</button>
+          <button class="filter-btn" data-filter="type" data-value="lounge">Lounge</button>
+          <button class="filter-btn" data-filter="access" data-value="members">Members</button>
+        </div>
+
+        <div class="search-divider"></div>
+
+        <!-- ZONE 3 -->
+        <div class="search-zone zone-actions">
+          <button class="search-icon" id="searchBtn" aria-label="Run search">
+            <svg viewBox="0 0 140 140" aria-hidden="true">
+              <circle cx="60" cy="60" r="44" />
+              <line x1="92" y1="92" x2="130" y2="130" />
+            </svg>
+          </button>
+
+          <button class="clear-btn" id="clearBtn" aria-label="Clear search">✕</button>
+        </div>
+
+      </div>
     </div>
 
-  </div>
-</div>
+    <!-- ================= HERO ================= -->
+    <section class="hero" id="heroImage">
+      <img
+        src="images/world-cigar-locator-hero.jpg"
+        alt="World Cigar Locator"
+      >
+      <div id="heroText"></div>
+    </section>
 
+    <h2 id="resultHeading" style="display:none"></h2>
 
-<!-- ================= HERO ================= -->
-<section class="hero" id="heroImage">
-  <img
-    src="images/world-cigar-locator-hero.jpg"
-    alt="World Cigar Locator"
-  >
-  <div id="heroText"></div>
-</section>
+    <!-- ================= RESULTS ================= -->
+    <div id="storeGrid"></div>
 
-<h2 id="resultHeading" style="display:none"></h2>
-
-
-  <!-- ================= RESULTS ================= -->
-  <div id="storeGrid"></div>
-
-</main>
+  </main>
 
 </div>
 
+<!-- ================= SCRIPTS ================= -->
 <script type="module" src="js/main.js"></script>
 <script type="module" src="js/search-v2.js"></script>
 
