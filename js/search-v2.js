@@ -5,13 +5,16 @@
 // • cards.js owns ALL state
 // • UI only (no analytics, no auth)
 // ============================================================
+clearBtn?.addEventListener("click", () => {
+  input.value = "";
 
-import {
-  activateSearch,
-  clearSearchMaster,
-  toggleChip,
-  clearLocationMaster   // ⬅️ LÄGG TILL
-} from "./cards.js";
+  clearSearchMaster();      // search = tom
+  clearLocationMaster();    // sidebar / geo = tom
+  resetToHero();            // 🔑 HIERARKI → IDLE / HOME
+
+  input.focus();
+});
+
 
 // ------------------------------------------------------------
 // Helpers
