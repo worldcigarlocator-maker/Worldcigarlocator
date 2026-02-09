@@ -11,14 +11,16 @@
   margin: 2.5rem 0 3rem;
 }
 
-/* ================= CAPSULE (OUTER PILL) ================= */
-
 .search-capsule {
   display: flex;
   align-items: center;
 
-  min-width: 900px;
-  height: 60px;
+  /* 🔑 RESPONSIV BREDD – följer viewport & hero */
+  width: min(92vw, 1100px);
+  min-width: 680px;
+
+  /* 🔑 RESPONSIV HÖJD – skalar mjukt */
+  height: clamp(52px, 6.5vh, 64px);
 
   background: var(--bg);
   border: 1px solid rgba(255,255,255,0.22); /* silver pill */
