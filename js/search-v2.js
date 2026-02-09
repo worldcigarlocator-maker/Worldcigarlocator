@@ -4,16 +4,16 @@
 // • REAL input field → cards.js
 // • cards.js owns ALL state
 // • UI only (no analytics, no auth)
+// • Clear = FULL HOME RESET (search + location + hero)
 // ============================================================
-clearBtn?.addEventListener("click", () => {
-  input.value = "";
 
-  clearSearchMaster();      // search = tom
-  clearLocationMaster();    // sidebar / geo = tom
-  resetToHero();            // 🔑 HIERARKI → IDLE / HOME
-
-  input.focus();
-});
+import {
+  activateSearch,
+  clearSearchMaster,
+  clearLocationMaster,
+  toggleChip,
+  resetToHero,
+} from "./cards.js";
 
 // ------------------------------------------------------------
 // Helpers
@@ -107,17 +107,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ============================================================
-  // CLEAR BUTTON
+  // CLEAR BUTTON — FULL HOME RESET
   // ============================================================
- clearBtn?.addEventListener("click", () => {
-  input.value = "";
+  clearBtn?.addEventListener("click", () => {
+    input.value = "";
 
-  clearSearchMaster();     // rensar search
-  clearLocationMaster();   // 🔑 rensar sidebar / location
+    clearSearchMaster();     // search → idle
+    clearLocationMaster();   // sidebar / geo → idle
+    resetToHero();           // 🔑 home / hero
 
-  input.focus();
-});
-;
+    input.focus();
+  });
 
   // ============================================================
   // FILTER BUTTONS (chips only)
@@ -137,4 +137,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
 
