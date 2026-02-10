@@ -3,21 +3,13 @@
    ISOLATED · PILL-BASED · CANONICAL
    ============================================================ */
 
-/* ================= WRAPPER ================= */
-
-.search-shell {
-  display: flex;
-  justify-content: center;
-  margin: 2.5rem 0 3rem;
-}
-
 .search-capsule {
   display: flex;
   align-items: center;
 
   /* 🔑 RESPONSIV BREDD – följer viewport & hero */
   width: min(92vw, 1100px);
-  min-width: 680px;
+  min-width: 320px;   /* 🔑 detta var felet */
 
   /* 🔑 RESPONSIV HÖJD – skalar mjukt */
   height: clamp(52px, 6.5vh, 64px);
@@ -28,6 +20,7 @@
 
   overflow: hidden; /* 🔒 clip dividers */
 }
+
 
 /* ================= DIVIDERS ================= */
 
