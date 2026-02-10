@@ -592,12 +592,13 @@ async function loadUserRating(store_id) {
   const user = userResp.data.user;
   if (!user) return;
 
-  const { data } = await supabase
-    .from("ratings")
-    .select("rating")
-    .eq("store_id", store_id)
-    .eq("user_id", user.id)
-    .single();
+const { data } = await supabase
+  .from("ratings")
+  .select("rating")
+  .eq("store_id", store_id)
+  .eq("user_id", user.id)
+  .maybeSingle();
+
 
   USER_TEMP_RATING = data?.rating || 0;
   highlightStars(USER_TEMP_RATING);
