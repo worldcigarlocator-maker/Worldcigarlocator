@@ -45,11 +45,9 @@
 
 .zone-search {
   flex: 2;
-  min-width: 0;
-
+  min-width: 0;        /* 🔑 VIKTIG */
   padding: 0 2.2rem;
   gap: 1.4rem;
-
   cursor: text;
 }
 
@@ -65,7 +63,7 @@
 /* Actual input */
 #searchInput {
   flex: 1;
-  min-width: 0;
+  min-width: 0;        /* 🔑 VIKTIG */
 
   border: none;
   outline: none;
@@ -76,6 +74,7 @@
   font-weight: 600;
   color: #fff;
 }
+
 
 #searchInput::placeholder {
   color: rgba(255,255,255,0.55);
@@ -173,7 +172,7 @@
     display: none;
   }
 
-  /* Gör pillen flexibel */
+  /* Pillen får bli helt flexibel */
   .search-capsule {
     min-width: 0;
     width: 100%;
