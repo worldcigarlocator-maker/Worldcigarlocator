@@ -54,12 +54,13 @@ body {
 
 .hero {
   max-width: 1600px;
-  margin: 0 auto;
+  margin: 2.2rem auto 0;   /* 🔑 DETTA ÄR NYCKELN */
   aspect-ratio: 16 / 9;
   border-radius: 18px;
   overflow: hidden;
   background: #000;
 }
+
 
 .hero img {
   width: 100%;
