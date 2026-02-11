@@ -1,10 +1,10 @@
 // ============================================================
-// SIDEBAR.JS — WCL Sidebar (STATIC, FINAL, CANONICAL)
+// SIDEBAR.JS — WCL Sidebar (CANONICAL · STABLE TOGGLES)
 // ============================================================
-// - Byggs EN GÅNG efter auth
+// - Built once after auth
 // - Backend: sidebar_nodes_v2 (single source of truth)
-// - Sidebar = navigation + overview
-// - Påverkas ALDRIG av search
+// - Toggle ONLY on arrow (or row whitespace)
+// - Label click = activateLocation (never toggles)
 // ============================================================
 
 import { activateLocation } from "./cards.js";
@@ -91,7 +91,7 @@ export async function buildFrontendSidebar() {
       return;
     }
 
-    if (level === "city") {
+    if (level === "city" && city) {
       if (isUS && state) {
         continents[continent].countries[country].states[state] ??= {
           count: 0,
@@ -105,6 +105,7 @@ export async function buildFrontendSidebar() {
   });
 
   renderSidebar(continents);
+  bindSidebarEvents(); // 🔑 single delegated listener
 }
 
 // ============================================================
@@ -114,37 +115,21 @@ function renderSidebar(continents) {
   Object.entries(continents)
     .sort(([a], [b]) => sortAZ(a, b))
     .forEach(([continent, cData]) => {
-      const cont = createLine("continent", continent, cData.count);
-      const contChildren = createChildren();
-
-      bindArrowToggle(cont, contChildren);
-
-      cont.querySelector(".label-wrap")?.addEventListener("click", (e) => {
-        e.stopPropagation();
-        setActivePath(cont);
-        activateLocation({ continent, country: null, state: null, city: null });
+      const cont = createLine("continent", continent, cData.count, null, {
+        continent,
       });
+      const contChildren = createChildren();
 
       menu.append(cont, contChildren);
 
       Object.entries(cData.countries)
         .sort(([a], [b]) => sortAZ(a, b))
         .forEach(([country, coData]) => {
-          const co = createLine("country", country, coData.count, coData.iso2);
-          const coChildren = createChildren();
-
-          bindArrowToggle(co, coChildren);
-
-          co.querySelector(".label-wrap")?.addEventListener("click", (e) => {
-            e.stopPropagation();
-            setActivePath(co);
-            activateLocation({
-              continent,
-              country,
-              state: null,
-              city: null,
-            });
+          const co = createLine("country", country, coData.count, coData.iso2, {
+            continent,
+            country,
           });
+          const coChildren = createChildren();
 
           contChildren.append(co, coChildren);
 
@@ -152,40 +137,24 @@ function renderSidebar(continents) {
             Object.entries(coData.states)
               .sort(([a], [b]) => sortAZ(a, b))
               .forEach(([state, sData]) => {
-                const st = createLine("state", state, sData.count);
-                const stChildren = createChildren();
-
-                bindArrowToggle(st, stChildren);
-
-                st.querySelector(".label-wrap")?.addEventListener("click", (e) => {
-                  e.stopPropagation();
-                  setActivePath(st);
-                  activateLocation({
-                    continent,
-                    country,
-                    state,
-                    city: null,
-                  });
+                const st = createLine("state", state, sData.count, null, {
+                  continent,
+                  country,
+                  state,
                 });
+                const stChildren = createChildren();
 
                 coChildren.append(st, stChildren);
 
                 Object.entries(sData.cities)
                   .sort(([a], [b]) => sortAZ(a, b))
                   .forEach(([city, n]) => {
-                    const ct = createLine("city", city, n);
-
-                    ct.addEventListener("click", (e) => {
-                      e.stopPropagation();
-                      setActivePath(ct);
-                      activateLocation({
-                        continent,
-                        country,
-                        state,
-                        city,
-                      });
+                    const ct = createLine("city", city, n, null, {
+                      continent,
+                      country,
+                      state,
+                      city,
                     });
-
                     stChildren.append(ct);
                   });
               });
@@ -193,19 +162,11 @@ function renderSidebar(continents) {
             Object.entries(coData.cities)
               .sort(([a], [b]) => sortAZ(a, b))
               .forEach(([city, n]) => {
-                const ct = createLine("city", city, n);
-
-                ct.addEventListener("click", (e) => {
-                  e.stopPropagation();
-                  setActivePath(ct);
-                  activateLocation({
-                    continent,
-                    country,
-                    state: null,
-                    city,
-                  });
+                const ct = createLine("city", city, n, null, {
+                  continent,
+                  country,
+                  city,
                 });
-
                 coChildren.append(ct);
               });
           }
@@ -216,9 +177,16 @@ function renderSidebar(continents) {
 // ============================================================
 // UI BUILDERS
 // ============================================================
-function createLine(type, label, count, iso2 = null) {
+function createLine(type, label, count, iso2 = null, path = {}) {
   const el = document.createElement("div");
   el.className = `line ${type}`;
+
+  // dataset path for activateLocation
+  el.dataset.level = type;
+  el.dataset.continent = path.continent ?? "";
+  el.dataset.country = path.country ?? "";
+  el.dataset.state = path.state ?? "";
+  el.dataset.city = path.city ?? "";
 
   const flag =
     type === "country" && iso2
@@ -245,17 +213,44 @@ function createChildren() {
 }
 
 // ============================================================
-// TOGGLE — ARROW ONLY (FIXED)
+// EVENTS — ONE LISTENER (DELEGATION)
 // ============================================================
-function bindArrowToggle(line, children) {
-  const arrow = line.querySelector(".arrow");
-  if (!arrow) return;
-  if (line.classList.contains("city")) return;
+let EVENTS_BOUND = false;
 
-  arrow.addEventListener("click", (e) => {
-    e.stopPropagation(); // 🔑 KRITISK
-    const open = line.classList.toggle("open");
-    children.classList.toggle("show", open);
+function bindSidebarEvents() {
+  if (EVENTS_BOUND) return;
+  EVENTS_BOUND = true;
+
+  menu.addEventListener("click", (e) => {
+    const line = e.target.closest(".line");
+    if (!line) return;
+
+    const isCity = line.classList.contains("city");
+    const clickedArrow = Boolean(e.target.closest(".arrow"));
+    const clickedLabel = Boolean(e.target.closest(".label-wrap"));
+
+    // 1) Label click => activateLocation ONLY (no toggle)
+    if (clickedLabel) {
+      setActivePath(line);
+
+      activateLocation({
+        continent: line.dataset.continent || null,
+        country: line.dataset.country || null,
+        state: line.dataset.state || null,
+        city: line.dataset.city || null,
+      });
+
+      return;
+    }
+
+    // 2) Toggle => arrow click OR row whitespace click (not city)
+    if (!isCity && (clickedArrow || !clickedLabel)) {
+      const children = line.nextElementSibling;
+      if (!children || !children.classList.contains("children")) return;
+
+      const open = line.classList.toggle("open");
+      children.classList.toggle("show", open);
+    }
   });
 }
 
@@ -270,8 +265,8 @@ function setActivePath(lineEl) {
   let el = lineEl;
 
   while (el && el !== document) {
-    if (el.classList.contains("line")) el.classList.add("active");
-    if (el.classList.contains("children")) el.classList.add("show");
+    if (el.classList?.contains("line")) el.classList.add("active");
+    if (el.classList?.contains("children")) el.classList.add("show");
     el = el.parentElement;
   }
 }
