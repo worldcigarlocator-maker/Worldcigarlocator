@@ -78,11 +78,15 @@ function buildModel(rows) {
 
     if (!country) return;
 
+
     if (level === "country") {
-      const co = ensureCountry(continent, country, iso2);
-      co.count = n; // update count without destroying cities/states
-      return;
-    }
+  const co = ensureCountry(continent, country, iso2);
+  co.count = n;
+  return;
+}
+
+continents[continent].countries[country].count = n;
+
 
     // city/state need country node
     const isUS = IS_US(iso2);
