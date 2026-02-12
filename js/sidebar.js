@@ -32,8 +32,8 @@ async function fetchSidebarRows() {
   return data || [];
 }
 
-// ============================================================
-// MODEL BUILD (NO OVERWRITES)  ✅ IMPORTANT FIX
+/// ============================================================
+// MODEL BUILD (NO OVERWRITES)  ✅ fixes "countries after N break"
 // ============================================================
 function buildModel(rows) {
   const continents = {};
@@ -45,13 +45,7 @@ function buildModel(rows) {
 
   const ensureCountry = (continent, country, iso2) => {
     const c = ensureContinent(continent);
-
-    c.countries[country] ??= {
-      iso2: iso2 || null,
-      count: 0,
-      states: {},
-      cities: {},
-    };
+    c.countries[country] ??= { iso2: iso2 || null, count: 0, states: {}, cities: {} };
 
     // keep iso2 if later row has it
     if (!c.countries[country].iso2 && iso2) c.countries[country].iso2 = iso2;
@@ -67,15 +61,16 @@ function buildModel(rows) {
 
   for (const r of rows || []) {
     const continent = r.continent || null;
-    const country = r.country || null;
-    const iso2 = r.country_iso2 || null;
-    const state = r.state || null;
-    const city = r.city || null;
-    const level = r.level || null;
-    const n = Number(r.count) || 0;
+    const country   = r.country || null;
+    const iso2      = r.country_iso2 || null;
+    const state     = r.state || null;
+    const city      = r.city || null;
+    const level     = r.level || null;
+    const n         = Number(r.count) || 0;
 
     if (!continent || !level) continue;
 
+    // continent row
     if (level === "continent") {
       const c = ensureContinent(continent);
       c.count = n;
@@ -84,7 +79,7 @@ function buildModel(rows) {
 
     if (!country) continue;
 
-    // ✅ COUNTRY rows must NOT create a new object manually (no overwrites)
+    // ✅ country row MUST NOT overwrite existing country node
     if (level === "country") {
       const co = ensureCountry(continent, country, iso2);
       co.count = n;
@@ -93,12 +88,14 @@ function buildModel(rows) {
 
     const isUS = IS_US(iso2);
 
+    // state row (US only)
     if (level === "state" && isUS && state) {
       const st = ensureState(continent, country, iso2, state);
       st.count = n;
       continue;
     }
 
+    // city row
     if (level === "city" && city) {
       if (isUS && state) {
         const st = ensureState(continent, country, iso2, state);
