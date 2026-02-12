@@ -62,17 +62,25 @@ export async function buildFrontendSidebar() {
       return;
     }
 
-    continents[continent] ??= { count: 0, countries: {} };
-
     if (level === "country") {
-      continents[continent].countries[country] = {
-        iso2: country_iso2,
-        count: n,
-        states: {},
-        cities: {},
-      };
-      return;
-    }
+  const existing = continents[continent].countries[country];
+
+  if (existing) {
+    // Behåll redan insamlade cities/states
+    existing.iso2 = existing.iso2 || country_iso2;
+    existing.count = n;
+  } else {
+    continents[continent].countries[country] = {
+      iso2: country_iso2,
+      count: n,
+      states: {},
+      cities: {},
+    };
+  }
+
+  return;
+}
+
 
     continents[continent].countries[country] ??= {
       iso2: country_iso2,
