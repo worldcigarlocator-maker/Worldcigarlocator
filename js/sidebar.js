@@ -1,10 +1,10 @@
 // ============================================================
-// SIDEBAR.JS — WCL Sidebar (CANONICAL · STABLE TOGGLES)
+// SIDEBAR.JS — WCL Sidebar (CANONICAL · STABLE)
 // ============================================================
 // - Built once after auth
-// - Backend: sidebar_nodes_v2 (single source of truth)
-// - Toggle ONLY on arrow (or row whitespace)
-// - Label click = activateLocation (never toggles)
+// - Backend: sidebar_nodes_v2
+// - Toggle ONLY via delegated listener
+// - Label click = activateLocation
 // ============================================================
 
 import { activateLocation } from "./cards.js";
@@ -24,7 +24,7 @@ const sortAZ = (a, b) =>
 const IS_US = (iso2) => iso2?.toLowerCase() === "us";
 
 // ============================================================
-// FETCH — CANONICAL RPC
+// FETCH
 // ============================================================
 async function fetchSidebarRows() {
   const { data, error } = await supabase.rpc("sidebar_nodes_v2");
@@ -105,7 +105,7 @@ export async function buildFrontendSidebar() {
   });
 
   renderSidebar(continents);
-  bindSidebarEvents(); // 🔑 single delegated listener
+  bindSidebarEvents();
 }
 
 // ============================================================
@@ -116,7 +116,6 @@ function renderSidebar(continents) {
     .sort(([a], [b]) => sortAZ(a, b))
     .forEach(([continent, cData]) => {
 
-      // ---------- CONTINENT ----------
       const cont = createLine("continent", continent, cData.count, null, {
         continent,
         country: null,
@@ -125,15 +124,12 @@ function renderSidebar(continents) {
       });
 
       const contChildren = createChildren();
-      bindRowToggle(cont, contChildren);
       menu.append(cont, contChildren);
-
 
       Object.entries(cData.countries)
         .sort(([a], [b]) => sortAZ(a, b))
         .forEach(([country, coData]) => {
 
-          // ---------- COUNTRY ----------
           const co = createLine("country", country, coData.count, coData.iso2, {
             continent,
             country,
@@ -142,12 +138,10 @@ function renderSidebar(continents) {
           });
 
           const coChildren = createChildren();
-          bindRowToggle(co, coChildren);
           contChildren.append(co, coChildren);
 
-
-          // ---------- USA (WITH STATES) ----------
           if (IS_US(coData.iso2)) {
+
             Object.entries(coData.states)
               .sort(([a], [b]) => sortAZ(a, b))
               .forEach(([state, sData]) => {
@@ -160,7 +154,6 @@ function renderSidebar(continents) {
                 });
 
                 const stChildren = createChildren();
-                bindRowToggle(st, stChildren);
                 coChildren.append(st, stChildren);
 
                 Object.entries(sData.cities)
@@ -180,7 +173,6 @@ function renderSidebar(continents) {
 
           } else {
 
-            // ---------- NON-US COUNTRIES ----------
             Object.entries(coData.cities)
               .sort(([a], [b]) => sortAZ(a, b))
               .forEach(([city, n]) => {
@@ -199,7 +191,6 @@ function renderSidebar(continents) {
     });
 }
 
-
 // ============================================================
 // UI BUILDERS
 // ============================================================
@@ -207,7 +198,6 @@ function createLine(type, label, count, iso2 = null, path = {}) {
   const el = document.createElement("div");
   el.className = `line ${type}`;
 
-  // dataset path for activateLocation
   el.dataset.level = type;
   el.dataset.continent = path.continent ?? "";
   el.dataset.country = path.country ?? "";
@@ -239,7 +229,7 @@ function createChildren() {
 }
 
 // ============================================================
-// EVENTS — ONE LISTENER (DELEGATION)
+// SINGLE EVENT LISTENER (DELEGATION)
 // ============================================================
 let EVENTS_BOUND = false;
 
@@ -248,6 +238,7 @@ function bindSidebarEvents() {
   EVENTS_BOUND = true;
 
   menu.addEventListener("click", (e) => {
+
     const line = e.target.closest(".line");
     if (!line) return;
 
@@ -255,8 +246,9 @@ function bindSidebarEvents() {
     const clickedArrow = Boolean(e.target.closest(".arrow"));
     const clickedLabel = Boolean(e.target.closest(".label-wrap"));
 
-    // 1) Label click => activateLocation ONLY (no toggle)
+    // LABEL → activateLocation only
     if (clickedLabel) {
+
       setActivePath(line);
 
       activateLocation({
@@ -269,8 +261,9 @@ function bindSidebarEvents() {
       return;
     }
 
-    // 2) Toggle => arrow click OR row whitespace click (not city)
+    // TOGGLE → arrow OR whitespace (not city)
     if (!isCity && (clickedArrow || !clickedLabel)) {
+
       const children = line.nextElementSibling;
       if (!children || !children.classList.contains("children")) return;
 
@@ -281,9 +274,10 @@ function bindSidebarEvents() {
 }
 
 // ============================================================
-// ACTIVE PATH — HIGHLIGHT + AUTO-EXPAND
+// ACTIVE PATH
 // ============================================================
 function setActivePath(lineEl) {
+
   document
     .querySelectorAll("#sidebarMenu .line.active")
     .forEach((el) => el.classList.remove("active"));
