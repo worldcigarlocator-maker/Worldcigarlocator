@@ -281,7 +281,7 @@ function bindSidebarEvents() {
 
     // TOGGLE => arrow click OR row whitespace (not city)
     if (!isCity && (clickedArrow || !clickedLabel)) {
-      const children = line.nextElementSibling;
+    const children = line.parentElement?.querySelector(":scope > .children");
       if (!children || !children.classList.contains("children")) return;
 
       const open = line.classList.toggle("open");
