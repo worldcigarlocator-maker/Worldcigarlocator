@@ -115,64 +115,90 @@ function renderSidebar(continents) {
   Object.entries(continents)
     .sort(([a], [b]) => sortAZ(a, b))
     .forEach(([continent, cData]) => {
+
+      // ---------- CONTINENT ----------
       const cont = createLine("continent", continent, cData.count, null, {
         continent,
+        country: null,
+        state: null,
+        city: null,
       });
-      const contChildren = createChildren();
 
+      const contChildren = createChildren();
+      bindRowToggle(cont, contChildren);
       menu.append(cont, contChildren);
+
 
       Object.entries(cData.countries)
         .sort(([a], [b]) => sortAZ(a, b))
         .forEach(([country, coData]) => {
+
+          // ---------- COUNTRY ----------
           const co = createLine("country", country, coData.count, coData.iso2, {
             continent,
             country,
+            state: null,
+            city: null,
           });
-          const coChildren = createChildren();
 
+          const coChildren = createChildren();
+          bindRowToggle(co, coChildren);
           contChildren.append(co, coChildren);
 
+
+          // ---------- USA (WITH STATES) ----------
           if (IS_US(coData.iso2)) {
             Object.entries(coData.states)
               .sort(([a], [b]) => sortAZ(a, b))
               .forEach(([state, sData]) => {
+
                 const st = createLine("state", state, sData.count, null, {
                   continent,
                   country,
                   state,
+                  city: null,
                 });
-                const stChildren = createChildren();
 
+                const stChildren = createChildren();
+                bindRowToggle(st, stChildren);
                 coChildren.append(st, stChildren);
 
                 Object.entries(sData.cities)
                   .sort(([a], [b]) => sortAZ(a, b))
                   .forEach(([city, n]) => {
+
                     const ct = createLine("city", city, n, null, {
                       continent,
                       country,
                       state,
                       city,
                     });
+
                     stChildren.append(ct);
                   });
               });
+
           } else {
+
+            // ---------- NON-US COUNTRIES ----------
             Object.entries(coData.cities)
               .sort(([a], [b]) => sortAZ(a, b))
               .forEach(([city, n]) => {
+
                 const ct = createLine("city", city, n, null, {
                   continent,
                   country,
+                  state: null,
                   city,
                 });
+
                 coChildren.append(ct);
               });
           }
         });
     });
 }
+
 
 // ============================================================
 // UI BUILDERS
