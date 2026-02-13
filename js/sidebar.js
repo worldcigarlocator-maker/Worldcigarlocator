@@ -1,10 +1,10 @@
 // ============================================================
-// SIDEBAR.JS — WCL Sidebar (CANONICAL · CLEAN REBUILD)
+// SIDEBAR.JS — WCL Sidebar (CANONICAL · FINAL CLEAN)
 // ============================================================
-// - Built once after auth
-// - Backend: sidebar_nodes_v2 (single source of truth)
-// - Fully wrapper-based DOM (no sibling dependency)
-// - Deterministic toggle
+// - Backend: sidebar_nodes_v3 (view wrapping sidebar_nodes_v2())
+// - Paginated fetch (Supabase hard cap safe)
+// - Deterministic model build
+// - Wrapper-based DOM (no sibling dependency)
 // ============================================================
 
 import { activateLocation } from "./cards.js";
@@ -18,7 +18,7 @@ const sortAZ = (a, b) =>
 const IS_US = (iso2) => String(iso2 || "").toLowerCase() === "us";
 
 // ============================================================
-// FETCH
+// FETCH (Pagination-safe)
 // ============================================================
 async function fetchSidebarRows() {
   const PAGE_SIZE = 1000;
@@ -44,10 +44,13 @@ async function fetchSidebarRows() {
 }
 
 // ============================================================
-// MODEL BUILD — DETERMINISTIC (ORDER-SAFE)
+// MODEL BUILD (Deterministic)
 // ============================================================
 function buildModel(rows) {
   const continents = {};
+
+  const clean = (v) =>
+    typeof v === "string" ? v.trim() : v ?? null;
 
   const ensureContinent = (continent) => {
     continents[continent] ??= { count: 0, countries: {} };
@@ -74,83 +77,53 @@ function buildModel(rows) {
     return co.states[state];
   };
 
-  const clean = (v) =>
-    typeof v === "string" ? v.trim() : v ?? null;
+  for (const r of rows || []) {
+    const level = String(r.level || "").toLowerCase();
 
-  const safeRows = rows || [];
+    const continent = clean(r.continent);
+    const country = clean(r.country);
+    const iso2 = clean(r.country_iso2);
+    const state = clean(r.state);
+    const city = clean(r.city);
+    const count = Number(r.count) || 0;
 
-  // ============================================================
-  // PASS 1 — CONTINENTS
-  // ============================================================
-  safeRows
-    .filter((r) => r.level === "continent")
-    .forEach((r) => {
-      const continent = clean(r.continent);
-      if (!continent) return;
-      ensureContinent(continent).count = Number(r.count) || 0;
-    });
+    if (!continent || !level) continue;
 
-  // ============================================================
-  // PASS 2 — COUNTRIES
-  // ============================================================
-  safeRows
-    .filter((r) => r.level === "country")
-    .forEach((r) => {
-      const continent = clean(r.continent);
-      const country = clean(r.country);
-      if (!continent || !country) return;
+    switch (level) {
+      case "continent":
+        ensureContinent(continent).count = count;
+        break;
 
-      ensureCountry(
-        continent,
-        country,
-        clean(r.country_iso2)
-      ).count = Number(r.count) || 0;
-    });
+      case "country":
+        if (!country) break;
+        ensureCountry(continent, country, iso2).count = count;
+        break;
 
-  // ============================================================
-  // PASS 3 — STATES (US ONLY)
-  // ============================================================
-  safeRows
-    .filter((r) => r.level === "state")
-    .forEach((r) => {
-      const continent = clean(r.continent);
-      const country = clean(r.country);
-      const iso2 = clean(r.country_iso2);
-      const state = clean(r.state);
+      case "state":
+        if (!country || !state) break;
+        if (!IS_US(iso2)) break;
+        ensureState(continent, country, iso2, state).count = count;
+        break;
 
-      if (!continent || !country || !state) return;
-      if (String(iso2).toLowerCase() !== "us") return;
+      case "city":
+        if (!country || !city) break;
 
-      ensureState(continent, country, iso2, state).count =
-        Number(r.count) || 0;
-    });
+        if (IS_US(iso2) && state) {
+          const st = ensureState(continent, country, iso2, state);
+          st.cities[city] = count;
+        } else {
+          const co = ensureCountry(continent, country, iso2);
+          co.cities[city] = count;
+        }
+        break;
 
-  // ============================================================
-  // PASS 4 — CITIES
-  // ============================================================
-  safeRows
-    .filter((r) => r.level === "city")
-    .forEach((r) => {
-      const continent = clean(r.continent);
-      const country = clean(r.country);
-      const iso2 = clean(r.country_iso2);
-      const state = clean(r.state);
-      const city = clean(r.city);
-
-      if (!continent || !country || !city) return;
-
-      if (String(iso2).toLowerCase() === "us" && state) {
-        const st = ensureState(continent, country, iso2, state);
-        st.cities[city] = Number(r.count) || 0;
-      } else {
-        const co = ensureCountry(continent, country, iso2);
-        co.cities[city] = Number(r.count) || 0;
-      }
-    });
+      default:
+        break;
+    }
+  }
 
   return continents;
 }
-
 
 // ============================================================
 // ENTRY
@@ -248,7 +221,7 @@ function renderSidebar(continents) {
 }
 
 // ============================================================
-// NODE FACTORY (WRAPPER-BASED)
+// NODE FACTORY
 // ============================================================
 function createNode(type, label, count, iso2, path) {
   const wrapper = document.createElement("div");
@@ -278,11 +251,11 @@ function createNode(type, label, count, iso2, path) {
 
   wrapper.append(line, childrenContainer);
 
-  return { wrapper, line, childrenContainer };
+  return { wrapper, childrenContainer };
 }
 
 // ============================================================
-// EVENTS (DELEGATION)
+// EVENTS
 // ============================================================
 let EVENTS_BOUND = false;
 
