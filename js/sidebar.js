@@ -44,7 +44,7 @@ async function fetchSidebarRows() {
 }
 
 // ============================================================
-// MODEL BUILD
+// MODEL BUILD — DETERMINISTIC (ORDER-SAFE)
 // ============================================================
 function buildModel(rows) {
   const continents = {};
@@ -56,7 +56,12 @@ function buildModel(rows) {
 
   const ensureCountry = (continent, country, iso2) => {
     const c = ensureContinent(continent);
-    c.countries[country] ??= { iso2: iso2 || null, count: 0, states: {}, cities: {} };
+    c.countries[country] ??= {
+      iso2: iso2 || null,
+      count: 0,
+      states: {},
+      cities: {},
+    };
     if (!c.countries[country].iso2 && iso2) {
       c.countries[country].iso2 = iso2;
     }
@@ -69,42 +74,83 @@ function buildModel(rows) {
     return co.states[state];
   };
 
-  for (const r of rows || []) {
-    const { continent, country, country_iso2, state, city, level } = r;
-    const n = Number(r.count) || 0;
+  const clean = (v) =>
+    typeof v === "string" ? v.trim() : v ?? null;
 
-    if (!continent || !level) continue;
+  const safeRows = rows || [];
 
-    if (level === "continent") {
-      ensureContinent(continent).count = n;
-      continue;
-    }
+  // ============================================================
+  // PASS 1 — CONTINENTS
+  // ============================================================
+  safeRows
+    .filter((r) => r.level === "continent")
+    .forEach((r) => {
+      const continent = clean(r.continent);
+      if (!continent) return;
+      ensureContinent(continent).count = Number(r.count) || 0;
+    });
 
-    if (!country) continue;
+  // ============================================================
+  // PASS 2 — COUNTRIES
+  // ============================================================
+  safeRows
+    .filter((r) => r.level === "country")
+    .forEach((r) => {
+      const continent = clean(r.continent);
+      const country = clean(r.country);
+      if (!continent || !country) return;
 
-    if (level === "country") {
-      ensureCountry(continent, country, country_iso2).count = n;
-      continue;
-    }
+      ensureCountry(
+        continent,
+        country,
+        clean(r.country_iso2)
+      ).count = Number(r.count) || 0;
+    });
 
-    const isUS = IS_US(country_iso2);
+  // ============================================================
+  // PASS 3 — STATES (US ONLY)
+  // ============================================================
+  safeRows
+    .filter((r) => r.level === "state")
+    .forEach((r) => {
+      const continent = clean(r.continent);
+      const country = clean(r.country);
+      const iso2 = clean(r.country_iso2);
+      const state = clean(r.state);
 
-    if (level === "state" && isUS && state) {
-      ensureState(continent, country, country_iso2, state).count = n;
-      continue;
-    }
+      if (!continent || !country || !state) return;
+      if (String(iso2).toLowerCase() !== "us") return;
 
-    if (level === "city" && city) {
-      if (isUS && state) {
-        ensureState(continent, country, country_iso2, state).cities[city] = n;
+      ensureState(continent, country, iso2, state).count =
+        Number(r.count) || 0;
+    });
+
+  // ============================================================
+  // PASS 4 — CITIES
+  // ============================================================
+  safeRows
+    .filter((r) => r.level === "city")
+    .forEach((r) => {
+      const continent = clean(r.continent);
+      const country = clean(r.country);
+      const iso2 = clean(r.country_iso2);
+      const state = clean(r.state);
+      const city = clean(r.city);
+
+      if (!continent || !country || !city) return;
+
+      if (String(iso2).toLowerCase() === "us" && state) {
+        const st = ensureState(continent, country, iso2, state);
+        st.cities[city] = Number(r.count) || 0;
       } else {
-        ensureCountry(continent, country, country_iso2).cities[city] = n;
+        const co = ensureCountry(continent, country, iso2);
+        co.cities[city] = Number(r.count) || 0;
       }
-    }
-  }
+    });
 
   return continents;
 }
+
 
 // ============================================================
 // ENTRY
