@@ -43,6 +43,9 @@ async function fetchSidebarRows() {
   return all;
 }
 
+window.__SIDEBAR_ROWS__ = rows;
+
+
 // ============================================================
 // MODEL BUILD (Deterministic)
 // ============================================================
