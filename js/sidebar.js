@@ -21,10 +21,14 @@ const IS_US = (iso2) => String(iso2 || "").toLowerCase() === "us";
 // FETCH
 // ============================================================
 async function fetchSidebarRows() {
-  const { data, error } = await supabase.rpc("sidebar_nodes_v2");
+  const { data, error } = await supabase
+    .rpc("sidebar_nodes_v2")
+    .range(0, 5000);
+
   if (error) throw error;
   return data || [];
 }
+
 
 // ============================================================
 // MODEL BUILD
