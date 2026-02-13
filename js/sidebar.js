@@ -43,7 +43,6 @@ async function fetchSidebarRows() {
   return all;
 }
 
-window.__SIDEBAR_ROWS__ = rows;
 
 
 // ============================================================
@@ -139,6 +138,7 @@ export async function buildFrontendSidebar() {
   let rows;
   try {
     rows = await fetchSidebarRows();
+    window.__SIDEBAR_ROWS__ = rows;   // ← HÄR
   } catch (e) {
     console.error("Sidebar load failed", e);
     menu.innerHTML = "Failed to load";
@@ -146,11 +146,13 @@ export async function buildFrontendSidebar() {
   }
 
   const model = buildModel(rows);
+  window.__SIDEBAR_MODEL__ = model;   // ← OCH HÄR
 
   menu.innerHTML = "";
   renderSidebar(model);
   bindSidebarEvents();
 }
+
 
 // ============================================================
 // RENDER
