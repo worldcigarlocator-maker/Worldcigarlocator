@@ -29,6 +29,10 @@ async function fetchSidebarRows() {
     const { data, error } = await supabase
       .from("sidebar_nodes_v3")
       .select("*")
+      .order("continent")
+      .order("country")
+      .order("state", { nullsFirst: true })
+      .order("city", { nullsFirst: true })
       .range(from, from + PAGE_SIZE - 1);
 
     if (error) throw error;
