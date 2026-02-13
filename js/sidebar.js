@@ -21,12 +21,26 @@ const IS_US = (iso2) => String(iso2 || "").toLowerCase() === "us";
 // FETCH
 // ============================================================
 async function fetchSidebarRows() {
-  const { data, error } = await supabase
-    .from("sidebar_nodes_v3")
-    .select("*");
+  const PAGE_SIZE = 1000;
+  let from = 0;
+  let all = [];
 
-  if (error) throw error;
-  return data || [];
+  while (true) {
+    const { data, error } = await supabase
+      .from("sidebar_nodes_v3")
+      .select("*")
+      .range(from, from + PAGE_SIZE - 1);
+
+    if (error) throw error;
+
+    all = all.concat(data || []);
+
+    if (!data || data.length < PAGE_SIZE) break;
+
+    from += PAGE_SIZE;
+  }
+
+  return all;
 }
 
 // ============================================================
