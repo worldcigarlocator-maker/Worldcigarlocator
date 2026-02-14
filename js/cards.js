@@ -28,9 +28,19 @@ const VIEW_OBSERVER =
 // ============================================================
 // CONFIG
 // ============================================================
-const FALLBACK_IMAGE = "images/store.jpg";
-const PHOTO_PROXY_BASE = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co";
-const dom = (sel) => document.querySelector(sel);
+let modal;
+let closeBtn;
+let backdrop;
+
+document.addEventListener("DOMContentLoaded", () => {
+  modal = dom("#storeModal");
+  closeBtn = dom(".modal-close");
+  backdrop = dom(".modal-backdrop");
+
+  closeBtn?.addEventListener("click", closeModal);
+  backdrop?.addEventListener("click", closeModal);
+});
+
 
 
 // ============================================================
