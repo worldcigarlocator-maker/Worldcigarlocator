@@ -1,5 +1,5 @@
 // ============================================================
-// CARDS.JS — WCL Frontend (CANONICAL · CORE UI)
+// CARDS.JS — WCL Frontend (CANONICAL · PRODUCTION)
 // ------------------------------------------------------------
 // • Single source of truth: STATE + MASTER_MODE
 // • LAW: last action wins between SEARCH and LOCATION
@@ -17,96 +17,16 @@ import { supabase } from "./globals.js";
 // ============================================================
 // ANALYTICS SAFE FALLBACK (NO HARD DEPENDENCY)
 // ============================================================
-// If analytics is loaded, it may expose a VIEW_OBSERVER.
-// If not, we fall back to a no-op observer.
-// This guarantees cards.js can NEVER crash on boot.
-
 const VIEW_OBSERVER =
-  window?.WCL_ANALYTICS?.VIEW_OBSERVER ??
-  { observe() {}, unobserve() {} };
+  window?.WCL_ANALYTICS?.VIEW_OBSERVER ?? { observe() {}, unobserve() {} };
 
 // ============================================================
 // CONFIG
 // ============================================================
-let modal;
-let closeBtn;
-let backdrop;
+const FALLBACK_IMAGE = "images/store.jpg";
+const PHOTO_PROXY_BASE = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co";
 
-document.addEventListener("DOMContentLoaded", () => {
-  modal = dom("#storeModal");
-  closeBtn = dom(".modal-close");
-  backdrop = dom(".modal-backdrop");
-  starPicker = dom("#modalStarPicker");
-ratingSendBtn = dom("#modalSendRating");
-  closeBtn?.addEventListener("click", closeModal);
-  backdrop?.addEventListener("click", closeModal);
-
-  // ⭐ Star hover + click
-  starPicker?.querySelectorAll("span").forEach((star) => {
-    star.addEventListener("mouseenter", () =>
-      highlightStars(star.dataset.val)
-    );
-    star.addEventListener("mouseleave", () =>
-      highlightStars(USER_TEMP_RATING)
-    );
-    star.addEventListener("click", () => {
-      USER_TEMP_RATING = Number(star.dataset.val);
-      highlightStars(USER_TEMP_RATING);
-    });
-  });
-
-  // ⭐ Submit rating
-  ratingSendBtn?.addEventListener("click", async () => {
-    const rating = USER_TEMP_RATING;
-    if (!rating) return alert("Select a rating first!");
-
-    const userResp = await supabase.auth.getUser();
-    const user = userResp.data.user;
-    if (!user) return alert("Login required.");
-
-    await supabase.from("ratings").upsert({
-      store_id: CURRENT_STORE,
-      user_id: user.id,
-      rating,
-    });
-
-    loadModalStore();
-  });
-
-  // 💬 Comment submit
-  const sendCommentBtn = dom("#modalSendComment");
-  const commentInput = dom("#modalCommentInput");
-
-  sendCommentBtn?.addEventListener("click", async () => {
-    const text = commentInput.value.trim();
-    if (!text) return;
-
-    const userResp = await supabase.auth.getUser();
-    const user = userResp.data.user;
-    if (!user) return alert("Login required.");
-
-    await supabase.from("store_comments").insert({
-      store_id: CURRENT_STORE,
-      user_id: user.id,
-      text,
-    });
-
-    commentInput.value = "";
-    loadComments(CURRENT_STORE);
-  });
-
-  starPicker?.querySelectorAll("span").forEach((star) => {
-  star.addEventListener("mouseenter", () => highlightStars(star.dataset.val));
-  star.addEventListener("mouseleave", () => highlightStars(USER_TEMP_RATING));
-  star.addEventListener("click", () => {
-    USER_TEMP_RATING = Number(star.dataset.val);
-    highlightStars(USER_TEMP_RATING);
-  });
-});
-
-
-});
-
+const dom = (sel) => document.querySelector(sel);
 
 // ============================================================
 // RACE / REQUEST CONTROL
@@ -115,15 +35,8 @@ let RUN_SEQ = 0;
 let ACTIVE_REQUEST = 0;
 
 // ============================================================
-// DOM READY (locked – UI init handled by search-v2.js)
-// ============================================================
-let DOM_READY = true;
-
-
-// ============================================================
 // CANONICAL FILTER STATE & MASTER CONTROLLER (WCL)
 // ============================================================
-
 export const MASTER = {
   IDLE: "idle",
   SEARCH: "search",
@@ -146,8 +59,8 @@ const STATE = {
     text: "",
   },
   chips: {
-    type: null,    // "store" | "lounge" | null
-    access: null,  // "public" | "members" | null
+    type: null, // "store" | "lounge" | null
+    access: null, // "public" | "members" | null
   },
 };
 
@@ -168,9 +81,9 @@ function clearSearch() {
 function hasAnyLocation() {
   return Boolean(
     STATE.location.continent ||
-    STATE.location.country ||
-    STATE.location.state ||
-    STATE.location.city
+      STATE.location.country ||
+      STATE.location.state ||
+      STATE.location.city
   );
 }
 
@@ -201,20 +114,18 @@ export function activateSearch({ text = "" } = {}) {
 
 // 📍 LOCATION becomes master
 export function activateLocation(next) {
-  STARTUP_HERO = false; // 🔑 VIKTIGASTE RADEN
+  STARTUP_HERO = false; // 🔑 viktigaste raden
 
   MASTER_MODE = MASTER.LOCATION;
   clearSearch();
 
   STATE.location.continent = next?.continent ?? null;
-  STATE.location.country   = next?.country   ?? null;
-  STATE.location.state     = next?.state     ?? null;
-  STATE.location.city      = next?.city      ?? null;
+  STATE.location.country = next?.country ?? null;
+  STATE.location.state = next?.state ?? null;
+  STATE.location.city = next?.city ?? null;
 
   runSearch();
 }
-
-
 
 // 🧩 Chips — modifiers only
 export function toggleChip({ type, access }) {
@@ -236,7 +147,7 @@ export function clearSearchMaster() {
   }
 }
 
-// optional future
+// ❌ Clear location (only if location is master)
 export function clearLocationMaster() {
   if (MASTER_MODE === MASTER.LOCATION) {
     clearLocation();
@@ -253,7 +164,7 @@ export function getActiveFilterSnapshot() {
 // FLAG HELPER
 // ============================================================
 function getFlagUrl(store) {
-  const iso = store.country_iso2?.toLowerCase();
+  const iso = store?.country_iso2?.toLowerCase();
   if (!iso) return null;
   return `assets/flags/${iso}.svg`;
 }
@@ -263,7 +174,7 @@ function getFlagUrl(store) {
 // ============================================================
 function buildBadges(store) {
   const badges = [];
-  const arr = Array.isArray(store.types)
+  const arr = Array.isArray(store?.types)
     ? store.types.map((t) => String(t).toLowerCase())
     : [];
 
@@ -272,9 +183,11 @@ function buildBadges(store) {
   if (arr.includes("lounge"))
     badges.push(`<span class="badge badge-lounge">Lounge</span>`);
 
-  const A = String(store.access || "").trim().toLowerCase();
+  const A = String(store?.access || "").trim().toLowerCase();
   if (A === "public") {
-    badges.push(`<span class="badge badge-access badge-access-public">PUBLIC</span>`);
+    badges.push(
+      `<span class="badge badge-access badge-access-public">PUBLIC</span>`
+    );
   } else if (A) {
     badges.push(`<span class="badge badge-access">${A.toUpperCase()}</span>`);
   }
@@ -286,14 +199,10 @@ function buildBadges(store) {
 // PHOTO URL
 // ============================================================
 function getPhotoUrl(store) {
-  // 1) Helig CDN-bild
-  if (store.photo_cdn_url) return store.photo_cdn_url;
+  if (store?.photo_cdn_url) return store.photo_cdn_url;
+  if (store?.photo_url) return store.photo_url;
 
-  // 2) Legacy direkt-URL
-  if (store.photo_url) return store.photo_url;
-
-  // 3) Google Places via proxy
-  if (store.photo_reference) {
+  if (store?.photo_reference) {
     return `${PHOTO_PROXY_BASE}/photo-proxy?photo_reference=${encodeURIComponent(
       store.photo_reference
     )}&maxwidth=800`;
@@ -306,11 +215,6 @@ function getPhotoUrl(store) {
 // HERO RESET
 // ============================================================
 export function resetToHero() {
-  if (!DOM_READY) {
-    document.addEventListener("DOMContentLoaded", resetToHero, { once: true });
-    return;
-  }
-
   const grid = dom("#storeGrid");
   const heading = dom("#resultHeading");
   const heroImage = dom("#heroImage");
@@ -347,22 +251,24 @@ function cardHTML(s) {
   const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
 
-  const displayName = s.name || "Unnamed";
-  const displayCity = s.city || "";
-  const displayCountry = s.country || "";
+  const displayName = s?.name || "Unnamed";
+  const displayCity = s?.city || "";
+  const displayCountry = s?.country || "";
 
   let displayAddress = "—";
-  if (s.address) {
-    const trimmed = s.address.trim();
-    displayAddress = trimmed.includes(",") ? trimmed.split(",")[0] + "…" : trimmed;
+  if (s?.address) {
+    const trimmed = String(s.address).trim();
+    displayAddress = trimmed.includes(",")
+      ? trimmed.split(",")[0] + "…"
+      : trimmed;
   }
 
   return `
   <article class="store-card"
-    data-store-id="${s.id}"
-    data-country="${s.country || ""}"
-    data-city="${s.city || ""}"
-    data-continent="${s.continent || ""}">
+    data-store-id="${s?.id ?? ""}"
+    data-country="${s?.country || ""}"
+    data-city="${s?.city || ""}"
+    data-continent="${s?.continent || ""}">
 
     <img src="${img}" class="store-img" alt="${displayName}" loading="lazy"
       onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
@@ -370,56 +276,66 @@ function cardHTML(s) {
     <div class="store-body">
       <h3 class="store-title">${displayName}</h3>
       <div class="badge-row">${buildBadges(s)}</div>
-      ${buildStars(s.rating_avg, s.rating_count)}
+      ${buildStars(s?.rating_avg, s?.rating_count)}
 
       <div class="locrow">
         <div class="loc-top">
           ${flag ? `<img src="${flag}" class="flag" />` : ""}
-          <span>${[s.continent, displayCountry].filter(Boolean).join(", ")}</span>
+          <span>${[s?.continent, displayCountry].filter(Boolean).join(", ")}</span>
         </div>
         <p class="city-label">${displayCity}</p>
       </div>
 
       <div class="infoblock">
-        <p><strong>Address:</strong> ${displayAddress}</p>
-        <p><strong>Phone:</strong> ${s.phone || "—"}</p>
-        <p><strong>Website:</strong>
-          ${s.website ? `<a href="${s.website}" target="_blank" rel="noopener" class="visit-website" data-store-id="${s.id}">Visit</a>` : "—"}
+        <p class="info-row"><strong>Address:</strong> <span>${displayAddress}</span></p>
+        <p class="info-row"><strong>Phone:</strong> <span>${s?.phone || "—"}</span></p>
+        <p class="info-row"><strong>Website:</strong>
+          ${
+            s?.website
+              ? `<a href="${s.website}" target="_blank" rel="noopener" class="visit-website" data-store-id="${s.id}">Visit</a>`
+              : `<span>—</span>`
+          }
         </p>
       </div>
 
-      <button class="reviews-btn">(${s.comment_count || 0})</button>
+      <button class="reviews-btn" type="button">(${s?.comment_count || 0})</button>
     </div>
   </article>`;
 }
 
 // ============================================================
-// RENDER CARDS (CANONICAL · SAFE · MODAL-AWARE)
+// RENDER CARDS (CANONICAL · DELEGATION · MODAL-AWARE)
 // ============================================================
+let GRID_EVENTS_BOUND = false;
+
 function renderCards(list) {
   const grid = dom("#storeGrid");
   if (!grid) return;
 
-  // 1️⃣ Render HTML
   grid.innerHTML = (list || []).map(cardHTML).join("");
 
-  // 2️⃣ Analytics-safe observer (no-op if analytics not loaded)
+  // analytics-safe observer
   grid.querySelectorAll(".store-card").forEach((card) => {
     VIEW_OBSERVER.observe(card);
   });
 
-  // 3️⃣ Card click → open modal (except links)
-  grid.querySelectorAll(".store-card").forEach((card) => {
-    card.addEventListener("click", (e) => {
-      // Allow normal link behavior (website, etc)
+  // ✅ Branch-standard: single delegated click handler
+  if (!GRID_EVENTS_BOUND) {
+    GRID_EVENTS_BOUND = true;
+
+    grid.addEventListener("click", (e) => {
+      // allow normal link behavior (website etc)
       if (e.target.closest("a")) return;
+
+      const card = e.target.closest(".store-card");
+      if (!card) return;
 
       const storeId = Number(card.dataset.storeId);
       if (!storeId) return;
 
       openModal(storeId);
     });
-  });
+  }
 }
 
 // 🔓 Public export (used by search + sidebar)
@@ -432,7 +348,7 @@ export function renderStores(list) {
 // ============================================================
 function matchesType(store, type) {
   if (!type) return true;
-  const types = Array.isArray(store.types)
+  const types = Array.isArray(store?.types)
     ? store.types.map((t) => String(t).toLowerCase())
     : [];
   return types.includes(String(type).toLowerCase());
@@ -440,15 +356,14 @@ function matchesType(store, type) {
 
 function matchesAccess(store, access) {
   if (!access) return true;
-  return String(store.access || "").toLowerCase() === String(access).toLowerCase();
+  return (
+    String(store?.access || "").toLowerCase() === String(access).toLowerCase()
+  );
 }
 
 function applyFrontendFilters(rows, snapshot) {
   return (rows || []).filter((s) => {
-    return (
-      matchesType(s, snapshot.type) &&
-      matchesAccess(s, snapshot.access)
-    );
+    return matchesType(s, snapshot.type) && matchesAccess(s, snapshot.access);
   });
 }
 
@@ -456,12 +371,6 @@ function applyFrontendFilters(rows, snapshot) {
 // LOAD STORES (RPC)
 // ============================================================
 export async function loadStores(filters = {}) {
-  if (!DOM_READY) {
-    await new Promise((res) =>
-      document.addEventListener("DOMContentLoaded", res, { once: true })
-    );
-  }
-
   ACTIVE_REQUEST++;
   const reqId = ACTIVE_REQUEST;
 
@@ -487,12 +396,6 @@ export async function loadStores(filters = {}) {
 // RUN SEARCH (CANONICAL)
 // ============================================================
 export async function runSearch() {
-  if (!DOM_READY) {
-    await new Promise((res) =>
-      document.addEventListener("DOMContentLoaded", res, { once: true })
-    );
-  }
-
   RUN_SEQ++;
   const runId = RUN_SEQ;
 
@@ -513,6 +416,7 @@ export async function runSearch() {
   const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
 
+  // idle + no search + no location + no chips => hero only (startup)
   if (
     snapshot.master === MASTER.IDLE &&
     !snapshot.search &&
@@ -543,8 +447,9 @@ export async function runSearch() {
   });
 
   if (runId !== RUN_SEQ) return;
+
   if (!resp || resp.error) {
-    heading && (heading.textContent = "Error loading results");
+    if (heading) heading.textContent = "Error loading results";
     return;
   }
 
@@ -556,17 +461,11 @@ export async function runSearch() {
     heading.style.display = "block";
   }
 
-  if (!filtered.length) {
-    renderCards([]);
-    return;
-  }
-
   renderCards(filtered);
 }
 
-
 // ============================================================
-// WEBSITE CLICK ANALYTICS
+// WEBSITE CLICK ANALYTICS (OPTIONAL)
 // ============================================================
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a.visit-website");
@@ -580,142 +479,273 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// ============================================================
+// MODAL SYSTEM (CANONICAL · SINGLE INIT)
+// ============================================================
+let MODAL_READY = false;
 
-// ============================================================
-// MODAL SYSTEM
-// ============================================================
+let modalEl = null;
+let modalCloseBtn = null;
+let modalBackdrop = null;
+
+let starPickerEl = null;
+let ratingSendBtnEl = null;
+
+let commentsBoxEl = null;
+let commentInputEl = null;
+let sendCommentBtnEl = null;
 
 let CURRENT_STORE = null;
+let USER_TEMP_RATING = 0;
+
+function ensureModalInit() {
+  if (MODAL_READY) return;
+  MODAL_READY = true;
+
+  modalEl = dom("#storeModal");
+  modalCloseBtn = dom(".modal-close");
+  modalBackdrop = dom(".modal-backdrop");
+
+  starPickerEl = dom("#modalStarPicker");
+  ratingSendBtnEl = dom("#modalSendRating");
+
+  commentsBoxEl = dom("#modalComments");
+  commentInputEl = dom("#modalCommentInput");
+  sendCommentBtnEl = dom("#modalSendComment");
+
+  // Close
+  modalCloseBtn?.addEventListener("click", closeModal);
+  modalBackdrop?.addEventListener("click", closeModal);
+
+  // Star hover + click
+  starPickerEl?.querySelectorAll("span").forEach((star) => {
+    star.addEventListener("mouseenter", () =>
+      highlightStars(Number(star.dataset.val) || 0)
+    );
+    star.addEventListener("mouseleave", () => highlightStars(USER_TEMP_RATING));
+    star.addEventListener("click", () => {
+      USER_TEMP_RATING = Number(star.dataset.val) || 0;
+      highlightStars(USER_TEMP_RATING);
+    });
+  });
+
+  // Submit rating
+  ratingSendBtnEl?.addEventListener("click", submitRating);
+
+  // Submit comment
+  sendCommentBtnEl?.addEventListener("click", submitComment);
+}
+
+function openModalVisible() {
+  modalEl?.classList.remove("hidden");
+}
+
+function closeModal() {
+  modalEl?.classList.add("hidden");
+}
 
 async function openModal(id) {
+  ensureModalInit();
+
   const storeId = Number(id);
   if (!storeId) return;
 
   CURRENT_STORE = storeId;
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("stores_frontend_public_v4")
     .select("*")
     .eq("id", storeId)
     .single();
 
+  if (error) {
+    console.error("Modal store load error:", error);
+    return;
+  }
   if (!data) return;
 
   fillModal(data);
-  loadComments(storeId);
-  loadUserRating(storeId);
-
-  modal?.classList.remove("hidden");
+  await Promise.all([loadComments(storeId), loadUserRating(storeId)]);
+  openModalVisible();
 }
-
-function closeModal() {
-  modal?.classList.add("hidden");
-}
-
-closeBtn?.addEventListener("click", closeModal);
-backdrop?.addEventListener("click", closeModal);
 
 function fillModal(s) {
-  dom("#modalImg").src = getPhotoUrl(s);
-  dom("#modalName").textContent = s.name;
-  dom("#modalFlag").src = getFlagUrl(s) || "";
-  dom("#modalLocation").textContent = `${s.city || ""}, ${s.country || ""}`;
-
-  dom("#modalAddress").textContent = s.address || "—";
-  dom("#modalPhone").textContent = s.phone || "—";
-
+  const img = dom("#modalImg");
+  const name = dom("#modalName");
+  const flag = dom("#modalFlag");
+  const loc = dom("#modalLocation");
+  const addr = dom("#modalAddress");
+  const phone = dom("#modalPhone");
   const w = dom("#modalWebsite");
-  if (s.website) {
-    w.href = s.website;
-    w.style.display = "inline";
-  } else {
-    w.style.display = "none";
+  const badges = dom("#modalBadges");
+  const stars = dom("#modalStars");
+
+  if (img) img.src = getPhotoUrl(s);
+  if (name) name.textContent = s?.name || "";
+  if (flag) flag.src = getFlagUrl(s) || "";
+  if (loc) loc.textContent = `${s?.city || ""}, ${s?.country || ""}`;
+
+  if (addr) addr.textContent = s?.address || "—";
+  if (phone) phone.textContent = s?.phone || "—";
+
+  if (w) {
+    if (s?.website) {
+      w.href = s.website;
+      w.style.display = "inline";
+    } else {
+      w.style.display = "none";
+    }
   }
 
-  dom("#modalBadges").innerHTML = buildBadges(s);
-  dom("#modalStars").innerHTML = buildStars(s.rating_avg, s.rating_count);
+  if (badges) badges.innerHTML = buildBadges(s);
+  if (stars) stars.innerHTML = buildStars(s?.rating_avg, s?.rating_count);
 }
 
 // ============================================================
 // RATINGS
 // ============================================================
-let starPicker;
-let ratingSendBtn;
-let USER_TEMP_RATING = 0;
-
-
 function highlightStars(count) {
-  if (!starPicker) return;
-  starPicker.querySelectorAll("span").forEach((s, i) => {
-    s.textContent = i < count ? "★" : "☆";
+  if (!starPickerEl) return;
+
+  const n = Number(count) || 0;
+  starPickerEl.querySelectorAll("span").forEach((s, i) => {
+    s.textContent = i < n ? "★" : "☆";
   });
 }
 
 async function loadUserRating(store_id) {
+  ensureModalInit();
+
   const userResp = await supabase.auth.getUser();
-  const user = userResp.data.user;
-  if (!user) return;
+  const user = userResp?.data?.user;
+  if (!user) {
+    USER_TEMP_RATING = 0;
+    highlightStars(0);
+    return;
+  }
 
-const { data } = await supabase
-  .from("ratings")
-  .select("rating")
-  .eq("store_id", store_id)
-  .eq("user_id", user.id)
-  .maybeSingle();
+  const { data, error } = await supabase
+    .from("ratings")
+    .select("rating")
+    .eq("store_id", store_id)
+    .eq("user_id", user.id)
+    .maybeSingle();
 
+  if (error) {
+    console.error("loadUserRating error:", error);
+    return;
+  }
 
-  USER_TEMP_RATING = data?.rating || 0;
+  USER_TEMP_RATING = Number(data?.rating) || 0;
   highlightStars(USER_TEMP_RATING);
 }
 
-  loadModalStore();
-});
+async function submitRating() {
+  ensureModalInit();
+
+  const rating = Number(USER_TEMP_RATING) || 0;
+  if (!rating) return alert("Select a rating first!");
+
+  const userResp = await supabase.auth.getUser();
+  const user = userResp?.data?.user;
+  if (!user) return alert("Login required.");
+
+  const { error } = await supabase.from("ratings").upsert({
+    store_id: CURRENT_STORE,
+    user_id: user.id,
+    rating,
+  });
+
+  if (error) {
+    console.error("submitRating error:", error);
+    alert("Failed to submit rating.");
+    return;
+  }
+
+  await loadModalStore();
+}
 
 async function loadModalStore() {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("stores_frontend_public_v4")
     .select("*")
     .eq("id", CURRENT_STORE)
     .single();
 
+  if (error) {
+    console.error("loadModalStore error:", error);
+    return;
+  }
   if (data) fillModal(data);
 }
 
 // ============================================================
 // COMMENTS
 // ============================================================
-const commentsBox = dom("#modalComments");
-const commentInput = dom("#modalCommentInput");
-const sendCommentBtn = dom("#modalSendComment");
-
 async function loadComments(store_id) {
-  const { data } = await supabase
+  ensureModalInit();
+  if (!commentsBoxEl) return;
+
+  const { data, error } = await supabase
     .from("store_comments")
     .select("*")
     .eq("store_id", store_id)
     .order("created_at", { ascending: false });
 
-  if (!commentsBox) return;
-
-  commentsBox.innerHTML = "";
-
-  if (!data || !data.length) {
-    commentsBox.innerHTML = "<p>No comments yet.</p>";
+  if (error) {
+    console.error("loadComments error:", error);
+    commentsBoxEl.innerHTML = "<p>Failed to load comments.</p>";
     return;
   }
 
-  commentsBox.innerHTML = data
+  commentsBoxEl.innerHTML = "";
+
+  if (!data || !data.length) {
+    commentsBoxEl.innerHTML = "<p>No comments yet.</p>";
+    return;
+  }
+
+  commentsBoxEl.innerHTML = data
     .map(
       (c) => `
         <div class="comment">
-          <p>${c.text}</p>
+          <p>${String(c.text || "")}</p>
           <small>${new Date(c.created_at).toLocaleString()}</small>
         </div>`
     )
     .join("");
 }
 
+async function submitComment() {
+  ensureModalInit();
 
-  commentInput.value = "";
-  loadComments(CURRENT_STORE);
+  const text = String(commentInputEl?.value || "").trim();
+  if (!text) return;
+
+  const userResp = await supabase.auth.getUser();
+  const user = userResp?.data?.user;
+  if (!user) return alert("Login required.");
+
+  const { error } = await supabase.from("store_comments").insert({
+    store_id: CURRENT_STORE,
+    user_id: user.id,
+    text,
+  });
+
+  if (error) {
+    console.error("submitComment error:", error);
+    alert("Failed to post comment.");
+    return;
+  }
+
+  if (commentInputEl) commentInputEl.value = "";
+  await loadComments(CURRENT_STORE);
+}
+
+// ============================================================
+// INIT (DOM SAFE)
+// ============================================================
+document.addEventListener("DOMContentLoaded", () => {
+  // modal binds are safe even if modal exists later in DOM — but you *do* have it in HTML
+  ensureModalInit();
 });
