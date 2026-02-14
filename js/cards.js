@@ -36,9 +36,76 @@ document.addEventListener("DOMContentLoaded", () => {
   modal = dom("#storeModal");
   closeBtn = dom(".modal-close");
   backdrop = dom(".modal-backdrop");
+  starPicker = dom("#modalStarPicker");
+ratingSendBtn = dom("#modalSendRating");
+  closeBtn?.addEventListener("click", closeModal);
+  backdrop?.addEventListener("click", closeModal);
 
+  // ⭐ Star hover + click
+  starPicker?.querySelectorAll("span").forEach((star) => {
+    star.addEventListener("mouseenter", () =>
+      highlightStars(star.dataset.val)
+    );
+    star.addEventListener("mouseleave", () =>
+      highlightStars(USER_TEMP_RATING)
+    );
+    star.addEventListener("click", () => {
+      USER_TEMP_RATING = Number(star.dataset.val);
+      highlightStars(USER_TEMP_RATING);
+    });
+  });
+
+  // ⭐ Submit rating
+  ratingSendBtn?.addEventListener("click", async () => {
+    const rating = USER_TEMP_RATING;
+    if (!rating) return alert("Select a rating first!");
+
+    const userResp = await supabase.auth.getUser();
+    const user = userResp.data.user;
+    if (!user) return alert("Login required.");
+
+    await supabase.from("ratings").upsert({
+      store_id: CURRENT_STORE,
+      user_id: user.id,
+      rating,
+    });
+
+    loadModalStore();
+  });
+
+  // 💬 Comment submit
+  const sendCommentBtn = dom("#modalSendComment");
+  const commentInput = dom("#modalCommentInput");
+
+  sendCommentBtn?.addEventListener("click", async () => {
+    const text = commentInput.value.trim();
+    if (!text) return;
+
+    const userResp = await supabase.auth.getUser();
+    const user = userResp.data.user;
+    if (!user) return alert("Login required.");
+
+    await supabase.from("store_comments").insert({
+      store_id: CURRENT_STORE,
+      user_id: user.id,
+      text,
+    });
+
+    commentInput.value = "";
+    loadComments(CURRENT_STORE);
+  });
+
+  starPicker?.querySelectorAll("span").forEach((star) => {
+  star.addEventListener("mouseenter", () => highlightStars(star.dataset.val));
+  star.addEventListener("mouseleave", () => highlightStars(USER_TEMP_RATING));
+  star.addEventListener("click", () => {
+    USER_TEMP_RATING = Number(star.dataset.val);
+    highlightStars(USER_TEMP_RATING);
+  });
 });
 
+
+});
 
 
 // ============================================================
@@ -572,9 +639,10 @@ function fillModal(s) {
 // ============================================================
 // RATINGS
 // ============================================================
-const starPicker = dom("#modalStarPicker");
-const ratingSendBtn = dom("#modalSendRating");
+let starPicker;
+let ratingSendBtn;
 let USER_TEMP_RATING = 0;
+
 
 function highlightStars(count) {
   if (!starPicker) return;
@@ -582,15 +650,6 @@ function highlightStars(count) {
     s.textContent = i < count ? "★" : "☆";
   });
 }
-
-starPicker?.querySelectorAll("span").forEach((star) => {
-  star.addEventListener("mouseenter", () => highlightStars(star.dataset.val));
-  star.addEventListener("mouseleave", () => highlightStars(USER_TEMP_RATING));
-  star.addEventListener("click", () => {
-    USER_TEMP_RATING = Number(star.dataset.val);
-    highlightStars(USER_TEMP_RATING);
-  });
-});
 
 async function loadUserRating(store_id) {
   const userResp = await supabase.auth.getUser();
@@ -608,20 +667,6 @@ const { data } = await supabase
   USER_TEMP_RATING = data?.rating || 0;
   highlightStars(USER_TEMP_RATING);
 }
-
-ratingSendBtn?.addEventListener("click", async () => {
-  const rating = USER_TEMP_RATING;
-  if (!rating) return alert("Select a rating first!");
-
-  const userResp = await supabase.auth.getUser();
-  const user = userResp.data.user;
-  if (!user) return alert("Login required.");
-
-  await supabase.from("ratings").upsert({
-    store_id: CURRENT_STORE,
-    user_id: user.id,
-    rating,
-  });
 
   loadModalStore();
 });
@@ -670,19 +715,6 @@ async function loadComments(store_id) {
     .join("");
 }
 
-sendCommentBtn?.addEventListener("click", async () => {
-  const text = commentInput.value.trim();
-  if (!text) return;
-
-  const userResp = await supabase.auth.getUser();
-  const user = userResp.data.user;
-  if (!user) return alert("Login required.");
-
-  await supabase.from("store_comments").insert({
-    store_id: CURRENT_STORE,
-    user_id: user.id,
-    text,
-  });
 
   commentInput.value = "";
   loadComments(CURRENT_STORE);
