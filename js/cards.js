@@ -480,8 +480,9 @@ document.addEventListener("click", (e) => {
 });
 
 // ============================================================
-// MODAL SYSTEM (CANONICAL · SINGLE INIT)
+// MODAL SYSTEM (CANONICAL · SINGLE INIT · STABLE)
 // ============================================================
+
 let MODAL_READY = false;
 
 let modalEl = null;
@@ -498,6 +499,9 @@ let sendCommentBtnEl = null;
 let CURRENT_STORE = null;
 let USER_TEMP_RATING = 0;
 
+// ------------------------------------------------------------
+// INIT (runs once)
+// ------------------------------------------------------------
 function ensureModalInit() {
   if (MODAL_READY) return;
   MODAL_READY = true;
@@ -517,12 +521,16 @@ function ensureModalInit() {
   modalCloseBtn?.addEventListener("click", closeModal);
   modalBackdrop?.addEventListener("click", closeModal);
 
-  // Star hover + click
+  // ⭐ Stars
   starPickerEl?.querySelectorAll("span").forEach((star) => {
     star.addEventListener("mouseenter", () =>
       highlightStars(Number(star.dataset.val) || 0)
     );
-    star.addEventListener("mouseleave", () => highlightStars(USER_TEMP_RATING));
+
+    star.addEventListener("mouseleave", () =>
+      highlightStars(USER_TEMP_RATING)
+    );
+
     star.addEventListener("click", () => {
       USER_TEMP_RATING = Number(star.dataset.val) || 0;
       highlightStars(USER_TEMP_RATING);
@@ -536,6 +544,9 @@ function ensureModalInit() {
   sendCommentBtnEl?.addEventListener("click", submitComment);
 }
 
+// ------------------------------------------------------------
+// OPEN / CLOSE
+// ------------------------------------------------------------
 function openModalVisible() {
   modalEl?.classList.remove("hidden");
 }
@@ -559,16 +570,25 @@ async function openModal(id) {
     .single();
 
   if (error) {
-    console.error("Modal store load error:", error);
+    console.error("Modal load error:", error);
     return;
   }
+
   if (!data) return;
 
   fillModal(data);
-  await Promise.all([loadComments(storeId), loadUserRating(storeId)]);
+
+  await Promise.all([
+    loadComments(storeId),
+    loadUserRating(storeId),
+  ]);
+
   openModalVisible();
 }
 
+// ------------------------------------------------------------
+// FILL MODAL
+// ------------------------------------------------------------
 function fillModal(s) {
   const img = dom("#modalImg");
   const name = dom("#modalName");
@@ -601,102 +621,71 @@ function fillModal(s) {
   if (stars) stars.innerHTML = buildStars(s?.rating_avg, s?.rating_count);
 }
 
-// ============================================================
-// RATINGS
-// ============================================================
+// ------------------------------------------------------------
+// STARS
+// ------------------------------------------------------------
 function highlightStars(count) {
   if (!starPickerEl) return;
 
-  const n = Number(count) || 0;
   starPickerEl.querySelectorAll("span").forEach((s, i) => {
-    s.textContent = i < n ? "★" : "☆";
+    s.textContent = i < count ? "★" : "☆";
   });
 }
 
 async function loadUserRating(store_id) {
-  ensureModalInit();
-
   const userResp = await supabase.auth.getUser();
-  const user = userResp?.data?.user;
+  const user = userResp.data.user;
   if (!user) {
     USER_TEMP_RATING = 0;
     highlightStars(0);
     return;
   }
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("ratings")
     .select("rating")
     .eq("store_id", store_id)
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (error) {
-    console.error("loadUserRating error:", error);
-    return;
-  }
-
-  USER_TEMP_RATING = Number(data?.rating) || 0;
+  USER_TEMP_RATING = data?.rating || 0;
   highlightStars(USER_TEMP_RATING);
 }
 
 async function submitRating() {
-  ensureModalInit();
-
-  const rating = Number(USER_TEMP_RATING) || 0;
-  if (!rating) return alert("Select a rating first!");
+  if (!CURRENT_STORE) return;
+  if (!USER_TEMP_RATING) return alert("Select a rating first.");
 
   const userResp = await supabase.auth.getUser();
-  const user = userResp?.data?.user;
+  const user = userResp.data.user;
   if (!user) return alert("Login required.");
 
-  const { error } = await supabase.from("ratings").upsert({
+  await supabase.from("ratings").upsert({
     store_id: CURRENT_STORE,
     user_id: user.id,
-    rating,
+    rating: USER_TEMP_RATING,
   });
 
-  if (error) {
-    console.error("submitRating error:", error);
-    alert("Failed to submit rating.");
-    return;
-  }
-
-  await loadModalStore();
-}
-
-async function loadModalStore() {
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("stores_frontend_public_v4")
     .select("*")
     .eq("id", CURRENT_STORE)
     .single();
 
-  if (error) {
-    console.error("loadModalStore error:", error);
-    return;
-  }
   if (data) fillModal(data);
 }
 
-// ============================================================
+// ------------------------------------------------------------
 // COMMENTS
-// ============================================================
+// ------------------------------------------------------------
 async function loadComments(store_id) {
-  ensureModalInit();
   if (!commentsBoxEl) return;
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("store_comments")
     .select("*")
     .eq("store_id", store_id)
     .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("loadComments error:", error);
-    commentsBoxEl.innerHTML = "<p>Failed to load comments.</p>";
-    return;
-  }
 
   commentsBoxEl.innerHTML = "";
 
@@ -708,38 +697,33 @@ async function loadComments(store_id) {
   commentsBoxEl.innerHTML = data
     .map(
       (c) => `
-        <div class="comment">
-          <p>${String(c.text || "")}</p>
-          <small>${new Date(c.created_at).toLocaleString()}</small>
-        </div>`
+      <div class="comment">
+        <p>${c.text}</p>
+        <small>${new Date(c.created_at).toLocaleString()}</small>
+      </div>`
     )
     .join("");
 }
 
 async function submitComment() {
-  ensureModalInit();
+  if (!CURRENT_STORE) return;
+  if (!commentInputEl) return;
 
-  const text = String(commentInputEl?.value || "").trim();
+  const text = commentInputEl.value.trim();
   if (!text) return;
 
   const userResp = await supabase.auth.getUser();
-  const user = userResp?.data?.user;
+  const user = userResp.data.user;
   if (!user) return alert("Login required.");
 
-  const { error } = await supabase.from("store_comments").insert({
+  await supabase.from("store_comments").insert({
     store_id: CURRENT_STORE,
     user_id: user.id,
     text,
   });
 
-  if (error) {
-    console.error("submitComment error:", error);
-    alert("Failed to post comment.");
-    return;
-  }
-
-  if (commentInputEl) commentInputEl.value = "";
-  await loadComments(CURRENT_STORE);
+  commentInputEl.value = "";
+  loadComments(CURRENT_STORE);
 }
 
 // ============================================================
