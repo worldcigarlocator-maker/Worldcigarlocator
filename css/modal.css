@@ -7,11 +7,12 @@
 .modal {
   position: fixed;
   inset: 0;
-  z-index: 5000;
+  z-index: 100000; /* above app shell */
   display: flex;
   justify-content: center;
   padding-top: 3rem;
 }
+
 
 /* Backdrop */
 .modal-backdrop {
