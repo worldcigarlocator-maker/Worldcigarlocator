@@ -37,8 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
   closeBtn = dom(".modal-close");
   backdrop = dom(".modal-backdrop");
 
-  closeBtn?.addEventListener("click", closeModal);
-  backdrop?.addEventListener("click", closeModal);
 });
 
 
@@ -519,9 +517,6 @@ document.addEventListener("click", (e) => {
 // ============================================================
 // MODAL SYSTEM
 // ============================================================
-const modal = dom("#storeModal");
-const closeBtn = dom(".modal-close");
-const backdrop = dom(".modal-backdrop");
 
 let CURRENT_STORE = null;
 
