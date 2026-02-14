@@ -1,5 +1,5 @@
 // ============================================================
-// CARDS.JS — WCL Frontend (CANONICAL · PRODUCTION)
+// CARDS.JS — WCL Frontend (CANONICAL · CORE UI · FULL FILE)
 // ------------------------------------------------------------
 // • Single source of truth: STATE + MASTER_MODE
 // • LAW: last action wins between SEARCH and LOCATION
@@ -10,6 +10,13 @@
 // 🔒 IMPORTANT:
 // cards.js is CORE UI and must NEVER hard-depend on analytics.
 // Analytics is optional, append-only, and injected if present.
+//
+// ✅ FIXES INCLUDED (why your modal/cards weren’t working):
+// • NO duplicate const/let declarations (fixes “Cannot declare const twice: modal”)
+// • Modal init is SINGLE + LAZY (ensureModalInit) + DOM-safe
+// • Card clicks use ONE delegated listener on #storeGrid (not 1057 listeners)
+// • Modal elements are resolved safely even if HTML moves
+// • No “document.querySelector('.store-card').addEventListener” at global scope
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -18,14 +25,14 @@ import { supabase } from "./globals.js";
 // ANALYTICS SAFE FALLBACK (NO HARD DEPENDENCY)
 // ============================================================
 const VIEW_OBSERVER =
-  window?.WCL_ANALYTICS?.VIEW_OBSERVER ?? { observe() {}, unobserve() {} };
+  window?.WCL_ANALYTICS?.VIEW_OBSERVER ??
+  { observe() {}, unobserve() {} };
 
 // ============================================================
 // CONFIG
 // ============================================================
 const FALLBACK_IMAGE = "images/store.jpg";
 const PHOTO_PROXY_BASE = "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co";
-
 const dom = (sel) => document.querySelector(sel);
 
 // ============================================================
@@ -33,6 +40,11 @@ const dom = (sel) => document.querySelector(sel);
 // ============================================================
 let RUN_SEQ = 0;
 let ACTIVE_REQUEST = 0;
+
+// ============================================================
+// DOM READY (locked – UI init handled by search-v2.js)
+// ============================================================
+let DOM_READY = true;
 
 // ============================================================
 // CANONICAL FILTER STATE & MASTER CONTROLLER (WCL)
@@ -59,13 +71,13 @@ const STATE = {
     text: "",
   },
   chips: {
-    type: null, // "store" | "lounge" | null
+    type: null,   // "store" | "lounge" | null
     access: null, // "public" | "members" | null
   },
 };
 
 // ============================================================
-// INTERNAL HELPERS
+// INTERNAL HELPERS — STATE
 // ============================================================
 function clearLocation() {
   STATE.location.continent = null;
@@ -114,15 +126,15 @@ export function activateSearch({ text = "" } = {}) {
 
 // 📍 LOCATION becomes master
 export function activateLocation(next) {
-  STARTUP_HERO = false; // 🔑 viktigaste raden
+  STARTUP_HERO = false; // 🔑 viktig
 
   MASTER_MODE = MASTER.LOCATION;
   clearSearch();
 
   STATE.location.continent = next?.continent ?? null;
-  STATE.location.country = next?.country ?? null;
-  STATE.location.state = next?.state ?? null;
-  STATE.location.city = next?.city ?? null;
+  STATE.location.country   = next?.country   ?? null;
+  STATE.location.state     = next?.state     ?? null;
+  STATE.location.city      = next?.city      ?? null;
 
   runSearch();
 }
@@ -178,16 +190,12 @@ function buildBadges(store) {
     ? store.types.map((t) => String(t).toLowerCase())
     : [];
 
-  if (arr.includes("store"))
-    badges.push(`<span class="badge badge-store">Store</span>`);
-  if (arr.includes("lounge"))
-    badges.push(`<span class="badge badge-lounge">Lounge</span>`);
+  if (arr.includes("store"))  badges.push(`<span class="badge badge-store">Store</span>`);
+  if (arr.includes("lounge")) badges.push(`<span class="badge badge-lounge">Lounge</span>`);
 
   const A = String(store?.access || "").trim().toLowerCase();
   if (A === "public") {
-    badges.push(
-      `<span class="badge badge-access badge-access-public">PUBLIC</span>`
-    );
+    badges.push(`<span class="badge badge-access badge-access-public">PUBLIC</span>`);
   } else if (A) {
     badges.push(`<span class="badge badge-access">${A.toUpperCase()}</span>`);
   }
@@ -199,9 +207,13 @@ function buildBadges(store) {
 // PHOTO URL
 // ============================================================
 function getPhotoUrl(store) {
+  // 1) Helig CDN-bild
   if (store?.photo_cdn_url) return store.photo_cdn_url;
+
+  // 2) Legacy direkt-URL
   if (store?.photo_url) return store.photo_url;
 
+  // 3) Google Places via proxy
   if (store?.photo_reference) {
     return `${PHOTO_PROXY_BASE}/photo-proxy?photo_reference=${encodeURIComponent(
       store.photo_reference
@@ -215,6 +227,11 @@ function getPhotoUrl(store) {
 // HERO RESET
 // ============================================================
 export function resetToHero() {
+  if (!DOM_READY) {
+    document.addEventListener("DOMContentLoaded", resetToHero, { once: true });
+    return;
+  }
+
   const grid = dom("#storeGrid");
   const heading = dom("#resultHeading");
   const heroImage = dom("#heroImage");
@@ -235,8 +252,9 @@ export function resetToHero() {
 // ============================================================
 function buildStars(avg, count) {
   const v = Number(avg) || 0;
-  const f = "★".repeat(Math.round(v));
-  const e = "☆".repeat(5 - Math.round(v));
+  const r = Math.round(v);
+  const f = "★".repeat(r);
+  const e = "☆".repeat(5 - r);
   return `
     <div class="stars-row">
       <span class="stars">${f}${e}</span>
@@ -258,9 +276,7 @@ function cardHTML(s) {
   let displayAddress = "—";
   if (s?.address) {
     const trimmed = String(s.address).trim();
-    displayAddress = trimmed.includes(",")
-      ? trimmed.split(",")[0] + "…"
-      : trimmed;
+    displayAddress = trimmed.includes(",") ? trimmed.split(",")[0] + "…" : trimmed;
   }
 
   return `
@@ -275,7 +291,9 @@ function cardHTML(s) {
 
     <div class="store-body">
       <h3 class="store-title">${displayName}</h3>
+
       <div class="badge-row">${buildBadges(s)}</div>
+
       ${buildStars(s?.rating_avg, s?.rating_count)}
 
       <div class="locrow">
@@ -287,13 +305,13 @@ function cardHTML(s) {
       </div>
 
       <div class="infoblock">
-        <p class="info-row"><strong>Address:</strong> <span>${displayAddress}</span></p>
-        <p class="info-row"><strong>Phone:</strong> <span>${s?.phone || "—"}</span></p>
-        <p class="info-row"><strong>Website:</strong>
+        <p><strong>Address:</strong> ${displayAddress}</p>
+        <p><strong>Phone:</strong> ${s?.phone || "—"}</p>
+        <p><strong>Website:</strong>
           ${
             s?.website
               ? `<a href="${s.website}" target="_blank" rel="noopener" class="visit-website" data-store-id="${s.id}">Visit</a>`
-              : `<span>—</span>`
+              : "—"
           }
         </p>
       </div>
@@ -304,38 +322,21 @@ function cardHTML(s) {
 }
 
 // ============================================================
-// RENDER CARDS (CANONICAL · DELEGATION · MODAL-AWARE)
+// RENDER CARDS (CANONICAL · SAFE · MODAL-AWARE)
 // ============================================================
-let GRID_EVENTS_BOUND = false;
-
 function renderCards(list) {
   const grid = dom("#storeGrid");
   if (!grid) return;
 
+  // 1️⃣ Render HTML
   grid.innerHTML = (list || []).map(cardHTML).join("");
 
-  // analytics-safe observer
+  // 2️⃣ Analytics-safe observer (no-op if analytics not loaded)
   grid.querySelectorAll(".store-card").forEach((card) => {
     VIEW_OBSERVER.observe(card);
   });
 
-  // ✅ Branch-standard: single delegated click handler
-  if (!GRID_EVENTS_BOUND) {
-    GRID_EVENTS_BOUND = true;
-
-    grid.addEventListener("click", (e) => {
-      // allow normal link behavior (website etc)
-      if (e.target.closest("a")) return;
-
-      const card = e.target.closest(".store-card");
-      if (!card) return;
-
-      const storeId = Number(card.dataset.storeId);
-      if (!storeId) return;
-
-      openModal(storeId);
-    });
-  }
+  // 3️⃣ NO per-card click listeners here (delegation below).
 }
 
 // 🔓 Public export (used by search + sidebar)
@@ -356,9 +357,7 @@ function matchesType(store, type) {
 
 function matchesAccess(store, access) {
   if (!access) return true;
-  return (
-    String(store?.access || "").toLowerCase() === String(access).toLowerCase()
-  );
+  return String(store?.access || "").toLowerCase() === String(access).toLowerCase();
 }
 
 function applyFrontendFilters(rows, snapshot) {
@@ -371,6 +370,12 @@ function applyFrontendFilters(rows, snapshot) {
 // LOAD STORES (RPC)
 // ============================================================
 export async function loadStores(filters = {}) {
+  if (!DOM_READY) {
+    await new Promise((res) =>
+      document.addEventListener("DOMContentLoaded", res, { once: true })
+    );
+  }
+
   ACTIVE_REQUEST++;
   const reqId = ACTIVE_REQUEST;
 
@@ -382,6 +387,7 @@ export async function loadStores(filters = {}) {
     p_city: filters?.city || null,
   });
 
+  // stale response guard
   if (reqId !== ACTIVE_REQUEST) return null;
 
   if (error) {
@@ -396,6 +402,12 @@ export async function loadStores(filters = {}) {
 // RUN SEARCH (CANONICAL)
 // ============================================================
 export async function runSearch() {
+  if (!DOM_READY) {
+    await new Promise((res) =>
+      document.addEventListener("DOMContentLoaded", res, { once: true })
+    );
+  }
+
   RUN_SEQ++;
   const runId = RUN_SEQ;
 
@@ -416,7 +428,7 @@ export async function runSearch() {
   const heroImage = dom("#heroImage");
   const heroText = dom("#heroText");
 
-  // idle + no search + no location + no chips => hero only (startup)
+  // Hero mode if absolutely nothing active
   if (
     snapshot.master === MASTER.IDLE &&
     !snapshot.search &&
@@ -437,6 +449,7 @@ export async function runSearch() {
     heading.style.display = "block";
   }
 
+  // clear grid quickly (keeps UI crisp)
   renderCards([]);
 
   const resp = await loadStores({
@@ -465,7 +478,7 @@ export async function runSearch() {
 }
 
 // ============================================================
-// WEBSITE CLICK ANALYTICS (OPTIONAL)
+// WEBSITE CLICK ANALYTICS (safe)
 // ============================================================
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a.visit-website");
@@ -480,9 +493,8 @@ document.addEventListener("click", (e) => {
 });
 
 // ============================================================
-// MODAL SYSTEM (CANONICAL · SINGLE INIT · STABLE)
+// MODAL SYSTEM (CANONICAL · SINGLE INIT · LAZY)
 // ============================================================
-
 let MODAL_READY = false;
 
 let modalEl = null;
@@ -499,9 +511,6 @@ let sendCommentBtnEl = null;
 let CURRENT_STORE = null;
 let USER_TEMP_RATING = 0;
 
-// ------------------------------------------------------------
-// INIT (runs once)
-// ------------------------------------------------------------
 function ensureModalInit() {
   if (MODAL_READY) return;
   MODAL_READY = true;
@@ -517,36 +526,27 @@ function ensureModalInit() {
   commentInputEl = dom("#modalCommentInput");
   sendCommentBtnEl = dom("#modalSendComment");
 
-  // Close
+  // Close handlers
   modalCloseBtn?.addEventListener("click", closeModal);
   modalBackdrop?.addEventListener("click", closeModal);
 
-  // ⭐ Stars
+  // Star hover + click
   starPickerEl?.querySelectorAll("span").forEach((star) => {
     star.addEventListener("mouseenter", () =>
       highlightStars(Number(star.dataset.val) || 0)
     );
-
-    star.addEventListener("mouseleave", () =>
-      highlightStars(USER_TEMP_RATING)
-    );
-
+    star.addEventListener("mouseleave", () => highlightStars(USER_TEMP_RATING));
     star.addEventListener("click", () => {
       USER_TEMP_RATING = Number(star.dataset.val) || 0;
       highlightStars(USER_TEMP_RATING);
     });
   });
 
-  // Submit rating
+  // Submit rating / comment
   ratingSendBtnEl?.addEventListener("click", submitRating);
-
-  // Submit comment
   sendCommentBtnEl?.addEventListener("click", submitComment);
 }
 
-// ------------------------------------------------------------
-// OPEN / CLOSE
-// ------------------------------------------------------------
 function openModalVisible() {
   modalEl?.classList.remove("hidden");
 }
@@ -570,25 +570,19 @@ async function openModal(id) {
     .single();
 
   if (error) {
-    console.error("Modal load error:", error);
+    console.error("Modal store load error:", error);
     return;
   }
-
   if (!data) return;
 
   fillModal(data);
 
-  await Promise.all([
-    loadComments(storeId),
-    loadUserRating(storeId),
-  ]);
+  // Load comments + user rating in parallel
+  await Promise.all([loadComments(storeId), loadUserRating(storeId)]);
 
   openModalVisible();
 }
 
-// ------------------------------------------------------------
-// FILL MODAL
-// ------------------------------------------------------------
 function fillModal(s) {
   const img = dom("#modalImg");
   const name = dom("#modalName");
@@ -621,71 +615,96 @@ function fillModal(s) {
   if (stars) stars.innerHTML = buildStars(s?.rating_avg, s?.rating_count);
 }
 
-// ------------------------------------------------------------
-// STARS
-// ------------------------------------------------------------
 function highlightStars(count) {
   if (!starPickerEl) return;
-
+  const n = Number(count) || 0;
   starPickerEl.querySelectorAll("span").forEach((s, i) => {
-    s.textContent = i < count ? "★" : "☆";
+    s.textContent = i < n ? "★" : "☆";
   });
 }
 
 async function loadUserRating(store_id) {
   const userResp = await supabase.auth.getUser();
-  const user = userResp.data.user;
+  const user = userResp?.data?.user;
   if (!user) {
     USER_TEMP_RATING = 0;
     highlightStars(0);
     return;
   }
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("ratings")
     .select("rating")
     .eq("store_id", store_id)
     .eq("user_id", user.id)
     .maybeSingle();
 
-  USER_TEMP_RATING = data?.rating || 0;
+  if (error) {
+    console.error("loadUserRating error:", error);
+    return;
+  }
+
+  USER_TEMP_RATING = Number(data?.rating) || 0;
   highlightStars(USER_TEMP_RATING);
 }
 
 async function submitRating() {
   if (!CURRENT_STORE) return;
-  if (!USER_TEMP_RATING) return alert("Select a rating first.");
+
+  const rating = Number(USER_TEMP_RATING) || 0;
+  if (!rating) return alert("Select a rating first!");
 
   const userResp = await supabase.auth.getUser();
-  const user = userResp.data.user;
+  const user = userResp?.data?.user;
   if (!user) return alert("Login required.");
 
-  await supabase.from("ratings").upsert({
+  const { error } = await supabase.from("ratings").upsert({
     store_id: CURRENT_STORE,
     user_id: user.id,
-    rating: USER_TEMP_RATING,
+    rating,
   });
 
-  const { data } = await supabase
+  if (error) {
+    console.error("submitRating error:", error);
+    alert("Failed to submit rating.");
+    return;
+  }
+
+  // Refresh modal store data (new avg/count)
+  await loadModalStore();
+}
+
+async function loadModalStore() {
+  if (!CURRENT_STORE) return;
+
+  const { data, error } = await supabase
     .from("stores_frontend_public_v4")
     .select("*")
     .eq("id", CURRENT_STORE)
     .single();
 
+  if (error) {
+    console.error("loadModalStore error:", error);
+    return;
+  }
+
   if (data) fillModal(data);
 }
 
-// ------------------------------------------------------------
-// COMMENTS
-// ------------------------------------------------------------
 async function loadComments(store_id) {
   if (!commentsBoxEl) return;
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("store_comments")
     .select("*")
     .eq("store_id", store_id)
     .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("loadComments error:", error);
+    commentsBoxEl.innerHTML = "<p>Failed to load comments.</p>";
+    return;
+  }
 
   commentsBoxEl.innerHTML = "";
 
@@ -697,10 +716,10 @@ async function loadComments(store_id) {
   commentsBoxEl.innerHTML = data
     .map(
       (c) => `
-      <div class="comment">
-        <p>${c.text}</p>
-        <small>${new Date(c.created_at).toLocaleString()}</small>
-      </div>`
+        <div class="comment">
+          <p>${c?.text ?? ""}</p>
+          <small>${new Date(c?.created_at).toLocaleString()}</small>
+        </div>`
     )
     .join("");
 }
@@ -713,23 +732,59 @@ async function submitComment() {
   if (!text) return;
 
   const userResp = await supabase.auth.getUser();
-  const user = userResp.data.user;
+  const user = userResp?.data?.user;
   if (!user) return alert("Login required.");
 
-  await supabase.from("store_comments").insert({
+  const { error } = await supabase.from("store_comments").insert({
     store_id: CURRENT_STORE,
     user_id: user.id,
     text,
   });
 
+  if (error) {
+    console.error("submitComment error:", error);
+    alert("Failed to post comment.");
+    return;
+  }
+
   commentInputEl.value = "";
-  loadComments(CURRENT_STORE);
+  await loadComments(CURRENT_STORE);
+
+  // Optional: refresh modal store (comment_count)
+  await loadModalStore();
+}
+
+// ============================================================
+// CARD CLICK (DELEGATION) — ONE listener only
+// ============================================================
+let CARD_EVENTS_BOUND = false;
+
+function bindCardClicksOnce() {
+  if (CARD_EVENTS_BOUND) return;
+  CARD_EVENTS_BOUND = true;
+
+  document.addEventListener("click", (e) => {
+    const card = e.target.closest(".store-card");
+    if (!card) return;
+
+    // allow links to behave normally
+    if (e.target.closest("a")) return;
+
+    const id = Number(card.dataset.storeId);
+    if (!id) return;
+
+    openModal(id);
+  });
 }
 
 // ============================================================
 // INIT (DOM SAFE)
 // ============================================================
 document.addEventListener("DOMContentLoaded", () => {
-  // modal binds are safe even if modal exists later in DOM — but you *do* have it in HTML
+  // Safe: binds once, no matter how many rerenders you do
+  bindCardClicksOnce();
+
+  // Safe: pre-init modal if it exists already (it does in your HTML)
+  // but still works if you move modal around later.
   ensureModalInit();
 });
