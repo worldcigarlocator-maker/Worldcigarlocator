@@ -788,3 +788,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // but still works if you move modal around later.
   ensureModalInit();
 });
+
+// DEBUG ONLY
+window.__openModalTest = openModal;
+
