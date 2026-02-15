@@ -1,180 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>World Cigar Locator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
-  >
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="css/start.css">
-  <link rel="stylesheet" href="css/search.css">
-  <link rel="stylesheet" href="css/sidebar.css">
-  <link rel="stylesheet" href="css/cards.css">
-</head>
-
-<body>
-
 <!-- ============================================================
-     LOGIN POPUP — FULLSCREEN AUTH GATE
-     MUST BE DIRECT CHILD OF <body>
-     ============================================================ -->
-<div id="loginPopup" class="login-popup hidden">
-  <div class="login-box">
-
-    <h2>Login</h2>
-
-    <input
-      id="loginEmail"
-      type="email"
-      placeholder="Email"
-      autocomplete="email"
-    />
-
-    <input
-      id="loginPassword"
-      type="password"
-      placeholder="Password"
-      autocomplete="current-password"
-    />
-
-    <label class="remember">
-      <input type="checkbox" id="rememberMe" />
-      Remember me
-    </label>
-
-    <button id="loginSubmit">
-      <span class="login-text">Login</span>
-      <span id="loginSpinner" class="hidden">⏳</span>
-    </button>
-
-  </div>
-</div>
-
-<!-- ============================================================
-     APP (BLURRED + LOCKED UNTIL AUTH)
-     ============================================================ -->
-<div class="container">
-
-  <!-- ================= SIDEBAR ================= -->
-  <aside class="sidebar">
-
-    <header class="sidebar-header">
-
-      <!-- BRAND -->
-      <div class="sidebar-brand" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160">
-          <text
-            x="260"
-            y="100"
-            text-anchor="middle"
-            font-size="56"
-            fill="rgb(115, 98, 75)"
-            font-family="Georgia, 'Times New Roman', serif"
-          >
-            World Cigar Locator
-          </text>
-        </svg>
-      </div>
-
-      <!-- ACTIONS -->
-      <div class="sidebar-actions">
-        <button class="sidebar-btn">Login</button>
-        <button class="sidebar-btn primary">Add Store</button>
-      </div>
-
-    </header>
-
-    <div id="sidebarMenu" class="sidebar-menu"></div>
-
-    <footer class="sidebar-footer">
-      <a href="mailto:support@worldcigarlocator.com">Contact / Support</a>
-    </footer>
-
-  </aside>
-
-  <!-- ================= MAIN ================= -->
-  <main class="main">
-
-    <!-- ================= SEARCH ================= -->
-    <div class="search-shell">
-      <div class="search-capsule">
-
-        <!-- ZONE 1 — SEARCH -->
-        <div class="search-zone zone-search" id="searchZone">
-          <span class="search-label">Search</span>
-          <input
-            id="searchInput"
-            type="text"
-            placeholder="e.g. London, New York, Bangkok"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="search-divider"></div>
-
-        <!-- ZONE 2 — FILTERS -->
-        <div class="search-zone zone-filters" id="searchFilters">
-          <button class="filter-btn" data-filter="type" data-value="store">Store</button>
-          <button class="filter-btn" data-filter="type" data-value="lounge">Lounge</button>
-          <button class="filter-btn" data-filter="access" data-value="members">Members</button>
-        </div>
-
-        <div class="search-divider"></div>
-
-        <!-- ZONE 3 — ACTIONS -->
-        <div class="search-zone zone-actions">
-          <button class="search-icon" id="searchBtn" aria-label="Run search">
-            <svg viewBox="0 0 140 140" aria-hidden="true">
-              <circle cx="60" cy="60" r="44" />
-              <line x1="92" y1="92" x2="130" y2="130" />
-            </svg>
-          </button>
-
-          <button class="clear-btn" id="clearBtn" aria-label="Clear search">✕</button>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ================= HERO ================= -->
-    <section class="hero" id="heroImage">
-      <img
-        src="images/world-cigar-locator-hero.jpg"
-        alt="World Cigar Locator"
-      >
-      <div id="heroText"></div>
-    </section>
-
-    <!-- ================= RESULTS ================= -->
-    <h2 id="resultHeading" style="display:none"></h2>
-    <div id="storeGrid"></div>
-
-  </main>
-
-</div>
-
-<!-- ================= SCRIPTS ================= -->
-  <script type="module" src="js/cards.js"></script>
-<script type="module" src="js/main.js"></script>
-<script type="module" src="js/search-v2.js"></script>
-
-  <!-- ============================================================
      STORE MODAL — DETAILS / RATING / COMMENTS
      ============================================================ -->
-
 <div id="storeModal" class="modal hidden">
   <div class="modal-backdrop"></div>
 
- <div class="modal-content">
-
+  <div class="modal-content">
 
     <button class="modal-close">✕</button>
 
@@ -204,7 +34,6 @@
       </p>
     </div>
 
-    <!-- ================= RATING ================= -->
     <div class="modal-rating">
       <div id="modalStarPicker" class="star-picker">
         <span data-val="1">☆</span>
@@ -213,27 +42,24 @@
         <span data-val="4">☆</span>
         <span data-val="5">☆</span>
       </div>
-
       <button id="modalSendRating">Submit rating</button>
     </div>
 
-    <!-- ================= COMMENTS ================= -->
     <div class="modal-comments">
       <h3>Comments</h3>
-
       <div id="modalComments"></div>
-
-      <textarea
-        id="modalCommentInput"
-        placeholder="Write a comment…"
-      ></textarea>
-
+      <textarea id="modalCommentInput" placeholder="Write a comment…"></textarea>
       <button id="modalSendComment">Post comment</button>
     </div>
 
   </div>
 </div>
 
-  
+
+<!-- ================= SCRIPTS ================= -->
+<script type="module" src="js/cards.js"></script>
+<script type="module" src="js/main.js"></script>
+<script type="module" src="js/search-v2.js"></script>
+
 </body>
 </html>
