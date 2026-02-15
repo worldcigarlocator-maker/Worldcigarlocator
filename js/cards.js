@@ -580,6 +580,10 @@ async function openModal(id) {
     .eq("id", storeId)
     .single();
 
+  console.log("MODAL DATA:", data);
+console.log("MODAL ERROR:", error);
+
+
   if (error) {
     console.error("Modal store load error:", error);
     return;
