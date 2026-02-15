@@ -563,7 +563,10 @@ function closeModal() {
   modalEl?.classList.add("hidden");
 }
 
+
 async function openModal(id) {
+  console.log("OPEN MODAL CALLED", id);  // ← LÄGG TILL DENNA
+    
   ensureModalInit();
 
   const storeId = Number(id);
