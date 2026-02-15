@@ -588,6 +588,8 @@ async function openModal(id) {
   await Promise.all([loadComments(storeId), loadUserRating(storeId)]);
   openModalVisible();
 }
+// expose for grid delegation
+window.openModal = openModal;
 
 function fillModal(s) {
   const img = dom("#modalImg");
