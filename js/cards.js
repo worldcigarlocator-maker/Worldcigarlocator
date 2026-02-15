@@ -13,7 +13,6 @@
 // ============================================================
 
 import { supabase } from "./globals.js";
-const dom = (sel) => document.querySelector(sel);
 
 // ============================================================
 // ANALYTICS SAFE FALLBACK (NO HARD DEPENDENCY)
