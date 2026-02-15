@@ -753,4 +753,5 @@ async function submitComment() {
 // ============================================================
 document.addEventListener("DOMContentLoaded", () => {
   ensureModalInit();
+  bindGridEventsOnce();
 });
