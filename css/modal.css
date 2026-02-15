@@ -7,10 +7,13 @@
 .modal {
   position: fixed;
   inset: 0;
-  z-index: 100000; /* above app shell */
+  z-index: 100000;
+
   display: flex;
+  align-items: center;      /* 🔥 detta saknas */
   justify-content: center;
-  padding-top: 3rem;
+
+  padding: 2rem;            /* istället för padding-top */
 }
 
 
