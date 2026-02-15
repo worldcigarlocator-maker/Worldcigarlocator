@@ -38,6 +38,12 @@ body {
   min-height: 100vh;
 }
 
+/* ================= GLOBAL UTILITIES ================= */
+
+/* 🔒 Måste vinna ALLTID */
+.hidden {
+  display: none !important;
+}
 
 /* ================= MAIN LAYOUT ================= */
 
