@@ -334,7 +334,6 @@ function renderCards(list) {
   const grid = dom("#storeGrid");
   if (!grid) return;
 
-  bindGridEventsOnce();
 
   grid.innerHTML = (list || []).map(cardHTML).join("");
 
@@ -754,5 +753,4 @@ async function submitComment() {
 // ============================================================
 document.addEventListener("DOMContentLoaded", () => {
   ensureModalInit();
-  bindGridEventsOnce();
 });
