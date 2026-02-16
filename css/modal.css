@@ -1,251 +1,142 @@
 /* ============================================================
-   MODAL — COMPACT LUXURY VERSION
-   Focus: Rating + Comments
+   EXPANDED CARD SYSTEM — CANONICAL
+   Replaces legacy modal system
    ============================================================ */
 
-.modal.hidden {
-  display: none;
-}
+/* ============================================================
+   BODY STATE
+   ============================================================ */
 
-.modal {
-  position: fixed;
-  inset: 0;
-  z-index: 100000;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 2rem;
-}
-
-
-/* ================= BACKDROP ================= */
-
-.modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.78);
-  backdrop-filter: blur(6px);
-}
-
-
-/* ================= CARD ================= */
-
-.modal-content {
-  position: relative;
-
-  width: min(620px, 94vw);
-  max-height: 90vh;
-
-  display: flex;
-  flex-direction: column;
-
-  background: #0b0b0b;
-  border-radius: 20px;
-
-  border: 1px solid rgba(212,160,23,0.45);
-  box-shadow: 0 60px 120px rgba(0,0,0,0.9);
-
+body.modal-active {
   overflow: hidden;
 }
 
-
-/* ================= CLOSE ================= */
-
-.modal-close {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: #fff;
-  opacity: 0.7;
-  cursor: pointer;
+/* Backdrop */
+body.modal-active::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(6px);
+  z-index: 900;
 }
 
-.modal-close:hover {
+/* Dim other cards */
+body.modal-active .store-card {
+  opacity: 0.25;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+/* Active card overrides dim */
+body.modal-active .store-card.expanded {
   opacity: 1;
+  pointer-events: auto;
 }
-
-
-/* ================= IMAGE ================= */
-
-#modalImg {
-  width: 100%;
-  height: 180px;               /* mindre hero */
-  object-fit: cover;
-  border-bottom: 1px solid rgba(212,160,23,0.25);
-}
-
-
-/* ================= HEADER ================= */
-
-.modal-title {
-  padding: 1.2rem 1.4rem 0.6rem;
-}
-
-.modal-title h2 {
-  font-size: 1.45rem;
-  font-weight: 700;
-  color: var(--gold);
-  margin-bottom: 0.35rem;
-}
-
-.modal-location {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.9rem;
-  opacity: 0.75;
-}
-
-.modal-location img {
-  width: 18px;
-  height: 12px;
-  border-radius: 2px;
-}
-
-
-/* ================= INFO ================= */
-
-.modal-info {
-  padding: 0 1.4rem 1rem;
-  font-size: 0.9rem;
-  line-height: 1.45;
-  opacity: 0.85;
-}
-
-.modal-info p {
-  margin-bottom: 0.35rem;
-}
-
 
 /* ============================================================
-   RATING — VISUAL PRIORITY
+   EXPANDED CARD POSITIONING
    ============================================================ */
 
-.modal-rating {
-  padding: 1.4rem;
+.store-card.expanded {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.08);
+  transform-origin: center;
+  z-index: 1000;
+
+  box-shadow:
+    0 0 0 1px rgba(212,160,23,0.45),
+    0 60px 120px rgba(0,0,0,0.95);
+}
+
+/* Smooth animation */
+.store-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.2s ease;
+}
+
+/* ============================================================
+   EXPANDED CONTENT AREA (RATING + COMMENTS)
+   Hidden by default
+   ============================================================ */
+
+.card-expanded-content {
+  display: none;
+  margin-top: 10px;
   border-top: 1px solid rgba(255,255,255,0.05);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-
-  background: linear-gradient(
-    to bottom,
-    rgba(212,160,23,0.04),
-    transparent
-  );
+  padding-top: 10px;
 }
 
-.star-picker {
-  display: flex;
-  gap: 0.6rem;
-  font-size: 1.9rem;     /* större stjärnor */
-  margin-bottom: 1rem;
-  cursor: pointer;
+.store-card.expanded .card-expanded-content {
+  display: block;
 }
-
-.star-picker span {
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.star-picker span:hover {
-  transform: scale(1.15);
-}
-
-#modalSendRating {
-  padding: 0.6rem 1.2rem;
-  border-radius: 10px;
-
-  border: 1px solid rgba(212,160,23,0.8);
-  background: rgba(212,160,23,0.08);
-
-  color: var(--gold);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-#modalSendRating:hover {
-  background: rgba(212,160,23,0.18);
-}
-
 
 /* ============================================================
-   COMMENTS — SECONDARY FOCUS AREA
+   STAR PICKER (MATCH CARD DNA)
    ============================================================ */
 
-.modal-comments {
-  padding: 1.4rem;
-  overflow-y: auto;
-  max-height: 260px;
+.card-expanded-content .star-picker {
+  display: flex;
+  gap: 0.35rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #555;
+  margin-bottom: 0.6rem;
 }
 
-.modal-comments h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.9rem;
+.card-expanded-content .star-picker span.active {
   color: var(--gold);
 }
 
-#modalComments {
+.card-expanded-content .rating-send-btn {
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid rgba(212,160,23,0.7);
+  background: #111;
+  color: var(--gold);
+  cursor: pointer;
   margin-bottom: 1rem;
-  font-size: 0.9rem;
-  line-height: 1.5;
 }
 
-#modalComments .comment {
+/* ============================================================
+   COMMENTS
+   ============================================================ */
+
+.card-comments-box {
+  max-height: 140px;
+  overflow-y: auto;
   margin-bottom: 0.8rem;
-  padding-bottom: 0.6rem;
+}
+
+.card-comments-box .comment {
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-#modalComments small {
+.card-comments-box small {
   opacity: 0.5;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
 }
 
-
-/* ================= ADD COMMENT ================= */
-
-#modalCommentInput {
+.card-comment-input {
   width: 100%;
-  height: 70px;
-
-  padding: 0.6rem;
-  margin-bottom: 0.7rem;
-
-  border-radius: 10px;
+  height: 60px;
+  padding: 0.5rem;
+  border-radius: 8px;
   background: #141414;
   border: 1px solid #2a2a2a;
   color: #fff;
-
   resize: none;
+  margin-bottom: 0.6rem;
 }
 
-#modalSendComment {
-  padding: 0.6rem 1.1rem;
-  border-radius: 10px;
-
-  border: 1px solid rgba(212,160,23,0.8);
-  background: rgba(212,160,23,0.06);
-
+.card-send-comment {
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid rgba(212,160,23,0.7);
+  background: #111;
   color: var(--gold);
   cursor: pointer;
-}
-
-#modalSendComment:hover {
-  background: rgba(212,160,23,0.15);
-}
-
-
-/* ================= SCROLLBAR ================= */
-
-.modal-comments::-webkit-scrollbar {
-  width: 6px;
-}
-
-.modal-comments::-webkit-scrollbar-thumb {
-  background: rgba(212,160,23,0.4);
-  border-radius: 4px;
 }
