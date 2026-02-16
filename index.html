@@ -19,7 +19,6 @@
   <link rel="stylesheet" href="css/sidebar.css">
   <link rel="stylesheet" href="css/cards.css">
   <link rel="stylesheet" href="css/modal.css">
-
 </head>
 
 <body>
@@ -161,77 +160,9 @@
 
     </main>
 
-  </div><!-- ✅ END .container (VIKTIGT: här ska den sluta, exakt en gång) -->
+  </div><!-- ✅ END .container -->
 
-
-  <!-- ============================================================
-       STORE MODAL — DETAILS / RATING / COMMENTS
-       MUST BE DIRECT CHILD OF <body> (NOT inside .container)
-       ============================================================ -->
-  <div id="storeModal" class="modal hidden">
-    <div class="modal-backdrop"></div>
-
-    <div class="modal-content">
-      <button class="modal-close">✕</button>
-
-      <div class="modal-header">
-        <img id="modalImg" alt="" />
-        <div class="modal-title">
-          <h2 id="modalName"></h2>
-          <div class="modal-location">
-            <img id="modalFlag" class="flag" />
-            <span id="modalLocation"></span>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-meta">
-        <div id="modalBadges"></div>
-        <div id="modalStars"></div>
-      </div>
-
-      <div class="modal-info">
-        <p><strong>Address:</strong> <span id="modalAddress"></span></p>
-        <p><strong>Phone:</strong> <span id="modalPhone"></span></p>
-        <p>
-          <a id="modalWebsite" href="#" target="_blank" rel="noopener">
-            Visit website
-          </a>
-        </p>
-      </div>
-
-      <!-- ================= RATING ================= -->
-      <div class="modal-rating">
-        <div id="modalStarPicker" class="star-picker">
-          <span data-val="1">☆</span>
-          <span data-val="2">☆</span>
-          <span data-val="3">☆</span>
-          <span data-val="4">☆</span>
-          <span data-val="5">☆</span>
-        </div>
-
-        <button id="modalSendRating">Submit rating</button>
-      </div>
-
-      <!-- ================= COMMENTS ================= -->
-      <div class="modal-comments">
-        <h3>Comments</h3>
-
-        <div id="modalComments"></div>
-
-        <textarea
-          id="modalCommentInput"
-          placeholder="Write a comment…"
-        ></textarea>
-
-        <button id="modalSendComment">Post comment</button>
-      </div>
-
-    </div>
-  </div>
-
-
-  <!-- ================= SCRIPTS (SIST, efter modal) ================= -->
+  <!-- ================= SCRIPTS ================= -->
   <script type="module" src="js/cards.js"></script>
   <script type="module" src="js/main.js"></script>
   <script type="module" src="js/search-v2.js"></script>
