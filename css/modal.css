@@ -1,12 +1,9 @@
 /* ============================================================
-   EXPANDED CARD SYSTEM — CANONICAL
-   Replaces legacy modal system
+   EXPANDED CARD SYSTEM — CANONICAL (APP-LIKE)
+   Replaces legacy modal UI
    ============================================================ */
 
-/* ============================================================
-   BODY STATE
-   ============================================================ */
-
+/* Lock scroll while expanded */
 body.modal-active {
   overflow: hidden;
 }
@@ -25,7 +22,7 @@ body.modal-active::before {
 body.modal-active .store-card {
   opacity: 0.25;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.18s ease;
 }
 
 /* Active card overrides dim */
@@ -36,7 +33,12 @@ body.modal-active .store-card.expanded {
 
 /* ============================================================
    EXPANDED CARD POSITIONING
+   Keeps card DNA — same proportions, just centered + scaled
    ============================================================ */
+
+.store-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.18s ease;
+}
 
 .store-card.expanded {
   position: fixed;
@@ -51,80 +53,79 @@ body.modal-active .store-card.expanded {
     0 60px 120px rgba(0,0,0,0.95);
 }
 
-/* Smooth animation */
-.store-card {
-  transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.2s ease;
-}
-
 /* ============================================================
-   EXPANDED CONTENT AREA (RATING + COMMENTS)
-   Hidden by default
+   EXPANDED PANEL (injected by JS)
    ============================================================ */
 
-.card-expanded-content {
-  display: none;
+.wcl-expanded-panel {
   margin-top: 10px;
   border-top: 1px solid rgba(255,255,255,0.05);
   padding-top: 10px;
 }
 
-.store-card.expanded .card-expanded-content {
-  display: block;
+/* --- Rating --- */
+.wcl-expanded-panel .wcl-rating-label {
+  font-size: 0.82rem;
+  color: #bbb;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
-/* ============================================================
-   STAR PICKER (MATCH CARD DNA)
-   ============================================================ */
-
-.card-expanded-content .star-picker {
+.wcl-expanded-panel .star-picker {
   display: flex;
   gap: 0.35rem;
   font-size: 1.2rem;
   cursor: pointer;
   color: #555;
   margin-bottom: 0.6rem;
+  user-select: none;
 }
 
-.card-expanded-content .star-picker span.active {
+.wcl-expanded-panel .star-picker span.active {
   color: var(--gold);
 }
 
-.card-expanded-content .rating-send-btn {
-  padding: 0.5rem 0.8rem;
-  border-radius: 6px;
+.wcl-expanded-panel .rating-send-btn {
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
   border: 1px solid rgba(212,160,23,0.7);
   background: #111;
   color: var(--gold);
   cursor: pointer;
-  margin-bottom: 1rem;
 }
 
-/* ============================================================
-   COMMENTS
-   ============================================================ */
+/* --- Comments --- */
+.wcl-expanded-panel .wcl-comments-title {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: #bbb;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
 
-.card-comments-box {
-  max-height: 140px;
+.wcl-expanded-panel .card-comments-box {
+  max-height: 150px;
   overflow-y: auto;
+  padding-right: 6px;
   margin-bottom: 0.8rem;
 }
 
-.card-comments-box .comment {
+.wcl-expanded-panel .card-comments-box .comment {
   margin-bottom: 0.6rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.card-comments-box small {
-  opacity: 0.5;
+.wcl-expanded-panel .card-comments-box small {
+  opacity: 0.55;
   font-size: 0.72rem;
 }
 
-.card-comment-input {
+.wcl-expanded-panel .card-comment-input {
   width: 100%;
   height: 60px;
-  padding: 0.5rem;
-  border-radius: 8px;
+  padding: 0.55rem;
+  border-radius: 10px;
   background: #141414;
   border: 1px solid #2a2a2a;
   color: #fff;
@@ -132,11 +133,20 @@ body.modal-active .store-card.expanded {
   margin-bottom: 0.6rem;
 }
 
-.card-send-comment {
-  padding: 0.5rem 0.9rem;
-  border-radius: 8px;
+.wcl-expanded-panel .card-send-comment {
+  padding: 0.5rem 0.95rem;
+  border-radius: 10px;
   border: 1px solid rgba(212,160,23,0.7);
   background: #111;
   color: var(--gold);
   cursor: pointer;
+}
+
+/* Scrollbar */
+.wcl-expanded-panel .card-comments-box::-webkit-scrollbar {
+  width: 6px;
+}
+.wcl-expanded-panel .card-comments-box::-webkit-scrollbar-thumb {
+  background: rgba(212,160,23,0.35);
+  border-radius: 4px;
 }
