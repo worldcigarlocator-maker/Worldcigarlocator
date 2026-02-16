@@ -260,7 +260,9 @@ function cardHTML(s) {
   let displayAddress = "—";
   if (s.address) {
     const trimmed = s.address.trim();
-    displayAddress = trimmed.includes(",") ? trimmed.split(",")[0] + "…" : trimmed;
+    displayAddress = trimmed.includes(",")
+      ? trimmed.split(",")[0] + "…"
+      : trimmed;
   }
 
   return `
@@ -299,6 +301,7 @@ function cardHTML(s) {
       </div>
 
       <button class="reviews-btn" type="button">(${s.comment_count || 0})</button>
+      <!-- Expanded panel is injected here (JS) -->
     </div>
   </article>`;
 }
@@ -315,18 +318,39 @@ function bindGridEventsOnce() {
   const grid = dom("#storeGrid");
   if (!grid) return;
 
-  // One listener for ALL cards (and future re-renders)
+  // Toggle expand on card click (except interactive elements)
   grid.addEventListener("click", (e) => {
     const card = e.target.closest(".store-card");
     if (!card) return;
 
-    // allow website link normal behavior
-    if (e.target.closest("a")) return;
+    // interactive zones must NOT toggle/close
+    if (
+      e.target.closest(
+        "a, button, textarea, .star-picker, .card-comments-box, .card-comment-input, .rating-send-btn, .card-send-comment"
+      )
+    ) {
+      return;
+    }
 
     const storeId = Number(card.dataset.storeId);
     if (!storeId) return;
 
-    openModal(storeId);
+    toggleExpanded(card, storeId);
+  });
+
+  // Click outside closes
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (!ACTIVE_CARD) return;
+      if (!e.target.closest(".store-card.expanded")) closeExpanded();
+    },
+    true
+  );
+
+  // ESC closes
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeExpanded();
   });
 }
 
@@ -334,6 +358,8 @@ function renderCards(list) {
   const grid = dom("#storeGrid");
   if (!grid) return;
 
+  // If a card is open, close before re-render to avoid orphaned panel
+  if (ACTIVE_CARD) closeExpanded();
 
   grid.innerHTML = (list || []).map(cardHTML).join("");
 
@@ -499,49 +525,70 @@ document.addEventListener("click", (e) => {
 });
 
 // ============================================================
-// MODAL SYSTEM (CANONICAL · SINGLE INIT)
+// EXPANDED CARD SYSTEM (APP-LIKE · DYNAMIC PANEL · LAZY LOAD)
 // ============================================================
-let MODAL_READY = false;
 
-let modalEl = null;
-let modalCloseBtn = null;
-let modalBackdrop = null;
+let ACTIVE_CARD = null;
+let ACTIVE_STORE_ID = null;
 
-let starPickerEl = null;
-let ratingSendBtnEl = null;
+let EXPANDED_PANEL = null;
+let PANEL_STAR_PICKER = null;
+let PANEL_SEND_RATING = null;
 
-let commentsBoxEl = null;
-let commentInputEl = null;
-let sendCommentBtnEl = null;
+let PANEL_COMMENTS_BOX = null;
+let PANEL_COMMENT_INPUT = null;
+let PANEL_SEND_COMMENT = null;
 
-let CURRENT_STORE = null;
 let USER_TEMP_RATING = 0;
+let PANEL_LOAD_SEQ = 0;
 
-function ensureModalInit() {
-  if (MODAL_READY) return;
-  MODAL_READY = true;
+function createExpandedPanel() {
+  const panel = document.createElement("div");
+  panel.className = "wcl-expanded-panel";
 
-  modalEl = dom("#storeModal");
-  modalCloseBtn = dom(".modal-close");
-  modalBackdrop = dom(".modal-backdrop");
+  panel.innerHTML = `
+    <div class="wcl-rating-label">Your rating</div>
+    <div class="star-picker" aria-label="Rate this place">
+      <span data-val="1">☆</span>
+      <span data-val="2">☆</span>
+      <span data-val="3">☆</span>
+      <span data-val="4">☆</span>
+      <span data-val="5">☆</span>
+    </div>
+    <button type="button" class="rating-send-btn">Submit rating</button>
 
-  starPickerEl = dom("#modalStarPicker");
-  ratingSendBtnEl = dom("#modalSendRating");
+    <div class="wcl-comments-title">Comments</div>
+    <div class="card-comments-box"></div>
 
-  commentsBoxEl = dom("#modalComments");
-  commentInputEl = dom("#modalCommentInput");
-  sendCommentBtnEl = dom("#modalSendComment");
+    <textarea class="card-comment-input" placeholder="Write a comment…"></textarea>
+    <button type="button" class="card-send-comment">Post comment</button>
+  `;
 
-  // Close handlers
-  modalCloseBtn?.addEventListener("click", closeModal);
-  modalBackdrop?.addEventListener("click", closeModal);
+  // Cache nodes
+  PANEL_STAR_PICKER = panel.querySelector(".star-picker");
+  PANEL_SEND_RATING = panel.querySelector(".rating-send-btn");
 
-  // Star hover + click
-  starPickerEl?.querySelectorAll("span").forEach((star) => {
-    star.addEventListener("mouseenter", () =>
-      highlightStars(Number(star.dataset.val) || 0)
-    );
-    star.addEventListener("mouseleave", () => highlightStars(USER_TEMP_RATING));
+  PANEL_COMMENTS_BOX = panel.querySelector(".card-comments-box");
+  PANEL_COMMENT_INPUT = panel.querySelector(".card-comment-input");
+  PANEL_SEND_COMMENT = panel.querySelector(".card-send-comment");
+
+  // Stop bubbling so card never toggles/close when interacting
+  [
+    PANEL_STAR_PICKER,
+    PANEL_SEND_RATING,
+    PANEL_COMMENTS_BOX,
+    PANEL_COMMENT_INPUT,
+    PANEL_SEND_COMMENT,
+  ].forEach((el) => {
+    el?.addEventListener("click", (e) => e.stopPropagation());
+    el?.addEventListener("mousedown", (e) => e.stopPropagation());
+    el?.addEventListener("pointerdown", (e) => e.stopPropagation());
+    el?.addEventListener("wheel", (e) => e.stopPropagation(), { passive: true });
+    el?.addEventListener("touchstart", (e) => e.stopPropagation(), { passive: true });
+  });
+
+  // Star picker
+  PANEL_STAR_PICKER.querySelectorAll("span").forEach((star) => {
     star.addEventListener("click", () => {
       USER_TEMP_RATING = Number(star.dataset.val) || 0;
       highlightStars(USER_TEMP_RATING);
@@ -549,124 +596,161 @@ function ensureModalInit() {
   });
 
   // Submit rating
-  ratingSendBtnEl?.addEventListener("click", submitRating);
+  PANEL_SEND_RATING.addEventListener("click", submitRating);
 
   // Submit comment
-  sendCommentBtnEl?.addEventListener("click", submitComment);
-}
+  PANEL_SEND_COMMENT.addEventListener("click", submitComment);
 
-function openModalVisible() {
-  modalEl?.classList.remove("hidden");
-}
-
-function closeModal() {
-  modalEl?.classList.add("hidden");
-}
-
-
-async function openModal(id) {
-  console.log("OPEN MODAL CALLED", id);  // ← LÄGG TILL DENNA
-    
-  ensureModalInit();
-
-  const storeId = Number(id);
-  if (!storeId) return;
-
-  CURRENT_STORE = storeId;
-
-  const { data, error } = await supabase
-    .from("stores_frontend_public_v4")
-    .select("*")
-    .eq("id", storeId)
-    .single();
-
-  console.log("MODAL DATA:", data);
-console.log("MODAL ERROR:", error);
-
-
-  if (error) {
-    console.error("Modal store load error:", error);
-    return;
-  }
-  if (!data) return;
-
-  fillModal(data);
-
-  await Promise.all([loadComments(storeId), loadUserRating(storeId)]);
-  openModalVisible();
-}
-// expose for grid delegation
-window.openModal = openModal;
-
-function fillModal(s) {
-  const img = dom("#modalImg");
-  const name = dom("#modalName");
-  const flag = dom("#modalFlag");
-  const loc = dom("#modalLocation");
-  const addr = dom("#modalAddress");
-  const phone = dom("#modalPhone");
-  const w = dom("#modalWebsite");
-  const badges = dom("#modalBadges");
-  const stars = dom("#modalStars");
-
-  if (img) img.src = getPhotoUrl(s);
-  if (name) name.textContent = s?.name || "";
-  if (flag) flag.src = getFlagUrl(s) || "";
-  if (loc) loc.textContent = `${s?.city || ""}, ${s?.country || ""}`;
-
-  if (addr) addr.textContent = s?.address || "—";
-  if (phone) phone.textContent = s?.phone || "—";
-
-  if (w) {
-    if (s?.website) {
-      w.href = s.website;
-      w.style.display = "inline";
-    } else {
-      w.style.display = "none";
-    }
-  }
-
-  if (badges) badges.innerHTML = buildBadges(s);
-  if (stars) stars.innerHTML = buildStars(s?.rating_avg, s?.rating_count);
+  return panel;
 }
 
 function highlightStars(count) {
-  if (!starPickerEl) return;
   const n = Number(count) || 0;
-  starPickerEl.querySelectorAll("span").forEach((s, i) => {
+  if (!PANEL_STAR_PICKER) return;
+
+  PANEL_STAR_PICKER.querySelectorAll("span").forEach((s, i) => {
+    if (i < n) s.classList.add("active");
+    else s.classList.remove("active");
     s.textContent = i < n ? "★" : "☆";
   });
 }
 
-async function loadUserRating(store_id) {
-  const userResp = await supabase.auth.getUser();
-  const user = userResp.data.user;
-  if (!user) {
-    USER_TEMP_RATING = 0;
-    highlightStars(0);
+function toggleExpanded(card, storeId) {
+  if (ACTIVE_CARD === card) {
+    closeExpanded();
     return;
   }
 
-  const { data, error } = await supabase
-    .from("ratings")
-    .select("rating")
-    .eq("store_id", store_id)
-    .eq("user_id", user.id)
-    .maybeSingle();
+  closeExpanded();
 
-  if (error) {
-    console.error("loadUserRating error:", error);
-    USER_TEMP_RATING = 0;
-    highlightStars(0);
-    return;
+  document.body.classList.add("modal-active");
+  card.classList.add("expanded");
+
+  if (!EXPANDED_PANEL) {
+    EXPANDED_PANEL = createExpandedPanel();
   }
 
-  USER_TEMP_RATING = Number(data?.rating) || 0;
-  highlightStars(USER_TEMP_RATING);
+  const body = card.querySelector(".store-body");
+  if (!body) return;
+
+  body.appendChild(EXPANDED_PANEL);
+
+  ACTIVE_CARD = card;
+  ACTIVE_STORE_ID = storeId;
+
+  // Lazy load user rating + comments
+  loadExpandedData(storeId);
+}
+
+function closeExpanded() {
+  if (!ACTIVE_CARD) return;
+
+  ACTIVE_CARD.classList.remove("expanded");
+  document.body.classList.remove("modal-active");
+
+  if (EXPANDED_PANEL && EXPANDED_PANEL.parentNode) {
+    EXPANDED_PANEL.parentNode.removeChild(EXPANDED_PANEL);
+  }
+
+  ACTIVE_CARD = null;
+  ACTIVE_STORE_ID = null;
+
+  // reset UI state (safe)
+  USER_TEMP_RATING = 0;
+  highlightStars(0);
+  if (PANEL_COMMENTS_BOX) PANEL_COMMENTS_BOX.innerHTML = "";
+  if (PANEL_COMMENT_INPUT) PANEL_COMMENT_INPUT.value = "";
+}
+
+async function loadExpandedData(storeId) {
+  PANEL_LOAD_SEQ++;
+  const seq = PANEL_LOAD_SEQ;
+
+  // reset while loading
+  if (PANEL_COMMENTS_BOX) PANEL_COMMENTS_BOX.innerHTML = "<p>Loading…</p>";
+  USER_TEMP_RATING = 0;
+  highlightStars(0);
+
+  await Promise.all([loadUserRating(storeId, seq), loadComments(storeId, seq)]);
+}
+
+async function loadUserRating(storeId, seq) {
+  try {
+    const userResp = await supabase.auth.getUser();
+    const user = userResp.data.user;
+
+    if (seq !== PANEL_LOAD_SEQ) return;
+    if (!ACTIVE_STORE_ID || ACTIVE_STORE_ID !== storeId) return;
+
+    if (!user) {
+      USER_TEMP_RATING = 0;
+      highlightStars(0);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("ratings")
+      .select("rating")
+      .eq("store_id", storeId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (seq !== PANEL_LOAD_SEQ) return;
+    if (error) {
+      console.error("loadUserRating error:", error);
+      USER_TEMP_RATING = 0;
+      highlightStars(0);
+      return;
+    }
+
+    USER_TEMP_RATING = Number(data?.rating) || 0;
+    highlightStars(USER_TEMP_RATING);
+  } catch (err) {
+    console.error("loadUserRating fatal:", err);
+  }
+}
+
+async function loadComments(storeId, seq) {
+  if (!PANEL_COMMENTS_BOX) return;
+
+  try {
+    const { data, error } = await supabase
+      .from("store_comments")
+      .select("*")
+      .eq("store_id", storeId)
+      .order("created_at", { ascending: false });
+
+    if (seq !== PANEL_LOAD_SEQ) return;
+    if (!ACTIVE_STORE_ID || ACTIVE_STORE_ID !== storeId) return;
+
+    if (error) {
+      console.error("loadComments error:", error);
+      PANEL_COMMENTS_BOX.innerHTML = "<p>Could not load comments.</p>";
+      return;
+    }
+
+    if (!data || !data.length) {
+      PANEL_COMMENTS_BOX.innerHTML = "<p>No comments yet.</p>";
+      return;
+    }
+
+    PANEL_COMMENTS_BOX.innerHTML = data
+      .map(
+        (c) => `
+        <div class="comment">
+          <p>${String(c.text || "")}</p>
+          <small>${new Date(c.created_at).toLocaleString()}</small>
+        </div>`
+      )
+      .join("");
+  } catch (err) {
+    console.error("loadComments fatal:", err);
+    PANEL_COMMENTS_BOX.innerHTML = "<p>Could not load comments.</p>";
+  }
 }
 
 async function submitRating() {
-  if (!CURRENT_STORE) return;
+  if (!ACTIVE_STORE_ID) return;
 
   const rating = Number(USER_TEMP_RATING) || 0;
   if (!rating) return alert("Select a rating first!");
@@ -676,7 +760,7 @@ async function submitRating() {
   if (!user) return alert("Login required.");
 
   const { error } = await supabase.from("ratings").upsert({
-    store_id: CURRENT_STORE,
+    store_id: ACTIVE_STORE_ID,
     user_id: user.id,
     rating,
   });
@@ -687,54 +771,15 @@ async function submitRating() {
     return;
   }
 
-  // refresh modal header stats
-  const { data } = await supabase
-    .from("stores_frontend_public_v4")
-    .select("*")
-    .eq("id", CURRENT_STORE)
-    .single();
-
-  if (data) fillModal(data);
-}
-
-async function loadComments(store_id) {
-  if (!commentsBoxEl) return;
-
-  const { data, error } = await supabase
-    .from("store_comments")
-    .select("*")
-    .eq("store_id", store_id)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("loadComments error:", error);
-    commentsBoxEl.innerHTML = "<p>Could not load comments.</p>";
-    return;
-  }
-
-  commentsBoxEl.innerHTML = "";
-
-  if (!data || !data.length) {
-    commentsBoxEl.innerHTML = "<p>No comments yet.</p>";
-    return;
-  }
-
-  commentsBoxEl.innerHTML = data
-    .map(
-      (c) => `
-      <div class="comment">
-        <p>${String(c.text || "")}</p>
-        <small>${new Date(c.created_at).toLocaleString()}</small>
-      </div>`
-    )
-    .join("");
+  // Optional: refresh aggregated stars in grid (best-effort)
+  // We keep it lightweight: no extra fetch unless you ask for it.
 }
 
 async function submitComment() {
-  if (!CURRENT_STORE) return;
-  if (!commentInputEl) return;
+  if (!ACTIVE_STORE_ID) return;
+  if (!PANEL_COMMENT_INPUT) return;
 
-  const text = commentInputEl.value.trim();
+  const text = PANEL_COMMENT_INPUT.value.trim();
   if (!text) return;
 
   const userResp = await supabase.auth.getUser();
@@ -742,7 +787,7 @@ async function submitComment() {
   if (!user) return alert("Login required.");
 
   const { error } = await supabase.from("store_comments").insert({
-    store_id: CURRENT_STORE,
+    store_id: ACTIVE_STORE_ID,
     user_id: user.id,
     text,
   });
@@ -753,14 +798,16 @@ async function submitComment() {
     return;
   }
 
-  commentInputEl.value = "";
-  loadComments(CURRENT_STORE);
+  PANEL_COMMENT_INPUT.value = "";
+  // reload comments lazily
+  PANEL_LOAD_SEQ++;
+  const seq = PANEL_LOAD_SEQ;
+  loadComments(ACTIVE_STORE_ID, seq);
 }
 
 // ============================================================
 // INIT (DOM SAFE)
 // ============================================================
 document.addEventListener("DOMContentLoaded", () => {
-  ensureModalInit();
   bindGridEventsOnce();
 });
