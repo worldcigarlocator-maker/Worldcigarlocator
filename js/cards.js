@@ -599,7 +599,6 @@ function createExpandedPanelOnce() {
   // Stop bubbling: do NOT close while interacting
   const stopList = [
     PANEL_STAR_PICKER,
-    PANEL_SEND_RATING,
     PANEL_COMMENTS_BOX,
     PANEL_COMMENT_INPUT,
     PANEL_SEND_COMMENT,
@@ -617,7 +616,7 @@ function createExpandedPanelOnce() {
   });
 
 // =========================
-// STAR PICKER (AUTO SAVE)
+// STAR PICKER (AUTO SAVE + HOVER + CLEAR)
 // =========================
 PANEL_STAR_PICKER.querySelectorAll("span").forEach((star) => {
 
@@ -647,7 +646,6 @@ PANEL_STAR_PICKER.querySelectorAll("span").forEach((star) => {
   });
 });
 
-
   // Submit comment
   PANEL_SEND_COMMENT.addEventListener("click", submitComment);
 
@@ -665,45 +663,6 @@ function highlightStars(count) {
     s.textContent = i < n ? "★" : "☆";
   });
 }
-
-async function saveRatingDirect(ratingValue) {
-  if (!EXPANDED_ACTIVE_STORE_ID) return;
-
-  const userResp = await supabase.auth.getUser();
-  const user = userResp.data.user;
-  if (!user) {
-    alert("Login required.");
-    return;
-  }
-
-  // If 0 → delete rating (clear)
-  if (!ratingValue) {
-    const { error } = await supabase
-      .from("ratings")
-      .delete()
-      .eq("store_id", EXPANDED_ACTIVE_STORE_ID)
-      .eq("user_id", user.id);
-
-    if (error) {
-      console.error("Clear rating error:", error);
-      return;
-    }
-
-    return;
-  }
-
-  // Otherwise upsert
-  const { error } = await supabase.from("ratings").upsert({
-    store_id: EXPANDED_ACTIVE_STORE_ID,
-    user_id: user.id,
-    rating: ratingValue,
-  });
-
-  if (error) {
-    console.error("Rating save error:", error);
-  }
-}
-
 
 // ✅ Same name as before
 async function openModal(id) {
@@ -851,29 +810,36 @@ async function loadUserRating(store_id, seq) {
   }
 }
 
-async function submitRating() {
-  if (!EXPANDED_ACTIVE_STORE_ID) return;
 
-  const rating = Number(USER_TEMP_RATING) || 0;
-  if (!rating) return alert("Select a rating first!");
+async function saveRatingDirect(ratingValue) {
+  if (!EXPANDED_ACTIVE_STORE_ID) return;
 
   const userResp = await supabase.auth.getUser();
   const user = userResp.data.user;
-  if (!user) return alert("Login required.");
+  if (!user) {
+    alert("Login required.");
+    return;
+  }
+
+  // 0 = clear rating
+  if (ratingValue === 0) {
+    await supabase
+      .from("ratings")
+      .delete()
+      .eq("store_id", EXPANDED_ACTIVE_STORE_ID)
+      .eq("user_id", user.id);
+    return;
+  }
 
   const { error } = await supabase.from("ratings").upsert({
     store_id: EXPANDED_ACTIVE_STORE_ID,
     user_id: user.id,
-    rating,
+    rating: ratingValue,
   });
 
   if (error) {
-    console.error("submitRating error:", error);
-    alert("Could not submit rating.");
-    return;
+    console.error("Auto rating error:", error);
   }
-
-  // NOTE: aggregated stars in grid are not refreshed here (lightweight by design)
 }
 
 async function loadComments(store_id, seq) {
