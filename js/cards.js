@@ -538,24 +538,18 @@ function ensureExpandedOverlay() {
   overlay.style.background = "rgba(0,0,0,0.78)";
   overlay.style.backdropFilter = "blur(6px)";
 
-  const applyMainRect = () => {
+  const applyPosition = () => {
     const main = document.querySelector(".main");
-    if (!main) {
-      overlay.style.left = "0px";
-      overlay.style.top = "0px";
-      overlay.style.right = "0px";
-      overlay.style.bottom = "0px";
-      return;
-    }
-    const r = main.getBoundingClientRect();
-    overlay.style.left = `${Math.max(0, r.left)}px`;
-    overlay.style.top = `${Math.max(0, r.top)}px`;
-    overlay.style.width = `${Math.max(0, r.width)}px`;
-    overlay.style.height = `${Math.max(0, r.height)}px`;
+    const left = main ? main.getBoundingClientRect().left : 0;
+
+    overlay.style.left = `${left}px`;
+    overlay.style.top = "0px";
+    overlay.style.width = `calc(100vw - ${left}px)`;
+    overlay.style.height = `${window.innerHeight}px`;
   };
 
-  applyMainRect();
-  window.addEventListener("resize", applyMainRect);
+  applyPosition();
+  window.addEventListener("resize", applyPosition);
 
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) closeModal();
@@ -565,6 +559,7 @@ function ensureExpandedOverlay() {
   EXPANDED_OVERLAY = overlay;
   return overlay;
 }
+
 
 function createExpandedPanelOnce() {
   if (EXPANDED_PANEL) return EXPANDED_PANEL;
