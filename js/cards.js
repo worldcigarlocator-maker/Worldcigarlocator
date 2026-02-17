@@ -319,18 +319,24 @@ function bindGridEventsOnce() {
   if (!grid) return;
 
   // One listener for ALL cards (and future re-renders)
-  grid.addEventListener("click", (e) => {
-    const card = e.target.closest(".store-card");
-    if (!card) return;
+grid.addEventListener("click", (e) => {
+  const card = e.target.closest(".store-card");
+  if (!card) return;
 
-    // allow website link normal behavior
-    if (e.target.closest("a")) return;
+  const storeId = Number(card.dataset.storeId);
+  if (!storeId) return;
 
-    const storeId = Number(card.dataset.storeId);
-    if (!storeId) return;
+  // If this card already expanded → close
+  if (EXPANDED_ACTIVE_CARD === card) {
+    closeModal();
+    return;
+  }
 
-    openModal(storeId); // ✅ same API name (A)
-  });
+  // Prevent link default
+  if (e.target.closest("a")) return;
+
+  openModal(storeId);
+});
 }
 
 function renderCards(list) {
@@ -684,19 +690,6 @@ async function openModal(id) {
   const panel = createExpandedPanelOnce();
   const body = card.querySelector(".store-body");
   body?.appendChild(panel);
-
-  // close when clicking card background (but not interactive parts)
-  card.addEventListener(
-    "click",
-    (e) => {
-      if (!EXPANDED_ACTIVE_CARD) return;
-      if (e.target.closest("a, button, textarea, .star-picker, .card-comments-box"))
-        return;
-      // click anywhere else on card closes
-      closeModal();
-    },
-    { once: true }
-  );
 
   EXPANDED_ACTIVE_CARD = card;
   EXPANDED_ACTIVE_STORE_ID = storeId;
