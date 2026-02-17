@@ -701,34 +701,38 @@ async function openModal(id) {
 function closeModal() {
   if (!EXPANDED_ACTIVE_CARD) return;
 
-  // remove panel from card
+  const card = EXPANDED_ACTIVE_CARD;
+
+  // Remove expanded panel
   if (EXPANDED_PANEL?.parentNode) {
     EXPANDED_PANEL.parentNode.removeChild(EXPANDED_PANEL);
   }
 
-  // restore card
-  const card = EXPANDED_ACTIVE_CARD;
+  // Remove expanded class & scroll styles
   card.classList.remove("expanded");
   card.style.maxHeight = "";
   card.style.overflowY = "";
 
+  // Put card back to original position
   if (EXPANDED_PLACEHOLDER && EXPANDED_PLACEHOLDER.parentNode) {
     EXPANDED_PLACEHOLDER.parentNode.insertBefore(card, EXPANDED_PLACEHOLDER);
     EXPANDED_PLACEHOLDER.parentNode.removeChild(EXPANDED_PLACEHOLDER);
   } else {
-    // fallback
     dom("#storeGrid")?.appendChild(card);
   }
 
+  // 🔥 REMOVE OVERLAY COMPLETELY
+  if (EXPANDED_OVERLAY) {
+    EXPANDED_OVERLAY.remove();
+    EXPANDED_OVERLAY = null;
+  }
+
+  // Reset state
   EXPANDED_PLACEHOLDER = null;
   EXPANDED_ACTIVE_CARD = null;
   EXPANDED_ACTIVE_STORE_ID = null;
 
-  // reset panel UI
   USER_TEMP_RATING = 0;
-  highlightStars(0);
-  if (PANEL_COMMENTS_BOX) PANEL_COMMENTS_BOX.innerHTML = "";
-  if (PANEL_COMMENT_INPUT) PANEL_COMMENT_INPUT.value = "";
 }
 
 // ✅ ESC closes
