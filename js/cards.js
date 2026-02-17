@@ -750,7 +750,8 @@ function closeModal() {
   EXPANDED_ACTIVE_CARD = null;
   EXPANDED_ACTIVE_STORE_ID = null;
 
-  USER_TEMP_RATING = 0;
+ USER_TEMP_RATING = 0;
+EXPANDED_PANEL = null;
 }
 
 // ✅ ESC closes
