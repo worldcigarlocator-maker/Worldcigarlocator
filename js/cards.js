@@ -582,7 +582,6 @@ function createExpandedPanelOnce() {
       <span data-val="4">☆</span>
       <span data-val="5">☆</span>
     </div>
-    <button type="button" class="rating-send-btn">Submit rating</button>
 
     <div class="wcl-comments-title">Comments</div>
     <div class="card-comments-box"></div>
@@ -592,7 +591,7 @@ function createExpandedPanelOnce() {
   `;
 
   PANEL_STAR_PICKER = panel.querySelector(".star-picker");
-  PANEL_SEND_RATING = panel.querySelector(".rating-send-btn");
+
   PANEL_COMMENTS_BOX = panel.querySelector(".card-comments-box");
   PANEL_COMMENT_INPUT = panel.querySelector(".card-comment-input");
   PANEL_SEND_COMMENT = panel.querySelector(".card-send-comment");
@@ -617,16 +616,37 @@ function createExpandedPanelOnce() {
     el.addEventListener("wheel", (e) => e.stopPropagation(), { passive: true });
   });
 
-  // Star picker click
-  PANEL_STAR_PICKER.querySelectorAll("span").forEach((star) => {
-    star.addEventListener("click", () => {
-      USER_TEMP_RATING = Number(star.dataset.val) || 0;
-      highlightStars(USER_TEMP_RATING);
-    });
+// =========================
+// STAR PICKER (AUTO SAVE)
+// =========================
+PANEL_STAR_PICKER.querySelectorAll("span").forEach((star) => {
+
+  // Hover preview
+  star.addEventListener("mouseenter", () => {
+    const hoverVal = Number(star.dataset.val) || 0;
+    highlightStars(hoverVal);
   });
 
-  // Submit rating
-  PANEL_SEND_RATING.addEventListener("click", submitRating);
+  star.addEventListener("mouseleave", () => {
+    highlightStars(USER_TEMP_RATING);
+  });
+
+  // Click = save directly
+  star.addEventListener("click", async () => {
+    const value = Number(star.dataset.val) || 0;
+
+    // Click same star twice → clear rating
+    if (USER_TEMP_RATING === value) {
+      USER_TEMP_RATING = 0;
+    } else {
+      USER_TEMP_RATING = value;
+    }
+
+    highlightStars(USER_TEMP_RATING);
+    await saveRatingDirect(USER_TEMP_RATING);
+  });
+});
+
 
   // Submit comment
   PANEL_SEND_COMMENT.addEventListener("click", submitComment);
@@ -645,6 +665,45 @@ function highlightStars(count) {
     s.textContent = i < n ? "★" : "☆";
   });
 }
+
+async function saveRatingDirect(ratingValue) {
+  if (!EXPANDED_ACTIVE_STORE_ID) return;
+
+  const userResp = await supabase.auth.getUser();
+  const user = userResp.data.user;
+  if (!user) {
+    alert("Login required.");
+    return;
+  }
+
+  // If 0 → delete rating (clear)
+  if (!ratingValue) {
+    const { error } = await supabase
+      .from("ratings")
+      .delete()
+      .eq("store_id", EXPANDED_ACTIVE_STORE_ID)
+      .eq("user_id", user.id);
+
+    if (error) {
+      console.error("Clear rating error:", error);
+      return;
+    }
+
+    return;
+  }
+
+  // Otherwise upsert
+  const { error } = await supabase.from("ratings").upsert({
+    store_id: EXPANDED_ACTIVE_STORE_ID,
+    user_id: user.id,
+    rating: ratingValue,
+  });
+
+  if (error) {
+    console.error("Rating save error:", error);
+  }
+}
+
 
 // ✅ Same name as before
 async function openModal(id) {
