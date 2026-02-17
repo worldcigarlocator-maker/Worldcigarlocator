@@ -93,3 +93,28 @@
   resize: none;
   margin-bottom: 0.6rem;
 }
+
+/* ============================================================
+   EXPANDED ORDER FIX
+   ============================================================ */
+
+/* Remove auto push in expanded mode */
+.store-card.expanded .reviews-btn {
+  margin-top: 1rem;
+  order: 99;
+}
+
+/* Ensure rating section comes before comments */
+.store-card.expanded .wcl-expanded-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.store-card.expanded .wcl-rating-section {
+  order: 1;
+}
+
+.store-card.expanded .wcl-comments-section {
+  order: 2;
+  margin-top: 1.2rem;
+}
