@@ -1,6 +1,6 @@
 /* ============================================================
-   MODAL — COMPACT LUXURY VERSION
-   Focus: Rating + Comments
+   WCL MODAL — PREMIUM INTERACTIVE VERSION
+   Bigger · Dramatic · Social · No Clipping
    ============================================================ */
 
 .modal.hidden {
@@ -16,134 +16,111 @@
   align-items: center;
   justify-content: center;
 
-  padding: 2rem;
+  padding: 3rem;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(8px);
 }
 
 
-/* ================= BACKDROP ================= */
-
-.modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.78);
-  backdrop-filter: blur(6px);
-}
-
-
-/* ================= CARD ================= */
+/* ============================================================
+   CARD
+   ============================================================ */
 
 .modal-content {
   position: relative;
 
-  width: min(620px, 94vw);
-  max-height: 90vh;
+  width: min(720px, 95vw);      /* 🔥 bredare */
+  max-height: 92vh;
 
   display: flex;
   flex-direction: column;
 
-  background: #0b0b0b;
-  border-radius: 20px;
+  background: #0a0a0a;
+  border-radius: 22px;
 
-  border: 1px solid rgba(212,160,23,0.45);
-  box-shadow: 0 60px 120px rgba(0,0,0,0.9);
+  border: 1px solid rgba(212,160,23,0.55);
+  box-shadow: 0 70px 140px rgba(0,0,0,0.95);
 
   overflow: hidden;
 }
 
 
-/* ================= CLOSE ================= */
-
-.modal-close {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: #fff;
-  opacity: 0.7;
-  cursor: pointer;
-}
-
-.modal-close:hover {
-  opacity: 1;
-}
-
-
-/* ================= IMAGE ================= */
+/* ============================================================
+   IMAGE
+   ============================================================ */
 
 #modalImg {
   width: 100%;
-  height: 180px;               /* mindre hero */
+  height: 220px;
   object-fit: cover;
-  border-bottom: 1px solid rgba(212,160,23,0.25);
-}
-
-
-/* ================= HEADER ================= */
-
-.modal-title {
-  padding: 1.2rem 1.4rem 0.6rem;
-}
-
-.modal-title h2 {
-  font-size: 1.45rem;
-  font-weight: 700;
-  color: var(--gold);
-  margin-bottom: 0.35rem;
-}
-
-.modal-location {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.9rem;
-  opacity: 0.75;
-}
-
-.modal-location img {
-  width: 18px;
-  height: 12px;
-  border-radius: 2px;
-}
-
-
-/* ================= INFO ================= */
-
-.modal-info {
-  padding: 0 1.4rem 1rem;
-  font-size: 0.9rem;
-  line-height: 1.45;
-  opacity: 0.85;
-}
-
-.modal-info p {
-  margin-bottom: 0.35rem;
 }
 
 
 /* ============================================================
-   RATING — VISUAL PRIORITY
+   HEADER
+   ============================================================ */
+
+.modal-title {
+  padding: 1.6rem 1.8rem 0.8rem;
+}
+
+.modal-title h2 {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+}
+
+.modal-location {
+  font-size: 0.95rem;
+  opacity: 0.7;
+}
+
+
+/* ============================================================
+   INFO
+   ============================================================ */
+
+.modal-info {
+  padding: 0 1.8rem 1.2rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+.modal-info p {
+  margin-bottom: 0.4rem;
+}
+
+
+/* ============================================================
+   RATING SECTION — DRAMATIC
    ============================================================ */
 
 .modal-rating {
-  padding: 1.4rem;
+  padding: 1.6rem 1.8rem;
+
   border-top: 1px solid rgba(255,255,255,0.05);
   border-bottom: 1px solid rgba(255,255,255,0.05);
 
   background: linear-gradient(
     to bottom,
-    rgba(212,160,23,0.04),
+    rgba(212,160,23,0.07),
     transparent
   );
 }
 
+.modal-rating h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+  color: var(--gold);
+}
+
 .star-picker {
   display: flex;
-  gap: 0.6rem;
-  font-size: 1.9rem;     /* större stjärnor */
-  margin-bottom: 1rem;
+  gap: 0.8rem;
+  font-size: 2.2rem;   /* 🔥 större */
+  margin-bottom: 1.2rem;
   cursor: pointer;
 }
 
@@ -152,15 +129,15 @@
 }
 
 .star-picker span:hover {
-  transform: scale(1.15);
+  transform: scale(1.2);
 }
 
 #modalSendRating {
-  padding: 0.6rem 1.2rem;
-  border-radius: 10px;
+  padding: 0.7rem 1.4rem;
+  border-radius: 12px;
 
-  border: 1px solid rgba(212,160,23,0.8);
-  background: rgba(212,160,23,0.08);
+  border: 1px solid rgba(212,160,23,0.9);
+  background: rgba(212,160,23,0.1);
 
   color: var(--gold);
   font-weight: 600;
@@ -168,55 +145,59 @@
 }
 
 #modalSendRating:hover {
-  background: rgba(212,160,23,0.18);
+  background: rgba(212,160,23,0.25);
 }
 
 
 /* ============================================================
-   COMMENTS — SECONDARY FOCUS AREA
+   COMMENTS — SOCIAL STYLE
    ============================================================ */
 
 .modal-comments {
-  padding: 1.4rem;
+  padding: 1.6rem 1.8rem;
   overflow-y: auto;
-  max-height: 260px;
+  flex: 1;                   /* 🔥 tar resten av höjden */
 }
 
 .modal-comments h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.9rem;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
   color: var(--gold);
 }
 
 #modalComments {
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  margin-bottom: 1.2rem;
 }
 
 #modalComments .comment {
-  margin-bottom: 0.8rem;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: #111;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
 #modalComments small {
-  opacity: 0.5;
+  display: block;
+  margin-top: 0.4rem;
   font-size: 0.75rem;
+  opacity: 0.5;
 }
 
 
-/* ================= ADD COMMENT ================= */
+/* ============================================================
+   ADD COMMENT
+   ============================================================ */
 
 #modalCommentInput {
   width: 100%;
-  height: 70px;
+  height: 80px;
 
-  padding: 0.6rem;
-  margin-bottom: 0.7rem;
+  padding: 0.7rem;
+  margin-bottom: 0.8rem;
 
-  border-radius: 10px;
-  background: #141414;
+  border-radius: 12px;
+  background: #151515;
   border: 1px solid #2a2a2a;
   color: #fff;
 
@@ -224,28 +205,38 @@
 }
 
 #modalSendComment {
-  padding: 0.6rem 1.1rem;
-  border-radius: 10px;
+  padding: 0.7rem 1.4rem;
+  border-radius: 12px;
 
-  border: 1px solid rgba(212,160,23,0.8);
-  background: rgba(212,160,23,0.06);
+  border: 1px solid rgba(212,160,23,0.9);
+  background: rgba(212,160,23,0.08);
 
   color: var(--gold);
   cursor: pointer;
 }
 
 #modalSendComment:hover {
-  background: rgba(212,160,23,0.15);
+  background: rgba(212,160,23,0.22);
 }
 
 
-/* ================= SCROLLBAR ================= */
+/* ============================================================
+   CLOSE
+   ============================================================ */
 
-.modal-comments::-webkit-scrollbar {
-  width: 6px;
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+
+  font-size: 22px;
+  border: none;
+  background: none;
+  color: #fff;
+  opacity: 0.7;
+  cursor: pointer;
 }
 
-.modal-comments::-webkit-scrollbar-thumb {
-  background: rgba(212,160,23,0.4);
-  border-radius: 4px;
+.modal-close:hover {
+  opacity: 1;
 }
