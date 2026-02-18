@@ -722,44 +722,37 @@ async function saveModalRating(ratingValue) {
 
 async function loadModalComments(store_id, seq) {
   const box = modalComments();
+  const countEl = document.getElementById("modalCommentCount");
+
   if (!box) return;
 
-  try {
-    box.innerHTML = "<p>Loading…</p>";
+  box.innerHTML = "";
 
-    const { data, error } = await supabase
-      .from("store_comments")
-      .select("*")
-      .eq("store_id", store_id)
-      .order("created_at", { ascending: false });
+  const { data } = await supabase
+    .from("store_comments")
+    .select("*")
+    .eq("store_id", store_id)
+    .order("created_at", { ascending: false });
 
-    if (seq !== MODAL_LOAD_SEQ) return;
-    if (MODAL_ACTIVE_STORE_ID !== store_id) return;
+  if (seq !== MODAL_LOAD_SEQ) return;
 
-    if (error) {
-      console.error("loadModalComments error:", error);
-      box.innerHTML = "<p>Could not load comments.</p>";
-      return;
-    }
+  const comments = data || [];
 
-    if (!data || !data.length) {
-      box.innerHTML = "<p>No comments yet.</p>";
-      return;
-    }
-
-    box.innerHTML = data
-      .map(
-        (c) => `
-        <div class="comment">
-          <p>${String(c.text || "")}</p>
-          <small>${new Date(c.created_at).toLocaleString()}</small>
-        </div>`
-      )
-      .join("");
-  } catch (err) {
-    console.error("loadModalComments fatal:", err);
-    box.innerHTML = "<p>Could not load comments.</p>";
+  // 🔒 Update count pill
+  if (countEl) {
+    countEl.textContent = comments.length;
   }
+
+  if (!comments.length) {
+    return; // no empty-state box anymore
+  }
+
+  box.innerHTML = comments.map(c => `
+    <div class="comment">
+      <p>${String(c.text || "")}</p>
+      <small>${new Date(c.created_at).toLocaleString()}</small>
+    </div>
+  `).join("");
 }
 
 async function submitModalComment() {
