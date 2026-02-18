@@ -319,32 +319,26 @@ function bindGridEventsOnce() {
   if (!grid) return;
 
   // One listener for ALL cards (and future re-renders)
-grid.addEventListener("click", (e) => {
-  const card = e.target.closest(".store-card");
-  if (!card) return;
+  grid.addEventListener("click", (e) => {
+    const card = e.target.closest(".store-card");
+    if (!card) return;
 
-  const storeId = Number(card.dataset.storeId);
-  if (!storeId) return;
+    const storeId = Number(card.dataset.storeId);
+    if (!storeId) return;
 
-  // If this card already expanded → close
-  if (EXPANDED_ACTIVE_CARD === card) {
-    closeModal();
-    return;
-  }
+    // Prevent link default
+    if (e.target.closest("a")) return;
 
-  // Prevent link default
-  if (e.target.closest("a")) return;
-
-  openModal(storeId);
-});
+    openModal(storeId);
+  });
 }
 
 function renderCards(list) {
   const grid = dom("#storeGrid");
   if (!grid) return;
 
-  // If an expanded card is open, close it before re-render
-  if (EXPANDED_ACTIVE_CARD) closeModal();
+  // Close modal on re-render (clean system)
+  closeModal();
 
   grid.innerHTML = (list || []).map(cardHTML).join("");
 
@@ -353,10 +347,6 @@ function renderCards(list) {
   });
 }
 
-// 🔓 Public export (used by search + sidebar)
-export function renderStores(list) {
-  renderCards(list);
-}
 
 // ============================================================
 // FRONTEND FILTERS (CHIPS ONLY)
