@@ -2,11 +2,7 @@
    CARD GRID LAYOUT
    ============================================================ */
 
-/* Premium compact scaling */
-.store-card {
-  transform: scale(0.92);
-  transform-origin: top center;
-}
+/* Premium compact scaling removed (clean modal architecture) */
 
 #storeGrid {
   width: 100%;
@@ -40,9 +36,6 @@
     gap: 1.4rem 0.9rem;
     padding-inline: 0.5rem;
   }
-  .store-card {
-    transform: scale(0.9);
-  }
 }
 
 /* Tiny Mobile */
@@ -51,10 +44,8 @@
     grid-template-columns: repeat(2, minmax(140px, 1fr));
     gap: 1.2rem 0.7rem;
   }
-  .store-card {
-    transform: scale(0.86);
-  }
 }
+aqsx
 
 /* ============================================================
    CARD CONTAINER — EXACT HEIGHT 495px
