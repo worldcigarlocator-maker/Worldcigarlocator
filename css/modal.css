@@ -30,22 +30,24 @@
   backdrop-filter: blur(6px);
 }
 
+
 /* ================= CARD ================= */
 
 .modal-content {
   position: relative;
 
-  width: 650px;                /* ↓ ca 7% mindre än 700 */
+  width: 650px;
   max-height: 92vh;
   overflow-y: auto;
 
   background: #0b0b0b;
-  border-radius: 18px;         /* ↓ lite mindre radie */
-  border: 1px solid rgba(115, 98, 75, 0.35);  /* global tone */
+  border-radius: 18px;
+  border: 1px solid rgba(var(--global), 0.35);
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
 
   z-index: 10;
 }
+
 
 
 /* ================= CLOSE ================= */
