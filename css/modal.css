@@ -66,14 +66,17 @@
 
 /* ================= IMAGE ================= */
 
+/* ================= IMAGE ================= */
+
 .modal-img {
   width: 100%;
-  height: 285px;          /* ↓ från 320px */
+  height: 285px;
   object-fit: cover;
   border-top-left-radius: 18px;
   border-top-right-radius: 18px;
-  border-bottom: 1px solid rgba(115, 98, 75, 0.25);
+  border-bottom: 1px solid rgba(var(--global), 0.25);
 }
+
 
 
 /* ================= BODY ================= */
@@ -158,16 +161,17 @@
 #modalSendRating {
   padding: 0.5rem 1.1rem;
   border-radius: 8px;
-  border: 1px solid rgba(115, 98, 75, 0.6);
+  border: 1px solid rgba(var(--global), 0.6);
   background: transparent;
-  color: var(--global);
+  color: rgb(var(--global));
   cursor: pointer;
   transition: 0.18s ease;
 }
 
 #modalSendRating:hover {
-  background: rgba(115, 98, 75, 0.08);
+  background: rgba(var(--global), 0.08);
 }
+
 
 /* ================= COMMENTS ================= */
 
@@ -207,22 +211,23 @@
 
 #modalCommentInput:focus {
   outline: none;
-  border: 1px solid var(--global);
+  border: 1px solid rgb(var(--global));
 }
 
-/* Post comment button */
+
 #modalSendComment {
   margin-top: 0.7rem;
   padding: 0.55rem 1.2rem;
 
   border-radius: 8px;
-  border: 1px solid rgba(115, 98, 75, 0.6);
+  border: 1px solid rgba(var(--global), 0.6);
   background: transparent;
-  color: var(--global);
+  color: rgb(var(--global));
   cursor: pointer;
   transition: 0.18s ease;
 }
 
 #modalSendComment:hover {
-  background: rgba(115, 98, 75, 0.08);
+  background: rgba(var(--global), 0.08);
 }
+
