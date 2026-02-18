@@ -322,46 +322,37 @@ function bindTypeSelector() {
 async function saveStore() {
 
   if (!window.selectedPlace) {
-    WCL.toastShared("Select a place first", "error");
-    return;
+    window.selectedPlace = {};
   }
 
-  const p = window.selectedPlace;
+  // 🔒 Always read latest manual values from form
+  const name     = document.getElementById("name")?.value.trim();
+  const address  = document.getElementById("addr")?.value.trim();
+  const city     = document.getElementById("city")?.value.trim();
+  const state    = document.getElementById("state")?.value.trim();
+  const country  = document.getElementById("country")?.value.trim();
+  const continent= document.getElementById("continent")?.value || null;
+  const phone    = document.getElementById("phone")?.value.trim();
+  const website  = document.getElementById("website")?.value.trim();
 
-  /* ================= STRICT VALIDATION ================= */
-
-  if (!p.name?.trim()) {
+  // 🔒 Strict required fields
+  if (!name) {
     WCL.toastShared("Name is required", "error");
     return;
   }
 
-  if (!p.address?.trim()) {
+  if (!address) {
     WCL.toastShared("Address is required", "error");
     return;
   }
 
-  if (!p.city?.trim()) {
+  if (!city) {
     WCL.toastShared("City is required", "error");
     return;
   }
 
-  if (!p.country?.trim()) {
+  if (!country) {
     WCL.toastShared("Country is required", "error");
-    return;
-  }
-
-  if (!p.country_iso2?.trim()) {
-    WCL.toastShared("Country ISO2 missing", "error");
-    return;
-  }
-
-  if (p.country_iso2 === "US" && !p.state?.trim()) {
-    WCL.toastShared("State is required for USA", "error");
-    return;
-  }
-
-  if (typeof p.lat !== "number" || typeof p.lng !== "number") {
-    WCL.toastShared("Valid map coordinates required", "error");
     return;
   }
 
@@ -370,91 +361,19 @@ async function saveStore() {
     return;
   }
 
-  const access =
-    document.querySelector("input[name='access']:checked")?.value;
-
-  if (!access) {
-    WCL.toastShared("Select access type", "error");
-    return;
-  }
-
-  /* ================= DUPLICATE LOGIC ================= */
-
-  if (p._exactMatches?.length) {
-    alert(
-      "Exact duplicate detected.\n\n" +
-      "This place already exists and cannot be added again."
-    );
-    return;
-  }
-
-  if (p._possibleMatches?.length) {
-    const ok = confirm(
-      "Possible duplicate detected.\n\n" +
-      "Press OK only if this is a DIFFERENT place."
-    );
-    if (!ok) return;
-  }
-
-  /* ================= BUILD PAYLOAD ================= */
-
-  const payload = {
-    ...p,
-    types: [...selectedTypes],
-    access: access,
-
-    approved: false,
-    flagged: false,
-    flag_reason: null,
-    deleted: false,
+  // 🔒 Write back to selectedPlace (hybrid mode)
+  window.selectedPlace = {
+    ...window.selectedPlace,
+    name,
+    address,
+    city,
+    state,
+    country,
+    continent,
+    phone,
+    website
   };
 
-  try {
-    const { error } = await WCL.supabase
-      .from("stores")
-      .insert([payload]);
-
-    if (error) throw error;
-
-    WCL.toastShared("✅ Store saved", "success");
-    resetForm();
-
-  } catch (err) {
-    console.error("Save failed:", err);
-    WCL.toastShared("Save failed", "error");
-  }
-}
-
-
-/* ================================================================
-   RESET + BUTTONS
-   ================================================================ */
-function resetForm() {
-  document.querySelectorAll("input, textarea").forEach((el) => {
-    if (!["checkbox", "radio"].includes(el.type)) el.value = "";
-    else el.checked = false;
-  });
-
-  document
-    .querySelectorAll(".type-btn")
-    .forEach((b) => b.classList.remove("active"));
-
-  window.selectedPlace = null;
-  window.photoRefs = [];
-  selectedTypes = [];
-  currentPhotoIndex = 0;
-
-  clearPossibleMatchNotice();
-
-  document.getElementById("preview-photo").src =
-    WCL.fallbackForType("store");
-  document.getElementById("photo-meta").textContent =
-    "No photo loaded";
-}
-
-function bindButtons() {
-  document.getElementById("saveBtn")?.addEventListener("click", saveStore);
-  document.getElementById("clearBtn")?.addEventListener("click", resetForm);
 
    /* ================================================================
    CITY AUTOSUGGEST (Backoffice)
