@@ -317,30 +317,52 @@ function bindTypeSelector() {
 }
 
 /* ================================================================
-   SAVE STORE
+   SAVE STORE (STRICT MODE v1 — USA state required)
    ================================================================ */
 async function saveStore() {
+
   if (!window.selectedPlace) {
     WCL.toastShared("Select a place first", "error");
     return;
   }
 
-  /* ⛔ HARD BLOCK ON EXACT DUPLICATE */
-  if (window.selectedPlace._exactMatches?.length) {
-    alert(
-      "Exact duplicate detected.\n\n" +
-      "This place already exists and cannot be added again."
-    );
+  const p = window.selectedPlace;
+
+  /* ================= STRICT VALIDATION ================= */
+
+  if (!p.name?.trim()) {
+    WCL.toastShared("Name is required", "error");
     return;
   }
 
-  /* ⚠️ SOFT WARNING ON POSSIBLE */
-  if (window.selectedPlace._possibleMatches?.length) {
-    const ok = confirm(
-      "Possible duplicate detected.\n\n" +
-      "Press OK only if this is a DIFFERENT place."
-    );
-    if (!ok) return;
+  if (!p.address?.trim()) {
+    WCL.toastShared("Address is required", "error");
+    return;
+  }
+
+  if (!p.city?.trim()) {
+    WCL.toastShared("City is required", "error");
+    return;
+  }
+
+  if (!p.country?.trim()) {
+    WCL.toastShared("Country is required", "error");
+    return;
+  }
+
+  if (!p.country_iso2?.trim()) {
+    WCL.toastShared("Country ISO2 missing", "error");
+    return;
+  }
+
+  if (p.country_iso2 === "US" && !p.state?.trim()) {
+    WCL.toastShared("State is required for USA", "error");
+    return;
+  }
+
+  if (typeof p.lat !== "number" || typeof p.lng !== "number") {
+    WCL.toastShared("Valid map coordinates required", "error");
+    return;
   }
 
   if (!selectedTypes.length) {
@@ -348,12 +370,38 @@ async function saveStore() {
     return;
   }
 
-  const payload = {
-    ...window.selectedPlace,
+  const access =
+    document.querySelector("input[name='access']:checked")?.value;
 
+  if (!access) {
+    WCL.toastShared("Select access type", "error");
+    return;
+  }
+
+  /* ================= DUPLICATE LOGIC ================= */
+
+  if (p._exactMatches?.length) {
+    alert(
+      "Exact duplicate detected.\n\n" +
+      "This place already exists and cannot be added again."
+    );
+    return;
+  }
+
+  if (p._possibleMatches?.length) {
+    const ok = confirm(
+      "Possible duplicate detected.\n\n" +
+      "Press OK only if this is a DIFFERENT place."
+    );
+    if (!ok) return;
+  }
+
+  /* ================= BUILD PAYLOAD ================= */
+
+  const payload = {
+    ...p,
     types: [...selectedTypes],
-    access:
-      document.querySelector("input[name='access']:checked")?.value || null,
+    access: access,
 
     approved: false,
     flagged: false,
@@ -370,11 +418,13 @@ async function saveStore() {
 
     WCL.toastShared("✅ Store saved", "success");
     resetForm();
+
   } catch (err) {
     console.error("Save failed:", err);
     WCL.toastShared("Save failed", "error");
   }
 }
+
 
 /* ================================================================
    RESET + BUTTONS
