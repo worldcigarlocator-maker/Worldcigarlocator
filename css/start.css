@@ -12,8 +12,8 @@
   --panel: #0a0a0a;
   --border: rgba(255,255,255,0.12);
 
-  /* Global system colour */
-  --global: rgb(115, 98, 75);
+  /* Global system colour (RGB raw for rgba support) */
+  --global: 115, 98, 75;
 
   --text: #f5f5f5;
 }
