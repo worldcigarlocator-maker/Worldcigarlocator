@@ -510,406 +510,190 @@ document.addEventListener("click", (e) => {
 });
 
 // ============================================================
-// EXPANDED (MAIN OVERLAY) — SAME API NAMES (A)
-// ------------------------------------------------------------
-// openModal(id) opens an expanded card (centered in MAIN)
-// closeModal() closes it
+// MODAL (CLEAN SYSTEM — #storeModal)
 // ============================================================
 
-let EXPANDED_OVERLAY = null;
-let EXPANDED_ACTIVE_CARD = null;
-let EXPANDED_ACTIVE_STORE_ID = null;
-let EXPANDED_PLACEHOLDER = null;
+let MODAL_ACTIVE_STORE_ID = null;
+let MODAL_LOAD_SEQ = 0;
+let MODAL_USER_TEMP_RATING = 0;
 
-let EXPANDED_PANEL = null;
-let PANEL_STAR_PICKER = null;
-let PANEL_SEND_RATING = null;
-let PANEL_COMMENTS_BOX = null;
-let PANEL_COMMENT_INPUT = null;
-let PANEL_SEND_COMMENT = null;
+const modal        = () => document.getElementById("storeModal");
+const modalImg     = () => document.getElementById("modalImg");
+const modalName    = () => document.getElementById("modalName");
+const modalFlag    = () => document.getElementById("modalFlag");
+const modalLoc     = () => document.getElementById("modalLocation");
+const modalBadges  = () => document.getElementById("modalBadges");
+const modalAddr    = () => document.getElementById("modalAddress");
+const modalPhone   = () => document.getElementById("modalPhone");
+const modalWebsite = () => document.getElementById("modalWebsite");
+const modalStars   = () => document.getElementById("modalStarPicker");
+const modalComments= () => document.getElementById("modalComments");
+const modalInput   = () => document.getElementById("modalCommentInput");
 
-let USER_TEMP_RATING = 0;
-let PANEL_LOAD_SEQ = 0;
-
-function ensureExpandedOverlay() {
-  if (EXPANDED_OVERLAY) return EXPANDED_OVERLAY;
-
-  const overlay = document.createElement("div");
-  overlay.className = "wcl-overlay";
-  overlay.style.position = "fixed";
-  overlay.style.zIndex = "99999";
-  overlay.style.display = "flex";
-  overlay.style.alignItems = "center";
-  overlay.style.justifyContent = "center";
-  overlay.style.background = "rgba(0,0,0,0.78)";
-  overlay.style.backdropFilter = "blur(6px)";
-
-  const applyPosition = () => {
-    const main = document.querySelector(".main");
-    const left = main ? main.getBoundingClientRect().left : 0;
-
-    overlay.style.left = `${left}px`;
-    overlay.style.top = "0px";
-    overlay.style.width = `calc(100vw - ${left}px)`;
-    overlay.style.height = `${window.innerHeight}px`;
-  };
-
-  applyPosition();
-  window.addEventListener("resize", applyPosition);
-
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) closeModal();
-  });
-
-  document.body.appendChild(overlay);
-  EXPANDED_OVERLAY = overlay;
-  return overlay;
-}
-
-
-function createExpandedPanelOnce() {
-  if (EXPANDED_PANEL) return EXPANDED_PANEL;
-
-  const panel = document.createElement("div");
-  panel.className = "wcl-expanded-panel";
-
-  panel.innerHTML = `
-    <div class="wcl-rating-label">Your rating</div>
-    <div class="star-picker" aria-label="Rate this place">
-      <span data-val="1">☆</span>
-      <span data-val="2">☆</span>
-      <span data-val="3">☆</span>
-      <span data-val="4">☆</span>
-      <span data-val="5">☆</span>
-    </div>
-
-    <div class="wcl-comments-title">Comments</div>
-    <div class="card-comments-box"></div>
-
-    <textarea class="card-comment-input" placeholder="Write a comment…"></textarea>
-    <button type="button" class="card-send-comment">Post comment</button>
-  `;
-
-  PANEL_STAR_PICKER = panel.querySelector(".star-picker");
-
-  PANEL_COMMENTS_BOX = panel.querySelector(".card-comments-box");
-  PANEL_COMMENT_INPUT = panel.querySelector(".card-comment-input");
-  PANEL_SEND_COMMENT = panel.querySelector(".card-send-comment");
-
-  // Stop bubbling: do NOT close while interacting
-  const stopList = [
-    PANEL_STAR_PICKER,
-    PANEL_COMMENTS_BOX,
-    PANEL_COMMENT_INPUT,
-    PANEL_SEND_COMMENT,
-  ];
-
-  stopList.forEach((el) => {
-    if (!el) return;
-    el.addEventListener("click", (e) => e.stopPropagation());
-    el.addEventListener("mousedown", (e) => e.stopPropagation());
-    el.addEventListener("pointerdown", (e) => e.stopPropagation());
-    el.addEventListener("touchstart", (e) => e.stopPropagation(), {
-      passive: true,
-    });
-    el.addEventListener("wheel", (e) => e.stopPropagation(), { passive: true });
-  });
-
-// =========================
-// STAR PICKER (AUTO SAVE + HOVER + CLEAR)
-// =========================
-PANEL_STAR_PICKER.querySelectorAll("span").forEach((star) => {
-
-  // Hover preview
-  star.addEventListener("mouseenter", () => {
-    const hoverVal = Number(star.dataset.val) || 0;
-    highlightStars(hoverVal);
-  });
-
-  star.addEventListener("mouseleave", () => {
-    highlightStars(USER_TEMP_RATING);
-  });
-
-  // Click = save directly
-  star.addEventListener("click", async () => {
-    const value = Number(star.dataset.val) || 0;
-
-    // Click same star twice → clear rating
-    if (USER_TEMP_RATING === value) {
-      USER_TEMP_RATING = 0;
-    } else {
-      USER_TEMP_RATING = value;
-    }
-
-    highlightStars(USER_TEMP_RATING);
-    await saveRatingDirect(USER_TEMP_RATING);
-  });
-});
-
-  // Submit comment
-  PANEL_SEND_COMMENT.addEventListener("click", submitComment);
-
-  EXPANDED_PANEL = panel;
-  return panel;
-}
-
-function highlightStars(count) {
-  const n = Number(count) || 0;
-  if (!PANEL_STAR_PICKER) return;
-
-  PANEL_STAR_PICKER.querySelectorAll("span").forEach((s, i) => {
-    if (i < n) s.classList.add("active");
-    else s.classList.remove("active");
-    s.textContent = i < n ? "★" : "☆";
-  });
-}
-
-// ✅ Same name as before
 async function openModal(id) {
   const storeId = Number(id);
   if (!storeId) return;
 
-  // find card in grid
-  const grid = dom("#storeGrid");
-  if (!grid) return;
+  MODAL_ACTIVE_STORE_ID = storeId;
+  MODAL_LOAD_SEQ++;
+  const seq = MODAL_LOAD_SEQ;
 
-  const card = grid.querySelector(`.store-card[data-store-id="${storeId}"]`);
-  if (!card) return;
+  const m = modal();
+  if (!m) return;
 
-  // If another is open, close first
-  if (EXPANDED_ACTIVE_CARD && EXPANDED_ACTIVE_CARD !== card) {
-    closeModal();
-  }
+  m.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
 
-  // Toggle behavior: clicking same card again closes
-  if (EXPANDED_ACTIVE_CARD === card) {
-    closeModal();
-    return;
-  }
+  const { data, error } = await supabase
+    .from("stores")
+    .select("*")
+    .eq("id", storeId)
+    .maybeSingle();
 
-  const overlay = ensureExpandedOverlay();
+  if (error || !data) return;
 
-  // placeholder keeps grid position
-  EXPANDED_PLACEHOLDER = document.createComment("wcl-expanded-placeholder");
-  card.parentNode?.insertBefore(EXPANDED_PLACEHOLDER, card);
+  if (seq !== MODAL_LOAD_SEQ) return;
 
-  overlay.appendChild(card);
-  card.classList.add("expanded");
+  const s = data;
 
-  // whole card scroll
-  card.style.maxHeight = "90vh";
-  card.style.overflowY = "auto";
+  modalImg().src = getPhotoUrl(s);
+  modalName().textContent = s.name || "Unnamed";
+  modalLoc().textContent = [s.continent, s.country, s.city].filter(Boolean).join(", ");
+  modalBadges().innerHTML = buildBadges(s);
+  modalAddr().textContent = s.address || "—";
+  modalPhone().textContent = s.phone || "—";
 
-  // reviews button becomes label in expanded (optional)
-  const reviewsBtn = card.querySelector(".reviews-btn");
-  if (reviewsBtn) reviewsBtn.textContent = "Comments";
-
-  // panel injected in card
-  const panel = createExpandedPanelOnce();
-  const body = card.querySelector(".store-body");
-  body?.appendChild(panel);
-
-  EXPANDED_ACTIVE_CARD = card;
-  EXPANDED_ACTIVE_STORE_ID = storeId;
-
-  await loadExpandedData(storeId);
-}
-
-// ✅ Same name as before
-function closeModal() {
-  if (!EXPANDED_ACTIVE_CARD) return;
-
-  const card = EXPANDED_ACTIVE_CARD;
-
-  // Remove expanded panel
-  if (EXPANDED_PANEL?.parentNode) {
-    EXPANDED_PANEL.parentNode.removeChild(EXPANDED_PANEL);
-  }
-
-  // Remove expanded class & scroll styles
-  card.classList.remove("expanded");
-  card.style.maxHeight = "";
-  card.style.overflowY = "";
-
-  // Put card back to original position
-  if (EXPANDED_PLACEHOLDER && EXPANDED_PLACEHOLDER.parentNode) {
-    EXPANDED_PLACEHOLDER.parentNode.insertBefore(card, EXPANDED_PLACEHOLDER);
-    EXPANDED_PLACEHOLDER.parentNode.removeChild(EXPANDED_PLACEHOLDER);
+  if (s.website) {
+    modalWebsite().href = s.website;
+    modalWebsite().style.display = "inline";
   } else {
-    dom("#storeGrid")?.appendChild(card);
+    modalWebsite().style.display = "none";
   }
 
-  // 🔥 REMOVE OVERLAY COMPLETELY
-  if (EXPANDED_OVERLAY) {
-    EXPANDED_OVERLAY.remove();
-    EXPANDED_OVERLAY = null;
-  }
-
-  // Reset state
-  EXPANDED_PLACEHOLDER = null;
-  EXPANDED_ACTIVE_CARD = null;
-  EXPANDED_ACTIVE_STORE_ID = null;
-
- USER_TEMP_RATING = 0;
-EXPANDED_PANEL = null;
+  await Promise.all([
+    loadModalUserRating(storeId, seq),
+    loadModalComments(storeId, seq),
+  ]);
 }
 
-// ✅ ESC closes
+function closeModal() {
+  const m = modal();
+  if (!m) return;
+
+  m.classList.add("hidden");
+  document.body.style.overflow = "";
+  MODAL_ACTIVE_STORE_ID = null;
+  MODAL_USER_TEMP_RATING = 0;
+}
+
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeModal();
 });
 
-// ============================================================
-// LAZY DATA: USER RATING + COMMENTS
-// ============================================================
-async function loadExpandedData(storeId) {
-  PANEL_LOAD_SEQ++;
-  const seq = PANEL_LOAD_SEQ;
+document.addEventListener("click", (e) => {
+  if (e.target.closest(".modal-close")) closeModal();
+  if (e.target.classList.contains("modal-backdrop")) closeModal();
+});
 
-  if (PANEL_COMMENTS_BOX) PANEL_COMMENTS_BOX.innerHTML = "<p>Loading…</p>";
-  USER_TEMP_RATING = 0;
-  highlightStars(0);
-
-  await Promise.all([loadUserRating(storeId, seq), loadComments(storeId, seq)]);
+function highlightModalStars(count) {
+  const n = Number(count) || 0;
+  modalStars()?.querySelectorAll("span").forEach((s, i) => {
+    s.textContent = i < n ? "★" : "☆";
+  });
 }
 
-async function loadUserRating(store_id, seq) {
-  try {
-    const userResp = await supabase.auth.getUser();
-    const user = userResp.data.user;
+async function loadModalUserRating(store_id, seq) {
+  const userResp = await supabase.auth.getUser();
+  const user = userResp.data.user;
 
-    if (seq !== PANEL_LOAD_SEQ) return;
-    if (EXPANDED_ACTIVE_STORE_ID !== store_id) return;
-
-    if (!user) {
-      USER_TEMP_RATING = 0;
-      highlightStars(0);
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from("ratings")
-      .select("rating")
-      .eq("store_id", store_id)
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (seq !== PANEL_LOAD_SEQ) return;
-    if (EXPANDED_ACTIVE_STORE_ID !== store_id) return;
-
-    if (error) {
-      console.error("loadUserRating error:", error);
-      USER_TEMP_RATING = 0;
-      highlightStars(0);
-      return;
-    }
-
-    USER_TEMP_RATING = Number(data?.rating) || 0;
-    highlightStars(USER_TEMP_RATING);
-  } catch (err) {
-    console.error("loadUserRating fatal:", err);
+  if (seq !== MODAL_LOAD_SEQ) return;
+  if (!user) {
+    highlightModalStars(0);
+    return;
   }
+
+  const { data } = await supabase
+    .from("ratings")
+    .select("rating")
+    .eq("store_id", store_id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (seq !== MODAL_LOAD_SEQ) return;
+
+  MODAL_USER_TEMP_RATING = Number(data?.rating) || 0;
+  highlightModalStars(MODAL_USER_TEMP_RATING);
 }
 
+async function loadModalComments(store_id, seq) {
+  const box = modalComments();
+  if (!box) return;
 
-async function saveRatingDirect(ratingValue) {
-  if (!EXPANDED_ACTIVE_STORE_ID) return;
+  box.innerHTML = "Loading…";
+
+  const { data } = await supabase
+    .from("store_comments")
+    .select("*")
+    .eq("store_id", store_id)
+    .order("created_at", { ascending: false });
+
+  if (seq !== MODAL_LOAD_SEQ) return;
+
+  if (!data || !data.length) {
+    box.innerHTML = "<p>No comments yet.</p>";
+    return;
+  }
+
+  box.innerHTML = data.map(c => `
+    <div class="comment">
+      <p>${String(c.text || "")}</p>
+      <small>${new Date(c.created_at).toLocaleString()}</small>
+    </div>
+  `).join("");
+}
+
+document.addEventListener("click", async (e) => {
+  const star = e.target.closest("#modalStarPicker span");
+  if (!star || !MODAL_ACTIVE_STORE_ID) return;
+
+  const value = Number(star.dataset.val) || 0;
 
   const userResp = await supabase.auth.getUser();
   const user = userResp.data.user;
-  if (!user) {
-    alert("Login required.");
-    return;
-  }
+  if (!user) return alert("Login required.");
 
-  // 0 = clear rating
-  if (ratingValue === 0) {
-    await supabase
-      .from("ratings")
-      .delete()
-      .eq("store_id", EXPANDED_ACTIVE_STORE_ID)
-      .eq("user_id", user.id);
-    return;
-  }
-
-  const { error } = await supabase.from("ratings").upsert({
-    store_id: EXPANDED_ACTIVE_STORE_ID,
+  await supabase.from("ratings").upsert({
+    store_id: MODAL_ACTIVE_STORE_ID,
     user_id: user.id,
-    rating: ratingValue,
+    rating: value,
   });
 
-  if (error) {
-    console.error("Auto rating error:", error);
-  }
-}
+  MODAL_USER_TEMP_RATING = value;
+  highlightModalStars(value);
+});
 
-async function loadComments(store_id, seq) {
-  if (!PANEL_COMMENTS_BOX) return;
+document.getElementById("modalSendComment")?.addEventListener("click", async () => {
+  if (!MODAL_ACTIVE_STORE_ID) return;
 
-  try {
-    const { data, error } = await supabase
-      .from("store_comments")
-      .select("*")
-      .eq("store_id", store_id)
-      .order("created_at", { ascending: false });
-
-    if (seq !== PANEL_LOAD_SEQ) return;
-    if (EXPANDED_ACTIVE_STORE_ID !== store_id) return;
-
-    if (error) {
-      console.error("loadComments error:", error);
-      PANEL_COMMENTS_BOX.innerHTML = "<p>Could not load comments.</p>";
-      return;
-    }
-
-    if (!data || !data.length) {
-      PANEL_COMMENTS_BOX.innerHTML = "<p>No comments yet.</p>";
-      return;
-    }
-
-    PANEL_COMMENTS_BOX.innerHTML = data
-      .map(
-        (c) => `
-        <div class="comment">
-          <p>${String(c.text || "")}</p>
-          <small>${new Date(c.created_at).toLocaleString()}</small>
-        </div>`
-      )
-      .join("");
-  } catch (err) {
-    console.error("loadComments fatal:", err);
-    PANEL_COMMENTS_BOX.innerHTML = "<p>Could not load comments.</p>";
-  }
-}
-
-async function submitComment() {
-  if (!EXPANDED_ACTIVE_STORE_ID) return;
-  if (!PANEL_COMMENT_INPUT) return;
-
-  const text = PANEL_COMMENT_INPUT.value.trim();
+  const input = modalInput();
+  const text = input?.value?.trim();
   if (!text) return;
 
   const userResp = await supabase.auth.getUser();
   const user = userResp.data.user;
   if (!user) return alert("Login required.");
 
-  const { error } = await supabase.from("store_comments").insert({
-    store_id: EXPANDED_ACTIVE_STORE_ID,
+  await supabase.from("store_comments").insert({
+    store_id: MODAL_ACTIVE_STORE_ID,
     user_id: user.id,
     text,
   });
 
-  if (error) {
-    console.error("submitComment error:", error);
-    alert("Could not post comment.");
-    return;
-  }
+  input.value = "";
+  MODAL_LOAD_SEQ++;
+  loadModalComments(MODAL_ACTIVE_STORE_ID, MODAL_LOAD_SEQ);
+});
 
-  PANEL_COMMENT_INPUT.value = "";
-  PANEL_LOAD_SEQ++;
-  const seq = PANEL_LOAD_SEQ;
-  loadComments(EXPANDED_ACTIVE_STORE_ID, seq);
-}
 
 // ============================================================
 // INIT (DOM SAFE)
