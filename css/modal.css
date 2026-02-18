@@ -1,120 +1,251 @@
 /* ============================================================
-   EXPANDED CARD SYSTEM — MAIN OVERLAY VERSION
+   MODAL — COMPACT LUXURY VERSION
+   Focus: Rating + Comments
    ============================================================ */
 
-/* ============================================================
-   OVERLAY (inside .main)
-   ============================================================ */
+.modal.hidden {
+  display: none;
+}
 
-.wcl-overlay {
+.modal {
   position: fixed;
-  top: 0;
-  left: 260px;   /* sidebar width */
-  right: 0;
-  bottom: 0;
+  inset: 0;
+  z-index: 100000;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: rgba(0, 0, 0, 0.78);
+  padding: 2rem;
+}
+
+
+/* ================= BACKDROP ================= */
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.78);
   backdrop-filter: blur(6px);
-
-  z-index: 900;
 }
 
-/* Mobile safety (sidebar not fixed there) */
-@media (max-width: 768px) {
-  .wcl-overlay {
-    left: 0;
-  }
-}
 
-/* ============================================================
-   EXPANDED CARD
-   ============================================================ */
+/* ================= CARD ================= */
 
-.store-card.expanded {
+.modal-content {
   position: relative;
-  transform: scale(1.14);
-  z-index: 1000;
 
+  width: min(620px, 94vw);
   max-height: 90vh;
-  overflow-y: auto;
 
-  box-shadow:
-    0 0 0 1px rgba(212,160,23,0.45),
-    0 60px 120px rgba(0,0,0,0.95);
+  display: flex;
+  flex-direction: column;
+
+  background: #0b0b0b;
+  border-radius: 20px;
+
+  border: 1px solid rgba(212,160,23,0.45);
+  box-shadow: 0 60px 120px rgba(0,0,0,0.9);
+
+  overflow: hidden;
 }
 
-/* Hide other cards visually */
-.wcl-overlay-active #storeGrid .store-card:not(.expanded) {
-  opacity: 0.25;
-  pointer-events: none;
+
+/* ================= CLOSE ================= */
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #fff;
+  opacity: 0.7;
+  cursor: pointer;
 }
+
+.modal-close:hover {
+  opacity: 1;
+}
+
+
+/* ================= IMAGE ================= */
+
+#modalImg {
+  width: 100%;
+  height: 180px;               /* mindre hero */
+  object-fit: cover;
+  border-bottom: 1px solid rgba(212,160,23,0.25);
+}
+
+
+/* ================= HEADER ================= */
+
+.modal-title {
+  padding: 1.2rem 1.4rem 0.6rem;
+}
+
+.modal-title h2 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 0.35rem;
+}
+
+.modal-location {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+.modal-location img {
+  width: 18px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+
+/* ================= INFO ================= */
+
+.modal-info {
+  padding: 0 1.4rem 1rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  opacity: 0.85;
+}
+
+.modal-info p {
+  margin-bottom: 0.35rem;
+}
+
 
 /* ============================================================
-   EXPANDED PANEL
+   RATING — VISUAL PRIORITY
    ============================================================ */
 
-.wcl-expanded-panel {
-  margin-top: 14px;
+.modal-rating {
+  padding: 1.4rem;
   border-top: 1px solid rgba(255,255,255,0.05);
-  padding-top: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+
+  background: linear-gradient(
+    to bottom,
+    rgba(212,160,23,0.04),
+    transparent
+  );
 }
 
-/* Rating */
-.wcl-expanded-panel .star-picker {
+.star-picker {
   display: flex;
-  gap: 0.35rem;
-  font-size: 1.35rem;
+  gap: 0.6rem;
+  font-size: 1.9rem;     /* större stjärnor */
+  margin-bottom: 1rem;
   cursor: pointer;
-  user-select: none;
-  margin-bottom: 0.7rem;
 }
 
-.wcl-expanded-panel .star-picker span.active {
+.star-picker span {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.star-picker span:hover {
+  transform: scale(1.15);
+}
+
+#modalSendRating {
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+
+  border: 1px solid rgba(212,160,23,0.8);
+  background: rgba(212,160,23,0.08);
+
+  color: var(--gold);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#modalSendRating:hover {
+  background: rgba(212,160,23,0.18);
+}
+
+
+/* ============================================================
+   COMMENTS — SECONDARY FOCUS AREA
+   ============================================================ */
+
+.modal-comments {
+  padding: 1.4rem;
+  overflow-y: auto;
+  max-height: 260px;
+}
+
+.modal-comments h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.9rem;
   color: var(--gold);
 }
 
-/* Comments */
-.wcl-expanded-panel .card-comments-box {
-  margin-bottom: 0.8rem;
+#modalComments {
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
-.wcl-expanded-panel .card-comment-input {
+#modalComments .comment {
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+#modalComments small {
+  opacity: 0.5;
+  font-size: 0.75rem;
+}
+
+
+/* ================= ADD COMMENT ================= */
+
+#modalCommentInput {
   width: 100%;
-  height: 60px;
-  padding: 0.55rem;
+  height: 70px;
+
+  padding: 0.6rem;
+  margin-bottom: 0.7rem;
+
   border-radius: 10px;
   background: #141414;
   border: 1px solid #2a2a2a;
   color: #fff;
+
   resize: none;
-  margin-bottom: 0.6rem;
 }
 
-/* ============================================================
-   EXPANDED ORDER FIX
-   ============================================================ */
+#modalSendComment {
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
 
-/* Remove auto push in expanded mode */
-.store-card.expanded .reviews-btn {
-  margin-top: 1rem;
-  order: 99;
+  border: 1px solid rgba(212,160,23,0.8);
+  background: rgba(212,160,23,0.06);
+
+  color: var(--gold);
+  cursor: pointer;
 }
 
-/* Ensure rating section comes before comments */
-.store-card.expanded .wcl-expanded-panel {
-  display: flex;
-  flex-direction: column;
+#modalSendComment:hover {
+  background: rgba(212,160,23,0.15);
 }
 
-.store-card.expanded .wcl-rating-section {
-  order: 1;
+
+/* ================= SCROLLBAR ================= */
+
+.modal-comments::-webkit-scrollbar {
+  width: 6px;
 }
 
-.store-card.expanded .wcl-comments-section {
-  order: 2;
-  margin-top: 1.2rem;
+.modal-comments::-webkit-scrollbar-thumb {
+  background: rgba(212,160,23,0.4);
+  border-radius: 4px;
 }
