@@ -189,6 +189,7 @@ function buildBadges(store) {
       `<span class="badge badge-access badge-access-public">PUBLIC</span>`
     );
   } else if (A) {
+    // keep backend string (e.g., members)
     badges.push(`<span class="badge badge-access">${A.toUpperCase()}</span>`);
   }
 
@@ -236,7 +237,7 @@ export function resetToHero() {
 }
 
 // ============================================================
-// STARS
+// STARS (CARD DISPLAY)
 // ============================================================
 function buildStars(avg, count) {
   const v = Number(avg) || 0;
@@ -262,7 +263,7 @@ function cardHTML(s) {
 
   let displayAddress = "—";
   if (s.address) {
-    const trimmed = s.address.trim();
+    const trimmed = String(s.address).trim();
     displayAddress = trimmed.includes(",")
       ? trimmed.split(",")[0] + "…"
       : trimmed;
@@ -304,9 +305,35 @@ function cardHTML(s) {
       </div>
 
       <button class="reviews-btn" type="button">(${s.comment_count || 0})</button>
-      <!-- Expanded panel is injected here (JS) -->
     </div>
   </article>`;
+}
+
+// ============================================================
+// RENDER CARDS (CANONICAL · FAST · DELEGATION)
+// ============================================================
+let GRID_EVENTS_BOUND = false;
+
+function bindGridEventsOnce() {
+  if (GRID_EVENTS_BOUND) return;
+  GRID_EVENTS_BOUND = true;
+
+  const grid = dom("#storeGrid");
+  if (!grid) return;
+
+  // One listener for ALL cards (and future re-renders)
+  grid.addEventListener("click", (e) => {
+    const card = e.target.closest(".store-card");
+    if (!card) return;
+
+    // Prevent link default (Visit website)
+    if (e.target.closest("a")) return;
+
+    const storeId = Number(card.dataset.storeId);
+    if (!storeId) return;
+
+    openModal(storeId);
+  });
 }
 
 function renderCards(list) {
@@ -320,12 +347,15 @@ function renderCards(list) {
 
   grid.innerHTML = LAST_RENDERED_STORES.map(cardHTML).join("");
 
-
   grid.querySelectorAll(".store-card").forEach((card) => {
     VIEW_OBSERVER.observe(card);
   });
 }
 
+// 🔓 Public export (used by search + sidebar)
+export function renderStores(list) {
+  renderCards(list);
+}
 
 // ============================================================
 // FRONTEND FILTERS (CHIPS ONLY)
@@ -486,187 +516,355 @@ let MODAL_ACTIVE_STORE_ID = null;
 let MODAL_LOAD_SEQ = 0;
 let MODAL_USER_TEMP_RATING = 0;
 
-const modal        = () => document.getElementById("storeModal");
-const modalImg     = () => document.getElementById("modalImg");
-const modalName    = () => document.getElementById("modalName");
-const modalFlag    = () => document.getElementById("modalFlag");
-const modalLoc     = () => document.getElementById("modalLocation");
-const modalBadges  = () => document.getElementById("modalBadges");
-const modalAddr    = () => document.getElementById("modalAddress");
-const modalPhone   = () => document.getElementById("modalPhone");
+// cached DOM refs (resolved lazily)
+const modalEl = () => document.getElementById("storeModal");
+const modalImg = () => document.getElementById("modalImg");
+const modalName = () => document.getElementById("modalName");
+const modalFlag = () => document.getElementById("modalFlag");
+const modalLocation = () => document.getElementById("modalLocation");
+const modalBadges = () => document.getElementById("modalBadges");
+const modalAddress = () => document.getElementById("modalAddress");
+const modalPhone = () => document.getElementById("modalPhone");
 const modalWebsite = () => document.getElementById("modalWebsite");
-const modalStars   = () => document.getElementById("modalStarPicker");
-const modalComments= () => document.getElementById("modalComments");
-const modalInput   = () => document.getElementById("modalCommentInput");
+const modalStarPicker = () => document.getElementById("modalStarPicker");
+const modalSendRating = () => document.getElementById("modalSendRating");
+const modalComments = () => document.getElementById("modalComments");
+const modalCommentInput = () => document.getElementById("modalCommentInput");
+const modalSendComment = () => document.getElementById("modalSendComment");
+
+function findStoreInLastRendered(storeId) {
+  const id = Number(storeId);
+  if (!id) return null;
+  return (LAST_RENDERED_STORES || []).find((x) => Number(x?.id) === id) || null;
+}
+
+function setBodyScrollLocked(locked) {
+  document.body.style.overflow = locked ? "hidden" : "";
+}
+
+function highlightModalStars(count) {
+  const n = Number(count) || 0;
+  const picker = modalStarPicker();
+  if (!picker) return;
+
+  picker.querySelectorAll("span").forEach((s, i) => {
+    s.textContent = i < n ? "★" : "☆";
+    if (i < n) s.classList.add("active");
+    else s.classList.remove("active");
+  });
+}
+
+function resetModalUI() {
+  if (modalImg()) modalImg().src = "";
+  if (modalName()) modalName().textContent = "";
+  if (modalLocation()) modalLocation().textContent = "";
+  if (modalBadges()) modalBadges().innerHTML = "";
+  if (modalAddress()) modalAddress().textContent = "";
+  if (modalPhone()) modalPhone().textContent = "";
+
+  const flagEl = modalFlag();
+  if (flagEl) {
+    flagEl.removeAttribute("src");
+    flagEl.style.display = "none";
+  }
+
+  const web = modalWebsite();
+  if (web) {
+    web.href = "#";
+    web.style.display = "none";
+  }
+
+  const commentsBox = modalComments();
+  if (commentsBox) commentsBox.innerHTML = "";
+
+  const input = modalCommentInput();
+  if (input) input.value = "";
+
+  MODAL_USER_TEMP_RATING = 0;
+  highlightModalStars(0);
+}
 
 async function openModal(id) {
   const storeId = Number(id);
   if (!storeId) return;
 
+  const s = findStoreInLastRendered(storeId);
+  if (!s) return;
+
   MODAL_ACTIVE_STORE_ID = storeId;
   MODAL_LOAD_SEQ++;
   const seq = MODAL_LOAD_SEQ;
 
-  const m = modal();
+  const m = modalEl();
   if (!m) return;
 
+  resetModalUI();
+
   m.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
+  setBodyScrollLocked(true);
 
-  const { data, error } = await supabase
-    .from("stores")
-    .select("*")
-    .eq("id", storeId)
-    .maybeSingle();
-
-  if (error || !data) return;
-
-  if (seq !== MODAL_LOAD_SEQ) return;
-
-  const s = data;
-
+  // Fill from canonical rendered object (no parallel fetch)
   modalImg().src = getPhotoUrl(s);
   modalName().textContent = s.name || "Unnamed";
-  modalLoc().textContent = [s.continent, s.country, s.city].filter(Boolean).join(", ");
-  modalBadges().innerHTML = buildBadges(s);
-  modalAddr().textContent = s.address || "—";
-  modalPhone().textContent = s.phone || "—";
 
-  if (s.website) {
-    modalWebsite().href = s.website;
-    modalWebsite().style.display = "inline";
-  } else {
-    modalWebsite().style.display = "none";
+  // flag
+  const flag = getFlagUrl(s);
+  const flagEl = modalFlag();
+  if (flagEl && flag) {
+    flagEl.src = flag;
+    flagEl.style.display = "";
+  } else if (flagEl) {
+    flagEl.style.display = "none";
   }
 
-  await Promise.all([
-    loadModalUserRating(storeId, seq),
-    loadModalComments(storeId, seq),
-  ]);
+  modalLocation().textContent = [s.continent, s.country, s.city]
+    .filter(Boolean)
+    .join(", ");
+
+  modalBadges().innerHTML = buildBadges(s);
+  modalAddress().textContent = s.address || "—";
+  modalPhone().textContent = s.phone || "—";
+
+  const web = modalWebsite();
+  if (web && s.website) {
+    web.href = s.website;
+    web.style.display = "inline";
+  } else if (web) {
+    web.style.display = "none";
+  }
+
+  // Load rating + comments (async, guarded)
+  await Promise.all([loadModalUserRating(storeId, seq), loadModalComments(storeId, seq)]);
 }
 
 function closeModal() {
-  const m = modal();
+  const m = modalEl();
   if (!m) return;
 
   m.classList.add("hidden");
-  document.body.style.overflow = "";
+  setBodyScrollLocked(false);
+
   MODAL_ACTIVE_STORE_ID = null;
   MODAL_USER_TEMP_RATING = 0;
-}
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeModal();
-});
-
-document.addEventListener("click", (e) => {
-  if (e.target.closest(".modal-close")) closeModal();
-  if (e.target.classList.contains("modal-backdrop")) closeModal();
-});
-
-function highlightModalStars(count) {
-  const n = Number(count) || 0;
-  modalStars()?.querySelectorAll("span").forEach((s, i) => {
-    s.textContent = i < n ? "★" : "☆";
-  });
+  // Keep LAST_RENDERED_STORES intact (modal can reopen without re-search)
 }
 
 async function loadModalUserRating(store_id, seq) {
-  const userResp = await supabase.auth.getUser();
-  const user = userResp.data.user;
+  try {
+    const userResp = await supabase.auth.getUser();
+    const user = userResp?.data?.user;
 
-  if (seq !== MODAL_LOAD_SEQ) return;
+    if (seq !== MODAL_LOAD_SEQ) return;
+    if (MODAL_ACTIVE_STORE_ID !== store_id) return;
+
+    if (!user) {
+      MODAL_USER_TEMP_RATING = 0;
+      highlightModalStars(0);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("ratings")
+      .select("rating")
+      .eq("store_id", store_id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (seq !== MODAL_LOAD_SEQ) return;
+    if (MODAL_ACTIVE_STORE_ID !== store_id) return;
+
+    if (error) {
+      console.error("loadModalUserRating error:", error);
+      MODAL_USER_TEMP_RATING = 0;
+      highlightModalStars(0);
+      return;
+    }
+
+    MODAL_USER_TEMP_RATING = Number(data?.rating) || 0;
+    highlightModalStars(MODAL_USER_TEMP_RATING);
+  } catch (err) {
+    console.error("loadModalUserRating fatal:", err);
+  }
+}
+
+async function saveModalRating(ratingValue) {
+  if (!MODAL_ACTIVE_STORE_ID) return;
+
+  const userResp = await supabase.auth.getUser();
+  const user = userResp?.data?.user;
   if (!user) {
-    highlightModalStars(0);
+    alert("Login required.");
     return;
   }
 
-  const { data } = await supabase
-    .from("ratings")
-    .select("rating")
-    .eq("store_id", store_id)
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const value = Number(ratingValue) || 0;
 
-  if (seq !== MODAL_LOAD_SEQ) return;
+  // 0 = clear rating
+  if (value === 0) {
+    const { error } = await supabase
+      .from("ratings")
+      .delete()
+      .eq("store_id", MODAL_ACTIVE_STORE_ID)
+      .eq("user_id", user.id);
 
-  MODAL_USER_TEMP_RATING = Number(data?.rating) || 0;
-  highlightModalStars(MODAL_USER_TEMP_RATING);
+    if (error) console.error("clear rating error:", error);
+    return;
+  }
+
+  const { error } = await supabase.from("ratings").upsert({
+    store_id: MODAL_ACTIVE_STORE_ID,
+    user_id: user.id,
+    rating: value,
+  });
+
+  if (error) console.error("save rating error:", error);
 }
 
 async function loadModalComments(store_id, seq) {
   const box = modalComments();
   if (!box) return;
 
-  box.innerHTML = "Loading…";
+  try {
+    box.innerHTML = "<p>Loading…</p>";
 
-  const { data } = await supabase
-    .from("store_comments")
-    .select("*")
-    .eq("store_id", store_id)
-    .order("created_at", { ascending: false });
+    const { data, error } = await supabase
+      .from("store_comments")
+      .select("*")
+      .eq("store_id", store_id)
+      .order("created_at", { ascending: false });
 
-  if (seq !== MODAL_LOAD_SEQ) return;
+    if (seq !== MODAL_LOAD_SEQ) return;
+    if (MODAL_ACTIVE_STORE_ID !== store_id) return;
 
-  if (!data || !data.length) {
-    box.innerHTML = "<p>No comments yet.</p>";
-    return;
+    if (error) {
+      console.error("loadModalComments error:", error);
+      box.innerHTML = "<p>Could not load comments.</p>";
+      return;
+    }
+
+    if (!data || !data.length) {
+      box.innerHTML = "<p>No comments yet.</p>";
+      return;
+    }
+
+    box.innerHTML = data
+      .map(
+        (c) => `
+        <div class="comment">
+          <p>${String(c.text || "")}</p>
+          <small>${new Date(c.created_at).toLocaleString()}</small>
+        </div>`
+      )
+      .join("");
+  } catch (err) {
+    console.error("loadModalComments fatal:", err);
+    box.innerHTML = "<p>Could not load comments.</p>";
   }
-
-  box.innerHTML = data.map(c => `
-    <div class="comment">
-      <p>${String(c.text || "")}</p>
-      <small>${new Date(c.created_at).toLocaleString()}</small>
-    </div>
-  `).join("");
 }
 
-document.addEventListener("click", async (e) => {
-  const star = e.target.closest("#modalStarPicker span");
-  if (!star || !MODAL_ACTIVE_STORE_ID) return;
-
-  const value = Number(star.dataset.val) || 0;
-
-  const userResp = await supabase.auth.getUser();
-  const user = userResp.data.user;
-  if (!user) return alert("Login required.");
-
-  await supabase.from("ratings").upsert({
-    store_id: MODAL_ACTIVE_STORE_ID,
-    user_id: user.id,
-    rating: value,
-  });
-
-  MODAL_USER_TEMP_RATING = value;
-  highlightModalStars(value);
-});
-
-document.getElementById("modalSendComment")?.addEventListener("click", async () => {
+async function submitModalComment() {
   if (!MODAL_ACTIVE_STORE_ID) return;
 
-  const input = modalInput();
-  const text = input?.value?.trim();
+  const input = modalCommentInput();
+  if (!input) return;
+
+  const text = input.value.trim();
   if (!text) return;
 
   const userResp = await supabase.auth.getUser();
-  const user = userResp.data.user;
-  if (!user) return alert("Login required.");
+  const user = userResp?.data?.user;
+  if (!user) {
+    alert("Login required.");
+    return;
+  }
 
-  await supabase.from("store_comments").insert({
+  const { error } = await supabase.from("store_comments").insert({
     store_id: MODAL_ACTIVE_STORE_ID,
     user_id: user.id,
     text,
   });
 
-  input.value = "";
-  MODAL_LOAD_SEQ++;
-  loadModalComments(MODAL_ACTIVE_STORE_ID, MODAL_LOAD_SEQ);
-});
+  if (error) {
+    console.error("submitModalComment error:", error);
+    alert("Could not post comment.");
+    return;
+  }
 
+  input.value = "";
+
+  MODAL_LOAD_SEQ++;
+  const seq = MODAL_LOAD_SEQ;
+  loadModalComments(MODAL_ACTIVE_STORE_ID, seq);
+}
+
+// ============================================================
+// MODAL EVENTS (BOUND ONCE)
+// ============================================================
+let MODAL_EVENTS_BOUND = false;
+
+function bindModalEventsOnce() {
+  if (MODAL_EVENTS_BOUND) return;
+  MODAL_EVENTS_BOUND = true;
+
+  // Close via backdrop / X
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".modal-close")) closeModal();
+    if (e.target.classList.contains("modal-backdrop")) closeModal();
+  });
+
+  // ESC closes
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
+  });
+
+  // Star picker (toggle + hover preview)
+  const picker = modalStarPicker();
+  if (picker) {
+    picker.querySelectorAll("span").forEach((star) => {
+      star.addEventListener("mouseenter", () => {
+        const hoverVal = Number(star.dataset.val) || 0;
+        highlightModalStars(hoverVal);
+      });
+
+      star.addEventListener("mouseleave", () => {
+        highlightModalStars(MODAL_USER_TEMP_RATING);
+      });
+
+      star.addEventListener("click", () => {
+        const value = Number(star.dataset.val) || 0;
+
+        // click same star twice → clear
+        MODAL_USER_TEMP_RATING = MODAL_USER_TEMP_RATING === value ? 0 : value;
+        highlightModalStars(MODAL_USER_TEMP_RATING);
+      });
+    });
+  }
+
+  // Submit rating button
+  const btn = modalSendRating();
+  if (btn) {
+    btn.addEventListener("click", async () => {
+      await saveModalRating(MODAL_USER_TEMP_RATING);
+      // refresh from DB (optional) — keeps canonical display
+      if (MODAL_ACTIVE_STORE_ID) {
+        MODAL_LOAD_SEQ++;
+        const seq = MODAL_LOAD_SEQ;
+        await loadModalUserRating(MODAL_ACTIVE_STORE_ID, seq);
+      }
+    });
+  }
+
+  // Submit comment
+  const cbtn = modalSendComment();
+  if (cbtn) {
+    cbtn.addEventListener("click", submitModalComment);
+  }
+}
 
 // ============================================================
 // INIT (DOM SAFE)
 // ============================================================
 document.addEventListener("DOMContentLoaded", () => {
   bindGridEventsOnce();
+  bindModalEventsOnce();
 });
