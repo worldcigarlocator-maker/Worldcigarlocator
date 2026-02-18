@@ -271,15 +271,22 @@ const state = stateRaw || null;
   if (!selectedTypes.length)
     return WCL.toastShared("Select at least one type", "error");
 
-  if (
-    window.selectedPlace?.country_iso2 === "US" &&
-    !state
-  ) {
+  if (window.selectedPlace?.country_iso2 === "US") {
+
+  // Om state är tomt men Google hade en
+  if (!state && window.selectedPlace?.state) {
+    state = window.selectedPlace.state;
+    document.getElementById("state").value = state;
+  }
+
+  if (!state) {
     return WCL.toastShared(
       "State is required for USA",
       "error"
     );
   }
+}
+
 
   const access =
     document.querySelector("input[name='access']:checked")
