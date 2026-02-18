@@ -740,7 +740,7 @@ async function loadModalComments(store_id, seq) {
 
   // 🔒 Update count pill
   if (countEl) {
-    countEl.textContent = comments.length;
+countEl.textContent = `Comments ${comments.length}`;
   }
 
   if (!comments.length) {
