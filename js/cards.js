@@ -33,6 +33,9 @@ const dom = (sel) => document.querySelector(sel);
 let RUN_SEQ = 0;
 let ACTIVE_REQUEST = 0;
 
+// Last dataset rendered (Single Source for Modal)
+let LAST_RENDERED_STORES = [];
+
 // ============================================================
 // DOM READY (locked – UI init handled by search-v2.js)
 // ============================================================
@@ -306,33 +309,6 @@ function cardHTML(s) {
   </article>`;
 }
 
-// ============================================================
-// RENDER CARDS (CANONICAL · FAST · DELEGATION)
-// ============================================================
-let GRID_EVENTS_BOUND = false;
-
-function bindGridEventsOnce() {
-  if (GRID_EVENTS_BOUND) return;
-  GRID_EVENTS_BOUND = true;
-
-  const grid = dom("#storeGrid");
-  if (!grid) return;
-
-  // One listener for ALL cards (and future re-renders)
-  grid.addEventListener("click", (e) => {
-    const card = e.target.closest(".store-card");
-    if (!card) return;
-
-    const storeId = Number(card.dataset.storeId);
-    if (!storeId) return;
-
-    // Prevent link default
-    if (e.target.closest("a")) return;
-
-    openModal(storeId);
-  });
-}
-
 function renderCards(list) {
   const grid = dom("#storeGrid");
   if (!grid) return;
@@ -340,7 +316,10 @@ function renderCards(list) {
   // Close modal on re-render (clean system)
   closeModal();
 
-  grid.innerHTML = (list || []).map(cardHTML).join("");
+  LAST_RENDERED_STORES = list || [];
+
+  grid.innerHTML = LAST_RENDERED_STORES.map(cardHTML).join("");
+
 
   grid.querySelectorAll(".store-card").forEach((card) => {
     VIEW_OBSERVER.observe(card);
