@@ -184,15 +184,10 @@
   font-weight: 600;
 }
 
-/* Comments container */
 #modalComments {
   margin-bottom: 1rem;
-  font-size: 0.95rem;
-  padding: 0.9rem 1rem;
-  border-radius: 12px;
-  background: #141414; /* subtil mörk box */
-  border: 1px solid rgba(115, 98, 75, 0.25);
 }
+
 
 /* Textarea */
 #modalCommentInput {
