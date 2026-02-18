@@ -231,13 +231,13 @@
   background: rgba(var(--global), 0.08);
 }
 
-/* Comments header layout */
 .modal-comments-header {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.7rem;
   margin-bottom: 0.9rem;
 }
+
 
 /* Count pill — identical style */
 .modal-count-pill {
