@@ -256,7 +256,9 @@ async function saveStore() {
   const name = document.getElementById("name")?.value.trim();
   const address = document.getElementById("addr")?.value.trim();
   const city = document.getElementById("city")?.value.trim();
-  const state = document.getElementById("state")?.value.trim();
+  const stateRaw = document.getElementById("state")?.value.trim();
+const state = stateRaw || null;
+
   const country = document.getElementById("country")?.value.trim();
   const continent = document.getElementById("continent")?.value || null;
   const phone = document.getElementById("phone")?.value.trim();
