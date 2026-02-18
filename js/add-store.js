@@ -455,4 +455,44 @@ function resetForm() {
 function bindButtons() {
   document.getElementById("saveBtn")?.addEventListener("click", saveStore);
   document.getElementById("clearBtn")?.addEventListener("click", resetForm);
+
+   /* ================================================================
+   CITY AUTOSUGGEST (Backoffice)
+   ================================================================ */
+
+async function loadCitiesForCountry(country) {
+  if (!country) return;
+
+  const listEl = document.getElementById("city-list");
+  if (!listEl) return;
+
+  listEl.innerHTML = "";
+
+  try {
+    const { data, error } = await WCL.supabase
+      .from("stores")
+      .select("city")
+      .ilike("country", country)
+      .not("city", "is", null);
+
+    if (error || !data) return;
+
+    const unique = [...new Set(data.map(r => r.city).filter(Boolean))].sort();
+
+    unique.forEach(city => {
+      const option = document.createElement("option");
+      option.value = city;
+      listEl.appendChild(option);
+    });
+
+  } catch (err) {
+    console.error("City load failed:", err);
+  }
+}
+
+/* Trigger when country changes */
+document.getElementById("country")?.addEventListener("blur", (e) => {
+  loadCitiesForCountry(e.target.value.trim());
+});
+
 }
