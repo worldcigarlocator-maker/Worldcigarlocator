@@ -476,4 +476,66 @@ mark.hl {
   accent-color: var(--gold);
   cursor: pointer;
 }
+/* ============================================================
+   EXPANDED CARD — FULL OVERLAY MODE
+   ============================================================ */
+
+.store-card.expanded {
+  transform: none !important;
+  width: 700px !important;          /* 30% större än 495-layout */
+  height: auto !important;
+  max-height: 92vh;
+  overflow-y: auto;
+  border-radius: 22px;
+  padding-bottom: 1.5rem;
+}
+
+/* Remove compact grid scaling */
+.store-card.expanded:hover {
+  transform: none !important;
+}
+
+/* Larger image */
+.store-card.expanded .store-img {
+  height: 240px;
+}
+
+/* Body spacing */
+.store-card.expanded .store-body {
+  padding: 1.4rem 1.6rem 1.8rem;
+  overflow: visible;
+}
+
+/* Make info rows wrap in expanded mode */
+.store-card.expanded .info-row {
+  white-space: normal;
+  height: auto;
+}
+
+/* Move stars BELOW address */
+.store-card.expanded .stars-row {
+  order: 10;
+  margin-top: 10px;
+  margin-bottom: 16px;
+}
+
+/* Rating area */
+.store-card.expanded .star-picker {
+  font-size: 1.4rem;        /* smaller stars */
+  gap: .45rem;
+}
+
+/* Comments focus */
+.store-card.expanded .card-comments-box {
+  margin-top: 1rem;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+/* Comments textarea */
+.store-card.expanded .card-comment-input {
+  width: 100%;
+  height: 90px;
+  margin-top: .8rem;
+}
 
