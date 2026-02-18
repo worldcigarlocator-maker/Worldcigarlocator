@@ -231,3 +231,21 @@
   background: rgba(var(--global), 0.08);
 }
 
+/* Comments header layout */
+.modal-comments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.9rem;
+}
+
+/* Count pill — identical style */
+.modal-count-pill {
+  padding: 0.45rem 1.1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(var(--global), 0.6);
+  background: transparent;
+  color: rgb(var(--global));
+  font-size: 0.9rem;
+  font-weight: 500;
+}
