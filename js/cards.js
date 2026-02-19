@@ -47,11 +47,29 @@ const STATE = {
 let RUN_SEQ = 0;
 let ACTIVE_REQUEST = 0;
 
-// 🔒 Canonical rendered dataset (modal reads this)
 let LAST_RENDERED_STORES = [];
 
 export function getLastRenderedStores() {
   return LAST_RENDERED_STORES;
+}
+
+// ============================================================
+// HERO RESET (REQUIRED BY search-v2)
+// ============================================================
+
+export function resetToHero() {
+  const grid = dom("#storeGrid");
+  const heading = dom("#resultHeading");
+  const hero = dom("#heroImage");
+
+  if (grid) grid.innerHTML = "";
+
+  if (heading) {
+    heading.style.display = "none";
+    heading.textContent = "";
+  }
+
+  if (hero) hero.style.display = "block";
 }
 
 // ============================================================
@@ -193,10 +211,13 @@ function cardHTML(s) {
 
 function renderCards(list) {
   const grid = dom("#storeGrid");
+  const hero = dom("#heroImage");
+
   if (!grid) return;
 
-  LAST_RENDERED_STORES = list || [];
+  if (hero) hero.style.display = "none";
 
+  LAST_RENDERED_STORES = list || [];
   grid.innerHTML = LAST_RENDERED_STORES.map(cardHTML).join("");
 
   grid.querySelectorAll(".store-card").forEach((card) => {
@@ -247,10 +268,7 @@ async function loadStores(filters = {}) {
   });
 
   if (reqId !== ACTIVE_REQUEST) return null;
-  if (error) {
-    console.error(error);
-    return { error };
-  }
+  if (error) return { error };
 
   return { data: data || [] };
 }
@@ -272,7 +290,7 @@ export async function runSearch() {
     !hasAnyLocation() &&
     !hasAnyChips()
   ) {
-    renderCards([]);
+    resetToHero();
     return;
   }
 
