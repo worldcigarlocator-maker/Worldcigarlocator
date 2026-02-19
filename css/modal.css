@@ -244,3 +244,40 @@
   font-size: 0.9rem;
   font-weight: 500;
 }
+
+/* ============================================================
+   MODAL COMMENTS — PROFESSIONAL LAYOUT
+   ============================================================ */
+
+.modal-comment {
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.modal-comment:last-child {
+  border-bottom: none;
+}
+
+.modal-comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.modal-comment-author {
+  font-weight: 600;
+  color: var(--global);
+  font-size: 0.9rem;
+}
+
+.modal-comment-date {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.45);
+}
+
+.modal-comment-text {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #ddd;
+}
