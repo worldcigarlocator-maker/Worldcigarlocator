@@ -179,34 +179,21 @@ export function closeModal() {
 
 async function loadUserRating(storeId, seq) {
   try {
-    const { data: auth } = await supabase.auth.getUser();
-    const user = auth?.user;
+    const { data, error } = await supabase.rpc("modal_load_comments_v1", {
+      p_store_id: storeId,
+    });
 
     if (seq !== MODAL_LOAD_SEQ) return;
-    if (!user) {
-      MODAL_USER_TEMP_RATING = 0;
-      highlightStars(0);
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from("ratings")
-      .select("rating")
-      .eq("store_id", storeId)
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (seq !== MODAL_LOAD_SEQ) return;
-
     if (error) {
       console.error("loadUserRating error:", error);
-      MODAL_USER_TEMP_RATING = 0;
       highlightStars(0);
       return;
     }
 
-    MODAL_USER_TEMP_RATING = Number(data?.rating) || 0;
-    highlightStars(MODAL_USER_TEMP_RATING);
+    // rating is not returned here anymore
+    // ratings are handled separately via save RPC
+    highlightStars(0);
+
   } catch (err) {
     console.error("loadUserRating fatal:", err);
   }
@@ -215,36 +202,18 @@ async function loadUserRating(storeId, seq) {
 async function saveRating() {
   if (!MODAL_ACTIVE_STORE_ID) return;
 
-  const { data: auth } = await supabase.auth.getUser();
-  const user = auth?.user;
-  if (!user) return alert("Login required.");
-
-  // clear rating if 0
-  if ((Number(MODAL_USER_TEMP_RATING) || 0) === 0) {
-    const { error } = await supabase
-      .from("ratings")
-      .delete()
-      .eq("store_id", MODAL_ACTIVE_STORE_ID)
-      .eq("user_id", user.id);
-
-    if (error) console.error("clear rating error:", error);
-    return;
-  }
-
-  const { error } = await supabase.from("ratings").upsert({
-    store_id: MODAL_ACTIVE_STORE_ID,
-    user_id: user.id,
-    rating: MODAL_USER_TEMP_RATING,
+  const { error } = await supabase.rpc("modal_save_rating_v1", {
+    p_store_id: MODAL_ACTIVE_STORE_ID,
+    p_rating: Number(MODAL_USER_TEMP_RATING) || 0,
   });
 
-  if (error) console.error("save rating error:", error);
+  if (error) {
+    console.error("save rating error:", error);
+  }
 }
 
 // ============================================================
 // COMMENTS
-// Schema (per your DB):
-// id, store_id, user_name, comment, created_at
-// No user_id yet → owner check uses user_name/email.
 // ============================================================
 
 async function loadComments(storeId, seq) {
@@ -253,17 +222,14 @@ async function loadComments(storeId, seq) {
 
   box.innerHTML = "";
 
-  const { data, error } = await supabase
-    .from("store_comments")
-    .select("id, store_id, user_name, comment, created_at")
-    .eq("store_id", storeId)
-    .order("created_at", { ascending: false });
+  const { data, error } = await supabase.rpc("modal_load_comments_v1", {
+    p_store_id: storeId,
+  });
 
   if (seq !== MODAL_LOAD_SEQ) return;
 
   if (error) {
     console.error("loadComments error:", error);
-    box.innerHTML = "";
     if (modalCommentCount()) modalCommentCount().textContent = "Comments 0";
     return;
   }
@@ -276,37 +242,24 @@ async function loadComments(storeId, seq) {
 
   if (!comments.length) return;
 
-  const { data: auth } = await supabase.auth.getUser();
-  const currentUser = auth?.user;
-  const currentEmail = currentUser?.email || null;
-  const isAdmin = currentEmail ? ADMIN_EMAILS.has(currentEmail) : false;
-
   box.innerHTML = comments
     .map((c) => {
-      const author = String(c.user_name || "").trim() || "Anonymous";
-      const body = String(c.comment || "");
-
-      const isOwner = currentEmail && author.toLowerCase() === currentEmail.toLowerCase();
-      const canDelete = isOwner || isAdmin;
-
       return `
         <div class="modal-comment">
           <div class="modal-comment-header">
-            <span class="modal-comment-author">${author}</span>
-
             <div class="modal-comment-meta">
               <span class="modal-comment-date">
                 ${new Date(c.created_at).toLocaleDateString()}
               </span>
               ${
-                canDelete
+                c.is_owner
                   ? `<button class="modal-comment-delete" data-id="${c.id}">Delete</button>`
                   : ""
               }
             </div>
           </div>
 
-          <div class="modal-comment-text">${body}</div>
+          <div class="modal-comment-text">${c.comment || ""}</div>
         </div>
       `;
     })
@@ -320,14 +273,9 @@ async function submitComment() {
   const text = input?.value?.trim() || "";
   if (!text) return;
 
-  const { data: auth } = await supabase.auth.getUser();
-  const user = auth?.user;
-  if (!user) return alert("Login required.");
-
-  const { error } = await supabase.from("store_comments").insert({
-    store_id: MODAL_ACTIVE_STORE_ID,
-    user_name: user.email, // schema field
-    comment: text,         // schema field
+  const { error } = await supabase.rpc("modal_add_comment_v1", {
+    p_store_id: MODAL_ACTIVE_STORE_ID,
+    p_comment: text,
   });
 
   if (error) {
@@ -341,6 +289,7 @@ async function submitComment() {
   MODAL_LOAD_SEQ++;
   loadComments(MODAL_ACTIVE_STORE_ID, MODAL_LOAD_SEQ);
 }
+
 
 // ============================================================
 // EVENTS (bound once)
@@ -370,12 +319,11 @@ function bindEvents() {
     }
 
     // Delete comment
-    const del = e.target.closest(".modal-comment-delete");
-    if (del && del.dataset.id) {
-      const { error } = await supabase
-        .from("store_comments")
-        .delete()
-        .eq("id", del.dataset.id);
+   const del = e.target.closest(".modal-comment-delete");
+if (del && del.dataset.id) {
+  const { error } = await supabase.rpc("modal_delete_comment_v1", {
+    p_comment_id: Number(del.dataset.id),
+  });
 
       if (error) {
         console.error("delete comment error:", error);
