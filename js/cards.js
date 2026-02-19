@@ -175,7 +175,7 @@ function cardHTML(s) {
   return `
   <article class="store-card" data-store-id="${s.id}">
     <img src="${img}" class="store-img" loading="lazy"
-      onerror="this.onerror=null;this.src='images/store.jpg'" />
+     
 
     <div class="store-body">
       <h3 class="store-title">${s.name || "Unnamed"}</h3>
