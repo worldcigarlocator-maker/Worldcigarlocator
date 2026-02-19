@@ -1,12 +1,11 @@
 // ============================================================
-// CARDS.JS — WCL FRONTEND (DISCOVERY + INTERACTION v2)
+// CARDS.JS — WCL FRONTEND (DISCOVERY + INTERACTION v2 + PAGINATION)
 // ------------------------------------------------------------
 // • Owns STATE + MASTER
-// • Uses search_stores_v2 (discovery + interaction meta)
-// • No aggregation
-// • No inline JS
+// • Uses search_stores_v2 (LATERAL optimized)
+// • Keyset pagination (cursor-based)
+// • No aggregation in frontend
 // • No global leaks
-// • Grid receives interaction stats from backend
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -47,10 +46,36 @@ const STATE = {
 let RUN_SEQ = 0;
 let ACTIVE_REQUEST = 0;
 
+// ============================================================
+// PAGINATION STATE (UI-layer concern)
+// ============================================================
+
 let LAST_RENDERED_STORES = [];
+let LAST_CURSOR = null;
+let HAS_MORE = true;
+const PAGE_SIZE = 50;
 
 export function getLastRenderedStores() {
   return LAST_RENDERED_STORES;
+}
+
+function resetPagination() {
+  LAST_CURSOR = null;
+  HAS_MORE = true;
+}
+
+function updateCursor(list) {
+  if (!list || !list.length) {
+    HAS_MORE = false;
+    return;
+  }
+
+  const last = list[list.length - 1];
+  LAST_CURSOR = last?.id ?? null;
+
+  if (list.length < PAGE_SIZE) {
+    HAS_MORE = false;
+  }
 }
 
 // ============================================================
@@ -70,6 +95,9 @@ export function resetToHero() {
   }
 
   if (hero) hero.style.display = "block";
+
+  resetPagination();
+  LAST_RENDERED_STORES = [];
 }
 
 // ============================================================
@@ -110,6 +138,7 @@ export function activateSearch({ text = "" } = {}) {
   MASTER_MODE = MASTER.SEARCH;
   clearLocation();
   STATE.search.text = text;
+  resetPagination();
   runSearch();
 }
 
@@ -117,6 +146,7 @@ export function activateLocation(next) {
   MASTER_MODE = MASTER.LOCATION;
   clearSearch();
   STATE.location = { ...STATE.location, ...next };
+  resetPagination();
   runSearch();
 }
 
@@ -127,6 +157,7 @@ export function toggleChip({ type, access }) {
   if (access !== undefined) {
     STATE.chips.access = STATE.chips.access === access ? null : access;
   }
+  resetPagination();
   runSearch();
 }
 
@@ -134,6 +165,7 @@ export function clearSearchMaster() {
   if (MASTER_MODE === MASTER.SEARCH) {
     clearSearch();
     MASTER_MODE = MASTER.IDLE;
+    resetPagination();
     runSearch();
   }
 }
@@ -142,6 +174,7 @@ export function clearLocationMaster() {
   if (MASTER_MODE === MASTER.LOCATION) {
     clearLocation();
     MASTER_MODE = MASTER.IDLE;
+    resetPagination();
     runSearch();
   }
 }
@@ -208,7 +241,7 @@ function cardHTML(s) {
 // RENDER
 // ============================================================
 
-function renderCards(list) {
+function renderCards(list, append = false) {
   const grid = dom("#storeGrid");
   const hero = dom("#heroImage");
 
@@ -216,10 +249,17 @@ function renderCards(list) {
 
   if (hero) hero.style.display = "none";
 
-  LAST_RENDERED_STORES = list || [];
-  grid.innerHTML = LAST_RENDERED_STORES.map(cardHTML).join("");
+  if (!append) {
+    LAST_RENDERED_STORES = list || [];
+    grid.innerHTML = LAST_RENDERED_STORES.map(cardHTML).join("");
+  } else {
+    LAST_RENDERED_STORES = [...LAST_RENDERED_STORES, ...list];
+    grid.insertAdjacentHTML(
+      "beforeend",
+      list.map(cardHTML).join("")
+    );
+  }
 
-  // Image fallback
   grid.querySelectorAll(".store-img").forEach((img) => {
     img.addEventListener(
       "error",
@@ -233,10 +273,12 @@ function renderCards(list) {
   grid.querySelectorAll(".store-card").forEach((card) => {
     VIEW_OBSERVER.observe(card);
   });
+
+  ensureLoadMoreButton();
 }
 
 // ============================================================
-// GRID CLICK (DELEGATED)
+// GRID CLICK
 // ============================================================
 
 let GRID_BOUND = false;
@@ -262,6 +304,32 @@ function bindGrid() {
 }
 
 // ============================================================
+// LOAD MORE
+// ============================================================
+
+function ensureLoadMoreButton() {
+  let btn = document.getElementById("loadMoreBtn");
+
+  if (!btn) {
+    btn = document.createElement("button");
+    btn.id = "loadMoreBtn";
+    btn.textContent = "Load more";
+    btn.className = "load-more-btn";
+    btn.style.display = "none";
+
+    const grid = dom("#storeGrid");
+    grid?.after(btn);
+
+    btn.addEventListener("click", () => {
+      if (!HAS_MORE) return;
+      runSearch(true);
+    });
+  }
+
+  btn.style.display = HAS_MORE ? "block" : "none";
+}
+
+// ============================================================
 // BACKEND RPC
 // ============================================================
 
@@ -275,6 +343,8 @@ async function loadStores(filters = {}) {
     p_country: filters.country || null,
     p_state: filters.state || null,
     p_city: filters.city || null,
+    p_limit: PAGE_SIZE,
+    p_cursor: LAST_CURSOR
   });
 
   if (reqId !== ACTIVE_REQUEST) return null;
@@ -287,7 +357,7 @@ async function loadStores(filters = {}) {
 // RUN SEARCH
 // ============================================================
 
-export async function runSearch() {
+export async function runSearch(isLoadMore = false) {
   RUN_SEQ++;
   const runId = RUN_SEQ;
 
@@ -304,12 +374,14 @@ export async function runSearch() {
     return;
   }
 
-  if (heading) {
+  if (!isLoadMore) {
+    resetPagination();
+  }
+
+  if (heading && !isLoadMore) {
     heading.textContent = "Loading…";
     heading.style.display = "block";
   }
-
-  renderCards([]);
 
   const resp = await loadStores(snap);
 
@@ -321,12 +393,18 @@ export async function runSearch() {
 
   const rows = resp.data || [];
 
-  if (heading) {
-    heading.textContent = `${rows.length} results`;
-    heading.style.display = "block";
+  updateCursor(rows);
+
+  if (!isLoadMore) {
+    renderCards(rows, false);
+  } else {
+    renderCards(rows, true);
   }
 
-  renderCards(rows);
+  if (heading && !isLoadMore) {
+    heading.textContent = `${LAST_RENDERED_STORES.length} results`;
+    heading.style.display = "block";
+  }
 }
 
 // ============================================================
