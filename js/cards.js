@@ -605,7 +605,9 @@ async function openModal(id) {
 
   // Fill from canonical rendered object (no parallel fetch)
   modalImg().src = getPhotoUrl(s);
-  modalName().textContent = s.name || "Unnamed";
+const nameEl = modalName();
+if (nameEl) nameEl.textContent = s.name || "Unnamed";
+
 
   // flag
   const flag = getFlagUrl(s);
