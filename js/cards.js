@@ -740,30 +740,48 @@ async function loadModalComments(store_id, seq) {
 
   // 🔒 Update count pill
   if (countEl) {
-countEl.textContent = `Comments ${comments.length}`;
+    countEl.textContent = `Comments ${comments.length}`;
   }
 
   if (!comments.length) {
-    return; // no empty-state box anymore
+    return; // no empty-state
   }
 
-box.innerHTML = data.map(c => `
-  <div class="modal-comment">
-    <div class="modal-comment-header">
-      <span class="modal-comment-author">
-        ${c.user_display_name || "Anonymous"}
-      </span>
-      <span class="modal-comment-date">
-        ${new Date(c.created_at).toLocaleDateString()}
-      </span>
-    </div>
+  const userResp = await supabase.auth.getUser();
+  const currentUser = userResp.data.user;
 
-    <div class="modal-comment-text">
-      ${String(c.text || "")}
-    </div>
-  </div>
-`).join("");
+  box.innerHTML = comments.map(c => {
+    const isOwner = currentUser && c.user_id === currentUser.id;
 
+    return `
+      <div class="modal-comment">
+        <div class="modal-comment-header">
+          <span class="modal-comment-author">
+            ${c.user_display_name || "Anonymous"}
+          </span>
+
+          <div class="modal-comment-meta">
+            <span class="modal-comment-date">
+              ${new Date(c.created_at).toLocaleDateString()}
+            </span>
+
+            ${
+              isOwner
+                ? `<button class="modal-comment-delete"
+                     data-id="${c.id}">
+                     Delete
+                   </button>`
+                : ""
+            }
+          </div>
+        </div>
+
+        <div class="modal-comment-text">
+          ${String(c.text || "")}
+        </div>
+      </div>
+    `;
+  }).join("");
 }
 
 async function submitModalComment() {
