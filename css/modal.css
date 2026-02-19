@@ -35,18 +35,16 @@
 
 .modal-content {
   position: relative;
-
-  width: 650px;
+  width: 720px;
   max-height: 92vh;
-  overflow-y: auto;
-
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background: #0b0b0b;
-  border-radius: 18px;
-  border: 1px solid rgba(var(--global), 0.35);
-  box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
-
-  z-index: 10;
+  border-radius: 20px;
+  border: 1px solid rgba(var(--global), 0.6);
 }
+
 
 
 
@@ -82,8 +80,10 @@
 /* ================= BODY ================= */
 
 .modal-body {
-  padding: 1.7rem 1.9rem 2rem;   /* ↓ från 2.2rem */
+  padding: 2rem 2.2rem 2.5rem;
+  overflow-y: auto;
 }
+
 
 
 /* ================= TITLE ================= */
