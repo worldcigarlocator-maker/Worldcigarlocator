@@ -738,14 +738,12 @@ async function loadModalComments(store_id, seq) {
 
   const comments = data || [];
 
-  // 🔒 Update count pill
+  // Update count pill
   if (countEl) {
     countEl.textContent = `Comments ${comments.length}`;
   }
 
-  if (!comments.length) {
-    return; // no empty-state
-  }
+  if (!comments.length) return;
 
   const userResp = await supabase.auth.getUser();
   const currentUser = userResp.data.user;
@@ -757,7 +755,7 @@ async function loadModalComments(store_id, seq) {
       <div class="modal-comment">
         <div class="modal-comment-header">
           <span class="modal-comment-author">
-            ${c.user_display_name || "Anonymous"}
+            ${c.user_name || "Anonymous"}
           </span>
 
           <div class="modal-comment-meta">
@@ -777,12 +775,13 @@ async function loadModalComments(store_id, seq) {
         </div>
 
         <div class="modal-comment-text">
-          ${String(c.text || "")}
+          ${String(c.comment || "")}
         </div>
       </div>
     `;
   }).join("");
 }
+
 
 async function submitModalComment() {
   if (!MODAL_ACTIVE_STORE_ID) return;
