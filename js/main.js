@@ -1,4 +1,3 @@
-console.log("🔥 main.js executing");
 
 // ============================================================
 // MAIN.JS — WCL Frontend (PUBLIC-FIRST)
