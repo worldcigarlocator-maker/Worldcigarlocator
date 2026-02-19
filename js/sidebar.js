@@ -1,7 +1,7 @@
 // ============================================================
 // SIDEBAR.JS — WCL Sidebar (CANONICAL · FINAL CLEAN)
 // ============================================================
-// - Backend: sidebar_nodes_v3 (view wrapping sidebar_nodes_v2())
+// - Backend: sidebar_nodes_v2 (view wrapping sidebar_nodes_v2())
 // - Paginated fetch (Supabase hard cap safe)
 // - Deterministic model build
 // - Wrapper-based DOM (no sibling dependency)
@@ -27,7 +27,7 @@ async function fetchSidebarRows() {
 
   while (true) {
     const { data, error } = await supabase
-      .from("sidebar_nodes_v3")
+      .from("sidebar_nodes_v2")
       .select("*")
       .order("continent")
       .order("country")
