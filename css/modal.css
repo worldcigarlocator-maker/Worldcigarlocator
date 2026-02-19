@@ -82,9 +82,8 @@
 .modal-body {
   padding: 2rem 2.2rem 2.5rem;
   overflow-y: auto;
+  flex: 1;
 }
-
-
 
 /* ================= TITLE ================= */
 
