@@ -1,32 +1,18 @@
 // ============================================================
-// CARDS.JS — WCL FRONTEND (DISCOVERY + INTERACTION v2 + PAGINATION)
-// ------------------------------------------------------------
-// • Owns STATE + MASTER
-// • Uses search_stores_v2 (LATERAL optimized)
-// • Keyset pagination (cursor-based)
-// • No aggregation in frontend
-// • No global leaks
+// CARDS.JS — WCL FRONTEND (DISCOVERY + SORT READY)
 // ============================================================
 
 import { supabase } from "./globals.js";
 import { openModal } from "./modal.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
 
-// ============================================================
-// ANALYTICS SAFE FALLBACK
-// ============================================================
-
 const VIEW_OBSERVER =
   window?.WCL_ANALYTICS?.VIEW_OBSERVER ?? { observe() {}, unobserve() {} };
-
-// ============================================================
-// DOM
-// ============================================================
 
 const dom = (sel) => document.querySelector(sel);
 
 // ============================================================
-// MASTER STATE
+// MASTER
 // ============================================================
 
 export const MASTER = {
@@ -43,11 +29,10 @@ const STATE = {
   chips: { type: null, access: null },
 };
 
-let RUN_SEQ = 0;
-let ACTIVE_REQUEST = 0;
+let SORT_MODE = "relevance";
 
 // ============================================================
-// PAGINATION STATE (UI-layer concern)
+// PAGINATION
 // ============================================================
 
 let LAST_RENDERED_STORES = [];
@@ -88,12 +73,10 @@ export function resetToHero() {
   const hero = dom("#heroImage");
 
   if (grid) grid.innerHTML = "";
-
   if (heading) {
     heading.style.display = "none";
     heading.textContent = "";
   }
-
   if (hero) hero.style.display = "block";
 
   resetPagination();
@@ -131,7 +114,7 @@ function snapshot() {
 }
 
 // ============================================================
-// PUBLIC FILTER API
+// FILTER API
 // ============================================================
 
 export function activateSearch({ text = "" } = {}) {
@@ -161,80 +144,10 @@ export function toggleChip({ type, access }) {
   runSearch();
 }
 
-export function clearSearchMaster() {
-  if (MASTER_MODE === MASTER.SEARCH) {
-    clearSearch();
-    MASTER_MODE = MASTER.IDLE;
-    resetPagination();
-    runSearch();
-  }
-}
-
-export function clearLocationMaster() {
-  if (MASTER_MODE === MASTER.LOCATION) {
-    clearLocation();
-    MASTER_MODE = MASTER.IDLE;
-    resetPagination();
-    runSearch();
-  }
-}
-
-// ============================================================
-// CARD HTML
-// ============================================================
-
-function buildStars(avg, count) {
-  const v = Number(avg) || 0;
-  const full = "★".repeat(Math.round(v));
-  const empty = "☆".repeat(5 - Math.round(v));
-
-  return `
-    <div class="stars-row">
-      <span class="stars">${full}${empty}</span>
-      <span class="rating-count">(${count || 0})</span>
-    </div>
-  `;
-}
-
-function cardHTML(s) {
-  const img = getPhotoUrl(s);
-  const flag = getFlagUrl(s);
-
-  const address =
-    s.address?.includes(",")
-      ? s.address.split(",")[0] + "…"
-      : s.address || "—";
-
-  return `
-  <article class="store-card" data-store-id="${s.id}">
-    <img src="${img}" class="store-img" loading="lazy" />
-
-    <div class="store-body">
-      <h3 class="store-title">${s.name || "Unnamed"}</h3>
-
-      <div class="badge-row">${buildBadges(s)}</div>
-
-      ${buildStars(s.rating_avg, s.rating_count)}
-
-      <div class="locrow">
-        <div class="loc-top">
-          ${flag ? `<img src="${flag}" class="flag" />` : ""}
-          <span>${[s.continent, s.country].filter(Boolean).join(", ")}</span>
-        </div>
-        <p class="city-label">${s.city || ""}</p>
-      </div>
-
-      <div class="infoblock">
-        <p><strong>Address:</strong> ${address}</p>
-        <p><strong>Phone:</strong> ${s.phone || "—"}</p>
-      </div>
-
-      <button class="reviews-btn" type="button">
-        (${s.comment_count || 0})
-      </button>
-    </div>
-  </article>
-  `;
+export function setSort(mode) {
+  SORT_MODE = mode || "relevance";
+  resetPagination();
+  runSearch();
 }
 
 // ============================================================
@@ -246,7 +159,6 @@ function renderCards(list, append = false) {
   const hero = dom("#heroImage");
 
   if (!grid) return;
-
   if (hero) hero.style.display = "none";
 
   if (!append) {
@@ -254,53 +166,32 @@ function renderCards(list, append = false) {
     grid.innerHTML = LAST_RENDERED_STORES.map(cardHTML).join("");
   } else {
     LAST_RENDERED_STORES = [...LAST_RENDERED_STORES, ...list];
-    grid.insertAdjacentHTML(
-      "beforeend",
-      list.map(cardHTML).join("")
-    );
+    grid.insertAdjacentHTML("beforeend", list.map(cardHTML).join(""));
   }
-
-  grid.querySelectorAll(".store-img").forEach((img) => {
-    img.addEventListener(
-      "error",
-      () => {
-        img.src = "images/store.jpg";
-      },
-      { once: true }
-    );
-  });
-
-  grid.querySelectorAll(".store-card").forEach((card) => {
-    VIEW_OBSERVER.observe(card);
-  });
 
   ensureLoadMoreButton();
 }
 
 // ============================================================
-// GRID CLICK
+// CARD HTML
 // ============================================================
 
-let GRID_BOUND = false;
+function cardHTML(s) {
+  const img = getPhotoUrl(s);
+  const flag = getFlagUrl(s);
 
-function bindGrid() {
-  if (GRID_BOUND) return;
-  GRID_BOUND = true;
-
-  const grid = dom("#storeGrid");
-  if (!grid) return;
-
-  grid.addEventListener("click", (e) => {
-    const card = e.target.closest(".store-card");
-    if (!card) return;
-
-    const id = Number(card.dataset.storeId);
-    if (!id) return;
-
-    if (e.target.closest("a")) return;
-
-    openModal(id);
-  });
+  return `
+  <article class="store-card" data-store-id="${s.id}">
+    <img src="${img}" class="store-img" loading="lazy" />
+    <div class="store-body">
+      <h3>${s.name || "Unnamed"}</h3>
+      <div>${buildBadges(s)}</div>
+      <div>⭐ ${s.rating_avg || 0} (${s.rating_count || 0})</div>
+      <div>${flag ? `<img src="${flag}" class="flag"/>` : ""}${s.city || ""}</div>
+      <button class="reviews-btn">(${s.comment_count || 0})</button>
+    </div>
+  </article>
+  `;
 }
 
 // ============================================================
@@ -334,9 +225,6 @@ function ensureLoadMoreButton() {
 // ============================================================
 
 async function loadStores(filters = {}) {
-  ACTIVE_REQUEST++;
-  const reqId = ACTIVE_REQUEST;
-
   const { data, error } = await supabase.rpc("search_stores_v2", {
     p_q: STATE.search.text || null,
     p_continent: filters.continent || null,
@@ -344,12 +232,11 @@ async function loadStores(filters = {}) {
     p_state: filters.state || null,
     p_city: filters.city || null,
     p_limit: PAGE_SIZE,
-    p_cursor: LAST_CURSOR
+    p_cursor: LAST_CURSOR,
+    p_sort: SORT_MODE
   });
 
-  if (reqId !== ACTIVE_REQUEST) return null;
   if (error) return { error };
-
   return { data: data || [] };
 }
 
@@ -358,9 +245,6 @@ async function loadStores(filters = {}) {
 // ============================================================
 
 export async function runSearch(isLoadMore = false) {
-  RUN_SEQ++;
-  const runId = RUN_SEQ;
-
   const snap = snapshot();
   const heading = dom("#resultHeading");
 
@@ -374,9 +258,7 @@ export async function runSearch(isLoadMore = false) {
     return;
   }
 
-  if (!isLoadMore) {
-    resetPagination();
-  }
+  if (!isLoadMore) resetPagination();
 
   if (heading && !isLoadMore) {
     heading.textContent = "Loading…";
@@ -384,33 +266,17 @@ export async function runSearch(isLoadMore = false) {
   }
 
   const resp = await loadStores(snap);
-
-  if (runId !== RUN_SEQ) return;
   if (!resp || resp.error) {
     if (heading) heading.textContent = "Error loading results";
     return;
   }
 
   const rows = resp.data || [];
-
   updateCursor(rows);
 
-  if (!isLoadMore) {
-    renderCards(rows, false);
-  } else {
-    renderCards(rows, true);
-  }
+  renderCards(rows, isLoadMore);
 
   if (heading && !isLoadMore) {
     heading.textContent = `${LAST_RENDERED_STORES.length} results`;
-    heading.style.display = "block";
   }
 }
-
-// ============================================================
-// INIT
-// ============================================================
-
-document.addEventListener("DOMContentLoaded", () => {
-  bindGrid();
-});
