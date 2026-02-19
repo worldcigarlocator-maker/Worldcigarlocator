@@ -305,3 +305,23 @@
 .modal-comment-delete:hover {
   color: var(--global);
 }
+
+/* ============================================================
+   COMMENT FEED — SCROLL AREA
+   ============================================================ */
+
+.modal-comments-feed {
+  margin-top: 1.2rem;
+  max-height: 32vh;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* Subtle divider above feed */
+.modal-comments-feed::before {
+  content: "";
+  display: block;
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin-bottom: 1rem;
+}
