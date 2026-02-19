@@ -17,10 +17,8 @@ let MODAL_USER_TEMP_RATING = 0;
 
 let MODAL_EVENTS_BOUND = false;
 
-// Admin (optional) — add your email(s) here
-const ADMIN_EMAILS = new Set([
-  // "you@worldcigarlocator.com",
-]);
+// Owner / delete handled backend-side via RPC + RLS
+
 
 // ============================================================
 // DOM HELPERS
