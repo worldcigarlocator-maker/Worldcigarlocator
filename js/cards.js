@@ -1,12 +1,12 @@
 // ============================================================
-// CARDS.JS — WCL FRONTEND (CANONICAL CORE)
+// CARDS.JS — WCL FRONTEND (DISCOVERY + INTERACTION v2)
 // ------------------------------------------------------------
 // • Owns STATE + MASTER
-// • Owns rendering
-// • Owns search orchestration
-// • Modal is external (modal.js)
-// • No expanded cards
+// • Uses search_stores_v2 (discovery + interaction meta)
+// • No aggregation
+// • No inline JS
 // • No global leaks
+// • Grid receives interaction stats from backend
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -27,7 +27,7 @@ const VIEW_OBSERVER =
 const dom = (sel) => document.querySelector(sel);
 
 // ============================================================
-// STATE
+// MASTER STATE
 // ============================================================
 
 export const MASTER = {
@@ -54,7 +54,7 @@ export function getLastRenderedStores() {
 }
 
 // ============================================================
-// HERO RESET (REQUIRED BY search-v2)
+// HERO RESET
 // ============================================================
 
 export function resetToHero() {
@@ -219,18 +219,21 @@ function renderCards(list) {
   LAST_RENDERED_STORES = list || [];
   grid.innerHTML = LAST_RENDERED_STORES.map(cardHTML).join("");
 
-  // 🔒 Image fallback (no inline JS)
+  // Image fallback
   grid.querySelectorAll(".store-img").forEach((img) => {
-    img.addEventListener("error", () => {
-      img.src = "images/store.jpg";
-    }, { once: true });
+    img.addEventListener(
+      "error",
+      () => {
+        img.src = "images/store.jpg";
+      },
+      { once: true }
+    );
   });
 
   grid.querySelectorAll(".store-card").forEach((card) => {
     VIEW_OBSERVER.observe(card);
   });
 }
-
 
 // ============================================================
 // GRID CLICK (DELEGATED)
@@ -266,7 +269,7 @@ async function loadStores(filters = {}) {
   ACTIVE_REQUEST++;
   const reqId = ACTIVE_REQUEST;
 
-  const { data, error } = await supabase.rpc("search_stores_v1", {
+  const { data, error } = await supabase.rpc("search_stores_v2", {
     p_q: STATE.search.text || null,
     p_continent: filters.continent || null,
     p_country: filters.country || null,
