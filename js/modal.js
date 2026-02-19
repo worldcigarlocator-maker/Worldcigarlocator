@@ -1,6 +1,6 @@
 // ============================================================
-// MODAL.JS — WCL CLEAN MODAL SYSTEM
-// Canonical · Standalone · No Global Leaks
+// MODAL.JS — WCL CLEAN MODAL SYSTEM (ENTERPRISE LOCKED)
+// Canonical · RPC-Only · Backend Authority · No Table Access
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -14,11 +14,7 @@ import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
 let MODAL_ACTIVE_STORE_ID = null;
 let MODAL_LOAD_SEQ = 0;
 let MODAL_USER_TEMP_RATING = 0;
-
 let MODAL_EVENTS_BOUND = false;
-
-// Owner / delete handled backend-side via RPC + RLS
-
 
 // ============================================================
 // DOM HELPERS
@@ -62,6 +58,7 @@ function highlightStars(count) {
   if (!picker) return;
 
   const n = Number(count) || 0;
+
   picker.querySelectorAll("span").forEach((s, i) => {
     const active = i < n;
     s.textContent = active ? "★" : "☆";
@@ -92,10 +89,10 @@ function resetModal() {
   if (modalComments()) modalComments().innerHTML = "";
   if (modalCommentInput()) modalCommentInput().value = "";
 
+  if (modalCommentCount()) modalCommentCount().textContent = "Comments 0";
+
   MODAL_USER_TEMP_RATING = 0;
   highlightStars(0);
-
-  if (modalCommentCount()) modalCommentCount().textContent = "Comments 0";
 }
 
 // ============================================================
@@ -114,50 +111,65 @@ export async function openModal(storeId) {
   if (!m) return;
 
   resetModal();
-
   m.classList.remove("hidden");
   lockScroll(true);
 
-  // Fill from rendered store (canonical)
-  const nameEl = modalName();
-  if (nameEl) nameEl.textContent = store.name || "Unnamed";
+  // ----------------------------------
+  // Static store data (from cards)
+  // ----------------------------------
 
-  const imgEl = modalImg();
-  if (imgEl) imgEl.src = getPhotoUrl(store);
+  if (modalName()) modalName().textContent = store.name || "Unnamed";
+  if (modalImg()) modalImg().src = getPhotoUrl(store);
 
   const flagUrl = getFlagUrl(store);
-  const flagEl = modalFlag();
-  if (flagEl && flagUrl) {
-    flagEl.src = flagUrl;
-    flagEl.style.display = "";
+  if (modalFlag() && flagUrl) {
+    modalFlag().src = flagUrl;
+    modalFlag().style.display = "";
   }
 
-  const locEl = modalLocation();
-  if (locEl) {
-    locEl.textContent = [store.continent, store.country, store.city]
-      .filter(Boolean)
-      .join(", ");
+  if (modalLocation()) {
+    modalLocation().textContent =
+      [store.continent, store.country, store.city]
+        .filter(Boolean)
+        .join(", ");
   }
 
-  const badgesEl = modalBadges();
-  if (badgesEl) badgesEl.innerHTML = buildBadges(store);
+  if (modalBadges()) modalBadges().innerHTML = buildBadges(store);
+  if (modalAddress()) modalAddress().textContent = store.address || "—";
+  if (modalPhone()) modalPhone().textContent = store.phone || "—";
 
-  const addrEl = modalAddress();
-  if (addrEl) addrEl.textContent = store.address || "—";
-
-  const phoneEl = modalPhone();
-  if (phoneEl) phoneEl.textContent = store.phone || "—";
-
-  const web = modalWebsite();
-  if (web && store.website) {
-    web.href = store.website;
-    web.style.display = "inline";
+  if (modalWebsite() && store.website) {
+    modalWebsite().href = store.website;
+    modalWebsite().style.display = "inline";
   }
 
-  await Promise.all([
-    loadUserRating(MODAL_ACTIVE_STORE_ID, seq),
-    loadComments(MODAL_ACTIVE_STORE_ID, seq),
-  ]);
+  // ----------------------------------
+  // Interaction meta (RPC)
+  // ----------------------------------
+
+  const { data: meta, error } = await supabase.rpc("modal_store_meta_v1", {
+    p_store_id: MODAL_ACTIVE_STORE_ID,
+  });
+
+  if (seq !== MODAL_LOAD_SEQ) return;
+
+  if (!error && meta && meta.length) {
+    const row = meta[0];
+
+    if (modalCommentCount()) {
+      modalCommentCount().textContent =
+        `Comments ${row.comment_count || 0}`;
+    }
+
+    MODAL_USER_TEMP_RATING = row.user_rating || 0;
+    highlightStars(MODAL_USER_TEMP_RATING);
+  }
+
+  // ----------------------------------
+  // Load comments
+  // ----------------------------------
+
+  await loadComments(MODAL_ACTIVE_STORE_ID, seq);
 }
 
 export function closeModal() {
@@ -172,30 +184,8 @@ export function closeModal() {
 }
 
 // ============================================================
-// RATING
+// RATING (RPC ONLY)
 // ============================================================
-
-async function loadUserRating(storeId, seq) {
-  try {
-    const { data, error } = await supabase.rpc("modal_load_comments_v1", {
-      p_store_id: storeId,
-    });
-
-    if (seq !== MODAL_LOAD_SEQ) return;
-    if (error) {
-      console.error("loadUserRating error:", error);
-      highlightStars(0);
-      return;
-    }
-
-    // rating is not returned here anymore
-    // ratings are handled separately via save RPC
-    highlightStars(0);
-
-  } catch (err) {
-    console.error("loadUserRating fatal:", err);
-  }
-}
 
 async function saveRating() {
   if (!MODAL_ACTIVE_STORE_ID) return;
@@ -206,12 +196,12 @@ async function saveRating() {
   });
 
   if (error) {
-    console.error("save rating error:", error);
+    console.error("modal_save_rating_v1 error:", error);
   }
 }
 
 // ============================================================
-// COMMENTS
+// COMMENTS (RPC ONLY)
 // ============================================================
 
 async function loadComments(storeId, seq) {
@@ -227,7 +217,7 @@ async function loadComments(storeId, seq) {
   if (seq !== MODAL_LOAD_SEQ) return;
 
   if (error) {
-    console.error("loadComments error:", error);
+    console.error("modal_load_comments_v1 error:", error);
     if (modalCommentCount()) modalCommentCount().textContent = "Comments 0";
     return;
   }
@@ -256,7 +246,6 @@ async function loadComments(storeId, seq) {
               }
             </div>
           </div>
-
           <div class="modal-comment-text">${c.comment || ""}</div>
         </div>
       `;
@@ -277,8 +266,7 @@ async function submitComment() {
   });
 
   if (error) {
-    console.error("submitComment error:", error);
-    alert("Could not post comment.");
+    console.error("modal_add_comment_v1 error:", error);
     return;
   }
 
@@ -288,9 +276,8 @@ async function submitComment() {
   loadComments(MODAL_ACTIVE_STORE_ID, MODAL_LOAD_SEQ);
 }
 
-
 // ============================================================
-// EVENTS (bound once)
+// EVENTS (BOUND ONCE)
 // ============================================================
 
 function bindEvents() {
@@ -298,39 +285,33 @@ function bindEvents() {
   MODAL_EVENTS_BOUND = true;
 
   document.addEventListener("click", async (e) => {
-    // Close
-    if (e.target.closest(".modal-close") || e.target.classList.contains("modal-backdrop")) {
+
+    if (e.target.closest(".modal-close") ||
+        e.target.classList.contains("modal-backdrop")) {
       closeModal();
       return;
     }
 
-    // Submit rating
     if (e.target.closest("#modalSendRating")) {
       await saveRating();
       return;
     }
 
-    // Submit comment
     if (e.target.closest("#modalSendComment")) {
       await submitComment();
       return;
     }
 
-    // Delete comment
-   const del = e.target.closest(".modal-comment-delete");
-if (del && del.dataset.id) {
-  const { error } = await supabase.rpc("modal_delete_comment_v1", {
-    p_comment_id: Number(del.dataset.id),
-  });
+    const del = e.target.closest(".modal-comment-delete");
+    if (del && del.dataset.id) {
+      const { error } = await supabase.rpc("modal_delete_comment_v1", {
+        p_comment_id: Number(del.dataset.id),
+      });
 
-      if (error) {
-        console.error("delete comment error:", error);
-        return;
+      if (!error) {
+        MODAL_LOAD_SEQ++;
+        loadComments(MODAL_ACTIVE_STORE_ID, MODAL_LOAD_SEQ);
       }
-
-      MODAL_LOAD_SEQ++;
-      loadComments(MODAL_ACTIVE_STORE_ID, MODAL_LOAD_SEQ);
-      return;
     }
   });
 
@@ -338,13 +319,13 @@ if (del && del.dataset.id) {
     if (e.key === "Escape") closeModal();
   });
 
-  // Stars
   const picker = modalStarPicker();
   if (picker) {
     picker.querySelectorAll("span").forEach((star) => {
       star.addEventListener("click", () => {
         const val = Number(star.dataset.val) || 0;
-        MODAL_USER_TEMP_RATING = MODAL_USER_TEMP_RATING === val ? 0 : val;
+        MODAL_USER_TEMP_RATING =
+          MODAL_USER_TEMP_RATING === val ? 0 : val;
         highlightStars(MODAL_USER_TEMP_RATING);
       });
     });
