@@ -740,18 +740,21 @@ async function loadModalComments(store_id, seq) {
 
   const comments = data || [];
 
-  // Update count pill
   if (countEl) {
     countEl.textContent = `Comments ${comments.length}`;
   }
 
   if (!comments.length) return;
 
-  const userResp = await supabase.auth.getUser();
-  const currentUser = userResp.data.user;
+  const { data: authData } = await supabase.auth.getUser();
+  const currentUser = authData?.user;
+
+  const isAdmin = currentUser?.email === "YOUR_ADMIN_EMAIL_HERE";
 
   box.innerHTML = comments.map(c => {
+
     const isOwner = currentUser && c.user_id === currentUser.id;
+    const canDelete = isOwner || isAdmin;
 
     return `
       <div class="modal-comment">
@@ -766,9 +769,8 @@ async function loadModalComments(store_id, seq) {
             </span>
 
             ${
-              isOwner
-                ? `<button class="modal-comment-delete"
-                     data-id="${c.id}">
+              canDelete
+                ? `<button class="modal-comment-delete" data-id="${c.id}">
                      Delete
                    </button>`
                 : ""
@@ -777,12 +779,13 @@ async function loadModalComments(store_id, seq) {
         </div>
 
         <div class="modal-comment-text">
-          ${String(c.comment || "")}
+          ${c.comment || ""}
         </div>
       </div>
     `;
   }).join("");
 }
+
 
 
 async function submitModalComment() {
@@ -886,9 +889,31 @@ function bindModalEventsOnce() {
 }
 
 // ============================================================
+// DELETE COMMENT
+// ============================================================
+
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".modal-comment-delete");
+  if (!btn) return;
+
+  const id = btn.dataset.id;
+  if (!id) return;
+
+  const { error } = await supabase
+    .from("store_comments")
+    .delete()
+    .eq("id", id);
+
+  if (!error) {
+    MODAL_LOAD_SEQ++;
+    loadModalComments(MODAL_ACTIVE_STORE_ID, MODAL_LOAD_SEQ);
+  }
+});
+
+
+// ============================================================
 // INIT (DOM SAFE)
 // ============================================================
 document.addEventListener("DOMContentLoaded", () => {
   bindGridEventsOnce();
-  bindModalEventsOnce();
 });
