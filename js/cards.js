@@ -747,12 +747,23 @@ countEl.textContent = `Comments ${comments.length}`;
     return; // no empty-state box anymore
   }
 
-  box.innerHTML = comments.map(c => `
-    <div class="comment">
-      <p>${String(c.text || "")}</p>
-      <small>${new Date(c.created_at).toLocaleString()}</small>
+box.innerHTML = data.map(c => `
+  <div class="modal-comment">
+    <div class="modal-comment-header">
+      <span class="modal-comment-author">
+        ${c.user_display_name || "Anonymous"}
+      </span>
+      <span class="modal-comment-date">
+        ${new Date(c.created_at).toLocaleDateString()}
+      </span>
     </div>
-  `).join("");
+
+    <div class="modal-comment-text">
+      ${String(c.text || "")}
+    </div>
+  </div>
+`).join("");
+
 }
 
 async function submitModalComment() {
