@@ -800,11 +800,12 @@ async function submitModalComment() {
     return;
   }
 
-  const { error } = await supabase.from("store_comments").insert({
-    store_id: MODAL_ACTIVE_STORE_ID,
-    user_id: user.id,
-    text,
-  });
+const { error } = await supabase.from("store_comments").insert({
+  store_id: MODAL_ACTIVE_STORE_ID,
+  user_id: user.id,
+  comment: text,
+});
+
 
   if (error) {
     console.error("submitModalComment error:", error);
