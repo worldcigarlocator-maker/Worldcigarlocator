@@ -174,8 +174,7 @@ function cardHTML(s) {
 
   return `
   <article class="store-card" data-store-id="${s.id}">
-    <img src="${img}" class="store-img" loading="lazy"
-     
+    <img src="${img}" class="store-img" loading="lazy" />
 
     <div class="store-body">
       <h3 class="store-title">${s.name || "Unnamed"}</h3>
@@ -220,10 +219,18 @@ function renderCards(list) {
   LAST_RENDERED_STORES = list || [];
   grid.innerHTML = LAST_RENDERED_STORES.map(cardHTML).join("");
 
+  // 🔒 Image fallback (no inline JS)
+  grid.querySelectorAll(".store-img").forEach((img) => {
+    img.addEventListener("error", () => {
+      img.src = "images/store.jpg";
+    }, { once: true });
+  });
+
   grid.querySelectorAll(".store-card").forEach((card) => {
     VIEW_OBSERVER.observe(card);
   });
 }
+
 
 // ============================================================
 // GRID CLICK (DELEGATED)
