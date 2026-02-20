@@ -298,34 +298,3 @@ function bindSidebarEvents() {
     }
   });
 }
-// ============================================================
-// GRID CLICK (DELEGATED)
-// ============================================================
-
-let GRID_BOUND = false;
-
-function bindGrid() {
-  if (GRID_BOUND) return;
-  GRID_BOUND = true;
-
-  const grid = dom("#storeGrid");
-  if (!grid) return;
-
-  grid.addEventListener("click", (e) => {
-    const card = e.target.closest(".store-card");
-    if (!card) return;
-
-    const id = Number(card.dataset.storeId);
-    if (!id) return;
-
-    openModal(id);
-  });
-}
-
-// ============================================================
-// INIT
-// ============================================================
-
-document.addEventListener("DOMContentLoaded", () => {
-  bindGrid();
-});
