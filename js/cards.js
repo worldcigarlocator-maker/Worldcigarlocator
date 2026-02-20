@@ -190,23 +190,56 @@ function renderCards(list, append = false) {
   ensureLoadMoreButton();
 }
 
-// ============================================================
-// CARD HTML
-// ============================================================
+function buildStars(avg, count) {
+  const v = Number(avg) || 0;
+  const full = "★".repeat(Math.round(v));
+  const empty = "☆".repeat(5 - Math.round(v));
+
+  return `
+    <div class="stars-row">
+      <span class="stars">${full}${empty}</span>
+      <span class="rating-count">(${count || 0})</span>
+    </div>
+  `;
+}
 
 function cardHTML(s) {
   const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
 
+  const address =
+    s.address?.includes(",")
+      ? s.address.split(",")[0] + "…"
+      : s.address || "—";
+
   return `
   <article class="store-card" data-store-id="${s.id}">
-    <img src="${img}" class="store-img" loading="lazy" />
+    <img src="${img}" class="store-img" loading="lazy"
+      onerror="this.onerror=null;this.src='images/store.jpg'" />
+
     <div class="store-body">
-      <h3>${s.name || "Unnamed"}</h3>
-      <div>${buildBadges(s)}</div>
-      <div>⭐ ${s.rating_avg || 0} (${s.rating_count || 0})</div>
-      <div>${flag ? `<img src="${flag}" class="flag"/>` : ""}${s.city || ""}</div>
-      <button class="reviews-btn">(${s.comment_count || 0})</button>
+      <h3 class="store-title">${s.name || "Unnamed"}</h3>
+
+      <div class="badge-row">${buildBadges(s)}</div>
+
+      ${buildStars(s.rating_avg, s.rating_count)}
+
+      <div class="locrow">
+        <div class="loc-top">
+          ${flag ? `<img src="${flag}" class="flag" />` : ""}
+          <span>${[s.continent, s.country].filter(Boolean).join(", ")}</span>
+        </div>
+        <p class="city-label">${s.city || ""}</p>
+      </div>
+
+      <div class="infoblock">
+        <p><strong>Address:</strong> ${address}</p>
+        <p><strong>Phone:</strong> ${s.phone || "—"}</p>
+      </div>
+
+      <button class="reviews-btn" type="button">
+        (${s.comment_count || 0})
+      </button>
     </div>
   </article>
   `;
