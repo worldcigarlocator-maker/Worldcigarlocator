@@ -113,7 +113,7 @@
   margin-bottom: 4px;   /* var 6px */
 }
 
-/* ============================================================
+//* ============================================================
    BADGES — BACKEND MATCHING (Store / Lounge / Access)
    ============================================================ */
 
@@ -129,31 +129,33 @@
   white-space: nowrap;
 }
 
-/* Store badge */
+/* Store badge — BLUE */
 .badge-store {
-  background: #2c7be5;
+  background: #2c7be5;   /* blå (behåll) */
   color: #fff;
 }
 
-/* Lounge badge */
+/* Lounge badge — GREEN */
 .badge-lounge {
-  background: #9c27b0;
+  background: #22C55E;   /* grön */
   color: #fff;
 }
 
-/* Access badges */
+/* Access base */
 .badge-access {
   background: #555;
   color: #fff;
 }
 
+/* Public — GRAY */
 .badge-access-public {
-  background: #2e7d32;   /* green */
+  background: #6b7280;   /* neutral grå */
   color: #fff;
 }
 
+/* Members — PURPLE */
 .badge-access-members {
-  background: #b76e05;   /* gold-ish */
+  background: #8B5CF6;   /* lila */
   color: #fff;
 }
 
@@ -162,7 +164,7 @@
   display: flex;
   gap: 0.35rem;
   height: 22px;
-margin-top: 2px;
+  margin-top: 2px;
   margin-bottom: 10px;
   overflow: hidden;
   align-items: center;
