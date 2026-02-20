@@ -267,45 +267,31 @@ color: rgba(var(--global), 0.85);
    ============================================================ */
 
 .infoblock {
-  margin-top: 8px;               /* mer luft ovanför blocket */
-  flex-shrink: 0;
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .info-row {
   display: flex;
-  align-items: center;
-  height: 18px;                  /* lite högre än innan (16px) för mer luft */
-  line-height: 18px;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.info-label {
+  color: var(--gold);          /* global accent */
+  font-size: 0.85rem;          /* 1 steg mindre */
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 0.75rem;          /* 3 steg mindre */
+  color: rgba(255,255,255,0.75);
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 4px;            /* MER RADLUFT */
+  text-overflow: ellipsis;     /* EN RAD */
 }
-
-.info-row strong {
-  width: 70px;                   /* 🟩 PERFECT COLUMN WIDTH */
-  flex-shrink: 0;                
-  color: #ffffff;
-  font-weight: 600;
-  margin-right: 4px;
-}
-
-/* Mindre text för värdena */
-.info-row span,
-.info-row a {
-  font-size: 0.77rem;            /* två steg mindre än rubriker */
-  color: #ddd;
-}
-
-.info-row a {
-  color: rgb(var(--global));
-  text-decoration: none;
-}
-
-.info-row a:hover {
-  text-decoration: underline;
-}
-
 
 /* ============================================================
    COMMENTS BUTTON
