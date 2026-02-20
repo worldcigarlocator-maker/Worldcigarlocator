@@ -13,6 +13,7 @@ import {
   clearLocationMaster,
   toggleChip,
   resetToHero,
+  setSort
 } from "./cards.js";
 
 // ------------------------------------------------------------
@@ -136,6 +137,14 @@ document.addEventListener("DOMContentLoaded", () => {
       toggleChip({ access: value });
     }
   });
+
+  // ============================================================
+  // SORT SELECT
+  // ============================================================
+  const sortSelect = qs("#sortSelect");
+
+  sortSelect?.addEventListener("change", (e) => {
+    setSort(e.target.value);
+  });
+
 });
-
-
