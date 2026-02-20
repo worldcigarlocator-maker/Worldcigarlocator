@@ -105,47 +105,37 @@
     <main class="main">
 
       <!-- ================= SEARCH ================= -->
-      <div class="search-shell">
-        <div class="search-capsule">
+      <div class="search-capsule">
 
-          <!-- ZONE 1 — SEARCH -->
-          <div class="search-zone zone-search" id="searchZone">
-            <span class="search-label">Search</span>
-            <input
-              id="searchInput"
-              type="text"
-              placeholder="e.g. London, New York, Bangkok"
-              autocomplete="off"
-            />
-          </div>
+  <!-- LEFT — SEARCH -->
+  <div class="search-zone zone-search" id="searchZone">
+    <span class="search-label">Search</span>
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="e.g. London, New York, Bangkok"
+      autocomplete="off"
+    />
+  </div>
 
-          <div class="search-divider"></div>
+  <!-- CENTER — COUNT -->
+  <div class="search-zone zone-count">
+    <span id="searchCount"></span>
+  </div>
 
-          <!-- ZONE 2 — FILTERS -->
-     <div class="search-zone zone-controls" id="searchControls">
-  <button class="control-btn" data-filter="type" data-value="store">Stores</button>
-  <button class="control-btn" data-filter="type" data-value="lounge">Lounge</button>
-  <button class="control-btn" data-filter="access" data-value="members">Members</button>
-  <button class="control-btn" data-sort="rating_desc">Highest ranked</button>
-  <button class="control-btn" data-sort="newest">Newest</button>
+  <!-- RIGHT — FILTERS + SORT + ACTIONS -->
+  <div class="search-zone zone-controls" id="searchControls">
+    <button class="control-btn" data-filter="type" data-value="store">Stores</button>
+    <button class="control-btn" data-filter="type" data-value="lounge">Lounge</button>
+    <button class="control-btn" data-filter="access" data-value="members">Members</button>
+
+    <button class="control-btn sort-btn" data-sort="rating_desc">Highest ranked</button>
+    <button class="control-btn sort-btn" data-sort="newest">Newest</button>
+
+    <button class="clear-btn" id="clearBtn" aria-label="Clear search">✕</button>
+  </div>
+
 </div>
-
-          <div class="search-divider"></div>
-
-          <!-- ZONE 3 — ACTIONS -->
-          <div class="search-zone zone-actions">
-            <button class="search-icon" id="searchBtn" aria-label="Run search">
-              <svg viewBox="0 0 140 140" aria-hidden="true">
-                <circle cx="60" cy="60" r="44" />
-                <line x1="92" y1="92" x2="130" y2="130" />
-              </svg>
-            </button>
-
-            <button class="clear-btn" id="clearBtn" aria-label="Clear search">✕</button>
-          </div>
-
-        </div>
-      </div>
 
       <!-- ================= HERO ================= -->
       <section class="hero" id="heroImage">
