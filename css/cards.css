@@ -473,4 +473,23 @@ mark.hl {
    Modal handled exclusively by modal.css
    ============================================================ */
 
+/* ============================================================
+   VISIT LINK
+============================================================ */
 
+.visit-link {
+  margin-top: 6px;
+}
+
+.visit-link a {
+  color: #3b82f6;              /* tydlig blå */
+  text-decoration: underline;  /* ser ut som riktig länk */
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.visit-link a:hover {
+  opacity: 0.75;
+}
