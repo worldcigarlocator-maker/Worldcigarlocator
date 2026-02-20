@@ -1,5 +1,5 @@
 // ============================================================
-// CARDS.JS — WCL FRONTEND (DISCOVERY + SORT READY)
+// CARDS.JS — WCL FRONTEND (DISCOVERY + SORT READY · v5)
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -40,10 +40,6 @@ let LAST_CURSOR = null;
 let HAS_MORE = true;
 const PAGE_SIZE = 50;
 
-export function getLastRenderedStores() {
-  return LAST_RENDERED_STORES;
-}
-
 function resetPagination() {
   LAST_CURSOR = null;
   HAS_MORE = true;
@@ -64,23 +60,53 @@ function updateCursor(list) {
 }
 
 // ============================================================
+// COUNT MANAGEMENT (GLOBAL + SEARCH)
+// ============================================================
+
+let GLOBAL_TOTAL = null;
+
+async function loadGlobalTotal() {
+  if (GLOBAL_TOTAL !== null) return;
+
+  const { count, error } = await supabase
+    .from("stores_frontend_public_v5")
+    .select("*", { count: "exact", head: true });
+
+  if (!error && typeof count === "number") {
+    GLOBAL_TOTAL = count;
+    updateSearchCount(GLOBAL_TOTAL);
+  }
+}
+
+function updateSearchCount(value) {
+  const el = dom("#searchCount");
+  if (!el) return;
+
+  if (typeof value !== "number") {
+    el.textContent = "";
+    return;
+  }
+
+  el.textContent = value.toLocaleString("en-US");
+}
+
+// ============================================================
 // HERO RESET
 // ============================================================
 
 export function resetToHero() {
   const grid = dom("#storeGrid");
-  const heading = dom("#resultHeading");
   const hero = dom("#heroImage");
 
   if (grid) grid.innerHTML = "";
-  if (heading) {
-    heading.style.display = "none";
-    heading.textContent = "";
-  }
   if (hero) hero.style.display = "block";
 
   resetPagination();
   LAST_RENDERED_STORES = [];
+
+  if (MASTER_MODE === MASTER.IDLE) {
+    updateSearchCount(GLOBAL_TOTAL);
+  }
 }
 
 // ============================================================
@@ -117,10 +143,18 @@ function snapshot() {
 // FILTER API
 // ============================================================
 
-export function activateSearch({ text = "" } = {}) {
+export function activateSearch({ text = "", sort } = {}) {
   MASTER_MODE = MASTER.SEARCH;
   clearLocation();
-  STATE.search.text = text;
+
+  if (text !== undefined) {
+    STATE.search.text = text;
+  }
+
+  if (sort) {
+    SORT_MODE = sort;
+  }
+
   resetPagination();
   runSearch();
 }
@@ -202,6 +236,7 @@ function buildStars(avg, count) {
     </div>
   `;
 }
+
 function cardHTML(s) {
   const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
@@ -212,11 +247,8 @@ function cardHTML(s) {
       onerror="this.onerror=null;this.src='images/store.jpg'" />
 
     <div class="store-body">
-
-      <!-- TITLE -->
       <h3 class="store-title">${s.name || "Unnamed"}</h3>
 
-      <!-- LOCATION -->
       <div class="locrow">
         <div class="loc-top">
           ${flag ? `<img src="${flag}" class="flag" />` : ""}
@@ -225,28 +257,23 @@ function cardHTML(s) {
         <p class="city-label">${s.city || ""}</p>
       </div>
 
-      <!-- STARS -->
       ${buildStars(s.rating_avg, s.rating_count)}
 
-      <!-- BADGES -->
       <div class="badge-row">
         ${buildBadges(s)}
       </div>
 
-      <!-- ADDRESS + PHONE -->
       <div class="infoblock">
         <div class="info-row">
           <span class="info-label">Address</span>
           <span class="info-value">${s.address || "—"}</span>
         </div>
-
         <div class="info-row">
           <span class="info-label">Phone</span>
           <span class="info-value">${s.phone || "—"}</span>
         </div>
       </div>
 
-      <!-- VISIT -->
       ${
         s.website
           ? `<div class="visit-link">
@@ -257,15 +284,14 @@ function cardHTML(s) {
           : ""
       }
 
-      <!-- COMMENT BUTTON -->
       <button class="reviews-btn" type="button">
         Comment (${s.comment_count || 0})
       </button>
-
     </div>
   </article>
   `;
 }
+
 // ============================================================
 // LOAD MORE
 // ============================================================
@@ -305,7 +331,7 @@ async function loadStores(filters = {}) {
     p_city: filters.city || null,
     p_limit: PAGE_SIZE,
     p_cursor: LAST_CURSOR,
-    p_sort: SORT_MODE
+    p_sort: SORT_MODE,
   });
 
   if (error) return { error };
@@ -318,7 +344,6 @@ async function loadStores(filters = {}) {
 
 export async function runSearch(isLoadMore = false) {
   const snap = snapshot();
-  const heading = dom("#resultHeading");
 
   if (
     snap.master === MASTER.IDLE &&
@@ -327,33 +352,27 @@ export async function runSearch(isLoadMore = false) {
     !hasAnyChips()
   ) {
     resetToHero();
+    updateSearchCount(GLOBAL_TOTAL);
     return;
   }
 
   if (!isLoadMore) resetPagination();
 
-  if (heading && !isLoadMore) {
-    heading.textContent = "Loading…";
-    heading.style.display = "block";
-  }
-
   const resp = await loadStores(snap);
-  if (!resp || resp.error) {
-    if (heading) heading.textContent = "Error loading results";
-    return;
-  }
+  if (!resp || resp.error) return;
 
   const rows = resp.data || [];
   updateCursor(rows);
 
   renderCards(rows, isLoadMore);
 
-  if (heading && !isLoadMore) {
-    heading.textContent = `${LAST_RENDERED_STORES.length} results`;
+  if (!isLoadMore) {
+    updateSearchCount(LAST_RENDERED_STORES.length);
   }
 }
+
 // ============================================================
-// GRID CLICK (DELEGATED)
+// GRID CLICK
 // ============================================================
 
 let GRID_BOUND = false;
@@ -380,6 +399,8 @@ function bindGrid() {
 // INIT
 // ============================================================
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   bindGrid();
+  await loadGlobalTotal();
+  updateSearchCount(GLOBAL_TOTAL);
 });
