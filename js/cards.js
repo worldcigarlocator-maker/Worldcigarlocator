@@ -222,6 +222,18 @@ function cardHTML(s) {
 
       <div class="badge-row">${buildBadges(s)}</div>
 
+${
+  s.website
+    ? `<div class="visit-link">
+         <a href="${s.website}" target="_blank" rel="noopener">
+           Visit
+         </a>
+       </div>`
+    : ""
+}
+
+${buildStars(s.rating_avg, s.rating_count)}
+
       ${buildStars(s.rating_avg, s.rating_count)}
 
       <div class="locrow">
