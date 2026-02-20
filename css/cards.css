@@ -259,11 +259,10 @@ color: rgba(var(--global), 0.85);
 
 .city-label {
   margin-top: 2px;
-    margin-bottom: 6px;   /* lite mer luft före stars */
+  margin-bottom: 6px;
   font-size: 0.95rem;
-  font-weight: 600;
-  color: rgb(var(--global));
-  line-height: 18px;
+  color: #ffffff;          /* ← ändra till vit */
+  font-weight: 500;        /* subtil vikt, inte bold */
 }
 
 /* ============================================================
