@@ -73,6 +73,12 @@
 }
 
 #searchInput::placeholder {
+  color: rgba(255,255,255,0.45);
+  font-size: 0.85rem;   /* 🔑 mindre */
+  font-weight: 400;
+}
+
+#searchInput::placeholder {
   color: rgba(255,255,255,0.55);
   font-weight: 400;
 }
