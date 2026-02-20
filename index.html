@@ -155,7 +155,16 @@
       </section>
 
       <!-- ================= RESULTS ================= -->
-      <h2 id="resultHeading" style="display:none"></h2>
+      <div class="results-toolbar">
+  <h2 id="resultHeading"></h2>
+        
+  <select id="sortSelect" class="sort-select">
+    <option value="relevance">Relevance</option>
+    <option value="rating_desc">Highest rated</option>
+    <option value="newest">Newest</option>
+  </select>
+</div>
+
       <div id="storeGrid"></div>
 
     </main>
