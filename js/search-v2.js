@@ -24,12 +24,11 @@ const qs = (sel) => document.querySelector(sel);
 // Boot
 // ------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-  const input     = qs("#searchInput");
-  const searchBtn = qs("#searchBtn");
-  const clearBtn  = qs("#clearBtn");
-  const zone      = qs("#searchZone");
-  const label     = qs(".search-label");
-  const filters   = qs("#searchFilters");
+  const input    = qs("#searchInput");
+  const clearBtn = qs("#clearBtn");
+  const zone     = qs("#searchZone");
+  const label    = qs(".search-label");
+  const controls = qs("#searchControls");
 
   if (!input) {
     console.warn("❌ searchInput not found");
@@ -86,23 +85,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key !== "Enter") return;
 
     const text = input.value.trim();
+
     if (!text) {
       clearSearchMaster();
       return;
     }
 
-    activateSearch({ text });
-  });
-
-  // ============================================================
-  // SEARCH ICON CLICK
-  // ============================================================
-  searchBtn?.addEventListener("click", () => {
-    const text = input.value.trim();
-    if (!text) {
-      clearSearchMaster();
-      return;
-    }
     activateSearch({ text });
   });
 
@@ -112,17 +100,21 @@ document.addEventListener("DOMContentLoaded", () => {
   clearBtn?.addEventListener("click", () => {
     input.value = "";
 
-    clearSearchMaster();     // search → idle
-    clearLocationMaster();   // sidebar / geo → idle
-    resetToHero();           // 🔑 home / hero
+    clearSearchMaster();   // search → idle
+    clearLocationMaster(); // sidebar / geo → idle
+    resetToHero();         // hero
 
     input.focus();
   });
-  filters?.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-filter]");
+
+  // ============================================================
+  // FILTERS & SORT (INLINE CONTROLS)
+  // ============================================================
+  controls?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-filter], [data-sort]");
     if (!btn) return;
 
-    const { filter, value } = btn.dataset;
+    const { filter, value, sort } = btn.dataset;
 
     if (filter === "type") {
       toggleChip({ type: value });
@@ -131,6 +123,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (filter === "access") {
       toggleChip({ access: value });
     }
+
+    if (sort) {
+      activateSearch({ sort });
+    }
   });
 
-});   
+});
