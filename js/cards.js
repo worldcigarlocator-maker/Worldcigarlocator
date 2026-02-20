@@ -205,11 +205,8 @@ function buildStars(avg, count) {
 function cardHTML(s) {
   const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
-
-  const address =
-    s.address?.includes(",")
-      ? s.address.split(",")[0] + "…"
-      : s.address || "—";
+  
+const address = s.address || "—";
 
   return `
   <article class="store-card" data-store-id="${s.id}">
@@ -232,10 +229,17 @@ function cardHTML(s) {
         <p class="city-label">${s.city || ""}</p>
       </div>
 
-      <div class="infoblock">
-        <p><strong>Address:</strong> ${address}</p>
-        <p><strong>Phone:</strong> ${s.phone || "—"}</p>
-      </div>
+ <div class="infoblock">
+  <div class="info-row">
+    <span class="info-label">Address</span>
+    <span class="info-value">${address}</span>
+  </div>
+
+  <div class="info-row">
+    <span class="info-label">Phone</span>
+    <span class="info-value">${s.phone || "—"}</span>
+  </div>
+</div>
 
       ${
         s.website
