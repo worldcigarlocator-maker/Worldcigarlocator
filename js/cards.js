@@ -144,6 +144,24 @@ export function toggleChip({ type, access }) {
   runSearch();
 }
 
+export function clearSearchMaster() {
+  if (MASTER_MODE === MASTER.SEARCH) {
+    clearSearch();
+    MASTER_MODE = MASTER.IDLE;
+    resetPagination();
+    runSearch();
+  }
+}
+
+export function clearLocationMaster() {
+  if (MASTER_MODE === MASTER.LOCATION) {
+    clearLocation();
+    MASTER_MODE = MASTER.IDLE;
+    resetPagination();
+    runSearch();
+  }
+}
+
 export function setSort(mode) {
   SORT_MODE = mode || "relevance";
   resetPagination();
