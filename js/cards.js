@@ -205,8 +205,6 @@ function buildStars(avg, count) {
 function cardHTML(s) {
   const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
-  
-const address = s.address || "—";
 
   return `
   <article class="store-card" data-store-id="${s.id}">
@@ -215,12 +213,10 @@ const address = s.address || "—";
 
     <div class="store-body">
 
+      <!-- TITLE -->
       <h3 class="store-title">${s.name || "Unnamed"}</h3>
 
-      <div class="badge-row">${buildBadges(s)}</div>
-
-      ${buildStars(s.rating_avg, s.rating_count)}
-
+      <!-- LOCATION -->
       <div class="locrow">
         <div class="loc-top">
           ${flag ? `<img src="${flag}" class="flag" />` : ""}
@@ -229,26 +225,28 @@ const address = s.address || "—";
         <p class="city-label">${s.city || ""}</p>
       </div>
 
-<div class="infoblock">
+      <!-- STARS -->
+      ${buildStars(s.rating_avg, s.rating_count)}
 
-  <div class="info-row">
-    <span class="info-label">Address</span>
-    <span class="info-value">${s.address || "—"}</span>
-  </div>
+      <!-- BADGES -->
+      <div class="badge-row">
+        ${buildBadges(s)}
+      </div>
 
-  <div class="info-row">
-    <span class="info-label">Phone</span>
-    <span class="info-value">${s.phone || "—"}</span>
-  </div>
+      <!-- ADDRESS + PHONE -->
+      <div class="infoblock">
+        <div class="info-row">
+          <span class="info-label">Address</span>
+          <span class="info-value">${s.address || "—"}</span>
+        </div>
 
-</div>
+        <div class="info-row">
+          <span class="info-label">Phone</span>
+          <span class="info-value">${s.phone || "—"}</span>
+        </div>
+      </div>
 
-  <div class="info-row">
-    <span class="info-label">Phone</span>
-    <span class="info-value">${s.phone || "—"}</span>
-  </div>
-</div>
-
+      <!-- VISIT -->
       ${
         s.website
           ? `<div class="visit-link">
@@ -259,6 +257,7 @@ const address = s.address || "—";
           : ""
       }
 
+      <!-- COMMENT BUTTON -->
       <button class="reviews-btn" type="button">
         Comment (${s.comment_count || 0})
       </button>
@@ -267,7 +266,6 @@ const address = s.address || "—";
   </article>
   `;
 }
-
 // ============================================================
 // LOAD MORE
 // ============================================================
