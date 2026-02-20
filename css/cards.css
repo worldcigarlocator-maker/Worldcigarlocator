@@ -219,6 +219,7 @@ margin-top: 2px;
   display: flex;
   align-items: center;
   gap: 0.35rem;
+    margin-top: 2px;
   margin-bottom: 8px;
 }
 
@@ -258,7 +259,8 @@ color: rgba(var(--global), 0.85);
 
 .city-label {
   margin-top: 2px;
-  font-size: 0.86rem;
+    margin-bottom: 6px;   /* lite mer luft före stars */
+  font-size: 0.95rem;
   font-weight: 600;
   color: rgb(var(--global));
   line-height: 18px;
