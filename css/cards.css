@@ -96,7 +96,7 @@
 }
 
 /* ============================================================
-   TITLE — 2 ROWS
+   TITLE — 1 ROW (LOCKED)
    ============================================================ */
 
 .store-title {
@@ -104,12 +104,13 @@
   font-weight: 700;
   color: rgb(var(--global));
   line-height: 1.25;
-  height: calc(1.25em * 2);
+
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;          /* ← ändrad från 2 till 1 */
   -webkit-box-orient: vertical;
   overflow: hidden;
-  margin: 0 0 6px 0;
+
+  margin-bottom: 4px;   /* var 6px */
 }
 
 /* ============================================================
@@ -161,7 +162,8 @@
   display: flex;
   gap: 0.35rem;
   height: 22px;
-  margin-bottom: 6px;
+margin-top: 2px;
+  margin-bottom: 10px;
   overflow: hidden;
   align-items: center;
 }
@@ -217,7 +219,7 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .stars {
@@ -235,7 +237,7 @@ color: rgba(var(--global), 0.85);
    ============================================================ */
 
 .locrow {
-  margin: 0 0 6px 0;
+ margin-bottom: 4px;   /* tightare */
 }
 
 .loc-top {
