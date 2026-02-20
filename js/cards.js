@@ -229,11 +229,19 @@ const address = s.address || "—";
         <p class="city-label">${s.city || ""}</p>
       </div>
 
- <div class="infoblock">
+<div class="infoblock">
+
   <div class="info-row">
     <span class="info-label">Address</span>
-    <span class="info-value">${address}</span>
+    <span class="info-value">${s.address || "—"}</span>
   </div>
+
+  <div class="info-row">
+    <span class="info-label">Phone</span>
+    <span class="info-value">${s.phone || "—"}</span>
+  </div>
+
+</div>
 
   <div class="info-row">
     <span class="info-label">Phone</span>
