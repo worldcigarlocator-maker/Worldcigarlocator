@@ -202,7 +202,6 @@ function buildStars(avg, count) {
     </div>
   `;
 }
-
 function cardHTML(s) {
   const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
@@ -218,21 +217,10 @@ function cardHTML(s) {
       onerror="this.onerror=null;this.src='images/store.jpg'" />
 
     <div class="store-body">
+
       <h3 class="store-title">${s.name || "Unnamed"}</h3>
 
       <div class="badge-row">${buildBadges(s)}</div>
-
-${
-  s.website
-    ? `<div class="visit-link">
-         <a href="${s.website}" target="_blank" rel="noopener">
-           Visit
-         </a>
-       </div>`
-    : ""
-}
-
-${buildStars(s.rating_avg, s.rating_count)}
 
       ${buildStars(s.rating_avg, s.rating_count)}
 
@@ -249,9 +237,20 @@ ${buildStars(s.rating_avg, s.rating_count)}
         <p><strong>Phone:</strong> ${s.phone || "—"}</p>
       </div>
 
+      ${
+        s.website
+          ? `<div class="visit-link">
+               <a href="${s.website}" target="_blank" rel="noopener">
+                 Visit
+               </a>
+             </div>`
+          : ""
+      }
+
       <button class="reviews-btn" type="button">
-        (${s.comment_count || 0})
+        Comment (${s.comment_count || 0})
       </button>
+
     </div>
   </article>
   `;
