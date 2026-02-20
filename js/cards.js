@@ -40,6 +40,10 @@ let LAST_CURSOR = null;
 let HAS_MORE = true;
 const PAGE_SIZE = 50;
 
+export function getLastRenderedStores() {
+  return LAST_RENDERED_STORES;
+}
+
 function resetPagination() {
   LAST_CURSOR = null;
   HAS_MORE = true;
