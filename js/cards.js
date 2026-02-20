@@ -91,7 +91,7 @@ function updateSearchCount(value) {
     return;
   }
 
-  el.textContent = value.toLocaleString("en-US");
+  el.textContent = String(value); // 🔑 ingen tusentals-separator
 }
 
 // ============================================================
