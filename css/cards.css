@@ -281,7 +281,7 @@ color: rgba(var(--global), 0.85);
 }
 
 .info-label {
-  color: var(--gold);          /* global accent */
+   color: rgb(var(--global));         /* global accent */
   font-size: 0.85rem;          /* 1 steg mindre */
   font-weight: 500;
 }
