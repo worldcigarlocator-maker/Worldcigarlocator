@@ -118,10 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     input.focus();
   });
-
-  // ============================================================
-  // FILTER BUTTONS (chips only)
-  // ============================================================
   filters?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-filter]");
     if (!btn) return;
@@ -137,4 +133,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  
+});   
