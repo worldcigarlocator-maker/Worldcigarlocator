@@ -60,8 +60,8 @@
 }
 
 #searchInput {
-  flex: 1;
-  min-width: 0;
+  flex: 0 0 clamp(240px, 28vw, 420px); /* 🔑 stoppar expansion */
+  width: clamp(240px, 28vw, 420px);
 
   border: none;
   outline: none;
