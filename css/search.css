@@ -18,7 +18,8 @@
 .search-capsule {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 1.2rem;                 /* mindre gap */
 
   width: min(92vw, 1100px);
   min-width: 320px;
@@ -28,7 +29,7 @@
   border: 1px solid rgba(255,255,255,0.22);
   border-radius: 999px;
 
-  padding: 0 2.8rem; /* spacing replaces dividers */
+  padding: 0 2.2rem;           /* lite tightare */
 }
 
 /* ================= ZONES (BASE) ================= */
@@ -89,7 +90,7 @@
 
 .zone-count {
   flex: 0 0 auto;
-  margin: 0 1.2rem; /* subtle separation */
+  margin: 0 0.6rem; /* subtle separation */
 }
 
 #searchCount {
