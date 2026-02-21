@@ -220,14 +220,30 @@ export function activateSearch({ text = "", sort } = {}) {
 export function activateLocation(next) {
   MASTER_MODE = MASTER.LOCATION;
   clearSearch();
+
+  const isMajorChange =
+    next.continent || next.country || next.state;
+
+  if (isMajorChange) {
+    STATE.chips.type = null;
+    STATE.chips.access = null;
+
+    document.dispatchEvent(
+      new CustomEvent("wcl:clear-chips-ui")
+    );
+  }
+
   STATE.location = { ...STATE.location, ...next };
+
   resetPagination();
-  runSearch();
+
   document.dispatchEvent(
-  new CustomEvent("wcl:master-change", {
-    detail: { master: MASTER_MODE }
-  })
-);
+    new CustomEvent("wcl:master-change", {
+      detail: { master: MASTER_MODE }
+    })
+  );
+
+  runSearch();
 }
 
 export function toggleChip({ type, access }) {
