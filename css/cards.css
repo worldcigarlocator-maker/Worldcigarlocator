@@ -136,18 +136,17 @@
   color: #fff;
 }
 
-/* LOUNGE — GREEN */
+/* LOUNGE — PURPLE */
 .badge-lounge {
-  background: linear-gradient(180deg, #22c55e, #16a34a);
-  color: #fff;
-}
-
-/* PUBLIC — PURPLE */
-.badge-access-public {
   background: linear-gradient(180deg, #a855f7, #7e22ce);
   color: #fff;
 }
 
+/* PUBLIC — GREEN */
+.badge-access-public {
+  background: linear-gradient(180deg, #22c55e, #16a34a);
+  color: #fff;
+}
 /* MEMBERS — GRAY */
 .badge-access-members {
   background: linear-gradient(180deg, #6b7280, #4b5563);
