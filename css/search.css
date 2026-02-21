@@ -182,9 +182,10 @@
    FILTERS — ACTIVE (Outline Pill)
    ============================================================ */
 
-.control-btn.active:not(.sort-btn) {
-  border: 1px solid rgba(255,255,255,0.35);
-  color: #ffffff;
+.zone-controls .control-btn.active:not(.sort-btn) {
+  border: 1.5px solid rgba(var(--global), 1);
+  color: rgb(var(--global));
+  opacity: 1;
 }
 
 /* ============================================================
