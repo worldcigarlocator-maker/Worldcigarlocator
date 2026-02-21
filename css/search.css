@@ -32,20 +32,19 @@
 
 /* ================= ZONES ================= */
 
-.search-zone {
+.zone-search {
   display: flex;
   align-items: center;
-  height: 100%;
+  gap: 1.2rem;
 }
 
 /* ============================================================
    LEFT — SEARCH
    ============================================================ */
-.zone-search {
-  flex: 1;              /* 🔑 vänster block */
+.zone-controls {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  gap: 1.4rem;
 }
 
 .search-label {
@@ -81,8 +80,7 @@
    ============================================================ */
 
 .zone-count {
-  flex: 0 0 auto;
-  text-align: center;
+  margin: 0 auto;   /* 🔑 detta är lösningen */
 }
 
 #searchCount {
