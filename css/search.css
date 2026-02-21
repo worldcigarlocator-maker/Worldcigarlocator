@@ -104,12 +104,31 @@
    RIGHT — FILTERS · SORT · CLEAR
    ============================================================ */
 
-.zone-controls {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-  gap: 1.6rem;
-  white-space: nowrap;
+.zone-controls .clear-btn {
+  appearance: none;
+  -webkit-appearance: none;
+
+  border: 1.5px solid transparent;
+  padding: 4px 12px;
+
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+
+  color: rgb(var(--global));
+  opacity: 0.75;
+
+  border-radius: 999px;
+  cursor: pointer;
+  transition: opacity 0.18s ease, border 0.18s ease;
+}
+
+.zone-controls .clear-btn:hover {
+  opacity: 1;
+}
+
+.zone-controls .clear-btn.active {
+  border: 1.5px solid rgba(var(--global),1);
 }
 
 /* ============================================================
