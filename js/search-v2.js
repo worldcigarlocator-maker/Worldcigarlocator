@@ -97,15 +97,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
   // CLEAR BUTTON — FULL HOME RESET
   // ============================================================
-  clearBtn?.addEventListener("click", () => {
-    input.value = "";
+clearBtn?.addEventListener("click", () => {
+  input.value = "";
 
-    clearSearchMaster();   // search → idle
-    clearLocationMaster(); // sidebar / geo → idle
-    resetToHero();         // hero
+  clearSearchMaster();
+  clearLocationMaster();
+  resetToHero();
 
-    input.focus();
-  });
+  controls?.querySelectorAll(".active")
+    .forEach(el => el.classList.remove("active"));
+
+  input.focus();
+});
 
   // ============================================================
   // FILTERS & SORT (INLINE CONTROLS)
