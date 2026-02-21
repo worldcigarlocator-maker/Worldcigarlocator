@@ -207,6 +207,13 @@ export function activateSearch({ text = "", sort } = {}) {
   }
 
   resetPagination();
+
+  document.dispatchEvent(
+    new CustomEvent("wcl:master-change", {
+      detail: { master: MASTER_MODE }
+    })
+  );
+
   runSearch();
 }
 
@@ -216,6 +223,11 @@ export function activateLocation(next) {
   STATE.location = { ...STATE.location, ...next };
   resetPagination();
   runSearch();
+  document.dispatchEvent(
+  new CustomEvent("wcl:master-change", {
+    detail: { master: MASTER_MODE }
+  })
+);
 }
 
 export function toggleChip({ type, access }) {
