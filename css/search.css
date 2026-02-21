@@ -18,8 +18,6 @@
 .search-capsule {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 0.6rem;                   /* 🔑 tight between search + count */
 
   width: min(92vw, 1100px);
   min-width: 320px;
@@ -43,9 +41,8 @@
 /* ============================================================
    LEFT — SEARCH
    ============================================================ */
-
 .zone-search {
-  flex: 1;     /* 🔑 tar naturligt utrymme */
+  flex: 1;              /* 🔑 vänster block */
   display: flex;
   align-items: center;
   gap: 1.2rem;
@@ -85,6 +82,7 @@
 
 .zone-count {
   flex: 0 0 auto;
+  text-align: center;
 }
 
 #searchCount {
@@ -101,8 +99,9 @@
    ============================================================ */
 
 .zone-controls {
-  margin-left: auto;          /* 🔑 pushes controls to right */
+  flex: 1;              /* 🔑 höger block */
   display: flex;
+  justify-content: flex-end;
   align-items: center;
   gap: 1.4rem;
 }
