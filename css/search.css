@@ -113,26 +113,24 @@
 }
 
 /* ============================================================
-   CONTROLS — BASE (GLOBAL COLOR LOCK)
+   CONTROLS — BASE
    ============================================================ */
 
 .zone-controls .control-btn {
   background: none;
-  border: none;
+  border: 1px solid transparent;   /* 🔑 förhindrar layout shift */
   padding: 4px 10px;
 
   font-family: "DM Sans", sans-serif;
   font-size: 0.9rem;
   font-weight: 500;
 
- color: rgb(var(--global));
-  opacity: 1;
-  box-shadow: 0 0 0 1px rgba(var(--global), 0.9);
-
+  color: rgb(var(--global));
+  opacity: 0.75;
 
   cursor: pointer;
   border-radius: 999px;
-  transition: opacity 0.18s ease, color 0.18s ease;
+  transition: opacity 0.18s ease, box-shadow 0.18s ease;
 }
 
 .zone-controls .control-btn:hover {
@@ -141,9 +139,8 @@
 
 /* FILTER ACTIVE — outline pill */
 .zone-controls .control-btn.active:not(.sort-btn) {
-  border: 1px solid rgb(var(--global));  /* 🔑 bronz outline */
-  color: rgb(var(--global));             /* 🔑 korrekt syntax */
   opacity: 1;
+  box-shadow: 0 0 0 1px rgba(var(--global), 0.9);
 }
 
 /* SORT ACTIVE — underline */
@@ -170,7 +167,7 @@
   padding: 0;
 
   font-size: 1rem;
-    color: rgb(var(--global));  /* inte var(--global) */
+  color: rgb(var(--global));
   opacity: 0.5;
 
   cursor: pointer;
