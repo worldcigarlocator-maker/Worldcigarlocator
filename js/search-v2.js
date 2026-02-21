@@ -116,24 +116,37 @@ controls?.addEventListener("click", (e) => {
 
   const { filter, value, sort } = btn.dataset;
 
-  // Remove active from same group
+  // FILTERS
   if (filter) {
+    const isActive = btn.classList.contains("active");
+
+    // Remove active from same group
     controls.querySelectorAll(`[data-filter="${filter}"]`)
       .forEach(el => el.classList.remove("active"));
 
-    btn.classList.add("active");
-
-    if (filter === "type") toggleChip({ type: value });
-    if (filter === "access") toggleChip({ access: value });
+    if (!isActive) {
+      btn.classList.add("active");
+      if (filter === "type") toggleChip({ type: value });
+      if (filter === "access") toggleChip({ access: value });
+    } else {
+      // Toggle off
+      toggleChip({ [filter]: value });
+    }
   }
 
+  // SORT
   if (sort) {
+    const isActive = btn.classList.contains("active");
+
     controls.querySelectorAll("[data-sort]")
       .forEach(el => el.classList.remove("active"));
 
-    btn.classList.add("active");
-
-    activateSearch({ sort });
+    if (!isActive) {
+      btn.classList.add("active");
+      activateSearch({ sort });
+    } else {
+      setSort("relevance");
+    }
   }
 });
 
