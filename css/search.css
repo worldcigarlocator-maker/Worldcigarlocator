@@ -74,7 +74,7 @@
 
 #searchInput::placeholder {
   color: rgba(255,255,255,0.45);
-  font-size: 0.85rem;   /* 🔑 mindre */
+  font-size: 0.80rem;   /* 🔑 mindre */
   font-weight: 400;
 }
 
