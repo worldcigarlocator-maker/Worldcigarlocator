@@ -87,7 +87,7 @@ function updateSearchCount(value) {
   if (!el) return;
 
   if (typeof value !== "number") {
-    el.textContent = "";
+    el.textContent = `(${value})`;
     return;
   }
 
