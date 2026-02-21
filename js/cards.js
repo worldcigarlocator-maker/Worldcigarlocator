@@ -160,30 +160,32 @@ function hasToken(list, token) {
 }
 
 function applyChipFilters(rows) {
-  const type = STATE.chips.type;       // "store" | "lounge" (expected)
-  const access = STATE.chips.access;   // "members" (expected)
+  const type = STATE.chips.type;
+  const access = STATE.chips.access;
 
   if (!type && !access) return rows || [];
 
   return (rows || []).filter((s) => {
-    // We try multiple common shapes without assuming one schema:
-    // - s.types: ["store","lounge"]
-    // - s.access: ["members"]
-    // - s.type / s.access: string
-    // - legacy booleans: s.is_store / s.is_lounge / s.is_members
-    const types = s?.types ?? s?.type;
-    const accesses = s?.access ?? s?.access_types ?? s?.access_type;
 
+    const types = Array.isArray(s.types)
+      ? s.types.map(t => String(t).toLowerCase())
+      : s.type
+        ? [String(s.type).toLowerCase()]
+        : [];
+
+    const accessVal = s.access
+      ? String(s.access).toLowerCase()
+      : null;
+
+    // 🔑 EXCLUSIVE TYPE LOGIC
     const typeOk =
       !type ||
-      hasToken(types, type) ||
-      (type === "store" && (s?.is_store === true)) ||
-      (type === "lounge" && (s?.is_lounge === true));
+      (type === "store" && types.length === 1 && types.includes("store")) ||
+      (type === "lounge" && types.length === 1 && types.includes("lounge"));
 
     const accessOk =
       !access ||
-      hasToken(accesses, access) ||
-      (access === "members" && (s?.is_members === true));
+      accessVal === access;
 
     return typeOk && accessOk;
   });
