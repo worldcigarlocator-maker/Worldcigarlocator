@@ -152,4 +152,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   });
 
+  // ============================================================
+// MASTER SYNC (SEARCH ↔ LOCATION)
+// ============================================================
+
+document.addEventListener("wcl:master-change", (e) => {
+  const { master } = e.detail || {};
+
+  if (master === "location") {
+    if (input) input.value = "";
+  }
+});
+
 });
