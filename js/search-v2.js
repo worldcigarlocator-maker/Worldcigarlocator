@@ -110,23 +110,31 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
   // FILTERS & SORT (INLINE CONTROLS)
   // ============================================================
-  controls?.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-filter], [data-sort]");
-    if (!btn) return;
+controls?.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-filter], [data-sort]");
+  if (!btn) return;
 
-    const { filter, value, sort } = btn.dataset;
+  const { filter, value, sort } = btn.dataset;
 
-    if (filter === "type") {
-      toggleChip({ type: value });
-    }
+  // Remove active from same group
+  if (filter) {
+    controls.querySelectorAll(`[data-filter="${filter}"]`)
+      .forEach(el => el.classList.remove("active"));
 
-    if (filter === "access") {
-      toggleChip({ access: value });
-    }
+    btn.classList.add("active");
 
-    if (sort) {
-      activateSearch({ sort });
-    }
-  });
+    if (filter === "type") toggleChip({ type: value });
+    if (filter === "access") toggleChip({ access: value });
+  }
+
+  if (sort) {
+    controls.querySelectorAll("[data-sort]")
+      .forEach(el => el.classList.remove("active"));
+
+    btn.classList.add("active");
+
+    activateSearch({ sort });
+  }
+});
 
 });
