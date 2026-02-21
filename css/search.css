@@ -19,7 +19,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 2.2rem;                 /* mindre gap */
+  gap: 1.2rem;                 /* mindre gap */
 
   width: min(92vw, 1100px);
   min-width: 320px;
@@ -85,7 +85,7 @@
 
 .zone-count {
   flex: 0 0 auto;
-  margin: 0 1.2rem; /* subtle separation */
+  margin: 0 0.6rem; /* subtle separation */
 }
 
 #searchCount {
