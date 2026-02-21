@@ -144,6 +144,51 @@ function snapshot() {
 }
 
 // ============================================================
+// CHIP FILTER (FRONTEND-OWNED · SAFE)
+// ============================================================
+
+function asArray(v) {
+  if (!v) return [];
+  if (Array.isArray(v)) return v.filter(Boolean);
+  if (typeof v === "string") return [v];
+  return [];
+}
+
+function hasToken(list, token) {
+  if (!token) return true;
+  return asArray(list).some((x) => String(x).toLowerCase() === String(token).toLowerCase());
+}
+
+function applyChipFilters(rows) {
+  const type = STATE.chips.type;       // "store" | "lounge" (expected)
+  const access = STATE.chips.access;   // "members" (expected)
+
+  if (!type && !access) return rows || [];
+
+  return (rows || []).filter((s) => {
+    // We try multiple common shapes without assuming one schema:
+    // - s.types: ["store","lounge"]
+    // - s.access: ["members"]
+    // - s.type / s.access: string
+    // - legacy booleans: s.is_store / s.is_lounge / s.is_members
+    const types = s?.types ?? s?.type;
+    const accesses = s?.access ?? s?.access_types ?? s?.access_type;
+
+    const typeOk =
+      !type ||
+      hasToken(types, type) ||
+      (type === "store" && (s?.is_store === true)) ||
+      (type === "lounge" && (s?.is_lounge === true));
+
+    const accessOk =
+      !access ||
+      hasToken(accesses, access) ||
+      (access === "members" && (s?.is_members === true));
+
+    return typeOk && accessOk;
+  });
+}
+// ============================================================
 // FILTER API
 // ============================================================
 
@@ -349,6 +394,7 @@ async function loadStores(filters = {}) {
 export async function runSearch(isLoadMore = false) {
   const snap = snapshot();
 
+  // IDLE → hero + global total
   if (
     snap.master === MASTER.IDLE &&
     !snap.search &&
@@ -365,12 +411,20 @@ export async function runSearch(isLoadMore = false) {
   const resp = await loadStores(snap);
   if (!resp || resp.error) return;
 
-  const rows = resp.data || [];
-  updateCursor(rows);
+  const rawRows = resp.data || [];
 
-  renderCards(rows, isLoadMore);
+  // Cursor måste baseras på RAW (inte filtrerade)
+  updateCursor(rawRows);
 
+  // Chips filtrerar frontend-side (modifiers)
+  const filteredRows = applyChipFilters(rawRows);
+
+  renderCards(filteredRows, isLoadMore);
+
+  // Count ska visa vad som faktiskt visas
   if (!isLoadMore) {
+    updateSearchCount(LAST_RENDERED_STORES.length);
+  } else {
     updateSearchCount(LAST_RENDERED_STORES.length);
   }
 }
