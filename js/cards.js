@@ -87,11 +87,11 @@ function updateSearchCount(value) {
   if (!el) return;
 
   if (typeof value !== "number") {
-    el.textContent = `(${value})`;
+    el.textContent = "";
     return;
   }
 
-  el.textContent = String(value); // 🔑 ingen tusentals-separator
+  el.textContent = `(${value})`;
 }
 
 // ============================================================
