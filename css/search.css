@@ -45,9 +45,10 @@
    ============================================================ */
 
 .zone-search {
-  flex: 0 0 auto;
+  flex: 1;     /* 🔑 tar naturligt utrymme */
+  display: flex;
+  align-items: center;
   gap: 1.2rem;
-  cursor: text;
 }
 
 .search-label {
@@ -59,8 +60,8 @@
 }
 
 #searchInput {
-  flex: 0 0 clamp(220px, 26vw, 380px);
-  width: clamp(220px, 26vw, 380px);
+  flex: 1 1 auto;      /* 🔑 får växa men inte dominera */
+  min-width: 120px;    /* 🔑 säkerhetsgräns */
 
   border: none;
   outline: none;
