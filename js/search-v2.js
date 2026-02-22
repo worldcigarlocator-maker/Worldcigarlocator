@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   syncSearchUI();
   mq.addEventListener("change", syncSearchUI);
+  
 
 zone?.addEventListener("click", () => {
   input.focus();
