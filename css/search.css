@@ -19,7 +19,6 @@
 .search-capsule {
   display: flex;
   align-items: center;
-  gap: 2rem;
 
   width: min(92vw, 1100px);
   min-width: 320px;
@@ -30,6 +29,37 @@
   border-radius: 999px;
 
   padding: 0 2.2rem;
+
+  overflow: hidden; /* 🔑 stoppar innehåll från att sticka ut */
+}
+
+/* ================= ZONES ================= */
+
+.search-zone {
+  display: flex;
+  align-items: center;
+}
+
+/* SEARCH flexar, resten auto */
+.zone-search {
+  gap: 1.2rem;
+  flex: 1 1 auto;   /* 🔑 tar tillgängligt utrymme */
+  min-width: 0;
+}
+
+/* FILTERS + CLEAR får inte trycka ut */
+.zone-filters,
+.zone-clear {
+  flex: 0 0 auto;
+}
+
+/* ================= DIVIDER ================= */
+
+.zone-divider {
+  width: 1px;
+  height: 38px; /* fast höjd = optiskt stabil */
+  background: rgba(255,255,255,0.28); /* starkare synlighet */
+  margin: 0 1.4rem;
 }
 
 /* ================= ZONES ================= */
@@ -140,10 +170,6 @@
 }
 
 /* ================= CLEAR ================= */
-
-.zone-clear {
-  margin-left: auto; /* 🔑 push clear to right edge */
-}
 
 .clear-btn {
   appearance: none;
