@@ -1,6 +1,6 @@
 /* ============================================================
    SIDEBAR.CSS — WCL
-   CANONICAL · REFINED STRUCTURE
+   CANONICAL · CLEAN STRUCTURE
    ============================================================ */
 
 /* ================= ROOT ================= */
@@ -41,13 +41,6 @@
 .sidebar-brand {
   display: flex;
   align-items: center;
-}
-
-.sidebar-brand-svg {
-  width: 180px;
-  height: auto;
-  display: block;
-  pointer-events: none;
 }
 
 /* ================= ACTIONS ================= */
@@ -98,24 +91,16 @@
   font-size: 0.8rem;
   font-weight: 500;
   color: rgb(var(--global));
-  opacity: 0.55;
+  opacity: 0.65;
 }
-
-/* ================= NAV SCROLL AREA ================= */
 
 /* ================= NAV SCROLL AREA ================= */
 
 #sidebarMenu {
   flex: 1;
   overflow-y: auto;
-
-  /* 🔑 Divider sitter HÄR och ligger fast */
-  border-top: 1px solid rgba(255,255,255,0.14);
-
-  /* 🔑 Flyttar ner hierarkin utan att flytta divider */
-  padding: 1.2rem 0 0.4rem;
+  padding: 0.4rem 0;
 }
-
 
 /* ================= BASE ROW ================= */
 
@@ -148,8 +133,13 @@
   border-top: 1px solid rgba(255,255,255,0.14);
   border-bottom: 1px solid rgba(255,255,255,0.14);
 
-  padding-top: 1rem;   /* 🔑 luft utan att flytta divider */
+  padding-top: 0.65rem;
   padding-bottom: 0.65rem;
+}
+
+/* 🔑 FLYTTA NER HIERARKIN UTAN ATT FLYTTA DIVIDER */
+#sidebarMenu > .node:first-child > .line.continent {
+  padding-top: 1.4rem;   /* justera 1.2–1.6 efter smak */
 }
 
 /* ================= COUNTRY ================= */
@@ -223,16 +213,6 @@
 
 .line.active .pill {
   color: rgba(255,255,255,0.75);
-}
-
-/* ================= FLAG ================= */
-
-.flag {
-  width: 16px;
-  height: 11px;
-  border-radius: 2px;
-  object-fit: cover;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
 }
 
 /* ================= FOOTER ================= */
