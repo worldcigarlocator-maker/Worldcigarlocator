@@ -1,18 +1,8 @@
 /* ============================================================
    SEARCH.CSS — WCL
-   3-ZONE ARCHITECTURE · CANONICAL v8
+   3-ZONE ARCHITECTURE · CANONICAL v9
    search | divider | filters | divider | clear
    ============================================================ */
-
-/* ================= WRAPPER ================= */
-
-.search-shell {
-  display: flex;
-  justify-content: center;
-  margin: 0;
-  position: relative;
-  z-index: 1;
-}
 
 /* ================= CAPSULE ================= */
 
@@ -21,7 +11,7 @@
   align-items: center;
 
   width: 100%;
-  max-width: 1100px;   /* 🔑 matchar content-axeln */
+  max-width: 1100px;
   min-width: 320px;
   height: clamp(52px, 6.5vh, 64px);
 
@@ -30,10 +20,11 @@
   border-radius: 999px;
 
   padding: 0 2.2rem;
+  margin: 0 auto;
 
-  margin: 0 auto;     /* 🔑 centrerar inom .main */
   overflow: hidden;
 }
+
 /* ================= ZONES ================= */
 
 .search-zone {
@@ -41,40 +32,29 @@
   align-items: center;
 }
 
-/* SEARCH flexar, resten auto */
+/* SEARCH takes remaining space */
+
 .zone-search {
+  display: flex;
+  align-items: center;
   gap: 1.2rem;
-  flex: 1 1 auto;   /* 🔑 tar tillgängligt utrymme */
+
+  flex: 1 1 auto;
   min-width: 0;
 }
 
-/* FILTERS + CLEAR får inte trycka ut */
+/* FILTERS + CLEAR stay fixed */
+
 .zone-filters,
 .zone-clear {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+
   flex: 0 0 auto;
 }
 
-/* ================= DIVIDER ================= */
-
-.zone-divider {
-  width: 1px;
-  height: 38px; /* fast höjd = optiskt stabil */
-  background: rgba(255,255,255,0.28); /* starkare synlighet */
-  margin: 0 1.4rem;
-}
-
-/* ================= ZONES ================= */
-
-.search-zone {
-  display: flex;
-  align-items: center;
-}
-
 /* ================= SEARCH ================= */
-
-.zone-search {
-  gap: 1.2rem;
-}
 
 .search-label {
   font-size: 1.2rem;
@@ -85,9 +65,8 @@
 }
 
 #searchInput {
-  min-width: 140px;
-  max-width: 420px;
-  width: 28vw;
+  flex: 1;
+  min-width: 0;
 
   border: none;
   outline: none;
@@ -97,6 +76,8 @@
   font-size: 0.95rem;
   font-weight: 600;
   color: #ffffff;
+
+  text-align: center;
 }
 
 #searchInput::placeholder {
@@ -109,18 +90,12 @@
 
 .zone-divider {
   width: 1px;
-  height: 60%;
-  background: rgba(255,255,255,0.18);
-  border-radius: 1px;
+  height: 38px;
+  background: rgba(255,255,255,0.28);
+  margin: 0 1.4rem;
 }
 
-/* ================= FILTERS ================= */
-
-.zone-filters {
-  gap: 1.4rem;
-}
-
-/* FILTER BUTTONS */
+/* ================= FILTER BUTTONS ================= */
 
 .control-btn {
   appearance: none;
@@ -214,18 +189,12 @@
   }
 
   .search-capsule {
-    width: 100%;
-    min-width: 0;
     padding: 0 1.6rem;
-    gap: 1.2rem;
   }
 
   #searchInput {
     width: 100%;
     font-size: 1rem;
-  }
-
-  .zone-clear {
-    margin-left: 0;
+    text-align: left;
   }
 }
