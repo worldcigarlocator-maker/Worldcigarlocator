@@ -39,19 +39,18 @@
   align-items: center;
   gap: 1.2rem;
 
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 0 0 auto;        /* 🔑 får inte krympa */
+  min-width: 420px;      /* 🔑 search alltid användbar */
 }
-
 /* FILTERS + CLEAR stay fixed */
 
-.zone-filters,
-.zone-clear {
+.zone-filters {
   display: flex;
   align-items: center;
   gap: 1.4rem;
 
-  flex: 0 0 auto;
+  flex: 1 1 auto;   /* 🔑 krymper först */
+  overflow: hidden;
 }
 
 /* ================= SEARCH ================= */
@@ -66,7 +65,8 @@
 
 #searchInput {
   flex: 1;
-  min-width: 0;
+  min-width: 200px;      /* 🔑 input aldrig för liten */
+  max-width: 420px;
 
   border: none;
   outline: none;
