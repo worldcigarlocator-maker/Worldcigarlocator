@@ -222,3 +222,30 @@
 .sidebar-footer a:hover {
   color: var(--gold);
 }
+
+/* ============================================================
+   SIDEBAR TOTAL (GLOBAL COUNT ZONE)
+   ============================================================ */
+
+.sidebar-total {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 1.6rem 0 1.4rem;
+
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+#sidebarGlobalCount {
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+
+  color: rgb(var(--global));   /* bronze */
+}
+
+.sidebar-menu {
+  padding-top: 0.6rem;
+}
