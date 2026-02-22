@@ -55,7 +55,7 @@ body {
    ============================================================ */
 
 .hero {
-  max-width: 1450px; /* 🔑 ~5% mindre */
+  max-width: 1390px; /* 🔑 ~5% mindre */
   margin: 2.8rem auto 0; /* 🔑 lite mer luft ovan */
   aspect-ratio: 16 / 9;
   border-radius: 18px;
