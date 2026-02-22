@@ -45,7 +45,7 @@ body {
 
 .main {
   margin-left: 260px;
-  padding: 2.5rem;
+  padding: 3.2rem 2.5rem 2.5rem; /* 🔑 mer top padding */
   width: calc(100% - 260px);
 }
 
@@ -55,8 +55,8 @@ body {
    ============================================================ */
 
 .hero {
-  max-width: 1600px;
-  margin: 2.2rem auto 0;   /* 🔑 DETTA ÄR NYCKELN */
+  max-width: 1520px; /* 🔑 ~5% mindre */
+  margin: 2.6rem auto 0; /* 🔑 lite mer luft ovan */
   aspect-ratio: 16 / 9;
   border-radius: 18px;
   overflow: hidden;
