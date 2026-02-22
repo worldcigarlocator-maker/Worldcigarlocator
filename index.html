@@ -107,7 +107,7 @@
       <!-- ================= SEARCH ================= -->
 <div class="search-capsule">
 
-  <!-- LEFT — SEARCH -->
+  <!-- SEARCH -->
   <div class="search-zone zone-search" id="searchZone">
     <span class="search-label">Search</span>
     <input
@@ -118,16 +118,25 @@
     />
   </div>
 
-  <!-- RIGHT — FILTERS -->
-  <div class="search-zone zone-controls" id="searchControls">
+  <div class="zone-divider"></div>
+
+  <!-- FILTERS -->
+  <div class="search-zone zone-filters" id="searchFilters">
     <button class="control-btn" data-filter="type" data-value="store">Stores</button>
     <button class="control-btn" data-filter="type" data-value="lounge">Lounge</button>
     <button class="control-btn" data-filter="access" data-value="members">Members</button>
 
     <button class="control-btn sort-btn" data-sort="rating_desc">Highest ranked</button>
     <button class="control-btn sort-btn" data-sort="newest">Newest</button>
+  </div>
 
-    <button class="clear-btn" id="clearBtn" aria-label="Clear search">Clear</button>
+  <div class="zone-divider"></div>
+
+  <!-- CLEAR -->
+  <div class="search-zone zone-clear">
+    <button class="clear-btn" id="clearBtn" aria-label="Clear search">
+      Clear
+    </button>
   </div>
 
 </div>
