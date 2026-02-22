@@ -25,26 +25,13 @@
 
   <!-- ============================================================
        LOGIN POPUP — FULLSCREEN AUTH GATE
-       MUST BE DIRECT CHILD OF <body>
-       ============================================================ -->
+  ============================================================ -->
   <div id="loginPopup" class="login-popup hidden">
     <div class="login-box">
-
       <h2>Login</h2>
 
-      <input
-        id="loginEmail"
-        type="email"
-        placeholder="Email"
-        autocomplete="email"
-      />
-
-      <input
-        id="loginPassword"
-        type="password"
-        placeholder="Password"
-        autocomplete="current-password"
-      />
+      <input id="loginEmail" type="email" placeholder="Email" autocomplete="email" />
+      <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
 
       <label class="remember">
         <input type="checkbox" id="rememberMe" />
@@ -55,13 +42,12 @@
         <span class="login-text">Login</span>
         <span id="loginSpinner" class="hidden">⏳</span>
       </button>
-
     </div>
   </div>
 
   <!-- ============================================================
-       APP (BLURRED + LOCKED UNTIL AUTH)
-       ============================================================ -->
+       APP
+  ============================================================ -->
   <div class="container">
 
     <!-- ================= SIDEBAR ================= -->
@@ -69,7 +55,6 @@
 
       <header class="sidebar-header">
 
-        <!-- BRAND -->
         <div class="sidebar-brand" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160">
             <text
@@ -85,7 +70,6 @@
           </svg>
         </div>
 
-        <!-- ACTIONS -->
         <div class="sidebar-actions">
           <button class="sidebar-btn">Login</button>
           <button class="sidebar-btn primary">Add Store</button>
@@ -105,41 +89,41 @@
     <main class="main">
 
       <!-- ================= SEARCH ================= -->
-<div class="search-capsule">
+      <div class="search-capsule">
 
-  <!-- SEARCH -->
-  <div class="search-zone zone-search" id="searchZone">
-    <span class="search-label">Search</span>
-    <input
-      id="searchInput"
-      type="text"
-      placeholder="e.g. London, New York, Bangkok"
-      autocomplete="off"
-    />
-  </div>
+        <!-- SEARCH -->
+        <div class="search-zone zone-search" id="searchZone">
+          <span class="search-label">Search</span>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="e.g. London, New York, Bangkok"
+            autocomplete="off"
+          />
+        </div>
 
-  <div class="zone-divider"></div>
+        <div class="zone-divider"></div>
 
-  <!-- FILTERS -->
-  <div class="search-zone zone-filters" id="searchFilters">
-    <button class="control-btn" data-filter="type" data-value="store">Stores</button>
-    <button class="control-btn" data-filter="type" data-value="lounge">Lounge</button>
-    <button class="control-btn" data-filter="access" data-value="members">Members</button>
+        <!-- FILTERS + SORT -->
+        <div class="search-zone zone-filters" id="searchControls">
+          <button class="control-btn" data-filter="type" data-value="store">Stores</button>
+          <button class="control-btn" data-filter="type" data-value="lounge">Lounge</button>
+          <button class="control-btn" data-filter="access" data-value="members">Members</button>
 
-    <button class="control-btn sort-btn" data-sort="rating_desc">Highest ranked</button>
-    <button class="control-btn sort-btn" data-sort="newest">Newest</button>
-  </div>
+          <button class="control-btn sort-btn" data-sort="rating_desc">Highest ranked</button>
+          <button class="control-btn sort-btn" data-sort="newest">Newest</button>
+        </div>
 
-  <div class="zone-divider"></div>
+        <div class="zone-divider"></div>
 
-  <!-- CLEAR -->
-  <div class="search-zone zone-clear">
-    <button class="clear-btn" id="clearBtn" aria-label="Clear search">
-      Clear
-    </button>
-  </div>
+        <!-- CLEAR -->
+        <div class="search-zone zone-clear">
+          <button class="clear-btn" id="clearBtn" aria-label="Clear search">
+            Clear
+          </button>
+        </div>
 
-</div>
+      </div>
 
       <!-- ================= HERO ================= -->
       <section class="hero" id="heroImage">
@@ -151,95 +135,83 @@
       </section>
 
       <!-- ================= RESULTS ================= -->
-<div class="results-toolbar">
-  <h2 id="resultHeading"></h2>
-</div>
-
-<div id="storeGrid"></div>
-      
-  <!-- ================= SCRIPTS ================= -->
-<script type="module" src="js/main.js"></script>
-<script type="module" src="js/search-v2.js"></script>
-
-
-  <!-- ============================================================
-     STORE MODAL — DETAILS / RATING / COMMENTS
-============================================================ -->
-<div id="storeModal" class="modal hidden">
-  <div class="modal-backdrop"></div>
-
-  <div class="modal-content">
-
-    <button class="modal-close">✕</button>
-
-    <!-- IMAGE -->
-    <img id="modalImg" class="modal-img" alt="" />
-
-    <div class="modal-body">
-
-      <!-- TITLE -->
-      <h2 id="modalName" class="modal-title"></h2>
-
-      <!-- LOCATION -->
-      <div class="modal-location">
-        <img id="modalFlag" class="flag" />
-        <span id="modalLocation"></span>
+      <div class="results-toolbar">
+        <h2 id="resultHeading"></h2>
       </div>
 
-      <!-- BADGES -->
-      <div id="modalBadges" class="modal-badges"></div>
+      <div id="storeGrid"></div>
 
-      <!-- INFO -->
-      <div class="modal-info">
-        <p><strong>Address:</strong> <span id="modalAddress"></span></p>
-        <p><strong>Phone:</strong> <span id="modalPhone"></span></p>
-        <p>
-          <a id="modalWebsite" href="#" target="_blank" rel="noopener">
-            Visit website
-          </a>
-        </p>
-      </div>
+    </main>
 
-      <!-- RATING -->
-      <div class="modal-rating">
-        <h3>Your rating</h3>
-
-        <div id="modalStarPicker" class="star-picker">
-          <span data-val="1">☆</span>
-          <span data-val="2">☆</span>
-          <span data-val="3">☆</span>
-          <span data-val="4">☆</span>
-          <span data-val="5">☆</span>
-        </div>
-
-        <button id="modalSendRating">Submit rating</button>
-      </div>
-
-  <!-- COMMENTS -->
-<div class="modal-comments">
-
-  <div class="modal-comments-header">
-    <span id="modalCommentCount" class="modal-count-pill">
-      Comments 0
-    </span>
   </div>
 
-  <!-- WRITE COMMENT -->
-  <textarea
-    id="modalCommentInput"
-    placeholder="Write a comment…"
-  ></textarea>
+  <!-- ================= SCRIPTS ================= -->
+  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/search-v2.js"></script>
 
-  <button id="modalSendComment">Post comment</button>
+  <!-- ================= MODAL ================= -->
+  <div id="storeModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
 
-  <!-- COMMENT FEED -->
-  <div id="modalComments" class="modal-comments-feed"></div>
+    <div class="modal-content">
+      <button class="modal-close">✕</button>
 
-</div>
-  </div> <!-- .modal-comments -->
-    </div> <!-- .modal-body -->
-  </div> <!-- .modal-content -->
-</div> <!-- #storeModal -->
+      <img id="modalImg" class="modal-img" alt="" />
+
+      <div class="modal-body">
+        <h2 id="modalName" class="modal-title"></h2>
+
+        <div class="modal-location">
+          <img id="modalFlag" class="flag" />
+          <span id="modalLocation"></span>
+        </div>
+
+        <div id="modalBadges" class="modal-badges"></div>
+
+        <div class="modal-info">
+          <p><strong>Address:</strong> <span id="modalAddress"></span></p>
+          <p><strong>Phone:</strong> <span id="modalPhone"></span></p>
+          <p>
+            <a id="modalWebsite" href="#" target="_blank" rel="noopener">
+              Visit website
+            </a>
+          </p>
+        </div>
+
+        <div class="modal-rating">
+          <h3>Your rating</h3>
+
+          <div id="modalStarPicker" class="star-picker">
+            <span data-val="1">☆</span>
+            <span data-val="2">☆</span>
+            <span data-val="3">☆</span>
+            <span data-val="4">☆</span>
+            <span data-val="5">☆</span>
+          </div>
+
+          <button id="modalSendRating">Submit rating</button>
+        </div>
+
+        <div class="modal-comments">
+          <div class="modal-comments-header">
+            <span id="modalCommentCount" class="modal-count-pill">
+              Comments 0
+            </span>
+          </div>
+
+          <textarea
+            id="modalCommentInput"
+            placeholder="Write a comment…"
+          ></textarea>
+
+          <button id="modalSendComment">Post comment</button>
+
+          <div id="modalComments" class="modal-comments-feed"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>
