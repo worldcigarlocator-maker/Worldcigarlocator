@@ -253,3 +253,7 @@
   color: rgb(var(--global));
   opacity: 0.65;        /* lite mer subtil */
 }
+
+.sidebar-menu {
+  padding-top: 0.8rem;
+}
