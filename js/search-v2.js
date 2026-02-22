@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const input    = qs("#searchInput");
   const clearBtn = qs("#clearBtn");
-  const zone     = qs("#searchZone");
   const label    = qs(".search-label");
   const controls = qs("#searchControls");
 
@@ -41,18 +40,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   syncSearchUI();
   mq.addEventListener("change", syncSearchUI);
-  
 
-zone?.addEventListener("click", () => {
-  input.focus();
-
-  if (input.value.trim()) {
-    input.value = "";
-    clearSearchMaster();
-  }
-});
   // ============================================================
-  // INPUT
+  // FOCUS RESET (MATCHES CLEAR BUTTON)
+  // ============================================================
+
+  input.addEventListener("focus", () => {
+
+    if (!input.value.trim()) return;
+
+    input.value = "";
+
+    clearSearchMaster();
+    clearLocationMaster();
+    resetToHero();
+    setSort("relevance");
+
+    controls?.querySelectorAll(".active")
+      .forEach(el => el.classList.remove("active"));
+  });
+
+  // ============================================================
+  // INPUT (DEBOUNCED)
   // ============================================================
 
   let TIMER = null;
@@ -83,7 +92,7 @@ zone?.addEventListener("click", () => {
   });
 
   // ============================================================
-  // CLEAR
+  // CLEAR BUTTON
   // ============================================================
 
   clearBtn?.addEventListener("click", () => {
@@ -130,14 +139,7 @@ zone?.addEventListener("click", () => {
           toggleChip({ access: value });
         }
       } else {
-        // Toggle off
-        if (filter === "type") {
-          toggleChip({ type: value });
-        }
-
-        if (filter === "access") {
-          toggleChip({ access: value });
-        }
+        toggleChip({ [filter]: value });
       }
     }
 
@@ -160,15 +162,15 @@ zone?.addEventListener("click", () => {
   });
 
   // ============================================================
-// MASTER SYNC (SEARCH ↔ LOCATION)
-// ============================================================
+  // MASTER SYNC (SEARCH ↔ LOCATION)
+  // ============================================================
 
-document.addEventListener("wcl:master-change", (e) => {
-  const { master } = e.detail || {};
+  document.addEventListener("wcl:master-change", (e) => {
+    const { master } = e.detail || {};
 
-  if (master === "location") {
-    if (input) input.value = "";
-  }
-});
+    if (master === "location") {
+      if (input) input.value = "";
+    }
+  });
 
 });
