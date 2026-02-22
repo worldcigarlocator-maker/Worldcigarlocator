@@ -83,7 +83,7 @@ async function loadGlobalTotal() {
 }
 
 function updateSearchCount(value) {
-  const el = dom("#searchCount");
+  const el = document.querySelector("#sidebarGlobalCount");
   if (!el) return;
 
   if (typeof value !== "number") {
