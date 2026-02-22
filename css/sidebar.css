@@ -29,7 +29,7 @@
 /* ================= HEADER ================= */
 
 .sidebar-header {
-  padding: 1.2rem 1.2rem 1rem;
+  padding: 2.2rem 1.2rem 1.4rem;
   border-bottom: 1px solid var(--border);
   display: flex;
   flex-direction: column;
