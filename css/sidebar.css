@@ -1,9 +1,9 @@
 /* ============================================================
    SIDEBAR.CSS — WCL
-   CANONICAL · SINGLE SOURCE OF TRUTH
+   CANONICAL · REFINED STRUCTURE
    ============================================================ */
 
-/* ================= ROOT DEPENDENCIES ================= */
+/* ================= ROOT ================= */
 
 :root {
   --sidebar-bg: #050505;
@@ -35,27 +35,22 @@
   flex-direction: column;
   gap: 0.9rem;
 }
-/* ============================================================
-   SIDEBAR BRAND — SVG (ONE LINE · GLOBAL COLOUR)
-   ============================================================ */
+
+/* ================= BRAND ================= */
 
 .sidebar-brand {
   display: flex;
   align-items: center;
 }
 
-.sidebar-menu {
-  padding-top: 0.8rem;
-}
-
 .sidebar-brand-svg {
-  width: 180px;          /* 🔒 anpassad för sidebar */
+  width: 180px;
   height: auto;
   display: block;
-
-  pointer-events: none; /* 🔒 inte klickbar */
+  pointer-events: none;
 }
 
+/* ================= ACTIONS ================= */
 
 .sidebar-actions {
   display: flex;
@@ -84,6 +79,26 @@
   background: var(--gold);
   border-color: var(--gold);
   color: #111;
+}
+
+/* ============================================================
+   SIDEBAR TOTAL (GLOBAL COUNT ZONE)
+   ============================================================ */
+
+.sidebar-total {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.45rem 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+#sidebarGlobalCount {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgb(var(--global));
+  opacity: 0.65;
 }
 
 /* ================= NAV SCROLL AREA ================= */
@@ -121,9 +136,11 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: #766148;
+
   border-top: 1px solid rgba(255,255,255,0.14);
   border-bottom: 1px solid rgba(255,255,255,0.14);
-  padding-top: 0.65rem;
+
+  padding-top: 1rem;   /* 🔑 luft utan att flytta divider */
   padding-bottom: 0.65rem;
 }
 
@@ -226,34 +243,3 @@
 .sidebar-footer a:hover {
   color: var(--gold);
 }
-
-.sidebar-menu {
-  padding-top: 1.0rem;
-}
-.sidebar-menu > .node:first-child {
-  margin-top: 0.8rem;
-}
-
-/* ============================================================
-   SIDEBAR TOTAL (REFINED)
-   ============================================================ */
-.sidebar-total {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  padding: 0.45rem 0;   /* mindre vertikal zon */
-
-  border-top: 1px solid rgba(255,255,255,0.06);
-}
-
-#sidebarGlobalCount {
-  font-size: 0.8rem;   /* mindre text */
-  font-weight: 500;
-  letter-spacing: 0;
-
-  color: rgb(var(--global));
-  opacity: 0.65;        /* lite mer subtil */
-}
-
