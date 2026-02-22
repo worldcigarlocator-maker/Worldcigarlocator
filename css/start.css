@@ -45,7 +45,7 @@ body {
 
 .main {
   margin-left: 260px;
-  padding: 3.2rem 2.5rem 2.5rem; /* 🔑 mer top padding */
+  padding: 4.2rem 2.5rem 2.5rem; /* 🔑 mer top padding */
   width: calc(100% - 260px);
 }
 
@@ -55,8 +55,8 @@ body {
    ============================================================ */
 
 .hero {
-  max-width: 1520px; /* 🔑 ~5% mindre */
-  margin: 2.6rem auto 0; /* 🔑 lite mer luft ovan */
+  max-width: 1450px; /* 🔑 ~5% mindre */
+  margin: 2.8rem auto 0; /* 🔑 lite mer luft ovan */
   aspect-ratio: 16 / 9;
   border-radius: 18px;
   overflow: hidden;
