@@ -41,24 +41,23 @@ document.addEventListener("DOMContentLoaded", () => {
   syncSearchUI();
   mq.addEventListener("change", syncSearchUI);
 
-  // ============================================================
-  // FOCUS RESET (MATCHES CLEAR BUTTON)
-  // ============================================================
 
-  input.addEventListener("focus", () => {
+// ============================================================
+// FOCUS RESET (FORCED)
+// ============================================================
 
-    if (!input.value.trim()) return;
+input.addEventListener("focus", () => {
 
-    input.value = "";
+  input.value = "";
 
-    clearSearchMaster();
-    clearLocationMaster();
-    resetToHero();
-    setSort("relevance");
+  clearSearchMaster();
+  clearLocationMaster();
+  resetToHero();
+  setSort("relevance");
 
-    controls?.querySelectorAll(".active")
-      .forEach(el => el.classList.remove("active"));
-  });
+  controls?.querySelectorAll(".active")
+    .forEach(el => el.classList.remove("active"));
+});
 
   // ============================================================
   // INPUT (DEBOUNCED)
