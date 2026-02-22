@@ -28,6 +28,8 @@
   border-radius: 999px;
 
   padding: 0 2.2rem;
+
+  gap: 1.4rem;          /* 🔑 spacing mellan zoner */
 }
 
 /* ================= ZONES ================= */
@@ -36,6 +38,8 @@
   display: flex;
   align-items: center;
   gap: 1.2rem;
+
+  flex: 0 0 auto;      /* 🔑 låst bredd */
 }
 
 /* ============================================================
@@ -80,7 +84,7 @@
    ============================================================ */
 
 .zone-count {
-  margin: 0 auto;   /* 🔑 detta är lösningen */
+  flex: 0 0 auto;
 }
 
 #searchCount {
@@ -97,11 +101,11 @@
    ============================================================ */
 
 .zone-controls {
-  flex: 1;              /* 🔑 höger block */
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  gap: 1.4rem;
+  gap: 1.2rem;
+
+  margin-left: auto;   /* 🔑 trycker allt till höger */
 }
 
 /* ===== FILTER / SORT BUTTONS ===== */
@@ -143,14 +147,11 @@
   position: relative;
 }
 
-.zone-controls .sort-btn.active::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -4px;
-  width: 100%;
-  height: 1px;
-  background: var(--gold);
+.zone-controls {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
 }
 
 /* ===== CLEAR PILL ===== */
@@ -185,7 +186,7 @@
 
 @media (max-width: 900px) {
 
-  .zone-controls {
+  .zone-controls {<<
     display: none;
   }
 
