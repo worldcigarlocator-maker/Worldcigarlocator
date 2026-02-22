@@ -103,12 +103,19 @@
 
 /* ================= NAV SCROLL AREA ================= */
 
+/* ================= NAV SCROLL AREA ================= */
+
 #sidebarMenu {
   flex: 1;
   overflow-y: auto;
 
-  padding: 0.3rem 0 0.4rem; /* 🔑 övre padding flyttar ner hierarkin */
+  /* 🔑 Divider sitter HÄR och ligger fast */
+  border-top: 1px solid rgba(255,255,255,0.14);
+
+  /* 🔑 Flyttar ner hierarkin utan att flytta divider */
+  padding: 1.2rem 0 0.4rem;
 }
+
 
 /* ================= BASE ROW ================= */
 
