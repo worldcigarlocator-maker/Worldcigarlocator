@@ -39,7 +39,8 @@
   align-items: center;
   gap: 1.2rem;
 
-  flex: 0 0 auto;      /* 🔑 låst bredd */
+  flex: 1 1 auto;   /* 🔑 får växa */
+  min-width: 0;     /* 🔑 förhindrar overflow */
 }
 
 /* ============================================================
