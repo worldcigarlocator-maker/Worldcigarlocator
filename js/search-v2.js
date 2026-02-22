@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
       input.placeholder = "Search";
       if (label) label.style.display = "none";
     } else {
-      input.placeholder = "e.g. London, New York, Bangkok";
+      input.placeholder = "Search by name, city or address";
       if (label) label.style.display = "inline";
     }
   };
