@@ -139,7 +139,7 @@
 
 /* 🔑 FLYTTA NER HIERARKIN UTAN ATT FLYTTA DIVIDER */
 #sidebarMenu > .node:first-child > .line.continent {
-  padding-top: 2.4rem;   /* justera 1.2–1.6 efter smak */
+  padding-top: 4.4rem;   /* justera 1.2–1.6 efter smak */
 }
 
 /* ================= COUNTRY ================= */
