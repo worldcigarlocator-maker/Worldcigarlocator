@@ -44,6 +44,10 @@
   align-items: center;
 }
 
+.sidebar-menu {
+  padding-top: 0.8rem;
+}
+
 .sidebar-brand-svg {
   width: 180px;          /* 🔒 anpassad för sidebar */
   height: auto;
