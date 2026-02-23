@@ -355,7 +355,17 @@ async function submitReportIssue() {
     resetReportUI();
     reportSection()?.classList.add("hidden");
 
-    alert("Thank you. Your report has been received.");
+const btn = reportSubmit();
+if (btn) {
+  btn.textContent = "Report submitted ✓";
+  btn.disabled = true;
+
+  setTimeout(() => {
+    btn.textContent = "Submit report";
+    reportSection()?.classList.add("hidden");
+    resetReportUI();
+  }, 1800);
+}
 
   } catch (err) {
     console.error("submit_store_report_v1 exception:", err);
