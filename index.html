@@ -231,6 +231,56 @@
 
           <div id="modalComments" class="modal-comments-feed"></div>
         </div>
+
+        <!-- ================= REPORT SECTION ================= -->
+
+<div id="modalReportSection" class="modal-report-section hidden">
+
+  <h3 class="modal-report-title">Report an issue</h3>
+
+  <div id="modalReportChips" class="modal-report-chips">
+
+    <button class="report-chip" data-type="no_longer_sells">
+      Don’t sell cigars
+    </button>
+
+    <button class="report-chip" data-type="no_smoking_allowed">
+      Not allowed to smoke
+    </button>
+
+    <button class="report-chip" data-type="membership_policy_wrong">
+      Membership policy wrong
+    </button>
+
+    <button class="report-chip" data-type="wrong_address">
+      Wrong address
+    </button>
+
+    <button class="report-chip" data-type="permanently_closed">
+      Permanently closed
+    </button>
+
+    <button class="report-chip" data-type="duplicate">
+      Duplicate
+    </button>
+
+    <button class="report-chip" data-type="other">
+      Other
+    </button>
+
+  </div>
+
+  <textarea
+    id="modalReportMessage"
+    class="modal-report-textarea hidden"
+    placeholder="Describe the issue..."
+  ></textarea>
+
+  <button id="modalSubmitReport" class="modal-submit-report" disabled>
+    Submit report
+  </button>
+
+</div>
 <button id="modalReportIssue" class="modal-report-btn">
   Report an issue
 </button>
