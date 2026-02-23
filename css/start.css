@@ -157,7 +157,7 @@ body.auth-locked .container {
 
 /* ================= STATIC PAGE TOPBAR ================= */
 
-.page-topbar {
+..page-topbar {
   position: fixed;
   top: 0;
   left: 0;
@@ -175,11 +175,7 @@ body.auth-locked .container {
   border-bottom: 1px solid rgba(0,0,0,0.06);
   z-index: 1000;
 
-  position: fixed;
-}
-
-.page-topbar {
-  position: fixed;
+  position: relative; /* 🔑 viktigt */
 }
 
 /* ================= LEGAL / ABOUT PAGE ================= */
@@ -247,4 +243,53 @@ body.auth-locked .container {
 
 .page-brand:hover {
   opacity: 0.7;
+}
+
+/* ================= STATIC PAGE NAV ================= */
+
+.page-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-left: 48px;
+  padding-right: 48px;
+
+  background: #f6f4f1;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  z-index: 1000;
+  position: relative;
+}
+
+.page-nav {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 36px;
+}
+
+.page-nav a {
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgba(0,0,0,0.45);
+  transition: color 0.2s ease;
+}
+
+.page-nav a:hover {
+  color: #766148;
+}
+
+.page-nav a.active {
+  color: #111;
+  font-weight: 600;
 }
