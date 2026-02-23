@@ -325,6 +325,36 @@ function bindEvents() {
       return;
     }
 
+    // ------------------------------------------------------------
+    // REPORT ISSUE
+    // ------------------------------------------------------------
+    if (e.target.closest("#modalReportIssue")) {
+
+      const type = prompt(
+        "Select issue:\n\n1 = Don’t sell cigars\n2 = Not allowed to smoke\n3 = Wrong address\n4 = Permanently closed\n5 = Duplicate\n6 = Other"
+      );
+
+      const map = {
+        "1": "no_longer_sells",
+        "2": "no_smoking_allowed",
+        "3": "wrong_address",
+        "4": "permanently_closed",
+        "5": "duplicate",
+        "6": "other",
+      };
+
+      const reportType = map[type];
+      if (!reportType) return;
+
+      let msg = "";
+      if (reportType === "other") {
+        msg = prompt("Please describe the issue:") || "";
+      }
+
+      await submitReportIssue(reportType, msg);
+      return;
+    }
+    
     const del = e.target.closest(".modal-comment-delete");
     if (del && del.dataset.id) {
       const { error } = await supabase.rpc("modal_delete_comment_v1", {
