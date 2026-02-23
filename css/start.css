@@ -4,6 +4,7 @@
    CLEAN · ZONE-BASED · CANONICAL
    ============================================================ */
 
+
 :root {
   --bg: #050505;
   --panel: #0a0a0a;
@@ -29,6 +30,10 @@ body {
   color: var(--text);
 }
 
+body.static-page {
+  background: #f6f4f1;
+  color: #1a1a1a;
+}
 .container {
   display: flex;
   min-height: 100vh;
