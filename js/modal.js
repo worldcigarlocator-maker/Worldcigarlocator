@@ -179,6 +179,9 @@ export function closeModal() {
   m.classList.add("hidden");
   lockScroll(false);
 
+  resetReportUI();
+reportSection()?.classList.add("hidden");
+  
   MODAL_ACTIVE_STORE_ID = null;
   MODAL_USER_TEMP_RATING = 0;
 }
