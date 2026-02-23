@@ -228,11 +228,11 @@ body.auth-locked .container {
 }
 
 .page-brand {
-  font-family: "DM Sans", sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: #766148;
   text-decoration: none;
   transition: opacity 0.2s ease;
