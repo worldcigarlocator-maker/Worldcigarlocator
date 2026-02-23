@@ -202,11 +202,13 @@ body.auth-locked .container {
   color: #111;
 }
 
-.page-brand,
-.page-brand:visited {
+.page-brand {
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: #766148;
   text-decoration: none;
-}
-.page-brand:hover {
-  opacity: 0.7;
+  transition: opacity 0.2s ease;
 }
