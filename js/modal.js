@@ -360,11 +360,14 @@ async function submitReportIssue() {
 
 const btn = reportSubmit();
 if (btn) {
+  btn.classList.add("success");
   btn.textContent = "Report submitted ✓";
   btn.disabled = true;
 
   setTimeout(() => {
+    btn.classList.remove("success");
     btn.textContent = "Submit report";
+    btn.disabled = true;
     reportSection()?.classList.add("hidden");
     resetReportUI();
   }, 1800);
