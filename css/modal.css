@@ -89,7 +89,7 @@
 
 .modal-title {
   font-size: 1.8rem;
-  color: rgb(212,160,23);
+  color: rgb(var(--global));
   margin-bottom: 0.6rem;
 }
 
