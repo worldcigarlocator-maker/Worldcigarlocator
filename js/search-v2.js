@@ -22,26 +22,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!input) return;
 
-  // ============================================================
-  // RESPONSIVE
-  // ============================================================
+ // ============================================================
+// RESPONSIVE
+// ============================================================
 
-  const mq = window.matchMedia("(max-width: 900px)");
+const mq = window.matchMedia("(max-width: 900px)");
 
-  const syncSearchUI = () => {
-    if (mq.matches) {
-      input.placeholder = "Search";
-      if (label) label.style.display = "none";
-    } else {
-      input.placeholder = "Search by name, city or address";
-      if (label) label.style.display = "inline";
-    }
-  };
+const syncSearchUI = () => {
+  if (mq.matches) {
+    input.placeholder = "Search";
+    if (label) label.style.display = "none";
+  } else {
+    input.placeholder = "Search by name, city or address";
+    if (label) label.style.display = "inline";
+  }
+};
 
-  syncSearchUI();
-  mq.addEventListener("change", syncSearchUI);
+syncSearchUI();
+mq.addEventListener("change", syncSearchUI);
 
+// 🔑 Hide placeholder immediately on focus
+input.addEventListener("focus", () => {
+  input.dataset.placeholder = input.placeholder;
+  input.placeholder = "";
+});
 
+input.addEventListener("blur", () => {
+  if (!input.value.trim()) {
+    input.placeholder = input.dataset.placeholder || "";
+  }
+});
+  
 // ============================================================
 // FOCUS RESET (FORCED)
 // ============================================================
