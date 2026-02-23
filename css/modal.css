@@ -324,3 +324,108 @@
   background: rgba(255,255,255,0.06);
   margin-bottom: 1rem;
 }
+
+/* ============================================================
+   REPORT SECTION
+   ============================================================ */
+
+.modal-report-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.modal-report-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+/* ================= Chips ================= */
+
+.modal-report-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.report-chip {
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #0e0e0e;
+  color: var(--text);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.report-chip:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* Active state */
+
+.report-chip.active {
+  background: var(--gold);
+  color: #000;
+  border-color: var(--gold);
+}
+
+/* ================= Textarea ================= */
+
+.modal-report-textarea {
+  width: 100%;
+  min-height: 90px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #0e0e0e;
+  color: var(--text);
+  padding: 0.8rem;
+  font-size: 0.85rem;
+  resize: vertical;
+  margin-bottom: 1rem;
+}
+
+.modal-report-textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+/* ================= Submit Button ================= */
+
+.modal-submit-report {
+  width: 100%;
+  padding: 0.7rem;
+  border-radius: 999px;
+  border: none;
+  background: var(--gold);
+  color: #000;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.modal-submit-report:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ================= Toggle Button ================= */
+
+.modal-report-btn {
+  margin-top: 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--gold);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.modal-report-btn:hover {
+  opacity: 0.7;
+}
