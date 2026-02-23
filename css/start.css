@@ -166,13 +166,20 @@ body.auth-locked .container {
   height: 72px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 
   padding-left: 48px;
-  padding-right: 28px;
+  padding-right: 48px;
 
   background: #f6f4f1;
   border-bottom: 1px solid rgba(0,0,0,0.06);
   z-index: 1000;
+
+  position: fixed;
+}
+
+.page-topbar {
+  position: fixed;
 }
 
 /* ================= LEGAL / ABOUT PAGE ================= */
