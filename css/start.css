@@ -201,3 +201,12 @@ body.auth-locked .container {
   font-weight: 600;
   color: #111;
 }
+
+.page-brand,
+.page-brand:visited {
+  color: #766148;
+  text-decoration: none;
+}
+.page-brand:hover {
+  opacity: 0.7;
+}
