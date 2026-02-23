@@ -202,6 +202,11 @@ body.auth-locked .container {
   color: #111;
 }
 
+.page-brand,
+.page-brand:visited {
+  color: #766148;
+}
+
 .page-brand {
   font-family: "DM Sans", sans-serif;
   font-size: 15px;
