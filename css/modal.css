@@ -404,10 +404,10 @@
   padding: 10px 16px;
   border-radius: 8px;
 
-  background: #0f0f0f;
-  color: var(--accent); /* bronz istället för gold */
+  background: rgba(var(--global), 0.15);
+  color: rgb(var(--global));
 
-  border: 1px solid #2a2a2a;
+  border-color: rgba(var(--global), 0.6);
 
   font-weight: 600;
   font-size: 14px;
