@@ -277,23 +277,71 @@ async function submitComment() {
 }
 
 // ============================================================
-// REPORT ISSUE (EDGE FUNCTION)
+// REPORT UI STATE
 // ============================================================
 
+let REPORT_SELECTED = new Set();
+
+const reportSection = () => document.getElementById("modalReportSection");
+const reportChips = () => document.querySelectorAll(".report-chip");
+const reportTextarea = () => document.getElementById("modalReportMessage");
+const reportSubmit = () => document.getElementById("modalSubmitReport");
+
+function resetReportUI() {
+  REPORT_SELECTED.clear();
+
+  reportChips().forEach((chip) =>
+    chip.classList.remove("active")
+  );
+
+  if (reportTextarea()) {
+    reportTextarea().classList.add("hidden");
+    reportTextarea().value = "";
+  }
+
+  if (reportSubmit()) {
+    reportSubmit().disabled = true;
+  }
+}
+
+function updateReportUI() {
+  const hasSelection = REPORT_SELECTED.size > 0;
+
+  if (reportSubmit()) {
+    reportSubmit().disabled = !hasSelection;
+  }
+
+  if (reportTextarea()) {
+    if (REPORT_SELECTED.has("other")) {
+      reportTextarea().classList.remove("hidden");
+    } else {
+      reportTextarea().classList.add("hidden");
+      reportTextarea().value = "";
+    }
+  }
+}
 // ============================================================
-// REPORT ISSUE (EDGE FUNCTION)
+// REPORT ISSUE (EDGE ARRAY VERSION)
 // ============================================================
 
-async function submitReportIssue(type, message = "") {
+async function submitReportIssue() {
   if (!MODAL_ACTIVE_STORE_ID) return;
+  if (REPORT_SELECTED.size === 0) return;
+
+  const types = Array.from(REPORT_SELECTED);
+
+  const message =
+    REPORT_SELECTED.has("other") && reportTextarea()
+      ? reportTextarea().value.trim()
+      : null;
 
   try {
-    const { data, error } = await supabase.functions.invoke(
+    const { error } = await supabase.functions.invoke(
       "submit_store_report_v1",
       {
         body: {
           store_id: MODAL_ACTIVE_STORE_ID,
-          report_type: type,
+          report_types: types,
           message: message || null,
         },
       }
@@ -304,12 +352,18 @@ async function submitReportIssue(type, message = "") {
       return;
     }
 
+    resetReportUI();
+    reportSection()?.classList.add("hidden");
+
     alert("Thank you. Your report has been received.");
 
   } catch (err) {
     console.error("submit_store_report_v1 exception:", err);
   }
 }
+
+
+
 // ============================================================
 // EVENTS (BOUND ONCE)
 // ============================================================
@@ -339,32 +393,45 @@ function bindEvents() {
     // ------------------------------------------------------------
     // REPORT ISSUE
     // ------------------------------------------------------------
-    if (e.target.closest("#modalReportIssue")) {
+ // ------------------------------------------------------------
+// REPORT SECTION TOGGLE
+// ------------------------------------------------------------
+if (e.target.closest("#modalReportIssue")) {
+  const section = reportSection();
+  if (!section) return;
 
-      const type = prompt(
-        "Select issue:\n\n1 = Don’t sell cigars\n2 = Not allowed to smoke\n3 = Wrong address\n4 = Permanently closed\n5 = Duplicate\n6 = Other"
-      );
+  section.classList.toggle("hidden");
+  resetReportUI();
+  return;
+}
 
-      const map = {
-        "1": "no_longer_sells",
-        "2": "no_smoking_allowed",
-        "3": "wrong_address",
-        "4": "permanently_closed",
-        "5": "duplicate",
-        "6": "other",
-      };
+// ------------------------------------------------------------
+// CHIP TOGGLE
+// ------------------------------------------------------------
+const chip = e.target.closest(".report-chip");
+if (chip) {
+  const type = chip.dataset.type;
+  if (!type) return;
 
-      const reportType = map[type];
-      if (!reportType) return;
+  if (REPORT_SELECTED.has(type)) {
+    REPORT_SELECTED.delete(type);
+    chip.classList.remove("active");
+  } else {
+    REPORT_SELECTED.add(type);
+    chip.classList.add("active");
+  }
 
-      let msg = "";
-      if (reportType === "other") {
-        msg = prompt("Please describe the issue:") || "";
-      }
+  updateReportUI();
+  return;
+}
 
-      await submitReportIssue(reportType, msg);
-      return;
-    }
+// ------------------------------------------------------------
+// SUBMIT REPORT
+// ------------------------------------------------------------
+if (e.target.closest("#modalSubmitReport")) {
+  await submitReportIssue();
+  return;
+}
     
     const del = e.target.closest(".modal-comment-delete");
     if (del && del.dataset.id) {
