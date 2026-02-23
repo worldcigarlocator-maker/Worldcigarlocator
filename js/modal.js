@@ -280,25 +280,36 @@ async function submitComment() {
 // REPORT ISSUE (EDGE FUNCTION)
 // ============================================================
 
+// ============================================================
+// REPORT ISSUE (EDGE FUNCTION)
+// ============================================================
+
 async function submitReportIssue(type, message = "") {
   if (!MODAL_ACTIVE_STORE_ID) return;
 
   try {
-    await supabase.functions.invoke("submit_store_report_v1", {
-      body: {
-        store_id: MODAL_ACTIVE_STORE_ID,
-        report_type: type,
-        message: message || null,
-      },
-    });
+    const { data, error } = await supabase.functions.invoke(
+      "submit_store_report_v1",
+      {
+        body: {
+          store_id: MODAL_ACTIVE_STORE_ID,
+          report_type: type,
+          message: message || null,
+        },
+      }
+    );
+
+    if (error) {
+      console.error("submit_store_report_v1 error:", error);
+      return;
+    }
 
     alert("Thank you. Your report has been received.");
 
   } catch (err) {
-    console.error("submit_store_report_v1 error:", err);
+    console.error("submit_store_report_v1 exception:", err);
   }
 }
-
 // ============================================================
 // EVENTS (BOUND ONCE)
 // ============================================================
