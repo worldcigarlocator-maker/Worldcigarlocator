@@ -277,6 +277,29 @@ async function submitComment() {
 }
 
 // ============================================================
+// REPORT ISSUE (EDGE FUNCTION)
+// ============================================================
+
+async function submitReportIssue(type, message = "") {
+  if (!MODAL_ACTIVE_STORE_ID) return;
+
+  try {
+    await supabase.functions.invoke("submit_store_report_v1", {
+      body: {
+        store_id: MODAL_ACTIVE_STORE_ID,
+        report_type: type,
+        message: message || null,
+      },
+    });
+
+    alert("Thank you. Your report has been received.");
+
+  } catch (err) {
+    console.error("submit_store_report_v1 error:", err);
+  }
+}
+
+// ============================================================
 // EVENTS (BOUND ONCE)
 // ============================================================
 
