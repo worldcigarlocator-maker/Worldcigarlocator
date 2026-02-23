@@ -149,3 +149,50 @@ body.auth-locked .container {
 .cookie-btn:hover {
   background: rgba(255,255,255,0.10);
 }
+
+/* ================= LEGAL / ABOUT PAGE ================= */
+
+.legal-page {
+  background: #f6f4f1;   /* varm off-white */
+  min-height: 100vh;
+  padding: 100px 20px;
+}
+
+.legal-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  font-family: 'DM Sans', sans-serif;
+  color: #1a1a1a;
+}
+
+.legal-inner h1 {
+  font-size: 40px;
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+.legal-inner h2 {
+  font-size: 26px;
+  margin-top: 55px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.legal-inner p {
+  font-size: 17px;
+  line-height: 1.75;
+  margin-bottom: 18px;
+}
+
+.legal-inner ul {
+  margin: 20px 0 30px 20px;
+}
+
+.legal-inner li {
+  margin-bottom: 8px;
+}
+
+.legal-inner .highlight {
+  font-weight: 600;
+  color: #111;
+}
