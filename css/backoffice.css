@@ -736,11 +736,6 @@ td .flag {
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
 
 .logo-circle {
   width: 42px;
@@ -755,47 +750,50 @@ td .flag {
   color: #111;
 }
 
-.brand-name {
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 0.3px;
-}
-
-.brand-sub {
-  font-size: 12px;
-  opacity: 0.6;
-}
 
 .topbar .actions {
   display: flex;
   gap: 10px;
 }
 
-/* ================= OFFICIAL WCL LOGOTYPE ================= */
+/* ================= BRAND ROW ================= */
 
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Mini hero image */
+.brand-hero {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.45);
+}
+
+/* Text container */
 .brand {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   line-height: 1.1;
 }
 
 /* Main logo text */
 .brand-logo {
   font-family: "Playfair Display", Georgia, serif;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 500;
   letter-spacing: 0.5px;
-
   color: rgb(var(--global));
-  opacity: 0.95; /* Not washed out */
 }
 
 /* Sub label */
 .brand-sub {
-  font-size: 13px;
+  font-size: 12px;
   letter-spacing: 1.2px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.55);
-  margin-top: 4px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 3px;
 }
