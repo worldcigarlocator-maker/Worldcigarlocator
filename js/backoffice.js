@@ -94,9 +94,11 @@ window.logout = async () => {
 
 /* ======================== STATE ========================= */
 let STORES = [];
-let CURRENT_TAB = "pending"; // all | approved | pending | flagged | deleted | repair
-let CURRENT_VIEW = "cards";  // cards | list
-let HIER_SEL = { continent: null, country: null, city: null };
+let REPORTS = [];               // ✅ separat state för store_reports
+let CURRENT_TAB = "pending";    // all | approved | pending | flagged | deleted | duplicates | reports
+let CURRENT_VIEW = "cards";     // cards | list
+let HIER_SEL = { continent: null, country: null, state: null, city: null };
+
 
 /* ======================== HELPERS ======================== */
 const $  = (sel) => document.querySelector(sel);
@@ -562,11 +564,31 @@ function updateRegionCounts() {
 }
 
 /* ============================================================
-   RENDER SWITCH — Cards vs List
+   RENDER SWITCH — Cards vs List (TAB AWARE)
    ============================================================ */
 function render() {
   const term = ($("#searchInput")?.value || "").trim().toLowerCase();
 
+  // ✅ Reports har egen datakälla och egen rendering
+  if (CURRENT_TAB === "reports") {
+    let list = REPORTS;
+
+    if (term) {
+      // enkel textmatch på store_id + type + status
+      list = REPORTS.filter(r =>
+        [
+          String(r.store_id ?? ""),
+          String(r.report_type ?? ""),
+          String(r.status ?? "")
+        ].some(v => safe(v).toLowerCase().includes(term))
+      );
+    }
+
+    renderReports(list);
+    return;
+  }
+
+  // ✅ Default = STORES (befintligt beteende)
   let list = STORES;
 
   // 🔎 EXAKT ID-sök (prioritet 1)
@@ -574,7 +596,6 @@ function render() {
     const id = Number(term);
     list = STORES.filter(s => s.id === id);
   }
-
   // 🔍 Text-sök (fallback)
   else if (term) {
     list = STORES.filter(s =>
@@ -589,8 +610,6 @@ function render() {
     renderListView(list);
   }
 }
-
-
 /* ============================================================
    DATA LOADING — STABIL, FÖRUTSÄGBAR & UX-SÄKER
    ============================================================ */
@@ -695,6 +714,12 @@ if (countsError) {
     base = base
       .eq("deleted", true)
       .order("id", { ascending: false });
+
+     /* =========================
+   REPORTS (Store Reports)
+   ========================= */
+} else if (tab === "reports") {
+  return loadStoreReports();
 
   // ⚪ ALL = arbetsvy (ej deleted, nyast först)
   } else {
@@ -1276,6 +1301,91 @@ function closeEdit() {
   document.querySelectorAll(".modal-backdrop").forEach((m) => m.remove());
 }
 
+/* ============================================================
+   STORE REPORTS — READ ONLY LIST (STATEFUL)
+   ============================================================ */
+
+async function loadStoreReports() {
+  // 🔒 Reports kör alltid cards-läge (ingen listview för stores-tabellen)
+  CURRENT_VIEW = "cards";
+
+  const grid = $("#cards");
+  const listWrap = $(".listview-wrap");
+
+  if (grid) grid.style.display = "grid";
+  if (listWrap) listWrap.style.display = "none";
+
+  if (grid) grid.innerHTML = "<p class='muted center'>Loading reports...</p>";
+
+  const { data, error } = await WCL.supabase
+    .rpc("bo_list_store_reports_v1", { p_status: null });
+
+  if (error) {
+    console.error(error);
+    if (grid) grid.innerHTML = "<p class='error center'>Error loading reports</p>";
+    return;
+  }
+
+  REPORTS = data || [];
+  render(); // ✅ använder tab-aware render()
+}
+
+function renderReports(reports) {
+  const grid = $("#cards");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+
+  if (!reports.length) {
+    grid.innerHTML = "<p class='muted center'>No reports</p>";
+    return;
+  }
+
+  reports.forEach(r => {
+    const card = document.createElement("div");
+    card.className = "card border-orange";
+
+    card.innerHTML = `
+      <div class="body">
+        <h3>Store ID: ${safe(r.store_id)}</h3>
+        <p><strong>Type:</strong> ${safe(r.report_type)}</p>
+        <p><strong>Status:</strong> ${safe(r.status)}</p>
+        <p><strong>Count:</strong> ${safe(r.report_count)}</p>
+        <button class="btn small orange">Open</button>
+      </div>
+    `;
+
+    card.querySelector("button").onclick = () => openReportDetails(r.id);
+    grid.appendChild(card);
+  });
+}
+
+async function openReportDetails(reportId) {
+  const { data, error } = await WCL.supabase
+    .rpc("bo_get_report_details_v2", { p_report_id: reportId });
+
+  if (error) {
+    console.error(error);
+    toast("Failed to load report", "error");
+    return;
+  }
+
+  const modal = document.createElement("div");
+  modal.className = "modal-backdrop";
+
+  modal.innerHTML = `
+    <div class="modal">
+      <h3>Store Report</h3>
+      <pre style="max-height:400px;overflow:auto">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+      <div class="row">
+        <button class="btn ghost" id="report-close">Close</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  modal.querySelector("#report-close")?.addEventListener("click", () => modal.remove());
+}
 /* ===================== UI WIRING ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   console.log(" DOM fully loaded — Backoffice ready");
