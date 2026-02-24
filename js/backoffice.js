@@ -1353,7 +1353,11 @@ async function toggleDelete(s) {
 
 async function toggleDeleteById(id) {
   const s = STORES.find(x => x.id === id);
-  if (!s) return toast("Store not found", "error");
+  if (!s) {
+    toast("Store not found in memory, reloading…", "error");
+    await reloadData(CURRENT_TAB);
+    return;
+  }
   return toggleDelete(s);
 }
      /* ==================== REPAIR PHOTO ================= */
