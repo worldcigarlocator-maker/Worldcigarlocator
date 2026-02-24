@@ -97,9 +97,13 @@
 
 /* ================= NAV SCROLL AREA ================= */
 #sidebarMenu {
-  flex: 1 1 auto;
-  min-height: 0;        /* 🔑 KRITISK i flex */
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* 🔥 vertikal centrering */
 }
 
 /* ================= BASE ROW ================= */
