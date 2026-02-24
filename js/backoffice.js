@@ -564,31 +564,11 @@ function updateRegionCounts() {
 }
 
 /* ============================================================
-   RENDER SWITCH — Cards vs List (TAB AWARE)
+   RENDER SWITCH — Cards vs List (CANONICAL)
    ============================================================ */
 function render() {
   const term = ($("#searchInput")?.value || "").trim().toLowerCase();
 
-  // ✅ Reports har egen datakälla och egen rendering
-  if (CURRENT_TAB === "reports") {
-    let list = REPORTS;
-
-    if (term) {
-      // enkel textmatch på store_id + type + status
-      list = REPORTS.filter(r =>
-        [
-          String(r.store_id ?? ""),
-          String(r.report_type ?? ""),
-          String(r.status ?? "")
-        ].some(v => safe(v).toLowerCase().includes(term))
-      );
-    }
-
-    renderReports(list);
-    return;
-  }
-
-  // ✅ Default = STORES (befintligt beteende)
   let list = STORES;
 
   // 🔎 EXAKT ID-sök (prioritet 1)
