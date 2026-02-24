@@ -771,39 +771,6 @@ td .flag {
   gap: 10px;
 }
 
-/* ================= BRAND HERO ================= */
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.brand-hero {
-  width: 54px;
-  height: 54px;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.brand-name {
-  font-weight: 800;
-  font-size: 16px;
-  letter-spacing: 0.5px;
-  opacity: 0.95; /* Less transparency */
-}
-
-.brand-sub {
-  font-size: 13px;
-  opacity: 0.75; /* Clear but still secondary */
-}
-
 /* ================= OFFICIAL WCL LOGOTYPE ================= */
 
 .brand {
