@@ -724,19 +724,59 @@ td .flag {
 }
 
 /* ============================================================
-   CLEAN ADMIN TOPBAR
+   CLEAN TOPBAR WITH MINI HERO
    ============================================================ */
 
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 24px;
+  padding: 14px 28px;
   background: #0f0f0f;
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-.topbar .left {
+/* Brand row */
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Mini hero image */
+.brand-hero {
+  width: 46px;
+  height: 46px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Text block */
+.brand {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+/* Main logo */
+.brand-logo {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: rgb(var(--global));
+}
+
+/* Sub label */
+.brand-sub {
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  margin-top: 3px;
+}
+
+/* Actions */
+.topbar .actions {
   display: flex;
   gap: 10px;
 }
