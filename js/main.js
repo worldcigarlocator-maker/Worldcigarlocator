@@ -119,11 +119,11 @@ let SIDEBAR_READY = false;
 
 async function initSidebar() {
   if (SIDEBAR_READY) return;
-  SIDEBAR_READY = true;
 
   try {
     console.log("🧭 Building sidebar (public)");
     await buildFrontendSidebar();
+    SIDEBAR_READY = true;   // 🔑 flyttad hit
   } catch (err) {
     console.error("❌ Sidebar failed to build", err);
   }
