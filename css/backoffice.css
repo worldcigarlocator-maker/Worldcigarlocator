@@ -708,3 +708,17 @@ td .flag {
 .card.border-turquoise {
   border-color: #20c997;
 }
+
+/* =========================
+   REPORTS TAB (ORANGE)
+   ========================= */
+
+.pill.orange {
+  border: 1px solid #ff8c42;
+  color: #ff8c42;
+}
+
+.pill.orange.active {
+  background: #ff8c42;
+  color: #111;
+}
