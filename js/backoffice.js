@@ -20,51 +20,77 @@ const WCL = {
 WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
 /* ============================================================
-   AUTH GUARD — login skydd för Backoffice
+   AUTH GUARD — ADMIN-LOCK (WCL CANONICAL)
    ============================================================ */
+
 async function showApp() {
-  document.getElementById("login-screen")?.style.setProperty("display","none");
-  document.querySelector(".wrap")?.style.setProperty("display","block");
+  document.getElementById("login-screen")?.style.setProperty("display", "none");
+  document.querySelector(".wrap")?.style.setProperty("display", "block");
   await reloadData("pending");
 }
 
 async function showLogin() {
-  document.querySelector(".wrap")?.style.setProperty("display","none");
-  document.getElementById("login-screen")?.style.setProperty("display","flex");
+  document.querySelector(".wrap")?.style.setProperty("display", "none");
+  document.getElementById("login-screen")?.style.setProperty("display", "flex");
 }
 
 async function checkAuth() {
-  const { data: { user } } = await WCL.supabase.auth.getUser();
-  if (user) return showApp();
-  return showLogin();
+  const { data: { user }, error: uErr } = await WCL.supabase.auth.getUser();
+
+  if (uErr) {
+    console.warn("Auth getUser error:", uErr);
+    return showLogin();
+  }
+
+  if (!user) {
+    return showLogin();
+  }
+
+  // 🔐 Admin whitelist check (DB is canonical)
+  const { data: isAdmin, error: aErr } = await WCL.supabase.rpc("bo_is_admin_v1");
+
+  if (aErr) {
+    console.warn("Admin RPC error:", aErr);
+    await WCL.supabase.auth.signOut();
+    return showLogin();
+  }
+
+  if (!isAdmin) {
+    console.warn("Access denied: not admin");
+    await WCL.supabase.auth.signOut();
+    return showLogin();
+  }
+
+  return showApp();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // login-knappen
+  // Login button
   document.getElementById("login-btn")?.addEventListener("click", async () => {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
+    const email = document.getElementById("email")?.value.trim();
+    const password = document.getElementById("password")?.value.trim();
+
     const { error } = await WCL.supabase.auth.signInWithPassword({ email, password });
+
     if (error) {
-      document.getElementById("login-error").textContent = " Wrong email or password";
+      const el = document.getElementById("login-error");
+      if (el) el.textContent = "Wrong email or password";
       return;
     }
-    await showApp();
+
+    // After login: enforce admin guard
+    await checkAuth();
   });
 
-   console.log(" Auth init – DOM loaded");
-
-
-  // kontrollera session vid sidstart
+  // Session check at boot
   checkAuth();
 });
 
-// valfri logout-knapp kan anropa:
+// Optional logout
 window.logout = async () => {
   await WCL.supabase.auth.signOut();
-  await checkAuth();
+  await showLogin();
 };
-
 
 /* ======================== STATE ========================= */
 let STORES = [];
