@@ -762,8 +762,10 @@ function renderCards(list) {
   grid.innerHTML = "";
 
   list.forEach((s) => {
-  const borderClass =
-  s.flag_reason === "possible_duplicate"
+ const borderClass =
+  s._is_reported
+    ? "border-orange"
+    : s.flag_reason === "possible_duplicate"
     ? "border-turquoise"
     : s.deleted
     ? "border-gray"
