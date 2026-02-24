@@ -724,76 +724,19 @@ td .flag {
 }
 
 /* ============================================================
-   PREMIUM TOPBAR
+   CLEAN ADMIN TOPBAR
    ============================================================ */
 
-.topbar.premium {
+.topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 28px;
-  background: linear-gradient(135deg, #0e0e0e, #141414);
+  padding: 14px 24px;
+  background: #0f0f0f;
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-
-.logo-circle {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #c6a34a, #8a6b2f);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 14px;
-  color: #111;
-}
-
-
-.topbar .actions {
+.topbar .left {
   display: flex;
   gap: 10px;
-}
-
-/* ================= BRAND ROW ================= */
-
-.brand-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-/* Mini hero image */
-.brand-hero {
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
-  border-radius: 10px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.45);
-}
-
-/* Text container */
-.brand {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-}
-
-/* Main logo text */
-.brand-logo {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 26px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  color: rgb(var(--global));
-}
-
-/* Sub label */
-.brand-sub {
-  font-size: 12px;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.6);
-  margin-top: 3px;
 }
