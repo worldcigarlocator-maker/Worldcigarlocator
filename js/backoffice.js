@@ -1,8 +1,8 @@
 /* ============================================================
-   Backoffice V5.2.1 — Moderation + Hierarki + Edit + Proxy + ISO Flags
+   Backoffice — Moderation + Hierarki + Edit + Proxy + ISO Flags
    ============================================================ */
 
-console.log(" Backoffice V5.2.1 loaded ");
+console.log(" Backoffice loaded ");
 
 /* ======================== CONFIG ======================== */
 const WCL = {
