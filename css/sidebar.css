@@ -19,11 +19,10 @@
   inset: 0 auto 0 0;
   width: 260px;
   height: 100vh;
-  background: var(--sidebar-bg);
+  background: #050505;
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  z-index: 3000;
 }
 
 /* ================= HEADER ================= */
@@ -97,11 +96,10 @@
 }
 
 /* ================= NAV SCROLL AREA ================= */
-
 #sidebarMenu {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;        /* 🔑 KRITISK i flex */
   overflow-y: auto;
-  padding: 0.4rem 0;
 }
 
 /* ================= BASE ROW ================= */
