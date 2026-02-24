@@ -722,3 +722,51 @@ td .flag {
   background: #ff8c42;
   color: #111;
 }
+
+/* ============================================================
+   PREMIUM TOPBAR
+   ============================================================ */
+
+.topbar.premium {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #0e0e0e, #141414);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c6a34a, #8a6b2f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  color: #111;
+}
+
+.brand-name {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+}
+
+.brand-sub {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.topbar .actions {
+  display: flex;
+  gap: 10px;
+}
