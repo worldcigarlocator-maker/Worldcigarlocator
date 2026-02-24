@@ -888,47 +888,33 @@ body.appendChild(loc);
     `;
     body.appendChild(reviewsLink);
 
-    /* ----------- Status badges ---------- */
-    const status = document.createElement("div");
-    status.className = "badges";
-    status.innerHTML = `
-      ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
-      ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
-      ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
-      ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
-      <span style="margin-left:6px;color:var(--muted)"> ${s.rating ?? "–"}</span>
-    `;
-    body.appendChild(status);
+   /* ----------- Status badges ---------- */
+const status = document.createElement("div");
+status.className = "badges";
 
-    /* ----------- Actions ----------- */
-    const actions = document.createElement("div");
-    actions.className = "actions";
+let reportBadges = "";
 
-    const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
-    const deleteBtn  = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
-    const editBtn    = makeBtn("Edit", () => editStore(s.id), "blue");
-    const repairBtn  = makeBtn("Repair Photo", () => repairPhoto(s.id, s.place_id, img), "orange");
-
-    if (s.flagged) {
-      actions.append(
-        approveBtn,
-        makeBtn("Unflag", () => unflagStore(s.id), "yellow"),
-        deleteBtn,
-        editBtn,
-        repairBtn
-      );
-    } else {
-      actions.append(approveBtn, deleteBtn, editBtn, repairBtn);
-    }
-
-    card.appendChild(body);
-    card.appendChild(actions);
-    grid.appendChild(card);
-  });
-
-  if (!list.length)
-    grid.innerHTML = `<p class="muted center">No stores</p>`;
+if (s._is_reported) {
+  reportBadges += `
+    <span class="badge orange">
+      REPORT x${s._report_count}
+    </span>
+    <span class="badge orange ghost">
+      ${s._report_status?.toUpperCase()}
+    </span>
+  `;
 }
+
+status.innerHTML = `
+  ${reportBadges}
+  ${s.approved ? `<span class='badge green'>APPROVED</span>` : ""}
+  ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
+  ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
+  ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
+  <span style="margin-left:6px;color:var(--muted)"> ${s.rating ?? "–"}</span>
+`;
+
+body.appendChild(status);
 
 
 /* ===================== BUTTON ===================== */
