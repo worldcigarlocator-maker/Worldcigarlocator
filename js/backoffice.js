@@ -1300,22 +1300,17 @@ $("#edit-next").onclick = () => {
 function closeEdit() {
   document.querySelectorAll(".modal-backdrop").forEach((m) => m.remove());
 }
-
 /* ============================================================
-   STORE REPORTS — READ ONLY LIST (STATEFUL)
+   STORE REPORTS — STORE-CENTRIC MODERATION (CANONICAL)
    ============================================================ */
 
 async function loadStoreReports() {
-  // 🔒 Reports kör alltid cards-läge (ingen listview för stores-tabellen)
-  CURRENT_VIEW = "cards";
 
   const grid = $("#cards");
   const listWrap = $(".listview-wrap");
 
-  if (grid) grid.style.display = "grid";
-  if (listWrap) listWrap.style.display = "none";
-
   if (grid) grid.innerHTML = "<p class='muted center'>Loading reports...</p>";
+  if (listWrap) listWrap.style.display = "none";
 
   const { data, error } = await WCL.supabase
     .rpc("bo_list_store_reports_v1", { p_status: null });
@@ -1326,66 +1321,39 @@ async function loadStoreReports() {
     return;
   }
 
-  REPORTS = data || [];
-  render(); // ✅ använder tab-aware render()
-}
-
-function renderReports(reports) {
-  const grid = $("#cards");
-  if (!grid) return;
-
-  grid.innerHTML = "";
-
-  if (!reports.length) {
-    grid.innerHTML = "<p class='muted center'>No reports</p>";
+  if (!data || !data.length) {
+    STORES = [];
+    render();
     return;
   }
 
-  reports.forEach(r => {
-    const card = document.createElement("div");
-    card.className = "card border-orange";
+  // 🔁 Transform reports → store-like objects
+  STORES = data.map(r => ({
+    id: r.store_id,
+    name: r.store_name,
+    city: r.city,
+    country: r.country,
+    continent: r.continent,
+    types: r.types,
+    access: r.access,
+    rating: r.rating,
+    address: r.address,
+    phone: r.phone,
+    website: r.website,
+    photo_reference: r.photo_reference,
+    country_iso2: r.country_iso2,
 
-    card.innerHTML = `
-      <div class="body">
-        <h3>Store ID: ${safe(r.store_id)}</h3>
-        <p><strong>Type:</strong> ${safe(r.report_type)}</p>
-        <p><strong>Status:</strong> ${safe(r.status)}</p>
-        <p><strong>Count:</strong> ${safe(r.report_count)}</p>
-        <button class="btn small orange">Open</button>
-      </div>
-    `;
+    // 🔶 Report metadata
+    _is_reported: true,
+    _report_id: r.id,
+    _report_type: r.report_type,
+    _report_count: r.report_count,
+    _report_status: r.status
+  }));
 
-    card.querySelector("button").onclick = () => openReportDetails(r.id);
-    grid.appendChild(card);
-  });
+  render();
 }
 
-async function openReportDetails(reportId) {
-  const { data, error } = await WCL.supabase
-    .rpc("bo_get_report_details_v2", { p_report_id: reportId });
-
-  if (error) {
-    console.error(error);
-    toast("Failed to load report", "error");
-    return;
-  }
-
-  const modal = document.createElement("div");
-  modal.className = "modal-backdrop";
-
-  modal.innerHTML = `
-    <div class="modal">
-      <h3>Store Report</h3>
-      <pre style="max-height:400px;overflow:auto">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
-      <div class="row">
-        <button class="btn ghost" id="report-close">Close</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-  modal.querySelector("#report-close")?.addEventListener("click", () => modal.remove());
-}
 /* ===================== UI WIRING ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   console.log(" DOM fully loaded — Backoffice ready");
