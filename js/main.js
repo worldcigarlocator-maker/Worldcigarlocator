@@ -161,8 +161,23 @@ async function guard() {
 document.addEventListener("DOMContentLoaded", () => {
   setupLogout();
   guard();
-});
 
+  const addBtn = qs("#addStoreBtn");
+
+  if (addBtn) {
+    addBtn.addEventListener("click", async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        showLoginPopup();
+        return;
+      }
+
+      // 🔓 User logged in → go to add store page
+      window.location.href = "add-store.html";
+    });
+  }
+});
 supabase.auth.onAuthStateChange(() => {
   guard();
 });
