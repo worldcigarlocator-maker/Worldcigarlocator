@@ -1,169 +1,78 @@
-
 // ============================================================
-// MAIN.JS — WCL Frontend (PUBLIC-FIRST)
+// MAIN.JS — WCL Frontend (PUBLIC-FIRST · STABLE)
 // - Sidebar always builds
-// - Page always renders
-// - Auth only gates auth-required actions
+// - Page always interactive
+// - Auth only gates specific actions (like Add Store)
 // ============================================================
 
 // ============================================================
-// LOCAL HELPERS (ESM-safe)
+// IMPORTS
 // ============================================================
-const qs  = (sel) => document.querySelector(sel);
-const qsa = (sel) => document.querySelectorAll(sel);
+import { supabase } from "./globals.js";
+import { buildFrontendSidebar } from "./sidebar.js";
+import { resetToHero } from "./cards.js";
+import "./start.js";
+
+// ============================================================
+// HELPERS
+// ============================================================
+const qs = (sel) => document.querySelector(sel);
 
 function hideLoginPopup() {
   const popup = qs("#loginPopup");
   if (!popup) return;
-
   popup.classList.add("hidden");
-
-  // säkerhetsbälte: plocka bort helt efter animation
-  setTimeout(() => {
-    popup.style.display = "none";
-  }, 260);
+  popup.style.display = "none";
 }
 
-console.log("MAIN.JS LOADED");
-
-// ============================================================
-// IMPORTS (SAFE ORDER)
-// ============================================================
-
-// 🔒 Supabase MUST load first
-import { supabase } from "./globals.js";
-
-// ❌ Analytics DISABLED (explicitly)
-// import "./analytics-frontend.js";
-
-// App modules
-import { resetToHero } from "./cards.js";
-import { buildFrontendSidebar } from "./sidebar.js";
-import "./start.js";
-
-// ============================================================
-// LOGIN POPUP
-// ============================================================
 function showLoginPopup() {
   const popup = qs("#loginPopup");
   if (!popup) return;
-
+  popup.style.display = "flex";
   popup.classList.remove("hidden");
-
-  const email    = qs("#loginEmail");
-  const pass     = qs("#loginPassword");
-  const remember = qs("#rememberMe");
-  const btn      = qs("#loginSubmit");
-  const spinner  = qs("#loginSpinner");
-  const label    = qs(".login-text");
-
-  setTimeout(() => email?.focus(), 80);
-
-  const saved = localStorage.getItem("wcl_saved_email");
-  if (saved && email && remember) {
-    email.value = saved;
-    remember.checked = true;
-  }
-
-  btn.onclick = async () => {
-    const e = email?.value?.trim();
-    const p = pass?.value?.trim();
-
-    if (!e || !p) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
-    if (remember?.checked) {
-      localStorage.setItem("wcl_saved_email", e);
-    } else {
-      localStorage.removeItem("wcl_saved_email");
-    }
-
-    btn.disabled = true;
-    spinner?.classList.remove("hidden");
-    if (label) label.textContent = "Logging in…";
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email: e,
-      password: p,
-    });
-
-    if (error) {
-      alert("Login failed: " + error.message);
-      btn.disabled = false;
-      spinner?.classList.add("hidden");
-      if (label) label.textContent = "Login";
-      return;
-    }
-
-    location.reload();
-  };
 }
 
 // ============================================================
-// LOGOUT
+// INIT SIDEBAR (RUN ONCE)
 // ============================================================
-function setupLogout() {
-  const logout = qs("#logoutBtn");
-  if (!logout) return;
-
-  logout.onclick = async () => {
-    await supabase.auth.signOut();
-    location.reload();
-  };
-}
-
-// ============================================================
-// SIDEBAR — PUBLIC, BUILD ONCE
-// ============================================================
-let SIDEBAR_READY = false;
+let SIDEBAR_BUILT = false;
 
 async function initSidebar() {
-  if (SIDEBAR_READY) return;
+  if (SIDEBAR_BUILT) return;
+  SIDEBAR_BUILT = true;
 
   try {
-    console.log("🧭 Building sidebar (public)");
     await buildFrontendSidebar();
-    SIDEBAR_READY = true;   // 🔑 flyttad hit
   } catch (err) {
-    console.error("❌ Sidebar failed to build", err);
+    console.error("Sidebar build failed:", err);
   }
 }
 
 // ============================================================
-// AUTH GUARD — BLOCKS UI UNTIL AUTH
+// AUTH STATE (NON-BLOCKING)
 // ============================================================
-async function guard() {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  await initSidebar();
+async function handleAuthUI() {
+  const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
-    // 🔒 PUBLIC / LOCKED
-    document.body.classList.add("auth-locked");
-    showLoginPopup();
-    resetToHero();
+    hideLoginPopup();
     return;
   }
 
-  // 🔓 LOGGED IN
-  document.body.classList.remove("auth-locked");
-  hideLoginPopup();   // 🔑 DENNA RAD VAR DET SOM SAKNADES
-  resetToHero();
+  hideLoginPopup();
 }
-
-
 
 // ============================================================
 // BOOT
 // ============================================================
-document.addEventListener("DOMContentLoaded", () => {
-  setupLogout();
-  guard();
+document.addEventListener("DOMContentLoaded", async () => {
+  await initSidebar();
+  await handleAuthUI();
+  resetToHero();
 
+  // ----------------------------------------------------------
+  // ADD STORE BUTTON
+  // ----------------------------------------------------------
   const addBtn = qs("#addStoreBtn");
 
   if (addBtn) {
@@ -175,11 +84,14 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // 🔓 User logged in → go to add store page
       window.location.href = "add-store.html";
     });
   }
 });
+
+// ------------------------------------------------------------
+// AUTH LISTENER (does NOT rebuild sidebar)
+// ------------------------------------------------------------
 supabase.auth.onAuthStateChange(() => {
-  guard();
+  handleAuthUI();
 });
