@@ -888,6 +888,18 @@ body.appendChild(loc);
     `;
     body.appendChild(reviewsLink);
 
+     if (s._is_reported) {
+  const reportInfo = document.createElement("div");
+  reportInfo.className = "report-info";
+  reportInfo.innerHTML = `
+    <div class="report-line">
+      ⚠ Reported issue:
+      <strong>${safe(s._report_type)}</strong>
+    </div>
+  `;
+  body.appendChild(reportInfo);
+}
+
    /* ----------- Status badges ---------- */
 const status = document.createElement("div");
 status.className = "badges";
@@ -916,131 +928,39 @@ status.innerHTML = `
 
 body.appendChild(status);
 
+     /* ----------- Actions ----------- */
+const actions = document.createElement("div");
+actions.className = "actions";
 
-/* ===================== BUTTON ===================== */
-function makeBtn(label, onclick, cls = "") {
-  const b = document.createElement("button");
-  b.className = `btn ${cls}`.trim();
-  b.textContent = label;
-  if (typeof onclick === "function") b.onclick = onclick;
-  return b;
+/* 🔶 REPORT MODERATION (om report) */
+if (s._is_reported) {
+
+  const reviewedBtn = makeBtn("Set Reviewed", async () => {
+    await moderateReport(s._report_id, "set_reviewed");
+  }, "small orange");
+
+  const resolveBtn = makeBtn("Resolve", async () => {
+    await moderateReport(s._report_id, "resolve");
+  }, "small green");
+
+  const rejectBtn = makeBtn("Reject", async () => {
+    await moderateReport(s._report_id, "reject");
+  }, "small danger");
+
+  actions.append(reviewedBtn, resolveBtn, rejectBtn);
 }
 
-/* ==================== MOD ACTIONS ================= */
+/* 🔹 STORE ACTIONS (som vanligt) */
+const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
+const deleteBtn  = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
+const editBtn    = makeBtn("Edit", () => editStore(s.id), "blue");
+const repairBtn  = makeBtn("Repair Photo", () => repairPhoto(s.id, s.place_id, img), "orange");
 
-/*  APPROVE — enda sanningen (ingen edge, ingen fetch) */
-async function approveStore(id) {
-  const { error } = await WCL.supabase
-    .from("stores")
-.update({
-  approved: true,
-  status: "approved",
-  flagged: false
-})
+actions.append(approveBtn, deleteBtn, editBtn, repairBtn);
 
-    .eq("id", id);
-
-  if (error) {
-    console.error("Approve failed:", error);
-    toast("Error approving", "error");
-    return;
-  }
-
-  toast("Approved ");
-  await reloadData(CURRENT_TAB);
-}
-
-
-/*  UNFLAG */
-async function unflagStore(id) {
-  const { error } = await WCL.supabase
-    .from("stores")
-    .update({
-      flagged: false,
-      flag_reason: null
-    })
-    .eq("id", id);
-
-  if (error) {
-    console.error("Unflag failed:", error);
-    toast("Error unflagging", "error");
-    return;
-  }
-
-  toast("Unflagged ");
-  await reloadData(CURRENT_TAB);
-}
-
-
-/* 🗑️ DELETE / RESTORE */
-async function toggleDelete(s) {
-  const next = !s.deleted;
-
-  const { error } = await WCL.supabase
-    .from("stores")
-    .update({ deleted: next })
-    .eq("id", s.id);
-
-  if (error) {
-    console.error("Delete toggle failed:", error);
-    toast("Error updating delete", "error");
-    return;
-  }
-
-  toast(next ? "Moved to Trash " : "Restored ");
-  await reloadData(CURRENT_TAB);
-}
-
-
-/* ==================== REPAIR PHOTO ================= */
-async function repairPhoto(id, place_id, imgEl) {
-  const row = event?.target?.closest("tr");
-  if (row) row.style.transition = "background-color 0.4s ease";
-
-  if (!place_id) {
-    toast("No place_id found for this store", "error");
-    return;
-  }
-
-  //  Markera raden under arbete
-  if (row) row.style.backgroundColor = "rgba(255,165,0,0.25)";
-  toast("Repairing photo...", "info");
-
-  try {
-    const refs = await fetchPhotoRefs(place_id);
-    if (!refs.length) {
-      toast("No photos found from Google", "error");
-      if (row) row.style.backgroundColor = "";
-      return;
-    }
-
-    const newRef = refs[0];
-    const { error } = await WCL.supabase
-      .from("stores")
-      .update({ photo_reference: newRef })
-      .eq("id", id);
-
-    if (error) {
-      console.error(error);
-      toast("Error updating photo", "error");
-      if (row) row.style.backgroundColor = "";
-      return;
-    }
-
-    //  Lyckades — grön blink!
-    toast("Photo repaired ");
-    if (imgEl) imgEl.src = buildPhotoProxyUrl(newRef);
-    if (row) {
-      row.style.backgroundColor = "rgba(144,238,144,0.4)"; // ljusgrön
-      setTimeout(() => (row.style.backgroundColor = ""), 800);
-    }
-
-  } catch (e) {
-    console.error(e);
-    toast("Repair failed", "error");
-    if (row) row.style.backgroundColor = "";
-  }
-}
+card.appendChild(body);
+card.appendChild(actions);
+grid.appendChild(card);
 
 /* ==================== EDIT MODAL ================= */
 async function editStore(id) {
@@ -1356,3 +1276,148 @@ document.addEventListener("DOMContentLoaded", () => {
  $("#searchInput")?.addEventListener("input", () => render());
 });
 
+/* ===================== BUTTON ===================== */
+function makeBtn(label, onclick, cls = "") {
+  const b = document.createElement("button");
+  b.className = `btn ${cls}`.trim();
+  b.textContent = label;
+  if (typeof onclick === "function") b.onclick = onclick;
+  return b;
+}
+
+/* ==================== MOD ACTIONS ================= */
+
+/*  APPROVE — enda sanningen (ingen edge, ingen fetch) */
+async function approveStore(id) {
+  const { error } = await WCL.supabase
+    .from("stores")
+.update({
+  approved: true,
+  status: "approved",
+  flagged: false
+})
+
+    .eq("id", id);
+
+  if (error) {
+    console.error("Approve failed:", error);
+    toast("Error approving", "error");
+    return;
+  }
+
+  toast("Approved ");
+  await reloadData(CURRENT_TAB);
+}
+
+
+/*  UNFLAG */
+async function unflagStore(id) {
+  const { error } = await WCL.supabase
+    .from("stores")
+    .update({
+      flagged: false,
+      flag_reason: null
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Unflag failed:", error);
+    toast("Error unflagging", "error");
+    return;
+  }
+
+  toast("Unflagged ");
+  await reloadData(CURRENT_TAB);
+}
+
+
+/* 🗑️ DELETE / RESTORE */
+async function toggleDelete(s) {
+  const next = !s.deleted;
+
+  const { error } = await WCL.supabase
+    .from("stores")
+    .update({ deleted: next })
+    .eq("id", s.id);
+
+  if (error) {
+    console.error("Delete toggle failed:", error);
+    toast("Error updating delete", "error");
+    return;
+  }
+
+  toast(next ? "Moved to Trash " : "Restored ");
+  await reloadData(CURRENT_TAB);
+}
+
+     /* ==================== REPAIR PHOTO ================= */
+async function repairPhoto(id, place_id, imgEl) {
+  const row = event?.target?.closest("tr");
+  if (row) row.style.transition = "background-color 0.4s ease";
+
+  if (!place_id) {
+    toast("No place_id found for this store", "error");
+    return;
+  }
+
+  //  Markera raden under arbete
+  if (row) row.style.backgroundColor = "rgba(255,165,0,0.25)";
+  toast("Repairing photo...", "info");
+
+  try {
+    const refs = await fetchPhotoRefs(place_id);
+    if (!refs.length) {
+      toast("No photos found from Google", "error");
+      if (row) row.style.backgroundColor = "";
+      return;
+    }
+
+    const newRef = refs[0];
+    const { error } = await WCL.supabase
+      .from("stores")
+      .update({ photo_reference: newRef })
+      .eq("id", id);
+
+    if (error) {
+      console.error(error);
+      toast("Error updating photo", "error");
+      if (row) row.style.backgroundColor = "";
+      return;
+    }
+
+    //  Lyckades — grön blink!
+    toast("Photo repaired ");
+    if (imgEl) imgEl.src = buildPhotoProxyUrl(newRef);
+    if (row) {
+      row.style.backgroundColor = "rgba(144,238,144,0.4)"; // ljusgrön
+      setTimeout(() => (row.style.backgroundColor = ""), 800);
+    }
+
+  } catch (e) {
+    console.error(e);
+    toast("Repair failed", "error");
+    if (row) row.style.backgroundColor = "";
+  }
+}
+
+     
+async function moderateReport(reportId, action) {
+
+  const { error } = await WCL.supabase.rpc(
+    "bo_moderate_store_report_v1",
+    {
+      p_report_id: reportId,
+      p_action: action,
+      p_note: null
+    }
+  );
+
+  if (error) {
+    console.error("Report moderation failed:", error);
+    toast("Moderation failed", "error");
+    return;
+  }
+
+  toast("Report updated");
+  await reloadData("reports");
+}
