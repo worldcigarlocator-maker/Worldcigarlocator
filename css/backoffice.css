@@ -803,3 +803,32 @@ td .flag {
   font-size: 13px;
   opacity: 0.75; /* Clear but still secondary */
 }
+
+/* ================= OFFICIAL WCL LOGOTYPE ================= */
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.1;
+}
+
+/* Main logo text */
+.brand-logo {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+
+  color: rgb(var(--global));
+  opacity: 0.95; /* Not washed out */
+}
+
+/* Sub label */
+.brand-sub {
+  font-size: 13px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin-top: 4px;
+}
