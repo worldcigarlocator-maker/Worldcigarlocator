@@ -1281,7 +1281,7 @@ function closeEdit() {
   document.querySelectorAll(".modal-backdrop").forEach((m) => m.remove());
 }
 /* ============================================================
-   STORE REPORTS — STORE-CENTRIC MODERATION (CANONICAL)
+   STORE REPORTS — STORE-CENTRIC MODERATION (PENDING ONLY)
    ============================================================ */
 
 async function loadStoreReports() {
@@ -1292,8 +1292,9 @@ async function loadStoreReports() {
   if (grid) grid.innerHTML = "<p class='muted center'>Loading reports...</p>";
   if (listWrap) listWrap.style.display = "none";
 
+  // 🔒 Only pending reports (active moderation queue)
   const { data, error } = await WCL.supabase
-    .rpc("bo_list_store_reports_v1", { p_status: null });
+    .rpc("bo_list_store_reports_v1", { p_status: "pending" });
 
   if (error) {
     console.error(error);
@@ -1333,7 +1334,6 @@ async function loadStoreReports() {
 
   render();
 }
-
 /* ===================== UI WIRING ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   console.log(" DOM fully loaded — Backoffice ready");
