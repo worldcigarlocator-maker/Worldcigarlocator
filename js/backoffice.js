@@ -962,6 +962,9 @@ card.appendChild(body);
 card.appendChild(actions);
 grid.appendChild(card);
 
+  }); // stänger forEach
+}     // stänger renderCards
+
 /* ==================== EDIT MODAL ================= */
 async function editStore(id) {
   closeEdit();
