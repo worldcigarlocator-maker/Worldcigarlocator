@@ -68,9 +68,13 @@
 }
 
 #addStoreBtn {
-  background: var(--gold);
-  border-color: var(--gold);
+  background: rgb(var(--global));
+  border-color: rgb(var(--global));
   color: #111;
+}
+
+#addStoreBtn:hover {
+  filter: brightness(1.08);
 }
 
 /* ============================================================
