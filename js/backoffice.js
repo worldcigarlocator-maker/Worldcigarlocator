@@ -322,12 +322,12 @@ else if (level === "country") {
             ${
               !hasPhoto
                 ? `<button class="btn small orange"
-                     onclick="repairPhoto(${s.id}, '${(s.place_id || "").replace(/'/g, "\\'")}')">
+onclick="repairPhoto(${s.id}, '${(s.place_id || "").replace(/'/g, "\\'")}', null, event)"
                      Repair
                    </button>`
                 : ""
             }
-            <button class="btn small danger" onclick="toggleDelete(${s.id})">Delete</button>
+            <button class="btn small danger" onclick="toggleDeleteById(${s.id})">Delete</button>
           </td>
         `;
 
@@ -775,7 +775,6 @@ function renderCards(list) {
     ? "border-green"
     : "border-gold";
 
-
     const card = document.createElement("div");
     card.className = `card ${borderClass}`;
 
@@ -822,7 +821,6 @@ const types = Array.isArray(s.types) ? s.types : (s.type ? [s.type] : []);
 
   return html;
 }).join(" ");
-
 
     const badgeWrap = document.createElement("div");
     badgeWrap.className = "badge-wrap";
@@ -954,7 +952,7 @@ if (s._is_reported) {
 const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
 const deleteBtn  = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
 const editBtn    = makeBtn("Edit", () => editStore(s.id), "blue");
-const repairBtn  = makeBtn("Repair Photo", () => repairPhoto(s.id, s.place_id, img), "orange");
+const repairBtn  = makeBtn("Repair Photo", (ev) => repairPhoto(s.id, s.place_id, img, ev), "orange");
 
 actions.append(approveBtn, deleteBtn, editBtn, repairBtn);
 
@@ -1353,9 +1351,14 @@ async function toggleDelete(s) {
   await reloadData(CURRENT_TAB);
 }
 
+async function toggleDeleteById(id) {
+  const s = STORES.find(x => x.id === id);
+  if (!s) return toast("Store not found", "error");
+  return toggleDelete(s);
+}
      /* ==================== REPAIR PHOTO ================= */
-async function repairPhoto(id, place_id, imgEl) {
-  const row = event?.target?.closest("tr");
+async function repairPhoto(id, place_id, imgEl, ev) {
+  const row = ev?.target?.closest?.("tr") || null;
   if (row) row.style.transition = "background-color 0.4s ease";
 
   if (!place_id) {
