@@ -1,0 +1,68 @@
+body.bo {
+  background:#050505;
+  color:#f5f5f5;
+  font-family:"DM Sans", sans-serif;
+}
+
+.bo-top {
+  padding:20px;
+  border-bottom:1px solid rgba(255,255,255,0.12);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.bo-layout {
+  display:grid;
+  grid-template-columns:350px 1fr;
+  min-height:calc(100vh - 80px);
+}
+
+aside {
+  border-right:1px solid rgba(255,255,255,0.12);
+  padding:20px;
+}
+
+section {
+  padding:20px;
+}
+
+.report-item {
+  padding:10px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  cursor:pointer;
+}
+
+.report-item:hover {
+  background:rgba(255,255,255,0.05);
+}
+
+.report-item.active {
+  background:rgba(115,98,75,0.25);
+}
+
+.hidden {
+  display:none;
+}
+
+.status-line {
+  margin-top:10px;
+  margin-bottom:10px;
+  font-weight:bold;
+}
+
+input, select, button {
+  margin-top:10px;
+  padding:8px;
+  background:#0a0a0a;
+  border:1px solid rgba(255,255,255,0.12);
+  color:#f5f5f5;
+}
+
+button {
+  cursor:pointer;
+}
+
+button:hover {
+  background:rgba(115,98,75,0.3);
+}
