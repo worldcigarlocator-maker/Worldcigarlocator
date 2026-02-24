@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WCL — Store Reports</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="css/start.css">
+  <link rel="stylesheet" href="css/bo-reports.css">
+</head>
+
+<body class="bo">
+
+  <header class="bo-top">
+    <h1>Store Reports</h1>
+
+    <div class="bo-controls">
+      <select id="statusFilter">
+        <option value="pending">Pending</option>
+        <option value="reviewed">Reviewed</option>
+        <option value="resolved">Resolved</option>
+        <option value="rejected">Rejected</option>
+        <option value="all">All</option>
+      </select>
+
+      <button id="refreshBtn">Refresh</button>
+    </div>
+  </header>
+
+  <main class="bo-layout">
+
+    <aside>
+      <div id="reportList"></div>
+    </aside>
+
+    <section>
+      <div id="reportEmpty">
+        Select a report
+      </div>
+
+      <div id="reportDetail" class="hidden">
+
+        <h2 id="detailStoreName"></h2>
+        <div id="detailStoreMeta"></div>
+
+        <div class="status-line">
+          Status: <span id="detailStatusPill"></span>
+        </div>
+
+        <hr>
+
+        <div>
+          <strong>Type:</strong> <span id="detailType"></span><br>
+          <strong>Count:</strong> <span id="detailCount"></span><br>
+          <strong>Created:</strong> <span id="detailCreated"></span><br>
+          <strong>Updated:</strong> <span id="detailUpdated"></span>
+        </div>
+
+        <hr>
+
+        <h3>Store</h3>
+        <div>
+          ID: <span id="detailStoreId"></span><br>
+          Types: <span id="detailStoreTypes"></span><br>
+          Access: <span id="detailStoreAccess"></span><br>
+          Address: <span id="detailStoreAddress"></span><br>
+          Phone: <span id="detailStorePhone"></span><br>
+          Website: <a id="detailStoreWebsite" target="_blank">Open</a>
+        </div>
+
+        <hr>
+
+        <h3>Messages</h3>
+        <div id="detailMessages"></div>
+
+        <hr>
+
+        <h3>Moderation</h3>
+
+        <select id="statusSelect">
+          <option value="pending">pending</option>
+          <option value="reviewed">reviewed</option>
+          <option value="resolved">resolved</option>
+          <option value="rejected">rejected</option>
+        </select>
+
+        <input id="actionNote" placeholder="Note (optional)" />
+
+        <button id="setStatusBtn">Set Status</button>
+
+        <hr>
+
+        <h3>Audit</h3>
+        <div id="detailAudit"></div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script type="module" src="js/bo-reports.js"></script>
+</body>
+</html>
