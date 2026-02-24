@@ -1,23 +1,17 @@
 // ============================================================
-// MAIN.JS — WCL Frontend (PUBLIC-FIRST · STABLE)
-// - Sidebar always builds
-// - Page always interactive
-// - Auth only gates specific actions (like Add Store)
+// MAIN.JS — WCL Frontend (CLEAN · DEBUG-SAFE)
 // ============================================================
 
-// ============================================================
-// IMPORTS
-// ============================================================
 import { supabase } from "./globals.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import { resetToHero } from "./cards.js";
 import "./start.js";
 
-// ============================================================
-// HELPERS
-// ============================================================
 const qs = (sel) => document.querySelector(sel);
 
+// ============================================================
+// LOGIN POPUP
+// ============================================================
 function hideLoginPopup() {
   const popup = qs("#loginPopup");
   if (!popup) return;
@@ -33,41 +27,20 @@ function showLoginPopup() {
 }
 
 // ============================================================
-// INIT SIDEBAR (RUN ONCE)
-// ============================================================
-let SIDEBAR_BUILT = false;
-
-async function initSidebar() {
-  if (SIDEBAR_BUILT) return;
-  SIDEBAR_BUILT = true;
-
-  try {
-    await buildFrontendSidebar();
-  } catch (err) {
-    console.error("Sidebar build failed:", err);
-  }
-}
-
-// ============================================================
-// AUTH STATE (NON-BLOCKING)
-// ============================================================
-async function handleAuthUI() {
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session) {
-    hideLoginPopup();
-    return;
-  }
-
-  hideLoginPopup();
-}
-
-// ============================================================
 // BOOT
 // ============================================================
 document.addEventListener("DOMContentLoaded", async () => {
-  await initSidebar();
-  await handleAuthUI();
+
+  console.log("MAIN BOOT");
+
+  // 🔥 Bygg sidebar DIREKT (ingen flagga)
+  try {
+    await buildFrontendSidebar();
+    console.log("SIDEBAR BUILT");
+  } catch (err) {
+    console.error("SIDEBAR ERROR:", err);
+  }
+
   resetToHero();
 
   // ----------------------------------------------------------
@@ -87,11 +60,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       window.location.href = "add-store.html";
     });
   }
+
 });
 
 // ------------------------------------------------------------
-// AUTH LISTENER (does NOT rebuild sidebar)
+// AUTH LISTENER (UI only)
 // ------------------------------------------------------------
 supabase.auth.onAuthStateChange(() => {
-  handleAuthUI();
+  hideLoginPopup();
 });
