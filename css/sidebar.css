@@ -144,8 +144,9 @@
 
 /* ================= COUNTRY ================= */
 
-.line.country {
-  font-weight: 500;
+/* 🔒 Ingen artificiell offset på första noden (orsakar “tom sidebar” på mobil) */
+#sidebarMenu > .node:first-child > .line.continent {
+  padding-top: 0.65rem; /* matchar .line.continent baseline */
 }
 
 /* ================= STATE / CITY ================= */
