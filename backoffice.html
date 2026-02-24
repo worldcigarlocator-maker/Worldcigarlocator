@@ -1,116 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+  <!-- ============================================================
+       META
+       ============================================================ -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <title>Backoffice — World Cigar Locator</title>
 
-  <!-- Supabase -->
+  <!-- ============================================================
+       SUPABASE (must load before backoffice.js)
+       ============================================================ -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- CSS -->
+  <!-- ============================================================
+       STYLES
+       ============================================================ -->
   <link rel="stylesheet" href="css/backoffice.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
 </head>
 
 <body>
 
-<!-- ============================================================
-     LOGIN SCREEN
-     ============================================================ -->
-<div id="login-screen" class="login-screen" style="display:none">
-  <div class="login-card">
-    <h2>World Cigar Locator — Backoffice</h2>
-    <input id="email" type="email" placeholder="Email" autocomplete="username" />
-    <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
-    <button id="login-btn">Login</button>
-    <p id="login-error" class="error"></p>
-  </div>
-</div>
+  <!-- ============================================================
+       LOGIN SCREEN
+       Hidden until authentication passes
+       ============================================================ -->
+  <div id="login-screen" class="login-screen" style="display:none">
+    <div class="login-card">
+      <h2>World Cigar Locator — Backoffice</h2>
 
-<!-- ============================================================
-     MAIN WRAPPER
-     ============================================================ -->
-<div class="wrap" style="display:none">
+      <input id="email" type="email" placeholder="Email" autocomplete="username" />
+      <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
 
-  <!-- ================= TOPBAR ================= -->
-  <div class="topbar">
-    <div class="left">
-      <button class="btn blue" onclick="location.href='add-store-backoffice.html'">
-        ＋ Add Store
-      </button>
-
-      <button class="btn ghost" onclick="location.href='analytics.html'">
-        📊 Analytics
-      </button>
-
-      <button class="btn green" onclick="reloadData()">
-        ⟲ Reload
-      </button>
+      <button id="login-btn">Login</button>
+      <p id="login-error" class="error"></p>
     </div>
   </div>
 
-  <!-- ================= FILTER TABS ================= -->
-  <div class="filters">
-    <button class="pill" data-tab="all">All</button>
-    <button class="pill" data-tab="approved">Approved</button>
-    <div class="pill" data-tab="duplicates">Duplicates</div>
-    <button class="pill active" data-tab="pending">Pending</button>
-    <button class="pill" data-tab="flagged">Flagged</button>
-    <button class="pill" data-tab="deleted">Trash</button>
-  </div>
+  <!-- ============================================================
+       MAIN APPLICATION WRAPPER
+       Hidden until admin authentication succeeds
+       ============================================================ -->
+  <div class="wrap" style="display:none">
 
-  <!-- ================= SEARCH + VIEW ================= -->
-  <div class="searchbar">
-    <input id="searchInput" placeholder="Search by name, city, country…" />
-    <div class="viewtoggle">
-      <span class="seg active" data-view="cards">Cards</span>
-      <span class="seg" data-view="list">List</span>
+    <!-- ============================================================
+         TOPBAR
+         Primary admin actions
+         ============================================================ -->
+    <div class="topbar">
+      <div class="left">
+
+        <!-- Add new store -->
+        <button class="btn blue" onclick="location.href='add-store-backoffice.html'">
+          ＋ Add Store
+        </button>
+
+        <!-- Analytics dashboard -->
+        <button class="btn ghost" onclick="location.href='analytics.html'">
+          📊 Analytics
+        </button>
+
+        <!-- Manual reload -->
+        <button class="btn green" onclick="reloadData()">
+          ⟲ Reload
+        </button>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         FILTER TABS
+         Controls moderation state views
+         ============================================================ -->
+    <div class="filters">
+      <button class="pill" data-tab="all">All</button>
+      <button class="pill" data-tab="approved">Approved</button>
+      <div class="pill" data-tab="duplicates">Duplicates</div>
+      <button class="pill active" data-tab="pending">Pending</button>
+      <button class="pill" data-tab="flagged">Flagged</button>
+      <button class="pill" data-tab="deleted">Trash</button>
+      <button class="pill orange" data-tab="reports">Reports</button>
+    </div>
+
+    <!-- ============================================================
+         SEARCH + VIEW TOGGLE
+         ============================================================ -->
+    <div class="searchbar">
+      <input id="searchInput" placeholder="Search by name, city, country…" />
+
+      <div class="viewtoggle">
+        <span class="seg active" data-view="cards">Cards</span>
+        <span class="seg" data-view="list">List</span>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         CARD VIEW
+         Default moderation layout
+         ============================================================ -->
+    <div id="cards" class="grid"></div>
+
+    <!-- ============================================================
+         LIST VIEW (Hierarchy Mode)
+         ============================================================ -->
+    <div class="listview-wrap" style="display:none;">
+
+      <!-- Hierarchy Controls -->
+      <div class="hierarchy-header">
+        <button id="expandAll" class="btn ghost small">Expand All</button>
+        <button id="collapseAll" class="btn ghost small">Collapse All</button>
+      </div>
+
+      <!-- Hierarchy container -->
+      <div id="hierarchyPanel"></div>
+
+      <!-- Flat table fallback -->
+      <div id="table" class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Country</th>
+              <th>State</th>
+              <th>City</th>
+              <th>Continent</th>
+              <th>Type</th>
+              <th>Access</th>
+              <th>Rating</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
     </div>
   </div>
 
-  <!-- ================= CARD VIEW ================= -->
-  <div id="cards" class="grid"></div>
+  <!-- ============================================================
+       TOAST CONTAINER
+       Used for system notifications
+       ============================================================ -->
+  <div id="toast-container"></div>
 
-  <!-- ================= LIST VIEW ================= -->
-  <div class="listview-wrap" style="display:none;">
-
-    <div class="hierarchy-header">
-      <button id="expandAll" class="btn ghost small">Expand All</button>
-      <button id="collapseAll" class="btn ghost small">Collapse All</button>
-    </div>
-
-    <div id="hierarchyPanel"></div>
-
-    <div id="table" class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Country</th>
-            <th>State</th>
-            <th>City</th>
-            <th>Continent</th>
-            <th>Type</th>
-            <th>Access</th>
-            <th>Rating</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-
-  </div>
-</div>
-
-<div id="toast-container"></div>
-
-<!-- ============================================================
-     SCRIPT (must stay inside body)
-     ============================================================ -->
-<script src="js/backoffice.js"></script>
+  <!-- ============================================================
+       MAIN BACKOFFICE SCRIPT
+       Must be last before closing body
+       ============================================================ -->
+  <script src="js/backoffice.js"></script>
 
 </body>
 </html>
