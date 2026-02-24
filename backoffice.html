@@ -7,17 +7,12 @@
        ============================================================ -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <title>Backoffice — World Cigar Locator</title>
 
-  <!-- ============================================================
-       SUPABASE (must load before backoffice.js)
-       ============================================================ -->
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- ============================================================
-       STYLES
-       ============================================================ -->
+  <!-- Styles -->
   <link rel="stylesheet" href="css/backoffice.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
 </head>
@@ -26,54 +21,55 @@
 
   <!-- ============================================================
        LOGIN SCREEN
-       Hidden until authentication passes
        ============================================================ -->
   <div id="login-screen" class="login-screen" style="display:none">
     <div class="login-card">
       <h2>World Cigar Locator — Backoffice</h2>
-
       <input id="email" type="email" placeholder="Email" autocomplete="username" />
       <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
-
       <button id="login-btn">Login</button>
       <p id="login-error" class="error"></p>
     </div>
   </div>
 
   <!-- ============================================================
-       MAIN APPLICATION WRAPPER
-       Hidden until admin authentication succeeds
+       MAIN WRAPPER
        ============================================================ -->
   <div class="wrap" style="display:none">
 
     <!-- ============================================================
-         TOPBAR
-         Primary admin actions
+         PREMIUM TOPBAR
          ============================================================ -->
-    <div class="topbar">
-      <div class="left">
+    <div class="topbar premium">
 
-        <!-- Add new store -->
+      <!-- Brand section -->
+      <div class="brand">
+        <div class="logo-circle">WCL</div>
+        <div class="brand-text">
+          <div class="brand-name">World Cigar Locator</div>
+          <div class="brand-sub">Admin Panel</div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="actions">
         <button class="btn blue" onclick="location.href='add-store-backoffice.html'">
           ＋ Add Store
         </button>
 
-        <!-- Analytics dashboard -->
         <button class="btn ghost" onclick="location.href='analytics.html'">
           📊 Analytics
         </button>
 
-        <!-- Manual reload -->
         <button class="btn green" onclick="reloadData()">
           ⟲ Reload
         </button>
-
       </div>
+
     </div>
 
     <!-- ============================================================
          FILTER TABS
-         Controls moderation state views
          ============================================================ -->
     <div class="filters">
       <button class="pill" data-tab="all">All</button>
@@ -90,7 +86,6 @@
          ============================================================ -->
     <div class="searchbar">
       <input id="searchInput" placeholder="Search by name, city, country…" />
-
       <div class="viewtoggle">
         <span class="seg active" data-view="cards">Cards</span>
         <span class="seg" data-view="list">List</span>
@@ -99,25 +94,21 @@
 
     <!-- ============================================================
          CARD VIEW
-         Default moderation layout
          ============================================================ -->
     <div id="cards" class="grid"></div>
 
     <!-- ============================================================
-         LIST VIEW (Hierarchy Mode)
+         LIST VIEW
          ============================================================ -->
     <div class="listview-wrap" style="display:none;">
 
-      <!-- Hierarchy Controls -->
       <div class="hierarchy-header">
         <button id="expandAll" class="btn ghost small">Expand All</button>
         <button id="collapseAll" class="btn ghost small">Collapse All</button>
       </div>
 
-      <!-- Hierarchy container -->
       <div id="hierarchyPanel"></div>
 
-      <!-- Flat table fallback -->
       <div id="table" class="table-wrap">
         <table>
           <thead>
@@ -141,16 +132,10 @@
     </div>
   </div>
 
-  <!-- ============================================================
-       TOAST CONTAINER
-       Used for system notifications
-       ============================================================ -->
+  <!-- Toast -->
   <div id="toast-container"></div>
 
-  <!-- ============================================================
-       MAIN BACKOFFICE SCRIPT
-       Must be last before closing body
-       ============================================================ -->
+  <!-- Main Script -->
   <script src="js/backoffice.js"></script>
 
 </body>
