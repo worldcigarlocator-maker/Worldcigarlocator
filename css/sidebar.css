@@ -84,7 +84,9 @@
   justify-content: center;
   align-items: center;
   padding: 0.45rem 0;
-  border-top: 1px solid rgba(255,255,255,0.06);
+
+  /* Divider under count (så det inte “flyter ihop” med hierarkin) */
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 #sidebarGlobalCount {
@@ -137,16 +139,15 @@
   padding-bottom: 0.65rem;
 }
 
-/* 🔑 FLYTTA NER HIERARKIN UTAN ATT FLYTTA DIVIDER */
-#sidebarMenu > .node:first-child > .line.continent {
-  padding-top: 6.4rem;   /* justera 1.2–1.6 efter smak */
-}
+/* ✅ VIKTIGT:
+   Denna “padding-top: 6.4rem”-hack gjorde att hierarkin såg tom ut.
+   Vi tar bort den helt så listan alltid startar direkt under count.
+*/
 
 /* ================= COUNTRY ================= */
 
-/* 🔒 Ingen artificiell offset på första noden (orsakar “tom sidebar” på mobil) */
-#sidebarMenu > .node:first-child > .line.continent {
-  padding-top: 0.65rem; /* matchar .line.continent baseline */
+.line.country {
+  font-weight: 500;
 }
 
 /* ================= STATE / CITY ================= */
