@@ -1,16 +1,9 @@
 // ============================================================
-// SIDEBAR.JS — WCL Sidebar (CANONICAL · FINAL CLEAN)
-// ============================================================
-// - Backend: sidebar_nodes_v3 (view wrapping sidebar_nodes_v2())
-// - Paginated fetch (Supabase hard cap safe)
-// - Deterministic model build
-// - Wrapper-based DOM (no sibling dependency)
+// SIDEBAR.JS — WCL Sidebar (CANONICAL · STABLE)
 // ============================================================
 
 import { activateLocation } from "./cards.js";
 import { supabase } from "./globals.js";
-
-const menu = document.querySelector("#sidebarMenu");
 
 const sortAZ = (a, b) =>
   String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
@@ -27,7 +20,7 @@ async function fetchSidebarRows() {
 
   while (true) {
     const { data, error } = await supabase
-   .from("sidebar_nodes_v3")
+      .from("sidebar_nodes_v3")
       .select("*")
       .order("continent")
       .order("country")
@@ -38,19 +31,15 @@ async function fetchSidebarRows() {
     if (error) throw error;
 
     all = all.concat(data || []);
-
     if (!data || data.length < PAGE_SIZE) break;
-
     from += PAGE_SIZE;
   }
 
   return all;
 }
 
-
-
 // ============================================================
-// MODEL BUILD (Deterministic)
+// MODEL BUILD
 // ============================================================
 function buildModel(rows) {
   const continents = {};
@@ -71,9 +60,6 @@ function buildModel(rows) {
       states: {},
       cities: {},
     };
-    if (!c.countries[country].iso2 && iso2) {
-      c.countries[country].iso2 = iso2;
-    }
     return c.countries[country];
   };
 
@@ -122,9 +108,6 @@ function buildModel(rows) {
           co.cities[city] = count;
         }
         break;
-
-      default:
-        break;
     }
   }
 
@@ -135,6 +118,7 @@ function buildModel(rows) {
 // ENTRY
 // ============================================================
 export async function buildFrontendSidebar() {
+  const menu = document.querySelector("#sidebarMenu");
   if (!menu) return;
 
   menu.innerHTML = "Loading…";
@@ -142,7 +126,6 @@ export async function buildFrontendSidebar() {
   let rows;
   try {
     rows = await fetchSidebarRows();
-    window.__SIDEBAR_ROWS__ = rows;   // ← HÄR
   } catch (e) {
     console.error("Sidebar load failed", e);
     menu.innerHTML = "Failed to load";
@@ -150,18 +133,16 @@ export async function buildFrontendSidebar() {
   }
 
   const model = buildModel(rows);
-  window.__SIDEBAR_MODEL__ = model;   // ← OCH HÄR
 
   menu.innerHTML = "";
-  renderSidebar(model);
-  bindSidebarEvents();
+  renderSidebar(model, menu);
+  bindSidebarEvents(menu);
 }
-
 
 // ============================================================
 // RENDER
 // ============================================================
-function renderSidebar(continents) {
+function renderSidebar(continents, menu) {
   Object.entries(continents)
     .sort(([a], [b]) => sortAZ(a, b))
     .forEach(([continent, cData]) => {
@@ -266,12 +247,7 @@ function createNode(type, label, count, iso2, path) {
 // ============================================================
 // EVENTS
 // ============================================================
-let EVENTS_BOUND = false;
-
-function bindSidebarEvents() {
-  if (EVENTS_BOUND) return;
-  EVENTS_BOUND = true;
-
+function bindSidebarEvents(menu) {
   menu.addEventListener("click", (e) => {
     const line = e.target.closest(".line");
     if (!line) return;
