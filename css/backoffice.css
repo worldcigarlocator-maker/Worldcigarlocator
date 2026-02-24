@@ -754,3 +754,12 @@ td .flag {
   display: flex;
   gap: 10px;
 }
+
+/* === FORCE MINI HERO SIZE (hard override) === */
+.topbar img.brand-hero {
+  width: 42px !important;
+  height: 42px !important;
+  max-width: 42px !important;
+  display: block !important;
+  object-fit: cover !important;
+}
