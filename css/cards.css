@@ -478,3 +478,21 @@ mark.hl {
 .visit-link a:hover {
   opacity: 0.75;
 }
+
+#loadMoreBtn {
+  display: block;
+  margin: 2rem auto 3rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--global));
+  background: transparent;
+  color: rgb(var(--global));
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#loadMoreBtn:hover {
+  background: rgb(var(--global));
+  color: white;
+}
