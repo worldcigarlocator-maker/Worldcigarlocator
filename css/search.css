@@ -47,10 +47,11 @@
 .zone-filters {
   display: flex;
   align-items: center;
-  gap: 1.4rem;
+  gap: 1rem;          /* 🔥 lite tightare */
+  flex: 1 1 auto;
 
-  flex: 1 1 auto;   /* 🔑 krymper först */
   overflow: hidden;
+  white-space: nowrap;   /* 🔥 stoppar radbrytning */
 }
 
 /* ================= SEARCH ================= */
