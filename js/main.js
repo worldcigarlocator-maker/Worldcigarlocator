@@ -1,5 +1,5 @@
 // ============================================================
-// MAIN.JS — WCL Frontend (CLEAN · DEBUG-SAFE)
+// MAIN.JS — WCL Frontend (CLEAN · DEBUG-SAFE · AUTH-GATE FIXED)
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -10,7 +10,7 @@ import "./start.js";
 const qs = (sel) => document.querySelector(sel);
 
 // ============================================================
-// LOGIN POPUP
+// LOGIN POPUP (UI)
 // ============================================================
 function hideLoginPopup() {
   const popup = qs("#loginPopup");
@@ -27,45 +27,138 @@ function showLoginPopup() {
 }
 
 // ============================================================
-// BOOT
+// AUTH GATE (source of truth = session)
 // ============================================================
-document.addEventListener("DOMContentLoaded", async () => {
+async function syncAuthGate() {
+  const { data: { session } } = await supabase.auth.getSession();
 
-  console.log("MAIN BOOT");
+  // 🔒 If not logged in, keep gate visible
+  if (!session) {
+    showLoginPopup();
+    return;
+  }
 
-  // 🔥 Bygg sidebar DIREKT (ingen flagga)
+  // 🔓 Logged in
+  hideLoginPopup();
+}
+
+// ============================================================
+// LOGIN BINDINGS
+// ============================================================
+function bindLoginButtons() {
+  // Sidebar "Login" button
+  const loginBtn = qs("#loginBtn");
+  loginBtn?.addEventListener("click", () => showLoginPopup());
+
+  // Popup submit
+  const submit = qs("#loginSubmit");
+  submit?.addEventListener("click", async () => {
+    const email = qs("#loginEmail")?.value?.trim();
+    const pass  = qs("#loginPassword")?.value?.trim();
+    const remember = qs("#rememberMe");
+
+    const spinner = qs("#loginSpinner");
+    const label   = qs(".login-text");
+
+    if (!email || !pass) {
+      alert("Please fill in email and password.");
+      return;
+    }
+
+    // Remember email (optional)
+    try {
+      if (remember?.checked) localStorage.setItem("wcl_saved_email", email);
+      else localStorage.removeItem("wcl_saved_email");
+    } catch {}
+
+    submit.disabled = true;
+    spinner?.classList.remove("hidden");
+    if (label) label.textContent = "Logging in…";
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password: pass,
+    });
+
+    if (error) {
+      alert("Login failed: " + error.message);
+      submit.disabled = false;
+      spinner?.classList.add("hidden");
+      if (label) label.textContent = "Login";
+      return;
+    }
+
+    // Auth listener will hide, but hide immediately feels snappy
+    hideLoginPopup();
+  });
+
+  // Pre-fill email if remembered
+  try {
+    const saved = localStorage.getItem("wcl_saved_email");
+    const emailEl = qs("#loginEmail");
+    const rememberEl = qs("#rememberMe");
+    if (saved && emailEl) {
+      emailEl.value = saved;
+      if (rememberEl) rememberEl.checked = true;
+    }
+  } catch {}
+}
+
+// ============================================================
+// SIDEBAR INIT (run once)
+// ============================================================
+let SIDEBAR_BUILT = false;
+
+async function initSidebarOnce() {
+  if (SIDEBAR_BUILT) return;
+  SIDEBAR_BUILT = true;
+
   try {
     await buildFrontendSidebar();
     console.log("SIDEBAR BUILT");
   } catch (err) {
     console.error("SIDEBAR ERROR:", err);
   }
+}
 
+// ============================================================
+// BOOT
+// ============================================================
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("MAIN BOOT");
+
+  // Build sidebar
+  await initSidebarOnce();
+
+  // Bind login UI
+  bindLoginButtons();
+
+  // Always reset hero (safe)
   resetToHero();
 
+  // Sync gate with session (show if not logged in)
+  await syncAuthGate();
+
   // ----------------------------------------------------------
-  // ADD STORE BUTTON
+  // ADD STORE BUTTON (auth guarded)
   // ----------------------------------------------------------
   const addBtn = qs("#addStoreBtn");
 
-  if (addBtn) {
-    addBtn.addEventListener("click", async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+  addBtn?.addEventListener("click", async () => {
+    const { data: { session } } = await supabase.auth.getSession();
 
-      if (!session) {
-        showLoginPopup();
-        return;
-      }
+    if (!session) {
+      showLoginPopup();
+      return;
+    }
 
-      window.location.href = "add-store.html";
-    });
-  }
-
+    window.location.href = "add-store.html";
+  });
 });
 
 // ------------------------------------------------------------
-// AUTH LISTENER (UI only)
+// AUTH LISTENER (sync gate only; never rebuild sidebar)
 // ------------------------------------------------------------
 supabase.auth.onAuthStateChange(() => {
-  hideLoginPopup();
+  syncAuthGate();
 });
