@@ -20,61 +20,84 @@
   <!-- ============================================================
        PAGE-SPECIFIC STYLES (Public Add Store)
   ============================================================ -->
-  <style>
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: "DM Sans", sans-serif;
-      margin: 0;
-      padding: 2rem 1rem;
-    }
+ <style>
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "DM Sans", sans-serif;
+    margin: 0;
+    padding: 2rem 1rem;
+  }
 
-    .wrap {
-      max-width: 860px;
-      margin: 0 auto;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2rem;
-    }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+  }
 
-    h1 {
-      margin-bottom: 1.8rem;
-      font-size: 1.6rem;
-    }
+  /* ============================================================
+     HEADER LAYOUT
+  ============================================================ */
 
-    /* Layout grid */
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.9rem 1.2rem;
-    }
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
 
-    .full {
-      grid-column: 1 / -1;
-    }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+  }
 
-    /* Form controls */
-    label {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 0.35rem;
-    }
+  .page-header h1 {
+    margin: 0;
+    font-size: 1.6rem;
+  }
 
-    input,
-    textarea {
-      width: 100%;
-      padding: 0.6rem 0.75rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: #0f0f0f;
-      color: white;
-    }
+  .header-back {
+    font-size: 0.9rem;
+  }
 
-    textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
+  /* ============================================================
+     FORM GRID
+  ============================================================ */
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem 1.2rem;
+  }
+
+  .full {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #0f0f0f;
+    color: white;
+  }
+
+  textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
 
     /* ============================================================
        Unified Pill Row (Type + Access)
@@ -147,25 +170,36 @@
       justify-content: space-between;
       margin-top: 2.2rem;
     }
+.btn-primary {
+  background: rgb(var(--global));
+  border: none;
+  color: white;
+  padding: 0.7rem 1.6rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
 
-    .btn-primary {
-      background: rgb(var(--global));
-      border: none;
-      color: white;
-      padding: 0.65rem 1.4rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-    }
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(var(--global), 0.25);
+}
 
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: white;
-      padding: 0.65rem 1.4rem;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.55);
+  padding: 0.4rem 0.6rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.btn-ghost:hover {
+  color: white;
+}
   </style>
 </head>
 
@@ -174,11 +208,23 @@
   <!-- ============================================================
        MAIN WRAPPER
   ============================================================ -->
-  <div class="wrap">
+<div class="wrap">
 
-    <h1>Add a Store</h1>
+  <div class="page-header">
+    <div class="header-left">
+      <h1>Add Listing</h1>
+      <button id="saveBtn" class="btn-primary">
+        Save
+      </button>
+    </div>
 
-    <div class="grid">
+    <button class="btn-ghost header-back"
+            onclick="window.location.href='index.html'">
+      Back to Home
+    </button>
+  </div>
+
+  <div class="grid">
 
       <!-- Google Autocomplete -->
       <div class="full">
@@ -269,17 +315,6 @@
         <div id="photo-meta" style="text-align:center;margin-top:.4rem;">
           No photo loaded
         </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="full actions">
-        <button class="btn-ghost"
-                onclick="window.location.href='index.html'">
-          Back to Home
-        </button>
-        <button id="saveBtn" class="btn-primary">
-          Save
-        </button>
       </div>
 
     </div>
