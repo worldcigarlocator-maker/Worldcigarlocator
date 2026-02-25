@@ -75,16 +75,24 @@ body.static-page {
   object-fit: contain;
 }
 /* ============================================================
-   AUTH LOCK (PUBLIC MODE)
+   AUTH LOCK (PUBLIC MODE) — SAFE STACKING
    ============================================================ */
 
 body.auth-locked {
   overflow: hidden;
 }
 
-body.auth-locked .container {
+/* Blur ONLY the app parts (avoids container stacking bugs) */
+body.auth-locked .sidebar,
+body.auth-locked .main {
   filter: blur(6px);
   pointer-events: none;
+}
+
+/* Optional: dim as well (nicer) */
+body.auth-locked .sidebar,
+body.auth-locked .main {
+  opacity: 0.85;
 }
 
 /* ============================================================
