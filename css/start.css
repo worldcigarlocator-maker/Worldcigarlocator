@@ -88,17 +88,21 @@ body.auth-locked .container {
 }
 
 /* ============================================================
-   LOGIN POPUP — FADE OUT
-   ============================================================ */
+   LOGIN OVERLAY — ABSOLUTE TOP LAYER
+============================================================ */
 
 .login-popup {
-  opacity: 1;
-  transition: opacity 0.25s ease;
-}
+  position: fixed;
+  inset: 0;
 
-.login-popup.hidden {
-  opacity: 0;
-  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(6px);
+
+  z-index: 9999;   /* 🔥 above EVERYTHING */
 }
 
 /* ================= COOKIE BANNER ================= */
