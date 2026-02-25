@@ -30,7 +30,7 @@
 
 .sidebar-header {
   padding: 2.2rem 1.2rem 1.4rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--divider);
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
@@ -102,7 +102,7 @@
   padding: 0.45rem 0;
 
   /* Divider under count (så det inte “flyter ihop” med hierarkin) */
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid var(--divider);
 }
 
 #sidebarGlobalCount {
@@ -151,8 +151,8 @@
   font-weight: 600;
   color: #766148;
 
-  border-top: 1px solid rgba(255,255,255,0.14);
-  border-bottom: 1px solid rgba(255,255,255,0.14);
+border-top: 1px solid var(--divider);
+border-bottom: 1px solid var(--divider);
 
   padding-top: 0.65rem;
   padding-bottom: 0.65rem;
@@ -241,7 +241,7 @@
 .sidebar-footer {
   margin-top: auto;
   padding: 1.1rem 1.2rem 1.25rem;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--divider);
 
   display: flex;
   flex-direction: column;
