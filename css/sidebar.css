@@ -24,6 +24,8 @@
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
+   
+   position: relative;  /* ← ADD THIS */
 }
 
 /* ================= HEADER ================= */
@@ -277,4 +279,28 @@ border-bottom: 1px solid var(--divider);
 
 .sidebar-footer a[href^="mailto:"]:hover {
   color: var(--gold);
+}
+
+/* ============================================================
+   SUBTLE SIGNATURE MARK (AB)
+============================================================ */
+
+.sidebar-mark{
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  color: rgb(var(--global));
+  opacity: 0.10;
+  pointer-events: none;
+}
+
+.sidebar-mark svg{
+  width: 22px;
+  height: auto;
+  display: block;
+}
+
+.sidebar-mark svg *{
+  fill: currentColor !important;
+  stroke: currentColor !important;
 }
