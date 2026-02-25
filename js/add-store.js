@@ -260,7 +260,6 @@ async function saveStore() {
 const state = stateRaw || null;
 
   const country = document.getElementById("country")?.value.trim();
-  const continent = document.getElementById("continent")?.value || null;
   const phone = document.getElementById("phone")?.value.trim();
   const website = document.getElementById("website")?.value.trim();
 
@@ -301,7 +300,6 @@ const state = stateRaw || null;
     city,
     state,
     country,
-    continent,
     phone,
     website,
     types: [...selectedTypes],
