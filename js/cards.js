@@ -250,13 +250,20 @@ export function toggleChip({ type, access }) {
   if (type !== undefined) {
     STATE.chips.type = STATE.chips.type === type ? null : type;
   }
+
   if (access !== undefined) {
     STATE.chips.access = STATE.chips.access === access ? null : access;
   }
+
   resetPagination();
+
+  // 🔒 Filters are modifiers only in IDLE
+  if (MASTER_MODE === MASTER.IDLE) {
+    return;
+  }
+
   runSearch();
 }
-
 export function clearSearchMaster() {
   if (MASTER_MODE === MASTER.SEARCH) {
     clearSearch();
