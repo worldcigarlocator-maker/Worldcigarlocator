@@ -103,6 +103,10 @@ export function resetToHero() {
   const hero = dom("#heroImage");
 
   if (grid) grid.innerHTML = "";
+
+  const btn = document.getElementById("loadMoreBtn");
+  if (btn) btn.style.display = "none";
+
   if (hero) hero.style.display = "block";
 
   resetPagination();
