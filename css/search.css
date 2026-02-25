@@ -54,6 +54,10 @@
   white-space: nowrap;   /* 🔥 stoppar radbrytning */
 }
 
+.zone-filters button {
+  white-space: nowrap;
+}
+
 /* ================= SEARCH ================= */
 
 .search-label {
