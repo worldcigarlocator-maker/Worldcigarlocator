@@ -296,6 +296,7 @@ border-bottom: 1px solid var(--divider);
   opacity: 0.06;      /* 🔥 premium subtle */
 
   pointer-events: none;
+     z-index: 1;   /* 🔥 ADD THIS */
 }
 
 .sidebar-mark svg{
