@@ -57,36 +57,35 @@
 }
 
 /* ============================================================
-   SIDEBAR ACTION BUTTONS (UNIFIED)
+   SIDEBAR ACTION BUTTONS — PREMIUM OUTLINE
 ============================================================ */
 
 .sidebar-btn {
-  height: 44px;
-  padding: 0 1.6rem;
+  height: 42px;
+  padding: 0 1.4rem;
   border-radius: 999px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  letter-spacing: 0.5px;
+  font-weight: 500;
+  font-size: 0.88rem;
+  letter-spacing: 0.6px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(255,255,255,0.25);
+  transition: all 0.25s ease;
+
   background: transparent;
-  color: white;
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.85);
 }
 
-/* Ghost (Login) */
-.sidebar-btn:not(.primary) {
-  background: transparent;
-}
-
-/* Primary (Add Store) */
+/* Add Listing gets subtle gold tone */
 .sidebar-btn.primary {
-  background: rgb(var(--global));
-  border: 1px solid rgb(var(--global));
-  color: #111;
+  border: 1px solid rgba(118,97,72,0.7);
+  color: #766148;
 }
 
+/* Elegant hover */
 .sidebar-btn:hover {
+  border-color: #766148;
+  color: #ffffff;
+  background: rgba(118,97,72,0.08);
   transform: translateY(-1px);
 }
 /* ============================================================
