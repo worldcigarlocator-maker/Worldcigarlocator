@@ -73,6 +73,7 @@
   background: transparent;
   border: 1px solid rgba(255,255,255,0.25);
   color: white;
+   white-space: nowrap;   /* 🔥 prevents line break */
 }
 
 /* Remove special styling from primary */
