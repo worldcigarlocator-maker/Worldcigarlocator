@@ -42,41 +42,39 @@
   align-items: center;
 }
 
-/* ================= ACTIONS ================= */
-
-.sidebar-actions {
-  display: flex;
-  gap: 0.6rem;
-}
+/* ============================================================
+   SIDEBAR ACTION BUTTONS (UNIFIED)
+============================================================ */
 
 .sidebar-btn {
-  flex: 1;
-  height: 36px;
+  height: 44px;
+  padding: 0 1.6rem;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text);
-  font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: transparent;
+  color: white;
 }
 
-#addStoreBtn {
+/* Ghost (Login) */
+.sidebar-btn:not(.primary) {
+  background: transparent;
+}
+
+/* Primary (Add Store) */
+.sidebar-btn.primary {
   background: rgb(var(--global));
-  border-color: rgb(var(--global));
+  border: 1px solid rgb(var(--global));
   color: #111;
 }
 
-#addStoreBtn:hover {
-  filter: brightness(1.08);
+.sidebar-btn:hover {
+  transform: translateY(-1px);
 }
-
 /* ============================================================
    SIDEBAR TOTAL (GLOBAL COUNT ZONE)
    ============================================================ */
