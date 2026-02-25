@@ -283,7 +283,6 @@ border-bottom: 1px solid var(--divider);
 /* ============================================================
    SUBTLE SIGNATURE MARK (AB)
 ============================================================ */
-
 .sidebar-mark{
   position: absolute;
   right: 16px;
@@ -293,10 +292,9 @@ border-bottom: 1px solid var(--divider);
   height: 22px;
 
   color: rgb(var(--global));
-  opacity: 0.06;      /* 🔥 premium subtle */
+  opacity: 0.12;  /* börja lite högre så vi ser den */
 
   pointer-events: none;
-     z-index: 1;   /* 🔥 ADD THIS */
 }
 
 .sidebar-mark svg{
