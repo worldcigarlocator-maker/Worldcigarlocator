@@ -36,36 +36,13 @@
   gap: 0.9rem;
 }
 
-/* ================= BRAND ================= */
 
 /* ================= BRAND ================= */
 
 .sidebar-brand {
   display: flex;
-  justify-content: center;
-  margin-bottom: 1.4rem;
-  padding: 0 12px;
+  align-items: center;
 }
-
-.sidebar-brand svg {
-  width: 100%;
-  max-width: 200px;
-}
-
-.sidebar-brand text {
-  font-family: "Playfair Display", Georgia, serif;
-  font-weight: 700;
-  font-size: 40px;        /* mindre men kraftigare */
-  fill: rgb(var(--global));
-
-  letter-spacing: -0.2px;
-  text-rendering: geometricPrecision;
-
-  text-shadow:
-    0 1px 0 rgba(0,0,0,0.8),
-    0 0 10px rgba(var(--global), 0.18);
-}
-
 /* ============================================================
    SIDEBAR ACTIONS (BUTTON ROW LAYOUT)
 ============================================================ */
