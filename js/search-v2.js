@@ -149,28 +149,28 @@ input.addEventListener("focus", () => {
 
     const { filter, value, sort } = btn.dataset;
 
-    // FILTERS
+ // ============================================================
+// FILTERS (FULL MULTI-SELECT)
+// ============================================================
+
     if (filter) {
 
-      const isActive = btn.classList.contains("active");
+  const isActive = btn.classList.contains("active");
 
-      controls.querySelectorAll(`[data-filter="${filter}"]`)
-        .forEach(el => el.classList.remove("active"));
+  // Toggle visual state only (no group reset)
+  btn.classList.toggle("active", !isActive);
 
-      if (!isActive) {
-        btn.classList.add("active");
+  // Delegate logic to cards.js
+  if (filter === "type") {
+    toggleChip({ type: value });
+  }
 
-        if (filter === "type") {
-          toggleChip({ type: value });
-        }
+  if (filter === "access") {
+    toggleChip({ access: value });
+  }
 
-        if (filter === "access") {
-          toggleChip({ access: value });
-        }
-      } else {
-        toggleChip({ [filter]: value });
-      }
-    }
+  return;
+}
 
     // SORT
     if (sort) {
