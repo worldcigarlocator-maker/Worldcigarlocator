@@ -26,7 +26,7 @@ let MASTER_MODE = MASTER.IDLE;
 const STATE = {
   location: { continent: null, country: null, state: null, city: null },
   search: { text: "" },
-  chips: { type: [], access: [] },   // 🔥 arrays istället för null
+  chips: { type: [], access: [] },   // 🔥 arrays nu
 };
 
 let SORT_MODE = "relevance";
