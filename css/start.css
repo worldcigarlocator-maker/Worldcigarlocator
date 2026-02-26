@@ -76,37 +76,6 @@ body.static-page {
 }
 
 /* ============================================================
-   HERO SIGNATURE (AB MARK) — STROKE ONLY (NOT FILLED)
-   ============================================================ */
-
-.hero { position: relative; }
-
-.hero-signature{
-  position: absolute;
-  right: 18px;
-  bottom: 18px;
-  color: rgb(var(--global));
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.hero-signature svg{
-  width: 42px;
-  height: auto;
-  display: block;
-}
-
-/* Viktigt: tvinga INTE stroke-width här */
-.hero-signature svg path{
-  fill: none !important;
-  stroke: currentColor !important;
-}
-
-.hero-signature svg circle{
-  fill: currentColor !important;
-}
-
-/* ============================================================
    AUTH LOCK (PUBLIC MODE) — SAFE STACKING
    ============================================================ */
 
