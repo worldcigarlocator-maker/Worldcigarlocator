@@ -79,33 +79,31 @@ body.static-page {
    HERO SIGNATURE (AB MARK) — STROKE ONLY (NOT FILLED)
    ============================================================ */
 
-.hero { 
-  position: relative; 
-}
+.hero { position: relative; }
 
 .hero-signature{
   position: absolute;
   right: 18px;
   bottom: 18px;
-
-  opacity: 0.5;               /* din target */
+  color: rgb(var(--global));
+  opacity: 0.5;
   pointer-events: none;
 }
 
 .hero-signature svg{
-  width: 42px;                /* byt till 22px om du vill */
+  width: 42px;
   height: auto;
   display: block;
 }
 
-/* 🔥 Gör signaturen som “penna” (stroke), inte fylld shape */
+/* Viktigt: tvinga INTE stroke-width här */
 .hero-signature svg path{
   fill: none !important;
-  stroke: rgb(var(--global)) !important;
+  stroke: currentColor !important;
+}
 
-  stroke-width: 0.06;         /* testa 0.04–0.09 */
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.hero-signature svg circle{
+  fill: currentColor !important;
 }
 
 /* ============================================================
