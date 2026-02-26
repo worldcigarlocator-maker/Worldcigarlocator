@@ -90,12 +90,14 @@ body.static-page {
   pointer-events: none;
 }
 
-.hero-signature svg {
-  width: 60px;
-  height: 60px;
-  display: block;
+.hero-signature {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: red;
+  opacity: 1;
 }
-
 /* ============================================================
    AUTH LOCK (PUBLIC MODE) — SAFE STACKING
    ============================================================ */
