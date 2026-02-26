@@ -38,11 +38,34 @@
 
 /* ================= BRAND ================= */
 
+/* ================= BRAND ================= */
+
 .sidebar-brand {
   display: flex;
-  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.4rem;
 }
 
+.sidebar-brand svg {
+  width: 190px;
+}
+
+.sidebar-brand text {
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 600;
+  font-size: 56px;
+
+  fill: rgb(var(--global));
+
+  letter-spacing: 0.5px;
+
+  text-rendering: geometricPrecision;
+
+  /* Premium depth */
+  text-shadow:
+    0 0 1px rgba(255,255,255,0.15),
+    0 0 18px rgba(var(--global), 0.15);
+}
 
 /* ============================================================
    SIDEBAR ACTIONS (BUTTON ROW LAYOUT)
