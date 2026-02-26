@@ -85,7 +85,7 @@ body.static-page {
   z-index: 5;
 
   color: rgb(var(--global));
-  opacity: 0.40;
+  opacity: 0.90;
 
   pointer-events: none;
 }
