@@ -80,17 +80,17 @@ body.static-page {
    ============================================================ */
 .hero-signature {
   position: absolute;
-  right: 36px;
-  bottom: 36px;
+  right: 32px;
+  bottom: 32px;
 
   color: rgb(var(--global));
-  opacity: 0.045;   /* 🔥 mycket mer subtil */
+  opacity: 0.09;  /* 🔥 synlig men subtil */
 
   pointer-events: none;
 }
 
 .hero-signature svg {
-  width: 34px;      /* mindre */
+  width: 40px;
   height: auto;
   display: block;
 }
