@@ -1,5 +1,5 @@
 // ============================================================
-// SIDEBAR.JS — WCL Sidebar (CANONICAL · STABLE)
+// SIDEBAR.JS — WCL Sidebar (CANONICAL · STABLE · FIXED)
 // ============================================================
 
 import { activateLocation } from "./cards.js";
@@ -13,6 +13,7 @@ const IS_US = (iso2) => String(iso2 || "").toLowerCase() === "us";
 // ============================================================
 // FETCH (Pagination-safe)
 // ============================================================
+
 async function fetchSidebarRows() {
   const PAGE_SIZE = 1000;
   let from = 0;
@@ -41,6 +42,7 @@ async function fetchSidebarRows() {
 // ============================================================
 // MODEL BUILD
 // ============================================================
+
 function buildModel(rows) {
   const continents = {};
 
@@ -117,6 +119,7 @@ function buildModel(rows) {
 // ============================================================
 // ENTRY
 // ============================================================
+
 export async function buildFrontendSidebar() {
   const menu = document.querySelector("#sidebarMenu");
   if (!menu) return;
@@ -142,6 +145,7 @@ export async function buildFrontendSidebar() {
 // ============================================================
 // RENDER
 // ============================================================
+
 function renderSidebar(continents, menu) {
   Object.entries(continents)
     .sort(([a], [b]) => sortAZ(a, b))
@@ -213,6 +217,7 @@ function renderSidebar(continents, menu) {
 // ============================================================
 // NODE FACTORY
 // ============================================================
+
 function createNode(type, label, count, iso2, path) {
   const wrapper = document.createElement("div");
   wrapper.className = "node";
@@ -247,6 +252,7 @@ function createNode(type, label, count, iso2, path) {
 // ============================================================
 // EVENTS
 // ============================================================
+
 function bindSidebarEvents(menu) {
   menu.addEventListener("click", (e) => {
     const line = e.target.closest(".line");
@@ -254,47 +260,36 @@ function bindSidebarEvents(menu) {
 
     const wrapper = line.parentElement;
     const children = wrapper.querySelector(":scope > .children");
-
     const clickedLabel = Boolean(e.target.closest(".label-wrap"));
-
     if (!clickedLabel) return;
 
-    // ============================================================
-    // Determine level
-    // ============================================================
+    const level = line.dataset.level;
 
-    const level =
-      line.classList.contains("continent") ? "continent" :
-      line.classList.contains("country")   ? "country"   :
-      line.classList.contains("state")     ? "state"     :
-      line.classList.contains("city")      ? "city"      :
-      null;
-
-    // ============================================================
-    // CONTINENT = STRUCTURE ONLY
-    // ============================================================
-
+    // ------------------------------------------------------------
+    // CONTINENT → STRUCTURE ONLY
+    // ------------------------------------------------------------
     if (level === "continent") {
-      wrapper.classList.toggle("open");
+      const isOpen = wrapper.classList.toggle("open");
+      if (children) children.classList.toggle("show", isOpen);
       return;
     }
 
-    // ============================================================
-    // ALL OTHER LEVELS = LOCATION
-    // ============================================================
+    // ------------------------------------------------------------
+    // COUNTRY / STATE → TOGGLE + NAVIGATE
+    // ------------------------------------------------------------
+    if (level === "country" || level === "state") {
+      const isOpen = wrapper.classList.toggle("open");
+      if (children) children.classList.toggle("show", isOpen);
+    }
 
+    // ------------------------------------------------------------
+    // LOCATION ACTIVATION (country/state/city)
+    // ------------------------------------------------------------
     activateLocation({
       continent: line.dataset.continent || null,
       country: line.dataset.country || null,
       state: line.dataset.state || null,
       city: line.dataset.city || null,
     });
-  });
-}
-
-    if (!isCity && children) {
-      const open = line.classList.toggle("open");
-      children.classList.toggle("show", open);
-    }
   });
 }
