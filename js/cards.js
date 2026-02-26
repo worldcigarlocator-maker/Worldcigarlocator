@@ -167,14 +167,17 @@ function hasToken(list, token) {
 }
 
 function applyChipFilters(rows) {
-  const type = STATE.chips.type;
-  const access = STATE.chips.access;
 
-  if (!type && !access) return rows || [];
+  const selectedTypes = STATE.chips.type || [];
+  const selectedAccess = STATE.chips.access || [];
+
+  if (selectedTypes.length === 0 && selectedAccess.length === 0) {
+    return rows || [];
+  }
 
   return (rows || []).filter((s) => {
 
-    const types = Array.isArray(s.types)
+    const storeTypes = Array.isArray(s.types)
       ? s.types.map(t => String(t).toLowerCase())
       : s.type
         ? [String(s.type).toLowerCase()]
@@ -184,15 +187,17 @@ function applyChipFilters(rows) {
       ? String(s.access).toLowerCase()
       : null;
 
-    // 🔑 EXCLUSIVE TYPE LOGIC
     const typeOk =
-      !type ||
-      (type === "store" && types.length === 1 && types.includes("store")) ||
-      (type === "lounge" && types.length === 1 && types.includes("lounge"));
+      selectedTypes.length === 0 ||
+      selectedTypes.some(t =>
+        storeTypes.includes(String(t).toLowerCase())
+      );
 
     const accessOk =
-      !access ||
-      accessVal === access;
+      selectedAccess.length === 0 ||
+      selectedAccess.some(a =>
+        accessVal === String(a).toLowerCase()
+      );
 
     return typeOk && accessOk;
   });
