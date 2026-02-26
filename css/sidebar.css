@@ -38,29 +38,32 @@
 
 /* ================= BRAND ================= */
 
+/* ================= BRAND ================= */
+
 .sidebar-brand {
   display: flex;
   justify-content: center;
-  margin-bottom: 1.3rem;
+  margin-bottom: 1.4rem;
+  padding: 0 12px;
 }
 
 .sidebar-brand svg {
-  width: 180px;   /* större igen */
-  max-width: 100%;
+  width: 100%;
+  max-width: 200px;
 }
 
 .sidebar-brand text {
   font-family: "Playfair Display", Georgia, serif;
-  font-weight: 700;          /* MER TYNGD */
-  font-size: 52px;           /* tillbaka upp */
+  font-weight: 700;
+  font-size: 40px;        /* mindre men kraftigare */
   fill: rgb(var(--global));
 
-  letter-spacing: -0.3px;    /* tätare → mer premium */
+  letter-spacing: -0.2px;
   text-rendering: geometricPrecision;
 
   text-shadow:
-    0 1px 0 rgba(0,0,0,0.8), /* ger tryck */
-    0 0 12px rgba(var(--global), 0.18);
+    0 1px 0 rgba(0,0,0,0.8),
+    0 0 10px rgba(var(--global), 0.18);
 }
 
 /* ============================================================
