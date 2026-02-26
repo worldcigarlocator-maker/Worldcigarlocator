@@ -78,26 +78,23 @@ body.static-page {
 /* ============================================================
    HERO SIGNATURE (AB MARK)
    ============================================================ */
-
 .hero-signature {
   position: absolute;
-  right: 18px;
-  bottom: 18px;
+  right: 36px;
+  bottom: 36px;
 
-  color: white;
-  opacity: 0.4;
+  color: rgb(var(--global));
+  opacity: 0.045;   /* 🔥 mycket mer subtil */
 
   pointer-events: none;
 }
 
-.hero-signature {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: red;
-  opacity: 1;
+.hero-signature svg {
+  width: 34px;      /* mindre */
+  height: auto;
+  display: block;
 }
+
 /* ============================================================
    AUTH LOCK (PUBLIC MODE) — SAFE STACKING
    ============================================================ */
