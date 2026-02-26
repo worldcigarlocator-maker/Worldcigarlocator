@@ -255,18 +255,42 @@ function bindSidebarEvents(menu) {
     const wrapper = line.parentElement;
     const children = wrapper.querySelector(":scope > .children");
 
-    const isCity = line.classList.contains("city");
     const clickedLabel = Boolean(e.target.closest(".label-wrap"));
 
-    if (clickedLabel) {
-      activateLocation({
-        continent: line.dataset.continent || null,
-        country: line.dataset.country || null,
-        state: line.dataset.state || null,
-        city: line.dataset.city || null,
-      });
+    if (!clickedLabel) return;
+
+    // ============================================================
+    // Determine level
+    // ============================================================
+
+    const level =
+      line.classList.contains("continent") ? "continent" :
+      line.classList.contains("country")   ? "country"   :
+      line.classList.contains("state")     ? "state"     :
+      line.classList.contains("city")      ? "city"      :
+      null;
+
+    // ============================================================
+    // CONTINENT = STRUCTURE ONLY
+    // ============================================================
+
+    if (level === "continent") {
+      wrapper.classList.toggle("open");
       return;
     }
+
+    // ============================================================
+    // ALL OTHER LEVELS = LOCATION
+    // ============================================================
+
+    activateLocation({
+      continent: line.dataset.continent || null,
+      country: line.dataset.country || null,
+      state: line.dataset.state || null,
+      city: line.dataset.city || null,
+    });
+  });
+}
 
     if (!isCity && children) {
       const open = line.classList.toggle("open");
