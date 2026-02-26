@@ -60,20 +60,42 @@ body.static-page {
    ============================================================ */
 
 .hero {
-  max-width: 1390px; /* 🔑 ~5% mindre */
-  margin: 2.8rem auto 0; /* 🔑 lite mer luft ovan */
+  position: relative;                 /* 🔥 viktigt för signature */
+  max-width: 1390px;
+  margin: 2.8rem auto 0;
   aspect-ratio: 16 / 9;
   border-radius: 18px;
   overflow: hidden;
   background: #000;
 }
 
-
 .hero img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
+
+/* ============================================================
+   HERO SIGNATURE (AB MARK)
+   ============================================================ */
+
+.hero-signature {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+
+  color: rgb(var(--global));   /* 🔥 använder global systemfärg */
+  opacity: 0.06;
+
+  pointer-events: none;
+}
+
+.hero-signature svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
 /* ============================================================
    AUTH LOCK (PUBLIC MODE) — SAFE STACKING
    ============================================================ */
