@@ -26,7 +26,7 @@ let MASTER_MODE = MASTER.IDLE;
 const STATE = {
   location: { continent: null, country: null, state: null, city: null },
   search: { text: "" },
-  chips: { type: null, access: null },
+  chips: { type: [], access: [] },   // 🔥 arrays istället för null
 };
 
 let SORT_MODE = "relevance";
@@ -134,7 +134,10 @@ function hasAnyLocation() {
 }
 
 function hasAnyChips() {
-  return Boolean(STATE.chips.type || STATE.chips.access);
+  return (
+    (Array.isArray(STATE.chips.type) && STATE.chips.type.length > 0) ||
+    (Array.isArray(STATE.chips.access) && STATE.chips.access.length > 0)
+  );
 }
 
 function snapshot() {
@@ -251,17 +254,29 @@ export function activateLocation(next) {
 }
 
 export function toggleChip({ type, access }) {
+
   if (type !== undefined) {
-    STATE.chips.type = STATE.chips.type === type ? null : type;
+    const i = STATE.chips.type.indexOf(type);
+
+    if (i > -1) {
+      STATE.chips.type.splice(i, 1);
+    } else {
+      STATE.chips.type.push(type);
+    }
   }
 
   if (access !== undefined) {
-    STATE.chips.access = STATE.chips.access === access ? null : access;
+    const i = STATE.chips.access.indexOf(access);
+
+    if (i > -1) {
+      STATE.chips.access.splice(i, 1);
+    } else {
+      STATE.chips.access.push(access);
+    }
   }
 
   resetPagination();
 
-  // 🔒 Filters are modifiers only in IDLE
   if (MASTER_MODE === MASTER.IDLE) {
     return;
   }
