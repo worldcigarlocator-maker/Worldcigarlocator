@@ -84,15 +84,15 @@ body.static-page {
   right: 18px;
   bottom: 18px;
 
-  color: rgb(var(--global));   /* 🔥 använder global systemfärg */
-  opacity: 0.3;
+  color: white;
+  opacity: 0.4;
 
   pointer-events: none;
 }
 
 .hero-signature svg {
-  width: 22px;
-  height: 22px;
+  width: 60px;
+  height: 60px;
   display: block;
 }
 
