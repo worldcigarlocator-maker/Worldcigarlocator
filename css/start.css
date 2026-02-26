@@ -84,7 +84,7 @@ body.static-page {
   bottom: 32px;
 
   color: rgb(var(--global));
-  opacity: 0.09;  /* 🔥 synlig men subtil */
+  opacity: 0.3;  /* 🔥 synlig men subtil */
 
   pointer-events: none;
 }
