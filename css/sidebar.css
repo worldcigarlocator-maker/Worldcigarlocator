@@ -36,35 +36,35 @@
   gap: 0.9rem;
 }
 
-/* ================= BRAND ================= */
 
 /* ================= BRAND ================= */
 
 .sidebar-brand {
   display: flex;
   justify-content: center;
-  margin-bottom: 1.4rem;
+  margin-bottom: 1.2rem;
+  padding: 0 8px; /* skydd mot overflow */
 }
 
 .sidebar-brand svg {
-  width: 190px;
+  width: 165px;   /* passar 260px sidebar */
+  max-width: 100%;
 }
 
 .sidebar-brand text {
   font-family: "Playfair Display", Georgia, serif;
   font-weight: 600;
-  font-size: 56px;
-
+  font-size: 48px; /* nedskalad */
   fill: rgb(var(--global));
 
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 
   text-rendering: geometricPrecision;
 
-  /* Premium depth */
+  /* subtil premium-depth */
   text-shadow:
-    0 0 1px rgba(255,255,255,0.15),
-    0 0 18px rgba(var(--global), 0.15);
+    0 0 1px rgba(255,255,255,0.12),
+    0 0 14px rgba(var(--global), 0.12);
 }
 
 /* ============================================================
