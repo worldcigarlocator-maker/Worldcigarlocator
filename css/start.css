@@ -85,7 +85,7 @@ body.static-page {
   bottom: 18px;
 
   color: rgb(var(--global));   /* 🔥 använder global systemfärg */
-  opacity: 0.06;
+  opacity: 0.3;
 
   pointer-events: none;
 }
