@@ -78,23 +78,22 @@ body.static-page {
 /* ============================================================
    HERO SIGNATURE (AB MARK)
    ============================================================ */
-.hero-signature {
+.hero { position: relative; }
+
+.hero-signature{
   position: absolute;
-  right: 32px;
-  bottom: 32px;
-  z-index: 5;
+  right: 18px;
+  bottom: 18px;
 
   color: rgb(var(--global));
-  opacity: 0.90;
-
+  opacity: 0.5;          /* din target */
   pointer-events: none;
 }
 
-.hero-signature svg {
-  width: 40px;
+.hero-signature svg{
+  width: 42px;            /* byt till 22px om du vill */
   height: auto;
   display: block;
-  overflow: visible;
 }
 
 /* ============================================================
