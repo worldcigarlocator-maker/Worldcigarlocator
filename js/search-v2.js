@@ -22,6 +22,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!input) return;
 
+  // ============================================================
+// BRAND = HOME
+// ============================================================
+
+const homeBtn = qs("#homeBtn");
+
+homeBtn?.addEventListener("click", () => {
+
+  if (input) input.value = "";
+
+  clearSearchMaster();
+  clearLocationMaster();
+  resetToHero();
+  setSort("relevance");
+
+  controls?.querySelectorAll(".active")
+    .forEach(el => el.classList.remove("active"));
+});
+
  // ============================================================
 // RESPONSIVE
 // ============================================================
