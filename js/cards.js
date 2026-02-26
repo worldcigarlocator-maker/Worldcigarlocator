@@ -232,8 +232,8 @@ export function activateLocation(next) {
     next.continent || next.country || next.state;
 
   if (isMajorChange) {
-    STATE.chips.type = null;
-    STATE.chips.access = null;
+   STATE.chips.type = [];
+STATE.chips.access = [];
 
     document.dispatchEvent(
       new CustomEvent("wcl:clear-chips-ui")
