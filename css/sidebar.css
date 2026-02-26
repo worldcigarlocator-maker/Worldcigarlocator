@@ -42,29 +42,26 @@
 .sidebar-brand {
   display: flex;
   justify-content: center;
-  margin-bottom: 1.2rem;
-  padding: 0 8px; /* skydd mot overflow */
+  margin-bottom: 1.3rem;
 }
 
 .sidebar-brand svg {
-  width: 165px;   /* passar 260px sidebar */
+  width: 180px;   /* större igen */
   max-width: 100%;
 }
 
 .sidebar-brand text {
   font-family: "Playfair Display", Georgia, serif;
-  font-weight: 600;
-  font-size: 48px; /* nedskalad */
+  font-weight: 700;          /* MER TYNGD */
+  font-size: 52px;           /* tillbaka upp */
   fill: rgb(var(--global));
 
-  letter-spacing: 0.4px;
-
+  letter-spacing: -0.3px;    /* tätare → mer premium */
   text-rendering: geometricPrecision;
 
-  /* subtil premium-depth */
   text-shadow:
-    0 0 1px rgba(255,255,255,0.12),
-    0 0 14px rgba(var(--global), 0.12);
+    0 1px 0 rgba(0,0,0,0.8), /* ger tryck */
+    0 0 12px rgba(var(--global), 0.18);
 }
 
 /* ============================================================
