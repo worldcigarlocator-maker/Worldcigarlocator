@@ -260,36 +260,51 @@ function bindSidebarEvents(menu) {
 
     const wrapper = line.parentElement;
     const children = wrapper.querySelector(":scope > .children");
-    const clickedLabel = Boolean(e.target.closest(".label-wrap"));
-    if (!clickedLabel) return;
 
     const level = line.dataset.level;
+    const clickedArrow = Boolean(e.target.closest(".arrow"));
+    const clickedLabel = Boolean(e.target.closest(".label-wrap"));
 
     // ------------------------------------------------------------
-    // CONTINENT → STRUCTURE ONLY
+    // ARROW CLICK → ALWAYS TOGGLE STRUCTURE
     // ------------------------------------------------------------
-    if (level === "continent") {
+    if (clickedArrow && children) {
       const isOpen = wrapper.classList.toggle("open");
-      if (children) children.classList.toggle("show", isOpen);
+      children.classList.toggle("show", isOpen);
       return;
     }
 
     // ------------------------------------------------------------
-    // COUNTRY / STATE → TOGGLE + NAVIGATE
+    // CONTINENT LABEL → STRUCTURE ONLY
     // ------------------------------------------------------------
-    if (level === "country" || level === "state") {
-      const isOpen = wrapper.classList.toggle("open");
-      if (children) children.classList.toggle("show", isOpen);
+    if (level === "continent" && clickedLabel) {
+      if (children) {
+        const isOpen = wrapper.classList.toggle("open");
+        children.classList.toggle("show", isOpen);
+      }
+      return;
     }
 
     // ------------------------------------------------------------
-    // LOCATION ACTIVATION (country/state/city)
+    // COUNTRY / STATE LABEL → TOGGLE + NAVIGATE
     // ------------------------------------------------------------
-    activateLocation({
-      continent: line.dataset.continent || null,
-      country: line.dataset.country || null,
-      state: line.dataset.state || null,
-      city: line.dataset.city || null,
-    });
+    if ((level === "country" || level === "state") && clickedLabel) {
+      if (children) {
+        const isOpen = wrapper.classList.toggle("open");
+        children.classList.toggle("show", isOpen);
+      }
+    }
+
+    // ------------------------------------------------------------
+    // NAVIGATION (country/state/city)
+    // ------------------------------------------------------------
+    if (clickedLabel && level !== "continent") {
+      activateLocation({
+        continent: line.dataset.continent || null,
+        country: line.dataset.country || null,
+        state: line.dataset.state || null,
+        city: line.dataset.city || null,
+      });
+    }
   });
 }
