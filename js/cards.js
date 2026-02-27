@@ -168,8 +168,11 @@ function hasToken(list, token) {
 
 function applyChipFilters(rows) {
 
-  const selectedTypes = STATE.chips.type || [];
-  const selectedAccess = STATE.chips.access || [];
+  const selectedTypes = (STATE.chips.type || [])
+    .map(t => String(t).toLowerCase());
+
+  const selectedAccess = (STATE.chips.access || [])
+    .map(a => String(a).toLowerCase());
 
   if (selectedTypes.length === 0 && selectedAccess.length === 0) {
     return rows || [];
@@ -179,9 +182,7 @@ function applyChipFilters(rows) {
 
     const storeTypes = Array.isArray(s.types)
       ? s.types.map(t => String(t).toLowerCase())
-      : s.type
-        ? [String(s.type).toLowerCase()]
-        : [];
+      : [];
 
     const accessVal = s.access
       ? String(s.access).toLowerCase()
@@ -189,15 +190,11 @@ function applyChipFilters(rows) {
 
     const typeOk =
       selectedTypes.length === 0 ||
-      selectedTypes.some(t =>
-        storeTypes.includes(String(t).toLowerCase())
-      );
+      selectedTypes.some(t => storeTypes.includes(t));
 
     const accessOk =
       selectedAccess.length === 0 ||
-      selectedAccess.some(a =>
-        accessVal === String(a).toLowerCase()
-      );
+      selectedAccess.includes(accessVal);
 
     return typeOk && accessOk;
   });
