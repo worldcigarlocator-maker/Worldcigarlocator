@@ -473,6 +473,7 @@ export async function runSearch(isLoadMore = false) {
   if (!resp || resp.error) return;
 
   const rawRows = resp.data || [];
+  console.log("DEBUG ROW:", rawRows[0]);
 
   // Cursor måste baseras på RAW (inte filtrerade)
   updateCursor(rawRows);
