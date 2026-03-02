@@ -709,17 +709,36 @@ if (countsError) {
   }
 
 /* =========================
-   3) Fetch rows
+   3) Fetch rows (ADMIN PAGE SIZE LOGIC)
    ========================= */
-let data;
-try {
-  data = await fetchAllStores(base);
 
-  console.log("🧪 fetchAllStores result:", {
+const ADMIN_PAGE_SIZE = 100;
+
+let data;
+
+try {
+
+  // 🔵 ALL + 🟢 APPROVED → endast senaste 100
+  if (tab === "all" || tab === "approved") {
+
+    const { data: limitedData, error } = await base
+      .limit(ADMIN_PAGE_SIZE);
+
+    if (error) throw error;
+
+    data = limitedData || [];
+
+  } else {
+
+    // Övriga tabs = full fetch (arbetsköer)
+    data = await fetchAllStores(base);
+
+  }
+
+  console.log("🧪 fetch result:", {
+    tab,
     length: data.length,
-    hasCigarrummet: data.some(s => s.name === "Cigarrummet"),
-    sampleFirst5: data.slice(0, 5).map(s => ({ id: s.id, name: s.name })),
-    sampleLast5: data.slice(-5).map(s => ({ id: s.id, name: s.name })),
+    limited: tab === "all" || tab === "approved"
   });
 
 } catch (error) {
@@ -727,7 +746,6 @@ try {
   if (grid) grid.innerHTML = "<p class='error center'>Error loading stores</p>";
   return;
 }
-
 
 
   STORES = (data || []).map((s) => ({
