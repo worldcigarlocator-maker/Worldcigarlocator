@@ -709,44 +709,17 @@ if (countsError) {
   }
 
 /* =========================
-   3) Fetch rows (VIEW-AWARE PAGE LOGIC)
-   Cards = limited
-   List  = full dataset
+   3) Fetch rows
    ========================= */
-
-const ADMIN_PAGE_SIZE = 50;
-
 let data;
-
 try {
+  data = await fetchAllStores(base);
 
-  const isCardView = CURRENT_VIEW === "cards";
-
-  /* --------------------------------------
-     Cards → limit on all + approved
-     List  → always full dataset
-     -------------------------------------- */
-
-  if (isCardView && (tab === "all" || tab === "approved")) {
-
-   const { data: limitedData, error } = await base
-  .range(0, ADMIN_PAGE_SIZE - 1);
-
-    if (error) throw error;
-
-    data = limitedData || [];
-
-  } else {
-
-    data = await fetchAllStores(base);
-
-  }
-
-  console.log("🧪 fetch result:", {
-    tab,
-    view: CURRENT_VIEW,
+  console.log("🧪 fetchAllStores result:", {
     length: data.length,
-    limited: isCardView && (tab === "all" || tab === "approved")
+    hasCigarrummet: data.some(s => s.name === "Cigarrummet"),
+    sampleFirst5: data.slice(0, 5).map(s => ({ id: s.id, name: s.name })),
+    sampleLast5: data.slice(-5).map(s => ({ id: s.id, name: s.name })),
   });
 
 } catch (error) {
@@ -754,6 +727,17 @@ try {
   if (grid) grid.innerHTML = "<p class='error center'>Error loading stores</p>";
   return;
 }
+
+
+
+  STORES = (data || []).map((s) => ({
+    ...s,
+continent:
+  s.continent && s.continent.trim()
+    ? s.continent
+    : countryToContinent(s.country),
+
+  }));
 
   /* =========================
      4) Render + counts
