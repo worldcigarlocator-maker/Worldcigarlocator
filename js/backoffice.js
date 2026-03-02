@@ -709,7 +709,9 @@ if (countsError) {
   }
 
 /* =========================
-   3) Fetch rows (ADMIN PAGE SIZE LOGIC)
+   3) Fetch rows (VIEW-AWARE PAGE LOGIC)
+   Cards = limited
+   List  = full dataset
    ========================= */
 
 const ADMIN_PAGE_SIZE = 50;
@@ -718,8 +720,14 @@ let data;
 
 try {
 
-  // 🔵 ALL + 🟢 APPROVED → endast senaste 100
-  if (tab === "all" || tab === "approved") {
+  const isCardView = CURRENT_VIEW === "cards";
+
+  /* --------------------------------------
+     Cards → limit on all + approved
+     List  → always full dataset
+     -------------------------------------- */
+
+  if (isCardView && (tab === "all" || tab === "approved")) {
 
     const { data: limitedData, error } = await base
       .limit(ADMIN_PAGE_SIZE);
@@ -730,15 +738,15 @@ try {
 
   } else {
 
-    // Övriga tabs = full fetch (arbetsköer)
     data = await fetchAllStores(base);
 
   }
 
   console.log("🧪 fetch result:", {
     tab,
+    view: CURRENT_VIEW,
     length: data.length,
-    limited: tab === "all" || tab === "approved"
+    limited: isCardView && (tab === "all" || tab === "approved")
   });
 
 } catch (error) {
@@ -746,16 +754,6 @@ try {
   if (grid) grid.innerHTML = "<p class='error center'>Error loading stores</p>";
   return;
 }
-
-
-  STORES = (data || []).map((s) => ({
-    ...s,
-continent:
-  s.continent && s.continent.trim()
-    ? s.continent
-    : countryToContinent(s.country),
-
-  }));
 
   /* =========================
      4) Render + counts
