@@ -712,7 +712,7 @@ if (countsError) {
    3) Fetch rows (ADMIN PAGE SIZE LOGIC)
    ========================= */
 
-const ADMIN_PAGE_SIZE = 100;
+const ADMIN_PAGE_SIZE = 50;
 
 let data;
 
