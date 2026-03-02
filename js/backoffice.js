@@ -729,8 +729,8 @@ try {
 
   if (isCardView && (tab === "all" || tab === "approved")) {
 
-    const { data: limitedData, error } = await base
-      .limit(ADMIN_PAGE_SIZE);
+   const { data: limitedData, error } = await base
+  .range(0, ADMIN_PAGE_SIZE - 1);
 
     if (error) throw error;
 
