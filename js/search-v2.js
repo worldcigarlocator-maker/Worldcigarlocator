@@ -108,6 +108,53 @@ if (mapBtn && mapView) {
   });
 
 }
+
+  /* ============================================================
+   MAP MODE TOGGLE
+   ============================================================ */
+
+const mapBtn = qs("#mapViewBtn");
+const mapView = qs("#mapView");
+const hero = qs("#heroImage");
+const storeGrid = qs("#storeGrid");
+const resultsToolbar = qs(".results-toolbar");
+
+let MAP_MODE = false;
+
+if (mapBtn && mapView) {
+
+  mapBtn.addEventListener("click", async () => {
+
+    MAP_MODE = !MAP_MODE;
+    mapBtn.classList.toggle("active");
+
+    if (MAP_MODE) {
+
+      hero?.classList.add("hidden");
+      storeGrid?.classList.add("hidden");
+      resultsToolbar?.classList.add("hidden");
+
+      mapView.classList.remove("hidden");
+
+      // 🔥 Ladda Google Maps om det behövs
+      await loadGoogleMaps();
+
+      // 🔥 Initiera kartan
+      initMap();
+
+    } else {
+
+      hero?.classList.remove("hidden");
+      storeGrid?.classList.remove("hidden");
+      resultsToolbar?.classList.remove("hidden");
+
+      mapView.classList.add("hidden");
+
+    }
+
+  });
+
+}
   // ============================================================
 // BRAND = HOME
 // ============================================================
