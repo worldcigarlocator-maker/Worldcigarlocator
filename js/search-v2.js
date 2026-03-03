@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!input) return;
 
 /* ============================================================
-   MAP MODE TOGGLE + GOOGLE MAPS LAZY LOAD
+   MAP MODE + GOOGLE MAPS (CLEAN VERSION)
    ============================================================ */
 
 const mapBtn = qs("#mapViewBtn");
@@ -34,6 +34,7 @@ const resultsToolbar = qs(".results-toolbar");
 
 let MAP_MODE = false;
 let googleMapsLoaded = false;
+let mapInstance = null;
 
 /* ================= GOOGLE MAPS LOADER ================= */
 
@@ -56,7 +57,10 @@ function loadGoogleMaps() {
     }
 
     const script = document.createElement("script");
-script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBzHH9QNHPGWpQrczIGgWs1wnHGALiwNZw&v=weekly`;    script.async = true;
+    script.src =
+      "https://maps.googleapis.com/maps/api/js?key=AIzaSyBzHH9QNHPGWpQrczIGgWs1wnHGALiwNZw&v=weekly";
+
+    script.async = true;
     script.defer = true;
 
     script.onload = () => {
@@ -70,6 +74,26 @@ script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBzHH9QNHPGWpQrcz
     document.head.appendChild(script);
 
   });
+}
+
+/* ================= MAP INITIALIZATION ================= */
+
+function initMap() {
+
+  if (mapInstance) return;
+
+  const mapContainer = document.getElementById("mapView");
+  if (!mapContainer) return;
+
+  mapInstance = new google.maps.Map(mapContainer, {
+    center: { lat: 20, lng: 0 },
+    zoom: 2,
+    minZoom: 2,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
+  });
+
 }
 
 /* ================= MAP TOGGLE ================= */
@@ -91,56 +115,10 @@ if (mapBtn && mapView) {
 
       try {
         await loadGoogleMaps();
+        initMap();
       } catch (err) {
         console.error(err);
       }
-
-    } else {
-
-      hero?.classList.remove("hidden");
-      storeGrid?.classList.remove("hidden");
-      resultsToolbar?.classList.remove("hidden");
-
-      mapView.classList.add("hidden");
-
-    }
-
-  });
-
-}
-
-  /* ============================================================
-   MAP MODE TOGGLE
-   ============================================================ */
-
-const mapBtn = qs("#mapViewBtn");
-const mapView = qs("#mapView");
-const hero = qs("#heroImage");
-const storeGrid = qs("#storeGrid");
-const resultsToolbar = qs(".results-toolbar");
-
-let MAP_MODE = false;
-
-if (mapBtn && mapView) {
-
-  mapBtn.addEventListener("click", async () => {
-
-    MAP_MODE = !MAP_MODE;
-    mapBtn.classList.toggle("active");
-
-    if (MAP_MODE) {
-
-      hero?.classList.add("hidden");
-      storeGrid?.classList.add("hidden");
-      resultsToolbar?.classList.add("hidden");
-
-      mapView.classList.remove("hidden");
-
-      // 🔥 Ladda Google Maps om det behövs
-      await loadGoogleMaps();
-
-      // 🔥 Initiera kartan
-      initMap();
 
     } else {
 
