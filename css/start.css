@@ -76,6 +76,23 @@ body.static-page {
 }
 
 /* ============================================================
+   MAP VIEW
+   ============================================================ */
+
+.map-view {
+  width: 100%;
+  margin-top: 2rem;
+
+  border-radius: 18px;
+  overflow: hidden;
+
+  background: #000;
+
+  /* Höjd matchar ungefär cards-ytan */
+  min-height: 520px;
+}
+
+/* ============================================================
    AUTH LOCK (PUBLIC MODE) — SAFE STACKING
    ============================================================ */
 
