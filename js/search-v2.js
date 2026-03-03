@@ -96,6 +96,46 @@ function initMap() {
 
 }
 
+  /* ================= USER GEOLOCATION ================= */
+
+function enableUserLocation() {
+
+  const locateBtn = document.getElementById("locateBtn");
+  if (!locateBtn) return;
+
+  locateBtn.addEventListener("click", () => {
+
+    if (!navigator.geolocation) {
+      alert("Geolocation not supported");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+      (position) => {
+
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+
+        mapInstance.setCenter({ lat: userLat, lng: userLng });
+        mapInstance.setZoom(14);
+
+        new google.maps.Marker({
+          position: { lat: userLat, lng: userLng },
+          map: mapInstance,
+        });
+
+      },
+
+      () => {
+        alert("Location permission denied");
+      }
+
+    );
+
+  });
+
+}
 /* ================= MAP TOGGLE ================= */
 
 if (mapBtn && mapView) {
@@ -113,12 +153,13 @@ if (mapBtn && mapView) {
 
       mapView.classList.remove("hidden");
 
-      try {
-        await loadGoogleMaps();
-        initMap();
-      } catch (err) {
-        console.error(err);
-      }
+   try {
+  await loadGoogleMaps();
+  initMap();
+  enableUserLocation();
+} catch (err) {
+  console.error(err);
+}
 
     } else {
 
