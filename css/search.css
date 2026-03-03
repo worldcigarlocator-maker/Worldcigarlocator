@@ -257,6 +257,7 @@
 /* ================= MAP LOCATION BUTTON ================= */
 
 .map-locate-btn {
+   outline: 2px solid red;
   position: absolute;
   bottom: 20px;           /* istället för top */
   left: 50%;
