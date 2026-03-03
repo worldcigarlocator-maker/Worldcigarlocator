@@ -2,6 +2,8 @@
 // search-v2.js — WCL Frontend (Search v2 · CANONICAL)
 // ============================================================
 
+import { supabase } from "./globals.js";
+
 import {
   activateSearch,
   clearSearchMaster,
@@ -35,6 +37,8 @@ const resultsToolbar = qs(".results-toolbar");
 let MAP_MODE = false;
 let googleMapsLoaded = false;
 let mapInstance = null;
+  let currentMarkers = [];
+let isFetching = false;
 
 /* ================= GOOGLE MAPS LOADER ================= */
 
@@ -94,6 +98,9 @@ function initMap() {
     fullscreenControl: false,
   });
 
+  // 👇 LÄGG DEN HÄR
+mapInstance.addListener("idle", loadStoresFromBounds);
+  
   // 🔥 CREATE LOCATION BUTTON INSIDE MAP
   const locateBtn = document.createElement("button");
   locateBtn.id = "locateBtn";
@@ -105,7 +112,38 @@ function initMap() {
   enableUserLocation();
 }
 
+  /* ================= VIEWPORT STORE LOADING ================= */
 
+async function loadStoresFromBounds() {
+
+  if (!mapInstance || isFetching) return;
+
+  const bounds = mapInstance.getBounds();
+  if (!bounds) return;
+
+  isFetching = true;
+
+  const ne = bounds.getNorthEast();
+  const sw = bounds.getSouthWest();
+
+  const { data, error } = await supabase.rpc(
+    "stores_within_bounds",
+    {
+      p_north: ne.lat(),
+      p_south: sw.lat(),
+      p_east:  ne.lng(),
+      p_west:  sw.lng()
+    }
+  );
+
+  if (!error) {
+    renderStoreMarkers(data);
+  } else {
+    console.error(error);
+  }
+
+  isFetching = false;
+}
   /* ================= USER GEOLOCATION ================= */
 
 function enableUserLocation() {
@@ -142,6 +180,46 @@ function enableUserLocation() {
       }
 
     );
+
+  });
+
+}
+
+  /* ================= RENDER STORE MARKERS ================= */
+
+function renderStoreMarkers(stores) {
+
+  // Rensa gamla markers
+  currentMarkers.forEach(m => m.setMap(null));
+  currentMarkers = [];
+
+  if (!stores) return;
+
+  stores.forEach(store => {
+
+    const hasStore  = store.types?.includes("store");
+    const hasLounge = store.types?.includes("lounge");
+
+    if (!hasStore) return; // vi visar bara sådana som innehåller store
+
+    const isCombined = hasStore && hasLounge;
+
+    const marker = new google.maps.Marker({
+      position: { lat: store.lat, lng: store.lng },
+      map: mapInstance,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 7,
+        fillColor: isCombined
+          ? "rgb(115, 98, 75)"
+          : "#ffffff",
+        fillOpacity: 1,
+        strokeWeight: 2,
+        strokeColor: "rgb(115, 98, 75)"
+      }
+    });
+
+    currentMarkers.push(marker);
 
   });
 
