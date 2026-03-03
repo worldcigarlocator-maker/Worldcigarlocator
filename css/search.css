@@ -1,8 +1,9 @@
 /* ============================================================
    SEARCH.CSS — WCL
-   3-ZONE ARCHITECTURE · CANONICAL v10
-   Refined scale (-7% visual compression)
+   3-ZONE ARCHITECTURE · CANONICAL v11
+   Refined scale · Map integrated · 48px capsule
    ============================================================ */
+
 
 /* ================= CAPSULE ================= */
 
@@ -14,7 +15,7 @@
   max-width: 1100px;
   min-width: 320px;
 
-  height: 48px;   /* 🔥 FAST HEIGHT */
+  height: 48px;
 
   background: var(--bg);
   border: 1px solid rgba(255,255,255,0.22);
@@ -26,6 +27,7 @@
   overflow: hidden;
 }
 
+
 /* ================= ZONES ================= */
 
 .search-zone {
@@ -33,7 +35,8 @@
   align-items: center;
 }
 
-/* SEARCH */
+
+/* ================= SEARCH ================= */
 
 .zone-search {
   display: flex;
@@ -41,46 +44,28 @@
   gap: 0.8rem;
 
   flex: 0 0 auto;
-  min-width: 320px;   
+  min-width: 300px;
 }
-
-/* FILTERS */
-
-.zone-filters {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem; /* tighter */
-  flex: 1 1 auto;
-
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.zone-filters button {
-  white-space: nowrap;
-}
-
-/* ================= SEARCH ================= */
 
 .search-label {
-  font-size: 1.05rem; /* was 1.2 */
+  font-size: 1.05rem;
   font-weight: 600;
-  color: var(--global);
+  color: rgb(var(--global));
   white-space: nowrap;
   pointer-events: none;
 }
 
 #searchInput {
   flex: 1;
-  min-width: 180px;
-  max-width: 400px;
+  min-width: 160px;
+  max-width: 380px;
 
   border: none;
   outline: none;
   background: transparent;
 
   font-family: "DM Sans", sans-serif;
-  font-size: 0.9rem; /* slightly smaller */
+  font-size: 0.9rem;
   font-weight: 600;
   color: #ffffff;
 
@@ -93,14 +78,73 @@
   font-weight: 400;
 }
 
+
+/* ================= FILTERS ================= */
+
+.zone-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.zone-filters button {
+  white-space: nowrap;
+}
+
+
+/* ================= MAP ================= */
+
+.zone-map {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.map-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: rgb(var(--global));
+  opacity: 0.75;
+
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.map-btn svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1.5;
+}
+
+.map-btn:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.map-btn.active {
+  opacity: 1;
+}
+
+
 /* ================= DIVIDER ================= */
 
 .zone-divider {
   width: 1px;
-  height: 24px; 
+  height: 24px;
   background: rgba(255,255,255,0.28);
   margin: 0 1.2rem;
 }
+
 
 /* ================= FILTER BUTTONS ================= */
 
@@ -110,10 +154,10 @@
 
   background: none;
   border: 1.5px solid transparent;
-  padding: 3px 9px; /* tighter */
+  padding: 3px 9px;
 
   font-family: "DM Sans", sans-serif;
-  font-size: 0.85rem; /* was 0.9 */
+  font-size: 0.85rem;
   font-weight: 500;
 
   color: rgb(var(--global));
@@ -134,7 +178,8 @@
   opacity: 1;
 }
 
-/* SORT */
+
+/* ================= SORT ================= */
 
 .sort-btn.active {
   color: var(--gold);
@@ -152,7 +197,12 @@
   background: var(--gold);
 }
 
+
 /* ================= CLEAR ================= */
+
+.zone-clear {
+  flex: 0 0 auto;
+}
 
 .clear-btn {
   appearance: none;
@@ -179,14 +229,13 @@
   opacity: 1;
 }
 
+
 /* ================= RESPONSIVE ================= */
 
 @media (max-width: 900px) {
 
-  .zone-filters {
-    display: none;
-  }
-
+  .zone-filters,
+  .zone-map,
   .zone-divider {
     display: none;
   }
