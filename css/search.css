@@ -253,3 +253,32 @@
     text-align: left;
   }
 }
+
+/* ================= MAP LOCATION BUTTON ================= */
+
+.map-locate-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  padding: 8px 14px;
+
+  background: rgba(0,0,0,0.75);
+  color: rgb(var(--global));
+
+  border: 1px solid rgba(var(--global), 0.6);
+  border-radius: 999px;
+
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  z-index: 10;
+
+  backdrop-filter: blur(6px);
+}
+
+.map-locate-btn:hover {
+  background: rgba(0,0,0,0.9);
+}
