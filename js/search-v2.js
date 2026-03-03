@@ -22,46 +22,92 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!input) return;
 
-  /* ============================================================
-     MAP MODE TOGGLE (UI STATE ONLY)
-     ============================================================ */
+/* ============================================================
+   MAP MODE TOGGLE + GOOGLE MAPS LAZY LOAD
+   ============================================================ */
 
-  const mapBtn = qs("#mapViewBtn");
-  const mapView = qs("#mapView");
-  const hero = qs("#heroImage");
-  const storeGrid = qs("#storeGrid");
-  const resultsToolbar = qs(".results-toolbar");
+const mapBtn = qs("#mapViewBtn");
+const mapView = qs("#mapView");
+const hero = qs("#heroImage");
+const storeGrid = qs("#storeGrid");
+const resultsToolbar = qs(".results-toolbar");
 
-  let MAP_MODE = false;
+let MAP_MODE = false;
+let googleMapsLoaded = false;
 
-  if (mapBtn && mapView) {
+/* ================= GOOGLE MAPS LOADER ================= */
 
-    mapBtn.addEventListener("click", () => {
+function loadGoogleMaps() {
+  return new Promise((resolve, reject) => {
 
-      MAP_MODE = !MAP_MODE;
+    if (googleMapsLoaded) {
+      resolve();
+      return;
+    }
 
-      mapBtn.classList.toggle("active");
+    const existingScript = document.querySelector(
+      "script[src*='maps.googleapis.com/maps/api/js']"
+    );
 
-      if (MAP_MODE) {
-        hero?.classList.add("hidden");
-        storeGrid?.classList.add("hidden");
-        resultsToolbar?.classList.add("hidden");
+    if (existingScript) {
+      googleMapsLoaded = true;
+      resolve();
+      return;
+    }
 
-        mapView.classList.remove("hidden");
+    const script = document.createElement("script");
+script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBzHH9QNHPGWpQrczIGgWs1wnHGALiwNZw&v=weekly`;    script.async = true;
+    script.defer = true;
 
-      } else {
-        hero?.classList.remove("hidden");
-        storeGrid?.classList.remove("hidden");
-        resultsToolbar?.classList.remove("hidden");
+    script.onload = () => {
+      googleMapsLoaded = true;
+      console.log("Google Maps loaded");
+      resolve();
+    };
 
-        mapView.classList.add("hidden");
+    script.onerror = () => reject("Google Maps failed to load");
+
+    document.head.appendChild(script);
+
+  });
+}
+
+/* ================= MAP TOGGLE ================= */
+
+if (mapBtn && mapView) {
+
+  mapBtn.addEventListener("click", async () => {
+
+    MAP_MODE = !MAP_MODE;
+    mapBtn.classList.toggle("active");
+
+    if (MAP_MODE) {
+
+      hero?.classList.add("hidden");
+      storeGrid?.classList.add("hidden");
+      resultsToolbar?.classList.add("hidden");
+
+      mapView.classList.remove("hidden");
+
+      try {
+        await loadGoogleMaps();
+      } catch (err) {
+        console.error(err);
       }
 
-    });
+    } else {
 
-  }
+      hero?.classList.remove("hidden");
+      storeGrid?.classList.remove("hidden");
+      resultsToolbar?.classList.remove("hidden");
 
-  // 🔽 resten av din befintliga kod fortsätter här
+      mapView.classList.add("hidden");
+
+    }
+
+  });
+
+}
   // ============================================================
 // BRAND = HOME
 // ============================================================
