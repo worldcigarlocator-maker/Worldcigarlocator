@@ -22,6 +22,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!input) return;
 
+  /* ============================================================
+     MAP MODE TOGGLE (UI STATE ONLY)
+     ============================================================ */
+
+  const mapBtn = qs("#mapViewBtn");
+  const mapView = qs("#mapView");
+  const hero = qs("#heroImage");
+  const storeGrid = qs("#storeGrid");
+  const resultsToolbar = qs(".results-toolbar");
+
+  let MAP_MODE = false;
+
+  if (mapBtn && mapView) {
+
+    mapBtn.addEventListener("click", () => {
+
+      MAP_MODE = !MAP_MODE;
+
+      mapBtn.classList.toggle("active");
+
+      if (MAP_MODE) {
+        hero?.classList.add("hidden");
+        storeGrid?.classList.add("hidden");
+        resultsToolbar?.classList.add("hidden");
+
+        mapView.classList.remove("hidden");
+
+      } else {
+        hero?.classList.remove("hidden");
+        storeGrid?.classList.remove("hidden");
+        resultsToolbar?.classList.remove("hidden");
+
+        mapView.classList.add("hidden");
+      }
+
+    });
+
+  }
+
+  // 🔽 resten av din befintliga kod fortsätter här
   // ============================================================
 // BRAND = HOME
 // ============================================================
