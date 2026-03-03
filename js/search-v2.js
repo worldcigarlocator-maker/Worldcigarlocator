@@ -94,7 +94,17 @@ function initMap() {
     fullscreenControl: false,
   });
 
+  // 🔥 CREATE LOCATION BUTTON INSIDE MAP
+  const locateBtn = document.createElement("button");
+  locateBtn.id = "locateBtn";
+  locateBtn.className = "map-locate-btn";
+  locateBtn.textContent = "Use my location";
+
+  mapContainer.appendChild(locateBtn);
+
+  enableUserLocation();
 }
+
 
   /* ================= USER GEOLOCATION ================= */
 
