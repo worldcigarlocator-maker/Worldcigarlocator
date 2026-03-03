@@ -38,10 +38,10 @@
 .zone-search {
   display: flex;
   align-items: center;
-  gap: 1rem; /* tighter */
+  gap: 0.8rem;
 
   flex: 0 0 auto;
-  min-width: 400px;
+  min-width: 320px;   
 }
 
 /* FILTERS */
