@@ -105,33 +105,32 @@
 }
 
 .map-btn {
-  background: none;
-  border: none;
-  padding: 4px;
+  appearance: none;
+  -webkit-appearance: none;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: none;
+  border: 1.5px solid transparent;
+  padding: 3px 10px;
+
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
 
   color: rgb(var(--global));
   opacity: 0.75;
 
+  border-radius: 999px;
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.15s ease;
-}
 
-.map-btn svg {
-  width: 17px;
-  height: 17px;
-  stroke-width: 1.5;
+  transition: opacity 0.18s ease, border 0.18s ease;
 }
 
 .map-btn:hover {
   opacity: 1;
-  transform: scale(1.05);
 }
 
 .map-btn.active {
+  border: 1.5px solid rgba(var(--global), 1);
   opacity: 1;
 }
 
