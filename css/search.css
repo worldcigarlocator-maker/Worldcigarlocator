@@ -256,7 +256,9 @@
 
 /* ================= MAP LOCATION BUTTON ================= */
 
-.map-locate-btn {
+.map-locate-btn:focus-visible {
+  box-shadow: 0 0 0 2px rgba(var(--global), 0.6);
+}
   position: absolute;
   bottom: 20px;           /* istället för top */
   left: 50%;
