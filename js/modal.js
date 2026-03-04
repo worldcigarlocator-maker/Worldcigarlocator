@@ -153,11 +153,7 @@ if (dir && store.lat && store.lng) {
   dir.href = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}`;
   dir.style.display = "inline";
 }
-if (modalDirections() && store.lat && store.lng) {
-  modalDirections().href =
-    `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}`;
-  modalDirections().style.display = "inline";
-}
+
   // ----------------------------------
   // Interaction meta (RPC)
   // ----------------------------------
