@@ -156,12 +156,13 @@ export async function openModal(storeId) {
 const dir = modalDirections();
 
 if (dir && store.place_id) {
+  const name = encodeURIComponent(store.name || "Destination");
+
   dir.href =
-    `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(store.name || "Destination")}&destination_place_id=${store.place_id}`;
+    `https://www.google.com/maps/dir/?api=1&destination=${name}&destination_place_id=${store.place_id}`;
 
-  dir.style.display = "block";
+  dir.style.display = "inline";
 }
-
   // ----------------------------------
   // Interaction meta (RPC)
   // ----------------------------------
