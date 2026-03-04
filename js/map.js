@@ -1,6 +1,6 @@
 // ============================================================
 // MAP.JS — WCL MAP VIEW
-// Viewport loading · Marker cache · Custom pins
+// Canonical · Viewport Loading · Marker Cache · Custom Pins
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -33,6 +33,10 @@ export function initMap() {
     fullscreenControl: false
   });
 
+  // ----------------------------------------------------------
+  // VIEWPORT LISTENER
+  // ----------------------------------------------------------
+
   mapInstance.addListener("idle", () => {
 
     if (debounceTimer) {
@@ -57,17 +61,17 @@ async function loadStoresFromBounds() {
   const bounds = mapInstance.getBounds();
   if (!bounds) return;
 
-  const ne = bounds.getNorthEast();
   const sw = bounds.getSouthWest();
-
-  const north = ne.lat();
-  const east = ne.lng();
-  const south = sw.lat();
-  const west = sw.lng();
+  const ne = bounds.getNorthEast();
 
   const { data, error } = await supabase.rpc(
     "map_stores_in_bounds_v1",
-    { north, south, east, west }
+    {
+      p_min_lat: sw.lat(),
+      p_max_lat: ne.lat(),
+      p_min_lng: sw.lng(),
+      p_max_lng: ne.lng()
+    }
   );
 
   if (error) {
@@ -88,11 +92,22 @@ function renderMarkers(stores) {
 
   stores.forEach(store => {
 
-    // skip om marker redan finns
+    // --------------------------------------------------------
+    // SKIP IF MARKER EXISTS
+    // --------------------------------------------------------
+
     if (markerCache.has(store.id)) return;
+
+    // --------------------------------------------------------
+    // GET PIN
+    // --------------------------------------------------------
 
     const icon = getPin(store.types);
     if (!icon) return;
+
+    // --------------------------------------------------------
+    // CREATE MARKER
+    // --------------------------------------------------------
 
     const marker = new google.maps.Marker({
       position: {
@@ -106,9 +121,17 @@ function renderMarkers(stores) {
       }
     });
 
+    // --------------------------------------------------------
+    // CLICK → MODAL
+    // --------------------------------------------------------
+
     marker.addListener("click", () => {
       openModal(store.id);
     });
+
+    // --------------------------------------------------------
+    // CACHE
+    // --------------------------------------------------------
 
     markerCache.set(store.id, marker);
 
@@ -118,7 +141,7 @@ function renderMarkers(stores) {
 
 
 // ============================================================
-// CLEAR MAP (optional helper)
+// CLEAR MAP (HELPER)
 // ============================================================
 
 export function clearMap() {
