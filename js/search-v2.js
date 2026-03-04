@@ -225,7 +225,6 @@ function enableUserLocation() {
 }
 
 /* ================= RENDER STORE MARKERS ================= */
-/* ================= RENDER STORE MARKERS ================= */
 
 function renderStoreMarkers(stores) {
 
@@ -305,8 +304,6 @@ function renderStoreMarkers(stores) {
     clusterer.addMarkers(markersToAdd);
   }
 }
-
-/* ================= MAP TOGGLE ================= */
     
 /* ================= MAP TOGGLE ================= */
 
