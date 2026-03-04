@@ -451,3 +451,16 @@
 .modal-report-btn:hover {
   opacity: 0.7;
 }
+
+#modalWebsite,
+#modalDirections {
+  display: none;
+  color: rgb(var(--global));
+  text-decoration: none;
+  font-weight: 500;
+}
+
+#modalWebsite:hover,
+#modalDirections:hover {
+  text-decoration: underline;
+}
