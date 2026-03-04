@@ -1,11 +1,11 @@
 // ============================================================
 // MAP.JS — WCL MAP VIEW
-// Canonical · Viewport Loading · Marker Cache
+// Viewport loading · Marker cache · Custom pins
 // ============================================================
 
 import { supabase } from "./globals.js";
-import { getPin } from "./map-pins.js";
 import { openModal } from "./modal.js";
+import { getPin } from "./map-pins.js";
 
 // ============================================================
 // STATE
@@ -13,19 +13,16 @@ import { openModal } from "./modal.js";
 
 let mapInstance = null;
 let markerCache = new Map();
-let boundsDebounce = null;
+let debounceTimer = null;
 
-// ============================================================
-// DOM
-// ============================================================
-
-const mapContainer = document.getElementById("map");
 
 // ============================================================
 // INIT MAP
 // ============================================================
 
 export function initMap() {
+
+  const mapContainer = document.getElementById("map");
 
   mapInstance = new google.maps.Map(mapContainer, {
     center: { lat: 20, lng: 0 },
@@ -36,17 +33,13 @@ export function initMap() {
     fullscreenControl: false
   });
 
-  // ----------------------------------------------------------
-  // VIEWPORT LISTENER
-  // ----------------------------------------------------------
-
   mapInstance.addListener("idle", () => {
 
-    if(boundsDebounce){
-      clearTimeout(boundsDebounce);
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
     }
 
-    boundsDebounce = setTimeout(() => {
+    debounceTimer = setTimeout(() => {
       loadStoresFromBounds();
     }, 180);
 
@@ -54,15 +47,15 @@ export function initMap() {
 
 }
 
+
 // ============================================================
 // LOAD STORES FROM VIEWPORT
 // ============================================================
 
-async function loadStoresFromBounds(){
+async function loadStoresFromBounds() {
 
   const bounds = mapInstance.getBounds();
-
-  if(!bounds) return;
+  if (!bounds) return;
 
   const ne = bounds.getNorthEast();
   const sw = bounds.getSouthWest();
@@ -72,21 +65,12 @@ async function loadStoresFromBounds(){
   const south = sw.lat();
   const west = sw.lng();
 
-  // ----------------------------------------------------------
-  // SUPABASE RPC
-  // ----------------------------------------------------------
-
   const { data, error } = await supabase.rpc(
     "map_stores_in_bounds_v1",
-    {
-      north,
-      south,
-      east,
-      west
-    }
+    { north, south, east, west }
   );
 
-  if(error){
+  if (error) {
     console.error("Map RPC error:", error);
     return;
   }
@@ -95,31 +79,20 @@ async function loadStoresFromBounds(){
 
 }
 
+
 // ============================================================
 // RENDER MARKERS
 // ============================================================
 
-function renderMarkers(stores){
+function renderMarkers(stores) {
 
   stores.forEach(store => {
 
-    // --------------------------------------------------------
-    // SKIP IF MARKER EXISTS
-    // --------------------------------------------------------
-
-    if(markerCache.has(store.id)) return;
-
-    // --------------------------------------------------------
-    // PIN
-    // --------------------------------------------------------
+    // skip om marker redan finns
+    if (markerCache.has(store.id)) return;
 
     const icon = getPin(store.types);
-
-    if(!icon) return;
-
-    // --------------------------------------------------------
-    // MARKER
-    // --------------------------------------------------------
+    if (!icon) return;
 
     const marker = new google.maps.Marker({
       position: {
@@ -133,17 +106,9 @@ function renderMarkers(stores){
       }
     });
 
-    // --------------------------------------------------------
-    // CLICK → MODAL
-    // --------------------------------------------------------
-
     marker.addListener("click", () => {
       openModal(store.id);
     });
-
-    // --------------------------------------------------------
-    // CACHE
-    // --------------------------------------------------------
 
     markerCache.set(store.id, marker);
 
@@ -151,11 +116,12 @@ function renderMarkers(stores){
 
 }
 
+
 // ============================================================
-// PUBLIC HELPER
+// CLEAR MAP (optional helper)
 // ============================================================
 
-export function clearMap(){
+export function clearMap() {
 
   markerCache.forEach(marker => {
     marker.setMap(null);
