@@ -186,73 +186,75 @@
 <script type="module" src="js/search-v2.js"></script>
 
   <!-- ================= MODAL ================= -->
-  <div id="storeModal" class="modal hidden">
-    <div class="modal-backdrop"></div>
+<div id="storeModal" class="modal hidden">
+  <div class="modal-backdrop"></div>
 
-    <div class="modal-content">
-      <button class="modal-close">✕</button>
+  <div class="modal-content">
+    <button class="modal-close">✕</button>
 
-      <img id="modalImg" class="modal-img" alt="" />
+    <img id="modalImg" class="modal-img" alt="" />
 
-      <div class="modal-body">
-        <h2 id="modalName" class="modal-title"></h2>
+    <div class="modal-body">
+      <h2 id="modalName" class="modal-title"></h2>
 
-        <div class="modal-location">
-          <img id="modalFlag" class="flag" />
-          <span id="modalLocation"></span>
+      <div class="modal-location">
+        <img id="modalFlag" class="flag" />
+        <span id="modalLocation"></span>
+      </div>
+
+      <div id="modalBadges" class="modal-badges"></div>
+
+      <div class="modal-info">
+        <p><strong>Address:</strong> <span id="modalAddress"></span></p>
+        <p><strong>Phone:</strong> <span id="modalPhone"></span></p>
+
+        <p>
+          <a id="modalWebsite" href="#" target="_blank" rel="noopener">
+            Visit website
+          </a>
+        </p>
+
+        <p>
+          <a id="modalDirections" href="#" target="_blank" rel="noopener">
+            Directions
+          </a>
+        </p>
+      </div>
+
+      <div class="modal-rating">
+        <h3>Your rating</h3>
+
+        <div id="modalStarPicker" class="star-picker">
+          <span data-val="1">☆</span>
+          <span data-val="2">☆</span>
+          <span data-val="3">☆</span>
+          <span data-val="4">☆</span>
+          <span data-val="5">☆</span>
         </div>
 
-        <div id="modalBadges" class="modal-badges"></div>
+        <button id="modalSendRating">Submit rating</button>
+      </div>
 
-        <div class="modal-info">
-          <p><strong>Address:</strong> <span id="modalAddress"></span></p>
-          <p><strong>Phone:</strong> <span id="modalPhone"></span></p>
-         <p>
-  <a id="modalWebsite" href="#" target="_blank" rel="noopener">
-    Visit website
-  </a>
-</p>
-
-<p>
-  <a id="modalDirections" href="#" target="_blank" rel="noopener">
-    Directions
-  </a>
-</p>
-              Visit website
-            </a>
-          </p>
+      <div class="modal-comments">
+        <div class="modal-comments-header">
+          <span id="modalCommentCount" class="modal-count-pill">
+            Comments 0
+          </span>
         </div>
 
-        <div class="modal-rating">
-          <h3>Your rating</h3>
+        <textarea
+          id="modalCommentInput"
+          placeholder="Write a comment…"
+        ></textarea>
 
-          <div id="modalStarPicker" class="star-picker">
-            <span data-val="1">☆</span>
-            <span data-val="2">☆</span>
-            <span data-val="3">☆</span>
-            <span data-val="4">☆</span>
-            <span data-val="5">☆</span>
-          </div>
+        <button id="modalSendComment">Post comment</button>
 
-          <button id="modalSendRating">Submit rating</button>
-        </div>
+        <div id="modalComments" class="modal-comments-feed"></div>
+      </div>
 
-        <div class="modal-comments">
-          <div class="modal-comments-header">
-            <span id="modalCommentCount" class="modal-count-pill">
-              Comments 0
-            </span>
-          </div>
-
-          <textarea
-            id="modalCommentInput"
-            placeholder="Write a comment…"
-          ></textarea>
-
-          <button id="modalSendComment">Post comment</button>
-
-          <div id="modalComments" class="modal-comments-feed"></div>
-        </div>
+    </div>
+  </div>
+</div>
 
         <!-- ================= REPORT SECTION ================= -->
 
