@@ -76,13 +76,10 @@ function resetModal() {
   if (modalPhone()) modalPhone().textContent = "";
 
   const dir = modalDirections();
-
-if (dir && store.place_id) {
-  dir.href =
-    `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(store.name)}&destination_place_id=${store.place_id}`;
-
-  dir.style.display = "block";
-}
+  if (dir) {
+    dir.href = "#";
+    dir.style.display = "none";
+  }
 
   const web = modalWebsite();
   if (web) {
@@ -98,7 +95,6 @@ if (dir && store.place_id) {
 
   if (modalComments()) modalComments().innerHTML = "";
   if (modalCommentInput()) modalCommentInput().value = "";
-
   if (modalCommentCount()) modalCommentCount().textContent = "Comments 0";
 
   MODAL_USER_TEMP_RATING = 0;
@@ -152,11 +148,16 @@ export async function openModal(storeId) {
     modalWebsite().href = store.website;
     modalWebsite().style.display = "inline";
   }
+
+// ----------------------------------
+// Directions (Google Maps Navigation)
+// ----------------------------------
+
 const dir = modalDirections();
 
 if (dir && store.place_id) {
   dir.href =
-    `https://www.google.com/maps/dir/?api=1&destination_place_id=${store.place_id}`;
+    `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(store.name || "Destination")}&destination_place_id=${store.place_id}`;
 
   dir.style.display = "block";
 }
@@ -396,8 +397,6 @@ if (btn) {
   }
 }
 
-
-
 // ============================================================
 // EVENTS (BOUND ONCE)
 // ============================================================
@@ -424,9 +423,6 @@ function bindEvents() {
       return;
     }
 
-    // ------------------------------------------------------------
-    // REPORT ISSUE
-    // ------------------------------------------------------------
  // ------------------------------------------------------------
 // REPORT SECTION TOGGLE
 // ------------------------------------------------------------
