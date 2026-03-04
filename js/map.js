@@ -72,8 +72,8 @@ async function loadStoresFromBounds() {
     return;
   }
 
-  renderMarkers(data || []);
-
+  console.log("MAP STORES:", data);
+renderMarkers(data || []);
 }
 
 
