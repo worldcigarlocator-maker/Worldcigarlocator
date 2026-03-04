@@ -75,6 +75,11 @@ function resetModal() {
   if (modalAddress()) modalAddress().textContent = "";
   if (modalPhone()) modalPhone().textContent = "";
 
+  const dir = modalDirections();
+if (dir) {
+  dir.href = "#";
+  dir.style.display = "none";
+}
   const web = modalWebsite();
   if (web) {
     web.href = "#";
