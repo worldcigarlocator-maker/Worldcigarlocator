@@ -87,7 +87,7 @@ function renderMarkers(stores) {
 
     if (markerCache.has(store.id)) return;
 
-    const icon = getPin(store.types);
+    const icon = getPin(store.types); console.log("PIN:", icon);
 
     const marker = new google.maps.Marker({
       position: {
