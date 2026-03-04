@@ -3,6 +3,7 @@
 // ============================================================
 
 import { supabase } from "./globals.js";
+import { openModal } from "./modal.js";
 
 import {
   activateSearch,
@@ -230,7 +231,12 @@ const marker = new google.maps.Marker({
   }
 });
 
-    currentMarkers.push(marker);
+// 🔥 Klick öppnar WCL modal
+marker.addListener("click", () => {
+  openModal(store);
+});
+
+currentMarkers.push(marker);
 
   });
 
