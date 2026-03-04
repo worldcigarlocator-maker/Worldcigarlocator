@@ -31,6 +31,7 @@ const modalBadges       = () => el("modalBadges");
 const modalAddress      = () => el("modalAddress");
 const modalPhone        = () => el("modalPhone");
 const modalWebsite      = () => el("modalWebsite");
+const modalDirections   = () => el("modalDirections");
 const modalStarPicker   = () => el("modalStarPicker");
 const modalSendRating   = () => el("modalSendRating");
 const modalComments     = () => el("modalComments");
