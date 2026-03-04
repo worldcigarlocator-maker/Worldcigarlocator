@@ -454,7 +454,7 @@
 
 #modalWebsite,
 #modalDirections {
-  display: none;
+  display: inline-block;
   color: rgb(var(--global));
   text-decoration: none;
   font-weight: 500;
