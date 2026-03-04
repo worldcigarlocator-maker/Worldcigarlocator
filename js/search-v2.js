@@ -262,6 +262,10 @@ marker.addListener("click", () => {
 });
 
 currentMarkers.push(marker);
+
+  });   // stänger stores.forEach
+
+}       // stänger renderStoreMarkers
     
 /* ================= MAP TOGGLE ================= */
 
