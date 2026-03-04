@@ -198,26 +198,37 @@ function renderStoreMarkers(stores) {
   stores.forEach(store => {
 
     const hasStore  = store.types?.includes("store");
-    const hasLounge = store.types?.includes("lounge");
+const hasLounge = store.types?.includes("lounge");
 
-    if (!hasStore) return; // vi visar bara sådana som innehåller store
+let fillColor;
 
-    const isCombined = hasStore && hasLounge;
+// 🔵 Allt som innehåller store (store eller store+lounge)
+if (hasStore) {
+  fillColor = "#3b82f6"; // store blå
+}
 
-    const marker = new google.maps.Marker({
-      position: { lat: store.lat, lng: store.lng },
-      map: mapInstance,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 7,
-        fillColor: isCombined
-          ? "rgb(115, 98, 75)"
-          : "#ffffff",
-        fillOpacity: 1,
-        strokeWeight: 2,
-        strokeColor: "rgb(115, 98, 75)"
-      }
-    });
+// 🟣 Endast lounge
+else if (hasLounge) {
+  fillColor = "#8b5cf6"; // lounge lila
+}
+
+// Annars visa inte alls
+else {
+  return;
+}
+
+const marker = new google.maps.Marker({
+  position: { lat: store.lat, lng: store.lng },
+  map: mapInstance,
+  icon: {
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 7,
+    fillColor: fillColor,
+    fillOpacity: 1,
+    strokeWeight: 2,
+    strokeColor: fillColor
+  }
+});
 
     currentMarkers.push(marker);
 
