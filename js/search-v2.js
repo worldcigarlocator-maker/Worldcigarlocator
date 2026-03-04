@@ -40,7 +40,8 @@ let googleMapsLoaded = false;
 let mapInstance = null;
   let currentMarkers = [];
 let isFetching = false;
-
+let hoverInfoWindow = null;
+  
 /* ================= GOOGLE MAPS LOADER ================= */
 
 function loadGoogleMaps() {
@@ -229,6 +230,33 @@ const marker = new google.maps.Marker({
     strokeWeight: 2,
     strokeColor: fillColor
   }
+});
+
+    // ================= HOVER PREVIEW =================
+
+if (!hoverInfoWindow) {
+  hoverInfoWindow = new google.maps.InfoWindow();
+}
+
+marker.addListener("mouseover", () => {
+
+  const content = `
+    <div style="
+      font-family: DM Sans, sans-serif;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 600;
+    ">
+      ${store.name}
+    </div>
+  `;
+
+  hoverInfoWindow.setContent(content);
+  hoverInfoWindow.open(mapInstance, marker);
+});
+
+marker.addListener("mouseout", () => {
+  hoverInfoWindow.close();
 });
 
 // 🔥 Klick öppnar WCL modal
