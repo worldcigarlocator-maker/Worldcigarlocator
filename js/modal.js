@@ -148,9 +148,12 @@ export async function openModal(storeId) {
     modalWebsite().href = store.website;
     modalWebsite().style.display = "inline";
   }
-  const dir = modalDirections();
-if (dir && store.lat && store.lng) {
-  dir.href = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}`;
+const dir = modalDirections();
+
+if (dir && store.place_id) {
+  dir.href =
+    `https://www.google.com/maps/dir/?api=1&destination_place_id=${store.place_id}`;
+
   dir.style.display = "block";
 }
 
