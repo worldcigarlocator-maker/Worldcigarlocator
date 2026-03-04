@@ -223,6 +223,7 @@ else {
 const marker = new google.maps.Marker({
   position: { lat: store.lat, lng: store.lng },
   map: mapInstance,
+  optimized: true, // 👈 lägg till denna rad
   icon: {
     path: google.maps.SymbolPath.CIRCLE,
     scale: 7,
