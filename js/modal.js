@@ -75,10 +75,13 @@ function resetModal() {
   if (modalAddress()) modalAddress().textContent = "";
   if (modalPhone()) modalPhone().textContent = "";
 
-  const dir = modalDirections();
-if (dir) {
-  dir.href = "#";
-  dir.style.display = "none";
+const dir = modalDirections();
+
+if (dir && store.place_id) {
+  dir.href =
+    `https://www.google.com/maps/dir/?api=1&destination_place_id=${store.place_id}`;
+
+  dir.style.display = "block";
 }
   const web = modalWebsite();
   if (web) {
