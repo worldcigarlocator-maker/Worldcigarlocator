@@ -1,6 +1,5 @@
 // ============================================================
 // MAP.JS — WCL MAP VIEW
-// Canonical · Viewport Loading · Marker Cache · Custom Pins
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -13,7 +12,6 @@ import { getPin } from "./map-pins.js";
 
 let mapInstance = null;
 let markerCache = new Map();
-window.WCL_DEBUG = { markerCache };
 let debounceTimer = null;
 
 
@@ -34,15 +32,9 @@ export function initMap() {
     fullscreenControl: false
   });
 
-  // ----------------------------------------------------------
-  // VIEWPORT LISTENER
-  // ----------------------------------------------------------
-
   mapInstance.addListener("idle", () => {
 
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
+    if (debounceTimer) clearTimeout(debounceTimer);
 
     debounceTimer = setTimeout(() => {
       loadStoresFromBounds();
@@ -93,33 +85,23 @@ function renderMarkers(stores) {
 
   stores.forEach(store => {
 
-    // --------------------------------------------------------
-    // SKIP IF MARKER EXISTS
-    // --------------------------------------------------------
-
     if (markerCache.has(store.id)) return;
 
-// --------------------------------------------------------
-// GET PIN + CREATE MARKER
-// --------------------------------------------------------
+    const icon = getPin(store.types);
+    if (!icon) return;
 
-const icon = getPin(store.types);
-
-if (!icon) return;
-
-const marker = new google.maps.Marker({
-
-    // --------------------------------------------------------
-    // CLICK → MODAL
-    // --------------------------------------------------------
+    const marker = new google.maps.Marker({
+      position: {
+        lat: store.lat,
+        lng: store.lng
+      },
+      map: mapInstance,
+      icon: icon
+    });
 
     marker.addListener("click", () => {
       openModal(store.id);
     });
-
-    // --------------------------------------------------------
-    // CACHE
-    // --------------------------------------------------------
 
     markerCache.set(store.id, marker);
 
@@ -129,7 +111,7 @@ const marker = new google.maps.Marker({
 
 
 // ============================================================
-// CLEAR MAP (HELPER)
+// CLEAR MAP
 // ============================================================
 
 export function clearMap() {
@@ -142,8 +124,9 @@ export function clearMap() {
 
 }
 
+
 // ============================================================
-// GOOGLE MAPS GLOBAL INIT
+// GOOGLE MAPS CALLBACK
 // ============================================================
 
 window.initMap = initMap;
