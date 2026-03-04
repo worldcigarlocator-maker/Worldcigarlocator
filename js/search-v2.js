@@ -123,6 +123,14 @@ function initMap() {
     });
   }
 
+  // ================= HOVER INFOWINDOW =================
+if (!hoverInfoWindow) {
+  hoverInfoWindow = new google.maps.InfoWindow({
+    disableAutoPan: true
+  });
+}
+
+
   // ================= IDLE (DEBOUNCED) =================
 
   mapInstance.addListener("idle", () => {
