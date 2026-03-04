@@ -41,47 +41,57 @@ let mapInstance = null;
   let currentMarkers = [];
 let isFetching = false;
 let hoverInfoWindow = null;
-  
+ 
+
 /* ================= GOOGLE MAPS LOADER ================= */
 
 function loadGoogleMaps() {
   return new Promise((resolve, reject) => {
 
-    if (googleMapsLoaded) {
+    if (googleMapsLoaded && window.markerClusterer) {
       resolve();
       return;
     }
 
-    const existingScript = document.querySelector(
-      "script[src*='maps.googleapis.com/maps/api/js']"
-    );
-
-    if (existingScript) {
-      googleMapsLoaded = true;
-      resolve();
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src =
-      "https://maps.googleapis.com/maps/api/js?key=AIzaSyBzHH9QNHPGWpQrczIGgWs1wnHGALiwNZw&v=weekly";
-
-    script.async = true;
-    script.defer = true;
-
-    script.onload = () => {
-      googleMapsLoaded = true;
-      console.log("Google Maps loaded");
-      resolve();
+    const loadScript = (src) => {
+      return new Promise((res, rej) => {
+        const script = document.createElement("script");
+        script.src = src;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => res();
+        script.onerror = () => rej(`Failed to load ${src}`);
+        document.head.appendChild(script);
+      });
     };
 
-    script.onerror = () => reject("Google Maps failed to load");
+    (async () => {
+      try {
 
-    document.head.appendChild(script);
+        // 1️⃣ Load Google Maps
+        if (!window.google?.maps) {
+          await loadScript(
+            "https://maps.googleapis.com/maps/api/js?key=AIzaSyBzHH9QNHPGWpQrczIGgWs1wnHGALiwNZw&v=weekly"
+          );
+        }
+
+        // 2️⃣ Load MarkerClusterer
+        if (!window.markerClusterer) {
+          await loadScript(
+            "https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"
+          );
+        }
+
+        googleMapsLoaded = true;
+        resolve();
+
+      } catch (err) {
+        reject(err);
+      }
+    })();
 
   });
 }
-
 /* ================= MAP INITIALIZATION ================= */
 
 function initMap() {
