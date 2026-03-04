@@ -1,26 +1,17 @@
 // ============================================================
 // MAP-PINS.JS — WCL MAP PIN SYSTEM
-// Canonical · Cached SVG Icons · Google Maps Ready
+// Store · Lounge · Store+Lounge (Split)
 // ============================================================
 
-// ------------------------------------------------------------
-// CACHE
-// ------------------------------------------------------------
 
-let PIN_STORE = null;
-let PIN_LOUNGE = null;
-let PIN_STORE_LOUNGE = null;
-
-
-// ------------------------------------------------------------
+// ============================================================
 // STORE PIN (BLUE)
-// ------------------------------------------------------------
+// ============================================================
 
-function buildStorePin(){
+export function pinStore() {
 
-return {
-  url: `data:image/svg+xml;charset=UTF-8,
-<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 48 48">
+  const svg = `data:image/svg+xml;charset=UTF-8,
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
 
 <defs>
 <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
@@ -32,23 +23,27 @@ return {
 <path d="M24 2C15 2 8 9 8 18c0 11 16 28 16 28s16-17 16-28c0-9-7-16-16-16z"
 fill="#1E88E5"/>
 
-<circle cx="24" cy="16" r="9" fill="url(#shine)"/>
+<circle cx="24" cy="16" r="9" fill="url(#shine)" />
 
-</svg>`
-};
+</svg>`;
+
+  return {
+    url: svg,
+    scaledSize: new google.maps.Size(28, 28),
+    anchor: new google.maps.Point(14, 28)
+  };
 
 }
 
 
-// ------------------------------------------------------------
+// ============================================================
 // LOUNGE PIN (PURPLE)
-// ------------------------------------------------------------
+// ============================================================
 
-function buildLoungePin(){
+export function pinLounge() {
 
-return {
-  url: `data:image/svg+xml;charset=UTF-8,
-<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 48 48">
+  const svg = `data:image/svg+xml;charset=UTF-8,
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
 
 <defs>
 <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
@@ -60,23 +55,27 @@ return {
 <path d="M24 2C15 2 8 9 8 18c0 11 16 28 16 28s16-17 16-28c0-9-7-16-16-16z"
 fill="#8E24AA"/>
 
-<circle cx="24" cy="16" r="9" fill="url(#shine)"/>
+<circle cx="24" cy="16" r="9" fill="url(#shine)" />
 
-</svg>`
-};
+</svg>`;
+
+  return {
+    url: svg,
+    scaledSize: new google.maps.Size(28, 28),
+    anchor: new google.maps.Point(14, 28)
+  };
 
 }
 
 
-// ------------------------------------------------------------
-// STORE + LOUNGE PIN (FADE SPLIT)
-// ------------------------------------------------------------
+// ============================================================
+// STORE + LOUNGE (SPLIT PIN)
+// ============================================================
 
-function buildStoreLoungePin(){
+export function pinStoreLounge() {
 
-return {
-  url: `data:image/svg+xml;charset=UTF-8,
-<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 48 48">
+  const svg = `data:image/svg+xml;charset=UTF-8,
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
 
 <defs>
 
@@ -97,50 +96,39 @@ return {
 <path d="M24 2C15 2 8 9 8 18c0 11 16 28 16 28s16-17 16-28c0-9-7-16-16-16z"
 fill="url(#split)"/>
 
-<circle cx="24" cy="16" r="9" fill="url(#shine)"/>
+<circle cx="24" cy="16" r="9" fill="url(#shine)" />
 
-</svg>`
-};
+</svg>`;
+
+  return {
+    url: svg,
+    scaledSize: new google.maps.Size(28, 28),
+    anchor: new google.maps.Point(14, 28)
+  };
 
 }
 
 
-// ------------------------------------------------------------
-// PUBLIC PIN GETTER (CACHED)
-// ------------------------------------------------------------
+// ============================================================
+// PIN SELECTOR
+// ============================================================
 
-export function getPin(types){
+export function getPin(types) {
 
-if(types.includes("store") && types.includes("lounge")){
+  if (!types) return null;
 
-  if(!PIN_STORE_LOUNGE){
-    PIN_STORE_LOUNGE = buildStoreLoungePin();
+  if (types.includes("store") && types.includes("lounge")) {
+    return pinStoreLounge();
   }
 
-  return PIN_STORE_LOUNGE;
-
-}
-
-if(types.includes("store")){
-
-  if(!PIN_STORE){
-    PIN_STORE = buildStorePin();
+  if (types.includes("store")) {
+    return pinStore();
   }
 
-  return PIN_STORE;
-
-}
-
-if(types.includes("lounge")){
-
-  if(!PIN_LOUNGE){
-    PIN_LOUNGE = buildLoungePin();
+  if (types.includes("lounge")) {
+    return pinLounge();
   }
 
-  return PIN_LOUNGE;
-
-}
-
-return null;
+  return null;
 
 }
