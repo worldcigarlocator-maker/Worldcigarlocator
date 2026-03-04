@@ -22,7 +22,7 @@ let debounceTimer = null;
 
 export function initMap() {
 
-  const mapContainer = document.getElementById("map");
+  const mapContainer = document.getElementById("mapView");
 
   mapInstance = new google.maps.Map(mapContainer, {
     center: { lat: 20, lng: 0 },
