@@ -234,41 +234,35 @@ const marker = new google.maps.Marker({
 
     // ================= HOVER PREVIEW =================
 
-if (!hoverInfoWindow) {
-  hoverInfoWindow = new google.maps.InfoWindow();
-}
-
 marker.addListener("mouseover", () => {
-
-  const content = `
-    <div style="
-      font-family: DM Sans, sans-serif;
-      padding: 6px 10px;
-      font-size: 13px;
-      font-weight: 600;
-    ">
-      ${store.name}
-    </div>
-  `;
-
-  hoverInfoWindow.setContent(content);
-  hoverInfoWindow.open(mapInstance, marker);
+  marker.setIcon({
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 10,
+    fillColor: fillColor,
+    fillOpacity: 1,
+    strokeWeight: 2,
+    strokeColor: fillColor
+  });
 });
 
 marker.addListener("mouseout", () => {
-  hoverInfoWindow.close();
+  marker.setIcon({
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 7,
+    fillColor: fillColor,
+    fillOpacity: 1,
+    strokeWeight: 2,
+    strokeColor: fillColor
+  });
 });
 
-// 🔥 Klick öppnar WCL modal
+// 👇 LÄGG DENNA
 marker.addListener("click", () => {
-  openModal(store);
+  openModal(store.id);
 });
 
 currentMarkers.push(marker);
-
-  });
-
-}
+    
 /* ================= MAP TOGGLE ================= */
 
 if (mapBtn && mapView) {
