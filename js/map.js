@@ -153,3 +153,9 @@ export function clearMap() {
   markerCache.clear();
 
 }
+
+// ============================================================
+// GOOGLE MAPS GLOBAL INIT
+// ============================================================
+
+window.initMap = initMap;
