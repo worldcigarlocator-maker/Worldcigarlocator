@@ -143,7 +143,11 @@ export async function openModal(storeId) {
     modalWebsite().href = store.website;
     modalWebsite().style.display = "inline";
   }
-
+if (modalDirections() && store.lat && store.lng) {
+  modalDirections().href =
+    `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}`;
+  modalDirections().style.display = "inline";
+}
   // ----------------------------------
   // Interaction meta (RPC)
   // ----------------------------------
