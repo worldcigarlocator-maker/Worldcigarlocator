@@ -13,7 +13,7 @@ import { getPin } from "./map-pins.js";
 
 let mapInstance = null;
 let markerCache = new Map();
-window.markerCache = markerCache;
+window.WCL_DEBUG = { markerCache };
 let debounceTimer = null;
 
 
