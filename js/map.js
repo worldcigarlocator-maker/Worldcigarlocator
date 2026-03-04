@@ -124,9 +124,32 @@ export function clearMap() {
 
 }
 
-
 // ============================================================
 // GOOGLE MAPS CALLBACK
 // ============================================================
 
 window.initMap = initMap;
+
+
+// ============================================================
+// MAP VIEW BUTTON
+// ============================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const btn = document.getElementById("mapViewBtn");
+
+  if (!btn) return;
+
+  btn.addEventListener("click", () => {
+
+    const map = document.getElementById("mapView");
+
+    map.style.height = "600px";
+    map.style.display = "block";
+
+    initMap();
+
+  });
+
+});
