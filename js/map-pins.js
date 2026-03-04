@@ -27,7 +27,7 @@ fill="#1E88E5"/>
 `);
 
   return {
-    url: `data:image/svg+xml,${svg}`,
+   url: `data:image/svg+xml;charset=UTF-8,${svg}`
     scaledSize: new google.maps.Size(28, 28),
     anchor: new google.maps.Point(14, 28)
   };
@@ -41,7 +41,7 @@ fill="#1E88E5"/>
 
 export function pinLounge() {
 
-  const svg = `data:image/svg+xml;charset=UTF-8,
+  const svg = `;charset=UTF-8,
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
 
 <defs>
