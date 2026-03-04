@@ -109,17 +109,21 @@ function renderMarkers(stores) {
     // CREATE MARKER
     // --------------------------------------------------------
 
-    const marker = new google.maps.Marker({
-      position: {
-        lat: store.lat,
-        lng: store.lng
-      },
-      map: mapInstance,
-      icon: {
-        ...icon,
-        anchor: new google.maps.Point(14, 28)
-      }
-    });
+  const icon = getPin(store.types);
+
+if (!icon) return;
+
+const marker = new google.maps.Marker({
+  position: {
+    lat: store.lat,
+    lng: store.lng
+  },
+  map: mapInstance,
+  icon: {
+    ...icon,
+    anchor: new google.maps.Point(14, 28)
+  }
+});
 
     // --------------------------------------------------------
     // CLICK → MODAL
