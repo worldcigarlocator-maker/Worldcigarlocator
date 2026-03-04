@@ -59,7 +59,7 @@ fill="#8E24AA"/>
 </svg>`;
 
   return {
-    url: svg,
+   url: encodeURI(svg)
     scaledSize: new google.maps.Size(28, 28),
     anchor: new google.maps.Point(14, 28)
   };
