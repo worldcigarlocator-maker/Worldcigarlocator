@@ -196,6 +196,7 @@ function renderStoreMarkers(stores) {
   currentMarkers = [];
 
   if (!stores) return;
+  window.WCL_MAP_STORES = stores;
 
   stores.forEach(store => {
 
@@ -258,7 +259,7 @@ marker.addListener("mouseout", () => {
 
 // 👇 LÄGG DENNA
 marker.addListener("click", () => {
-  openModal(store.id);
+  openModal(Number(store.id));
 });
 
 currentMarkers.push(marker);
