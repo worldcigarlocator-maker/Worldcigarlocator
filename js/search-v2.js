@@ -251,7 +251,6 @@ function renderStoreMarkers(stores) {
     const id = Number(store.id);
     incomingIds.add(id);
 
-    // Keep existing marker
     if (markerCache.has(id)) return;
 
     const hasStore  = store.types?.includes("store");
@@ -259,16 +258,11 @@ function renderStoreMarkers(stores) {
 
     let fillColor;
 
-    // 🔵 Store OR Store+Lounge
     if (hasStore) {
       fillColor = "#3b82f6";
-    }
-    // 🟣 Lounge only
-    else if (hasLounge) {
+    } else if (hasLounge) {
       fillColor = "#8b5cf6";
-    }
-    // Otherwise: do not render
-    else {
+    } else {
       return;
     }
 
@@ -283,6 +277,34 @@ function renderStoreMarkers(stores) {
         strokeWeight: 2,
         strokeColor: fillColor
       }
+    });
+
+    // ================= HOVER NAME ONLY =================
+
+    marker.addListener("mouseover", () => {
+      hoverInfoWindow.setContent(`
+        <div style="
+          background: var(--panel);
+          color: var(--text);
+          padding: 6px 10px;
+          border-radius: 6px;
+          border: 1px solid var(--border);
+          font-family: 'DM Sans', sans-serif;
+          font-size: 13px;
+          white-space: nowrap;
+        ">
+          ${store.name}
+        </div>
+      `);
+      hoverInfoWindow.open({
+        anchor: marker,
+        map: mapInstance,
+        shouldFocus: false
+      });
+    });
+
+    marker.addListener("mouseout", () => {
+      hoverInfoWindow.close();
     });
 
     marker.addListener("click", () => {
@@ -312,7 +334,8 @@ function renderStoreMarkers(stores) {
     clusterer.addMarkers(markersToAdd);
   }
 }
-    
+
+
 /* ================= MAP TOGGLE ================= */
 
 if (mapBtn && mapView) {
