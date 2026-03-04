@@ -38,7 +38,10 @@ const resultsToolbar = qs(".results-toolbar");
 let MAP_MODE = false;
 let googleMapsLoaded = false;
 let mapInstance = null;
-  let currentMarkers = [];
+ let markerCache = new Map();   // id → marker
+let clusterer = null;          // MarkerClusterer instance
+let idleTimer = null;          // debounce timer
+  let requestCounter = 0;
 let isFetching = false;
 let hoverInfoWindow = null;
  
@@ -92,7 +95,8 @@ function loadGoogleMaps() {
 
   });
 }
-/* ================= MAP INITIALIZATION ================= */
+
+  /* ================= MAP INITIALIZATION ================= */
 
 function initMap() {
 
@@ -110,9 +114,25 @@ function initMap() {
     fullscreenControl: false,
   });
 
-  // 👇 LÄGG DEN HÄR
-mapInstance.addListener("idle", loadStoresFromBounds);
-  
+  // ================= CLUSTERER INIT =================
+
+  if (!clusterer) {
+    clusterer = new markerClusterer.MarkerClusterer({
+      map: mapInstance,
+      markers: []
+    });
+  }
+
+  // ================= IDLE (DEBOUNCED) =================
+
+  mapInstance.addListener("idle", () => {
+    clearTimeout(idleTimer);
+
+    idleTimer = setTimeout(() => {
+      loadStoresFromBounds();
+    }, 180);
+  });
+
   // 🔥 CREATE LOCATION BUTTON INSIDE MAP
   const locateBtn = document.createElement("button");
   locateBtn.id = "locateBtn";
@@ -133,6 +153,7 @@ async function loadStoresFromBounds() {
   const bounds = mapInstance.getBounds();
   if (!bounds) return;
 
+  const currentRequest = ++requestCounter;
   isFetching = true;
 
   const ne = bounds.getNorthEast();
@@ -147,6 +168,12 @@ async function loadStoresFromBounds() {
       p_west:  sw.lng()
     }
   );
+
+  // If another request started after this one → ignore this result
+  if (currentRequest !== requestCounter) {
+    isFetching = false;
+    return;
+  }
 
   if (!error) {
     renderStoreMarkers(data);
@@ -197,87 +224,89 @@ function enableUserLocation() {
 
 }
 
-  /* ================= RENDER STORE MARKERS ================= */
+/* ================= RENDER STORE MARKERS ================= */
+/* ================= RENDER STORE MARKERS ================= */
 
 function renderStoreMarkers(stores) {
 
-  // Rensa gamla markers
-  currentMarkers.forEach(m => m.setMap(null));
-  currentMarkers = [];
+  if (!stores || !clusterer) return;
 
-  if (!stores) return;
+  const incomingIds = new Set();
+  const markersToAdd = [];
+  const markersToRemove = [];
+
   window.WCL_MAP_STORES = stores;
+
+  // ================= CREATE / KEEP =================
 
   stores.forEach(store => {
 
+    const id = Number(store.id);
+    incomingIds.add(id);
+
+    // Keep existing marker
+    if (markerCache.has(id)) return;
+
     const hasStore  = store.types?.includes("store");
-const hasLounge = store.types?.includes("lounge");
+    const hasLounge = store.types?.includes("lounge");
 
-let fillColor;
+    let fillColor;
 
-// 🔵 Allt som innehåller store (store eller store+lounge)
-if (hasStore) {
-  fillColor = "#3b82f6"; // store blå
-}
+    // 🔵 Store OR Store+Lounge
+    if (hasStore) {
+      fillColor = "#3b82f6";
+    }
+    // 🟣 Lounge only
+    else if (hasLounge) {
+      fillColor = "#8b5cf6";
+    }
+    // Otherwise: do not render
+    else {
+      return;
+    }
 
-// 🟣 Endast lounge
-else if (hasLounge) {
-  fillColor = "#8b5cf6"; // lounge lila
-}
+    const marker = new google.maps.Marker({
+      position: { lat: store.lat, lng: store.lng },
+      optimized: true,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 7,
+        fillColor,
+        fillOpacity: 1,
+        strokeWeight: 2,
+        strokeColor: fillColor
+      }
+    });
 
-// Annars visa inte alls
-else {
-  return;
-}
+    marker.addListener("click", () => {
+      openModal(id);
+    });
 
-const marker = new google.maps.Marker({
-  position: { lat: store.lat, lng: store.lng },
-  map: mapInstance,
-  optimized: true, // 👈 lägg till denna rad
-  icon: {
-    path: google.maps.SymbolPath.CIRCLE,
-    scale: 7,
-    fillColor: fillColor,
-    fillOpacity: 1,
-    strokeWeight: 2,
-    strokeColor: fillColor
+    markerCache.set(id, marker);
+    markersToAdd.push(marker);
+  });
+
+  // ================= REMOVE OUTSIDE BOUNDS =================
+
+  markerCache.forEach((marker, id) => {
+    if (!incomingIds.has(id)) {
+      markersToRemove.push(marker);
+      markerCache.delete(id);
+    }
+  });
+
+  // ================= APPLY TO CLUSTER =================
+
+  if (markersToRemove.length) {
+    clusterer.removeMarkers(markersToRemove);
   }
-});
 
-    // ================= HOVER PREVIEW =================
+  if (markersToAdd.length) {
+    clusterer.addMarkers(markersToAdd);
+  }
+}
 
-marker.addListener("mouseover", () => {
-  marker.setIcon({
-    path: google.maps.SymbolPath.CIRCLE,
-    scale: 10,
-    fillColor: fillColor,
-    fillOpacity: 1,
-    strokeWeight: 2,
-    strokeColor: fillColor
-  });
-});
-
-marker.addListener("mouseout", () => {
-  marker.setIcon({
-    path: google.maps.SymbolPath.CIRCLE,
-    scale: 7,
-    fillColor: fillColor,
-    fillOpacity: 1,
-    strokeWeight: 2,
-    strokeColor: fillColor
-  });
-});
-
-// 👇 LÄGG DENNA
-marker.addListener("click", () => {
-  openModal(Number(store.id));
-});
-
-currentMarkers.push(marker);
-
-  });   // stänger stores.forEach
-
-}       // stänger renderStoreMarkers
+/* ================= MAP TOGGLE ================= */
     
 /* ================= MAP TOGGLE ================= */
 
