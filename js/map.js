@@ -11,6 +11,7 @@ import { openModal } from "./modal.js";
 
 let mapInstance = null;
 let markerCache = new Map();
+let markerCluster = null;
 let hoverInfoWindow = null;
 let idleTimer = null;
 let googleLoaded = false;
@@ -251,8 +252,16 @@ function renderMarkers(stores) {
 
   });
 
-}
+  if (markerCluster) {
+    markerCluster.clearMarkers();
+  }
 
+  markerCluster = new markerClusterer.MarkerClusterer({
+    map: mapInstance,
+    markers: Array.from(markerCache.values())
+  });
+
+}
 // ============================================================
 // EVENTS FROM SEARCH UI
 // ============================================================
