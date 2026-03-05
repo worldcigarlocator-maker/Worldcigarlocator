@@ -178,12 +178,9 @@ function buildPin(types) {
 
 function renderMarkers(stores) {
 
-  const incoming = new Set();
-
   stores.forEach(store => {
 
     const id = Number(store.id);
-    incoming.add(id);
 
     if (markerCache.has(id)) return;
 
