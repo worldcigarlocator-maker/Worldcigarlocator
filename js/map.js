@@ -119,31 +119,75 @@ async function loadStoresFromBounds() {
 
 }
 
-// ============================================================
-// BUILD PIN
-// ============================================================
-
 function buildPin(types) {
 
   const hasStore = types?.includes("store");
   const hasLounge = types?.includes("lounge");
 
+  let color = "#3b82f6";
+
+  if (hasLounge && !hasStore) {
+    color = "#8b5cf6";
+  }
+
+  if (hasStore && hasLounge) {
+    color = "linear-gradient(90deg,#3b82f6 50%,#8b5cf6 50%)";
+  }
+
   const pin = document.createElement("div");
-
-  pin.style.width = "26px";
-  pin.style.height = "36px";
+  pin.style.width = "34px";
+  pin.style.height = "44px";
   pin.style.position = "relative";
+  pin.style.display = "flex";
+  pin.style.justifyContent = "center";
 
-  const body = document.createElement("div");
+  // ================= HEAD =================
 
-  body.style.width = "18px";
-  body.style.height = "18px";
-  body.style.borderRadius = "50%";
-  body.style.border = "2px solid white";
-  body.style.boxShadow = "0 2px 6px rgba(0,0,0,0.4)";
-  body.style.position = "absolute";
-  body.style.left = "4px";
-  body.style.top = "0";
+  const head = document.createElement("div");
+
+  head.style.width = "24px";
+  head.style.height = "24px";
+  head.style.borderRadius = "50%";
+  head.style.background = color;
+  head.style.border = "2px solid white";
+  head.style.boxShadow = "0 4px 10px rgba(0,0,0,0.35)";
+  head.style.position = "relative";
+  head.style.zIndex = "2";
+
+  // glossy highlight
+
+  const gloss = document.createElement("div");
+
+  gloss.style.position = "absolute";
+  gloss.style.top = "2px";
+  gloss.style.left = "3px";
+  gloss.style.width = "14px";
+  gloss.style.height = "8px";
+  gloss.style.borderRadius = "50%";
+  gloss.style.background = "rgba(255,255,255,0.6)";
+  gloss.style.filter = "blur(1px)";
+
+  head.appendChild(gloss);
+
+  // ================= NEEDLE =================
+
+  const needle = document.createElement("div");
+
+  needle.style.position = "absolute";
+  needle.style.top = "22px";
+  needle.style.left = "50%";
+  needle.style.transform = "translateX(-50%)";
+  needle.style.width = "2px";
+  needle.style.height = "20px";
+  needle.style.background = "#6b7280";
+  needle.style.borderRadius = "2px";
+  needle.style.boxShadow = "0 2px 3px rgba(0,0,0,0.3)";
+
+  pin.appendChild(head);
+  pin.appendChild(needle);
+
+  return pin;
+}
 
   // ================= COLOR =================
 
