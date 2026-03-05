@@ -296,13 +296,17 @@ function renderMarkers(stores) {
 
     div.textContent = count;
 
-    return new google.maps.marker.AdvancedMarkerElement({
-      position,
-      content: div
-    });
+return new google.maps.marker.AdvancedMarkerElement({
+        position,
+        content: div
+      });
 
+    }
   }
-}
+
+});   // ← mycket viktig
+
+}     // ← stänger renderMarkers()
 
 // ============================================================
 // EVENTS FROM SEARCH UI
