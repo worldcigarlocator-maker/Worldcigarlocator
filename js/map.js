@@ -153,7 +153,7 @@ lastBounds = bounds;
 // ============================================================
 // PIN BUILDER
 // ============================================================
-function buildPin(types) {
+function buildPin(types, name) {
   
   const zoom = mapInstance.getZoom();
 
@@ -279,13 +279,8 @@ function renderMarkers(stores) {
       content: pin
     });
 
-    // ================= HOVER =================
+   // ================= HOVER =================
 
-    marker.addListener("mouseover", () => {
-
-      pin.style.transform = "scale(1.25)";
-pin.style.transition = "transform 0.12s ease-out";
-      
 marker.addListener("mouseover", () => {
 
   pin.style.transform = "scale(1.25)";
@@ -320,7 +315,7 @@ marker.addListener("mouseover", () => {
 
 });
 
-  marker.addListener("mouseout", () => {
+marker.addListener("mouseout", () => {
 
   pin.style.transform = "scale(1)";
   pin.style.zIndex = "1";
@@ -329,13 +324,13 @@ marker.addListener("mouseover", () => {
 
 });
 
-    // ================= CLICK =================
+// ================= CLICK =================
 
-    marker.addListener("click", () => {
-      openModal(id);
-    });
+marker.addListener("click", () => {
+  openModal(id);
+});
 
-    markerCache.set(id, marker);
+markerCache.set(id, marker);
 
   });
 
@@ -414,7 +409,7 @@ if (zoom < 6) {
 
 // ============================================================
 // EVENTS FROM SEARCH UI
-// ============================================================ ============================================================
+// ============================================================
 
 document.addEventListener("wcl:map-open", () => {
   initMap();
