@@ -59,7 +59,15 @@ mapInstance = new google.maps.Map(container, {
   mapTypeControl: false,
   streetViewControl: false,
   fullscreenControl: false,
-  mapId: "DEMO_MAP_ID"
+  mapId: "DEMO_MAP_ID",
+
+  styles: [
+    {
+      featureType: "poi",
+      stylers: [{ visibility: "off" }]
+    }
+  ]
+
 });
 
   hoverInfoWindow = new google.maps.InfoWindow({
