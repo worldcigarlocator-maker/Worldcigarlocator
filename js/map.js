@@ -189,40 +189,6 @@ function buildPin(types) {
   return pin;
 }
 
-  // ================= COLOR =================
-
-  if (hasStore && hasLounge) {
-
-    body.style.background =
-      "linear-gradient(90deg,#3b82f6 50%,#8b5cf6 50%)";
-
-  } else if (hasLounge) {
-
-    body.style.background = "#8b5cf6";
-
-  } else {
-
-    body.style.background = "#3b82f6";
-
-  }
-
-  const tip = document.createElement("div");
-
-  tip.style.width = "0";
-  tip.style.height = "0";
-  tip.style.borderLeft = "6px solid transparent";
-  tip.style.borderRight = "6px solid transparent";
-  tip.style.borderTop = "10px solid white";
-  tip.style.position = "absolute";
-  tip.style.left = "7px";
-  tip.style.top = "18px";
-
-  pin.appendChild(body);
-  pin.appendChild(tip);
-
-  return pin;
-}
-
 // ============================================================
 // RENDER MARKERS
 // ============================================================
