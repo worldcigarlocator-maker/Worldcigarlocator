@@ -209,9 +209,13 @@ function renderMarkers(stores) {
 
   const zoom = mapInstance.getZoom();
 
+  const incoming = new Set();
+
   stores.forEach(store => {
 
     const id = Number(store.id);
+
+    incoming.add(id);
 
     if (markerCache.has(id)) return;
 
@@ -263,6 +267,19 @@ function renderMarkers(stores) {
     markerCache.set(id, marker);
 
   });
+
+  // ============================================================
+// REMOVE MARKERS OUTSIDE VIEW
+// ============================================================
+
+markerCache.forEach((marker, id) => {
+
+  if (!incoming.has(id)) {
+    marker.map = null;
+    markerCache.delete(id);
+  }
+
+});
 
 
 // ============================================================
