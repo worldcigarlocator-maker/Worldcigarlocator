@@ -222,6 +222,8 @@ function renderMarkers(stores) {
     marker.addListener("mouseout", () => {
       hoverInfoWindow.close();
     });
+    
+}
 
     // ================= CLICK =================
 
