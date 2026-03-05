@@ -170,33 +170,7 @@ function buildPin(types, name) {
     color = "linear-gradient(90deg,#3b82f6 50%,#8b5cf6 50%)";
   }
 
-  // ============================================================
-  // LABEL MODE (AIRBNB STYLE)
-  // ============================================================
-
-  if (zoom >= 9) {
-
-    const label = document.createElement("div");
-
-    label.style.background = "#0a0a0a";
-    label.style.color = "rgb(115,98,75)";
-    label.style.border = "1px solid rgba(115,98,75,0.35)";
-
-    label.style.padding = "6px 10px";
-    label.style.borderRadius = "999px";
-
-    label.style.fontFamily = "DM Sans, sans-serif";
-    label.style.fontSize = "12px";
-    label.style.fontWeight = "600";
-
-    label.style.boxShadow = "0 6px 16px rgba(0,0,0,0.55)";
-
-    label.textContent = name;
-
-    return label;
-
-  }
-
+  
   // ============================================================
   // PIN MODE
   // ============================================================
@@ -256,19 +230,30 @@ function buildPin(types, name) {
 
 function renderMarkers(stores) {
 
+  const bounds = mapInstance.getBounds();
   const zoom = mapInstance.getZoom();
 
   const incoming = new Set();
+
+  // ============================================================
+  // CREATE / UPDATE MARKERS
+  // ============================================================
 
   stores.forEach(store => {
 
     const id = Number(store.id);
 
+    // viewport virtualization
+    if (!bounds.contains({
+      lat: store.lat,
+      lng: store.lng
+    })) return;
+
     incoming.add(id);
 
     if (markerCache.has(id)) return;
 
-    const pin = buildPin(store.types, store.name);
+    const pin = buildPin(store.types);
 
     const marker = new google.maps.marker.AdvancedMarkerElement({
       map: mapInstance,
@@ -279,134 +264,133 @@ function renderMarkers(stores) {
       content: pin
     });
 
-   // ================= HOVER =================
+    // ================= HOVER =================
 
-marker.addListener("mouseover", () => {
+    marker.addListener("mouseover", () => {
 
-  pin.style.transform = "scale(1.25)";
-  pin.style.transition = "transform 0.12s ease-out";
-  pin.style.zIndex = "10";
+      pin.style.transform = "scale(1.25)";
+      pin.style.transition = "transform 0.12s ease-out";
+      pin.style.zIndex = "10";
 
-  hoverInfoWindow.setContent(`
-    <div style="
-      background:#0a0a0a;
-      color:white;
-      padding:6px 10px;
-      border-radius:6px;
-      font-size:12px;
-      white-space:nowrap;
-      border:1px solid rgba(115,98,75,0.35);
-    ">
-      <div style="font-weight:600;">
-        ${store.name}
-      </div>
-      ${store.rating_avg ? `
-        <div style="color:rgb(115,98,75); font-size:11px;">
-          ★ ${Number(store.rating_avg).toFixed(1)}
+      hoverInfoWindow.setContent(`
+        <div style="
+          background:#0a0a0a;
+          color:white;
+          padding:6px 10px;
+          border-radius:6px;
+          font-size:12px;
+          white-space:nowrap;
+          border:1px solid rgba(115,98,75,0.35);
+        ">
+          <div style="font-weight:600;">
+            ${store.name}
+          </div>
+          ${store.rating_avg ? `
+            <div style="color:rgb(115,98,75); font-size:11px;">
+              ★ ${Number(store.rating_avg).toFixed(1)}
+            </div>
+          ` : ``}
         </div>
-      ` : ``}
-    </div>
-  `);
+      `);
 
-  hoverInfoWindow.open({
-    map: mapInstance,
-    anchor: marker
-  });
+      hoverInfoWindow.open({
+        map: mapInstance,
+        anchor: marker
+      });
 
-});
+    });
 
-marker.addListener("mouseout", () => {
+    marker.addListener("mouseout", () => {
 
-  pin.style.transform = "scale(1)";
-  pin.style.zIndex = "1";
+      pin.style.transform = "scale(1)";
+      pin.style.zIndex = "1";
 
-  hoverInfoWindow.close();
+      hoverInfoWindow.close();
 
-});
+    });
 
-// ================= CLICK =================
+    // ================= CLICK =================
 
-marker.addListener("click", () => {
-  openModal(id);
-});
+    marker.addListener("click", () => {
+      openModal(id);
+    });
 
-markerCache.set(id, marker);
+    markerCache.set(id, marker);
 
   });
 
   // ============================================================
-// REMOVE MARKERS OUTSIDE VIEW
-// ============================================================
+  // REMOVE MARKERS OUTSIDE VIEW
+  // ============================================================
 
-markerCache.forEach((marker, id) => {
+  markerCache.forEach((marker, id) => {
 
-  if (!incoming.has(id)) {
-    marker.map = null;
-    markerCache.delete(id);
-  }
-
-});
-
-
-// ============================================================
-// CLUSTER ENGINE (AIRBNB STYLE)
-// ============================================================
-
-if (markerCluster) {
-  markerCluster.clearMarkers();
-}
-
-// cluster bara på låg zoom
-if (zoom < 6) {
-
-  markerCluster = new markerClusterer.MarkerClusterer({
-    map: mapInstance,
-    markers: Array.from(markerCache.values()),
-
-    renderer: {
-      render({ count, position }) {
-
-        const div = document.createElement("div");
-
-        let size = 32;
-        if (count > 20) size = 36;
-        if (count > 50) size = 42;
-        if (count > 100) size = 48;
-
-        div.style.background = "#0a0a0a";
-        div.style.color = "rgb(115,98,75)";
-        div.style.border = "1px solid rgba(115,98,75,0.35)";
-
-        div.style.width = size + "px";
-        div.style.height = size + "px";
-
-        div.style.borderRadius = "999px";
-
-        div.style.display = "flex";
-        div.style.alignItems = "center";
-        div.style.justifyContent = "center";
-
-        div.style.fontFamily = "DM Sans, sans-serif";
-        div.style.fontSize = "13px";
-        div.style.fontWeight = "600";
-
-        div.style.boxShadow = "0 6px 16px rgba(0,0,0,0.55)";
-
-        div.textContent = count;
-
-        return new google.maps.marker.AdvancedMarkerElement({
-          position,
-          content: div
-        });
-
-      }
+    if (!incoming.has(id)) {
+      marker.map = null;
+      markerCache.delete(id);
     }
+
   });
 
+  // ============================================================
+  // CLUSTER ENGINE
+  // ============================================================
+
+  if (markerCluster) {
+    markerCluster.clearMarkers();
+  }
+
+  // cluster bara på låg zoom
+  if (zoom <= 5) {
+
+    markerCluster = new markerClusterer.MarkerClusterer({
+      map: mapInstance,
+      markers: Array.from(markerCache.values()),
+
+      renderer: {
+        render({ count, position }) {
+
+          const div = document.createElement("div");
+
+          let size = 32;
+          if (count > 20) size = 36;
+          if (count > 50) size = 42;
+          if (count > 100) size = 48;
+
+          div.style.background = "#0a0a0a";
+          div.style.color = "rgb(115,98,75)";
+          div.style.border = "1px solid rgba(115,98,75,0.35)";
+
+          div.style.width = size + "px";
+          div.style.height = size + "px";
+
+          div.style.borderRadius = "999px";
+
+          div.style.display = "flex";
+          div.style.alignItems = "center";
+          div.style.justifyContent = "center";
+
+          div.style.fontFamily = "DM Sans, sans-serif";
+          div.style.fontSize = "13px";
+          div.style.fontWeight = "600";
+
+          div.style.boxShadow = "0 6px 16px rgba(0,0,0,0.55)";
+
+          div.textContent = count;
+
+          return new google.maps.marker.AdvancedMarkerElement({
+            position,
+            content: div
+          });
+
+        }
+      }
+
+    });
+
+  }
+
 }
-
-}  // ← STÄNGER renderMarkers()
-
 // ============================================================
 // EVENTS FROM SEARCH UI
 // ============================================================
