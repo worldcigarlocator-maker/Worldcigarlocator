@@ -1,6 +1,5 @@
-```javascript
 // ============================================================
-// MAP.JS — WCL MAP ENGINE (ADVANCED MARKERS)
+// MAP.JS — WCL MAP ENGINE (PIN VERSION)
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -27,8 +26,9 @@ async function loadGoogleMaps() {
   await new Promise((resolve, reject) => {
 
     const script = document.createElement("script");
+
     script.src =
-      "https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_KEY&v=weekly&libraries=marker";
+      "https://maps.googleapis.com/maps/api/js?key=AIzaSyBzHH9QNHPGWpQrczIGgWs1wnHGALiwNZw&v=weekly&libraries=marker";
 
     script.async = true;
     script.onload = resolve;
@@ -45,7 +45,7 @@ async function loadGoogleMaps() {
 // INIT MAP
 // ============================================================
 
-async function initMap() {
+export async function initMap() {
 
   if (mapInstance) return;
 
@@ -113,32 +113,61 @@ async function loadStoresFromBounds() {
 }
 
 // ============================================================
-// PIN BUILDER
+// BUILD PIN
 // ============================================================
 
 function buildPin(types) {
 
-  let color = "#3b82f6";
-
   const hasStore = types?.includes("store");
   const hasLounge = types?.includes("lounge");
 
-  if (hasLounge && !hasStore) {
-    color = "#8b5cf6";
-  }
-
-  if (hasStore && hasLounge) {
-    color = "linear-gradient(90deg,#3b82f6 50%,#8b5cf6 50%)";
-  }
-
   const pin = document.createElement("div");
 
-  pin.style.width = "18px";
-  pin.style.height = "18px";
-  pin.style.borderRadius = "50%";
-  pin.style.background = color;
-  pin.style.border = "2px solid white";
-  pin.style.boxShadow = "0 0 4px rgba(0,0,0,0.5)";
+  pin.style.width = "26px";
+  pin.style.height = "36px";
+  pin.style.position = "relative";
+
+  const body = document.createElement("div");
+
+  body.style.width = "18px";
+  body.style.height = "18px";
+  body.style.borderRadius = "50%";
+  body.style.border = "2px solid white";
+  body.style.boxShadow = "0 2px 6px rgba(0,0,0,0.4)";
+  body.style.position = "absolute";
+  body.style.left = "4px";
+  body.style.top = "0";
+
+  // ================= COLOR =================
+
+  if (hasStore && hasLounge) {
+
+    body.style.background =
+      "linear-gradient(90deg,#3b82f6 50%,#8b5cf6 50%)";
+
+  } else if (hasLounge) {
+
+    body.style.background = "#8b5cf6";
+
+  } else {
+
+    body.style.background = "#3b82f6";
+
+  }
+
+  const tip = document.createElement("div");
+
+  tip.style.width = "0";
+  tip.style.height = "0";
+  tip.style.borderLeft = "6px solid transparent";
+  tip.style.borderRight = "6px solid transparent";
+  tip.style.borderTop = "10px solid white";
+  tip.style.position = "absolute";
+  tip.style.left = "7px";
+  tip.style.top = "18px";
+
+  pin.appendChild(body);
+  pin.appendChild(tip);
 
   return pin;
 }
@@ -221,7 +250,7 @@ function renderMarkers(stores) {
 }
 
 // ============================================================
-// EVENT LISTENERS FROM SEARCH UI
+// EVENTS FROM SEARCH UI
 // ============================================================
 
 document.addEventListener("wcl:map-open", () => {
@@ -229,6 +258,5 @@ document.addEventListener("wcl:map-open", () => {
 });
 
 document.addEventListener("wcl:map-close", () => {
-  // nothing yet
+  // future cleanup
 });
-```
