@@ -30,6 +30,48 @@ body {
   color: var(--text);
 }
 
+/* ============================================================
+   WCL MAP PINS (AdvancedMarkerElement)
+   ============================================================ */
+
+.wcl-pin{
+  width:18px;
+  height:18px;
+
+  border-radius:50%;
+  border:2px solid #fff;
+
+  box-shadow:
+    0 0 4px rgba(0,0,0,0.5),
+    0 0 8px rgba(0,0,0,0.35);
+
+  transform:translate(-50%,-50%);
+}
+
+/* ================= STORE ================= */
+
+.pin-store{
+  background:#3b82f6;
+}
+
+/* ================= LOUNGE ================= */
+
+.pin-lounge{
+  background:#8b5cf6;
+}
+
+/* ================= STORE + LOUNGE ================= */
+
+.pin-split{
+  background:linear-gradient(
+    90deg,
+    #3b82f6 0%,
+    #3b82f6 48%,
+    #8b5cf6 52%,
+    #8b5cf6 100%
+  );
+}
+
 body.static-page {
   background: #f6f4f1;
   color: #1a1a1a;
