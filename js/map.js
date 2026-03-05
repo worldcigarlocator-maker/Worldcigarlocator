@@ -18,6 +18,8 @@ let hoverInfoWindow = null;
 let idleTimer = null;
 let googleLoaded = false;
 
+let lastBounds = null;
+
 
 // ============================================================
 // GOOGLE MAPS LOADER
@@ -104,6 +106,28 @@ async function loadStoresFromBounds() {
   const bounds = mapInstance.getBounds();
   if (!bounds) return;
 
+  // ============================================================
+// SKIP SMALL MOVES (AIRBNB TECHNIQUE)
+// ============================================================
+
+if (lastBounds) {
+
+  const ne = bounds.getNorthEast();
+  const sw = bounds.getSouthWest();
+
+  const lastNE = lastBounds.getNorthEast();
+  const lastSW = lastBounds.getSouthWest();
+
+  const moveLat = Math.abs(ne.lat() - lastNE.lat());
+  const moveLng = Math.abs(ne.lng() - lastNE.lng());
+
+  if (moveLat < 0.2 && moveLng < 0.2) {
+    return;
+  }
+
+}
+
+lastBounds = bounds;
   const ne = bounds.getNorthEast();
   const sw = bounds.getSouthWest();
 
