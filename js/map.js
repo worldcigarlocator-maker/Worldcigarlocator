@@ -154,6 +154,9 @@ function buildPin(types) {
   }
 
   const pin = document.createElement("div");
+  pin.style.cursor = "pointer";
+pin.style.pointerEvents = "auto";
+  
   pin.style.width = "24px";
   pin.style.height = "34px";
   pin.style.position = "relative";
@@ -256,13 +259,18 @@ function renderMarkers(stores) {
     const pin = buildPin(store.types);
 
     const marker = new google.maps.marker.AdvancedMarkerElement({
-      position: { lat: store.lat, lng: store.lng },
-      content: pin
-    });
+  map: mapInstance,
+  position: {
+    lat: store.lat,
+    lng: store.lng
+  },
+  content: pin,
+  gmpClickable: true
+});
 
 // ================= HOVER =================
 
-marker.addListener("mouseover", () => {
+pin.addEventListener("mouseenter", () => {
 
   pin.style.transform = "scale(1.25)";
   pin.style.transition = "transform 0.12s ease-out";
@@ -299,7 +307,7 @@ marker.addListener("mouseover", () => {
 
 });
 
-marker.addListener("mouseout", () => {
+pin.addEventListener("mouseleave", () => {
 
   pin.style.transform = "scale(1)";
   pin.style.zIndex = "1";
