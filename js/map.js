@@ -135,8 +135,8 @@ function buildPin(types) {
   }
 
   const pin = document.createElement("div");
-  pin.style.width = "34px";
-  pin.style.height = "44px";
+  pin.style.width = "24px";
+  pin.style.height = "34px";
   pin.style.position = "relative";
   pin.style.display = "flex";
   pin.style.justifyContent = "center";
@@ -145,8 +145,8 @@ function buildPin(types) {
 
   const head = document.createElement("div");
 
-  head.style.width = "24px";
-  head.style.height = "24px";
+  head.style.width = "16px";
+  head.style.height = "16px";
   head.style.borderRadius = "50%";
   head.style.background = color;
   head.style.border = "2px solid white";
