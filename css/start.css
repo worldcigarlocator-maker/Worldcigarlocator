@@ -137,22 +137,22 @@ body.static-page {
 /* ============================================================
    AUTH LOCK (PUBLIC MODE) — SAFE STACKING
    ============================================================ */
-
 body.auth-locked {
   overflow: hidden;
 }
 
-/* Blur ONLY the app parts (avoids container stacking bugs) */
+/* Blur app */
 body.auth-locked .sidebar,
 body.auth-locked .main {
   filter: blur(6px);
-  pointer-events: none;
+  opacity: 0.85;
 }
 
-/* Optional: dim as well (nicer) */
-body.auth-locked .sidebar,
-body.auth-locked .main {
-  opacity: 0.85;
+/* Block interaction via overlay instead */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
 }
 
 /* ============================================================
