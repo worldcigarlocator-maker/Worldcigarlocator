@@ -178,7 +178,7 @@ function buildPin(types) {
   needle.style.left = "50%";
   needle.style.transform = "translateX(-50%)";
   needle.style.width = "2px";
-  needle.style.height = "20px";
+  needle.style.height = "16px";
   needle.style.background = "#6b7280";
   needle.style.borderRadius = "2px";
   needle.style.boxShadow = "0 2px 3px rgba(0,0,0,0.3)";
