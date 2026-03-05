@@ -1,5 +1,6 @@
 // ============================================================
-// MAP.JS — WCL MAP ENGINE (PIN VERSION)
+// MAP.JS — WCL MAP ENGINE
+// Clean version · Pins + Cluster
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -12,9 +13,11 @@ import { openModal } from "./modal.js";
 let mapInstance = null;
 let markerCache = new Map();
 let markerCluster = null;
+
 let hoverInfoWindow = null;
 let idleTimer = null;
 let googleLoaded = false;
+
 
 // ============================================================
 // GOOGLE MAPS LOADER
@@ -27,8 +30,10 @@ async function loadGoogleMaps() {
   await new Promise((resolve, reject) => {
 
     const script = document.createElement("script");
-script.src =
-  "https://maps.googleapis.com/maps/api/js?key=AIzaSyBzHH9QNHPGWpQrczIGgWs1wnHGALiwNZw&v=weekly&libraries=marker";
+
+    script.src =
+      "https://maps.googleapis.com/maps/api/js?key=AIzaSyBzHH9QNHPGWpQrczIGgWs1wnHGALiwNZw&v=weekly&libraries=marker";
+
     script.async = true;
     script.onload = resolve;
     script.onerror = reject;
@@ -39,6 +44,7 @@ script.src =
 
   googleLoaded = true;
 }
+
 
 // ============================================================
 // INIT MAP
@@ -52,24 +58,23 @@ export async function initMap() {
 
   const container = document.getElementById("mapView");
   if (!container) return;
-  
-mapInstance = new google.maps.Map(container, {
-  center: { lat: 20, lng: 0 },
-  zoom: 2,
-  minZoom: 2,
-  mapTypeControl: false,
-  streetViewControl: false,
-  fullscreenControl: false,
-  mapId: "DEMO_MAP_ID",
 
-  styles: [
-    {
-      featureType: "poi",
-      stylers: [{ visibility: "off" }]
-    }
-  ]
+  mapInstance = new google.maps.Map(container, {
+    center: { lat: 20, lng: 0 },
+    zoom: 2,
+    minZoom: 2,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
+    mapId: "DEMO_MAP_ID",
 
-});
+    styles: [
+      {
+        featureType: "poi",
+        stylers: [{ visibility: "off" }]
+      }
+    ]
+  });
 
   hoverInfoWindow = new google.maps.InfoWindow({
     disableAutoPan: true
@@ -87,8 +92,9 @@ mapInstance = new google.maps.Map(container, {
 
 }
 
+
 // ============================================================
-// LOAD STORES (VIEWPORT)
+// LOAD STORES IN VIEWPORT
 // ============================================================
 
 async function loadStoresFromBounds() {
@@ -117,8 +123,12 @@ async function loadStoresFromBounds() {
   }
 
   renderMarkers(data || []);
-
 }
+
+
+// ============================================================
+// PIN BUILDER
+// ============================================================
 
 function buildPin(types) {
 
@@ -155,15 +165,15 @@ function buildPin(types) {
   head.style.position = "relative";
   head.style.zIndex = "2";
 
-  // glossy highlight
+  // gloss
 
   const gloss = document.createElement("div");
 
   gloss.style.position = "absolute";
   gloss.style.top = "2px";
   gloss.style.left = "3px";
-  gloss.style.width = "14px";
-  gloss.style.height = "8px";
+  gloss.style.width = "8px";
+  gloss.style.height = "5px";
   gloss.style.borderRadius = "50%";
   gloss.style.background = "rgba(255,255,255,0.6)";
   gloss.style.filter = "blur(1px)";
@@ -175,11 +185,11 @@ function buildPin(types) {
   const needle = document.createElement("div");
 
   needle.style.position = "absolute";
-  needle.style.top = "22px";
+  needle.style.top = "18px";
   needle.style.left = "50%";
   needle.style.transform = "translateX(-50%)";
   needle.style.width = "2px";
-  needle.style.height = "16px";
+  needle.style.height = "14px";
   needle.style.background = "#6b7280";
   needle.style.borderRadius = "2px";
   needle.style.boxShadow = "0 2px 3px rgba(0,0,0,0.3)";
@@ -189,6 +199,7 @@ function buildPin(types) {
 
   return pin;
 }
+
 
 // ============================================================
 // RENDER MARKERS
@@ -240,9 +251,8 @@ function renderMarkers(stores) {
     marker.addListener("mouseout", () => {
       hoverInfoWindow.close();
     });
-    
 
-     // ================= CLICK =================
+    // ================= CLICK =================
 
     marker.addListener("click", () => {
       openModal(id);
@@ -252,7 +262,10 @@ function renderMarkers(stores) {
 
   });
 
-  // ================= CLUSTER / ZOOM CONTROL =================
+
+  // ============================================================
+  // CLUSTER
+  // ============================================================
 
   const zoom = mapInstance.getZoom();
 
@@ -260,7 +273,6 @@ function renderMarkers(stores) {
     markerCluster.clearMarkers();
   }
 
-  // visa bara pins när man zoomat in till city-nivå
   if (zoom >= 8) return;
 
   markerCluster = new markerClusterer.MarkerClusterer({
@@ -310,51 +322,10 @@ function renderMarkers(stores) {
 
 }
 
-    // ================= SIZE SCALING =================
-
-    let size = 32;
-
-    if (count > 20) size = 36;
-    if (count > 50) size = 42;
-    if (count > 100) size = 48;
-
-    // ================= STYLE =================
-
-    div.style.background = "#0a0a0a";
-    div.style.color = "rgb(115,98,75)";
-    div.style.border = "1px solid rgba(115,98,75,0.35)";
-
-    div.style.width = size + "px";
-    div.style.height = size + "px";
-
-    div.style.borderRadius = "999px";
-
-    div.style.display = "flex";
-    div.style.alignItems = "center";
-    div.style.justifyContent = "center";
-
-    div.style.fontFamily = "DM Sans, sans-serif";
-    div.style.fontSize = "13px";
-    div.style.fontWeight = "600";
-
-    div.style.boxShadow = "0 6px 16px rgba(0,0,0,0.55)";
-
-    div.textContent = count;
-
-return new google.maps.marker.AdvancedMarkerElement({
-        position,
-        content: div
-      });
-
-    }
-  }
-
-});   // ← mycket viktig
-
-}     // ← stänger renderMarkers()
 
 // ============================================================
 // EVENTS FROM SEARCH UI
+// ============================================================
 
 document.addEventListener("wcl:map-open", () => {
   initMap();
