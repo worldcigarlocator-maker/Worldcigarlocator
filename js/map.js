@@ -308,37 +308,67 @@ marker.addListener("mouseout", () => {
 
 });
 
-    // Click
-  marker.addListener("click", () => {
+// ============================================================
+// MARKER INTERACTION + CLUSTER ENGINE
+// ============================================================
 
-  hoverInfoWindow.close();   // stäng tooltip
-  openModal(id);             // öppna listing
+    // ================= CLICK =================
 
-});
+    marker.addListener("click", () => {
+
+      hoverInfoWindow.close();   // stäng tooltip
+
+      // focus animation
+      pin.style.transform = "scale(1.45)";
+      pin.style.transition = "transform 0.12s ease-out";
+      pin.style.zIndex = "20";
+
+      setTimeout(() => {
+        pin.style.transform = "scale(1)";
+      }, 120);
+
+      // öppna listing
+      setTimeout(() => {
+        openModal(id);
+      }, 120);
+
+    });
 
     markerCache.set(id, marker);
+
   });
 
-  // --- remove markers no longer in result set ---
+  // ============================================================
+  // REMOVE MARKERS OUTSIDE VIEW
+  // ============================================================
+
   markerCache.forEach((marker, id) => {
+
     if (!incoming.has(id)) {
       marker.map = null;
       markerCache.delete(id);
     }
+
   });
 
-  // --- cluster vs pins ---
+  // ============================================================
+  // CLUSTER ENGINE
+  // ============================================================
+
   const shouldCluster = zoom <= 5;
 
-  // clear cluster always before rebuild
+  // clear cluster before rebuild
   if (markerCluster) {
     markerCluster.clearMarkers();
     markerCluster = null;
   }
 
   if (shouldCluster) {
-    // Hide pins while clustering (important for performance + avoid duplicates)
-    markerCache.forEach(marker => { marker.map = null; });
+
+    // hide pins while clustering
+    markerCache.forEach(marker => {
+      marker.map = null;
+    });
 
     markerCluster = new markerClusterer.MarkerClusterer({
       map: mapInstance,
@@ -347,9 +377,14 @@ marker.addListener("mouseout", () => {
     });
 
   } else {
-    // Show pins (no cluster)
-    markerCache.forEach(marker => { marker.map = mapInstance; });
+
+    // show pins when zoomed in
+    markerCache.forEach(marker => {
+      marker.map = mapInstance;
+    });
+
   }
+
 }
 
 // ============================================================
