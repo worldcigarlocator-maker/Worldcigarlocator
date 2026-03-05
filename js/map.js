@@ -292,10 +292,11 @@ function renderMarkers(stores) {
   }
 
 });
-  
+
+} 
+
 // ============================================================
 // EVENTS FROM SEARCH UI
-// ============================================================
 
 document.addEventListener("wcl:map-open", () => {
   initMap();
