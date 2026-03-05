@@ -153,8 +153,8 @@ lastBounds = bounds;
 // ============================================================
 // PIN BUILDER
 // ============================================================
-function buildPin(types, name) {
-
+function buildPin(types) {
+  
   const zoom = mapInstance.getZoom();
 
   const hasStore = types?.includes("store");
@@ -286,18 +286,26 @@ function renderMarkers(stores) {
       pin.style.transform = "scale(1.25)";
 pin.style.transition = "transform 0.12s ease-out";
       
-      hoverInfoWindow.setContent(`
-        <div style="
-          background:#111;
-          color:white;
-          padding:6px 10px;
-          border-radius:6px;
-          font-size:12px;
-          white-space:nowrap;
-        ">
-          ${store.name}
-        </div>
-      `);
+   hoverInfoWindow.setContent(`
+  <div style="
+    background:#0a0a0a;
+    color:white;
+    padding:6px 10px;
+    border-radius:6px;
+    font-size:12px;
+    white-space:nowrap;
+    border:1px solid rgba(115,98,75,0.35);
+  ">
+    <div style="font-weight:600;">
+      ${store.name}
+    </div>
+    ${store.rating_avg ? `
+      <div style="color:rgb(115,98,75); font-size:11px;">
+        ★ ${Number(store.rating_avg).toFixed(1)}
+      </div>
+    ` : ``}
+  </div>
+`);
 
       hoverInfoWindow.open({
         map: mapInstance,
