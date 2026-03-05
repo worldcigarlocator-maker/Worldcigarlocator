@@ -242,28 +242,73 @@ function renderMarkers(stores) {
     });
     
 
-    // ================= CLICK =================
+     // ================= CLICK =================
 
     marker.addListener("click", () => {
       openModal(id);
     });
 
-   markerCache.set(id, marker);
+    markerCache.set(id, marker);
 
   });
+
+  // ================= CLUSTER / ZOOM CONTROL =================
+
+  const zoom = mapInstance.getZoom();
 
   if (markerCluster) {
     markerCluster.clearMarkers();
   }
 
- markerCluster = new markerClusterer.MarkerClusterer({
-  map: mapInstance,
-  markers: Array.from(markerCache.values()),
+  // visa bara pins när man zoomat in till city-nivå
+  if (zoom >= 8) return;
 
- renderer: {
-  render({ count, position }) {
+  markerCluster = new markerClusterer.MarkerClusterer({
+    map: mapInstance,
+    markers: Array.from(markerCache.values()),
 
-    const div = document.createElement("div");
+    renderer: {
+      render({ count, position }) {
+
+        const div = document.createElement("div");
+
+        let size = 32;
+        if (count > 20) size = 36;
+        if (count > 50) size = 42;
+        if (count > 100) size = 48;
+
+        div.style.background = "#0a0a0a";
+        div.style.color = "rgb(115,98,75)";
+        div.style.border = "1px solid rgba(115,98,75,0.35)";
+
+        div.style.width = size + "px";
+        div.style.height = size + "px";
+
+        div.style.borderRadius = "999px";
+
+        div.style.display = "flex";
+        div.style.alignItems = "center";
+        div.style.justifyContent = "center";
+
+        div.style.fontFamily = "DM Sans, sans-serif";
+        div.style.fontSize = "13px";
+        div.style.fontWeight = "600";
+
+        div.style.boxShadow = "0 6px 16px rgba(0,0,0,0.55)";
+
+        div.textContent = count;
+
+        return new google.maps.marker.AdvancedMarkerElement({
+          position,
+          content: div
+        });
+
+      }
+    }
+
+  });
+
+}
 
     // ================= SIZE SCALING =================
 
