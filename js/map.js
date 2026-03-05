@@ -266,74 +266,78 @@ function renderMarkers(stores) {
   gmpClickable: true
 });
 
-// ================= HOVER =================
-pin.addEventListener("mouseenter", () => {
+// ================= HOVER START =================
 
-  pin.style.transform = "scale(1.25)";
-  pin.style.transition = "transform 0.12s ease-out";
+  pin.addEventListener("mouseenter", () => {
 
-  if (!hoverTooltip) {
-    hoverTooltip = document.createElement("div");
-    hoverTooltip.style.position = "absolute";
-    hoverTooltip.style.pointerEvents = "none";
-    hoverTooltip.style.zIndex = "9999";
-    document.body.appendChild(hoverTooltip);
-  }
+    pin.style.transform = "scale(1.25)";
+    pin.style.transition = "transform 0.12s ease-out";
 
-  const rating = store.rating_avg
-    ? `★ ${Number(store.rating_avg).toFixed(1)}`
-    : "No rating";
+    if (!hoverTooltip) {
+      hoverTooltip = document.createElement("div");
+      hoverTooltip.style.position = "absolute";
+      hoverTooltip.style.pointerEvents = "none";
+      hoverTooltip.style.zIndex = "9999";
+      document.body.appendChild(hoverTooltip);
+    }
 
-  hoverTooltip.innerHTML = `
-    <div style="
-      background:#0a0a0a;
-      color:white;
-      padding:6px 10px;
-      border-radius:8px;
-      font-size:12px;
-      white-space:nowrap;
-      border:1px solid rgba(115,98,75,0.35);
-      font-family:DM Sans, sans-serif;
-      box-shadow:0 6px 16px rgba(0,0,0,0.55);
-    ">
-      <div style="font-weight:600">${store.name}</div>
-      <div style="color:rgb(115,98,75); font-size:11px;">
-        ${rating}
+    const rating = store.rating_avg
+      ? `★ ${Number(store.rating_avg).toFixed(1)}`
+      : "No rating";
+
+    hoverTooltip.innerHTML = `
+      <div style="
+        background:#0a0a0a;
+        color:white;
+        padding:6px 10px;
+        border-radius:8px;
+        font-size:12px;
+        white-space:nowrap;
+        border:1px solid rgba(115,98,75,0.35);
+        font-family:DM Sans, sans-serif;
+        box-shadow:0 6px 16px rgba(0,0,0,0.55);
+      ">
+        <div style="font-weight:600">${store.name}</div>
+        <div style="color:rgb(115,98,75); font-size:11px;">
+          ${rating}
+        </div>
       </div>
-    </div>
-  `;
+    `;
+  });
 
-});
+  // ================= TOOLTIP MOVE =================
 
-// ============================================================
-// MARKER INTERACTION + CLUSTER ENGINE
-// ============================================================
+  pin.addEventListener("mousemove", (e) => {
 
-    // ================= CLICK =================
+    if (!hoverTooltip) return;
 
-    marker.addListener("click", () => {
-
-      hoverInfoWindow.close();   // stäng tooltip
-
-      // focus animation
-      pin.style.transform = "scale(1.45)";
-      pin.style.transition = "transform 0.12s ease-out";
-      pin.style.zIndex = "20";
-
-      setTimeout(() => {
-        pin.style.transform = "scale(1)";
-      }, 120);
-
-      // öppna listing
-      setTimeout(() => {
-        openModal(id);
-      }, 120);
-
-    });
-
-    markerCache.set(id, marker);
+    hoverTooltip.style.left = e.pageX + 12 + "px";
+    hoverTooltip.style.top = e.pageY - 10 + "px";
 
   });
+
+  // ================= TOOLTIP END =================
+
+  pin.addEventListener("mouseleave", () => {
+
+    pin.style.transform = "scale(1)";
+
+    if (hoverTooltip) {
+      hoverTooltip.remove();
+      hoverTooltip = null;
+    }
+
+  });
+
+  // ================= CLICK =================
+
+  marker.addListener("click", () => {
+    openModal(id);
+  });
+
+  markerCache.set(id, marker);
+
+});
 
   // ============================================================
   // REMOVE MARKERS OUTSIDE VIEW
