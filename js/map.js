@@ -268,7 +268,7 @@ function renderMarkers(stores) {
 
     if (markerCache.has(id)) return;
 
-    const pin = buildPin(store.types);
+    const pin = buildPin(store.types, store.name);
 
     const marker = new google.maps.marker.AdvancedMarkerElement({
       map: mapInstance,
