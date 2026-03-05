@@ -236,19 +236,6 @@ function renderMarkers(stores) {
 
   });
 
-  // ================= REMOVE OUTSIDE VIEW =================
-
-  markerCache.forEach((marker, id) => {
-
-    if (!incoming.has(id)) {
-      marker.map = null;
-      markerCache.delete(id);
-    }
-
-  });
-
-}
-
 // ============================================================
 // EVENTS FROM SEARCH UI
 // ============================================================
