@@ -207,6 +207,8 @@ function buildPin(types) {
 
 function renderMarkers(stores) {
 
+  const zoom = mapInstance.getZoom();
+
   stores.forEach(store => {
 
     const id = Number(store.id);
@@ -263,19 +265,17 @@ function renderMarkers(stores) {
   });
 
 
-  // ============================================================
-  // CLUSTER
-  // ============================================================
+// ============================================================
+// CLUSTER ENGINE (AIRBNB STYLE)
+// ============================================================
 
-  const zoom = mapInstance.getZoom();
-
-  if (markerCluster) {
-    markerCluster.clearMarkers();
-  }
-
-if (zoom >= 8) {
-  return; // visa bara pins
+if (markerCluster) {
+  markerCluster.clearMarkers();
 }
+
+// cluster bara på låg zoom
+if (zoom < 6) {
+
   markerCluster = new markerClusterer.MarkerClusterer({
     map: mapInstance,
     markers: Array.from(markerCache.values()),
@@ -318,11 +318,9 @@ if (zoom >= 8) {
 
       }
     }
-
   });
 
 }
-
 
 // ============================================================
 // EVENTS FROM SEARCH UI
