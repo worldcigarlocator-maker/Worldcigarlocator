@@ -265,8 +265,8 @@ function renderMarkers(stores) {
 
       const div = document.createElement("div");
 
-      div.style.background = "rgb(115,98,75)";
-      div.style.color = "white";
+      div.style.background = "#0a0a0a";
+      div.style.color = "rgb(115,98,75)";
 
       div.style.padding = "6px 12px";
       div.style.borderRadius = "999px";
@@ -279,7 +279,7 @@ function renderMarkers(stores) {
       div.style.alignItems = "center";
       div.style.justifyContent = "center";
 
-      div.style.boxShadow = "0 6px 16px rgba(0,0,0,0.35)";
+      div.style.boxShadow = "0 4px 14px rgba(0,0,0,0.55)";
 
       div.textContent = count;
 
