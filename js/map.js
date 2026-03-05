@@ -87,16 +87,16 @@ function renderMarkers(stores) {
 
     if (markerCache.has(store.id)) return;
 
-    const icon = getPin(store.types); console.log("PIN:", icon);
+ const icon = getPin(store.types);
 
-    const marker = new google.maps.Marker({
-      position: {
-        lat: store.lat,
-        lng: store.lng
-      },
-      map: mapInstance,
-      icon: icon
-    });
+const marker = new google.maps.Marker({
+  position: {
+    lat: store.lat,
+    lng: store.lng
+  },
+  map: mapInstance,
+  icon: icon
+});
 
     marker.addListener("click", () => {
       openModal(store.id);
