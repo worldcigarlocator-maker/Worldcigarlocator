@@ -256,12 +256,43 @@ function renderMarkers(stores) {
     markerCluster.clearMarkers();
   }
 
-  markerCluster = new markerClusterer.MarkerClusterer({
-    map: mapInstance,
-    markers: Array.from(markerCache.values())
-  });
+ markerCluster = new markerClusterer.MarkerClusterer({
+  map: mapInstance,
+  markers: Array.from(markerCache.values()),
 
-}
+  renderer: {
+    render({ count, position }) {
+
+      const div = document.createElement("div");
+
+      div.style.background = "rgb(115,98,75)";
+      div.style.color = "white";
+
+      div.style.padding = "6px 12px";
+      div.style.borderRadius = "999px";
+
+      div.style.fontFamily = "DM Sans, sans-serif";
+      div.style.fontSize = "13px";
+      div.style.fontWeight = "600";
+
+      div.style.display = "flex";
+      div.style.alignItems = "center";
+      div.style.justifyContent = "center";
+
+      div.style.boxShadow = "0 6px 16px rgba(0,0,0,0.35)";
+
+      div.textContent = count;
+
+      return new google.maps.marker.AdvancedMarkerElement({
+        position,
+        content: div
+      });
+
+    }
+  }
+
+});
+  
 // ============================================================
 // EVENTS FROM SEARCH UI
 // ============================================================
