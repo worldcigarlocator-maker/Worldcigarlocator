@@ -1,10 +1,10 @@
+```javascript
 // ============================================================
-// MAP.JS — WCL MAP VIEW
+// MAP.JS — WCL MAP ENGINE (ADVANCED MARKERS)
 // ============================================================
 
 import { supabase } from "./globals.js";
 import { openModal } from "./modal.js";
-import { getPin } from "./map-pins.js";
 
 // ============================================================
 // STATE
@@ -12,18 +12,49 @@ import { getPin } from "./map-pins.js";
 
 let mapInstance = null;
 let markerCache = new Map();
-let debounceTimer = null;
+let hoverInfoWindow = null;
+let idleTimer = null;
+let googleLoaded = false;
 
+// ============================================================
+// GOOGLE MAPS LOADER
+// ============================================================
+
+async function loadGoogleMaps() {
+
+  if (googleLoaded) return;
+
+  await new Promise((resolve, reject) => {
+
+    const script = document.createElement("script");
+    script.src =
+      "https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_KEY&v=weekly&libraries=marker";
+
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = reject;
+
+    document.head.appendChild(script);
+
+  });
+
+  googleLoaded = true;
+}
 
 // ============================================================
 // INIT MAP
 // ============================================================
 
-export function initMap() {
+async function initMap() {
 
-  const mapContainer = document.getElementById("mapView");
+  if (mapInstance) return;
 
-  mapInstance = new google.maps.Map(mapContainer, {
+  await loadGoogleMaps();
+
+  const container = document.getElementById("mapView");
+  if (!container) return;
+
+  mapInstance = new google.maps.Map(container, {
     center: { lat: 20, lng: 0 },
     zoom: 2,
     minZoom: 2,
@@ -32,50 +63,85 @@ export function initMap() {
     fullscreenControl: false
   });
 
+  hoverInfoWindow = new google.maps.InfoWindow({
+    disableAutoPan: true
+  });
+
   mapInstance.addListener("idle", () => {
 
-    if (debounceTimer) clearTimeout(debounceTimer);
+    clearTimeout(idleTimer);
 
-    debounceTimer = setTimeout(() => {
+    idleTimer = setTimeout(() => {
       loadStoresFromBounds();
-    }, 180);
+    }, 200);
 
   });
 
 }
 
-
 // ============================================================
-// LOAD STORES FROM VIEWPORT
+// LOAD STORES (VIEWPORT)
 // ============================================================
 
 async function loadStoresFromBounds() {
 
+  if (!mapInstance) return;
+
   const bounds = mapInstance.getBounds();
   if (!bounds) return;
 
-  const sw = bounds.getSouthWest();
   const ne = bounds.getNorthEast();
+  const sw = bounds.getSouthWest();
 
   const { data, error } = await supabase.rpc(
-    "map_stores_in_bounds_v1",
+    "stores_within_bounds",
     {
-      p_min_lat: sw.lat(),
-      p_max_lat: ne.lat(),
-      p_min_lng: sw.lng(),
-      p_max_lng: ne.lng()
+      p_north: ne.lat(),
+      p_south: sw.lat(),
+      p_east: ne.lng(),
+      p_west: sw.lng()
     }
   );
 
   if (error) {
-    console.error("Map RPC error:", error);
+    console.error(error);
     return;
   }
 
-  console.log("MAP STORES:", data);
-renderMarkers(data || []);
+  renderMarkers(data || []);
+
 }
 
+// ============================================================
+// PIN BUILDER
+// ============================================================
+
+function buildPin(types) {
+
+  let color = "#3b82f6";
+
+  const hasStore = types?.includes("store");
+  const hasLounge = types?.includes("lounge");
+
+  if (hasLounge && !hasStore) {
+    color = "#8b5cf6";
+  }
+
+  if (hasStore && hasLounge) {
+    color = "linear-gradient(90deg,#3b82f6 50%,#8b5cf6 50%)";
+  }
+
+  const pin = document.createElement("div");
+
+  pin.style.width = "18px";
+  pin.style.height = "18px";
+  pin.style.borderRadius = "50%";
+  pin.style.background = color;
+  pin.style.border = "2px solid white";
+  pin.style.boxShadow = "0 0 4px rgba(0,0,0,0.5)";
+
+  return pin;
+}
 
 // ============================================================
 // RENDER MARKERS
@@ -83,72 +149,86 @@ renderMarkers(data || []);
 
 function renderMarkers(stores) {
 
+  const incoming = new Set();
+
   stores.forEach(store => {
 
-    if (markerCache.has(store.id)) return;
+    const id = Number(store.id);
+    incoming.add(id);
 
- const icon = getPin(store.types);
+    if (markerCache.has(id)) return;
 
-const marker = new google.maps.Marker({
-  position: {
-    lat: store.lat,
-    lng: store.lng
-  },
-  map: mapInstance,
-  icon: icon
-});
+    const pin = buildPin(store.types);
 
-    marker.addListener("click", () => {
-      openModal(store.id);
+    const marker = new google.maps.marker.AdvancedMarkerElement({
+      map: mapInstance,
+      position: {
+        lat: store.lat,
+        lng: store.lng
+      },
+      content: pin
     });
 
-    markerCache.set(store.id, marker);
+    // ================= HOVER =================
+
+    marker.addListener("mouseover", () => {
+
+      hoverInfoWindow.setContent(`
+        <div style="
+          background:#111;
+          color:white;
+          padding:6px 10px;
+          border-radius:6px;
+          font-size:12px;
+          white-space:nowrap;
+        ">
+          ${store.name}
+        </div>
+      `);
+
+      hoverInfoWindow.open({
+        map: mapInstance,
+        anchor: marker
+      });
+
+    });
+
+    marker.addListener("mouseout", () => {
+      hoverInfoWindow.close();
+    });
+
+    // ================= CLICK =================
+
+    marker.addListener("click", () => {
+      openModal(id);
+    });
+
+    markerCache.set(id, marker);
+
+  });
+
+  // ================= REMOVE OUTSIDE VIEW =================
+
+  markerCache.forEach((marker, id) => {
+
+    if (!incoming.has(id)) {
+      marker.map = null;
+      markerCache.delete(id);
+    }
 
   });
 
 }
 
-
 // ============================================================
-// CLEAR MAP
-// ============================================================
-
-export function clearMap() {
-
-  markerCache.forEach(marker => {
-    marker.setMap(null);
-  });
-
-  markerCache.clear();
-
-}
-
-// ============================================================
-// GOOGLE MAPS CALLBACK
+// EVENT LISTENERS FROM SEARCH UI
 // ============================================================
 
-window.initMap = initMap;
-
-
-// ============================================================
-// MAP VIEW BUTTON
-// ============================================================
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  const btn = document.getElementById("mapViewBtn");
-
-  if (!btn) return;
-
-  btn.addEventListener("click", () => {
-
-    const map = document.getElementById("mapView");
-
-    map.style.height = "600px";
-    map.style.display = "block";
-
-    initMap();
-
-  });
-
+document.addEventListener("wcl:map-open", () => {
+  initMap();
 });
+
+document.addEventListener("wcl:map-close", () => {
+  // nothing yet
+});
+```
