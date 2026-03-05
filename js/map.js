@@ -273,8 +273,9 @@ function renderMarkers(stores) {
     markerCluster.clearMarkers();
   }
 
-  if (zoom >= 8) return;
-
+if (zoom >= 8) {
+  return; // visa bara pins
+}
   markerCluster = new markerClusterer.MarkerClusterer({
     map: mapInstance,
     markers: Array.from(markerCache.values()),
