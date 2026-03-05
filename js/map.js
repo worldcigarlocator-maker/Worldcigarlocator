@@ -260,41 +260,49 @@ function renderMarkers(stores) {
   map: mapInstance,
   markers: Array.from(markerCache.values()),
 
-  renderer: {
-    render({ count, position }) {
+ renderer: {
+  render({ count, position }) {
 
-      const div = document.createElement("div");
+    const div = document.createElement("div");
 
-      div.style.background = "#0a0a0a";
-div.style.color = "rgb(115,98,75)";
-div.style.border = "1px solid rgba(115,98,75,0.35)";
-      
-      div.style.padding = "6px 12px";
-      div.style.borderRadius = "999px";
+    // ================= SIZE SCALING =================
 
-      div.style.fontFamily = "DM Sans, sans-serif";
-      div.style.fontSize = "13px";
-      div.style.fontWeight = "600";
+    let size = 32;
 
-      div.style.display = "flex";
-      div.style.alignItems = "center";
-      div.style.justifyContent = "center";
+    if (count > 20) size = 36;
+    if (count > 50) size = 42;
+    if (count > 100) size = 48;
 
-      div.style.boxShadow = "0 4px 14px rgba(0,0,0,0.55)";
+    // ================= STYLE =================
 
-      div.textContent = count;
+    div.style.background = "#0a0a0a";
+    div.style.color = "rgb(115,98,75)";
+    div.style.border = "1px solid rgba(115,98,75,0.35)";
 
-      return new google.maps.marker.AdvancedMarkerElement({
-        position,
-        content: div
-      });
+    div.style.width = size + "px";
+    div.style.height = size + "px";
 
-    }
+    div.style.borderRadius = "999px";
+
+    div.style.display = "flex";
+    div.style.alignItems = "center";
+    div.style.justifyContent = "center";
+
+    div.style.fontFamily = "DM Sans, sans-serif";
+    div.style.fontSize = "13px";
+    div.style.fontWeight = "600";
+
+    div.style.boxShadow = "0 6px 16px rgba(0,0,0,0.55)";
+
+    div.textContent = count;
+
+    return new google.maps.marker.AdvancedMarkerElement({
+      position,
+      content: div
+    });
+
   }
-
-});
-
-} 
+}
 
 // ============================================================
 // EVENTS FROM SEARCH UI
