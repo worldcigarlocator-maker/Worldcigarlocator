@@ -258,6 +258,9 @@ function renderMarkers(stores) {
 
     marker.addListener("mouseover", () => {
 
+      pin.style.transform = "scale(1.25)";
+pin.style.transition = "transform 0.12s ease-out";
+      
       hoverInfoWindow.setContent(`
         <div style="
           background:#111;
@@ -279,6 +282,7 @@ function renderMarkers(stores) {
     });
 
     marker.addListener("mouseout", () => {
+        pin.style.transform = "scale(1)";
       hoverInfoWindow.close();
     });
 
