@@ -1,10 +1,9 @@
 ```javascript
 // ============================================================
 // search-v2.js — WCL Frontend (Search v2 · CANONICAL)
+// UI-only · cards.js owns state
+// Map toggle only dispatches events (map.js owns map engine)
 // ============================================================
-
-import { supabase } from "./globals.js";
-import { openModal } from "./modal.js";
 
 import {
   activateSearch,
@@ -26,226 +25,235 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!input) return;
 
-/* ============================================================
-   MAP MODE (UI ONLY)
-   map.js hanterar hela kartmotorn
-   ============================================================ */
+  // ============================================================
+  // MAP MODE (UI ONLY)
+  // map.js hanterar hela kartmotorn
+  // ============================================================
 
-const mapBtn = qs("#mapViewBtn");
-const mapView = qs("#mapView");
-const hero = qs("#heroImage");
-const storeGrid = qs("#storeGrid");
-const resultsToolbar = qs(".results-toolbar");
+  const mapBtn         = qs("#mapViewBtn");
+  const mapView        = qs("#mapView");
+  const hero           = qs("#heroImage");
+  const storeGrid      = qs("#storeGrid");
+  const resultsToolbar = qs(".results-toolbar");
 
-let MAP_MODE = false;
+  let MAP_MODE = false;
 
-if (mapBtn && mapView) {
+  if (mapBtn && mapView) {
 
-  mapBtn.addEventListener("click", () => {
+    mapBtn.addEventListener("click", () => {
 
-    MAP_MODE = !MAP_MODE;
-    mapBtn.classList.toggle("active");
+      MAP_MODE = !MAP_MODE;
+      mapBtn.classList.toggle("active", MAP_MODE);
 
-    if (MAP_MODE) {
+      if (MAP_MODE) {
 
-      hero?.classList.add("hidden");
-      storeGrid?.classList.add("hidden");
-      resultsToolbar?.classList.add("hidden");
+        hero?.classList.add("hidden");
+        storeGrid?.classList.add("hidden");
+        resultsToolbar?.classList.add("hidden");
 
-      mapView.classList.remove("hidden");
+        mapView.classList.remove("hidden");
 
-      document.dispatchEvent(new CustomEvent("wcl:map-open"));
+        document.dispatchEvent(new CustomEvent("wcl:map-open"));
 
-    } else {
+      } else {
 
-      hero?.classList.remove("hidden");
-      storeGrid?.classList.remove("hidden");
-      resultsToolbar?.classList.remove("hidden");
+        hero?.classList.remove("hidden");
+        storeGrid?.classList.remove("hidden");
+        resultsToolbar?.classList.remove("hidden");
 
-      mapView.classList.add("hidden");
+        mapView.classList.add("hidden");
 
-      document.dispatchEvent(new CustomEvent("wcl:map-close"));
+        document.dispatchEvent(new CustomEvent("wcl:map-close"));
 
-    }
+      }
+
+    });
+
+  }
+
+  // ============================================================
+  // BRAND = HOME
+  // ============================================================
+
+  const homeBtn = qs("#homeBtn");
+
+  homeBtn?.addEventListener("click", () => {
+
+    input.value = "";
+
+    clearSearchMaster();
+    clearLocationMaster();
+    resetToHero();
+    setSort("relevance");
+
+    controls?.querySelectorAll(".active")
+      .forEach(el => el.classList.remove("active"));
 
   });
 
-}
+  // ============================================================
+  // RESPONSIVE
+  // ============================================================
 
-// ============================================================
-// BRAND = HOME
-// ============================================================
+  const mq = window.matchMedia("(max-width: 900px)");
 
-const homeBtn = qs("#homeBtn");
+  const syncSearchUI = () => {
+    if (mq.matches) {
+      input.placeholder = "Search";
+      if (label) label.style.display = "none";
+    } else {
+      input.placeholder = "Search by name, city or address";
+      if (label) label.style.display = "inline";
+    }
+  };
 
-homeBtn?.addEventListener("click", () => {
+  syncSearchUI();
+  mq.addEventListener("change", syncSearchUI);
 
-  if (input) input.value = "";
+  input.addEventListener("focus", () => {
+    input.dataset.placeholder = input.placeholder;
+    input.placeholder = "";
+  });
 
-  clearSearchMaster();
-  clearLocationMaster();
-  resetToHero();
-  setSort("relevance");
+  input.addEventListener("blur", () => {
+    if (!input.value.trim()) {
+      input.placeholder = input.dataset.placeholder || "";
+    }
+  });
 
-  controls?.querySelectorAll(".active")
-    .forEach(el => el.classList.remove("active"));
-});
+  // ============================================================
+  // FOCUS RESET
+  // ============================================================
 
-// ============================================================
-// RESPONSIVE
-// ============================================================
+  input.addEventListener("focus", () => {
 
-const mq = window.matchMedia("(max-width: 900px)");
+    input.value = "";
 
-const syncSearchUI = () => {
-  if (mq.matches) {
-    input.placeholder = "Search";
-    if (label) label.style.display = "none";
-  } else {
-    input.placeholder = "Search by name, city or address";
-    if (label) label.style.display = "inline";
-  }
-};
+    clearSearchMaster();
+    clearLocationMaster();
+    resetToHero();
+    setSort("relevance");
 
-syncSearchUI();
-mq.addEventListener("change", syncSearchUI);
+    controls?.querySelectorAll(".active")
+      .forEach(el => el.classList.remove("active"));
 
-// Hide placeholder on focus
-input.addEventListener("focus", () => {
-  input.dataset.placeholder = input.placeholder;
-  input.placeholder = "";
-});
+  });
 
-input.addEventListener("blur", () => {
-  if (!input.value.trim()) {
-    input.placeholder = input.dataset.placeholder || "";
-  }
-});
+  // ============================================================
+  // INPUT (DEBOUNCED)
+  // ============================================================
 
-// ============================================================
-// FOCUS RESET
-// ============================================================
+  let TIMER = null;
 
-input.addEventListener("focus", () => {
+  input.addEventListener("input", () => {
 
-  input.value = "";
+    const text = input.value.trim();
+    clearTimeout(TIMER);
 
-  clearSearchMaster();
-  clearLocationMaster();
-  resetToHero();
-  setSort("relevance");
+    TIMER = setTimeout(() => {
 
-  controls?.querySelectorAll(".active")
-    .forEach(el => el.classList.remove("active"));
-});
+      if (!text) {
+        clearSearchMaster();
+      } else {
+        activateSearch({ text });
+      }
 
-// ============================================================
-// INPUT (DEBOUNCED)
-// ============================================================
+    }, 250);
 
-let TIMER = null;
+  });
 
-input.addEventListener("input", () => {
-  const text = input.value.trim();
+  input.addEventListener("keydown", (e) => {
 
-  clearTimeout(TIMER);
+    if (e.key !== "Enter") return;
 
-  TIMER = setTimeout(() => {
+    const text = input.value.trim();
+
     if (!text) {
       clearSearchMaster();
     } else {
       activateSearch({ text });
     }
-  }, 250);
-});
 
-input.addEventListener("keydown", (e) => {
-  if (e.key !== "Enter") return;
+  });
 
-  const text = input.value.trim();
-  if (!text) {
+  // ============================================================
+  // CLEAR BUTTON
+  // ============================================================
+
+  clearBtn?.addEventListener("click", () => {
+
+    input.value = "";
+
     clearSearchMaster();
-  } else {
-    activateSearch({ text });
-  }
-});
+    clearLocationMaster();
+    resetToHero();
+    setSort("relevance");
 
-// ============================================================
-// CLEAR BUTTON
-// ============================================================
-
-clearBtn?.addEventListener("click", () => {
-
-  input.value = "";
-
-  clearSearchMaster();
-  clearLocationMaster();
-  resetToHero();
-  setSort("relevance");
-
-  controls?.querySelectorAll(".active")
-    .forEach(el => el.classList.remove("active"));
-
-  input.focus();
-});
-
-// ============================================================
-// FILTERS + SORT
-// ============================================================
-
-controls?.addEventListener("click", (e) => {
-
-  const btn = e.target.closest("[data-filter], [data-sort]");
-  if (!btn) return;
-
-  const { filter, value, sort } = btn.dataset;
-
-  if (filter) {
-
-    const isActive = btn.classList.contains("active");
-
-    btn.classList.toggle("active", !isActive);
-
-    if (filter === "type") {
-      toggleChip({ type: value });
-    }
-
-    if (filter === "access") {
-      toggleChip({ access: value });
-    }
-
-    return;
-  }
-
-  if (sort) {
-
-    const isActive = btn.classList.contains("active");
-
-    controls.querySelectorAll("[data-sort]")
+    controls?.querySelectorAll(".active")
       .forEach(el => el.classList.remove("active"));
 
-    if (!isActive) {
-      btn.classList.add("active");
-      setSort(sort);
-    } else {
-      setSort("relevance");
+    input.focus();
+
+  });
+
+  // ============================================================
+  // FILTERS + SORT
+  // ============================================================
+
+  controls?.addEventListener("click", (e) => {
+
+    const btn = e.target.closest("[data-filter], [data-sort]");
+    if (!btn) return;
+
+    const { filter, value, sort } = btn.dataset;
+
+    if (filter) {
+
+      const isActive = btn.classList.contains("active");
+      btn.classList.toggle("active", !isActive);
+
+      if (filter === "type") {
+        toggleChip({ type: value });
+      }
+
+      if (filter === "access") {
+        toggleChip({ access: value });
+      }
+
+      return;
+
     }
 
-  }
+    if (sort) {
+
+      const isActive = btn.classList.contains("active");
+
+      controls.querySelectorAll("[data-sort]")
+        .forEach(el => el.classList.remove("active"));
+
+      if (!isActive) {
+        btn.classList.add("active");
+        setSort(sort);
+      } else {
+        setSort("relevance");
+      }
+
+    }
+
+  });
+
+  // ============================================================
+  // MASTER SYNC (SEARCH ↔ LOCATION)
+  // ============================================================
+
+  document.addEventListener("wcl:master-change", (e) => {
+
+    const { master } = e.detail || {};
+
+    if (master === "location") {
+      input.value = "";
+    }
+
+  });
 
 });
-
-// ============================================================
-// MASTER SYNC (SEARCH ↔ LOCATION)
-// ============================================================
-
-document.addEventListener("wcl:master-change", (e) => {
-  const { master } = e.detail || {};
-
-  if (master === "location") {
-    if (input) input.value = "";
-  }
-});
-
-});
-```
