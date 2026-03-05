@@ -1,4 +1,3 @@
-```javascript
 // ============================================================
 // search-v2.js — WCL Frontend (Search v2 · CANONICAL)
 // UI-only · cards.js owns state
