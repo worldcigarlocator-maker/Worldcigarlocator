@@ -14,8 +14,8 @@ let mapInstance = null;
 let markerCache = new Map();
 let markerCluster = null;
 
-let hoverInfoWindow = null;
 let idleTimer = null;
+let hoverTooltip = null;
 
 let googleLoaded = false;
 let clustererLoaded = false;
@@ -84,8 +84,6 @@ export async function initMap() {
       { featureType: "poi", stylers: [{ visibility: "off" }] }
     ]
   });
-
-  hoverInfoWindow = new google.maps.InfoWindow({ disableAutoPan: true });
 
   mapInstance.addListener("idle", () => {
     clearTimeout(idleTimer);
@@ -269,50 +267,41 @@ function renderMarkers(stores) {
 });
 
 // ================= HOVER =================
-
 pin.addEventListener("mouseenter", () => {
 
   pin.style.transform = "scale(1.25)";
   pin.style.transition = "transform 0.12s ease-out";
-  pin.style.zIndex = "10";
+
+  if (!hoverTooltip) {
+    hoverTooltip = document.createElement("div");
+    hoverTooltip.style.position = "absolute";
+    hoverTooltip.style.pointerEvents = "none";
+    hoverTooltip.style.zIndex = "9999";
+    document.body.appendChild(hoverTooltip);
+  }
 
   const rating = store.rating_avg
     ? `★ ${Number(store.rating_avg).toFixed(1)}`
     : "No rating";
 
-  hoverInfoWindow.setContent(`
+  hoverTooltip.innerHTML = `
     <div style="
       background:#0a0a0a;
       color:white;
       padding:6px 10px;
-      border-radius:6px;
+      border-radius:8px;
       font-size:12px;
       white-space:nowrap;
       border:1px solid rgba(115,98,75,0.35);
       font-family:DM Sans, sans-serif;
+      box-shadow:0 6px 16px rgba(0,0,0,0.55);
     ">
-      <div style="font-weight:600;">
-        ${store.name}
-      </div>
+      <div style="font-weight:600">${store.name}</div>
       <div style="color:rgb(115,98,75); font-size:11px;">
         ${rating}
       </div>
     </div>
-  `);
-
-  hoverInfoWindow.open({
-    map: mapInstance,
-    anchor: marker
-  });
-
-});
-
-pin.addEventListener("mouseleave", () => {
-
-  pin.style.transform = "scale(1)";
-  pin.style.zIndex = "1";
-
-  hoverInfoWindow.close();
+  `;
 
 });
 
