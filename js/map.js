@@ -260,42 +260,61 @@ function renderMarkers(stores) {
       content: pin
     });
 
-    // Hover
-    marker.addListener("mouseover", () => {
-      pin.style.transform = "scale(1.25)";
-      pin.style.transition = "transform 0.12s ease-out";
-      pin.style.zIndex = "10";
+// ================= HOVER =================
 
-      hoverInfoWindow.setContent(`
-        <div style="
-          background:#0a0a0a;
-          color:white;
-          padding:6px 10px;
-          border-radius:6px;
-          font-size:12px;
-          white-space:nowrap;
-          border:1px solid rgba(115,98,75,0.35);
-        ">
-          <div style="font-weight:600;">${store.name}</div>
-          ${store.rating_avg ? `
-            <div style="color:rgb(115,98,75); font-size:11px;">
-              ★ ${Number(store.rating_avg).toFixed(1)}
-            </div>
-          ` : ``}
-        </div>
-      `);
+marker.addListener("mouseover", () => {
 
-      hoverInfoWindow.open({ map: mapInstance, anchor: marker });
-    });
+  pin.style.transform = "scale(1.25)";
+  pin.style.transition = "transform 0.12s ease-out";
+  pin.style.zIndex = "10";
 
-    marker.addListener("mouseout", () => {
-      pin.style.transform = "scale(1)";
-      pin.style.zIndex = "1";
-      hoverInfoWindow.close();
-    });
+  const rating = store.rating_avg
+    ? `★ ${Number(store.rating_avg).toFixed(1)}`
+    : "No rating";
+
+  hoverInfoWindow.setContent(`
+    <div style="
+      background:#0a0a0a;
+      color:white;
+      padding:6px 10px;
+      border-radius:6px;
+      font-size:12px;
+      white-space:nowrap;
+      border:1px solid rgba(115,98,75,0.35);
+      font-family:DM Sans, sans-serif;
+    ">
+      <div style="font-weight:600;">
+        ${store.name}
+      </div>
+      <div style="color:rgb(115,98,75); font-size:11px;">
+        ${rating}
+      </div>
+    </div>
+  `);
+
+  hoverInfoWindow.open({
+    map: mapInstance,
+    anchor: marker
+  });
+
+});
+
+marker.addListener("mouseout", () => {
+
+  pin.style.transform = "scale(1)";
+  pin.style.zIndex = "1";
+
+  hoverInfoWindow.close();
+
+});
 
     // Click
-    marker.addListener("click", () => openModal(id));
+  marker.addListener("click", () => {
+
+  hoverInfoWindow.close();   // stäng tooltip
+  openModal(id);             // öppna listing
+
+});
 
     markerCache.set(id, marker);
   });
