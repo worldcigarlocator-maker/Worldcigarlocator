@@ -286,38 +286,48 @@ function renderMarkers(stores) {
       pin.style.transform = "scale(1.25)";
 pin.style.transition = "transform 0.12s ease-out";
       
-   hoverInfoWindow.setContent(`
-  <div style="
-    background:#0a0a0a;
-    color:white;
-    padding:6px 10px;
-    border-radius:6px;
-    font-size:12px;
-    white-space:nowrap;
-    border:1px solid rgba(115,98,75,0.35);
-  ">
-    <div style="font-weight:600;">
-      ${store.name}
-    </div>
-    ${store.rating_avg ? `
-      <div style="color:rgb(115,98,75); font-size:11px;">
-        ★ ${Number(store.rating_avg).toFixed(1)}
+marker.addListener("mouseover", () => {
+
+  pin.style.transform = "scale(1.25)";
+  pin.style.transition = "transform 0.12s ease-out";
+  pin.style.zIndex = "10";
+
+  hoverInfoWindow.setContent(`
+    <div style="
+      background:#0a0a0a;
+      color:white;
+      padding:6px 10px;
+      border-radius:6px;
+      font-size:12px;
+      white-space:nowrap;
+      border:1px solid rgba(115,98,75,0.35);
+    ">
+      <div style="font-weight:600;">
+        ${store.name}
       </div>
-    ` : ``}
-  </div>
-`);
+      ${store.rating_avg ? `
+        <div style="color:rgb(115,98,75); font-size:11px;">
+          ★ ${Number(store.rating_avg).toFixed(1)}
+        </div>
+      ` : ``}
+    </div>
+  `);
 
-      hoverInfoWindow.open({
-        map: mapInstance,
-        anchor: marker
-      });
+  hoverInfoWindow.open({
+    map: mapInstance,
+    anchor: marker
+  });
 
-    });
+});
 
-    marker.addListener("mouseout", () => {
-        pin.style.transform = "scale(1)";
-      hoverInfoWindow.close();
-    });
+  marker.addListener("mouseout", () => {
+
+  pin.style.transform = "scale(1)";
+  pin.style.zIndex = "1";
+
+  hoverInfoWindow.close();
+
+});
 
     // ================= CLICK =================
 
