@@ -223,7 +223,6 @@ function renderMarkers(stores) {
       hoverInfoWindow.close();
     });
     
-}
 
     // ================= CLICK =================
 
@@ -231,9 +230,11 @@ function renderMarkers(stores) {
       openModal(id);
     });
 
-    markerCache.set(id, marker);
+   markerCache.set(id, marker);
 
   });
+
+}
 
 // ============================================================
 // EVENTS FROM SEARCH UI
