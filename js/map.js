@@ -51,15 +51,16 @@ export async function initMap() {
 
   const container = document.getElementById("mapView");
   if (!container) return;
-
-  mapInstance = new google.maps.Map(container, {
-    center: { lat: 20, lng: 0 },
-    zoom: 2,
-    minZoom: 2,
-    mapTypeControl: false,
-    streetViewControl: false,
-    fullscreenControl: false
-  });
+  
+mapInstance = new google.maps.Map(container, {
+  center: { lat: 20, lng: 0 },
+  zoom: 2,
+  minZoom: 2,
+  mapTypeControl: false,
+  streetViewControl: false,
+  fullscreenControl: false,
+  mapId: "DEMO_MAP_ID"
+});
 
   hoverInfoWindow = new google.maps.InfoWindow({
     disableAutoPan: true
