@@ -153,8 +153,9 @@ lastBounds = bounds;
 // ============================================================
 // PIN BUILDER
 // ============================================================
+function buildPin(types, name) {
 
-function buildPin(types) {
+  const zoom = mapInstance.getZoom();
 
   const hasStore = types?.includes("store");
   const hasLounge = types?.includes("lounge");
@@ -169,14 +170,43 @@ function buildPin(types) {
     color = "linear-gradient(90deg,#3b82f6 50%,#8b5cf6 50%)";
   }
 
+  // ============================================================
+  // LABEL MODE (AIRBNB STYLE)
+  // ============================================================
+
+  if (zoom >= 9) {
+
+    const label = document.createElement("div");
+
+    label.style.background = "#0a0a0a";
+    label.style.color = "rgb(115,98,75)";
+    label.style.border = "1px solid rgba(115,98,75,0.35)";
+
+    label.style.padding = "6px 10px";
+    label.style.borderRadius = "999px";
+
+    label.style.fontFamily = "DM Sans, sans-serif";
+    label.style.fontSize = "12px";
+    label.style.fontWeight = "600";
+
+    label.style.boxShadow = "0 6px 16px rgba(0,0,0,0.55)";
+
+    label.textContent = name;
+
+    return label;
+
+  }
+
+  // ============================================================
+  // PIN MODE
+  // ============================================================
+
   const pin = document.createElement("div");
   pin.style.width = "24px";
   pin.style.height = "34px";
   pin.style.position = "relative";
   pin.style.display = "flex";
   pin.style.justifyContent = "center";
-
-  // ================= HEAD =================
 
   const head = document.createElement("div");
 
@@ -188,8 +218,6 @@ function buildPin(types) {
   head.style.boxShadow = "0 4px 10px rgba(0,0,0,0.35)";
   head.style.position = "relative";
   head.style.zIndex = "2";
-
-  // gloss
 
   const gloss = document.createElement("div");
 
@@ -204,8 +232,6 @@ function buildPin(types) {
 
   head.appendChild(gloss);
 
-  // ================= NEEDLE =================
-
   const needle = document.createElement("div");
 
   needle.style.position = "absolute";
@@ -216,14 +242,13 @@ function buildPin(types) {
   needle.style.height = "14px";
   needle.style.background = "#6b7280";
   needle.style.borderRadius = "2px";
-  needle.style.boxShadow = "0 2px 3px rgba(0,0,0,0.3)";
 
   pin.appendChild(head);
   pin.appendChild(needle);
 
   return pin;
-}
 
+}
 
 // ============================================================
 // RENDER MARKERS
