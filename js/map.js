@@ -266,8 +266,9 @@ function renderMarkers(stores) {
       const div = document.createElement("div");
 
       div.style.background = "#0a0a0a";
-      div.style.color = "rgb(115,98,75)";
-
+div.style.color = "rgb(115,98,75)";
+div.style.border = "1px solid rgba(115,98,75,0.35)";
+      
       div.style.padding = "6px 12px";
       div.style.borderRadius = "999px";
 
