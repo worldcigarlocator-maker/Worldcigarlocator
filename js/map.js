@@ -364,7 +364,7 @@ pin.addEventListener("click", (e) => {
     hoverTooltip = null;
   }
 
-  openModal(id);
+  openModal(store);
 
 });
 
