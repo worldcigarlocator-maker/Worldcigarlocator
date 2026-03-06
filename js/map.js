@@ -209,6 +209,7 @@ function renderMarkers(stores) {
 });
 
 pin.style.pointerEvents = "auto";
+marker.content.style.pointerEvents = "auto";
 
     // ================= HOVER START =================
 
@@ -220,11 +221,11 @@ pin.style.pointerEvents = "auto";
       pin.style.transition =
         "transform 0.12s ease-out, box-shadow 0.12s ease-out";
 
-      markerCache.forEach((m) => {
-        if (m !== marker && m.map === mapInstance) {
-          m.content.style.opacity = "0.35";
-        }
-      });
+  markerCache.forEach((m) => {
+  if (m !== marker && m.map === mapInstance && m.content !== activePin) {
+    m.content.style.opacity = "0.35";
+  }
+});
 
       if (!hoverTooltip) {
         hoverTooltip = document.createElement("div");
