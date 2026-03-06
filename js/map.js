@@ -320,6 +320,7 @@ marker.content.style.pointerEvents = "auto";
 // ================= CLICK =================
 
 pin.addEventListener("click", (e) => {
+    console.log("PIN CLICK FIRED", store.id);
 
   e.stopPropagation();
   e.stopImmediatePropagation();
