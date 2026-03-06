@@ -356,15 +356,16 @@ markerCache.forEach((m) => {
 
 pin.addEventListener("click", (e) => {
 
+  e.stopPropagation();   // 🔧 stop map click bubbling
+
   console.log("PIN CLICK", id);
-   console.log("OPEN MODAL CALL", id);
 
   if (hoverTooltip) {
     hoverTooltip.remove();
     hoverTooltip = null;
   }
 
-  openModal(store);
+  openModal(id);
 
 });
 
