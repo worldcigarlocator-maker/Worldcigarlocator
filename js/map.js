@@ -199,44 +199,24 @@ function renderMarkers(stores) {
     const pin = buildPin(store.types);
 
     const marker = new google.maps.marker.AdvancedMarkerElement({
-  map: mapInstance,
-  position: {
-    lat: store.lat,
-    lng: store.lng
-  },
-  content: pin,
-  gmpClickable: true
-});
+      map: mapInstance,
+      position: {
+        lat: store.lat,
+        lng: store.lng
+      },
+      content: pin,
+      gmpClickable: true
+    });
 
-pin.style.pointerEvents = "auto";
-marker.content.style.pointerEvents = "auto";
+    pin.style.pointerEvents = "auto";
 
+    // GOOGLE CLICK
     marker.addListener("gmp-click", () => {
+      activatePin(pin);
+      openModal(id);   // ✅ FIX
+    });
 
-  if (hoverTooltip) {
-    hoverTooltip.remove();
-    hoverTooltip = null;
-  }
-
-  if (activePin && activePin !== pin) {
-    activePin.style.transform = "scale(1)";
-    activePin.style.boxShadow = "";
-    activePin.style.zIndex = "";
-  }
-
-  activePin = pin;
-
-  pin.style.transform = "scale(1.35)";
-  pin.style.boxShadow =
-    "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
-  pin.style.zIndex = "5";
-
-  openModal(store);
-
-});
-
-    // ================= HOVER START =================
-
+    // HOVER
     pin.addEventListener("mouseenter", () => {
 
       pin.style.transform = "scale(1.25)";
@@ -245,11 +225,11 @@ marker.content.style.pointerEvents = "auto";
       pin.style.transition =
         "transform 0.12s ease-out, box-shadow 0.12s ease-out";
 
-  markerCache.forEach((m) => {
-  if (m !== marker && m.map === mapInstance && m.content !== activePin) {
-    m.content.style.opacity = "0.35";
-  }
-});
+      markerCache.forEach((m) => {
+        if (m !== marker && m.map === mapInstance) {
+          m.content.style.opacity = "0.35";
+        }
+      });
 
       if (!hoverTooltip) {
         hoverTooltip = document.createElement("div");
@@ -259,17 +239,6 @@ marker.content.style.pointerEvents = "auto";
         document.body.appendChild(hoverTooltip);
       }
 
-      const ratingHTML = store.rating_avg
-        ? `<div style="
-             color:rgb(115,98,75);
-             font-size:11px;
-             margin-top:2px;
-           ">
-             ★ ${Number(store.rating_avg).toFixed(1)}
-             ${store.rating_count ? `• ${store.rating_count}` : ""}
-           </div>`
-        : "";
-
       hoverTooltip.innerHTML = `
         <div style="
           background:#0a0a0a;
@@ -277,26 +246,17 @@ marker.content.style.pointerEvents = "auto";
           padding:6px 10px;
           border-radius:8px;
           font-size:12px;
-          white-space:nowrap;
           border:1px solid rgba(115,98,75,0.35);
           font-family:DM Sans, sans-serif;
-          box-shadow:0 6px 16px rgba(0,0,0,0.55);
         ">
-          <div style="font-weight:600">
-            ${store.name}
-          </div>
-          ${ratingHTML}
+          <div style="font-weight:600">${store.name}</div>
         </div>
       `;
 
       const rect = pin.getBoundingClientRect();
-
       hoverTooltip.style.left = rect.left + rect.width / 2 + "px";
       hoverTooltip.style.top = rect.top - 10 + "px";
       hoverTooltip.style.transform = "translate(-50%, -100%)";
-
-      hoverTooltip.style.opacity = "1";
-
     });
 
     pin.addEventListener("mouseleave", () => {
@@ -317,25 +277,62 @@ marker.content.style.pointerEvents = "auto";
 
     });
 
-// ================= CLICK =================
+    // DOM CLICK
+    pin.addEventListener("click", (e) => {
 
-pin.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.stopImmediatePropagation();
 
-  console.log("PIN CLICK FIRED", store);
+      activatePin(pin);
+      openModal(id);   // ✅ FIX
 
-  openModal(store);
+    });
 
-});
+    markerCache.set(id, marker);
 
-  e.stopPropagation();
-  e.stopImmediatePropagation();
+  });
 
-  if (hoverTooltip) {
-    hoverTooltip.remove();
-    hoverTooltip = null;
+  // CLEANUP
+  markerCache.forEach((marker, id) => {
+    if (!incoming.has(id)) {
+      marker.map = null;
+      markerCache.delete(id);
+    }
+  });
+
+  // CLUSTER
+  const shouldCluster = zoom <= 5;
+
+  if (markerCluster) {
+    markerCluster.clearMarkers();
+    markerCluster = null;
   }
 
-  if (activePin && activePin !== pin) {
+  if (shouldCluster) {
+
+    markerCache.forEach(marker => marker.map = null);
+
+    markerCluster = new markerClusterer.MarkerClusterer({
+      map: mapInstance,
+      markers: Array.from(markerCache.values()),
+      renderer: clusterRenderer()
+    });
+
+  } else {
+
+    markerCache.forEach(marker => marker.map = mapInstance);
+
+  }
+
+}
+
+// ============================================================
+// PIN ACTIVATE
+// ============================================================
+
+function activatePin(pin){
+
+  if (activePin && activePin !== pin){
     activePin.style.transform = "scale(1)";
     activePin.style.boxShadow = "";
     activePin.style.zIndex = "";
@@ -348,64 +345,6 @@ pin.addEventListener("click", (e) => {
     "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
   pin.style.zIndex = "5";
 
-  openModal(store);
-
-});
-
-    markerCache.set(id, marker);
-
-  });
-
-  // ============================================================
-  // REMOVE MARKERS OUTSIDE VIEW
-  // ============================================================
-
-  markerCache.forEach((marker, id) => {
-
-    if (!incoming.has(id)) {
-
-      marker.map = null;
-
-      if (marker.content) {
-        marker.content.replaceChildren();
-      }
-
-      markerCache.delete(id);
-    }
-
-  });
-
-  // ============================================================
-  // CLUSTER ENGINE
-  // ============================================================
-
-  const shouldCluster = zoom <= 5;
-
-  if (markerCluster) {
-    markerCluster.clearMarkers();
-    markerCluster = null;
-  }
-
-  if (shouldCluster) {
-
-    markerCache.forEach(marker => {
-      marker.map = null;
-    });
-
-    markerCluster = new markerClusterer.MarkerClusterer({
-      map: mapInstance,
-      markers: Array.from(markerCache.values()),
-      renderer: clusterRenderer()
-    });
-
-  } else {
-
-    markerCache.forEach(marker => {
-      marker.map = mapInstance;
-    });
-
-  }
-
 }
 
 // ============================================================
@@ -416,6 +355,4 @@ document.addEventListener("wcl:map-open", () => {
   initMap();
 });
 
-document.addEventListener("wcl:map-close", () => {
-  // future cleanup
-});
+document.addEventListener("wcl:map-close", () => {});
