@@ -352,9 +352,11 @@ markerCache.forEach((m) => {
 
 });
 
- // ================= CLICK =================
+// ================= CLICK =================
 
-marker.addListener("click", () => {
+pin.addEventListener("click", (e) => {
+
+  e.stopPropagation();
 
   if (hoverTooltip) {
     hoverTooltip.remove();
@@ -362,10 +364,6 @@ marker.addListener("click", () => {
   }
 
   openModal(id);
-
-});
-
-markerCache.set(id, marker);
 
 });
 
