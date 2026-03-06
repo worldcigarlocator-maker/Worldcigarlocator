@@ -149,16 +149,36 @@ function resetModal() {
 // ============================================================
 
 export async function openModal(storeInput) {
-  const store =
+
+  let store =
     typeof storeInput === "object" && storeInput !== null
       ? storeInput
       : findStore(storeInput);
+
+  // MAP VIEW FALLBACK
+  if (!store && storeInput) {
+
+    const { data, error } = await supabase.rpc(
+      "modal_store_card_v1",
+      { p_store_id: Number(storeInput) }
+    );
+
+    if (error) {
+      console.error("modal_store_card_v1 error:", error);
+      return;
+    }
+
+    if (!data || !data.length) return;
+
+    store = data[0];
+  }
 
   if (!store) return;
 
   const storeId = Number(store.id);
   if (!storeId) return;
 
+  // ⭐ dessa saknas i din kod
   MODAL_ACTIVE_STORE_ID = storeId;
   MODAL_LOAD_SEQ++;
   const seq = MODAL_LOAD_SEQ;
