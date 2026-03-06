@@ -144,16 +144,22 @@ function resetModal() {
   MODAL_USER_TEMP_RATING = 0;
   highlightStars(0);
 }
-
 // ============================================================
 // OPEN / CLOSE
 // ============================================================
 
-export async function openModal(storeId) {
-  const store = findStore(storeId);
+export async function openModal(storeInput) {
+  const store =
+    typeof storeInput === "object" && storeInput !== null
+      ? storeInput
+      : findStore(storeInput);
+
   if (!store) return;
 
-  MODAL_ACTIVE_STORE_ID = Number(storeId);
+  const storeId = Number(store.id);
+  if (!storeId) return;
+
+  MODAL_ACTIVE_STORE_ID = storeId;
   MODAL_LOAD_SEQ++;
   const seq = MODAL_LOAD_SEQ;
 
@@ -165,7 +171,7 @@ export async function openModal(storeId) {
   lockScroll(true);
 
   // ----------------------------------
-  // Static store data (from cards)
+  // Static store data
   // ----------------------------------
 
   if (modalName()) modalName().textContent = store.name || "Unnamed";
@@ -193,20 +199,21 @@ export async function openModal(storeId) {
     modalWebsite().style.display = "inline";
   }
 
-// ----------------------------------
-// Directions (Google Maps Navigation)
-// ----------------------------------
+  // ----------------------------------
+  // Directions (Google Maps Navigation)
+  // ----------------------------------
 
-const dir = modalDirections();
+  const dir = modalDirections();
 
-if (dir && store.place_id) {
-  const name = encodeURIComponent(store.name || "Destination");
+  if (dir && store.place_id) {
+    const name = encodeURIComponent(store.name || "Destination");
 
-  dir.href =
-    `https://www.google.com/maps/dir/?api=1&destination=${name}&destination_place_id=${store.place_id}`;
+    dir.href =
+      `https://www.google.com/maps/dir/?api=1&destination=${name}&destination_place_id=${store.place_id}`;
 
-  dir.style.display = "inline";
-}
+    dir.style.display = "inline";
+  }
+
   // ----------------------------------
   // Interaction meta (RPC)
   // ----------------------------------
@@ -244,11 +251,15 @@ export function closeModal() {
   lockScroll(false);
 
   resetReportUI();
-reportSection()?.classList.add("hidden");
-  
+  reportSection()?.classList.add("hidden");
+
   MODAL_ACTIVE_STORE_ID = null;
   MODAL_USER_TEMP_RATING = 0;
 }
+
+// ============================================================
+// RATING (RPC ONLY)
+// ============================================================
 
 // ============================================================
 // RATING (RPC ONLY)
