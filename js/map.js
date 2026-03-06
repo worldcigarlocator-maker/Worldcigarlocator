@@ -302,36 +302,32 @@ pin.addEventListener("mouseenter", () => {
        </div>`
     : "";
 
-  hoverTooltip.innerHTML = `
-    <div style="
-      background:#0a0a0a;
-      color:rgb(115,98,75);
-      padding:6px 10px;
-      border-radius:8px;
-      font-size:12px;
-      white-space:nowrap;
-      border:1px solid rgba(115,98,75,0.35);
-      font-family:DM Sans, sans-serif;
-      box-shadow:0 6px 16px rgba(0,0,0,0.55);
-    ">
-      <div style="font-weight:600">
-        ${store.name}
-      </div>
-      ${ratingHTML}
+hoverTooltip.innerHTML = `
+  <div style="
+    background:#0a0a0a;
+    color:rgb(115,98,75);
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:12px;
+    white-space:nowrap;
+    border:1px solid rgba(115,98,75,0.35);
+    font-family:DM Sans, sans-serif;
+    box-shadow:0 6px 16px rgba(0,0,0,0.55);
+  ">
+    <div style="font-weight:600">
+      ${store.name}
     </div>
-  `;
+    ${ratingHTML}
+  </div>
+`;
 
-});
+const rect = pin.getBoundingClientRect();
 
+hoverTooltip.style.left = rect.left + rect.width / 2 + "px";
+hoverTooltip.style.top = rect.top - 10 + "px";
+hoverTooltip.style.transform = "translate(-50%, -100%)";
 
-// ================= TOOLTIP MOVE =================
-
-pin.addEventListener("mousemove", (e) => {
-
-  if (!hoverTooltip) return;
-
-  hoverTooltip.style.left = (e.clientX + 14) + "px";
-  hoverTooltip.style.top = (e.clientY - 8) + "px";
+hoverTooltip.style.opacity = "1";
 
 });
 
