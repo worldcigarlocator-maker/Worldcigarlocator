@@ -317,8 +317,11 @@ function renderCards(list, append = false) {
   const grid = dom("#storeGrid");
   const hero = dom("#heroImage");
 
-  if (!grid) return;
-  if (hero) hero.style.display = "none";
+if (!grid) return;
+
+grid.style.display = "grid";   // ← lägg till denna rad
+
+if (hero) hero.style.display = "none";
 
   if (!append) {
     LAST_RENDERED_STORES = list || [];
