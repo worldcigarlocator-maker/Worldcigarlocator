@@ -17,6 +17,17 @@ let MODAL_USER_TEMP_RATING = 0;
 let MODAL_EVENTS_BOUND = false;
 
 // ============================================================
+// REPORT UI STATE
+// ============================================================
+
+let REPORT_SELECTED = new Set();
+
+const reportSection = () => document.getElementById("modalReportSection");
+const reportChips = () => document.querySelectorAll(".report-chip");
+const reportTextarea = () => document.getElementById("modalReportMessage");
+const reportSubmit = () => document.getElementById("modalSubmitReport");
+
+// ============================================================
 // DOM HELPERS
 // ============================================================
 
@@ -101,24 +112,54 @@ function resetModal() {
   highlightStars(0);
 }
 
+function resetReportUI() {
+  REPORT_SELECTED.clear();
+
+  reportChips().forEach((chip) => {
+    chip.classList.remove("active");
+  });
+
+  if (reportTextarea()) {
+    reportTextarea().classList.add("hidden");
+    reportTextarea().value = "";
+  }
+
+  if (reportSubmit()) {
+    reportSubmit().disabled = true;
+  }
+}
+
+function updateReportUI() {
+  const hasSelection = REPORT_SELECTED.size > 0;
+
+  if (reportSubmit()) {
+    reportSubmit().disabled = !hasSelection;
+  }
+
+  if (reportTextarea()) {
+    if (REPORT_SELECTED.has("other")) {
+      reportTextarea().classList.remove("hidden");
+    } else {
+      reportTextarea().classList.add("hidden");
+      reportTextarea().value = "";
+    }
+  }
+}
+
 // ============================================================
 // OPEN / CLOSE
 // ============================================================
 
 export async function openModal(storeInput) {
-
-  // ------------------------------------------------------------
-  // Resolve store (cards → id, map → full object)
-  // ------------------------------------------------------------
-
-  let store =
-    typeof storeInput === "object"
+  const store =
+    typeof storeInput === "object" && storeInput !== null
       ? storeInput
       : findStore(storeInput);
 
   if (!store) return;
 
   const storeId = Number(store.id);
+  if (!storeId) return;
 
   MODAL_ACTIVE_STORE_ID = storeId;
   MODAL_LOAD_SEQ++;
@@ -128,6 +169,9 @@ export async function openModal(storeInput) {
   if (!m) return;
 
   resetModal();
+  resetReportUI();
+  reportSection()?.classList.add("hidden");
+
   m.classList.remove("hidden");
   lockScroll(true);
 
@@ -139,7 +183,6 @@ export async function openModal(storeInput) {
   if (modalImg()) modalImg().src = getPhotoUrl(store);
 
   const flagUrl = getFlagUrl(store);
-
   if (modalFlag() && flagUrl) {
     modalFlag().src = flagUrl;
     modalFlag().style.display = "";
@@ -153,7 +196,6 @@ export async function openModal(storeInput) {
   }
 
   if (modalBadges()) modalBadges().innerHTML = buildBadges(store);
-
   if (modalAddress()) modalAddress().textContent = store.address || "—";
   if (modalPhone()) modalPhone().textContent = store.phone || "—";
 
@@ -167,9 +209,7 @@ export async function openModal(storeInput) {
   // ------------------------------------------------------------
 
   const dir = modalDirections();
-
   if (dir && store.place_id) {
-
     const name = encodeURIComponent(store.name || "Destination");
 
     dir.href =
@@ -182,22 +222,17 @@ export async function openModal(storeInput) {
   // Interaction meta (RPC)
   // ------------------------------------------------------------
 
-  const { data: meta, error } = await supabase.rpc(
-    "modal_store_meta_v1",
-    {
-      p_store_id: MODAL_ACTIVE_STORE_ID,
-    }
-  );
+  const { data: meta, error } = await supabase.rpc("modal_store_meta_v1", {
+    p_store_id: MODAL_ACTIVE_STORE_ID,
+  });
 
   if (seq !== MODAL_LOAD_SEQ) return;
 
   if (!error && meta && meta.length) {
-
     const row = meta[0];
 
     if (modalCommentCount()) {
-      modalCommentCount().textContent =
-        `Comments ${row.comment_count || 0}`;
+      modalCommentCount().textContent = `Comments ${row.comment_count || 0}`;
     }
 
     MODAL_USER_TEMP_RATING = row.user_rating || 0;
@@ -212,7 +247,6 @@ export async function openModal(storeInput) {
 }
 
 export function closeModal() {
-
   const m = modalEl();
   if (!m) return;
 
@@ -320,50 +354,6 @@ async function submitComment() {
 }
 
 // ============================================================
-// REPORT UI STATE
-// ============================================================
-
-let REPORT_SELECTED = new Set();
-
-const reportSection = () => document.getElementById("modalReportSection");
-const reportChips = () => document.querySelectorAll(".report-chip");
-const reportTextarea = () => document.getElementById("modalReportMessage");
-const reportSubmit = () => document.getElementById("modalSubmitReport");
-
-function resetReportUI() {
-  REPORT_SELECTED.clear();
-
-  reportChips().forEach((chip) =>
-    chip.classList.remove("active")
-  );
-
-  if (reportTextarea()) {
-    reportTextarea().classList.add("hidden");
-    reportTextarea().value = "";
-  }
-
-  if (reportSubmit()) {
-    reportSubmit().disabled = true;
-  }
-}
-
-function updateReportUI() {
-  const hasSelection = REPORT_SELECTED.size > 0;
-
-  if (reportSubmit()) {
-    reportSubmit().disabled = !hasSelection;
-  }
-
-  if (reportTextarea()) {
-    if (REPORT_SELECTED.has("other")) {
-      reportTextarea().classList.remove("hidden");
-    } else {
-      reportTextarea().classList.add("hidden");
-      reportTextarea().value = "";
-    }
-  }
-}
-// ============================================================
 // REPORT ISSUE (EDGE ARRAY VERSION)
 // ============================================================
 
@@ -398,21 +388,20 @@ async function submitReportIssue() {
     resetReportUI();
     reportSection()?.classList.add("hidden");
 
-const btn = reportSubmit();
-if (btn) {
-  btn.classList.add("success");
-  btn.textContent = "Report submitted ✓";
-  btn.disabled = true;
+    const btn = reportSubmit();
+    if (btn) {
+      btn.classList.add("success");
+      btn.textContent = "Report submitted ✓";
+      btn.disabled = true;
 
-  setTimeout(() => {
-    btn.classList.remove("success");
-    btn.textContent = "Submit report";
-    btn.disabled = true;
-    reportSection()?.classList.add("hidden");
-    resetReportUI();
-  }, 1800);
-}
-
+      setTimeout(() => {
+        btn.classList.remove("success");
+        btn.textContent = "Submit report";
+        btn.disabled = true;
+        reportSection()?.classList.add("hidden");
+        resetReportUI();
+      }, 1800);
+    }
   } catch (err) {
     console.error("submit_store_report_v1 exception:", err);
   }
@@ -427,9 +416,10 @@ function bindEvents() {
   MODAL_EVENTS_BOUND = true;
 
   document.addEventListener("click", async (e) => {
-
-    if (e.target.closest(".modal-close") ||
-        e.target.classList.contains("modal-backdrop")) {
+    if (
+      e.target.closest(".modal-close") ||
+      e.target.classList.contains("modal-backdrop")
+    ) {
       closeModal();
       return;
     }
@@ -444,46 +434,49 @@ function bindEvents() {
       return;
     }
 
- // ------------------------------------------------------------
-// REPORT SECTION TOGGLE
-// ------------------------------------------------------------
-if (e.target.closest("#modalReportIssue")) {
-  const section = reportSection();
-  if (!section) return;
+    // ------------------------------------------------------------
+    // REPORT SECTION TOGGLE
+    // ------------------------------------------------------------
 
-  section.classList.toggle("hidden");
-  resetReportUI();
-  return;
-}
+    if (e.target.closest("#modalReportIssue")) {
+      const section = reportSection();
+      if (!section) return;
 
-// ------------------------------------------------------------
-// CHIP TOGGLE
-// ------------------------------------------------------------
-const chip = e.target.closest(".report-chip");
-if (chip) {
-  const type = chip.dataset.type;
-  if (!type) return;
+      section.classList.toggle("hidden");
+      resetReportUI();
+      return;
+    }
 
-  if (REPORT_SELECTED.has(type)) {
-    REPORT_SELECTED.delete(type);
-    chip.classList.remove("active");
-  } else {
-    REPORT_SELECTED.add(type);
-    chip.classList.add("active");
-  }
+    // ------------------------------------------------------------
+    // CHIP TOGGLE
+    // ------------------------------------------------------------
 
-  updateReportUI();
-  return;
-}
+    const chip = e.target.closest(".report-chip");
+    if (chip) {
+      const type = chip.dataset.type;
+      if (!type) return;
 
-// ------------------------------------------------------------
-// SUBMIT REPORT
-// ------------------------------------------------------------
-if (e.target.closest("#modalSubmitReport")) {
-  await submitReportIssue();
-  return;
-}
-    
+      if (REPORT_SELECTED.has(type)) {
+        REPORT_SELECTED.delete(type);
+        chip.classList.remove("active");
+      } else {
+        REPORT_SELECTED.add(type);
+        chip.classList.add("active");
+      }
+
+      updateReportUI();
+      return;
+    }
+
+    // ------------------------------------------------------------
+    // SUBMIT REPORT
+    // ------------------------------------------------------------
+
+    if (e.target.closest("#modalSubmitReport")) {
+      await submitReportIssue();
+      return;
+    }
+
     const del = e.target.closest(".modal-comment-delete");
     if (del && del.dataset.id) {
       const { error } = await supabase.rpc("modal_delete_comment_v1", {
