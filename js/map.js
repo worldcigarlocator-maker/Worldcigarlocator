@@ -80,7 +80,9 @@ export async function initMap() {
     streetViewControl: false,
     fullscreenControl: false,
     mapId: "DEMO_MAP_ID",
-    styles: [{ featureType: "poi", stylers: [{ visibility: "off" }] }]
+    styles: [
+      { featureType: "poi", stylers: [{ visibility: "off" }] }
+    ]
   });
 
   mapInstance.addListener("idle", () => {
@@ -135,12 +137,13 @@ async function loadStoresFromBounds() {
 }
 
 // ============================================================
-// CLUSTER RENDERER (WCL STYLE)
+// CLUSTER RENDERER
 // ============================================================
 
 function clusterRenderer() {
   return {
     render({ count, position }) {
+
       const div = document.createElement("div");
 
       let size = 32;
@@ -176,6 +179,7 @@ function clusterRenderer() {
 // ============================================================
 
 function renderMarkers(stores) {
+
   const bounds = mapInstance.getBounds();
   const zoom = mapInstance.getZoom();
 
@@ -202,19 +206,110 @@ function renderMarkers(stores) {
       gmpClickable: true
     });
 
-    marker.addListener("gmp-click", () => {
+    // ================= HOVER START =================
+
+    pin.addEventListener("mouseenter", () => {
+
+      pin.style.transform = "scale(1.25)";
+      pin.style.boxShadow =
+        "0 0 0 2px rgba(115,98,75,0.35), 0 6px 16px rgba(0,0,0,0.55)";
+      pin.style.transition =
+        "transform 0.12s ease-out, box-shadow 0.12s ease-out";
+
+      markerCache.forEach((m) => {
+        if (m !== marker && m.map === mapInstance) {
+          m.content.style.opacity = "0.35";
+        }
+      });
+
+      if (!hoverTooltip) {
+        hoverTooltip = document.createElement("div");
+        hoverTooltip.style.position = "fixed";
+        hoverTooltip.style.pointerEvents = "none";
+        hoverTooltip.style.zIndex = "9999";
+        document.body.appendChild(hoverTooltip);
+      }
+
+      const ratingHTML = store.rating_avg
+        ? `<div style="
+             color:rgb(115,98,75);
+             font-size:11px;
+             margin-top:2px;
+           ">
+             ★ ${Number(store.rating_avg).toFixed(1)}
+             ${store.rating_count ? `• ${store.rating_count}` : ""}
+           </div>`
+        : "";
+
+      hoverTooltip.innerHTML = `
+        <div style="
+          background:#0a0a0a;
+          color:rgb(115,98,75);
+          padding:6px 10px;
+          border-radius:8px;
+          font-size:12px;
+          white-space:nowrap;
+          border:1px solid rgba(115,98,75,0.35);
+          font-family:DM Sans, sans-serif;
+          box-shadow:0 6px 16px rgba(0,0,0,0.55);
+        ">
+          <div style="font-weight:600">
+            ${store.name}
+          </div>
+          ${ratingHTML}
+        </div>
+      `;
+
+      const rect = pin.getBoundingClientRect();
+
+      hoverTooltip.style.left = rect.left + rect.width / 2 + "px";
+      hoverTooltip.style.top = rect.top - 10 + "px";
+      hoverTooltip.style.transform = "translate(-50%, -100%)";
+
+      hoverTooltip.style.opacity = "1";
+
+    });
+
+    pin.addEventListener("mouseleave", () => {
+
+      pin.style.transform = "scale(1)";
+      pin.style.boxShadow = "";
+
+      markerCache.forEach((m) => {
+        if (m.map === mapInstance) {
+          m.content.style.opacity = "1";
+        }
+      });
 
       if (hoverTooltip) {
         hoverTooltip.remove();
         hoverTooltip = null;
       }
 
-      openModal(store);
+    });
+
+    // ================= CLICK =================
+
+    pin.addEventListener("click", (e) => {
+
+      e.stopPropagation();
+
+      if (hoverTooltip) {
+        hoverTooltip.remove();
+        hoverTooltip = null;
+      }
+
+      openModal(id);
 
     });
 
     markerCache.set(id, marker);
+
   });
+
+  // ============================================================
+  // REMOVE MARKERS OUTSIDE VIEW
+  // ============================================================
 
   markerCache.forEach((marker, id) => {
 
@@ -230,6 +325,10 @@ function renderMarkers(stores) {
     }
 
   });
+
+  // ============================================================
+  // CLUSTER ENGINE
+  // ============================================================
 
   const shouldCluster = zoom <= 5;
 
