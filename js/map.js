@@ -91,7 +91,6 @@ map = new google.maps.Map(container, {
   mapTypeControl: false,
   streetViewControl: false,
   fullscreenControl: false,
-  styles: [{ featureType: "poi", stylers: [{ visibility: "off" }] }]
 });
 
   map.addListener("idle", () => {
