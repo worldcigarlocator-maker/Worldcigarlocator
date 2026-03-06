@@ -287,24 +287,22 @@ hoverTooltip.style.position = "fixed";
      </div>`
   : "";
 
-    hoverTooltip.innerHTML = `
-      <div style="
-        background:#0a0a0a;
-        color:white;
-        padding:6px 10px;
-        border-radius:8px;
-        font-size:12px;
-        white-space:nowrap;
-        border:1px solid rgba(115,98,75,0.35);
-        font-family:DM Sans, sans-serif;
-        box-shadow:0 6px 16px rgba(0,0,0,0.55);
-      ">
-        <div style="font-weight:600">${store.name}</div>
-        <div style="color:rgb(115,98,75); font-size:11px;">
-          ${rating}
-        </div>
-      </div>
-    `;
+hoverTooltip.innerHTML = `
+  <div style="
+    background:#0a0a0a;
+    color:white;
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:12px;
+    white-space:nowrap;
+    border:1px solid rgba(115,98,75,0.35);
+    font-family:DM Sans, sans-serif;
+    box-shadow:0 6px 16px rgba(0,0,0,0.55);
+  ">
+    <div style="font-weight:600">${store.name}</div>
+    ${rating}
+  </div>
+`;
   });
 
   // ================= TOOLTIP MOVE =================
