@@ -100,6 +100,51 @@ export async function initMap() {
 }
 
 // ============================================================
+// USE MY LOCATION
+// ============================================================
+
+export function useMyLocation() {
+
+  if (!map) return;
+
+  if (!navigator.geolocation) {
+    console.warn("Geolocation not supported");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+
+    (pos) => {
+
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      const userPos = { lat, lng };
+
+      map.setCenter(userPos);
+      map.setZoom(12);
+
+      new google.maps.marker.AdvancedMarkerElement({
+        map,
+        position: userPos,
+        content: buildUserPin()
+      });
+
+    },
+
+    (err) => {
+      console.warn("Location denied", err);
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 5000
+    }
+
+  );
+
+}
+// ============================================================
 // LOAD STORES FROM RPC
 // ============================================================
 
