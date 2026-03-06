@@ -196,11 +196,15 @@ function createMarker(store) {
 
     pin.style.transform = "scale(1.25)";
 
-    markers.forEach((m) => {
-      if (m.content !== pin) {
-        m.content.style.opacity = "0.35";
-      }
-    });
+markers.forEach((m) => {
+
+  if (m.content === activePin) return;
+
+  if (m.content !== pin) {
+    m.content.style.opacity = "0.35";
+  }
+
+});
 
     showTooltip(pin, store);
 
@@ -210,9 +214,13 @@ function createMarker(store) {
 
     pin.style.transform = "scale(1)";
 
-    markers.forEach((m) => {
-      m.content.style.opacity = "1";
-    });
+markers.forEach((m) => {
+
+  if (m.content === activePin) return;
+
+  m.content.style.opacity = "1";
+
+});
 
     if (hoverTooltip) {
       hoverTooltip.remove();
