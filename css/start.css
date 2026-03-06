@@ -30,46 +30,84 @@ body {
   color: var(--text);
 }
 
+
 /* ============================================================
    WCL MAP PINS (AdvancedMarkerElement)
    ============================================================ */
 
 .wcl-pin{
-  width:18px;
-  height:18px;
-
-  border-radius:50%;
-  border:2px solid #fff;
-
-  box-shadow:
-    0 0 4px rgba(0,0,0,0.5),
-    0 0 8px rgba(0,0,0,0.35);
-
-  transform:translate(-50%,-50%);
+  position:relative;
+  width:24px;
+  height:34px;
+  display:flex;
+  justify-content:center;
+  cursor:pointer;
+  transform:translate(-50%,-100%);
 }
 
-/* ================= STORE ================= */
+/* HEAD */
 
-.pin-store{
+.pin-head{
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  border:2px solid #fff;
+  box-shadow:0 4px 10px rgba(0,0,0,0.35);
+  position:relative;
+  z-index:2;
+}
+
+/* GLOSS */
+
+.pin-gloss{
+  position:absolute;
+  top:2px;
+  left:3px;
+  width:8px;
+  height:5px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.6);
+  filter:blur(1px);
+}
+
+/* NEEDLE */
+
+.pin-needle{
+  position:absolute;
+  top:18px;
+  left:50%;
+  transform:translateX(-50%);
+  width:2px;
+  height:14px;
+  background:#6b7280;
+  border-radius:2px;
+}
+
+/* COLORS */
+
+.pin-store .pin-head{
   background:#3b82f6;
 }
 
-/* ================= LOUNGE ================= */
-
-.pin-lounge{
+.pin-lounge .pin-head{
   background:#8b5cf6;
 }
 
-/* ================= STORE + LOUNGE ================= */
+.pin-split .pin-head{
+  background:linear-gradient(90deg,#3b82f6 50%,#8b5cf6 50%);
+}
 
-.pin-split{
-  background:linear-gradient(
-    90deg,
-    #3b82f6 0%,
-    #3b82f6 48%,
-    #8b5cf6 52%,
-    #8b5cf6 100%
-  );
+/* ACTIVE PIN */
+
+.wcl-pin.active{
+  transform:translate(-50%,-100%) scale(1.25);
+  z-index:10;
+}
+
+.wcl-pin.active .pin-head{
+  box-shadow:
+    0 0 0 3px rgba(255,255,255,0.7),
+    0 0 10px rgba(212,175,55,0.9);
 }
 
 body.static-page {
