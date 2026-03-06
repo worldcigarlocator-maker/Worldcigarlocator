@@ -15,6 +15,9 @@ let map = null;
 let markers = new Map();
 let clusterer = null;
 
+// marker pooling
+const markerPool = [];
+
 let hoverTooltip = null;
 let activePin = null;
 
@@ -203,14 +206,38 @@ async function loadStores() {
 
 function createMarker(store) {
 
-  const pin = buildPin(store.types);
+  let marker;
 
-  const marker = new google.maps.marker.AdvancedMarkerElement({
-    map,
-    position: { lat: store.lat, lng: store.lng },
-    content: pin,
-    gmpClickable: true
-  });
+  // reuse marker from pool if available
+if (markerPool.length) {
+
+  marker = markerPool.pop();
+
+  marker.position = {
+    lat: store.lat,
+    lng: store.lng
+  };
+
+  marker.map = map;
+
+  // update pin reference
+  marker.__store = store;
+
+} else {
+
+    const pin = buildPin(store.types);
+
+    marker = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: store.lat, lng: store.lng },
+      content: pin,
+      gmpClickable: true
+    });
+
+  }
+
+  const pin = marker.content;
+  marker.__store = store;
 
   // ---------------- CLICK ----------------
 
@@ -234,34 +261,34 @@ function createMarker(store) {
       "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
     pin.style.zIndex = "5";
 
-const id = Number(store.id);
-const cached = modalPrefetch.get(id);
+    const id = Number(store.id);
+    const cached = modalPrefetch.get(id);
 
-if (cached) {
-  openModal(cached);
-} else {
-  openModal(id);
-}
+    if (cached) {
+      openModal(cached);
+    } else {
+      openModal(id);
+    }
 
   });
 
   // ---------------- HOVER ----------------
 
-pin.addEventListener("mouseenter", () => {
+  pin.addEventListener("mouseenter", () => {
 
-  prefetchModal(Number(store.id));
+    prefetchModal(Number(store.id));
 
-  pin.style.transform = "scale(1.25)";
+    pin.style.transform = "scale(1.25)";
 
-markers.forEach((m) => {
+    markers.forEach((m) => {
 
-  if (m.content === activePin) return;
+      if (m.content === activePin) return;
 
-  if (m.content !== pin) {
-    m.content.style.opacity = "0.35";
-  }
+      if (m.content !== pin) {
+        m.content.style.opacity = "0.35";
+      }
 
-});
+    });
 
     showTooltip(pin, store);
 
@@ -271,13 +298,13 @@ markers.forEach((m) => {
 
     pin.style.transform = "scale(1)";
 
-markers.forEach((m) => {
+    markers.forEach((m) => {
 
-  if (m.content === activePin) return;
+      if (m.content === activePin) return;
 
-  m.content.style.opacity = "1";
+      m.content.style.opacity = "1";
 
-});
+    });
 
     if (hoverTooltip) {
       hoverTooltip.remove();
@@ -398,8 +425,14 @@ function renderMarkers(stores) {
 
     if (!incoming.has(id)) {
 
-      marker.map = null;
-      markers.delete(id);
+marker.map = null;
+
+// clear store reference
+marker.__store = null;
+
+markerPool.push(marker);
+
+markers.delete(id);
 
     }
 
