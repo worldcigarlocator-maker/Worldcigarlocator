@@ -17,12 +17,14 @@ let markerCluster = null;
 
 let idleTimer = null;
 let hoverTooltip = null;
+let activePin = null;
 
 let googleLoaded = false;
 let clustererLoaded = false;
 
 let lastBounds = null;
 let lastZoom = null;
+
 
 // ============================================================
 // LOAD SCRIPT HELPER
@@ -288,20 +290,18 @@ function renderMarkers(stores) {
 
     });
 
-    // ================= CLICK =================
+pin.addEventListener("click", (e) => {
 
-    pin.addEventListener("click", (e) => {
+  e.stopPropagation();
 
-      e.stopPropagation();
+  if (hoverTooltip) {
+    hoverTooltip.remove();
+    hoverTooltip = null;
+  }
 
-      if (hoverTooltip) {
-        hoverTooltip.remove();
-        hoverTooltip = null;
-      }
+  openModal(store);
 
-      openModal(id);
-
-    });
+});
 
     markerCache.set(id, marker);
 
