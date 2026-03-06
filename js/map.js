@@ -351,13 +351,13 @@ pin.addEventListener("mouseleave", () => {
 
 });
 
-  // ================= CLICK =================
+ // ================= CLICK =================
 
-  marker.addListener("click", () => {
-    openModal(id);
-  });
+pin.addEventListener("click", () => {
+  openModal(id);
+});
 
-  markerCache.set(id, marker);
+markerCache.set(id, marker);
 
 });
 
