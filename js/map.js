@@ -281,9 +281,11 @@ hoverTooltip.style.position = "fixed";
       document.body.appendChild(hoverTooltip);
     }
 
-    const rating = store.rating_avg
-      ? `★ ${Number(store.rating_avg).toFixed(1)}`
-      : "No rating";
+  const rating = store.rating_avg
+  ? `<div style="color:rgb(115,98,75); font-size:11px;">
+       ★ ${Number(store.rating_avg).toFixed(1)}
+     </div>`
+  : "";
 
     hoverTooltip.innerHTML = `
       <div style="
