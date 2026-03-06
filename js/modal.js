@@ -105,11 +105,22 @@ function resetModal() {
 // OPEN / CLOSE
 // ============================================================
 
-export async function openModal(storeId) {
-  const store = findStore(storeId);
+export async function openModal(storeInput) {
+
+  // ------------------------------------------------------------
+  // Resolve store (cards → id, map → full object)
+  // ------------------------------------------------------------
+
+  let store =
+    typeof storeInput === "object"
+      ? storeInput
+      : findStore(storeInput);
+
   if (!store) return;
 
-  MODAL_ACTIVE_STORE_ID = Number(storeId);
+  const storeId = Number(store.id);
+
+  MODAL_ACTIVE_STORE_ID = storeId;
   MODAL_LOAD_SEQ++;
   const seq = MODAL_LOAD_SEQ;
 
@@ -120,14 +131,15 @@ export async function openModal(storeId) {
   m.classList.remove("hidden");
   lockScroll(true);
 
-  // ----------------------------------
-  // Static store data (from cards)
-  // ----------------------------------
+  // ------------------------------------------------------------
+  // Static store data (from cards/map)
+  // ------------------------------------------------------------
 
   if (modalName()) modalName().textContent = store.name || "Unnamed";
   if (modalImg()) modalImg().src = getPhotoUrl(store);
 
   const flagUrl = getFlagUrl(store);
+
   if (modalFlag() && flagUrl) {
     modalFlag().src = flagUrl;
     modalFlag().style.display = "";
@@ -141,6 +153,7 @@ export async function openModal(storeId) {
   }
 
   if (modalBadges()) modalBadges().innerHTML = buildBadges(store);
+
   if (modalAddress()) modalAddress().textContent = store.address || "—";
   if (modalPhone()) modalPhone().textContent = store.phone || "—";
 
@@ -149,6 +162,69 @@ export async function openModal(storeId) {
     modalWebsite().style.display = "inline";
   }
 
+  // ------------------------------------------------------------
+  // Directions (Google Maps Navigation)
+  // ------------------------------------------------------------
+
+  const dir = modalDirections();
+
+  if (dir && store.place_id) {
+
+    const name = encodeURIComponent(store.name || "Destination");
+
+    dir.href =
+      `https://www.google.com/maps/dir/?api=1&destination=${name}&destination_place_id=${store.place_id}`;
+
+    dir.style.display = "inline";
+  }
+
+  // ------------------------------------------------------------
+  // Interaction meta (RPC)
+  // ------------------------------------------------------------
+
+  const { data: meta, error } = await supabase.rpc(
+    "modal_store_meta_v1",
+    {
+      p_store_id: MODAL_ACTIVE_STORE_ID,
+    }
+  );
+
+  if (seq !== MODAL_LOAD_SEQ) return;
+
+  if (!error && meta && meta.length) {
+
+    const row = meta[0];
+
+    if (modalCommentCount()) {
+      modalCommentCount().textContent =
+        `Comments ${row.comment_count || 0}`;
+    }
+
+    MODAL_USER_TEMP_RATING = row.user_rating || 0;
+    highlightStars(MODAL_USER_TEMP_RATING);
+  }
+
+  // ------------------------------------------------------------
+  // Load comments
+  // ------------------------------------------------------------
+
+  await loadComments(MODAL_ACTIVE_STORE_ID, seq);
+}
+
+export function closeModal() {
+
+  const m = modalEl();
+  if (!m) return;
+
+  m.classList.add("hidden");
+  lockScroll(false);
+
+  resetReportUI();
+  reportSection()?.classList.add("hidden");
+
+  MODAL_ACTIVE_STORE_ID = null;
+  MODAL_USER_TEMP_RATING = 0;
+}
 // ----------------------------------
 // Directions (Google Maps Navigation)
 // ----------------------------------
