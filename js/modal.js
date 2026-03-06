@@ -17,6 +17,50 @@ let MODAL_USER_TEMP_RATING = 0;
 let MODAL_EVENTS_BOUND = false;
 
 // ============================================================
+// REPORT UI STATE
+// ============================================================
+
+let REPORT_SELECTED = new Set();
+
+const reportSection = () => document.getElementById("modalReportSection");
+const reportChips = () => document.querySelectorAll(".report-chip");
+const reportTextarea = () => document.getElementById("modalReportMessage");
+const reportSubmit = () => document.getElementById("modalSubmitReport");
+
+function resetReportUI() {
+  REPORT_SELECTED.clear();
+
+  reportChips().forEach((chip) =>
+    chip.classList.remove("active")
+  );
+
+  if (reportTextarea()) {
+    reportTextarea().classList.add("hidden");
+    reportTextarea().value = "";
+  }
+
+  if (reportSubmit()) {
+    reportSubmit().disabled = true;
+  }
+}
+
+function updateReportUI() {
+  const hasSelection = REPORT_SELECTED.size > 0;
+
+  if (reportSubmit()) {
+    reportSubmit().disabled = !hasSelection;
+  }
+
+  if (reportTextarea()) {
+    if (REPORT_SELECTED.has("other")) {
+      reportTextarea().classList.remove("hidden");
+    } else {
+      reportTextarea().classList.add("hidden");
+      reportTextarea().value = "";
+    }
+  }
+}
+// ============================================================
 // DOM HELPERS
 // ============================================================
 
@@ -299,50 +343,6 @@ async function submitComment() {
   loadComments(MODAL_ACTIVE_STORE_ID, MODAL_LOAD_SEQ);
 }
 
-// ============================================================
-// REPORT UI STATE
-// ============================================================
-
-let REPORT_SELECTED = new Set();
-
-const reportSection = () => document.getElementById("modalReportSection");
-const reportChips = () => document.querySelectorAll(".report-chip");
-const reportTextarea = () => document.getElementById("modalReportMessage");
-const reportSubmit = () => document.getElementById("modalSubmitReport");
-
-function resetReportUI() {
-  REPORT_SELECTED.clear();
-
-  reportChips().forEach((chip) =>
-    chip.classList.remove("active")
-  );
-
-  if (reportTextarea()) {
-    reportTextarea().classList.add("hidden");
-    reportTextarea().value = "";
-  }
-
-  if (reportSubmit()) {
-    reportSubmit().disabled = true;
-  }
-}
-
-function updateReportUI() {
-  const hasSelection = REPORT_SELECTED.size > 0;
-
-  if (reportSubmit()) {
-    reportSubmit().disabled = !hasSelection;
-  }
-
-  if (reportTextarea()) {
-    if (REPORT_SELECTED.has("other")) {
-      reportTextarea().classList.remove("hidden");
-    } else {
-      reportTextarea().classList.add("hidden");
-      reportTextarea().value = "";
-    }
-  }
-}
 // ============================================================
 // REPORT ISSUE (EDGE ARRAY VERSION)
 // ============================================================
