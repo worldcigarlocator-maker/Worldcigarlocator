@@ -225,62 +225,6 @@ export function closeModal() {
   MODAL_ACTIVE_STORE_ID = null;
   MODAL_USER_TEMP_RATING = 0;
 }
-// ----------------------------------
-// Directions (Google Maps Navigation)
-// ----------------------------------
-
-const dir = modalDirections();
-
-if (dir && store.place_id) {
-  const name = encodeURIComponent(store.name || "Destination");
-
-  dir.href =
-    `https://www.google.com/maps/dir/?api=1&destination=${name}&destination_place_id=${store.place_id}`;
-
-  dir.style.display = "inline";
-}
-  // ----------------------------------
-  // Interaction meta (RPC)
-  // ----------------------------------
-
-  const { data: meta, error } = await supabase.rpc("modal_store_meta_v1", {
-    p_store_id: MODAL_ACTIVE_STORE_ID,
-  });
-
-  if (seq !== MODAL_LOAD_SEQ) return;
-
-  if (!error && meta && meta.length) {
-    const row = meta[0];
-
-    if (modalCommentCount()) {
-      modalCommentCount().textContent =
-        `Comments ${row.comment_count || 0}`;
-    }
-
-    MODAL_USER_TEMP_RATING = row.user_rating || 0;
-    highlightStars(MODAL_USER_TEMP_RATING);
-  }
-
-  // ----------------------------------
-  // Load comments
-  // ----------------------------------
-
-  await loadComments(MODAL_ACTIVE_STORE_ID, seq);
-}
-
-export function closeModal() {
-  const m = modalEl();
-  if (!m) return;
-
-  m.classList.add("hidden");
-  lockScroll(false);
-
-  resetReportUI();
-reportSection()?.classList.add("hidden");
-  
-  MODAL_ACTIVE_STORE_ID = null;
-  MODAL_USER_TEMP_RATING = 0;
-}
 
 // ============================================================
 // RATING (RPC ONLY)
