@@ -270,8 +270,9 @@ function renderMarkers(stores) {
 
   pin.addEventListener("mouseenter", () => {
 
-    pin.style.transform = "scale(1.25)";
-    pin.style.transition = "transform 0.12s ease-out";
+   pin.style.transform = "scale(1.25)";
+pin.style.boxShadow = "0 0 0 2px rgba(115,98,75,0.35), 0 6px 16px rgba(0,0,0,0.55)";
+pin.style.transition = "transform 0.12s ease-out, box-shadow 0.12s ease-out";
 
     if (!hoverTooltip) {
       hoverTooltip = document.createElement("div");
@@ -281,9 +282,14 @@ hoverTooltip.style.position = "fixed";
       document.body.appendChild(hoverTooltip);
     }
 
-  const rating = store.rating_avg
-  ? `<div style="color:rgb(115,98,75); font-size:11px;">
+  const ratingHTML = store.rating_avg
+  ? `<div style="
+        color:rgb(115,98,75);
+        font-size:11px;
+        margin-top:2px;
+     ">
        ★ ${Number(store.rating_avg).toFixed(1)}
+       ${store.rating_count ? `• ${store.rating_count}` : ""}
      </div>`
   : "";
 
@@ -299,10 +305,13 @@ hoverTooltip.innerHTML = `
     font-family:DM Sans, sans-serif;
     box-shadow:0 6px 16px rgba(0,0,0,0.55);
   ">
-    <div style="font-weight:600">${store.name}</div>
-    ${rating}
+    <div style="font-weight:600">
+      ${store.name}
+    </div>
+    ${ratingHTML}
   </div>
 `;
+    
   });
 
   // ================= TOOLTIP MOVE =================
@@ -321,6 +330,7 @@ pin.addEventListener("mousemove", (e) => {
   pin.addEventListener("mouseleave", () => {
 
     pin.style.transform = "scale(1)";
+      pin.style.boxShadow = "";
 
     if (hoverTooltip) {
       hoverTooltip.remove();
