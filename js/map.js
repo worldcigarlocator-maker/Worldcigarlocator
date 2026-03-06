@@ -1,5 +1,5 @@
 // ============================================================
-// MAP.JS — WCL MAP ENGINE V2
+// MAP.JS — WCL MAP ENGINE V4
 // Enterprise · Stable · Fast
 // ============================================================
 
@@ -15,7 +15,6 @@ let map = null;
 let markers = new Map();
 let clusterer = null;
 
-// marker pooling
 const markerPool = [];
 
 let hoverTooltip = null;
@@ -29,7 +28,6 @@ let lastZoom = null;
 
 let idleTimer = null;
 
-// modal prefetch cache
 const modalPrefetch = new Map();
 
 // ============================================================
@@ -49,7 +47,7 @@ function loadScript(src) {
 }
 
 // ============================================================
-// LOAD GOOGLE MAPS
+// LOAD GOOGLE
 // ============================================================
 
 async function loadGoogle() {
@@ -90,7 +88,9 @@ export async function initMap() {
     mapTypeControl: false,
     streetViewControl: false,
     fullscreenControl: false,
-    styles: [{ featureType: "poi", stylers: [{ visibility: "off" }] }]
+    styles: [
+      { featureType: "poi", stylers: [{ visibility: "off" }] }
+    ]
   });
 
   map.addListener("idle", () => {
@@ -99,7 +99,7 @@ export async function initMap() {
 
     idleTimer = setTimeout(() => {
       loadStores();
-    }, 180);
+    }, 200);
 
   });
 
@@ -113,10 +113,7 @@ export function useMyLocation() {
 
   if (!map) return;
 
-  if (!navigator.geolocation) {
-    console.warn("Geolocation not supported");
-    return;
-  }
+  if (!navigator.geolocation) return;
 
   navigator.geolocation.getCurrentPosition(
 
@@ -138,8 +135,8 @@ export function useMyLocation() {
 
     },
 
-    (err) => {
-      console.warn("Location denied", err);
+    () => {
+      console.warn("Location denied");
     },
 
     {
@@ -150,8 +147,9 @@ export function useMyLocation() {
   );
 
 }
+
 // ============================================================
-// LOAD STORES FROM RPC
+// LOAD STORES
 // ============================================================
 
 async function loadStores() {
@@ -208,22 +206,18 @@ function createMarker(store) {
 
   let marker;
 
-  // reuse marker from pool if available
-if (markerPool.length) {
+  if (markerPool.length) {
 
-  marker = markerPool.pop();
+    marker = markerPool.pop();
 
-  marker.position = {
-    lat: store.lat,
-    lng: store.lng
-  };
+    marker.position = {
+      lat: store.lat,
+      lng: store.lng
+    };
 
-  marker.map = map;
+    marker.map = map;
 
-  // update pin reference
-  marker.__store = store;
-
-} else {
+  } else {
 
     const pin = buildPin(store.types);
 
@@ -237,9 +231,10 @@ if (markerPool.length) {
   }
 
   const pin = marker.content;
+
   marker.__store = store;
 
-  // ---------------- CLICK ----------------
+  // ================= CLICK =================
 
   marker.addListener("gmp-click", () => {
 
@@ -272,7 +267,7 @@ if (markerPool.length) {
 
   });
 
-  // ---------------- HOVER ----------------
+  // ================= HOVER =================
 
   pin.addEventListener("mouseenter", () => {
 
@@ -318,7 +313,7 @@ if (markerPool.length) {
 }
 
 // ============================================================
-// TOOLTIP
+// TOOLTIP LABEL
 // ============================================================
 
 function showTooltip(pin, store) {
@@ -357,7 +352,7 @@ function showTooltip(pin, store) {
 }
 
 // ============================================================
-// MODAL PREFETCH
+// PREFETCH MODAL
 // ============================================================
 
 async function prefetchModal(storeId) {
@@ -375,13 +370,12 @@ async function prefetchModal(storeId) {
       modalPrefetch.set(storeId, data[0]);
     }
 
-  } catch (err) {
-    console.warn("prefetch failed", err);
-  }
+  } catch {}
 
 }
+
 // ============================================================
-// USER LOCATION PIN
+// USER PIN
 // ============================================================
 
 function buildUserPin() {
@@ -425,14 +419,12 @@ function renderMarkers(stores) {
 
     if (!incoming.has(id)) {
 
-marker.map = null;
+      marker.map = null;
+      marker.__store = null;
 
-// clear store reference
-marker.__store = null;
+      markerPool.push(marker);
 
-markerPool.push(marker);
-
-markers.delete(id);
+      markers.delete(id);
 
     }
 
@@ -443,7 +435,7 @@ markers.delete(id);
 }
 
 // ============================================================
-// CLUSTER ENGINE
+// CLUSTERS
 // ============================================================
 
 function updateClusters() {
