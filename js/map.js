@@ -211,6 +211,30 @@ function renderMarkers(stores) {
 pin.style.pointerEvents = "auto";
 marker.content.style.pointerEvents = "auto";
 
+    marker.addListener("gmp-click", () => {
+
+  if (hoverTooltip) {
+    hoverTooltip.remove();
+    hoverTooltip = null;
+  }
+
+  if (activePin && activePin !== pin) {
+    activePin.style.transform = "scale(1)";
+    activePin.style.boxShadow = "";
+    activePin.style.zIndex = "";
+  }
+
+  activePin = pin;
+
+  pin.style.transform = "scale(1.35)";
+  pin.style.boxShadow =
+    "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
+  pin.style.zIndex = "5";
+
+  openModal(store);
+
+});
+
     // ================= HOVER START =================
 
     pin.addEventListener("mouseenter", () => {
@@ -298,20 +322,19 @@ marker.content.style.pointerEvents = "auto";
 pin.addEventListener("click", (e) => {
 
   e.stopPropagation();
+  e.stopImmediatePropagation();
 
   if (hoverTooltip) {
     hoverTooltip.remove();
     hoverTooltip = null;
   }
 
-  // reset previous active pin
   if (activePin && activePin !== pin) {
     activePin.style.transform = "scale(1)";
     activePin.style.boxShadow = "";
     activePin.style.zIndex = "";
   }
 
-  // set active pin
   activePin = pin;
 
   pin.style.transform = "scale(1.35)";
