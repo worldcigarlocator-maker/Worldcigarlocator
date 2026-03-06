@@ -376,14 +376,21 @@ markerCache.set(id, marker);
   // REMOVE MARKERS OUTSIDE VIEW
   // ============================================================
 
-  markerCache.forEach((marker, id) => {
+markerCache.forEach((marker, id) => {
 
-    if (!incoming.has(id)) {
-      marker.map = null;
-      markerCache.delete(id);
+  if (!incoming.has(id)) {
+
+    marker.map = null;
+
+    // 🔧 cleanup DOM
+    if (marker.content) {
+      marker.content.replaceChildren();
     }
 
-  });
+    markerCache.delete(id);
+  }
+
+});
 
   // ============================================================
   // CLUSTER ENGINE
