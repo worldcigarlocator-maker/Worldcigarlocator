@@ -275,7 +275,7 @@ function renderMarkers(stores) {
 
     if (!hoverTooltip) {
       hoverTooltip = document.createElement("div");
-      hoverTooltip.style.position = "absolute";
+hoverTooltip.style.position = "fixed";
       hoverTooltip.style.pointerEvents = "none";
       hoverTooltip.style.zIndex = "9999";
       document.body.appendChild(hoverTooltip);
@@ -307,14 +307,14 @@ function renderMarkers(stores) {
 
   // ================= TOOLTIP MOVE =================
 
-  pin.addEventListener("mousemove", (e) => {
+pin.addEventListener("mousemove", (e) => {
 
-    if (!hoverTooltip) return;
+  if (!hoverTooltip) return;
 
-    hoverTooltip.style.left = e.pageX + 12 + "px";
-    hoverTooltip.style.top = e.pageY - 10 + "px";
+  hoverTooltip.style.left = (e.clientX + 14) + "px";
+  hoverTooltip.style.top = (e.clientY - 8) + "px";
 
-  });
+});
 
   // ================= TOOLTIP END =================
 
