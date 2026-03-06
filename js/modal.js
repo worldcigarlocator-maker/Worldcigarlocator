@@ -17,17 +17,6 @@ let MODAL_USER_TEMP_RATING = 0;
 let MODAL_EVENTS_BOUND = false;
 
 // ============================================================
-// REPORT UI STATE
-// ============================================================
-
-let REPORT_SELECTED = new Set();
-
-const reportSection = () => document.getElementById("modalReportSection");
-const reportChips = () => document.querySelectorAll(".report-chip");
-const reportTextarea = () => document.getElementById("modalReportMessage");
-const reportSubmit = () => document.getElementById("modalSubmitReport");
-
-// ============================================================
 // DOM HELPERS
 // ============================================================
 
@@ -112,56 +101,15 @@ function resetModal() {
   highlightStars(0);
 }
 
-function resetReportUI() {
-  REPORT_SELECTED.clear();
-
-  reportChips().forEach((chip) => {
-    chip.classList.remove("active");
-  });
-
-  if (reportTextarea()) {
-    reportTextarea().classList.add("hidden");
-    reportTextarea().value = "";
-  }
-
-  if (reportSubmit()) {
-    reportSubmit().disabled = true;
-  }
-}
-
-function updateReportUI() {
-  const hasSelection = REPORT_SELECTED.size > 0;
-
-  if (reportSubmit()) {
-    reportSubmit().disabled = !hasSelection;
-  }
-
-  if (reportTextarea()) {
-    if (REPORT_SELECTED.has("other")) {
-      reportTextarea().classList.remove("hidden");
-    } else {
-      reportTextarea().classList.add("hidden");
-      reportTextarea().value = "";
-    }
-  }
-}
-
 // ============================================================
 // OPEN / CLOSE
 // ============================================================
 
-export async function openModal(storeInput) {
-  const store =
-    typeof storeInput === "object" && storeInput !== null
-      ? storeInput
-      : findStore(storeInput);
-
+export async function openModal(storeId) {
+  const store = findStore(storeId);
   if (!store) return;
 
-  const storeId = Number(store.id);
-  if (!storeId) return;
-
-  MODAL_ACTIVE_STORE_ID = storeId;
+  MODAL_ACTIVE_STORE_ID = Number(storeId);
   MODAL_LOAD_SEQ++;
   const seq = MODAL_LOAD_SEQ;
 
@@ -169,15 +117,12 @@ export async function openModal(storeInput) {
   if (!m) return;
 
   resetModal();
-  resetReportUI();
-  reportSection()?.classList.add("hidden");
-
   m.classList.remove("hidden");
   lockScroll(true);
 
-  // ------------------------------------------------------------
-  // Static store data (from cards/map)
-  // ------------------------------------------------------------
+  // ----------------------------------
+  // Static store data (from cards)
+  // ----------------------------------
 
   if (modalName()) modalName().textContent = store.name || "Unnamed";
   if (modalImg()) modalImg().src = getPhotoUrl(store);
@@ -204,23 +149,23 @@ export async function openModal(storeInput) {
     modalWebsite().style.display = "inline";
   }
 
-  // ------------------------------------------------------------
-  // Directions (Google Maps Navigation)
-  // ------------------------------------------------------------
+// ----------------------------------
+// Directions (Google Maps Navigation)
+// ----------------------------------
 
-  const dir = modalDirections();
-  if (dir && store.place_id) {
-    const name = encodeURIComponent(store.name || "Destination");
+const dir = modalDirections();
 
-    dir.href =
-      `https://www.google.com/maps/dir/?api=1&destination=${name}&destination_place_id=${store.place_id}`;
+if (dir && store.place_id) {
+  const name = encodeURIComponent(store.name || "Destination");
 
-    dir.style.display = "inline";
-  }
+  dir.href =
+    `https://www.google.com/maps/dir/?api=1&destination=${name}&destination_place_id=${store.place_id}`;
 
-  // ------------------------------------------------------------
+  dir.style.display = "inline";
+}
+  // ----------------------------------
   // Interaction meta (RPC)
-  // ------------------------------------------------------------
+  // ----------------------------------
 
   const { data: meta, error } = await supabase.rpc("modal_store_meta_v1", {
     p_store_id: MODAL_ACTIVE_STORE_ID,
@@ -232,16 +177,17 @@ export async function openModal(storeInput) {
     const row = meta[0];
 
     if (modalCommentCount()) {
-      modalCommentCount().textContent = `Comments ${row.comment_count || 0}`;
+      modalCommentCount().textContent =
+        `Comments ${row.comment_count || 0}`;
     }
 
     MODAL_USER_TEMP_RATING = row.user_rating || 0;
     highlightStars(MODAL_USER_TEMP_RATING);
   }
 
-  // ------------------------------------------------------------
+  // ----------------------------------
   // Load comments
-  // ------------------------------------------------------------
+  // ----------------------------------
 
   await loadComments(MODAL_ACTIVE_STORE_ID, seq);
 }
@@ -254,8 +200,8 @@ export function closeModal() {
   lockScroll(false);
 
   resetReportUI();
-  reportSection()?.classList.add("hidden");
-
+reportSection()?.classList.add("hidden");
+  
   MODAL_ACTIVE_STORE_ID = null;
   MODAL_USER_TEMP_RATING = 0;
 }
@@ -354,6 +300,50 @@ async function submitComment() {
 }
 
 // ============================================================
+// REPORT UI STATE
+// ============================================================
+
+let REPORT_SELECTED = new Set();
+
+const reportSection = () => document.getElementById("modalReportSection");
+const reportChips = () => document.querySelectorAll(".report-chip");
+const reportTextarea = () => document.getElementById("modalReportMessage");
+const reportSubmit = () => document.getElementById("modalSubmitReport");
+
+function resetReportUI() {
+  REPORT_SELECTED.clear();
+
+  reportChips().forEach((chip) =>
+    chip.classList.remove("active")
+  );
+
+  if (reportTextarea()) {
+    reportTextarea().classList.add("hidden");
+    reportTextarea().value = "";
+  }
+
+  if (reportSubmit()) {
+    reportSubmit().disabled = true;
+  }
+}
+
+function updateReportUI() {
+  const hasSelection = REPORT_SELECTED.size > 0;
+
+  if (reportSubmit()) {
+    reportSubmit().disabled = !hasSelection;
+  }
+
+  if (reportTextarea()) {
+    if (REPORT_SELECTED.has("other")) {
+      reportTextarea().classList.remove("hidden");
+    } else {
+      reportTextarea().classList.add("hidden");
+      reportTextarea().value = "";
+    }
+  }
+}
+// ============================================================
 // REPORT ISSUE (EDGE ARRAY VERSION)
 // ============================================================
 
@@ -388,20 +378,21 @@ async function submitReportIssue() {
     resetReportUI();
     reportSection()?.classList.add("hidden");
 
-    const btn = reportSubmit();
-    if (btn) {
-      btn.classList.add("success");
-      btn.textContent = "Report submitted ✓";
-      btn.disabled = true;
+const btn = reportSubmit();
+if (btn) {
+  btn.classList.add("success");
+  btn.textContent = "Report submitted ✓";
+  btn.disabled = true;
 
-      setTimeout(() => {
-        btn.classList.remove("success");
-        btn.textContent = "Submit report";
-        btn.disabled = true;
-        reportSection()?.classList.add("hidden");
-        resetReportUI();
-      }, 1800);
-    }
+  setTimeout(() => {
+    btn.classList.remove("success");
+    btn.textContent = "Submit report";
+    btn.disabled = true;
+    reportSection()?.classList.add("hidden");
+    resetReportUI();
+  }, 1800);
+}
+
   } catch (err) {
     console.error("submit_store_report_v1 exception:", err);
   }
@@ -416,10 +407,9 @@ function bindEvents() {
   MODAL_EVENTS_BOUND = true;
 
   document.addEventListener("click", async (e) => {
-    if (
-      e.target.closest(".modal-close") ||
-      e.target.classList.contains("modal-backdrop")
-    ) {
+
+    if (e.target.closest(".modal-close") ||
+        e.target.classList.contains("modal-backdrop")) {
       closeModal();
       return;
     }
@@ -434,49 +424,46 @@ function bindEvents() {
       return;
     }
 
-    // ------------------------------------------------------------
-    // REPORT SECTION TOGGLE
-    // ------------------------------------------------------------
+ // ------------------------------------------------------------
+// REPORT SECTION TOGGLE
+// ------------------------------------------------------------
+if (e.target.closest("#modalReportIssue")) {
+  const section = reportSection();
+  if (!section) return;
 
-    if (e.target.closest("#modalReportIssue")) {
-      const section = reportSection();
-      if (!section) return;
+  section.classList.toggle("hidden");
+  resetReportUI();
+  return;
+}
 
-      section.classList.toggle("hidden");
-      resetReportUI();
-      return;
-    }
+// ------------------------------------------------------------
+// CHIP TOGGLE
+// ------------------------------------------------------------
+const chip = e.target.closest(".report-chip");
+if (chip) {
+  const type = chip.dataset.type;
+  if (!type) return;
 
-    // ------------------------------------------------------------
-    // CHIP TOGGLE
-    // ------------------------------------------------------------
+  if (REPORT_SELECTED.has(type)) {
+    REPORT_SELECTED.delete(type);
+    chip.classList.remove("active");
+  } else {
+    REPORT_SELECTED.add(type);
+    chip.classList.add("active");
+  }
 
-    const chip = e.target.closest(".report-chip");
-    if (chip) {
-      const type = chip.dataset.type;
-      if (!type) return;
+  updateReportUI();
+  return;
+}
 
-      if (REPORT_SELECTED.has(type)) {
-        REPORT_SELECTED.delete(type);
-        chip.classList.remove("active");
-      } else {
-        REPORT_SELECTED.add(type);
-        chip.classList.add("active");
-      }
-
-      updateReportUI();
-      return;
-    }
-
-    // ------------------------------------------------------------
-    // SUBMIT REPORT
-    // ------------------------------------------------------------
-
-    if (e.target.closest("#modalSubmitReport")) {
-      await submitReportIssue();
-      return;
-    }
-
+// ------------------------------------------------------------
+// SUBMIT REPORT
+// ------------------------------------------------------------
+if (e.target.closest("#modalSubmitReport")) {
+  await submitReportIssue();
+  return;
+}
+    
     const del = e.target.closest(".modal-comment-delete");
     if (del && del.dataset.id) {
       const { error } = await supabase.rpc("modal_delete_comment_v1", {
