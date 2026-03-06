@@ -354,7 +354,9 @@ markerCache.forEach((m) => {
 
 // ================= CLICK =================
 
-marker.addListener("click", () => {
+pin.addEventListener("click", (e) => {
+
+  console.log("PIN CLICK", id);
 
   if (hoverTooltip) {
     hoverTooltip.remove();
@@ -362,10 +364,6 @@ marker.addListener("click", () => {
   }
 
   openModal(id);
-
-});
-
-markerCache.set(id, marker);
 
 });
 
