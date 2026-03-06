@@ -268,53 +268,63 @@ function renderMarkers(stores) {
 
 // ================= HOVER START =================
 
-  pin.addEventListener("mouseenter", () => {
+pin.addEventListener("mouseenter", () => {
 
-   pin.style.transform = "scale(1.25)";
-pin.style.boxShadow = "0 0 0 2px rgba(115,98,75,0.35), 0 6px 16px rgba(0,0,0,0.55)";
-pin.style.transition = "transform 0.12s ease-out, box-shadow 0.12s ease-out";
+  pin.style.transform = "scale(1.25)";
+  pin.style.boxShadow =
+    "0 0 0 2px rgba(115,98,75,0.35), 0 6px 16px rgba(0,0,0,0.55)";
+  pin.style.transition =
+    "transform 0.12s ease-out, box-shadow 0.12s ease-out";
 
-    if (!hoverTooltip) {
-      hoverTooltip = document.createElement("div");
-hoverTooltip.style.position = "fixed";
-      hoverTooltip.style.pointerEvents = "none";
-      hoverTooltip.style.zIndex = "9999";
-      document.body.appendChild(hoverTooltip);
+  // dim other pins
+  markerCache.forEach((m) => {
+    if (m !== marker) {
+      m.content.style.opacity = "0.35";
     }
-
-  const ratingHTML = store.rating_avg
-  ? `<div style="
-        color:rgb(115,98,75);
-        font-size:11px;
-        margin-top:2px;
-     ">
-       ★ ${Number(store.rating_avg).toFixed(1)}
-       ${store.rating_count ? `• ${store.rating_count}` : ""}
-     </div>`
-  : "";
-
-hoverTooltip.innerHTML = `
-  <div style="
-    background:#0a0a0a;
-    color:white;
-    padding:6px 10px;
-    border-radius:8px;
-    font-size:12px;
-    white-space:nowrap;
-    border:1px solid rgba(115,98,75,0.35);
-    font-family:DM Sans, sans-serif;
-    box-shadow:0 6px 16px rgba(0,0,0,0.55);
-  ">
-    <div style="font-weight:600">
-      ${store.name}
-    </div>
-    ${ratingHTML}
-  </div>
-`;
-    
   });
 
-  // ================= TOOLTIP MOVE =================
+  if (!hoverTooltip) {
+    hoverTooltip = document.createElement("div");
+    hoverTooltip.style.position = "fixed";
+    hoverTooltip.style.pointerEvents = "none";
+    hoverTooltip.style.zIndex = "9999";
+    document.body.appendChild(hoverTooltip);
+  }
+
+  const ratingHTML = store.rating_avg
+    ? `<div style="
+         color:rgb(115,98,75);
+         font-size:11px;
+         margin-top:2px;
+       ">
+         ★ ${Number(store.rating_avg).toFixed(1)}
+         ${store.rating_count ? `• ${store.rating_count}` : ""}
+       </div>`
+    : "";
+
+  hoverTooltip.innerHTML = `
+    <div style="
+      background:#0a0a0a;
+      color:rgb(115,98,75);
+      padding:6px 10px;
+      border-radius:8px;
+      font-size:12px;
+      white-space:nowrap;
+      border:1px solid rgba(115,98,75,0.35);
+      font-family:DM Sans, sans-serif;
+      box-shadow:0 6px 16px rgba(0,0,0,0.55);
+    ">
+      <div style="font-weight:600">
+        ${store.name}
+      </div>
+      ${ratingHTML}
+    </div>
+  `;
+
+});
+
+
+// ================= TOOLTIP MOVE =================
 
 pin.addEventListener("mousemove", (e) => {
 
@@ -325,19 +335,25 @@ pin.addEventListener("mousemove", (e) => {
 
 });
 
-  // ================= TOOLTIP END =================
 
-  pin.addEventListener("mouseleave", () => {
+// ================= HOVER END =================
 
-    pin.style.transform = "scale(1)";
-      pin.style.boxShadow = "";
+pin.addEventListener("mouseleave", () => {
 
-    if (hoverTooltip) {
-      hoverTooltip.remove();
-      hoverTooltip = null;
-    }
+  pin.style.transform = "scale(1)";
+  pin.style.boxShadow = "";
 
+  // restore other pins
+  markerCache.forEach((m) => {
+    m.content.style.opacity = "1";
   });
+
+  if (hoverTooltip) {
+    hoverTooltip.remove();
+    hoverTooltip = null;
+  }
+
+});
 
   // ================= CLICK =================
 
