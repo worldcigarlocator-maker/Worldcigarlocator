@@ -26,6 +26,9 @@ let lastZoom = null;
 
 let idleTimer = null;
 
+// modal prefetch cache
+const modalPrefetch = new Map();
+
 // ============================================================
 // SCRIPT LOADER
 // ============================================================
@@ -231,15 +234,23 @@ function createMarker(store) {
       "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
     pin.style.zIndex = "5";
 
-    openModal(store.id);
+ const cached = modalPrefetch.get(store.id);
+
+if (cached) {
+  openModal(cached);
+} else {
+  openModal(store.id);
+}
 
   });
 
   // ---------------- HOVER ----------------
 
-  pin.addEventListener("mouseenter", () => {
+pin.addEventListener("mouseenter", () => {
 
-    pin.style.transform = "scale(1.25)";
+  prefetchModal(store.id);
+
+  pin.style.transform = "scale(1.25)";
 
 markers.forEach((m) => {
 
@@ -317,6 +328,30 @@ function showTooltip(pin, store) {
 
 }
 
+// ============================================================
+// MODAL PREFETCH
+// ============================================================
+
+async function prefetchModal(storeId) {
+
+  if (modalPrefetch.has(storeId)) return;
+
+  try {
+
+    const { data } = await supabase.rpc(
+      "modal_store_card_v1",
+      { p_store_id: storeId }
+    );
+
+    if (data && data.length) {
+      modalPrefetch.set(storeId, data[0]);
+    }
+
+  } catch (err) {
+    console.warn("prefetch failed", err);
+  }
+
+}
 // ============================================================
 // USER LOCATION PIN
 // ============================================================
