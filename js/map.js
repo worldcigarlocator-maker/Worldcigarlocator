@@ -234,12 +234,13 @@ function createMarker(store) {
       "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
     pin.style.zIndex = "5";
 
- const cached = modalPrefetch.get(store.id);
+const id = Number(store.id);
+const cached = modalPrefetch.get(id);
 
 if (cached) {
   openModal(cached);
 } else {
-  openModal(store.id);
+  openModal(id);
 }
 
   });
@@ -248,7 +249,7 @@ if (cached) {
 
 pin.addEventListener("mouseenter", () => {
 
-  prefetchModal(store.id);
+  prefetchModal(Number(store.id));
 
   pin.style.transform = "scale(1.25)";
 
