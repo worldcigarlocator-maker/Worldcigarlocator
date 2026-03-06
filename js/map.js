@@ -81,17 +81,18 @@ export async function initMap() {
   const container = document.getElementById("mapView");
   if (!container) return;
 
-  map = new google.maps.Map(container, {
-    center: { lat: 20, lng: 0 },
-    zoom: 2,
-    minZoom: 2,
-    mapTypeControl: false,
-    streetViewControl: false,
-    fullscreenControl: false,
-    styles: [
-      { featureType: "poi", stylers: [{ visibility: "off" }] }
-    ]
-  });
+map = new google.maps.Map(container, {
+  center: { lat: 20, lng: 0 },
+  zoom: 2,
+  minZoom: 2,
+
+  mapId: "50c83dc7ca62c31181c32eb1",
+
+  mapTypeControl: false,
+  streetViewControl: false,
+  fullscreenControl: false,
+  styles: [{ featureType: "poi", stylers: [{ visibility: "off" }] }]
+});
 
   map.addListener("idle", () => {
 
