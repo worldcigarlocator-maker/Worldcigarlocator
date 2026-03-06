@@ -52,7 +52,6 @@ async function loadGoogleMaps() {
     googleLoaded = true;
   }
 
-  // MarkerClusterer (v2 package on unpkg)
   if (!clustererLoaded) {
     await loadScript(
       "https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"
@@ -81,9 +80,7 @@ export async function initMap() {
     streetViewControl: false,
     fullscreenControl: false,
     mapId: "DEMO_MAP_ID",
-    styles: [
-      { featureType: "poi", stylers: [{ visibility: "off" }] }
-    ]
+    styles: [{ featureType: "poi", stylers: [{ visibility: "off" }] }]
   });
 
   mapInstance.addListener("idle", () => {
@@ -106,7 +103,6 @@ async function loadStoresFromBounds() {
 
   const zoom = mapInstance.getZoom();
 
-  // --- Skip tiny pans, but NEVER skip zoom changes ---
   if (lastBounds && lastZoom === zoom) {
     const ne = bounds.getNorthEast();
     const lastNE = lastBounds.getNorthEast();
@@ -136,66 +132,6 @@ async function loadStoresFromBounds() {
   }
 
   renderMarkers(data || []);
-}
-
-// ============================================================
-// PIN BUILDER
-// ============================================================
-
-function buildPin(types) {
-  const hasStore  = types?.includes("store");
-  const hasLounge = types?.includes("lounge");
-
-  let color = "#3b82f6";
-  if (hasLounge && !hasStore) color = "#8b5cf6";
-  if (hasStore && hasLounge) {
-    color = "linear-gradient(90deg,#3b82f6 50%,#8b5cf6 50%)";
-  }
-
-  const pin = document.createElement("div");
-  pin.style.cursor = "pointer";
-  
-  pin.style.width = "24px";
-  pin.style.height = "34px";
-  pin.style.position = "relative";
-  pin.style.display = "flex";
-  pin.style.justifyContent = "center";
-
-  const head = document.createElement("div");
-  head.style.width = "16px";
-  head.style.height = "16px";
-  head.style.borderRadius = "50%";
-  head.style.background = color;
-  head.style.border = "2px solid white";
-  head.style.boxShadow = "0 4px 10px rgba(0,0,0,0.35)";
-  head.style.position = "relative";
-  head.style.zIndex = "2";
-
-  const gloss = document.createElement("div");
-  gloss.style.position = "absolute";
-  gloss.style.top = "2px";
-  gloss.style.left = "3px";
-  gloss.style.width = "8px";
-  gloss.style.height = "5px";
-  gloss.style.borderRadius = "50%";
-  gloss.style.background = "rgba(255,255,255,0.6)";
-  gloss.style.filter = "blur(1px)";
-  head.appendChild(gloss);
-
-  const needle = document.createElement("div");
-  needle.style.position = "absolute";
-  needle.style.top = "18px";
-  needle.style.left = "50%";
-  needle.style.transform = "translateX(-50%)";
-  needle.style.width = "2px";
-  needle.style.height = "14px";
-  needle.style.background = "#6b7280";
-  needle.style.borderRadius = "2px";
-
-  pin.appendChild(head);
-  pin.appendChild(needle);
-
-  return pin;
 }
 
 // ============================================================
@@ -245,173 +181,58 @@ function renderMarkers(stores) {
 
   const incoming = new Set();
 
-  // --- create markers (cached) ---
   stores.forEach(store => {
+
     const id = Number(store.id);
 
     if (!bounds?.contains({ lat: store.lat, lng: store.lng })) return;
 
     incoming.add(id);
     if (markerCache.has(id)) return;
-const pin = buildPin(store.types);
 
-const marker = new google.maps.marker.AdvancedMarkerElement({
-  map: mapInstance,
-  position: {
-    lat: store.lat,
-    lng: store.lng
-  },
-  content: pin,
-  gmpClickable: true
-});
+    const pin = buildPin(store.types);
 
-marker.addListener("gmp-click", () => {
+    const marker = new google.maps.marker.AdvancedMarkerElement({
+      map: mapInstance,
+      position: {
+        lat: store.lat,
+        lng: store.lng
+      },
+      content: pin,
+      gmpClickable: true
+    });
 
-  if (hoverTooltip) {
-    hoverTooltip.remove();
-    hoverTooltip = null;
-  }
+    marker.addListener("gmp-click", () => {
 
-  openModal(store);
+      if (hoverTooltip) {
+        hoverTooltip.remove();
+        hoverTooltip = null;
+      }
 
-});
-   
+      openModal(store);
 
-// ================= HOVER START =================
+    });
 
-pin.addEventListener("mouseenter", () => {
+    markerCache.set(id, marker);
+  });
 
-  pin.style.transform = "scale(1.25)";
-  pin.style.boxShadow =
-    "0 0 0 2px rgba(115,98,75,0.35), 0 6px 16px rgba(0,0,0,0.55)";
-  pin.style.transition =
-    "transform 0.12s ease-out, box-shadow 0.12s ease-out";
+  markerCache.forEach((marker, id) => {
 
-  // dim other pins
-markerCache.forEach((m) => {
-  if (m !== marker && m.map === mapInstance) {
-    m.content.style.opacity = "0.35";
-  }
-});
+    if (!incoming.has(id)) {
 
-  if (!hoverTooltip) {
-    hoverTooltip = document.createElement("div");
-    hoverTooltip.style.position = "fixed";
-    hoverTooltip.style.pointerEvents = "none";
-    hoverTooltip.style.zIndex = "9999";
-    document.body.appendChild(hoverTooltip);
-  }
+      marker.map = null;
 
-  const ratingHTML = store.rating_avg
-    ? `<div style="
-         color:rgb(115,98,75);
-         font-size:11px;
-         margin-top:2px;
-       ">
-         ★ ${Number(store.rating_avg).toFixed(1)}
-         ${store.rating_count ? `• ${store.rating_count}` : ""}
-       </div>`
-    : "";
+      if (marker.content) {
+        marker.content.replaceChildren();
+      }
 
-hoverTooltip.innerHTML = `
-  <div style="
-    background:#0a0a0a;
-    color:rgb(115,98,75);
-    padding:6px 10px;
-    border-radius:8px;
-    font-size:12px;
-    white-space:nowrap;
-    border:1px solid rgba(115,98,75,0.35);
-    font-family:DM Sans, sans-serif;
-    box-shadow:0 6px 16px rgba(0,0,0,0.55);
-  ">
-    <div style="font-weight:600">
-      ${store.name}
-    </div>
-    ${ratingHTML}
-  </div>
-`;
-
-const rect = pin.getBoundingClientRect();
-
-hoverTooltip.style.left = rect.left + rect.width / 2 + "px";
-hoverTooltip.style.top = rect.top - 10 + "px";
-hoverTooltip.style.transform = "translate(-50%, -100%)";
-
-hoverTooltip.style.opacity = "1";
-
-});
-
-
-// ================= HOVER END =================
-
-pin.addEventListener("mouseleave", () => {
-
-  pin.style.transform = "scale(1)";
-  pin.style.boxShadow = "";
-
-  // restore other pins
-markerCache.forEach((m) => {
-  if (m.map === mapInstance) {
-    m.content.style.opacity = "1";
-  }
-});
-
-  if (hoverTooltip) {
-    hoverTooltip.remove();
-    hoverTooltip = null;
-  }
-
-});
-
-// ================= CLICK =================
-
-pin.addEventListener("click", (e) => {
-
-  e.stopPropagation();   // 🔧 stop map click bubbling
-
-  console.log("PIN CLICK", id);
-
-  if (hoverTooltip) {
-    hoverTooltip.remove();
-    hoverTooltip = null;
-  }
-
-  openModal(id);
-
-});
-
-markerCache.set(id, marker);
-
-});
-
-  // ============================================================
-  // REMOVE MARKERS OUTSIDE VIEW
-  // ============================================================
-
-markerCache.forEach((marker, id) => {
-
-  if (!incoming.has(id)) {
-
-    marker.map = null;
-
-    // 🔧 cleanup DOM
-    if (marker.content) {
-      marker.content.replaceChildren();
+      markerCache.delete(id);
     }
 
-    markerCache.delete(id);
-  }
-
-});
-
-  // ============================================================
-  // CLUSTER ENGINE
-  // ============================================================
+  });
 
   const shouldCluster = zoom <= 5;
 
-  // clear cluster before rebuild
   if (markerCluster) {
     markerCluster.clearMarkers();
     markerCluster = null;
@@ -419,7 +240,6 @@ markerCache.forEach((marker, id) => {
 
   if (shouldCluster) {
 
-    // hide pins while clustering
     markerCache.forEach(marker => {
       marker.map = null;
     });
@@ -432,7 +252,6 @@ markerCache.forEach((marker, id) => {
 
   } else {
 
-    // show pins when zoomed in
     markerCache.forEach(marker => {
       marker.map = mapInstance;
     });
