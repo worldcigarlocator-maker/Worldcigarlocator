@@ -199,14 +199,16 @@ function renderMarkers(stores) {
     const pin = buildPin(store.types);
 
     const marker = new google.maps.marker.AdvancedMarkerElement({
-      map: mapInstance,
-      position: {
-        lat: store.lat,
-        lng: store.lng
-      },
-      content: pin,
-      gmpClickable: true
-    });
+  map: mapInstance,
+  position: {
+    lat: store.lat,
+    lng: store.lng
+  },
+  content: pin,
+  gmpClickable: true
+});
+
+pin.style.pointerEvents = "auto";
 
     // ================= HOVER START =================
 
