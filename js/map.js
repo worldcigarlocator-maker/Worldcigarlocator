@@ -357,6 +357,7 @@ markerCache.forEach((m) => {
 pin.addEventListener("click", (e) => {
 
   console.log("PIN CLICK", id);
+   console.log("OPEN MODAL CALL", id);
 
   if (hoverTooltip) {
     hoverTooltip.remove();
