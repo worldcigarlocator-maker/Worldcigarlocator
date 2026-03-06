@@ -153,7 +153,6 @@ function buildPin(types) {
 
   const pin = document.createElement("div");
   pin.style.cursor = "pointer";
-pin.style.pointerEvents = "auto";
   
   pin.style.width = "24px";
   pin.style.height = "34px";
@@ -277,11 +276,11 @@ pin.addEventListener("mouseenter", () => {
     "transform 0.12s ease-out, box-shadow 0.12s ease-out";
 
   // dim other pins
-  markerCache.forEach((m) => {
-    if (m !== marker) {
-      m.content.style.opacity = "0.35";
-    }
-  });
+markerCache.forEach((m) => {
+  if (m !== marker && m.map === mapInstance) {
+    m.content.style.opacity = "0.35";
+  }
+});
 
   if (!hoverTooltip) {
     hoverTooltip = document.createElement("div");
@@ -340,9 +339,11 @@ pin.addEventListener("mouseleave", () => {
   pin.style.boxShadow = "";
 
   // restore other pins
-  markerCache.forEach((m) => {
+markerCache.forEach((m) => {
+  if (m.map === mapInstance) {
     m.content.style.opacity = "1";
-  });
+  }
+});
 
   if (hoverTooltip) {
     hoverTooltip.remove();
@@ -353,8 +354,15 @@ pin.addEventListener("mouseleave", () => {
 
  // ================= CLICK =================
 
-pin.addEventListener("click", () => {
+marker.addListener("click", () => {
+
+  if (hoverTooltip) {
+    hoverTooltip.remove();
+    hoverTooltip = null;
+  }
+
   openModal(id);
+
 });
 
 markerCache.set(id, marker);
