@@ -318,6 +318,25 @@ function showTooltip(pin, store) {
 }
 
 // ============================================================
+// USER LOCATION PIN
+// ============================================================
+
+function buildUserPin() {
+
+  const el = document.createElement("div");
+
+  el.style.width = "16px";
+  el.style.height = "16px";
+  el.style.borderRadius = "50%";
+  el.style.background = "#3b82f6";
+  el.style.border = "3px solid white";
+  el.style.boxShadow = "0 0 0 6px rgba(59,130,246,0.25)";
+
+  return el;
+
+}
+
+// ============================================================
 // RENDER MARKERS
 // ============================================================
 
@@ -388,6 +407,10 @@ function updateClusters() {
 // EVENTS
 // ============================================================
 
-document.addEventListener("wcl:map-open", () => {
-  initMap();
+document.addEventListener("wcl:map-open", async () => {
+
+  await initMap();
+
+  useMyLocation();
+
 });
