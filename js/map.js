@@ -5,6 +5,7 @@
 
 import { supabase } from "./globals.js";
 import { openModal } from "./modal.js";
+import { buildPin } from "./map-pins.js";
 
 // ============================================================
 // STATE
@@ -252,10 +253,9 @@ function renderMarkers(stores) {
 
     incoming.add(id);
     if (markerCache.has(id)) return;
+const pin = buildPin(store.types);
 
-    const pin = buildPin(store.types);
-
-    const marker = new google.maps.marker.AdvancedMarkerElement({
+const marker = new google.maps.marker.AdvancedMarkerElement({
   map: mapInstance,
   position: {
     lat: store.lat,
@@ -264,6 +264,18 @@ function renderMarkers(stores) {
   content: pin,
   gmpClickable: true
 });
+
+marker.addListener("gmp-click", () => {
+
+  if (hoverTooltip) {
+    hoverTooltip.remove();
+    hoverTooltip = null;
+  }
+
+  openModal(store);
+
+});
+   
 
 // ================= HOVER START =================
 
