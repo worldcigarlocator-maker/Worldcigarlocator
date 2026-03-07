@@ -129,8 +129,17 @@ export async function initMap() {
     syncLockedMarkerVisuals();
     scheduleTooltipRefresh();
   });
-}
 
+  // ============================================
+  // PROJECTION SYNC (minskar floating pins)
+  // ============================================
+
+  map.addListener("projection_changed", () => {
+    syncLockedMarkerVisuals();
+    scheduleTooltipRefresh();
+  });
+
+}
 // ============================================================
 // USE MY LOCATION
 // ============================================================
