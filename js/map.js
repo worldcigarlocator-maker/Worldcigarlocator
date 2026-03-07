@@ -1,6 +1,6 @@
 // ============================================================
-// MAP.JS — WCL MAP ENGINE V5
-// Enterprise · Stable · Fast · Anchor Lock
+// MAP.JS — WCL MAP ENGINE V6
+// Canonical · Load-All-Once · Cluster-Driven · Stable
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -15,8 +15,6 @@ let map = null;
 let markers = new Map();
 let clusterer = null;
 
-const markerPool = [];
-
 let hoverTooltip = null;
 
 let hoveredMarkerId = null;
@@ -26,15 +24,12 @@ let activeMarkerId = null;
 let googleLoaded = false;
 let clusterLoaded = false;
 
-let lastBounds = null;
-let lastZoom = null;
+let storesLoaded = false;
+let storesLoading = false;
 
 let idleTimer = null;
-let tooltipRaf = null;
 
 const modalPrefetch = new Map();
-
-const BOUNDS_BUFFER_RATIO = 0.12;
 
 // ============================================================
 // SCRIPT LOADER
@@ -73,6 +68,14 @@ async function loadGoogle() {
 }
 
 // ============================================================
+// MAP PRELOAD
+// ============================================================
+
+export function preloadMap() {
+  loadGoogle().catch(() => {});
+}
+
+// ============================================================
 // INIT MAP
 // ============================================================
 
@@ -105,8 +108,10 @@ export async function initMap() {
     clearTimeout(idleTimer);
 
     idleTimer = setTimeout(() => {
-      loadStores();
-    }, 350);
+      if (!storesLoaded && !storesLoading) {
+        loadAllStoresOnce();
+      }
+    }, 100);
   });
 
   // ============================================
@@ -122,22 +127,10 @@ export async function initMap() {
       map.setTilt(0);
     }
 
-    syncLockedMarkerVisuals();
+    updateClusters();
   });
-
-map.addListener("center_changed", () => {
-  scheduleTooltipRefresh();
-});
-
-  // ============================================
-  // PROJECTION SYNC (minskar floating pins)
-  // ============================================
-
-map.addListener("projection_changed", () => {
-  scheduleTooltipRefresh();
-});
-
 }
+
 // ============================================================
 // USE MY LOCATION
 // ============================================================
@@ -173,118 +166,57 @@ export function useMyLocation() {
 }
 
 // ============================================================
-// LOAD STORES
+// LOAD ALL STORES ONCE
 // ============================================================
 
-async function loadStores() {
-  if (!map) return;
+async function loadAllStoresOnce() {
+  if (!map || storesLoaded || storesLoading) return;
 
-  const rawBounds = map.getBounds();
-  if (!rawBounds) return;
+  storesLoading = true;
 
-  const zoom = map.getZoom();
-  const bounds = expandBounds(rawBounds, BOUNDS_BUFFER_RATIO);
+  try {
+    const { data, error } = await supabase
+      .from("stores_frontend_public_v5")
+      .select("id, name, lat, lng, types")
+      .not("lat", "is", null)
+      .not("lng", "is", null);
 
-  if (lastBounds && lastZoom === zoom) {
-    if (!boundsChangedEnough(lastBounds, bounds)) {
+    if (error) {
+      console.error(error);
       return;
     }
+
+    renderAllMarkers(data || []);
+    storesLoaded = true;
+  } finally {
+    storesLoading = false;
   }
-
-  lastBounds = bounds;
-  lastZoom = zoom;
-
-  const { data, error } = await supabase.rpc("stores_within_bounds", {
-    p_north: bounds.north,
-    p_south: bounds.south,
-    p_east: bounds.east,
-    p_west: bounds.west
-  });
-
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  renderMarkers(data || []);
 }
 
 // ============================================================
-// BOUNDS HELPERS
-// ============================================================
-
-function expandBounds(bounds, ratio = 0.20) {
-  const ne = bounds.getNorthEast();
-  const sw = bounds.getSouthWest();
-
-  const north = ne.lat();
-  const south = sw.lat();
-  const east = ne.lng();
-  const west = sw.lng();
-
-  const latSpan = north - south;
-  const lngSpan = east - west;
-
-  const latPadding = latSpan * ratio;
-  const lngPadding = lngSpan * ratio;
-
-  return {
-    north: clampLat(north + latPadding),
-    south: clampLat(south - latPadding),
-    east: east + lngPadding,
-    west: west - lngPadding
-  };
-}
-
-function boundsChangedEnough(prev, next) {
-  return (
-    Math.abs(next.north - prev.north) >= 0.02 ||
-    Math.abs(next.south - prev.south) >= 0.02 ||
-    Math.abs(next.east - prev.east) >= 0.02 ||
-    Math.abs(next.west - prev.west) >= 0.02
-  );
-}
-
-function clampLat(value) {
-  return Math.max(-85, Math.min(85, value));
-}
-
-// ============================================================
-// CREATE / REUSE MARKER
+// CREATE MARKER
 // ============================================================
 
 function createMarker(store) {
-  let marker;
+  const pin = buildPin(store.types || []);
 
-  if (markerPool.length) {
-    marker = markerPool.pop();
-    marker.position = { lat: store.lat, lng: store.lng };
-    marker.map = map;
-  } else {
-    const pin = buildPin(store.types);
-
-marker = new google.maps.marker.AdvancedMarkerElement({
-  map,
-  position: { lat: store.lat, lng: store.lng },
-  content: pin,
-  gmpClickable: true
-});
-
-    bindMarkerInteractions(marker);
-  }
+  const marker = new google.maps.marker.AdvancedMarkerElement({
+    map,
+    position: { lat: Number(store.lat), lng: Number(store.lng) },
+    content: pin,
+    gmpClickable: true
+  });
 
   marker.__store = store;
   marker.__id = Number(store.id);
 
-  syncMarkerPinType(marker, store.types);
-  resetMarkerTransientState(marker);
-  applyMarkerStates();
+  bindMarkerInteractions(marker);
 
   return marker;
 }
 
 // ============================================================
-// BIND INTERACTIONS (ONCE PER MARKER)
+// BIND INTERACTIONS
 // ============================================================
 
 function bindMarkerInteractions(marker) {
@@ -346,43 +278,8 @@ function bindMarkerInteractions(marker) {
 }
 
 // ============================================================
-// MARKER PIN TYPE SYNC
-// ============================================================
-
-function syncMarkerPinType(marker, types = []) {
-  const pin = marker.content;
-  if (!pin) return;
-
-  pin.classList.remove("pin-store", "pin-lounge", "pin-split");
-
-  const hasStore = types.includes("store");
-  const hasLounge = types.includes("lounge");
-
-  if (hasStore && hasLounge) {
-    pin.classList.add("pin-split");
-  } else if (hasStore) {
-    pin.classList.add("pin-store");
-  } else if (hasLounge) {
-    pin.classList.add("pin-lounge");
-  }
-}
-
-// ============================================================
 // MARKER STATE
 // ============================================================
-
-function resetMarkerTransientState(marker) {
-  const pin = marker.content;
-  if (!pin) return;
-
-  pin.classList.remove(
-    "is-hovered",
-    "is-locked",
-    "is-active",
-    "active",
-    "is-dimmed"
-  );
-}
 
 function applyMarkerStates() {
   markers.forEach((marker) => {
@@ -436,18 +333,6 @@ function applyMarkerStates() {
   });
 }
 
-function syncLockedMarkerVisuals() {
-  if (
-    hoveredMarkerId === null &&
-    lockedMarkerId === null &&
-    activeMarkerId === null
-  ) {
-    return;
-  }
-
-  applyMarkerStates();
-}
-
 // ============================================================
 // TOOLTIP LABEL
 // ============================================================
@@ -478,37 +363,13 @@ function showTooltip(marker, store) {
     </div>
   `;
 
-  hoverTooltip.__markerId = Number(store.id);
-
   document.body.appendChild(hoverTooltip);
-  refreshTooltipPosition();
-}
-
-function refreshTooltipPosition() {
-  if (!hoverTooltip) return;
-
-  const markerId = hoverTooltip.__markerId;
-  if (!markerId) return;
-
-  const marker = markers.get(markerId);
-  if (!marker?.content) return;
 
   const rect = marker.content.getBoundingClientRect();
 
   hoverTooltip.style.left = rect.left + rect.width / 2 + "px";
   hoverTooltip.style.top = rect.top - 10 + "px";
   hoverTooltip.style.transform = "translate(-50%,-100%)";
-}
-
-function scheduleTooltipRefresh() {
-  if (tooltipRaf) {
-    cancelAnimationFrame(tooltipRaf);
-  }
-
-  tooltipRaf = requestAnimationFrame(() => {
-    refreshTooltipPosition();
-    tooltipRaf = null;
-  });
 }
 
 function hideTooltip() {
@@ -556,57 +417,22 @@ function buildUserPin() {
 }
 
 // ============================================================
-// RENDER MARKERS
+// RENDER ALL MARKERS
 // ============================================================
 
-function renderMarkers(stores) {
-  const incoming = new Set();
+function renderAllMarkers(stores) {
+  markers.forEach((marker) => {
+    marker.map = null;
+  });
+  markers.clear();
 
   stores.forEach((store) => {
-    const id = Number(store.id);
-    incoming.add(id);
-    
-if (markers.has(id)) {
-  const existing = markers.get(id);
-
-  existing.__store = store;
-  existing.__id = id;
-
-  // position ändras aldrig för stores
-  // så vi skippar position update
-
-  syncMarkerPinType(existing, store.types);
-  return;
-}
-
     const marker = createMarker(store);
-    markers.set(id, marker);
-  });
-
-  markers.forEach((marker, id) => {
-    if (incoming.has(id)) return;
-
-    if (hoveredMarkerId === id) hoveredMarkerId = null;
-    if (lockedMarkerId === id) lockedMarkerId = null;
-    if (activeMarkerId === id) activeMarkerId = null;
-
-    if (hoverTooltip?.__markerId === id) {
-      hideTooltip();
-    }
-
-    resetMarkerTransientState(marker);
-
-    marker.map = null;
-    marker.__store = null;
-    marker.__id = null;
-
-    markerPool.push(marker);
-    markers.delete(id);
+    markers.set(Number(store.id), marker);
   });
 
   applyMarkerStates();
   updateClusters();
-  scheduleTooltipRefresh();
 }
 
 // ============================================================
@@ -614,6 +440,8 @@ if (markers.has(id)) {
 // ============================================================
 
 function updateClusters() {
+  if (!map) return;
+
   const zoom = map.getZoom();
 
   if (clusterer) {
@@ -637,8 +465,6 @@ function updateClusters() {
       m.map = map;
     });
   }
-
-  applyMarkerStates();
 }
 
 // ============================================================
@@ -655,23 +481,13 @@ function escapeHtml(value = "") {
 }
 
 // ============================================================
-// MAP PRELOAD
-// ============================================================
-
-export function preloadMap() {
-  loadGoogle().catch(() => {});
-}
-// ============================================================
 // EVENTS
 // ============================================================
 
 document.addEventListener("wcl:map-open", async () => {
-
   await initMap();
 
-  // starta location i bakgrunden
   setTimeout(() => {
     useMyLocation();
   }, 100);
-
 });
