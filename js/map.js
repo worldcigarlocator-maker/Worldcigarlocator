@@ -91,20 +91,38 @@ map = new google.maps.Map(container, {
   mapTypeControl: false,
   streetViewControl: false,
   fullscreenControl: false,
+
+  tilt: 0,
+  heading: 0,
+
+  gestureHandling: "greedy"
 });
 
-  map.addListener("idle", () => {
+ map.addListener("idle", () => {
 
-    clearTimeout(idleTimer);
+  clearTimeout(idleTimer);
 
-    idleTimer = setTimeout(() => {
-      loadStores();
-    }, 200);
+  idleTimer = setTimeout(() => {
+    loadStores();
+  }, 200);
 
-  });
+});
 
-}
+// ============================================
+// SMOOTH 3D TILT ON ZOOM
+// ============================================
 
+map.addListener("zoom_changed", () => {
+
+  const z = map.getZoom();
+
+  if (z >= 15) {
+    map.setTilt(45);
+  } else {
+    map.setTilt(0);
+  }
+
+});
 // ============================================================
 // USE MY LOCATION
 // ============================================================
