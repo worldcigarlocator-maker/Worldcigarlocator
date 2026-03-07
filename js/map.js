@@ -242,12 +242,12 @@ function createMarker(store) {
 
     const pin = buildPin(store.types);
 
-    marker = new google.maps.marker.AdvancedMarkerElement({
-      map,
-      position: { lat: store.lat, lng: store.lng },
-      content: pin,
-      gmpClickable: true
-    });
+marker = new google.maps.marker.AdvancedMarkerElement({
+  map,
+  position: new google.maps.LatLng(store.lat, store.lng),
+  content: pin,
+  gmpClickable: true
+});
 
   }
 
