@@ -474,7 +474,36 @@ function updateClusters() {
 
     clusterer = new markerClusterer.MarkerClusterer({
       map,
-      markers: Array.from(markers.values())
+      markers: Array.from(markers.values()),
+
+      renderer: {
+        render({ count, position }) {
+
+          return new google.maps.Marker({
+            position,
+
+            label: {
+              text: String(count),
+              color: "rgb(115,98,75)", // WCL bronze
+              fontSize: "14px",
+              fontWeight: "700"
+            },
+
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 22,
+
+              fillColor: "#000000",
+              fillOpacity: 0.95,
+
+              strokeColor: "rgb(115,98,75)",
+              strokeWeight: 2
+            }
+          });
+
+        }
+      }
+
     });
 
   } else {
