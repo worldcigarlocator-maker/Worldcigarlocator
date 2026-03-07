@@ -234,10 +234,10 @@ function expandBounds(bounds, ratio = 0.20) {
 
 function boundsChangedEnough(prev, next) {
   return (
-    Math.abs(next.north - prev.north) >= 0.2 ||
-    Math.abs(next.south - prev.south) >= 0.2 ||
-    Math.abs(next.east - prev.east) >= 0.2 ||
-    Math.abs(next.west - prev.west) >= 0.2
+    Math.abs(next.north - prev.north) >= 0.02 ||
+    Math.abs(next.south - prev.south) >= 0.02 ||
+    Math.abs(next.east - prev.east) >= 0.02 ||
+    Math.abs(next.west - prev.west) >= 0.02
   );
 }
 
