@@ -113,9 +113,24 @@ export async function initMap() {
 
   });
 
-  
   // ============================================================
-  // ZOOM TOWARD CURSOR (BETTER MAP UX)
+  // SMOOTH 3D TILT ON ZOOM
+  // ============================================================
+
+  map.addListener("zoom_changed", () => {
+
+    const z = map.getZoom();
+
+    if (z >= 15) {
+      map.setTilt(45);
+    } else {
+      map.setTilt(0);
+    }
+
+  });
+
+  // ============================================================
+  // ZOOM TOWARD CURSOR (SMOOTH + NO DOUBLE ZOOM)
   // ============================================================
 
   let mouseLatLng = null;
@@ -129,8 +144,12 @@ export async function initMap() {
     if (!mouseLatLng) return;
 
     const zoom = map.getZoom();
+    const delta = e.domEvent.deltaY;
 
-    if (e.domEvent.deltaY < 0) {
+    // block Google's native zoom
+    e.domEvent.preventDefault();
+
+    if (delta < 0) {
 
       map.moveCamera({
         center: mouseLatLng,
@@ -146,29 +165,9 @@ export async function initMap() {
 
     }
 
-    e.domEvent.preventDefault();
-
   });
 
 }
-
-// ============================================
-// SMOOTH 3D TILT ON ZOOM
-// ============================================
-
-map.addListener("zoom_changed", () => {
-
-  const z = map.getZoom();
-
-  if (z >= 15) {
-    map.setTilt(45);
-  } else {
-    map.setTilt(0);
-  }
-
-});
-  
-  }
 
 // ============================================================
 // USE MY LOCATION
