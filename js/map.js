@@ -650,6 +650,12 @@ function escapeHtml(value = "") {
 // ============================================================
 
 document.addEventListener("wcl:map-open", async () => {
+
   await initMap();
-  useMyLocation();
+
+  // starta location i bakgrunden
+  setTimeout(() => {
+    useMyLocation();
+  }, 100);
+
 });
