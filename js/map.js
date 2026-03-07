@@ -479,6 +479,14 @@ function updateClusters() {
       renderer: {
         render({ count, position }) {
 
+          // cluster size tiers
+          let scale = 20;
+
+          if (count >= 100) scale = 34;
+          else if (count >= 50) scale = 30;
+          else if (count >= 20) scale = 26;
+          else if (count >= 10) scale = 24;
+
           return new google.maps.Marker({
             position,
 
@@ -491,7 +499,7 @@ function updateClusters() {
 
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
-              scale: 22,
+              scale: scale,
 
               fillColor: "#000000",
               fillOpacity: 0.95,
