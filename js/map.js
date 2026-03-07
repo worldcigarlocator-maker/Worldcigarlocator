@@ -82,32 +82,90 @@ export async function initMap() {
   const container = document.getElementById("mapView");
   if (!container) return;
 
-map = new google.maps.Map(container, {
-  center: { lat: 20, lng: 0 },
-  zoom: 2,
-  minZoom: 2,
+  map = new google.maps.Map(container, {
+    center: { lat: 20, lng: 0 },
+    zoom: 2,
+    minZoom: 2,
 
-  mapId: "50c83dc7ca62c31181c32eb1",
+    mapId: "50c83dc7ca62c31181c32eb1",
 
-  mapTypeControl: false,
-  streetViewControl: false,
-  fullscreenControl: false,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
 
-  tilt: 0,
-  heading: 0,
+    tilt: 0,
+    heading: 0,
 
-  gestureHandling: "greedy"
-});
+    gestureHandling: "greedy"
+  });
 
- map.addListener("idle", () => {
+  // ============================================================
+  // LOAD STORES (DEBOUNCED)
+  // ============================================================
 
-  clearTimeout(idleTimer);
+  map.addListener("idle", () => {
 
-  idleTimer = setTimeout(() => {
-    loadStores();
-  }, 350);
+    clearTimeout(idleTimer);
 
-});
+    idleTimer = setTimeout(() => {
+      loadStores();
+    }, 350);
+
+  });
+
+  // ============================================================
+  // SMOOTH 3D TILT ON ZOOM
+  // ============================================================
+
+  map.addListener("zoom_changed", () => {
+
+    const z = map.getZoom();
+
+    if (z >= 15) {
+      map.setTilt(45);
+    } else {
+      map.setTilt(0);
+    }
+
+  });
+
+  // ============================================================
+  // ZOOM TOWARD CURSOR (BETTER MAP UX)
+  // ============================================================
+
+  let mouseLatLng = null;
+
+  map.addListener("mousemove", (e) => {
+    mouseLatLng = e.latLng;
+  });
+
+  map.addListener("wheel", (e) => {
+
+    if (!mouseLatLng) return;
+
+    const zoom = map.getZoom();
+
+    if (e.domEvent.deltaY < 0) {
+
+      map.moveCamera({
+        center: mouseLatLng,
+        zoom: zoom + 1
+      });
+
+    } else {
+
+      map.moveCamera({
+        center: mouseLatLng,
+        zoom: zoom - 1
+      });
+
+    }
+
+    e.domEvent.preventDefault();
+
+  });
+
+}
 
 // ============================================
 // SMOOTH 3D TILT ON ZOOM
