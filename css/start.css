@@ -42,27 +42,34 @@ body {
   display:flex;
   justify-content:center;
   cursor:pointer;
+
   transform:translate(-50%,-100%);
-transition:
+
+  transition:
     transform 0.16s ease,
     filter 0.16s ease;
+
+  will-change: transform;
 }
 
-/* HEAD */
+/* ================= HEAD ================= */
 
 .pin-head{
   width:16px;
   height:16px;
   border-radius:50%;
- border:2px solid rgba(255,255,255,0.9);
-box-shadow:
-  0 4px 10px rgba(0,0,0,0.45),
-  0 0 2px rgba(255,255,255,0.6);
+
+  border:2px solid rgba(255,255,255,0.9);
+
+  box-shadow:
+    0 4px 10px rgba(0,0,0,0.45),
+    0 0 2px rgba(255,255,255,0.6);
+
   position:relative;
   z-index:2;
 }
 
-/* GLOSS */
+/* ================= GLOSS ================= */
 
 .pin-gloss{
   position:absolute;
@@ -75,7 +82,7 @@ box-shadow:
   filter:blur(1px);
 }
 
-/* NEEDLE */
+/* ================= NEEDLE ================= */
 
 .pin-needle{
   position:absolute;
@@ -99,7 +106,7 @@ box-shadow:
     0 0 2px rgba(255,255,255,0.6);
 }
 
-/* COLORS */
+/* ================= COLORS ================= */
 
 .pin-store .pin-head{
   background:#3b82f6;
@@ -113,7 +120,24 @@ box-shadow:
   background:linear-gradient(90deg,#3b82f6 50%,#8b5cf6 50%);
 }
 
-/* ACTIVE PIN */
+/* ================= HOVER ================= */
+
+.wcl-pin:hover{
+  transform:translate(-50%,-100%) scale(1.15);
+  z-index:5;
+}
+
+.wcl-pin:hover .pin-head{
+  box-shadow:
+    0 6px 14px rgba(0,0,0,0.45),
+    0 0 6px rgba(255,255,255,0.7);
+}
+
+.wcl-pin:hover .pin-needle{
+  filter:brightness(1.15);
+}
+
+/* ================= ACTIVE ================= */
 
 .wcl-pin.active{
   transform:translate(-50%,-100%) scale(1.25);
@@ -126,13 +150,16 @@ box-shadow:
     0 0 10px rgba(212,175,55,0.9);
 }
 
-body.static-page {
-  background: #f6f4f1;
-  color: #1a1a1a;
+/* ================= STATIC PAGE ================= */
+
+body.static-page{
+  background:#f6f4f1;
+  color:#1a1a1a;
 }
-.container {
-  display: flex;
-  min-height: 100vh;
+
+.container{
+  display:flex;
+  min-height:100vh;
 }
 
 /* ================= GLOBAL UTILITIES ================= */
