@@ -509,68 +509,72 @@ function updateClusters() {
 
   const zoom = map.getZoom();
 
-  if (clusterer) {
-    clusterer.clearMarkers();
-    clusterer = null;
-  }
-
   if (zoom <= 5) {
 
-    markers.forEach((m) => (m.map = null));
+    if (!clusterer) {
 
-    clusterer = new markerClusterer.MarkerClusterer({
-      map,
-      markers: Array.from(markers.values()),
+      markers.forEach((m) => (m.map = null));
 
-      renderer: {
-        render({ count, position }) {
+      clusterer = new markerClusterer.MarkerClusterer({
+        map,
+        markers: Array.from(markers.values()),
 
-          // cluster size tiers
-          let size = 40;
+        renderer: {
+          render({ count, position }) {
 
-          if (count >= 200) size = 66;
-          else if (count >= 100) size = 60;
-          else if (count >= 50) size = 54;
-          else if (count >= 20) size = 48;
-          else if (count >= 10) size = 44;
+            // cluster size tiers
+            let size = 40;
 
-          const el = document.createElement("div");
+            if (count >= 200) size = 66;
+            else if (count >= 100) size = 60;
+            else if (count >= 50) size = 54;
+            else if (count >= 20) size = 48;
+            else if (count >= 10) size = 44;
 
-          el.style.width = size + "px";
-          el.style.height = size + "px";
-          el.style.borderRadius = "50%";
+            const el = document.createElement("div");
 
-          el.style.display = "flex";
-          el.style.alignItems = "center";
-          el.style.justifyContent = "center";
+            el.style.width = size + "px";
+            el.style.height = size + "px";
+            el.style.borderRadius = "50%";
 
-          el.style.background = "rgba(0,0,0,0.92)";
-          el.style.border = "2px solid rgb(115,98,75)";
-          el.style.color = "rgb(115,98,75)";
-          el.style.fontWeight = "700";
-          el.style.fontSize = "14px";
-          el.style.fontFamily = "DM Sans, sans-serif";
+            el.style.display = "flex";
+            el.style.alignItems = "center";
+            el.style.justifyContent = "center";
 
-          // fuzzy glow
-          el.style.boxShadow = `
-            0 0 0 6px rgba(115,98,75,0.12),
-            0 0 22px rgba(115,98,75,0.45),
-            inset 0 0 6px rgba(0,0,0,0.7)
-          `;
+            el.style.background = "rgba(0,0,0,0.92)";
+            el.style.border = "2px solid rgb(115,98,75)";
+            el.style.color = "rgb(115,98,75)";
+            el.style.fontWeight = "700";
+            el.style.fontSize = "14px";
+            el.style.fontFamily = "DM Sans, sans-serif";
 
-          el.innerText = count;
+            // fuzzy glow
+            el.style.boxShadow = `
+              0 0 0 6px rgba(115,98,75,0.12),
+              0 0 22px rgba(115,98,75,0.45),
+              inset 0 0 6px rgba(0,0,0,0.7)
+            `;
 
-          return new google.maps.marker.AdvancedMarkerElement({
-            position,
-            content: el
-          });
+            el.innerText = count;
 
+            return new google.maps.marker.AdvancedMarkerElement({
+              position,
+              content: el
+            });
+
+          }
         }
-      }
 
-    });
+      });
+
+    }
 
   } else {
+
+    if (clusterer) {
+      clusterer.clearMarkers();
+      clusterer = null;
+    }
 
     markers.forEach((m) => (m.map = map));
 
