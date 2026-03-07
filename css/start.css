@@ -34,16 +34,14 @@ body {
 /* ============================================================
    WCL MAP PINS (AdvancedMarkerElement)
    ============================================================ */
-
 .wcl-pin{
-  position:relative;
-  width:24px;
-  height:34px;
-  display:flex;
-  justify-content:center;
-  cursor:pointer;
+  position: relative;
+  width: 24px;
+  height: 34px;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
 
-.wcl-pin{
   transform: translate(-50%, -100%) translateZ(0);
   transform-origin: 50% 100%;
 
