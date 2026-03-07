@@ -263,8 +263,7 @@ marker = new google.maps.marker.AdvancedMarkerElement({
   map,
   position: { lat: store.lat, lng: store.lng },
   content: pin,
-  gmpClickable: true,
-  anchorPoint: new google.maps.Point(12, 34)
+  gmpClickable: true
 });
 
     bindMarkerInteractions(marker);
