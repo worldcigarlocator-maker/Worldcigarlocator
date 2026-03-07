@@ -146,8 +146,10 @@ export function useMyLocation() {
 
       const userPos = { lat, lng };
 
-      map.setCenter(userPos);
-      map.setZoom(12);
+     map.moveCamera({
+  center: userPos,
+  zoom: 12
+});
 
       new google.maps.marker.AdvancedMarkerElement({
         map,
