@@ -34,7 +34,7 @@ let tooltipRaf = null;
 
 const modalPrefetch = new Map();
 
-const BOUNDS_BUFFER_RATIO = 0.20;
+const BOUNDS_BUFFER_RATIO = 0.12;
 
 // ============================================================
 // SCRIPT LOADER
@@ -105,8 +105,6 @@ export async function initMap() {
     clearTimeout(idleTimer);
 
     idleTimer = setTimeout(() => {
-      syncLockedMarkerVisuals();
-      refreshTooltipPosition();
       loadStores();
     }, 350);
   });
@@ -125,7 +123,6 @@ export async function initMap() {
     }
 
     syncLockedMarkerVisuals();
-    scheduleTooltipRefresh();
   });
 
   map.addListener("center_changed", () => {
