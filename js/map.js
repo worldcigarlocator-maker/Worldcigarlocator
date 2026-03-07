@@ -1,3 +1,4 @@
+
 // ============================================================
 // MAP.JS — WCL MAP ENGINE V4
 // Enterprise · Stable · Fast
@@ -116,7 +117,7 @@ map.addListener("zoom_changed", () => {
 
   const z = map.getZoom();
 
-  if (z >= 16) {
+  if (z >= 15) {
     map.setTilt(45);
   } else {
     map.setTilt(0);
@@ -231,7 +232,10 @@ function createMarker(store) {
 
     marker = markerPool.pop();
 
-  position: new google.maps.LatLng(store.lat, store.lng)
+    marker.position = {
+      lat: store.lat,
+      lng: store.lng
+    };
 
     marker.map = map;
 
@@ -239,12 +243,12 @@ function createMarker(store) {
 
     const pin = buildPin(store.types);
 
-marker = new google.maps.marker.AdvancedMarkerElement({
-  map,
-  position: new google.maps.LatLng(store.lat, store.lng),
-  content: pin,
-  gmpClickable: true
-});
+    marker = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: store.lat, lng: store.lng },
+      content: pin,
+      gmpClickable: true
+    });
 
   }
 
