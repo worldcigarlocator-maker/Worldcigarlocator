@@ -176,7 +176,7 @@ async function loadAllStoresOnce() {
 
   try {
     const { data, error } = await supabase
-      .from("stores_frontend_public_v5")
+  .from("stores_map_minimal")
       .select("id, name, lat, lng, types")
       .not("lat", "is", null)
       .not("lng", "is", null);
