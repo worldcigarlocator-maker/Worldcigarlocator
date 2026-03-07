@@ -116,7 +116,7 @@ map.addListener("zoom_changed", () => {
 
   const z = map.getZoom();
 
-  if (z >= 15) {
+  if (z >= 16) {
     map.setTilt(45);
   } else {
     map.setTilt(0);
@@ -231,10 +231,7 @@ function createMarker(store) {
 
     marker = markerPool.pop();
 
-    marker.position = {
-      lat: store.lat,
-      lng: store.lng
-    };
+  position: new google.maps.LatLng(store.lat, store.lng)
 
     marker.map = map;
 
