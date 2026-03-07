@@ -5,7 +5,9 @@
 import { supabase } from "./globals.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import { resetToHero } from "./cards.js";
+import { preloadMap } from "./map.js";
 import "./start.js";
+
 
 const qs = (sel) => document.querySelector(sel);
 
@@ -127,18 +129,13 @@ async function initSidebarOnce() {
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("MAIN BOOT");
 
-  // Build sidebar
   await initSidebarOnce();
-
-  // Bind login UI
   bindLoginButtons();
-
-  // Always reset hero (safe)
   resetToHero();
-
-  // Sync gate with session (show if not logged in)
   await syncAuthGate();
 
+  preloadMap();
+  
   // ----------------------------------------------------------
   // ADD STORE BUTTON (auth guarded)
   // ----------------------------------------------------------
