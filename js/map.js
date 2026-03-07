@@ -1,6 +1,7 @@
+
 // ============================================================
-// MAP.JS — WCL MAP ENGINE V6
-// Canonical · Load-All-Once · Cluster-Driven · Stable
+// MAP.JS — WCL MAP ENGINE V4
+// Enterprise · Stable · Fast
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -15,17 +16,16 @@ let map = null;
 let markers = new Map();
 let clusterer = null;
 
-let hoverTooltip = null;
+const markerPool = [];
 
-let hoveredMarkerId = null;
-let lockedMarkerId = null;
-let activeMarkerId = null;
+let hoverTooltip = null;
+let activePin = null;
 
 let googleLoaded = false;
 let clusterLoaded = false;
 
-let storesLoaded = false;
-let storesLoading = false;
+let lastBounds = null;
+let lastZoom = null;
 
 let idleTimer = null;
 
@@ -52,6 +52,7 @@ function loadScript(src) {
 // ============================================================
 
 async function loadGoogle() {
+
   if (!googleLoaded) {
     await loadScript(
       "https://maps.googleapis.com/maps/api/js?key=AIzaSyBzHH9QNHPGWpQrczIGgWs1wnHGALiwNZw&v=weekly&libraries=marker"
@@ -65,14 +66,7 @@ async function loadGoogle() {
     );
     clusterLoaded = true;
   }
-}
 
-// ============================================================
-// MAP PRELOAD
-// ============================================================
-
-export function preloadMap() {
-  loadGoogle().catch(() => {});
 }
 
 // ============================================================
@@ -80,6 +74,7 @@ export function preloadMap() {
 // ============================================================
 
 export async function initMap() {
+
   if (map) return;
 
   await loadGoogle();
@@ -87,60 +82,65 @@ export async function initMap() {
   const container = document.getElementById("mapView");
   if (!container) return;
 
-  map = new google.maps.Map(container, {
-    center: { lat: 20, lng: 0 },
-    zoom: 2,
-    minZoom: 2,
+map = new google.maps.Map(container, {
+  center: { lat: 20, lng: 0 },
+  zoom: 2,
+  minZoom: 2,
 
-    mapId: "50c83dc7ca62c31181c32eb1",
+  mapId: "50c83dc7ca62c31181c32eb1",
 
-    mapTypeControl: false,
-    streetViewControl: false,
-    fullscreenControl: false,
+  mapTypeControl: false,
+  streetViewControl: false,
+  fullscreenControl: false,
 
-    tilt: 0,
-    heading: 0,
+  tilt: 0,
+  heading: 0,
 
-    gestureHandling: "greedy"
-  });
+  gestureHandling: "greedy"
+});
 
-  map.addListener("idle", () => {
-    clearTimeout(idleTimer);
+ map.addListener("idle", () => {
 
-    idleTimer = setTimeout(() => {
-      if (!storesLoaded && !storesLoading) {
-        loadAllStoresOnce();
-      }
-    }, 100);
-  });
+  clearTimeout(idleTimer);
 
-  // ============================================
-  // SMOOTH 3D TILT ON ZOOM
-  // ============================================
+  idleTimer = setTimeout(() => {
+    loadStores();
+  }, 350);
 
-  map.addListener("zoom_changed", () => {
-    const z = map.getZoom();
+});
 
-    if (z >= 15) {
-      map.setTilt(45);
-    } else {
-      map.setTilt(0);
-    }
+// ============================================
+// SMOOTH 3D TILT ON ZOOM
+// ============================================
 
-    updateClusters();
-  });
-}
+map.addListener("zoom_changed", () => {
+
+  const z = map.getZoom();
+
+  if (z >= 15) {
+    map.setTilt(45);
+  } else {
+    map.setTilt(0);
+  }
+
+});
+  
+  }
 
 // ============================================================
 // USE MY LOCATION
 // ============================================================
 
 export function useMyLocation() {
+
   if (!map) return;
+
   if (!navigator.geolocation) return;
 
   navigator.geolocation.getCurrentPosition(
+
     (pos) => {
+
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
 
@@ -154,41 +154,70 @@ export function useMyLocation() {
         position: userPos,
         content: buildUserPin()
       });
+
     },
+
     () => {
       console.warn("Location denied");
     },
+
     {
       enableHighAccuracy: true,
       timeout: 5000
     }
+
   );
+
 }
 
 // ============================================================
-// LOAD ALL STORES ONCE
+// LOAD STORES
 // ============================================================
 
-async function loadAllStoresOnce() {
-  if (!map || storesLoaded || storesLoading) return;
+async function loadStores() {
 
-  storesLoading = true;
+  if (!map) return;
 
-try {
-  const { data, error } = await supabase
-    .from("stores_map_minimal")
-    .select("id,name,lat,lng,country,city,rating,photo_cdn_url");
+  const bounds = map.getBounds();
+  if (!bounds) return;
 
-    if (error) {
-      console.error(error);
-      return;
-    }
+  const zoom = map.getZoom();
 
-    renderAllMarkers(data || []);
-    storesLoaded = true;
-  } finally {
-    storesLoading = false;
+  if (lastBounds && lastZoom === zoom) {
+
+    const ne = bounds.getNorthEast();
+    const lastNE = lastBounds.getNorthEast();
+
+    if (
+      Math.abs(ne.lat() - lastNE.lat()) < 0.2 &&
+      Math.abs(ne.lng() - lastNE.lng()) < 0.2
+    ) return;
+
   }
+
+  lastBounds = bounds;
+  lastZoom = zoom;
+
+  const ne = bounds.getNorthEast();
+  const sw = bounds.getSouthWest();
+
+  const { data, error } = await supabase.rpc(
+    "stores_within_bounds",
+    {
+      p_north: ne.lat(),
+      p_south: sw.lat(),
+      p_east: ne.lng(),
+      p_west: sw.lng()
+    }
+  );
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  renderMarkers(data || []);
+
 }
 
 // ============================================================
@@ -196,151 +225,122 @@ try {
 // ============================================================
 
 function createMarker(store) {
-  const pin = buildPin(store.types || []);
 
-  const marker = new google.maps.marker.AdvancedMarkerElement({
-    map,
-    position: { lat: Number(store.lat), lng: Number(store.lng) },
-    content: pin,
-    gmpClickable: true
-  });
+  let marker;
+
+  if (markerPool.length) {
+
+    marker = markerPool.pop();
+
+    marker.position = {
+      lat: store.lat,
+      lng: store.lng
+    };
+
+    marker.map = map;
+
+  } else {
+
+    const pin = buildPin(store.types);
+
+    marker = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: store.lat, lng: store.lng },
+      content: pin,
+      gmpClickable: true
+    });
+
+  }
+
+  const pin = marker.content;
 
   marker.__store = store;
-  marker.__id = Number(store.id);
-
-  bindMarkerInteractions(marker);
-
-  return marker;
-}
-
-// ============================================================
-// BIND INTERACTIONS
-// ============================================================
-
-function bindMarkerInteractions(marker) {
-  const pin = marker.content;
 
   // ================= CLICK =================
 
   marker.addListener("gmp-click", (e) => {
-    if (e?.domEvent) {
-      e.domEvent.stopPropagation();
+
+  if (e?.domEvent) {
+    e.domEvent.stopPropagation();
+  }
+
+    if (hoverTooltip) {
+      hoverTooltip.remove();
+      hoverTooltip = null;
     }
 
-    const store = marker.__store;
-    if (!store) return;
+    if (activePin && activePin !== pin) {
+      activePin.style.transform = "scale(1)";
+      activePin.style.boxShadow = "";
+      activePin.style.zIndex = "";
+    }
 
-    hideTooltip();
+    activePin = pin;
 
-    activeMarkerId = Number(store.id);
-    lockedMarkerId = Number(store.id);
+    pin.style.transform = "scale(1.35)";
+    pin.style.boxShadow =
+      "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
+    pin.style.zIndex = "5";
 
-    applyMarkerStates();
+     openModal(store.id);
 
-    openModal(store.id);
   });
 
   // ================= HOVER =================
 
   pin.addEventListener("mouseenter", () => {
-    const store = marker.__store;
-    if (!store) return;
 
-    const id = Number(store.id);
+    prefetchModal(Number(store.id));
 
-    hoveredMarkerId = id;
-    lockedMarkerId = id;
+    pin.style.transform = "scale(1.25)";
 
-    prefetchModal(id);
-    applyMarkerStates();
-    showTooltip(marker, store);
+    markers.forEach((m) => {
+
+      if (m.content === activePin) return;
+
+      if (m.content !== pin) {
+        m.content.style.opacity = "0.35";
+      }
+
+    });
+
+    showTooltip(pin, store);
+
   });
 
   pin.addEventListener("mouseleave", () => {
-    const store = marker.__store;
-    if (!store) return;
 
-    const id = Number(store.id);
+    pin.style.transform = "scale(1)";
 
-    if (hoveredMarkerId === id) {
-      hoveredMarkerId = null;
+    markers.forEach((m) => {
+
+      if (m.content === activePin) return;
+
+      m.content.style.opacity = "1";
+
+    });
+
+    if (hoverTooltip) {
+      hoverTooltip.remove();
+      hoverTooltip = null;
     }
 
-    if (lockedMarkerId === id && activeMarkerId !== id) {
-      lockedMarkerId = null;
-    }
-
-    hideTooltip();
-    applyMarkerStates();
-  });
-}
-
-// ============================================================
-// MARKER STATE
-// ============================================================
-
-function applyMarkerStates() {
-  markers.forEach((marker) => {
-    const pin = marker.content;
-    const id = marker.__id;
-
-    if (!pin || !id) return;
-
-    pin.classList.remove(
-      "is-hovered",
-      "is-locked",
-      "is-active",
-      "active",
-      "is-dimmed"
-    );
-
-    const isHovered = hoveredMarkerId === id;
-    const isLocked = lockedMarkerId === id;
-    const isActive = activeMarkerId === id;
-
-    if (isHovered) {
-      pin.classList.add("is-hovered");
-    }
-
-    if (isLocked) {
-      pin.classList.add("is-locked");
-    }
-
-    if (isActive) {
-      pin.classList.add("is-active", "active");
-    }
   });
 
-  const shouldDim = hoveredMarkerId !== null || lockedMarkerId !== null;
+  return marker;
 
-  if (!shouldDim) return;
-
-  markers.forEach((marker) => {
-    const pin = marker.content;
-    const id = marker.__id;
-
-    if (!pin || !id) return;
-
-    const isHovered = hoveredMarkerId === id;
-    const isLocked = lockedMarkerId === id;
-    const isActive = activeMarkerId === id;
-
-    if (!isHovered && !isLocked && !isActive) {
-      pin.classList.add("is-dimmed");
-    }
-  });
 }
 
 // ============================================================
 // TOOLTIP LABEL
 // ============================================================
 
-function showTooltip(marker, store) {
-  if (!marker?.content) return;
+function showTooltip(pin, store) {
 
-  hideTooltip();
+  if (hoverTooltip) hoverTooltip.remove();
 
   hoverTooltip = document.createElement("div");
+
   hoverTooltip.style.position = "fixed";
   hoverTooltip.style.pointerEvents = "none";
   hoverTooltip.style.zIndex = "9999";
@@ -355,26 +355,19 @@ function showTooltip(marker, store) {
       border:1px solid rgba(115,98,75,0.35);
       font-family:DM Sans,sans-serif;
       box-shadow:0 6px 16px rgba(0,0,0,0.55);
-      white-space:nowrap;
     ">
-      <div style="font-weight:600">${escapeHtml(store.name)}</div>
+      <div style="font-weight:600">${store.name}</div>
     </div>
   `;
 
   document.body.appendChild(hoverTooltip);
 
-  const rect = marker.content.getBoundingClientRect();
+  const rect = pin.getBoundingClientRect();
 
   hoverTooltip.style.left = rect.left + rect.width / 2 + "px";
   hoverTooltip.style.top = rect.top - 10 + "px";
   hoverTooltip.style.transform = "translate(-50%,-100%)";
-}
 
-function hideTooltip() {
-  if (hoverTooltip) {
-    hoverTooltip.remove();
-    hoverTooltip = null;
-  }
 }
 
 // ============================================================
@@ -382,19 +375,24 @@ function hideTooltip() {
 // ============================================================
 
 async function prefetchModal(storeId) {
+
   if (modalPrefetch.has(storeId)) return;
 
   try {
-    const { data } = await supabase.rpc("modal_store_card_v1", {
-      p_store_id: storeId
-    });
+
+    const { data } = await supabase.rpc(
+      "modal_store_card_v1",
+      { p_store_id: storeId }
+    );
 
     if (data && data.length) {
       modalPrefetch.set(storeId, data[0]);
     }
+
   } catch (err) {
     console.warn("prefetch failed", err);
   }
+
 }
 
 // ============================================================
@@ -402,6 +400,7 @@ async function prefetchModal(storeId) {
 // ============================================================
 
 function buildUserPin() {
+
   const el = document.createElement("div");
 
   el.style.width = "16px";
@@ -412,25 +411,48 @@ function buildUserPin() {
   el.style.boxShadow = "0 0 0 6px rgba(59,130,246,0.25)";
 
   return el;
+
 }
 
 // ============================================================
-// RENDER ALL MARKERS
+// RENDER MARKERS
 // ============================================================
 
-function renderAllMarkers(stores) {
-  markers.forEach((marker) => {
-    marker.map = null;
-  });
-  markers.clear();
+function renderMarkers(stores) {
+
+  const incoming = new Set();
 
   stores.forEach((store) => {
+
+    const id = Number(store.id);
+
+    incoming.add(id);
+
+    if (markers.has(id)) return;
+
     const marker = createMarker(store);
-    markers.set(Number(store.id), marker);
+
+    markers.set(id, marker);
+
   });
 
-  applyMarkerStates();
+  markers.forEach((marker, id) => {
+
+    if (!incoming.has(id)) {
+
+      marker.map = null;
+      marker.__store = null;
+
+      markerPool.push(marker);
+
+      markers.delete(id);
+
+    }
+
+  });
+
   updateClusters();
+
 }
 
 // ============================================================
@@ -438,7 +460,6 @@ function renderAllMarkers(stores) {
 // ============================================================
 
 function updateClusters() {
-  if (!map) return;
 
   const zoom = map.getZoom();
 
@@ -448,34 +469,20 @@ function updateClusters() {
   }
 
   if (zoom <= 5) {
-    hideTooltip();
 
-    markers.forEach((m) => {
-      m.map = null;
-    });
+    markers.forEach((m) => (m.map = null));
 
     clusterer = new markerClusterer.MarkerClusterer({
       map,
       markers: Array.from(markers.values())
     });
+
   } else {
-    markers.forEach((m) => {
-      m.map = map;
-    });
+
+    markers.forEach((m) => (m.map = map));
+
   }
-}
 
-// ============================================================
-// UTILS
-// ============================================================
-
-function escapeHtml(value = "") {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }
 
 // ============================================================
@@ -483,9 +490,9 @@ function escapeHtml(value = "") {
 // ============================================================
 
 document.addEventListener("wcl:map-open", async () => {
+
   await initMap();
 
-  setTimeout(() => {
-    useMyLocation();
-  }, 100);
+  useMyLocation();
+
 });

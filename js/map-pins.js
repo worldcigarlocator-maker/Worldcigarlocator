@@ -3,7 +3,8 @@
 // ============================================================
 
 export function buildPin(types = []) {
-  const hasStore = types.includes("store");
+
+  const hasStore  = types.includes("store");
   const hasLounge = types.includes("lounge");
 
   const pin = document.createElement("div");
@@ -11,9 +12,11 @@ export function buildPin(types = []) {
 
   if (hasStore && hasLounge) {
     pin.classList.add("pin-split");
-  } else if (hasStore) {
+  }
+  else if (hasStore) {
     pin.classList.add("pin-store");
-  } else if (hasLounge) {
+  }
+  else if (hasLounge) {
     pin.classList.add("pin-lounge");
   }
 
@@ -31,8 +34,10 @@ export function buildPin(types = []) {
   const needle = document.createElement("div");
   needle.className = "pin-needle";
 
-  pin.appendChild(head);
-  pin.appendChild(needle);
+pin.appendChild(head);
+pin.appendChild(needle);
 
-  return pin;
+pin.style.transform = "translate(-50%, -100%)";
+
+return pin;
 }
