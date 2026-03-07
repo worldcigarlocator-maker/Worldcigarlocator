@@ -104,7 +104,7 @@ map = new google.maps.Map(container, {
 
   idleTimer = setTimeout(() => {
     loadStores();
-  }, 200);
+  }, 350);
 
 });
 
@@ -257,7 +257,11 @@ function createMarker(store) {
 
   // ================= CLICK =================
 
-  marker.addListener("gmp-click", () => {
+  marker.addListener("gmp-click", (e) => {
+
+  if (e?.domEvent) {
+    e.domEvent.stopPropagation();
+  }
 
     if (hoverTooltip) {
       hoverTooltip.remove();
@@ -285,7 +289,7 @@ function createMarker(store) {
 
   pin.addEventListener("mouseenter", () => {
 
-    // prefetchModal(Number(store.id));
+    prefetchModal(Number(store.id));
 
     pin.style.transform = "scale(1.25)";
 
@@ -369,26 +373,26 @@ function showTooltip(pin, store) {
 // PREFETCH MODAL
 // ============================================================
 
-// async function prefetchModal(storeId) {
+async function prefetchModal(storeId) {
 
-//   if (modalPrefetch.has(storeId)) return;
+  if (modalPrefetch.has(storeId)) return;
 
-//   try {
+  try {
 
-//     const { data } = await supabase.rpc(
-//       "modal_store_card_v1",
-//       { p_store_id: storeId }
-//     );
+    const { data } = await supabase.rpc(
+      "modal_store_card_v1",
+      { p_store_id: storeId }
+    );
 
-//     if (data && data.length) {
-//       modalPrefetch.set(storeId, data[0]);
-//     }
+    if (data && data.length) {
+      modalPrefetch.set(storeId, data[0]);
+    }
 
-//   } catch (err) {
-//     console.warn("prefetch failed", err);
-//   }
+  } catch (err) {
+    console.warn("prefetch failed", err);
+  }
 
-// }
+}
 
 // ============================================================
 // USER PIN
