@@ -335,44 +335,46 @@ function createMarker(store) {
 
   pin.addEventListener("mouseenter", () => {
 
-    prefetchModal(Number(store.id));
+  prefetchModal(Number(store.id));
 
-    pin.style.transform = "scale(1.25)";
+  activePin = pin;
 
-    markers.forEach((m) => {
+  pin.style.transform = "scale(1.25)";
+  pin.style.zIndex = "5";
 
-      if (m.content === activePin) return;
+  markers.forEach((m) => {
 
-      if (m.content !== pin) {
-        m.content.style.opacity = "0.35";
-      }
+    if (m.content === pin) return;
 
-    });
-
-    showTooltip(pin, store);
+    m.content.style.opacity = "0.35";
 
   });
 
-  pin.addEventListener("mouseleave", () => {
+  showTooltip(pin, store);
 
-    pin.style.transform = "scale(1)";
+});
 
-    markers.forEach((m) => {
+pin.addEventListener("mouseleave", () => {
 
-      if (m.content === activePin) return;
+  pin.style.transform = "scale(1)";
+  pin.style.zIndex = "";
 
-      m.content.style.opacity = "1";
+  activePin = null;
 
-    });
+  markers.forEach((m) => {
 
-    if (hoverTooltip) {
-      hoverTooltip.remove();
-      hoverTooltip = null;
-    }
+    m.content.style.opacity = "1";
 
   });
 
-  return marker;
+  if (hoverTooltip) {
+    hoverTooltip.remove();
+    hoverTooltip = null;
+  }
+
+});
+
+return marker;
 
 }
 
