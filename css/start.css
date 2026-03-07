@@ -43,7 +43,10 @@ body {
   justify-content:center;
   cursor:pointer;
 
-  transform:translate(-50%,-100%);
+  transform:translate(-50%,-100%) translateZ(0);
+  transform-origin:50% 100%;
+
+  backface-visibility:hidden;
 
   transition:
     transform 0.16s ease,
