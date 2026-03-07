@@ -34,8 +34,10 @@ export function buildPin(types = []) {
   const needle = document.createElement("div");
   needle.className = "pin-needle";
 
-  pin.appendChild(head);
-  pin.appendChild(needle);
+pin.appendChild(head);
+pin.appendChild(needle);
 
-  return pin;
+pin.style.transform = "translate(-50%, -100%)";
+
+return pin;
 }
