@@ -1,7 +1,6 @@
-
 // ============================================================
-// MAP.JS — WCL MAP ENGINE V4
-// Enterprise · Stable · Fast
+// MAP.JS — WCL MAP ENGINE V5
+// Enterprise · Stable · Fast · Anchor Lock
 // ============================================================
 
 import { supabase } from "./globals.js";
@@ -19,7 +18,10 @@ let clusterer = null;
 const markerPool = [];
 
 let hoverTooltip = null;
-let activePin = null;
+
+let hoveredMarkerId = null;
+let lockedMarkerId = null;
+let activeMarkerId = null;
 
 let googleLoaded = false;
 let clusterLoaded = false;
@@ -28,8 +30,11 @@ let lastBounds = null;
 let lastZoom = null;
 
 let idleTimer = null;
+let tooltipRaf = null;
 
 const modalPrefetch = new Map();
+
+const BOUNDS_BUFFER_RATIO = 0.20;
 
 // ============================================================
 // SCRIPT LOADER
@@ -52,7 +57,6 @@ function loadScript(src) {
 // ============================================================
 
 async function loadGoogle() {
-
   if (!googleLoaded) {
     await loadScript(
       "https://maps.googleapis.com/maps/api/js?key=AIzaSyBzHH9QNHPGWpQrczIGgWs1wnHGALiwNZw&v=weekly&libraries=marker"
@@ -66,7 +70,6 @@ async function loadGoogle() {
     );
     clusterLoaded = true;
   }
-
 }
 
 // ============================================================
@@ -74,7 +77,6 @@ async function loadGoogle() {
 // ============================================================
 
 export async function initMap() {
-
   if (map) return;
 
   await loadGoogle();
@@ -82,65 +84,66 @@ export async function initMap() {
   const container = document.getElementById("mapView");
   if (!container) return;
 
-map = new google.maps.Map(container, {
-  center: { lat: 20, lng: 0 },
-  zoom: 2,
-  minZoom: 2,
+  map = new google.maps.Map(container, {
+    center: { lat: 20, lng: 0 },
+    zoom: 2,
+    minZoom: 2,
 
-  mapId: "50c83dc7ca62c31181c32eb1",
+    mapId: "50c83dc7ca62c31181c32eb1",
 
-  mapTypeControl: false,
-  streetViewControl: false,
-  fullscreenControl: false,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
 
-  tilt: 0,
-  heading: 0,
+    tilt: 0,
+    heading: 0,
 
-  gestureHandling: "greedy"
-});
+    gestureHandling: "greedy"
+  });
 
- map.addListener("idle", () => {
+  map.addListener("idle", () => {
+    clearTimeout(idleTimer);
 
-  clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      syncLockedMarkerVisuals();
+      refreshTooltipPosition();
+      loadStores();
+    }, 350);
+  });
 
-  idleTimer = setTimeout(() => {
-    loadStores();
-  }, 350);
+  // ============================================
+  // SMOOTH 3D TILT ON ZOOM
+  // ============================================
 
-});
+  map.addListener("zoom_changed", () => {
+    const z = map.getZoom();
 
-// ============================================
-// SMOOTH 3D TILT ON ZOOM
-// ============================================
+    if (z >= 15) {
+      map.setTilt(45);
+    } else {
+      map.setTilt(0);
+    }
 
-map.addListener("zoom_changed", () => {
+    syncLockedMarkerVisuals();
+    scheduleTooltipRefresh();
+  });
 
-  const z = map.getZoom();
-
-  if (z >= 15) {
-    map.setTilt(45);
-  } else {
-    map.setTilt(0);
-  }
-
-});
-  
-  }
+  map.addListener("center_changed", () => {
+    syncLockedMarkerVisuals();
+    scheduleTooltipRefresh();
+  });
+}
 
 // ============================================================
 // USE MY LOCATION
 // ============================================================
 
 export function useMyLocation() {
-
   if (!map) return;
-
   if (!navigator.geolocation) return;
 
   navigator.geolocation.getCurrentPosition(
-
     (pos) => {
-
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
 
@@ -154,20 +157,15 @@ export function useMyLocation() {
         position: userPos,
         content: buildUserPin()
       });
-
     },
-
     () => {
       console.warn("Location denied");
     },
-
     {
       enableHighAccuracy: true,
       timeout: 5000
     }
-
   );
-
 }
 
 // ============================================================
@@ -175,41 +173,29 @@ export function useMyLocation() {
 // ============================================================
 
 async function loadStores() {
-
   if (!map) return;
 
-  const bounds = map.getBounds();
-  if (!bounds) return;
+  const rawBounds = map.getBounds();
+  if (!rawBounds) return;
 
   const zoom = map.getZoom();
+  const bounds = expandBounds(rawBounds, BOUNDS_BUFFER_RATIO);
 
   if (lastBounds && lastZoom === zoom) {
-
-    const ne = bounds.getNorthEast();
-    const lastNE = lastBounds.getNorthEast();
-
-    if (
-      Math.abs(ne.lat() - lastNE.lat()) < 0.2 &&
-      Math.abs(ne.lng() - lastNE.lng()) < 0.2
-    ) return;
-
+    if (!boundsChangedEnough(lastBounds, bounds)) {
+      return;
+    }
   }
 
   lastBounds = bounds;
   lastZoom = zoom;
 
-  const ne = bounds.getNorthEast();
-  const sw = bounds.getSouthWest();
-
-  const { data, error } = await supabase.rpc(
-    "stores_within_bounds",
-    {
-      p_north: ne.lat(),
-      p_south: sw.lat(),
-      p_east: ne.lng(),
-      p_west: sw.lng()
-    }
-  );
+  const { data, error } = await supabase.rpc("stores_within_bounds", {
+    p_north: bounds.north,
+    p_south: bounds.south,
+    p_east: bounds.east,
+    p_west: bounds.west
+  });
 
   if (error) {
     console.error(error);
@@ -217,30 +203,60 @@ async function loadStores() {
   }
 
   renderMarkers(data || []);
-
 }
 
 // ============================================================
-// CREATE MARKER
+// BOUNDS HELPERS
+// ============================================================
+
+function expandBounds(bounds, ratio = 0.20) {
+  const ne = bounds.getNorthEast();
+  const sw = bounds.getSouthWest();
+
+  const north = ne.lat();
+  const south = sw.lat();
+  const east = ne.lng();
+  const west = sw.lng();
+
+  const latSpan = north - south;
+  const lngSpan = east - west;
+
+  const latPadding = latSpan * ratio;
+  const lngPadding = lngSpan * ratio;
+
+  return {
+    north: clampLat(north + latPadding),
+    south: clampLat(south - latPadding),
+    east: east + lngPadding,
+    west: west - lngPadding
+  };
+}
+
+function boundsChangedEnough(prev, next) {
+  return (
+    Math.abs(next.north - prev.north) >= 0.2 ||
+    Math.abs(next.south - prev.south) >= 0.2 ||
+    Math.abs(next.east - prev.east) >= 0.2 ||
+    Math.abs(next.west - prev.west) >= 0.2
+  );
+}
+
+function clampLat(value) {
+  return Math.max(-85, Math.min(85, value));
+}
+
+// ============================================================
+// CREATE / REUSE MARKER
 // ============================================================
 
 function createMarker(store) {
-
   let marker;
 
   if (markerPool.length) {
-
     marker = markerPool.pop();
-
-    marker.position = {
-      lat: store.lat,
-      lng: store.lng
-    };
-
+    marker.position = { lat: store.lat, lng: store.lng };
     marker.map = map;
-
   } else {
-
     const pin = buildPin(store.types);
 
     marker = new google.maps.marker.AdvancedMarkerElement({
@@ -250,97 +266,194 @@ function createMarker(store) {
       gmpClickable: true
     });
 
+    bindMarkerInteractions(marker);
   }
 
-  const pin = marker.content;
-
   marker.__store = store;
+  marker.__id = Number(store.id);
+
+  syncMarkerPinType(marker, store.types);
+  resetMarkerTransientState(marker);
+  applyMarkerStates();
+
+  return marker;
+}
+
+// ============================================================
+// BIND INTERACTIONS (ONCE PER MARKER)
+// ============================================================
+
+function bindMarkerInteractions(marker) {
+  const pin = marker.content;
 
   // ================= CLICK =================
 
   marker.addListener("gmp-click", (e) => {
-
-  if (e?.domEvent) {
-    e.domEvent.stopPropagation();
-  }
-
-    if (hoverTooltip) {
-      hoverTooltip.remove();
-      hoverTooltip = null;
+    if (e?.domEvent) {
+      e.domEvent.stopPropagation();
     }
 
-    if (activePin && activePin !== pin) {
-      activePin.style.transform = "scale(1)";
-      activePin.style.boxShadow = "";
-      activePin.style.zIndex = "";
-    }
+    const store = marker.__store;
+    if (!store) return;
 
-    activePin = pin;
+    hideTooltip();
 
-    pin.style.transform = "scale(1.35)";
-    pin.style.boxShadow =
-      "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
-    pin.style.zIndex = "5";
+    activeMarkerId = Number(store.id);
+    lockedMarkerId = Number(store.id);
 
-     openModal(store.id);
+    applyMarkerStates();
 
+    openModal(store.id);
   });
 
   // ================= HOVER =================
 
   pin.addEventListener("mouseenter", () => {
+    const store = marker.__store;
+    if (!store) return;
 
-    prefetchModal(Number(store.id));
+    const id = Number(store.id);
 
-    pin.style.transform = "scale(1.25)";
+    hoveredMarkerId = id;
+    lockedMarkerId = id;
 
-    markers.forEach((m) => {
-
-      if (m.content === activePin) return;
-
-      if (m.content !== pin) {
-        m.content.style.opacity = "0.35";
-      }
-
-    });
-
-    showTooltip(pin, store);
-
+    prefetchModal(id);
+    applyMarkerStates();
+    showTooltip(marker, store);
   });
 
   pin.addEventListener("mouseleave", () => {
+    const store = marker.__store;
+    if (!store) return;
 
-    pin.style.transform = "scale(1)";
+    const id = Number(store.id);
 
-    markers.forEach((m) => {
-
-      if (m.content === activePin) return;
-
-      m.content.style.opacity = "1";
-
-    });
-
-    if (hoverTooltip) {
-      hoverTooltip.remove();
-      hoverTooltip = null;
+    if (hoveredMarkerId === id) {
+      hoveredMarkerId = null;
     }
 
+    if (lockedMarkerId === id && activeMarkerId !== id) {
+      lockedMarkerId = null;
+    }
+
+    hideTooltip();
+    applyMarkerStates();
+  });
+}
+
+// ============================================================
+// MARKER PIN TYPE SYNC
+// ============================================================
+
+function syncMarkerPinType(marker, types = []) {
+  const pin = marker.content;
+  if (!pin) return;
+
+  pin.classList.remove("pin-store", "pin-lounge", "pin-split");
+
+  const hasStore = types.includes("store");
+  const hasLounge = types.includes("lounge");
+
+  if (hasStore && hasLounge) {
+    pin.classList.add("pin-split");
+  } else if (hasStore) {
+    pin.classList.add("pin-store");
+  } else if (hasLounge) {
+    pin.classList.add("pin-lounge");
+  }
+}
+
+// ============================================================
+// MARKER STATE
+// ============================================================
+
+function resetMarkerTransientState(marker) {
+  const pin = marker.content;
+  if (!pin) return;
+
+  pin.classList.remove(
+    "is-hovered",
+    "is-locked",
+    "is-active",
+    "active",
+    "is-dimmed"
+  );
+}
+
+function applyMarkerStates() {
+  markers.forEach((marker) => {
+    const pin = marker.content;
+    const id = marker.__id;
+
+    if (!pin || !id) return;
+
+    pin.classList.remove(
+      "is-hovered",
+      "is-locked",
+      "is-active",
+      "active",
+      "is-dimmed"
+    );
+
+    const isHovered = hoveredMarkerId === id;
+    const isLocked = lockedMarkerId === id;
+    const isActive = activeMarkerId === id;
+
+    if (isHovered) {
+      pin.classList.add("is-hovered");
+    }
+
+    if (isLocked) {
+      pin.classList.add("is-locked");
+    }
+
+    if (isActive) {
+      pin.classList.add("is-active", "active");
+    }
   });
 
-  return marker;
+  const shouldDim = hoveredMarkerId !== null || lockedMarkerId !== null;
 
+  if (!shouldDim) return;
+
+  markers.forEach((marker) => {
+    const pin = marker.content;
+    const id = marker.__id;
+
+    if (!pin || !id) return;
+
+    const isHovered = hoveredMarkerId === id;
+    const isLocked = lockedMarkerId === id;
+    const isActive = activeMarkerId === id;
+
+    if (!isHovered && !isLocked && !isActive) {
+      pin.classList.add("is-dimmed");
+    }
+  });
+}
+
+function syncLockedMarkerVisuals() {
+  if (
+    hoveredMarkerId === null &&
+    lockedMarkerId === null &&
+    activeMarkerId === null
+  ) {
+    return;
+  }
+
+  applyMarkerStates();
 }
 
 // ============================================================
 // TOOLTIP LABEL
 // ============================================================
 
-function showTooltip(pin, store) {
+function showTooltip(marker, store) {
+  if (!marker?.content) return;
 
-  if (hoverTooltip) hoverTooltip.remove();
+  hideTooltip();
 
   hoverTooltip = document.createElement("div");
-
   hoverTooltip.style.position = "fixed";
   hoverTooltip.style.pointerEvents = "none";
   hoverTooltip.style.zIndex = "9999";
@@ -355,19 +468,50 @@ function showTooltip(pin, store) {
       border:1px solid rgba(115,98,75,0.35);
       font-family:DM Sans,sans-serif;
       box-shadow:0 6px 16px rgba(0,0,0,0.55);
+      white-space:nowrap;
     ">
-      <div style="font-weight:600">${store.name}</div>
+      <div style="font-weight:600">${escapeHtml(store.name)}</div>
     </div>
   `;
 
-  document.body.appendChild(hoverTooltip);
+  hoverTooltip.__markerId = Number(store.id);
 
-  const rect = pin.getBoundingClientRect();
+  document.body.appendChild(hoverTooltip);
+  refreshTooltipPosition();
+}
+
+function refreshTooltipPosition() {
+  if (!hoverTooltip) return;
+
+  const markerId = hoverTooltip.__markerId;
+  if (!markerId) return;
+
+  const marker = markers.get(markerId);
+  if (!marker?.content) return;
+
+  const rect = marker.content.getBoundingClientRect();
 
   hoverTooltip.style.left = rect.left + rect.width / 2 + "px";
   hoverTooltip.style.top = rect.top - 10 + "px";
   hoverTooltip.style.transform = "translate(-50%,-100%)";
+}
 
+function scheduleTooltipRefresh() {
+  if (tooltipRaf) {
+    cancelAnimationFrame(tooltipRaf);
+  }
+
+  tooltipRaf = requestAnimationFrame(() => {
+    refreshTooltipPosition();
+    tooltipRaf = null;
+  });
+}
+
+function hideTooltip() {
+  if (hoverTooltip) {
+    hoverTooltip.remove();
+    hoverTooltip = null;
+  }
 }
 
 // ============================================================
@@ -375,24 +519,19 @@ function showTooltip(pin, store) {
 // ============================================================
 
 async function prefetchModal(storeId) {
-
   if (modalPrefetch.has(storeId)) return;
 
   try {
-
-    const { data } = await supabase.rpc(
-      "modal_store_card_v1",
-      { p_store_id: storeId }
-    );
+    const { data } = await supabase.rpc("modal_store_card_v1", {
+      p_store_id: storeId
+    });
 
     if (data && data.length) {
       modalPrefetch.set(storeId, data[0]);
     }
-
   } catch (err) {
     console.warn("prefetch failed", err);
   }
-
 }
 
 // ============================================================
@@ -400,7 +539,6 @@ async function prefetchModal(storeId) {
 // ============================================================
 
 function buildUserPin() {
-
   const el = document.createElement("div");
 
   el.style.width = "16px";
@@ -411,7 +549,6 @@ function buildUserPin() {
   el.style.boxShadow = "0 0 0 6px rgba(59,130,246,0.25)";
 
   return el;
-
 }
 
 // ============================================================
@@ -419,40 +556,51 @@ function buildUserPin() {
 // ============================================================
 
 function renderMarkers(stores) {
-
   const incoming = new Set();
 
   stores.forEach((store) => {
-
     const id = Number(store.id);
-
     incoming.add(id);
 
-    if (markers.has(id)) return;
+    if (markers.has(id)) {
+      const existing = markers.get(id);
+
+      existing.__store = store;
+      existing.__id = id;
+      existing.position = { lat: store.lat, lng: store.lng };
+
+      syncMarkerPinType(existing, store.types);
+      return;
+    }
 
     const marker = createMarker(store);
-
     markers.set(id, marker);
-
   });
 
   markers.forEach((marker, id) => {
+    if (incoming.has(id)) return;
 
-    if (!incoming.has(id)) {
+    if (hoveredMarkerId === id) hoveredMarkerId = null;
+    if (lockedMarkerId === id) lockedMarkerId = null;
+    if (activeMarkerId === id) activeMarkerId = null;
 
-      marker.map = null;
-      marker.__store = null;
-
-      markerPool.push(marker);
-
-      markers.delete(id);
-
+    if (hoverTooltip?.__markerId === id) {
+      hideTooltip();
     }
 
+    resetMarkerTransientState(marker);
+
+    marker.map = null;
+    marker.__store = null;
+    marker.__id = null;
+
+    markerPool.push(marker);
+    markers.delete(id);
   });
 
+  applyMarkerStates();
   updateClusters();
-
+  scheduleTooltipRefresh();
 }
 
 // ============================================================
@@ -460,7 +608,6 @@ function renderMarkers(stores) {
 // ============================================================
 
 function updateClusters() {
-
   const zoom = map.getZoom();
 
   if (clusterer) {
@@ -469,20 +616,36 @@ function updateClusters() {
   }
 
   if (zoom <= 5) {
+    hideTooltip();
 
-    markers.forEach((m) => (m.map = null));
+    markers.forEach((m) => {
+      m.map = null;
+    });
 
     clusterer = new markerClusterer.MarkerClusterer({
       map,
       markers: Array.from(markers.values())
     });
-
   } else {
-
-    markers.forEach((m) => (m.map = map));
-
+    markers.forEach((m) => {
+      m.map = map;
+    });
   }
 
+  applyMarkerStates();
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+
+function escapeHtml(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 // ============================================================
@@ -490,9 +653,6 @@ function updateClusters() {
 // ============================================================
 
 document.addEventListener("wcl:map-open", async () => {
-
   await initMap();
-
   useMyLocation();
-
 });
