@@ -82,23 +82,24 @@ export async function initMap() {
   const container = document.getElementById("mapView");
   if (!container) return;
 
-  map = new google.maps.Map(container, {
-    center: { lat: 20, lng: 0 },
-    zoom: 2,
-    minZoom: 2,
+ map = new google.maps.Map(container, {
+  center: { lat: 20, lng: 0 },
+  zoom: 2,
+  minZoom: 2,
 
-    mapId: "50c83dc7ca62c31181c32eb1",
+  mapId: "50c83dc7ca62c31181c32eb1",
 
-    mapTypeControl: false,
-    streetViewControl: false,
-    fullscreenControl: false,
+  mapTypeControl: false,
+  streetViewControl: false,
+  fullscreenControl: false,
 
-    tilt: 0,
-    heading: 0,
+  tilt: 0,
+  heading: 0,
 
-    gestureHandling: "greedy"
-  });
+  gestureHandling: "greedy",
 
+  isFractionalZoomEnabled: true
+});
   // ============================================================
   // LOAD STORES (DEBOUNCED)
   // ============================================================
