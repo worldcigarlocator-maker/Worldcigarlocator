@@ -34,6 +34,7 @@ body {
 /* ============================================================
    WCL MAP PINS (AdvancedMarkerElement)
    ============================================================ */
+
 .wcl-pin{
   position: relative;
   width: 24px;
@@ -49,10 +50,7 @@ body {
     transform 0.16s ease,
     filter 0.16s ease,
     opacity 0.16s ease;
-
-  backface-visibility: hidden;
 }
-
 /* ================= HEAD ================= */
 
 .pin-head{
