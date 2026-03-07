@@ -125,19 +125,17 @@ export async function initMap() {
     syncLockedMarkerVisuals();
   });
 
-  map.addListener("center_changed", () => {
-    syncLockedMarkerVisuals();
-    scheduleTooltipRefresh();
-  });
+map.addListener("center_changed", () => {
+  scheduleTooltipRefresh();
+});
 
   // ============================================
   // PROJECTION SYNC (minskar floating pins)
   // ============================================
 
-  map.addListener("projection_changed", () => {
-    syncLockedMarkerVisuals();
-    scheduleTooltipRefresh();
-  });
+map.addListener("projection_changed", () => {
+  scheduleTooltipRefresh();
+});
 
 }
 // ============================================================
@@ -567,17 +565,19 @@ function renderMarkers(stores) {
   stores.forEach((store) => {
     const id = Number(store.id);
     incoming.add(id);
+    
+if (markers.has(id)) {
+  const existing = markers.get(id);
 
-    if (markers.has(id)) {
-      const existing = markers.get(id);
+  existing.__store = store;
+  existing.__id = id;
 
-      existing.__store = store;
-      existing.__id = id;
-      existing.position = { lat: store.lat, lng: store.lng };
+  // position ändras aldrig för stores
+  // så vi skippar position update
 
-      syncMarkerPinType(existing, store.types);
-      return;
-    }
+  syncMarkerPinType(existing, store.types);
+  return;
+}
 
     const marker = createMarker(store);
     markers.set(id, marker);
