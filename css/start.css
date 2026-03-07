@@ -43,8 +43,9 @@ body {
   justify-content:center;
   cursor:pointer;
 
-   transform: none;
-  transform-origin:50% 100%;
+.wcl-pin{
+  transform: translate(-50%, -100%);
+  transform-origin: 50% 100%;
 
   transition:
     transform 0.16s ease,
