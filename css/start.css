@@ -36,21 +36,22 @@ body {
    ============================================================ */
 
 .wcl-pin{
-  position: relative;
-  width: 24px;
-  height: 34px;
-  display: flex;
-  justify-content: center;
-  cursor: pointer;
+  position:relative;
+  width:24px;
+  height:34px;
+  display:flex;
+  justify-content:center;
+  cursor:pointer;
 
-  transform: translate(-50%, -100%);
-  transform-origin: 50% 100%;
+  transform:translate(-50%,-100%);
 
   transition:
     transform 0.16s ease,
-    filter 0.16s ease,
-    opacity 0.16s ease;
+    filter 0.16s ease;
+
+  will-change: transform;
 }
+
 /* ================= HEAD ================= */
 
 .pin-head{
@@ -66,10 +67,6 @@ body {
 
   position:relative;
   z-index:2;
-
-  transition:
-    box-shadow 0.16s ease,
-    filter 0.16s ease;
 }
 
 /* ================= GLOSS ================= */
@@ -107,10 +104,6 @@ body {
   box-shadow:
     0 1px 2px rgba(0,0,0,0.6),
     0 0 2px rgba(255,255,255,0.6);
-
-  transition:
-    filter 0.16s ease,
-    box-shadow 0.16s ease;
 }
 
 /* ================= COLORS ================= */
@@ -129,51 +122,32 @@ body {
 
 /* ================= HOVER ================= */
 
-.wcl-pin:hover,
-.wcl-pin.is-hovered,
-.wcl-pin.is-locked{
+.wcl-pin:hover{
   transform:translate(-50%,-100%) scale(1.15);
-  z-index:20;
+  z-index:5;
 }
 
-.wcl-pin:hover .pin-head,
-.wcl-pin.is-hovered .pin-head,
-.wcl-pin.is-locked .pin-head{
+.wcl-pin:hover .pin-head{
   box-shadow:
     0 6px 14px rgba(0,0,0,0.45),
     0 0 6px rgba(255,255,255,0.7);
 }
 
-.wcl-pin:hover .pin-needle,
-.wcl-pin.is-hovered .pin-needle,
-.wcl-pin.is-locked .pin-needle{
+.wcl-pin:hover .pin-needle{
   filter:brightness(1.15);
 }
 
 /* ================= ACTIVE ================= */
 
-.wcl-pin.active,
-.wcl-pin.is-active{
+.wcl-pin.active{
   transform:translate(-50%,-100%) scale(1.25);
-  z-index:30;
+  z-index:10;
 }
 
-.wcl-pin.active .pin-head,
-.wcl-pin.is-active .pin-head{
+.wcl-pin.active .pin-head{
   box-shadow:
     0 0 0 3px rgba(255,255,255,0.7),
     0 0 10px rgba(212,175,55,0.9);
-}
-
-.wcl-pin.active .pin-needle,
-.wcl-pin.is-active .pin-needle{
-  filter:brightness(1.18);
-}
-
-/* ================= DIM ================= */
-
-.wcl-pin.is-dimmed{
-  opacity:0.35;
 }
 
 /* ================= STATIC PAGE ================= */
@@ -457,7 +431,7 @@ body.auth-locked .main {
 
 #mapView {
   width: 100%;
-  height: 620px;
-  min-height: 520px;
+  height: calc(100vh - 140px);
+  min-height: 600px;
   display: block;
 }
