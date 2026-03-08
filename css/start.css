@@ -224,8 +224,8 @@ body.static-page{
   align-items:center;
   justify-content:center;
 
-  background:rgba(0,0,0,0.35);
-  backdrop-filter:blur(4px);
+  background:rgba(0,0,0,0.28);
+  backdrop-filter:blur(3px);
 
   z-index:9999;
 
@@ -319,16 +319,16 @@ body.static-page{
 }
 
 /* ================= LOGIN INPUTS ================= */
-
 .login-fields{
   display:flex;
   flex-direction:column;
-  gap:12px;
+  gap:14px;   /* lite mer luft mellan fälten */
 }
 
 .login-fields input{
   width:100%;
-  padding:12px 14px;
+
+  padding:14px 16px;   /* tidigare 12px 14px */
 
   border-radius:10px;
 
@@ -339,7 +339,7 @@ body.static-page{
   color:#fff;
 
   font-family:"DM Sans",sans-serif;
-  font-size:14px;
+  font-size:15px;      /* tidigare 14px */
 }
 
 .login-fields input::placeholder{
