@@ -391,6 +391,60 @@ body.static-page{
 }
 
 /* ============================================================
+   AGE GATE
+   ============================================================ */
+
+.age-gate{
+  position:fixed;
+  inset:0;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:rgba(0,0,0,0.16);
+  backdrop-filter:blur(1.5px);
+
+  z-index:100000;
+}
+
+/* buttons */
+
+.age-actions{
+  display:flex;
+  gap:14px;
+  justify-content:center;
+  margin-top:10px;
+}
+
+.age-enter,
+.age-leave{
+  padding:12px 22px;
+  border-radius:999px;
+
+  font-family:"DM Sans",sans-serif;
+  font-weight:600;
+
+  border:1px solid rgba(255,255,255,0.14);
+
+  background:rgba(255,255,255,0.05);
+  color:#fff;
+
+  cursor:pointer;
+
+  transition:all .2s ease;
+}
+
+.age-enter:hover{
+  background:rgba(115,98,75,0.35);
+  border-color:rgba(115,98,75,0.6);
+}
+
+.age-leave:hover{
+  background:rgba(255,255,255,0.12);
+}
+
+/* ============================================================
    COOKIE BANNER
    ============================================================ */
 
