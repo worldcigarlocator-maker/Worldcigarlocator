@@ -224,8 +224,8 @@ body.static-page{
   align-items:center;
   justify-content:center;
 
-  background:rgba(0,0,0,0.28);
-  backdrop-filter:blur(3px);
+  background:rgba(0,0,0,0.20);
+  backdrop-filter:blur(2px);
 
   z-index:9999;
 
