@@ -219,16 +219,19 @@ body.static-page{
 
 .login-popup{
   position:fixed;
-  inset:0;
+  top:0;
+  left:0;
+  width:100vw;
+  height:100vh;
 
   display:flex;
   align-items:center;
   justify-content:center;
 
-  background:rgba(0,0,0,0.12);   /* mer av sidan syns */
-  backdrop-filter:blur(1.5px);   /* mild blur */
+  background:rgba(0,0,0,0.12);
+  backdrop-filter:blur(1px);
 
-  z-index:9999;
+  z-index:99999;   /* högre än allt annat */
 }
 
 /* vignette så mitten är ljusare men kanter mörkare */
