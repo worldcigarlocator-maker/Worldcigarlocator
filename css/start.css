@@ -216,27 +216,22 @@ body.static-page{
 /* ============================================================
    LOGIN OVERLAY
    ============================================================ */
-.login-popup {
-  position: fixed;
-  inset: 0;
+.login-popup{
+  position:fixed;
+  inset:0;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-  background: linear-gradient(
-    rgba(0,0,0,0.72),
-    rgba(0,0,0,0.88)
-  );
+  width:100vw;
+  height:100vh;
 
-  backdrop-filter: blur(6px);
+  background:rgba(0,0,0,0.96);
+  backdrop-filter:blur(8px);
 
-  z-index: 9999;
-
-  width: 100vw;
-  height: 100vh;
+  z-index:100000;   /* 🔥 högre än allt annat */
 }
-
 /* ================= LOGIN PANEL ================= */
 
 .login-box{
