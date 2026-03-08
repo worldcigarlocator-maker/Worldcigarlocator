@@ -224,14 +224,36 @@ body.static-page{
   align-items:center;
   justify-content:center;
 
-  background:rgba(0,0,0,0.35);   /* var mörkare innan */
-  backdrop-filter:blur(4px);     /* mindre blur så hero syns */
+  background:rgba(0,0,0,0.35);
+  backdrop-filter:blur(4px);
 
   z-index:9999;
+
+  position:fixed;
+}
+
+.login-popup{
+  position:fixed;
+  inset:0;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:rgba(0,0,0,0.35);
+  backdrop-filter:blur(4px);
+
+  z-index:9999;
+
+  position:fixed;
 }
 /* ================= LOGIN PANEL ================= */
 
 .login-box{
+
+  position:relative;
+  z-index:2;
+
   width:100%;
   max-width:420px;
 
@@ -239,11 +261,10 @@ body.static-page{
 
   border-radius:18px;
 
-  background:rgba(10,10,10,0.62);
+  background:rgba(10,10,10,0.55);
+  backdrop-filter:blur(12px);
 
-  backdrop-filter:blur(14px);
-
-  border:1px solid rgba(255,255,255,0.10);
+  border:1px solid rgba(255,255,255,0.08);
 
   box-shadow:
     0 20px 60px rgba(0,0,0,0.55);
@@ -255,6 +276,32 @@ body.static-page{
   text-align:center;
 }
 
+/* ============================================================
+   HUMIDOR GLOW
+   ============================================================ */
+
+.login-box::after{
+
+  content:"";
+
+  position:absolute;
+  inset:-120px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(115,98,75,0.35) 0%,
+      rgba(115,98,75,0.12) 35%,
+      rgba(115,98,75,0) 70%
+    );
+
+  z-index:-1;
+
+  filter:blur(30px);
+
+  pointer-events:none;
+
+}
 /* ================= LOGIN BRAND ================= */
 
 .login-brand{
