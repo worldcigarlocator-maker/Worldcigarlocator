@@ -472,3 +472,12 @@ body.static-page{
   color: rgba(255,255,255,0.65);
   margin-bottom: 24px;
 }
+
+/* ============================================================
+   AUTH LOCK
+   Hide UI while login overlay is active
+   ============================================================ */
+
+body.auth-locked .sidebar-actions #loginBtn{
+  display:none;
+}
