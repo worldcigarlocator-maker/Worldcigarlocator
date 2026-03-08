@@ -32,13 +32,13 @@ function showLoginPopup() {
 async function syncAuthGate() {
   const { data: { session } } = await supabase.auth.getSession();
 
-  // 🔒 If not logged in, keep gate visible
   if (!session) {
+    document.body.classList.add("auth-locked");
     showLoginPopup();
     return;
   }
 
-  // 🔓 Logged in
+  document.body.classList.remove("auth-locked");
   hideLoginPopup();
 }
 
