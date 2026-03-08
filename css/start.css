@@ -216,6 +216,7 @@ body.static-page{
 /* ============================================================
    LOGIN OVERLAY
    ============================================================ */
+
 .login-popup{
   position:fixed;
   inset:0;
@@ -224,28 +225,29 @@ body.static-page{
   align-items:center;
   justify-content:center;
 
-  background:rgba(0,0,0,0.20);
-  backdrop-filter:blur(1px);
+  background:rgba(0,0,0,0.16);   /* mer av sidan syns */
+  backdrop-filter:blur(1.5px);   /* mild blur */
 
   z-index:9999;
-
-  position:fixed;
 }
 
-.login-popup{
-  position:fixed;
+/* vignette så mitten är ljusare men kanter mörkare */
+
+.login-popup::before{
+
+  content:"";
+  position:absolute;
   inset:0;
 
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(0,0,0,0) 55%,
+      rgba(0,0,0,0.25) 100%
+    );
 
-  background:rgba(0,0,0,0.35);
-  backdrop-filter:blur(4px);
+  pointer-events:none;
 
-  z-index:9999;
-
-  position:fixed;
 }
 /* ================= LOGIN PANEL ================= */
 
@@ -285,12 +287,12 @@ body.static-page{
   content:"";
 
   position:absolute;
-  inset:-120px;
+  inset:-90px;
 
   background:
     radial-gradient(
       circle,
-      rgba(115,98,75,0.35) 0%,
+      rgba(115,98,75,0.28) 0%,
       rgba(115,98,75,0.12) 35%,
       rgba(115,98,75,0) 70%
     );
