@@ -217,7 +217,6 @@ body.static-page{
    LOGIN OVERLAY
    ============================================================ */
 .login-popup{
-
   position:fixed;
   inset:0;
 
@@ -225,14 +224,8 @@ body.static-page{
   align-items:center;
   justify-content:center;
 
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(0,0,0,0.65),
-      rgba(0,0,0,0.92)
-    );
-
-  backdrop-filter:blur(8px);
+  background:rgba(0,0,0,0.35);   /* var mörkare innan */
+  backdrop-filter:blur(4px);     /* mindre blur så hero syns */
 
   z-index:9999;
 }
