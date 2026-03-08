@@ -28,31 +28,28 @@
   <!-- ============================================================
        LOGIN POPUP — FULLSCREEN AUTH GATE
   ============================================================ -->
- <div class="login-box">
+<div id="loginPopup" class="login-popup">
 
-  <div class="login-brand">World Cigar Locator</div>
+  <div class="login-box">
+    <h1 class="login-title">World Cigar Locator</h1>
+    <p class="login-sub">Our global humidor opens soon</p>
 
-  <div class="login-tease">
-    Our global humidor opens soon
+    <input id="loginEmail" type="email" placeholder="Email">
+    <input id="loginPassword" type="password" placeholder="Password">
+
+    <label class="remember">
+      <input type="checkbox" id="rememberMe">
+      Remember me
+    </label>
+
+    <button id="loginSubmit">
+      <span class="login-text">Login</span>
+      <span id="loginSpinner" class="hidden">⏳</span>
+    </button>
+
   </div>
-
-  <div class="login-fields">
-    <input id="loginEmail" type="email" placeholder="Email" autocomplete="email" />
-    <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
-  </div>
-
-  <label class="remember">
-    <input type="checkbox" id="rememberMe" />
-    Remember me
-  </label>
-
-  <button id="loginSubmit">
-    <span class="login-text">Login</span>
-    <span id="loginSpinner" class="hidden">⏳</span>
-  </button>
 
 </div>
-
   <!-- ============================================================
        APP
   ============================================================ -->
