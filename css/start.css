@@ -225,7 +225,7 @@ body.static-page{
   justify-content:center;
 
   background:rgba(0,0,0,0.20);
-  backdrop-filter:blur(2px);
+  backdrop-filter:blur(1px);
 
   z-index:9999;
 
