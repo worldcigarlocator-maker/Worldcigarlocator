@@ -47,8 +47,9 @@ async function checkAuth() {
   }
 
   // 🔐 Admin whitelist check (DB is canonical)
-  const { data: isAdmin, error: aErr } = await WCL.supabase.rpc("bo_is_admin_v1");
-
+const { data: isAdmin, error: aErr } =
+  await WCL.supabase.rpc("bo_is_admin_v1", { p_uid: user.id });
+   
   if (aErr) {
     console.warn("Admin RPC error:", aErr);
     await WCL.supabase.auth.signOut();
