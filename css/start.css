@@ -217,6 +217,7 @@ body.static-page{
    LOGIN OVERLAY
    ============================================================ */
 .login-popup{
+
   position:fixed;
   inset:0;
 
@@ -224,13 +225,16 @@ body.static-page{
   align-items:center;
   justify-content:center;
 
-  width:100vw;
-  height:100vh;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(0,0,0,0.65),
+      rgba(0,0,0,0.92)
+    );
 
-  background:rgba(0,0,0,0.96);
   backdrop-filter:blur(8px);
 
-  z-index:100000;   /* 🔥 högre än allt annat */
+  z-index:9999;
 }
 /* ================= LOGIN PANEL ================= */
 
@@ -406,4 +410,20 @@ body.static-page{
   height: calc(100vh - 140px);
   min-height: 600px;
   display: block;
+}
+
+/* ============================================================
+   LOGIN OVERLAY TEXT
+   ============================================================ */
+
+.login-title{
+  font-family: Georgia,"Times New Roman",serif;
+  color: rgb(var(--global));
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.login-sub{
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 24px;
 }
