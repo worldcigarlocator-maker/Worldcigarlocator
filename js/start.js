@@ -11,16 +11,25 @@ import { qs } from "./globals.js";
 export function initAgeGate() {
 
   const modal = qs("ageGate");
+  const login = qs("loginPopup");
+
   if (!modal) return;
 
   // Already verified
   if (localStorage.getItem("ageVerified") === "yes") {
+
     modal.classList.add("hidden");
+
+    if (login) login.style.display = "flex";
+
     return;
   }
 
-  // Show gate
+  // Show age gate
   modal.classList.remove("hidden");
+
+  // Hide login until age confirmed
+  if (login) login.style.display = "none";
 
   const enter = qs("enterBtn");
   const leave = qs("leaveBtn");
@@ -31,6 +40,8 @@ export function initAgeGate() {
       localStorage.setItem("ageVerified", "yes");
 
       modal.classList.add("hidden");
+
+      if (login) login.style.display = "flex";
 
     };
   }
