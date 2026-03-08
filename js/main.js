@@ -33,7 +33,6 @@ async function syncAuthGate() {
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
-    document.body.classList.add("auth-locked");
     showLoginPopup();
     return;
   }
