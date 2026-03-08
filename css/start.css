@@ -225,7 +225,7 @@ body.static-page{
   align-items:center;
   justify-content:center;
 
-  background:rgba(0,0,0,0.16);   /* mer av sidan syns */
+  background:rgba(0,0,0,0.12);   /* mer av sidan syns */
   backdrop-filter:blur(1.5px);   /* mild blur */
 
   z-index:9999;
@@ -243,7 +243,7 @@ body.static-page{
     radial-gradient(
       circle at center,
       rgba(0,0,0,0) 55%,
-      rgba(0,0,0,0.25) 100%
+      rgba(0,0,0,0.18) 100%
     );
 
   pointer-events:none;
