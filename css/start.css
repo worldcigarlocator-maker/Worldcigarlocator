@@ -216,7 +216,6 @@ body.static-page{
 /* ============================================================
    LOGIN OVERLAY
    ============================================================ */
-
 .login-popup {
   position: fixed;
   inset: 0;
@@ -225,7 +224,11 @@ body.static-page{
   align-items: center;
   justify-content: center;
 
-  background: rgba(0,0,0,0.85);
+  background: linear-gradient(
+    rgba(0,0,0,0.72),
+    rgba(0,0,0,0.88)
+  );
+
   backdrop-filter: blur(6px);
 
   z-index: 9999;
