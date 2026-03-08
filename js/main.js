@@ -30,15 +30,32 @@ function showLoginPopup() {
 // AUTH GATE (source of truth = session)
 // ============================================================
 async function syncAuthGate() {
+
+  const popup = document.getElementById("loginPopup");
+
   const { data: { session } } = await supabase.auth.getSession();
 
+  // NOT LOGGED IN
   if (!session) {
-    showLoginPopup();
+
+    document.body.classList.add("auth-locked");
+
+    if (popup) {
+      popup.classList.remove("hidden");
+      popup.style.display = "flex";
+    }
+
     return;
   }
 
+  // LOGGED IN
   document.body.classList.remove("auth-locked");
-  hideLoginPopup();
+
+  if (popup) {
+    popup.classList.add("hidden");
+    popup.style.display = "none";
+  }
+
 }
 
 // ============================================================
