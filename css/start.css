@@ -167,7 +167,6 @@ body.static-page{
 
 /* ================= GLOBAL UTILITIES ================= */
 
-/* 🔒 Måste vinna ALLTID */
 .hidden {
   display: none !important;
 }
@@ -176,7 +175,7 @@ body.static-page{
 
 .main {
   margin-left: 260px;
-  padding: 4.2rem 2.5rem 2.5rem; /* 🔑 mer top padding */
+  padding: 4.2rem 2.5rem 2.5rem;
   width: calc(100% - 260px);
 }
 
@@ -186,7 +185,7 @@ body.static-page{
    ============================================================ */
 
 .hero {
-  position: relative;                 /* 🔥 viktigt för signature */
+  position: relative;
   max-width: 1390px;
   margin: 2.8rem auto 0;
   aspect-ratio: 16 / 9;
@@ -208,40 +207,15 @@ body.static-page{
 .map-view {
   width: 100%;
   margin-top: 2rem;
-
   border-radius: 18px;
   overflow: hidden;
-
   background: #000;
-
-  /* Höjd matchar ungefär cards-ytan */
   min-height: 520px;
 }
 
 /* ============================================================
-   AUTH LOCK (PUBLIC MODE) — SAFE STACKING
+   LOGIN OVERLAY
    ============================================================ */
-body.auth-locked {
-  overflow: hidden;
-}
-
-/* Blur app */
-body.auth-locked .sidebar,
-body.auth-locked .main {
-  filter: blur(6px);
-  opacity: 0.85;
-}
-
-/* Block interaction via overlay instead */
-.auth-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-}
-
-/* ============================================================
-   LOGIN OVERLAY — ABSOLUTE TOP LAYER
-============================================================ */
 
 .login-popup {
   position: fixed;
@@ -251,13 +225,124 @@ body.auth-locked .main {
   align-items: center;
   justify-content: center;
 
-  background: rgba(0, 0, 0, 0.92);
+  background: rgba(0,0,0,0.85);
   backdrop-filter: blur(6px);
 
-  z-index: 9999;   /* 🔥 above EVERYTHING */
+  z-index: 9999;
 }
 
-/* ================= COOKIE BANNER ================= */
+/* ================= LOGIN PANEL ================= */
+
+.login-box{
+  width:100%;
+  max-width:420px;
+
+  padding:42px 38px;
+
+  border-radius:18px;
+
+  background:rgba(10,10,10,0.62);
+
+  backdrop-filter:blur(14px);
+
+  border:1px solid rgba(255,255,255,0.10);
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.55);
+
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+
+  text-align:center;
+}
+
+/* ================= LOGIN BRAND ================= */
+
+.login-brand{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:32px;
+  color:rgb(var(--global));
+  letter-spacing:0.02em;
+}
+
+/* ================= LOGIN TEASE ================= */
+
+.login-tease{
+  font-size:15px;
+  color:rgba(255,255,255,0.75);
+}
+
+/* ================= LOGIN INPUTS ================= */
+
+.login-fields{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.login-fields input{
+  width:100%;
+  padding:12px 14px;
+
+  border-radius:10px;
+
+  border:1px solid rgba(255,255,255,0.12);
+
+  background:rgba(0,0,0,0.35);
+
+  color:#fff;
+
+  font-family:"DM Sans",sans-serif;
+  font-size:14px;
+}
+
+.login-fields input::placeholder{
+  color:rgba(255,255,255,0.45);
+}
+
+/* ================= REMEMBER ================= */
+
+.remember{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+
+  font-size:13px;
+  color:rgba(255,255,255,0.65);
+}
+
+/* ================= LOGIN BUTTON ================= */
+
+#loginSubmit{
+  margin-top:6px;
+
+  padding:12px;
+
+  border-radius:999px;
+
+  border:1px solid rgba(255,255,255,0.15);
+
+  background:rgba(255,255,255,0.05);
+
+  color:#fff;
+
+  font-family:"DM Sans",sans-serif;
+  font-weight:600;
+
+  cursor:pointer;
+
+  transition:all .2s ease;
+}
+
+#loginSubmit:hover{
+  background:rgba(255,255,255,0.12);
+}
+
+/* ============================================================
+   COOKIE BANNER
+   ============================================================ */
 
 .cookie-banner {
   position: fixed;
@@ -310,123 +395,6 @@ body.auth-locked .main {
 .cookie-btn:hover {
   background: rgba(255,255,255,0.10);
 }
-
-/* ================= LEGAL / ABOUT PAGE ================= */
-
-.legal-page {
-  background: #f6f4f1;
-  min-height: 100vh;
-  padding: 120px 20px 90px; /* top / sides / bottom */
-}
-
-.legal-inner {
-  max-width: 860px;
-  margin: 0 auto;
-  font-family: 'DM Sans', sans-serif;
-  color: #1a1a1a;
-}
-
-.legal-inner h1 {
-  font-size: 40px;
-  margin-bottom: 30px;
-  font-weight: 700;
-}
-
-.legal-inner h2 {
-  font-size: 26px;
-  margin-top: 55px;
-  margin-bottom: 16px;
-  font-weight: 600;
-}
-
-.legal-inner p {
-  font-size: 17px;
-  line-height: 1.75;
-  margin-bottom: 18px;
-}
-
-.legal-inner ul {
-  margin: 20px 0 30px 20px;
-}
-
-.legal-inner li {
-  margin-bottom: 8px;
-}
-
-.legal-inner .highlight {
-  font-weight: 600;
-  color: #111;
-}
-
-.page-brand,
-.page-brand:visited {
-  color: #766148;
-}
-
-.page-brand {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 22px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  text-transform: none;
-  color: #766148;
-  text-decoration: none;
-  transition: opacity 0.2s ease;
-}
-
-.page-brand:hover {
-  opacity: 0.7;
-}
-
-/* ================= STATIC PAGE NAV ================= */
-
-.page-topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-
-  height: 72px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding-left: 48px;
-  padding-right: 48px;
-
-  background: #f6f4f1;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-  z-index: 1000;
-  position: relative;
-}
-
-.page-nav {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 36px;
-}
-
-.page-nav a {
-  font-family: "DM Sans", sans-serif;
-  font-size: 13px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: rgba(0,0,0,0.45);
-  transition: color 0.2s ease;
-}
-
-.page-nav a:hover {
-  color: #766148;
-}
-
-.page-nav a.active {
-  color: #111;
-  font-weight: 600;
-}
-
 
 /* ============================================================
    MAP VIEW
