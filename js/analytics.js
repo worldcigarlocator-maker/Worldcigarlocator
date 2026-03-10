@@ -348,7 +348,7 @@ async function loadStoreDossier(storeId) {
 
   const { data: events, error: e3 } = await sb
     .from("analytics_events")
-    .select("timestamp, event_type, store_id, source, session_hash")
+    .select("timestamp, event_type, payload")
     .eq("store_id", storeId)
     .order("timestamp", { ascending: false })
     .limit(50);
@@ -424,7 +424,6 @@ function renderTrend(rows) {
 /* ============================================================
    EVENTS TABLE
    ============================================================ */
-
 function renderEvents(rows) {
 
   if (!rows.length) {
@@ -439,12 +438,13 @@ function renderEvents(rows) {
     <tr>
       <td>${escapeHtml(new Date(r.timestamp).toISOString().replace("T"," ").slice(0,19))}</td>
       <td>${escapeHtml(r.event_type)}</td>
-      <td class="num">${escapeHtml(String(r.store_id || ""))}</td>
-      <td>${escapeHtml(r.source || "")}</td>
+      <td class="num">${escapeHtml(String(r.payload?.store_id || ""))}</td>
+      <td>${escapeHtml(r.payload?.source || "")}</td>
       <td>${escapeHtml(r.session_hash || "")}</td>
     </tr>
   `).join("");
 }
+
 
 /* ============================================================
    OVERVIEW
