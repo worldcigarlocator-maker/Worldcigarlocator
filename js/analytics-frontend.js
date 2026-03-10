@@ -104,12 +104,13 @@ export const VIEW_OBSERVER = new IntersectionObserver(
 
       markViewed(storeId);
 
-      sendEvent("store_viewed", {
-        store_id: Number(storeId),
-        continent: el.dataset.continent || null,
-        country: el.dataset.country || null,
-        city: el.dataset.city || null,
-      });
+  sendEvent("store_viewed", {
+  store_id: Number(storeId),
+  continent: el.dataset.continent || null,
+  country: el.dataset.country || null,
+  city: el.dataset.city || null,
+  source: "search"
+});
 
       VIEW_OBSERVER.unobserve(el);
     }
