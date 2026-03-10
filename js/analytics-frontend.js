@@ -180,3 +180,5 @@ window.WCL_ANALYTICS = {
   VIEW_OBSERVER
 
 };
+
+export default window.WCL_ANALYTICS;
