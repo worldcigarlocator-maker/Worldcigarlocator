@@ -1,6 +1,7 @@
 /* ============================================================
    WCL Analytics — Backoffice (V1)
    - Store-first search + autocomplete
+   - Global KPIs
    - Store dossier: views/clicks/ctr + daily trend + latest events
    - Overview: top countries/cities/stores via RPC
    ============================================================ */
@@ -33,6 +34,10 @@ const kpiViews = $("#kpiViews");
 const kpiClicks = $("#kpiClicks");
 const kpiCtr = $("#kpiCtr");
 
+const globalViews = $("#globalViews");
+const globalClicks = $("#globalClicks");
+const globalCtr = $("#globalCtr");
+
 const trendTbody = $("#trendTable tbody");
 const eventsTbody = $("#eventsTable tbody");
 
@@ -40,24 +45,53 @@ const overviewTableBody = $("#overviewTable tbody");
 const ovKeyHeader = $("#ovKeyHeader");
 const overviewRange = $("#overviewRange");
 
-const globalViews = $("#globalViews");
-const globalClicks = $("#globalClicks");
-const globalCtr = $("#globalCtr");
-
 let STORES_INDEX = [];
 let ACTIVE_STORE = null;
 
-let OVERVIEW_TAB = "countries"; // countries|cities|stores
+let OVERVIEW_TAB = "countries";
+
+/* ============================================================
+   INIT
+   ============================================================ */
 
 document.addEventListener("DOMContentLoaded", async () => {
   bindUI();
   await loadStoresIndex();
-  await renderOverview(); // default
+  await loadGlobalKpis();
+  await renderOverview();
 });
 
+/* ============================================================
+   GLOBAL KPIs
+   ============================================================ */
+
+async function loadGlobalKpis() {
+
+  const { data, error } = await sb
+    .from("analytics_kpi_v1")
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error("Failed loading global KPIs", error);
+    return;
+  }
+
+  if (globalViews) globalViews.textContent = data.total_views ?? "0";
+  if (globalClicks) globalClicks.textContent = data.total_clicks ?? "0";
+
+  const ctr = Number(data.ctr || 0) * 100;
+  if (globalCtr) globalCtr.textContent = ctr.toFixed(2) + "%";
+}
+
+/* ============================================================
+   UI BINDINGS
+   ============================================================ */
+
 function bindUI() {
-  // search
+
   searchInput?.addEventListener("input", onSearchInput);
+
   searchInput?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") triggerSearchFromUI();
     if (e.key === "Escape") hideAutocomplete();
@@ -67,29 +101,28 @@ function bindUI() {
   clearBtn?.addEventListener("click", resetAll);
 
   document.addEventListener("click", (e) => {
-    // close dropdown if click outside
     if (!searchResults.contains(e.target) && e.target !== searchInput) {
       hideAutocomplete();
     }
   });
 
-  // range changes
   rangeSelect?.addEventListener("change", async () => {
     if (!ACTIVE_STORE) return;
     await loadStoreDossier(ACTIVE_STORE.id);
   });
 
-  // actions
   exportBtn?.addEventListener("click", exportCSV);
   printBtn?.addEventListener("click", () => window.print());
   mailBtn?.addEventListener("click", emailStore);
 
-  // overview tabs
   $$(".btn.tab").forEach(btn => {
     btn.addEventListener("click", async () => {
+
       $$(".btn.tab").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
+
       OVERVIEW_TAB = btn.dataset.tab;
+
       await renderOverview();
     });
   });
@@ -97,16 +130,18 @@ function bindUI() {
   overviewRange?.addEventListener("change", renderOverview);
 }
 
-/* =========================
-   STORES INDEX (autocomplete source)
-   ========================= */
+/* ============================================================
+   STORES INDEX
+   ============================================================ */
+
 async function loadStoresIndex() {
+
   const { data, error } = await sb
     .from("analytics_store_search_v1")
     .select("store_id, name, city, country, types, access")
     .eq("deleted", false)
     .eq("approved", true)
-    .order("name", { ascending: true }) // 🔑 viktigt
+    .order("name", { ascending: true })
     .limit(50000);
 
   if (error) {
@@ -114,7 +149,6 @@ async function loadStoresIndex() {
     return;
   }
 
-  // normalisera till samma shape
   STORES_INDEX = (data || []).map(s => ({
     id: s.store_id,
     name: s.name,
@@ -125,13 +159,14 @@ async function loadStoresIndex() {
   }));
 }
 
-
-/* =========================
+/* ============================================================
    AUTOCOMPLETE
-   ========================= */
+   ============================================================ */
 
 function onSearchInput() {
+
   const q = (searchInput.value || "").trim().toLowerCase();
+
   if (!q) {
     hideAutocomplete();
     return;
@@ -142,22 +177,30 @@ function onSearchInput() {
       const name = (s.name || "").toLowerCase();
       const city = (s.city || "").toLowerCase();
       const country = (s.country || "").toLowerCase();
-      return name.includes(q) || city.includes(q) || country.includes(q);
+
+      return (
+        name.includes(q) ||
+        city.includes(q) ||
+        country.includes(q)
+      );
     })
     .slice(0, 12);
 
-  renderAutocomplete(matches, q);
+  renderAutocomplete(matches);
 }
 
-function renderAutocomplete(list, q) {
+function renderAutocomplete(list) {
+
   if (!searchResults) return;
 
   if (!list.length) {
+
     searchResults.innerHTML = `
       <div class="search-item">
         <strong>No matches</strong><br>
         <small>Try another spelling.</small>
       </div>`;
+
     searchResults.classList.remove("hidden");
     return;
   }
@@ -169,11 +212,15 @@ function renderAutocomplete(list, q) {
     </div>
   `).join("");
 
-  // click select
   $$(".search-item").forEach(el => {
+
     const id = el.dataset.id;
+
     if (!id) return;
-    el.addEventListener("click", () => selectStoreById(Number(id)));
+
+    el.addEventListener("click", () => {
+      selectStoreById(Number(id));
+    });
   });
 
   searchResults.classList.remove("hidden");
@@ -184,30 +231,34 @@ function hideAutocomplete() {
 }
 
 function triggerSearchFromUI() {
+
   const q = (searchInput.value || "").trim().toLowerCase();
+
   if (!q) return;
 
-  // If dropdown is visible, pick first item
   const first = searchResults?.querySelector(".search-item[data-id]");
+
   if (first?.dataset?.id) {
     selectStoreById(Number(first.dataset.id));
     return;
   }
 
-  // fallback: pick first match from index
-  const match = STORES_INDEX.find(s => (s.name || "").toLowerCase().includes(q));
+  const match = STORES_INDEX.find(s =>
+    (s.name || "").toLowerCase().includes(q)
+  );
+
   if (match) selectStoreById(Number(match.id));
 }
 
-/* =========================
+/* ============================================================
    STORE DOSSIER
-   ========================= */
+   ============================================================ */
 
 async function selectStoreById(storeId) {
+
   hideAutocomplete();
   searchInput.value = "";
 
-  // load full store row
   const { data, error } = await sb
     .from("stores")
     .select("*")
@@ -225,90 +276,139 @@ async function selectStoreById(storeId) {
   storePanel.classList.remove("hidden");
 
   renderStoreHeader(data);
+
   await loadStoreDossier(storeId);
 }
 
 function renderStoreHeader(s) {
-  storeName.textContent = s.name || "—";
-  storeLocation.textContent = [s.city, s.country].filter(Boolean).join(", ") || "—";
 
-  const t = Array.isArray(s.types) ? s.types.join(", ") : (s.type || "—");
-  const a = s.access ? String(s.access).toUpperCase() : "—";
+  storeName.textContent = s.name || "—";
+
+  storeLocation.textContent =
+    [s.city, s.country].filter(Boolean).join(", ") || "—";
+
+  const t = Array.isArray(s.types)
+    ? s.types.join(", ")
+    : (s.type || "—");
+
+  const a = s.access
+    ? String(s.access).toUpperCase()
+    : "—";
+
   storeTypeAccess.textContent = `Type: ${t} • Access: ${a}`;
 
   if (s.website) {
-    storeWebsite.innerHTML = `Website: <a href="${s.website}" target="_blank" rel="noopener">${escapeHtml(s.website)}</a>`;
+
+    storeWebsite.innerHTML =
+      `Website: <a href="${s.website}" target="_blank" rel="noopener">${escapeHtml(s.website)}</a>`;
+
   } else {
+
     storeWebsite.textContent = "Website: —";
   }
 }
 
 async function loadStoreDossier(storeId) {
+
   const days = Number(rangeSelect.value || 30);
 
-  // 1) summary via RPC
-  const { data: summary, error: e1 } = await sb.rpc("analytics_store_summary", {
-    p_store_id: storeId,
-    p_days: days
-  });
+  const { data: summary, error: e1 } =
+    await sb.rpc("analytics_store_summary", {
+      p_store_id: storeId,
+      p_days: days
+    });
 
   if (e1) {
+
     console.error("analytics_store_summary error", e1);
-    // show zero
     setKpis(0, 0);
+
   } else {
+
     setKpis(summary?.views || 0, summary?.clicks || 0);
   }
 
-  // 2) daily trend via RPC
-  const { data: trend, error: e2 } = await sb.rpc("analytics_store_daily", {
-    p_store_id: storeId,
-    p_days: days
-  });
+  const { data: trend, error: e2 } =
+    await sb.rpc("analytics_store_daily", {
+      p_store_id: storeId,
+      p_days: days
+    });
 
   if (e2) {
+
     console.error("analytics_store_daily error", e2);
-    trendTbody.innerHTML = `<tr><td colspan="4" class="muted center">No data.</td></tr>`;
+
+    trendTbody.innerHTML =
+      `<tr><td colspan="4" class="muted center">No data.</td></tr>`;
+
   } else {
+
     renderTrend(trend || []);
   }
 
-  // 3) latest events debug (last 50)
   const { data: events, error: e3 } = await sb
-    .from("analytics_events_parsed")
+    .from("analytics_events")
     .select("timestamp, event_type, store_id, source, session_hash")
     .eq("store_id", storeId)
     .order("timestamp", { ascending: false })
     .limit(50);
 
   if (e3) {
+
     console.error("events debug error", e3);
-    eventsTbody.innerHTML = `<tr><td colspan="5" class="muted center">No events.</td></tr>`;
+
+    eventsTbody.innerHTML =
+      `<tr><td colspan="5" class="muted center">No events.</td></tr>`;
+
   } else {
+
     renderEvents(events || []);
   }
 }
 
+/* ============================================================
+   KPI RENDER
+   ============================================================ */
+
 function setKpis(views, clicks) {
+
   const v = Number(views) || 0;
   const c = Number(clicks) || 0;
-  const ctr = v > 0 ? ((c / v) * 100).toFixed(1) + "%" : "0%";
+
+  const ctr =
+    v > 0
+      ? ((c / v) * 100).toFixed(1) + "%"
+      : "0%";
 
   kpiViews.textContent = String(v);
   kpiClicks.textContent = String(c);
   kpiCtr.textContent = ctr;
 }
 
+/* ============================================================
+   TREND TABLE
+   ============================================================ */
+
 function renderTrend(rows) {
+
   if (!rows.length) {
-    trendTbody.innerHTML = `<tr><td colspan="4" class="muted center">No data.</td></tr>`;
+
+    trendTbody.innerHTML =
+      `<tr><td colspan="4" class="muted center">No data.</td></tr>`;
+
     return;
   }
 
   trendTbody.innerHTML = rows.map(r => {
+
     const views = Number(r.views || 0);
     const clicks = Number(r.clicks || 0);
-    const ctr = views ? ((clicks / views) * 100).toFixed(1) + "%" : "0%";
+
+    const ctr =
+      views
+        ? ((clicks / views) * 100).toFixed(1) + "%"
+        : "0%";
+
     return `
       <tr>
         <td>${escapeHtml(r.day)}</td>
@@ -317,12 +417,21 @@ function renderTrend(rows) {
         <td class="num">${ctr}</td>
       </tr>
     `;
+
   }).join("");
 }
 
+/* ============================================================
+   EVENTS TABLE
+   ============================================================ */
+
 function renderEvents(rows) {
+
   if (!rows.length) {
-    eventsTbody.innerHTML = `<tr><td colspan="5" class="muted center">No events.</td></tr>`;
+
+    eventsTbody.innerHTML =
+      `<tr><td colspan="5" class="muted center">No events.</td></tr>`;
+
     return;
   }
 
@@ -337,56 +446,105 @@ function renderEvents(rows) {
   `).join("");
 }
 
-/* =========================
-   OVERVIEW (Top lists via RPC)
-   ========================= */
+/* ============================================================
+   OVERVIEW
+   ============================================================ */
 
 async function renderOverview() {
+
   const days = Number(overviewRange.value || 30);
 
-  // headers
-  if (OVERVIEW_TAB === "countries") ovKeyHeader.textContent = "Country";
-  if (OVERVIEW_TAB === "cities") ovKeyHeader.textContent = "City";
-  if (OVERVIEW_TAB === "stores") ovKeyHeader.textContent = "Store";
+  if (OVERVIEW_TAB === "countries")
+    ovKeyHeader.textContent = "Country";
+
+  if (OVERVIEW_TAB === "cities")
+    ovKeyHeader.textContent = "City";
+
+  if (OVERVIEW_TAB === "stores")
+    ovKeyHeader.textContent = "Store";
 
   let rows = [];
+
   if (OVERVIEW_TAB === "countries") {
-    const { data, error } = await sb.rpc("analytics_top_countries", { p_days: days, p_limit: 100 });
+
+    const { data, error } =
+      await sb.rpc("analytics_top_countries", {
+        p_days: days,
+        p_limit: 100
+      });
+
     if (error) return renderOverviewError(error);
+
     rows = data || [];
-    renderOverviewTable(rows, (r) => r.country || "—");
+
+    renderOverviewTable(rows, r => r.country || "—");
   }
 
   if (OVERVIEW_TAB === "cities") {
-    const { data, error } = await sb.rpc("analytics_top_cities", { p_days: days, p_limit: 100 });
+
+    const { data, error } =
+      await sb.rpc("analytics_top_cities", {
+        p_days: days,
+        p_limit: 100
+      });
+
     if (error) return renderOverviewError(error);
+
     rows = data || [];
-    renderOverviewTable(rows, (r) => [r.city, r.country].filter(Boolean).join(", ") || "—");
+
+    renderOverviewTable(
+      rows,
+      r => [r.city, r.country].filter(Boolean).join(", ") || "—"
+    );
   }
 
   if (OVERVIEW_TAB === "stores") {
-    const { data, error } = await sb.rpc("analytics_top_stores", { p_days: days, p_limit: 100 });
+
+    const { data, error } =
+      await sb.rpc("analytics_top_stores", {
+        p_days: days,
+        p_limit: 100
+      });
+
     if (error) return renderOverviewError(error);
+
     rows = data || [];
-    renderOverviewTable(rows, (r) => `${r.name || "—"} (${[r.city, r.country].filter(Boolean).join(", ")})`);
+
+    renderOverviewTable(
+      rows,
+      r => `${r.name || "—"} (${[r.city, r.country].filter(Boolean).join(", ")})`
+    );
   }
 }
 
 function renderOverviewError(err) {
+
   console.error("Overview error", err);
-  overviewTableBody.innerHTML = `<tr><td colspan="4" class="muted center">Error loading overview.</td></tr>`;
+
+  overviewTableBody.innerHTML =
+    `<tr><td colspan="4" class="muted center">Error loading overview.</td></tr>`;
 }
 
 function renderOverviewTable(rows, keyFn) {
+
   if (!rows.length) {
-    overviewTableBody.innerHTML = `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
+
+    overviewTableBody.innerHTML =
+      `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
+
     return;
   }
 
   overviewTableBody.innerHTML = rows.map(r => {
+
     const views = Number(r.views || 0);
     const clicks = Number(r.clicks || 0);
-    const ctr = views ? ((clicks / views) * 100).toFixed(1) + "%" : "0%";
+
+    const ctr =
+      views
+        ? ((clicks / views) * 100).toFixed(1) + "%"
+        : "0%";
+
     return `
       <tr>
         <td>${escapeHtml(keyFn(r))}</td>
@@ -395,40 +553,55 @@ function renderOverviewTable(rows, keyFn) {
         <td class="num">${ctr}</td>
       </tr>
     `;
+
   }).join("");
 }
 
-/* =========================
+/* ============================================================
    EXPORT / EMAIL
-   ========================= */
+   ============================================================ */
 
 function exportCSV() {
+
   if (!ACTIVE_STORE) return;
 
   const rows = [...trendTbody.querySelectorAll("tr")].map(tr =>
-    [...tr.querySelectorAll("td")].map(td => (td.textContent || "").trim())
+    [...tr.querySelectorAll("td")].map(td =>
+      (td.textContent || "").trim()
+    )
   );
 
-  if (!rows.length || (rows.length === 1 && rows[0].length === 1)) return;
+  if (!rows.length) return;
 
   const header = ["Date", "Views", "Clicks", "CTR"];
+
   const csv = [header, ...rows]
-    .map(line => line.map(v => `"${String(v).replaceAll(`"`, `""`)}"`).join(","))
+    .map(line =>
+      line.map(v =>
+        `"${String(v).replaceAll(`"`, `""`)}"`
+      ).join(",")
+    )
     .join("\n");
 
-  const filename = `wcl-analytics-store-${ACTIVE_STORE.id}.csv`;
+  const filename =
+    `wcl-analytics-store-${ACTIVE_STORE.id}.csv`;
+
   downloadText(filename, csv, "text/csv");
 }
 
 function emailStore() {
+
   if (!ACTIVE_STORE) return;
 
   const days = Number(rangeSelect.value || 30);
+
   const v = kpiViews.textContent || "0";
   const c = kpiClicks.textContent || "0";
   const ctr = kpiCtr.textContent || "0%";
 
-  const subject = `World Cigar Locator — traffic report (${days === 0 ? "All time" : `Last ${days} days`})`;
+  const subject =
+    `World Cigar Locator — traffic report (${days === 0 ? "All time" : `Last ${days} days`})`;
+
   const body = [
     `Hi!`,
     ``,
@@ -446,30 +619,42 @@ function emailStore() {
     `World Cigar Locator`
   ].join("\n");
 
-  // mailto (du kan byta till riktig email när du har den)
-  const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const mailto =
+    `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
   window.location.href = mailto;
 }
 
 function downloadText(filename, text, mime) {
-  const blob = new Blob([text], { type: mime || "text/plain" });
+
+  const blob = new Blob([text], { type: mime });
+
   const url = URL.createObjectURL(blob);
+
   const a = document.createElement("a");
+
   a.href = url;
   a.download = filename;
+
   document.body.appendChild(a);
+
   a.click();
+
   a.remove();
+
   URL.revokeObjectURL(url);
 }
 
-/* =========================
+/* ============================================================
    RESET
-   ========================= */
+   ============================================================ */
 
 function resetAll() {
+
   hideAutocomplete();
+
   searchInput.value = "";
+
   ACTIVE_STORE = null;
 
   storePanel.classList.add("hidden");
@@ -479,11 +664,12 @@ function resetAll() {
   eventsTbody.innerHTML = "";
 }
 
-/* =========================
+/* ============================================================
    UTILS
-   ========================= */
+   ============================================================ */
 
 function escapeHtml(str) {
+
   return String(str ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
