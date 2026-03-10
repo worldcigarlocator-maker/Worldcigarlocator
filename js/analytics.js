@@ -8,6 +8,7 @@
 
 const CFG = window.WCL_ANALYTICS_CFG;
 const sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey);
+const trafficFlowBody = $("#trafficFlowBody");
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -59,6 +60,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadStoresIndex();
   await loadGlobalKpis();
   await renderOverview();
+   await loadTrafficFlow();
 });
 
 /* ============================================================
