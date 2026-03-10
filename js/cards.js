@@ -330,6 +330,13 @@ if (hero) hero.style.display = "none";
     grid.insertAdjacentHTML("beforeend", list.map(cardHTML).join(""));
   }
 
+  // ============================================================
+// VIEW TRACKING
+// ============================================================
+
+grid.querySelectorAll(".store-card").forEach((card) => {
+  VIEW_OBSERVER.observe(card);
+});
   ensureLoadMoreButton();
 }
 
