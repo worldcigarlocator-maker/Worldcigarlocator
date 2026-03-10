@@ -214,10 +214,15 @@ export async function openModal(storeInput) {
   if (modalAddress()) modalAddress().textContent = store.address || "—";
   if (modalPhone()) modalPhone().textContent = store.phone || "—";
 
-  if (modalWebsite() && store.website) {
-    modalWebsite().href = store.website;
-    modalWebsite().style.display = "inline";
-  }
+ if (modalWebsite() && store.website) {
+
+  const redirect =
+    "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/visit-store?store_id=" +
+    store.id;
+
+  modalWebsite().href = redirect;
+  modalWebsite().style.display = "inline";
+}
 
   // ----------------------------------
   // Directions (Google Maps Navigation)
