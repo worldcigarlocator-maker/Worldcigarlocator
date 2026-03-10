@@ -17,6 +17,11 @@ const qs = (sel) => document.querySelector(sel);
 
 document.addEventListener("DOMContentLoaded", () => {
 
+  // set traffic source
+  if (window.WCL_ANALYTICS) {
+    WCL_ANALYTICS.setSource("search");
+  }
+
   const input    = qs("#searchInput");
   const clearBtn = qs("#clearBtn");
   const label    = qs(".search-label");
