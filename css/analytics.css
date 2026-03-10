@@ -217,3 +217,70 @@ h1{
 .table td.num, .table th.num{text-align:center}
 .center{text-align:center}
 .muted{color:var(--muted);font-weight:800}
+
+/* ============================================================
+   ANALYTICS DASHBOARD TABS
+   ============================================================ */
+
+.analytics-tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.btn.tab{
+  background:#fff;
+}
+
+.btn.tab.active{
+  background:var(--blue);
+  color:#fff;
+}
+
+/* ============================================================
+   TRAFFIC FLOW
+   ============================================================ */
+
+.flowgrid{
+  display:grid;
+  grid-template-columns: repeat(4,1fr);
+  gap:12px;
+  margin-top:12px;
+}
+
+.flowbox{
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+  background:#fff;
+  text-align:center;
+}
+
+.flowlabel{
+  font-weight:900;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.flowval{
+  font-size:22px;
+  font-weight:1000;
+  margin-top:4px;
+}
+
+/* ============================================================
+   HEATMAP PANEL
+   ============================================================ */
+
+.heatmap{
+  margin-top:12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  height:420px;
+  background:#eef2f7;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  color:var(--muted);
+}
