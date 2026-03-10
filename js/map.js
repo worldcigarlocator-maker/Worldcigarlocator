@@ -75,6 +75,10 @@ async function loadGoogle() {
 
 export async function initMap() {
 
+  if (window.WCL_ANALYTICS) {
+    WCL_ANALYTICS.setSource("map");
+  }
+
   if (map) return;
 
   await loadGoogle();
