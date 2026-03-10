@@ -5,6 +5,7 @@
 import { supabase } from "./globals.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import { resetToHero } from "./cards.js";
+import "./analytics.js";   // ← ADD THIS
 import "./start.js";
 
 const qs = (sel) => document.querySelector(sel);
