@@ -174,8 +174,7 @@ export const VIEW_OBSERVER = new IntersectionObserver(
 // ============================================================
 
 window.WCL_ANALYTICS = {
-
   send: sendEvent,
-  setSource: setTrafficSource
-
+  setSource,
+  VIEW_OBSERVER
 };
