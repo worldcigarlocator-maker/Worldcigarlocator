@@ -6,12 +6,13 @@
    - Overview: top countries/cities/stores via RPC
    ============================================================ */
 
-const CFG = window.WCL_ANALYTICS_CFG;
-const sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey);
-const trafficFlowBody = $("#trafficFlowBody");
-
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
+
+const CFG = window.WCL_ANALYTICS_CFG;
+const sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey);
+
+const trafficFlowBody = $("#trafficFlowBody");
 
 const searchInput = $("#searchInput");
 const searchResults = $("#searchResults");
