@@ -59,7 +59,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadStoresIndex();
   await loadGlobalKpis();
   await renderOverview();
-   await loadTrafficFlow();
 });
 
 /* ============================================================
@@ -675,4 +674,56 @@ function escapeHtml(str) {
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
+}
+
+/* ============================================================
+   TRAFFIC FLOW
+   ============================================================ */
+
+async function loadTrafficFlow() {
+
+  const tbody = document.querySelector("#trafficFlowTable tbody");
+  if (!tbody) return;
+
+  const { data, error } = await sb
+    .from("analytics_events")
+    .select("event_type, payload");
+
+  if (error) {
+    console.error("Traffic flow error", error);
+    return;
+  }
+
+  const map = {};
+
+  data.forEach(e => {
+
+    const src = e.payload?.source || "direct";
+
+    if (!map[src]) map[src] = { views: 0, clicks: 0 };
+
+    if (e.event_type === "store_view")
+      map[src].views++;
+
+    if (e.event_type === "website_clicked")
+      map[src].clicks++;
+
+  });
+
+  tbody.innerHTML = Object.entries(map).map(([src, v]) => {
+
+    const ctr = v.views
+      ? ((v.clicks / v.views) * 100).toFixed(2) + "%"
+      : "0%";
+
+    return `
+      <tr>
+        <td>${src}</td>
+        <td class="num">${v.views}</td>
+        <td class="num">${v.clicks}</td>
+        <td class="num">${ctr}</td>
+      </tr>
+    `;
+
+  }).join("");
 }
