@@ -1,10 +1,12 @@
 // ============================================================
 // CARDS.JS — WCL FRONTEND (DISCOVERY + SORT READY · v5)
 // ============================================================
-
 import { supabase } from "./globals.js";
 import { openModal } from "./modal.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
+
+const VIEW_OBSERVER =
+  window?.WCL_ANALYTICS?.VIEW_OBSERVER ?? { observe() {}, unobserve() {} };
 
 const dom = (sel) => document.querySelector(sel);
 
