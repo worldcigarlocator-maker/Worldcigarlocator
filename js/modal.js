@@ -214,13 +214,9 @@ export async function openModal(storeInput) {
   if (modalAddress()) modalAddress().textContent = store.address || "—";
   if (modalPhone()) modalPhone().textContent = store.phone || "—";
 
- if (modalWebsite() && store.website) {
-
-  const redirect =
-    "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/visit-store?store_id=" +
-    store.id;
-
-  modalWebsite().href = redirect;
+if (modalWebsite() && store.website) {
+  modalWebsite().href =
+    `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/visit-store?store_id=${store.id}`;
   modalWebsite().style.display = "inline";
 }
 
