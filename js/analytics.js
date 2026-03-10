@@ -40,6 +40,10 @@ const overviewTableBody = $("#overviewTable tbody");
 const ovKeyHeader = $("#ovKeyHeader");
 const overviewRange = $("#overviewRange");
 
+const globalViews = $("#globalViews");
+const globalClicks = $("#globalClicks");
+const globalCtr = $("#globalCtr");
+
 let STORES_INDEX = [];
 let ACTIVE_STORE = null;
 
