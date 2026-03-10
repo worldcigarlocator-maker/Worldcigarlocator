@@ -178,6 +178,17 @@ export async function openModal(storeInput) {
   const storeId = Number(store.id);
   if (!storeId) return;
 
+  // ============================
+  // ANALYTICS — STORE OPENED
+  // ============================
+  if (window.WCL_ANALYTICS) {
+    window.WCL_ANALYTICS.send("store_opened", {
+      store_id: storeId,
+      country: store.country || null,
+      city: store.city || null
+    });
+  }
+
   // ⭐ dessa saknas i din kod
   MODAL_ACTIVE_STORE_ID = storeId;
   MODAL_LOAD_SEQ++;
@@ -189,7 +200,6 @@ export async function openModal(storeInput) {
   resetModal();
   m.classList.remove("hidden");
   lockScroll(true);
-
   // ----------------------------------
   // Static store data
   // ----------------------------------
