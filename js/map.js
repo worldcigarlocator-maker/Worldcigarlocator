@@ -105,6 +105,23 @@ export async function initMap() {
 
   isFractionalZoomEnabled: true
 });
+
+// ============================================================
+// MAP ANALYTICS — IDLE LISTENER
+// ============================================================
+
+map.addListener("idle", () => {
+
+  clearTimeout(viewportTimer);
+
+  viewportTimer = setTimeout(() => {
+
+    trackMapViewport();
+
+  }, 1500);
+
+});
+  
   // ============================================================
   // LOAD STORES (DEBOUNCED)
   // ============================================================
@@ -267,6 +284,29 @@ async function loadStores() {
   }
 
   renderMarkers(data || []);
+
+}
+
+// ============================================================
+// MAP ANALYTICS — VIEWPORT TRACKING
+// ============================================================
+
+let viewportTimer = null;
+
+function trackMapViewport() {
+
+  if (!map) return;
+
+  const center = map.getCenter();
+
+  if (!center) return;
+
+  trackEvent("map_viewport", {
+    lat: center.lat(),
+    lng: center.lng(),
+    zoom: map.getZoom(),
+    source: "map"
+  });
 
 }
 
