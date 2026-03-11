@@ -818,24 +818,14 @@ if (countsError) {
 /* =========================
    3) Fetch rows
    ========================= */
+
 let data;
+
 try {
 
   data = await fetchAllStores(base);
 
-} catch (e) {
-
-  console.error("Fetch stores failed:", e);
-
-  if (grid) {
-    grid.innerHTML = "<p class='error center'>Error loading stores</p>";
-  }
-
-  return;
-
-}
-
-  console.log("🧪 fetchAllStores result:", {
+  console.log("fetchAllStores result:", {
     length: data.length,
     hasCigarrummet: data.some(s => s.name === "Cigarrummet"),
     sampleFirst5: data.slice(0, 5).map(s => ({ id: s.id, name: s.name })),
@@ -843,21 +833,15 @@ try {
   });
 
 } catch (error) {
-  console.error(error);
-  if (grid) grid.innerHTML = "<p class='error center'>Error loading stores</p>";
+
+  console.error("Fetch stores failed:", error);
+
+  if (grid) {
+    grid.innerHTML = "<p class='error center'>Error loading stores</p>";
+  }
+
   return;
 }
-
-
-
-  STORES = (data || []).map((s) => ({
-    ...s,
-continent:
-  s.continent && s.continent.trim()
-    ? s.continent
-    : countryToContinent(s.country),
-
-  }));
 
   /* =========================
      4) Render + counts
