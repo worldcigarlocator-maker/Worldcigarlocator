@@ -126,6 +126,41 @@ const toast = (msg, cls = "success") => {
   setTimeout(() => t.remove(), 2500);
 };
 
+// ============================================================
+// STORE VIEW OBSERVER (analytics / performance safe)
+// ============================================================
+
+let storeViewObserver = null;
+
+function initStoreViewObserver() {
+
+  // skapa bara en gång
+  if (storeViewObserver) return;
+
+  storeViewObserver = new IntersectionObserver((entries) => {
+
+    entries.forEach(entry => {
+
+      if (!entry.isIntersecting) return;
+
+      const el = entry.target;
+      const storeId = el.dataset.storeId;
+
+      if (!storeId) return;
+
+      console.log("Store viewed:", storeId);
+
+      // logga bara en gång
+      storeViewObserver.unobserve(el);
+
+    });
+
+  }, {
+    threshold: 0.35
+  });
+
+}
+
 /* ============================================================
    FETCH ALL STORES — Supabase pagination (no 1000 limit)
    ============================================================ */
