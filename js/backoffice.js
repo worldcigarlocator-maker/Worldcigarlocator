@@ -775,12 +775,14 @@ window.STORE_COUNTS = countsData?.[0] || {
       .eq("deleted", false)
       .order("id", { ascending: true });
 
-  //  APPROVED = nyast först
-  } else if (tab === "approved") {
-    base = base
-      .eq("approved", true)
-      .eq("deleted", false)
-      .order("id", { ascending: false });
+// APPROVED = nyast först
+} else if (tab === "approved") {
+  base = base
+    .eq("approved", true)
+    .eq("deleted", false)
+    .order("id", { ascending: false })
+    .limit(RENDER_LIMIT);
+}
 
   //  FLAGGED = nyast först
   } else if (tab === "flagged") {
