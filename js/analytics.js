@@ -741,10 +741,10 @@ async function loadHeatmap() {
 
   if (!heatmapBody) return;
 
-const { data, error } = await sb.rpc(
-  "analytics_heatmap_countries",
-  { p_days: 30 }
-);
+  const { data, error } = await sb.rpc(
+    "analytics_heatmap_countries",
+    { p_days: 30 }
+  );
 
   if (error) {
 
@@ -765,11 +765,13 @@ const { data, error } = await sb.rpc(
   }
 
   heatmapBody.innerHTML = data.map(r => `
-  <tr>
-    <td>${escapeHtml(r.country || "—")}</td>
-    <td class="num">${Number(r.views)}</td>
-  </tr>
-`).join("");
+    <tr>
+      <td>${escapeHtml(r.country || "—")}</td>
+      <td class="num">${Number(r.views)}</td>
+    </tr>
+  `).join("");
+
+}
 
 /* ============================================================
    MARKET DEMAND
