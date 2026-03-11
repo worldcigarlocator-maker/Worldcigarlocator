@@ -774,11 +774,16 @@ if (tab === "pending") {
 
 // APPROVED = nyast först
 } else if (tab === "approved") {
+
   base = base
     .eq("approved", true)
     .eq("deleted", false)
-    .order("id", { ascending: false })
-    .limit(RENDER_LIMIT);
+    .order("id", { ascending: false });
+
+  // limit endast i cards-view
+  if (CURRENT_VIEW === "cards") {
+    base = base.limit(RENDER_LIMIT);
+  }
 
 // FLAGGED = nyast först
 } else if (tab === "flagged") {
