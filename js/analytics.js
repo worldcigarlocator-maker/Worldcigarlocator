@@ -738,10 +738,10 @@ async function loadHeatmap() {
 
   if (!heatmapBody) return;
 
-  const { data, error } = await sb.rpc(
-    "analytics_heatmap",
-    { p_days: 30 }
-  );
+const { data, error } = await sb.rpc(
+  "analytics_heatmap_countries",
+  { p_days: 30 }
+);
 
   if (error) {
 
