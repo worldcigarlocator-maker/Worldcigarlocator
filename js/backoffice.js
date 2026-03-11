@@ -736,9 +736,6 @@ try {
 
 }
 
-if (countsError) {
-  console.error(" Count RPC error:", countsError);
-} else {
   window.STORE_COUNTS = countsData?.[0] || {
     all: 0,
     approved: 0,
