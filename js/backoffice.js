@@ -1401,7 +1401,7 @@ document.addEventListener("DOMContentLoaded", () => {
         $("#cards").style.display = "none";
         $(".listview-wrap").style.display = "flex";
       }
-      render();
+     reloadData(CURRENT_TAB);
     })
   );
 
