@@ -638,13 +638,6 @@ function render() {
     );
   }
 
-  // ============================================================
-  // LIMIT LARGE DATASETS
-  // ============================================================
-
-if (CURRENT_TAB === "approved" && CURRENT_VIEW === "cards") {
-  list = list.slice(0, RENDER_LIMIT);
-}
 
   // ============================================================
   // RENDER VIEW
@@ -835,7 +828,7 @@ try {
 
 if (CURRENT_TAB === "approved" && CURRENT_VIEW === "cards") {
 
-  const { data: rows, error } = await base;
+  const { data: rows, error } = await base.limit(RENDER_LIMIT);
 
   if (error) throw error;
 
