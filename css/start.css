@@ -535,3 +535,11 @@ body.static-page{
 body.auth-locked .sidebar-actions #loginBtn{
   display:none;
 }
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width:768px){
+
+}
