@@ -320,116 +320,142 @@ function createMarker(store) {
 
   if (markerPool.length) {
 
-    marker = markerPool.pop();
+  marker = markerPool.pop();
 
-    marker.position = {
-      lat: store.lat,
-      lng: store.lng
-    };
+  const nextPin = buildPin(store.types);
 
-    marker.map = map;
+  marker.position = {
+    lat: store.lat,
+    lng: store.lng
+  };
 
-  } else {
+  marker.content = nextPin;
+  marker.map = map;
 
-    const pin = buildPin(store.types);
+} else {
 
-    marker = new google.maps.marker.AdvancedMarkerElement({
-      map,
-      position: { lat: store.lat, lng: store.lng },
-      content: pin,
-      gmpClickable: true
-    });
+  const pin = buildPin(store.types);
 
-  }
+  marker = new google.maps.marker.AdvancedMarkerElement({
+    map,
+    position: { lat: store.lat, lng: store.lng },
+    content: pin,
+    gmpClickable: true
+  });
 
-  const pin = marker.content;
+}
+
+  // ============================================================
+  // STORE REFERENCE
+  // ============================================================
 
   marker.__store = store;
 
-  // ================= CLICK =================
+  // ============================================================
+  // CLICK LISTENER (BOUND ONCE)
+  // ============================================================
 
- marker.addListener("gmp-click", (e) => {
+  if (!marker.__clickBound) {
 
-  const s = marker.__store;
+    marker.addListener("gmp-click", (e) => {
 
-  trackEvent("map_pin_click", {
-    store_id: s.id,
-    city: s.city,
-    country: s.country,
-    lat: s.lat,
-    lng: s.lng,
-    source: "map"
-  });
+      const s = marker.__store;
+      if (!s) return;
 
-  if (e?.domEvent) {
-    e.domEvent.stopPropagation();
+      trackEvent("map_pin_click", {
+        store_id: s.id,
+        city: s.city,
+        country: s.country,
+        lat: s.lat,
+        lng: s.lng,
+        source: "map"
+      });
+
+      if (e?.domEvent) {
+        e.domEvent.stopPropagation();
+      }
+
+      if (hoverTooltip) {
+        hoverTooltip.remove();
+        hoverTooltip = null;
+      }
+
+      if (activePin && activePin !== pin) {
+        activePin.style.transform = "scale(1)";
+        activePin.style.boxShadow = "";
+        activePin.style.zIndex = "";
+      }
+
+      activePin = pin;
+
+      pin.style.transform = "scale(1.35)";
+      pin.style.boxShadow =
+        "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
+      pin.style.zIndex = "5";
+
+      openModal(s.id);
+
+    });
+
+    marker.__clickBound = true;
+
   }
 
-  if (hoverTooltip) {
-    hoverTooltip.remove();
-    hoverTooltip = null;
+  // ============================================================
+  // HOVER LISTENERS (BOUND ONCE)
+  // ============================================================
+
+  if (!marker.__hoverBound) {
+
+    pin.addEventListener("mouseenter", () => {
+
+      const s = marker.__store;
+      if (!s) return;
+
+      prefetchModal(Number(s.id));
+
+      activePin = pin;
+
+      pin.style.transform = "scale(1.25)";
+      pin.style.zIndex = "5";
+
+      markers.forEach((m) => {
+
+        if (m.content === pin) return;
+
+        m.content.style.opacity = "0.35";
+
+      });
+
+      showTooltip(pin, s);
+
+    });
+
+    pin.addEventListener("mouseleave", () => {
+
+      pin.style.transform = "scale(1)";
+      pin.style.zIndex = "";
+
+      activePin = null;
+
+      markers.forEach((m) => {
+
+        m.content.style.opacity = "1";
+
+      });
+
+      if (hoverTooltip) {
+        hoverTooltip.remove();
+        hoverTooltip = null;
+      }
+
+    });
+
+    marker.__hoverBound = true;
+
   }
 
-  if (activePin && activePin !== pin) {
-    activePin.style.transform = "scale(1)";
-    activePin.style.boxShadow = "";
-    activePin.style.zIndex = "";
-  }
-
-  activePin = pin;
-
-  pin.style.transform = "scale(1.35)";
-  pin.style.boxShadow =
-    "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
-  pin.style.zIndex = "5";
-
-  openModal(s.id);
-
-});
-  // ================= HOVER =================
-
-  pin.addEventListener("mouseenter", () => {
-
-  prefetchModal(Number(store.id));
-
-  activePin = pin;
-
-  pin.style.transform = "scale(1.25)";
-  pin.style.zIndex = "5";
-
-  markers.forEach((m) => {
-
-    if (m.content === pin) return;
-
-    m.content.style.opacity = "0.35";
-
-  });
-
-  showTooltip(pin, store);
-
-});
-
-pin.addEventListener("mouseleave", () => {
-
-  pin.style.transform = "scale(1)";
-  pin.style.zIndex = "";
-
-  activePin = null;
-
-  markers.forEach((m) => {
-
-    m.content.style.opacity = "1";
-
-  });
-
-  if (hoverTooltip) {
-    hoverTooltip.remove();
-    hoverTooltip = null;
-  }
-
-});
-
-return marker;
+  return marker;
 
 }
 
