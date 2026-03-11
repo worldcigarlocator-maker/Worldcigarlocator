@@ -779,8 +779,23 @@ function renderCards(list) {
     ? "border-green"
     : "border-gold";
 
-    const card = document.createElement("div");
-    card.className = `card ${borderClass}`;
+const card = document.createElement("div");
+card.className = `card ${borderClass}`;
+
+// ============================================================
+// DATASET FOR ANALYTICS
+// ============================================================
+
+card.dataset.storeId = s.id;
+card.dataset.city = s.city;
+card.dataset.country = s.country;
+
+// ============================================================
+// STORE VIEW OBSERVER
+// ============================================================
+
+initStoreViewObserver();
+storeViewObserver.observe(card);
 
     /* ----------- Photo ----------- */
     const img = document.createElement("img");
