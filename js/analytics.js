@@ -67,8 +67,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadGlobalKpis();
   await loadTrafficFlow();
   await loadHeatmap();
-
   await renderOverview();
+   await loadMarketDemand();
 });
 
 /* ============================================================
