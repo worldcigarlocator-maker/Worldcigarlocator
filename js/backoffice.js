@@ -778,10 +778,6 @@ if (tab === "pending") {
     .eq("deleted", false)
     .order("id", { ascending: false });
 
-  // limit endast i cards-view
-  if (CURRENT_VIEW === "cards") {
-    base = base.limit(RENDER_LIMIT);
-  }
 
 // FLAGGED = nyast först
 } else if (tab === "flagged") {
