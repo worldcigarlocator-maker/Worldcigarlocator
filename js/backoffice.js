@@ -211,6 +211,13 @@ function sortAlpha(arr, keyFn) {
    INLINE LISTVIEW — Expandable Continent → Country → City → Store
    ============================================================ */
 function renderListView(list) {
+
+  // 🔹 Försortera listan en gång (snabbare hierarki)
+  list = [...list].sort((a, b) =>
+    `${safe(a.continent)}${safe(a.country)}${safe(a.city)}`
+      .localeCompare(`${safe(b.continent)}${safe(b.country)}${safe(b.city)}`)
+  );
+
   const wrap = $(".listview-wrap");
   if (!wrap) return;
 
@@ -235,22 +242,20 @@ function renderListView(list) {
   </table>
 `;
 
-
   const tbody = $("#listBody");
   tbody.innerHTML = "";
 
   // Grupp efter kontinent
-const byContinent = groupBy(list, s => s.continent || "Other");
+  const byContinent = groupBy(list, s => s.continent || "Other");
 
-Object.entries(byContinent)
-  .sort(([a], [b]) =>
-    a.localeCompare(b, undefined, { sensitivity: "base" })
-  )
-  .forEach(([continent, contStores]) => {
-    const row = makeExpandableRow(continent, contStores, "continent");
-    tbody.appendChild(row);
-  });
-
+  Object.entries(byContinent)
+    .sort(([a], [b]) =>
+      a.localeCompare(b, undefined, { sensitivity: "base" })
+    )
+    .forEach(([continent, contStores]) => {
+      const row = makeExpandableRow(continent, contStores, "continent");
+      tbody.appendChild(row);
+    });
 
 }
 
