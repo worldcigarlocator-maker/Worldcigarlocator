@@ -20,7 +20,7 @@ const WCL = {
 WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
 
-/* ============================================================
+* ============================================================
    AUTH GUARD — ADMIN LOCK (STABLE VERSION)
    ============================================================ */
 
@@ -59,13 +59,16 @@ async function checkAuth(user) {
   return showApp();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+
   // Login button
   document.getElementById("login-btn")?.addEventListener("click", async () => {
+
     const email = document.getElementById("email")?.value.trim();
     const password = document.getElementById("password")?.value.trim();
 
-    const { error } = await WCL.supabase.auth.signInWithPassword({ email, password });
+    const { data, error } =
+      await WCL.supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       const el = document.getElementById("login-error");
@@ -73,12 +76,18 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // After login: enforce admin guard
-    await checkAuth();
+    await checkAuth(data.user);
   });
 
-  // Session check at boot
-  checkAuth();
+  // Check existing session on load
+  const { data: { session } } = await WCL.supabase.auth.getSession();
+  await checkAuth(session?.user);
+
+  // Listen for auth state changes
+  WCL.supabase.auth.onAuthStateChange(async (event, session) => {
+    await checkAuth(session?.user);
+  });
+
 });
 
 // Optional logout
