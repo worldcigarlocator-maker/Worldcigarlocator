@@ -20,7 +20,7 @@ const WCL = {
 WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
 
-* ============================================================
+/* ============================================================
    AUTH GUARD — ADMIN LOCK (STABLE VERSION)
    ============================================================ */
 
