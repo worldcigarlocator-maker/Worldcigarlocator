@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadGlobalKpis();
   await renderOverview();
   await loadTrafficFlow();
+  await loadHeatmap();   // ← NY
 });
 
 /* ============================================================
@@ -729,4 +730,44 @@ async function loadTrafficFlow() {
     `;
 
   }).join("");
+}
+
+/* ============================================================
+   HEATMAP
+   ============================================================ */
+
+async function loadHeatmap() {
+
+  if (!heatmapBody) return;
+
+  const { data, error } = await sb.rpc(
+    "analytics_heatmap",
+    { p_days: 30 }
+  );
+
+  if (error) {
+
+    console.error("Heatmap error", error);
+
+    heatmapBody.innerHTML =
+      `<tr><td colspan="3" class="muted center">Failed to load heatmap.</td></tr>`;
+
+    return;
+  }
+
+  if (!data?.length) {
+
+    heatmapBody.innerHTML =
+      `<tr><td colspan="3" class="muted center">No data yet.</td></tr>`;
+
+    return;
+  }
+
+  heatmapBody.innerHTML = data.map(r => `
+    <tr>
+      <td>${escapeHtml(r.country || "—")}</td>
+      <td>${escapeHtml(r.city || "—")}</td>
+      <td class="num">${Number(r.views)}</td>
+    </tr>
+  `).join("");
 }
