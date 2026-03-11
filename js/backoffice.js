@@ -782,30 +782,29 @@ window.STORE_COUNTS = countsData?.[0] || {
     .eq("deleted", false)
     .order("id", { ascending: false })
     .limit(RENDER_LIMIT);
-}
 
-  //  FLAGGED = nyast först
-  } else if (tab === "flagged") {
-    base = base
-      .eq("flagged", true)
-      .eq("deleted", false)
-      .order("id", { ascending: false });
+// FLAGGED = nyast först
+} else if (tab === "flagged") {
+  base = base
+    .eq("flagged", true)
+    .eq("deleted", false)
+    .order("id", { ascending: false });
 
-     //  DUPLICATES = flagged + possible_duplicate
+// DUPLICATES = flagged + possible_duplicate
 } else if (tab === "duplicates") {
   base = base
     .eq("flagged", true)
     .eq("deleted", false)
     .eq("flag_reason", "possible_duplicate")
     .order("id", { ascending: false });
-
+}
 
   //  DELETED = nyast först
-  } else if (tab === "deleted") {
-    base = base
-      .eq("deleted", true)
-      .order("id", { ascending: false });
-
+} else if (tab === "deleted") {
+  base = base
+    .eq("deleted", true)
+    .order("id", { ascending: false });
+}
 
 /* =========================
    REPORTS (Store Reports)
