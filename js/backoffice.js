@@ -655,7 +655,7 @@ if (CURRENT_TAB === "approved" && CURRENT_VIEW === "cards") {
   // LOAD MORE BUTTON
   // ============================================================
 
-  if (CURRENT_TAB === "approved" && STORES.length > RENDER_LIMIT) {
+  if (CURRENT_TAB === "approved" && CURRENT_VIEW === "cards" && STORES.length > RENDER_LIMIT) {
 
     const grid = $("#cards");
     if (!grid) return;
