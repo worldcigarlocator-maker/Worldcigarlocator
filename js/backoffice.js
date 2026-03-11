@@ -718,8 +718,23 @@ if (grid) grid.innerHTML = "<p class='muted center'>Loading...</p>";
  /* =========================
    1) HÄMTA COUNTS (utan 1000-limit)
    ========================= */
-const { data: countsData, error: countsError } = await WCL.supabase
-  .rpc("stores_counts");
+let countsData = null;
+
+try {
+
+  const res = await WCL.supabase.rpc("stores_counts");
+
+  countsData = res.data;
+
+  if (res.error) {
+    console.error("Count RPC error:", res.error);
+  }
+
+} catch (e) {
+
+  console.error("Count RPC network error:", e);
+
+}
 
 if (countsError) {
   console.error(" Count RPC error:", countsError);
@@ -805,7 +820,20 @@ if (countsError) {
    ========================= */
 let data;
 try {
+
   data = await fetchAllStores(base);
+
+} catch (e) {
+
+  console.error("Fetch stores failed:", e);
+
+  if (grid) {
+    grid.innerHTML = "<p class='error center'>Error loading stores</p>";
+  }
+
+  return;
+
+}
 
   console.log("🧪 fetchAllStores result:", {
     length: data.length,
