@@ -6,6 +6,7 @@
 import { supabase } from "./globals.js";
 import { getLastRenderedStores } from "./cards.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
+import { trackEvent } from "./analytics-tracker.js";
 
 // ============================================================
 // STATE
@@ -178,16 +179,18 @@ export async function openModal(storeInput) {
   const storeId = Number(store.id);
   if (!storeId) return;
 
-  // ============================
-  // ANALYTICS — STORE OPENED
-  // ============================
-  if (window.WCL_ANALYTICS) {
-    window.WCL_ANALYTICS.send("store_opened", {
-      store_id: storeId,
-      country: store.country || null,
-      city: store.city || null
-    });
-  }
+// ============================
+// ANALYTICS — STORE VIEW
+// ============================
+
+trackEvent("store_view", {
+  store_id: storeId,
+  source: "modal",
+  country: store.country || null,
+  city: store.city || null,
+  lat: store.lat || null,
+  lng: store.lng || null
+});
 
   // ⭐ dessa saknas i din kod
   MODAL_ACTIVE_STORE_ID = storeId;
@@ -288,9 +291,6 @@ export function closeModal() {
   MODAL_USER_TEMP_RATING = 0;
 }
 
-// ============================================================
-// RATING (RPC ONLY)
-// ============================================================
 
 // ============================================================
 // RATING (RPC ONLY)
