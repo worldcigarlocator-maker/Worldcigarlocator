@@ -690,42 +690,39 @@ async function loadTrafficFlow() {
 
   if (!trafficFlowBody) return;
 
-  const { data, error } = await sb
-    .from("analytics_events")
-    .select("event_type, payload");
+  const { data, error } = await sb.rpc(
+    "analytics_traffic_flow",
+    { p_days: 30 }
+  );
 
   if (error) {
     console.error("Traffic flow error", error);
     return;
   }
 
-  const map = {};
+  if (!data?.length) {
 
-  data.forEach(e => {
+    trafficFlowBody.innerHTML =
+      `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
 
-    const src = e.payload?.source || "direct";
+    return;
+  }
 
-    if (!map[src]) map[src] = { views: 0, clicks: 0 };
+  trafficFlowBody.innerHTML = data.map(r => {
 
-    if (e.event_type === "store_view")
-      map[src].views++;
+    const views = Number(r.views || 0);
+    const clicks = Number(r.clicks || 0);
 
-    if (e.event_type === "website_clicked")
-      map[src].clicks++;
-
-  });
-
-  trafficFlowBody.innerHTML = Object.entries(map).map(([src, v]) => {
-
-    const ctr = v.views
-      ? ((v.clicks / v.views) * 100).toFixed(2) + "%"
-      : "0%";
+    const ctr =
+      views
+        ? ((clicks / views) * 100).toFixed(2) + "%"
+        : "0%";
 
     return `
       <tr>
-        <td>${escapeHtml(src)}</td>
-        <td class="num">${v.views}</td>
-        <td class="num">${v.clicks}</td>
+        <td>${escapeHtml(r.source || "direct")}</td>
+        <td class="num">${views}</td>
+        <td class="num">${clicks}</td>
         <td class="num">${ctr}</td>
       </tr>
     `;
