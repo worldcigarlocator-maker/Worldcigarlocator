@@ -4,6 +4,7 @@
 
 import { supabase } from "./globals.js";
 import { getSessionId } from "./session.js";
+import { hasViewedStore, markStoreViewed } from "./view-dedupe.js";
 
 export async function trackEvent(eventType, payload = {}) {
 
