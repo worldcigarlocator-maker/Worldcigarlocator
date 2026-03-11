@@ -719,8 +719,6 @@ async function reloadData(tab = CURRENT_TAB) {
   const grid = $("#cards");
 if (grid) grid.innerHTML = "<p class='muted center'>Loading...</p>";
 
-
- /* =========================
 /* =========================
    1) HÄMTA COUNTS (utan 1000-limit)
    ========================= */
@@ -766,7 +764,7 @@ window.STORE_COUNTS = countsData?.[0] || {
   /* ============================================================
      TAB LOGIC — FAST SORTERING
      ============================================================ */
-// PENDING
+//  PENDING = arbetskö (äldst först)
 if (tab === "pending") {
   base = base
     .eq("approved", false)
@@ -774,7 +772,7 @@ if (tab === "pending") {
     .eq("deleted", false)
     .order("id", { ascending: true });
 
-// APPROVED
+// APPROVED = nyast först
 } else if (tab === "approved") {
   base = base
     .eq("approved", true)
@@ -782,14 +780,14 @@ if (tab === "pending") {
     .order("id", { ascending: false })
     .limit(RENDER_LIMIT);
 
-// FLAGGED
+// FLAGGED = nyast först
 } else if (tab === "flagged") {
   base = base
     .eq("flagged", true)
     .eq("deleted", false)
     .order("id", { ascending: false });
 
-// DUPLICATES
+// DUPLICATES = flagged + possible_duplicate
 } else if (tab === "duplicates") {
   base = base
     .eq("flagged", true)
@@ -797,39 +795,26 @@ if (tab === "pending") {
     .eq("flag_reason", "possible_duplicate")
     .order("id", { ascending: false });
 
-// DELETED
+// DELETED = nyast först
 } else if (tab === "deleted") {
   base = base
     .eq("deleted", true)
     .order("id", { ascending: false });
 
-// REPORTS
+// REPORTS (Store Reports)
 } else if (tab === "reports") {
+
   return loadStoreReports();
 
-// ALL
+// ALL = fallback
 } else {
+
   base = base
     .eq("deleted", false)
     .order("id", { ascending: false });
+
 }
  
-/* =========================
-   REPORTS (Store Reports)
-   ========================= */
-} else if (tab === "reports") {
-
-  return loadStoreReports();
-
-} else {
-
-  // ⚪ ALL = arbetsvy (ej deleted, nyast först)
-  base = base
-    .eq("deleted", false)
-    .order("id", { ascending: false });
-
-}
-
 /* =========================
    3) Fetch rows
    ========================= */
