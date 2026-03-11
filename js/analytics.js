@@ -48,10 +48,13 @@ const overviewTableBody = $("#overviewTable tbody");
 const ovKeyHeader = $("#ovKeyHeader");
 const overviewRange = $("#overviewRange");
 
+const marketDemandBody = $("#marketDemandBody");
+
 let STORES_INDEX = [];
 let ACTIVE_STORE = null;
 
 let OVERVIEW_TAB = "countries";
+
 
 /* ============================================================
    INIT
@@ -767,3 +770,42 @@ const { data, error } = await sb.rpc(
     <td class="num">${Number(r.views)}</td>
   </tr>
 `).join("");
+
+/* ============================================================
+   MARKET DEMAND
+   ============================================================ */
+
+async function loadMarketDemand() {
+
+  const { data, error } =
+    await sb.rpc("analytics_market_demand", {
+      p_days: 30
+    });
+
+  if (error) {
+
+    console.error("market demand error", error);
+
+    marketDemandBody.innerHTML =
+      `<tr><td colspan="4" class="muted center">Failed to load.</td></tr>`;
+
+    return;
+  }
+
+  if (!data || !data.length) {
+
+    marketDemandBody.innerHTML =
+      `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
+
+    return;
+  }
+
+  marketDemandBody.innerHTML = data.map(r => `
+    <tr>
+      <td>${escapeHtml(r.country)}</td>
+      <td class="num">${Number(r.views)}</td>
+      <td class="num">${Number(r.stores)}</td>
+      <td>${r.demand}</td>
+    </tr>
+  `).join("");
+}
