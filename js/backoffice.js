@@ -19,8 +19,9 @@ const WCL = {
 /* Supabase */
 WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
 
+
 /* ============================================================
-   AUTH GUARD — ADMIN-LOCK (WCL CANONICAL)
+   AUTH GUARD — ADMIN LOCK (STABLE VERSION)
    ============================================================ */
 
 async function showApp() {
@@ -34,21 +35,17 @@ async function showLogin() {
   document.getElementById("login-screen")?.style.setProperty("display", "flex");
 }
 
-async function checkAuth() {
-  const { data: { session } } = await WCL.supabase.auth.getSession();
-const user = session?.user;
-
+async function checkAuth(user) {
 
   if (!user) {
     return showLogin();
   }
 
-  // 🔐 Admin whitelist check (DB is canonical)
-const { data: isAdmin, error: aErr } =
-  await WCL.supabase.rpc("bo_is_admin_v1", { p_uid: user.id });
-   
-  if (aErr) {
-    console.warn("Admin RPC error:", aErr);
+  const { data: isAdmin, error } =
+    await WCL.supabase.rpc("bo_is_admin_v1", { p_uid: user.id });
+
+  if (error) {
+    console.warn("Admin RPC error:", error);
     await WCL.supabase.auth.signOut();
     return showLogin();
   }
