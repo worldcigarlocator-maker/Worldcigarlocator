@@ -27,7 +27,7 @@ WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_
 async function showApp() {
   document.getElementById("login-screen")?.style.setProperty("display", "none");
   document.querySelector(".wrap")?.style.setProperty("display", "block");
-  await reloadData("pending");
+  await reloadData("approved");
 }
 
 async function showLogin() {
@@ -98,10 +98,17 @@ window.logout = async () => {
 
 /* ======================== STATE ========================= */
 let STORES = [];
-let REPORTS = [];               // ✅ separat state för store_reports
-let CURRENT_TAB = "pending";    // all | approved | pending | flagged | deleted | duplicates | reports
+let REPORTS = [];               // separat state för store_reports
+let CURRENT_TAB = "approved";   // approved | pending | flagged | deleted | duplicates | reports
 let CURRENT_VIEW = "cards";     // cards | list
 let HIER_SEL = { continent: null, country: null, state: null, city: null };
+
+// ============================================================
+// RENDER LIMIT (Backoffice performance)
+// ============================================================
+
+let RENDER_LIMIT = 100;
+let RENDER_STEP = 100;
 
 
 /* ======================== HELPERS ======================== */
@@ -571,29 +578,75 @@ function updateRegionCounts() {
    RENDER SWITCH — Cards vs List (CANONICAL)
    ============================================================ */
 function render() {
+
   const term = ($("#searchInput")?.value || "").trim().toLowerCase();
 
   let list = STORES;
 
-  // 🔎 EXAKT ID-sök (prioritet 1)
+  // ============================================================
+  // SEARCH
+  // ============================================================
+
   if (/^\d+$/.test(term)) {
     const id = Number(term);
-    list = STORES.filter(s => s.id === id);
+    list = list.filter(s => s.id === id);
   }
-  // 🔍 Text-sök (fallback)
   else if (term) {
-    list = STORES.filter(s =>
+    list = list.filter(s =>
       [s.name, s.city, s.country]
         .some(v => safe(v).toLowerCase().includes(term))
     );
   }
+
+  // ============================================================
+  // LIMIT LARGE DATASETS
+  // ============================================================
+
+  if (CURRENT_TAB === "approved") {
+    list = list.slice(0, RENDER_LIMIT);
+  }
+
+  // ============================================================
+  // RENDER VIEW
+  // ============================================================
 
   if (CURRENT_VIEW === "cards") {
     renderCards(list);
   } else {
     renderListView(list);
   }
+
+  // ============================================================
+  // LOAD MORE BUTTON
+  // ============================================================
+
+  if (CURRENT_TAB === "approved" && STORES.length > RENDER_LIMIT) {
+
+    const grid = $("#cards");
+    if (!grid) return;
+
+    const info = document.createElement("div");
+    info.className = "load-more-wrap";
+
+    info.innerHTML = `
+      <div class="muted center">
+        Showing ${Math.min(RENDER_LIMIT, STORES.length)} / ${STORES.length} stores
+      </div>
+      <button class="btn blue load-more-btn">
+        Load More
+      </button>
+    `;
+
+    info.querySelector("button").onclick = () => {
+      RENDER_LIMIT += RENDER_STEP;
+      render();
+    };
+
+    grid.appendChild(info);
+  }
+
 }
+
 /* ============================================================
    DATA LOADING — STABIL, FÖRUTSÄGBAR & UX-SÄKER
    ============================================================ */
