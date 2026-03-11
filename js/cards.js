@@ -4,6 +4,7 @@
 import { supabase } from "./globals.js";
 import { openModal } from "./modal.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
+import { trackEvent } from "./analytics-tracker.js";
 
 const VIEW_OBSERVER =
   window?.WCL_ANALYTICS?.VIEW_OBSERVER ?? { observe() {}, unobserve() {} };
@@ -306,6 +307,51 @@ export function setSort(mode) {
   SORT_MODE = mode || "relevance";
   resetPagination();
   runSearch();
+}
+
+// ============================================================
+// STORE VIEW OBSERVER
+// ============================================================
+
+let storeViewObserver = null;
+
+function initStoreViewObserver() {
+
+  if (storeViewObserver) return;
+
+  storeViewObserver = new IntersectionObserver(
+
+    (entries) => {
+
+      entries.forEach((entry) => {
+
+        if (!entry.isIntersecting) return;
+
+        const el = entry.target;
+
+        const storeId = el.dataset.storeId;
+        const city = el.dataset.city;
+        const country = el.dataset.country;
+
+        trackEvent("store_viewed", {
+          store_id: Number(storeId),
+          source: "search",
+          city,
+          country
+        });
+
+        storeViewObserver.unobserve(el);
+
+      });
+
+    },
+
+    {
+      threshold: 0.6
+    }
+
+  );
+
 }
 
 // ============================================================
