@@ -7,6 +7,7 @@
 import { supabase } from "./globals.js";
 import { openModal } from "./modal.js";
 import { buildPin } from "./map-pins.js";
+import { trackEvent } from "./analytics-tracker.js";
 
 // ============================================================
 // STATE
@@ -305,6 +306,27 @@ function createMarker(store) {
 
   marker.__store = store;
 
+// ============================================================
+// MAP ANALYTICS — PIN CLICK
+// ============================================================
+
+marker.addListener("click", () => {
+
+  const s = marker.__store;
+
+  if (!s) return;
+
+  trackEvent("map_pin_click", {
+    store_id: s.id,
+    city: s.city,
+    country: s.country,
+    lat: s.lat,
+    lng: s.lng,
+    source: "map"
+  });
+
+});
+  
   // ================= CLICK =================
 
   marker.addListener("gmp-click", (e) => {
