@@ -716,6 +716,7 @@ if (grid) grid.innerHTML = "<p class='muted center'>Loading...</p>";
 
 
  /* =========================
+/* =========================
    1) HÄMTA COUNTS (utan 1000-limit)
    ========================= */
 let countsData = null;
@@ -736,14 +737,14 @@ try {
 
 }
 
-  window.STORE_COUNTS = countsData?.[0] || {
-    all: 0,
-    approved: 0,
-    pending: 0,
-    flagged: 0,
-    deleted: 0,
-    repair: 0,
-  };
+window.STORE_COUNTS = countsData?.[0] || {
+  all: 0,
+  approved: 0,
+  pending: 0,
+  flagged: 0,
+  deleted: 0,
+  repair: 0,
+};
 
   /* =========================
      2) Bas-query (stores)
