@@ -58,11 +58,13 @@ let OVERVIEW_TAB = "countries";
 
 document.addEventListener("DOMContentLoaded", async () => {
   bindUI();
+
   await loadStoresIndex();
   await loadGlobalKpis();
-  await renderOverview();
   await loadTrafficFlow();
-  await loadHeatmap();   // ← NY
+  await loadHeatmap();
+
+  await renderOverview();
 });
 
 /* ============================================================
