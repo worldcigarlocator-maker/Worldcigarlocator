@@ -295,90 +295,119 @@ function makeExpandableRow(label, items, level) {
     tr.querySelector(".arrow-cell").textContent = "▼";
     expanded = true;
 
-   /* =========================
-   CONTINENT → COUNTRY (A–Z)
-   ========================= */
-if (level === "continent") {
-  const byCountry = groupBy(items, s => s.country || "Unknown");
+    /* =========================
+       CONTINENT → COUNTRY
+       ========================= */
+    if (level === "continent") {
 
-  let anchor = tr.nextSibling;
+      const byCountry = groupBy(items, s => s.country || "Unknown");
+      let anchor = tr.nextSibling;
 
-  Object.entries(byCountry)
-    .sort(([a], [b]) =>
-      a.localeCompare(b, undefined, { sensitivity: "base" })
-    )
-    .forEach(([country, countryStores]) => {
-      const sub = makeExpandableRow(country, countryStores, "country");
-      subRows.push(sub);
-      tr.parentNode.insertBefore(sub, anchor);
-      anchor = sub.nextSibling; // ⬅️ kritisk rad
-    });
-}
+      Object.entries(byCountry)
+        .sort(([a], [b]) =>
+          a.localeCompare(b, undefined, { sensitivity: "base" })
+        )
+        .forEach(([country, countryStores]) => {
 
-/* =========================
-   COUNTRY → CITY (A–Z)
-   ========================= */
-/* CITY → STORES */
-else if (level === "city") {
+          const sub = makeExpandableRow(country, countryStores, "country");
 
-  let anchor = tr.nextSibling;
+          subRows.push(sub);
+          tr.parentNode.insertBefore(sub, anchor);
+          anchor = sub.nextSibling;
 
-  items.forEach(s => {
+        });
 
-    const row = document.createElement("tr");
-    row.className = "store-row";
+    }
 
-    const hasPhoto = Boolean(s.photo_reference);
+    /* =========================
+       COUNTRY → CITY
+       ========================= */
+    else if (level === "country") {
 
-    row.innerHTML = `
-      <td></td>
-      <td>${safe(s.continent)}</td>
-      <td>${safe(s.country) || "—"}</td>
-      <td>${safe(s.state) || "—"}</td>
-      <td>${safe(s.city) || "—"}</td>
-      <td>${safe(s.name)}</td>
-      <td>${
-        Array.isArray(s.types) && s.types.length
-          ? s.types.join(" + ")
-          : safe(s.type) || "–"
-      }</td>
-      <td>${safe(s.access) || "–"}</td>
-      <td>${s.rating ?? "–"}</td>
-      <td>
-        ${s.approved ? `<span class="badge green">APPROVED</span>` : ""}
-        ${s.flagged ? `<span class="badge red">FLAGGED</span>` : ""}
-        ${s.deleted ? `<span class="badge gray">DELETED</span>` : ""}
-        ${
-          !s.approved && !s.flagged && !s.deleted
-            ? `<span class="badge gold">PENDING</span>`
-            : ""
-        }
-      </td>
-      <td class="action-td">
-        <button class="btn small blue" onclick="editStore(${s.id})">Edit</button>
-        <button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
-        ${
-          !hasPhoto
-            ? `<button class="btn small orange"
+      const byCity = groupBy(items, s => s.city || "Unknown");
+      let anchor = tr.nextSibling;
+
+      Object.entries(byCity)
+        .sort(([a], [b]) =>
+          a.localeCompare(b, undefined, { sensitivity: "base" })
+        )
+        .forEach(([city, cityStores]) => {
+
+          const sub = makeExpandableRow(city, cityStores, "city");
+
+          subRows.push(sub);
+          tr.parentNode.insertBefore(sub, anchor);
+          anchor = sub.nextSibling;
+
+        });
+
+    }
+
+    /* =========================
+       CITY → STORES
+       ========================= */
+    else if (level === "city") {
+
+      let anchor = tr.nextSibling;
+
+      items.forEach(s => {
+
+        const row = document.createElement("tr");
+        row.className = "store-row";
+
+        const hasPhoto = Boolean(s.photo_reference);
+
+        row.innerHTML = `
+          <td></td>
+          <td>${safe(s.continent)}</td>
+          <td>${safe(s.country) || "—"}</td>
+          <td>${safe(s.state) || "—"}</td>
+          <td>${safe(s.city) || "—"}</td>
+          <td>${safe(s.name)}</td>
+          <td>${
+            Array.isArray(s.types) && s.types.length
+              ? s.types.join(" + ")
+              : safe(s.type) || "–"
+          }</td>
+          <td>${safe(s.access) || "–"}</td>
+          <td>${s.rating ?? "–"}</td>
+          <td>
+            ${s.approved ? `<span class="badge green">APPROVED</span>` : ""}
+            ${s.flagged ? `<span class="badge red">FLAGGED</span>` : ""}
+            ${s.deleted ? `<span class="badge gray">DELETED</span>` : ""}
+            ${
+              !s.approved && !s.flagged && !s.deleted
+                ? `<span class="badge gold">PENDING</span>`
+                : ""
+            }
+          </td>
+          <td class="action-td">
+            <button class="btn small blue" onclick="editStore(${s.id})">Edit</button>
+            <button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
+            ${
+              !hasPhoto
+                ? `<button class="btn small orange"
 onclick="repairPhoto(${s.id}, '${(s.place_id || "").replace(/'/g, "\\'")}', null, event)">
-               Repair
-             </button>`
-            : ""
-        }
-        <button class="btn small danger" onclick="toggleDeleteById(${s.id})">Delete</button>
-      </td>
-    `;
+                   Repair
+                 </button>`
+                : ""
+            }
+            <button class="btn small danger" onclick="toggleDeleteById(${s.id})">Delete</button>
+          </td>
+        `;
 
-    subRows.push(row);
-    tr.parentNode.insertBefore(row, anchor);
-    anchor = row.nextSibling;
+        subRows.push(row);
+        tr.parentNode.insertBefore(row, anchor);
+        anchor = row.nextSibling;
+
+      });
+
+    }
 
   });
-}
 
-  return tr; // ✅ VIKTIG
+  return tr;
 }
-
 
 /* ========================= FLAGS =========================
    Global ISO2 Engine — robust mapping med alias & normalisering
