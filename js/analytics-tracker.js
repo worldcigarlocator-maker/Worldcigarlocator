@@ -3,6 +3,7 @@
    ============================================================ */
 
 import { supabase } from "./globals.js";
+import { getSessionId } from "./session.js";
 
 export async function trackEvent(eventType, payload = {}) {
 
