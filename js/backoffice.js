@@ -744,7 +744,6 @@ try {
     deleted: 0,
     repair: 0,
   };
-}
 
   /* =========================
      2) Bas-query (stores)
