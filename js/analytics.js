@@ -1,16 +1,13 @@
+import { supabase } from "./globals.js";
+
 /* ============================================================
    WCL Analytics — Backoffice (V1)
-   - Store-first search + autocomplete
-   - Global KPIs
-   - Store dossier: views/clicks/ctr + daily trend + latest events
-   - Overview: top countries/cities/stores via RPC
    ============================================================ */
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
-const CFG = window.WCL_ANALYTICS_CFG;
-const sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey);
+const sb = supabase;
 
 const trafficFlowBody = $("#trafficFlowBody");
 const heatmapBody = $("#heatmapBody");
