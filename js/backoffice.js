@@ -821,6 +821,7 @@ let data;
 try {
 
   data = await fetchAllStores(base);
+   STORES = data; 
 
   console.log("fetchAllStores result:", {
     length: data.length,
