@@ -194,12 +194,68 @@ function mapAction(status) {
   return "set_reviewed";
 }
 
+
+// ============================================================
+// SUSPICIOUS USERS PANEL
+// ============================================================
+
+async function loadSuspiciousUsers() {
+
+  const { data, error } =
+    await supabase
+      .from("suspicious_users_v1")
+      .select("*")
+      .order("last_activity", { ascending: false });
+
+  if (error) {
+    console.warn("Suspicious users error:", error);
+    return;
+  }
+
+  renderSuspiciousUsers(data || []);
+}
+
+function renderSuspiciousUsers(users) {
+
+  const box = el("suspiciousUsers");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  if (!users.length) {
+    box.innerHTML = "<div class='muted'>No suspicious activity</div>";
+    return;
+  }
+
+  users.forEach((u) => {
+
+    const div = document.createElement("div");
+    div.className = "sus-user";
+
+    div.innerHTML = `
+      <div><strong>User:</strong> ${u.user_id}</div>
+      <div class="muted">
+        Reviews (10min): ${u.reviews_10min}
+        · Ratings (10min): ${u.ratings_10min}
+      </div>
+      <div class="muted">
+        Last activity: ${new Date(u.last_activity).toLocaleString()}
+      </div>
+    `;
+
+    box.appendChild(div);
+  });
+
+}
+
 // ------------------------------------------------------------
 // INIT
 // ------------------------------------------------------------
 
 document.addEventListener("DOMContentLoaded", () => {
+
   loadReports("pending");
+  loadSuspiciousUsers();
 
   el("refreshBtn")?.addEventListener("click", () =>
     loadReports(el("statusFilter").value)
@@ -210,4 +266,5 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   el("setStatusBtn")?.addEventListener("click", setStatus);
+
 });
