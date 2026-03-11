@@ -1,430 +1,435 @@
 <!DOCTYPE html>
-
 <html lang="en">
+
 <head>
 
-  <!-- ============================================================
-       META
-       ============================================================ -->
+<!-- ============================================================
+META
+============================================================ -->
 
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Analytics — World Cigar Locator</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ============================================================
-       SUPABASE
-       ============================================================ -->
+<title>Analytics — World Cigar Locator</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- ============================================================
+SUPABASE
+============================================================ -->
 
-  <!-- ============================================================
-       STYLES
-       ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <link rel="stylesheet" href="css/analytics.css" />
+<!-- ============================================================
+STYLES
+============================================================ -->
+
+<link rel="stylesheet" href="css/analytics.css" />
 
 </head>
 
 <body>
 
 <!-- ============================================================
-     TOPBAR
-     ============================================================ -->
+TOPBAR
+============================================================ -->
 
 <header class="topbar">
 
-  <h1>World Cigar Locator — Analytics</h1>
+<h1>World Cigar Locator — Analytics</h1>
 
-  <nav class="nav">
-    <a class="navlink" href="backoffice.html">Backoffice</a>
-  </nav>
+<nav class="nav">
+<a class="navlink" href="backoffice.html">Backoffice</a>
+</nav>
 
 </header>
 
+
 <!-- ============================================================
-     GLOBAL KPIs
-     ============================================================ -->
+GLOBAL KPIs
+============================================================ -->
 
 <section class="panel">
 
-  <div class="panelhead">
-    <h2>Global KPIs</h2>
-  </div>
+<div class="panelhead">
+<h2>Global KPIs</h2>
+</div>
 
-  <div class="kpis">
+<div class="kpis">
 
-```
 <div class="kpi">
-  <div class="kpiLabel">Total Views</div>
-  <div class="kpiVal" id="globalViews">—</div>
+<div class="kpiLabel">Total Views</div>
+<div class="kpiVal" id="globalViews">—</div>
 </div>
 
 <div class="kpi">
-  <div class="kpiLabel">Total Website Clicks</div>
-  <div class="kpiVal" id="globalClicks">—</div>
+<div class="kpiLabel">Total Website Clicks</div>
+<div class="kpiVal" id="globalClicks">—</div>
 </div>
 
 <div class="kpi">
-  <div class="kpiLabel">Global CTR</div>
-  <div class="kpiVal" id="globalCtr">—</div>
+<div class="kpiLabel">Global CTR</div>
+<div class="kpiVal" id="globalCtr">—</div>
 </div>
-```
 
-  </div>
+</div>
 
 </section>
 
+
 <!-- ============================================================
-     TRAFFIC FLOW
-     ============================================================ -->
+TRAFFIC FLOW
+============================================================ -->
 
 <section class="panel">
 
-  <div class="panelhead">
-    <h2>Traffic Flow</h2>
-  </div>
+<div class="panelhead">
+<h2>Traffic Flow</h2>
+</div>
 
-  <table class="table">
+<table class="table">
 
-    <thead>
-      <tr>
-        <th>Source</th>
-        <th class="num">Store Views</th>
-        <th class="num">Website Clicks</th>
-        <th class="num">Conversion</th>
-      </tr>
-    </thead>
+<thead>
+<tr>
+<th>Source</th>
+<th class="num">Store Views</th>
+<th class="num">Website Clicks</th>
+<th class="num">Conversion</th>
+</tr>
+</thead>
 
-    <tbody id="trafficFlowBody">
+<tbody id="trafficFlowBody">
 
-      <tr>
-        <td colspan="4" class="muted center">
-          Loading traffic data…
-        </td>
-      </tr>
+<tr>
+<td colspan="4" class="muted center">
+Loading traffic data…
+</td>
+</tr>
 
-    </tbody>
+</tbody>
 
-  </table>
+</table>
 
 </section>
 
+
 <!-- ============================================================
-     STORE SEARCH
-     ============================================================ -->
+STORE SEARCH
+============================================================ -->
 
 <section class="panel">
 
-  <div class="searchrow">
+<div class="searchrow">
 
-```
 <div class="searchbox">
 
-  <input
-    id="searchInput"
-    type="text"
-    autocomplete="off"
-    placeholder="Search store, city, country…"
-  />
+<input
+id="searchInput"
+type="text"
+autocomplete="off"
+placeholder="Search store, city, country…"
+/>
 
-  <div id="searchResults" class="search-results hidden"></div>
+<div id="searchResults" class="search-results hidden"></div>
 
 </div>
 
 <button id="searchBtn" class="btn primary">Search</button>
 <button id="clearBtn" class="btn ghost">Clear</button>
-```
 
-  </div>
+</div>
 
-  <div class="hint">
-    Select a store to view detailed traffic metrics and performance data.
-  </div>
+<div class="hint">
+Select a store to view detailed traffic metrics and performance data.
+</div>
 
 </section>
 
+
 <!-- ============================================================
-     STORE PERFORMANCE
-     ============================================================ -->
+STORE PERFORMANCE
+============================================================ -->
 
 <section class="panel">
 
-  <div class="panelhead">
+<div class="panelhead">
 
-```
 <h2>Store Performance</h2>
 
 <div class="row gap">
 
-  <label class="label">Range:</label>
+<label class="label">Range:</label>
 
-  <select id="rangeSelect" class="select">
-    <option value="7">Last 7 days</option>
-    <option value="30" selected>Last 30 days</option>
-    <option value="90">Last 90 days</option>
-    <option value="0">All time</option>
-  </select>
+<select id="rangeSelect" class="select">
+<option value="7">Last 7 days</option>
+<option value="30" selected>Last 30 days</option>
+<option value="90">Last 90 days</option>
+<option value="0">All time</option>
+</select>
 
-  <button id="exportBtn" class="btn">Export CSV</button>
-  <button id="printBtn" class="btn">Print</button>
-  <button id="mailBtn" class="btn">Email Store</button>
+<button id="exportBtn" class="btn">Export CSV</button>
+<button id="printBtn" class="btn">Print</button>
+<button id="mailBtn" class="btn">Email Store</button>
 
 </div>
-```
 
-  </div>
+</div>
 
-  <div id="storeEmpty" class="empty">
-    Select a store to view analytics.
-  </div>
 
-  <div id="storePanel" class="store-panel hidden">
+<div id="storeEmpty" class="empty">
+Select a store to view analytics.
+</div>
 
-```
+
+<div id="storePanel" class="store-panel hidden">
+
+
 <div class="storegrid">
 
-  <div class="card">
+<div class="card">
 
-    <div class="cardtitle" id="storeName">—</div>
+<div class="cardtitle" id="storeName">—</div>
 
-    <div class="cardmeta" id="storeLocation">—</div>
-    <div class="cardmeta" id="storeTypeAccess">—</div>
-    <div class="cardmeta" id="storeWebsite">—</div>
-
-  </div>
-
-
-  <div class="kpis">
-
-    <div class="kpi">
-      <div class="kpiLabel">Views</div>
-      <div class="kpiVal" id="kpiViews">—</div>
-    </div>
-
-    <div class="kpi">
-      <div class="kpiLabel">Website Clicks</div>
-      <div class="kpiVal" id="kpiClicks">—</div>
-    </div>
-
-    <div class="kpi">
-      <div class="kpiLabel">CTR</div>
-      <div class="kpiVal" id="kpiCtr">—</div>
-    </div>
-
-  </div>
+<div class="cardmeta" id="storeLocation">—</div>
+<div class="cardmeta" id="storeTypeAccess">—</div>
+<div class="cardmeta" id="storeWebsite">—</div>
 
 </div>
 
+
+<div class="kpis">
+
+<div class="kpi">
+<div class="kpiLabel">Views</div>
+<div class="kpiVal" id="kpiViews">—</div>
+</div>
+
+<div class="kpi">
+<div class="kpiLabel">Website Clicks</div>
+<div class="kpiVal" id="kpiClicks">—</div>
+</div>
+
+<div class="kpi">
+<div class="kpiLabel">CTR</div>
+<div class="kpiVal" id="kpiCtr">—</div>
+</div>
+
+</div>
+
+</div>
 
 
 <!-- ============================================================
-     DAILY TRAFFIC
-     ============================================================ -->
+DAILY TRAFFIC
+============================================================ -->
 
 <div class="subhead">Daily Traffic</div>
 
 <div class="tablewrap">
 
-  <table class="table" id="trendTable">
+<table class="table" id="trendTable">
 
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th class="num">Views</th>
-        <th class="num">Clicks</th>
-        <th class="num">CTR</th>
-      </tr>
-    </thead>
+<thead>
+<tr>
+<th>Date</th>
+<th class="num">Views</th>
+<th class="num">Clicks</th>
+<th class="num">CTR</th>
+</tr>
+</thead>
 
-    <tbody></tbody>
+<tbody></tbody>
 
-  </table>
+</table>
 
 </div>
 
 
-
 <!-- ============================================================
-     EVENT DEBUG
-     ============================================================ -->
+EVENT DEBUG
+============================================================ -->
 
 <div class="subhead">Latest Events (Debug)</div>
 
 <div class="tablewrap">
 
-  <table class="table" id="eventsTable">
+<table class="table" id="eventsTable">
 
-    <thead>
-      <tr>
-        <th>Timestamp</th>
-        <th>Event</th>
-        <th class="num">Store ID</th>
-        <th>Source</th>
-        <th>Session</th>
-      </tr>
-    </thead>
+<thead>
+<tr>
+<th>Timestamp</th>
+<th>Event</th>
+<th class="num">Store ID</th>
+<th>Source</th>
+<th>Session</th>
+</tr>
+</thead>
 
-    <tbody></tbody>
+<tbody></tbody>
 
-  </table>
+</table>
 
 </div>
-```
 
-  </div>
+</div>
 
 </section>
 
+
 <!-- ============================================================
-     GLOBAL OVERVIEW
-     ============================================================ -->
+GLOBAL OVERVIEW
+============================================================ -->
 
 <section class="panel">
 
-  <div class="panelhead">
+<div class="panelhead">
 
-```
 <h2>Global Overview</h2>
 
 <div class="row gap">
 
-  <button class="btn tab active" data-tab="countries">Top Countries</button>
-  <button class="btn tab" data-tab="cities">Top Cities</button>
-  <button class="btn tab" data-tab="stores">Top Stores</button>
+<button class="btn tab active" data-tab="countries">Top Countries</button>
+<button class="btn tab" data-tab="cities">Top Cities</button>
+<button class="btn tab" data-tab="stores">Top Stores</button>
 
-  <div class="spacer"></div>
+<div class="spacer"></div>
 
-  <label class="label">Range:</label>
+<label class="label">Range:</label>
 
-  <select id="overviewRange" class="select">
-    <option value="7">7d</option>
-    <option value="30" selected>30d</option>
-    <option value="90">90d</option>
-    <option value="0">All</option>
-  </select>
+<select id="overviewRange" class="select">
+<option value="7">7d</option>
+<option value="30" selected>30d</option>
+<option value="90">90d</option>
+<option value="0">All</option>
+</select>
 
 </div>
-```
 
-  </div>
+</div>
 
-  <div class="tablewrap">
+<div class="tablewrap">
 
-```
 <table class="table" id="overviewTable">
 
-  <thead>
-    <tr>
-      <th id="ovKeyHeader">Key</th>
-      <th class="num">Views</th>
-      <th class="num">Clicks</th>
-      <th class="num">CTR</th>
-    </tr>
-  </thead>
+<thead>
+<tr>
+<th id="ovKeyHeader">Key</th>
+<th class="num">Views</th>
+<th class="num">Clicks</th>
+<th class="num">CTR</th>
+</tr>
+</thead>
 
-  <tbody>
-    <tr>
-      <td colspan="4" class="muted center">No data yet.</td>
-    </tr>
-  </tbody>
+<tbody>
+<tr>
+<td colspan="4" class="muted center">No data yet.</td>
+</tr>
+</tbody>
 
 </table>
-```
 
-  </div>
+</div>
 
 </section>
 
+
 <!-- ============================================================
-     AFFILIATE OPPORTUNITIES
-     ============================================================ -->
+AFFILIATE OPPORTUNITIES
+============================================================ -->
 
 <section class="panel">
 
-  <div class="panelhead">
-    <h2>Affiliate Opportunities</h2>
-  </div>
+<div class="panelhead">
+<h2>Affiliate Opportunities</h2>
+</div>
 
-  <div class="tablewrap">
+<div class="tablewrap">
 
-```
 <table class="table" id="affiliateTable">
 
-  <thead>
-    <tr>
-      <th>Store</th>
-      <th>City</th>
-      <th>Country</th>
-      <th class="num">Views</th>
-      <th class="num">Clicks</th>
-      <th class="num">CTR</th>
-    </tr>
-  </thead>
+<thead>
+<tr>
+<th>Store</th>
+<th>City</th>
+<th>Country</th>
+<th class="num">Views</th>
+<th class="num">Clicks</th>
+<th class="num">CTR</th>
+</tr>
+</thead>
 
-  <tbody>
-    <tr>
-      <td colspan="6" class="muted center">Loading…</td>
-    </tr>
-  </tbody>
+<tbody>
+<tr>
+<td colspan="6" class="muted center">Loading…</td>
+</tr>
+</tbody>
 
 </table>
-```
 
-  </div>
+</div>
 
 </section>
 
+
 <!-- ============================================================
-     TRAFFIC SOURCES
-     ============================================================ -->
+TRAFFIC SOURCES
+============================================================ -->
 
 <section class="panel">
 
-  <div class="panelhead">
-    <h2>Traffic Sources</h2>
-  </div>
+<div class="panelhead">
+<h2>Traffic Sources</h2>
+</div>
 
-  <div class="tablewrap">
+<div class="tablewrap">
 
-    <table class="table" id="trafficSourcesTable">
+<table class="table" id="trafficSourcesTable">
 
-      <thead>
-        <tr>
-          <th>Source</th>
-          <th class="num">Views</th>
-          <th class="num">Clicks</th>
-          <th class="num">CTR</th>
-        </tr>
-      </thead>
+<thead>
+<tr>
+<th>Source</th>
+<th class="num">Views</th>
+<th class="num">Clicks</th>
+<th class="num">CTR</th>
+</tr>
+</thead>
 
-      <tbody>
-        <tr>
-          <td colspan="4" class="muted center">Loading…</td>
-        </tr>
-      </tbody>
+<tbody>
+<tr>
+<td colspan="4" class="muted center">Loading…</td>
+</tr>
+</tbody>
 
-    </table>
+</table>
 
-  </div>
+</div>
 
 </section>
-  
+
+
 <!-- ============================================================
-     CONFIG
-     ============================================================ -->
+CONFIG
+============================================================ -->
 
 <script>
 
 window.WCL_ANALYTICS_CFG = {
-  supabaseUrl: "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NzY2NDUwMCwiZXhwIjoyMDczMjQwNTAwfQ._m9attgKCiFZbi4NpbQ0pl7sPG8Fm54cWTkQEiTqSdQ"
+
+supabaseUrl: "https://gbxxoeplkzbhsvagnfsr.supabase.co",
+
+/* IMPORTANT
+Use the PUBLIC anon key from Supabase
+NEVER the service_role key
+*/
+
+supabaseAnonKey: "PASTE_YOUR_PUBLIC_ANON_KEY_HERE"
+
 };
 
 </script>
 
+
 <!-- ============================================================
-     SCRIPT
-     ============================================================ -->
+SCRIPT
+============================================================ -->
 
 <script src="js/analytics.js"></script>
 
