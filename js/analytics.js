@@ -13,6 +13,7 @@ const CFG = window.WCL_ANALYTICS_CFG;
 const sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey);
 
 const trafficFlowBody = $("#trafficFlowBody");
+const heatmapBody = $("#heatmapBody");
 
 const searchInput = $("#searchInput");
 const searchResults = $("#searchResults");
@@ -357,7 +358,7 @@ const { data: events, error: e3 } = await sb
   .select("timestamp, event_type, payload")
   .eq("payload->>store_id", String(storeId))
   .order("timestamp", { ascending: false })
-  .limit(50);
+  .limit(50000);
 
   if (e3) {
 
@@ -685,11 +686,9 @@ function escapeHtml(str) {
 /* ============================================================
    TRAFFIC FLOW
    ============================================================ */
-
 async function loadTrafficFlow() {
 
-  const tbody = document.querySelector("#trafficFlowTable tbody");
-  if (!tbody) return;
+  if (!trafficFlowBody) return;
 
   const { data, error } = await sb
     .from("analytics_events")
@@ -716,7 +715,7 @@ async function loadTrafficFlow() {
 
   });
 
-  tbody.innerHTML = Object.entries(map).map(([src, v]) => {
+  trafficFlowBody.innerHTML = Object.entries(map).map(([src, v]) => {
 
     const ctr = v.views
       ? ((v.clicks / v.views) * 100).toFixed(2) + "%"
@@ -724,7 +723,7 @@ async function loadTrafficFlow() {
 
     return `
       <tr>
-        <td>${src}</td>
+        <td>${escapeHtml(src)}</td>
         <td class="num">${v.views}</td>
         <td class="num">${v.clicks}</td>
         <td class="num">${ctr}</td>
@@ -766,10 +765,8 @@ async function loadHeatmap() {
   }
 
   heatmapBody.innerHTML = data.map(r => `
-    <tr>
-      <td>${escapeHtml(r.country || "—")}</td>
-      <td>${escapeHtml(r.city || "—")}</td>
-      <td class="num">${Number(r.views)}</td>
-    </tr>
-  `).join("");
-}
+  <tr>
+    <td>${escapeHtml(r.country || "—")}</td>
+    <td class="num">${Number(r.views)}</td>
+  </tr>
+`).join("");
