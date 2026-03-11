@@ -828,8 +828,21 @@ let data;
 
 try {
 
+if (CURRENT_TAB === "approved" && CURRENT_VIEW === "cards") {
+
+  const { data: rows, error } = await base;
+
+  if (error) throw error;
+
+  data = rows;
+
+} else {
+
   data = await fetchAllStores(base);
-   STORES = data; 
+
+}
+
+STORES = data;
 
   console.log("fetchAllStores result:", {
     length: data.length,
