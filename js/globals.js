@@ -1,13 +1,12 @@
 // ============================================================
-// GLOBALS.JS — Supabase (SINGLE SOURCE OF TRUTH)
-// Frontend-only · ESM · Stable CDN
+// GLOBALS.JS — WCL Supabase Client
+// SINGLE SOURCE OF TRUTH
 // ============================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.94.1";
 
-
 /* ============================================================
-   SUPABASE CLIENT
+   SUPABASE CONFIG
    ============================================================ */
 
 export const SUPABASE_URL =
@@ -16,6 +15,10 @@ export const SUPABASE_URL =
 export const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4";
 
+/* ============================================================
+   SUPABASE CLIENT
+   ============================================================ */
+
 export const supabase = createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY,
@@ -23,35 +26,42 @@ export const supabase = createClient(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true,
-    },
+      detectSessionInUrl: true
+    }
   }
 );
 
-// 🔒 Sanity check (ska logga "function")
-console.log("✅ supabase.rpc =", typeof supabase.rpc);
-
 /* ============================================================
-   SMALL UTILS
+   SANITY CHECK (debug)
    ============================================================ */
 
-// Quick selector (frontend convenience)
+console.log("WCL Supabase client loaded");
+console.log("supabase.from =", typeof supabase.from);
+console.log("supabase.rpc =", typeof supabase.rpc);
+
+/* ============================================================
+   DOM UTIL
+   ============================================================ */
+
 export const qs = (id) => document.getElementById(id);
 
 /* ============================================================
-   IMAGE RESOLVER — SINGLE SOURCE OF TRUTH
+   IMAGE RESOLVER
    ============================================================ */
 
 export const FALLBACK_IMAGE = "images/store.jpg";
 
 export function resolveStoreImage(store) {
-  // 1️⃣ CDN / manuellt satt bild (HELIG)
-  if (store?.photo_cdn_url) {
+
+  if (!store) return FALLBACK_IMAGE;
+
+  // CDN image (highest priority)
+  if (store.photo_cdn_url) {
     return store.photo_cdn_url;
   }
 
-  // 2️⃣ Google Places via Supabase photo-proxy
-  if (store?.photo_reference) {
+  // Google Places photo proxy
+  if (store.photo_reference) {
     return (
       "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy" +
       `?photo_reference=${encodeURIComponent(store.photo_reference)}` +
@@ -59,6 +69,6 @@ export function resolveStoreImage(store) {
     );
   }
 
-  // 3️⃣ Fallback
+  // fallback
   return FALLBACK_IMAGE;
 }
