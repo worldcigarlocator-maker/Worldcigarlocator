@@ -686,6 +686,11 @@ if (CURRENT_TAB === "approved" && CURRENT_VIEW === "cards") {
    DATA LOADING — STABIL, FÖRUTSÄGBAR & UX-SÄKER
    ============================================================ */
 async function reloadData(tab = CURRENT_TAB) {
+
+  if (tab !== CURRENT_TAB) {
+    RENDER_LIMIT = 100;
+  }
+
   CURRENT_TAB = tab;
 
   /* =========================
