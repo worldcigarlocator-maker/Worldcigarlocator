@@ -806,18 +806,22 @@ window.STORE_COUNTS = countsData?.[0] || {
       .eq("deleted", true)
       .order("id", { ascending: false });
 
-     /* =========================
+
+/* =========================
    REPORTS (Store Reports)
    ========================= */
 } else if (tab === "reports") {
+
   return loadStoreReports();
 
+} else {
+
   // ⚪ ALL = arbetsvy (ej deleted, nyast först)
-  } else {
-    base = base
-      .eq("deleted", false)
-      .order("id", { ascending: false });
-  }
+  base = base
+    .eq("deleted", false)
+    .order("id", { ascending: false });
+
+}
 
 /* =========================
    3) Fetch rows
