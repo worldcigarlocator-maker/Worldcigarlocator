@@ -107,34 +107,28 @@ export async function initMap() {
 });
 
 // ============================================================
-// MAP ANALYTICS — IDLE LISTENER
+// MAP IDLE HANDLER (LOAD + ANALYTICS)
 // ============================================================
 
 map.addListener("idle", () => {
 
+  // ---------- LOAD STORES ----------
+
+  clearTimeout(idleTimer);
+
+  idleTimer = setTimeout(() => {
+    loadStores();
+  }, 350);
+
+  // ---------- VIEWPORT ANALYTICS ----------
+
   clearTimeout(viewportTimer);
 
   viewportTimer = setTimeout(() => {
-
     trackMapViewport();
-
   }, 1500);
 
 });
-  
-  // ============================================================
-  // LOAD STORES (DEBOUNCED)
-  // ============================================================
-
-  map.addListener("idle", () => {
-
-    clearTimeout(idleTimer);
-
-    idleTimer = setTimeout(() => {
-      loadStores();
-    }, 350);
-
-  });
 
   // ============================================================
   // SMOOTH 3D TILT ON ZOOM
