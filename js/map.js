@@ -306,15 +306,11 @@ function createMarker(store) {
 
   marker.__store = store;
 
-// ============================================================
-// MAP ANALYTICS — PIN CLICK
-// ============================================================
+  // ================= CLICK =================
 
-marker.addListener("click", () => {
+ marker.addListener("gmp-click", (e) => {
 
   const s = marker.__store;
-
-  if (!s) return;
 
   trackEvent("map_pin_click", {
     store_id: s.id,
@@ -325,38 +321,31 @@ marker.addListener("click", () => {
     source: "map"
   });
 
-});
-  
-  // ================= CLICK =================
-
-  marker.addListener("gmp-click", (e) => {
-
   if (e?.domEvent) {
     e.domEvent.stopPropagation();
   }
 
-    if (hoverTooltip) {
-      hoverTooltip.remove();
-      hoverTooltip = null;
-    }
+  if (hoverTooltip) {
+    hoverTooltip.remove();
+    hoverTooltip = null;
+  }
 
-    if (activePin && activePin !== pin) {
-      activePin.style.transform = "scale(1)";
-      activePin.style.boxShadow = "";
-      activePin.style.zIndex = "";
-    }
+  if (activePin && activePin !== pin) {
+    activePin.style.transform = "scale(1)";
+    activePin.style.boxShadow = "";
+    activePin.style.zIndex = "";
+  }
 
-    activePin = pin;
+  activePin = pin;
 
-    pin.style.transform = "scale(1.35)";
-    pin.style.boxShadow =
-      "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
-    pin.style.zIndex = "5";
+  pin.style.transform = "scale(1.35)";
+  pin.style.boxShadow =
+    "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
+  pin.style.zIndex = "5";
 
-     openModal(store.id);
+  openModal(s.id);
 
-  });
-
+});
   // ================= HOVER =================
 
   pin.addEventListener("mouseenter", () => {
