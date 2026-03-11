@@ -637,9 +637,9 @@ function render() {
   // LIMIT LARGE DATASETS
   // ============================================================
 
-  if (CURRENT_TAB === "approved") {
-    list = list.slice(0, RENDER_LIMIT);
-  }
+if (CURRENT_TAB === "approved" && CURRENT_VIEW === "cards") {
+  list = list.slice(0, RENDER_LIMIT);
+}
 
   // ============================================================
   // RENDER VIEW
