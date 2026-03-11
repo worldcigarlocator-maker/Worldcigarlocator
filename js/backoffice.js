@@ -344,43 +344,44 @@ else if (level === "country") {
 
         const hasPhoto = Boolean(s.photo_reference);
 
-        row.innerHTML = `
-          <td></td>
-          <td>${safe(s.continent)}</td>
-          <td>${safe(s.state) || "—"}</td>
-          <td>${safe(s.city) || "—"}</td>
-          <td>${safe(s.name)}</td>
-          <td>${
-            Array.isArray(s.types) && s.types.length
-              ? s.types.join(" + ")
-              : safe(s.type) || "–"
-          }</td>
-          <td>${safe(s.access) || "–"}</td>
-          <td>${s.rating ?? "–"}</td>
-          <td>
-            ${s.approved ? `<span class="badge green">APPROVED</span>` : ""}
-            ${s.flagged ? `<span class="badge red">FLAGGED</span>` : ""}
-            ${s.deleted ? `<span class="badge gray">DELETED</span>` : ""}
-            ${
-              !s.approved && !s.flagged && !s.deleted
-                ? `<span class="badge gold">PENDING</span>`
-                : ""
-            }
-          </td>
-          <td class="action-td">
-            <button class="btn small blue" onclick="editStore(${s.id})">Edit</button>
-            <button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
-            ${
-              !hasPhoto
-                ? `<button class="btn small orange"
-onclick="repairPhoto(${s.id}, '${(s.place_id || "").replace(/'/g, "\\'")}', null, event)"
-                     Repair
-                   </button>`
-                : ""
-            }
-            <button class="btn small danger" onclick="toggleDeleteById(${s.id})">Delete</button>
-          </td>
-        `;
+row.innerHTML = `
+  <td></td>
+  <td>${safe(s.continent)}</td>
+  <td>${safe(s.country) || "—"}</td>
+  <td>${safe(s.state) || "—"}</td>
+  <td>${safe(s.city) || "—"}</td>
+  <td>${safe(s.name)}</td>
+  <td>${
+    Array.isArray(s.types) && s.types.length
+      ? s.types.join(" + ")
+      : safe(s.type) || "–"
+  }</td>
+  <td>${safe(s.access) || "–"}</td>
+  <td>${s.rating ?? "–"}</td>
+  <td>
+    ${s.approved ? `<span class="badge green">APPROVED</span>` : ""}
+    ${s.flagged ? `<span class="badge red">FLAGGED</span>` : ""}
+    ${s.deleted ? `<span class="badge gray">DELETED</span>` : ""}
+    ${
+      !s.approved && !s.flagged && !s.deleted
+        ? `<span class="badge gold">PENDING</span>`
+        : ""
+    }
+  </td>
+  <td class="action-td">
+    <button class="btn small blue" onclick="editStore(${s.id})">Edit</button>
+    <button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
+    ${
+      !hasPhoto
+        ? `<button class="btn small orange"
+onclick="repairPhoto(${s.id}, '${(s.place_id || "").replace(/'/g, "\\'")}', null, event)">
+           Repair
+         </button>`
+        : ""
+    }
+    <button class="btn small danger" onclick="toggleDeleteById(${s.id})">Delete</button>
+  </td>
+`;
 
         subRows.push(row);
         tr.parentNode.insertBefore(row, tr.nextSibling);
