@@ -35,12 +35,9 @@ async function showLogin() {
 }
 
 async function checkAuth() {
-  const { data: { user }, error: uErr } = await WCL.supabase.auth.getUser();
+  const { data: { session } } = await WCL.supabase.auth.getSession();
+const user = session?.user;
 
-  if (uErr) {
-    console.warn("Auth getUser error:", uErr);
-    return showLogin();
-  }
 
   if (!user) {
     return showLogin();
