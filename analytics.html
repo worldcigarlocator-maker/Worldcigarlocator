@@ -110,7 +110,44 @@ Loading traffic data…
 
 </section>
 
+/* ============================================================
+   HEATMAP
+   ============================================================ */
 
+async function loadHeatmap() {
+
+  const { data, error } =
+    await sb.rpc("analytics_heatmap_countries", {
+      p_days: 30
+    });
+
+  if (error) {
+
+    console.error("Heatmap error", error);
+
+    heatmapBody.innerHTML =
+      `<tr><td colspan="2" class="muted center">Error loading heatmap.</td></tr>`;
+
+    return;
+  }
+
+  if (!data || !data.length) {
+
+    heatmapBody.innerHTML =
+      `<tr><td colspan="2" class="muted center">No data yet.</td></tr>`;
+
+    return;
+  }
+
+  heatmapBody.innerHTML = data.map(r => `
+    <tr>
+      <td>${escapeHtml(r.country || "Unknown")}</td>
+      <td class="num">${Number(r.views || 0)}</td>
+    </tr>
+  `).join("");
+
+}
+     
 <!-- ============================================================
      GLOBAL HEATMAP
      ============================================================ -->
