@@ -503,3 +503,14 @@ mark.hl {
   background: rgb(var(--global));
   color: white;
 }
+
+/* =========================================
+   MOBILE
+   ========================================= */
+@media (max-width:768px){
+
+  .store-card{
+    width:100%;
+  }
+
+}
