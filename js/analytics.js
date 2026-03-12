@@ -2,7 +2,6 @@ import { supabase } from "./globals.js";
 
 /* ============================================================
    WCL Analytics — Backoffice (V1)
-   ============================================================ */
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -23,11 +22,19 @@ const storePanel = $("#storePanel");
 const globalRangeSelect = document.getElementById("globalRange");
 
 if (globalRangeSelect) {
-  globalRangeSelect.addEventListener("change", () => {
+  globalRangeSelect.addEventListener("change", async () => {
 
     const days = Number(globalRangeSelect.value);
 
-    loadMarketDemand(days);
+    await loadGlobalKpis();
+    await loadTrafficFlow();
+    await loadHeatmap();
+    await loadMarketDemand(days);
+    await renderOverview();
+
+    if (ACTIVE_STORE) {
+      await loadStoreDossier(ACTIVE_STORE.id);
+    }
 
   });
 }
