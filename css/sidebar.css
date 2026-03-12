@@ -279,7 +279,7 @@ border-bottom: 1px solid var(--divider);
 }
 
 /* ============================================================
-   MOBILE MENU BUTTON
+   MOBILE SIDEBAR
    ============================================================ */
 
 .mobile-menu-btn{
@@ -287,6 +287,8 @@ border-bottom: 1px solid var(--divider);
 }
 
 @media (max-width:768px){
+
+  /* hamburger button */
 
   .mobile-menu-btn{
     display:block;
@@ -309,13 +311,7 @@ border-bottom: 1px solid var(--divider);
     z-index:9999;
   }
 
-}
-
-/* ============================================================
-   MOBILE SIDEBAR DRAWER
-   ============================================================ */
-
-@media (max-width:768px){
+  /* sidebar drawer */
 
   .sidebar{
     transform:translateX(-100%);
@@ -327,12 +323,7 @@ border-bottom: 1px solid var(--divider);
     transform:translateX(0);
   }
 
-}
-/* ============================================================
-   MOBILE SIDEBAR BRAND FIX
-   ============================================================ */
-
-@media (max-width:768px){
+  /* logo scale */
 
   .sidebar-brand svg{
     width:170px;
