@@ -535,6 +535,31 @@ export async function runSearch(isLoadMore = false) {
 
   renderCards(filteredRows, isLoadMore);
 
+  // ============================================================
+// SEARCH ANALYTICS
+// ============================================================
+
+if (!isLoadMore) {
+
+  trackEvent("search", {
+    query: STATE.search.text || null,
+
+    type_filters: STATE.chips.type || [],
+    access_filters: STATE.chips.access || [],
+
+    continent: STATE.location.continent || null,
+    country: STATE.location.country || null,
+    state: STATE.location.state || null,
+    city: STATE.location.city || null,
+
+    results: filteredRows.length,
+    sort: SORT_MODE,
+
+    source: "search"
+  });
+
+}
+
   // Count ska visa vad som faktiskt visas
   if (!isLoadMore) {
     updateSearchCount(LAST_RENDERED_STORES.length);
