@@ -47,6 +47,16 @@ const overviewRange = $("#overviewRange");
 
 const marketDemandBody = $("#marketDemandBody");
 
+const rangeSelect = document.getElementById("globalRange");
+
+rangeSelect.addEventListener("change", () => {
+
+  const days = Number(rangeSelect.value);
+
+  loadMarketDemand(days);
+
+});
+
 let STORES_INDEX = [];
 let ACTIVE_STORE = null;
 
@@ -774,11 +784,10 @@ async function loadHeatmap() {
    MARKET DEMAND
    ============================================================ */
 
-async function loadMarketDemand() {
-
+async function loadMarketDemand(days = 30) {
   const { data, error } =
     await sb.rpc("analytics_market_demand", {
-      p_days: 30
+   p_days: days
     });
 
   if (error) {
