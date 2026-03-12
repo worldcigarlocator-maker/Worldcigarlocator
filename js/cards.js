@@ -522,6 +522,7 @@ export async function runSearch(isLoadMore = false) {
   if (!isLoadMore) resetPagination();
 
   const resp = await loadStores(snap);
+  console.log("RUN SEARCH STARTED", snap);
   if (!resp || resp.error) return;
 
   const rawRows = resp.data || [];
