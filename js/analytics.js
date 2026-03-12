@@ -125,7 +125,7 @@ function bindUI() {
     }
   });
 
-  rangeSelect?.addEventListener("change", async () => {
+  globalRangeSelect?.addEventListener("change", async () => {
     if (!ACTIVE_STORE) return;
     await loadStoreDossier(ACTIVE_STORE.id);
   });
@@ -329,7 +329,7 @@ function renderStoreHeader(s) {
 
 async function loadStoreDossier(storeId) {
 
-  const days = Number(rangeSelect.value || 30);
+  const days = Number(globalRangeSelect.value || 30);
 
   const { data: summary, error: e1 } =
     await sb.rpc("analytics_store_summary", {
@@ -612,7 +612,7 @@ function emailStore() {
 
   if (!ACTIVE_STORE) return;
 
-  const days = Number(rangeSelect.value || 30);
+  const days = Number(globalRangeSelect.value || 30);
 
   const v = kpiViews.textContent || "0";
   const c = kpiClicks.textContent || "0";
