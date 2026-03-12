@@ -202,7 +202,6 @@ function applyChipFilters(rows) {
 // ============================================================
 // FILTER API
 // ============================================================
-
 export function activateSearch({ text = "", sort } = {}) {
   MASTER_MODE = MASTER.SEARCH;
   clearLocation();
@@ -224,6 +223,55 @@ export function activateSearch({ text = "", sort } = {}) {
   );
 
   runSearch();
+
+ // ============================================================
+// FILTER API
+// ============================================================
+
+export function activateSearch({ text = "", sort } = {}) {
+
+  MASTER_MODE = MASTER.SEARCH;
+  clearLocation();
+
+  if (text !== undefined) {
+    STATE.search.text = text;
+  }
+
+  if (sort) {
+    SORT_MODE = sort;
+  }
+
+  resetPagination();
+
+  document.dispatchEvent(
+    new CustomEvent("wcl:master-change", {
+      detail: { master: MASTER_MODE }
+    })
+  );
+
+  runSearch();
+
+  /* ============================================================
+     MOBILE UX — SCROLL TO RESULTS
+     ============================================================ */
+
+  if (window.innerWidth <= 768) {
+
+    setTimeout(() => {
+
+      const grid = document.getElementById("storeGrid");
+
+      if (grid) {
+        grid.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
+
+    }, 180);
+
+  }
+
 }
 
 export function activateLocation(next) {
