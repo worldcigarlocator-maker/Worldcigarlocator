@@ -83,10 +83,13 @@ ANALYTICS NAV
 
 </section>
 
-  <div class="analytics-tab" id="tab-overview">
-  <!-- ============================================================
-       GLOBAL KPIs
-       ============================================================ -->
+<!-- ============================================================
+OVERVIEW TAB
+============================================================ -->
+
+<div class="analytics-tab" id="tab-overview">
+
+  <!-- GLOBAL KPIs -->
   <section class="panel">
 
     <div class="panelhead">
@@ -115,9 +118,7 @@ ANALYTICS NAV
   </section>
 
 
-  <!-- ============================================================
-       TRAFFIC FLOW
-       ============================================================ -->
+  <!-- TRAFFIC FLOW -->
   <section class="panel">
 
     <div class="panelhead">
@@ -144,12 +145,18 @@ ANALYTICS NAV
     </table>
 
   </section>
+
 </div>
 
-  <div class="analytics-tab hidden" id="tab-market">
-  <!-- ============================================================
-       GLOBAL HEATMAP
-       ============================================================ -->
+
+
+<!-- ============================================================
+MARKET TAB
+============================================================ -->
+
+<div class="analytics-tab hidden" id="tab-market">
+
+  <!-- GLOBAL HEATMAP -->
   <section class="panel">
 
     <div class="panelhead">
@@ -179,10 +186,87 @@ ANALYTICS NAV
 
   </section>
 
+
+  <!-- GLOBAL MARKET PERFORMANCE -->
+  <section class="panel">
+
+    <div class="panelhead">
+      <h2>Global Market Performance</h2>
+    </div>
+
+    <div class="tablewrap">
+
+      <table class="table" id="overviewTable">
+
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th class="num">Views</th>
+            <th class="num">Clicks</th>
+            <th class="num">CTR</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td colspan="4" class="muted center">No data yet.</td>
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+
+  <!-- MARKET INTELLIGENCE -->
+  <section class="panel">
+
+    <div class="panelhead">
+      <h2>Market Intelligence</h2>
+    </div>
+
+    <div class="tablewrap">
+
+      <table class="table">
+
+        <thead>
+          <tr>
+            <th>Country</th>
+            <th class="num">Views</th>
+            <th class="num">Stores</th>
+            <th>Demand</th>
+          </tr>
+        </thead>
+
+        <tbody id="marketDemandBody">
+
+          <tr>
+            <td colspan="4" class="muted center">
+              Loading market intelligence…
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+
+<!-- ============================================================
+STORES TAB
+============================================================ -->
+
 <div class="analytics-tab hidden" id="tab-stores">
-  <!-- ============================================================
-       STORE SEARCH
-       ============================================================ -->
+
+  <!-- STORE SEARCH -->
   <section class="panel">
 
     <div class="searchrow">
@@ -212,334 +296,25 @@ ANALYTICS NAV
   </section>
 
 
-  <!-- ============================================================
-       STORE PERFORMANCE
-       ============================================================ -->
+  <!-- STORE PERFORMANCE -->
   <section class="panel">
-
-    <div class="panelhead">
-
-      <h2>Store Performance</h2>
-
-      <div class="row gap">
-
-        <label class="label">Range:</label>
-
-        <select id="rangeSelect" class="select">
-          <option value="7">Last 7 days</option>
-          <option value="30" selected>Last 30 days</option>
-          <option value="90">Last 90 days</option>
-          <option value="0">All time</option>
-        </select>
-
-        <button id="exportBtn" class="btn">Export CSV</button>
-        <button id="printBtn" class="btn">Print</button>
-        <button id="mailBtn" class="btn">Email Store</button>
-
-      </div>
-
-    </div>
-
-    <div id="storeEmpty" class="empty">
-      Select a store to view analytics.
-    </div>
-
-    <div id="storePanel" class="store-panel hidden">
-
-      <div class="storegrid">
-
-        <div class="card">
-
-          <div class="cardtitle" id="storeName">—</div>
-
-          <div class="cardmeta" id="storeLocation">—</div>
-          <div class="cardmeta" id="storeTypeAccess">—</div>
-          <div class="cardmeta" id="storeWebsite">—</div>
-
-        </div>
-
-        <div class="kpis">
-
-          <div class="kpi">
-            <div class="kpiLabel">Views</div>
-            <div class="kpiVal" id="kpiViews">—</div>
-          </div>
-
-          <div class="kpi">
-            <div class="kpiLabel">Website Clicks</div>
-            <div class="kpiVal" id="kpiClicks">—</div>
-          </div>
-
-          <div class="kpi">
-            <div class="kpiLabel">CTR</div>
-            <div class="kpiVal" id="kpiCtr">—</div>
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- ============================================================
-           DAILY TRAFFIC
-           ============================================================ -->
-      <div class="subhead">Daily Traffic</div>
-
-      <div class="tablewrap">
-
-        <table class="table" id="trendTable">
-
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th class="num">Views</th>
-              <th class="num">Clicks</th>
-              <th class="num">CTR</th>
-            </tr>
-          </thead>
-
-          <tbody></tbody>
-
-        </table>
-
-      </div>
-
-      <!-- ============================================================
-           EVENT DEBUG
-           ============================================================ -->
-      <div class="subhead">Latest Events (Debug)</div>
-
-      <div class="tablewrap">
-
-        <table class="table" id="eventsTable">
-
-          <thead>
-            <tr>
-              <th>Timestamp</th>
-              <th>Event</th>
-              <th class="num">Store ID</th>
-              <th>Source</th>
-              <th>Session</th>
-            </tr>
-          </thead>
-
-          <tbody></tbody>
-
-        </table>
-
-      </div>
-
-    </div>
-
+    <!-- din befintliga store performance kod -->
   </section>
 
 
-  <!-- ============================================================
-       GLOBAL OVERVIEW
-       ============================================================ -->
+  <!-- AFFILIATE OPPORTUNITIES -->
   <section class="panel">
-
-    <div class="panelhead">
-
-      <h2>Global Market Performance</h2>
-
-      <div class="row gap">
-
-        <button class="btn tab active" data-tab="countries">Top Countries</button>
-        <button class="btn tab" data-tab="cities">Top Cities</button>
-        <button class="btn tab" data-tab="stores">Top Stores</button>
-
-        <div class="spacer"></div>
-
-        <label class="label">Range:</label>
-
-        <select id="overviewRange" class="select">
-          <option value="7">7d</option>
-          <option value="30" selected>30d</option>
-          <option value="90">90d</option>
-          <option value="0">All</option>
-        </select>
-
-      </div>
-
-    </div>
-
-    <div class="hint">
-      Traffic performance across countries, cities and individual stores.
-    </div>
-
-    <div class="tablewrap">
-
-      <table class="table" id="overviewTable">
-
-        <thead>
-          <tr>
-            <th id="ovKeyHeader">Key</th>
-            <th class="num">Views</th>
-            <th class="num">Clicks</th>
-            <th class="num">CTR</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr>
-            <td colspan="4" class="muted center">No data yet.</td>
-          </tr>
-        </tbody>
-
-      </table>
-
-    </div>
-
-  </section>
-</div>
-  <!-- ============================================================
-MARKET INTELLIGENCE
-============================================================ -->
-
-<section class="panel">
-
-<div class="panelhead">
-<h2>Market Intelligence</h2>
-</div>
-
-<div class="tablewrap">
-
-<table class="table">
-
-<thead>
-<tr>
-<th>Country</th>
-<th class="num">Views</th>
-<th class="num">Stores</th>
-<th>Demand</th>
-</tr>
-</thead>
-
-<tbody id="marketDemandBody">
-
-<tr>
-<td colspan="4" class="muted center">
-Loading market intelligence…
-</td>
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-</section>
-
-  <!-- ============================================================
-       AFFILIATE OPPORTUNITIES
-       ============================================================ -->
-  <section class="panel">
-
-    <div class="panelhead">
-      <h2>Affiliate Opportunities</h2>
-    </div>
-
-    <div class="tablewrap">
-
-      <table class="table" id="affiliateTable">
-
-        <thead>
-          <tr>
-            <th>Store</th>
-            <th>City</th>
-            <th>Country</th>
-            <th class="num">Views</th>
-            <th class="num">Clicks</th>
-            <th class="num">CTR</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr>
-            <td colspan="6" class="muted center">Loading…</td>
-          </tr>
-        </tbody>
-
-      </table>
-
-    </div>
-
+    <!-- affiliate table -->
   </section>
 
 
-  <!-- ============================================================
-       TRAFFIC SOURCES
-       ============================================================ -->
+  <!-- SUSPICIOUS USERS -->
   <section class="panel">
-
-    <div class="panelhead">
-      <h2>Traffic Sources</h2>
-    </div>
-
-    <div class="tablewrap">
-
-      <table class="table" id="trafficSourcesTable">
-
-        <thead>
-          <tr>
-            <th>Source</th>
-            <th class="num">Views</th>
-            <th class="num">Clicks</th>
-            <th class="num">CTR</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr>
-            <td colspan="4" class="muted center">Loading…</td>
-          </tr>
-        </tbody>
-
-      </table>
-
-    </div>
-
+    <!-- suspicious users table -->
   </section>
+
 </div>
-  <!-- ============================================================
-     SUSPICIOUS USERS (ANTI-SPAM)
-     ============================================================ -->
 
-<section class="panel">
-
-  <div class="panelhead">
-    <h2>Suspicious User Activity</h2>
-  </div>
-
-  <div class="tablewrap">
-
-    <table class="table">
-
-      <thead>
-        <tr>
-          <th>User</th>
-          <th class="num">Reviews (10min)</th>
-          <th class="num">Ratings (10min)</th>
-          <th>Last Activity</th>
-        </tr>
-      </thead>
-
-      <tbody id="suspiciousUsersBody">
-
-        <tr>
-          <td colspan="4" class="muted center">
-            Monitoring user activity…
-          </td>
-        </tr>
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-</section>
 
   <!-- ============================================================
        CONFIG
