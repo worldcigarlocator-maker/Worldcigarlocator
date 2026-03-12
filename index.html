@@ -156,47 +156,51 @@
 🔍 Search
 </button>
 
-<div class="search-capsule">
+<div id="searchPanel" class="search-panel">
 
-  <!-- SEARCH -->
-  <div class="search-zone zone-search" id="searchZone">
-    <span class="search-label">Search</span>
-    <input
-      id="searchInput"
-      type="text"
-      placeholder="Search by name, city or address"
-      autocomplete="off"
-    />
-  </div>
+  <div class="search-capsule">
 
-  <div class="zone-divider"></div>
+    <!-- SEARCH -->
+    <div class="search-zone zone-search" id="searchZone">
+      <span class="search-label">Search</span>
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="Search by name, city or address"
+        autocomplete="off"
+      />
+    </div>
 
-  <!-- FILTERS + SORT -->
-  <div class="search-zone zone-filters" id="searchControls">
-    <button class="control-btn" data-filter="type" data-value="store">Stores</button>
-    <button class="control-btn" data-filter="type" data-value="lounge">Lounge</button>
-    <button class="control-btn" data-filter="access" data-value="members">Members</button>
+    <div class="zone-divider"></div>
 
-    <button class="control-btn sort-btn" data-sort="rating_desc">Top Rated</button>
-    <button class="control-btn sort-btn" data-sort="newest">Newest</button>
-  </div>
+    <!-- FILTERS + SORT -->
+    <div class="search-zone zone-filters" id="searchControls">
+      <button class="control-btn" data-filter="type" data-value="store">Stores</button>
+      <button class="control-btn" data-filter="type" data-value="lounge">Lounge</button>
+      <button class="control-btn" data-filter="access" data-value="members">Members</button>
 
-  <div class="zone-divider"></div>
+      <button class="control-btn sort-btn" data-sort="rating_desc">Top Rated</button>
+      <button class="control-btn sort-btn" data-sort="newest">Newest</button>
+    </div>
 
-  <!-- MAP VIEW (NEW ZONE) -->
-  <div class="search-zone zone-map">
-    <button class="map-btn" id="mapViewBtn" aria-label="Map view" title="Map view">
-      Map View
-    </button>
-  </div>
+    <div class="zone-divider"></div>
 
-  <div class="zone-divider"></div>
+    <!-- MAP VIEW -->
+    <div class="search-zone zone-map">
+      <button class="map-btn" id="mapViewBtn" aria-label="Map view" title="Map view">
+        Map View
+      </button>
+    </div>
 
-  <!-- CLEAR -->
-  <div class="search-zone zone-clear">
-    <button class="clear-btn" id="clearBtn" aria-label="Clear search">
-      Clear
-    </button>
+    <div class="zone-divider"></div>
+
+    <!-- CLEAR -->
+    <div class="search-zone zone-clear">
+      <button class="clear-btn" id="clearBtn" aria-label="Clear search">
+        Clear
+      </button>
+    </div>
+
   </div>
 
 </div>
