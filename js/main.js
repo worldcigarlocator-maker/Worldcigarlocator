@@ -189,7 +189,10 @@ const sidebar = document.querySelector(".sidebar");
 
 if (mobileMenuBtn && sidebar) {
   mobileMenuBtn.addEventListener("click", () => {
+
     sidebar.classList.toggle("open");
+    document.body.classList.toggle("menu-open");
+
   });
 }
 
