@@ -167,21 +167,25 @@
    FLAG — MAKE SURE IT RENDERS CLEANLY
    ============================================================ */
 
-.flag {
+.flag{
   width:18px;
   height:12px;
-  border-radius:2px;
   object-fit:cover;
   object-position:center;
+  border-radius:2px;
   box-shadow:0 0 0 1px rgba(0,0,0,0.5);
-  flex-shrink:0;
-  display:block;
+  display:inline-block;
 }
 
 .loc-top{
   display:flex;
   align-items:center;
   gap:6px;
+}
+
+.loc-top .flag{
+  width:18px;
+  height:12px;
 }
 
 /* ============================================================
