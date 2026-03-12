@@ -193,13 +193,18 @@ if (mobileMenuBtn && sidebar) {
   });
 }
 
+
 // ============================================================
 // MOBILE SEARCH UX
 // ============================================================
 
+const mobileSearchBtn = document.getElementById("mobileSearchBtn");
+const searchPanel = document.getElementById("searchPanel");
 const searchInput = document.getElementById("searchInput");
+const clearBtn = document.getElementById("clearBtn");
 
-// auto focus (keyboard opens)
+
+// open search panel + focus input
 if (mobileSearchBtn && searchPanel && searchInput) {
 
   mobileSearchBtn.addEventListener("click", () => {
@@ -216,19 +221,25 @@ if (mobileSearchBtn && searchPanel && searchInput) {
 
 }
 
-// click outside closes search
+
+// click outside closes search panel
 document.addEventListener("click", (e) => {
 
-  if (!searchPanel.contains(e.target) && !mobileSearchBtn.contains(e.target)) {
+  if (!searchPanel || !mobileSearchBtn) return;
+
+  if (
+    window.innerWidth <= 768 &&
+    !searchPanel.contains(e.target) &&
+    !mobileSearchBtn.contains(e.target)
+  ) {
     searchPanel.classList.remove("open");
   }
 
 });
 
-// clear button closes search
-const clearBtn = document.getElementById("clearBtn");
 
-if (clearBtn) {
+// clear button closes search panel (mobile)
+if (clearBtn && searchPanel) {
 
   clearBtn.addEventListener("click", () => {
 
@@ -240,18 +251,40 @@ if (clearBtn) {
 
 }
 
-// close sidebar when clicking menu item (mobile)
 
-document.addEventListener("click", e => {
+// ============================================================
+// MOBILE SIDEBAR AUTO CLOSE (menu click)
+// ============================================================
 
-  const sidebar = document.querySelector(".sidebar")
+document.addEventListener("click", (e) => {
 
-  if(window.innerWidth <= 768){
+  if (window.innerWidth <= 768) {
 
-    if(e.target.closest("#sidebarMenu a")){
-      sidebar.classList.remove("open")
+    const sidebarMenuLink = e.target.closest("#sidebarMenu a");
+
+    if (sidebarMenuLink && sidebar) {
+      sidebar.classList.remove("open");
     }
 
   }
 
-})
+});
+
+
+// ============================================================
+// MOBILE SIDEBAR CLICK OUTSIDE CLOSE
+// ============================================================
+
+document.addEventListener("click", (e) => {
+
+  if (!sidebar || !mobileMenuBtn) return;
+
+  if (
+    window.innerWidth <= 768 &&
+    !sidebar.contains(e.target) &&
+    !mobileMenuBtn.contains(e.target)
+  ) {
+    sidebar.classList.remove("open");
+  }
+
+});
