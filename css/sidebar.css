@@ -277,3 +277,36 @@ border-bottom: 1px solid var(--divider);
 .sidebar-footer a[href^="mailto:"]:hover {
   color: var(--gold);
 }
+
+/* ============================================================
+   MOBILE MENU BUTTON
+   ============================================================ */
+
+.mobile-menu-btn{
+  display:none;
+}
+
+@media (max-width:768px){
+
+  .mobile-menu-btn{
+    display:block;
+    position:fixed;
+    top:16px;
+    left:16px;
+
+    width:42px;
+    height:42px;
+
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,0.25);
+
+    background:#050505;
+    color:white;
+
+    font-size:20px;
+    cursor:pointer;
+
+    z-index:9999;
+  }
+
+}
