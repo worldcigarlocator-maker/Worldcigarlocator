@@ -328,3 +328,19 @@ border-bottom: 1px solid var(--divider);
   }
 
 }
+/* ============================================================
+   MOBILE SIDEBAR BRAND FIX
+   ============================================================ */
+
+@media (max-width:768px){
+
+  .sidebar-brand svg{
+    width:170px;
+    height:auto;
+  }
+
+  .sidebar-brand text{
+    font-size:34px;
+  }
+
+}
