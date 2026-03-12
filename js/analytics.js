@@ -834,7 +834,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   tabs.forEach((btn) => {
 
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
 
       const tab = btn.dataset.tab;
 
@@ -851,6 +851,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (target) {
         target.classList.remove("hidden");
+      }
+
+      const days = Number(globalRangeSelect?.value || 30);
+
+      if (tab === "market") {
+        await loadHeatmap();
+        await loadMarketDemand(days);
+      }
+
+      if (tab === "overview") {
+        await renderOverview();
       }
 
     });
