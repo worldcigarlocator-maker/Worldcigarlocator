@@ -53,7 +53,6 @@ const eventsTbody = $("#eventsTable tbody");
 
 const overviewTableBody = $("#overviewTable tbody");
 const ovKeyHeader = $("#ovKeyHeader");
-const overviewRange = $("#overviewRange");
 
 const marketDemandBody = $("#marketDemandBody");
 
@@ -479,7 +478,7 @@ function renderEvents(rows) {
 
 async function renderOverview() {
 
-  const days = Number(overviewRange.value || 30);
+ const days = Number(globalRangeSelect?.value || 30);
 
   if (OVERVIEW_TAB === "countries")
     ovKeyHeader.textContent = "Country";
