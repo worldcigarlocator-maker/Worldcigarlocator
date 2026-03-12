@@ -20,7 +20,17 @@ const clearBtn = $("#clearBtn");
 const storeEmpty = $("#storeEmpty");
 const storePanel = $("#storePanel");
 
-const rangeSelect = $("#rangeSelect");
+const globalRangeSelect = document.getElementById("globalRange");
+
+if (globalRangeSelect) {
+  globalRangeSelect.addEventListener("change", () => {
+
+    const days = Number(globalRangeSelect.value);
+
+    loadMarketDemand(days);
+
+  });
+}
 const exportBtn = $("#exportBtn");
 const printBtn = $("#printBtn");
 const mailBtn = $("#mailBtn");
@@ -47,15 +57,7 @@ const overviewRange = $("#overviewRange");
 
 const marketDemandBody = $("#marketDemandBody");
 
-const rangeSelect = document.getElementById("globalRange");
 
-rangeSelect.addEventListener("change", () => {
-
-  const days = Number(rangeSelect.value);
-
-  loadMarketDemand(days);
-
-});
 
 let STORES_INDEX = [];
 let ACTIVE_STORE = null;
