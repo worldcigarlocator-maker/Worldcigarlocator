@@ -808,3 +808,33 @@ async function loadMarketDemand() {
     </tr>
   `).join("");
 }
+
+// ============================================================
+// ANALYTICS TABS
+// ============================================================
+
+const tabs = document.querySelectorAll(".btn.tab");
+
+tabs.forEach((btn) => {
+
+  btn.addEventListener("click", () => {
+
+    const tab = btn.dataset.tab;
+
+    // active button
+    tabs.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    // show correct section
+    document.querySelectorAll(".analytics-tab")
+      .forEach((el) => el.classList.add("hidden"));
+
+    const target = document.getElementById("tab-" + tab);
+
+    if (target) {
+      target.classList.remove("hidden");
+    }
+
+  });
+
+});
