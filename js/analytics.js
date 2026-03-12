@@ -144,16 +144,6 @@ $$(".overview-tab").forEach(btn => {
       await renderOverview();
     });
   });
-
-if (overviewRange) {
-
-  overviewRange.addEventListener("change", () => {
-
-    loadOverview();
-
-  });
-
-}
 }
 
 /* ============================================================
