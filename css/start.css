@@ -592,9 +592,15 @@ body.auth-locked .sidebar-actions #loginBtn{
 
 @media (max-width:768px){
 
-  .hero img{
+  .hero{
     width:100%;
     height:42vh;
+    overflow:hidden;
+  }
+
+  .hero img{
+    width:100%;
+    height:100%;
     object-fit:cover;
     object-position:center;
   }
