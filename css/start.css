@@ -536,10 +536,38 @@ body.auth-locked .sidebar-actions #loginBtn{
   display:none;
 }
 
-/* =========================================
+//* =========================================
    MOBILE
    ========================================= */
 
 @media (max-width:768px){
+
+  /* layout */
+  .container{
+    flex-direction:column;
+  }
+
+  .sidebar{
+    position:relative;
+    width:100%;
+    height:auto;
+  }
+
+  .main{
+    margin-left:0;
+    width:100%;
+    padding:2rem 1rem;
+  }
+
+  /* hero */
+  .hero{
+    margin-top:1.5rem;
+  }
+
+  /* map */
+  #mapView{
+    height:60vh;
+    min-height:380px;
+  }
 
 }
