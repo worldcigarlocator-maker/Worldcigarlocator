@@ -384,3 +384,25 @@
   }
 
 }
+
+/* ============================================================
+   MOBILE FLOATING SEARCH
+   ============================================================ */
+
+@media (max-width:768px){
+
+  .mobile-search-btn{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    top:170px;
+
+    width:92%;
+    max-width:420px;
+
+    box-shadow:0 10px 28px rgba(0,0,0,0.45);
+
+    z-index:900;
+  }
+
+}
