@@ -327,10 +327,6 @@
 
 @media (max-width:768px){
 
-  .search-capsule{
-    display:none;
-  }
-
   .mobile-search-btn{
     display:block;
     width:100%;
@@ -350,6 +346,53 @@
     font-weight:600;
 
     cursor:pointer;
+  }
+
+}
+
+/* ============================================================
+   MOBILE SEARCH PANEL
+   ============================================================ */
+
+.search-panel{
+  display:block;
+}
+
+@media (max-width:768px){
+
+  .search-panel{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+
+    padding:5.5rem 1rem 1.5rem;
+
+    background:#050505;
+
+    transform:translateY(-110%);
+    transition:transform .28s ease;
+
+    z-index:9997;
+  }
+
+  .search-panel.open{
+    transform:translateY(0);
+  }
+
+}
+
+/* ============================================================
+   DESKTOP RESET
+   ============================================================ */
+
+@media (min-width:769px){
+
+  .search-panel{
+    position:static;
+    transform:none;
+    padding:0;
+    background:transparent;
   }
 
 }
