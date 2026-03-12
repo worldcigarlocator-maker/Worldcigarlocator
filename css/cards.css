@@ -168,17 +168,20 @@
    ============================================================ */
 
 .flag {
-  width: 18px;
-  height: 12px;
-  border-radius: 2px;
-  object-fit: cover;
-  object-position: center;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.5);
+  width:18px;
+  height:12px;
+  border-radius:2px;
+  object-fit:cover;
+  object-position:center;
+  box-shadow:0 0 0 1px rgba(0,0,0,0.5);
+  flex-shrink:0;
+  display:block;
 }
 
-/* Keep flag & text aligned */
-.loc-top img.flag {
-  margin-top: -1px;
+.loc-top{
+  display:flex;
+  align-items:center;
+  gap:6px;
 }
 
 /* ============================================================
