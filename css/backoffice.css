@@ -1,10 +1,10 @@
 /* ============================================================
-   WCL Backoffice — Unified UI
-   Harmonised with Analytics UI
+   WCL Backoffice — Harmonised UI
+   Cards restored to original design
    ============================================================ */
 
 /* ============================================================
-   ROOT DESIGN SYSTEM
+   ROOT
    ============================================================ */
 
 :root{
@@ -18,7 +18,7 @@
   --yellow:#ffeb3b;
 
   --bg:#f5f6f8;
-  --card:#ffffff;
+  --card-bg:#fff;
 
   --text:#1f2937;
   --muted:#6b7280;
@@ -120,7 +120,6 @@ body{
   font-weight:800;
   cursor:pointer;
   user-select:none;
-  transition:.15s;
 }
 
 .btn:hover{
@@ -171,7 +170,6 @@ body{
   padding:6px 12px;
   font-weight:700;
   cursor:pointer;
-  transition:.15s;
 }
 
 .pill:hover{
@@ -217,29 +215,6 @@ body{
 }
 
 /* ============================================================
-   VIEW TOGGLE
-   ============================================================ */
-
-.viewtoggle{
-  display:flex;
-  border:1px solid var(--border);
-  border-radius:10px;
-  overflow:hidden;
-}
-
-.viewtoggle .seg{
-  padding:8px 14px;
-  cursor:pointer;
-  background:#fff;
-  font-weight:700;
-}
-
-.viewtoggle .seg.active{
-  background:var(--blue);
-  color:#fff;
-}
-
-/* ============================================================
    GRID
    ============================================================ */
 
@@ -250,23 +225,22 @@ body{
 }
 
 /* ============================================================
-   CARDS
+   CARDS  (ORIGINAL DESIGN RESTORED)
    ============================================================ */
 
 .card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
+  background:var(--card-bg);
+  border-radius:10px;
   box-shadow:var(--shadow);
+  overflow:hidden;
   display:flex;
   flex-direction:column;
-  min-height:420px;
-  transition:transform .15s;
+  border:2px solid transparent;
+  transition:transform .15s, border-color .25s;
+  min-height:350px;
 }
 
-.card:hover{
-  transform:translateY(-2px);
-}
+.card:hover{transform:translateY(-2px)}
 
 .card.border-green{border-color:var(--green)}
 .card.border-red{border-color:var(--red)}
@@ -280,10 +254,10 @@ body{
 }
 
 .card .body{
-  padding:14px;
+  padding:1rem;
   display:flex;
   flex-direction:column;
-  justify-content:space-between;
+  gap:.35rem;
   flex:1;
 }
 
@@ -296,10 +270,11 @@ body{
   -webkit-line-clamp:2;
   -webkit-box-orient:vertical;
   overflow:hidden;
-  font-size:16px;
-  font-weight:800;
-  line-height:1.25;
-  min-height:2.6em;
+  font-size:1.1rem;
+  font-weight:600;
+  line-height:1.25rem;
+  margin-bottom:.3rem;
+  min-height:2.5rem;
 }
 
 /* ============================================================
@@ -307,27 +282,27 @@ body{
    ============================================================ */
 
 .badges{
+  margin-top:.4rem;
   display:flex;
   flex-wrap:wrap;
   gap:6px;
+  font-size:.85rem;
 }
 
 .badge{
-  font-size:11px;
-  padding:3px 7px;
-  border-radius:6px;
-  font-weight:700;
+  display:inline-block;
+  padding:2px 6px;
+  border-radius:4px;
+  font-size:.75rem;
+  font-weight:600;
   color:#fff;
 }
 
 .badge.green{background:var(--green)}
 .badge.red{background:var(--red)}
 .badge.gray{background:var(--gray)}
-.badge.gold{background:var(--gold);color:#111}
+.badge.gold{background:var(--gold);color:#000}
 .badge.blue{background:var(--blue)}
-
-.badge.store{background:var(--blue)}
-.badge.lounge{background:var(--gold);color:#111}
 
 /* ============================================================
    ACTION BUTTONS
@@ -336,8 +311,8 @@ body{
 .actions{
   display:flex;
   flex-wrap:wrap;
-  gap:6px;
-  padding:10px;
+  gap:.4rem;
+  padding:.6rem;
   border-top:1px solid var(--border);
   justify-content:center;
 }
@@ -346,15 +321,13 @@ body{
    TABLE VIEW
    ============================================================ */
 
-.table-wrap{
-  overflow:auto;
-}
+.table-wrap{overflow:auto}
 
 table{
   width:100%;
   border-collapse:collapse;
   background:#fff;
-  border-radius:10px;
+  border-radius:6px;
   box-shadow:var(--shadow);
 }
 
@@ -371,9 +344,7 @@ th{
   text-transform:uppercase;
 }
 
-tr:hover td{
-  background:#f7f8fb;
-}
+tr:hover td{background:#f7f8fb}
 
 /* ============================================================
    MODAL
@@ -398,9 +369,7 @@ tr:hover td{
   max-width:520px;
 }
 
-.modal h3{
-  margin-bottom:16px;
-}
+.modal h3{margin-bottom:16px}
 
 .edit-grid{
   display:grid;
