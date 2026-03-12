@@ -1,12 +1,14 @@
-import { supabase } from "./globals.js";
-
 /* ============================================================
-   WCL Analytics — Backoffice (V1)
+   WCL Analytics — Backoffice
+   ============================================================ */
+
+import { supabase } from "./globals.js";
+const sb = supabase;
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
-const sb = supabase;
+const globalRangeSelect = document.getElementById("globalRange");
 
 const trafficFlowBody = $("#trafficFlowBody");
 const heatmapBody = $("#heatmapBody");
@@ -18,8 +20,6 @@ const clearBtn = $("#clearBtn");
 
 const storeEmpty = $("#storeEmpty");
 const storePanel = $("#storePanel");
-
-const globalRangeSelect = document.getElementById("globalRange");
 
 if (globalRangeSelect) {
   globalRangeSelect.addEventListener("change", async () => {
