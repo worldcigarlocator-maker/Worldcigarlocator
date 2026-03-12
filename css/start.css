@@ -585,3 +585,40 @@ body.auth-locked .sidebar-actions #loginBtn{
   }
 
 }
+
+/* ============================================================
+   MOBILE SEARCH MODE
+   ============================================================ */
+
+.mobile-search-btn{
+  display:none;
+}
+
+@media (max-width:768px){
+
+  .search-capsule{
+    display:none;
+  }
+
+  .mobile-search-btn{
+    display:block;
+    width:100%;
+    max-width:520px;
+    margin:0 auto 1.5rem;
+
+    padding:14px 18px;
+
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,0.22);
+
+    background:#050505;
+    color:rgb(var(--global));
+
+    font-family:"DM Sans", sans-serif;
+    font-size:0.95rem;
+    font-weight:600;
+
+    cursor:pointer;
+  }
+
+}
