@@ -179,3 +179,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 supabase.auth.onAuthStateChange(() => {
   syncAuthGate();
 });
+
+// ============================================================
+// MOBILE MENU TOGGLE
+// ============================================================
+
+const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+const sidebar = document.querySelector(".sidebar");
+
+if (mobileMenuBtn && sidebar) {
+  mobileMenuBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+  });
+}
