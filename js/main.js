@@ -192,3 +192,50 @@ if (mobileMenuBtn && sidebar) {
     sidebar.classList.toggle("open");
   });
 }
+
+// ============================================================
+// MOBILE SEARCH UX
+// ============================================================
+
+const searchInput = document.getElementById("searchInput");
+
+// auto focus (keyboard opens)
+if (mobileSearchBtn && searchPanel && searchInput) {
+
+  mobileSearchBtn.addEventListener("click", () => {
+
+    searchPanel.classList.toggle("open");
+
+    if (searchPanel.classList.contains("open")) {
+      setTimeout(() => {
+        searchInput.focus();
+      }, 220);
+    }
+
+  });
+
+}
+
+// click outside closes search
+document.addEventListener("click", (e) => {
+
+  if (!searchPanel.contains(e.target) && !mobileSearchBtn.contains(e.target)) {
+    searchPanel.classList.remove("open");
+  }
+
+});
+
+// clear button closes search
+const clearBtn = document.getElementById("clearBtn");
+
+if (clearBtn) {
+
+  clearBtn.addEventListener("click", () => {
+
+    if (window.innerWidth <= 768) {
+      searchPanel.classList.remove("open");
+    }
+
+  });
+
+}
