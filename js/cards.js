@@ -533,7 +533,10 @@ export async function runSearch(isLoadMore = false) {
   // Chips filtrerar frontend-side (modifiers)
   const filteredRows = applyChipFilters(rawRows);
 
-  renderCards(filteredRows, isLoadMore);
+// TEST LOG
+console.log("RUN SEARCH FIRED", STATE.search.text);
+
+renderCards(filteredRows, isLoadMore);
 
   // ============================================================
 // SEARCH ANALYTICS
