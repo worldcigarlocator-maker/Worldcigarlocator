@@ -407,3 +407,11 @@ tr:hover td{background:#f7f8fb}
 
 .center{text-align:center}
 .muted{color:var(--muted)}
+
+.card .flag{
+  width:18px;
+  height:12px;
+  object-fit:cover;
+  border-radius:2px;
+  display:inline-block;
+}
