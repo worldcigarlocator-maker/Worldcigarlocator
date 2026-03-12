@@ -304,3 +304,15 @@
   border-radius: 18px;
   overflow: hidden;
 }
+
+/* =========================================
+   MOBILE
+   ========================================= */
+@media (max-width:768px){
+
+  .search-capsule{
+    width:100%;
+    min-width:0;
+  }
+
+}
