@@ -571,3 +571,17 @@ body.auth-locked .sidebar-actions #loginBtn{
   }
 
 }
+
+/* ============================================================
+   MOBILE MAIN LAYOUT FIX
+   ============================================================ */
+
+@media (max-width:768px){
+
+  .main{
+    margin-left:0;
+    width:100%;
+    padding:5rem 1rem 2rem;
+  }
+
+}
