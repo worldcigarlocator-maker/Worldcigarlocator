@@ -1,778 +1,440 @@
 /* ============================================================
-   Backoffice V5.2.1 — Full CSS (Clean, Fixed, Flag-Ready)
+   WCL Backoffice — Unified UI
+   Harmonised with Analytics UI
    ============================================================ */
 
-:root {
-  --blue:#007bff;
+/* ============================================================
+   ROOT DESIGN SYSTEM
+   ============================================================ */
+
+:root{
+  --blue:#2f78c4;
+  --blue2:#2466a8;
+
   --green:#28a745;
   --red:#dc3545;
   --gold:#ffc107;
   --gray:#999;
-  --border:#ddd;
-  --text:#222;
-  --muted:#666;
-  --bg:#f7f9fb;
-  --card-bg:#fff;
-  --shadow:0 2px 6px rgba(0,0,0,.05);
   --yellow:#ffeb3b;
+
+  --bg:#f5f6f8;
+  --card:#ffffff;
+
+  --text:#1f2937;
+  --muted:#6b7280;
+
+  --border:#e5e7eb;
+
+  --shadow:0 1px 3px rgba(0,0,0,.06);
+  --radius:12px;
+
+  --font:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 }
 
-/* BASE */
-* { box-sizing:border-box; }
-body {
-  font-family:'Inter',sans-serif;
+/* ============================================================
+   BASE
+   ============================================================ */
+
+*{box-sizing:border-box}
+
+body{
+  font-family:var(--font);
   margin:0;
   background:var(--bg);
   color:var(--text);
 }
-.wrap { max-width:1200px; margin:auto; padding:1rem; }
+
+.wrap{
+  max-width:1200px;
+  margin:auto;
+  padding:20px;
+}
 
 /* ============================================================
    TOPBAR
    ============================================================ */
-.topbar {
+
+.topbar{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:.6rem;
-  margin-bottom:1.2rem;
+  padding:14px 24px;
+  background:#fff;
+  border-bottom:1px solid var(--border);
+  margin-bottom:18px;
 }
-.topbar .left { display:flex; gap:.6rem; }
 
-.version-pill {
-  background:var(--gold);
-  color:#000;
+.left-block{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.brand-hero{
+  width:42px;
+  height:42px;
+  object-fit:cover;
+  border-radius:8px;
+}
+
+.brand-text{
+  display:flex;
+  flex-direction:column;
+}
+
+.brand-logo{
+  font-size:18px;
   font-weight:700;
-  padding:.35rem .8rem;
-  border-radius:1rem;
-  box-shadow:var(--shadow);
-  font-size:.85rem;
+}
+
+.brand-sub{
+  font-size:11px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.topbar .actions{
+  display:flex;
+  gap:10px;
+}
+
+.version-pill{
+  background:var(--gold);
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:700;
 }
 
 /* ============================================================
    BUTTONS
    ============================================================ */
-.btn {
+
+.btn{
+  border:1.6px solid var(--blue);
+  background:#fff;
+  color:var(--blue);
+  padding:8px 12px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  user-select:none;
+  transition:.15s;
+}
+
+.btn:hover{
   background:var(--blue);
   color:#fff;
-  border:none;
-  border-radius:6px;
-  padding:.5rem 1rem;
-  font-weight:600;
-  cursor:pointer;
-  transition:opacity .15s, transform .05s;
 }
-.btn:hover { opacity:.92; }
-.btn:active { transform:translateY(1px); }
 
-.btn.blue   { background:var(--blue); }
-.btn.green  { background:var(--green); }
-.btn.danger { background:var(--red); }
-.btn.yellow { background:var(--yellow); color:#222; }
-.btn.orange { background:#ff8c00; color:#fff; }
-.btn.ghost  { background:#f0f0f0; color:#222; }
+.btn.primary{
+  background:var(--blue);
+  color:#fff;
+}
 
-/* Small buttons */
-.btn.small { padding:.25rem .5rem; font-size:.8rem; }
+.btn.primary:hover{
+  background:var(--blue2);
+  border-color:var(--blue2);
+}
+
+.btn.blue{background:var(--blue);color:#fff}
+.btn.green{background:var(--green);color:#fff}
+.btn.danger{background:var(--red);color:#fff}
+.btn.yellow{background:var(--yellow);color:#111}
+.btn.orange{background:#ff8c42;color:#fff}
+
+.btn.ghost{
+  border-color:var(--border);
+  color:var(--text);
+}
+
+.btn.small{
+  padding:4px 8px;
+  font-size:12px;
+}
 
 /* ============================================================
    FILTER PILLS
    ============================================================ */
-.filters {
+
+.filters{
   display:flex;
-  gap:.5rem;
-  margin-bottom:1.2rem;
+  gap:8px;
+  margin-bottom:18px;
 }
-.pill {
-  background:white;
+
+.pill{
+  background:#fff;
   border:1px solid var(--border);
   border-radius:20px;
-  padding:.4rem 1rem;
+  padding:6px 12px;
+  font-weight:700;
   cursor:pointer;
-  font-weight:600;
-  transition:box-shadow .15s, background .15s, color .15s, border-color .15s;
+  transition:.15s;
 }
-.pill:hover { box-shadow:0 1px 6px rgba(0,0,0,.06); }
 
-.pill[data-tab="all"]      { border-color:var(--blue); color:var(--blue); }
-.pill[data-tab="approved"] { border-color:var(--green); color:var(--green); }
-.pill[data-tab="pending"]  { border-color:var(--gold); color:#c59d00; }
-.pill[data-tab="flagged"]  { border-color:var(--red); color:var(--red); }
-.pill[data-tab="deleted"]  { border-color:var(--gray); color:var(--gray); }
-.pill[data-tab="repair"]   { border-color:var(--yellow); color:#a07d00; }
+.pill:hover{
+  box-shadow:var(--shadow);
+}
 
-.pill.active[data-tab="all"]      { background:var(--blue); color:#fff; }
-.pill.active[data-tab="approved"] { background:var(--green); color:#fff; }
-.pill.active[data-tab="pending"]  { background:var(--gold); color:#000; }
-.pill.active[data-tab="flagged"]  { background:var(--red); color:#fff; }
-.pill.active[data-tab="deleted"]  { background:var(--gray); color:#fff; }
-.pill.active[data-tab="repair"]   { background:var(--yellow); color:#000; }
+.pill[data-tab="all"]{border-color:var(--blue);color:var(--blue)}
+.pill[data-tab="approved"]{border-color:var(--green);color:var(--green)}
+.pill[data-tab="pending"]{border-color:var(--gold);color:#b88a00}
+.pill[data-tab="flagged"]{border-color:var(--red);color:var(--red)}
+.pill[data-tab="deleted"]{border-color:var(--gray);color:var(--gray)}
+.pill[data-tab="repair"]{border-color:var(--yellow);color:#a07d00}
+
+.pill.active[data-tab="all"]{background:var(--blue);color:#fff}
+.pill.active[data-tab="approved"]{background:var(--green);color:#fff}
+.pill.active[data-tab="pending"]{background:var(--gold);color:#111}
+.pill.active[data-tab="flagged"]{background:var(--red);color:#fff}
+.pill.active[data-tab="deleted"]{background:var(--gray);color:#fff}
+.pill.active[data-tab="repair"]{background:var(--yellow);color:#111}
 
 /* ============================================================
-   SEARCH + VIEW TOGGLE
+   SEARCH BAR
    ============================================================ */
-.searchbar {
+
+.searchbar{
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  margin-bottom:1rem;
-  gap:.8rem;
-}
-.searchbar input {
-  flex:1;
-  padding:.6rem .8rem;
-  border:1px solid var(--border);
-  border-radius:8px;
-  font-size:1rem;
-  background:#fff;
+  gap:10px;
+  margin-bottom:16px;
 }
 
-.viewtoggle {
+.searchbar input{
+  flex:1;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  font-size:14px;
+}
+
+.searchbar input:focus{
+  border-color:var(--blue);
+  outline:none;
+}
+
+/* ============================================================
+   VIEW TOGGLE
+   ============================================================ */
+
+.viewtoggle{
   display:flex;
   border:1px solid var(--border);
-  border-radius:6px;
+  border-radius:10px;
   overflow:hidden;
 }
-.viewtoggle .seg {
-  padding:.5rem 1rem;
+
+.viewtoggle .seg{
+  padding:8px 14px;
   cursor:pointer;
-  font-weight:600;
   background:#fff;
+  font-weight:700;
 }
-.viewtoggle .seg.active {
+
+.viewtoggle .seg.active{
   background:var(--blue);
   color:#fff;
 }
 
 /* ============================================================
-   CARD GRID
+   GRID
    ============================================================ */
-.grid {
+
+.grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
-  gap:1rem;
+  gap:14px;
 }
 
-.card {
-  background:var(--card-bg);
-  border-radius:10px;
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
   box-shadow:var(--shadow);
-  overflow:hidden;
   display:flex;
   flex-direction:column;
-  border:2px solid transparent;
-  transition:transform .15s, border-color .25s;
-  min-height:350px;
+  min-height:420px;
+  transition:transform .15s;
 }
-.card:hover { transform:translateY(-2px); }
 
-.card.border-green { border-color:var(--green); }
-.card.border-red   { border-color:var(--red); }
-.card.border-gold  { border-color:var(--gold); }
-.card.border-gray  { border-color:var(--gray); }
+.card:hover{
+  transform:translateY(-2px);
+}
 
-.card img.photo {
+.card.border-green{border-color:var(--green)}
+.card.border-red{border-color:var(--red)}
+.card.border-gold{border-color:var(--gold)}
+.card.border-gray{border-color:var(--gray)}
+
+.card img.photo{
   width:100%;
   height:150px;
   object-fit:cover;
 }
 
-.card .body {
-  padding:1rem;
+.card .body{
+  padding:14px;
   display:flex;
   flex-direction:column;
-  gap:.35rem;
+  justify-content:space-between;
   flex:1;
 }
 
-/* Force title to exactly 2 lines */
-.twoline {
+/* ============================================================
+   CARD TITLE
+   ============================================================ */
+
+.twoline{
   display:-webkit-box;
   -webkit-line-clamp:2;
   -webkit-box-orient:vertical;
   overflow:hidden;
-  font-size:1.1rem;
-  font-weight:600;
-  line-height:1.25rem;
-  margin-bottom:.3rem;
-  min-height:2.5rem;
+  font-size:16px;
+  font-weight:800;
+  line-height:1.25;
+  min-height:2.6em;
 }
 
+/* ============================================================
+   BADGES
+   ============================================================ */
 
-/* STATUS BADGES */
-.badges {
-  margin-top:.4rem;
+.badges{
   display:flex;
   flex-wrap:wrap;
   gap:6px;
-  font-size:.85rem;
 }
-.badge {
-  display:inline-block;
-  padding:2px 6px;
-  border-radius:4px;
-  font-size:.75rem;
-  font-weight:600;
+
+.badge{
+  font-size:11px;
+  padding:3px 7px;
+  border-radius:6px;
+  font-weight:700;
   color:#fff;
 }
-.badge.green { background:var(--green); }
-.badge.red   { background:var(--red); }
-.badge.gray  { background:var(--gray); }
-.badge.gold  { background:var(--gold); color:#000; }
-.badge.blue  { background: var(--blue); color: #fff; }
 
-/* TYPE BADGES (inline next to "Type:") */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px; /* mellan ikon och text */
-  text-transform: capitalize;
-}
+.badge.green{background:var(--green)}
+.badge.red{background:var(--red)}
+.badge.gray{background:var(--gray)}
+.badge.gold{background:var(--gold);color:#111}
+.badge.blue{background:var(--blue)}
 
-.badge-wrap {
-  display: inline-flex;
-  gap: 4px;
-  vertical-align: middle;
-}
+.badge.store{background:var(--blue)}
+.badge.lounge{background:var(--gold);color:#111}
 
-.continent-pill {
-  background: var(--accent);
-  color: #111;
-  font-weight: 700;
-  font-size: 0.7rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  margin-left: 6px;
-  text-transform: uppercase;
-  opacity: 0.9;
-}
+/* ============================================================
+   ACTION BUTTONS
+   ============================================================ */
 
-
-
-/* STORE / LOUNGE TYPE BADGES */
-.badge.store  { background: var(--blue); }
-.badge.lounge { background: var(--gold); color:#000; }
-
-/* === Access badge (for lounges only) === */
-.badge.access {
-  font-size: 0.68rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: 6px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  opacity: 0.9;
-}
-
-.badge.access.green {
-  background: #28a745; /* Public */
-  color: #fff;
-}
-
-.badge.access.purple {
-  background: #8a2be2; /* Members-only */
-  color: #fff;
-}
-
-.badge.access.gray {
-  background: #666; /* Fallback */
-  color: #fff;
-}
-
-
-
-/* ACTION BUTTONS */
-.actions {
+.actions{
   display:flex;
   flex-wrap:wrap;
-  gap:.4rem;
-  padding:.6rem;
+  gap:6px;
+  padding:10px;
   border-top:1px solid var(--border);
   justify-content:center;
 }
 
-/* ===========================================
-   CARD INFO + TRUNCATE STYLES
-   =========================================== */
-
-/* Gör att alla textfält kortas med ellipsis ("…") */
-.infoblock p,
-.locrow span,
-h3.twoline,
-.truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  display: block;
-}
-
-/* Stackar info-rader snyggt */
-.infoblock {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-top: 4px;
-  font-size: 0.9rem;
-}
-
-/* Länkstil i infoblocket */
-.infoblock a {
-  color: var(--blue);
-  text-decoration: none;
-}
-.infoblock a:hover {
-  text-decoration: underline;
-}
-
-/* "View Comments / Reviews"-knapp */
-.reviewslink {
-  margin-top: 6px;
-  text-align: left;
-}
-.reviewslink .btn.small {
-  font-size: 0.8rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
-}
-
-/* Säkerställer jämn kort-höjd även med olika textmängd */
-.card .body {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-}
-
-/* ===========================================
-   UNIFIED CARD HEIGHT (smart auto-balance)
-   =========================================== */
-
-/* Ger varje card en gemensam fast bas-höjd */
-.grid .card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 420px;   /* höjden kan justeras om du vill */
-}
-
-/* Ser till att body-innehåll fyller utrymmet jämt */
-.card .body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-/* Om något saknas (t.ex. telefon eller webbsida) så reserveras plats ändå */
-.infoblock p:empty::after {
-  content: " "; /* non-breaking space för tom rad */
-  display: block;
-  height: 1rem; /* samma höjd som text-rad */
-  opacity: 0;
-}
-
-/* Säkerställer att korten inte ser utdragna ut vid få fält */
-.card .body > *:not(:last-child) {
-  margin-bottom: 0.25rem;
-}
-
-/* Fix: om innehållet råkar bli högre än min-height */
-.card {
-  height: auto;
-  align-self: stretch;
-}
-
-
 /* ============================================================
-   COMPACT TABLE VIEW — Excel-style Admin Layout
+   TABLE VIEW
    ============================================================ */
 
-.table-wrap {
-  flex: 1;
-  overflow-x: auto;
-  padding-left: .5rem;
+.table-wrap{
+  overflow:auto;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: var(--shadow);
-  font-size: 0.55rem;         /* 🔹 ca 8–9px */
-  line-height: 1.1rem;
-  color: var(--text);
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:10px;
+  box-shadow:var(--shadow);
 }
 
-th, td {
-  padding: .25rem .4rem;      /* 🔹 kompakt cellhöjd */
-  border-bottom: 1px solid var(--border);
-  text-align: left;
-  white-space: nowrap;
+th,td{
+  padding:8px 10px;
+  border-bottom:1px solid #eef0f3;
+  font-size:13px;
+  text-align:left;
 }
 
-th {
-  background: #f5f7fa;
-  font-weight: 600;
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: .03em;
-  color: #333;
+th{
+  background:#f3f4f6;
+  font-weight:800;
+  text-transform:uppercase;
 }
 
-tr:hover td {
-  background: #f1f5f9;
+tr:hover td{
+  background:#f7f8fb;
 }
-
-/* Flag inside cells */
-td .flag {
-  vertical-align: middle;
-  display: inline-block;
-  width: 14px;
-  height: 10px;
-  border-radius: 2px;
-  margin-right: 4px;
-  object-fit: cover;
-}
-
-/* Actions buttons inside table */
-.action-td .btn.small {
-  font-size: 0.55rem;
-  padding: .2rem .35rem;
-  border-radius: 4px;
-  font-weight: 600;
-}
-
-/* Column truncate for long names */
-.truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 160px;
-  display: inline-block;
-}
-
-/* Scrollbars only when needed */
-.table-wrap::-webkit-scrollbar {
-  height: 6px;
-}
-.table-wrap::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 3px;
-}
-
 
 /* ============================================================
-   MODAL (Edit)
+   MODAL
    ============================================================ */
 
-.modal-backdrop {
+.modal-backdrop{
   position:fixed;
   inset:0;
   background:rgba(0,0,0,.45);
-  backdrop-filter:blur(3px);
   display:flex;
   align-items:center;
   justify-content:center;
   z-index:9999;
-  animation:fadeIn .2s ease-in-out;
 }
 
-.modal {
+.modal{
   background:#fff;
-  border-radius:10px;
+  border-radius:var(--radius);
   box-shadow:0 6px 20px rgba(0,0,0,.2);
-  padding:1.5rem 2rem;
+  padding:24px;
   width:100%;
   max-width:520px;
-  max-height:90vh;
-  overflow-y:auto;
-  animation:slideUp .25s ease-in-out;
 }
 
-@keyframes slideUp {
-  from { transform:translateY(20px); opacity:0; }
-  to   { transform:translateY(0); opacity:1; }
+.modal h3{
+  margin-bottom:16px;
 }
 
-.modal h3 {
-  margin-bottom:1rem;
-  font-size:1.3rem;
-  font-weight:700;
-}
-
-.edit-grid {
+.edit-grid{
   display:grid;
-  gap:.75rem;
-}
-
-.edit-grid label {
-  font-weight:600;
-  font-size:.9rem;
+  gap:10px;
 }
 
 .edit-grid input,
-.edit-grid select {
-  padding:.5rem .6rem;
+.edit-grid select{
+  padding:8px 10px;
   border:1px solid var(--border);
-  border-radius:6px;
-  width:100%;
-  font-size:.95rem;
-}
-
-/* Type toggle */
-.type-group { display:flex; gap:.5rem; }
-.type-btn {
-  flex:1;
-  border:1px solid var(--border);
-  background:#f8fafc;
-  padding:.45rem;
-  border-radius:6px;
-  cursor:pointer;
-  font-weight:600;
-  transition:all .15s;
-}
-.type-btn.active {
-  background:var(--blue);
-  color:#fff;
-  border-color:var(--blue);
-}
-
-/* Access */
-.access-group { display:flex; gap:.8rem; flex-wrap:wrap; align-items:center; }
-.access-pill {
-  display:flex;
-  align-items:center;
-  gap:.5rem;
-  cursor:pointer;
-  padding:.25rem .5rem;
-  border:1px dashed transparent;
-  border-radius:6px;
-}
-.access-pill:hover { border-color:var(--border); }
-.access-pill input[type="radio"] {
-  accent-color:var(--blue);
-  width:16px;
-  height:16px;
-}
-
-/* Photo picker */
-.photo-picker {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:.6rem;
-  margin-top:.3rem;
-}
-.photo-nav {
-  background:#f0f0f0;
-  border:none;
-  border-radius:50%;
-  width:32px;
-  height:32px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:all .2s;
-}
-.photo-nav:hover { background:var(--blue); color:white; }
-
-.preview-photo {
-  width:220px;
-  height:150px;
-  object-fit:cover;
-  border-radius:6px;
-  border:1px solid var(--border);
-}
-
-.muted {
-  color:var(--muted);
-  font-size:.85rem;
-}
-
-/* Modal footer */
-.row {
-  display:flex;
-  justify-content:flex-end;
-  gap:.6rem;
-  margin-top:1rem;
+  border-radius:10px;
 }
 
 /* ============================================================
    TOAST
    ============================================================ */
 
-.toast {
+.toast{
   position:fixed;
-  right:1rem;
-  bottom:1rem;
+  right:20px;
+  bottom:20px;
   background:var(--blue);
   color:#fff;
-  padding:.6rem 1rem;
-  border-radius:6px;
+  padding:10px 14px;
+  border-radius:8px;
   box-shadow:var(--shadow);
-  z-index:9999;
-  animation:fadeIn .2s ease-in-out;
-}
-.toast.error { background:var(--red); }
-.toast.info  { background:var(--gold); color:#222; }
-
-@keyframes fadeIn {
-  from { opacity:0; }
-  to   { opacity:1; }
 }
 
-.center { text-align:center; }
+.toast.error{background:var(--red)}
+.toast.info{background:var(--gold);color:#111}
 
-.info-block p {
-  margin: 0.2rem 0;
-  font-size: 0.9rem;
-  color: var(--muted);
-  line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.info-block a {
-  color: var(--blue);
-  text-decoration: none;
-}
-.info-block a:hover {
-  text-decoration: underline;
-}
-
-/* === Flag + location + continent (refined styling) === */
-.locrow {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.25rem;
-  margin-bottom: 0.4rem;
-}
-
-.loc-top {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: var(--accent); /* 🔸 guldig nyans på land/stad */
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.flag {
-  width: 18px;
-  height: 12px;
-  border-radius: 2px;
-  object-fit: cover;
-}
-
-.loc-text {
-  color: var(--accent);
-}
-
-.continent-line {
-  color: #bbb; /* 🔹 ljusgrå ton */
-  font-weight: 500;
-  text-transform: uppercase;
-  font-size: 0.8rem;
-  margin-left: 22px; /* linjera med texten efter flaggan */
-  letter-spacing: 0.4px;
-}
-/* === Store ID (admin-only, ultra subtle) === */
-.store-id {
-  font-size: 10px;
-  line-height: 1;
-  color: #c7c7c7;
-  margin-bottom: 2px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  user-select: none;
-}
 /* ============================================================
-   DUPLICATES — Visual only (SAFE ADD-ON)
+   UTILITIES
    ============================================================ */
 
-/* --- Pill (inactive) --- */
-.pill[data-tab="duplicates"] {
-  border-color: #20c997;     /* turkos */
-  color: #20c997;
-}
-
-/* --- Pill (active) --- */
-.pill.active[data-tab="duplicates"] {
-  background: #20c997;
-  color: #fff;
-}
-
-/* --- Card border --- */
-.card.border-turquoise {
-  border-color: #20c997;
-}
-
-/* =========================
-   REPORTS TAB (ORANGE)
-   ========================= */
-
-.pill.orange {
-  border: 1px solid #ff8c42;
-  color: #ff8c42;
-}
-
-.pill.orange.active {
-  background: #ff8c42;
-  color: #111;
-}
-
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 24px;
-  background: #fff;
-  border-bottom: 1px solid var(--border);
-}
-
-.left-block {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.brand-hero {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 6px;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-}
-
-.brand-logo {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.brand-sub {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--muted);
-}
-
-.topbar .actions {
-  display: flex;
-  gap: 10px;
-}
-
-/* === FORCE MINI HERO SIZE (hard override) === */
-.topbar img.brand-hero {
-  width: 42px !important;
-  height: 42px !important;
-  max-width: 42px !important;
-  display: block !important;
-  object-fit: cover !important;
-}
+.center{text-align:center}
+.muted{color:var(--muted)}
