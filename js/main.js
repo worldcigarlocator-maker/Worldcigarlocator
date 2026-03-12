@@ -240,19 +240,4 @@ if (clearBtn) {
 
 }
 
-/* ============================================================
-   MOBILE SIDEBAR BRAND
-   ============================================================ */
 
-@media (max-width:768px){
-
-  .sidebar-brand svg{
-    width:180px;
-    height:auto;
-  }
-
-  .sidebar-brand text{
-    font-size:34px;
-  }
-
-}
