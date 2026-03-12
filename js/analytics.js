@@ -134,10 +134,10 @@ function bindUI() {
   printBtn?.addEventListener("click", () => window.print());
   mailBtn?.addEventListener("click", emailStore);
 
-  $$(".btn.tab").forEach(btn => {
+$$(".overview-tab").forEach(btn => {
     btn.addEventListener("click", async () => {
 
-      $$(".btn.tab").forEach(b => b.classList.remove("active"));
+      $$(".overview-tab").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
 
       OVERVIEW_TAB = btn.dataset.tab;
@@ -146,7 +146,15 @@ function bindUI() {
     });
   });
 
-  overviewRange?.addEventListener("change", renderOverview);
+if (overviewRange) {
+
+  overviewRange.addEventListener("change", () => {
+
+    loadOverview();
+
+  });
+
+}
 }
 
 /* ============================================================
