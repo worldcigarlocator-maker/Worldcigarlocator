@@ -810,30 +810,35 @@ async function loadMarketDemand() {
 }
 
 // ============================================================
-// ANALYTICS TABS
+// TAB NAVIGATION
 // ============================================================
 
-const tabs = document.querySelectorAll(".btn.tab");
+document.addEventListener("DOMContentLoaded", () => {
 
-tabs.forEach((btn) => {
+  const tabs = document.querySelectorAll(".btn.tab");
 
-  btn.addEventListener("click", () => {
+  tabs.forEach((btn) => {
 
-    const tab = btn.dataset.tab;
+    btn.addEventListener("click", () => {
 
-    // active button
-    tabs.forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
+      const tab = btn.dataset.tab;
 
-    // show correct section
-    document.querySelectorAll(".analytics-tab")
-      .forEach((el) => el.classList.add("hidden"));
+      // active button
+      tabs.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
 
-    const target = document.getElementById("tab-" + tab);
+      // hide all tabs
+      document.querySelectorAll(".analytics-tab")
+        .forEach(el => el.classList.add("hidden"));
 
-    if (target) {
-      target.classList.remove("hidden");
-    }
+      // show selected tab
+      const target = document.getElementById("tab-" + tab);
+
+      if (target) {
+        target.classList.remove("hidden");
+      }
+
+    });
 
   });
 
