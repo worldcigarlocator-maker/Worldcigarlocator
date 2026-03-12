@@ -586,4 +586,17 @@ body.auth-locked .sidebar-actions #loginBtn{
 
 }
 
+/* ============================================================
+   HERO MOBILE FIX
+   ============================================================ */
 
+@media (max-width:768px){
+
+  .hero img{
+    width:100%;
+    height:42vh;
+    object-fit:cover;
+    object-position:center;
+  }
+
+}
