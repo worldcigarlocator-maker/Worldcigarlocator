@@ -240,4 +240,18 @@ if (clearBtn) {
 
 }
 
+// close sidebar when clicking menu item (mobile)
 
+document.addEventListener("click", e => {
+
+  const sidebar = document.querySelector(".sidebar")
+
+  if(window.innerWidth <= 768){
+
+    if(e.target.closest("#sidebarMenu a")){
+      sidebar.classList.remove("open")
+    }
+
+  }
+
+})
