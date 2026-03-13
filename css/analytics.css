@@ -1,7 +1,7 @@
 /* ============================================================
-   WCL Analytics — Unified UI
-   Harmonised with Backoffice
+   WCL Analytics — Clean Dark Dashboard
    ============================================================ */
+
 
 /* ============================================================
    RESET
@@ -11,32 +11,44 @@
   box-sizing:border-box;
 }
 
-html, body{
+html,body{
   margin:0;
   padding:0;
 }
 
+
 /* ============================================================
-   ROOT
+   VARIABLES
    ============================================================ */
 
 :root{
+
   --blue:#2f78c4;
   --blue2:#2466a8;
 
-  --bg:#f5f6f8;
-  --card:#fff;
+  --bg:#08162c;
 
-  --text:#1f2937;
-  --muted:#6b7280;
+  --panel:linear-gradient(
+    180deg,
+    #0f2447 0%,
+    #0b1e3c 100%
+  );
 
-  --border:#e5e7eb;
+  --text:#e6edf7;
+  --muted:#94a3b8;
 
-  --shadow:0 1px 3px rgba(0,0,0,.06);
+  --border:rgba(255,255,255,0.06);
+
+  --shadow:
+  0 10px 30px rgba(0,0,0,.45),
+  0 0 18px rgba(47,120,196,.18);
+
   --radius:12px;
 
-  --font:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  --font:"DM Sans",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+
 }
+
 
 /* ============================================================
    BASE
@@ -45,8 +57,10 @@ html, body{
 body.analytics{
 
   background:
+
   radial-gradient(circle at 15% -10%, #1a3b72 0%, transparent 45%),
   radial-gradient(circle at 90% 120%, #13294d 0%, transparent 50%),
+
   linear-gradient(
     180deg,
     #08162c 0%,
@@ -54,33 +68,15 @@ body.analytics{
     #08162c 100%
   );
 
+  color:var(--text);
+
+  font-family:var(--font);
+
   min-height:100vh;
 
-  color:#e8edf5;
-
-  font-family:"DM Sans", sans-serif;
-
-  /* analytics theme override */
-
-  --bg:#08162c;
-
-  --card:linear-gradient(
-    180deg,
-    #0f2447 0%,
-    #0b1e3c 100%
-  );
-
-  --text:#e8edf5;
-
-  --muted:#94a3b8;
-
-  --border:rgba(255,255,255,0.06);
-
-  --shadow:
-  0 10px 30px rgba(0,0,0,.45),
-  0 0 20px rgba(47,120,196,.12);
-
 }
+
+
 /* ============================================================
    TOPBAR
    ============================================================ */
@@ -88,100 +84,46 @@ body.analytics{
 .topbar{
 
   display:flex;
-
   justify-content:space-between;
-
   align-items:center;
 
   padding:18px 26px;
 
-  margin-bottom:22px;
+  background:rgba(10,18,34,.75);
 
-  background:rgba(12,18,32,0.75);
-
-  border-bottom:1px solid rgba(255,255,255,0.06);
+  border-bottom:1px solid var(--border);
 
   backdrop-filter:blur(10px);
-
-  box-shadow:0 0 12px rgba(47,128,237,0.12);
 
 }
 
 .topbar h1{
+
   margin:0;
+
   font-size:22px;
   font-weight:900;
+
   color:#e2e8f0;
-}
-
-/* ============================================================
-   NAVIGATION
-   ============================================================ */
-
-.nav{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-}
-
-.navlink{
-  display:inline-block;
-  padding:8px 12px;
-  border-radius:10px;
-  border:1.6px solid var(--blue);
-  color:var(--blue);
-  :#fff;
-  text-decoration:none;
-  font-weight:800;
-}
-
-.navlink:hover{
-  :var(--blue);
-  color:#fff;
-}
-
-body.analytics{
-
-  --bg:#08162c;
-
-  --card:linear-gradient(
-    180deg,
-    #0f2447 0%,
-    #0b1e3c 100%
-  );
-
-  --text:#e8edf5;
-
-  --muted:#94a3b8;
-
-  --border:rgba(255,255,255,0.06);
-
-  --shadow:
-  0 12px 30px rgba(0,0,0,.45),
-  0 0 20px rgba(47,120,196,.15);
 
 }
+
 
 /* ============================================================
    PANELS
    ============================================================ */
+
 .panel{
 
-  :linear-gradient(
-    180deg,
-    #0f2447 0%,
-    #0b1e3c 100%
-  );
+  background:var(--panel);
 
-  border:1px solid rgba(255,255,255,0.05);
+  border:1px solid var(--border);
 
   border-radius:var(--radius);
 
-  box-shadow:
-    0 10px 25px rgba(0,0,0,0.45),
-    0 0 20px rgba(47,128,237,0.12);
+  box-shadow:var(--shadow);
 
-  padding:16px;
+  padding:18px;
 
   margin:18px auto;
 
@@ -190,296 +132,32 @@ body.analytics{
 }
 
 .panelhead{
+
   display:flex;
+
   align-items:center;
-  gap:12px;
+
   justify-content:space-between;
+
+  gap:12px;
+
   flex-wrap:wrap;
+
 }
 
 .panelhead h2{
+
   margin:0;
+
   font-size:16px;
+
   font-weight:900;
+
 }
+
 
 /* ============================================================
-   FLEX UTILITIES
-   ============================================================ */
-
-.row{display:flex;align-items:center;flex-wrap:wrap}
-.gap{gap:10px}
-.spacer{flex:1}
-
-/* ============================================================
-   BUTTONS
-   ============================================================ */
-
-.btn{
-  border:1.6px solid var(--blue);
-  :#fff;
-  color:var(--blue);
-  padding:8px 12px;
-  border-radius:10px;
-  font-weight:900;
-  cursor:pointer;
-  user-select:none;
-  transition:.15s;
-}
-
-.btn:hover{
-  :var(--blue);
-  color:#fff;
-}
-
-.btn.primary{
-  :var(--blue);
-  color:#fff;
-}
-
-.btn.primary:hover{
-  background:var(--blue2);
-  border-color:var(--blue2);
-}
-
-.btn.ghost{
-  border-color:var(--border);
-  color:var(--text);
-}
-
-.btn.ghost:hover{
-  background:#111827;
-  color:#fff;
-  border-color:#111827;
-}
-
-.btn.tab.active{
-  background:var(--blue);
-  color:#fff;
-}
-
-/* ============================================================
-   INPUTS
-   ============================================================ */
-
-.label{
-  font-weight:800;
-  color:var(--muted);
-}
-
-.select{
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:8px 10px;
-  background:#fff;
-  font-weight:700;
-}
-
-/* ============================================================
-   SEARCH
-   ============================================================ */
-
-.searchrow{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  flex-wrap:wrap;
-}
-
-.searchbox{
-  position:relative;
-  flex:1;
-  min-width:280px;
-}
-
-#searchInput{
-  width:100%;
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:12px;
-  font-size:14px;
-  outline:none;
-}
-
-#searchInput:focus{
-  border-color:var(--blue);
-}
-
-.search-results{
-  position:absolute;
-  left:0;
-  right:0;
-  top:48px;
-
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:12px;
-  box-shadow:var(--shadow);
-
-  max-height:320px;
-  overflow:auto;
-  z-index:50;
-}
-
-.search-results.hidden{display:none}
-
-.search-item{
-  padding:10px 12px;
-  border-bottom:1px solid #f1f2f5;
-  cursor:pointer;
-}
-
-.search-item:hover{
-  background:#f3f6ff;
-}
-
-.search-item strong{font-size:13px}
-
-.search-item small{
-  color:var(--muted);
-  font-weight:700;
-}
-
-/* ============================================================
-   STORE GRID
-   ============================================================ */
-
-.storegrid{
-  display:grid;
-  grid-template-columns:1.2fr .8fr;
-  gap:14px;
-  margin-top:10px;
-}
-
-@media (max-width:900px){
-  .storegrid{grid-template-columns:1fr}
-}
-
-/* ============================================================
-   STORE CARD
-   ============================================================ */
-
-.card{
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:12px;
-  background:#fff;
-}
-
-.cardtitle{
-  font-size:16px;
-  font-weight:900;
-  margin-bottom:6px;
-}
-
-.cardmeta{
-  color:var(--muted);
-  font-weight:800;
-  margin:3px 0;
-}
-
-.cardmeta a{
-  color:var(--blue);
-  text-decoration:none;
-}
-
-.cardmeta a:hover{
-  text-decoration:underline;
-}
-
-/* ============================================================
-   KPI GRID
-   ============================================================ */
-
-.kpis{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-}
-
-.kpi{
-
-  border:1px solid rgba(255,255,255,0.06);
-
-  border-radius:var(--radius);
-
-  padding:12px;
-
-  background:#0f1724;
-
-  text-align:center;
-
-  box-shadow:0 0 10px rgba(47,128,237,0.15);
-
-}
-
-.kpiLabel{
-  color:var(--muted);
-  font-weight:900;
-  font-size:12px;
-}
-
-.kpiVal{
-  font-size:20px;
-  font-weight:1000;
-  margin-top:4px;
-}
-
-/* ============================================================
-   TABLES
-   ============================================================ */
-
-.subhead{
-  margin-top:16px;
-  font-weight:900;
-  color:#e2e8f0;
-}
-.tablewrap{
-  overflow:auto;
-  margin-top:10px;
-}
-
-.table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:640px;
-}
-
-.table th,
-.table td{
-  border-bottom:1px solid rgba(255,255,255,0.06);
-  padding:10px;
-  font-size:13px;
-  text-align:left;
-}
-
-.table th{
-  background:#101b2d;
-  color:#cbd5e1;
-  font-weight:900;
-  text-transform:uppercase;
-  letter-spacing:.04em;
-}
-
-.table tr:hover{
-  background:#111c2f;
-}
-
-.table td.num,
-.table th.num{
-  text-align:center;
-}
-
-/* ============================================================
-   UTILITIES
-   ============================================================ */
-
-.center{text-align:center}
-.muted{color:var(--muted);font-weight:800}
-.hidden{display:none}
-
-/* ============================================================
-   ANALYTICS TABS
+   TABS
    ============================================================ */
 
 .analytics-tabs{
@@ -490,33 +168,33 @@ body.analytics{
 
   flex-wrap:wrap;
 
-  padding:8px;
-
-  background:rgba(12,18,32,0.6);
-
-  border:1px solid rgba(255,255,255,0.06);
+  padding:10px;
 
   border-radius:12px;
 
-  backdrop-filter:blur(8px);
+  background:rgba(12,18,32,.55);
+
+  border:1px solid var(--border);
 
 }
 
 .btn.tab{
 
-  background:#0f1724;
-
-  border:1px solid rgba(255,255,255,0.06);
-
-  color:#cbd5e1;
-
   padding:8px 14px;
 
   border-radius:8px;
 
+  border:1px solid var(--border);
+
+  background:#0f1724;
+
+  color:#cbd5e1;
+
   font-weight:800;
 
-  transition:all .18s ease;
+  cursor:pointer;
+
+  transition:.15s;
 
 }
 
@@ -524,65 +202,154 @@ body.analytics{
 
   background:#111c2f;
 
-  box-shadow:0 0 10px rgba(47,128,237,0.18);
+  box-shadow:0 0 12px rgba(47,120,196,.25);
 
 }
 
 .btn.tab.active{
 
-  background:#2f80ed;
+  background:var(--blue);
 
   color:#fff;
 
-  box-shadow:0 0 14px rgba(47,128,237,0.35);
-
 }
+
+
 /* ============================================================
-   TRAFFIC FLOW
+   KPI GRID
    ============================================================ */
 
-.flowgrid{
+.kpis{
+
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+
+  grid-template-columns:repeat(3,1fr);
+
   gap:12px;
-  margin-top:12px;
+
 }
 
-.flowbox{
+.kpi{
+
+  background:#0f1724;
+
   border:1px solid var(--border);
+
   border-radius:var(--radius);
+
   padding:14px;
-  background:#fff;
+
   text-align:center;
+
+  box-shadow:0 0 12px rgba(47,120,196,.15);
+
 }
 
-.flowlabel{
-  font-weight:900;
+.kpiLabel{
+
   font-size:12px;
+
+  font-weight:900;
+
   color:var(--muted);
+
 }
 
-.flowval{
+.kpiVal{
+
   font-size:22px;
+
   font-weight:1000;
-  margin-top:4px;
+
+  margin-top:6px;
+
 }
+
 
 /* ============================================================
-   HEATMAP PANEL
+   TABLES
    ============================================================ */
 
-.heatmap{
-  margin-top:12px;
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  height:420px;
-  background:#eef2f7;
+.subhead{
 
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  margin-top:16px;
 
   font-weight:900;
+
+  color:#e2e8f0;
+
+}
+
+.tablewrap{
+
+  overflow:auto;
+
+  margin-top:10px;
+
+}
+
+.table{
+
+  width:100%;
+
+  border-collapse:collapse;
+
+  min-width:640px;
+
+}
+
+.table th,
+.table td{
+
+  border-bottom:1px solid rgba(255,255,255,0.06);
+
+  padding:10px;
+
+  font-size:13px;
+
+  text-align:left;
+
+}
+
+.table th{
+
+  background:#101b2d;
+
+  color:#cbd5e1;
+
+  font-weight:900;
+
+  text-transform:uppercase;
+
+  letter-spacing:.04em;
+
+}
+
+.table tr:hover{
+
+  background:#111c2f;
+
+}
+
+.table td.num,
+.table th.num{
+
+  text-align:center;
+
+}
+
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+
+.center{text-align:center}
+
+.muted{
   color:var(--muted);
+  font-weight:800;
+}
+
+.hidden{
+  display:none;
 }
