@@ -311,33 +311,34 @@ function trackMapViewport() {
 function createMarker(store) {
 
   let marker;
+  let pin;
 
   if (markerPool.length) {
 
-  marker = markerPool.pop();
+    marker = markerPool.pop();
 
-  const nextPin = buildPin(store.types);
+    pin = buildPin(store.types);
 
-  marker.position = {
-    lat: store.lat,
-    lng: store.lng
-  };
+    marker.position = {
+      lat: store.lat,
+      lng: store.lng
+    };
 
-  marker.content = nextPin;
-  marker.map = map;
+    marker.content = pin;
+    marker.map = map;
 
-} else {
+  } else {
 
-  const pin = buildPin(store.types);
+    pin = buildPin(store.types);
 
-  marker = new google.maps.marker.AdvancedMarkerElement({
-    map,
-    position: { lat: store.lat, lng: store.lng },
-    content: pin,
-    gmpClickable: true
-  });
+    marker = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: store.lat, lng: store.lng },
+      content: pin,
+      gmpClickable: true
+    });
 
-}
+  }
 
   // ============================================================
   // STORE REFERENCE
