@@ -372,7 +372,7 @@
 
     background:#050505;
 
-    transform:translateY(-110%);
+    transform:translateY(-120%);
     transition:transform .28s ease;
 
     z-index:10001;
@@ -402,6 +402,19 @@
     transform:none;
     padding:0;
     background:transparent;
+  }
+
+}
+
+/* ============================================================
+   MOBILE SEARCH INPUT
+   ============================================================ */
+
+@media (max-width:768px){
+
+  #searchInput{
+    text-align:left;
+    font-size:1rem;
   }
 
 }
