@@ -135,11 +135,16 @@ body{
   font-weight:800;
   cursor:pointer;
   user-select:none;
+
+  transition:all .18s ease;
 }
 
 .btn:hover{
   background:var(--blue);
   color:#fff;
+
+  box-shadow:var(--glow-hover);
+  transform:translateY(-1px);
 }
 
 .btn.primary{
@@ -188,7 +193,8 @@ body{
 }
 
 .pill:hover{
-  box-shadow:var(--shadow);
+  box-shadow:var(--glow-soft);
+  transform:translateY(-1px);
 }
 
 .pill[data-tab="all"]{border-color:var(--blue);color:var(--blue)}
