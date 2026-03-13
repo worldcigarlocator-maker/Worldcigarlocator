@@ -203,18 +203,6 @@ body.static-page{
   object-fit: contain;
 }
 
-/* ============================================================
-   MAP VIEW
-   ============================================================ */
-
-.map-view {
-  width: 100%;
-  margin-top: 2rem;
-  border-radius: 18px;
-  overflow: hidden;
-  background: #000;
-  min-height: 520px;
-}
 
 /* ============================================================
    LOGIN OVERLAY
