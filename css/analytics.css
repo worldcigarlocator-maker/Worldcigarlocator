@@ -43,8 +43,27 @@ body.analytics{
 
   font-family:"DM Sans", sans-serif;
 
-}
+  /* analytics theme override */
 
+  --bg:#08162c;
+
+  --card:linear-gradient(
+    180deg,
+    #0f2447 0%,
+    #0b1e3c 100%
+  );
+
+  --text:#e8edf5;
+
+  --muted:#94a3b8;
+
+  --border:rgba(255,255,255,0.06);
+
+  --shadow:
+  0 10px 30px rgba(0,0,0,.45),
+  0 0 20px rgba(47,120,196,.12);
+
+}
 /* ============================================================
    TOPBAR
    ============================================================ */
@@ -94,13 +113,13 @@ body.analytics{
   border-radius:10px;
   border:1.6px solid var(--blue);
   color:var(--blue);
-  background:#fff;
+  :#fff;
   text-decoration:none;
   font-weight:800;
 }
 
 .navlink:hover{
-  background:var(--blue);
+  :var(--blue);
   color:#fff;
 }
 
@@ -109,7 +128,7 @@ body.analytics{
    ============================================================ */
 .panel{
 
-  background:linear-gradient(
+  :linear-gradient(
     180deg,
     #0f2447 0%,
     #0b1e3c 100%
@@ -159,7 +178,7 @@ body.analytics{
 
 .btn{
   border:1.6px solid var(--blue);
-  background:#fff;
+  :#fff;
   color:var(--blue);
   padding:8px 12px;
   border-radius:10px;
@@ -170,12 +189,12 @@ body.analytics{
 }
 
 .btn:hover{
-  background:var(--blue);
+  :var(--blue);
   color:#fff;
 }
 
 .btn.primary{
-  background:var(--blue);
+  :var(--blue);
   color:#fff;
 }
 
