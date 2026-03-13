@@ -35,6 +35,7 @@ body.analytics{
   #05070d;
 
   color:#e5e7eb;
+
   font-family:"DM Sans", sans-serif;
 
 }
@@ -44,14 +45,32 @@ body.analytics{
    ============================================================ */
 
 .topbar{
-  text-align:center;
-  margin-bottom:16px;
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  padding:18px 26px;
+
+  margin-bottom:22px;
+
+  background:rgba(12,18,32,0.75);
+
+  border-bottom:1px solid rgba(255,255,255,0.06);
+
+  backdrop-filter:blur(10px);
+
+  box-shadow:0 0 12px rgba(47,128,237,0.12);
+
 }
 
-h1{
-  margin:0 0 8px;
-  font-size:24px;
+.topbar h1{
+  margin:0;
+  font-size:22px;
   font-weight:900;
+  color:#e2e8f0;
 }
 
 /* ============================================================
@@ -344,10 +363,9 @@ h1{
 
 .subhead{
   margin-top:16px;
-  font-weight:1000;
-  color:#111827;
+  font-weight:900;
+  color:#e2e8f0;
 }
-
 .tablewrap{
   overflow:auto;
   margin-top:10px;
@@ -361,15 +379,22 @@ h1{
 
 .table th,
 .table td{
-  border-bottom:1px solid #eef0f3;
+  border-bottom:1px solid rgba(255,255,255,0.06);
   padding:10px;
   font-size:13px;
   text-align:left;
 }
 
 .table th{
-  background:#f3f4f6;
-  font-weight:1000;
+  background:#101b2d;
+  color:#cbd5e1;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.table tr:hover{
+  background:#111c2f;
 }
 
 .table td.num,
