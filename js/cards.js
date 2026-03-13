@@ -480,6 +480,16 @@ console.log("RUN SEARCH FIRED", STATE.search.text);
 
 renderCards(filteredRows, isLoadMore);
 
+  /* ============================================================
+   STORE GRID VISIBILITY
+   ============================================================ */
+
+const grid = document.getElementById("storeGrid");
+
+if (grid) {
+  grid.style.display = "grid";
+}
+
   // ============================================================
 // SEARCH ANALYTICS
 // ============================================================
