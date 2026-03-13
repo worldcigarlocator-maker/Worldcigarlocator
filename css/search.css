@@ -296,7 +296,6 @@
 /* ================= MAP VIEW CONTAINER ================= */
 
 #mapView {
-  display:none;
 
   position: relative;
   width:100%;
