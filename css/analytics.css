@@ -415,20 +415,60 @@ body.analytics{
    ============================================================ */
 
 .analytics-tabs{
+
   display:flex;
+
   gap:10px;
+
   flex-wrap:wrap;
+
+  padding:8px;
+
+  background:rgba(12,18,32,0.6);
+
+  border:1px solid rgba(255,255,255,0.06);
+
+  border-radius:12px;
+
+  backdrop-filter:blur(8px);
+
 }
 
 .btn.tab{
-  background:#fff;
+
+  background:#0f1724;
+
+  border:1px solid rgba(255,255,255,0.06);
+
+  color:#cbd5e1;
+
+  padding:8px 14px;
+
+  border-radius:8px;
+
+  font-weight:800;
+
+  transition:all .18s ease;
+
+}
+
+.btn.tab:hover{
+
+  background:#111c2f;
+
+  box-shadow:0 0 10px rgba(47,128,237,0.18);
+
 }
 
 .btn.tab.active{
-  background:var(--blue);
-  color:#fff;
-}
 
+  background:#2f80ed;
+
+  color:#fff;
+
+  box-shadow:0 0 14px rgba(47,128,237,0.35);
+
+}
 /* ============================================================
    TRAFFIC FLOW
    ============================================================ */
