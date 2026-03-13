@@ -107,20 +107,25 @@ body.analytics{
 /* ============================================================
    PANELS
    ============================================================ */
-
 .panel{
 
-  background:#0f1724;
+  background:linear-gradient(
+    180deg,
+    #0f2447 0%,
+    #0b1e3c 100%
+  );
 
-  border:1px solid rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.05);
 
   border-radius:var(--radius);
 
-  box-shadow:0 0 12px rgba(47,128,237,0.12);
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.45),
+    0 0 20px rgba(47,128,237,0.12);
 
   padding:16px;
 
-  margin:14px auto;
+  margin:18px auto;
 
   max-width:1100px;
 
