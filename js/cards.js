@@ -1,6 +1,7 @@
 // ============================================================
 // CARDS.JS — WCL FRONTEND (DISCOVERY + SORT READY · v5)
 // ============================================================
+
 import { supabase } from "./globals.js";
 import { openModal } from "./modal.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
@@ -26,7 +27,7 @@ let MASTER_MODE = MASTER.IDLE;
 const STATE = {
   location: { continent: null, country: null, state: null, city: null },
   search: { text: "" },
-  chips: { type: [], access: [] },   // 🔥 arrays nu
+  chips: { type: [], access: [] },
 };
 
 let SORT_MODE = "relevance";
@@ -99,13 +100,12 @@ function updateSearchCount(value) {
 // ============================================================
 
 export function resetToHero() {
-
   const grid = dom("#storeGrid");
   const hero = dom("#heroImage");
 
   if (grid) {
     grid.innerHTML = "";
-    grid.style.display = "none";   // hide grid again
+    grid.style.display = "none";
   }
 
   const btn = document.getElementById("loadMoreBtn");
@@ -119,7 +119,6 @@ export function resetToHero() {
   if (MASTER_MODE === MASTER.IDLE) {
     updateSearchCount(GLOBAL_TOTAL);
   }
-
 }
 
 // ============================================================
@@ -127,7 +126,12 @@ export function resetToHero() {
 // ============================================================
 
 function clearLocation() {
-  STATE.location = { continent: null, country: null, state: null, city: null };
+  STATE.location = {
+    continent: null,
+    country: null,
+    state: null,
+    city: null,
+  };
 }
 
 function clearSearch() {
@@ -168,48 +172,47 @@ function asArray(v) {
 
 function hasToken(list, token) {
   if (!token) return true;
-  return asArray(list).some((x) => String(x).toLowerCase() === String(token).toLowerCase());
+  return asArray(list).some(
+    (x) => String(x).toLowerCase() === String(token).toLowerCase()
+  );
 }
 
 function applyChipFilters(rows) {
+  const selectedTypes = (STATE.chips.type || []).map((t) =>
+    String(t).toLowerCase()
+  );
 
-  const selectedTypes = (STATE.chips.type || [])
-    .map(t => String(t).toLowerCase());
-
-  const selectedAccess = (STATE.chips.access || [])
-    .map(a => String(a).toLowerCase());
+  const selectedAccess = (STATE.chips.access || []).map((a) =>
+    String(a).toLowerCase()
+  );
 
   if (selectedTypes.length === 0 && selectedAccess.length === 0) {
     return rows || [];
   }
 
   return (rows || []).filter((s) => {
-
     const storeTypes = Array.isArray(s.types)
-      ? s.types.map(t => String(t).toLowerCase())
+      ? s.types.map((t) => String(t).toLowerCase())
       : [];
 
-    const accessVal = s.access
-      ? String(s.access).toLowerCase()
-      : null;
+    const accessVal = s.access ? String(s.access).toLowerCase() : null;
 
     const typeOk =
       selectedTypes.length === 0 ||
-      selectedTypes.some(t => storeTypes.includes(t));
+      selectedTypes.some((t) => storeTypes.includes(t));
 
     const accessOk =
-      selectedAccess.length === 0 ||
-      selectedAccess.includes(accessVal);
+      selectedAccess.length === 0 || selectedAccess.includes(accessVal);
 
     return typeOk && accessOk;
   });
 }
+
 // ============================================================
 // FILTER API
 // ============================================================
 
 export function activateSearch({ text = "", sort } = {}) {
-
   MASTER_MODE = MASTER.SEARCH;
 
   clearLocation();
@@ -226,7 +229,7 @@ export function activateSearch({ text = "", sort } = {}) {
 
   document.dispatchEvent(
     new CustomEvent("wcl:master-change", {
-      detail: { master: MASTER_MODE }
+      detail: { master: MASTER_MODE },
     })
   );
 
@@ -237,22 +240,100 @@ export function activateSearch({ text = "", sort } = {}) {
      ============================================================ */
 
   if (window.innerWidth <= 768) {
-
     setTimeout(() => {
-
       const grid = document.getElementById("storeGrid");
 
       if (grid) {
         grid.scrollIntoView({
           behavior: "smooth",
-          block: "start"
+          block: "start",
         });
       }
-
     }, 180);
+  }
+}
 
+// ============================================================
+// LOCATION ACTIVATION
+// ============================================================
+
+export function activateLocation(next = {}) {
+  MASTER_MODE = MASTER.LOCATION;
+
+  clearSearch();
+
+  STATE.location = {
+    ...STATE.location,
+    ...next,
+  };
+
+  resetPagination();
+
+  runSearch();
+}
+
+// ============================================================
+// CLEAR SEARCH MASTER
+// ============================================================
+
+export function clearSearchMaster() {
+  if (MASTER_MODE === MASTER.SEARCH) {
+    clearSearch();
+    MASTER_MODE = MASTER.IDLE;
+
+    resetPagination();
+
+    runSearch();
+  }
+}
+
+// ============================================================
+// CLEAR LOCATION MASTER
+// ============================================================
+
+export function clearLocationMaster() {
+  if (MASTER_MODE === MASTER.LOCATION) {
+    clearLocation();
+    MASTER_MODE = MASTER.IDLE;
+
+    resetPagination();
+
+    runSearch();
+  }
+}
+
+// ============================================================
+// CHIP TOGGLE
+// ============================================================
+
+export function toggleChip({ type, access }) {
+  if (type) {
+    const i = STATE.chips.type.indexOf(type);
+
+    if (i > -1) {
+      STATE.chips.type.splice(i, 1);
+    } else {
+      STATE.chips.type.push(type);
+    }
   }
 
+  if (access) {
+    const i = STATE.chips.access.indexOf(access);
+
+    if (i > -1) {
+      STATE.chips.access.splice(i, 1);
+    } else {
+      STATE.chips.access.push(access);
+    }
+  }
+
+  resetPagination();
+
+  if (MASTER_MODE === MASTER.IDLE) {
+    return;
+  }
+
+  runSearch();
 }
 
 // ============================================================
@@ -262,15 +343,11 @@ export function activateSearch({ text = "", sort } = {}) {
 let storeViewObserver = null;
 
 function initStoreViewObserver() {
-
   if (storeViewObserver) return;
 
   storeViewObserver = new IntersectionObserver(
-
     (entries) => {
-
       entries.forEach((entry) => {
-
         if (!entry.isIntersecting) return;
 
         const el = entry.target;
@@ -283,21 +360,16 @@ function initStoreViewObserver() {
           store_id: Number(storeId),
           source: "search",
           city,
-          country
+          country,
         });
 
         storeViewObserver.unobserve(el);
-
       });
-
     },
-
     {
-      threshold: 0.6
+      threshold: 0.6,
     }
-
   );
-
 }
 
 // ============================================================
@@ -308,11 +380,11 @@ function renderCards(list, append = false) {
   const grid = dom("#storeGrid");
   const hero = dom("#heroImage");
 
-if (!grid) return;
+  if (!grid) return;
 
-grid.style.display = "grid";   // ← lägg till denna rad
+  grid.style.display = "grid";
 
-if (hero) hero.style.display = "none";
+  if (hero) hero.style.display = "none";
 
   if (!append) {
     LAST_RENDERED_STORES = list || [];
@@ -323,12 +395,13 @@ if (hero) hero.style.display = "none";
   }
 
   // ============================================================
-// VIEW TRACKING
-// ============================================================
+  // VIEW TRACKING
+  // ============================================================
 
-grid.querySelectorAll(".store-card").forEach((card) => {
-  VIEW_OBSERVER.observe(card);
-});
+  grid.querySelectorAll(".store-card").forEach((card) => {
+    VIEW_OBSERVER.observe(card);
+  });
+
   ensureLoadMoreButton();
 }
 
@@ -480,45 +553,43 @@ export async function runSearch(isLoadMore = false) {
   // Chips filtrerar frontend-side (modifiers)
   const filteredRows = applyChipFilters(rawRows);
 
-// TEST LOG
-console.log("RUN SEARCH FIRED", STATE.search.text);
+  // TEST LOG
+  console.log("RUN SEARCH FIRED", STATE.search.text);
 
-renderCards(filteredRows, isLoadMore);
+  renderCards(filteredRows, isLoadMore);
 
   /* ============================================================
    STORE GRID VISIBILITY
    ============================================================ */
 
-const grid = document.getElementById("storeGrid");
+  const grid = document.getElementById("storeGrid");
 
-if (grid) {
-  grid.style.display = "grid";
-}
+  if (grid) {
+    grid.style.display = "grid";
+  }
 
   // ============================================================
-// SEARCH ANALYTICS
-// ============================================================
+  // SEARCH ANALYTICS
+  // ============================================================
 
-if (!isLoadMore) {
+  if (!isLoadMore) {
+    trackEvent("search", {
+      query: STATE.search.text || null,
 
-  trackEvent("search", {
-    query: STATE.search.text || null,
+      type_filters: STATE.chips.type || [],
+      access_filters: STATE.chips.access || [],
 
-    type_filters: STATE.chips.type || [],
-    access_filters: STATE.chips.access || [],
+      continent: STATE.location.continent || null,
+      country: STATE.location.country || null,
+      state: STATE.location.state || null,
+      city: STATE.location.city || null,
 
-    continent: STATE.location.continent || null,
-    country: STATE.location.country || null,
-    state: STATE.location.state || null,
-    city: STATE.location.city || null,
+      results: filteredRows.length,
+      sort: SORT_MODE,
 
-    results: filteredRows.length,
-    sort: SORT_MODE,
-
-    source: "search"
-  });
-
-}
+      source: "search",
+    });
+  }
 
   // Count ska visa vad som faktiskt visas
   if (!isLoadMore) {
