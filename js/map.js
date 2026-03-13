@@ -166,35 +166,6 @@ map.addListener("idle", () => {
     mouseLatLng = e.latLng;
   });
 
-  map.addListener("wheel", (e) => {
-
-    if (!mouseLatLng) return;
-
-    const zoom = map.getZoom();
-    const delta = e.domEvent.deltaY;
-
-    // block Google's native zoom
-    e.domEvent.preventDefault();
-
-    if (delta < 0) {
-
-      map.moveCamera({
-        center: mouseLatLng,
-        zoom: zoom + 1
-      });
-
-    } else {
-
-      map.moveCamera({
-        center: mouseLatLng,
-        zoom: zoom - 1
-      });
-
-    }
-
-  });
-
-}
 
 // ============================================================
 // USE MY LOCATION
