@@ -99,10 +99,14 @@ function updateSearchCount(value) {
 // ============================================================
 
 export function resetToHero() {
+
   const grid = dom("#storeGrid");
   const hero = dom("#heroImage");
 
-  if (grid) grid.innerHTML = "";
+  if (grid) {
+    grid.innerHTML = "";
+    grid.style.display = "none";   // hide grid again
+  }
 
   const btn = document.getElementById("loadMoreBtn");
   if (btn) btn.style.display = "none";
@@ -115,6 +119,7 @@ export function resetToHero() {
   if (MASTER_MODE === MASTER.IDLE) {
     updateSearchCount(GLOBAL_TOTAL);
   }
+
 }
 
 // ============================================================
