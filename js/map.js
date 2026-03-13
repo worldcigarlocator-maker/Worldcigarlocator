@@ -91,6 +91,7 @@ export async function initMap() {
   center: { lat: 20, lng: 0 },
   zoom: 2,
   minZoom: 2,
+  maxZoom: 17,
 
   mapId: "50c83dc7ca62c31181c32eb1",
 
@@ -103,9 +104,18 @@ export async function initMap() {
 
   gestureHandling: "greedy",
 
-  isFractionalZoomEnabled: true
-});
+  isFractionalZoomEnabled: true,
 
+  restriction: {
+    latLngBounds: {
+      north: 85,
+      south: -85,
+      west: -180,
+      east: 180
+    },
+    strictBounds: true
+  }
+});
 // ============================================================
 // MAP IDLE HANDLER (LOAD + ANALYTICS)
 // ============================================================
