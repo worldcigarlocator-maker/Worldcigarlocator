@@ -536,63 +536,41 @@ body.auth-locked .sidebar-actions #loginBtn{
   display:none;
 }
 
-//* =========================================
-   MOBILE
-   ========================================= */
+/* ============================================================
+   MOBILE LAYOUT
+   ============================================================ */
 
 @media (max-width:768px){
 
-  /* layout */
+  /* container layout */
+
   .container{
-    flex-direction:column;
+    display:block;
+    width:100%;
   }
 
+  /* sidebar becomes drawer */
+
   .sidebar{
-    position:relative;
-    width:100%;
-    height:auto;
+    position:fixed;
+    top:0;
+    left:0;
+    height:100vh;
+    width:260px;
   }
+
+  /* main content */
 
   .main{
     margin-left:0;
     width:100%;
-    padding:2rem 1rem;
+    padding:3.2rem 1rem 2rem;
   }
 
   /* hero */
+
   .hero{
     margin-top:1.5rem;
-  }
-
-  /* map */
-  #mapView{
-    height:60vh;
-    min-height:380px;
-  }
-
-}
-
-/* ============================================================
-   MOBILE MAIN LAYOUT FIX
-   ============================================================ */
-
-@media (max-width:768px){
-
-  .main{
-    margin-left:0;
-    width:100%;
-    padding:5rem 1rem 2rem;
-  }
-
-}
-
-/* ============================================================
-   HERO MOBILE FIX
-   ============================================================ */
-
-@media (max-width:768px){
-
-  .hero{
     width:100%;
     height:42vh;
     overflow:hidden;
@@ -603,6 +581,13 @@ body.auth-locked .sidebar-actions #loginBtn{
     height:100%;
     object-fit:cover;
     object-position:center;
+  }
+
+  /* map */
+
+  #mapView{
+    height:55vh;
+    min-height:360px;
   }
 
 }
