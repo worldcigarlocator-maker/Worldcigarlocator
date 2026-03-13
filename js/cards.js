@@ -202,35 +202,11 @@ function applyChipFilters(rows) {
 // ============================================================
 // FILTER API
 // ============================================================
-export function activateSearch({ text = "", sort } = {}) {
-  MASTER_MODE = MASTER.SEARCH;
-  clearLocation();
-
-  if (text !== undefined) {
-    STATE.search.text = text;
-  }
-
-  if (sort) {
-    SORT_MODE = sort;
-  }
-
-  resetPagination();
-
-  document.dispatchEvent(
-    new CustomEvent("wcl:master-change", {
-      detail: { master: MASTER_MODE }
-    })
-  );
-
-  runSearch();
-
- // ============================================================
-// FILTER API
-// ============================================================
 
 export function activateSearch({ text = "", sort } = {}) {
 
   MASTER_MODE = MASTER.SEARCH;
+
   clearLocation();
 
   if (text !== undefined) {
@@ -272,89 +248,6 @@ export function activateSearch({ text = "", sort } = {}) {
 
   }
 
-}
-
-export function activateLocation(next) {
-  MASTER_MODE = MASTER.LOCATION;
-  clearSearch();
-
-  const isMajorChange =
-    next.continent || next.country || next.state;
-
-  if (isMajorChange) {
-   STATE.chips.type = [];
-STATE.chips.access = [];
-
-    document.dispatchEvent(
-      new CustomEvent("wcl:clear-chips-ui")
-    );
-  }
-
-  STATE.location = { ...STATE.location, ...next };
-
-  resetPagination();
-
-  document.dispatchEvent(
-    new CustomEvent("wcl:master-change", {
-      detail: { master: MASTER_MODE }
-    })
-  );
-
-  runSearch();
-}
-
-export function toggleChip({ type, access }) {
-
-  if (type !== undefined) {
-    const i = STATE.chips.type.indexOf(type);
-
-    if (i > -1) {
-      STATE.chips.type.splice(i, 1);
-    } else {
-      STATE.chips.type.push(type);
-    }
-  }
-
-  if (access !== undefined) {
-    const i = STATE.chips.access.indexOf(access);
-
-    if (i > -1) {
-      STATE.chips.access.splice(i, 1);
-    } else {
-      STATE.chips.access.push(access);
-    }
-  }
-
-  resetPagination();
-
-  if (MASTER_MODE === MASTER.IDLE) {
-    return;
-  }
-
-  runSearch();
-}
-export function clearSearchMaster() {
-  if (MASTER_MODE === MASTER.SEARCH) {
-    clearSearch();
-    MASTER_MODE = MASTER.IDLE;
-    resetPagination();
-    runSearch();
-  }
-}
-
-export function clearLocationMaster() {
-  if (MASTER_MODE === MASTER.LOCATION) {
-    clearLocation();
-    MASTER_MODE = MASTER.IDLE;
-    resetPagination();
-    runSearch();
-  }
-}
-
-export function setSort(mode) {
-  SORT_MODE = mode || "relevance";
-  resetPagination();
-  runSearch();
 }
 
 // ============================================================
