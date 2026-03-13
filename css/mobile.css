@@ -1,0 +1,247 @@
+/* ============================================================
+   WCL MOBILE LAYOUT
+   Central mobile layout controller
+   Loaded LAST to override other CSS
+   ============================================================ */
+
+@media (max-width:768px){
+
+/* ============================================================
+   CONTAINER
+   ============================================================ */
+
+.container{
+  display:block;
+  width:100%;
+}
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+
+.main{
+  margin-left:0;
+  width:100%;
+  padding:1rem 1rem 5.5rem;
+}
+
+/* ============================================================
+   SIDEBAR DRAWER
+   ============================================================ */
+
+.sidebar{
+  transform:translateX(-100%);
+  transition:transform .25s ease;
+  z-index:9998;
+}
+
+.sidebar.open{
+  transform:translateX(0);
+}
+
+/* hamburger */
+
+.mobile-menu-btn{
+  display:block;
+  position:fixed;
+  top:14px;
+  left:14px;
+
+  width:42px;
+  height:42px;
+
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.25);
+
+  background:#050505;
+  color:white;
+
+  font-size:20px;
+  cursor:pointer;
+
+  z-index:9999;
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.hero{
+  margin-top:0.8rem;
+  width:100%;
+  height:38vh;
+  border-radius:16px;
+  overflow:hidden;
+}
+
+.hero img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+}
+
+/* ============================================================
+   SEARCH BUTTON (FLOATING)
+   ============================================================ */
+
+.mobile-search-btn{
+  display:block;
+
+  position:relative;
+  left:50%;
+  transform:translate(-50%,-28px);
+
+  width:92%;
+  max-width:420px;
+
+  padding:14px 18px;
+
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.22);
+
+  background:rgba(10,10,10,0.45);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+
+  color:rgb(var(--global));
+
+  font-family:"DM Sans", sans-serif;
+  font-size:0.95rem;
+  font-weight:600;
+
+  cursor:pointer;
+
+  box-shadow:0 10px 28px rgba(0,0,0,0.45);
+  z-index:900;
+}
+
+/* ============================================================
+   SEARCH PANEL
+   ============================================================ */
+
+.search-panel{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+
+  padding:5.5rem 1rem 1.5rem;
+
+  background:#050505;
+
+  transform:translateY(-120%);
+  transition:transform .28s ease;
+
+  z-index:10001;
+}
+
+.search-panel.open{
+  transform:translateY(0);
+}
+
+/* capsule stretch */
+
+.search-capsule{
+  width:100%;
+  min-width:0;
+}
+
+/* mobile search input */
+
+#searchInput{
+  width:100%;
+  text-align:left;
+  font-size:1rem;
+}
+
+/* hide desktop zones */
+
+.zone-filters,
+.zone-map,
+.zone-divider{
+  display:none;
+}
+
+/* ============================================================
+   RESULTS GRID
+   ============================================================ */
+
+#storeGrid{
+  grid-template-columns:repeat(2, minmax(150px,1fr));
+  gap:1.3rem .8rem;
+  padding-inline:.5rem;
+}
+
+/* ============================================================
+   MAP
+   ============================================================ */
+
+#mapView{
+  width:100%;
+  height:55vh;
+  min-height:340px;
+  border-radius:16px;
+  overflow:hidden;
+}
+
+/* ============================================================
+   BOTTOM NAV
+   ============================================================ */
+
+.mobile-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+
+  height:64px;
+
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+
+  background:#050505;
+  border-top:1px solid rgba(255,255,255,.08);
+
+  z-index:9997;
+}
+
+.mobile-nav button{
+  flex:1;
+
+  background:none;
+  border:none;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  gap:3px;
+
+  font-family:"DM Sans",sans-serif;
+  font-size:.7rem;
+
+  color:rgba(255,255,255,.65);
+
+  cursor:pointer;
+}
+
+.mobile-nav button span{
+  font-size:.65rem;
+}
+
+.mobile-nav button.active{
+  color:rgb(var(--global));
+}
+
+/* ============================================================
+   BODY LOCK WHEN SIDEBAR OPEN
+   ============================================================ */
+
+body.menu-open{
+  overflow:hidden;
+}
+
+}
