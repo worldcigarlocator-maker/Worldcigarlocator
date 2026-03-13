@@ -250,7 +250,7 @@ body{
    ============================================================ */
 
 .card{
-  background:var(--card-bg);
+  background:#0f1724;
   border-radius:10px;
   box-shadow:var(--shadow);
   overflow:hidden;
