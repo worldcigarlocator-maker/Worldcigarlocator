@@ -163,10 +163,10 @@ map.addListener("idle", () => {
   let mouseLatLng = null;
 
   map.addListener("mousemove", (e) => {
-    mouseLatLng = e.latLng;
-  });
+  mouseLatLng = e.latLng;
+});
 
-
+} 
 // ============================================================
 // USE MY LOCATION
 // ============================================================
