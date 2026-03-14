@@ -130,8 +130,11 @@
 
   background:#050505;
 
-  transform:translateY(-120%);
-  transition:transform .28s ease;
+.search-panel{
+  transform:translate3d(0,-120%,0);
+  transition:transform .32s cubic-bezier(.22,.61,.36,1);
+  will-change: transform;
+}
 
   z-index:10001;
 }
@@ -244,4 +247,19 @@ body.menu-open{
   overflow:hidden;
 }
 
+}
+/* ============================================================
+   SAFE AREA (iPhone)
+   ============================================================ */
+
+.mobile-nav{
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ============================================================
+   MAP TOUCH FIX
+   ============================================================ */
+
+#mapView{
+  touch-action: pan-x pan-y;
 }
