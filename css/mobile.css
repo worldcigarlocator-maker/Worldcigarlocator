@@ -22,7 +22,7 @@
 .main{
   margin-left:0;
   width:100%;
-  padding:1rem 1rem 5rem;
+  padding:80px 1rem 4rem;
 }
 
 /* ============================================================
@@ -44,11 +44,8 @@
    ============================================================ */
 
 .mobile-menu-btn{
-  display:block;
 
-  position:fixed;
-  top:14px;
-  left:14px;
+  position:relative;
 
   width:42px;
   height:42px;
@@ -63,7 +60,6 @@
 
   cursor:pointer;
 
-  z-index:10002;
 }
 
 /* ============================================================
@@ -92,33 +88,26 @@
 
 .mobile-search-btn{
 
-  position:relative;
-  display:block;
+  flex:1;
 
-  width:92%;
-  max-width:420px;
+  display:flex;
+  align-items:center;
 
-  margin:0.8rem auto 0.6rem;
-
-  padding:14px 18px;
+  height:42px;
 
   border-radius:999px;
-  border:1px solid rgba(255,255,255,0.22);
+  border:1px solid rgba(255,255,255,.22);
 
-  background:rgba(10,10,10,0.45);
+  padding:0 16px;
 
-  backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);
+  background:rgba(10,10,10,.45);
 
   color:rgb(var(--global));
 
   font-family:"DM Sans", sans-serif;
-  font-size:0.95rem;
+  font-size:.95rem;
   font-weight:600;
 
-  cursor:pointer;
-
-  box-shadow:0 8px 24px rgba(0,0,0,0.45);
 }
 
 /* ============================================================
@@ -289,5 +278,32 @@ body.menu-open{
 .login-fields input{
   font-size:16px;
 }
+
+}
+
+/* ============================================================
+   MOBILE HEADER
+   ============================================================ */
+
+.mobile-header{
+
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+
+  height:64px;
+
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  padding:0 14px;
+
+  background:#050505;
+
+  border-bottom:1px solid rgba(255,255,255,.08);
+
+  z-index:10005;
 
 }
