@@ -315,3 +315,34 @@ textarea{
 }
 
 }
+
+/* ============================================================
+   MOBILE START LAYOUT (NO SCROLL HERO)
+   ============================================================ */
+
+@media (max-width:768px){
+
+.main{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.hero{
+  flex:1;
+  height:auto;
+  margin-top:12px;
+}
+
+.hero img{
+  height:100%;
+  object-fit:cover;
+}
+
+.results-toolbar,
+#storeGrid,
+#mapView{
+  margin-top:12px;
+}
+
+}
