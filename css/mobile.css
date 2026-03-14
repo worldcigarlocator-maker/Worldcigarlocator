@@ -346,3 +346,39 @@ textarea{
 }
 
 }
+
+/* ============================================================
+   MOBILE HERO + SEARCH STABILITY
+   ============================================================ */
+
+@media (max-width:768px){
+
+/* hero proportion */
+
+.hero{
+  height:30vh;
+  margin-top:8px;
+}
+
+/* search capsule full width */
+
+.search-capsule{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
+
+/* input stabil */
+
+#searchInput{
+  width:100%;
+  font-size:16px;
+}
+
+/* results start tight under hero */
+
+.results-toolbar{
+  margin-top:10px;
+}
+
+}
