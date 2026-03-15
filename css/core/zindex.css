@@ -1,1 +1,31 @@
+/* ============================================================
+   Z-INDEX SYSTEM
+   WORLD CIGAR LOCATOR
+   ============================================================ */
 
+:root{
+
+  /* base layers */
+
+  --z-base:1;
+
+  /* navigation */
+
+  --z-sidebar:100;
+  --z-header:200;
+
+  /* floating UI */
+
+  --z-search:400;
+  --z-dropdown:600;
+
+  /* map */
+
+  --z-map:700;
+
+  /* modal system */
+
+  --z-modal:1000;
+  --z-modal-backdrop:990;
+
+}
