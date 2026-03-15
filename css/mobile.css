@@ -121,19 +121,15 @@ textarea{
   object-position:center;
 }
 
-/* ============================================================
-   SEARCH PANEL (MOBILE)
-   ============================================================ */
-
 .search-panel{
 
-  position:fixed;
+  position:sticky;
 
   top:64px;
-  left:0;
-  right:0;
 
-  padding:14px;
+  width:100%;
+
+  padding:12px 14px;
 
   background:#050505;
 
@@ -142,7 +138,6 @@ textarea{
   z-index:10003;
 
 }
-
 /* ============================================================
    SEARCH CAPSULE
    ============================================================ */
