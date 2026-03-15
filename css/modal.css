@@ -64,8 +64,6 @@
 
 /* ================= IMAGE ================= */
 
-/* ================= IMAGE ================= */
-
 .modal-img {
   width: 100%;
   height: 285px;
@@ -150,11 +148,11 @@
 
 .star-picker span:hover {
   transform: scale(1.15);
-  color: var(--global);
+  color: rgb(var(--global));
 }
 
 .star-picker span.active {
-  color: var(--global);
+  color: rgb(var(--global));
 }
 
 #modalSendRating {
