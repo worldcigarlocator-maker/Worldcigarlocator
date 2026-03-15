@@ -37,23 +37,41 @@
   >
 
   <!-- CSS -->
+<!-- =========================================================
+     CSS PRELOAD (faster first render)
+========================================================= -->
+<link rel="preload" href="css/core/reset.css" as="style">
+<link rel="preload" href="css/core/layout.css" as="style">
+<link rel="preload" href="css/search.css" as="style">
+<link rel="preload" href="css/cards.css" as="style">
+
+<!-- =========================================================
+     CORE
+========================================================= -->
 <link rel="stylesheet" href="css/core/reset.css">
 <link rel="stylesheet" href="css/core/variables.css">
 <link rel="stylesheet" href="css/core/zindex.css">
 <link rel="stylesheet" href="css/core/layout.css">
 
+<!-- =========================================================
+     COMPONENTS
+========================================================= -->
 <link rel="stylesheet" href="css/sidebar.css">
 <link rel="stylesheet" href="css/search.css">
-
 <link rel="stylesheet" href="css/components/autocomplete.css">
 <link rel="stylesheet" href="css/components/filters.css">
-
 <link rel="stylesheet" href="css/cards.css">
 <link rel="stylesheet" href="css/modal.css">
 <link rel="stylesheet" href="css/map.css">
 
+<!-- =========================================================
+     PAGE
+========================================================= -->
 <link rel="stylesheet" href="css/start.css">
 
+<!-- =========================================================
+     RESPONSIVE (ALWAYS LAST)
+========================================================= -->
 <link rel="stylesheet" href="css/mobile.css">
 </head>
 
