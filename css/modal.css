@@ -264,7 +264,7 @@
 
 .modal-comment-author {
   font-weight: 600;
-  color: var(--global);
+color: rgb(var(--global));
   font-size: 0.9rem;
 }
 
@@ -300,7 +300,7 @@
 }
 
 .modal-comment-delete:hover {
-  color: var(--global);
+color: rgb(var(--global));
 }
 
 /* ============================================================
