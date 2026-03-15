@@ -1,0 +1,42 @@
+/* ============================
+   SEARCH FILTER TOGGLES
+============================ */
+
+.search-filters{
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: wrap;
+}
+
+.filter-sep{
+  opacity: .35;
+  padding: 0 .15rem;
+}
+
+.filter-toggle{
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.92);
+
+  padding: .45rem .7rem;
+  border-radius: 999px;
+  font-size: .85rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-toggle:hover{
+  background: rgba(255,255,255,.07);
+}
+
+.filter-toggle input{
+  width: 14px;
+  height: 14px;
+  accent-color: rgb(var(--global));
+  cursor: pointer;
+}
