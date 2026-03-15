@@ -29,23 +29,6 @@
   }
 }
 
-/* Mobile */
-@media (max-width: 768px) {
-  #storeGrid {
-    grid-template-columns: repeat(2, minmax(150px, 1fr));
-    gap: 1.4rem 0.9rem;
-    padding-inline: 0.5rem;
-  }
-}
-
-/* Tiny Mobile */
-@media (max-width: 480px) {
-  #storeGrid {
-    grid-template-columns: repeat(2, minmax(140px, 1fr));
-    gap: 1.2rem 0.7rem;
-  }
-}
-
 /* ============================================================
    CARD CONTAINER — EXACT HEIGHT 495px
    ============================================================ */
@@ -73,21 +56,6 @@
   transform: translateY(-4px);
 }
 
-/* ============================================================
-   MOBILE TOUCH FEEDBACK
-   ============================================================ */
-
-@media (max-width:768px){
-
-  .store-card:active{
-    transform:translateY(-2px) scale(0.985);
-
-    box-shadow:
-      0 0 0 1px rgba(var(--global),0.45),
-      0 14px 28px rgba(0,0,0,0.85);
-  }
-
-}
 
 /* ============================================================
    IMAGE
