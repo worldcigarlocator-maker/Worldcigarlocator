@@ -33,3 +33,17 @@ body{
 .hidden{
   display:none;
 }
+/* ============================================================
+   SAFARI / IOS RENDER STABILITY
+   Prevents sticky + backdrop + transform bugs
+   ============================================================ */
+
+.modal,
+.modal-content,
+.sidebar,
+.search-panel{
+
+  transform:translateZ(0);
+  will-change:transform;
+
+}
