@@ -228,32 +228,6 @@
   opacity: 1;
 }
 
-
-/* ================= RESPONSIVE ================= */
-
-@media (max-width: 900px) {
-
-  .zone-filters,
-  .zone-map,
-  .zone-divider {
-    display: none;
-  }
-
-  .search-label {
-    display: none;
-  }
-
-  .search-capsule {
-    padding: 0 1.4rem;
-  }
-
-  #searchInput {
-    width: 100%;
-    font-size: 0.95rem;
-    text-align: left;
-  }
-}
-
 /* ================= MAP LOCATION BUTTON ================= */
 
 .map-locate-btn {
