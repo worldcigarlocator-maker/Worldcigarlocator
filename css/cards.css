@@ -51,9 +51,8 @@
 
 .store-card:hover {
   box-shadow:
-    0 0 0 1px rgba(212,160,23,0.35),
+    0 0 0 1px rgba(var(--global), 0.35),
     0 22px 40px rgba(0,0,0,0.95);
-  transform: translateY(-4px);
 }
 
 
@@ -177,8 +176,9 @@
 
 #modalBadges {
   display: flex;
+  gap: 0.4rem;
   flex-wrap: wrap;
-  gap: 0.25rem;
+  margin: 0.4rem 0 0.8rem;
 }
 
 /* Ensures modal layout looks premium */
@@ -327,13 +327,6 @@ box-shadow: 0 0 0 1px rgba(var(--global), 0.5);
   cursor: pointer;
 }
 
-/* Modal badges (match same style as cards) */
-#modalBadges {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  margin: 0.4rem 0 0.8rem;
-}
 
 /* ============================================================
    VISIT LINK
