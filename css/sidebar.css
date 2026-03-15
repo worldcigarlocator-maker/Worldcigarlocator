@@ -20,7 +20,7 @@ background: var(--bg);
 
 .sidebar-header {
   padding: 2.2rem 1.2rem 1.4rem;
-  border-bottom: 1px solid var(--divider);
+  border-bottom: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
@@ -91,7 +91,7 @@ background: var(--bg);
   padding: 0.45rem 0;
 
   /* Divider under count (så det inte “flyter ihop” med hierarkin) */
-  border-bottom: 1px solid var(--divider);
+  border-bottom: 1px solid var(--border);
 }
 
 #sidebarGlobalCount {
@@ -130,7 +130,7 @@ background: var(--bg);
 }
 
 .line.active {
-  color: var(--gold);
+  color: rgb(var(--global));
 }
 
 /* ================= CONTINENT ================= */
@@ -140,8 +140,8 @@ background: var(--bg);
   font-weight: 600;
   color: #766148;
 
-border-top: 1px solid var(--divider);
-border-bottom: 1px solid var(--divider);
+border-top: 1px solid var(--border);
+border-bottom: 1px solid var(--border);
 
   padding-top: 0.65rem;
   padding-bottom: 0.65rem;
@@ -232,7 +232,7 @@ border-bottom: 1px solid var(--divider);
 .sidebar-footer {
   margin-top: auto;
   padding: 1.1rem 1.2rem 1.25rem;
-  border-top: 1px solid var(--divider);
+  border-top: 1px solid var(--border);
 
   display: flex;
   flex-direction: column;
@@ -265,6 +265,6 @@ border-bottom: 1px solid var(--divider);
 }
 
 .sidebar-footer a[href^="mailto:"]:hover {
-  color: var(--gold);
+  color: rgb(var(--global));
 }
 
