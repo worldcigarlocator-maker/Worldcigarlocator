@@ -1,206 +1,28 @@
 /* ============================================================
    START.CSS — WCL
-   MAIN / SEARCH / HERO
-   CLEAN · ZONE-BASED · CANONICAL
+   START PAGE UI
+   HERO · LOGIN · AGE GATE · COOKIE
    ============================================================ */
-
-
-:root {
-  --bg: #050505;
-  --panel: #0a0a0a;
-  --border: rgba(255,255,255,0.12);
-
-  /* Global system colour (RGB raw for rgba support) */
-  --global: 115, 98, 75;
-
-  --text: #f5f5f5;
-}
-
-/* ================= RESET ================= */
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: "DM Sans", sans-serif;
-  background: var(--bg);
-  color: var(--text);
-
-  -webkit-font-smoothing: antialiased;
-  -webkit-text-size-adjust: 100%;
-}
-
-
-/* ============================================================
-   WCL MAP PINS (AdvancedMarkerElement)
-   ============================================================ */
-
-.wcl-pin{
-  position:relative;
-  width:24px;
-  height:34px;
-  display:flex;
-  justify-content:center;
-  cursor:pointer;
-
-  transform:translate(-50%,-100%) translateZ(0);
-  transform-origin:50% 100%;
-
-  backface-visibility:hidden;
-
-  transition:
-    transform 0.16s ease,
-    filter 0.16s ease;
-
-  will-change: transform;
-}
-
-/* ================= HEAD ================= */
-
-.pin-head{
-  width:16px;
-  height:16px;
-  border-radius:50%;
-
-  border:2px solid rgba(255,255,255,0.9);
-
-  box-shadow:
-    0 4px 10px rgba(0,0,0,0.45),
-    0 0 2px rgba(255,255,255,0.6);
-
-  position:relative;
-  z-index:2;
-}
-
-/* ================= GLOSS ================= */
-
-.pin-gloss{
-  position:absolute;
-  top:2px;
-  left:3px;
-  width:8px;
-  height:5px;
-  border-radius:50%;
-  background:rgba(255,255,255,0.6);
-  filter:blur(1px);
-}
-
-/* ================= NEEDLE ================= */
-
-.pin-needle{
-  position:absolute;
-  top:18px;
-  left:50%;
-  transform:translateX(-50%);
-  width:2px;
-  height:14px;
-
-  background:linear-gradient(
-    to bottom,
-    #ffffff 0%,
-    #e5e7eb 40%,
-    #9ca3af 100%
-  );
-
-  border-radius:2px;
-
-  box-shadow:
-    0 1px 2px rgba(0,0,0,0.6),
-    0 0 2px rgba(255,255,255,0.6);
-}
-
-/* ================= COLORS ================= */
-
-.pin-store .pin-head{
-  background:#3b82f6;
-}
-
-.pin-lounge .pin-head{
-  background:#8b5cf6;
-}
-
-.pin-split .pin-head{
-  background:linear-gradient(90deg,#3b82f6 50%,#8b5cf6 50%);
-}
-
-/* ================= HOVER ================= */
-
-.wcl-pin:hover{
-  transform:translate(-50%,-100%) scale(1.15);
-  z-index:5;
-}
-
-.wcl-pin:hover .pin-head{
-  box-shadow:
-    0 6px 14px rgba(0,0,0,0.45),
-    0 0 6px rgba(255,255,255,0.7);
-}
-
-.wcl-pin:hover .pin-needle{
-  filter:brightness(1.15);
-}
-
-/* ================= ACTIVE ================= */
-
-.wcl-pin.active{
-  transform:translate(-50%,-100%) scale(1.25);
-  z-index:10;
-}
-
-.wcl-pin.active .pin-head{
-  box-shadow:
-    0 0 0 3px rgba(255,255,255,0.7),
-    0 0 10px rgba(212,175,55,0.9);
-}
-
-/* ================= STATIC PAGE ================= */
-
-body.static-page{
-  background:#f6f4f1;
-  color:#1a1a1a;
-}
-
-.container{
-  display:flex;
-  min-height:100vh;
-}
-
-/* ================= GLOBAL UTILITIES ================= */
-
-.hidden {
-  display: none !important;
-}
-
-/* ================= MAIN LAYOUT ================= */
-
-.main {
-  margin-left: 260px;
-  padding: 4.2rem 2.5rem 2.5rem;
-  width: calc(100% - 260px);
-}
 
 
 /* ============================================================
    HERO
    ============================================================ */
 
-.hero {
-  position: relative;
-  max-width: 1390px;
-  margin: 2.8rem auto 0;
-  aspect-ratio: 16 / 9;
-  border-radius: 18px;
-  overflow: hidden;
-  background: #000;
+.hero{
+  position:relative;
+  max-width:1390px;
+  margin:2.8rem auto 0;
+  aspect-ratio:16/9;
+  border-radius:18px;
+  overflow:hidden;
+  background:#000;
 }
 
-.hero img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+.hero img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
 }
 
 
@@ -222,13 +44,12 @@ body.static-page{
   background:rgba(0,0,0,0.12);
   backdrop-filter:blur(1px);
 
-  z-index:99999;   /* högre än allt annat */
+  z-index:99999;
 }
 
-/* vignette så mitten är ljusare men kanter mörkare */
+/* vignette */
 
 .login-popup::before{
-
   content:"";
   position:absolute;
   inset:0;
@@ -241,9 +62,12 @@ body.static-page{
     );
 
   pointer-events:none;
-
 }
-/* ================= LOGIN PANEL ================= */
+
+
+/* ============================================================
+   LOGIN PANEL
+   ============================================================ */
 
 .login-box{
 
@@ -272,6 +96,7 @@ body.static-page{
   text-align:center;
 }
 
+
 /* ============================================================
    HUMIDOR GLOW
    ============================================================ */
@@ -296,35 +121,41 @@ body.static-page{
   filter:blur(30px);
 
   pointer-events:none;
-
 }
-/* ================= LOGIN BRAND ================= */
 
-.login-brand{
+
+/* ============================================================
+   LOGIN TEXT
+   ============================================================ */
+
+.login-title{
   font-family:Georgia,"Times New Roman",serif;
-  font-size:32px;
   color:rgb(var(--global));
-  letter-spacing:0.02em;
+  font-size:36px;
+  margin-bottom:10px;
 }
 
-/* ================= LOGIN TEASE ================= */
-
-.login-tease{
-  font-size:15px;
-  color:rgba(255,255,255,0.75);
+.login-sub{
+  color:rgba(255,255,255,0.65);
+  margin-bottom:24px;
 }
 
-/* ================= LOGIN INPUTS ================= */
+
+/* ============================================================
+   LOGIN INPUTS
+   ============================================================ */
+
 .login-fields{
   display:flex;
   flex-direction:column;
-  gap:14px;   /* lite mer luft mellan fälten */
+  gap:14px;
 }
 
 .login-fields input{
+
   width:100%;
 
-  padding:14px 16px;   /* tidigare 12px 14px */
+  padding:14px 16px;
 
   border-radius:10px;
 
@@ -335,16 +166,20 @@ body.static-page{
   color:#fff;
 
   font-family:"DM Sans",sans-serif;
-  font-size:15px;      /* tidigare 14px */
+  font-size:15px;
 }
 
 .login-fields input::placeholder{
   color:rgba(255,255,255,0.45);
 }
 
-/* ================= REMEMBER ================= */
+
+/* ============================================================
+   REMEMBER
+   ============================================================ */
 
 .remember{
+
   display:flex;
   align-items:center;
   justify-content:center;
@@ -354,9 +189,13 @@ body.static-page{
   color:rgba(255,255,255,0.65);
 }
 
-/* ================= LOGIN BUTTON ================= */
+
+/* ============================================================
+   LOGIN BUTTON
+   ============================================================ */
 
 #loginSubmit{
+
   margin-top:6px;
 
   padding:12px;
@@ -381,11 +220,13 @@ body.static-page{
   background:rgba(255,255,255,0.12);
 }
 
+
 /* ============================================================
    AGE GATE
    ============================================================ */
 
 .age-gate{
+
   position:fixed;
   inset:0;
 
@@ -399,7 +240,6 @@ body.static-page{
   z-index:100000;
 }
 
-/* buttons */
 
 .age-actions{
   display:flex;
@@ -408,8 +248,10 @@ body.static-page{
   margin-top:10px;
 }
 
+
 .age-enter,
 .age-leave{
+
   padding:12px 22px;
   border-radius:999px;
 
@@ -435,108 +277,105 @@ body.static-page{
   background:rgba(255,255,255,0.12);
 }
 
+
 /* ============================================================
    COOKIE BANNER
    ============================================================ */
 
-.cookie-banner {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 14px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  background: rgba(10,10,10,0.96);
-  backdrop-filter: blur(8px);
+.cookie-banner{
+
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+
+  z-index:9999;
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:12px 14px;
+
+  border-top:1px solid rgba(255,255,255,0.08);
+
+  background:rgba(10,10,10,0.96);
+  backdrop-filter:blur(8px);
 }
 
-.cookie-inner {
-  width: min(1100px, 100%);
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
+
+.cookie-inner{
+
+  width:min(1100px,100%);
+
+  display:flex;
+  gap:12px;
+
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 10px;
 }
 
-.cookie-text {
-  color: rgba(255,255,255,0.82);
-  font-size: 13px;
-  line-height: 1.35;
+
+.cookie-text{
+
+  color:rgba(255,255,255,0.82);
+
+  font-size:13px;
+  line-height:1.35;
 }
 
-.cookie-text a {
-  color: rgb(115, 98, 75);
-  text-decoration: none;
-  font-weight: 600;
+.cookie-text a{
+  color:rgb(var(--global));
+  text-decoration:none;
+  font-weight:600;
 }
 
-.cookie-btn {
-  white-space: nowrap;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.9);
-  padding: 8px 14px;
-  border-radius: 999px;
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 600;
-  cursor: pointer;
+
+.cookie-btn{
+
+  white-space:nowrap;
+
+  border:1px solid rgba(255,255,255,0.14);
+
+  background:rgba(255,255,255,0.04);
+
+  color:rgba(255,255,255,0.9);
+
+  padding:8px 14px;
+
+  border-radius:999px;
+
+  font-family:"DM Sans",sans-serif;
+  font-weight:600;
+
+  cursor:pointer;
 }
 
-.cookie-btn:hover {
-  background: rgba(255,255,255,0.10);
+.cookie-btn:hover{
+  background:rgba(255,255,255,0.10);
 }
+
 
 /* ============================================================
    MAP VIEW
    ============================================================ */
 
-#mapView {
-  width: 100%;
-  height: calc(100vh - 140px);
-  min-height: 600px;
-  display: block;
+#mapView{
+  width:100%;
+  height:calc(100vh - 140px);
+  min-height:600px;
+  display:block;
 }
 
-/* ============================================================
-   LOGIN OVERLAY TEXT
-   ============================================================ */
-
-.login-title{
-  font-family: Georgia,"Times New Roman",serif;
-  color: rgb(var(--global));
-  font-size: 36px;
-  margin-bottom: 10px;
-}
-
-.login-sub{
-  color: rgba(255,255,255,0.65);
-  margin-bottom: 24px;
-}
 
 /* ============================================================
    AUTH LOCK
-   Hide UI while login overlay is active
+   Hide login button while auth overlay active
    ============================================================ */
 
 body.auth-locked .sidebar-actions #loginBtn{
   display:none;
-}
-
-/* ================= MOBILE MENU ================= */
-
-.hamburger{
-  display:none;
-}
-
-@media (max-width:900px){
-
-  .hamburger{
-    display:flex;
-  }
-
 }
