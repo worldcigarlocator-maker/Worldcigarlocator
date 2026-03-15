@@ -361,16 +361,16 @@ color: rgb(var(--global));
 }
 
 .report-chip:hover {
-  border-color: var(--gold);
-  color: var(--gold);
+  border-color: rgb(var(--global));
+  color: rgb(var(--global));
 }
 
 /* Active state */
 
 .report-chip.active {
-  background: var(--gold);
+  background: rgb(var(--global));
   color: #000;
-  border-color: var(--gold);
+  border-color: rgb(var(--global));
 }
 
 /* ================= Textarea ================= */
@@ -390,7 +390,7 @@ color: rgb(var(--global));
 
 .modal-report-textarea:focus {
   outline: none;
-  border-color: var(--gold);
+  border-color: rgb(var(--global));
 }
 
 /* ============================================================
@@ -440,7 +440,7 @@ color: rgb(var(--global));
   margin-top: 1.5rem;
   background: transparent;
   border: none;
-  color: var(--gold);
+  color: rgb(var(--global));
   font-size: 0.9rem;
   cursor: pointer;
   transition: opacity 0.2s ease;
