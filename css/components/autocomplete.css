@@ -7,14 +7,20 @@
   top:100%;
   left:0;
   margin-top:4px;
+
   background:#050505;
   border:1px solid #333;
   border-radius:8px;
+
   width:100%;
   max-height:260px;
   overflow-y:auto;
+
   z-index:var(--z-dropdown);
+
   box-shadow:0 18px 35px rgba(0,0,0,0.85);
+
+  scroll-behavior:smooth;
 }
 
 .autocomplete.hidden {
@@ -41,8 +47,9 @@
   font-size: 0.78rem;
 }
 
-.ac-item:hover {
-  background: #171717;
+.ac-item:hover{
+  background:#171717;
+  transition:background .12s ease;
 }
 
 mark.hl{
@@ -50,4 +57,13 @@ mark.hl{
   color:#000;
   padding:0 2px;
   border-radius:3px;
+}
+
+.autocomplete::-webkit-scrollbar{
+  width:6px;
+}
+
+.autocomplete::-webkit-scrollbar-thumb{
+  background:rgba(var(--global),.35);
+  border-radius:4px;
 }
