@@ -526,3 +526,17 @@ body.static-page{
 body.auth-locked .sidebar-actions #loginBtn{
   display:none;
 }
+
+/* ================= MOBILE MENU ================= */
+
+.hamburger{
+  display:none;
+}
+
+@media (max-width:900px){
+
+  .hamburger{
+    display:flex;
+  }
+
+}
