@@ -34,14 +34,6 @@ rel="stylesheet"
 />
 
 <!-- =========================================================
-     CSS PRELOAD (faster first render)
-========================================================= -->
-<link rel="preload" href="css/core/reset.css" as="style">
-<link rel="preload" href="css/core/layout.css" as="style">
-<link rel="preload" href="css/search.css" as="style">
-<link rel="preload" href="css/cards.css" as="style">
-
-<!-- =========================================================
      CORE
 ========================================================= -->
 <link rel="stylesheet" href="css/core/reset.css">
@@ -52,13 +44,16 @@ rel="stylesheet"
 <!-- =========================================================
      COMPONENTS
 ========================================================= -->
-<link rel="stylesheet" href="css/sidebar.css">
-<link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/components/autocomplete.css">
 <link rel="stylesheet" href="css/components/filters.css">
+
+<!-- =========================================================
+     UI
+========================================================= -->
+<link rel="stylesheet" href="css/sidebar.css">
+<link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/cards.css">
 <link rel="stylesheet" href="css/modal.css">
-<link rel="stylesheet" href="css/map.css">
 
 <!-- =========================================================
      PAGE
@@ -69,7 +64,6 @@ rel="stylesheet"
      RESPONSIVE (ALWAYS LAST)
 ========================================================= -->
 <link rel="stylesheet" href="css/mobile.css">
-
 </head>
 
 <body class="auth-locked">
@@ -234,7 +228,7 @@ Clear
 
 <div id="storeGrid"></div>
 
-<div id="mapView"></div>
+<section id="mapView"></section>
 
 <div id="cookieBanner" class="cookie-banner">
 <div class="cookie-inner">
@@ -250,7 +244,7 @@ By continuing to use this site, you agree to our
 
 <!-- MODAL -->
 <div id="storeModal" class="modal hidden" role="dialog" aria-modal="true">
-<div class="modal-backdrop"></div>
+<div class="modal-backdrop" aria-hidden="true"></div>
 
 <div class="modal-content">
 <button class="modal-close">✕</button>
