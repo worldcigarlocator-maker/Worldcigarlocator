@@ -289,10 +289,14 @@ textarea{
    STORE GRID MOBILE
    ============================================================ */
 
-#storeGrid{
-  grid-template-columns:repeat(2,minmax(150px,1fr));
-  gap:1.3rem .8rem;
-  padding-inline:.5rem;
+@media (max-width:768px){
+
+  #storeGrid{
+    grid-template-columns:repeat(2,minmax(150px,1fr));
+    gap:1.3rem .8rem;
+    padding-inline:.5rem;
+  }
+
 }
 
 /* Touch feedback */
@@ -304,6 +308,7 @@ textarea{
     0 0 0 1px rgba(var(--global),.45),
     0 14px 28px rgba(0,0,0,.85);
 }
+
 @media (max-width:480px){
 
   #storeGrid{
