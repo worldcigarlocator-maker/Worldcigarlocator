@@ -47,3 +47,17 @@ body{
   will-change:transform;
 
 }
+
+/* ============================================================
+   MOBILE SCROLL STABILITY
+   Improves iOS Safari behaviour
+============================================================ */
+
+html{
+  -webkit-text-size-adjust:100%;
+}
+
+body{
+  overscroll-behavior-y:none;
+  -webkit-font-smoothing:antialiased;
+}
