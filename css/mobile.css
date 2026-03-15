@@ -301,3 +301,23 @@ textarea{
 }
 
 }
+
+/* ============================================================
+   STORE GRID MOBILE
+   ============================================================ */
+
+#storeGrid{
+  grid-template-columns:repeat(2,minmax(150px,1fr));
+  gap:1.3rem .8rem;
+  padding-inline:.5rem;
+}
+
+/* Touch feedback */
+
+.store-card:active{
+  transform:translateY(-2px) scale(.985);
+
+  box-shadow:
+    0 0 0 1px rgba(var(--global),.45),
+    0 14px 28px rgba(0,0,0,.85);
+}
