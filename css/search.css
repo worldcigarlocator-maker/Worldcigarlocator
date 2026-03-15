@@ -249,7 +249,7 @@
   font-weight: 600;
 
   cursor: pointer;
-  z-index: 1000;
+  z-index:var(--z-dropdown);
 
   backdrop-filter: blur(6px);
   transition: all 0.2s ease;
