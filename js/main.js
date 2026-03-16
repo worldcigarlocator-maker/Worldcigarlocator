@@ -144,43 +144,42 @@ async function initSidebarOnce() {
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("MAIN BOOT");
 
-  // Build sidebar
-  await initSidebarOnce();
-
-  // Bind login UI
-  bindLoginButtons();
-
   // ============================================================
-  // AGE GATE
+  // AGE GATE FIRST
   // ============================================================
 
   const ageGate = document.getElementById("ageGate");
   const enterBtn = document.getElementById("enterBtn");
   const leaveBtn = document.getElementById("leaveBtn");
 
-  // show gate first time
-  if (!localStorage.getItem("wcl_age_verified")) {
+  const ageVerified = localStorage.getItem("wcl_age_verified");
+
+  if (!ageVerified) {
+
     ageGate?.classList.remove("hidden");
-  }
 
-  // ENTER
-  if (enterBtn && ageGate) {
-    enterBtn.addEventListener("click", () => {
-
+    enterBtn?.addEventListener("click", () => {
       localStorage.setItem("wcl_age_verified", "1");
       ageGate.classList.add("hidden");
-
       showLoginPopup();
-
     });
-  }
 
-  // LEAVE
-  if (leaveBtn) {
-    leaveBtn.addEventListener("click", () => {
+    leaveBtn?.addEventListener("click", () => {
       window.location.href = "https://www.google.com";
     });
+
+    return;
   }
+
+  // ============================================================
+  // NORMAL BOOT
+  // ============================================================
+
+  await initSidebarOnce();
+
+  bindLoginButtons();
+
+  await syncAuthGate();
 
   // ----------------------------------------------------------
   // ADD STORE BUTTON (auth guarded)
