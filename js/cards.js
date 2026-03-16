@@ -544,17 +544,24 @@ export async function runSearch(isLoadMore = false) {
 
   const snap = snapshot();
 
-  // IDLE → hero + global total
-  if (
-    snap.master === MASTER.IDLE &&
-    !snap.search &&
-    !hasAnyLocation() &&
-    !hasAnyChips()
-  ) {
-    resetToHero();
-    updateSearchCount(GLOBAL_TOTAL);
-    return;
-  }
+// ============================================================
+// IDLE STATE → HERO (NO SEARCH)
+// ============================================================
+
+if (
+  snap.master === MASTER.IDLE &&
+  !snap.search &&
+  !snap.continent &&
+  !snap.country &&
+  !snap.state &&
+  !snap.city &&
+  (!snap.type || snap.type.length === 0) &&
+  (!snap.access || snap.access.length === 0)
+) {
+  resetToHero();
+  updateSearchCount(GLOBAL_TOTAL);
+  return;
+}
 
   if (!isLoadMore) resetPagination();
 
