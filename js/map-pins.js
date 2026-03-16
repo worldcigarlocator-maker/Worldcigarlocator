@@ -37,7 +37,7 @@ export function buildPin(types = []) {
 pin.appendChild(head);
 pin.appendChild(needle);
 
-pin.style.transform = "translate(-50%, -100%)";
+pin.style.transform = "translate3d(-50%, -100%, 0)";
 
 return pin;
 }
