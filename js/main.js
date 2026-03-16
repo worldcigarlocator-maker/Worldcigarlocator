@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Bind login UI
   bindLoginButtons();
 
-  // ============================================================
+ // ============================================================
 // AGE GATE
 // ============================================================
 
@@ -163,15 +163,23 @@ if (!localStorage.getItem("wcl_age_verified")) {
   ageGate?.classList.remove("hidden");
 }
 
-// enter
-enterBtn.addEventListener("click", () => {
+// ENTER
+if (enterBtn && ageGate) {
+  enterBtn.addEventListener("click", () => {
 
-  localStorage.setItem("wcl_age_verified", "1");
-  ageGate.classList.add("hidden");
+    localStorage.setItem("wcl_age_verified", "1");
+    ageGate.classList.add("hidden");
 
-  showLoginPopup(); // 👈 visa login direkt
+    showLoginPopup();
 
-});
+  });
+}
+
+// LEAVE
+if (leaveBtn) {
+  leaveBtn.addEventListener("click", () => {
+    window.location.href = "https://www.google.com";
+  });
 }
 
 // leave
