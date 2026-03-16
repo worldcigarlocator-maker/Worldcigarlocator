@@ -404,7 +404,7 @@ body.auth-locked .sidebar-actions #loginBtn{
    ============================================================ */
 
 body.static-page{
-  background:#050505;
+  background:#0a0a0a; /* ← lite lyft från #050505 */
   color:#fff;
   font-family:"DM Sans",sans-serif;
 }
@@ -419,14 +419,21 @@ body.static-page{
   display:flex;
   align-items:center;
   justify-content:space-between;
+
+  border-bottom:1px solid rgba(255,255,255,0.08); /* ← divider */
+  padding-bottom:14px;
 }
+
+/* BRAND */
 
 .page-brand{
   font-family:Georgia,"Times New Roman",serif;
   font-size:20px;
-  color:rgb(var(--global));
+  color:rgb(var(--global)); /* ← bronze */
   text-decoration:none;
 }
+
+/* NAV */
 
 .page-nav{
   display:flex;
@@ -434,13 +441,18 @@ body.static-page{
 }
 
 .page-nav a{
-  color:rgba(255,255,255,0.6);
+  color:rgba(255,255,255,0.55);
   text-decoration:none;
   font-size:14px;
+  transition:opacity .2s ease;
+}
+
+.page-nav a:hover{
+  color:rgb(var(--global));
 }
 
 .page-nav a.active{
-  color:#fff;
+  color:rgb(var(--global)); /* ← bronze active */
 }
 
 /* PAGE WRAP */
@@ -463,8 +475,8 @@ body.static-page{
 
 .legal-inner h1{
   font-family:Georgia,"Times New Roman",serif;
-  font-size:38px;
-  margin-bottom:10px;
+  font-size:40px;
+  margin-bottom:6px;
 }
 
 .legal-inner h2{
