@@ -282,8 +282,6 @@ export function clearSearchMaster() {
     MASTER_MODE = MASTER.IDLE;
 
     resetPagination();
-
-    runSearch();
   }
 }
 
@@ -297,8 +295,6 @@ export function clearLocationMaster() {
     MASTER_MODE = MASTER.IDLE;
 
     resetPagination();
-
-    runSearch();
   }
 }
 
