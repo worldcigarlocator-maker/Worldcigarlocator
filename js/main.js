@@ -150,11 +150,35 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Bind login UI
   bindLoginButtons();
 
-  // Always reset hero (safe)
-  resetToHero();
+  // ============================================================
+// AGE GATE
+// ============================================================
 
-  // Sync gate with session (show if not logged in)
-  await syncAuthGate();
+const ageGate = document.getElementById("ageGate");
+const enterBtn = document.getElementById("enterBtn");
+const leaveBtn = document.getElementById("leaveBtn");
+
+// show gate first time
+if (!localStorage.getItem("wcl_age_verified")) {
+  ageGate?.classList.remove("hidden");
+}
+
+// enter
+if (enterBtn && ageGate) {
+  enterBtn.addEventListener("click", () => {
+
+    localStorage.setItem("wcl_age_verified", "1");
+    ageGate.classList.add("hidden");
+
+  });
+}
+
+// leave
+if (leaveBtn) {
+  leaveBtn.addEventListener("click", () => {
+    window.location.href = "https://www.google.com";
+  });
+}
 
   // ----------------------------------------------------------
   // ADD STORE BUTTON (auth guarded)
