@@ -301,6 +301,8 @@ textarea{
 
 /* Touch feedback */
 
+@media (max-width:768px){
+
 .store-card:active{
   transform:translateY(-2px) scale(.985);
 
@@ -308,12 +310,5 @@ textarea{
     0 0 0 1px rgba(var(--global),.45),
     0 14px 28px rgba(0,0,0,.85);
 }
-
-@media (max-width:480px){
-
-  #storeGrid{
-    grid-template-columns:repeat(2,minmax(140px,1fr));
-    gap:1.2rem .7rem;
-  }
 
 }
