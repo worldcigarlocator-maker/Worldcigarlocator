@@ -6,12 +6,12 @@
 
 import {
   activateSearch,
-  clearSearchMaster,
-  clearLocationMaster,
   toggleChip,
   resetToHero,
-  setSort
+  setSort,
+  resetAllFilters
 } from "./cards.js";
+
 
 const qs = (sel) => document.querySelector(sel);
 
@@ -85,10 +85,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     input.value = "";
 
-    clearSearchMaster();
-    clearLocationMaster();
-    resetToHero();
-    setSort("relevance");
+   resetAllFilters();
+resetToHero();
 
     controls?.querySelectorAll(".active")
       .forEach(el => el.classList.remove("active"));
@@ -133,10 +131,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     input.value = "";
 
-    clearSearchMaster();
-    clearLocationMaster();
-    resetToHero();
-    setSort("relevance");
+  resetAllFilters();
+resetToHero();
 
     controls?.querySelectorAll(".active")
       .forEach(el => el.classList.remove("active"));
@@ -156,11 +152,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     TIMER = setTimeout(() => {
 
-      if (!text) {
-        clearSearchMaster();
-      } else {
-        activateSearch({ text });
-      }
+     if (!text) {
+  resetAllFilters();
+  resetToHero();
+} else {
+  activateSearch({ text });
+}
 
     }, 250);
 
@@ -173,10 +170,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const text = input.value.trim();
 
     if (!text) {
-      clearSearchMaster();
-    } else {
-      activateSearch({ text });
-    }
+  resetAllFilters();
+  resetToHero();
+} else {
+  activateSearch({ text });
+}
 
   });
 
@@ -185,14 +183,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
 clearBtn?.addEventListener("click", () => {
 
-  clearTimeout(TIMER);   // stop pending search debounce
+  clearTimeout(TIMER);
 
   input.value = "";
 
-  clearSearchMaster();
-  clearLocationMaster();
+  resetAllFilters();
   resetToHero();
-  setSort("relevance");
 
   controls?.querySelectorAll(".active")
     .forEach(el => el.classList.remove("active"));
