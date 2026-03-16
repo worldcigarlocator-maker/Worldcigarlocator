@@ -185,6 +185,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
 clearBtn?.addEventListener("click", () => {
 
+  clearTimeout(TIMER);   // stop pending search debounce
+
   input.value = "";
 
   clearSearchMaster();
