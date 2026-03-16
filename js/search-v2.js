@@ -183,22 +183,37 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
   // CLEAR BUTTON
   // ============================================================
+clearBtn?.addEventListener("click", () => {
 
-  clearBtn?.addEventListener("click", () => {
+  input.value = "";
 
-    input.value = "";
+  clearSearchMaster();
+  clearLocationMaster();
+  resetToHero();
+  setSort("relevance");
 
-    clearSearchMaster();
-    clearLocationMaster();
-    resetToHero();
-    setSort("relevance");
+  controls?.querySelectorAll(".active")
+    .forEach(el => el.classList.remove("active"));
 
-    controls?.querySelectorAll(".active")
-      .forEach(el => el.classList.remove("active"));
+  // ---- FORCE MAP CLOSE ----
+  if (MAP_MODE) {
 
-    input.focus();
+    MAP_MODE = false;
+    mapBtn?.classList.remove("active");
 
-  });
+    hero?.classList.remove("hidden");
+    storeGrid?.classList.remove("hidden");
+    resultsToolbar?.classList.remove("hidden");
+
+    mapView?.classList.add("hidden");
+
+    document.dispatchEvent(new CustomEvent("wcl:map-close"));
+
+  }
+
+  input.focus();
+
+});
 
   // ============================================================
   // FILTERS + SORT
