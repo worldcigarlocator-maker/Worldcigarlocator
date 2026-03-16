@@ -138,6 +138,11 @@ function clearSearch() {
   STATE.search.text = "";
 }
 
+function clearChips() {
+  STATE.chips.type = [];
+  STATE.chips.access = [];
+}
+
 function hasAnyLocation() {
   return Object.values(STATE.location).some(Boolean);
 }
