@@ -150,44 +150,37 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Bind login UI
   bindLoginButtons();
 
- // ============================================================
-// AGE GATE
-// ============================================================
+  // ============================================================
+  // AGE GATE
+  // ============================================================
 
-const ageGate = document.getElementById("ageGate");
-const enterBtn = document.getElementById("enterBtn");
-const leaveBtn = document.getElementById("leaveBtn");
+  const ageGate = document.getElementById("ageGate");
+  const enterBtn = document.getElementById("enterBtn");
+  const leaveBtn = document.getElementById("leaveBtn");
 
-// show gate first time
-if (!localStorage.getItem("wcl_age_verified")) {
-  ageGate?.classList.remove("hidden");
-}
+  // show gate first time
+  if (!localStorage.getItem("wcl_age_verified")) {
+    ageGate?.classList.remove("hidden");
+  }
 
-// ENTER
-if (enterBtn && ageGate) {
-  enterBtn.addEventListener("click", () => {
+  // ENTER
+  if (enterBtn && ageGate) {
+    enterBtn.addEventListener("click", () => {
 
-    localStorage.setItem("wcl_age_verified", "1");
-    ageGate.classList.add("hidden");
+      localStorage.setItem("wcl_age_verified", "1");
+      ageGate.classList.add("hidden");
 
-    showLoginPopup();
+      showLoginPopup();
 
-  });
-}
+    });
+  }
 
-// LEAVE
-if (leaveBtn) {
-  leaveBtn.addEventListener("click", () => {
-    window.location.href = "https://www.google.com";
-  });
-}
-
-// leave
-if (leaveBtn) {
-  leaveBtn.addEventListener("click", () => {
-    window.location.href = "https://www.google.com";
-  });
-}
+  // LEAVE
+  if (leaveBtn) {
+    leaveBtn.addEventListener("click", () => {
+      window.location.href = "https://www.google.com";
+    });
+  }
 
   // ----------------------------------------------------------
   // ADD STORE BUTTON (auth guarded)
@@ -204,6 +197,7 @@ if (leaveBtn) {
 
     window.location.href = "add-store.html";
   });
+
 });
 
 // ------------------------------------------------------------
