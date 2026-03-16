@@ -144,24 +144,31 @@ async function initSidebarOnce() {
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("MAIN BOOT");
 
-  // ============================================================
-  // AGE GATE FIRST
-  // ============================================================
-
   const ageGate = document.getElementById("ageGate");
   const enterBtn = document.getElementById("enterBtn");
   const leaveBtn = document.getElementById("leaveBtn");
 
   const ageVerified = localStorage.getItem("wcl_age_verified");
 
+  // ============================================================
+  // AGE GATE
+  // ============================================================
+
   if (!ageVerified) {
 
     ageGate?.classList.remove("hidden");
 
-    enterBtn?.addEventListener("click", () => {
+    enterBtn?.addEventListener("click", async () => {
+
       localStorage.setItem("wcl_age_verified", "1");
+
       ageGate.classList.add("hidden");
-      showLoginPopup();
+
+      // starta app efter age gate
+      await initSidebarOnce();
+      bindLoginButtons();
+      await syncAuthGate();
+
     });
 
     leaveBtn?.addEventListener("click", () => {
@@ -172,14 +179,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ============================================================
-  // NORMAL BOOT
+  // NORMAL BOOT (age already verified)
   // ============================================================
 
   await initSidebarOnce();
-
   bindLoginButtons();
-
   await syncAuthGate();
+
+});
 
   // ----------------------------------------------------------
   // ADD STORE BUTTON (auth guarded)
