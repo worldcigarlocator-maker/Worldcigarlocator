@@ -4,55 +4,79 @@
 
 .wcl-pin{
   position:absolute;
-  width:22px;
-  height:22px;
   display:flex;
   flex-direction:column;
   align-items:center;
   pointer-events:auto;
 }
 
+/* HEAD */
+
 .pin-head{
-  width:18px;
-  height:18px;
+  width:14px;
+  height:14px;
   border-radius:50%;
-  background:rgb(115,98,75);
+  background:currentColor;
   position:relative;
-  box-shadow:0 3px 8px rgba(0,0,0,0.55);
+
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.45),
+    0 1px 2px rgba(0,0,0,0.35),
+    inset 0 1px 1px rgba(255,255,255,0.35);
 }
 
+/* NEEDLE */
+
 .pin-needle{
-  width:3px;
-  height:12px;
-  background:rgb(115,98,75);
-  margin-top:-2px;
-  border-radius:2px;
+  width:2px;
+  height:18px;
+  margin-top:1px;
+
+  background:linear-gradient(
+    to bottom,
+    #e5e5e5,
+    #a8a8a8
+  );
+
+  border-radius:1px;
 }
+
+/* GLOSS */
 
 .pin-gloss{
   position:absolute;
   top:2px;
-  left:4px;
-  width:6px;
-  height:6px;
-  background:rgba(255,255,255,0.35);
+  left:3px;
+  width:5px;
+  height:5px;
+
   border-radius:50%;
+  background:rgba(255,255,255,0.35);
 }
 
 /* TYPES */
 
-.pin-store .pin-head{
-  background:#2f78c4;
+.pin-store{
+  color:#2f78c4;
 }
 
-.pin-lounge .pin-head{
-  background:#7a4fd3;
+.pin-lounge{
+  color:#7b4ce2;
 }
 
 .pin-split .pin-head{
   background:linear-gradient(
-    90deg,
-    #2f78c4 50%,
-   #7a4fd3 50%
+    135deg,
+    #2f78c4 0%,
+    #2f78c4 40%,
+    #7b4ce2 60%,
+    #7b4ce2 100%
   );
+}
+
+/* HOVER */
+
+.wcl-pin:hover .pin-head{
+  transform:scale(1.2);
+  transition:transform .15s ease;
 }
