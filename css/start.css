@@ -398,3 +398,98 @@ body.auth-locked .sidebar-actions #loginBtn{
   cursor:pointer;
 
 }
+
+/* ============================================================
+   STATIC PAGES — WCL DOCUMENT LAYOUT
+   ============================================================ */
+
+body.static-page{
+  background:#050505;
+  color:#fff;
+  font-family:"DM Sans",sans-serif;
+}
+
+/* TOPBAR */
+
+.page-topbar{
+  max-width:1200px;
+  margin:2rem auto 0;
+  padding:0 20px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.page-brand{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:20px;
+  color:rgb(var(--global));
+  text-decoration:none;
+}
+
+.page-nav{
+  display:flex;
+  gap:18px;
+}
+
+.page-nav a{
+  color:rgba(255,255,255,0.6);
+  text-decoration:none;
+  font-size:14px;
+}
+
+.page-nav a.active{
+  color:#fff;
+}
+
+/* PAGE WRAP */
+
+.legal-page{
+  max-width:900px;
+  margin:2.2rem auto 4rem;
+  padding:0 20px;
+}
+
+/* CONTENT */
+
+.legal-inner{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+/* TYPOGRAPHY */
+
+.legal-inner h1{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:38px;
+  margin-bottom:10px;
+}
+
+.legal-inner h2{
+  font-size:20px;
+  margin-top:26px;
+  color:rgb(var(--global));
+}
+
+.legal-inner p{
+  color:rgba(255,255,255,0.78);
+  line-height:1.65;
+}
+
+.legal-inner .highlight{
+  color:#fff;
+  font-weight:600;
+}
+
+/* LIST */
+
+.legal-inner ul{
+  padding-left:18px;
+  color:rgba(255,255,255,0.78);
+}
+
+.legal-inner li{
+  margin-bottom:6px;
+}
