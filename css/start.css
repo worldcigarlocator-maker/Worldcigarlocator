@@ -482,7 +482,7 @@ body.static-page{
 .legal-inner h2{
   font-size:20px;
   margin-top:26px;
-  color:rgb(var(--global));
+  color: var(--global);
 }
 
 .legal-inner p{
