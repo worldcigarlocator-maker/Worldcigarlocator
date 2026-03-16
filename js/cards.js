@@ -279,12 +279,12 @@ export function activateLocation(next = {}) {
 export function clearSearchMaster() {
   if (MASTER_MODE === MASTER.SEARCH) {
     clearSearch();
+    clearChips();      // ← NY
     MASTER_MODE = MASTER.IDLE;
 
     resetPagination();
   }
 }
-
 // ============================================================
 // CLEAR LOCATION MASTER
 // ============================================================
