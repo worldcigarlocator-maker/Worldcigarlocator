@@ -24,13 +24,53 @@ export const MASTER = {
 
 let MASTER_MODE = MASTER.IDLE;
 
+// ============================================================
+// STATE
+// ============================================================
+
 const STATE = {
-  location: { continent: null, country: null, state: null, city: null },
-  search: { text: "" },
-  chips: { type: [], access: [] },
+  location: {
+    continent: null,
+    country: null,
+    state: null,
+    city: null
+  },
+  search: {
+    text: ""
+  },
+  chips: {
+    type: [],
+    access: []
+  }
 };
 
 let SORT_MODE = "relevance";
+
+// ============================================================
+// GLOBAL RESET (SINGLE SOURCE OF TRUTH)
+// ============================================================
+
+export function resetAllFilters() {
+
+  STATE.location = {
+    continent: null,
+    country: null,
+    state: null,
+    city: null
+  };
+
+  STATE.search.text = "";
+
+  STATE.chips.type = [];
+  STATE.chips.access = [];
+
+  MASTER_MODE = MASTER.IDLE;
+
+  SORT_MODE = "relevance";
+
+  resetPagination();
+
+}
 
 // ============================================================
 // PAGINATION
@@ -100,6 +140,7 @@ function updateSearchCount(value) {
 // ============================================================
 
 export function resetToHero() {
+
   const grid = dom("#storeGrid");
   const hero = dom("#heroImage");
 
@@ -119,48 +160,42 @@ export function resetToHero() {
   if (MASTER_MODE === MASTER.IDLE) {
     updateSearchCount(GLOBAL_TOTAL);
   }
+
 }
 
 // ============================================================
 // HELPERS
 // ============================================================
 
-function clearLocation() {
-  STATE.location = {
-    continent: null,
-    country: null,
-    state: null,
-    city: null,
-  };
-}
-
-function clearSearch() {
-  STATE.search.text = "";
-}
-
-function clearChips() {
-  STATE.chips.type = [];
-  STATE.chips.access = [];
-}
-
 function hasAnyLocation() {
-  return Object.values(STATE.location).some(Boolean);
+  return (
+    STATE.location.continent ||
+    STATE.location.country ||
+    STATE.location.state ||
+    STATE.location.city
+  );
 }
 
 function hasAnyChips() {
   return (
-    (Array.isArray(STATE.chips.type) && STATE.chips.type.length > 0) ||
-    (Array.isArray(STATE.chips.access) && STATE.chips.access.length > 0)
+    (STATE.chips.type && STATE.chips.type.length > 0) ||
+    (STATE.chips.access && STATE.chips.access.length > 0)
   );
 }
 
 function snapshot() {
   return {
     master: MASTER_MODE,
-    ...STATE.location,
+
+    continent: STATE.location.continent,
+    country: STATE.location.country,
+    state: STATE.location.state,
+    city: STATE.location.city,
+
     search: STATE.search.text,
+
     type: STATE.chips.type,
-    access: STATE.chips.access,
+    access: STATE.chips.access
   };
 }
 
@@ -220,7 +255,12 @@ function applyChipFilters(rows) {
 export function activateSearch({ text = "", sort } = {}) {
   MASTER_MODE = MASTER.SEARCH;
 
-  clearLocation();
+STATE.location = {
+  continent: null,
+  country: null,
+  state: null,
+  city: null
+};
 
   if (text !== undefined) {
     STATE.search.text = text;
@@ -263,9 +303,10 @@ export function activateSearch({ text = "", sort } = {}) {
 // ============================================================
 
 export function activateLocation(next = {}) {
+
   MASTER_MODE = MASTER.LOCATION;
 
-  clearSearch();
+  STATE.search.text = "";
 
   STATE.location = {
     ...STATE.location,
@@ -277,31 +318,6 @@ export function activateLocation(next = {}) {
   runSearch();
 }
 
-// ============================================================
-// CLEAR SEARCH MASTER
-// ============================================================
-
-export function clearSearchMaster() {
-  if (MASTER_MODE === MASTER.SEARCH) {
-    clearSearch();
-    clearChips();      // ← NY
-    MASTER_MODE = MASTER.IDLE;
-
-    resetPagination();
-  }
-}
-// ============================================================
-// CLEAR LOCATION MASTER
-// ============================================================
-
-export function clearLocationMaster() {
-  if (MASTER_MODE === MASTER.LOCATION) {
-    clearLocation();
-    MASTER_MODE = MASTER.IDLE;
-
-    resetPagination();
-  }
-}
 
 // ============================================================
 // CHIP TOGGLE
