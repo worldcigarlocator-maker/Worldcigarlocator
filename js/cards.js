@@ -534,6 +534,9 @@ async function loadStores(filters = {}) {
 // ============================================================
 
 export async function runSearch(isLoadMore = false) {
+
+  console.trace("RUN SEARCH TRIGGERED");
+
   const snap = snapshot();
 
   // IDLE → hero + global total
