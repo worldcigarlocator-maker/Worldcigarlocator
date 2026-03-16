@@ -164,13 +164,14 @@ if (!localStorage.getItem("wcl_age_verified")) {
 }
 
 // enter
-if (enterBtn && ageGate) {
-  enterBtn.addEventListener("click", () => {
+enterBtn.addEventListener("click", () => {
 
-    localStorage.setItem("wcl_age_verified", "1");
-    ageGate.classList.add("hidden");
+  localStorage.setItem("wcl_age_verified", "1");
+  ageGate.classList.add("hidden");
 
-  });
+  showLoginPopup(); // 👈 visa login direkt
+
+});
 }
 
 // leave
