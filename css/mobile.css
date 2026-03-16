@@ -4,7 +4,7 @@
    Loaded LAST
    ============================================================ */
 
-@media (max-width:768px){
+@media (max-width:640px){
 
 /* ============================================================
    GLOBAL SAFARI INPUT FIX
@@ -67,7 +67,7 @@ textarea{
    HAMBURGER
    ============================================================ */
 
-@media (max-width:768px){
+@media (max-width:640px){
 
 .mobile-menu-btn{
   display:flex;
@@ -282,7 +282,7 @@ textarea{
    STORE GRID MOBILE
    ============================================================ */
 
-@media (max-width:768px){
+@media (max-width:640px){
 
   #storeGrid{
     grid-template-columns:repeat(2,minmax(150px,1fr));
@@ -294,7 +294,7 @@ textarea{
 
 /* Touch feedback */
 
-@media (max-width:768px){
+@media (max-width:640px){
 
 .store-card:active{
   transform:translateY(-2px) scale(.985);
