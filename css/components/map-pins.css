@@ -23,7 +23,7 @@
 
 .pin-needle{
   width:3px;
-  height:8px;
+  height:12px;
   background:rgb(115,98,75);
   margin-top:-2px;
   border-radius:2px;
@@ -46,13 +46,13 @@
 }
 
 .pin-lounge .pin-head{
-  background:#d4a017;
+  background:#7a4fd3;
 }
 
 .pin-split .pin-head{
   background:linear-gradient(
     90deg,
     #2f78c4 50%,
-    #d4a017 50%
+   #7a4fd3 50%
   );
 }
