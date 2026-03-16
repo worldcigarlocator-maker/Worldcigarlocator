@@ -8,13 +8,11 @@
 /* ============================================================
    HERO
    ============================================================ */
-
 .hero{
   position:relative;
   max-width:1390px;
-  margin:2.2rem auto 0;
-
-  height:420px;            /* ← kontrollerad desktop height */
+  margin:2.8rem auto 0;
+  aspect-ratio:16/9;
   border-radius:18px;
   overflow:hidden;
   background:#000;
@@ -23,8 +21,11 @@
 .hero img{
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:contain;
 }
+
+
+
 /* ============================================================
    LOGIN OVERLAY
    ============================================================ */
