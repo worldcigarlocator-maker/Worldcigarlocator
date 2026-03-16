@@ -164,7 +164,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       ageGate.classList.add("hidden");
 
-      // starta app efter age gate
+      // start app after age gate
       await initSidebarOnce();
       bindLoginButtons();
       await syncAuthGate();
@@ -175,16 +175,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       window.location.href = "https://www.google.com";
     });
 
-    return;
+  } else {
+
+    // ============================================================
+    // NORMAL BOOT
+    // ============================================================
+
+    await initSidebarOnce();
+    bindLoginButtons();
+    await syncAuthGate();
+
   }
-
-  // ============================================================
-  // NORMAL BOOT (age already verified)
-  // ============================================================
-
-  await initSidebarOnce();
-  bindLoginButtons();
-  await syncAuthGate();
 
 });
 
@@ -202,8 +203,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     window.location.href = "add-store.html";
-  });
-
   });
 
 // ------------------------------------------------------------
