@@ -1,0 +1,58 @@
+/* ============================================================
+   WCL MAP PINS
+============================================================ */
+
+.wcl-pin{
+  position:absolute;
+  width:22px;
+  height:22px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  pointer-events:auto;
+}
+
+.pin-head{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:rgb(115,98,75);
+  position:relative;
+  box-shadow:0 3px 8px rgba(0,0,0,0.55);
+}
+
+.pin-needle{
+  width:3px;
+  height:8px;
+  background:rgb(115,98,75);
+  margin-top:-2px;
+  border-radius:2px;
+}
+
+.pin-gloss{
+  position:absolute;
+  top:2px;
+  left:4px;
+  width:6px;
+  height:6px;
+  background:rgba(255,255,255,0.35);
+  border-radius:50%;
+}
+
+/* TYPES */
+
+.pin-store .pin-head{
+  background:#2f78c4;
+}
+
+.pin-lounge .pin-head{
+  background:#d4a017;
+}
+
+.pin-split .pin-head{
+  background:linear-gradient(
+    90deg,
+    #2f78c4 50%,
+    #d4a017 50%
+  );
+}
