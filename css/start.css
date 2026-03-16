@@ -380,12 +380,21 @@ body.auth-locked .sidebar-actions #loginBtn{
   display:none;
 }
 
-@media (max-width:768px){
-
 .mobile-menu-btn{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
+
+  display:none;   
+
+  width:42px;
+  height:42px;
+
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.25);
+
+  background:#050505;
+  color:white;
+
+  font-size:20px;
+
+  cursor:pointer;
 
 }
