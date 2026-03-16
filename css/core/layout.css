@@ -32,7 +32,7 @@ body{
    ============================================================ */
 
 .hidden{
-  display:none;
+  display:none !important;
 }
 /* ============================================================
    SAFARI / IOS RENDER STABILITY
