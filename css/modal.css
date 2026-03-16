@@ -26,20 +26,18 @@
 .modal-backdrop {
   position: absolute;
   inset: 0;
-  z-index: var(--z-modal-backdrop);
+z-index: 1;
 }
 
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(6px);
-
-pointer-events: none;
    
 }/* ================= CARD ================= */
 
 .modal-content {
   position: relative;
-      z-index: 2; 
-     
+  z-index: 2;
+
   width: 720px;
   max-height: 92vh;
   display: flex;
