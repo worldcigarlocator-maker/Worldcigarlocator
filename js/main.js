@@ -204,6 +204,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "add-store.html";
   });
 
+  });
+
 // ------------------------------------------------------------
 // AUTH LISTENER (sync gate only; never rebuild sidebar)
 // ------------------------------------------------------------
