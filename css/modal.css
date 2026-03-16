@@ -26,11 +26,13 @@
 .modal-backdrop {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: var(--z-modal-backdrop);
 }
 
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(6px);
+
+pointer-events: none;
    
 }/* ================= CARD ================= */
 
