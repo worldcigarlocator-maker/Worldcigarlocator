@@ -46,6 +46,8 @@ const STATE = {
 
 let SORT_MODE = "relevance";
 
+let RUN_SEQ = 0;
+
 // ============================================================
 // GLOBAL RESET (SINGLE SOURCE OF TRUTH)
 // ============================================================
@@ -80,6 +82,8 @@ let LAST_RENDERED_STORES = [];
 let LAST_CURSOR = null;
 let HAS_MORE = true;
 const PAGE_SIZE = 50;
+
+let IS_LOADING_MORE = false;
 
 export function getLastRenderedStores() {
   return LAST_RENDERED_STORES;
@@ -556,6 +560,11 @@ async function loadStores(filters = {}) {
 
 export async function runSearch(isLoadMore = false) {
 
+  if (isLoadMore && IS_LOADING_MORE) return;
+  if (isLoadMore) IS_LOADING_MORE = true;
+
+  const seq = ++RUN_SEQ;
+
   console.trace("RUN SEARCH TRIGGERED");
 
   const snap = snapshot();
@@ -582,8 +591,11 @@ if (
   if (!isLoadMore) resetPagination();
 
   const resp = await loadStores(snap);
-  console.log("RUN SEARCH STARTED", snap);
-  if (!resp || resp.error) return;
+
+if (seq !== RUN_SEQ) return;
+
+console.log("RUN SEARCH STARTED", snap);
+if (!resp || resp.error) return;
 
   const rawRows = resp.data || [];
   console.log("DEBUG ROW:", rawRows[0]);
@@ -632,12 +644,12 @@ if (
     });
   }
 
-  // Count ska visa vad som faktiskt visas
-  if (!isLoadMore) {
-    updateSearchCount(LAST_RENDERED_STORES.length);
-  } else {
-    updateSearchCount(LAST_RENDERED_STORES.length);
-  }
+ // Count ska visa vad som faktiskt visas
+updateSearchCount(LAST_RENDERED_STORES.length);
+
+// reset load-more lock
+IS_LOADING_MORE = false;
+
 }
 
 // ============================================================
