@@ -379,3 +379,13 @@
 body.auth-locked .sidebar-actions #loginBtn{
   display:none;
 }
+
+@media (max-width:768px){
+
+.mobile-menu-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+}
