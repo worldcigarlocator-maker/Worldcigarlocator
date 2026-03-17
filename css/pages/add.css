@@ -331,3 +331,70 @@ body.add-page{
 .add-page .btn-ghost:hover{
   color:#fff;
 }
+
+/* ============================================================
+   ADD PAGE — COMPACT MODE (EDIT FRIENDLY)
+   ============================================================ */
+
+/* wrap tightare */
+
+.add-page .wrap{
+  max-width:880px;
+  padding:2rem 2.2rem;
+  margin:2rem auto;
+}
+
+/* header mindre */
+
+.add-page h1{
+  font-size:1.6rem;
+}
+
+/* grid tightare */
+
+.add-page .grid{
+  gap:1.2rem 1.4rem;
+}
+
+/* inputs mindre */
+
+.add-page input,
+.add-page textarea{
+  padding:0.6rem 0.7rem;
+  font-size:0.9rem;
+}
+
+/* labels mindre */
+
+.add-page label{
+  font-size:11.5px;
+}
+
+/* pills mindre */
+
+.add-page .pill span{
+  min-width:110px;
+  padding:0.4rem 0.7rem;
+  font-size:0.8rem;
+}
+
+/* photo mindre (VIKTIGASTE) */
+
+.add-page .preview-photo{
+  max-width:420px;
+  height:220px;
+}
+
+/* overlay matchar */
+
+.add-page .photo-picker::after{
+  width:420px;
+  height:220px;
+}
+
+/* knappar lite tightare */
+
+.add-page .btn-primary{
+  padding:0.55rem 1.2rem;
+  font-size:0.9rem;
+}
