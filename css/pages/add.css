@@ -153,7 +153,7 @@ body.add-page{
   display:none;
 }
 
-.add-page .pill span{
+body.add-page .pill span{
   display:flex;
   align-items:center;
   justify-content:center;
