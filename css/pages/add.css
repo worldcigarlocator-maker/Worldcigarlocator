@@ -1,6 +1,6 @@
 /* ============================================================
    ADD LISTING — PUBLIC (WCL)
-   CLEAN · SPACED · PREMIUM
+   CLEAN · COMPACT · EDIT-OPTIMIZED
    ============================================================ */
 
 
@@ -16,21 +16,21 @@ body.add-page{
 
 
 /* ============================================================
-   WRAP (CARD SURFACE)
+   WRAP
    ============================================================ */
 
 .add-page .wrap{
-  max-width:920px;
-  margin:3rem auto;
+  max-width:880px;
+  margin:2rem auto;
 
   background:var(--panel);
   border:1px solid var(--border);
 
-  border-radius:18px;
-  padding:2.6rem 2.8rem;
+  border-radius:16px;
+  padding:2rem 2.2rem;
 
   box-shadow:
-    0 20px 50px rgba(0,0,0,0.45);
+    0 16px 40px rgba(0,0,0,0.45);
 }
 
 
@@ -43,42 +43,41 @@ body.add-page{
   justify-content:space-between;
   align-items:center;
 
-  margin-bottom:2.8rem;
+  margin-bottom:1.6rem;
 }
 
 .add-page .header-left{
   display:flex;
   align-items:center;
-  gap:1.6rem;
+  gap:1.2rem;
 }
 
 .add-page h1{
   margin:0;
-  font-size:2rem;
+  font-size:1.4rem;
   font-family:Georgia,"Times New Roman",serif;
 }
 
 
 /* ============================================================
-   GRID (SPACING CORE)
+   GRID
    ============================================================ */
 
 .add-page .grid{
   display:grid;
   grid-template-columns:1fr 1fr;
 
-  gap:1.8rem 2.2rem;   /* ← viktig */
+  gap:0.9rem 1.2rem;
 }
 
 .add-page .grid > div{
   display:flex;
   flex-direction:column;
-  gap:6px;
+  gap:4px;
 }
 
 .add-page .full{
   grid-column:1 / -1;
-  margin-top:6px;
 }
 
 
@@ -87,7 +86,7 @@ body.add-page{
    ============================================================ */
 
 .add-page label{
-  font-size:12.5px;
+  font-size:11.5px;
   font-weight:600;
 
   color:rgba(255,255,255,0.55);
@@ -102,19 +101,25 @@ body.add-page{
 .add-page input,
 .add-page textarea{
   width:100%;
-  padding:0.75rem 0.9rem;
+  height:36px;
 
-  border-radius:12px;
+  padding:0 0.7rem;
+
+  border-radius:10px;
   border:1px solid rgba(255,255,255,0.10);
 
   background:rgba(255,255,255,0.03);
   color:#fff;
 
+  font-size:0.9rem;
+
   transition:all .2s ease;
 }
 
 .add-page textarea{
-  min-height:90px;
+  height:auto;
+  min-height:60px;
+  padding:0.6rem 0.7rem;
 }
 
 .add-page input:focus,
@@ -124,8 +129,7 @@ body.add-page{
   border-color:rgba(var(--global),0.7);
 
   box-shadow:
-    0 0 0 1px rgba(var(--global),0.4),
-    0 10px 25px rgba(var(--global),0.18);
+    0 0 0 1px rgba(var(--global),0.35);
 }
 
 
@@ -135,9 +139,9 @@ body.add-page{
 
 .add-page .pill-row{
   display:flex;
-  gap:0.8rem;
   flex-wrap:wrap;
 
+  gap:0.6rem 0.8rem;
   margin-top:6px;
 }
 
@@ -147,18 +151,16 @@ body.add-page{
 
 .add-page .pill span{
   display:inline-block;
-  min-width:130px;
 
-  text-align:center;
-  padding:0.55rem 1rem;
+  padding:0.35rem 0.8rem;
 
   border-radius:999px;
 
   border:1px solid rgba(var(--global),0.6);
   color:rgb(var(--global));
 
+  font-size:0.78rem;
   font-weight:600;
-  font-size:0.85rem;
 
   cursor:pointer;
   transition:all .18s ease;
@@ -175,7 +177,7 @@ body.add-page{
 
 
 /* ============================================================
-   PHOTO — PREMIUM HERO STYLE
+   PHOTO (COMPACT HERO)
    ============================================================ */
 
 .add-page .photo-picker{
@@ -185,7 +187,7 @@ body.add-page{
   align-items:center;
   justify-content:center;
 
-  margin-top:12px;
+  margin-top:10px;
 }
 
 /* glow */
@@ -193,17 +195,17 @@ body.add-page{
 .add-page .photo-picker::before{
   content:"";
   position:absolute;
-  inset:-20px;
+  inset:-16px;
 
   background:
     radial-gradient(
       circle,
-      rgba(115,98,75,0.35) 0%,
-      rgba(115,98,75,0.15) 40%,
+      rgba(115,98,75,0.30) 0%,
+      rgba(115,98,75,0.12) 40%,
       rgba(115,98,75,0) 70%
     );
 
-  filter:blur(30px);
+  filter:blur(26px);
   z-index:0;
 }
 
@@ -214,23 +216,17 @@ body.add-page{
   z-index:1;
 
   width:100%;
-  max-width:560px;
-  height:300px;
+  max-width:360px;
+  height:190px;
 
   object-fit:cover;
 
-  border-radius:16px;
+  border-radius:14px;
 
   border:1px solid rgba(255,255,255,0.08);
 
   box-shadow:
-    0 20px 50px rgba(0,0,0,0.65);
-
-  transition:transform .4s ease;
-}
-
-.add-page .preview-photo:hover{
-  transform:scale(1.02);
+    0 14px 30px rgba(0,0,0,0.6);
 }
 
 /* overlay */
@@ -239,15 +235,15 @@ body.add-page{
   content:"";
   position:absolute;
 
-  width:560px;
-  height:300px;
+  width:360px;
+  height:190px;
 
-  border-radius:16px;
+  border-radius:14px;
 
   background:
     linear-gradient(
       to top,
-      rgba(0,0,0,0.45),
+      rgba(0,0,0,0.4),
       rgba(0,0,0,0)
     );
 
@@ -262,34 +258,33 @@ body.add-page{
   z-index:3;
 
   border:1px solid rgba(255,255,255,0.15);
-  background:rgba(0,0,0,0.55);
-
-  backdrop-filter:blur(6px);
+  background:rgba(0,0,0,0.5);
 
   color:white;
 
   border-radius:999px;
-  width:38px;
-  height:38px;
+  width:34px;
+  height:34px;
 
   display:flex;
   align-items:center;
   justify-content:center;
 
   cursor:pointer;
-  transition:all .2s ease;
 }
 
 .add-page .photo-nav:hover{
   background:rgba(115,98,75,0.7);
-  border-color:rgba(115,98,75,0.9);
 }
 
-/* meta */
+
+/* ============================================================
+   META
+   ============================================================ */
 
 #photo-meta{
-  margin-top:10px;
-  font-size:13px;
+  margin-top:8px;
+  font-size:12px;
   color:rgba(255,255,255,0.5);
   text-align:center;
 }
@@ -304,18 +299,17 @@ body.add-page{
   border:none;
   color:#fff;
 
-  padding:0.7rem 1.6rem;
-  border-radius:12px;
+  padding:0.5rem 1.2rem;
+  border-radius:10px;
 
+  font-size:0.9rem;
   font-weight:700;
-  letter-spacing:0.3px;
 
-  transition:transform .15s ease, box-shadow .15s ease;
+  transition:transform .15s ease;
 }
 
 .add-page .btn-primary:hover{
   transform:translateY(-1px);
-  box-shadow:0 6px 18px rgba(var(--global),0.25);
 }
 
 .add-page .btn-ghost{
@@ -323,135 +317,11 @@ body.add-page{
   border:none;
 
   color:rgba(255,255,255,0.55);
+  font-size:0.9rem;
 
   cursor:pointer;
-  transition:color .2s ease;
 }
 
 .add-page .btn-ghost:hover{
   color:#fff;
-}
-
-/* ============================================================
-   ADD PAGE — COMPACT MODE (EDIT FRIENDLY)
-   ============================================================ */
-
-/* wrap tightare */
-
-.add-page .wrap{
-  max-width:880px;
-  padding:2rem 2.2rem;
-  margin:2rem auto;
-}
-
-/* header mindre */
-
-.add-page h1{
-  font-size:1.6rem;
-}
-
-/* grid tightare */
-
-.add-page .grid{
-  gap:0.9rem 1.2rem;
-}
-
-/* inputs mindre */
-
-.add-page input,
-.add-page textarea{
-  padding:0.6rem 0.7rem;
-  font-size:0.9rem;
-}
-
-/* labels mindre */
-
-.add-page label{
-  font-size:11.5px;
-}
-
-/* pills mindre */
-
-.add-page .pill span{
-  min-width:110px;
-  padding:0.4rem 0.7rem;
-  font-size:0.8rem;
-}
-
-/* photo mindre (VIKTIGASTE) */
-
-.add-page .preview-photo{
-  max-width:420px;
-  height:220px;
-}
-
-/* overlay matchar */
-
-.add-page .photo-picker::after{
-  width:420px;
-  height:220px;
-}
-
-/* knappar lite tightare */
-
-.add-page .btn-primary{
-  padding:0.55rem 1.2rem;
-  font-size:0.9rem;
-}
-
-/* ============================================================
-   COMPACT V2 — HEIGHT CONTROL
-   ============================================================ */
-
-.add-page .grid{
-  gap:0.9rem 1.2rem;
-}
-
-.add-page input{
-  height:36px;
-  padding:0 0.7rem;
-}
-
-.add-page textarea{
-  min-height:70px;   /* ← viktigt */
-  padding:0.6rem 0.7rem;
-}
-
-.add-page textarea#comment{
-  min-height:60px;
-}
-
-/* ============================================================
-   PILLS — SPACING FIX
-   ============================================================ */
-
-.add-page .pill-row{
-  gap:0.6rem 0.8rem;  /* mer separation */
-  margin-top:8px;
-}
-
-.add-page .pill span{
-  min-width:auto;        /* ← viktigt */
-  padding:0.35rem 0.8rem;
-  font-size:0.78rem;
-
-  border-radius:999px;
-}
-
-.add-page .preview-photo{
-  max-width:360px;
-  height:190px;
-}
-
-.add-page .photo-picker::after{
-  width:360px;
-  height:190px;
-}
-
-.add-page h1{
-  font-size:1.4rem;
-}
-
-.add-page .page-header{
-  margin-bottom:1.6rem;
 }
