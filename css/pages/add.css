@@ -1,0 +1,189 @@
+/* ============================================================
+   ADD LISTING — PUBLIC (WCL)
+   ============================================================ */
+
+body.add-page{
+  background:var(--bg);
+  color:var(--text);
+  font-family:"DM Sans",sans-serif;
+}
+
+/* WRAP */
+
+.add-page .wrap{
+  max-width:860px;
+  margin:2.5rem auto;
+
+  background:var(--panel);
+  border:1px solid var(--border);
+
+  border-radius:18px;
+  padding:2.2rem 2.4rem;
+}
+
+/* HEADER */
+
+.add-page .page-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:2.2rem;
+}
+
+.add-page .header-left{
+  display:flex;
+  align-items:center;
+  gap:1.4rem;
+}
+
+.add-page h1{
+  margin:0;
+  font-size:2rem;
+  font-family:Georgia,"Times New Roman",serif;
+}
+
+/* GRID */
+
+.add-page .grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1.2rem 1.6rem;
+}
+
+.add-page .full{
+  grid-column:1 / -1;
+}
+
+/* LABELS */
+
+.add-page label{
+  font-weight:600;
+  margin-bottom:0.45rem;
+  display:block;
+  color:rgba(255,255,255,0.8);
+}
+
+/* INPUTS */
+
+.add-page input,
+.add-page textarea{
+  width:100%;
+  padding:0.7rem 0.85rem;
+
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.08);
+
+  background:#0c0c0c;
+  color:#fff;
+
+  transition:border .2s ease, box-shadow .2s ease;
+}
+
+.add-page input:focus,
+.add-page textarea:focus{
+  outline:none;
+  border:1px solid rgb(var(--global));
+  box-shadow:0 0 0 2px rgba(var(--global),0.15);
+}
+
+/* PILLS */
+
+.add-page .pill-row{
+  display:flex;
+  gap:0.7rem;
+  flex-wrap:wrap;
+  margin-top:0.4rem;
+}
+
+.add-page .pill input{
+  display:none;
+}
+
+.add-page .pill span{
+  display:inline-block;
+  min-width:120px;
+
+  text-align:center;
+  padding:0.5rem 0.9rem;
+
+  border-radius:999px;
+
+  border:1px solid rgba(var(--global),0.6);
+  color:rgb(var(--global));
+
+  font-weight:600;
+  font-size:0.85rem;
+
+  cursor:pointer;
+  transition:all .18s ease;
+}
+
+.add-page .pill span:hover{
+  background:rgba(var(--global),0.12);
+}
+
+.add-page .pill input:checked + span{
+  background:rgb(var(--global));
+  color:#fff;
+}
+
+/* PHOTO */
+
+.add-page .photo-picker{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0.7rem;
+  margin-top:0.6rem;
+}
+
+.add-page .photo-nav{
+  border:1px solid var(--border);
+  background:transparent;
+  color:#fff;
+
+  border-radius:8px;
+  padding:0.4rem 0.7rem;
+  cursor:pointer;
+}
+
+.add-page .preview-photo{
+  width:230px;
+  height:145px;
+  object-fit:cover;
+
+  border-radius:12px;
+  border:1px solid var(--border);
+}
+
+/* BUTTONS */
+
+.add-page .btn-primary{
+  background:rgb(var(--global));
+  border:none;
+  color:#fff;
+
+  padding:0.7rem 1.6rem;
+  border-radius:12px;
+
+  font-weight:700;
+  letter-spacing:0.3px;
+
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+
+.add-page .btn-primary:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 18px rgba(var(--global),0.25);
+}
+
+.add-page .btn-ghost{
+  background:transparent;
+  border:none;
+  color:rgba(255,255,255,0.55);
+  cursor:pointer;
+}
+
+.add-page .btn-ghost:hover{
+  color:#fff;
+}
