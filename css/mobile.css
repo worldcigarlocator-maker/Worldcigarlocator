@@ -143,6 +143,12 @@ textarea{
 
   height:44px;
 
+  padding:0 10px;
+
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+
+  background:#050505;
 }
 
    /* ============================================================
@@ -172,28 +178,36 @@ textarea{
   box-shadow:none;
 }
 /* ============================================================
-   SEARCH INPUT
+   SEARCH INPUT (FLAT — NO INNER BOX)
    ============================================================ */
 
 .zone-search{
   flex:1;
+  display:flex;
+  align-items:center;
 }
 
+/* INPUT = HELT TRANSPARENT */
 #searchInput{
 
   width:100%;
-  height:42px;
+  height:100%;
 
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.15);
+  border:none;
+  outline:none;
 
-  background:#050505;
+  background:transparent;
   color:white;
 
-  padding:0 14px;
+  padding:0 12px;
 
   font-size:16px;
 
+}
+
+/* Ta bort label i mobile */
+.zone-search .search-label{
+  display:none;
 }
 
 /* ============================================================
