@@ -301,7 +301,7 @@
   border-top:1px solid rgba(255,255,255,0.08);
 
   background:rgba(10,10,10,0.96);
-  backdrop-filter:blur(8px);
+  backdrop-filter:blur(8x);
 }
 
 
@@ -429,7 +429,7 @@ body.static-page{
 .page-brand{
   font-family:Georgia,"Times New Roman",serif;
   font-size:28px;
-  color:var(--global);
+  color: rgb(var(--global));
   text-decoration:none;
 }
 .page-nav{
@@ -445,11 +445,11 @@ body.static-page{
 }
 
 .page-nav a:hover{
-  color:var(--global);
+  color: rgb(var(--global));
 }
 
 .page-nav a.active{
-  color:var(--global);
+  color: rgb(var(--global));
   font-weight:600;
 }
 
@@ -494,7 +494,7 @@ body.static-page{
   margin-top:34px;
   padding-top:22px;
 
-  color:var(--global);
+  color: rgb(var(--global));
 
   border-top:1px solid rgba(255,255,255,0.08);
 }
