@@ -133,9 +133,7 @@ body.add-page{
 }
 
 
-/* ============================================================
-   PILLS — MICRO / PRECISION MODE
-   ============================================================ */
+
 
 /* ============================================================
    PILLS — MICRO · ALIGNED · WCL
@@ -146,7 +144,7 @@ body.add-page{
   flex-wrap:wrap;
 
   gap:6px 8px;
-  margin-top:2px;
+  margin-top:4px;
 
   transform:translateY(-1px); /* micro align */
 }
