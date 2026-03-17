@@ -114,6 +114,10 @@ textarea{
   object-position:center;
 }
 
+/* ============================================================
+   SEARCH PANEL (FLAT — NO DOUBLE LAYER)
+   ============================================================ */
+
 .search-panel{
 
   position:sticky;
@@ -124,7 +128,9 @@ textarea{
   padding:12px 14px;
 
   background:#050505;
-  border-bottom:1px solid rgba(255,255,255,.08);
+
+  border:none;
+  box-shadow:none;
 
   z-index:var(--z-search);
 }
