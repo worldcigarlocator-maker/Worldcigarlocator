@@ -5,6 +5,27 @@
 import { activateLocation } from "./cards.js";
 import { supabase } from "./globals.js";
 
+// ============================================================
+// GEO DEFAULT (AUTO OPEN CONTINENT)
+// ============================================================
+
+const LOCALE_TO_CONTINENT = {
+  "sv": "Europe",
+  "en": "Europe",
+  "en-US": "North America",
+  "en-GB": "Europe",
+  "fr": "Europe",
+  "de": "Europe",
+  "es": "Europe",
+};
+
+function getDefaultContinent(lang){
+  return LOCALE_TO_CONTINENT[lang]
+    || LOCALE_TO_CONTINENT[lang.split("-")[0]]
+    || "Europe";
+}
+
+
 const sortAZ = (a, b) =>
   String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
 
@@ -147,12 +168,22 @@ export async function buildFrontendSidebar() {
 // ============================================================
 
 function renderSidebar(continents, menu) {
+
+  const userLang = navigator.language;
+  const defaultContinent = getDefaultContinent(userLang);
+
   Object.entries(continents)
     .sort(([a], [b]) => sortAZ(a, b))
     .forEach(([continent, cData]) => {
+
       const continentNode = createNode("continent", continent, cData.count, null, {
         continent,
       });
+
+      // 🔥 AUTO OPEN 
+continentNode.wrapper.classList.add("open");
+continentNode.childrenContainer.classList.add("show");
+      }
 
       Object.entries(cData.countries)
         .sort(([a], [b]) => sortAZ(a, b))
