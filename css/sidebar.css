@@ -147,11 +147,6 @@ border-bottom: 1px solid var(--border);
   padding-bottom: 0.65rem;
 }
 
-/* ✅ VIKTIGT:
-   Denna “padding-top: 6.4rem”-hack gjorde att hierarkin såg tom ut.
-   Vi tar bort den helt så listan alltid startar direkt under count.
-*/
-
 /* ================= COUNTRY ================= */
 
 .line.country {
