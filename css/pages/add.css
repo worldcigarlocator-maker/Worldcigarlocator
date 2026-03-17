@@ -134,15 +134,21 @@ body.add-page{
 
 
 /* ============================================================
-   PILLS
+   PILLS — MICRO / PRECISION MODE
+   ============================================================ */
+
+/* ============================================================
+   PILLS — MICRO · ALIGNED · WCL
    ============================================================ */
 
 .add-page .pill-row{
   display:flex;
   flex-wrap:wrap;
 
-  gap:0.6rem 0.8rem;
-  margin-top:6px;
+  gap:6px 8px;
+  margin-top:2px;
+
+  transform:translateY(-1px); /* micro align */
 }
 
 .add-page .pill input{
@@ -150,31 +156,58 @@ body.add-page{
 }
 
 .add-page .pill span{
-  display:inline-block;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-  padding:0.35rem 0.8rem;
+  height:28px;
+
+  padding:0 0.65rem;
 
   border-radius:999px;
 
-  border:1px solid rgba(var(--global),0.6);
-  color:rgb(var(--global));
+  border:1px solid rgba(var(--global),0.55);
+  color:rgba(var(--global),0.9);
 
-  font-size:0.78rem;
+  font-size:0.72rem;
   font-weight:600;
 
+  letter-spacing:0.2px;
+
   cursor:pointer;
-  transition:all .18s ease;
+
+  transition:all .15s ease;
 }
 
+/* hover */
+
 .add-page .pill span:hover{
-  background:rgba(var(--global),0.12);
+  background:rgba(var(--global),0.10);
+  border-color:rgba(var(--global),0.75);
 }
+
+/* active */
 
 .add-page .pill input:checked + span{
   background:rgb(var(--global));
   color:#fff;
+
+  box-shadow:
+    0 2px 8px rgba(var(--global),0.35);
 }
 
+
+/* ============================================================
+   PILLS — GRID ALIGN FIX
+   ============================================================ */
+
+.add-page .grid .pill-row{
+  padding-left:2px; /* align med inputs */
+}
+
+.add-page .grid > div:has(.pill-row){
+  gap:4px; /* match inputs spacing */
+}
 
 /* ============================================================
    PHOTO (COMPACT HERO)
