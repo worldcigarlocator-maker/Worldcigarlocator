@@ -145,6 +145,32 @@ textarea{
 
 }
 
+   /* ============================================================
+   SEARCH FLATTEN (REMOVE INNER BOX)
+   ============================================================ */
+
+.zone-search{
+  flex:1;
+
+  background:transparent;
+  border:none;
+  box-shadow:none;
+  padding:0;
+}
+
+.zone-search .search-label{
+  display:none;
+}
+
+#searchInput{
+  border-radius:999px;
+
+  border:1px solid rgba(255,255,255,.18);
+
+  background:#050505;
+
+  box-shadow:none;
+}
 /* ============================================================
    SEARCH INPUT
    ============================================================ */
