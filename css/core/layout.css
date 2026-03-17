@@ -24,7 +24,7 @@ body{
    ============================================================ */
 :root{
   --sidebar-width:260px;
-  --main-offset:46px;
+  --main-offset:48px;
 }
 
 .main{
