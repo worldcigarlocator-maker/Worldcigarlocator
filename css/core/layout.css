@@ -22,13 +22,18 @@ body{
 /* ============================================================
    MAIN CONTENT
    ============================================================ */
+:root{
+  --sidebar-width:260px;
+  --main-offset:46px;
+}
 
 .main{
-  margin-left:260px;
-  width:calc(100% - 260px);
+  margin-left:var(--sidebar-width);
+  width:calc(100% - var(--sidebar-width));
 
-  padding-top:46px; 
+  padding-top:var(--main-offset);
 }
+
 /* ============================================================
    UTILITY
    ============================================================ */
