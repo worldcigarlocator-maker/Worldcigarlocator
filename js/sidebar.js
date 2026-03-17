@@ -183,7 +183,7 @@ function renderSidebar(continents, menu) {
       // 🔥 AUTO OPEN 
 continentNode.wrapper.classList.add("open");
 continentNode.childrenContainer.classList.add("show");
-      }
+      
 
       Object.entries(cData.countries)
         .sort(([a], [b]) => sortAZ(a, b))
