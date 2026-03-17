@@ -476,9 +476,12 @@ body.static-page{
   padding:28px 32px;
 
   border-radius:14px;
-  border:1px solid rgba(255,255,255,0.06);
-}
 
+  border:1px solid rgba(255,255,255,0.06);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.35);
+}
 /* ============================================================
    TYPOGRAPHY
    ============================================================ */
@@ -507,8 +510,12 @@ body.static-page{
 .legal-inner .highlight{
   color:#fff;
   font-weight:600;
-}
 
+  border-left:2px solid rgb(var(--global));
+  padding-left:10px;
+
+  margin:6px 0;
+}
 /* ============================================================
    LIST
    ============================================================ */
