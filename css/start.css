@@ -404,12 +404,14 @@ body.auth-locked .sidebar-actions #loginBtn{
    ============================================================ */
 
 body.static-page{
-  background:#0a0a0a; /* ← lite lyft från #050505 */
+  background:#050505;
   color:#fff;
   font-family:"DM Sans",sans-serif;
 }
 
-/* TOPBAR */
+/* ============================================================
+   TOPBAR
+   ============================================================ */
 
 .page-topbar{
   max-width:1200px;
@@ -420,20 +422,16 @@ body.static-page{
   align-items:center;
   justify-content:space-between;
 
-  border-bottom:1px solid rgba(255,255,255,0.08); /* ← divider */
+  border-bottom:1px solid rgba(255,255,255,0.08);
   padding-bottom:14px;
 }
-
-/* BRAND */
 
 .page-brand{
   font-family:Georgia,"Times New Roman",serif;
   font-size:20px;
-  color:rgb(var(--global)); /* ← bronze */
+  color:var(--global);
   text-decoration:none;
 }
-
-/* NAV */
 
 .page-nav{
   display:flex;
@@ -448,14 +446,16 @@ body.static-page{
 }
 
 .page-nav a:hover{
-  color:rgb(var(--global));
+  color:var(--global);
 }
 
 .page-nav a.active{
-  color:rgb(var(--global)); /* ← bronze active */
+  color:var(--global);
 }
 
-/* PAGE WRAP */
+/* ============================================================
+   PAGE WRAP
+   ============================================================ */
 
 .legal-page{
   max-width:900px;
@@ -463,15 +463,25 @@ body.static-page{
   padding:0 20px;
 }
 
-/* CONTENT */
+/* ============================================================
+   CONTENT SURFACE
+   ============================================================ */
 
 .legal-inner{
   display:flex;
   flex-direction:column;
   gap:18px;
+
+  background:#0a0a0a;
+  padding:28px 32px;
+
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.06);
 }
 
-/* TYPOGRAPHY */
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
 
 .legal-inner h1{
   font-family:Georgia,"Times New Roman",serif;
@@ -481,8 +491,12 @@ body.static-page{
 
 .legal-inner h2{
   font-size:20px;
-  margin-top:26px;
-  color: var(--global);
+  margin-top:34px;
+  padding-top:22px;
+
+  color:var(--global);
+
+  border-top:1px solid rgba(255,255,255,0.08);
 }
 
 .legal-inner p{
@@ -495,7 +509,9 @@ body.static-page{
   font-weight:600;
 }
 
-/* LIST */
+/* ============================================================
+   LIST
+   ============================================================ */
 
 .legal-inner ul{
   padding-left:18px;
