@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,336 +7,157 @@
   <title>Add Store — World Cigar Locator</title>
 
   <!-- ============================================================
-       SUPABASE (Required for insert)
+       SUPABASE
   ============================================================ -->
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- ============================================================
-       FRONTEND BASE STYLES (WCL)
+       WCL CSS
   ============================================================ -->
+
+  <link rel="stylesheet" href="css/core/variables.css">
   <link rel="stylesheet" href="css/start.css">
   <link rel="stylesheet" href="css/search.css">
   <link rel="stylesheet" href="css/cards.css">
 
-  <!-- ============================================================
-       PAGE-SPECIFIC STYLES (Public Add Store)
-  ============================================================ -->
- <style>
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: "DM Sans", sans-serif;
-    margin: 0;
-    padding: 2rem 1rem;
-  }
-
-  .wrap {
-    max-width: 860px;
-    margin: 0 auto;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 2rem;
-  }
-
-  /* ============================================================
-     HEADER LAYOUT
-  ============================================================ */
-
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
-  }
-
-  .page-header h1 {
-    margin: 0;
-    font-size: 1.6rem;
-  }
-
-  .header-back {
-    font-size: 0.9rem;
-  }
-
-  /* ============================================================
-     FORM GRID
-  ============================================================ */
-
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.9rem 1.2rem;
-  }
-
-  .full {
-    grid-column: 1 / -1;
-  }
-
-  label {
-    font-weight: 600;
-    display: block;
-    margin-bottom: 0.35rem;
-  }
-
-  input,
-  textarea {
-    width: 100%;
-    padding: 0.6rem 0.75rem;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: #0f0f0f;
-    color: white;
-  }
-
-  textarea {
-    min-height: 80px;
-    resize: vertical;
-  }
-
-    /* ============================================================
-       Unified Pill Row (Type + Access)
-    ============================================================ */
-
-    .pill-row {
-      display: flex;
-      gap: 0.8rem;
-      flex-wrap: wrap;
-      margin-top: 0.6rem;
-    }
-
-    .pill input {
-      display: none;
-    }
-
-    .pill span {
-      display: inline-block;
-      min-width: 140px;
-      text-align: center;
-      padding: 0.55rem 1rem;
-      border-radius: 999px;
-      border: 1px solid rgb(var(--global));
-      color: rgb(var(--global));
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .pill input:checked + span {
-      background: rgb(var(--global));
-      color: #fff;
-    }
-
-    /* ============================================================
-       Photo Picker
-    ============================================================ */
-
-    .photo-picker {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.7rem;
-      margin-top: 0.6rem;
-    }
-
-    .photo-nav {
-      border: 1px solid var(--border);
-      background: transparent;
-      color: white;
-      border-radius: 6px;
-      padding: 0.35rem 0.75rem;
-      cursor: pointer;
-    }
-
-    .preview-photo {
-      width: 230px;
-      height: 145px;
-      object-fit: cover;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-
-    /* ============================================================
-       Actions
-    ============================================================ */
-
-    .actions {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 2.2rem;
-    }
-.btn-primary {
-  background: rgb(var(--global));
-  border: none;
-  color: white;
-  padding: 0.7rem 1.6rem;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(var(--global), 0.25);
-}
-
-.btn-ghost {
-  background: transparent;
-  border: none;
-  color: rgba(255,255,255,0.55);
-  padding: 0.4rem 0.6rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.btn-ghost:hover {
-  color: white;
-}
-
-.wrap {
-  transform: scale(0.96);
-  transform-origin: top center;
-}
-   
-  </style>
 </head>
 
-<body>
+<body class="add-page">
 
   <!-- ============================================================
        MAIN WRAPPER
   ============================================================ -->
-<div class="wrap">
 
-  <div class="page-header">
-    <div class="header-left">
-      <h1>Add Listing</h1>
-      <button id="saveBtn" class="btn-primary">
-        Save
-      </button>
-    </div>
+  <div class="wrap">
 
-    <button class="btn-ghost header-back"
-            onclick="window.location.href='index.html'">
-      Back to Home
+```
+<div class="page-header">
+  <div class="header-left">
+    <h1>Add Listing</h1>
+    <button id="saveBtn" class="btn-primary">
+      Save
     </button>
   </div>
 
-  <div class="grid">
+  <button class="btn-ghost header-back"
+          onclick="window.location.href='index.html'">
+    Back to Home
+  </button>
+</div>
 
-      <!-- Google Autocomplete -->
-      <div class="full">
-        <label>Search with Google</label>
-        <input id="gAddress" type="text" placeholder="Start typing a place..." />
-      </div>
+<div class="grid">
 
-      <!-- Basic Info -->
-      <div>
-        <label>Name</label>
-        <input id="name" type="text">
-      </div>
+  <!-- Google Autocomplete -->
+  <div class="full">
+    <label>Search with Google</label>
+    <input id="gAddress" type="text" placeholder="Start typing a place..." />
+  </div>
 
-      <div>
-        <label>Phone</label>
-        <input id="phone" type="tel">
-      </div>
+  <!-- Basic Info -->
+  <div>
+    <label>Name</label>
+    <input id="name" type="text">
+  </div>
 
-      <div class="full">
-        <label>Address</label>
-        <input id="addr" type="text">
-      </div>
+  <div>
+    <label>Phone</label>
+    <input id="phone" type="tel">
+  </div>
 
-      <div>
-        <label>City</label>
-        <input id="city" type="text" list="city-list" autocomplete="off">
-        <datalist id="city-list"></datalist>
-      </div>
+  <div class="full">
+    <label>Address</label>
+    <input id="addr" type="text">
+  </div>
 
-      <div>
-        <label>State / Region</label>
-        <input id="state" type="text" placeholder="Auto (can be edited)">
-      </div>
+  <div>
+    <label>City</label>
+    <input id="city" type="text" list="city-list" autocomplete="off">
+    <datalist id="city-list"></datalist>
+  </div>
 
-      <div>
-        <label>Country</label>
-        <input id="country" type="text">
-      </div>
+  <div>
+    <label>State / Region</label>
+    <input id="state" type="text" placeholder="Auto (can be edited)">
+  </div>
 
-      <div>
-        <label>Website</label>
-        <input id="website" type="url">
-      </div>
+  <div>
+    <label>Country</label>
+    <input id="country" type="text">
+  </div>
 
-      <!-- Unified Type + Access Pills -->
-      <div class="full">
-        <div class="pill-row">
+  <div>
+    <label>Website</label>
+    <input id="website" type="url">
+  </div>
 
-          <label class="pill">
-            <input type="checkbox" value="store">
-            <span>Store</span>
-          </label>
+  <!-- Pills -->
+  <div class="full">
+    <div class="pill-row">
 
-          <label class="pill">
-            <input type="checkbox" value="lounge">
-            <span>Lounge</span>
-          </label>
+      <label class="pill">
+        <input type="checkbox" value="store">
+        <span>Store</span>
+      </label>
 
-          <label class="pill">
-            <input type="radio" name="access" value="public">
-            <span>Public</span>
-          </label>
+      <label class="pill">
+        <input type="checkbox" value="lounge">
+        <span>Lounge</span>
+      </label>
 
-          <label class="pill">
-            <input type="radio" name="access" value="members">
-            <span>Members Only</span>
-          </label>
+      <label class="pill">
+        <input type="radio" name="access" value="public">
+        <span>Public</span>
+      </label>
 
-        </div>
-      </div>
-
-      <!-- Comment -->
-      <div class="full">
-        <label>Comment</label>
-        <textarea id="comment"></textarea>
-      </div>
-
-      <!-- Photo Preview -->
-      <div class="full">
-        <label>Photo Preview</label>
-        <div class="photo-picker">
-          <button id="prev-photo" class="photo-nav">◀</button>
-          <img id="preview-photo"
-               class="preview-photo"
-               src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg">
-          <button id="next-photo" class="photo-nav">▶</button>
-        </div>
-        <div id="photo-meta" style="text-align:center;margin-top:.4rem;">
-          No photo loaded
-        </div>
-      </div>
+      <label class="pill">
+        <input type="radio" name="access" value="members">
+        <span>Members Only</span>
+      </label>
 
     </div>
   </div>
 
-  <!-- Toast container -->
+  <!-- Comment -->
+  <div class="full">
+    <label>Comment</label>
+    <textarea id="comment"></textarea>
+  </div>
+
+  <!-- Photo -->
+  <div class="full">
+    <label>Photo Preview</label>
+    <div class="photo-picker">
+      <button id="prev-photo" class="photo-nav">◀</button>
+      <img id="preview-photo"
+           class="preview-photo"
+           src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg">
+      <button id="next-photo" class="photo-nav">▶</button>
+    </div>
+    <div id="photo-meta" style="text-align:center;margin-top:.4rem;">
+      No photo loaded
+    </div>
+  </div>
+
+</div>
+```
+
+  </div>
+
+  <!-- Toast -->
+
   <div id="toast-container"></div>
 
   <!-- ============================================================
-       SHARED HYBRID LOGIC
+       JS
   ============================================================ -->
+
   <script src="js/add-shared.js"></script>
+
   <script src="js/add-store.js"></script>
 
   <!-- Google Places -->
+
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ&libraries=places&callback=initAutocomplete&language=en" async defer></script>
 
 </body>
