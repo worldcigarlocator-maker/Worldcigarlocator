@@ -459,3 +459,20 @@ textarea{
   }
 
 }
+
+@media (max-width:768px) and (hover: none) and (pointer: coarse){
+
+  /* 🔥 KILL TOP LINE / GHOST EDGE */
+  .search-panel{
+    padding-top:0 !important;
+    margin-top:0 !important;
+    border-top:none !important;
+  }
+
+  /* säkerställ att inget ritar linje */
+  .search-panel::before,
+  .search-panel::after{
+    display:none !important;
+  }
+
+}
