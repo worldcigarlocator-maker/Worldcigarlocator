@@ -388,69 +388,74 @@ textarea{
 
 }
 
-/* ============================================================
-   HARD RESET SEARCH (MOBILE OVERRIDE)
-   ============================================================ */
-
 @media (max-width:900px){
 
-  /* döda desktop layout */
+  /* ========================================
+     RESET CONTAINER
+  ======================================== */
+
+  .search-panel,
   .search-capsule{
-    display:flex !important;
-    flex-direction:column !important;
-    gap:10px !important;
-    height:auto !important;
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
     padding:0 !important;
   }
 
-  /* döda divider helt */
+  .search-capsule{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  /* ========================================
+     REMOVE DESKTOP PARTS
+  ======================================== */
+
+  .zone-filters,
   .zone-divider{
     display:none !important;
   }
 
-  /* döda filter-raden helt */
-  .zone-filters{
-    display:none !important;
+  /* ========================================
+     FIX THE REAL CULPRIT
+  ======================================== */
+
+  .search-zone{
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
   }
 
-  /* säkerställ att search INTE är kapsel i kapsel */
+  /* ========================================
+     CLEAN SEARCH INPUT
+  ======================================== */
+
   .zone-search{
-    width:100% !important;
-    border-radius:999px !important;
+    display:flex;
+    align-items:center;
+
+    height:44px;
+    padding:0 14px;
+
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.18);
+
+    background:#050505;
   }
 
-}
+  /* ========================================
+     ACTION ROW
+  ======================================== */
 
-@media (max-width:900px){
-
-  /* 💀 döda stora kapseln helt */
-  .search-capsule{
-    background:transparent !important;
-    border:none !important;
-    box-shadow:none !important;
-    padding:0 !important;
+  .zone-actions{
+    display:flex;
+    gap:10px;
   }
 
-}
-
-@media (max-width:900px){
-
-  /* 💀 döda hela panel-boxen */
-  .search-panel{
-    background:transparent !important;
-    border:none !important;
-    box-shadow:none !important;
-    padding:0 !important;
+  .zone-actions .zone-map,
+  .zone-actions .zone-clear{
+    flex:1;
   }
 
-   @media (max-width:900px){
-
-  .zone-filters{
-    display:none !important;
-    height:0 !important;
-    margin:0 !important;
-    padding:0 !important;
-  }
-
-}
 }
