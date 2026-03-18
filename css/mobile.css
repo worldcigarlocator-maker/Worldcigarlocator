@@ -134,27 +134,76 @@ textarea{
 
   z-index:var(--z-search);
 }
+   
 /* ============================================================
-   SEARCH CAPSULE
+   SEARCH CAPSULE (STACKED MOBILE LAYOUT)
    ============================================================ */
 
 .search-capsule{
 
   display:flex;
-  align-items:center;
-  gap:8px;
+  flex-direction:column;
+  gap:10px;
 
   width:100%;
-  min-width:0;
 
-  height:44px;
+  padding:0;
 
-  padding:0 10px;
+}
+
+/* Första raden = input */
+.zone-search{
+  width:100%;
+}
+
+/* Andra raden = actions */
+.zone-map,
+.zone-clear{
+  display:flex;
+}
+
+/* Actions wrapper (map + clear på samma rad) */
+.zone-map,
+.zone-clear{
+  width:100%;
+}
+
+/* Gör att de delar rad */
+.zone-map{
+  display:flex;
+  gap:10px;
+}
+
+/* Lägg clear bredvid map */
+.zone-clear{
+  display:flex;
+}
+
+/* Knapp layout */
+.map-btn,
+.clear-btn{
+
+  flex:1;
+
+  height:42px;
 
   border-radius:999px;
   border:1px solid rgba(255,255,255,.18);
 
   background:#050505;
+
+  font-size:.85rem;
+  font-weight:600;
+
+}
+
+/* Färger */
+.map-btn{
+  color:rgb(var(--global));
+}
+
+.clear-btn{
+  color:rgba(255,255,255,.7);
 }
 
    /* ============================================================
