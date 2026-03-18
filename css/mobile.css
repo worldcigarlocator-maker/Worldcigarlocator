@@ -114,10 +114,6 @@ textarea{
   object-position:center;
 }
 
-/* ============================================================
-   SEARCH PANEL (FLAT — NO DOUBLE LAYER)
-   ============================================================ */
-
 .search-panel{
 
   position:sticky;
@@ -128,166 +124,50 @@ textarea{
   padding:12px 14px;
 
   background:#050505;
-
-  border:none;
-  box-shadow:none;
+  border-bottom:1px solid rgba(255,255,255,.08);
 
   z-index:var(--z-search);
 }
-   
 /* ============================================================
-   SEARCH CAPSULE (FINAL MOBILE STRUCTURE)
+   SEARCH CAPSULE
    ============================================================ */
 
 .search-capsule{
 
   display:flex;
-  flex-direction:column;
-  gap:10px;
+  align-items:center;
+  gap:8px;
 
   width:100%;
+  min-width:0;
+
+  height:44px;
+
 }
 
 /* ============================================================
-   INPUT ROW (ENDa kapseln)
+   SEARCH INPUT
    ============================================================ */
 
 .zone-search{
-
-  display:flex;
-  align-items:center;
-
-  width:100%;
-  height:44px;
-
-  padding:0 10px;
-
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.18);
-
-  background:#050505;
-}
-
-/* ============================================================
-   ACTION ROW (MAP + CLEAR)
-   ============================================================ */
-
-.zone-map,
-.zone-clear{
-  display:none;
-}
-
-/* wrapper rad */
-.search-capsule::after{
-  content:"";
-}
-
-/* skapa egen rad via flex */
-.zone-map{
-  display:flex;
-  gap:10px;
-  width:100%;
-}
-
-/* lägg clear bredvid map */
-.zone-map .map-btn,
-.zone-map .clear-btn{
   flex:1;
 }
 
-/* flytta clear visuellt in i samma rad */
-.zone-clear{
-  display:flex;
-}
+#searchInput{
 
-.zone-map{
-  display:flex;
-  gap:10px;
-}
-
-/* knappar */
-.map-btn,
-.clear-btn{
-
-  flex:1;
-
+  width:100%;
   height:42px;
 
   border-radius:999px;
-  border:1px solid rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.15);
 
   background:#050505;
-
-  font-size:.85rem;
-  font-weight:600;
-}
-
-/* färger */
-.map-btn{
-  color:rgb(var(--global));
-}
-
-.clear-btn{
-  color:rgba(255,255,255,.7);
-}
-
-   /* ============================================================
-   SEARCH FLATTEN (REMOVE INNER BOX)
-   ============================================================ */
-
-.zone-search{
-  flex:1;
-
-  background:transparent;
-  border:none;
-  box-shadow:none;
-  padding:0;
-}
-
-.zone-search .search-label{
-  display:none;
-}
-
-#searchInput{
-  border-radius:999px;
-
-  border:1px solid rgba(255,255,255,.18);
-
-  background:#050505;
-
-  box-shadow:none;
-}
-/* ============================================================
-   SEARCH INPUT (FLAT — NO INNER BOX)
-   ============================================================ */
-
-.zone-search{
-  flex:1;
-  display:flex;
-  align-items:center;
-}
-
-/* INPUT = HELT TRANSPARENT */
-#searchInput{
-
-  width:100%;
-  height:100%;
-
-  border:none;
-  outline:none;
-
-  background:transparent;
   color:white;
 
-  padding:0 12px;
+  padding:0 14px;
 
   font-size:16px;
 
-}
-
-/* Ta bort label i mobile */
-.zone-search .search-label{
-  display:none;
 }
 
 /* ============================================================
