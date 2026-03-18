@@ -420,3 +420,15 @@ textarea{
   }
 
 }
+
+@media (max-width:900px){
+
+  /* 💀 döda stora kapseln helt */
+  .search-capsule{
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
+    padding:0 !important;
+  }
+
+}
