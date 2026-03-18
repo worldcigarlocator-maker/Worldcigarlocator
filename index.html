@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,20 +7,24 @@
 
   <title>World Cigar Locator</title>
 
-  <!-- =========================================================
-       META / FAVICONS
-  ========================================================= -->
+  <!-- Favicon -->
   <link rel="icon" href="/favicon.ico">
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+
+  <!-- PNG fallback -->
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+
+  <!-- Apple / iPhone -->
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+
+  <!-- Safari pinned tab -->
   <link rel="mask-icon" href="/images/favicon.svg" color="#73624B">
+
+  <!-- Theme color -->
   <meta name="theme-color" content="#050505">
 
-  <!-- =========================================================
-       FONTS
-  ========================================================= -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -63,9 +68,7 @@
 
 <body class="auth-locked">
 
-  <!-- =========================================================
-       AGE GATE
-  ========================================================= -->
+  <!-- AGE GATE -->
   <div id="ageGate" class="age-gate hidden">
     <div class="login-box age-box">
       <h1 class="login-title">World Cigar Locator</h1>
@@ -86,9 +89,7 @@
     </div>
   </div>
 
-  <!-- =========================================================
-       LOGIN POPUP
-  ========================================================= -->
+  <!-- LOGIN POPUP -->
   <div id="loginPopup" class="login-popup">
     <div class="login-box">
       <h1 class="login-title">World Cigar Locator</h1>
@@ -109,14 +110,10 @@
     </div>
   </div>
 
-  <!-- =========================================================
-       APP
-  ========================================================= -->
+  <!-- APP -->
   <div class="container">
 
-    <!-- =========================================================
-         SIDEBAR
-    ========================================================= -->
+    <!-- SIDEBAR -->
     <aside class="sidebar">
       <header class="sidebar-header">
         <div class="sidebar-brand" id="homeBtn" role="button" aria-label="Go to Home">
@@ -155,99 +152,58 @@
       </footer>
     </aside>
 
-    <!-- =========================================================
-         MAIN
-    ========================================================= -->
+    <!-- MAIN -->
     <main class="main">
-
-      <!-- MOBILE MENU BUTTON -->
       <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open menu">
         ☰
       </button>
 
-      <!-- =====================================================
-           SEARCH PANEL (DESKTOP + MOBILE SPLIT)
-      ====================================================== -->
       <div id="searchPanel" class="search-panel">
-
         <div class="search-capsule">
 
-          <!-- ================= DESKTOP (UNCHANGED) ================= -->
-          <div class="desktop-only">
-
-            <div class="search-zone zone-search" id="searchZone">
-              <span class="search-label">Search</span>
-              <input
-                id="searchInput"
-                type="text"
-                placeholder="Search by name, city or address"
-                autocomplete="off"
-              >
-            </div>
-
-            <div class="zone-divider"></div>
-
-            <div class="search-zone zone-filters" id="searchControls">
-              <button class="control-btn" data-filter="type" data-value="store">Stores</button>
-              <button class="control-btn" data-filter="type" data-value="lounge">Lounge</button>
-              <button class="control-btn" data-filter="access" data-value="members">Members</button>
-
-              <button class="control-btn sort-btn" data-sort="rating_desc">Top Rated</button>
-              <button class="control-btn sort-btn" data-sort="newest">Newest</button>
-            </div>
-
-            <div class="zone-divider"></div>
-
-            <div class="zone-actions">
-              <div class="search-zone zone-map">
-                <button class="map-btn" id="mapViewBtn">Map View</button>
-              </div>
-
-              <div class="search-zone zone-clear">
-                <button class="clear-btn" id="clearBtn">Clear</button>
-              </div>
-            </div>
-
+          <div class="search-zone zone-search" id="searchZone">
+            <span class="search-label">Search</span>
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Search by name, city or address"
+              autocomplete="off"
+            >
           </div>
 
-          <!-- ================= MOBILE (NEW) ================= -->
-          <div class="mobile-only">
+          <div class="zone-divider"></div>
 
-            <div class="search-zone zone-search">
-              <input
-                id="searchInputMobile"
-                type="text"
-                placeholder="Search"
-                autocomplete="off"
-              >
-            </div>
+          <div class="search-zone zone-filters" id="searchControls">
+            <button class="control-btn" data-filter="type" data-value="store">Stores</button>
+            <button class="control-btn" data-filter="type" data-value="lounge">Lounge</button>
+            <button class="control-btn" data-filter="access" data-value="members">Members</button>
 
-            <div class="zone-actions">
-              <div class="search-zone zone-map">
-                <button class="map-btn" id="mapViewBtnMobile">Map</button>
-              </div>
-
-              <div class="search-zone zone-clear">
-                <button class="clear-btn" id="clearBtnMobile">Clear</button>
-              </div>
-            </div>
-
+            <button class="control-btn sort-btn" data-sort="rating_desc">Top Rated</button>
+            <button class="control-btn sort-btn" data-sort="newest">Newest</button>
           </div>
+
+          <div class="zone-divider"></div>
+
+          <div class="zone-actions">
+
+  <div class="search-zone zone-map">
+    <button class="map-btn" id="mapViewBtn">Map View</button>
+  </div>
+
+  <div class="search-zone zone-clear">
+    <button class="clear-btn" id="clearBtn">Clear</button>
+  </div>
+
+</div>
 
         </div>
       </div>
 
-      <!-- =====================================================
-           HERO
-      ====================================================== -->
       <section class="hero" id="heroImage">
         <img src="images/world-cigar-locator-hero.jpg" alt="World Cigar Locator">
         <div id="heroText"></div>
       </section>
 
-      <!-- =====================================================
-           RESULTS
-      ====================================================== -->
       <div class="results-toolbar">
         <h2 id="resultHeading"></h2>
       </div>
@@ -256,9 +212,6 @@
 
       <section id="mapView"></section>
 
-      <!-- =====================================================
-           COOKIE BANNER
-      ====================================================== -->
       <div id="cookieBanner" class="cookie-banner">
         <div class="cookie-inner">
           <div class="cookie-text">
@@ -270,13 +223,11 @@
           <button id="cookieOkBtn" type="button" class="cookie-btn">OK</button>
         </div>
       </div>
-
     </main>
+
   </div>
 
-  <!-- =========================================================
-       MODAL
-  ========================================================= -->
+  <!-- MODAL -->
   <div id="storeModal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-backdrop" aria-hidden="true"></div>
 
@@ -334,14 +285,17 @@
             </span>
           </div>
 
-          <textarea id="modalCommentInput" placeholder="Write a comment…"></textarea>
+          <textarea
+            id="modalCommentInput"
+            placeholder="Write a comment…"
+          ></textarea>
 
           <button id="modalSendComment">Post comment</button>
 
           <div id="modalComments" class="modal-comments-feed"></div>
         </div>
 
-        <!-- REPORT -->
+        <!-- REPORT SECTION -->
         <div id="modalReportSection" class="modal-report-section hidden">
           <h3 class="modal-report-title">Report an issue</h3>
 
@@ -355,14 +309,18 @@
             <button class="report-chip" data-type="other">Other</button>
           </div>
 
-          <textarea id="modalReportMessage" class="hidden"></textarea>
+          <textarea
+            id="modalReportMessage"
+            class="modal-report-textarea hidden"
+            placeholder="Describe the issue..."
+          ></textarea>
 
-          <button id="modalSubmitReport" disabled>
+          <button id="modalSubmitReport" class="modal-submit-report" disabled>
             Submit report
           </button>
 
-          <div id="modalReportSuccess" class="hidden">
-            Thank you for helping us keep World Cigar Locator accurate.
+          <div id="modalReportSuccess" class="modal-report-success hidden">
+            Thank you for helping us keep World Cigar Locator accurate and up to date.
           </div>
         </div>
 
@@ -370,14 +328,11 @@
     </div>
   </div>
 
-  <!-- =========================================================
-       SCRIPTS
-  ========================================================= -->
+  <!-- SCRIPTS -->
   <script type="module" src="js/main.js"></script>
   <script type="module" src="js/search-v2.js"></script>
   <script type="module" src="js/map.js"></script>
 
   <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
-
 </body>
 </html>
