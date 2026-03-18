@@ -136,7 +136,7 @@ textarea{
 }
    
 /* ============================================================
-   SEARCH CAPSULE (STACKED MOBILE LAYOUT)
+   SEARCH CAPSULE (FINAL MOBILE STRUCTURE)
    ============================================================ */
 
 .search-capsule{
@@ -146,40 +146,66 @@ textarea{
   gap:10px;
 
   width:100%;
-
-  padding:0;
-
 }
 
-/* Första raden = input */
+/* ============================================================
+   INPUT ROW (ENDa kapseln)
+   ============================================================ */
+
 .zone-search{
+
+  display:flex;
+  align-items:center;
+
+  width:100%;
+  height:44px;
+
+  padding:0 10px;
+
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+
+  background:#050505;
+}
+
+/* ============================================================
+   ACTION ROW (MAP + CLEAR)
+   ============================================================ */
+
+.zone-map,
+.zone-clear{
+  display:none;
+}
+
+/* wrapper rad */
+.search-capsule::after{
+  content:"";
+}
+
+/* skapa egen rad via flex */
+.zone-map{
+  display:flex;
+  gap:10px;
   width:100%;
 }
 
-/* Andra raden = actions */
-.zone-map,
+/* lägg clear bredvid map */
+.zone-map .map-btn,
+.zone-map .clear-btn{
+  flex:1;
+}
+
+/* flytta clear visuellt in i samma rad */
 .zone-clear{
   display:flex;
 }
 
-/* Actions wrapper (map + clear på samma rad) */
-.zone-map,
-.zone-clear{
-  width:100%;
-}
-
-/* Gör att de delar rad */
 .zone-map{
   display:flex;
   gap:10px;
 }
 
-/* Lägg clear bredvid map */
-.zone-clear{
-  display:flex;
-}
-
-/* Knapp layout */
+/* knappar */
 .map-btn,
 .clear-btn{
 
@@ -194,10 +220,9 @@ textarea{
 
   font-size:.85rem;
   font-weight:600;
-
 }
 
-/* Färger */
+/* färger */
 .map-btn{
   color:rgb(var(--global));
 }
