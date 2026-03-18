@@ -387,3 +387,36 @@ textarea{
 }
 
 }
+
+/* ============================================================
+   HARD RESET SEARCH (MOBILE OVERRIDE)
+   ============================================================ */
+
+@media (max-width:900px){
+
+  /* döda desktop layout */
+  .search-capsule{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:10px !important;
+    height:auto !important;
+    padding:0 !important;
+  }
+
+  /* döda divider helt */
+  .zone-divider{
+    display:none !important;
+  }
+
+  /* döda filter-raden helt */
+  .zone-filters{
+    display:none !important;
+  }
+
+  /* säkerställ att search INTE är kapsel i kapsel */
+  .zone-search{
+    width:100% !important;
+    border-radius:999px !important;
+  }
+
+}
