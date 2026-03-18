@@ -148,19 +148,31 @@ textarea{
   width:100%;
 }
 
+
+   /* ============================================================
+   SEARCH CAPSULE (MOBILE FINAL)
+   ============================================================ */
+
+.search-capsule{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+
+  width:100%;
+}
+
 /* ============================================================
-   INPUT ROW (ENDa kapseln)
+   INPUT ROW (ENDa kapsel)
    ============================================================ */
 
 .zone-search{
-
   display:flex;
   align-items:center;
 
   width:100%;
   height:44px;
 
-  padding:0 10px;
+  padding:0 12px;
 
   border-radius:999px;
   border:1px solid rgba(255,255,255,.18);
@@ -172,45 +184,22 @@ textarea{
    ACTION ROW (MAP + CLEAR)
    ============================================================ */
 
-.zone-map,
-.zone-clear{
-  display:none;
-}
-
-/* wrapper rad */
-.search-capsule::after{
-  content:"";
-}
-
-/* skapa egen rad via flex */
-.zone-map{
+.zone-actions{
   display:flex;
   gap:10px;
   width:100%;
 }
 
-/* lägg clear bredvid map */
-.zone-map .map-btn,
-.zone-map .clear-btn{
+.zone-actions .zone-map,
+.zone-actions .zone-clear{
   flex:1;
 }
 
-/* flytta clear visuellt in i samma rad */
-.zone-clear{
-  display:flex;
-}
+/* buttons */
 
-.zone-map{
-  display:flex;
-  gap:10px;
-}
-
-/* knappar */
 .map-btn,
 .clear-btn{
-
-  flex:1;
-
+  width:100%;
   height:42px;
 
   border-radius:999px;
@@ -222,7 +211,6 @@ textarea{
   font-weight:600;
 }
 
-/* färger */
 .map-btn{
   color:rgb(var(--global));
 }
@@ -231,32 +219,6 @@ textarea{
   color:rgba(255,255,255,.7);
 }
 
-   /* ============================================================
-   SEARCH FLATTEN (REMOVE INNER BOX)
-   ============================================================ */
-
-.zone-search{
-  flex:1;
-
-  background:transparent;
-  border:none;
-  box-shadow:none;
-  padding:0;
-}
-
-.zone-search .search-label{
-  display:none;
-}
-
-#searchInput{
-  border-radius:999px;
-
-  border:1px solid rgba(255,255,255,.18);
-
-  background:#050505;
-
-  box-shadow:none;
-}
 /* ============================================================
    SEARCH INPUT (FLAT — NO INNER BOX)
    ============================================================ */
