@@ -148,31 +148,19 @@ textarea{
   width:100%;
 }
 
-
-   /* ============================================================
-   SEARCH CAPSULE (MOBILE FINAL)
-   ============================================================ */
-
-.search-capsule{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-
-  width:100%;
-}
-
 /* ============================================================
-   INPUT ROW (ENDa kapsel)
+   INPUT ROW (ENDa kapseln)
    ============================================================ */
 
 .zone-search{
+
   display:flex;
   align-items:center;
 
   width:100%;
   height:44px;
 
-  padding:0 12px;
+  padding:0 10px;
 
   border-radius:999px;
   border:1px solid rgba(255,255,255,.18);
@@ -184,22 +172,45 @@ textarea{
    ACTION ROW (MAP + CLEAR)
    ============================================================ */
 
-.zone-actions{
+.zone-map,
+.zone-clear{
+  display:none;
+}
+
+/* wrapper rad */
+.search-capsule::after{
+  content:"";
+}
+
+/* skapa egen rad via flex */
+.zone-map{
   display:flex;
   gap:10px;
   width:100%;
 }
 
-.zone-actions .zone-map,
-.zone-actions .zone-clear{
+/* lägg clear bredvid map */
+.zone-map .map-btn,
+.zone-map .clear-btn{
   flex:1;
 }
 
-/* buttons */
+/* flytta clear visuellt in i samma rad */
+.zone-clear{
+  display:flex;
+}
 
+.zone-map{
+  display:flex;
+  gap:10px;
+}
+
+/* knappar */
 .map-btn,
 .clear-btn{
-  width:100%;
+
+  flex:1;
+
   height:42px;
 
   border-radius:999px;
@@ -211,6 +222,7 @@ textarea{
   font-weight:600;
 }
 
+/* färger */
 .map-btn{
   color:rgb(var(--global));
 }
@@ -219,6 +231,32 @@ textarea{
   color:rgba(255,255,255,.7);
 }
 
+   /* ============================================================
+   SEARCH FLATTEN (REMOVE INNER BOX)
+   ============================================================ */
+
+.zone-search{
+  flex:1;
+
+  background:transparent;
+  border:none;
+  box-shadow:none;
+  padding:0;
+}
+
+.zone-search .search-label{
+  display:none;
+}
+
+#searchInput{
+  border-radius:999px;
+
+  border:1px solid rgba(255,255,255,.18);
+
+  background:#050505;
+
+  box-shadow:none;
+}
 /* ============================================================
    SEARCH INPUT (FLAT — NO INNER BOX)
    ============================================================ */
@@ -385,94 +423,5 @@ textarea{
     0 0 0 1px rgba(var(--global),.45),
     0 14px 28px rgba(0,0,0,.85);
 }
-
-}
-
-@media (max-width:900px){
-
-  /* ========================================
-     RESET CONTAINER
-  ======================================== */
-
-  .search-panel,
-  .search-capsule{
-    background:transparent !important;
-    border:none !important;
-    box-shadow:none !important;
-    padding:0 !important;
-  }
-
-  .search-capsule{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-
-  /* ========================================
-     REMOVE DESKTOP PARTS
-  ======================================== */
-
-  .zone-filters,
-  .zone-divider{
-    display:none !important;
-  }
-
-  /* ========================================
-     FIX THE REAL CULPRIT
-  ======================================== */
-
-  .search-zone{
-    background:transparent !important;
-    border:none !important;
-    box-shadow:none !important;
-  }
-
-  /* ========================================
-     CLEAN SEARCH INPUT
-  ======================================== */
-
-  .zone-search{
-    display:flex;
-    align-items:center;
-
-    height:44px;
-    padding:0 14px;
-
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.18);
-
-    background:#050505;
-  }
-
-  /* ========================================
-     ACTION ROW
-  ======================================== */
-
-  .zone-actions{
-    display:flex;
-    gap:10px;
-  }
-
-  .zone-actions .zone-map,
-  .zone-actions .zone-clear{
-    flex:1;
-  }
-
-}
-
-@media (max-width:768px) and (hover: none) and (pointer: coarse){
-
-  /* 🔥 KILL TOP LINE / GHOST EDGE */
-  .search-panel{
-    padding-top:0 !important;
-    margin-top:0 !important;
-    border-top:none !important;
-  }
-
-  /* säkerställ att inget ritar linje */
-  .search-panel::before,
-  .search-panel::after{
-    display:none !important;
-  }
 
 }
