@@ -306,27 +306,3 @@ textarea{
 
 }
 
-/* ============================================================
-   FIX: MOBILE SEARCH STACK (SAFE)
-   ============================================================ */
-
-@media (max-width:768px){
-
-  .search-capsule{
-    flex-direction:column;
-    height:auto;
-    align-items:stretch;
-    gap:10px;
-  }
-
-  .zone-map,
-  .zone-clear{
-    width:100%;
-  }
-
-  .map-btn,
-  .clear-btn{
-    width:100%;
-  }
-
-}
