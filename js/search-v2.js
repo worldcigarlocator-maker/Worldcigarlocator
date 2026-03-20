@@ -245,39 +245,45 @@ document.addEventListener("DOMContentLoaded", () => {
   // MOBILE FILTER → CARDS (CORE FIX)
   // ============================================================
 
-  mobileFilters?.addEventListener("click", (e) => {
+mobileFilters?.addEventListener("click", (e) => {
 
-    const btn = e.target.closest(".filter-item");
-    if (!btn) return;
+  const btn = e.target.closest(".filter-item");
+  if (!btn) return;
 
-    const label = btn.textContent.trim();
+  const label = btn.textContent.trim();
 
-    // reset UI
-    mobileFilters.querySelectorAll(".filter-item")
-      .forEach(el => el.classList.remove("active"));
+  // UI
+  mobileFilters.querySelectorAll(".filter-item")
+    .forEach(el => el.classList.remove("active"));
 
-    btn.classList.add("active");
+  btn.classList.add("active");
 
-resetAllFilters();
+  // RESET STATE
+  resetAllFilters();
 
-if (label === "Stores") {
-  activateSearch({ type: "store" });
-}
+  // 🔥 APPLY FILTER VIA SEARCH DIRECTLY
+  if (label === "Stores") {
+    activateSearch({ type: "store" });
+  }
 
-if (label === "Lounge") {
-  activateSearch({ type: "lounge" });
-}
+  if (label === "Lounge") {
+    activateSearch({ type: "lounge" });
+  }
 
-if (label === "Members") {
-  activateSearch({ access: "members" });
-}
+  if (label === "Members") {
+    activateSearch({ access: "members" });
+  }
 
-if (label === "Top Rated") {
-  setSort("rating_desc");
-  activateSearch({});
-}
+  if (label === "Top Rated") {
+    setSort("rating_desc");
+    activateSearch({});
+  }
 
-    });
+  // UX
+  mobileFilters.classList.remove("open");
+  filterBtnMobile.classList.remove("active");
+
+});
   // ============================================================
   // MOBILE ACTIONS BRIDGE
   // ============================================================
