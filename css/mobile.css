@@ -478,3 +478,32 @@ textarea{
 
   background:rgb(var(--global));
 }
+
+/* ============================================================
+   FILTER BUTTON (FIX)
+   ============================================================ */
+
+.filter-btn{
+
+  height:42px;
+  padding:0 14px;
+
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+
+  background:#050505;
+
+  font-size:.85rem;
+  font-weight:600;
+
+  color:rgba(255,255,255,.7);
+
+  cursor:pointer;
+
+}
+
+/* ACTIVE STATE */
+.filter-btn.active{
+  color:rgb(var(--global));
+  border-color:rgba(var(--global),0.5);
+}
