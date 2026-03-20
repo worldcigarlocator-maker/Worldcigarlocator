@@ -71,18 +71,17 @@ textarea{
    ============================================================ */
 
 .mobile-menu-btn{
-
-  position:absolute;
-  top:20px;
-  left:16px;
+  position:fixed;
+  top:10px;
+  left:14px;
+}
 
   width:44px;
   height:44px;
 
   border-radius:50%;
-
   border:1px solid rgba(255,255,255,0.15);
-  background:rgba(0,0,0,0.4);
+  background:rgba(0,0,0,0.5);
 
   color:#fff;
   font-size:20px;
@@ -93,7 +92,7 @@ textarea{
 
   backdrop-filter:blur(6px);
 
-  z-index:20;
+  z-index:999; /* 🔥 viktigt */
 
 }
 
@@ -429,9 +428,6 @@ textarea{
 
 }
 
-/* ============================================================
-   MOBILE FILTER BAR — SEGMENTED
-   ============================================================ */
 
 /* ============================================================
    MOBILE FILTER BAR — ANIMATED (CLEAN)
