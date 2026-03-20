@@ -71,12 +71,9 @@ textarea{
    ============================================================ */
 
 .mobile-menu-btn{
-  position:fixed;
+  position:absolute;
   top:10px;
   left:14px;
-
-  z-index:1001; /* 🔥 viktig */
-
 }
 
   width:44px;
