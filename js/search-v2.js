@@ -252,16 +252,16 @@ mobileFilters?.addEventListener("click", (e) => {
 
   const label = btn.textContent.trim();
 
-  // UI state
+  // UI
   mobileFilters.querySelectorAll(".filter-item")
     .forEach(el => el.classList.remove("active"));
 
   btn.classList.add("active");
 
-  // 🔥 RESET STATE
+  // RESET STATE
   resetAllFilters();
 
-  // 🔥 EXACT SAME AS DESKTOP
+  // APPLY FILTER (desktop style)
   if (label === "Stores") {
     toggleChip({ type: "store" });
   }
@@ -278,7 +278,10 @@ mobileFilters?.addEventListener("click", (e) => {
     setSort("rating_desc");
   }
 
-  // 🔥 INGEN activateSearch här
+  // 🔥 CRITICAL — TRIGGER SEARCH
+  activateSearch({
+    text: input.value.trim()
+  });
 
   // UX
   mobileFilters.classList.remove("open");
