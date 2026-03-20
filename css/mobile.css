@@ -413,9 +413,13 @@ textarea{
    MOBILE FILTER BAR — SEGMENTED
    ============================================================ */
 
+/* ============================================================
+   MOBILE FILTER BAR — ANIMATED (CLEAN)
+   ============================================================ */
+
 .mobile-filters{
 
-  display:none;
+  display:flex;
   justify-content:space-between;
 
   margin-top:12px;
@@ -423,18 +427,39 @@ textarea{
   border-top:1px solid rgba(255,255,255,0.08);
   border-bottom:1px solid rgba(255,255,255,0.08);
 
-  padding:10px 0;
+  /* 🔥 START STÄNGD */
+  max-height:0;
+  opacity:0;
+  overflow:hidden;
+
+  padding:0;
+
+  transform:translateY(-6px);
+
+  transition:
+    max-height .25s ease,
+    opacity .2s ease,
+    transform .2s ease,
+    padding .2s ease;
 
 }
 
 /* OPEN */
 .mobile-filters.open{
-  display:flex;
+
+  max-height:60px;
+  opacity:1;
+
+  padding:10px 0;
+
+  transform:translateY(0);
+
 }
 
+/* ============================================================
+   ITEMS
+   ============================================================ */
 
-
-/* ITEM */
 .filter-item{
 
   flex:1;
@@ -453,6 +478,8 @@ textarea{
 
   position:relative;
 
+  transition:color .15s ease;
+
 }
 
 /* ACTIVE */
@@ -460,7 +487,7 @@ textarea{
   color:rgb(var(--global));
 }
 
-/* UNDERLINE (ACTIVE FEEL) */
+/* UNDERLINE */
 .filter-item.active::after{
 
   content:"";
