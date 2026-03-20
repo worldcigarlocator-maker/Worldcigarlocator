@@ -12,12 +12,14 @@ import {
   resetAllFilters
 } from "./cards.js";
 
-
 const qs = (sel) => document.querySelector(sel);
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  // set traffic source
+  // ============================================================
+  // ANALYTICS
+  // ============================================================
+
   if (window.WCL_ANALYTICS) {
     WCL_ANALYTICS.setSource("search");
   }
@@ -31,7 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ============================================================
   // MAP MODE (UI ONLY)
-  // map.js hanterar hela kartmotorn
   // ============================================================
 
   const mapBtn         = qs("#mapViewBtn");
@@ -85,8 +86,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     input.value = "";
 
-   resetAllFilters();
-resetToHero();
+    resetAllFilters();
+    resetToHero();
 
     controls?.querySelectorAll(".active")
       .forEach(el => el.classList.remove("active"));
@@ -131,8 +132,8 @@ resetToHero();
 
     input.value = "";
 
-  resetAllFilters();
-resetToHero();
+    resetAllFilters();
+    resetToHero();
 
     controls?.querySelectorAll(".active")
       .forEach(el => el.classList.remove("active"));
@@ -152,12 +153,12 @@ resetToHero();
 
     TIMER = setTimeout(() => {
 
-     if (!text) {
-  resetAllFilters();
-  resetToHero();
-} else {
-  activateSearch({ text });
-}
+      if (!text) {
+        resetAllFilters();
+        resetToHero();
+      } else {
+        activateSearch({ text });
+      }
 
     }, 250);
 
@@ -170,51 +171,52 @@ resetToHero();
     const text = input.value.trim();
 
     if (!text) {
-  resetAllFilters();
-  resetToHero();
-} else {
-  activateSearch({ text });
-}
+      resetAllFilters();
+      resetToHero();
+    } else {
+      activateSearch({ text });
+    }
 
   });
 
   // ============================================================
   // CLEAR BUTTON
   // ============================================================
-clearBtn?.addEventListener("click", () => {
 
-  clearTimeout(TIMER);
+  clearBtn?.addEventListener("click", () => {
 
-  input.value = "";
+    clearTimeout(TIMER);
 
-  resetAllFilters();
-  resetToHero();
+    input.value = "";
 
-  controls?.querySelectorAll(".active")
-    .forEach(el => el.classList.remove("active"));
+    resetAllFilters();
+    resetToHero();
 
-  // ---- FORCE MAP CLOSE ----
-  if (MAP_MODE) {
+    controls?.querySelectorAll(".active")
+      .forEach(el => el.classList.remove("active"));
 
-    MAP_MODE = false;
-    mapBtn?.classList.remove("active");
+    // FORCE MAP CLOSE
+    if (MAP_MODE) {
 
-    hero?.classList.remove("hidden");
-    storeGrid?.classList.remove("hidden");
-    resultsToolbar?.classList.remove("hidden");
+      MAP_MODE = false;
+      mapBtn?.classList.remove("active");
 
-    mapView?.classList.add("hidden");
+      hero?.classList.remove("hidden");
+      storeGrid?.classList.remove("hidden");
+      resultsToolbar?.classList.remove("hidden");
 
-    document.dispatchEvent(new CustomEvent("wcl:map-close"));
+      mapView?.classList.add("hidden");
 
-  }
+      document.dispatchEvent(new CustomEvent("wcl:map-close"));
 
-  input.focus();
+    }
 
-});
+    input.focus();
+
+  });
 
   // ============================================================
-  // FILTERS + SORT
+  // FILTERS + SORT (DESKTOP)
   // ============================================================
 
   controls?.addEventListener("click", (e) => {
@@ -260,7 +262,46 @@ clearBtn?.addEventListener("click", () => {
   });
 
   // ============================================================
-  // MASTER SYNC (SEARCH ↔ LOCATION)
+  // MOBILE FILTERS (UI ONLY)
+  // ============================================================
+
+  const filterBtnMobile = qs("#filterBtnMobile");
+  const mobileFilters   = qs("#mobileFilters");
+
+  if (filterBtnMobile && mobileFilters) {
+    filterBtnMobile.addEventListener("click", () => {
+      mobileFilters.classList.toggle("open");
+    });
+  }
+
+  const mobileFilterItems = document.querySelectorAll(".filter-item");
+
+  mobileFilterItems.forEach(btn => {
+    btn.addEventListener("click", () => {
+
+      mobileFilterItems.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      // FUTURE: koppla till cards.js
+    });
+  });
+
+  // ============================================================
+  // MOBILE ACTIONS BRIDGE
+  // ============================================================
+
+  qs("#mapViewBtnMobile")
+    ?.addEventListener("click", () => {
+      qs("#mapViewBtn")?.click();
+    });
+
+  qs("#clearBtnMobile")
+    ?.addEventListener("click", () => {
+      qs("#clearBtn")?.click();
+    });
+
+  // ============================================================
+  // MASTER SYNC
   // ============================================================
 
   document.addEventListener("wcl:master-change", (e) => {
@@ -272,21 +313,5 @@ clearBtn?.addEventListener("click", () => {
     }
 
   });
-
-});
-
-  // ============================================================
-  // MOBILE ACTIONS BRIDGE (SAFE)
-  // ============================================================
-
-  document.getElementById("mapViewBtnMobile")
-    ?.addEventListener("click", () => {
-      document.getElementById("mapViewBtn")?.click();
-    });
-
-  document.getElementById("clearBtnMobile")
-    ?.addEventListener("click", () => {
-      document.getElementById("clearBtn")?.click();
-    });
 
 });
