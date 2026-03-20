@@ -268,11 +268,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const filterBtnMobile = qs("#filterBtnMobile");
   const mobileFilters   = qs("#mobileFilters");
 
-  if (filterBtnMobile && mobileFilters) {
-    filterBtnMobile.addEventListener("click", () => {
-      mobileFilters.classList.toggle("open");
-    });
-  }
+ if (filterBtnMobile && mobileFilters) {
+  filterBtnMobile.addEventListener("click", () => {
+
+    mobileFilters.classList.toggle("open");
+    filterBtnMobile.classList.toggle("active");
+
+  });
+}
 
   const mobileFilterItems = document.querySelectorAll(".filter-item");
 
