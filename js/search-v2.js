@@ -274,3 +274,19 @@ clearBtn?.addEventListener("click", () => {
   });
 
 });
+
+  // ============================================================
+  // MOBILE ACTIONS BRIDGE (SAFE)
+  // ============================================================
+
+  document.getElementById("mapViewBtnMobile")
+    ?.addEventListener("click", () => {
+      document.getElementById("mapViewBtn")?.click();
+    });
+
+  document.getElementById("clearBtnMobile")
+    ?.addEventListener("click", () => {
+      document.getElementById("clearBtn")?.click();
+    });
+
+});
