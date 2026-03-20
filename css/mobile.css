@@ -416,6 +416,7 @@ textarea{
 .mobile-filters{
 
   display:none;
+  justify-content:space-between;
 
   margin-top:12px;
 
@@ -431,11 +432,7 @@ textarea{
   display:flex;
 }
 
-/* ROW */
-.mobile-filters{
-  display:none;
-  justify-content:space-between;
-}
+
 
 /* ITEM */
 .filter-item{
@@ -480,7 +477,7 @@ textarea{
 }
 
 /* ============================================================
-   FILTER BUTTON (FIX)
+   FILTER BUTTON (MATCH MAP)
    ============================================================ */
 
 .filter-btn{
@@ -493,17 +490,29 @@ textarea{
 
   background:#050505;
 
-  font-size:.85rem;
+  font-size:.9rem;
   font-weight:600;
 
-  color:rgba(255,255,255,.7);
+  color:rgba(255,255,255,.75);
 
   cursor:pointer;
 
+  transition:all .15s ease;
+
 }
 
-/* ACTIVE STATE */
+/* HOVER / TAP */
+.filter-btn:active{
+  transform:scale(.97);
+}
+
+/* ACTIVE */
 .filter-btn.active{
   color:rgb(var(--global));
-  border-color:rgba(var(--global),0.5);
+  border-color:rgba(var(--global),0.6);
+  box-shadow:0 0 0 1px rgba(var(--global),0.25);
+}
+
+.mobile-actions{
+  align-items:center;
 }
