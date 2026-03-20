@@ -258,17 +258,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btn.classList.add("active");
 
-    // reset logic first
-    resetAllFilters();
+resetAllFilters();
 
-    // apply
-    if (label === "Stores") toggleChip({ type: "store" });
-    if (label === "Lounge") toggleChip({ type: "lounge" });
-    if (label === "Members") toggleChip({ access: "members" });
-    if (label === "Top Rated") setSort("rating_desc");
+if (label === "Stores") {
+  activateSearch({ type: "store" });
+}
 
-  });
+if (label === "Lounge") {
+  activateSearch({ type: "lounge" });
+}
 
+if (label === "Members") {
+  activateSearch({ access: "members" });
+}
+
+if (label === "Top Rated") {
+  setSort("rating_desc");
+  activateSearch({});
+}
+
+    });
   // ============================================================
   // MOBILE ACTIONS BRIDGE
   // ============================================================
