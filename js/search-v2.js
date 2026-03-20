@@ -252,32 +252,33 @@ mobileFilters?.addEventListener("click", (e) => {
 
   const label = btn.textContent.trim();
 
-  // UI
+  // UI state
   mobileFilters.querySelectorAll(".filter-item")
     .forEach(el => el.classList.remove("active"));
 
   btn.classList.add("active");
 
-  // RESET STATE
+  // 🔥 RESET STATE
   resetAllFilters();
 
-  // 🔥 APPLY FILTER VIA SEARCH DIRECTLY
+  // 🔥 EXACT SAME AS DESKTOP
   if (label === "Stores") {
-    activateSearch({ type: "store" });
+    toggleChip({ type: "store" });
   }
 
   if (label === "Lounge") {
-    activateSearch({ type: "lounge" });
+    toggleChip({ type: "lounge" });
   }
 
   if (label === "Members") {
-    activateSearch({ access: "members" });
+    toggleChip({ access: "members" });
   }
 
   if (label === "Top Rated") {
     setSort("rating_desc");
-    activateSearch({});
   }
+
+  // 🔥 INGEN activateSearch här
 
   // UX
   mobileFilters.classList.remove("open");
