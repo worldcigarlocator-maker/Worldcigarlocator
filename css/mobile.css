@@ -408,3 +408,73 @@ textarea{
   }
 
 }
+
+/* ============================================================
+   MOBILE FILTER BAR — SEGMENTED
+   ============================================================ */
+
+.mobile-filters{
+
+  display:none;
+
+  margin-top:12px;
+
+  border-top:1px solid rgba(255,255,255,0.08);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+
+  padding:10px 0;
+
+}
+
+/* OPEN */
+.mobile-filters.open{
+  display:flex;
+}
+
+/* ROW */
+.mobile-filters{
+  display:none;
+  justify-content:space-between;
+}
+
+/* ITEM */
+.filter-item{
+
+  flex:1;
+
+  text-align:center;
+
+  font-size:.9rem;
+  font-weight:500;
+
+  color:rgba(255,255,255,0.6);
+
+  background:none;
+  border:none;
+
+  padding:6px 0;
+
+  position:relative;
+
+}
+
+/* ACTIVE */
+.filter-item.active{
+  color:rgb(var(--global));
+}
+
+/* UNDERLINE (ACTIVE FEEL) */
+.filter-item.active::after{
+
+  content:"";
+
+  position:absolute;
+  bottom:-10px;
+  left:20%;
+  right:20%;
+
+  height:2px;
+  border-radius:2px;
+
+  background:rgb(var(--global));
+}
