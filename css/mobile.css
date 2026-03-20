@@ -129,22 +129,43 @@ textarea{
   z-index:var(--z-search);
 }
 /* ============================================================
-   SEARCH CAPSULE
+   SEARCH — MOBILE CLEAN (NO CAPSULE UI)
    ============================================================ */
 
 .search-capsule{
-
-  display:flex;
-  align-items:center;
-  gap:8px;
-
-  width:100%;
-  min-width:0;
-
-  height:44px;
-
+  display:block;
+  height:auto;
+  gap:0;
 }
 
+
+   /* Ta bort desktop struktur */
+.zone-search{
+  width:100%;
+}
+
+/* Döda label helt */
+.search-label{
+  display:none !important;
+}
+
+/* Input blir ENDA UI */
+#searchInput{
+
+  width:100%;
+  height:48px;
+
+  border-radius:999px;
+
+  border:1px solid rgba(255,255,255,.12);
+
+  background:rgba(255,255,255,.04);
+
+  padding:0 16px;
+
+  font-size:16px;
+
+}
 /* ============================================================
    SEARCH INPUT
    ============================================================ */
