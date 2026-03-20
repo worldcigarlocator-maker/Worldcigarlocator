@@ -185,15 +185,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   clearBtn?.addEventListener("click", () => {
 
-    clearTimeout(TIMER);
+  clearTimeout(TIMER);
 
-    input.value = "";
+  input.value = "";
 
-    resetAllFilters();
-    resetToHero();
+  resetAllFilters();
+  resetToHero();
 
-    controls?.querySelectorAll(".active")
-      .forEach(el => el.classList.remove("active"));
+  controls?.querySelectorAll(".active")
+    .forEach(el => el.classList.remove("active"));
+
+  // 🔥 MOBILE FILTER RESET
+  document.querySelectorAll("#mobileFilters .active")
+    .forEach(el => el.classList.remove("active"));
+
+  // 🔥 STÄNG FILTER PANEL
+  document.getElementById("mobileFilters")?.classList.remove("open");
+  document.getElementById("filterBtnMobile")?.classList.remove("active");
+
+});
 
     // FORCE MAP CLOSE
     if (MAP_MODE) {
