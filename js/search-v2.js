@@ -327,4 +327,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
   });
 
+// ============================================================
+// MOBILE FILTERS → CARDS BRIDGE
+// ============================================================
+
+const mobileFilters = document.getElementById("mobileFilters");
+
+mobileFilters?.addEventListener("click", (e) => {
+
+  const btn = e.target.closest(".filter-item");
+  if (!btn) return;
+
+  const label = btn.textContent.trim();
+  const isActive = btn.classList.contains("active");
+
+  // reset UI (single select)
+  mobileFilters.querySelectorAll(".filter-item")
+    .forEach(el => el.classList.remove("active"));
+
+  if (!isActive) {
+    btn.classList.add("active");
+  }
+
+  // 🔥 CONNECT TO CARDS
+  if (label === "Stores") {
+    toggleChip({ type: isActive ? null : "store" });
+  }
+
+  if (label === "Lounge") {
+    toggleChip({ type: isActive ? null : "lounge" });
+  }
+
+  if (label === "Members") {
+    toggleChip({ access: isActive ? null : "members" });
+  }
+
+  if (label === "Top Rated") {
+    setSort(isActive ? "relevance" : "rating_desc");
+  }
+
+});
+
 });
