@@ -74,6 +74,9 @@ textarea{
   position:fixed;
   top:10px;
   left:14px;
+
+  z-index:1001; /* 🔥 viktig */
+
 }
 
   width:44px;
