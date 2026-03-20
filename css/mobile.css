@@ -305,4 +305,44 @@ textarea{
 }
 
 }
+/* ============================================================
+   MOBILE ACTION BUTTONS (MAP + CLEAR)
+   ============================================================ */
 
+@media (max-width:768px) and (hover: none) and (pointer: coarse){
+
+  /* dölj map + clear i kapseln */
+  .zone-map,
+  .zone-clear{
+    display:none;
+  }
+
+  /* ny rad med knappar */
+  .mobile-actions{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+  }
+
+  .mobile-actions button{
+    flex:1;
+    height:42px;
+
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.18);
+
+    background:#050505;
+
+    font-size:.9rem;
+    font-weight:600;
+  }
+
+  .mobile-actions .map-btn{
+    color:rgb(var(--global));
+  }
+
+  .mobile-actions .clear-btn{
+    color:rgba(255,255,255,.7);
+  }
+
+}
