@@ -1,3 +1,4 @@
+
 /* ============================================================
    WCL MOBILE LAYOUT
    Clean Mobile Controller
@@ -35,29 +36,57 @@ textarea{
   min-height:100vh;
   display:flex;
   flex-direction:column;
+}
 
    .main{
   position:relative;
 }
 /* ============================================================
-   HAMBURGER (FINAL CLEAN)
+   MOBILE HEADER
+   ============================================================ */
+
+.mobile-header{
+
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+
+  height:64px;
+
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  padding:0 14px;
+
+  background:#050505;
+  border-bottom:1px solid rgba(255,255,255,.08);
+
+  z-index:var(--z-header);
+
+}
+
+/* ============================================================
+   HAMBURGER
    ============================================================ */
 
 .mobile-menu-btn{
 
-  position:fixed;
-  top:16px;
-  left:14px;
+  position:absolute;
+  top:20px;
+  left:16px;
 
-  width:42px;
-  height:42px;
+  width:44px;
+  height:44px;
 
   border-radius:50%;
+
   border:1px solid rgba(255,255,255,0.15);
-  background:rgba(0,0,0,0.6);
+  background:rgba(0,0,0,0.4);
 
   color:#fff;
-  font-size:18px;
+  font-size:20px;
 
   display:flex;
   align-items:center;
@@ -65,7 +94,7 @@ textarea{
 
   backdrop-filter:blur(6px);
 
-  z-index:2000;
+  z-index:20;
 
 }
 
@@ -401,6 +430,9 @@ textarea{
 
 }
 
+/* ============================================================
+   MOBILE FILTER BAR — SEGMENTED
+   ============================================================ */
 
 /* ============================================================
    MOBILE FILTER BAR — ANIMATED (CLEAN)
