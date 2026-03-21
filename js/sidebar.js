@@ -329,6 +329,9 @@ function bindSidebarEvents(menu) {
 // ------------------------------------------------------------
 // NAVIGATION (country/state/city)
 // ------------------------------------------------------------
+// ------------------------------------------------------------
+// NAVIGATION (country/state/city)
+// ------------------------------------------------------------
 if (clickedLabel && level !== "continent") {
 
   if (window.WCL_ANALYTICS) {
@@ -340,13 +343,12 @@ if (clickedLabel && level !== "continent") {
     country: line.dataset.country || null,
     state: line.dataset.state || null,
     city: line.dataset.city || null,
-
+  });
 
   // 🔥 MOBILE ONLY — CLOSE MENU AFTER NAV
   if (window.matchMedia("(max-width:768px)").matches) {
 
     document.body.classList.remove("menu-open");
-
     document.querySelector(".sidebar")?.classList.remove("open");
 
     const btn = document.querySelector(".mobile-menu-btn");
@@ -354,5 +356,4 @@ if (clickedLabel && level !== "continent") {
 
   }
 
-  });
 }
