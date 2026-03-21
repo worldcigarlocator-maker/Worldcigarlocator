@@ -40,53 +40,21 @@ textarea{
   position:relative;
 }
 /* ============================================================
-   MOBILE HEADER
+   HAMBURGER (FINAL CLEAN)
    ============================================================ */
 
 .mobile-menu-btn{
 
-  position:absolute;
-  top:10px;
+  position:fixed;
+  top:16px;
   left:14px;
 
-  width:44px;
-  height:44px;
+  width:42px;
+  height:42px;
 
   border-radius:50%;
   border:1px solid rgba(255,255,255,0.15);
-  background:rgba(0,0,0,0.5);
-
-  color:#fff;
-  font-size:20px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  backdrop-filter:blur(6px);
-
-  z-index:999;
-
-}
-
-/* ============================================================
-   HAMBURGER
-   ============================================================ */
-
-.mobile-menu-btn{
-
-  position:absolute;
-  top:50%;
-  left:14px;
-
-  transform:translateY(-50%);
-
-  width:40px;
-  height:40px;
-
-  border-radius:50%;
-  border:1px solid rgba(255,255,255,0.15);
-  background:rgba(0,0,0,0.4);
+  background:rgba(0,0,0,0.6);
 
   color:#fff;
   font-size:18px;
@@ -95,7 +63,9 @@ textarea{
   align-items:center;
   justify-content:center;
 
-  z-index:10;
+  backdrop-filter:blur(6px);
+
+  z-index:2000;
 
 }
 
