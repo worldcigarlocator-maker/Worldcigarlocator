@@ -340,7 +340,7 @@ if (clickedLabel && level !== "continent") {
     country: line.dataset.country || null,
     state: line.dataset.state || null,
     city: line.dataset.city || null,
-  });
+
 
   // 🔥 MOBILE ONLY — CLOSE MENU AFTER NAV
   if (window.matchMedia("(max-width:768px)").matches) {
