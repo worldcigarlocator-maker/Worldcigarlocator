@@ -563,3 +563,21 @@ textarea{
 .mobile-actions{
   align-items:center;
 }
+
+/* ============================================================
+   MENU MODE (SIDEBAR FOCUS)
+   ============================================================ */
+
+.menu-open .hero,
+.menu-open .search-panel,
+.menu-open .mobile-actions,
+.menu-open #storeGrid,
+.menu-open #mapView,
+.menu-open .results-toolbar{
+  display:none !important;
+}
+
+/* OPTIONAL: gör sidebar full-height känsla */
+.menu-open .sidebar{
+  z-index:2000;
+}
