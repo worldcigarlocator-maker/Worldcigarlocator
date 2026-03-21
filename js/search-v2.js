@@ -361,8 +361,7 @@ mobileFilters?.addEventListener("click", (e) => {
       // Scroll to top
     setTimeout(() => {
   window.scrollTo(0, 0);
-}, 50
-              );
+}, 50);
 
   });
 
