@@ -109,7 +109,7 @@ background: var(--bg);
 
   display: flex;
   flex-direction: column;
-  justify-content: center;   /* 🔥 vertikal centrering */
+  justify-content: flex-start; 
 }
 
 /* ================= BASE ROW ================= */
