@@ -102,16 +102,14 @@ background: var(--bg);
 }
 
 /* ================= NAV SCROLL AREA ================= */
-#sidebarMenu {
+  #sidebarMenu {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
 
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; 
 }
-
 /* ================= BASE ROW ================= */
 
 .line {
