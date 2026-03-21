@@ -359,8 +359,10 @@ mobileFilters?.addEventListener("click", (e) => {
       input.blur();
 
       // Scroll to top
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    setTimeout(() => {
+  window.scrollTo(0, 0);
+}, 50
+              );
 
   });
 
