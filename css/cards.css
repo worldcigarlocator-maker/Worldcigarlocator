@@ -17,7 +17,7 @@
 /* Desktop — exact 4 per row */
 @media (min-width: 1280px) {
   #storeGrid {
-    grid-template-columns: repeat(4, 265px);
+    grid-template-columns: repeat(auto-fit, minmax(265px, 265px));
   }
 }
 
