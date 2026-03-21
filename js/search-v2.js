@@ -352,44 +352,43 @@ mobileFilters?.addEventListener("click", (e) => {
     window.matchMedia("(max-width:768px)").matches;
 
   // ------------------------------------------------------------
-  // BLOCK LIVE SEARCH (BUT KEEP INPUT WORKING)
-  // ------------------------------------------------------------
-  input.addEventListener("input", (e) => {
+// BLOCK LIVE SEARCH (BUT KEEP INPUT WORKING)
+// ------------------------------------------------------------
+input.addEventListener("input", (e) => {
 
-    if (!isMobile()) return;
+  if (!isMobile()) return;
 
-    // Stop live-search listeners, but NOT everything
-    e.stopPropagation();
+  // Stop live-search listeners, but NOT everything
+  e.stopPropagation();
 
-  }, true);
+}, true);
 
-  // ------------------------------------------------------------
-  // ENTER → TRIGGER SEARCH (MOBILE ONLY)
-  // ------------------------------------------------------------
-  input.addEventListener("keydown", (e) => {
 
-    if (!isMobile()) return;
+// ------------------------------------------------------------
+// ENTER → TRIGGER SEARCH (MOBILE ONLY)
+// ------------------------------------------------------------
+input.addEventListener("keydown", (e) => {
 
-    if (e.key === "Enter") {
+  if (!isMobile()) return;
 
-      e.preventDefault();
+  if (e.key === "Enter") {
 
-      if (window.WCL_ANALYTICS) {
-        WCL_ANALYTICS.setSource("search");
-      }
+    e.preventDefault();
 
-      activateSearch(input.value);
-
-      // Close keyboard
-      input.blur();
-
-      // 🔥 IMPORTANT: no smooth scroll (Safari bug)
-      setTimeout(() => {
-        window.scrollTo(0, 0);
-      }, 50);
-
+    if (window.WCL_ANALYTICS) {
+      WCL_ANALYTICS.setSource("search");
     }
 
-  });
+    activateSearch(input.value);
 
-})();
+    // Close keyboard
+    input.blur();
+
+    // 🔥 IMPORTANT: force top WITHOUT smooth scroll (Safari fix)
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+    });
+
+  }
+
+});
