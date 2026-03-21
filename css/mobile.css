@@ -353,30 +353,38 @@ textarea{
 }
 
 /* ============================================================
-   STORE GRID MOBILE
+   STORE GRID MOBILE — FIXED (FLUID CARDS)
    ============================================================ */
 
 @media (max-width:768px) and (hover: none) and (pointer: coarse){
 
   #storeGrid{
-    grid-template-columns:repeat(2,minmax(150px,1fr));
+    grid-template-columns:repeat(2,1fr);
     gap:1.3rem .8rem;
     padding-inline:.5rem;
   }
 
+  /* 🔥 CRITICAL — REMOVE FIXED WIDTH FROM DESKTOP */
+  .store-card{
+    width:100%;
+    height:auto;
+  }
+
 }
 
-/* Touch feedback */
+/* ============================================================
+   TOUCH FEEDBACK
+   ============================================================ */
 
 @media (max-width:768px) and (hover: none) and (pointer: coarse){
 
-.store-card:active{
-  transform:translateY(-2px) scale(.985);
+  .store-card:active{
+    transform:translateY(-2px) scale(.985);
 
-  box-shadow:
-    0 0 0 1px rgba(var(--global),.45),
-    0 14px 28px rgba(0,0,0,.85);
-}
+    box-shadow:
+      0 0 0 1px rgba(var(--global),.45),
+      0 14px 28px rgba(0,0,0,.85);
+  }
 
 }
 
