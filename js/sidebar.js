@@ -341,6 +341,17 @@ if (clickedLabel && level !== "continent") {
     state: line.dataset.state || null,
     city: line.dataset.city || null,
   });
-}
-  });
+
+  // 🔥 MOBILE ONLY — CLOSE MENU AFTER NAV
+  if (window.matchMedia("(max-width:768px)").matches) {
+
+    document.body.classList.remove("menu-open");
+
+    document.querySelector(".sidebar")?.classList.remove("open");
+
+    const btn = document.querySelector(".mobile-menu-btn");
+    if (btn) btn.textContent = "☰";
+
+  }
+
 }
