@@ -327,23 +327,26 @@ function bindSidebarEvents(menu) {
     }
 
     // ------------------------------------------------------------
-// NAVIGATION (country/state/city)
-// ------------------------------------------------------------
-if (clickedLabel && level !== "continent") {
+    // NAVIGATION (country/state/city)
+    // ------------------------------------------------------------
+    if (clickedLabel && level !== "continent") {
 
-  if (window.WCL_ANALYTICS) {
-    WCL_ANALYTICS.setSource("sidebar");
-  }
+      if (window.WCL_ANALYTICS) {
+        WCL_ANALYTICS.setSource("sidebar");
+      }
 
-  activateLocation({
-    continent: line.dataset.continent || null,
-    country: line.dataset.country || null,
-    state: line.dataset.state || null,
-    city: line.dataset.city || null,
+      activateLocation({
+        continent: line.dataset.continent || null,
+        country: line.dataset.country || null,
+        state: line.dataset.state || null,
+        city: line.dataset.city || null,
+      });
+
+    }
   });
-
 }
- // ============================================================
+
+// ============================================================
 // MOBILE — OUTSIDE CLICK CLOSE
 // ============================================================
 
@@ -371,4 +374,4 @@ document.addEventListener("click", (e) => {
   if (btn) btn.textContent = "☰";
 
 });
-    }
+    
