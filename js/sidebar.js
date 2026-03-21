@@ -327,29 +327,47 @@ function bindSidebarEvents(menu) {
     }
 
     // ------------------------------------------------------------
-    // NAVIGATION (country/state/city)
-    // ------------------------------------------------------------
-    if (clickedLabel && level !== "continent") {
+// NAVIGATION (country/state/city)
+// ------------------------------------------------------------
+if (clickedLabel && level !== "continent") {
 
-      if (window.WCL_ANALYTICS) {
-        WCL_ANALYTICS.setSource("sidebar");
-      }
+  if (window.WCL_ANALYTICS) {
+    WCL_ANALYTICS.setSource("sidebar");
+  }
 
-      activateLocation({
-        continent: line.dataset.continent || null,
-        country: line.dataset.country || null,
-        state: line.dataset.state || null,
-        city: line.dataset.city || null,
-      });
-
-      // 🔥 MOBILE ONLY — CLOSE MENU AFTER NAV
-      if (window.matchMedia("(max-width:768px)").matches) {
-        document.body.classList.remove("menu-open");
-        document.querySelector(".sidebar")?.classList.remove("open");
-
-        const btn = document.querySelector(".mobile-menu-btn");
-        if (btn) btn.textContent = "☰";
-      }
-    }
+  activateLocation({
+    continent: line.dataset.continent || null,
+    country: line.dataset.country || null,
+    state: line.dataset.state || null,
+    city: line.dataset.city || null,
   });
+
 }
+    // ============================================================
+// MOBILE — OUTSIDE CLICK CLOSE
+// ============================================================
+
+document.addEventListener("click", (e) => {
+
+  // Only mobile
+  if (!window.matchMedia("(max-width:768px)").matches) return;
+
+  // Only when menu is open
+  if (!document.body.classList.contains("menu-open")) return;
+
+  const sidebar = document.querySelector(".sidebar");
+  const btn = document.querySelector(".mobile-menu-btn");
+
+  // Ignore clicks inside sidebar
+  if (sidebar && sidebar.contains(e.target)) return;
+
+  // Ignore clicks on hamburger button
+  if (btn && btn.contains(e.target)) return;
+
+  // Close menu
+  document.body.classList.remove("menu-open");
+  sidebar?.classList.remove("open");
+
+  if (btn) btn.textContent = "☰";
+
+});
