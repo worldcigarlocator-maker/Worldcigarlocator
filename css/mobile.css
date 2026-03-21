@@ -88,7 +88,7 @@ textarea{
 
   display:flex;
   align-items:center;
-  justify-content: flex-start;
+  justify-content: center;
    
   backdrop-filter:blur(6px);
 
@@ -437,9 +437,6 @@ display:block;
 
 }
 
-/* ============================================================
-   MOBILE FILTER BAR — SEGMENTED
-   ============================================================ */
 
 /* ============================================================
    MOBILE FILTER BAR — ANIMATED (CLEAN)
