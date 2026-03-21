@@ -74,28 +74,28 @@ textarea{
    ============================================================ */
 
 .mobile-menu-btn{
-  position:absolute;
-  top:10px;
-  left:14px;
-}
 
-  width:44px;
-  height:44px;
+  position:absolute;
+  top:50%;
+  left:14px;
+
+  transform:translateY(-50%);
+
+  width:40px;
+  height:40px;
 
   border-radius:50%;
   border:1px solid rgba(255,255,255,0.15);
-  background:rgba(0,0,0,0.5);
+  background:rgba(0,0,0,0.4);
 
   color:#fff;
-  font-size:20px;
+  font-size:18px;
 
   display:flex;
   align-items:center;
   justify-content:center;
 
-  backdrop-filter:blur(6px);
-
-  z-index:999; /* 🔥 viktigt */
+  z-index:10;
 
 }
 
