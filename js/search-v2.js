@@ -339,14 +339,39 @@ mobileFilters?.addEventListener("click", (e) => {
     e.stopImmediatePropagation();
   }, true); // 🔥 capture phase (VERY IMPORTANT)
 
+ // ============================================================
+// MOBILE SEARCH OVERRIDE (SUBMIT ONLY · STABLE)
+// ============================================================
+
+(function () {
+
+  const input = document.querySelector("#searchInput");
+  if (!input) return;
+
+  const isMobile = () =>
+    window.matchMedia("(max-width:768px)").matches;
+
   // ------------------------------------------------------------
-  // ENABLE SEARCH ON ENTER (MOBILE)
+  // BLOCK LIVE SEARCH (BUT KEEP INPUT WORKING)
+  // ------------------------------------------------------------
+  input.addEventListener("input", (e) => {
+
+    if (!isMobile()) return;
+
+    // Stop live-search listeners, but NOT everything
+    e.stopPropagation();
+
+  }, true);
+
+  // ------------------------------------------------------------
+  // ENTER → TRIGGER SEARCH (MOBILE ONLY)
   // ------------------------------------------------------------
   input.addEventListener("keydown", (e) => {
 
     if (!isMobile()) return;
 
     if (e.key === "Enter") {
+
       e.preventDefault();
 
       if (window.WCL_ANALYTICS) {
@@ -358,8 +383,12 @@ mobileFilters?.addEventListener("click", (e) => {
       // Close keyboard
       input.blur();
 
-      // Scroll to top
-      window.scrollTo(0, 0);
+      // 🔥 IMPORTANT: no smooth scroll (Safari bug)
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+      }, 50);
+
+    }
 
   });
 
