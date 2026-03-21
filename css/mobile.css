@@ -34,12 +34,11 @@ textarea{
   width:100%;
   padding:72px 1rem 2rem;
   min-height:100vh;
-  display:flex;
-  flex-direction:column;
-}
 
-   .main{
+  display:block;              /* 🔥 viktig ändring */
   position:relative;
+
+  overflow-anchor:none;       /* 🔥 stoppar scroll jump */
 }
 /* ============================================================
    MOBILE HEADER
