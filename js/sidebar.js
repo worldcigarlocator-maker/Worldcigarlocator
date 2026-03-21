@@ -354,4 +354,5 @@ if (clickedLabel && level !== "continent") {
 
   }
 
+  });
 }
