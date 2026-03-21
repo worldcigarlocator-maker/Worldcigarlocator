@@ -88,8 +88,8 @@ textarea{
 
   display:flex;
   align-items:center;
-  justify-content:center;
-
+  justify-content: flex-start;
+   
   backdrop-filter:blur(6px);
 
   z-index:1000;
