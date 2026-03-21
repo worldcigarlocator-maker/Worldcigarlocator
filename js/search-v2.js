@@ -125,7 +125,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!text) {
         resetAllFilters();
-        resetToHero();
       } else {
         activateSearch({ text });
       }
