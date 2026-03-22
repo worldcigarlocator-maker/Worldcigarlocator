@@ -317,28 +317,6 @@ mobileFilters?.addEventListener("click", (e) => {
 
 });
 
-// ============================================================
-// MOBILE SEARCH OVERRIDE (SUBMIT ONLY)
-// ============================================================
-
-(function () {
-
-  const input = document.querySelector("#searchInput");
-  if (!input) return;
-
-  const isMobile = () =>
-    window.matchMedia("(max-width:768px)").matches;
-
-  // ------------------------------------------------------------
-  // BLOCK LIVE SEARCH ON MOBILE
-  // ------------------------------------------------------------
-  input.addEventListener("input", (e) => {
-    if (!isMobile()) return;
-
-    // Stop other listeners from firing
-    e.stopImmediatePropagation();
-  }, true); // 🔥 capture phase (VERY IMPORTANT)
-
  // ============================================================
 // MOBILE SEARCH OVERRIDE (SUBMIT ONLY · STABLE)
 // ============================================================
