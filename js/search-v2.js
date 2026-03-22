@@ -343,34 +343,38 @@ mobileFilters?.addEventListener("click", (e) => {
   // ------------------------------------------------------------
   // ENTER SEARCH (NO JUMP FIX)
   // ------------------------------------------------------------
-  input.addEventListener("keydown", (e) => {
+input.addEventListener("keydown", (e) => {
 
-    if (!isMobile()) return;
+  if (!isMobile()) return;
 
-    if (e.key === "Enter") {
+  if (e.key === "Enter") {
 
-      e.preventDefault();
+    e.preventDefault();
 
-      // 🔥 1. KILL FOCUS FIRST (CRITICAL)
+    // 🔥 1. SCROLL INPUT UR VIEW (CRITICAL)
+    window.scrollTo(0, 0);
+
+    // 🔥 2. FORCE REFLOW
+    document.body.style.transform = "scale(1)";
+    
+    // 🔥 3. BLUR EFTER ATT INPUT INTE ÄR I VIEW
+    setTimeout(() => {
+
       input.blur();
 
-      // 🔥 2. LOCK TOP
+      // 🔥 4. KÖR SEARCH EFTER BLUR
+      activateSearch({ text: input.value });
+
+      // 🔥 5. CLEANUP
+      document.body.style.transform = "";
+
+      // 🔥 6. FINAL LOCK
       window.scrollTo(0, 0);
 
-      // 🔥 3. WAIT FRAME (Safari fix)
-      requestAnimationFrame(() => {
+    }, 50);
 
-        activateSearch({ text: input.value });
+  }
 
-        // 🔥 4. DOUBLE LOCK (extra safety)
-        requestAnimationFrame(() => {
-          window.scrollTo(0, 0);
-        });
-
-      });
-
-    }
-
-  });
+});
 
 })(); 
