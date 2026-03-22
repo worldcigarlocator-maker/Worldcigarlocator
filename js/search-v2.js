@@ -318,19 +318,21 @@ mobileFilters?.addEventListener("click", (e) => {
 });
 
 // ============================================================
-// MOBILE SEARCH OVERRIDE (SUBMIT ONLY · FINAL FIX)
+// MOBILE SEARCH OVERRIDE (BUTTON ONLY · STABLE)
 // ============================================================
 
 (function () {
 
   const input = document.querySelector("#searchInput");
+  const submitBtn = document.querySelector("#searchSubmitMobile");
+
   if (!input) return;
 
   const isMobile = () =>
     window.matchMedia("(max-width:768px)").matches;
 
   // ------------------------------------------------------------
-  // BLOCK LIVE SEARCH
+  // BLOCK LIVE SEARCH (mobile only)
   // ------------------------------------------------------------
   input.addEventListener("input", (e) => {
 
@@ -341,40 +343,46 @@ mobileFilters?.addEventListener("click", (e) => {
   }, true);
 
   // ------------------------------------------------------------
-  // ENTER SEARCH (NO JUMP FIX)
+  // BLOCK ENTER (Safari bug)
   // ------------------------------------------------------------
-input.addEventListener("keydown", (e) => {
+  input.addEventListener("keydown", (e) => {
 
-  // ❌ BLOCK ENTER ON MOBILE (Safari bug)
-  if (window.matchMedia("(max-width:768px)").matches) {
+    if (!isMobile()) return;
+
     if (e.key === "Enter") {
       e.preventDefault();
       return;
     }
-  }
 
-  // ✅ DESKTOP BEHAVIOR (unchanged)
-  if (e.key !== "Enter") return;
+  });
 
-  const text = input.value.trim();
+  // ------------------------------------------------------------
+  // MOBILE SEARCH BUTTON (ONLY TRIGGER)
+  // ------------------------------------------------------------
+  submitBtn?.addEventListener("click", () => {
 
-  if (!text) {
-    resetAllFilters();
-    resetToHero();
-  } else {
-    activateSearch({ text });
-  }
+    if (!isMobile()) return;
 
-});
+    const text = input.value.trim();
 
-      document.body.style.transform = "";
+    // 🔥 CLOSE KEYBOARD FIRST (CRITICAL)
+    input.blur();
 
+    // 🔥 WAIT FOR SAFARI TO STABILIZE
+    setTimeout(() => {
+
+      if (!text) {
+        resetAllFilters();
+        resetToHero();
+      } else {
+        activateSearch({ text });
+      }
+
+      // 🔥 LOCK SCROLL TOP
       window.scrollTo(0, 0);
 
-    }, 50);
+    }, 100);
 
-  }
+  });
 
-});
-
-})(); 
+})();
