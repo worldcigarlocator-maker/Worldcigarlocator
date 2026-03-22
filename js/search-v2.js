@@ -36,10 +36,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const filterBtnMobile = qs("#filterBtnMobile");
   const mobileFilters   = qs("#mobileFilters");
 
+  const submitBtn = qs("#searchSubmitMobile"); // 🔥 FIX
+
   if (!input) return;
 
   let MAP_MODE = false;
   let TIMER = null;
+
+  const isMobile = () =>
+    window.matchMedia("(max-width:768px)").matches;
 
   // ============================================================
   // MAP MODE
@@ -113,27 +118,32 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ============================================================
-  // INPUT SEARCH
+  // INPUT SEARCH (DESKTOP ONLY)
   // ============================================================
 
-  input.addEventListener("input", () => {
+  input.addEventListener("input", (e) => {
+
+    if (isMobile()) {
+      e.stopImmediatePropagation();
+      return;
+    }
 
     const text = input.value.trim();
     clearTimeout(TIMER);
 
     TIMER = setTimeout(() => {
-
-      if (!text) {
-        resetAllFilters();
-      } else {
-        activateSearch({ text });
-      }
-
+      if (!text) resetAllFilters();
+      else activateSearch({ text });
     }, 250);
 
-  });
+  }, true);
 
   input.addEventListener("keydown", (e) => {
+
+    if (isMobile()) {
+      if (e.key === "Enter") e.preventDefault();
+      return;
+    }
 
     if (e.key !== "Enter") return;
 
@@ -149,7 +159,46 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ============================================================
-  // CLEAR (MASTER RESET)
+  // MOBILE SEARCH BUTTON (FINAL FIX)
+  // ============================================================
+
+  submitBtn?.addEventListener("click", () => {
+
+    if (!isMobile()) return;
+
+    const text = input.value.trim();
+
+    // 🔥 FREEZE SCROLL
+    const scrollY = window.scrollY;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
+
+    // 🔥 CLOSE KEYBOARD
+    input.blur();
+
+    setTimeout(() => {
+
+      if (!text) {
+        resetAllFilters();
+        resetToHero();
+      } else {
+        activateSearch({ text });
+      }
+
+      // 🔥 UNFREEZE
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+
+      window.scrollTo(0, 0);
+
+    }, 120);
+
+  });
+
+  // ============================================================
+  // CLEAR
   // ============================================================
 
   clearBtn?.addEventListener("click", () => {
@@ -164,27 +213,22 @@ document.addEventListener("DOMContentLoaded", () => {
     controls?.querySelectorAll(".active")
       .forEach(el => el.classList.remove("active"));
 
-    // MOBILE RESET
     document.querySelectorAll("#mobileFilters .active")
       .forEach(el => el.classList.remove("active"));
 
     mobileFilters?.classList.remove("open");
     filterBtnMobile?.classList.remove("active");
 
-    // CLOSE MAP
     if (MAP_MODE) {
-
       MAP_MODE = false;
       mapBtn?.classList.remove("active");
 
       hero?.classList.remove("hidden");
       storeGrid?.classList.remove("hidden");
       resultsToolbar?.classList.remove("hidden");
-
       mapView?.classList.add("hidden");
 
       document.dispatchEvent(new CustomEvent("wcl:map-close"));
-
     }
 
     input.focus();
@@ -203,7 +247,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const { filter, value, sort } = btn.dataset;
 
     if (filter) {
-
       const isActive = btn.classList.contains("active");
       btn.classList.toggle("active", !isActive);
 
@@ -214,7 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (sort) {
-
       const isActive = btn.classList.contains("active");
 
       controls.querySelectorAll("[data-sort]")
@@ -226,13 +268,12 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         setSort("relevance");
       }
-
     }
 
   });
 
   // ============================================================
-  // MOBILE FILTER TOGGLE
+  // MOBILE FILTERS
   // ============================================================
 
   filterBtnMobile?.addEventListener("click", () => {
@@ -240,155 +281,51 @@ document.addEventListener("DOMContentLoaded", () => {
     filterBtnMobile.classList.toggle("active");
   });
 
-  // ============================================================
-  // MOBILE FILTER → CARDS (CORE FIX)
-  // ============================================================
+  mobileFilters?.addEventListener("click", (e) => {
 
-mobileFilters?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".filter-item");
+    if (!btn) return;
 
-  const btn = e.target.closest(".filter-item");
-  if (!btn) return;
+    const label = btn.textContent.trim();
 
-  const label = btn.textContent.trim();
+    mobileFilters.querySelectorAll(".filter-item")
+      .forEach(el => el.classList.remove("active"));
 
-  // UI
-  mobileFilters.querySelectorAll(".filter-item")
-    .forEach(el => el.classList.remove("active"));
+    btn.classList.add("active");
 
-  btn.classList.add("active");
+    resetAllFilters();
 
-  // RESET STATE
-  resetAllFilters();
+    if (label === "Stores") toggleChip({ type: "store" });
+    if (label === "Lounge") toggleChip({ type: "lounge" });
+    if (label === "Members") toggleChip({ access: "members" });
+    if (label === "Top Rated") setSort("rating_desc");
 
-  // APPLY FILTER (desktop style)
-  if (label === "Stores") {
-    toggleChip({ type: "store" });
-  }
+    activateSearch({ text: input.value.trim() });
 
-  if (label === "Lounge") {
-    toggleChip({ type: "lounge" });
-  }
+    mobileFilters.classList.remove("open");
+    filterBtnMobile.classList.remove("active");
 
-  if (label === "Members") {
-    toggleChip({ access: "members" });
-  }
-
-  if (label === "Top Rated") {
-    setSort("rating_desc");
-  }
-
-  // 🔥 CRITICAL — TRIGGER SEARCH
-  activateSearch({
-    text: input.value.trim()
   });
 
-  // UX
-  mobileFilters.classList.remove("open");
-  filterBtnMobile.classList.remove("active");
-
-});
   // ============================================================
-  // MOBILE ACTIONS BRIDGE
+  // MOBILE ACTIONS
   // ============================================================
 
-  qs("#mapViewBtnMobile")
-    ?.addEventListener("click", () => {
-      mapBtn?.click();
-    });
+  qs("#mapViewBtnMobile")?.addEventListener("click", () => {
+    mapBtn?.click();
+  });
 
-  qs("#clearBtnMobile")
-    ?.addEventListener("click", () => {
-      clearBtn?.click();
-    });
+  qs("#clearBtnMobile")?.addEventListener("click", () => {
+    clearBtn?.click();
+  });
 
   // ============================================================
   // MASTER SYNC
   // ============================================================
 
   document.addEventListener("wcl:master-change", (e) => {
-
     const { master } = e.detail || {};
-
-    if (master === "location") {
-      input.value = "";
-    }
-
+    if (master === "location") input.value = "";
   });
-
-});
-
-// ============================================================
-// MOBILE SEARCH OVERRIDE (BUTTON ONLY · STABLE)
-// ============================================================
-
-(function () {
-
-  const input = document.querySelector("#searchInput");
-  const submitBtn = document.querySelector("#searchSubmitMobile");
-
-  if (!input) return;
-
-  const isMobile = () =>
-    window.matchMedia("(max-width:768px)").matches;
-
-  // ------------------------------------------------------------
-  // BLOCK LIVE SEARCH (mobile only)
-  // ------------------------------------------------------------
-  input.addEventListener("input", (e) => {
-
-    if (!isMobile()) return;
-
-    e.stopImmediatePropagation();
-
-  }, true);
-
-  // ------------------------------------------------------------
-  // BLOCK ENTER (Safari bug)
-  // ------------------------------------------------------------
-  input.addEventListener("keydown", (e) => {
-
-    if (!isMobile()) return;
-
-    if (e.key === "Enter") {
-      e.preventDefault();
-      return;
-    }
-
-  });
-
-  submitBtn?.addEventListener("click", () => {
-
-  if (!isMobile()) return;
-
-  const text = input.value.trim();
-
-  // 🔥 1. FREEZE SCROLL POSITION
-  const scrollY = window.scrollY;
-  document.body.style.position = "fixed";
-  document.body.style.top = `-${scrollY}px`;
-  document.body.style.width = "100%";
-
-  // 🔥 2. CLOSE KEYBOARD
-  input.blur();
-
-  // 🔥 3. WAIT FOR SAFARI
-  setTimeout(() => {
-
-    if (!text) {
-      resetAllFilters();
-      resetToHero();
-    } else {
-      activateSearch({ text });
-    }
-
-    // 🔥 4. UNFREEZE SCROLL (IMPORTANT)
-    document.body.style.position = "";
-    document.body.style.top = "";
-    document.body.style.width = "";
-
-    // 🔥 5. FORCE TOP (FINAL LOCK)
-    window.scrollTo(0, 0);
-
-  }, 120);
 
 });
