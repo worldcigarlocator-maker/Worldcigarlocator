@@ -371,3 +371,5 @@ mobileFilters?.addEventListener("click", (e) => {
   }
 
 });
+
+})(); 
