@@ -317,8 +317,8 @@ mobileFilters?.addEventListener("click", (e) => {
 
 });
 
- // ============================================================
-// MOBILE SEARCH OVERRIDE (SUBMIT ONLY · STABLE)
+// ============================================================
+// MOBILE SEARCH OVERRIDE (SUBMIT ONLY · FINAL FIX)
 // ============================================================
 
 (function () {
@@ -340,33 +340,37 @@ mobileFilters?.addEventListener("click", (e) => {
 
   }, true);
 
+  // ------------------------------------------------------------
+  // ENTER SEARCH (NO JUMP FIX)
+  // ------------------------------------------------------------
   input.addEventListener("keydown", (e) => {
 
-  if (!isMobile()) return;
+    if (!isMobile()) return;
 
-  if (e.key === "Enter") {
+    if (e.key === "Enter") {
 
-    e.preventDefault();
+      e.preventDefault();
 
-    // 🔥 1. TA BORT FOCUS DIREKT (VIKTIGASTE)
-    input.blur();
+      // 🔥 1. KILL FOCUS FIRST (CRITICAL)
+      input.blur();
 
-    // 🔥 2. LÅS SCROLL
-    window.scrollTo(0, 0);
+      // 🔥 2. LOCK TOP
+      window.scrollTo(0, 0);
 
-    // 🔥 3. LÅT SAFARI ANDAS
-    requestAnimationFrame(() => {
-
-      // 🔥 4. KÖR SEARCH EFTER FOCUS ÄR BORTA
-      activateSearch({ text: input.value });
-
-      // 🔥 5. EXTRA SAFETY
+      // 🔥 3. WAIT FRAME (Safari fix)
       requestAnimationFrame(() => {
-        window.scrollTo(0, 0);
+
+        activateSearch({ text: input.value });
+
+        // 🔥 4. DOUBLE LOCK (extra safety)
+        requestAnimationFrame(() => {
+          window.scrollTo(0, 0);
+        });
+
       });
 
-    });
+    }
 
-  }
+  });
 
-});
+})(); 
