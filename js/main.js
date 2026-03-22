@@ -323,3 +323,11 @@ document.addEventListener("click", (e) => {
   }
 
 });
+
+// ============================================================
+// SAFARI SCROLL FIX (GLOBAL)
+// ============================================================
+
+window.addEventListener("pageshow", () => {
+  window.scrollTo(0, 0);
+});
