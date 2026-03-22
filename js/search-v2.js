@@ -345,22 +345,29 @@ mobileFilters?.addEventListener("click", (e) => {
   // ------------------------------------------------------------
   input.addEventListener("keydown", (e) => {
 
-    if (!isMobile()) return;
+  if (!isMobile()) return;
 
-    if (e.key === "Enter") {
+  if (e.key === "Enter") {
 
-      e.preventDefault();
+    e.preventDefault();
+
+    // 🔥 FORCE TOP BEFORE ANY LAYOUT CHANGE
+    window.scrollTo(0, 0);
+
+    // 🔥 WAIT A FRAME (Safari needs this)
+    requestAnimationFrame(() => {
 
       activateSearch(input.value);
 
       input.blur();
 
+      // 🔥 FORCE AGAIN AFTER RENDER
       requestAnimationFrame(() => {
         window.scrollTo(0, 0);
       });
 
-    }
+    });
 
-  });
+  }
 
-})(); // 🔥 DENNA SAKNAS HOS DIG
+});
