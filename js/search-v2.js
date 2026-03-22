@@ -345,30 +345,30 @@ mobileFilters?.addEventListener("click", (e) => {
   // ------------------------------------------------------------
 input.addEventListener("keydown", (e) => {
 
-  if (!isMobile()) return;
+  // ❌ BLOCK ENTER ON MOBILE (Safari bug)
+  if (window.matchMedia("(max-width:768px)").matches) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      return;
+    }
+  }
 
-  if (e.key === "Enter") {
+  // ✅ DESKTOP BEHAVIOR (unchanged)
+  if (e.key !== "Enter") return;
 
-    e.preventDefault();
+  const text = input.value.trim();
 
-    // 🔥 1. SCROLL INPUT UR VIEW (CRITICAL)
-    window.scrollTo(0, 0);
+  if (!text) {
+    resetAllFilters();
+    resetToHero();
+  } else {
+    activateSearch({ text });
+  }
 
-    // 🔥 2. FORCE REFLOW
-    document.body.style.transform = "scale(1)";
-    
-    // 🔥 3. BLUR EFTER ATT INPUT INTE ÄR I VIEW
-    setTimeout(() => {
+});
 
-      input.blur();
-
-      // 🔥 4. KÖR SEARCH EFTER BLUR
-      activateSearch({ text: input.value });
-
-      // 🔥 5. CLEANUP
       document.body.style.transform = "";
 
-      // 🔥 6. FINAL LOCK
       window.scrollTo(0, 0);
 
     }, 50);
