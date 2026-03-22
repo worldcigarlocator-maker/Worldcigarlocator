@@ -352,43 +352,37 @@ mobileFilters?.addEventListener("click", (e) => {
     window.matchMedia("(max-width:768px)").matches;
 
   // ------------------------------------------------------------
-// BLOCK LIVE SEARCH (BUT KEEP INPUT WORKING)
-// ------------------------------------------------------------
-input.addEventListener("input", (e) => {
+  // BLOCK LIVE SEARCH
+  // ------------------------------------------------------------
+  input.addEventListener("input", (e) => {
 
-  if (!isMobile()) return;
+    if (!isMobile()) return;
 
-  // Stop live-search listeners, but NOT everything
-  e.stopPropagation();
+    e.stopImmediatePropagation();
 
-}, true);
+  }, true);
 
+  // ------------------------------------------------------------
+  // ENTER SEARCH
+  // ------------------------------------------------------------
+  input.addEventListener("keydown", (e) => {
 
-// ------------------------------------------------------------
-// ENTER → TRIGGER SEARCH (MOBILE ONLY)
-// ------------------------------------------------------------
-input.addEventListener("keydown", (e) => {
+    if (!isMobile()) return;
 
-  if (!isMobile()) return;
+    if (e.key === "Enter") {
 
-  if (e.key === "Enter") {
+      e.preventDefault();
 
-    e.preventDefault();
+      activateSearch(input.value);
 
-    if (window.WCL_ANALYTICS) {
-      WCL_ANALYTICS.setSource("search");
+      input.blur();
+
+      requestAnimationFrame(() => {
+        window.scrollTo(0, 0);
+      });
+
     }
 
-    activateSearch(input.value);
+  });
 
-    // Close keyboard
-    input.blur();
-
-    // 🔥 IMPORTANT: force top WITHOUT smooth scroll (Safari fix)
-    requestAnimationFrame(() => {
-      window.scrollTo(0, 0);
-    });
-
-  }
-
-});
+})(); // 🔥 DENNA SAKNAS HOS DIG
