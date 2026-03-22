@@ -356,33 +356,39 @@ mobileFilters?.addEventListener("click", (e) => {
 
   });
 
-  // ------------------------------------------------------------
-  // MOBILE SEARCH BUTTON (ONLY TRIGGER)
-  // ------------------------------------------------------------
   submitBtn?.addEventListener("click", () => {
 
-    if (!isMobile()) return;
+  if (!isMobile()) return;
 
-    const text = input.value.trim();
+  const text = input.value.trim();
 
-    // 🔥 CLOSE KEYBOARD FIRST (CRITICAL)
-    input.blur();
+  // 🔥 1. FREEZE SCROLL POSITION
+  const scrollY = window.scrollY;
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.width = "100%";
 
-    // 🔥 WAIT FOR SAFARI TO STABILIZE
-    setTimeout(() => {
+  // 🔥 2. CLOSE KEYBOARD
+  input.blur();
 
-      if (!text) {
-        resetAllFilters();
-        resetToHero();
-      } else {
-        activateSearch({ text });
-      }
+  // 🔥 3. WAIT FOR SAFARI
+  setTimeout(() => {
 
-      // 🔥 LOCK SCROLL TOP
-      window.scrollTo(0, 0);
+    if (!text) {
+      resetAllFilters();
+      resetToHero();
+    } else {
+      activateSearch({ text });
+    }
 
-    }, 100);
+    // 🔥 4. UNFREEZE SCROLL (IMPORTANT)
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.width = "";
 
-  });
+    // 🔥 5. FORCE TOP (FINAL LOCK)
+    window.scrollTo(0, 0);
 
-})();
+  }, 120);
+
+});
