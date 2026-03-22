@@ -357,7 +357,7 @@ mobileFilters?.addEventListener("click", (e) => {
     // 🔥 WAIT A FRAME (Safari needs this)
     requestAnimationFrame(() => {
 
-      activateSearch(input.value);
+      activateSearch({ text: input.value });
 
       input.blur();
 
