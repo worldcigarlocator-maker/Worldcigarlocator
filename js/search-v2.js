@@ -340,9 +340,6 @@ mobileFilters?.addEventListener("click", (e) => {
 
   }, true);
 
-  // ------------------------------------------------------------
-  // ENTER SEARCH
-  // ------------------------------------------------------------
   input.addEventListener("keydown", (e) => {
 
   if (!isMobile()) return;
@@ -351,17 +348,19 @@ mobileFilters?.addEventListener("click", (e) => {
 
     e.preventDefault();
 
-    // 🔥 FORCE TOP BEFORE ANY LAYOUT CHANGE
+    // 🔥 1. TA BORT FOCUS DIREKT (VIKTIGASTE)
+    input.blur();
+
+    // 🔥 2. LÅS SCROLL
     window.scrollTo(0, 0);
 
-    // 🔥 WAIT A FRAME (Safari needs this)
+    // 🔥 3. LÅT SAFARI ANDAS
     requestAnimationFrame(() => {
 
+      // 🔥 4. KÖR SEARCH EFTER FOCUS ÄR BORTA
       activateSearch({ text: input.value });
 
-      input.blur();
-
-      // 🔥 FORCE AGAIN AFTER RENDER
+      // 🔥 5. EXTRA SAFETY
       requestAnimationFrame(() => {
         window.scrollTo(0, 0);
       });
@@ -371,5 +370,3 @@ mobileFilters?.addEventListener("click", (e) => {
   }
 
 });
-
-})(); 
