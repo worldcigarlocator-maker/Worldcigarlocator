@@ -586,3 +586,21 @@ display:block;
 .menu-open .sidebar{
   z-index:2000;
 }
+
+.search-submit-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .search-submit-mobile {
+    display: block;
+    margin-top: 10px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 999px;
+    background: #73624B;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+  }
+}
