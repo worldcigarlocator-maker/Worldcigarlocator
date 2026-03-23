@@ -591,16 +591,42 @@ display:block;
   display: none;
 }
 
-@media (max-width: 768px) {
-  .search-submit-mobile {
-    display: block;
-    margin-top: 10px;
-    width: 100%;
-    padding: 12px;
-    border-radius: 999px;
-    background: #73624B;
-    color: #fff;
-    border: none;
-    font-weight: 600;
-  }
+/* ============================================================
+   SEARCH ICON (WCL SVG)
+   ============================================================ */
+
+.search-submit-mobile{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  width:48px;
+  height:48px;
+
+  background:none !important;
+  border:none !important;
+
+  color:rgb(var(--global));   /* 🔥 styr SVG */
+  cursor:pointer;
+}
+
+/* SVG styling */
+.search-submit-mobile svg{
+  width:22px;
+  height:22px;
+}
+
+/* stroke via currentColor */
+.search-submit-mobile .ink{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* interaction */
+.search-submit-mobile:active{
+  transform:scale(.9);
+  opacity:.7;
 }
