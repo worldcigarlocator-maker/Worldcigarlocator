@@ -168,19 +168,6 @@ textarea{
 /* ============================================================
    SEARCH PANEL — REMOVE DOUBLE CONTAINER
    ============================================================ */
-
-.search-panel{
-
-  padding:12px 14px;
-
-  background:#050505;
-
-  border-bottom:1px solid rgba(255,255,255,.08);
-
-  /* 🔥 VIKTIGT */
-  border-radius:0;
-}
-
 /* 🔥 DÖDA OUTER BORDER */
 .search-panel::before,
 .search-panel::after{
