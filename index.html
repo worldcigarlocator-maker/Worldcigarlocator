@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -163,9 +164,7 @@
    <div class="search-zone zone-search" id="searchZone">
   <span class="search-label">Search</span>
 
-<div class="search-zone zone-search" id="searchZone">
-
-  <span class="search-label">Search</span>
+<div class="search-input-wrap">
 
   <input
     id="searchInput"
@@ -174,11 +173,14 @@
     autocomplete="off"
   >
 
+  <!-- 🔥 MOBILE SEARCH BUTTON -->
   <button id="searchSubmitMobile" aria-label="Search">
-    <svg viewBox="0 0 140 140">
+
+    <svg viewBox="0 0 140 140" aria-hidden="true">
       <circle cx="60" cy="60" r="44" class="ink"/>
       <line x1="92" y1="92" x2="130" y2="130" class="ink"/>
     </svg>
+
   </button>
 
 </div>
