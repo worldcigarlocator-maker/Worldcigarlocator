@@ -145,14 +145,17 @@ let TIMER = null;
 
   input.addEventListener("keydown", (e) => {
 
-    if (isMobile()) {
-      if (e.key === "Enter") e.preventDefault();
-      return;
-    }
+  // 🔥 MOBILE
+  if (isMobile()) {
 
     if (e.key !== "Enter") return;
 
+    e.preventDefault();
+
     const text = input.value.trim();
+
+    // 🔥 CLOSE KEYBOARD
+    input.blur();
 
     if (!text) {
       resetAllFilters();
@@ -161,7 +164,23 @@ let TIMER = null;
       activateSearch({ text });
     }
 
-  });
+    window.scrollTo(0, 0);
+    return;
+  }
+
+  // 💻 DESKTOP (UNCHANGED)
+  if (e.key !== "Enter") return;
+
+  const text = input.value.trim();
+
+  if (!text) {
+    resetAllFilters();
+    resetToHero();
+  } else {
+    activateSearch({ text });
+  }
+
+});
 
   // ============================================================
   // MOBILE SEARCH BUTTON (FINAL FIX)
