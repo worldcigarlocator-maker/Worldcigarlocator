@@ -203,12 +203,19 @@ let TIMER = null;
 
     setTimeout(() => {
 
-      if (!text) {
-        resetAllFilters();
-        resetToHero();
-      } else {
-        activateSearch({ text });
-      }
+    if (!text) {
+  resetAllFilters();
+  resetToHero();
+} else {
+
+  // 🔥 FORCE UI STATE
+  hero?.classList.add("hidden");
+  mapView?.classList.add("hidden");
+  storeGrid?.classList.remove("hidden");
+  resultsToolbar?.classList.remove("hidden");
+
+  activateSearch({ text });
+}
 
       // 🔥 UNFREEZE
       document.body.style.position = "";
