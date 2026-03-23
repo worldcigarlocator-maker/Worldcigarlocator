@@ -157,23 +157,6 @@ textarea{
   display:none !important;
 }
 
-.search-capsule{
-  display:block;
-  height:auto;
-  gap:0;
-}
-
-
-   /* Ta bort desktop struktur */
-.zone-search{
-  width:100%;
-}
-
-/* Döda label helt */
-.search-label{
-  display:none !important;
-}
-
 /* ============================================================
    SEARCH INPUT — MOBILE (WCL CANONICAL)
    ============================================================ */
