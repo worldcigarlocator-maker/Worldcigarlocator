@@ -169,7 +169,10 @@ textarea{
   display:none !important;
 }
 
-/* Input blir ENDA UI */
+/* ============================================================
+   SEARCH INPUT — MOBILE (WCL CANONICAL)
+   ============================================================ */
+
 #searchInput{
 
   width:100%;
@@ -185,6 +188,20 @@ textarea{
 
   font-size:16px;
 
+  /* 🔥 TEXT */
+  color:rgb(var(--global));
+
+  /* 🔥 CURSOR */
+  caret-color:rgb(var(--global));
+
+}
+
+/* ============================================================
+   PLACEHOLDER
+   ============================================================ */
+
+#searchInput::placeholder{
+  color:rgba(255,255,255,0.4);
 }
 /* ============================================================
    SEARCH INPUT
