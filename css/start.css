@@ -136,23 +136,6 @@
   margin-top:8px;
 }
 
-/* CREATE + FORGOT */
-.auth-btn{
-  height:44px;
-  border-radius:999px;
-
-  border:1px solid rgba(255,255,255,0.18);
-  background:rgba(255,255,255,0.03);
-
-  font-size:.95rem;
-  font-weight:500;
-
-  color:rgba(255,255,255,0.85);
-
-  backdrop-filter:blur(6px);
-
-  transition:all .2s ease;
-}
 
 /* CREATE (accent) */
 #signupSubmit{
@@ -162,16 +145,6 @@
 /* FORGOT (soft) */
 #resetSubmit{
   color:rgba(255,255,255,0.6);
-}
-
-/* INTERACTION */
-.auth-btn:hover{
-  background:rgba(255,255,255,0.06);
-  border-color:rgba(255,255,255,0.3);
-}
-
-.auth-btn:active{
-  transform:scale(.96);
 }
 
 /* ============================================================
