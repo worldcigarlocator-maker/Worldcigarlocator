@@ -36,7 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const filterBtnMobile = qs("#filterBtnMobile");
   const mobileFilters   = qs("#mobileFilters");
 
-const submitBtn = document.getElementById("searchSubmitMobile");
+const submitBtnDesktop = document.getElementById("searchSubmitMobile");
+const submitBtnMobile  = document.getElementById("searchSubmitMobileNew");
 
   if (!input) return;
 
