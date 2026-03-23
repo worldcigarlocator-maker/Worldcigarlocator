@@ -10,6 +10,34 @@ import "./start.js";
 
 const qs = (sel) => document.querySelector(sel);
 
+// 🔥 AUTH MODE STATE (NEW)
+let AUTH_MODE = "login";
+
+// 🔥 AUTH MODE SWITCH (NEW)
+function setAuthMode(mode){
+
+  AUTH_MODE = mode;
+
+  const label  = qs(".login-text");
+  const pass   = qs("#loginPassword");
+
+  if (mode === "login") {
+    if (label) label.textContent = "Login";
+    if (pass) pass.style.display = "block";
+  }
+
+  if (mode === "signup") {
+    if (label) label.textContent = "Create account";
+    if (pass) pass.style.display = "block";
+  }
+
+  if (mode === "reset") {
+    if (label) label.textContent = "Send reset link";
+    if (pass) pass.style.display = "none";
+  }
+
+}
+
 // ============================================================
 // LOGIN POPUP (UI)
 // ============================================================
@@ -66,6 +94,18 @@ function bindLoginButtons() {
   // Sidebar "Login" button
   const loginBtn = qs("#loginBtn");
   loginBtn?.addEventListener("click", () => showLoginPopup());
+
+  // 🔥 NEW — MODE BUTTONS
+  const signupBtn = qs("#showSignup");
+  const resetBtn  = qs("#showReset");
+
+  signupBtn?.addEventListener("click", () => {
+    setAuthMode("signup");
+  });
+
+  resetBtn?.addEventListener("click", () => {
+    setAuthMode("reset");
+  });
 
   // Popup submit
   const submit = qs("#loginSubmit");
