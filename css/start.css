@@ -65,6 +65,60 @@
 }
 
 /* ============================================================
+   AUTH BUTTONS — MATCH LOGIN
+   ============================================================ */
+
+.auth-actions{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-top:0;
+}
+
+/* ALLA knappar i login-box får samma bas */
+.login-box button{
+  width:100%;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.03);
+  backdrop-filter:blur(6px);
+
+  transition:all .2s ease;
+}
+
+/* LOGIN (lite mindre men fortfarande tydlig) */
+#loginSubmit{
+  height:42px;
+  font-weight:600;
+}
+
+/* CREATE + FORGOT (samma storlek, lite större) */
+.auth-actions button{
+  height:44px;
+  font-weight:500;
+}
+
+/* CREATE = bronze accent */
+#signupSubmit{
+  color:rgb(var(--global));
+}
+
+/* FORGOT = diskret */
+#resetSubmit{
+  color:rgba(255,255,255,.6);
+}
+
+/* interaction */
+.login-box button:hover{
+  background:rgba(255,255,255,.06);
+  border-color:rgba(255,255,255,.3);
+}
+
+.login-box button:active{
+  transform:scale(.96);
+}
+
+/* ============================================================
    AUTH BUTTON BALANCE (WCL FINAL)
    ============================================================ */
 
