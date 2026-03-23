@@ -163,7 +163,7 @@ const submitBtnMobile  = document.getElementById("searchSubmitMobileNew");
   // MOBILE SEARCH BUTTON (FINAL FIX)
   // ============================================================
 
-  submitBtn?.addEventListener("click", () => {
+  submitBtnMobile?.addEventListener("click", () => {
 
     if (!isMobile()) return;
 
