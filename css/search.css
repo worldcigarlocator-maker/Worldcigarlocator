@@ -280,4 +280,32 @@
   display:block;
 }
 
+/* ============================================================
+   MOBILE SEARCH ICON (NEW)
+   ============================================================ */
 
+@media (max-width:768px){
+
+  .search-submit-mobile{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    height:48px;
+    width:48px;
+
+    background:none;
+    border:none;
+
+    color:rgb(var(--global));
+
+    font-size:20px;
+    cursor:pointer;
+  }
+
+  .search-submit-mobile:active{
+    transform:scale(.9);
+    opacity:.7;
+  }
+
+}
