@@ -657,3 +657,56 @@ display:block;
   transform:scale(.9);
   opacity:.7;
 }
+
+
+/* ============================================================
+   MOBILE SEARCH (ISOLATED)
+   ============================================================ */
+
+@media (max-width:768px) and (hover: none) and (pointer: coarse){
+
+  .mobile-search{
+    margin-top:10px;
+  }
+
+  .mobile-search-input-wrap{
+    position:relative;
+    width:100%;
+  }
+
+  #searchInputMobile{
+
+    width:100%;
+    height:48px;
+
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+
+    background:rgba(255,255,255,.04);
+
+    padding:0 44px 0 16px;
+
+    font-size:16px;
+
+    color:rgb(var(--global));
+    caret-color:rgb(var(--global));
+
+  }
+
+  #searchInputMobile::placeholder{
+    color:rgba(255,255,255,0.4);
+  }
+
+  .mobile-search .search-submit-mobile{
+
+    position:absolute;
+    right:8px;
+    top:50%;
+    transform:translateY(-50%);
+
+    width:36px;
+    height:36px;
+
+  }
+
+}
