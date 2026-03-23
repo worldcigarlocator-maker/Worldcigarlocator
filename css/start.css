@@ -64,6 +64,61 @@
   pointer-events:none;
 }
 
+/* ============================================================
+   AUTH BUTTON BALANCE (WCL FINAL)
+   ============================================================ */
+
+/* LOGIN */
+#loginSubmit{
+  height:42px;
+  font-weight:600;
+}
+
+/* ACTIONS WRAPPER */
+.auth-actions{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:8px;
+}
+
+/* CREATE + FORGOT */
+.auth-btn{
+  height:44px;
+  border-radius:999px;
+
+  border:1px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.03);
+
+  font-size:.95rem;
+  font-weight:500;
+
+  color:rgba(255,255,255,0.85);
+
+  backdrop-filter:blur(6px);
+
+  transition:all .2s ease;
+}
+
+/* CREATE (accent) */
+#signupSubmit{
+  color:rgb(var(--global));
+}
+
+/* FORGOT (soft) */
+#resetSubmit{
+  color:rgba(255,255,255,0.6);
+}
+
+/* INTERACTION */
+.auth-btn:hover{
+  background:rgba(255,255,255,0.06);
+  border-color:rgba(255,255,255,0.3);
+}
+
+.auth-btn:active{
+  transform:scale(.96);
+}
 
 /* ============================================================
    LOGIN PANEL
