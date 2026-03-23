@@ -15,37 +15,41 @@ const qs = (sel) => document.querySelector(sel);
 document.addEventListener("DOMContentLoaded", () => {
 
   // ============================================================
-  // INIT
-  // ============================================================
+// INIT
+// ============================================================
 
-  if (window.WCL_ANALYTICS) {
-    WCL_ANALYTICS.setSource("search");
-  }
+if (window.WCL_ANALYTICS) {
+  WCL_ANALYTICS.setSource("search");
+}
 
-  const input    = qs("#searchInput");
-  const clearBtn = qs("#clearBtn");
-  const label    = qs(".search-label");
-  const controls = qs("#searchControls");
+const isMobile = () =>
+  window.matchMedia("(max-width:768px)").matches;
 
-  const mapBtn         = qs("#mapViewBtn");
-  const mapView        = qs("#mapView");
-  const hero           = qs("#heroImage");
-  const storeGrid      = qs("#storeGrid");
-  const resultsToolbar = qs(".results-toolbar");
+const inputDesktop = qs("#searchInput");
+const inputMobile  = qs("#searchInputMobile");
 
-  const filterBtnMobile = qs("#filterBtnMobile");
-  const mobileFilters   = qs("#mobileFilters");
+const input = isMobile() ? inputMobile : inputDesktop;
+
+const clearBtn = qs("#clearBtn");
+const label    = qs(".search-label");
+const controls = qs("#searchControls");
+
+const mapBtn         = qs("#mapViewBtn");
+const mapView        = qs("#mapView");
+const hero           = qs("#heroImage");
+const storeGrid      = qs("#storeGrid");
+const resultsToolbar = qs(".results-toolbar");
+
+const filterBtnMobile = qs("#filterBtnMobile");
+const mobileFilters   = qs("#mobileFilters");
 
 const submitBtnDesktop = document.getElementById("searchSubmitMobile");
 const submitBtnMobile  = document.getElementById("searchSubmitMobileNew");
 
-  if (!input) return;
+if (!input) return;
 
-  let MAP_MODE = false;
-  let TIMER = null;
-
-  const isMobile = () =>
-    window.matchMedia("(max-width:768px)").matches;
+let MAP_MODE = false;
+let TIMER = null;
 
   // ============================================================
   // MAP MODE
