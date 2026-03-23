@@ -714,3 +714,23 @@ display:block;
   }
 
 }
+
+/* ============================================================
+   HARD DESKTOP LOCK (NO MOBILE LEAK)
+   ============================================================ */
+
+@media (min-width:769px){
+
+  .mobile-search{
+    display:none !important;
+  }
+
+  #searchInputMobile{
+    display:none !important;
+  }
+
+  #searchSubmitMobileNew{
+    display:none !important;
+  }
+
+}
