@@ -613,10 +613,7 @@ display:block;
    ============================================================ */
 
 .search-submit-mobile{
-
-  /* 🔒 DEFAULT = HIDDEN */
-  display:none;
-
+  display:flex;
   align-items:center;
   justify-content:center;
 
@@ -626,7 +623,7 @@ display:block;
   background:none !important;
   border:none !important;
 
-  color:rgb(var(--global)); /* styr SVG */
+  color:rgb(var(--global));   /* 🔥 styr SVG */
   cursor:pointer;
 }
 
@@ -652,13 +649,21 @@ display:block;
 }
 
 /* ============================================================
-   MOBILE ONLY
+   MOBILE SEARCH ICON — STRICT CONTROL
    ============================================================ */
 
+/* 🔒 DEFAULT (desktop) = GÖM */
+#searchSubmitMobile{
+  display:none;
+}
+
+/* 🔥 MOBILE ONLY */
 @media (max-width:768px){
 
-  .search-submit-mobile{
+  #searchSubmitMobile{
     display:flex;
+    align-items:center;
+    justify-content:center;
   }
 
 }
