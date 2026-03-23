@@ -137,6 +137,10 @@ function bindLoginButtons() {
       password: pass,
     });
 
+    if (!error) {
+  console.log("LOGIN SUCCESS");
+}
+
     if (error) {
       alert("Login failed: " + error.message);
       submit.disabled = false;
