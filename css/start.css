@@ -71,8 +71,8 @@
 .auth-actions{
   display:flex;
   flex-direction:column;
-  gap:6px;
-  margin-top:0;
+  gap:8px;      /* lite mer luft mellan create & forgot */
+  margin-top:2px; /* nästan ingen luft från login */
 }
 
 /* ALLA knappar i login-box får samma bas */
@@ -92,18 +92,19 @@
   font-weight:600;
 }
 
-/* CREATE + FORGOT (samma storlek, lite större) */
-.auth-actions button{
+/* CREATE + FORGOT — storlek */
+#signupSubmit,
+#resetSubmit{
   height:44px;
   font-weight:500;
 }
 
-/* CREATE = bronze accent */
+/* CREATE — accent */
 #signupSubmit{
   color:rgb(var(--global));
 }
 
-/* FORGOT = diskret */
+/* FORGOT — soft */
 #resetSubmit{
   color:rgba(255,255,255,.6);
 }
@@ -116,35 +117,6 @@
 
 .login-box button:active{
   transform:scale(.96);
-}
-
-/* ============================================================
-   AUTH BUTTON BALANCE (WCL FINAL)
-   ============================================================ */
-
-/* LOGIN */
-#loginSubmit{
-  height:42px;
-  font-weight:600;
-}
-
-/* ACTIONS WRAPPER */
-.auth-actions{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  margin-top:8px;
-}
-
-
-/* CREATE (accent) */
-#signupSubmit{
-  color:rgb(var(--global));
-}
-
-/* FORGOT (soft) */
-#resetSubmit{
-  color:rgba(255,255,255,0.6);
 }
 
 /* ============================================================
@@ -598,138 +570,6 @@ body.static-page{
 
   margin:6px 0;
 }
-/* ============================================================
-   LIST
-   ============================================================ */
-
-.legal-inner ul{
-  padding-left:18px;
-  color:rgba(255,255,255,0.78);
-}
-
-.legal-inner li{
-  margin-bottom:6px;
-}
-
-/* ============================================================
-   STATIC PAGES — WCL DOCUMENT LAYOUT
-   ============================================================ */
-
-body.static-page{
-  background:#050505;
-  color:#fff;
-  font-family:"DM Sans",sans-serif;
-}
-
-/* ============================================================
-   TOPBAR
-   ============================================================ */
-
-.page-topbar{
-  max-width:1200px;
-  margin:2rem auto 0;
-  padding:0 20px;
-
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-
-  border-bottom:1px solid rgba(255,255,255,0.08);
-  padding-bottom:14px;
-}
-
-.page-brand{
-  font-family:Georgia,"Times New Roman",serif;
-  font-size:28px;
-  color: rgb(var(--global));
-  text-decoration:none;
-}
-
-.page-nav{
-  display:flex;
-  gap:18px;
-}
-
-.page-nav a{
-  color:rgba(255,255,255,0.55);
-  text-decoration:none;
-  font-size:14px;
-  transition:opacity .2s ease;
-}
-
-.page-nav a:hover{
-  color: rgb(var(--global));
-}
-
-.page-nav a.active{
-  color: rgb(var(--global));
-  font-weight:600;
-}
-
-/* ============================================================
-   PAGE WRAP
-   ============================================================ */
-
-.legal-page{
-  max-width:900px;
-  margin:2.2rem auto 4rem;
-  padding:0 20px;
-}
-
-/* ============================================================
-   CONTENT SURFACE
-   ============================================================ */
-
-.legal-inner{
-  display:flex;
-  flex-direction:column;
-  gap:18px;
-
-  background:#0a0a0a;
-  padding:28px 32px;
-
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,0.06);
-
-  box-shadow:
-    0 10px 30px rgba(0,0,0,0.35);
-}
-
-/* ============================================================
-   TYPOGRAPHY
-   ============================================================ */
-
-.legal-inner h1{
-  font-family:Georgia,"Times New Roman",serif;
-  font-size:40px;
-  margin-bottom:6px;
-}
-
-.legal-inner h2{
-  font-size:20px;
-  margin-top:34px;
-  padding-top:22px;
-
-  color: rgb(var(--global));
-
-  border-top:1px solid rgba(255,255,255,0.08);
-}
-
-.legal-inner p{
-  color:rgba(255,255,255,0.78);
-  line-height:1.65;
-}
-
-.legal-inner .highlight{
-  color:#fff;
-  font-weight:600;
-
-  border-left:2px solid rgb(var(--global));
-  padding-left:10px;
-
-  margin:6px 0;
-}
-
 /* ============================================================
    LIST
    ============================================================ */
