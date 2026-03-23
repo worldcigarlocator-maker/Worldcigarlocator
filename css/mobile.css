@@ -152,6 +152,10 @@ textarea{
 /* ============================================================
    SEARCH — MOBILE CLEAN (NO CAPSULE UI)
    ============================================================ */
+   /* 🔥 HIDE DESKTOP SEARCH IN MOBILE */
+.search-panel{
+  display:none !important;
+}
 
 .search-capsule{
   display:block;
