@@ -647,3 +647,23 @@ display:block;
   transform:scale(.9);
   opacity:.7;
 }
+
+/* ============================================================
+   MOBILE SEARCH ICON — STRICT CONTROL
+   ============================================================ */
+
+/* 🔒 DEFAULT (desktop) = GÖM */
+#searchSubmitMobile{
+  display:none;
+}
+
+/* 🔥 MOBILE ONLY */
+@media (max-width:768px){
+
+  #searchSubmitMobile{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+}
