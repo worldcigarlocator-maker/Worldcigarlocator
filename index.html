@@ -212,9 +212,31 @@
         </div>
       </div>
 
-      
-      <!-- 🔥 MOBILE ACTIONS (NY) -->
- <div class="mobile-actions">
+<!-- 🔥 MOBILE SEARCH (ISOLATED) -->
+<div class="mobile-search">
+
+  <div class="mobile-search-input-wrap">
+
+    <input
+      id="searchInputMobile"
+      type="text"
+      placeholder="Search by name, city or address"
+      autocomplete="off"
+    >
+
+    <button id="searchSubmitMobile" class="search-submit-mobile" aria-label="Search">
+      <svg viewBox="0 0 140 140" aria-hidden="true">
+        <circle cx="60" cy="60" r="44" class="ink"/>
+        <line x1="92" y1="92" x2="130" y2="130" class="ink"/>
+      </svg>
+    </button>
+
+  </div>
+
+</div>
+
+<!-- 🔥 MOBILE ACTIONS -->
+<div class="mobile-actions">
 
   <button class="filter-btn" id="filterBtnMobile" aria-label="Open filters">
     Filter
@@ -227,15 +249,6 @@
   <button class="clear-btn" id="clearBtnMobile" aria-label="Clear search">
     Clear
   </button>
-
-</div>
-
-<div id="mobileFilters" class="mobile-filters">
-
-  <button class="filter-item">Stores</button>
-  <button class="filter-item">Lounge</button>
-  <button class="filter-item">Members</button>
-  <button class="filter-item">Top Rated</button>
 
 </div>
       
