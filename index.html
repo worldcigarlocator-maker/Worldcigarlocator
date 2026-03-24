@@ -89,38 +89,41 @@
     </div>
   </div>
 
-  <!-- LOGIN POPUP -->
-  <div id="loginPopup" class="login-popup hidden" style="display: none;">
-    <div class="login-box">
+<!-- LOGIN POPUP -->
+<div id="loginPopup" class="login-popup hidden" style="display: none;">
+  <div class="login-box">
 
-      <h1 class="login-title">World Cigar Locator</h1>
-      <p class="login-sub">Our global humidor opens soon</p>
+    <h1 class="login-title">World Cigar Locator</h1>
+    <p class="login-sub">Our global humidor opens soon</p>
 
-      <input id="loginEmail" type="email" placeholder="Email" autocomplete="username">
-      <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password">
+    <input id="loginEmail" type="email" placeholder="Email" autocomplete="username">
+    <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password">
 
-      <label class="remember">
-        <input type="checkbox" id="rememberMe">
-        Remember me
-      </label>
+    <label class="remember">
+      <input type="checkbox" id="rememberMe">
+      Remember me
+    </label>
 
-      <button id="loginSubmit">
-        <span class="login-text">Login</span>
-        <span id="loginSpinner" class="hidden">⏳</span>
+    <button id="loginSubmit">
+      <span class="login-text">Login</span>
+      <span id="loginSpinner" class="hidden">⏳</span>
+    </button>
+
+    <div class="auth-actions">
+      <button id="signupSubmit">
+        Create A New Account
       </button>
 
-<div class="auth-actions">
+      <button id="resetSubmit">
+        Reset Password
+      </button>
+    </div>
 
-  <button id="signupSubmit">
-    Create A New Account
-  </button>
+    <!-- 🔥 AUTH MESSAGE -->
+    <div id="authMessage" class="auth-message"></div>
 
-  <button id="resetSubmit">
-    Reset Password
-  </button>
-
-</div>
-
+  </div> <!-- login-box -->
+</div> <!-- loginPopup -->
     </div> <!-- login-box -->
   </div> <!-- 🔥 loginPopup -->
 
