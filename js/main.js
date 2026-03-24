@@ -27,6 +27,11 @@ function showLoginPopup() {
   popup.style.display = "flex";
   popup.classList.remove("hidden");
 
+  // 🔥 AUTO FOCUS
+  const email = qs("#loginEmail");
+  email?.focus();
+}
+
   // 🔥 CLEAR MESSAGE
   const msg = qs("#authMessage");
   if (msg) msg.textContent = "";
