@@ -171,8 +171,12 @@ signupBtn?.addEventListener("click", async () => {
   const spinner = qs("#loginSpinner");
   const label   = qs(".login-text");
 
+  // 🔥 VISA MODE DIREKT
   if (!email || !pass) {
-    setMessage("Enter email and password", "error");
+    setMessage(
+      "Enter an email and create a password for your new account. You will receive a confirmation email, just follow the given link. Welcome!",
+      "success"
+    );
     return;
   }
 
