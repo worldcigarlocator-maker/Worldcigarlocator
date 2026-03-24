@@ -96,8 +96,8 @@ function bindLoginButtons() {
   loginBtn?.addEventListener("click", () => showLoginPopup());
 
   // 🔥 NEW — MODE BUTTONS
-  const signupBtn = qs("#showSignup");
-  const resetBtn  = qs("#showReset");
+const signupBtn = qs("#signupSubmit");
+const resetBtn  = qs("#resetSubmit");
 
 signupBtn?.addEventListener("click", () => {
   console.log("SIGNUP CLICK");
