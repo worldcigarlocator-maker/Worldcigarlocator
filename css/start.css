@@ -102,6 +102,7 @@
 /* CREATE — accent */
 #signupSubmit{
   color:rgb(var(--global));
+  border-color:rgba(var(--global),.4);
 }
 
 /* FORGOT — soft */
