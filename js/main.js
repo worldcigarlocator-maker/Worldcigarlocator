@@ -27,16 +27,14 @@ function showLoginPopup() {
   popup.style.display = "flex";
   popup.classList.remove("hidden");
 
-  // 🔥 AUTO FOCUS
   const email = qs("#loginEmail");
   email?.focus();
-}
 
-  // 🔥 CLEAR MESSAGE
   const msg = qs("#authMessage");
   if (msg) msg.textContent = "";
-}
 
+  updateButtons();
+}
 // ============================================================
 // AUTH GATE (source of truth = session)
 // ============================================================
@@ -94,6 +92,26 @@ function bindLoginButtons() {
   const submit    = qs("#loginSubmit");
   const emailInput = qs("#loginEmail");
 const passInput  = qs("#loginPassword");
+
+  function updateButtons() {
+
+  const email = emailInput?.value?.trim();
+  const pass  = passInput?.value?.trim();
+
+  // LOGIN
+  submit.disabled = !(email && pass);
+
+  // SIGNUP
+  signupBtn.disabled = !(email && pass);
+
+  // RESET
+  resetBtn.disabled = !email;
+
+}
+
+  emailInput?.addEventListener("input", updateButtons);
+passInput?.addEventListener("input", updateButtons);
+  
 
 // ============================================================
 // LOGIN
