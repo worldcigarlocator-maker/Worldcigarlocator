@@ -117,10 +117,15 @@ function bindLoginButtons() {
     const spinner = qs("#loginSpinner");
     const label   = qs(".login-text");
 
-    if (!email || !pass) {
-      alert("Please fill in email and password.");
-      return;
-    }
+   if (!email) {
+  alert("Enter email");
+  return;
+}
+
+if (AUTH_MODE !== "reset" && !pass) {
+  alert("Enter password");
+  return;
+}
 
     // Remember email (optional)
     try {
@@ -132,24 +137,63 @@ function bindLoginButtons() {
     spinner?.classList.remove("hidden");
     if (label) label.textContent = "Logging in…";
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password: pass,
-    });
+ let error = null;
+
+if (AUTH_MODE === "login") {
+
+  const res = await supabase.auth.signInWithPassword({
+    email,
+    password: pass,
+  });
+
+  error = res.error;
+
+}
+
+if (AUTH_MODE === "signup") {
+
+  const res = await supabase.auth.signUp({
+    email,
+    password: pass,
+  });
+
+  error = res.error;
+
+}
+
+if (AUTH_MODE === "reset") {
+
+  const res = await supabase.auth.resetPasswordForEmail(email);
+
+  error = res.error;
+
+}
 
     if (!error) {
   console.log("LOGIN SUCCESS");
 }
 
-    if (error) {
-      alert("Login failed: " + error.message);
+   if (error) {
+  alert(error.message);
       submit.disabled = false;
       spinner?.classList.add("hidden");
       if (label) label.textContent = "Login";
       return;
     }
 
+ if (AUTH_MODE === "reset") {
+
+  submit.disabled = false;
+  spinner?.classList.add("hidden");
+  if (label) label.textContent = "Login";
+
+  alert("Password reset email sent");
+  return;
+}
     // Auth listener will hide, but hide immediately feels snappy
+    submit.disabled = false;
+spinner?.classList.add("hidden");
+if (label) label.textContent = "Login";
     hideLoginPopup();
   });
 
