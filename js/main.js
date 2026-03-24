@@ -202,11 +202,11 @@ resetBtn?.addEventListener("click", async () => {
   if (label) label.textContent = "Login";
 
   if (error) {
-    alert(error.message);
+    setMessage(error.message, "error");
     return;
   }
 
-  alert("Password reset email sent");
+  setMessage("Password reset email sent", "success");
 });
 
 
