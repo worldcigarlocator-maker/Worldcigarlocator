@@ -220,10 +220,13 @@ resetBtn?.addEventListener("click", async () => {
   const spinner = qs("#loginSpinner");
   const label   = qs(".login-text");
 
-  if (!email) {
-    setMessage("Enter email", "error");
-    return;
-  }
+ if (!email) {
+  setMessage(
+    "To reset your password, enter your email address and follow the link in your email.",
+    "success"
+  );
+  return;
+}
 
   resetBtn.disabled = true;
   spinner?.classList.remove("hidden");
