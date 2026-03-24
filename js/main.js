@@ -141,7 +141,7 @@ signupBtn?.addEventListener("click", async () => {
   spinner?.classList.remove("hidden");
   if (label) label.textContent = "Creating account…";
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password: pass,
   });
@@ -155,7 +155,15 @@ signupBtn?.addEventListener("click", async () => {
     return;
   }
 
-  alert("Account created");
+  // 🔥 HANDLE BOTH CASES
+  if (data?.session) {
+    // auto login
+    hideLoginPopup();
+  } else {
+    // email confirm required
+    alert("Check your email to confirm your account");
+  }
+
 });
 
 
