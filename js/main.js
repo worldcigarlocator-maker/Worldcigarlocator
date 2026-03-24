@@ -126,7 +126,7 @@ submit?.addEventListener("click", async () => {
   const label   = qs(".login-text");
 
   if (!email || !pass) {
-    alert("Enter email and password");
+   setMessage("Enter email and password", "error");
     return;
   }
 
@@ -172,7 +172,7 @@ signupBtn?.addEventListener("click", async () => {
   const label   = qs(".login-text");
 
   if (!email || !pass) {
-    alert("Enter email and password");
+    setMessage("Enter email and password", "error");
     return;
   }
 
