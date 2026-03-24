@@ -160,7 +160,7 @@ signupBtn?.addEventListener("click", async () => {
   if (label) label.textContent = "Login";
 
   if (error) {
-    alert(error.message);
+ setMessage(error.message, "error");
     return;
   }
 
@@ -170,7 +170,7 @@ signupBtn?.addEventListener("click", async () => {
     hideLoginPopup();
   } else {
     // email confirm required
-    alert("Check your email to confirm your account");
+    setMessage("Check your email to confirm your account", "success");
   }
 
 });
