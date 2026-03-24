@@ -10,34 +10,6 @@ import "./start.js";
 
 const qs = (sel) => document.querySelector(sel);
 
-// 🔥 AUTH MODE STATE (NEW)
-let AUTH_MODE = "login";
-
-// 🔥 AUTH MODE SWITCH (NEW)
-function setAuthMode(mode){
-
-  AUTH_MODE = mode;
-
-  const label  = qs(".login-text");
-  const pass   = qs("#loginPassword");
-
-  if (mode === "login") {
-    if (label) label.textContent = "Login";
-    if (pass) pass.style.display = "block";
-  }
-
-  if (mode === "signup") {
-    if (label) label.textContent = "Create account";
-    if (pass) pass.style.display = "block";
-  }
-
-  if (mode === "reset") {
-    if (label) label.textContent = "Send reset link";
-    if (pass) pass.style.display = "none";
-  }
-
-}
-
 // ============================================================
 // LOGIN POPUP (UI)
 // ============================================================
@@ -96,121 +68,146 @@ function bindLoginButtons() {
   loginBtn?.addEventListener("click", () => showLoginPopup());
 
   // 🔥 NEW — MODE BUTTONS
+
+
 const signupBtn = qs("#signupSubmit");
 const resetBtn  = qs("#resetSubmit");
+const submit    = qs("#loginSubmit");
 
-signupBtn?.addEventListener("click", () => {
-  console.log("SIGNUP CLICK");
-  setAuthMode("signup");
-});
+// ============================================================
+// LOGIN
+// ============================================================
+submit?.addEventListener("click", async () => {
 
-resetBtn?.addEventListener("click", () => {
-  console.log("RESET CLICK");
-  setAuthMode("reset");
-});
+  const email = qs("#loginEmail")?.value?.trim();
+  const pass  = qs("#loginPassword")?.value?.trim();
+  const remember = qs("#rememberMe");
 
-  // Popup submit
-  const submit = qs("#loginSubmit");
-  submit?.addEventListener("click", async () => {
-    const email = qs("#loginEmail")?.value?.trim();
-    const pass  = qs("#loginPassword")?.value?.trim();
-    const remember = qs("#rememberMe");
+  const spinner = qs("#loginSpinner");
+  const label   = qs(".login-text");
 
-    const spinner = qs("#loginSpinner");
-    const label   = qs(".login-text");
+  if (!email || !pass) {
+    alert("Enter email and password");
+    return;
+  }
 
-   if (!email) {
-  alert("Enter email");
-  return;
-}
+  try {
+    if (remember?.checked) localStorage.setItem("wcl_saved_email", email);
+    else localStorage.removeItem("wcl_saved_email");
+  } catch {}
 
-if (AUTH_MODE !== "reset" && !pass) {
-  alert("Enter password");
-  return;
-}
+  submit.disabled = true;
+  spinner?.classList.remove("hidden");
+  if (label) label.textContent = "Logging in…";
 
-    // Remember email (optional)
-    try {
-      if (remember?.checked) localStorage.setItem("wcl_saved_email", email);
-      else localStorage.removeItem("wcl_saved_email");
-    } catch {}
-
-    submit.disabled = true;
-    spinner?.classList.remove("hidden");
-    if (label) label.textContent = "Logging in…";
-
- let error = null;
-
-if (AUTH_MODE === "login") {
-
-  const res = await supabase.auth.signInWithPassword({
+  const { error } = await supabase.auth.signInWithPassword({
     email,
     password: pass,
   });
 
-  error = res.error;
-
-}
-
-if (AUTH_MODE === "signup") {
-
-  const res = await supabase.auth.signUp({
-    email,
-    password: pass,
-  });
-
-  error = res.error;
-
-}
-
-if (AUTH_MODE === "reset") {
-
-  const res = await supabase.auth.resetPasswordForEmail(email);
-
-  error = res.error;
-
-}
-
-    if (!error) {
-  console.log("LOGIN SUCCESS");
-}
-
-   if (error) {
-  alert(error.message);
-      submit.disabled = false;
-      spinner?.classList.add("hidden");
-      if (label) label.textContent = "Login";
-      return;
-    }
-
- if (AUTH_MODE === "reset") {
+  if (error) {
+    alert(error.message);
+    submit.disabled = false;
+    spinner?.classList.add("hidden");
+    if (label) label.textContent = "Login";
+    return;
+  }
 
   submit.disabled = false;
   spinner?.classList.add("hidden");
   if (label) label.textContent = "Login";
 
-  alert("Password reset email sent");
-  return;
-}
-    // Auth listener will hide, but hide immediately feels snappy
-    submit.disabled = false;
-spinner?.classList.add("hidden");
-if (label) label.textContent = "Login";
-    hideLoginPopup();
+  hideLoginPopup();
+});
+
+
+// ============================================================
+// CREATE ACCOUNT
+// ============================================================
+signupBtn?.addEventListener("click", async () => {
+
+  const email = qs("#loginEmail")?.value?.trim();
+  const pass  = qs("#loginPassword")?.value?.trim();
+
+  const spinner = qs("#loginSpinner");
+  const label   = qs(".login-text");
+
+  if (!email || !pass) {
+    alert("Enter email and password");
+    return;
+  }
+
+  signupBtn.disabled = true;
+  spinner?.classList.remove("hidden");
+  if (label) label.textContent = "Creating account…";
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password: pass,
   });
 
-  // Pre-fill email if remembered
-  try {
-    const saved = localStorage.getItem("wcl_saved_email");
-    const emailEl = qs("#loginEmail");
-    const rememberEl = qs("#rememberMe");
-    if (saved && emailEl) {
-      emailEl.value = saved;
-      if (rememberEl) rememberEl.checked = true;
-    }
-  } catch {}
-}
+  signupBtn.disabled = false;
+  spinner?.classList.add("hidden");
+  if (label) label.textContent = "Login";
 
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Account created");
+});
+
+
+// ============================================================
+// RESET PASSWORD
+// ============================================================
+resetBtn?.addEventListener("click", async () => {
+
+  const email = qs("#loginEmail")?.value?.trim();
+
+  const spinner = qs("#loginSpinner");
+  const label   = qs(".login-text");
+
+  if (!email) {
+    alert("Enter email");
+    return;
+  }
+
+  resetBtn.disabled = true;
+  spinner?.classList.remove("hidden");
+  if (label) label.textContent = "Sending…";
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+  resetBtn.disabled = false;
+  spinner?.classList.add("hidden");
+  if (label) label.textContent = "Login";
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Password reset email sent");
+});
+
+
+// ============================================================
+// PREFILL EMAIL
+// ============================================================
+try {
+  const saved = localStorage.getItem("wcl_saved_email");
+  const emailEl = qs("#loginEmail");
+  const rememberEl = qs("#rememberMe");
+
+  if (saved && emailEl) {
+    emailEl.value = saved;
+    if (rememberEl) rememberEl.checked = true;
+  }
+} catch {}
+}
+  
 // ============================================================
 // SIDEBAR INIT (run once)
 // ============================================================
