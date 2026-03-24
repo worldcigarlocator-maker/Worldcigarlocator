@@ -63,16 +63,25 @@ async function syncAuthGate() {
 // LOGIN BINDINGS
 // ============================================================
 function bindLoginButtons() {
+
   // Sidebar "Login" button
   const loginBtn = qs("#loginBtn");
   loginBtn?.addEventListener("click", () => showLoginPopup());
 
-  // 🔥 NEW — MODE BUTTONS
+  // 🔥 AUTH MESSAGE
+  const msg = qs("#authMessage");
 
+  function setMessage(text, type = "info") {
+    if (!msg) return;
 
-const signupBtn = qs("#signupSubmit");
-const resetBtn  = qs("#resetSubmit");
-const submit    = qs("#loginSubmit");
+    msg.textContent = text;
+    msg.className = "auth-message " + type;
+  }
+
+  // 🔥 BUTTONS
+  const signupBtn = qs("#signupSubmit");
+  const resetBtn  = qs("#resetSubmit");
+  const submit    = qs("#loginSubmit");
 
 // ============================================================
 // LOGIN
