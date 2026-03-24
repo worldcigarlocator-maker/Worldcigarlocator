@@ -120,6 +120,29 @@
 }
 
 /* ============================================================
+   DISABLED STATE (IMPORTANT)
+   ============================================================ */
+
+.login-box button:disabled{
+  opacity:0.35;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+  background:rgba(255,255,255,.02);
+  border-color:rgba(255,255,255,.08);
+}
+
+/* hover endast när enabled */
+.login-box button:not(:disabled):hover{
+  background:rgba(255,255,255,.06);
+  border-color:rgba(255,255,255,.3);
+}
+
+/* active endast när enabled */
+.login-box button:not(:disabled):active{
+  transform:scale(.96);
+}
+/* ============================================================
    LOGIN PANEL
    ============================================================ */
 
