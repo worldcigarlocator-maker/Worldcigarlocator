@@ -87,6 +87,8 @@ function bindLoginButtons() {
   const signupBtn = qs("#signupSubmit");
   const resetBtn  = qs("#resetSubmit");
   const submit    = qs("#loginSubmit");
+  const emailInput = qs("#loginEmail");
+const passInput  = qs("#loginPassword");
 
 // ============================================================
 // LOGIN
@@ -192,13 +194,13 @@ resetBtn?.addEventListener("click", async () => {
   const label   = qs(".login-text");
 
   if (!email) {
-    alert("Enter email");
+    setMessage("Enter email", "error");
     return;
   }
 
   resetBtn.disabled = true;
   spinner?.classList.remove("hidden");
-  if (label) label.textContent = "Sending…";
+  setMessage("Sending reset email…");
 
   const { error } = await supabase.auth.resetPasswordForEmail(email);
 
@@ -214,7 +216,22 @@ resetBtn?.addEventListener("click", async () => {
   setMessage("Password reset email sent", "success");
 });
 
+function handleEnter(e) {
+  if (e.key === "Enter") {
+    e.preventDefault();
 
+    if (document.activeElement === emailInput && !passInput?.value) {
+      resetBtn?.click();
+    } else {
+      submit?.click();
+    }
+  }
+}
+
+emailInput?.addEventListener("keydown", handleEnter);
+passInput?.addEventListener("keydown", handleEnter);
+
+  
 // ============================================================
 // PREFILL EMAIL
 // ============================================================
