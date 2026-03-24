@@ -23,8 +23,13 @@ function hideLoginPopup() {
 function showLoginPopup() {
   const popup = qs("#loginPopup");
   if (!popup) return;
+
   popup.style.display = "flex";
   popup.classList.remove("hidden");
+
+  // 🔥 CLEAR MESSAGE
+  const msg = qs("#authMessage");
+  if (msg) msg.textContent = "";
 }
 
 // ============================================================
