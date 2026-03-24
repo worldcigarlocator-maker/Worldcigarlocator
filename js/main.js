@@ -200,7 +200,7 @@ signupBtn?.addEventListener("click", async () => {
     hideLoginPopup();
   } else {
     // email confirm required
-    setMessage("Check your email to confirm your account", "success");
+    setMessage("Enter your email and create a password to confirm your new account", "success");
   }
 
 });
