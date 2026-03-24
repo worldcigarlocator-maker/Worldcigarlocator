@@ -99,13 +99,15 @@ function bindLoginButtons() {
   const signupBtn = qs("#showSignup");
   const resetBtn  = qs("#showReset");
 
-  signupBtn?.addEventListener("click", () => {
-    setAuthMode("signup");
-  });
+signupBtn?.addEventListener("click", () => {
+  console.log("SIGNUP CLICK");
+  setAuthMode("signup");
+});
 
-  resetBtn?.addEventListener("click", () => {
-    setAuthMode("reset");
-  });
+resetBtn?.addEventListener("click", () => {
+  console.log("RESET CLICK");
+  setAuthMode("reset");
+});
 
   // Popup submit
   const submit = qs("#loginSubmit");
