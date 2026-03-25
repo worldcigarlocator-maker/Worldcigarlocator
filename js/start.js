@@ -115,7 +115,7 @@ if (!hasAccess) {
       width:320px;
       text-align:center;
     ">
-      <h2 style="margin-bottom:20px;">World Cigar Locator coming soon</h2>
+      <h2 style="margin-bottom:20px;">World Cigar Locator coming soon...</h2>
 
       <input id="wcl-user" placeholder="Username" style="
         width:100%;
