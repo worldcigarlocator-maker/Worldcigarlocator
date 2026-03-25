@@ -84,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // COMMENT THIS BLOCK OUT TO DISABLE
   // ============================================================
 
-  /*
   const ACCESS_KEY = "wcl_access";
 
   const VALID_USER = "jockefylla";
@@ -164,7 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     return;
   }
-  */
 
   // ============================================================
   // NORMAL APP FLOW
