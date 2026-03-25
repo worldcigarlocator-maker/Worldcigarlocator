@@ -73,7 +73,102 @@ export function fakeOnline() {
 // BOOT
 // ============================================================
 
+// ============================================================
+// BOOT
+// ============================================================
+
 document.addEventListener("DOMContentLoaded", () => {
+
+  // ============================================================
+  // WCL ACCESS GATE (FRONTEND ONLY)
+  // COMMENT THIS BLOCK OUT TO DISABLE
+  // ============================================================
+
+  /*
+  const ACCESS_KEY = "wcl_access";
+
+  const VALID_USER = "jockefylla";
+  const VALID_PASS = "jockefylla";
+
+  const hasAccess = localStorage.getItem(ACCESS_KEY) === "granted";
+
+  if (!hasAccess) {
+
+    document.body.innerHTML = `
+      <div style="
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        height:100vh;
+        background:#050505;
+        color:#fff;
+        font-family:system-ui;
+      ">
+        <div style="
+          background:#0a0a0a;
+          padding:40px;
+          border-radius:16px;
+          border:1px solid rgba(255,255,255,0.1);
+          width:320px;
+          text-align:center;
+        ">
+          <h2 style="margin-bottom:20px;">Private Beta</h2>
+
+          <input id="wcl-user" placeholder="Username" style="
+            width:100%;
+            margin-bottom:10px;
+            padding:10px;
+            background:#111;
+            border:1px solid #222;
+            color:#fff;
+          " />
+
+          <input id="wcl-pass" type="password" placeholder="Password" style="
+            width:100%;
+            margin-bottom:20px;
+            padding:10px;
+            background:#111;
+            border:1px solid #222;
+            color:#fff;
+          " />
+
+          <button id="wcl-enter" style="
+            width:100%;
+            padding:10px;
+            background:rgb(115,98,75);
+            border:none;
+            color:#fff;
+            cursor:pointer;
+          ">Enter</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("wcl-enter").onclick = () => {
+
+      const user = document.getElementById("wcl-user").value;
+      const pass = document.getElementById("wcl-pass").value;
+
+      if (user === VALID_USER && pass === VALID_PASS) {
+
+        localStorage.setItem(ACCESS_KEY, "granted");
+        location.reload();
+
+      } else {
+
+        alert("Wrong credentials");
+
+      }
+
+    };
+
+    return;
+  }
+  */
+
+  // ============================================================
+  // NORMAL APP FLOW
+  // ============================================================
 
   // Age gate
   initAgeGate();
