@@ -66,7 +66,7 @@ export function fakeOnline() {
 
   const count = 28 + Math.round(Math.random() * 14);
 
-  el.textContent = `${count} online`;
+  el.textContent = count + " online";
 
 }
 
