@@ -93,7 +93,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!hasAccess) {
 
-    document.body.innerHTML = `
+const gate = document.createElement("div");
+gate.innerHTML = `
+  ...HTML...
+`;
+document.body.appendChild(gate);
+    
       <div style="
         display:flex;
         align-items:center;
