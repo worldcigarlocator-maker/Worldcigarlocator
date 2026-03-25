@@ -25,7 +25,6 @@ function getDefaultContinent(lang){
     || "Europe";
 }
 
-
 const sortAZ = (a, b) =>
   String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
 
@@ -164,6 +163,27 @@ export async function buildFrontendSidebar() {
 }
 
 // ============================================================
+// CENTER SIDEBAR VIEWPORT (INITIAL ONLY)
+// ============================================================
+
+function centerSidebarViewportOnce() {
+
+  const sidebar = document.querySelector(".sidebar");
+  if (!sidebar) return;
+
+  if (sidebar.dataset.centered === "true") return;
+
+  const contentHeight = sidebar.scrollHeight;
+  const containerHeight = sidebar.clientHeight;
+
+  if (contentHeight <= containerHeight) return;
+
+  sidebar.scrollTop = (contentHeight - containerHeight) / 2;
+
+  sidebar.dataset.centered = "true";
+}
+
+// ============================================================
 // RENDER
 // ============================================================
 
@@ -181,9 +201,8 @@ function renderSidebar(continents, menu) {
       });
 
       // 🔥 AUTO OPEN 
-continentNode.wrapper.classList.add("open");
-continentNode.childrenContainer.classList.add("show");
-      
+      continentNode.wrapper.classList.add("open");
+      continentNode.childrenContainer.classList.add("show");
 
       Object.entries(cData.countries)
         .sort(([a], [b]) => sortAZ(a, b))
@@ -243,6 +262,9 @@ continentNode.childrenContainer.classList.add("show");
 
       menu.append(continentNode.wrapper);
     });
+
+  // 🔥 CENTER VIEWPORT (INITIAL ONLY)
+  requestAnimationFrame(centerSidebarViewportOnce);
 }
 
 // ============================================================
@@ -352,26 +374,18 @@ function bindSidebarEvents(menu) {
 
 document.addEventListener("click", (e) => {
 
-  // Only mobile
   if (!window.matchMedia("(max-width:768px)").matches) return;
-
-  // Only when menu is open
   if (!document.body.classList.contains("menu-open")) return;
 
   const sidebar = document.querySelector(".sidebar");
   const btn = document.querySelector(".mobile-menu-btn");
 
-  // Ignore clicks inside sidebar
   if (sidebar && sidebar.contains(e.target)) return;
-
-  // Ignore clicks on hamburger button
   if (btn && btn.contains(e.target)) return;
 
-  // Close menu
   document.body.classList.remove("menu-open");
   sidebar?.classList.remove("open");
 
   if (btn) btn.textContent = "☰";
 
 });
-    
