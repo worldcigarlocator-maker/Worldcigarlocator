@@ -131,4 +131,3 @@ document.addEventListener("DOMContentLoaded", () => {
   setInterval(fakeOnline, 8000);
 
 });
-```
