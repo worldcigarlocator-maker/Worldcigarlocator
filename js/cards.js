@@ -136,9 +136,9 @@ function updateSearchCount(value) {
     return;
   }
 
-  el.textContent = `(${value})`;
+  const formatted = new Intl.NumberFormat().format(value);
+el.textContent = `${formatted} listings worldwide`;
 }
-
 // ============================================================
 // HERO RESET
 // ============================================================
