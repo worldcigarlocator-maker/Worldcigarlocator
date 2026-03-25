@@ -1,6 +1,6 @@
 ```javascript
 // ============================================================
-// START.JS — Age Gate + Access Gate + UI Helpers
+// START.JS — CLEAN VERSION (NO SYNTAX ERRORS)
 // ============================================================
 
 import { qs } from "./globals.js";
@@ -16,7 +16,6 @@ export function initAgeGate() {
 
   if (!modal) return;
 
-  // Already verified
   if (localStorage.getItem("ageVerified") === "yes") {
 
     modal.classList.add("hidden");
@@ -26,10 +25,8 @@ export function initAgeGate() {
     return;
   }
 
-  // Show age gate
   modal.classList.remove("hidden");
 
-  // Hide login until age confirmed
   if (login) login.style.display = "none";
 
   const enter = qs("enterBtn");
@@ -56,7 +53,7 @@ export function initAgeGate() {
 }
 
 // ============================================================
-// SMALL FAKE ONLINE COUNTER (UI DETAIL)
+// FAKE ONLINE COUNTER
 // ============================================================
 
 export function fakeOnline() {
@@ -71,113 +68,111 @@ export function fakeOnline() {
 }
 
 // ============================================================
+// ACCESS GATE (NO TEMPLATE STRINGS)
+// ============================================================
+
+function initAccessGate() {
+
+  const ACCESS_KEY = "wcl_access";
+  const VALID_USER = "jockefylla";
+  const VALID_PASS = "jockefylla";
+
+  if (localStorage.getItem(ACCESS_KEY) === "granted") return false;
+
+  const gate = document.createElement("div");
+
+  // overlay
+  gate.style.position = "fixed";
+  gate.style.top = "0";
+  gate.style.left = "0";
+  gate.style.width = "100%";
+  gate.style.height = "100%";
+  gate.style.zIndex = "9999";
+  gate.style.background = "rgba(5,5,5,0.8)";
+  gate.style.display = "flex";
+  gate.style.alignItems = "center";
+  gate.style.justifyContent = "center";
+
+  // container
+  const box = document.createElement("div");
+  box.style.background = "#0a0a0a";
+  box.style.padding = "40px";
+  box.style.borderRadius = "16px";
+  box.style.border = "1px solid rgba(255,255,255,0.1)";
+  box.style.width = "320px";
+  box.style.textAlign = "center";
+  box.style.boxShadow = "0 20px 60px rgba(0,0,0,0.6)";
+
+  const title = document.createElement("h2");
+  title.textContent = "World Cigar Locator coming soon...";
+  title.style.marginBottom = "20px";
+
+  const userInput = document.createElement("input");
+  userInput.placeholder = "Username";
+  userInput.id = "wcl-user";
+  styleInput(userInput);
+
+  const passInput = document.createElement("input");
+  passInput.type = "password";
+  passInput.placeholder = "Password";
+  passInput.id = "wcl-pass";
+  styleInput(passInput);
+
+  const btn = document.createElement("button");
+  btn.textContent = "Enter";
+  btn.style.width = "100%";
+  btn.style.padding = "10px";
+  btn.style.background = "rgb(115,98,75)";
+  btn.style.border = "none";
+  btn.style.color = "#fff";
+  btn.style.cursor = "pointer";
+
+  btn.onclick = () => {
+
+    if (
+      userInput.value === VALID_USER &&
+      passInput.value === VALID_PASS
+    ) {
+      localStorage.setItem(ACCESS_KEY, "granted");
+      location.reload();
+    } else {
+      alert("Wrong credentials");
+    }
+
+  };
+
+  box.appendChild(title);
+  box.appendChild(userInput);
+  box.appendChild(passInput);
+  box.appendChild(btn);
+
+  gate.appendChild(box);
+  document.body.appendChild(gate);
+
+  return true;
+}
+
+// helper
+function styleInput(el) {
+  el.style.width = "100%";
+  el.style.marginBottom = "10px";
+  el.style.padding = "10px";
+  el.style.background = "#111";
+  el.style.border = "1px solid #222";
+  el.style.color = "#fff";
+}
+
+// ============================================================
 // BOOT
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  // ============================================================
-  // WCL ACCESS GATE (FRONTEND ONLY)
-  // COMMENT THIS BLOCK OUT TO DISABLE
-  // ============================================================
+  // 🔒 ACCESS GATE FIRST
+  const blocked = initAccessGate();
+  if (blocked) return;
 
-  const ACCESS_KEY = "wcl_access";
-
-  const VALID_USER = "jockefylla";
-  const VALID_PASS = "jockefylla";
-
-  const hasAccess = localStorage.getItem(ACCESS_KEY) === "granted";
-
-  if (!hasAccess) {
-
-    const gate = document.createElement("div");
-
-    // Overlay style
-    gate.style.position = "fixed";
-    gate.style.top = "0";
-    gate.style.left = "0";
-    gate.style.width = "100%";
-    gate.style.height = "100%";
-    gate.style.zIndex = "9999";
-    gate.style.background = "rgba(5,5,5,0.75)";
-    gate.style.backdropFilter = "blur(8px)";
-    gate.style.display = "flex";
-    gate.style.alignItems = "center";
-    gate.style.justifyContent = "center";
-
-    // Content
-    gate.innerHTML = `
-      <div style="
-        background:#0a0a0a;
-        padding:40px;
-        border-radius:16px;
-        border:1px solid rgba(255,255,255,0.1);
-        width:320px;
-        text-align:center;
-        box-shadow:0 20px 60px rgba(0,0,0,0.6);
-      ">
-        <h2 style="margin-bottom:20px;">World Cigar Locator coming soon...</h2>
-
-        <input id="wcl-user" placeholder="Username" style="
-          width:100%;
-          margin-bottom:10px;
-          padding:10px;
-          background:#111;
-          border:1px solid #222;
-          color:#fff;
-        " />
-
-        <input id="wcl-pass" type="password" placeholder="Password" style="
-          width:100%;
-          margin-bottom:20px;
-          padding:10px;
-          background:#111;
-          border:1px solid #222;
-          color:#fff;
-        " />
-
-        <button id="wcl-enter" style="
-          width:100%;
-          padding:10px;
-          background:rgb(115,98,75);
-          border:none;
-          color:#fff;
-          cursor:pointer;
-        ">Enter</button>
-      </div>
-    `;
-
-    document.body.appendChild(gate);
-
-    const btn = document.getElementById("wcl-enter");
-
-    if (btn) {
-      btn.onclick = () => {
-
-        const user = document.getElementById("wcl-user").value;
-        const pass = document.getElementById("wcl-pass").value;
-
-        if (user === VALID_USER && pass === VALID_PASS) {
-
-          localStorage.setItem(ACCESS_KEY, "granted");
-          location.reload();
-
-        } else {
-
-          alert("Wrong credentials");
-
-        }
-
-      };
-    }
-
-    return;
-  }
-
-  // ============================================================
-  // NORMAL APP FLOW
-  // ============================================================
-
+  // NORMAL FLOW
   initAgeGate();
 
   fakeOnline();
