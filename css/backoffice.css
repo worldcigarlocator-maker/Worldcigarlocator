@@ -38,15 +38,56 @@
    BASE
    ============================================================ */
 
+
 *{box-sizing:border-box}
 
 body{
   font-family:var(--font);
   margin:0;
 
-  background:#f6f8fb;
+  background:
+
+  radial-gradient(
+    circle at 20% 0%,
+    rgba(168,85,247,0.25),
+    transparent 40%
+  ),
+
+  radial-gradient(
+    circle at 80% 100%,
+    rgba(236,72,153,0.18),
+    transparent 45%
+  ),
+
+  radial-gradient(
+    circle at 60% 50%,
+    rgba(59,130,246,0.12),
+    transparent 50%
+  ),
+
+  #f6f8fb;
+
+  background-size:120% 120%;
+
+  animation: bgShift 18s ease-in-out infinite;
 
   color:#1f2937;
+}
+
+/* ============================================
+   BACKGROUND ANIMATION
+   ============================================ */
+
+@keyframes bgShift{
+  0%{
+    background-position:0% 0%;
+  }
+  50%{
+    background-position:100% 100%;
+  }
+  100%{
+    background-position:0% 0%;
+  }
 }
 
 /* ============================================================
