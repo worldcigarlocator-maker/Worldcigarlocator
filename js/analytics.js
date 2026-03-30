@@ -464,8 +464,8 @@ function renderEvents(rows) {
 
 async function renderOverview() {
 
- const days = Number(globalRangeSelect?.value || 30);
-
+const days = 30;
+   
   if (OVERVIEW_TAB === "countries")
     ovKeyHeader.textContent = "Country";
 
