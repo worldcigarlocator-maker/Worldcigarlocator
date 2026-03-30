@@ -45,33 +45,33 @@ body{
   margin:0;
 
   /* ============================================================
-     WCL MIDNIGHT PURPLE SYSTEM (CANONICAL)
+     WCL MIDNIGHT PURPLE BACKGROUND
      ============================================================ */
 
   background:
 
-  /* 🔥 PURPLE GLOW (TOP LEFT) */
+  /* PURPLE GLOW (TOP LEFT) */
   radial-gradient(
     circle at 15% -10%,
     rgba(139, 92, 246, 0.35) 0%,
     transparent 45%
   ),
 
-  /* 🔥 MAGENTA CORE (CENTER) */
+  /* MAGENTA CORE */
   radial-gradient(
     circle at 50% 40%,
     rgba(236, 72, 153, 0.18) 0%,
     transparent 55%
   ),
 
-  /* 🔥 CYAN TECH GLOW (BOTTOM RIGHT) */
+  /* CYAN GLOW (BOTTOM RIGHT) */
   radial-gradient(
     circle at 90% 110%,
     rgba(34, 211, 238, 0.22) 0%,
     transparent 50%
   ),
 
-  /* 🔥 BASE GRADIENT (PURPLE DEPTH) */
+  /* BASE GRADIENT */
   linear-gradient(
     180deg,
     #0b0f1f 0%,
@@ -80,9 +80,7 @@ body{
   );
 
   color:#e5e7eb;
-
 }
-
 /* ============================================================
    TOPBAR (ENHANCED GLOW)
    ============================================================ */
