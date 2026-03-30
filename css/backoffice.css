@@ -149,8 +149,12 @@ body{
 
 .filters{
   display:flex;
+  justify-content:center;
+
   gap:8px;
   margin-bottom:18px;
+
+  flex-wrap:wrap;
 }
 
 .pill{
@@ -180,7 +184,6 @@ body{
 .pill.active[data-tab="flagged"]{background:var(--red);color:#fff}
 .pill.active[data-tab="deleted"]{background:var(--gray);color:#fff}
 .pill.active[data-tab="repair"]{background:var(--yellow);color:#111}
-
 /* ============================================================
    SEARCH BAR
    ============================================================ */
