@@ -197,11 +197,13 @@ body.analytics{
 }
 
 .btn.tab[data-tab="overview"]{
-  background:linear-gradient(135deg,#ec4899,#f472b6)
+  background:linear-gradient(135deg,#ec4899,#f472b6);
+  box-shadow:0 0 12px rgba(244,114,182,.35);
 }
 
 .btn.tab[data-tab="market"]{
-  background:linear-gradient(135deg,#eab308,#facc15)
+  background:linear-gradient(135deg,#eab308,#facc15);
+  box-shadow:0 0 12px rgba(250,204,21,.35);
 }
 
 .btn.tab[data-tab="stores"]{
