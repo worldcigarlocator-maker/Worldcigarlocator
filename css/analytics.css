@@ -215,19 +215,16 @@ body.analytics{
   border:none;
 }
 
-/* 🔵 Overview */
-.btn.tab[data-tab="overview"].active{
-  background:linear-gradient(135deg,#2563eb,#3b82f6);
-}
-
-/* 🟣 Market */
 .btn.tab[data-tab="market"].active{
-  background:linear-gradient(135deg,#6d28d9,#8b5cf6);
+  background:linear-gradient(135deg,#6d28d9,#8b5cf6) !important;
 }
 
-/* 🟢 Stores */
 .btn.tab[data-tab="stores"].active{
-  background:linear-gradient(135deg,#15803d,#22c55e);
+  background:linear-gradient(135deg,#15803d,#22c55e) !important;
+}
+
+.btn.tab[data-tab="overview"].active{
+  background:linear-gradient(135deg,#2563eb,#3b82f6) !important;
 }
 
 
