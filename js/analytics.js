@@ -814,7 +814,7 @@ async function loadMarketDemand(days = 30) {
 }
 
 // ============================================================
-// TAB NAVIGATION
+// TAB SYSTEM (FIXED)
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -824,11 +824,11 @@ document.addEventListener("DOMContentLoaded", () => {
   tabs.forEach(tab => {
     tab.addEventListener("click", async () => {
 
-      // active state
+      // ACTIVE STATE
       tabs.forEach(t => t.classList.remove("active"));
       tab.classList.add("active");
 
-      // show/hide panels
+      // SHOW / HIDE PANELS
       document.querySelectorAll(".analytics-tab").forEach(el => {
         el.classList.add("hidden");
       });
@@ -836,7 +836,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const target = document.getElementById("tab-" + tab.dataset.tab);
       if (target) target.classList.remove("hidden");
 
-      // 🔥 ONLY this ONCE
+      // ONLY OVERVIEW LOAD
       if (tab.dataset.tab === "overview") {
         await renderOverview();
       }
