@@ -206,11 +206,17 @@ body.analytics{
 
 }
 
+/* ============================================================
+   ACTIVE TAB COLORS (FIXED)
+   ============================================================ */
+
 .btn.tab.active{
   color:#fff;
   border:none;
+}
 
-  /* default (Overview) → blå */
+/* 🔵 Overview */
+.btn.tab[data-tab="overview"].active{
   background:linear-gradient(135deg,#2563eb,#3b82f6);
 }
 
