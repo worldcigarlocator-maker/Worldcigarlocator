@@ -257,25 +257,24 @@ STORES TAB
   <!-- STORE SEARCH -->
   <section class="panel">
 
-    <div class="searchrow">
+  <div class="searchrow">
 
-      <div class="searchbox">
+  <div class="searchbox">
+    <input
+      id="searchInput"
+      type="text"
+      autocomplete="off"
+      placeholder="Search store, city, country…"
+    />
+    <div id="searchResults" class="search-results hidden"></div>
+  </div>
 
-        <input
-          id="searchInput"
-          type="text"
-          autocomplete="off"
-          placeholder="Search store, city, country…"
-        />
+  <div class="search-actions">
+    <button id="searchBtn" class="btn primary">Search</button>
+    <button id="clearBtn" class="btn ghost">Clear</button>
+  </div>
 
-        <div id="searchResults" class="search-results hidden"></div>
-
-      </div>
-
-      <button id="searchBtn" class="btn primary">Search</button>
-      <button id="clearBtn" class="btn ghost">Clear</button>
-
-    </div>
+</div>
 
     <div class="hint">
       Select a store to view detailed traffic metrics and performance data.
