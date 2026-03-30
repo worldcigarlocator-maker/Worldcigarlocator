@@ -780,9 +780,17 @@ async function loadHeatmap() {
    ============================================================ */
 
 async function loadMarketDemand(days = 30) {
+
+  const marketDemandBody = document.getElementById("marketDemandBody");
+
+  if (!marketDemandBody) {
+    console.error("marketDemandBody not found");
+    return;
+  }
+
   const { data, error } =
     await sb.rpc("analytics_market_demand", {
-   p_days: days
+      p_days: days
     });
 
   if (error) {
@@ -812,7 +820,6 @@ async function loadMarketDemand(days = 30) {
     </tr>
   `).join("");
 }
-
 // ============================================================
 // TAB SYSTEM (FIXED)
 // ============================================================
