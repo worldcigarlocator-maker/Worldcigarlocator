@@ -269,7 +269,6 @@ function triggerSearchFromUI() {
 async function selectStoreById(storeId) {
 
   hideAutocomplete();
-  searchInput.value = "";
 
   const { data, error } = await sb
     .from("stores")
@@ -281,6 +280,10 @@ async function selectStoreById(storeId) {
     console.error("Failed to load store", error);
     return;
   }
+
+  // ✅ NU finns data
+  searchInput.value = data.name || "";
+   searchInput.blur(); // stänger keyboard / fokus
 
   ACTIVE_STORE = data;
 
@@ -820,15 +823,13 @@ async function loadMarketDemand(days = 30) {
     </tr>
   `).join("");
 }
-// ============================================================
-// TAB SYSTEM (FIXED)
-// ============================================================
+
 
 // ============================================================
 // TAB NAVIGATION
 // ============================================================
 
-document.addEventListener("DOMContentLoaded", () => {
+function initTabs() {
 
   const tabs = document.querySelectorAll(".btn.tab");
 
@@ -860,5 +861,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
   });
-
-});
+}
