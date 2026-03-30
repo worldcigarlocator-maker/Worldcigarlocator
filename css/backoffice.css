@@ -38,7 +38,6 @@
    BASE
    ============================================================ */
 
-
 *{box-sizing:border-box}
 
 body{
@@ -47,47 +46,48 @@ body{
 
   background:
 
+  /* 🔥 STRONG PURPLE */
   radial-gradient(
-    circle at 20% 0%,
-    rgba(168,85,247,0.25),
-    transparent 40%
-  ),
-
-  radial-gradient(
-    circle at 80% 100%,
-    rgba(162,124,249,0.18),
+    circle at 15% -10%,
+    rgba(168,85,247,0.45),
     transparent 45%
   ),
 
+  /* 🔥 MAGENTA HIT */
   radial-gradient(
-    circle at 60% 50%,
-    rgba(83,95,255,0.12),
+    circle at 60% 30%,
+    rgba(236,72,153,0.30),
     transparent 50%
   ),
 
-  #f6f8fb;
+  /* 🔥 CYAN ENERGY */
+  radial-gradient(
+    circle at 90% 110%,
+    rgba(59,130,246,0.28),
+    transparent 50%
+  ),
 
-  background-size:120% 120%;
+  /* 🔥 BASE */
+  linear-gradient(
+    180deg,
+    #eef2ff 0%,
+    #f6f8fb 100%
+  );
 
-  animation: bgShift 18s ease-in-out infinite;
+  background-size:140% 140%;
+  animation:bgShift 14s ease-in-out infinite;
 
   color:#1f2937;
 }
 
-/* ============================================
+/* ============================================================
    BACKGROUND ANIMATION
-   ============================================ */
+   ============================================================ */
 
 @keyframes bgShift{
-  0%{
-    background-position:0% 0%;
-  }
-  50%{
-    background-position:100% 100%;
-  }
-  100%{
-    background-position:0% 0%;
-  }
+  0%{background-position:0% 0%;}
+  50%{background-position:100% 100%;}
+  100%{background-position:0% 0%;}
 }
 
 /* ============================================================
