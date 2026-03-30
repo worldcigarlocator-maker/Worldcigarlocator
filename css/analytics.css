@@ -58,7 +58,7 @@ body.analytics{
 
   background:#f5f7fb;
 
-  color:#1f2937;
+  color:var(--text);
 
   font-family:var(--font);
 
@@ -250,16 +250,13 @@ body.analytics{
 }
 
 .kpiLabel{
-
   font-size:12px;
-
   font-weight:900;
-
-  color:var(--muted);
-
+  color:rgba(255,255,255,0.65);
 }
 
 .kpiVal{
+     color:#ffffff;
 
   font-size:22px;
 
@@ -337,6 +334,8 @@ body.analytics{
 
 .table th,
 .table td{
+  color:#ffffff;
+}
 
   border-bottom:1px solid rgba(255,255,255,0.06);
 
@@ -352,7 +351,7 @@ body.analytics{
 
   background:#101b2d;
 
-  color:#cbd5e1;
+   color:#ffffff;
 
   font-weight:900;
 
