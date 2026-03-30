@@ -186,9 +186,7 @@ body.analytics{
 
   border:1px solid var(--border);
 
-  background:#0f1724;
-
-  color:#cbd5e1;
+  color:#fff;
 
   font-weight:800;
 
@@ -196,6 +194,18 @@ body.analytics{
 
   transition:.15s;
 
+}
+
+.btn.tab[data-tab="overview"]{
+  background:linear-gradient(135deg,#2563eb,#3b82f6);
+}
+
+.btn.tab[data-tab="market"]{
+  background:linear-gradient(135deg,#6d28d9,#8b5cf6);
+}
+
+.btn.tab[data-tab="stores"]{
+  background:linear-gradient(135deg,#15803d,#22c55e);
 }
 
 .btn.tab:hover{
@@ -211,22 +221,13 @@ body.analytics{
    ============================================================ */
 
 .btn.tab.active{
-  color:#fff;
-  border:none;
-}
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,0.2),
+    0 0 20px rgba(255,255,255,0.15);
 
-.btn.tab[data-tab="market"].active{
-  background:linear-gradient(135deg,#6d28d9,#8b5cf6) !important;
-}
+  transform:translateY(-1px);
 
-.btn.tab[data-tab="stores"].active{
-  background:linear-gradient(135deg,#15803d,#22c55e) !important;
-}
-
-.btn.tab[data-tab="overview"].active{
-  background:linear-gradient(135deg,#2563eb,#3b82f6) !important;
-}
-
+   }
 
 /* ============================================================
    KPI GRID
