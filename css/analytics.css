@@ -397,3 +397,18 @@ body.analytics{
   display:none;
 }
 
+/* ============================================================
+   RANGE FIX
+   ============================================================ */
+
+select{
+  background:#fff;
+  color:#111;
+
+  border-radius:8px;
+  padding:6px 10px;
+
+  border:1px solid #ccc;
+
+  font-weight:700;
+}
