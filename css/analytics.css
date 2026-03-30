@@ -353,6 +353,4 @@ body.analytics{
 .hidden{
   display:none;
 }
-body.analytics *{
-  background-color:transparent;
-}
+
