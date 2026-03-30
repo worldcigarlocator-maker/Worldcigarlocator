@@ -435,3 +435,20 @@ select{
 #storePanel .kpis{
   margin-top:16px;
 }
+
+/* ============================================================
+   STORE PANEL POLISH
+   ============================================================ */
+
+#storePanel{
+  margin-top:10px;
+}
+
+#storeWebsite a{
+  color:#60a5fa;
+  text-decoration:none;
+}
+
+#storeWebsite a:hover{
+  text-decoration:underline;
+}
