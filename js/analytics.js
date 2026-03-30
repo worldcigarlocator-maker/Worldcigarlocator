@@ -817,26 +817,36 @@ async function loadMarketDemand(days = 30) {
 // TAB SYSTEM (FIXED)
 // ============================================================
 
+// ============================================================
+// TAB NAVIGATION
+// ============================================================
+
 document.addEventListener("DOMContentLoaded", () => {
 
   const tabs = document.querySelectorAll(".btn.tab");
 
-  tabs.forEach(tab => {
+  tabs.forEach((tab) => {
     tab.addEventListener("click", async () => {
 
-      // ACTIVE STATE
-      tabs.forEach(t => t.classList.remove("active"));
+      tabs.forEach((t) => t.classList.remove("active"));
       tab.classList.add("active");
 
-      // SHOW / HIDE PANELS
-      document.querySelectorAll(".analytics-tab").forEach(el => {
-        el.classList.add("hidden");
-      });
+      document.querySelectorAll(".analytics-tab")
+        .forEach((el) => el.classList.add("hidden"));
 
       const target = document.getElementById("tab-" + tab.dataset.tab);
-      if (target) target.classList.remove("hidden");
 
-      // ONLY OVERVIEW LOAD
+      if (target) {
+        target.classList.remove("hidden");
+      }
+
+      const days = Number(globalRangeSelect?.value || 30);
+
+      if (tab.dataset.tab === "market") {
+        await loadHeatmap();
+        await loadMarketDemand(days);
+      }
+
       if (tab.dataset.tab === "overview") {
         await renderOverview();
       }
