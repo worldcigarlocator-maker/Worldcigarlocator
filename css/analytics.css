@@ -207,11 +207,21 @@ body.analytics{
 }
 
 .btn.tab.active{
-
-  background:var(--blue);
-
   color:#fff;
+  border:none;
 
+  /* default (Overview) → blå */
+  background:linear-gradient(135deg,#2563eb,#3b82f6);
+}
+
+/* 🟣 Market */
+.btn.tab[data-tab="market"].active{
+  background:linear-gradient(135deg,#6d28d9,#8b5cf6);
+}
+
+/* 🟢 Stores */
+.btn.tab[data-tab="stores"].active{
+  background:linear-gradient(135deg,#15803d,#22c55e);
 }
 
 
