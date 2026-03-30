@@ -56,19 +56,9 @@ html,body{
 
 body.analytics{
 
-  background:
+  background:#f5f7fb;
 
-  radial-gradient(circle at 15% -10%, #1a3b72 0%, transparent 45%),
-  radial-gradient(circle at 90% 120%, #13294d 0%, transparent 50%),
-
-  linear-gradient(
-    180deg,
-    #08162c 0%,
-    #0b1e3c 40%,
-    #08162c 100%
-  );
-
-  color:var(--text);
+  color:#1f2937;
 
   font-family:var(--font);
 
@@ -115,13 +105,13 @@ body.analytics{
 
 .panel{
 
-  background:var(--panel);
+  background:#ffffff;
 
-  border:1px solid var(--border);
+  border:1px solid #e5e7eb;
 
   border-radius:var(--radius);
 
-  box-shadow:var(--shadow);
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
 
   padding:18px;
 
@@ -163,18 +153,16 @@ body.analytics{
 .analytics-tabs{
 
   display:flex;
-
   gap:10px;
-
   flex-wrap:wrap;
 
   padding:10px;
 
   border-radius:12px;
 
-  background:rgba(12,18,32,.55);
+  background:#ffffff;
 
-  border:1px solid var(--border);
+  border:1px solid #e5e7eb;
 
 }
 
@@ -362,9 +350,9 @@ body.analytics{
 
 .table th{
 
-  background:#101b2d;
+  background:#f1f5f9;
 
-  color:#cbd5e1;
+  color:#475569;
 
   font-weight:900;
 
