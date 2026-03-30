@@ -44,42 +44,10 @@ body{
   font-family:var(--font);
   margin:0;
 
-  /* ============================================================
-     WCL MIDNIGHT PURPLE BACKGROUND
-     ============================================================ */
+  background:#f6f8fb;
 
-  background:
-
-  /* PURPLE GLOW (TOP LEFT) */
-  radial-gradient(
-    circle at 15% -10%,
-    rgba(139, 92, 246, 0.35) 0%,
-    transparent 45%
-  ),
-
-  /* MAGENTA CORE */
-  radial-gradient(
-    circle at 50% 40%,
-    rgba(236, 72, 153, 0.18) 0%,
-    transparent 55%
-  ),
-
-  /* CYAN GLOW (BOTTOM RIGHT) */
-  radial-gradient(
-    circle at 90% 110%,
-    rgba(34, 211, 238, 0.22) 0%,
-    transparent 50%
-  ),
-
-  /* BASE GRADIENT */
-  linear-gradient(
-    180deg,
-    #0b0f1f 0%,
-    #0d1230 35%,
-    #0b0f1f 100%
-  );
-
-  color:#e5e7eb;
+  color:#1f2937;
+}
 }
 /* ============================================================
    TOPBAR (ENHANCED GLOW)
