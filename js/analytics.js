@@ -140,19 +140,6 @@ function bindUI() {
   printBtn?.addEventListener("click", () => window.print());
   mailBtn?.addEventListener("click", emailStore);
 
-$$(".overview-tab").forEach(btn => {
-    btn.addEventListener("click", async () => {
-
-      $$(".overview-tab").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-
-      OVERVIEW_TAB = btn.dataset.tab;
-
-      await renderOverview();
-    });
-  });
-}
-
 /* ============================================================
    STORES INDEX
    ============================================================ */
@@ -867,11 +854,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
   });
-
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  loadMarketDemand();
 
 });
