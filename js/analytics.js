@@ -1,3 +1,4 @@
+
 /* ============================================================
    WCL Analytics — Backoffice
    ============================================================ */
@@ -139,6 +140,7 @@ function bindUI() {
   exportBtn?.addEventListener("click", exportCSV);
   printBtn?.addEventListener("click", () => window.print());
   mailBtn?.addEventListener("click", emailStore);
+}
 
 /* ============================================================
    STORES INDEX
@@ -819,40 +821,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const tabs = document.querySelectorAll(".btn.tab");
 
-  tabs.forEach((btn) => {
+  tabs.forEach(tab => {
+    tab.addEventListener("click", async () => {
 
-    btn.addEventListener("click", async () => {
+      // active state
+      tabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
 
-      const tab = btn.dataset.tab;
+      // show/hide panels
+      document.querySelectorAll(".analytics-tab").forEach(el => {
+        el.classList.add("hidden");
+      });
 
-      // active button
-      tabs.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
+      const target = document.getElementById("tab-" + tab.dataset.tab);
+      if (target) target.classList.remove("hidden");
 
-      // hide all tabs
-      document.querySelectorAll(".analytics-tab")
-        .forEach(el => el.classList.add("hidden"));
-
-      // show selected tab
-      const target = document.getElementById("tab-" + tab);
-
-      if (target) {
-        target.classList.remove("hidden");
-      }
-
-      const days = Number(globalRangeSelect?.value || 30);
-
-      if (tab === "market") {
-        await loadHeatmap();
-        await loadMarketDemand(days);
-      }
-
-      if (tab === "overview") {
+      // 🔥 ONLY this ONCE
+      if (tab.dataset.tab === "overview") {
         await renderOverview();
       }
 
     });
-
   });
 
 });
