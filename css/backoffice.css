@@ -243,7 +243,7 @@ body{
    ============================================================ */
 
 .card{
-  background:#0f1724;
+  background:#ffffff;
   border-radius:10px;
   box-shadow:var(--shadow);
   overflow:hidden;
