@@ -200,9 +200,9 @@ body.analytics{
 
 .btn.tab:hover{
 
-  background:#111c2f;
+  filter:brightness(1.1);
 
-  box-shadow:0 0 12px rgba(47,120,196,.25);
+  box-shadow:0 0 12px rgba(255,255,255,.2);
 
 }
 
