@@ -188,18 +188,27 @@ body{
    SEARCH BAR
    ============================================================ */
 
+/* ============================================================
+   SEARCH BAR
+   ============================================================ */
+
 .searchbar{
   display:flex;
   align-items:center;
   gap:10px;
-  margin-bottom:16px;
+
+  max-width:1200px;
+  margin:0 auto 16px;
 }
 
 .searchbar input{
   flex:1;
+
   padding:10px 12px;
+
   border:1px solid var(--border);
   border-radius:12px;
+
   font-size:14px;
 }
 
