@@ -201,7 +201,7 @@ body.analytics{
 }
 
 .btn.tab[data-tab="market"]{
-  background:linear-gradient(135deg,#6d28d9,#8b5cf6);
+  background:linear-gradient(135deg,#eab308,#facc15)
 }
 
 .btn.tab[data-tab="stores"]{
