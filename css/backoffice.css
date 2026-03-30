@@ -72,12 +72,17 @@ body{
   box-shadow:
     0 4px 20px rgba(0,0,0,0.35);
 }
+.left-block img{
+  width:52px;
+  height:52px;
 
-/* vänster block */
-.left-block{
-  display:flex;
-  align-items:center;
-  gap:14px;
+  object-fit:cover;
+
+  border-radius:10px;
+
+  flex-shrink:0;
+
+  display:block;
 }
 
 /* höger actions */
