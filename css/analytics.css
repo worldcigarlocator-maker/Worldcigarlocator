@@ -265,6 +265,39 @@ body.analytics{
 
 }
 
+/* ============================================================
+   KPI NEON COLORS
+   ============================================================ */
+
+/* 🟣 Total Views */
+.kpi:nth-child(1){
+  background:linear-gradient(135deg,#6d28d9,#8b5cf6);
+  color:#fff;
+
+  box-shadow:
+    0 8px 25px rgba(139,92,246,.35),
+    inset 0 1px 0 rgba(255,255,255,.15);
+}
+
+/* 🟠 Website Clicks */
+.kpi:nth-child(2){
+  background:linear-gradient(135deg,#ea580c,#f97316);
+  color:#fff;
+
+  box-shadow:
+    0 8px 25px rgba(249,115,22,.35),
+    inset 0 1px 0 rgba(255,255,255,.15);
+}
+
+/* 🟦 Global CTR */
+.kpi:nth-child(3){
+  background:linear-gradient(135deg,#0891b2,#06b6d4);
+  color:#fff;
+
+  box-shadow:
+    0 8px 25px rgba(6,182,212,.35),
+    inset 0 1px 0 rgba(255,255,255,.15);
+}
 
 /* ============================================================
    TABLES
