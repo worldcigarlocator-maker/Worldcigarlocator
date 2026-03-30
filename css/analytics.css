@@ -105,13 +105,13 @@ body.analytics{
 
 .panel{
 
-  background:#ffffff;
+  background:var(--panel);
 
-  border:1px solid #e5e7eb;
+  border:1px solid rgba(255,255,255,0.06);
 
   border-radius:var(--radius);
 
-  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  box-shadow:var(--shadow);
 
   padding:18px;
 
@@ -160,9 +160,9 @@ body.analytics{
 
   border-radius:12px;
 
-  background:#ffffff;
+  background:rgba(12,18,32,.55);
 
-  border:1px solid #e5e7eb;
+  border:1px solid rgba(255,255,255,0.06);
 
 }
 
@@ -350,9 +350,9 @@ body.analytics{
 
 .table th{
 
-  background:#f1f5f9;
+  background:#101b2d;
 
-  color:#475569;
+  color:#cbd5e1;
 
   font-weight:900;
 
