@@ -78,13 +78,14 @@ let OVERVIEW_TAB = "countries";
 
 document.addEventListener("DOMContentLoaded", async () => {
   bindUI();
+  initTabs(); // ✅ LÄGG TILL DENNA
 
   await loadStoresIndex();
   await loadGlobalKpis();
   await loadTrafficFlow();
   await loadHeatmap();
   await renderOverview();
-   await loadMarketDemand();
+  await loadMarketDemand();
 });
 
 /* ============================================================
