@@ -86,6 +86,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadHeatmap();
   await renderOverview();
   await loadMarketDemand();
+   await loadTopStores();
 });
 
 /* ============================================================
@@ -825,6 +826,40 @@ async function loadMarketDemand(days = 30) {
   `).join("");
 }
 
+/* ============================================================
+   TOP STORES (STEP 2 — DATA ONLY)
+   ============================================================ */
+
+async function loadTopStores() {
+
+  try {
+
+    const days = Number(globalRangeSelect?.value || 30);
+
+    const { data, error } = await sb.rpc(
+      "analytics_top_stores_v2",
+      {
+        p_days: days,
+        p_country: null,
+        p_city: null,
+        p_state: null,
+        p_limit: 50
+      }
+    );
+
+    if (error) {
+      console.error("Top stores error", error);
+      return;
+    }
+
+    console.log("🔥 TOP STORES DATA:", data);
+
+  } catch (err) {
+
+    console.error("Top stores crash", err);
+
+  }
+}
 
 // ============================================================
 // TAB NAVIGATION
