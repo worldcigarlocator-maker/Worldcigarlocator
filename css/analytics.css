@@ -473,3 +473,75 @@ table td{
 table tr{
   border-bottom:1px solid rgba(255,255,255,0.05);
 }
+
+/* =========================================
+   SEARCH ACTIONS — PILLS
+   ========================================= */
+
+.search-actions{
+  display:flex;
+  gap:8px;
+}
+
+.search-actions .btn{
+  border-radius:999px;
+  padding:6px 14px;
+  font-size:13px;
+  font-weight:500;
+}
+
+/* =========================================
+   SEARCH BUTTONS — COLORS
+   ========================================= */
+
+/* 🔥 SEARCH (turkos) */
+#searchBtn{
+  background:#14b8a6;
+  color:#fff;
+  border:none;
+}
+
+#searchBtn:hover{
+  background:#0d9488;
+}
+
+/* 🔥 CLEAR (orange) */
+#clearBtn{
+  background:#f59e0b;
+  color:#000;
+  border:none;
+}
+
+#clearBtn:hover{
+  background:#d97706;
+}
+
+/* =========================================
+   SEARCH INPUT POLISH
+   ========================================= */
+
+.searchbox input{
+  border-radius:999px;
+  padding:8px 14px;
+  border:none;
+  outline:none;
+  background:#ffffff;
+  font-size:14px;
+}
+
+/* =========================================
+   SEARCH ROW SPACING
+   ========================================= */
+
+.searchrow{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+.hint{
+  margin-top:6px;
+  opacity:0.7;
+  font-size:14px;
+}
