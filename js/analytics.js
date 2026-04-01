@@ -99,6 +99,8 @@ async function loadGlobalKpis() {
     .from("analytics_kpi_v1") // ✅ rätt view
     .select("*");             // ❌ ingen .single()
 
+console.log("STORE FETCH RESULT", data, error);
+   
   if (error) {
     console.error("Failed loading global KPIs", error);
     return;
