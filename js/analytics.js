@@ -95,11 +95,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function loadGlobalKpis() {
 
-  const { data, error } = await sb
-    .from("analytics_kpi_v1") // ✅ rätt view
-    .select("*");             // ❌ ingen .single()
+ const { data, error } = await sb
+  .from("stores")
+  .select("*")
+  .eq("id", storeId)
+  .single();
 
-console.log("STORE FETCH RESULT", data, error);
    
   if (error) {
     console.error("Failed loading global KPIs", error);
@@ -276,12 +277,14 @@ async function selectStoreById(storeId) {
 console.log("SELECT STORE", storeId);
   hideAutocomplete();
 
-  const { data, error } = await sb
-    .from("stores")
-    .select("*")
-    .eq("id", storeId)
-    .single();
+const { data, error } = await sb
+  .from("stores")
+  .select("*")
+  .eq("id", storeId)
+  .single();
 
+console.log("STORE FETCH RESULT", data, error);
+   
 if (error || !data) {
   console.error("Failed to load store", error);
   return;
