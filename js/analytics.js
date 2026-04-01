@@ -63,7 +63,7 @@ const overviewTableBody = $("#overviewTable tbody");
 const ovKeyHeader = $("#ovKeyHeader");
 
 const marketDemandBody = $("#marketDemandBody");
-
+const topStoresBody = $("#topStoresBody");
 
 
 let STORES_INDEX = [];
