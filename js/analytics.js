@@ -280,11 +280,10 @@ async function selectStoreById(storeId) {
     .eq("id", storeId)
     .single();
 
-  if (error || !data) {
-    console.error("Failed to load store", error);
- return `
-  <tr data-id="${r.store_id}">
-  }
+if (error || !data) {
+  console.error("Failed to load store", error);
+  return;
+}
 
   // ✅ NU finns data
   searchInput.value = data.name || "";
@@ -851,17 +850,17 @@ async function loadTopStores() {
       const location =
         [r.city, r.country].filter(Boolean).join(", ");
 
-      return `
-        <tr>
-          <td>
-            <strong>${escapeHtml(r.name)}</strong><br>
-            <small>${escapeHtml(location)}</small>
-          </td>
-          <td class="num">${Number(r.views)}</td>
-          <td class="num">${Number(r.clicks)}</td>
-          <td class="num">${Number(r.ctr).toFixed(2)}%</td>
-        </tr>
-      `;
+  return `
+  <tr data-id="${r.store_id}">
+    <td>
+      <strong>${escapeHtml(r.name)}</strong><br>
+      <small>${escapeHtml(location)}</small>
+    </td>
+    <td class="num">${Number(r.views)}</td>
+    <td class="num">${Number(r.clicks)}</td>
+    <td class="num">${Number(r.ctr).toFixed(2)}%</td>
+  </tr>
+`;
 
     }).join("");
 
