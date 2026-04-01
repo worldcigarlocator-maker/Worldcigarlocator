@@ -365,26 +365,6 @@ const { data: summary, error: e1 } =
     renderTrend(trend || []);
   }
 
-const { data: events, error: e3 } = await sb
-  .from("analytics_events")
-  .select("timestamp, event_type, payload")
-  .eq("payload->>store_id", String(storeId))
-  .order("timestamp", { ascending: false })
-  .limit(50000);
-
-  if (e3) {
-
-    console.error("events debug error", e3);
-
-    eventsTbody.innerHTML =
-      `<tr><td colspan="5" class="muted center">No events.</td></tr>`;
-
-  } else {
-
-    renderEvents(events || []);
-  }
-}
-
 /* ============================================================
    KPI RENDER
    ============================================================ */
