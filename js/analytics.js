@@ -927,8 +927,7 @@ function initTabs() {
         target.classList.remove("hidden");
       }
 
-      const days = Number(const days = Number(globalRangeSelect?.value || 30);
-
+     const days = Number(globalRangeSelect?.value || 30);
       if (tab.dataset.tab === "market") {
         await loadHeatmap();
         await loadMarketDemand(days);
