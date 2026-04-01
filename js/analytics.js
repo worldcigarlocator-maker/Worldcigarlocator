@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadGlobalKpis() {
 
   const { data, error } = await sb
-    .from("analytics_kpi_v1")
+    .from("analytics_traffic_flow")
     .select("*")
     .single();
 
