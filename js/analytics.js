@@ -331,6 +331,8 @@ function renderStoreHeader(s) {
 }
 
 async function loadStoreDossier(storeId) {
+     console.log("LOAD DOSSIER START", storeId);
+
 
 const days = Number(globalRangeSelect?.value || 30);
 
