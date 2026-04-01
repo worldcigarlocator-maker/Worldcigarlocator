@@ -96,22 +96,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadGlobalKpis() {
 
   const { data, error } = await sb
-    .from("analytics_traffic_flow_v1")
-    .select("*")
-    .single();
+    .from("analytics_kpi_v1") // ✅ rätt view
+    .select("*");             // ❌ ingen .single()
 
   if (error) {
     console.error("Failed loading global KPIs", error);
     return;
   }
 
-  if (globalViews) globalViews.textContent = data.total_views ?? "0";
-  if (globalClicks) globalClicks.textContent = data.total_clicks ?? "0";
+  if (!data || !data.length) return;
 
-  const ctr = Number(data.ctr || 0) * 100;
+  const row = data[0];
+
+  if (globalViews) globalViews.textContent = row.total_views ?? "0";
+  if (globalClicks) globalClicks.textContent = row.total_clicks ?? "0";
+
+  const ctr = Number(row.ctr || 0) * 100;
   if (globalCtr) globalCtr.textContent = ctr.toFixed(2) + "%";
 }
-
 /* ============================================================
    UI BINDINGS
    ============================================================ */
