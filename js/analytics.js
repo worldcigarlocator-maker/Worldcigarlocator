@@ -271,7 +271,7 @@ function triggerSearchFromUI() {
    ============================================================ */
 
 async function selectStoreById(storeId) {
-
+console.log("SELECT STORE", storeId);
   hideAutocomplete();
 
   const { data, error } = await sb
