@@ -362,13 +362,16 @@ const { data: summary, error: e1 } =
 
     console.error("analytics_store_daily error", e2);
 
-    trendTbody.innerHTML =
-      `<tr><td colspan="4" class="muted center">No data.</td></tr>`;
+ if (trendTbody) {
+  trendTbody.innerHTML =
+    `<tr><td colspan="4" class="muted center">No data.</td></tr>`;
+}
 
   } else {
 
-    renderTrend(trend || []);
-  }
+ if (trendTbody) {
+  renderTrend(trend || []);
+}
  }
 /* ============================================================
    KPI RENDER
