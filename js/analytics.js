@@ -827,7 +827,7 @@ async function loadMarketDemand(days = 30) {
 }
 
 /* ============================================================
-   TOP STORES (STEP 2 — DATA ONLY)
+   TOP STORES (STEP 2–4 — CLEAN)
    ============================================================ */
 
 async function loadTopStores() {
@@ -852,41 +852,56 @@ async function loadTopStores() {
       return;
     }
 
-if (!topStoresBody) return;
+    if (!topStoresBody) return;
 
-if (!data || !data.length) {
+    if (!data || !data.length) {
 
-  topStoresBody.innerHTML =
-    `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
+      topStoresBody.innerHTML =
+        `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
 
-  return;
-}
+      return;
+    }
 
-topStoresBody.innerHTML = data.map(r => {
+    // 🔥 RENDER
+    topStoresBody.innerHTML = data.map(r => {
 
-  const location =
-    [r.city, r.country].filter(Boolean).join(", ");
+      const location =
+        [r.city, r.country].filter(Boolean).join(", ");
 
-  return `
-    <tr>
-      <td>
-        <strong>${escapeHtml(r.name)}</strong><br>
-        <small>${escapeHtml(location)}</small>
-      </td>
-      <td class="num">${Number(r.views)}</td>
-      <td class="num">${Number(r.clicks)}</td>
-      <td class="num">${Number(r.ctr).toFixed(2)}%</td>
-    </tr>
-  `;
+      return `
+        <tr>
+          <td>
+            <strong>${escapeHtml(r.name)}</strong><br>
+            <small>${escapeHtml(location)}</small>
+          </td>
+          <td class="num">${Number(r.views)}</td>
+          <td class="num">${Number(r.clicks)}</td>
+          <td class="num">${Number(r.ctr).toFixed(2)}%</td>
+        </tr>
+      `;
 
-}).join("");
+    }).join("");
+
+    // 🔥 CLICK HANDLER
+    topStoresBody.querySelectorAll("tr").forEach((tr, i) => {
+
+      const row = data[i];
+      if (!row?.store_id) return;
+
+      tr.style.cursor = "pointer";
+
+      tr.addEventListener("click", () => {
+        selectStoreById(Number(row.store_id));
+      });
+
+    });
+
   } catch (err) {
 
     console.error("Top stores crash", err);
 
   }
 }
-
 // ============================================================
 // TAB NAVIGATION
 // ============================================================
