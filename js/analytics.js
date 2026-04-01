@@ -610,7 +610,7 @@ function emailStore() {
 
   if (!ACTIVE_STORE) return;
 
-  const days = Number(globalRangeSelect?.value || 30);
+  const days = Number(const days = Number(globalRangeSelect?.value || 30);
 
   const v = kpiViews.textContent || "0";
   const c = kpiClicks.textContent || "0";
@@ -925,7 +925,7 @@ function initTabs() {
         target.classList.remove("hidden");
       }
 
-      const days = Number(globalRangeSelect?.value || 30);
+      const days = Number(const days = Number(globalRangeSelect?.value || 30);
 
       if (tab.dataset.tab === "market") {
         await loadHeatmap();
