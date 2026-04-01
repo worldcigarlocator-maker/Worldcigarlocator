@@ -94,12 +94,10 @@ document.addEventListener("DOMContentLoaded", async () => {
    ============================================================ */
 
 async function loadGlobalKpis() {
-
- const { data, error } = await sb
-  .from("stores")
-  .select("*")
-  .eq("id", storeId)
-  .single();
+   
+const { data, error } = await sb
+  .from("analytics_kpi_v1")
+  .select("*");
 
    
   if (error) {
