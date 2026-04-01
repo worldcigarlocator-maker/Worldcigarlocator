@@ -342,6 +342,8 @@ const { data: summary, error: e1 } =
     p_days: days
   });
 
+console.log("SUMMARY RESULT", summary, e1);
+
   if (e1) {
 
     console.error("analytics_store_summary error", e1);
