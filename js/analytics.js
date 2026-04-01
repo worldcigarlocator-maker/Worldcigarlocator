@@ -296,6 +296,7 @@ if (error || !data) {
 
   storeEmpty.classList.add("hidden");
   storePanel.classList.remove("hidden");
+   console.log("PANEL STATE", storePanel.classList);
 
   renderStoreHeader(data);
 
