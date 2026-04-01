@@ -852,8 +852,34 @@ async function loadTopStores() {
       return;
     }
 
-    console.log("🔥 TOP STORES DATA:", data);
+if (!topStoresBody) return;
 
+if (!data || !data.length) {
+
+  topStoresBody.innerHTML =
+    `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
+
+  return;
+}
+
+topStoresBody.innerHTML = data.map(r => {
+
+  const location =
+    [r.city, r.country].filter(Boolean).join(", ");
+
+  return `
+    <tr>
+      <td>
+        <strong>${escapeHtml(r.name)}</strong><br>
+        <small>${escapeHtml(location)}</small>
+      </td>
+      <td class="num">${Number(r.views)}</td>
+      <td class="num">${Number(r.clicks)}</td>
+      <td class="num">${Number(r.ctr).toFixed(2)}%</td>
+    </tr>
+  `;
+
+}).join("");
   } catch (err) {
 
     console.error("Top stores crash", err);
