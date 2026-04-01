@@ -872,9 +872,10 @@ topStoresBody.querySelectorAll("tr").forEach((tr) => {
 
   tr.style.cursor = "pointer";
 
-  tr.addEventListener("click", () => {
-    selectStoreById(Number(id));
-  });
+tr.addEventListener("click", () => {
+  console.log("CLICKED ROW", id);
+  selectStoreById(Number(id));
+});
 
 });
 
