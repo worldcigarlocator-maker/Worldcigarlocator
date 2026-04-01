@@ -329,9 +329,7 @@ function renderStoreHeader(s) {
 
 async function loadStoreDossier(storeId) {
 
-  const days = Number(globalRangeSelect.value || 30);
-
-  const { data: summary, error: e1 } =
+  const days = Number(globalRangeSelect?.value || 30
     await sb.rpc("analytics_store_summary", {
       p_store_id: storeId,
       p_days: days
@@ -612,7 +610,7 @@ function emailStore() {
 
   if (!ACTIVE_STORE) return;
 
-  const days = Number(globalRangeSelect.value || 30);
+  const days = Number(globalRangeSelect?.value || 30);
 
   const v = kpiViews.textContent || "0";
   const c = kpiClicks.textContent || "0";
