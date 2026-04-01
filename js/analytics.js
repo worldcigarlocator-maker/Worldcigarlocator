@@ -282,7 +282,8 @@ async function selectStoreById(storeId) {
 
   if (error || !data) {
     console.error("Failed to load store", error);
-    return;
+ return `
+  <tr data-id="${r.store_id}">
   }
 
   // ✅ NU finns data
@@ -865,18 +866,18 @@ async function loadTopStores() {
     }).join("");
 
     // 🔥 CLICK HANDLER
-    topStoresBody.querySelectorAll("tr").forEach((tr, i) => {
+topStoresBody.querySelectorAll("tr").forEach((tr) => {
 
-      const row = data[i];
-      if (!row?.store_id) return;
+  const id = tr.dataset.id;
+  if (!id) return;
 
-      tr.style.cursor = "pointer";
+  tr.style.cursor = "pointer";
 
-      tr.addEventListener("click", () => {
-        selectStoreById(Number(row.store_id));
-      });
+  tr.addEventListener("click", () => {
+    selectStoreById(Number(id));
+  });
 
-    });
+});
 
   } catch (err) {
 
