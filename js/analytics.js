@@ -25,7 +25,7 @@ const storePanel = $("#storePanel");
 if (globalRangeSelect) {
   globalRangeSelect.addEventListener("change", async () => {
 
-    const days = Number(globalRangeSelect.value);
+    const days = Number(globalRangeSelect?.value || 30);
 
     await loadGlobalKpis();
     await loadTrafficFlow();
