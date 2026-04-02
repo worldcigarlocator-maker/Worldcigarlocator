@@ -335,43 +335,32 @@ function createMarker(store) {
 
     marker.addListener("gmp-click", (e) => {
 
-      const s = marker.__store;
-      if (!s) return;
+  const s = marker.__store;
+  if (!s) return;
 
-      trackEvent("map_pin_click", {
-        store_id: s.id,
-        city: s.city,
-        country: s.country,
-        lat: s.lat,
-        lng: s.lng,
-        source: "map"
-      });
+  // 🔥 DETTA SAKNAS
+  if (window.WCL_ANALYTICS) {
+    window.WCL_ANALYTICS.source = "map";
+  }
 
-      if (e?.domEvent) {
-        e.domEvent.stopPropagation();
-      }
+  trackEvent("map_pin_click", {
+    store_id: s.id,
+    city: s.city,
+    country: s.country,
+    lat: s.lat,
+    lng: s.lng,
+    source: "map"
+  });
 
-      if (hoverTooltip) {
-        hoverTooltip.remove();
-        hoverTooltip = null;
-      }
+  if (e?.domEvent) {
+    e.domEvent.stopPropagation();
+  }
 
-      if (activePin && activePin !== pin) {
-        activePin.style.transform = "scale(1)";
-        activePin.style.boxShadow = "";
-        activePin.style.zIndex = "";
-      }
+  ...
 
-      activePin = pin;
+  openModal(s.id);
 
-      pin.style.transform = "scale(1.35)";
-      pin.style.boxShadow =
-        "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
-      pin.style.zIndex = "5";
-
-      openModal(s.id);
-
-    });
+});
 
     marker.__clickBound = true;
 
