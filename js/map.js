@@ -341,15 +341,15 @@ function createMarker(store) {
   if (window.WCL_ANALYTICS) {
     window.WCL_ANALYTICS.source = "map";
   }
-
-  trackEvent("map_pin_click", {
-    store_id: s.id,
-    city: s.city,
-    country: s.country,
-    lat: s.lat,
-    lng: s.lng,
-    source: "map"
-  });
+      
+trackEvent("store_viewed", {
+  store_id: s.id,
+  city: s.city,
+  country: s.country,
+  lat: s.lat,
+  lng: s.lng,
+  source: "map"
+});
 
   if (e?.domEvent) {
     e.domEvent.stopPropagation();
