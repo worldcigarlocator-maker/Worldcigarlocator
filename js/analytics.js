@@ -294,15 +294,27 @@ if (error || !data) {
 
   ACTIVE_STORE = data;
 
-  storeEmpty.classList.add("hidden");
-  storePanel.classList.remove("hidden");
-   console.log("PANEL STATE", storePanel.classList);
+ storeEmpty.classList.add("hidden");
+storePanel.classList.remove("hidden");
+console.log("PANEL STATE", storePanel.classList);
 
-  renderStoreHeader(data);
+// 🔥 FORCE OPEN STORE TAB
+document.querySelectorAll(".analytics-tab").forEach(el => {
+  el.classList.add("hidden");
+});
 
-  await loadStoreDossier(storeId);
+const tab = document.getElementById("tab-stores");
+if (tab) {
+  tab.classList.remove("hidden");
 }
 
+// 🔥 CONTINUE
+renderStoreHeader(data);
+
+await loadStoreDossier(storeId);
+}
+
+// =============================
 function renderStoreHeader(s) {
 
   storeName.textContent = s.name || "—";
