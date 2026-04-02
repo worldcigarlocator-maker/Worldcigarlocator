@@ -250,6 +250,7 @@ link.addEventListener("click", (e) => {
     window.open(link.href, "_blank");
   }, 150);
 });
+  }
 
   // ----------------------------------
   // Directions (Google Maps Navigation)
