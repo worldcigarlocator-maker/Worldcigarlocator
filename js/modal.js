@@ -150,6 +150,7 @@ function resetModal() {
 // ============================================================
 
 export async function openModal(storeInput) {
+  console.log("OPEN MODAL CALLED", storeInput);
 
   let store =
     typeof storeInput === "object" && storeInput !== null
@@ -182,7 +183,7 @@ export async function openModal(storeInput) {
 // ============================
 // ANALYTICS — STORE VIEW
 // ============================
-
+console.log("TRACKING VIEW", storeId);
 await trackEvent("store_viewed", {
   store_id: storeId,
   source: "modal",
