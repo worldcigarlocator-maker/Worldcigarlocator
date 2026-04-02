@@ -107,7 +107,7 @@ function sendEvent(event_type, payload = {}) {
         event_type,
         timestamp: new Date().toISOString(),
 
-        source: CURRENT_SOURCE,
+        source: payload.source || CURRENT_SOURCE,
 
         actor_type: "anon",
         session_hash: getOrCreateSession(),
@@ -149,14 +149,13 @@ export const VIEW_OBSERVER = new IntersectionObserver(
 
       markViewed(storeId);
 
-      sendEvent("store_viewed", {
-
-        store_id: Number(storeId),
-        continent: el.dataset.continent || null,
-        country: el.dataset.country || null,
-        city: el.dataset.city || null
-
-      });
+  sendEvent("store_viewed", {
+  store_id: Number(storeId),
+  continent: el.dataset.continent || null,
+  country: el.dataset.country || null,
+  city: el.dataset.city || null,
+  source: CURRENT_SOURCE
+});
 
       VIEW_OBSERVER.unobserve(el);
 
