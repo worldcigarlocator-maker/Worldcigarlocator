@@ -184,7 +184,7 @@ export async function openModal(storeInput) {
 // ANALYTICS — STORE VIEW
 // ============================
 console.log("TRACKING VIEW", storeId);
-await trackEvent("store_viewed", {
+trackEvent("store_viewed", {
   store_id: storeId,
   source: "modal",
   country: store.country || null,
