@@ -186,7 +186,7 @@ export async function openModal(storeInput) {
 console.log("TRACKING VIEW", storeId);
 trackEvent("store_viewed", {
   store_id: storeId,
-  source: "modal",
+  source: window.WCL_ANALYTICS?.source || "modal",
   country: store.country || null,
   city: store.city || null,
   lat: store.lat || null,
