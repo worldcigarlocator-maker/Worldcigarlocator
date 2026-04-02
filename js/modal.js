@@ -228,9 +228,24 @@ trackEvent("store_view", {
   if (modalPhone()) modalPhone().textContent = store.phone || "—";
 
 if (modalWebsite() && store.website) {
-  modalWebsite().href =
+
+  const link = modalWebsite();
+
+  link.href =
     `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/visit-store?store_id=${store.id}`;
-  modalWebsite().style.display = "inline";
+
+  link.style.display = "inline";
+
+  // 🔥 TRACK CLICK
+  link.onclick = () => {
+    trackEvent("website_clicked", {
+      store_id: Number(store.id),
+      source: "modal",
+      country: store.country || null,
+      city: store.city || null
+    });
+  };
+
 }
 
   // ----------------------------------
