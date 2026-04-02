@@ -183,15 +183,6 @@ export async function openModal(storeInput) {
 // ============================
 // ANALYTICS — STORE VIEW
 // ============================
-console.log("TRACKING VIEW", storeId);
-trackEvent("store_viewed", {
-  store_id: storeId,
-  source: window.WCL_ANALYTICS?.source || "modal",
-  country: store.country || null,
-  city: store.city || null,
-  lat: store.lat || null,
-  lng: store.lng || null
-});
 
   // ⭐ dessa saknas i din kod
   MODAL_ACTIVE_STORE_ID = storeId;
