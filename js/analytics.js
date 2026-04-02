@@ -948,6 +948,9 @@ function initTabs() {
       if (tab.dataset.tab === "overview") {
         await renderOverview();
       }
+       if (tab.dataset.tab === "stores") {
+  await loadTopStores();
+}
 
     });
   });
