@@ -166,7 +166,6 @@ map.addListener("idle", () => {
   mouseLatLng = e.latLng;
 });
 
-} 
 // ============================================================
 // USE MY LOCATION
 // ============================================================
@@ -338,7 +337,7 @@ function createMarker(store) {
   const s = marker.__store;
   if (!s) return;
 
-  // 🔥 DETTA SAKNAS
+  // 🔥 SET SOURCE (VIKTIGT)
   if (window.WCL_ANALYTICS) {
     window.WCL_ANALYTICS.source = "map";
   }
@@ -356,12 +355,27 @@ function createMarker(store) {
     e.domEvent.stopPropagation();
   }
 
-  ...
+  if (hoverTooltip) {
+    hoverTooltip.remove();
+    hoverTooltip = null;
+  }
+
+  if (activePin && activePin !== pin) {
+    activePin.style.transform = "scale(1)";
+    activePin.style.boxShadow = "";
+    activePin.style.zIndex = "";
+  }
+
+  activePin = pin;
+
+  pin.style.transform = "scale(1.35)";
+  pin.style.boxShadow =
+    "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
+  pin.style.zIndex = "5";
 
   openModal(s.id);
 
 });
-
     marker.__clickBound = true;
 
   }
