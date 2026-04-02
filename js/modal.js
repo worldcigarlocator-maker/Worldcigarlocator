@@ -228,25 +228,28 @@ trackEvent("store_view", {
   if (modalPhone()) modalPhone().textContent = store.phone || "—";
 
 if (modalWebsite() && store.website) {
+const link = modalWebsite();
 
-  const link = modalWebsite();
+link.href =
+  `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/visit-store?store_id=${store.id}`;
 
-  link.href =
-    `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/visit-store?store_id=${store.id}`;
+link.style.display = "inline";
 
-  link.style.display = "inline";
+link.addEventListener("click", (e) => {
+  e.preventDefault();
 
-  // 🔥 TRACK CLICK
-  link.onclick = () => {
-    trackEvent("website_clicked", {
-      store_id: Number(store.id),
-      source: "modal",
-      country: store.country || null,
-      city: store.city || null
-    });
-  };
+  trackEvent("website_clicked", {
+    store_id: Number(store.id),
+    source: "modal",
+    country: store.country || null,
+    city: store.city || null
+  });
 
-}
+  // 🔥 låt event skickas först
+  setTimeout(() => {
+    window.open(link.href, "_blank");
+  }, 150);
+});
 
   // ----------------------------------
   // Directions (Google Maps Navigation)
