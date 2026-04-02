@@ -294,9 +294,14 @@ if (error || !data) {
 
   ACTIVE_STORE = data;
 
- storeEmpty.classList.add("hidden");
+storeEmpty.classList.add("hidden");
 storePanel.classList.remove("hidden");
 console.log("PANEL STATE", storePanel.classList);
+
+storePanel.scrollIntoView({
+  behavior: "smooth",
+  block: "start"
+});
 
 // 🔥 FORCE OPEN STORE TAB
 document.querySelectorAll(".analytics-tab").forEach(el => {
