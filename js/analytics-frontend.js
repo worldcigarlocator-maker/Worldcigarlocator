@@ -25,8 +25,12 @@ const SESSION_IDLE_MS = 30 * 60 * 1000; // 30 min
 window.CURRENT_SOURCE = "direct";
 
 export function setTrafficSource(src) {
-  console.log("🔥 SET SOURCE →", src); // 👈 lägg denna rad
+  console.log("🔥 SET SOURCE →", src);
   window.CURRENT_SOURCE = src || "direct";
+
+  if (window.WCL_ANALYTICS) {
+    window.WCL_ANALYTICS.source = window.CURRENT_SOURCE;
+  }
 }
 
 
