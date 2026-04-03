@@ -179,12 +179,14 @@ export async function openModal(storeInput) {
 
   const storeId = Number(store.id);
   if (!storeId) return;
-  
-console.log("🔥 MODAL STEP 1", storeId);
+
+  const storeId = Number(store.id);
+if (!storeId) return;
+
 console.log("🔥 MODAL STEP 1", storeId);
 console.log("ANALYTICS OBJECT:", window.WCL_ANALYTICS);
 
-  window.WCL_ANALYTICS.send("store_opened", {
+window.WCL_ANALYTICS.send("store_opened", {
   store_id: storeId
 });
   
