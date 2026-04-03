@@ -25,6 +25,7 @@ const SESSION_IDLE_MS = 30 * 60 * 1000; // 30 min
 let CURRENT_SOURCE = "direct";
 
 export function setTrafficSource(src) {
+  console.log("🔥 SET SOURCE →", src); // 👈 lägg denna rad
   CURRENT_SOURCE = src || "direct";
 }
 
