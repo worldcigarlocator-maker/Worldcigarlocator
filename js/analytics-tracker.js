@@ -1,3 +1,4 @@
+```js
 import { supabase } from "./globals.js";
 
 // ============================================================
@@ -31,15 +32,19 @@ function markStoreViewed(id) {
   VIEWED_STORES.add(id);
 }
 
+// ============================================================
+// TRACK EVENT (CANONICAL)
+// ============================================================
+
 export async function trackEvent(eventType, payload = {}) {
 
   try {
 
     // ============================================================
-    // STORE VIEW DEDUPE
+    // STORE VIEW DEDUPE (CANONICAL EVENT NAME)
     // ============================================================
 
-    if (eventType === "store_viewed" && payload.store_id) {
+    if (eventType === "store_view" && payload.store_id) {
 
       if (hasViewedStore(payload.store_id)) {
         return;
@@ -53,18 +58,24 @@ export async function trackEvent(eventType, payload = {}) {
     // SESSION HASH
     // ============================================================
 
-    payload.session_hash = getSessionId();
+    const finalPayload = {
+      event_type: eventType,
+      source: window.CURRENT_SOURCE ?? "direct",
+      session_hash: getSessionId(),
+      ...payload
+    };
 
     // ============================================================
-    // INSERT EVENT
+    // EDGE INGEST (NO DIRECT DB WRITE)
     // ============================================================
 
-    await supabase
-      .from("analytics_events")
-      .insert({
-        event_type: eventType,
-        payload
-      });
+    await fetch("/functions/v1/analytics-ingest", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(finalPayload)
+    });
 
   } catch (err) {
 
@@ -73,3 +84,4 @@ export async function trackEvent(eventType, payload = {}) {
   }
 
 }
+```
