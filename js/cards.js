@@ -665,18 +665,17 @@ function bindGrid() {
   const grid = dom("#storeGrid");
   if (!grid) return;
 
-  grid.addEventListener("click", (e) => {
-    const card = e.target.closest(".store-card");
-    if (!card) return;
+grid.addEventListener("click", (e) => {
+  const card = e.target.closest(".store-card");
+  if (!card) return;
 
-    const id = Number(card.dataset.storeId);
-    if (!id) return;
+  const id = Number(card.dataset.storeId);
+  if (!id) return;
 
-window.WCL_ANALYTICS.setSource("search");
-}
-    openModal(id);
-  });
-}
+  window.WCL_ANALYTICS.setSource("search"); // 🔥 FIX
+
+  openModal(id);
+});
 
 // ============================================================
 // INIT
