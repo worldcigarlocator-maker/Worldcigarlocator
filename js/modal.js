@@ -183,6 +183,9 @@ export async function openModal(storeInput) {
 console.log("🔥 MODAL STEP 1", storeId);
 console.log("ANALYTICS OBJECT:", window.WCL_ANALYTICS);
 
+// 🔥 DENNA RAD SAKNAS
+console.log("🚨 CURRENT_SOURCE:", window.CURRENT_SOURCE);
+
 window.WCL_ANALYTICS.send("store_opened", {
   store_id: storeId,
   source: window.CURRENT_SOURCE,
