@@ -185,7 +185,7 @@ console.log("ANALYTICS OBJECT:", window.WCL_ANALYTICS);
 
 window.WCL_ANALYTICS.send("store_opened", {
   store_id: storeId,
-  source: window.WCL_ANALYTICS?.source || "direct",
+  source: window.CURRENT_SOURCE,
   country: store.country || null,
   city: store.city || null
 });
