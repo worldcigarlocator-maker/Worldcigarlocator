@@ -665,18 +665,20 @@ function bindGrid() {
   const grid = dom("#storeGrid");
   if (!grid) return;
 
-grid.addEventListener("click", (e) => {
-  const card = e.target.closest(".store-card");
-  if (!card) return;
+  grid.addEventListener("click", (e) => {
+    const card = e.target.closest(".store-card");
+    if (!card) return;
 
-  const id = Number(card.dataset.storeId);
-  if (!id) return;
+    const id = Number(card.dataset.storeId);
+    if (!id) return;
 
+ if (window.CURRENT_SOURCE === "direct" && window.WCL_ANALYTICS) {
   window.WCL_ANALYTICS.setSource("search");
+}
 
-  openModal(id);
-});
-  }
+    openModal(id);
+  });
+}
 
 // ============================================================
 // INIT
