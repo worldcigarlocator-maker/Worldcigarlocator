@@ -337,19 +337,16 @@ function createMarker(store) {
   const s = marker.__store;
   if (!s) return;
 
-  // 🔥 SET SOURCE (VIKTIGT)
-  if (window.WCL_ANALYTICS) {
-    window.WCL_ANALYTICS.source = "map";
-  }
-      
-trackEvent("store_viewed", {
-  store_id: s.id,
-  city: s.city,
-  country: s.country,
-  lat: s.lat,
-  lng: s.lng,
-  source: "map"
-});
+  window.WCL_ANALYTICS.setSource("map"); // 🔥 FIX
+
+  trackEvent("store_viewed", {
+    store_id: s.id,
+    city: s.city,
+    country: s.country,
+    lat: s.lat,
+    lng: s.lng,
+    source: "map"
+  });
 
   if (e?.domEvent) {
     e.domEvent.stopPropagation();
