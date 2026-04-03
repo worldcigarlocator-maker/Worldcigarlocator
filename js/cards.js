@@ -672,10 +672,11 @@ grid.addEventListener("click", (e) => {
   const id = Number(card.dataset.storeId);
   if (!id) return;
 
-  window.WCL_ANALYTICS.setSource("search"); // 🔥 FIX
+  window.WCL_ANALYTICS.setSource("search");
 
   openModal(id);
 });
+  }
 
 // ============================================================
 // INIT
