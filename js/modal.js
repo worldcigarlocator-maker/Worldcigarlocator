@@ -190,7 +190,7 @@ export async function openModal(storeInput) {
   // ANALYTICS — STORE OPENED (CANONICAL · SINGLE SOURCE)
   // ============================================================
 
-  trackEvent("store_viewed", {
+  trackEvent("store_view", {
   store_id: storeId,
   country: store.country || null,
   city: store.city || null
