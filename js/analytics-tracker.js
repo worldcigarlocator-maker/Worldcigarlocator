@@ -41,7 +41,7 @@ export async function trackEvent(eventType, payload = {}) {
   try {
 
     // ============================================================
-    // STORE VIEW DEDUPE (CANONICAL EVENT NAME)
+    // STORE VIEW DEDUPE
     // ============================================================
 
     if (eventType === "store_view" && payload.store_id) {
@@ -55,7 +55,7 @@ export async function trackEvent(eventType, payload = {}) {
     }
 
     // ============================================================
-    // SESSION HASH
+    // SESSION + SOURCE
     // ============================================================
 
     const finalPayload = {
@@ -66,10 +66,15 @@ export async function trackEvent(eventType, payload = {}) {
     };
 
     // ============================================================
-    // EDGE INGEST (NO DIRECT DB WRITE)
+    // SAFE EDGE CALL
     // ============================================================
 
-    await fetch("/functions/v1/analytics-ingest", {
+    const endpoint =
+      location.hostname === "localhost"
+        ? "https://YOUR_PROJECT.supabase.co/functions/v1/analytics-ingest"
+        : "/functions/v1/analytics-ingest";
+
+    await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -84,4 +89,3 @@ export async function trackEvent(eventType, payload = {}) {
   }
 
 }
-```
