@@ -188,7 +188,6 @@ console.log("🚨 CURRENT_SOURCE:", window.CURRENT_SOURCE);
 
 window.WCL_ANALYTICS.send("store_opened", {
   store_id: storeId,
-  source: window.CURRENT_SOURCE,
   country: store.country || null,
   city: store.city || null
 });
