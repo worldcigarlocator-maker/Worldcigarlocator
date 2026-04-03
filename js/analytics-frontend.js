@@ -97,31 +97,24 @@ function sendEvent(event_type, payload = {}) {
 
   try {
 
-    fetch(ANALYTICS_INGEST_URL, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      keepalive: true,
-      credentials: "omit",
+fetch(ANALYTICS_INGEST_URL, {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  keepalive: true,
+  credentials: "omit",
 
-      body: JSON.stringify({
+  body: JSON.stringify({
+    event_type,
+    timestamp: new Date().toISOString(),
+    source: payload.source || CURRENT_SOURCE,
+    actor_type: "anon",
+    session_hash: getOrCreateSession(),
+    ...payload
+  })
 
-        event_type,
-        timestamp: new Date().toISOString(),
-
-        source: payload.source || window.CURRENT_SOURCE,
-
-        actor_type: "anon",
-        session_hash: getOrCreateSession(),
-
-        ...payload
-
-      })
-
-    }).catch(() => {});
-
-  } catch {}
-
-}
+})
+.then(res => console.log("🔥 ANALYTICS SENT", res.status))
+.catch(err => console.error("❌ ANALYTICS ERROR", err));
 
 
 // ============================================================
