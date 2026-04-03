@@ -114,7 +114,7 @@ function sendEvent(event_type, payload = {}) {
       body: JSON.stringify({
         event_type,
         timestamp: new Date().toISOString(),
-        source: payload.source || window.CURRENT_SOURCE,
+        source: window.CURRENT_SOURCE,
         actor_type: "anon",
         session_hash: getOrCreateSession(),
         ...payload
