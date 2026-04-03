@@ -185,6 +185,13 @@ export async function openModal(storeInput) {
   if (!storeId) return;
 
   console.log("🔥 MODAL STEP 1", storeId);
+  console.log("🚀 TRACKING STORE VIEW");
+
+trackEvent("store_view", {
+  store_id: storeId,
+  country: store.country || null,
+  city: store.city || null
+});
 
   // ============================================================
   // ANALYTICS — STORE OPENED (CANONICAL · SINGLE SOURCE)
