@@ -672,8 +672,7 @@ function bindGrid() {
     const id = Number(card.dataset.storeId);
     if (!id) return;
 
-    if (window.WCL_ANALYTICS) {
-  window.WCL_ANALYTICS.source = "search";
+window.WCL_ANALYTICS.setSource("search");
 }
     openModal(id);
   });
