@@ -145,6 +145,7 @@ function resetModal() {
   MODAL_USER_TEMP_RATING = 0;
   highlightStars(0);
 }
+
 // ============================================================
 // OPEN / CLOSE
 // ============================================================
@@ -157,7 +158,10 @@ export async function openModal(storeInput) {
       ? storeInput
       : findStore(storeInput);
 
-  // MAP VIEW FALLBACK
+  // ============================================================
+  // MAP VIEW FALLBACK (RPC ONLY)
+  // ============================================================
+
   if (!store && storeInput) {
 
     const { data, error } = await supabase.rpc(
@@ -180,32 +184,22 @@ export async function openModal(storeInput) {
   const storeId = Number(store.id);
   if (!storeId) return;
 
-console.log("🔥 MODAL STEP 1", storeId);
+  console.log("🔥 MODAL STEP 1", storeId);
 
-// ============================================================
-// ANALYTICS — STORE OPENED (CANONICAL)
-// ============================================================
+  // ============================================================
+  // ANALYTICS — STORE OPENED (CANONICAL · SINGLE SOURCE)
+  // ============================================================
 
-trackEvent("store_opened", {
-  store_id: storeId
-});
+  trackEvent("store_opened", {
+    store_id: storeId
+  });
 
-console.log("ANALYTICS OBJECT:", window.WCL_ANALYTICS);
+  console.log("🚨 CURRENT_SOURCE:", window.CURRENT_SOURCE);
 
-// 🔥 DENNA RAD SAKNAS
-console.log("🚨 CURRENT_SOURCE:", window.CURRENT_SOURCE);
+  // ============================================================
+  // MODAL STATE INIT
+  // ============================================================
 
-window.WCL_ANALYTICS.send("store_opened", {
-  store_id: storeId,
-  country: store.country || null,
-  city: store.city || null
-});
-  
-// ============================
-// ANALYTICS — STORE VIEW
-// ============================
-
-  // ⭐ dessa saknas i din kod
   MODAL_ACTIVE_STORE_ID = storeId;
   MODAL_LOAD_SEQ++;
   const seq = MODAL_LOAD_SEQ;
@@ -216,8 +210,9 @@ window.WCL_ANALYTICS.send("store_opened", {
   resetModal();
   m.classList.remove("hidden");
   lockScroll(true);
+}
 
-  
+
   // ----------------------------------
   // Static store data
   // ----------------------------------
