@@ -22,11 +22,11 @@ const SESSION_IDLE_MS = 30 * 60 * 1000; // 30 min
 // TRAFFIC SOURCE
 // ============================================================
 
-let CURRENT_SOURCE = "direct";
+window.CURRENT_SOURCE = "direct";
 
 export function setTrafficSource(src) {
   console.log("🔥 SET SOURCE →", src); // 👈 lägg denna rad
-  CURRENT_SOURCE = src || "direct";
+  window.CURRENT_SOURCE = src || "direct";
 }
 
 
@@ -108,7 +108,7 @@ function sendEvent(event_type, payload = {}) {
         event_type,
         timestamp: new Date().toISOString(),
 
-        source: payload.source || CURRENT_SOURCE,
+        source: payload.source || window.CURRENT_SOURCE,
 
         actor_type: "anon",
         session_hash: getOrCreateSession(),
