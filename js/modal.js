@@ -190,9 +190,11 @@ export async function openModal(storeInput) {
   // ANALYTICS — STORE OPENED (CANONICAL · SINGLE SOURCE)
   // ============================================================
 
-  trackEvent("store_opened", {
-    store_id: storeId
-  });
+window.WCL_ANALYTICS?.send("store_opened", {
+  store_id: storeId,
+  country: store.country || null,
+  city: store.city || null
+});
 
   console.log("🚨 CURRENT_SOURCE:", window.CURRENT_SOURCE);
 
