@@ -76,10 +76,12 @@ async function loadGoogle() {
 
 export async function initMap() {
 
+  // 🔥 SET SOURCE (KORREKT SÄTT)
   if (window.WCL_ANALYTICS) {
-    WCL_ANALYTICS.setSource("map");
+    window.WCL_ANALYTICS.setSource("map");
   }
 
+  // already initialized
   if (map) return;
 
   await loadGoogle();
@@ -87,35 +89,36 @@ export async function initMap() {
   const container = document.getElementById("mapView");
   if (!container) return;
 
- map = new google.maps.Map(container, {
-  center: { lat: 20, lng: 0 },
-  zoom: 2,
-  minZoom: 2,
-  maxZoom: 17,
+  map = new google.maps.Map(container, {
+    center: { lat: 20, lng: 0 },
+    zoom: 2,
+    minZoom: 2,
+    maxZoom: 17,
 
-  mapId: "50c83dc7ca62c31181c32eb1",
+    mapId: "50c83dc7ca62c31181c32eb1",
 
-  mapTypeControl: false,
-  streetViewControl: false,
-  fullscreenControl: false,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
 
-  tilt: 0,
-  heading: 0,
+    tilt: 0,
+    heading: 0,
 
-  gestureHandling: "greedy",
+    gestureHandling: "greedy",
+    isFractionalZoomEnabled: true,
 
-  isFractionalZoomEnabled: true,
+    restriction: {
+      latLngBounds: {
+        north: 85,
+        south: -85,
+        west: -180,
+        east: 180
+      },
+      strictBounds: true
+    }
+  });
 
-  restriction: {
-    latLngBounds: {
-      north: 85,
-      south: -85,
-      west: -180,
-      east: 180
-    },
-    strictBounds: true
-  }
-});
+}
 // ============================================================
 // MAP IDLE HANDLER (LOAD + ANALYTICS)
 // ============================================================
