@@ -76,12 +76,10 @@ async function loadGoogle() {
 
 export async function initMap() {
 
-  // 🔥 SET SOURCE (KORREKT SÄTT)
   if (window.WCL_ANALYTICS) {
     window.WCL_ANALYTICS.setSource("map");
   }
 
-  // already initialized
   if (map) return;
 
   await loadGoogle();
@@ -118,30 +116,25 @@ export async function initMap() {
     }
   });
 
-}
-// ============================================================
-// MAP IDLE HANDLER (LOAD + ANALYTICS)
-// ============================================================
+  // ============================================================
+  // MAP IDLE HANDLER (LOAD + ANALYTICS)
+  // ============================================================
 
-map.addListener("idle", () => {
+  map.addListener("idle", () => {
 
-  // ---------- LOAD STORES ----------
+    clearTimeout(idleTimer);
 
-  clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      loadStores();
+    }, 350);
 
-  idleTimer = setTimeout(() => {
-    loadStores();
-  }, 350);
+    clearTimeout(viewportTimer);
 
-  // ---------- VIEWPORT ANALYTICS ----------
+    viewportTimer = setTimeout(() => {
+      trackMapViewport();
+    }, 1500);
 
-  clearTimeout(viewportTimer);
-
-  viewportTimer = setTimeout(() => {
-    trackMapViewport();
-  }, 1500);
-
-});
+  });
 
   // ============================================================
   // SMOOTH 3D TILT ON ZOOM
@@ -166,8 +159,10 @@ map.addListener("idle", () => {
   let mouseLatLng = null;
 
   map.addListener("mousemove", (e) => {
-  mouseLatLng = e.latLng;
-});
+    mouseLatLng = e.latLng;
+  });
+
+}
 
 // ============================================================
 // USE MY LOCATION
