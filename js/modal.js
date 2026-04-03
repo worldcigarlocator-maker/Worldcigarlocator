@@ -181,6 +181,15 @@ export async function openModal(storeInput) {
   if (!storeId) return;
 
 console.log("🔥 MODAL STEP 1", storeId);
+
+// ============================================================
+// ANALYTICS — STORE OPENED (CANONICAL)
+// ============================================================
+
+trackEvent("store_opened", {
+  store_id: storeId
+});
+
 console.log("ANALYTICS OBJECT:", window.WCL_ANALYTICS);
 
 // 🔥 DENNA RAD SAKNAS
