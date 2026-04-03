@@ -190,7 +190,7 @@ export async function openModal(storeInput) {
   // ANALYTICS — STORE OPENED (CANONICAL · SINGLE SOURCE)
   // ============================================================
 
-window.WCL_ANALYTICS?.send("store_opened", {
+window.WCL_ANALYTICS?.send("store_viewed", {
   store_id: storeId,
   country: store.country || null,
   city: store.city || null
