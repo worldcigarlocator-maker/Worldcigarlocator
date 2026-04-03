@@ -26,7 +26,11 @@ window.CURRENT_SOURCE = "direct";
 
 export function setTrafficSource(src) {
   console.log("🔥 SET SOURCE →", src);
-  window.CURRENT_SOURCE = src || "direct";
+
+  // 🔒 skriv bara om om vi inte redan har en riktig source
+  if (!window.CURRENT_SOURCE || window.CURRENT_SOURCE === "direct") {
+    window.CURRENT_SOURCE = src || "direct";
+  }
 
   if (window.WCL_ANALYTICS) {
     window.WCL_ANALYTICS.source = window.CURRENT_SOURCE;
