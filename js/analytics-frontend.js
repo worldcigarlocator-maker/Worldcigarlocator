@@ -154,7 +154,6 @@ export const VIEW_OBSERVER = new IntersectionObserver(
   continent: el.dataset.continent || null,
   country: el.dataset.country || null,
   city: el.dataset.city || null,
-  source: CURRENT_SOURCE
 });
 
       VIEW_OBSERVER.unobserve(el);
