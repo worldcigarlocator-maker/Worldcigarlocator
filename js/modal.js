@@ -183,6 +183,10 @@ export async function openModal(storeInput) {
 console.log("🔥 MODAL STEP 1", storeId);
 console.log("🔥 MODAL STEP 1", storeId);
 console.log("ANALYTICS OBJECT:", window.WCL_ANALYTICS);
+
+  window.WCL_ANALYTICS.send("store_opened", {
+  store_id: storeId
+});
   
 // ============================
 // ANALYTICS — STORE VIEW
