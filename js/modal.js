@@ -180,6 +180,27 @@ export async function openModal(storeInput) {
   const storeId = Number(store.id);
   if (!storeId) return;
 
+// ============================================================
+// ANALYTICS — STORE OPEN (🔥 KEY EVENT)
+// ============================================================
+
+if (window.WCL_ANALYTICS) {
+  window.WCL_ANALYTICS.send("store_opened", {
+    store_id: storeId,
+    source: window.WCL_ANALYTICS?.CURRENT_SOURCE || "direct",
+    country: store.country || null,
+    city: store.city || null
+  });
+}
+
+  const storeId = Number(store.id);
+  if (!storeId) return;
+
+// ============================
+// ANALYTICS — STORE VIEW
+// ============================
+
+  
 // ============================
 // ANALYTICS — STORE VIEW
 // ============================
