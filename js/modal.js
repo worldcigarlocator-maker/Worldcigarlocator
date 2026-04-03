@@ -204,18 +204,16 @@ export async function openModal(storeInput) {
   MODAL_LOAD_SEQ++;
   const seq = MODAL_LOAD_SEQ;
 
-  const m = modalEl();
-  if (!m) return;
+const m = modalEl();
+if (!m) return;
 
-  resetModal();
-  m.classList.remove("hidden");
-  lockScroll(true);
-}
+resetModal();
+m.classList.remove("hidden");
+lockScroll(true);
 
-
-  // ----------------------------------
-  // Static store data
-  // ----------------------------------
+// ----------------------------------
+// Static store data
+// ----------------------------------
 
   if (modalName()) modalName().textContent = store.name || "Unnamed";
   if (modalImg()) modalImg().src = getPhotoUrl(store);
@@ -250,7 +248,6 @@ link.addEventListener("click", (e) => {
 
   trackEvent("website_clicked", {
     store_id: Number(store.id),
-    source: "modal",
     country: store.country || null,
     city: store.city || null
   });
