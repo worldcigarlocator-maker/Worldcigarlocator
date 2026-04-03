@@ -193,9 +193,6 @@ if (window.WCL_ANALYTICS) {
   });
 }
 
-  const storeId = Number(store.id);
-  if (!storeId) return;
-
 // ============================
 // ANALYTICS — STORE VIEW
 // ============================
