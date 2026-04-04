@@ -945,42 +945,98 @@ async function loadMarketDemand(days = 30) {
 
   const marketDemandBody = document.getElementById("marketDemandBody");
 
-  if (!marketDemandBody) {
-    console.error("marketDemandBody not found");
-    return;
+  if (!marketDemandBody) return;
+
+  console.log("LOAD MARKET DEMAND FOR KPI:", CURRENT_KPI);
+
+  let data, error;
+
+  // =========================================
+  // KPI SWITCH
+  // =========================================
+
+  if (CURRENT_KPI === "views") {
+
+    ({ data, error } = await sb.rpc("analytics_market_demand", {
+      p_days: days
+    }));
+
   }
 
-  const { data, error } =
-    await sb.rpc("analytics_market_demand", {
-      p_days: days
-    });
+  if (CURRENT_KPI === "clicks") {
+
+    ({ data, error } = await sb.rpc("analytics_top_countries", {
+      p_days: days,
+      p_limit: 100
+    }));
+
+  }
+
+  if (CURRENT_KPI === "sessions") {
+
+    ({ data, error } = await sb.rpc("analytics_top_countries", {
+      p_days: days,
+      p_limit: 100
+    }));
+
+  }
+
+  if (CURRENT_KPI === "ctr") {
+
+    ({ data, error } = await sb.rpc("analytics_top_countries", {
+      p_days: days,
+      p_limit: 100
+    }));
+
+  }
+
+  if (CURRENT_KPI === "stores") {
+
+    ({ data, error } = await sb.rpc("analytics_top_countries", {
+      p_days: days,
+      p_limit: 100
+    }));
+
+  }
+
+  // =========================================
 
   if (error) {
-
     console.error("market demand error", error);
-
     marketDemandBody.innerHTML =
       `<tr><td colspan="4" class="muted center">Failed to load.</td></tr>`;
-
     return;
   }
 
   if (!data || !data.length) {
-
     marketDemandBody.innerHTML =
       `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
-
     return;
   }
 
-  marketDemandBody.innerHTML = data.map(r => `
-    <tr>
-      <td>${escapeHtml(r.country)}</td>
-      <td class="num">${Number(r.views)}</td>
-      <td class="num">${Number(r.stores)}</td>
-      <td>${r.demand}</td>
-    </tr>
-  `).join("");
+  // =========================================
+  // RENDER
+  // =========================================
+
+  marketDemandBody.innerHTML = data.map(r => {
+
+    const views = Number(r.views || 0);
+    const clicks = Number(r.clicks || 0);
+    const stores = Number(r.stores || 0);
+
+    const ctr =
+      views ? ((clicks / views) * 100).toFixed(1) + "%" : "0%";
+
+    return `
+      <tr>
+        <td>${escapeHtml(r.country || "—")}</td>
+        <td class="num">${views}</td>
+        <td class="num">${clicks}</td>
+        <td class="num">${ctr}</td>
+      </tr>
+    `;
+
+  }).join("");
 }
 
 /* ============================================================
