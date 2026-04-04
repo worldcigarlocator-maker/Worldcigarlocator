@@ -1079,19 +1079,23 @@ function initTabs() {
   tabs.forEach((tab) => {
     tab.addEventListener("click", async () => {
 
+      // active state
       tabs.forEach((t) => t.classList.remove("active"));
       tab.classList.add("active");
 
+      // hide all tabs
       document.querySelectorAll(".analytics-tab")
         .forEach((el) => el.classList.add("hidden"));
 
+      // show selected tab
       const target = document.getElementById("tab-" + tab.dataset.tab);
-
       if (target) {
         target.classList.remove("hidden");
       }
 
-     const days = Number(globalRangeSelect?.value || 30);
+      // load data per tab
+      const days = Number(globalRangeSelect?.value || 30);
+
       if (tab.dataset.tab === "market") {
         await loadHeatmap();
         await loadMarketDemand(days);
@@ -1100,10 +1104,38 @@ function initTabs() {
       if (tab.dataset.tab === "overview") {
         await renderOverview();
       }
-       if (tab.dataset.tab === "stores") {
-  await loadTopStores();
-}
+
+      if (tab.dataset.tab === "stores") {
+        await loadTopStores();
+      }
 
     });
   });
 }
+
+
+// ============================================================
+// INIT
+// ============================================================
+
+function init() {
+
+  console.log("🔥 INIT RUNNING");
+
+  bindUI();
+  initTabs();
+
+  loadGlobalKpis();
+  loadTrafficFlow();
+  loadHeatmap();
+  renderOverview();
+  loadMarketDemand();
+  loadTopStores();
+}
+
+
+// ============================================================
+// START APP
+// ============================================================
+
+document.addEventListener("DOMContentLoaded", init);
