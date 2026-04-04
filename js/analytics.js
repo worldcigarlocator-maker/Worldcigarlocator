@@ -97,9 +97,10 @@ async function loadGlobalKpis() {
    
 const { data, error } = await sb
   .from("analytics_kpi_v1")
-  .select("*");
+  .select("total_views, total_clicks, ctr")
+  .limit(1);
 
-   
+
   if (error) {
     console.error("Failed loading global KPIs", error);
     return;
