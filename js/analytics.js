@@ -571,10 +571,7 @@ const days = 30;
 
     rows = data || [];
 
-    renderOverviewTable(
-      rows,
-      r => [r.city, r.country].filter(Boolean).join(", ") || "—"
-    );
+ renderOverviewTable(rows, getOverviewKey);
   }
 
   if (OVERVIEW_TAB === "stores") {
@@ -589,10 +586,7 @@ const days = 30;
 
     rows = data || [];
 
-    renderOverviewTable(
-      rows,
-      r => `${r.name || "—"} (${[r.city, r.country].filter(Boolean).join(", ")})`
-    );
+ renderOverviewTable(rows, getOverviewKey);
   }
 }
 
@@ -626,7 +620,7 @@ function renderOverviewTable(rows, keyFn) {
         : "0%";
 
     return `
-      <tr>
+  <tr class="overview-row" data-key="${escapeHtml(keyFn(r))}">
         <td>${escapeHtml(keyFn(r))}</td>
         <td class="num">${views}</td>
         <td class="num">${clicks}</td>
@@ -635,6 +629,20 @@ function renderOverviewTable(rows, keyFn) {
     `;
 
   }).join("");
+
+   overviewTableBody.querySelectorAll(".overview-row").forEach(tr => {
+
+  tr.style.cursor = "pointer";
+
+  tr.addEventListener("click", () => {
+
+    const key = tr.dataset.key;
+
+    console.log("CLICKED:", key);
+
+  });
+
+});
 }
 
 function filterOverview() {
