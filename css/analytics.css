@@ -570,3 +570,28 @@ table tr{
 .table tbody tr:hover {
   background: rgba(255,255,255,0.03);
 }
+
+.kpi-purple td:first-child {
+  color: #a855f7;
+  font-weight: 600;
+}
+
+.kpi-orange td:first-child {
+  color: #f97316;
+  font-weight: 600;
+}
+
+.kpi-turquoise td:first-child {
+  color: #14b8a6;
+  font-weight: 600;
+}
+
+.kpi-green td:first-child {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.kpi-blue td:first-child {
+  color: #3b82f6;
+  font-weight: 600;
+}
