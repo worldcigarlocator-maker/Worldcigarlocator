@@ -195,8 +195,39 @@ document.addEventListener("click", (e) => {
   exportBtn?.addEventListener("click", exportCSV);
   printBtn?.addEventListener("click", () => window.print());
   mailBtn?.addEventListener("click", emailStore);
-}
 
+// ============================================================
+// KPI → DRILLDOWN NAV
+// ============================================================
+
+$("#kpiViews")?.addEventListener("click", async () => {
+
+  document.querySelectorAll(".btn.tab").forEach(b => b.classList.remove("active"));
+  document.querySelector('[data-tab="market"]')?.classList.add("active");
+
+  document.querySelectorAll(".analytics-tab")
+    .forEach(el => el.classList.add("hidden"));
+
+  document.getElementById("tab-market")?.classList.remove("hidden");
+
+  await loadHeatmap();
+  await loadMarketDemand();
+});
+
+$("#kpiSessions")?.addEventListener("click", async () => {
+
+  document.querySelectorAll(".btn.tab").forEach(b => b.classList.remove("active"));
+  document.querySelector('[data-tab="market"]')?.classList.add("active");
+
+  document.querySelectorAll(".analytics-tab")
+    .forEach(el => el.classList.add("hidden"));
+
+  document.getElementById("tab-market")?.classList.remove("hidden");
+
+  await loadHeatmap();
+  await loadMarketDemand();
+});
+   }
 /* ============================================================
    STORES INDEX
    ============================================================ */
