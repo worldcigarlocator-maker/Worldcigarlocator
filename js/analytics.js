@@ -10,6 +10,7 @@ const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
 const globalRangeSelect = document.getElementById("globalRange");
+const globalSessions = $("#globalSessions");
 
 const trafficFlowBody = $("#trafficFlowBody");
 const heatmapBody = $("#heatmapBody");
