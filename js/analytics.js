@@ -180,34 +180,44 @@ document.addEventListener("click", (e) => {
 // KPI → DRILLDOWN NAV
 // ============================================================
 
-$("#kpiViews")?.addEventListener("click", async () => {
+const kpiViewsEl = document.getElementById("kpiViews");
+const kpiSessionsEl = document.getElementById("kpiSessions");
 
-  document.querySelectorAll(".btn.tab").forEach(b => b.classList.remove("active"));
-  document.querySelector('[data-tab="market"]')?.classList.add("active");
+if (kpiViewsEl) {
+  kpiViewsEl.addEventListener("click", async () => {
 
-  document.querySelectorAll(".analytics-tab")
-    .forEach(el => el.classList.add("hidden"));
+    console.log("KPI VIEWS CLICK");
 
-  document.getElementById("tab-market")?.classList.remove("hidden");
+    document.querySelectorAll(".btn.tab").forEach(b => b.classList.remove("active"));
+    document.querySelector('[data-tab="market"]')?.classList.add("active");
 
-  await loadHeatmap();
-  await loadMarketDemand();
-});
+    document.querySelectorAll(".analytics-tab")
+      .forEach(el => el.classList.add("hidden"));
 
-$("#kpiSessions")?.addEventListener("click", async () => {
+    document.getElementById("tab-market")?.classList.remove("hidden");
 
-  document.querySelectorAll(".btn.tab").forEach(b => b.classList.remove("active"));
-  document.querySelector('[data-tab="market"]')?.classList.add("active");
+    await loadHeatmap();
+    await loadMarketDemand();
+  });
+}
 
-  document.querySelectorAll(".analytics-tab")
-    .forEach(el => el.classList.add("hidden"));
+if (kpiSessionsEl) {
+  kpiSessionsEl.addEventListener("click", async () => {
 
-  document.getElementById("tab-market")?.classList.remove("hidden");
+    console.log("KPI SESSIONS CLICK");
 
-  await loadHeatmap();
-  await loadMarketDemand();
-});
-   }
+    document.querySelectorAll(".btn.tab").forEach(b => b.classList.remove("active"));
+    document.querySelector('[data-tab="market"]')?.classList.add("active");
+
+    document.querySelectorAll(".analytics-tab")
+      .forEach(el => el.classList.add("hidden"));
+
+    document.getElementById("tab-market")?.classList.remove("hidden");
+
+    await loadHeatmap();
+    await loadMarketDemand();
+  });
+}
 /* ============================================================
    STORES INDEX
    ============================================================ */
