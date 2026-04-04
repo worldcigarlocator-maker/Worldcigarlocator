@@ -180,10 +180,6 @@ document.addEventListener("click", (e) => {
 // KPI → DRILLDOWN NAV
 // ============================================================
 
-// ============================================================
-// KPI → DRILLDOWN NAV
-// ============================================================
-
 function goToMarketTab() {
 
   document.querySelectorAll(".btn.tab").forEach(b => b.classList.remove("active"));
@@ -215,6 +211,7 @@ function goToMarketTab() {
   });
 
 });
+   }
 /* ============================================================
    STORES INDEX
    ============================================================ */
