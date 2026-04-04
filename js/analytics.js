@@ -81,7 +81,7 @@ let ACTIVE_STORE = null;
 let OVERVIEW_TAB = "countries";
 
 let CURRENT_OVERVIEW_ROWS = [];
-
+let CURRENT_KPI = "views";
 
 /* ============================================================
    GLOBAL KPIs
@@ -202,13 +202,22 @@ function goToMarketTab() {
 
   if (!el) return;
 
-  el.addEventListener("click", () => {
+el.addEventListener("click", () => {
 
-    console.log("KPI CLICK:", id);
+  console.log("KPI CLICK:", id);
 
-    goToMarketTab();
+  // 🔥 sätt KPI state
+  if (id === "kpiSessions") CURRENT_KPI = "sessions";
+  if (id === "kpiViews") CURRENT_KPI = "views";
+  if (id === "kpiClicks") CURRENT_KPI = "clicks";
+  if (id === "kpiStores") CURRENT_KPI = "stores";
+  if (id === "kpiCtr") CURRENT_KPI = "ctr";
 
-  });
+  console.log("CURRENT KPI:", CURRENT_KPI);
+
+  goToMarketTab();
+
+});
 
 });
    }
