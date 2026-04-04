@@ -105,21 +105,30 @@ function sendEvent(event_type, payload = {}) {
 
   try {
 
+    // 🔥 plocka bort source från payload
+    const { source: _ignore, ...rest } = payload ?? {};
+
+    const finalPayload = {
+      event_type,
+      timestamp: new Date().toISOString(),
+      actor_type: "anon",
+      session_hash: getOrCreateSession(),
+
+      // 🔒 ENDA source of truth
+      source:
+        window?.MODAL_SOURCE ??
+        window?.CURRENT_SOURCE ??
+        "direct",
+
+      ...rest
+    };
+
     fetch(ANALYTICS_INGEST_URL, {
       method: "POST",
       headers: { "content-type": "application/json" },
       keepalive: true,
       credentials: "omit",
-
-      body: JSON.stringify({
-        event_type,
-        timestamp: new Date().toISOString(),
-        source: window.CURRENT_SOURCE,
-        actor_type: "anon",
-        session_hash: getOrCreateSession(),
-        ...payload
-      })
-
+      body: JSON.stringify(finalPayload)
     })
     .then(res => console.log("🔥 ANALYTICS SENT", res.status))
     .catch(err => console.error("❌ ANALYTICS ERROR", err));
@@ -129,7 +138,6 @@ function sendEvent(event_type, payload = {}) {
   }
 
 }
-
 
 // ============================================================
 // STORE VIEW OBSERVER
