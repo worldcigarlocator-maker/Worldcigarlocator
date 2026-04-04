@@ -206,14 +206,13 @@ el.addEventListener("click", () => {
 
   console.log("KPI CLICK:", id);
 
-  // 🔥 sätt KPI state
-  if (id === "kpiSessions") CURRENT_KPI = "sessions";
-  if (id === "kpiViews") CURRENT_KPI = "views";
-  if (id === "kpiClicks") CURRENT_KPI = "clicks";
-  if (id === "kpiStores") CURRENT_KPI = "stores";
-  if (id === "kpiCtr") CURRENT_KPI = "ctr";
+if (id === "kpiViews") CURRENT_KPI = "views";
+if (id === "kpiClicks") CURRENT_KPI = "clicks";
+if (id === "kpiCtr") CURRENT_KPI = "ctr";
+if (id === "kpiStores") CURRENT_KPI = "stores";
+if (id === "kpiSessions") CURRENT_KPI = "sessions";
 
-  console.log("CURRENT KPI:", CURRENT_KPI);
+console.log("CURRENT KPI:", CURRENT_KPI);
 
   goToMarketTab();
 
