@@ -213,6 +213,7 @@ if (id === "kpiStores") CURRENT_KPI = "stores";
 if (id === "kpiSessions") CURRENT_KPI = "sessions";
 
 console.log("CURRENT KPI:", CURRENT_KPI);
+   await loadMarketDemand();
 
   goToMarketTab();
 
