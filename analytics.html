@@ -75,52 +75,85 @@ ANALYTICS NAV
 OVERVIEW TAB
 ============================================================ -->
 
+<!-- ===== START: OVERVIEW TAB ===== -->
 <div class="analytics-tab" id="tab-overview">
 
-  <!-- GLOBAL KPIs -->
+  <!-- ===== START: VIEW TOOLBAR ===== -->
+  <section class="panel">
+
+    <div class="toolbar">
+
+      <div class="toolbar-left">
+        <h2 id="viewTitle">Overview — Last 30 days</h2>
+      </div>
+
+      <div class="toolbar-right">
+
+        <input
+          id="viewSearch"
+          type="text"
+          placeholder="Search country, city, store..."
+        />
+
+        <button id="exportBtn" class="btn ghost">Export</button>
+        <button id="printBtn" class="btn ghost">Print</button>
+        <button id="mailBtn" class="btn ghost">Email</button>
+        <button id="toggleView" class="btn ghost">Chart</button>
+
+      </div>
+
+    </div>
+
+  </section>
+  <!-- ===== END: VIEW TOOLBAR ===== -->
+
+
+  <!-- ===== START: GLOBAL KPIs ===== -->
   <section class="panel">
 
     <div class="panelhead">
-      <h2>Global KPIs</h2>
+      <h2>Overview</h2>
     </div>
 
     <div class="kpis">
 
-    
-<div class="kpi">
-  <div class="kpiLabel">Sessions</div>
-  <div class="kpiVal" id="globalSessions">—</div>
-</div>
+      <!-- Sessions -->
+      <div class="kpi" id="kpiSessions">
+        <div class="kpiLabel">Sessions</div>
+        <div class="kpiVal" id="globalSessions">—</div>
+      </div>
 
-
+      <!-- Stores -->
       <div class="kpi">
-        <div class="kpiLabel">Total Views</div>
+        <div class="kpiLabel">Stores</div>
+        <div class="kpiVal" id="globalStores">—</div>
+      </div>
+
+      <!-- Views -->
+      <div class="kpi">
+        <div class="kpiLabel">Views</div>
         <div class="kpiVal" id="globalViews">—</div>
       </div>
 
+      <!-- Clicks -->
       <div class="kpi">
-        <div class="kpiLabel">Total Website Clicks</div>
+        <div class="kpiLabel">Clicks</div>
         <div class="kpiVal" id="globalClicks">—</div>
       </div>
 
+      <!-- CTR -->
       <div class="kpi">
-        <div class="kpiLabel">Global CTR</div>
+        <div class="kpiLabel">CTR</div>
         <div class="kpiVal" id="globalCtr">—</div>
       </div>
 
-
-<div class="kpi">
-  <div class="kpiLabel">Stores</div>
-  <div class="kpiVal" id="globalStores">—</div>
-</div>
-
-      
     </div>
 
   </section>
+  <!-- ===== END: GLOBAL KPIs ===== -->
 
 
-  <!-- TRAFFIC FLOW -->
+  <!-- ===== START: TRAFFIC FLOW ===== -->
   <section class="panel">
 
     <div class="panelhead">
@@ -147,10 +180,10 @@ OVERVIEW TAB
     </table>
 
   </section>
+  <!-- ===== END: TRAFFIC FLOW ===== -->
 
 </div>
-
-
+<!-- ===== END: OVERVIEW TAB ===== -->
 
 <!-- ============================================================
 MARKET TAB
