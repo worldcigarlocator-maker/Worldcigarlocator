@@ -12,9 +12,6 @@ console.log("STEP 3");
    WCL Analytics — Backoffice
    ============================================================ */
 
-import { supabase } from "./globals.js";
-const sb = supabase;
-
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
