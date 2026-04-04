@@ -95,33 +95,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function loadGlobalKpis() {
 
-// -------------------------
-// VIEWS
-// -------------------------
-const { count: views } = await sb
-  .from("analytics_events")
-  .select("*", { count: "exact", head: true })
-  .eq("event_type", "store_view");
+  const { data, error } = await sb.rpc("analytics_kpi_v2", {
+    p_days: 30
+  });
 
-// -------------------------
-// CLICKS
-// -------------------------
-const { count: clicks } = await sb
-  .from("analytics_events")
-  .select("*", { count: "exact", head: true })
-  .eq("event_type", "website_clicked");
+  if (error) {
+    console.error("KPI error", error);
+    return;
+  }
 
-const v = views || 0;
-const c = clicks || 0;
+  if (!data || !data.length) return;
 
-const ctr =
-  v > 0
-    ? ((c / v) * 100).toFixed(2) + "%"
-    : "0%";
+  const row = data[0];
 
-if (globalViews) globalViews.textContent = v;
-if (globalClicks) globalClicks.textContent = c;
-if (globalCtr) globalCtr.textContent = ctr;
+  if (globalViews) globalViews.textContent = row.views ?? "0";
+  if (globalClicks) globalClicks.textContent = row.clicks ?? "0";
+  if (globalCtr) globalCtr.textContent = (row.ctr ?? 0) + "%";
 
 }
    
