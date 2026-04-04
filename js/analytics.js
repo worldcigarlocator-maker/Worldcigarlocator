@@ -87,9 +87,11 @@ let CURRENT_OVERVIEW_ROWS = [];
    INIT
    ============================================================ */
 
-document.addEventListener("DOMContentLoaded", async () => {
+(async function init() {
+  console.log("🔥 INIT RUNNING");
+
   bindUI();
-  initTabs(); // ✅ LÄGG TILL DENNA
+  initTabs();
 
   await loadStoresIndex();
   await loadGlobalKpis();
@@ -97,8 +99,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadHeatmap();
   await renderOverview();
   await loadMarketDemand();
-   await loadTopStores();
-});
+  await loadTopStores();
+
+})();
 
 /* ============================================================
    GLOBAL KPIs
