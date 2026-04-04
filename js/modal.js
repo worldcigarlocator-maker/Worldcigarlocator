@@ -187,23 +187,20 @@ export async function openModal(storeInput) {
   console.log("🔥 MODAL STEP 1", storeId);
   console.log("🚀 TRACKING STORE VIEW");
 
+// ============================================================
+// ANALYTICS — STORE VIEW (CANONICAL)
+// ============================================================
+
+// 🔒 lås source från där user kom ifrån
+window.MODAL_SOURCE = window.CURRENT_SOURCE;
+
+// ✅ exakt EN view per modal open
 trackEvent("store_view", {
   store_id: storeId,
   country: store.country || null,
-  city: store.city || null
+  city: store.city || null,
+  source: window.MODAL_SOURCE
 });
-
-  // ============================================================
-  // ANALYTICS — STORE OPENED (CANONICAL · SINGLE SOURCE)
-  // ============================================================
-
-  trackEvent("store_view", {
-  store_id: storeId,
-  country: store.country || null,
-  city: store.city || null
-});
-
-  console.log("🚨 CURRENT_SOURCE:", window.CURRENT_SOURCE);
 
   // ============================================================
   // MODAL STATE INIT
@@ -252,20 +249,25 @@ link.href =
 
 link.style.display = "inline";
 
-link.addEventListener("click", (e) => {
+// ============================================================
+// WEBSITE CLICK (LOCKED SOURCE)
+// ============================================================
+
+link.onclick = (e) => {
   e.preventDefault();
 
   trackEvent("website_clicked", {
     store_id: Number(store.id),
     country: store.country || null,
-    city: store.city || null
+    city: store.city || null,
+    source: window.MODAL_SOURCE // 🔥 KRITISK
   });
 
-  // 🔥 låt event skickas först
+  // liten delay så event hinner skickas
   setTimeout(() => {
     window.open(link.href, "_blank");
-  }, 150);
-});
+  }, 120);
+};
   }
 
   // ----------------------------------
