@@ -174,11 +174,15 @@ function bindUI() {
   searchBtn?.addEventListener("click", triggerSearchFromUI);
   clearBtn?.addEventListener("click", resetAll);
 
-  document.addEventListener("click", (e) => {
-    if (!searchResults.contains(e.target) && e.target !== searchInput) {
-      hideAutocomplete();
-    }
-  });
+document.addEventListener("click", (e) => {
+
+  if (!searchResults) return;
+
+  if (!searchResults.contains(e.target) && e.target !== searchInput) {
+    hideAutocomplete();
+  }
+
+});
 
   globalRangeSelect?.addEventListener("change", async () => {
     if (!ACTIVE_STORE) return;
