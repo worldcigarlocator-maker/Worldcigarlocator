@@ -180,45 +180,41 @@ document.addEventListener("click", (e) => {
 // KPI → DRILLDOWN NAV
 // ============================================================
 
-const kpiViewsEl = document.getElementById("kpiViews");
-const kpiSessionsEl = document.getElementById("kpiSessions");
+// ============================================================
+// KPI → DRILLDOWN NAV
+// ============================================================
 
-if (kpiViewsEl) {
-  kpiViewsEl.addEventListener("click", async () => {
+function goToMarketTab() {
 
-    console.log("KPI VIEWS CLICK");
+  document.querySelectorAll(".btn.tab").forEach(b => b.classList.remove("active"));
+  document.querySelector('[data-tab="market"]')?.classList.add("active");
 
-    document.querySelectorAll(".btn.tab").forEach(b => b.classList.remove("active"));
-    document.querySelector('[data-tab="market"]')?.classList.add("active");
+  document.querySelectorAll(".analytics-tab")
+    .forEach(el => el.classList.add("hidden"));
 
-    document.querySelectorAll(".analytics-tab")
-      .forEach(el => el.classList.add("hidden"));
+  document.getElementById("tab-market")?.classList.remove("hidden");
 
-    document.getElementById("tab-market")?.classList.remove("hidden");
-
-    await loadHeatmap();
-    await loadMarketDemand();
-  });
+  loadHeatmap();
+  loadMarketDemand();
 }
 
-if (kpiSessionsEl) {
-  kpiSessionsEl.addEventListener("click", async () => {
+// bind ALL KPI
+["kpiSessions", "kpiViews", "kpiStores", "kpiClicks", "kpiCtr"]
+.forEach(id => {
 
-    console.log("KPI SESSIONS CLICK");
+  const el = document.getElementById(id);
 
-    document.querySelectorAll(".btn.tab").forEach(b => b.classList.remove("active"));
-    document.querySelector('[data-tab="market"]')?.classList.add("active");
+  if (!el) return;
 
-    document.querySelectorAll(".analytics-tab")
-      .forEach(el => el.classList.add("hidden"));
+  el.addEventListener("click", () => {
 
-    document.getElementById("tab-market")?.classList.remove("hidden");
+    console.log("KPI CLICK:", id);
 
-    await loadHeatmap();
-    await loadMarketDemand();
+    goToMarketTab();
+
   });
-}
-   }
+
+});
 /* ============================================================
    STORES INDEX
    ============================================================ */
