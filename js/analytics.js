@@ -1,4 +1,13 @@
 console.log("🔥 KPI SCRIPT LOADED");
+console.log("STEP 1");
+
+import { supabase } from "./globals.js";
+console.log("STEP 2");
+
+const sb = supabase;
+console.log("STEP 3");
+
+
 /* ============================================================
    WCL Analytics — Backoffice
    ============================================================ */
