@@ -192,14 +192,18 @@ export async function openModal(storeInput) {
 // ============================================================
 
 // 🔒 lås source från där user kom ifrån
-window.MODAL_SOURCE = window.CURRENT_SOURCE;
+const MODAL_SOURCE = window.CURRENT_SOURCE;
+window.MODAL_SOURCE = MODAL_SOURCE;
+
+// DEBUG
+console.log("🔥 MODAL SOURCE LOCKED:", MODAL_SOURCE);
 
 // ✅ exakt EN view per modal open
 trackEvent("store_view", {
   store_id: storeId,
   country: store.country || null,
   city: store.city || null,
-  source: window.MODAL_SOURCE
+source: MODAL_SOURCE
 });
 
   // ============================================================
