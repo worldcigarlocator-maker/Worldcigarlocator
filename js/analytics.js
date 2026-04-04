@@ -73,6 +73,8 @@ let ACTIVE_STORE = null;
 
 let OVERVIEW_TAB = "countries";
 
+let CURRENT_OVERVIEW_ROWS = [];
+
 
 /* ============================================================
    INIT
@@ -585,6 +587,7 @@ function renderOverviewError(err) {
 }
 
 function renderOverviewTable(rows, keyFn) {
+   CURRENT_OVERVIEW_ROWS = rows || [];
 
   if (!rows.length) {
 
