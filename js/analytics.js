@@ -95,11 +95,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function loadGlobalKpis() {
    
-const { data, error } = await sb
-  .from("analytics_kpi_v1")
-  .select("total_views, total_clicks, ctr")
-  .limit(1);
+  const { data, error } = await sb
+    .from("analytics_kpi_v1")
+    .select("total_views, total_clicks, ctr")
+    .limit(1);
 
+  console.log("KPI DATA:", data, error);
 
   if (error) {
     console.error("Failed loading global KPIs", error);
