@@ -16,7 +16,7 @@ function getSessionId() {
 }
 
 // ============================================================
-// STORE VIEW MEMORY (dedupe)
+// STORE VIEW MEMORY (DEDUPE)
 // ============================================================
 
 const VIEWED_STORES = new Set();
@@ -34,6 +34,7 @@ function markStoreViewed(id) {
 // ============================================================
 
 export async function trackEvent(eventType, payload = {}) {
+
   try {
 
     // ------------------------------------------------------------
@@ -55,13 +56,19 @@ export async function trackEvent(eventType, payload = {}) {
     };
 
     // ------------------------------------------------------------
-    // EDGE ENDPOINT (CORRECT)
+    // ENDPOINT
     // ------------------------------------------------------------
     const endpoint =
       "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/functions/v1/analytics-ingest";
 
     // ------------------------------------------------------------
-    // SEND
+    // DEBUG LOGS (VIKTIGA NU)
+    // ------------------------------------------------------------
+    console.log("🚀 ANALYTICS PAYLOAD:", finalPayload);
+    console.log("🌐 ENDPOINT:", endpoint);
+
+    // ------------------------------------------------------------
+    // FETCH
     // ------------------------------------------------------------
     const res = await fetch(endpoint, {
       method: "POST",
@@ -72,13 +79,23 @@ export async function trackEvent(eventType, payload = {}) {
     });
 
     // ------------------------------------------------------------
-    // DEBUG (TEMP – kan tas bort sen)
+    // RESPONSE DEBUG
     // ------------------------------------------------------------
+    console.log("📡 RESPONSE STATUS:", res.status);
+
+    const text = await res.text();
+    console.log("📦 RESPONSE BODY:", text);
+
     if (!res.ok) {
-      console.error("Analytics failed:", res.status);
+      console.error("❌ ANALYTICS ERROR:", res.status, text);
+    } else {
+      console.log("✅ ANALYTICS SENT");
     }
 
   } catch (err) {
-    console.warn("Analytics event failed", err);
+
+    console.error("💥 ANALYTICS CRASH:", err);
+
   }
+
 }
