@@ -84,26 +84,6 @@ let CURRENT_OVERVIEW_ROWS = [];
 
 
 /* ============================================================
-   INIT
-   ============================================================ */
-
-(async function init() {
-  console.log("🔥 INIT RUNNING");
-
-  bindUI();
-  initTabs();
-
-  await loadStoresIndex();
-  await loadGlobalKpis();
-  await loadTrafficFlow();
-  await loadHeatmap();
-  await renderOverview();
-  await loadMarketDemand();
-  await loadTopStores();
-
-})();
-
-/* ============================================================
    GLOBAL KPIs
    ============================================================ */
 
