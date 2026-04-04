@@ -1012,18 +1012,22 @@ if (title) {
 
   // =========================================
 
-  if (error) {
-    console.error("market demand error", error);
-    marketDemandBody.innerHTML =
-      `<tr><td colspan="4" class="muted center">Failed to load.</td></tr>`;
-    return;
-  }
+if (!data || !data.length) {
 
-  if (!data || !data.length) {
-    marketDemandBody.innerHTML =
-      `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
-    return;
-  }
+  marketDemandBody.innerHTML =
+    `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
+
+  return;
+}
+
+// 🔥 HÄR SKA DIN KOD IN
+if (CURRENT_KPI === "views") {
+  data.sort((a, b) => (b.views || 0) - (a.views || 0));
+}
+
+if (CURRENT_KPI === "stores") {
+  data.sort((a, b) => (b.stores || 0) - (a.stores || 0));
+}
 
   // =========================================
   // RENDER
