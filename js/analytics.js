@@ -948,6 +948,17 @@ async function loadMarketDemand(days = 30) {
   if (!marketDemandBody) return;
 
   console.log("LOAD MARKET DEMAND FOR KPI:", CURRENT_KPI);
+   const title = document.getElementById("marketTitle");
+
+if (title) {
+
+  if (CURRENT_KPI === "views") title.textContent = "Market Demand (Views)";
+  if (CURRENT_KPI === "clicks") title.textContent = "Market Performance (Clicks)";
+  if (CURRENT_KPI === "sessions") title.textContent = "Traffic (Sessions)";
+  if (CURRENT_KPI === "stores") title.textContent = "Store Distribution";
+  if (CURRENT_KPI === "ctr") title.textContent = "Conversion Opportunities (CTR)";
+
+}
 
   let data, error;
 
