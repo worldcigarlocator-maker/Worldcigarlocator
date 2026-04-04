@@ -391,7 +391,7 @@ function initStoreViewObserver() {
         const city = el.dataset.city;
         const country = el.dataset.country;
 
-        trackEvent("store_viewed", {
+        trackEvent("store_view", {
           store_id: Number(storeId),
           source: "search",
           city,
