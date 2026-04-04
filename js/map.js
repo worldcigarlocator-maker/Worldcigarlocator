@@ -337,7 +337,7 @@ function createMarker(store) {
 
   window.WCL_ANALYTICS.setSource("map"); // 🔥 FIX
 
-  trackEvent("store_viewed", {
+  trackEvent("store_view", {
     store_id: s.id,
     city: s.city,
     country: s.country,
