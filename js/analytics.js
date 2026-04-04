@@ -11,6 +11,7 @@ const $$ = (s) => document.querySelectorAll(s);
 
 const globalRangeSelect = document.getElementById("globalRange");
 const globalSessions = $("#globalSessions");
+const globalStores = $("#globalStores");
 
 const trafficFlowBody = $("#trafficFlowBody");
 const heatmapBody = $("#heatmapBody");
@@ -131,6 +132,17 @@ async function loadGlobalKpis() {
     const s = sessionData[0].sessions || 0;
     if (globalSessions) globalSessions.textContent = s;
   }
+
+   const { count: storesCount, error: storesError } = await sb
+  .from("stores_frontend_public_v5")
+  .select("*", { count: "exact", head: true })
+  .eq("approved", true)
+  .eq("deleted", false);
+
+if (!storesError) {
+  const s = storesCount || 0;
+  if (globalStores) globalStores.textContent = s;
+}
 
 }
 /* ============================================================
