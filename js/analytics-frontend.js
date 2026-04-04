@@ -157,7 +157,7 @@ export const VIEW_OBSERVER = new IntersectionObserver(
 
       markViewed(storeId);
 
-  sendEvent("store_viewed", {
+  sendEvent("store_view", {
   store_id: Number(storeId),
   continent: el.dataset.continent || null,
   country: el.dataset.country || null,
