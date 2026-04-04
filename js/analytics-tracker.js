@@ -1,4 +1,3 @@
-
 import { supabase } from "./globals.js";
 
 // ============================================================
@@ -6,7 +5,6 @@ import { supabase } from "./globals.js";
 // ============================================================
 
 function getSessionId() {
-
   let id = localStorage.getItem("wcl_session_id");
 
   if (!id) {
@@ -15,7 +13,6 @@ function getSessionId() {
   }
 
   return id;
-
 }
 
 // ============================================================
@@ -37,27 +34,19 @@ function markStoreViewed(id) {
 // ============================================================
 
 export async function trackEvent(eventType, payload = {}) {
-
   try {
 
-    // ============================================================
+    // ------------------------------------------------------------
     // STORE VIEW DEDUPE
-    // ============================================================
-
+    // ------------------------------------------------------------
     if (eventType === "store_view" && payload.store_id) {
-
-      if (hasViewedStore(payload.store_id)) {
-        return;
-      }
-
+      if (hasViewedStore(payload.store_id)) return;
       markStoreViewed(payload.store_id);
-
     }
 
-    // ============================================================
-    // SESSION + SOURCE
-    // ============================================================
-
+    // ------------------------------------------------------------
+    // BUILD PAYLOAD
+    // ------------------------------------------------------------
     const finalPayload = {
       event_type: eventType,
       source: window.CURRENT_SOURCE ?? "direct",
@@ -65,16 +54,16 @@ export async function trackEvent(eventType, payload = {}) {
       ...payload
     };
 
-    // ============================================================
-    // SAFE EDGE CALL
-    // ============================================================
-
+    // ------------------------------------------------------------
+    // EDGE ENDPOINT (CORRECT)
+    // ------------------------------------------------------------
     const endpoint =
-      location.hostname === "localhost"
-        ? "https://YOUR_PROJECT.supabase.co/functions/v1/analytics-ingest"
-        : "/functions/v1/analytics-ingest";
+      "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/functions/v1/analytics-ingest";
 
-    await fetch(endpoint, {
+    // ------------------------------------------------------------
+    // SEND
+    // ------------------------------------------------------------
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -82,10 +71,14 @@ export async function trackEvent(eventType, payload = {}) {
       body: JSON.stringify(finalPayload)
     });
 
+    // ------------------------------------------------------------
+    // DEBUG (TEMP – kan tas bort sen)
+    // ------------------------------------------------------------
+    if (!res.ok) {
+      console.error("Analytics failed:", res.status);
+    }
+
   } catch (err) {
-
     console.warn("Analytics event failed", err);
-
   }
-
 }
