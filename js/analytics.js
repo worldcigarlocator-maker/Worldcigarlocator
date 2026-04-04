@@ -500,7 +500,7 @@ const days = 30;
   if (OVERVIEW_TAB === "countries") {
 
     const { data, error } =
-      await sb.rpc("analytics_top_countries", {
+      await sb.rpc("analytics_top_countries_v1", {
         p_days: days,
         p_limit: 100
       });
@@ -515,7 +515,7 @@ const days = 30;
   if (OVERVIEW_TAB === "cities") {
 
     const { data, error } =
-      await sb.rpc("analytics_top_cities", {
+      await sb.rpc("analytics_top_cities_v1", {
         p_days: days,
         p_limit: 100
       });
@@ -533,7 +533,7 @@ const days = 30;
   if (OVERVIEW_TAB === "stores") {
 
     const { data, error } =
-      await sb.rpc("analytics_top_stores", {
+      await sb.rpc("analytics_top_stores_v1", {
         p_days: days,
         p_limit: 100
       });
