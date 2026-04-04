@@ -630,19 +630,44 @@ function renderOverviewTable(rows, keyFn) {
 
   }).join("");
 
-   overviewTableBody.querySelectorAll(".overview-row").forEach(tr => {
+   setTimeout(() => {
 
-  tr.style.cursor = "pointer";
+  const rowsEls = overviewTableBody.querySelectorAll(".overview-row");
 
-  tr.addEventListener("click", () => {
+  console.log("BINDING ROWS:", rowsEls.length);
 
-    const key = tr.dataset.key;
+  rowsEls.forEach(tr => {
 
-    console.log("CLICKED:", key);
+    tr.style.cursor = "pointer";
+
+    tr.addEventListener("click", async () => {
+
+      const key = tr.dataset.key;
+
+      console.log("CLICKED:", key);
+
+      if (OVERVIEW_TAB === "countries") {
+        OVERVIEW_TAB = "cities";
+        await renderOverview();
+        return;
+      }
+
+      if (OVERVIEW_TAB === "cities") {
+        OVERVIEW_TAB = "stores";
+        await renderOverview();
+        return;
+      }
+
+      if (OVERVIEW_TAB === "stores") {
+        console.log("TODO: open store", key);
+      }
+
+    });
 
   });
 
-});
+}, 0);
+   
 }
 
 function filterOverview() {
