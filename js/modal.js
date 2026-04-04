@@ -179,10 +179,16 @@ export async function openModal(storeInput) {
     store = data[0];
   }
 
-  if (!store) return;
+if (!store) return;
 
-  const storeId = Number(store.id);
-  if (!storeId) return;
+const storeId = Number(store.id);
+if (!storeId) return;
+
+window.WCL_ANALYTICS.send("store_opened", {
+  store_id: storeId,
+  country: store.country || null,
+  city: store.city || null
+});
 
   console.log("🔥 MODAL STEP 1", storeId);
   console.log("🚀 TRACKING STORE VIEW");
