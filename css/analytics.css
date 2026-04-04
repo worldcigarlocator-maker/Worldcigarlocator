@@ -223,13 +223,9 @@ margin:0 0 16px 0;
    ============================================================ */
 
 .kpis{
-
   display:grid;
-
-  grid-template-columns:repeat(3,1fr);
-
-  gap:12px;
-
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap:1rem;
 }
 
 .kpi{
