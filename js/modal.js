@@ -256,7 +256,7 @@ link.style.display = "inline";
 // ============================================================
 // WEBSITE CLICK (LOCKED SOURCE)
 // ============================================================
-
+console.log("🔥 CLICK SOURCE:", MODAL_SOURCE);
 link.onclick = (e) => {
   e.preventDefault();
 
