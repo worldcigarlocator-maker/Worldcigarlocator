@@ -94,30 +94,37 @@ document.addEventListener("DOMContentLoaded", async () => {
    ============================================================ */
 
 async function loadGlobalKpis() {
-   
-  const { data, error } = await sb
-    .from("analytics_kpi_v1")
-    .select("total_views, total_clicks, ctr")
-    .limit(1);
 
-  // 👇 LÄGG DEN HÄR
-  console.log("KPI DATA:", data, error);
+// -------------------------
+// VIEWS
+// -------------------------
+const { count: views } = await sb
+  .from("analytics_events")
+  .select("*", { count: "exact", head: true })
+  .eq("event_type", "store_view");
 
-  if (error) {
-    console.error("Failed loading global KPIs", error);
-    return;
-  }
+// -------------------------
+// CLICKS
+// -------------------------
+const { count: clicks } = await sb
+  .from("analytics_events")
+  .select("*", { count: "exact", head: true })
+  .eq("event_type", "website_clicked");
 
-  if (!data || !data.length) return;
+const v = views || 0;
+const c = clicks || 0;
 
-  const row = data[0];
+const ctr =
+  v > 0
+    ? ((c / v) * 100).toFixed(2) + "%"
+    : "0%";
 
-  if (globalViews) globalViews.textContent = row.total_views ?? "0";
-  if (globalClicks) globalClicks.textContent = row.total_clicks ?? "0";
+if (globalViews) globalViews.textContent = v;
+if (globalClicks) globalClicks.textContent = c;
+if (globalCtr) globalCtr.textContent = ctr;
 
-  const ctr = Number(row.ctr || 0) * 100;
-  if (globalCtr) globalCtr.textContent = ctr.toFixed(2) + "%";
 }
+   
 /* ============================================================
    UI BINDINGS
    ============================================================ */
