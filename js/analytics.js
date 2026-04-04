@@ -95,6 +95,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function loadGlobalKpis() {
 
+  // -------------------------
+  // MAIN KPI
+  // -------------------------
   const { data, error } = await sb.rpc("analytics_kpi_v2", {
     p_days: 30
   });
@@ -112,8 +115,23 @@ async function loadGlobalKpis() {
   if (globalClicks) globalClicks.textContent = row.clicks ?? "0";
   if (globalCtr) globalCtr.textContent = (row.ctr ?? 0) + "%";
 
+  // -------------------------
+  // SESSIONS
+  // -------------------------
+  const { data: sessionData, error: sessionError } =
+    await sb.rpc("analytics_sessions_v1", { p_days: 30 });
+
+  if (sessionError) {
+    console.error("Sessions error", sessionError);
+    return;
+  }
+
+  if (sessionData?.length) {
+    const s = sessionData[0].sessions || 0;
+    if (globalSessions) globalSessions.textContent = s;
+  }
+
 }
-   
 /* ============================================================
    UI BINDINGS
    ============================================================ */
