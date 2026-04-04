@@ -50,15 +50,13 @@ export async function trackEvent(eventType, payload = {}) {
     // ------------------------------------------------------------
 const finalPayload = {
   event_type: eventType,
-
-  // 🔥 KRITISK FIX
-  source:
-    payload.source ??
-    window.MODAL_SOURCE ??
-    window.CURRENT_SOURCE ??
-    "direct",
-
   session_hash: getSessionId(),
+
+  source:
+    payload?.source ??
+    window?.MODAL_SOURCE ??
+    window?.CURRENT_SOURCE ??
+    "direct",
 
   ...payload
 };
