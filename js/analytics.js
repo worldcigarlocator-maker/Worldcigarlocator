@@ -63,6 +63,7 @@ const eventsTbody = $("#eventsTable tbody");
 
 const overviewTableBody = $("#overviewTable tbody");
 const ovKeyHeader = $("#ovKeyHeader");
+const overviewSearch = $("#overviewSearch");
 
 const marketDemandBody = $("#marketDemandBody");
 const topStoresBody = $("#topStoresBody");
@@ -160,6 +161,10 @@ function bindUI() {
     if (e.key === "Escape") hideAutocomplete();
   });
 
+   overviewSearch?.addEventListener("input", () => {
+  filterOverview();
+});
+   
   searchBtn?.addEventListener("click", triggerSearchFromUI);
   clearBtn?.addEventListener("click", resetAll);
 
@@ -538,7 +543,7 @@ const days = 30;
 
     rows = data || [];
 
-    renderOverviewTable(rows, r => r.country || "—");
+    renderOverviewTable(rows, getOverviewKey);
   }
 
   if (OVERVIEW_TAB === "cities") {
@@ -617,6 +622,43 @@ function renderOverviewTable(rows, keyFn) {
     `;
 
   }).join("");
+}
+
+function filterOverview() {
+
+  const q = (overviewSearch?.value || "").toLowerCase().trim();
+
+  // inget filter → visa allt igen
+  if (!q) {
+    renderOverviewTable(CURRENT_OVERVIEW_ROWS, getOverviewKey);
+    return;
+  }
+
+  const filtered = CURRENT_OVERVIEW_ROWS.filter(r => {
+
+    const key = getOverviewKey(r).toLowerCase();
+
+    return key.includes(q);
+  });
+
+  renderOverviewTable(filtered, getOverviewKey);
+}
+
+function getOverviewKey(r) {
+
+  if (OVERVIEW_TAB === "countries") {
+    return r.country || "—";
+  }
+
+  if (OVERVIEW_TAB === "cities") {
+    return [r.city, r.country].filter(Boolean).join(", ");
+  }
+
+  if (OVERVIEW_TAB === "stores") {
+    return `${r.name || "—"} (${[r.city, r.country].filter(Boolean).join(", ")})`;
+  }
+
+  return "—";
 }
 
 /* ============================================================
