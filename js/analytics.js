@@ -100,6 +100,7 @@ async function loadGlobalKpis() {
     .select("total_views, total_clicks, ctr")
     .limit(1);
 
+  // 👇 LÄGG DEN HÄR
   console.log("KPI DATA:", data, error);
 
   if (error) {
