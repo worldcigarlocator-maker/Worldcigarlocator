@@ -1032,7 +1032,13 @@ if (CURRENT_KPI === "stores") {
   // =========================================
   // RENDER
   // =========================================
+let accent = "";
 
+if (CURRENT_KPI === "views") accent = "purple";
+if (CURRENT_KPI === "clicks") accent = "orange";
+if (CURRENT_KPI === "ctr") accent = "turquoise";
+if (CURRENT_KPI === "stores") accent = "green";
+if (CURRENT_KPI === "sessions") accent = "blue";
   marketDemandBody.innerHTML = data.map(r => {
 
     const views = Number(r.views || 0);
@@ -1043,13 +1049,13 @@ if (CURRENT_KPI === "stores") {
       views ? ((clicks / views) * 100).toFixed(1) + "%" : "0%";
 
     return `
-      <tr>
-        <td>${escapeHtml(r.country || "—")}</td>
-        <td class="num">${views}</td>
-        <td class="num">${clicks}</td>
-        <td class="num">${ctr}</td>
-      </tr>
-    `;
+  <tr class="kpi-${accent}">
+    <td>${escapeHtml(r.country || "—")}</td>
+    <td class="num">${views}</td>
+    <td class="num">${clicks}</td>
+    <td class="num">${ctr}</td>
+  </tr>
+`;
 
   }).join("");
 }
