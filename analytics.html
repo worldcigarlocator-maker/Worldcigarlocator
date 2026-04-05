@@ -51,6 +51,7 @@
 ANALYTICS NAV
 ============================================================ -->
 
+
 <section class="panel">
 
   <div class="analytics-tabs">
@@ -67,36 +68,50 @@ ANALYTICS NAV
       Stores
     </button>
 
-     </div> <!-- ✅ stänger analytics-tabs -->
+  </div> <!-- analytics-tabs -->
 
-</section> <!-- ✅ stänger panel -->
+</section> <!-- panel -->
 
-       
+<!-- ============================================================
+DRILLDOWN TOOLBAR
+============================================================ -->
+
 <section class="panel" id="drilldownToolbar">
-    <div class="toolbar">
 
-      <div class="toolbar-left">
-        <h2 id="viewTitle">Overview — Last 30 days</h2>
-      </div>
+  <div class="toolbar">
 
-      <div class="toolbar-right">
+    <div class="toolbar-left">
+      <h2 id="viewTitle">Overview — Last 30 days</h2>
+    </div>
 
-        <input
-          id="viewSearch"
-          type="text"
-          placeholder="Search country, city, store..."
-        />
+    <!-- 🔥 KPI SWITCH -->
+    <div class="toolbar-kpis">
+      <div class="kpi-mini" data-kpi="sessions">Sessions</div>
+      <div class="kpi-mini" data-kpi="views">Views</div>
+      <div class="kpi-mini" data-kpi="clicks">Clicks</div>
+      <div class="kpi-mini" data-kpi="ctr">CTR</div>
+      <div class="kpi-mini" data-kpi="stores">Stores</div>
+    </div>
 
-        <button id="exportBtn" class="btn ghost">Export</button>
-        <button id="printBtn" class="btn ghost">Print</button>
-        <button id="mailBtn" class="btn ghost">Email</button>
-        <button id="toggleView" class="btn ghost">Chart</button>
+    <div class="toolbar-right">
 
-      </div>
+      <input
+        id="viewSearch"
+        type="text"
+        placeholder="Search country, city, store..."
+      />
+
+      <button id="exportBtn" class="btn ghost">Export</button>
+      <button id="printBtn" class="btn ghost">Print</button>
+      <button id="mailBtn" class="btn ghost">Email</button>
+      <button id="toggleView" class="btn ghost">Chart</button>
 
     </div>
 
-  </section>
+  </div>
+
+</section>
+
 
 <!-- ============================================================
 OVERVIEW TAB
