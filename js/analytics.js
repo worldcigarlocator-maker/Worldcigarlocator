@@ -202,22 +202,21 @@ function goToMarketTab() {
 
   if (!el) return;
 
-el.addEventListener("click", () => {
+el.addEventListener("click", async () => {
 
   console.log("KPI CLICK:", id);
 
-if (id === "kpiViews") CURRENT_KPI = "views";
-if (id === "kpiClicks") CURRENT_KPI = "clicks";
-if (id === "kpiCtr") CURRENT_KPI = "ctr";
-if (id === "kpiStores") CURRENT_KPI = "stores";
-if (id === "kpiSessions") CURRENT_KPI = "sessions";
+  if (id === "kpiViews") CURRENT_KPI = "views";
+  if (id === "kpiClicks") CURRENT_KPI = "clicks";
+  if (id === "kpiCtr") CURRENT_KPI = "ctr";
+  if (id === "kpiStores") CURRENT_KPI = "stores";
+  if (id === "kpiSessions") CURRENT_KPI = "sessions";
 
-console.log("CURRENT KPI:", CURRENT_KPI);
-   await loadMarketDemand();
+  console.log("CURRENT KPI:", CURRENT_KPI);
+
+  await loadMarketDemand();
 
   goToMarketTab();
-
-});
 
 });
    }
