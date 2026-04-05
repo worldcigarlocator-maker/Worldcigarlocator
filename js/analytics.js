@@ -199,9 +199,10 @@ function showMarketPanel(panelId) {
    
 function goToMarketTab(panel = "panel-heatmap") {
 
-  // activate tab
    
 document.getElementById("drilldownToolbar")?.style.display = "block";
+
+  // activate tab
    
   document.querySelectorAll(".btn.tab")
     .forEach(b => b.classList.remove("active"));
