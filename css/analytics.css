@@ -595,3 +595,17 @@ table tr{
   color: #3b82f6;
   font-weight: 600;
 }
+
+/* ============================================================
+   TOP ROW HIGHLIGHT (HEAT EFFECT)
+   ============================================================ */
+
+.top-row {
+  background: rgba(255,255,255,0.03);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.top-row td:first-child {
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
