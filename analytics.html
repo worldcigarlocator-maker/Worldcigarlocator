@@ -187,22 +187,22 @@ OVERVIEW TAB
 <!-- ===== END: OVERVIEW TAB ===== -->
 
 <!-- ============================================================
+<!-- ============================================================
 MARKET TAB
 ============================================================ -->
 
 <div class="analytics-tab hidden" id="tab-market">
 
   <!-- GLOBAL HEATMAP -->
-  <section class="panel">
+  <section class="panel" id="panel-heatmap">
 
-    <section class="panel" id="panel-heatmap">
+    <div class="panelhead">
       <h2 id="marketTitle">Global Heatmap</h2>
     </div>
 
     <div class="tablewrap">
 
       <table class="table">
-
         <thead>
           <tr>
             <th>Country</th>
@@ -215,7 +215,6 @@ MARKET TAB
             <td colspan="2" class="muted center">Loading heatmap…</td>
           </tr>
         </tbody>
-
       </table>
 
     </div>
@@ -224,10 +223,10 @@ MARKET TAB
 
 
   <!-- GLOBAL MARKET PERFORMANCE -->
-  <section class="panel">
+  <section class="panel" id="panel-performance">
 
- <section class="panel" id="panel-performance">
-      <h2 id="marketTitle">Global Market Performance</h2>
+    <div class="panelhead">
+      <h2>Global Market Performance</h2>
     </div>
 
     <div class="tablewrap">
@@ -257,9 +256,9 @@ MARKET TAB
 
 
   <!-- MARKET INTELLIGENCE -->
-  <section class="panel">
-
   <section class="panel" id="panel-intelligence">
+
+    <div class="panelhead">
       <h2>Market Intelligence</h2>
     </div>
 
@@ -277,13 +276,11 @@ MARKET TAB
         </thead>
 
         <tbody id="marketDemandBody">
-
           <tr>
             <td colspan="4" class="muted center">
               Loading market intelligence…
             </td>
           </tr>
-
         </tbody>
 
       </table>
@@ -293,7 +290,6 @@ MARKET TAB
   </section>
 
 </div>
-
 
 
 <!-- ============================================================
