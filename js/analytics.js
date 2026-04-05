@@ -137,6 +137,107 @@ if (!storesError) {
 }
 
 }
+
+// ============================================================
+// KPI → DRILLDOWN NAV
+// ============================================================
+
+function showMarketPanel(panelId) {
+
+  const panels = [
+    "panel-heatmap",
+    "panel-performance",
+    "panel-intelligence"
+  ];
+
+  panels.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.style.display = (id === panelId) ? "block" : "none";
+  });
+
+}
+
+
+function goToMarketTab(panel = "panel-heatmap") {
+
+  const tb = document.getElementById("drilldownToolbar");
+  if (tb) tb.style.display = "block";
+
+  // activate tab
+  document.querySelectorAll(".btn.tab")
+    .forEach(b => b.classList.remove("active"));
+
+  document.querySelector('[data-tab="market"]')
+    ?.classList.add("active");
+
+  // hide all tabs
+  document.querySelectorAll(".analytics-tab")
+    .forEach(el => el.classList.add("hidden"));
+
+  // show market tab
+  document.getElementById("tab-market")
+    ?.classList.remove("hidden");
+
+  loadHeatmap();
+  loadMarketDemand();
+
+  showMarketPanel(panel);
+}
+
+
+// ============================================================
+// KPI BINDINGS
+// ============================================================
+
+function bindKPI() {
+
+  ["kpiSessions", "kpiViews", "kpiStores", "kpiClicks", "kpiCtr"]
+  .forEach(id => {
+
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.addEventListener("click", async () => {
+
+      console.log("KPI CLICK:", id);
+
+      let panel = "panel-performance";
+
+      if (id === "kpiViews") {
+        CURRENT_KPI = "views";
+        panel = "panel-heatmap";
+      }
+
+      if (id === "kpiClicks") {
+        CURRENT_KPI = "clicks";
+      }
+
+      if (id === "kpiCtr") {
+        CURRENT_KPI = "ctr";
+      }
+
+      if (id === "kpiStores") {
+        CURRENT_KPI = "stores";
+        panel = "panel-intelligence";
+      }
+
+      if (id === "kpiSessions") {
+        CURRENT_KPI = "sessions";
+      }
+
+      console.log("CURRENT KPI:", CURRENT_KPI);
+
+      await loadMarketDemand();
+
+      goToMarketTab(panel);
+
+    });
+
+  });
+
+}
 /* ============================================================
    UI BINDINGS
    ============================================================ */
@@ -175,107 +276,7 @@ document.addEventListener("click", (e) => {
   exportBtn?.addEventListener("click", exportCSV);
   printBtn?.addEventListener("click", () => window.print());
   mailBtn?.addEventListener("click", emailStore);
-
-// ============================================================
-// KPI → DRILLDOWN NAV
-// ============================================================
-
-function showMarketPanel(panelId) {
-
-  const panels = [
-    "panel-heatmap",
-    "panel-performance",
-    "panel-intelligence"
-  ];
-
-  panels.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    el.style.display = (id === panelId) ? "block" : "none";
-  });
-
-}
-   
-function goToMarketTab(panel = "panel-heatmap") {
-
- const tb = document.getElementById("drilldownToolbar");
-if (tb) tb.style.display = "block";
-
-  // activate tab
-   
-  document.querySelectorAll(".btn.tab")
-    .forEach(b => b.classList.remove("active"));
-
-  document.querySelector('[data-tab="market"]')
-    ?.classList.add("active");
-
-  // hide all tabs
-  document.querySelectorAll(".analytics-tab")
-    .forEach(el => el.classList.add("hidden"));
-
-  // show market tab
-  document.getElementById("tab-market")
-    ?.classList.remove("hidden");
-
-  // load base data
-  loadHeatmap();
-  loadMarketDemand();
-
-  // 🔥 show correct panel
-  showMarketPanel(panel);
-}
-
-
-// bind ALL KPI
-["kpiSessions", "kpiViews", "kpiStores", "kpiClicks", "kpiCtr"]
-.forEach(id => {
-
-  const el = document.getElementById(id);
-  if (!el) return;
-
-  el.addEventListener("click", async () => {
-
-    console.log("KPI CLICK:", id);
-
-    let panel = "panel-performance"; // default
-
-    if (id === "kpiViews") {
-      CURRENT_KPI = "views";
-      panel = "panel-heatmap";
-    }
-
-    if (id === "kpiClicks") {
-      CURRENT_KPI = "clicks";
-      panel = "panel-performance";
-    }
-
-    if (id === "kpiCtr") {
-      CURRENT_KPI = "ctr";
-      panel = "panel-performance";
-    }
-
-    if (id === "kpiStores") {
-      CURRENT_KPI = "stores";
-      panel = "panel-intelligence";
-    }
-
-    if (id === "kpiSessions") {
-      CURRENT_KPI = "sessions";
-      panel = "panel-performance";
-    }
-
-    console.log("CURRENT KPI:", CURRENT_KPI);
-
-    await loadMarketDemand();
-
-    // 🔥 go to tab + correct panel
-    goToMarketTab(panel);
-
-   });
-
-}); // ✅ stänger forEach
-
+   }
 /* ============================================================
    STORES INDEX
    ============================================================ */
