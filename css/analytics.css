@@ -628,9 +628,14 @@ table tr{
   margin-left: 20px;
 }
 
-/* base */
 .kpi-mini {
-  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 90px;           /* 🔥 samma bredd */
+  height: 34px;          /* 🔥 samma höjd */
+
   border-radius: 10px;
   font-size: 13px;
   font-weight: 600;
@@ -638,7 +643,7 @@ table tr{
   cursor: pointer;
   transition: all 0.2s ease;
 
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 /* hover */
@@ -666,12 +671,12 @@ table tr{
 }
 
 .kpi-mini[data-kpi="clicks"] {
-  background: linear-gradient(135deg, #111827, #374151);
+  background: linear-gradient(135deg, #111827, #6366f1);
   color: white;
 }
 
 .kpi-mini[data-kpi="ctr"] {
-  background: linear-gradient(135deg, #0f172a, #1e293b);
+  background: linear-gradient(135deg, #0f172a, #22c55e);
   color: white;
 }
 
