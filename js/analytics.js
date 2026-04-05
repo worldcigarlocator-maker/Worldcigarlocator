@@ -1038,7 +1038,7 @@ if (CURRENT_KPI === "clicks") accent = "orange";
 if (CURRENT_KPI === "ctr") accent = "turquoise";
 if (CURRENT_KPI === "stores") accent = "green";
 if (CURRENT_KPI === "sessions") accent = "blue";
-  marketDemandBody.innerHTML = data.map(r => {
+  marketDemandBody.innerHTML = data.map((r, i) => {
 
     const views = Number(r.views || 0);
     const clicks = Number(r.clicks || 0);
