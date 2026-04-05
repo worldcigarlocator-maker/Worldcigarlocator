@@ -180,19 +180,31 @@ document.addEventListener("click", (e) => {
 // KPI → DRILLDOWN NAV
 // ============================================================
 
-function goToMarketTab() {
+function goToMarketTab(panel = "panel-heatmap") {
 
-  document.querySelectorAll(".btn.tab").forEach(b => b.classList.remove("active"));
-  document.querySelector('[data-tab="market"]')?.classList.add("active");
+  // activate tab
+  document.querySelectorAll(".btn.tab")
+    .forEach(b => b.classList.remove("active"));
 
+  document.querySelector('[data-tab="market"]')
+    ?.classList.add("active");
+
+  // hide all tabs
   document.querySelectorAll(".analytics-tab")
     .forEach(el => el.classList.add("hidden"));
 
-  document.getElementById("tab-market")?.classList.remove("hidden");
+  // show market tab
+  document.getElementById("tab-market")
+    ?.classList.remove("hidden");
 
+  // load base data
   loadHeatmap();
   loadMarketDemand();
+
+  // 🔥 show correct panel
+  showMarketPanel(panel);
 }
+
 
 // bind ALL KPI
 ["kpiSessions", "kpiViews", "kpiStores", "kpiClicks", "kpiCtr"]
@@ -205,21 +217,45 @@ function goToMarketTab() {
 
     console.log("KPI CLICK:", id);
 
-    if (id === "kpiViews") CURRENT_KPI = "views";
-    if (id === "kpiClicks") CURRENT_KPI = "clicks";
-    if (id === "kpiCtr") CURRENT_KPI = "ctr";
-    if (id === "kpiStores") CURRENT_KPI = "stores";
-    if (id === "kpiSessions") CURRENT_KPI = "sessions";
+    let panel = "panel-performance"; // default
+
+    if (id === "kpiViews") {
+      CURRENT_KPI = "views";
+      panel = "panel-heatmap";
+    }
+
+    if (id === "kpiClicks") {
+      CURRENT_KPI = "clicks";
+      panel = "panel-performance";
+    }
+
+    if (id === "kpiCtr") {
+      CURRENT_KPI = "ctr";
+      panel = "panel-performance";
+    }
+
+    if (id === "kpiStores") {
+      CURRENT_KPI = "stores";
+      panel = "panel-intelligence";
+    }
+
+    if (id === "kpiSessions") {
+      CURRENT_KPI = "sessions";
+      panel = "panel-performance";
+    }
 
     console.log("CURRENT KPI:", CURRENT_KPI);
 
     await loadMarketDemand();
-    goToMarketTab();
 
-  });
+    // 🔥 go to tab + correct panel
+    goToMarketTab(panel);
 
-});
-   }
+   });
+
+}); // ✅ stänger forEach
+
+} // ✅ stänger bindUI
 /* ============================================================
    STORES INDEX
    ============================================================ */
