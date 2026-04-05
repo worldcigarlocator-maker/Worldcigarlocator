@@ -180,6 +180,23 @@ document.addEventListener("click", (e) => {
 // KPI → DRILLDOWN NAV
 // ============================================================
 
+function showMarketPanel(panelId) {
+
+  const panels = [
+    "panel-heatmap",
+    "panel-performance",
+    "panel-intelligence"
+  ];
+
+  panels.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.style.display = (id === panelId) ? "block" : "none";
+  });
+
+}
+   
 function goToMarketTab(panel = "panel-heatmap") {
 
   // activate tab
