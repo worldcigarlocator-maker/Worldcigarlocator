@@ -1249,6 +1249,7 @@ function init() {
   console.log("🔥 INIT RUNNING");
 
   bindUI();
+  bindKPI();
   initTabs();
 
   loadGlobalKpis();
@@ -1258,7 +1259,6 @@ function init() {
   loadMarketDemand();
   loadTopStores();
 }
-
 
 // ============================================================
 // START APP
