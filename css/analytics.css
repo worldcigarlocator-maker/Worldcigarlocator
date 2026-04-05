@@ -625,8 +625,13 @@ table tr{
 .toolbar-kpis {
   display: flex;
   gap: 10px;
+}
 
-  margin-left: auto; /* 🔥 FLYTTAR DEN TILL HÖGER */
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
 }
 
 .kpi-mini {
