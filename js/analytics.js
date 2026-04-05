@@ -276,7 +276,6 @@ document.getElementById("drilldownToolbar")?.style.display = "block";
 
 }); // ✅ stänger forEach
 
-} // ✅ stänger bindUI
 /* ============================================================
    STORES INDEX
    ============================================================ */
