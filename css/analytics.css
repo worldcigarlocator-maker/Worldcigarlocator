@@ -622,16 +622,16 @@ table tr{
    KPI MINI (TOOLBAR)
    ============================================================ */
 
+.toolbar-right {
+  background: rgba(255,255,255,0.03);
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+
 .toolbar-kpis {
   display: flex;
   gap: 10px;
-}
-
-.toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-left: auto;
+  margin-right: 12px; /* 🔥 ger luft innan search */
 }
 
 .kpi-mini {
