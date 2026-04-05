@@ -617,3 +617,65 @@ table tr{
 #drilldownToolbar {
   display: none;
 }
+
+/* ============================================================
+   KPI MINI (TOOLBAR)
+   ============================================================ */
+
+.toolbar-kpis {
+  display: flex;
+  gap: 10px;
+  margin-left: 20px;
+}
+
+/* base */
+.kpi-mini {
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  opacity: 0.6;
+}
+
+/* hover */
+.kpi-mini:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+/* 🔥 ACTIVE */
+.kpi-mini.active {
+  opacity: 1;
+  box-shadow: 0 0 12px rgba(255,255,255,0.3);
+}
+
+/* 🎨 COLORS */
+
+.kpi-mini[data-kpi="sessions"] {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  color: white;
+}
+
+.kpi-mini[data-kpi="views"] {
+  background: linear-gradient(135deg, #06b6d4, #22d3ee);
+  color: white;
+}
+
+.kpi-mini[data-kpi="clicks"] {
+  background: linear-gradient(135deg, #111827, #374151);
+  color: white;
+}
+
+.kpi-mini[data-kpi="ctr"] {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: white;
+}
+
+.kpi-mini[data-kpi="stores"] {
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  color: white;
+}
