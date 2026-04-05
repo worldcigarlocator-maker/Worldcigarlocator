@@ -1048,7 +1048,7 @@ if (CURRENT_KPI === "sessions") accent = "blue";
       views ? ((clicks / views) * 100).toFixed(1) + "%" : "0%";
 
     return `
-  <tr class="kpi-${accent}">
+  <tr class="kpi-${accent} ${i < 5 ? "top-row" : ""}">
     <td>${escapeHtml(r.country || "—")}</td>
     <td class="num">${views}</td>
     <td class="num">${clicks}</td>
