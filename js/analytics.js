@@ -231,13 +231,50 @@ function bindKPI() {
 
       await loadMarketDemand();
 
-      goToMarketTab(panel);
+     goToMarketTab(panel);
+updateDrilldownUI("market");
 
     });
 
   });
 
 }
+
+function updateDrilldownUI(tab) {
+
+  const tb = document.getElementById("drilldownToolbar");
+  const title = document.getElementById("viewTitle");
+
+  if (!tb || !title) return;
+
+  // ❌ hide in overview
+  if (tab === "overview") {
+    tb.style.display = "none";
+    return;
+  }
+
+  // ✅ show annars
+  tb.style.display = "block";
+
+  // 🔥 KPI label
+  let kpiLabel = "Views";
+
+  if (CURRENT_KPI === "views") kpiLabel = "Views";
+  if (CURRENT_KPI === "clicks") kpiLabel = "Clicks";
+  if (CURRENT_KPI === "ctr") kpiLabel = "CTR";
+  if (CURRENT_KPI === "stores") kpiLabel = "Stores";
+  if (CURRENT_KPI === "sessions") kpiLabel = "Sessions";
+
+  // 🔥 TAB label
+  let tabLabel = "Market";
+
+  if (tab === "market") tabLabel = "Market";
+  if (tab === "stores") tabLabel = "Stores";
+
+  // 🧠 final title
+  title.textContent = `${kpiLabel} — ${tabLabel}`;
+}
+
 /* ============================================================
    UI BINDINGS
    ============================================================ */
