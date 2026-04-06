@@ -297,53 +297,38 @@ function bindKpiMini() {
 
       console.log("KPI MINI CLICK:", kpi);
 
-      // 🔥 1. SET KPI (samma som ditt system använder)
+      // 🔥 SET KPI
       CURRENT_KPI = kpi;
 
-      // 🔥 2. ACTIVE STATE
+      // 🔥 ACTIVE STATE
       items.forEach(i => i.classList.remove("active"));
       el.classList.add("active");
 
- 
+      // 🔥 PANEL SWITCH + LOAD
+      let panel = "panel-performance";
 
-  el.addEventListener("click", async () => {
+      if (kpi === "views") {
+        panel = "panel-heatmap";
+        await loadHeatmap();
+      }
 
-  const kpi = el.dataset.kpi;
-  if (!kpi) return;
+      if (kpi === "stores") {
+        panel = "panel-intelligence";
+        await loadMarketDemand();
+      }
 
-  console.log("KPI MINI CLICK:", kpi);
+      if (kpi === "clicks" || kpi === "ctr" || kpi === "sessions") {
+        panel = "panel-performance";
+        await renderOverview(); // temp
+      }
 
-  CURRENT_KPI = kpi;
+      // 🔥 VISA PANEL
+      showMarketPanel(panel);
 
-  // active state
-  items.forEach(i => i.classList.remove("active"));
-  el.classList.add("active");
+      // 🔥 UPDATE TITLE
+      updateDrilldownUI("market");
 
-  // 🔥 PANEL SWITCH + LOAD
-  let panel = "panel-performance";
-
-  if (kpi === "views") {
-    panel = "panel-heatmap";
-    await loadHeatmap();
-  }
-
-  if (kpi === "stores") {
-    panel = "panel-intelligence";
-    await loadMarketDemand();
-  }
-
-  if (kpi === "clicks" || kpi === "ctr" || kpi === "sessions") {
-    panel = "panel-performance";
-    await renderOverview(); // tillfälligt reuse
-  }
-
-  // 🔥 VISA PANEL
-  showMarketPanel(panel);
-
-  // 🔥 UPDATE TITLE
-  updateDrilldownUI("market");
-
-});
+    });
 
   });
 
