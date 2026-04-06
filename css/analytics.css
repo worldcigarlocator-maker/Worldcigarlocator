@@ -749,3 +749,24 @@ table tr{
   color: #66ffe0;
   box-shadow: 0 0 8px rgba(0, 200, 170, 0.25);
 }
+
+
+/* 🟣 Clicks (indigo / deep blue) */
+.kpi:nth-child(4){
+  background:linear-gradient(135deg,#1e3a8a,#3b82f6);
+  color:#fff;
+
+  box-shadow:
+    0 8px 25px rgba(59,130,246,.35),
+    inset 0 1px 0 rgba(255,255,255,.15);
+}
+
+/* 🟢 CTR (green / success) */
+.kpi:nth-child(5){
+  background:linear-gradient(135deg,#15803d,#22c55e);
+  color:#fff;
+
+  box-shadow:
+    0 8px 25px rgba(34,197,94,.35),
+    inset 0 1px 0 rgba(255,255,255,.15);
+}
