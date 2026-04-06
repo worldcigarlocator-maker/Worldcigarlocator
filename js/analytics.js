@@ -1,7 +1,10 @@
 import { supabase } from "./globals.js";
 import {
   getKPI,
-  setKPI
+  setKPI,
+  getLevel,
+  getActiveDay,
+  getActiveCountry
 } from "./analytics-state.js";
 
 console.log("🔥 KPI SCRIPT LOADED");
