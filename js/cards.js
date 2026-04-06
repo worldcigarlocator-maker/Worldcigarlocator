@@ -458,7 +458,12 @@ function cardHTML(s) {
   const flag = getFlagUrl(s);
 
   return `
-  <article class="store-card" data-store-id="${s.id}">
+  <article 
+    class="store-card" 
+    data-store-id="${s.id}"
+    data-city="${s.city || ""}"
+    data-country="${s.country || ""}"
+  >
     <img src="${img}" class="store-img" loading="lazy"
       onerror="this.onerror=null;this.src='images/store.jpg'" />
 
