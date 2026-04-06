@@ -255,7 +255,7 @@ async function loadMarketTable(days = 30) {
    RENDER
    ============================================================ */
 
-trafficFlowBody.innerHTML = data.map(r => {
+marketDemandBody.innerHTML = data.map(r => {
 
   const ctr = r.views
     ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
