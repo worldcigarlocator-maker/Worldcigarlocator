@@ -1180,37 +1180,43 @@ switch (CURRENT_KPI) {
 
 }
 
-  // =========================================
-  // RENDER
-  // =========================================
-let accent = "";
+// =========================================
+// FORCE RENDER (SUPER IMPORTANT)
+// =========================================
 
-if (CURRENT_KPI === "views") accent = "purple";
+marketDemandBody.innerHTML = ""; // 🔥 reset först
+
+let accent = "purple";
+
 if (CURRENT_KPI === "clicks") accent = "orange";
 if (CURRENT_KPI === "ctr") accent = "turquoise";
 if (CURRENT_KPI === "stores") accent = "green";
 if (CURRENT_KPI === "sessions") accent = "blue";
-  marketDemandBody.innerHTML = data.map((r, i) => {
 
-    const views = Number(r.views || 0);
-    const clicks = Number(r.clicks || 0);
-    const stores = Number(r.stores || 0);
+data.forEach((r, i) => {
 
-    const ctr =
-      views ? ((clicks / views) * 100).toFixed(1) + "%" : "0%";
+  const views = Number(r.views || 0);
+  const clicks = Number(r.clicks || 0);
 
-    return `
-  <tr class="kpi-${accent} ${i < 5 ? "top-row" : ""}">
+  const ctr =
+    views ? ((clicks / views) * 100).toFixed(1) + "%" : "0%";
+
+  const row = document.createElement("tr");
+
+  row.className = `kpi-${accent} ${i < 5 ? "top-row" : ""}`;
+
+  row.innerHTML = `
     <td>${escapeHtml(r.country || "—")}</td>
     <td class="num">${views}</td>
     <td class="num">${clicks}</td>
     <td class="num">${ctr}</td>
-  </tr>
-`;
+  `;
 
-  }).join("");
-}
+  marketDemandBody.appendChild(row);
 
+});
+
+  
 /* ============================================================
    TOP STORES (STEP 2–4 — CLEAN)
    ============================================================ */
