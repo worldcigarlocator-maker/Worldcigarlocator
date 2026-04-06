@@ -232,27 +232,24 @@ async function loadMarketTable(days = 30) {
      ============================================================ */
   data.sort((a, b) => {
 
-    switch (getKPI()) {
+  switch (getKPI()) {
+
+    case "views":
+      return (b.views || 0) - (a.views || 0);
+
+    case "clicks":
+      return (b.clicks || 0) - (a.clicks || 0);
+
+    case "stores":
+      return (b.stores || 0) - (a.stores || 0);
+
+    case "ctr":
+      return ((b.clicks / b.views) || 0) - ((a.clicks / a.views) || 0);
 
     default:
-  return (b.views || 0) - (a.views || 0);
-
-      case "views":
-        return (b.views || 0) - (a.views || 0);
-
-      case "clicks":
-        return (b.clicks || 0) - (a.clicks || 0);
-
-      case "stores":
-        return (b.stores || 0) - (a.stores || 0);
-
-      case "ctr":
-        return ((b.clicks / b.views) || 0) - ((a.clicks / a.views) || 0);
-
-      default:
-        return (b.users || 0) - (a.users || 0);
-    }
-  });
+      return (b.views || 0) - (a.views || 0);
+  }
+});
 
 /* ============================================================
    RENDER
