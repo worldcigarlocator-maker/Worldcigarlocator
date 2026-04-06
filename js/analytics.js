@@ -1251,19 +1251,34 @@ async function loadTopStores() {
       const location =
         [r.city, r.country].filter(Boolean).join(", ");
 
-  return `
+return `
   <tr data-id="${r.store_id}">
-    <td>
-      <strong>${escapeHtml(r.name)}</strong><br>
-      <small>${escapeHtml(location)}</small>
+
+    <td class="store-cell">
+      <div class="store-name">${escapeHtml(r.name)}</div>
+      <div class="store-geo">${escapeHtml(location)}</div>
     </td>
-    <td class="num">${Number(r.views)}</td>
-    <td class="num">${Number(r.clicks)}</td>
-    <td class="num">${Number(r.ctr).toFixed(2)}%</td>
+
+    <td>
+      <div class="kpi-pill kpi-views">
+        ${Number(r.views)}
+      </div>
+    </td>
+
+    <td>
+      <div class="kpi-pill kpi-clicks">
+        ${Number(r.clicks)}
+      </div>
+    </td>
+
+    <td>
+      <div class="kpi-pill kpi-ctr">
+        ${Number(r.ctr).toFixed(2)}%
+      </div>
+    </td>
+
   </tr>
 `;
-
-    }).join("");
 
     // 🔥 CLICK HANDLER
 topStoresBody.querySelectorAll("tr").forEach((tr) => {
