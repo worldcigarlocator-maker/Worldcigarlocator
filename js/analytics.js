@@ -255,15 +255,16 @@ async function loadMarketTable(days = 30) {
    RENDER
    ============================================================ */
 
+ if (!marketDemandBody) return; 
 marketDemandBody.innerHTML = data.map(r => {
 
   const ctr = r.views
     ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
     : "0%";
 
-  const label = LEVEL === "country"
-    ? r.country
-    : r.city;
+ const label = LEVEL === "country"
+  ? r.country
+  : [r.city, r.country].filter(Boolean).join(", ");
 
   return `
     <tr data-country="${r.country}">
@@ -280,7 +281,7 @@ marketDemandBody.innerHTML = data.map(r => {
    ROW CLICK — DRILLDOWN
    ============================================================ */
 
-const rows = trafficFlowBody.querySelectorAll("tr");
+const rows = marketDemandBody.querySelectorAll("tr");
 
 rows.forEach(row => {
   row.addEventListener("click", () => {
