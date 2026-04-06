@@ -1098,47 +1098,33 @@ if (title) {
   // =========================================
   // KPI SWITCH
   // =========================================
-if (CURRENT_KPI === "views") {
-  data.sort((a, b) => (b.views || 0) - (a.views || 0));
-}
+// 🔥 KPI SORT (ENKEL & STABIL)
+switch (CURRENT_KPI) {
 
-if (CURRENT_KPI === "clicks") {
-  data.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
-}
+  case "views":
+    data.sort((a, b) => (b.views || 0) - (a.views || 0));
+    break;
 
-if (CURRENT_KPI === "ctr") {
-  data.sort((a, b) => {
-    const ctrA = a.views ? (a.clicks / a.views) : 0;
-    const ctrB = b.views ? (b.clicks / b.views) : 0;
-    return ctrB - ctrA;
-  });
-}
+  case "clicks":
+    data.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
+    break;
 
-if (CURRENT_KPI === "stores") {
-  data.sort((a, b) => (b.stores || 0) - (a.stores || 0));
-}
+  case "ctr":
+    data.sort((a, b) => {
+      const ctrA = a.views ? (a.clicks / a.views) : 0;
+      const ctrB = b.views ? (b.clicks / b.views) : 0;
+      return ctrB - ctrA;
+    });
+    break;
 
-if (CURRENT_KPI === "sessions") {
-  data.sort((a, b) => (b.views || 0) - (a.views || 0)); // temp
-}
+  case "stores":
+    data.sort((a, b) => (b.stores || 0) - (a.stores || 0));
+    break;
 
-  // =========================================
+  case "sessions":
+    data.sort((a, b) => (b.views || 0) - (a.views || 0)); // temp
+    break;
 
-if (!data || !data.length) {
-
-  marketDemandBody.innerHTML =
-    `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
-
-  return;
-}
-
-// 🔥 HÄR SKA DIN KOD IN
-if (CURRENT_KPI === "views") {
-  data.sort((a, b) => (b.views || 0) - (a.views || 0));
-}
-
-if (CURRENT_KPI === "stores") {
-  data.sort((a, b) => (b.stores || 0) - (a.stores || 0));
 }
 
   // =========================================
