@@ -256,30 +256,56 @@ async function loadMarketTable(days = 30) {
     }
   });
 
-  /* ============================================================
-     RENDER
-     ============================================================ */
+/* ============================================================
+   RENDER
+   ============================================================ */
 
 trafficFlowBody.innerHTML = data.map(r => {
 
-    const ctr = r.views
-      ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
-      : "0%";
+  const ctr = r.views
+    ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
+    : "0%";
 
-    const label = LEVEL === "country"
-      ? r.country
-      : r.city;
+  const label = LEVEL === "country"
+    ? r.country
+    : r.city;
 
-    return `
-      <tr data-country="${r.country}">
-        <td>${label || "-"}</td>
-        <td>${r.users || 0}</td>
-        <td>${r.views || 0}</td>
-        <td>${r.clicks || 0}</td>
-        <td>${ctr}</td>
-      </tr>
-    `;
-  }).join("");
+  return `
+    <tr data-country="${r.country}">
+      <td>${label || "-"}</td>
+      <td>${r.users || 0}</td>
+      <td>${r.views || 0}</td>
+      <td>${r.clicks || 0}</td>
+      <td>${ctr}</td>
+    </tr>
+  `;
+}).join("");
+
+/* ============================================================
+   ROW CLICK — DRILLDOWN
+   ============================================================ */
+
+const rows = trafficFlowBody.querySelectorAll("tr");
+
+rows.forEach(row => {
+  row.addEventListener("click", () => {
+
+    const LEVEL = getLevel();
+
+    if (LEVEL === "country") {
+
+      const country = row.dataset.country;
+
+      if (!country) return;
+
+      setCountry(country);
+      setLevel("city");
+
+      loadMarketTable();
+    }
+
+  });
+});
 }
 
 // ============================================================
