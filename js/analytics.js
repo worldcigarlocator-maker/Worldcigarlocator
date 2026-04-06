@@ -1092,13 +1092,66 @@ if (title) {
   if (CURRENT_KPI === "ctr") title.textContent = "Conversion Opportunities (CTR)";
 
 }
+let data = [];
+let error;
 
-  let data, error;
+// =========================================
+// FETCH PER KPI
+// =========================================
 
-  // =========================================
-  // KPI SWITCH
-  // =========================================
-// 🔥 KPI SORT (ENKEL & STABIL)
+if (CURRENT_KPI === "views") {
+  ({ data, error } = await sb.rpc("analytics_market_demand", {
+    p_days: days
+  }));
+}
+
+if (CURRENT_KPI === "clicks") {
+  ({ data, error } = await sb.rpc("analytics_top_countries", {
+    p_days: days,
+    p_limit: 100
+  }));
+}
+
+if (CURRENT_KPI === "sessions") {
+  ({ data, error } = await sb.rpc("analytics_top_countries", {
+    p_days: days,
+    p_limit: 100
+  }));
+}
+
+if (CURRENT_KPI === "ctr") {
+  ({ data, error } = await sb.rpc("analytics_top_countries", {
+    p_days: days,
+    p_limit: 100
+  }));
+}
+
+if (CURRENT_KPI === "stores") {
+  ({ data, error } = await sb.rpc("analytics_top_countries", {
+    p_days: days,
+    p_limit: 100
+  }));
+}
+
+// =========================================
+// SAFETY
+// =========================================
+
+if (error) {
+  console.error("Market demand error", error);
+  return;
+}
+
+if (!data || !data.length) {
+  marketDemandBody.innerHTML =
+    `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
+  return;
+}
+
+// =========================================
+// SORT
+// =========================================
+
 switch (CURRENT_KPI) {
 
   case "views":
@@ -1122,7 +1175,7 @@ switch (CURRENT_KPI) {
     break;
 
   case "sessions":
-    data.sort((a, b) => (b.views || 0) - (a.views || 0)); // temp
+    data.sort((a, b) => (b.views || 0) - (a.views || 0));
     break;
 
 }
