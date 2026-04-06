@@ -234,8 +234,8 @@ async function loadMarketTable(days = 30) {
 
     switch (getKPI()) {
 
-      case "users":
-        return (b.users || 0) - (a.users || 0);
+    default:
+  return (b.views || 0) - (a.views || 0);
 
       case "views":
         return (b.views || 0) - (a.views || 0);
