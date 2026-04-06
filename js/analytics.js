@@ -1279,6 +1279,7 @@ return `
 
   </tr>
 `;
+      }).join(""); 
 
     // 🔥 CLICK HANDLER
 topStoresBody.querySelectorAll("tr").forEach((tr) => {
