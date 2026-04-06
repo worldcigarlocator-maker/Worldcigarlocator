@@ -25,6 +25,7 @@ const $$ = (s) => document.querySelectorAll(s);
 const globalRangeSelect = document.getElementById("globalRange");
 const globalSessions = $("#globalSessions");
 const globalStores = $("#globalStores");
+const globalUsers = $("#globalUsers");
 
 const trafficFlowBody = $("#trafficFlowBody");
 const heatmapBody = $("#heatmapBody");
@@ -131,8 +132,8 @@ await sb.rpc("analytics_sessions_v1", { p_days: days });
   console.error("Sessions error", sessionError);
 } else if (sessionData?.length) {
   const s = sessionData[0].sessions || 0;
-  if (globalSessions) globalSessions.textContent = s;
-}
+if (globalUsers) globalUsers.textContent = s;
+ }
 
    const { count: storesCount, error: storesError } = await sb
   .from("stores_frontend_public_v5")
