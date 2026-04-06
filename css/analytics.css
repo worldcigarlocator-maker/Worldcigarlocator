@@ -723,12 +723,13 @@ table tr{
 
 .kpi-pill {
   display: inline-block;
-  min-width: 48px;
+  min-width: 52px;
   text-align: center;
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.3px;
 }
 
 /* 🔮 Views (purple) */
