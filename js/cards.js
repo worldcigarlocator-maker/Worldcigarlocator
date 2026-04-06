@@ -436,7 +436,13 @@ setTimeout(() => {
 
   grid.querySelectorAll(".store-card").forEach((card) => {
 
-    if (!card.dataset.city || !card.dataset.country) return;
+    const city = card.dataset.city;
+    const country = card.dataset.country;
+
+    // 🔒 STRICT VALIDATION
+    if (!city || !country || city.trim() === "" || country.trim() === "") {
+      return;
+    }
 
     VIEW_OBSERVER.observe(card);
 
