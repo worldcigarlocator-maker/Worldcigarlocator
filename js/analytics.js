@@ -23,7 +23,6 @@ const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
 const globalRangeSelect = document.getElementById("globalRange");
-const globalSessions = $("#globalSessions");
 const globalStores = $("#globalStores");
 const globalUsers = $("#globalUsers");
 
@@ -193,7 +192,6 @@ function goToMarketTab(panel = "panel-heatmap") {
   showMarketPanel(panel);
 }
 
-
 async function loadMarketTable(days = 30) {
 
   const LEVEL = getLevel();
@@ -327,26 +325,27 @@ function bindKPI() {
       let panel = "panel-performance";
 
       if (id === "kpiViews") {
-        setKPI("views");
-        panel = "panel-heatmap";
-      }
+  setKPI("views");
+  panel = "panel-heatmap";
+}
 
-      if (id === "kpiClicks") {
-        CURRENT_KPI = "clicks";
-      }
+if (id === "kpiClicks") {
+  setKPI("clicks");
+}
 
-      if (id === "kpiCtr") {
-        CURRENT_KPI = "ctr";
-      }
+if (id === "kpiCtr") {
+  setKPI("ctr");
+}
 
-      if (id === "kpiStores") {
-        CURRENT_KPI = "stores";
-        panel = "panel-intelligence";
-      }
+if (id === "kpiStores") {
+  setKPI("stores");
+  panel = "panel-intelligence";
+}
 
-      if (id === "kpiSessions") {
-        CURRENT_KPI = "sessions";
-      }
+if (id === "kpiSessions") {
+  setKPI("users"); // 🔥 standardisera
+}
+
 
       console.log("CURRENT KPI:", CURRENT_KPI);
 
@@ -379,12 +378,14 @@ function updateDrilldownUI(tab) {
 
   // 🔥 KPI label
   let kpiLabel = "Views";
+  
+const kpi = getKPI();
 
-  if (getKPI() === "views") kpiLabel = "Views";
-  if (setKPI === "clicks") kpiLabel = "Clicks";
-  if (setKPI === "ctr") kpiLabel = "CTR";
-  if (setKPI === "stores") kpiLabel = "Stores";
-  if (setKPI === "users") kpiLabel = "Sessions";
+if (kpi === "views") kpiLabel = "Views";
+if (kpi === "clicks") kpiLabel = "Clicks";
+if (kpi === "ctr") kpiLabel = "CTR";
+if (kpi === "stores") kpiLabel = "Stores";
+if (kpi === "users") kpiLabel = "Users";
 
   // 🔥 TAB label
   let tabLabel = "Market";
@@ -419,7 +420,7 @@ function bindKpiMini() {
       console.log("KPI MINI CLICK:", kpi);
 
       // 🔥 SET KPI
-      CURRENT_KPI = kpi;
+      setKPI(kpi);
 
       // 🔥 ACTIVE STATE
       items.forEach(i => i.classList.remove("active"));
@@ -847,6 +848,7 @@ const days = 30;
         p_days: days,
         p_limit: 100
       });
+    console.log("COUNTRY DATA:", res);
 
     if (error) return renderOverviewError(error);
 
@@ -862,6 +864,7 @@ const days = 30;
         p_days: days,
         p_limit: 100
       });
+    console.log("CITY DATA:", res);
 
     if (error) return renderOverviewError(error);
 
@@ -1365,7 +1368,7 @@ function init() {
   initTabs();
 
   // 🔹 default KPI (toolbar)
-  document.querySelector('[data-kpi="sessions"]')?.classList.add("active");
+  document.querySelector('[data-kpi="users"]')?.classList.add("active");
 
   // 🔹 initial loads
   loadGlobalKpis();
