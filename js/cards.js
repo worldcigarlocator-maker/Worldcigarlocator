@@ -432,9 +432,15 @@ function renderCards(list, append = false) {
   // VIEW TRACKING
   // ============================================================
 
-  grid.querySelectorAll(".store-card").forEach((card) => {
-    VIEW_OBSERVER.observe(card);
-  });
+grid.querySelectorAll(".store-card").forEach((card) => {
+
+  // 🔒 VALIDATION — MUST HAVE DATA
+  if (!card.dataset.city || !card.dataset.country) {
+    return;
+  }
+
+  VIEW_OBSERVER.observe(card);
+});
 
   ensureLoadMoreButton();
 }
