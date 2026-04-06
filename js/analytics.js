@@ -117,20 +117,22 @@ async function loadGlobalKpis() {
   if (globalCtr) globalCtr.textContent = (row.ctr ?? 0) + "%";
 
   // -------------------------
-  // SESSIONS
+  // USERS
   // -------------------------
   const { data: sessionData, error: sessionError } =
-    await sb.rpc("analytics_sessions_v1", { p_days: 30 });
-
+await sb.rpc("analytics_sessions_v1", { p_days: days });
+  
   if (sessionError) {
     console.error("Sessions error", sessionError);
     return;
   }
 
-  if (sessionData?.length) {
-    const s = sessionData[0].sessions || 0;
-    if (globalSessions) globalSessions.textContent = s;
-  }
+ if (sessionError) {
+  console.error("Sessions error", sessionError);
+} else if (sessionData?.length) {
+  const s = sessionData[0].sessions || 0;
+  if (globalSessions) globalSessions.textContent = s;
+}
 
    const { count: storesCount, error: storesError } = await sb
   .from("stores_frontend_public_v5")
