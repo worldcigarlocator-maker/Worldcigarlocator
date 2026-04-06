@@ -1273,7 +1273,7 @@ return `
 
     <td>
       <div class="kpi-pill kpi-ctr">
-        ${Number(r.ctr).toFixed(2)}%
+        ${(Number(r.ctr) * 100).toFixed(1)}%
       </div>
     </td>
 
