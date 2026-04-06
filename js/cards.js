@@ -391,12 +391,11 @@ function initStoreViewObserver() {
         const city = el.dataset.city;
         const country = el.dataset.country;
 
-        trackEvent("store_view", {
-          store_id: Number(storeId),
-          source: "search",
-          city,
-          country,
-        });
+    trackEvent("store_view", {
+  store_id: Number(storeId),
+  city,
+  country
+});
 
         storeViewObserver.unobserve(el);
       });
