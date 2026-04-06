@@ -38,7 +38,7 @@ if (globalRangeSelect) {
     await loadGlobalKpis();
     await loadTrafficFlow();
     await loadHeatmap();
-    await loadMarketDemand(days);
+    await loadMarketTable(days);
     await renderOverview();
 
     if (ACTIVE_STORE) {
@@ -181,7 +181,7 @@ function goToMarketTab(panel = "panel-heatmap") {
     ?.classList.remove("hidden");
 
   loadHeatmap();
-  loadMarketDemand();
+  loadMarketTable();
 
   showMarketPanel(panel);
 }
@@ -224,26 +224,25 @@ async function loadMarketTable(days = 30) {
   // 🔥 RENDER
   body.innerHTML = data.map((r, i) => {
 
-    let value = 0;
+  const views = r.views || 0;
+  const clicks = r.clicks || 0;
+  const sessions = r.sessions || 0;
 
-    if (CURRENT_KPI === "views") value = r.views || 0;
-    if (CURRENT_KPI === "clicks") value = r.clicks || 0;
-    if (CURRENT_KPI === "sessions") value = r.sessions || 0;
-    if (CURRENT_KPI === "stores") value = r.stores || 0;
-    if (CURRENT_KPI === "ctr") {
-      value = r.views
-        ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
-        : "0%";
-    }
+  const ctr = views
+    ? ((clicks / views) * 100).toFixed(1) + "%"
+    : "0%";
 
-    return `
-      <tr class="${i < 5 ? "top-row" : ""}">
-        <td>${escapeHtml(r.country || "—")}</td>
-        <td class="num">${value}</td>
-      </tr>
-    `;
+  return `
+    <tr class="${i < 5 ? "top-row" : ""}">
+      <td>${escapeHtml(r.country || "—")}</td>
+      <td class="num">${views}</td>
+      <td class="num">${clicks}</td>
+      <td class="num">${sessions}</td>
+      <td class="num">${ctr}</td>
+    </tr>
+  `;
 
-  }).join("");
+}).join("");
 
 }
 
@@ -289,7 +288,7 @@ function bindKPI() {
 
       console.log("CURRENT KPI:", CURRENT_KPI);
 
-      await loadMarketDemand();
+      await loadMarketTable();
 
      goToMarketTab(panel);
 updateDrilldownUI("market");
@@ -374,7 +373,7 @@ function bindKpiMini() {
 
       if (kpi === "stores") {
         panel = "panel-intelligence";
-        await loadMarketDemand();
+        await loadMarketTable();
       }
 
       if (kpi === "clicks" || kpi === "ctr" || kpi === "sessions") {
@@ -1149,119 +1148,6 @@ async function loadHeatmap() {
 }
 
 /* ============================================================
-   MARKET DEMAND
-   ============================================================ */
-
-async function loadMarketDemand(days = 30) {
-   
-console.log("🚨 KPI INSIDE FUNCTION:", CURRENT_KPI);
-   
-  const marketDemandBody = document.getElementById("marketDemandBody");
-
-  if (!marketDemandBody) return;
-
-  console.log("LOAD MARKET DEMAND FOR KPI:", CURRENT_KPI);
-   const title = document.getElementById("marketTitle");
-
-if (title) {
-
-  if (CURRENT_KPI === "views") title.textContent = "Market Demand (Views)";
-  if (CURRENT_KPI === "clicks") title.textContent = "Market Performance (Clicks)";
-  if (CURRENT_KPI === "sessions") title.textContent = "Traffic (Sessions)";
-  if (CURRENT_KPI === "stores") title.textContent = "Store Distribution";
-  if (CURRENT_KPI === "ctr") title.textContent = "Conversion Opportunities (CTR)";
-
-}
-let data = [];
-let error;
-
-
-// =========================================
-// SAFETY
-// =========================================
-
-if (error) {
-  console.error("Market demand error", error);
-  return;
-}
-
-if (!data || !data.length) {
-  marketDemandBody.innerHTML =
-    `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
-  return;
-}
-
-// =========================================
-// SORT
-// =========================================
-
-switch (CURRENT_KPI) {
-
-  case "views":
-    data.sort((a, b) => (b.views || 0) - (a.views || 0));
-    break;
-
-  case "clicks":
-    data.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
-    break;
-
-  case "ctr":
-    data.sort((a, b) => {
-      const ctrA = a.views ? (a.clicks / a.views) : 0;
-      const ctrB = b.views ? (b.clicks / b.views) : 0;
-      return ctrB - ctrA;
-    });
-    break;
-
-  case "stores":
-    data.sort((a, b) => (b.stores || 0) - (a.stores || 0));
-    break;
-
-  case "sessions":
-    data.sort((a, b) => (b.views || 0) - (a.views || 0));
-    break;
-
-}
-
-// =========================================
-// FORCE RENDER (SUPER IMPORTANT)
-// =========================================
-
-marketDemandBody.innerHTML = ""; // 🔥 reset först
-
-let accent = "purple";
-
-if (CURRENT_KPI === "clicks") accent = "orange";
-if (CURRENT_KPI === "ctr") accent = "turquoise";
-if (CURRENT_KPI === "stores") accent = "green";
-if (CURRENT_KPI === "sessions") accent = "blue";
-
-data.forEach((r, i) => {
-
-  const views = Number(r.views || 0);
-  const clicks = Number(r.clicks || 0);
-
-  const ctr =
-    views ? ((clicks / views) * 100).toFixed(1) + "%" : "0%";
-
-  const row = document.createElement("tr");
-
-  row.className = `kpi-${accent} ${i < 5 ? "top-row" : ""}`;
-
-  row.innerHTML = `
-    <td>${escapeHtml(r.country || "—")}</td>
-    <td class="num">${views}</td>
-    <td class="num">${clicks}</td>
-    <td class="num">${ctr}</td>
-  `;
-
-  marketDemandBody.appendChild(row);
-
-});
-
-   }
-  
-/* ============================================================
    TOP STORES (STEP 2–4 — CLEAN)
    ============================================================ */
 
@@ -1369,7 +1255,7 @@ function initTabs() {
 
       if (tab.dataset.tab === "market") {
         await loadHeatmap();
-        await loadMarketDemand(days);
+        await loadMarketTable(days);
       }
 
 if (tab.dataset.tab === "overview") {
@@ -1408,7 +1294,7 @@ function init() {
   loadTrafficFlow();
   loadHeatmap();
   renderOverview();
-  loadMarketDemand();
+  loadMarketTable();
   loadTopStores();
 }
 
