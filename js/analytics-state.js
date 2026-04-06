@@ -1,6 +1,6 @@
 /* ============================================================
    WCL Analytics — State (Canonical Single Source of Truth)
-   ============================================================ */
+   ============================================================ */f
 
 export const ANALYTICS_STATE = {
   CURRENT_KPI: "users",        // "users" | "views" | "clicks" | "ctr" | "stores"
