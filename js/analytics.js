@@ -1304,9 +1304,10 @@ function initTabs() {
         await loadMarketDemand(days);
       }
 
-      if (tab.dataset.tab === "overview") {
-        await renderOverview();
-      }
+if (tab.dataset.tab === "overview") {
+  updateDrilldownUI("overview"); // 🔥 LÄGG TILL
+  await renderOverview();
+}
 
       if (tab.dataset.tab === "stores") {
         await loadTopStores();
