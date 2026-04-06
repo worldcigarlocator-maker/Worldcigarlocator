@@ -94,14 +94,15 @@ let CURRENT_KPI = "views";
 /* ============================================================
    GLOBAL KPIs
    ============================================================ */
-
 async function loadGlobalKpis() {
+
+  const days = Number(globalRangeSelect?.value || 30);
 
   // -------------------------
   // MAIN KPI
   // -------------------------
   const { data, error } = await sb.rpc("analytics_kpi_v2", {
-    p_days: 30
+    p_days: days
   });
 
   if (error) {
@@ -109,43 +110,40 @@ async function loadGlobalKpis() {
     return;
   }
 
-  if (!data || !data.length) return;
+  if (data?.length) {
+    const row = data[0];
 
-  const row = data[0];
-
-  if (globalViews) globalViews.textContent = row.views ?? "0";
-  if (globalClicks) globalClicks.textContent = row.clicks ?? "0";
-  if (globalCtr) globalCtr.textContent = (row.ctr ?? 0) + "%";
-
-  // -------------------------
-  // USERS
-  // -------------------------
-  const { data: sessionData, error: sessionError } =
-await sb.rpc("analytics_sessions_v1", { p_days: days });
-  
-  if (sessionError) {
-    console.error("Sessions error", sessionError);
-    return;
+    if (globalViews) globalViews.textContent = row.views ?? "0";
+    if (globalClicks) globalClicks.textContent = row.clicks ?? "0";
+    if (globalCtr) globalCtr.textContent = (row.ctr ?? 0) + "%";
   }
 
- if (sessionError) {
-  console.error("Sessions error", sessionError);
-} else if (sessionData?.length) {
-  const s = sessionData[0].sessions || 0;
-if (globalUsers) globalUsers.textContent = s;
- }
+  // -------------------------
+  // USERS (sessions)
+  // -------------------------
+  const { data: sessionData, error: sessionError } =
+    await sb.rpc("analytics_sessions_v1", { p_days: days });
 
-   const { count: storesCount, error: storesError } = await sb
-  .from("stores_frontend_public_v5")
-  .select("*", { count: "exact", head: true })
-  .eq("approved", true)
-  .eq("deleted", false);
+  if (sessionError) {
+    console.error("Sessions error", sessionError);
+  } else if (sessionData?.length) {
+    const s = sessionData[0].sessions || 0;
+    if (globalUsers) globalUsers.textContent = s;
+  }
 
-if (!storesError) {
-  const s = storesCount || 0;
-  if (globalStores) globalStores.textContent = s;
-}
+  // -------------------------
+  // STORES
+  // -------------------------
+  const { count: storesCount, error: storesError } = await sb
+    .from("stores_frontend_public_v5")
+    .select("*", { count: "exact", head: true })
+    .eq("approved", true)
+    .eq("deleted", false);
 
+  if (!storesError) {
+    const s = storesCount || 0;
+    if (globalStores) globalStores.textContent = s;
+  }
 }
 
 // ============================================================
