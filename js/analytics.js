@@ -187,6 +187,66 @@ function goToMarketTab(panel = "panel-heatmap") {
 }
 
 
+async function loadMarketTable(days = 30) {
+
+  const body = document.getElementById("marketDemandBody");
+  if (!body) return;
+
+  const { data, error } = await sb.rpc("analytics_top_countries", {
+    p_days: days,
+    p_limit: 100
+  });
+
+  if (error) {
+    console.error("Market error", error);
+    return;
+  }
+
+  if (!data?.length) {
+    body.innerHTML = `<tr><td colspan="2" class="muted center">No data yet.</td></tr>`;
+    return;
+  }
+
+  // 🔥 SORT
+  data.sort((a, b) => {
+
+    switch (CURRENT_KPI) {
+      case "views": return (b.views || 0) - (a.views || 0);
+      case "clicks": return (b.clicks || 0) - (a.clicks || 0);
+      case "sessions": return (b.sessions || 0) - (a.sessions || 0);
+      case "stores": return (b.stores || 0) - (a.stores || 0);
+      case "ctr":
+        return ((b.clicks / b.views) || 0) - ((a.clicks / a.views) || 0);
+    }
+
+  });
+
+  // 🔥 RENDER
+  body.innerHTML = data.map((r, i) => {
+
+    let value = 0;
+
+    if (CURRENT_KPI === "views") value = r.views || 0;
+    if (CURRENT_KPI === "clicks") value = r.clicks || 0;
+    if (CURRENT_KPI === "sessions") value = r.sessions || 0;
+    if (CURRENT_KPI === "stores") value = r.stores || 0;
+    if (CURRENT_KPI === "ctr") {
+      value = r.views
+        ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
+        : "0%";
+    }
+
+    return `
+      <tr class="${i < 5 ? "top-row" : ""}">
+        <td>${escapeHtml(r.country || "—")}</td>
+        <td class="num">${value}</td>
+      </tr>
+    `;
+
+  }).join("");
+
+}
+
 // ============================================================
 // KPI BINDINGS
 // ============================================================
@@ -1115,43 +1175,6 @@ if (title) {
 let data = [];
 let error;
 
-// =========================================
-// FETCH PER KPI
-// =========================================
-
-if (CURRENT_KPI === "views") {
-  ({ data, error } = await sb.rpc("analytics_market_demand", {
-    p_days: days
-  }));
-}
-
-if (CURRENT_KPI === "clicks") {
-  ({ data, error } = await sb.rpc("analytics_top_countries", {
-    p_days: days,
-    p_limit: 100
-  }));
-}
-
-if (CURRENT_KPI === "sessions") {
-  ({ data, error } = await sb.rpc("analytics_top_countries", {
-    p_days: days,
-    p_limit: 100
-  }));
-}
-
-if (CURRENT_KPI === "ctr") {
-  ({ data, error } = await sb.rpc("analytics_top_countries", {
-    p_days: days,
-    p_limit: 100
-  }));
-}
-
-if (CURRENT_KPI === "stores") {
-  ({ data, error } = await sb.rpc("analytics_top_countries", {
-    p_days: days,
-    p_limit: 100
-  }));
-}
 
 // =========================================
 // SAFETY
