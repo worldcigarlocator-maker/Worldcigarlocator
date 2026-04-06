@@ -732,20 +732,20 @@ table tr{
   letter-spacing: 0.3px;
 }
 
-/* 🔮 Views (purple) */
 .kpi-views {
   background: rgba(140, 90, 255, 0.15);
   color: #c6a8ff;
+  box-shadow: 0 0 8px rgba(140, 90, 255, 0.3);
 }
 
-/* 🟠 Clicks (orange) */
 .kpi-clicks {
   background: rgba(255, 140, 0, 0.15);
   color: #ffb366;
+  box-shadow: 0 0 8px rgba(255, 140, 0, 0.25);
 }
 
-/* 🟢 CTR (turquoise) */
 .kpi-ctr {
   background: rgba(0, 200, 170, 0.15);
   color: #66ffe0;
+  box-shadow: 0 0 8px rgba(0, 200, 170, 0.25);
 }
