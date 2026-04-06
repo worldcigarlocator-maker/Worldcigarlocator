@@ -623,9 +623,10 @@ table tr{
    ============================================================ */
 
 .toolbar-right {
-  background: rgba(255,255,255,0.03);
-  padding: 10px 12px;
-  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap; /* 🔥 DETTA FIXAR PROBLEMET */
 }
 
 .toolbar-kpis {
