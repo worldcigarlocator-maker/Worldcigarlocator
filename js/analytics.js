@@ -1098,50 +1098,29 @@ if (title) {
   // =========================================
   // KPI SWITCH
   // =========================================
+if (CURRENT_KPI === "views") {
+  data.sort((a, b) => (b.views || 0) - (a.views || 0));
+}
 
-  if (CURRENT_KPI === "views") {
+if (CURRENT_KPI === "clicks") {
+  data.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
+}
 
-    ({ data, error } = await sb.rpc("analytics_market_demand", {
-      p_days: days
-    }));
+if (CURRENT_KPI === "ctr") {
+  data.sort((a, b) => {
+    const ctrA = a.views ? (a.clicks / a.views) : 0;
+    const ctrB = b.views ? (b.clicks / b.views) : 0;
+    return ctrB - ctrA;
+  });
+}
 
-  }
+if (CURRENT_KPI === "stores") {
+  data.sort((a, b) => (b.stores || 0) - (a.stores || 0));
+}
 
-  if (CURRENT_KPI === "clicks") {
-
-    ({ data, error } = await sb.rpc("analytics_top_countries", {
-      p_days: days,
-      p_limit: 100
-    }));
-
-  }
-
-  if (CURRENT_KPI === "sessions") {
-
-    ({ data, error } = await sb.rpc("analytics_top_countries", {
-      p_days: days,
-      p_limit: 100
-    }));
-
-  }
-
-  if (CURRENT_KPI === "ctr") {
-
-    ({ data, error } = await sb.rpc("analytics_top_countries", {
-      p_days: days,
-      p_limit: 100
-    }));
-
-  }
-
-  if (CURRENT_KPI === "stores") {
-
-    ({ data, error } = await sb.rpc("analytics_top_countries", {
-      p_days: days,
-      p_limit: 100
-    }));
-
-  }
+if (CURRENT_KPI === "sessions") {
+  data.sort((a, b) => (b.views || 0) - (a.views || 0)); // temp
+}
 
   // =========================================
 
