@@ -304,13 +304,46 @@ function bindKpiMini() {
       items.forEach(i => i.classList.remove("active"));
       el.classList.add("active");
 
-      // 🔥 3. LOAD DATA (samma funktion du redan använder)
-      await loadMarketDemand();
+ 
 
-      // 🔥 4. UPDATE TITLE
-      updateDrilldownUI("market");
+  el.addEventListener("click", async () => {
 
-    });
+  const kpi = el.dataset.kpi;
+  if (!kpi) return;
+
+  console.log("KPI MINI CLICK:", kpi);
+
+  CURRENT_KPI = kpi;
+
+  // active state
+  items.forEach(i => i.classList.remove("active"));
+  el.classList.add("active");
+
+  // 🔥 PANEL SWITCH + LOAD
+  let panel = "panel-performance";
+
+  if (kpi === "views") {
+    panel = "panel-heatmap";
+    await loadHeatmap();
+  }
+
+  if (kpi === "stores") {
+    panel = "panel-intelligence";
+    await loadMarketDemand();
+  }
+
+  if (kpi === "clicks" || kpi === "ctr" || kpi === "sessions") {
+    panel = "panel-performance";
+    await renderOverview(); // tillfälligt reuse
+  }
+
+  // 🔥 VISA PANEL
+  showMarketPanel(panel);
+
+  // 🔥 UPDATE TITLE
+  updateDrilldownUI("market");
+
+});
 
   });
 
