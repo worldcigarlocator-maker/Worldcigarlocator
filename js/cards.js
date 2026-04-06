@@ -611,7 +611,11 @@ if (!resp || resp.error) return;
 
   const rawRows = resp.data || [];
   console.log("DEBUG ROW:", rawRows[0]);
-
+console.log(
+  "MISSING GEO:",
+  rawRows.filter(r => !r.city || !r.country).slice(0, 10)
+);
+  
   // Cursor måste baseras på RAW (inte filtrerade)
   updateCursor(rawRows);
 
