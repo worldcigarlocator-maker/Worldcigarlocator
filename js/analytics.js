@@ -209,7 +209,7 @@ async function loadMarketTable(days = 30) {
       p_days: days,
       p_limit: 100
     });
-
+  console.log("COUNTRY DATA:", res); // ✅ här
     data = res || [];
   }
 
@@ -223,7 +223,7 @@ async function loadMarketTable(days = 30) {
       p_country: COUNTRY,
       p_limit: 100
     });
-
+ console.log("CITY DATA:", res); // ✅ här
     data = res || [];
   }
 
@@ -848,7 +848,7 @@ const days = 30;
         p_days: days,
         p_limit: 100
       });
-    console.log("COUNTRY DATA:", res);
+ 
 
     if (error) return renderOverviewError(error);
 
@@ -864,7 +864,7 @@ const days = 30;
         p_days: days,
         p_limit: 100
       });
-    console.log("CITY DATA:", res);
+
 
     if (error) return renderOverviewError(error);
 
