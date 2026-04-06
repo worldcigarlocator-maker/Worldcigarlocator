@@ -89,7 +89,6 @@ let ACTIVE_STORE = null;
 let OVERVIEW_TAB = "countries";
 
 let CURRENT_OVERVIEW_ROWS = [];
-let CURRENT_KPI = "views";
 
 /* ============================================================
    GLOBAL KPIs
@@ -328,7 +327,7 @@ function bindKPI() {
       let panel = "panel-performance";
 
       if (id === "kpiViews") {
-        CURRENT_KPI = "views";
+        setKPI("views");
         panel = "panel-heatmap";
       }
 
@@ -381,11 +380,11 @@ function updateDrilldownUI(tab) {
   // 🔥 KPI label
   let kpiLabel = "Views";
 
-  if (CURRENT_KPI === "views") kpiLabel = "Views";
-  if (CURRENT_KPI === "clicks") kpiLabel = "Clicks";
-  if (CURRENT_KPI === "ctr") kpiLabel = "CTR";
-  if (CURRENT_KPI === "stores") kpiLabel = "Stores";
-  if (CURRENT_KPI === "sessions") kpiLabel = "Sessions";
+  if (getKPI() === "views") kpiLabel = "Views";
+  if (setKPI === "clicks") kpiLabel = "Clicks";
+  if (setKPI === "ctr") kpiLabel = "CTR";
+  if (setKPI === "stores") kpiLabel = "Stores";
+  if (setKPI === "users") kpiLabel = "Sessions";
 
   // 🔥 TAB label
   let tabLabel = "Market";
