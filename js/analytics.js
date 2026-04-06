@@ -276,6 +276,46 @@ function updateDrilldownUI(tab) {
 }
 
 /* ============================================================
+   KPI MINI (TOOLBAR)
+   ============================================================ */
+
+function bindKpiMini() {
+
+  const items = document.querySelectorAll(".kpi-mini");
+
+  if (!items.length) {
+    console.warn("No KPI mini found");
+    return;
+  }
+
+  items.forEach(el => {
+
+    el.addEventListener("click", async () => {
+
+      const kpi = el.dataset.kpi;
+      if (!kpi) return;
+
+      console.log("KPI MINI CLICK:", kpi);
+
+      // 🔥 1. SET KPI (samma som ditt system använder)
+      CURRENT_KPI = kpi;
+
+      // 🔥 2. ACTIVE STATE
+      items.forEach(i => i.classList.remove("active"));
+      el.classList.add("active");
+
+      // 🔥 3. LOAD DATA (samma funktion du redan använder)
+      await loadMarketDemand();
+
+      // 🔥 4. UPDATE TITLE
+      updateDrilldownUI("market");
+
+    });
+
+  });
+
+}
+/* ============================================================
    UI BINDINGS
    ============================================================ */
 
@@ -1285,10 +1325,16 @@ function init() {
 
   console.log("🔥 INIT RUNNING");
 
+  // 🔹 bindings
   bindUI();
   bindKPI();
+  bindKpiMini();
   initTabs();
 
+  // 🔹 default KPI (toolbar)
+  document.querySelector('[data-kpi="sessions"]')?.classList.add("active");
+
+  // 🔹 initial loads
   loadGlobalKpis();
   loadTrafficFlow();
   loadHeatmap();
