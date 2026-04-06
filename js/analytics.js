@@ -1073,10 +1073,11 @@ async function loadHeatmap() {
 /* ============================================================
    MARKET DEMAND
    ============================================================ */
-console.log("🚨 KPI INSIDE FUNCTION:", CURRENT_KPI);
 
 async function loadMarketDemand(days = 30) {
-
+   
+console.log("🚨 KPI INSIDE FUNCTION:", CURRENT_KPI);
+   
   const marketDemandBody = document.getElementById("marketDemandBody");
 
   if (!marketDemandBody) return;
