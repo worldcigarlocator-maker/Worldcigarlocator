@@ -4,7 +4,9 @@ import {
   setKPI,
   getLevel,
   getActiveDay,
-  getActiveCountry
+  getActiveCountry,
+  setCountry,   // 🔥 LÄGG TILL
+  setLevel      // 🔥 LÄGG TILL (du använder den också!)
 } from "./analytics-state.js";
 
 console.log("🔥 KPI SCRIPT LOADED");
@@ -345,7 +347,7 @@ if (id === "kpiSessions") {
 }
 
 
-      console.log("CURRENT KPI:", CURRENT_KPI);
+      console.log("CURRENT KPI:", getKPI());
 
       await loadMarketTable();
 
@@ -437,7 +439,7 @@ function bindKpiMini() {
         await loadMarketTable();
       }
 
-      if (kpi === "clicks" || kpi === "ctr" || kpi === "sessions") {
+      if (kpi === "clicks" || kpi === "ctr" || kpi === "users") {
         panel = "panel-performance";
         await renderOverview(); // temp
       }
