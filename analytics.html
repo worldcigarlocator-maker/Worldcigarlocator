@@ -115,11 +115,7 @@ DRILLDOWN TOOLBAR
 OVERVIEW TAB
 ============================================================ -->
 
-<!-- ===== START: OVERVIEW TAB ===== -->
 <div class="analytics-tab" id="tab-overview">
-
-
-  <!-- ===== END: VIEW TOOLBAR ===== -->
 
 
 <!-- ===== START: GLOBAL KPIs ===== -->
@@ -165,33 +161,7 @@ OVERVIEW TAB
 
 </section>
 
-  <!-- ===== START: TRAFFIC FLOW ===== -->
-  <section class="panel">
-
-    <div class="panelhead">
-      <h2>Traffic Flow</h2>
-    </div>
-
-    <table class="table">
-
-      <thead>
-        <tr>
-          <th>Source</th>
-          <th class="num">Views</th>
-          <th class="num">Clicks</th>
-          <th class="num">Conversion</th>
-        </tr>
-      </thead>
-
-      <tbody id="trafficFlowBody">
-        <tr>
-          <td colspan="4" class="muted center">Loading traffic data…</td>
-        </tr>
-      </tbody>
-
-    </table>
-
-  </section>
+  
 
 
 </div>
@@ -234,41 +204,71 @@ MARKET TAB
 
 
   <!-- GLOBAL MARKET PERFORMANCE -->
+
+  <section class="panel" id="panel-traffic">
+
+  <div class="panelhead">
+    <h2>Traffic Flow</h2>
+  </div>
+
+  <table class="table">
+
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th class="num">Views</th>
+        <th class="num">Clicks</th>
+        <th class="num">Conversion</th>
+      </tr>
+    </thead>
+
+    <tbody id="trafficFlowBody">
+      <tr>
+        <td colspan="4" class="muted center">Loading traffic data…</td>
+      </tr>
+    </tbody>
+
+  </table>
+
+</section>
+
+
+  <!-- MARKET PERFORMANCE PANEL -->
+  
   <section class="panel" id="panel-performance">
 
-    <div class="panelhead">
-      <h2>Global Market Performance</h2>
-    </div>
+  <div class="panelhead">
+    <h2>Global Market Performance</h2>
+  </div>
 
-    <div class="tablewrap">
+  <div class="tablewrap">
 
-      <table class="table" id="overviewTable">
+    <table class="table" id="overviewTable">
 
-  <thead>
-  <tr>
-    <th id="ovKeyHeader">Country</th>
-    <th class="num">Users</th>
-    <th class="num">Views</th>
-    <th class="num">Opens</th>   <!-- 🔥 NY -->
-    <th class="num">Clicks</th>
-    <th class="num">CTR</th>
-  </tr>
-</thead>
+      <thead>
+        <tr>
+          <th id="ovKeyHeader">Country</th>
+          <th class="num">Users</th>
+          <th class="num">Views</th>
+          <th class="num">Opens</th>
+          <th class="num">Clicks</th>
+          <th class="num">CTR</th>
+        </tr>
+      </thead>
 
-        <tbody>
-          <tr>
-           <td colspan="6" class="muted center">
-  Loading market intelligence…
-</td>
-          </tr>
-        </tbody>
+      <tbody>
+        <tr>
+          <td colspan="6" class="muted center">
+            Loading market intelligence…
+          </td>
+        </tr>
+      </tbody>
 
-      </table>
+    </table>
 
-    </div>
+  </div>
 
-  </section>
-
+</section>
 
   <!-- MARKET INTELLIGENCE -->
   <section class="panel" id="panel-intelligence">
@@ -388,17 +388,17 @@ STORES TAB
 
       <div class="kpi">
         <div class="kpiLabel">Views</div>
-        <div class="kpiVal" id="kpiViews">0</div>   ❌
+        <div class="kpiVal" id="storeViews">0</div>   ❌
       </div>
 
       <div class="kpi">
         <div class="kpiLabel">Clicks</div>
-        <div class="kpiVal" id="kpiClicks">0</div> ❌
+        <div class="kpiVal" id="storeClicks">0</div> ❌
       </div>
 
       <div class="kpi">
         <div class="kpiLabel">CTR</div>
-        <div class="kpiVal" id="kpiCtr">0%</div>   ❌
+        <div class="kpiVal" id="storeCtr">0%</div>   ❌
       </div>
 
     </div>
