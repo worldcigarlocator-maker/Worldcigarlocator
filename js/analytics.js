@@ -329,16 +329,16 @@ function bindKPI() {
 
       let panel = "panel-performance";
 
-      if (id === "kpiUsers") {
-  setKPI("users");
+if (id === "kpiUsers") {
 
-  OVERVIEW_TAB = "days";
+  console.log("👉 redirect to mini KPI");
 
-  await renderOverview();
+  // 🔥 trigga mini-knappen istället
+  document.querySelector('[data-kpi="users"]')?.click();
 
   return;
 }
-     
+      
       if (id === "kpiViews") {
         setKPI("views");
         panel = "panel-heatmap";
