@@ -216,3 +216,16 @@ setInterval(() => {
   .catch(err => console.error("❌ BATCH ERROR", err));
 
 }, BATCH_INTERVAL);
+
+window.addEventListener("beforeunload", () => {
+
+  if (!EVENT_QUEUE.length) return;
+
+  const batch = EVENT_QUEUE.splice(0, EVENT_QUEUE.length);
+
+  navigator.sendBeacon(
+    ANALYTICS_INGEST_URL,
+    JSON.stringify({ events: batch })
+  );
+
+});
