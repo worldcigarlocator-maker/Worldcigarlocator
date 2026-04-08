@@ -329,30 +329,32 @@ function bindKPI() {
 
       let panel = "panel-performance";
 
-      // 🔥 USERS → OVERVIEW
       if (id === "kpiUsers") {
 
-        setKPI("users");
+  setKPI("users");
 
-        document.querySelectorAll(".btn.tab")
-          .forEach(b => b.classList.remove("active"));
+  // 🔥 DETTA SAKNAS
+  OVERVIEW_TAB = "days";
 
-        document.querySelector('[data-tab="overview"]')
-          ?.classList.add("active");
+  document.querySelectorAll(".btn.tab")
+    .forEach(b => b.classList.remove("active"));
 
-        document.querySelectorAll(".analytics-tab")
-          .forEach(el => el.classList.add("hidden"));
+  document.querySelector('[data-tab="overview"]')
+    ?.classList.add("active");
 
-        document.getElementById("tab-overview")
-          ?.classList.remove("hidden");
+  document.querySelectorAll(".analytics-tab")
+    .forEach(el => el.classList.add("hidden"));
 
-        updateDrilldownUI("overview");
+  document.getElementById("tab-overview")
+    ?.classList.remove("hidden");
 
-        await renderOverview();
-        return;
-      }
+  updateDrilldownUI("overview");
 
-      // 🔥 NORMAL FLOW (Market)
+  await renderOverview();
+  return;
+}
+
+     
       if (id === "kpiViews") {
         setKPI("views");
         panel = "panel-heatmap";
@@ -851,6 +853,41 @@ function renderEvents(rows) {
    ============================================================ */
 
 async function renderOverview() {
+  if (OVERVIEW_TAB === "days") {
+
+  const { data, error } = await sb.rpc(
+    "analytics_users_by_day",
+    { p_days: 30 }
+  );
+
+  if (error) return renderOverviewError(error);
+
+  const rows = data || [];
+
+  // 🔥 ändra header
+  ovKeyHeader.textContent = "Date";
+
+  // 🔥 render
+  overviewTableBody.innerHTML = rows.map(r => `
+    <tr class="overview-row" data-day="${r.day}">
+      <td>${r.day}</td>
+      <td class="num">${r.users}</td>
+      <td class="num">-</td>
+      <td class="num">-</td>
+      <td class="num">-</td>
+    </tr>
+  `).join("");
+
+  // 🔥 click → nästa nivå (sen)
+  overviewTableBody.querySelectorAll("tr").forEach(tr => {
+    tr.addEventListener("click", () => {
+      console.log("DAY CLICK:", tr.dataset.day);
+      // nästa steg: setDay()
+    });
+  });
+
+  return;
+}
 
 const days = 30;
    
@@ -890,6 +927,8 @@ const days = 30;
 
     renderOverviewTable(rows, getOverviewKey);
   }
+
+  
 
   if (OVERVIEW_TAB === "cities") {
 
