@@ -863,29 +863,16 @@ async function renderOverview() {
 
   if (error) return renderOverviewError(error);
 
-  const rows = data || [];
+  const rows = (data || []).map(r => ({
+    day: r.day,
+    users: r.users,
+    views: 0,
+    clicks: 0
+  }));
 
-  // 🔥 ändra header
   ovKeyHeader.textContent = "Date";
 
-  // 🔥 render
-  overviewTableBody.innerHTML = rows.map(r => `
-    <tr class="overview-row" data-day="${r.day}">
-      <td>${r.day}</td>
-      <td class="num">${r.users}</td>
-      <td class="num">-</td>
-      <td class="num">-</td>
-      <td class="num">-</td>
-    </tr>
-  `).join("");
-
-  // 🔥 click → nästa nivå (sen)
-  overviewTableBody.querySelectorAll("tr").forEach(tr => {
-    tr.addEventListener("click", () => {
-      console.log("DAY CLICK:", tr.dataset.day);
-      // nästa steg: setDay()
-    });
-  });
+  renderOverviewTable(rows, r => r.day);
 
   return;
 }
