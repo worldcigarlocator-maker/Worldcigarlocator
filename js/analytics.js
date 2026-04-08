@@ -317,7 +317,7 @@ rows.forEach(row => {
 
 function bindKPI() {
 
-  if (id === "kpiUsers") {   setKPI("users"); }
+  ["kpiUsers", "kpiViews", "kpiStores", "kpiClicks", "kpiCtr"]
   .forEach(id => {
 
     const el = document.getElementById(id);
@@ -329,35 +329,34 @@ function bindKPI() {
 
       let panel = "panel-performance";
 
+      if (id === "kpiUsers") {
+        setKPI("users");
+      }
+
       if (id === "kpiViews") {
-  setKPI("views");
-  panel = "panel-heatmap";
-}
+        setKPI("views");
+        panel = "panel-heatmap";
+      }
 
-if (id === "kpiClicks") {
-  setKPI("clicks");
-}
+      if (id === "kpiClicks") {
+        setKPI("clicks");
+      }
 
-if (id === "kpiCtr") {
-  setKPI("ctr");
-}
+      if (id === "kpiCtr") {
+        setKPI("ctr");
+      }
 
-if (id === "kpiStores") {
-  setKPI("stores");
-  panel = "panel-intelligence";
-}
-
-if (id === "kpiSessions") {
-  setKPI("users"); // 🔥 standardisera
-}
-
+      if (id === "kpiStores") {
+        setKPI("stores");
+        panel = "panel-intelligence";
+      }
 
       console.log("CURRENT KPI:", getKPI());
 
       await loadMarketTable();
 
-     goToMarketTab(panel);
-updateDrilldownUI("market");
+      goToMarketTab(panel);
+      updateDrilldownUI("market");
 
     });
 
