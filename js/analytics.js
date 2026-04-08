@@ -327,36 +327,50 @@ function bindKPI() {
 
       console.log("KPI CLICK:", id);
 
+      // 🔥 RESET ALL TABS FIRST (gemensamt)
+      document.querySelectorAll(".btn.tab")
+        .forEach(t => t.classList.remove("active"));
+
+      document.querySelectorAll(".analytics-tab")
+        .forEach(el => el.classList.add("hidden"));
+
+      // ============================================================
+      // USERS → OVERVIEW (egen flow)
+      // ============================================================
+      if (id === "kpiUsers") {
+
+        console.log("👉 USERS → OVERVIEW");
+
+        setKPI("users");
+        OVERVIEW_TAB = "days";
+
+        // ✅ visa overview tab
+        document.querySelector('[data-tab="overview"]')
+          ?.classList.add("active");
+
+        document.getElementById("tab-overview")
+          ?.classList.remove("hidden");
+
+        // ❌ döda ALLA market panels (viktigt)
+        ["panel-heatmap", "panel-performance", "panel-intelligence"]
+          .forEach(pid => {
+            const p = document.getElementById(pid);
+            if (p) p.style.display = "none";
+          });
+
+        updateDrilldownUI("overview");
+
+        await renderOverview();
+
+        return;
+      }
+
+      // ============================================================
+      // MARKET FLOW (alla andra KPI)
+      // ============================================================
+
       let panel = "panel-performance";
 
-if (id === "kpiUsers") {
-
-  console.log("👉 USERS → SAME AS TAB CLICK");
-
-  setKPI("users");
-  OVERVIEW_TAB = "days";
-
-  // 🔥 exakt samma som initTabs använder
-  document.querySelectorAll(".btn.tab")
-    .forEach(t => t.classList.remove("active"));
-
-  document.querySelector('[data-tab="overview"]')
-    ?.classList.add("active");
-
-  document.querySelectorAll(".analytics-tab")
-    .forEach(el => el.classList.add("hidden"));
-
-  document.getElementById("tab-overview")
-    ?.classList.remove("hidden");
-
-  // 🔥 samma som tab klick
-  updateDrilldownUI("overview");
-
-  await renderOverview();
-
-  return;
-}
-      
       if (id === "kpiViews") {
         setKPI("views");
         panel = "panel-heatmap";
@@ -377,11 +391,18 @@ if (id === "kpiUsers") {
 
       console.log("CURRENT KPI:", getKPI());
 
-      await loadMarketTable();
+      // ✅ visa market tab
+      document.querySelector('[data-tab="market"]')
+        ?.classList.add("active");
 
-      goToMarketTab(panel);
+      document.getElementById("tab-market")
+        ?.classList.remove("hidden");
+
       updateDrilldownUI("market");
 
+      await loadMarketTable();
+
+      showMarketPanel(panel);
     });
 
   });
