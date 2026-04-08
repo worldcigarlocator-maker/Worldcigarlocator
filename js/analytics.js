@@ -871,23 +871,30 @@ async function renderOverview() {
     clicks: 0
   }));
 
-  // 🔥 FIX HEADER
-  document.getElementById("overviewTable")
-    ?.querySelector("thead").innerHTML = `
-    <tr>
-      <th>Date</th>
-      <th class="num">Users</th>
-      <th class="num">Views</th>
-      <th class="num">Clicks</th>
-      <th class="num">CTR</th>
-    </tr>
-  `;
+// 🔥 FIX HEADER
+const table = document.getElementById("overviewTable");
 
-  ovKeyHeader.textContent = "Date";
+if (table) {
+  const thead = table.querySelector("thead");
 
-  renderOverviewTable(rows, r => r.day);
+  if (thead) {
+    thead.innerHTML = `
+      <tr>
+        <th>Date</th>
+        <th class="num">Users</th>
+        <th class="num">Views</th>
+        <th class="num">Clicks</th>
+        <th class="num">CTR</th>
+      </tr>
+    `;
+  }
+}
 
-  return;
+ovKeyHeader.textContent = "Date";
+
+renderOverviewTable(rows, r => r.day);
+
+return;
 }
 
 const days = 30;
