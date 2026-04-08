@@ -331,26 +331,13 @@ function bindKPI() {
 
 if (id === "kpiUsers") {
 
-  console.log("👉 USERS (MASTER FLOW)");
+  console.log("👉 USERS → FORCE SAME FLOW AS MINI");
 
   setKPI("users");
 
   OVERVIEW_TAB = "days";
 
-  // 🔥 viktigt: sätt rätt huvud-tab
-  document.querySelectorAll(".btn.tab")
-    .forEach(b => b.classList.remove("active"));
-
-  document.querySelector('[data-tab="overview"]')
-    ?.classList.add("active");
-
-  document.querySelectorAll(".analytics-tab")
-    .forEach(el => el.classList.add("hidden"));
-
-  document.getElementById("tab-overview")
-    ?.classList.remove("hidden");
-
-  // 🔥 render rätt
+  // 🔥 detta är DET som saknas
   await renderOverview();
 
   return;
