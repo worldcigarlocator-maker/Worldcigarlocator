@@ -331,31 +331,27 @@ function bindKPI() {
 
 if (id === "kpiUsers") {
 
-  console.log("👉 USERS → FIXED FLOW");
+  console.log("👉 USERS → SAME AS TAB CLICK");
 
   setKPI("users");
   OVERVIEW_TAB = "days";
 
-  // ✅ AKTIVERA OVERVIEW TAB (knappen)
+  // 🔥 exakt samma som initTabs använder
   document.querySelectorAll(".btn.tab")
-    .forEach(b => b.classList.remove("active"));
+    .forEach(t => t.classList.remove("active"));
 
-  const tabBtn = document.querySelector('[data-tab="overview"]');
-  if (tabBtn) tabBtn.classList.add("active");
+  document.querySelector('[data-tab="overview"]')
+    ?.classList.add("active");
 
-  // ✅ VISA RÄTT TAB (DETTA VAR DET SOM SAKNADES)
   document.querySelectorAll(".analytics-tab")
     .forEach(el => el.classList.add("hidden"));
 
-  const overviewEl = document.getElementById("tab-overview");
-  if (overviewEl) {
-    overviewEl.classList.remove("hidden");
-  }
+  document.getElementById("tab-overview")
+    ?.classList.remove("hidden");
 
-  // ✅ UI
+  // 🔥 samma som tab klick
   updateDrilldownUI("overview");
 
-  // ✅ DATA
   await renderOverview();
 
   return;
