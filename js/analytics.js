@@ -1409,6 +1409,9 @@ function init() {
   renderOverview();
   loadMarketTable();
   loadTopStores();
+  
+ goToMarketTab("panel-heatmap");
+  
 }
 
 // ============================================================
