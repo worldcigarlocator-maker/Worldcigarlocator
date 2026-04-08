@@ -331,13 +331,31 @@ function bindKPI() {
 
 if (id === "kpiUsers") {
 
-  console.log("👉 USERS → FORCE SAME FLOW AS MINI");
+  console.log("👉 USERS → FIXED FLOW");
 
   setKPI("users");
-
   OVERVIEW_TAB = "days";
 
-  // 🔥 detta är DET som saknas
+  // ✅ AKTIVERA OVERVIEW TAB (knappen)
+  document.querySelectorAll(".btn.tab")
+    .forEach(b => b.classList.remove("active"));
+
+  const tabBtn = document.querySelector('[data-tab="overview"]');
+  if (tabBtn) tabBtn.classList.add("active");
+
+  // ✅ VISA RÄTT TAB (DETTA VAR DET SOM SAKNADES)
+  document.querySelectorAll(".analytics-tab")
+    .forEach(el => el.classList.add("hidden"));
+
+  const overviewEl = document.getElementById("tab-overview");
+  if (overviewEl) {
+    overviewEl.classList.remove("hidden");
+  }
+
+  // ✅ UI
+  updateDrilldownUI("overview");
+
+  // ✅ DATA
   await renderOverview();
 
   return;
