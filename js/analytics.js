@@ -65,6 +65,12 @@ const storeLocation = $("#storeLocation");
 const storeTypeAccess = $("#storeTypeAccess");
 const storeWebsite = $("#storeWebsite");
 
+const kpiUsers = $("#kpiUsers");
+if (kpiUsers) {
+  kpiUsers.onclick = () => {
+    console.log("👉 KPI CLICK: USERS");
+  };
+}
 const kpiViews = $("#kpiViews");
 const kpiClicks = $("#kpiClicks");
 const kpiCtr = $("#kpiCtr");
