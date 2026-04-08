@@ -329,10 +329,30 @@ function bindKPI() {
 
       let panel = "panel-performance";
 
+      // 🔥 USERS → OVERVIEW
       if (id === "kpiUsers") {
+
         setKPI("users");
+
+        document.querySelectorAll(".btn.tab")
+          .forEach(b => b.classList.remove("active"));
+
+        document.querySelector('[data-tab="overview"]')
+          ?.classList.add("active");
+
+        document.querySelectorAll(".analytics-tab")
+          .forEach(el => el.classList.add("hidden"));
+
+        document.getElementById("tab-overview")
+          ?.classList.remove("hidden");
+
+        updateDrilldownUI("overview");
+
+        await renderOverview();
+        return;
       }
 
+      // 🔥 NORMAL FLOW (Market)
       if (id === "kpiViews") {
         setKPI("views");
         panel = "panel-heatmap";
