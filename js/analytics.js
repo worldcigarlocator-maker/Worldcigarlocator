@@ -1,3 +1,4 @@
+
 import { supabase } from "./globals.js";
 import {
   getKPI,
@@ -85,6 +86,36 @@ kpiUsers.onclick = async () => {
   // 🔥 re-render overview (utan att ändra dimension)
   await renderOverview();
 };
+
+/* ============================================================
+   SET OVERVIEW MODE
+   ============================================================ */
+
+const kpiViews = $("#kpiViews");
+const kpiClicks = $("#kpiClicks");
+const kpiCtr = $("#kpiCtr");
+
+const globalViews = $("#globalViews");
+const globalClicks = $("#globalClicks");
+const globalCtr = $("#globalCtr");
+
+const trendTbody = $("#trendTable tbody");
+const eventsTbody = $("#eventsTable tbody");
+
+const overviewTableBody = $("#overviewTable tbody");
+const ovKeyHeader = $("#ovKeyHeader");
+const overviewSearch = $("#overviewSearch");
+
+const marketDemandBody = $("#marketDemandBody");
+const topStoresBody = $("#topStoresBody");
+
+
+let STORES_INDEX = [];
+let ACTIVE_STORE = null;
+
+let OVERVIEW_TAB = "countries";
+
+let CURRENT_OVERVIEW_ROWS = [];
 
 /* ============================================================
    GLOBAL KPIs
