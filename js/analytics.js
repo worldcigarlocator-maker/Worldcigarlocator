@@ -66,15 +66,25 @@ const storeTypeAccess = $("#storeTypeAccess");
 const storeWebsite = $("#storeWebsite");
 
 const kpiUsers = $("#kpiUsers");
-kpiUsers.onclick = () => {
+
+kpiUsers.onclick = async () => {
+
   console.log("👉 KPI CLICK: USERS");
 
+  // 🔥 sätt KPI korrekt (samma system som Market)
+  setKPI("users");
+
+  // 🔥 UI sync (mini KPI)
   document.querySelectorAll(".kpi-mini").forEach(el => {
     el.classList.remove("active");
   });
 
   const mini = document.querySelector('.kpi-mini[data-kpi="users"]');
   if (mini) mini.classList.add("active");
+
+  // 🔥 re-render overview (utan att ändra dimension)
+  await renderOverview();
+};
 
 /* ============================================================
    SET OVERVIEW MODE
