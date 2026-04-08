@@ -327,12 +327,19 @@ function bindKPI() {
 
       console.log("KPI CLICK:", id);
 
-      // 🔥 RESET ALL TABS FIRST (gemensamt)
-      document.querySelectorAll(".btn.tab")
-        .forEach(t => t.classList.remove("active"));
+    // RESET
+document.querySelectorAll(".btn.tab")
+  .forEach(t => t.classList.remove("active"));
 
-      document.querySelectorAll(".analytics-tab")
-        .forEach(el => el.classList.add("hidden"));
+document.querySelectorAll(".analytics-tab")
+  .forEach(el => el.classList.add("hidden"));
+
+// ✅ FIX
+const tabBtn = document.querySelector('[data-tab="overview"]');
+if (tabBtn) tabBtn.classList.add("active");
+
+const overviewEl = document.getElementById("tab-overview");
+if (overviewEl) overviewEl.classList.remove("hidden");
 
       // ============================================================
       // USERS → OVERVIEW (egen flow)
