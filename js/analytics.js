@@ -83,7 +83,20 @@ kpiUsers.onclick = async () => {
   const mini = document.querySelector('.kpi-mini[data-kpi="users"]');
   if (mini) mini.classList.add("active");
 
-  // 🔥 re-render overview (utan att ändra dimension)
+  // 🔥 SWITCH TO OVERVIEW TAB
+  document.querySelectorAll(".btn.tab")
+    .forEach(b => b.classList.remove("active"));
+
+  document.querySelector('[data-tab="overview"]')
+    ?.classList.add("active");
+
+  document.querySelectorAll(".analytics-tab")
+    .forEach(el => el.classList.add("hidden"));
+
+  document.getElementById("tab-overview")
+    ?.classList.remove("hidden");
+
+  // 🔥 re-render overview
   await renderOverview();
 };
 
