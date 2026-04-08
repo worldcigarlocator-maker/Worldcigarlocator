@@ -172,7 +172,6 @@ function showMarketPanel(panelId) {
 
 }
 
-
 function goToMarketTab(panel = "panel-heatmap") {
 
   const tb = document.getElementById("drilldownToolbar");
@@ -193,10 +192,8 @@ function goToMarketTab(panel = "panel-heatmap") {
   document.getElementById("tab-market")
     ?.classList.remove("hidden");
 
-  loadHeatmap();
-  loadMarketTable();
-
-  showMarketPanel(panel);
+   showMarketPanel(panel);
+  updateDrilldownUI("market");
 }
 
 async function loadMarketTable(days = 30) {
@@ -311,108 +308,9 @@ rows.forEach(row => {
 });
 }
 
-// ============================================================
-// KPI BINDINGS
-// ============================================================
-
-function bindKPI() {
-
-  ["kpiUsers", "kpiViews", "kpiStores", "kpiClicks", "kpiCtr"]
-  .forEach(id => {
-
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    el.addEventListener("click", async () => {
-
-      console.log("KPI CLICK:", id);
-
-      document.querySelectorAll(".btn.tab")
-  .forEach(t => t.classList.remove("active"));
-
-document.querySelectorAll(".analytics-tab")
-  .forEach(el => el.classList.add("hidden"));
-
-// ✅ FIX
-const tabBtn = document.querySelector('[data-tab="overview"]');
-if (tabBtn) tabBtn.classList.add("active");
-
-const overviewEl = document.getElementById("tab-overview");
-if (overviewEl) overviewEl.classList.remove("hidden");
-      // ============================================================
-      // USERS → OVERVIEW (egen flow)
-      // ============================================================
-      if (id === "kpiUsers") {
-
-        console.log("👉 USERS → OVERVIEW");
-
-        setKPI("users");
-        OVERVIEW_TAB = "days";
-
-        // ✅ visa overview tab
-        document.querySelector('[data-tab="overview"]')
-          ?.classList.add("active");
-
-        document.getElementById("tab-overview")
-          ?.classList.remove("hidden");
-
-        // ❌ döda ALLA market panels (viktigt)
-        ["panel-heatmap", "panel-performance", "panel-intelligence"]
-          .forEach(pid => {
-            const p = document.getElementById(pid);
-            if (p) p.style.display = "none";
-          });
-
-        updateDrilldownUI("overview");
-
-        await renderOverview();
-
-        return;
-      }
-
       // ============================================================
       // MARKET FLOW (alla andra KPI)
       // ============================================================
-
-      let panel = "panel-performance";
-
-      if (id === "kpiViews") {
-        setKPI("views");
-        panel = "panel-heatmap";
-      }
-
-      if (id === "kpiClicks") {
-        setKPI("clicks");
-      }
-
-      if (id === "kpiCtr") {
-        setKPI("ctr");
-      }
-
-      if (id === "kpiStores") {
-        setKPI("stores");
-        panel = "panel-intelligence";
-      }
-
-      console.log("CURRENT KPI:", getKPI());
-
-      // ✅ visa market tab
-      document.querySelector('[data-tab="market"]')
-        ?.classList.add("active");
-
-      document.getElementById("tab-market")
-        ?.classList.remove("hidden");
-
-      updateDrilldownUI("market");
-
-      await loadMarketTable();
-
-      showMarketPanel(panel);
-    });
-
-  });
-
-}
 
 function updateDrilldownUI(tab) {
 
@@ -481,26 +379,22 @@ function bindKpiMini() {
       // 🔥 PANEL SWITCH + LOAD
       let panel = "panel-performance";
 
-      if (kpi === "views") {
-        panel = "panel-heatmap";
-        await loadHeatmap();
-      }
+if (kpi === "views") {
+  panel = "panel-heatmap";
+  await loadHeatmap();
+}
 
-      if (kpi === "stores") {
-        panel = "panel-intelligence";
-        await loadMarketTable();
-      }
+else if (kpi === "stores") {
+  panel = "panel-intelligence";
+  await loadMarketTable();
+}
 
-      if (kpi === "clicks" || kpi === "ctr" || kpi === "users") {
-        panel = "panel-performance";
-        await renderOverview(); // temp
-      }
+else {
+  panel = "panel-performance";
+  await loadMarketTable();
+}
 
-      // 🔥 VISA PANEL
-      showMarketPanel(panel);
-
-      // 🔥 UPDATE TITLE
-      updateDrilldownUI("market");
+  goToMarketTab(panel);
 
     });
 
@@ -1502,7 +1396,6 @@ function init() {
 
   // 🔹 bindings
   bindUI();
-  bindKPI();
   bindKpiMini();
   initTabs();
 
