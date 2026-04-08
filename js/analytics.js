@@ -331,26 +331,40 @@ function bindKPI() {
 
       if (id === "kpiUsers") {
 
+  console.log("👉 USERS CLICK FLOW START");
+
   setKPI("users");
 
-  // 🔥 DETTA SAKNAS
+  // 🔥 SÄTT TAB STATE
   OVERVIEW_TAB = "days";
 
+  // 🔥 AKTIVERA OVERVIEW TAB (knappen)
   document.querySelectorAll(".btn.tab")
     .forEach(b => b.classList.remove("active"));
 
-  document.querySelector('[data-tab="overview"]')
-    ?.classList.add("active");
+  const tabBtn = document.querySelector('[data-tab="overview"]');
+  if (tabBtn) tabBtn.classList.add("active");
 
+  // 🔥 VISA RÄTT VIEW
   document.querySelectorAll(".analytics-tab")
     .forEach(el => el.classList.add("hidden"));
 
-  document.getElementById("tab-overview")
-    ?.classList.remove("hidden");
+  const overviewEl = document.getElementById("tab-overview");
 
-  updateDrilldownUI("overview");
+  console.log("overviewEl:", overviewEl);
+
+  if (overviewEl) {
+    overviewEl.classList.remove("hidden");
+  } else {
+    console.error("❌ tab-overview NOT FOUND");
+  }
+
+  // 🔥 VIKTIGT: visa toolbar (annars ser det dött ut)
+  const tb = document.getElementById("drilldownToolbar");
+  if (tb) tb.style.display = "block";
 
   await renderOverview();
+
   return;
 }
 
