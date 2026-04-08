@@ -12,35 +12,44 @@
 // CONFIG
 // ============================================================
 
+window.__WCL__ = window.__WCL__ || {};
+
 const ANALYTICS_INGEST_URL =
   "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/analytics-ingest";
 
 const SESSION_IDLE_MS = 30 * 60 * 1000; // 30 min
+const EVENT_QUEUE = [];
+const BATCH_INTERVAL = 5000; // 5 sek
 
 
 // ============================================================
 // TRAFFIC SOURCE
 // ============================================================
 
-window.CURRENT_SOURCE = "direct";
+window.__WCL__.CURRENT_SOURCE = "direct";
 
 export function setTrafficSource(src) {
   console.log("🔥 SET SOURCE →", src);
+   
+if (!window.__WCL__.CURRENT_SOURCE || window.__WCL__.CURRENT_SOURCE === "direct") {
+  window.__WCL__.CURRENT_SOURCE = src || "direct";
+}
 
-  // 🔒 skriv bara om om vi inte redan har en riktig source
-  if (!window.CURRENT_SOURCE || window.CURRENT_SOURCE === "direct") {
-    window.CURRENT_SOURCE = src || "direct";
-  }
-
-  if (window.WCL_ANALYTICS) {
-    window.WCL_ANALYTICS.source = window.CURRENT_SOURCE;
-  }
 }
 
 
 // ============================================================
 // SESSION (anonymous, localStorage)
 // ============================================================
+
+let SESSION_ID = null;
+
+function getSession() {
+  if (!SESSION_ID) {
+    SESSION_ID = getOrCreateSession();
+  }
+  return SESSION_ID;
+}
 
 function getOrCreateSession() {
 
@@ -81,7 +90,7 @@ function hasViewed(storeId) {
 
   return (
     localStorage.getItem(
-      `wcl_viewed_v1:${getOrCreateSession()}:${storeId}`
+      `wcl_viewed_v1:${getSession()}:${storeId}`
     ) === "1"
   );
 
@@ -90,7 +99,7 @@ function hasViewed(storeId) {
 function markViewed(storeId) {
 
   localStorage.setItem(
-    `wcl_viewed_v1:${getOrCreateSession()}:${storeId}`,
+    `wcl_viewed_v1:${getSession()}:${storeId}`,
     "1"
   );
 
@@ -105,36 +114,29 @@ function sendEvent(event_type, payload = {}) {
 
   try {
 
-    // 🔥 plocka bort source från payload
     const { source: _ignore, ...rest } = payload ?? {};
 
     const finalPayload = {
       event_type,
       timestamp: new Date().toISOString(),
       actor_type: "anon",
-      session_hash: getOrCreateSession(),
+      session_hash: getSession(),
 
-      // 🔒 ENDA source of truth
       source:
-        window?.MODAL_SOURCE ??
-        window?.CURRENT_SOURCE ??
+        window?.__WCL__?.MODAL_SOURCE ??
+        window?.__WCL__?.CURRENT_SOURCE ??
         "direct",
 
       ...rest
     };
 
-    fetch(ANALYTICS_INGEST_URL, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      keepalive: true,
-      credentials: "omit",
-      body: JSON.stringify(finalPayload)
-    })
-    .then(res => console.log("🔥 ANALYTICS SENT", res.status))
-    .catch(err => console.error("❌ ANALYTICS ERROR", err));
+    // 🔥 istället för fetch → push till queue
+    EVENT_QUEUE.push(finalPayload);
+
+    console.log("🧠 QUEUED EVENT", finalPayload);
 
   } catch (err) {
-    console.error("❌ ANALYTICS TRY/CATCH ERROR", err);
+    console.error("❌ ANALYTICS ERROR", err);
   }
 
 }
@@ -143,6 +145,7 @@ function sendEvent(event_type, payload = {}) {
 // STORE VIEW OBSERVER
 // ============================================================
 
+const viewedInMemory = new Set();
 export const VIEW_OBSERVER = new IntersectionObserver(
 
   (entries) => {
@@ -156,14 +159,13 @@ export const VIEW_OBSERVER = new IntersectionObserver(
 
       if (!storeId) continue;
 
-      if (hasViewed(storeId)) {
+      if (viewedInMemory.has(storeId) || hasViewed(storeId)) {
+  VIEW_OBSERVER.unobserve(el);
+  continue;
+}
 
-        VIEW_OBSERVER.unobserve(el);
-        continue;
-
-      }
-
-      markViewed(storeId);
+viewedInMemory.add(storeId);
+markViewed(storeId);
 
   sendEvent("store_view", {
   store_id: Number(storeId),
@@ -196,3 +198,21 @@ window.WCL_ANALYTICS = {
 };
 
 export default window.WCL_ANALYTICS;
+
+setInterval(() => {
+
+  if (!EVENT_QUEUE.length) return;
+
+  const batch = EVENT_QUEUE.splice(0, EVENT_QUEUE.length);
+
+  fetch(ANALYTICS_INGEST_URL, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    keepalive: true,
+    credentials: "omit",
+    body: JSON.stringify({ events: batch })
+  })
+  .then(res => console.log("🚀 BATCH SENT", batch.length))
+  .catch(err => console.error("❌ BATCH ERROR", err));
+
+}, BATCH_INTERVAL);
