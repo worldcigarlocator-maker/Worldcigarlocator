@@ -97,7 +97,6 @@ function setOverviewMode(mode) {
 
   renderOverview(CURRENT_OVERVIEW_ROWS);
 }
-}
   setOverviewMode("users");
 };
 const kpiViews = $("#kpiViews");
