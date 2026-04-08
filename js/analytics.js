@@ -944,14 +944,16 @@ function renderOverviewTable(rows, keyFn) {
         ? ((clicks / views) * 100).toFixed(1) + "%"
         : "0%";
 
-    // 🔥 KPI-driven primary value
-    let primary = 0;
+   // 🔥 KPI-driven primary value
+let primary = 0;
 
-    if (OVERVIEW_TAB === "users") primary = users;
-    else if (OVERVIEW_TAB === "views") primary = views;
-    else if (OVERVIEW_TAB === "clicks") primary = clicks;
-    else if (OVERVIEW_TAB === "ctr") primary = ctr;
-    else primary = views;
+const kpi = getKPI();
+
+if (kpi === "users") primary = users;
+else if (kpi === "views") primary = views;
+else if (kpi === "clicks") primary = clicks;
+else if (kpi === "ctr") primary = ctr;
+else primary = views;
 
     return `
       <tr class="overview-row" data-key="${escapeHtml(keyFn(r))}">
