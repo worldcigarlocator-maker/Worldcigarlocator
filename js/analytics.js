@@ -932,18 +932,18 @@ function renderOverviewError(err) {
 }
 
 function renderOverviewTable(rows, keyFn) {
-   CURRENT_OVERVIEW_ROWS = rows || [];
+
+  CURRENT_OVERVIEW_ROWS = rows || [];
 
   if (!rows.length) {
-
     overviewTableBody.innerHTML =
-      `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
-
+      `<tr><td colspan="5" class="muted center">No data yet.</td></tr>`;
     return;
   }
 
   overviewTableBody.innerHTML = rows.map(r => {
 
+    const users = Number(r.users || 0);
     const views = Number(r.views || 0);
     const clicks = Number(r.clicks || 0);
 
@@ -952,9 +952,19 @@ function renderOverviewTable(rows, keyFn) {
         ? ((clicks / views) * 100).toFixed(1) + "%"
         : "0%";
 
+    // 🔥 KPI-driven primary value
+    let primary = 0;
+
+    if (OVERVIEW_TAB === "users") primary = users;
+    else if (OVERVIEW_TAB === "views") primary = views;
+    else if (OVERVIEW_TAB === "clicks") primary = clicks;
+    else if (OVERVIEW_TAB === "ctr") primary = ctr;
+    else primary = views;
+
     return `
-  <tr class="overview-row" data-key="${escapeHtml(keyFn(r))}">
+      <tr class="overview-row" data-key="${escapeHtml(keyFn(r))}">
         <td>${escapeHtml(keyFn(r))}</td>
+        <td class="num">${primary}</td>
         <td class="num">${views}</td>
         <td class="num">${clicks}</td>
         <td class="num">${ctr}</td>
@@ -963,44 +973,44 @@ function renderOverviewTable(rows, keyFn) {
 
   }).join("");
 
-   setTimeout(() => {
+  setTimeout(() => {
 
-  const rowsEls = overviewTableBody.querySelectorAll(".overview-row");
+    const rowsEls = overviewTableBody.querySelectorAll(".overview-row");
 
-  console.log("BINDING ROWS:", rowsEls.length);
+    console.log("BINDING ROWS:", rowsEls.length);
 
-  rowsEls.forEach(tr => {
+    rowsEls.forEach(tr => {
 
-    tr.style.cursor = "pointer";
+      tr.style.cursor = "pointer";
 
-    tr.addEventListener("click", async () => {
+      tr.addEventListener("click", async () => {
 
-      const key = tr.dataset.key;
+        const key = tr.dataset.key;
 
-      console.log("CLICKED:", key);
+        console.log("CLICKED:", key);
 
-      if (OVERVIEW_TAB === "countries") {
-        OVERVIEW_TAB = "cities";
-        await renderOverview();
-        return;
-      }
+        if (OVERVIEW_TAB === "countries") {
+          OVERVIEW_TAB = "cities";
+          await renderOverview();
+          return;
+        }
 
-      if (OVERVIEW_TAB === "cities") {
-        OVERVIEW_TAB = "stores";
-        await renderOverview();
-        return;
-      }
+        if (OVERVIEW_TAB === "cities") {
+          OVERVIEW_TAB = "stores";
+          await renderOverview();
+          return;
+        }
 
-      if (OVERVIEW_TAB === "stores") {
-        console.log("TODO: open store", key);
-      }
+        if (OVERVIEW_TAB === "stores") {
+          console.log("TODO: open store", key);
+        }
+
+      });
 
     });
 
-  });
+  }, 0);
 
-}, 0);
-   
 }
 
 function filterOverview() {
