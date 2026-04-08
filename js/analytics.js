@@ -68,7 +68,11 @@ const storeWebsite = $("#storeWebsite");
 const kpiUsers = $("#kpiUsers");
 if (kpiUsers) {
   kpiUsers.onclick = () => {
-    console.log("👉 KPI CLICK: USERS");
+   console.log("👉 KPI CLICK: USERS");
+
+CURRENT_OVERVIEW_ROWS.sort((a, b) => (b.users || 0) - (a.users || 0));
+
+renderOverview(CURRENT_OVERVIEW_ROWS);
   };
 }
 const kpiViews = $("#kpiViews");
