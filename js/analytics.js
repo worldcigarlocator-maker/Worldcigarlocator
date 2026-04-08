@@ -854,6 +854,7 @@ function renderEvents(rows) {
 
 async function renderOverview() {
   console.log("RENDER OVERVIEW TAB:", OVERVIEW_TAB);
+  
   if (OVERVIEW_TAB === "days") {
 
   const { data, error } = await sb.rpc(
@@ -869,6 +870,18 @@ async function renderOverview() {
     views: 0,
     clicks: 0
   }));
+
+  // 🔥 FIX HEADER
+  document.getElementById("overviewTable")
+    ?.querySelector("thead").innerHTML = `
+    <tr>
+      <th>Date</th>
+      <th class="num">Users</th>
+      <th class="num">Views</th>
+      <th class="num">Clicks</th>
+      <th class="num">CTR</th>
+    </tr>
+  `;
 
   ovKeyHeader.textContent = "Date";
 
