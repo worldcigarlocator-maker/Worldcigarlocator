@@ -317,7 +317,7 @@ rows.forEach(row => {
 
 function bindKPI() {
 
-  ["kpiSessions", "kpiViews", "kpiStores", "kpiClicks", "kpiCtr"]
+  if (id === "kpiUsers") {   setKPI("users"); }
   .forEach(id => {
 
     const el = document.getElementById(id);
