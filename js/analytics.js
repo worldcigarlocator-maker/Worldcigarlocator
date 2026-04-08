@@ -381,11 +381,9 @@ function updateDrilldownUI(tab) {
 
   if (!tb || !title) return;
 
-  // ❌ hide in overview
   if (tab === "overview") {
-    tb.style.display = "none";
-    return;
-  }
+  tb.style.display = "block"; // 🔥 visa toolbar
+}
 
   // ✅ show annars
   tb.style.display = "block";
