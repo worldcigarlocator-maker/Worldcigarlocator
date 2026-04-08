@@ -259,7 +259,7 @@ async function loadMarketTable(days = 30) {
 });
 
 /* ============================================================
-   RENDER
+   RENDER market-tab rendering
    ============================================================ */
 
  if (!marketDemandBody) return; 
@@ -849,10 +849,11 @@ function renderEvents(rows) {
 
 
 /* ============================================================
-   OVERVIEW
+   RENDER OVERVIEW
    ============================================================ */
 
 async function renderOverview() {
+  console.log("RENDER OVERVIEW TAB:", OVERVIEW_TAB);
   if (OVERVIEW_TAB === "days") {
 
   const { data, error } = await sb.rpc(
