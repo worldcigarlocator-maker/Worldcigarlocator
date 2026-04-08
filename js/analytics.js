@@ -877,6 +877,16 @@ const days = 30;
     if (error) return renderOverviewError(error);
 
     rows = data || [];
+    rows.sort((a, b) => {
+
+  const kpi = getKPI();
+
+  if (kpi === "users") return (b.users || 0) - (a.users || 0);
+  if (kpi === "clicks") return (b.clicks || 0) - (a.clicks || 0);
+  if (kpi === "ctr") return ((b.clicks / b.views) || 0) - ((a.clicks / a.views) || 0);
+
+  return (b.views || 0) - (a.views || 0);
+});
 
     renderOverviewTable(rows, getOverviewKey);
   }
@@ -893,6 +903,16 @@ const days = 30;
     if (error) return renderOverviewError(error);
 
     rows = data || [];
+    rows.sort((a, b) => {
+
+  const kpi = getKPI();
+
+  if (kpi === "users") return (b.users || 0) - (a.users || 0);
+  if (kpi === "clicks") return (b.clicks || 0) - (a.clicks || 0);
+  if (kpi === "ctr") return ((b.clicks / b.views) || 0) - ((a.clicks / a.views) || 0);
+
+  return (b.views || 0) - (a.views || 0);
+});
 
  renderOverviewTable(rows, getOverviewKey);
   }
@@ -908,6 +928,16 @@ const days = 30;
     if (error) return renderOverviewError(error);
 
     rows = data || [];
+    rows.sort((a, b) => {
+
+  const kpi = getKPI();
+
+  if (kpi === "users") return (b.users || 0) - (a.users || 0);
+  if (kpi === "clicks") return (b.clicks || 0) - (a.clicks || 0);
+  if (kpi === "ctr") return ((b.clicks / b.views) || 0) - ((a.clicks / a.views) || 0);
+
+  return (b.views || 0) - (a.views || 0);
+});
 
  renderOverviewTable(rows, getOverviewKey);
   }
