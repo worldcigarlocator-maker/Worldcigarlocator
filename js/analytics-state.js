@@ -1,97 +1,99 @@
 /* ============================================================
-   WCL Analytics — State (Canonical Single Source of Truth)
+   WCL Analytics — Reactive State (Single Source of Truth)
    ============================================================ */
 
-export const ANALYTICS_STATE = {
-  CURRENT_KPI: "users",        // "users" | "views" | "clicks" | "ctr" | "stores"
-  ACTIVE_DAY: null,            // "YYYY-MM-DD" | null
-  LEVEL: "country",            // "country" | "city"
-  ACTIVE_COUNTRY: null,        // string | null
-  CONTEXT_LOCATION: null       // string | null
+const STATE = {
+  kpi: "users",            // "users" | "views" | "clicks" | "ctr" | "stores"
+  level: "country",        // "country" | "city"
+  day: null,               // "YYYY-MM-DD" | null
+  country: null,           // string | null
+  contextLocation: null    // string | null
 };
+
+/* ============================================================
+   SUBSCRIBE SYSTEM (REACTIVE CORE)
+   ============================================================ */
+
+let listeners = [];
+
+export function subscribe(fn) {
+  listeners.push(fn);
+}
+
+function notify() {
+  for (const fn of listeners) {
+    fn({ ...STATE }); // skicka copy (säkerhet)
+  }
+}
 
 /* ============================================================
    GETTERS
    ============================================================ */
 
 export function getState() {
-  return ANALYTICS_STATE;
+  return { ...STATE };
 }
 
 export function getKPI() {
-  return ANALYTICS_STATE.CURRENT_KPI;
+  return STATE.kpi;
 }
 
 export function getLevel() {
-  return ANALYTICS_STATE.LEVEL;
+  return STATE.level;
 }
 
 export function getActiveDay() {
-  return ANALYTICS_STATE.ACTIVE_DAY;
+  return STATE.day;
 }
 
 export function getActiveCountry() {
-  return ANALYTICS_STATE.ACTIVE_COUNTRY;
+  return STATE.country;
 }
 
 export function getContextLocation() {
-  return ANALYTICS_STATE.CONTEXT_LOCATION;
+  return STATE.contextLocation;
 }
 
 /* ============================================================
-   SETTERS (ALL STATE CHANGES GO THROUGH HERE)
+   SAFE STATE TRANSITIONS (ONLY WAY TO CHANGE STATE)
    ============================================================ */
 
+// 🔥 KPI change
 export function setKPI(kpi) {
-  ANALYTICS_STATE.CURRENT_KPI = kpi;
+  STATE.kpi = kpi;
+  notify();
 }
 
-export function setDay(day) {
-  ANALYTICS_STATE.ACTIVE_DAY = day;
-}
-
-export function setLevel(level) {
-  ANALYTICS_STATE.LEVEL = level;
-}
-
-export function setCountry(country) {
-  ANALYTICS_STATE.ACTIVE_COUNTRY = country;
-}
-
-export function setContextLocation(loc) {
-  ANALYTICS_STATE.CONTEXT_LOCATION = loc;
-}
-
-/* ============================================================
-   STATE TRANSITIONS (SAFE FLOWS)
-   ============================================================ */
-
-// Reset everything
+// 🔥 Reset ALL
 export function resetState() {
-  ANALYTICS_STATE.CURRENT_KPI = "users";
-  ANALYTICS_STATE.ACTIVE_DAY = null;
-  ANALYTICS_STATE.LEVEL = "country";
-  ANALYTICS_STATE.ACTIVE_COUNTRY = null;
-  ANALYTICS_STATE.CONTEXT_LOCATION = null;
+  STATE.kpi = "users";
+  STATE.level = "country";
+  STATE.day = null;
+  STATE.country = null;
+  STATE.contextLocation = null;
+  notify();
 }
 
-// When user clicks a day in chart
+// 🔥 Click day (chart → country level)
 export function applyDay(day) {
-  ANALYTICS_STATE.ACTIVE_DAY = day;
-  ANALYTICS_STATE.LEVEL = "country";
-  ANALYTICS_STATE.ACTIVE_COUNTRY = null;
-  ANALYTICS_STATE.CONTEXT_LOCATION = null;
+  STATE.day = day;
+  STATE.level = "country";
+  STATE.country = null;
+  STATE.contextLocation = null;
+  notify();
 }
 
-// When user clicks a country row
+// 🔥 Click country (→ city level)
 export function applyCountry(country) {
-  ANALYTICS_STATE.ACTIVE_COUNTRY = country;
-  ANALYTICS_STATE.LEVEL = "city";
+  STATE.country = country;
+  STATE.level = "city";
+  notify();
 }
 
-// When search/context switch happens
+// 🔥 External context (search etc)
 export function applyContextCity(city, country) {
-  ANALYTICS_STATE.CONTEXT_LOCATION = city;
-  ANALYTICS_STATE.ACTIVE_COUNTRY = country;
-  ANALYTICS_STATE.LEVEL = "city";
+  STATE.contextLocation = city;
+  STATE.country = country;
+  STATE.level = "city";
+  notify();
 }
