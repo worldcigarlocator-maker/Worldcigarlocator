@@ -1033,7 +1033,7 @@ else primary = views;
     return `
       <tr class="overview-row" data-key="${escapeHtml(keyFn(r))}">
         <td>${escapeHtml(keyFn(r))}</td>
-        <td class="num">${primary}</td>
+        <td class="num">${primary} 🔥</td>
         <td class="num">${views}</td>
         <td class="num">${clicks}</td>
         <td class="num">${ctr}</td>
