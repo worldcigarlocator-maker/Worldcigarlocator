@@ -66,15 +66,68 @@ const storeTypeAccess = $("#storeTypeAccess");
 const storeWebsite = $("#storeWebsite");
 
 const kpiUsers = $("#kpiUsers");
-if (kpiUsers) {
-  kpiUsers.onclick = () => {
-   console.log("👉 KPI CLICK: USERS");
+kpiUsers.onclick = () => {
+  console.log("👉 KPI CLICK: USERS");
 
-CURRENT_OVERVIEW_ROWS.sort((a, b) => (b.users || 0) - (a.users || 0));
+  document.querySelectorAll(".kpi-mini").forEach(el => {
+    el.classList.remove("active");
+  });
 
-renderOverview(CURRENT_OVERVIEW_ROWS);
-  };
+  const mini = document.querySelector('.kpi-mini[data-kpi="users"]');
+  if (mini) mini.classList.add("active");
+
+  setOverviewMode("users");
+};
+
+const kpiViews = $("#kpiViews");
+const kpiClicks = $("#kpiClicks");
+const kpiCtr = $("#kpiCtr");
+
+const globalViews = $("#globalViews");
+const globalClicks = $("#globalClicks");
+const globalCtr = $("#globalCtr");
+
+const trendTbody = $("#trendTable tbody");
+const eventsTbody = $("#eventsTable tbody");
+
+const overviewTableBody = $("#overviewTable tbody");
+const ovKeyHeader = $("#ovKeyHeader");
+const overviewSearch = $("#overviewSearch");
+
+const marketDemandBody = $("#marketDemandBody");
+const topStoresBody = $("#topStoresBody");
+
+let STORES_INDEX = [];
+let ACTIVE_STORE = null;
+
+let OVERVIEW_TAB = "countries";
+
+let CURRENT_OVERVIEW_ROWS = [];
+
+/* ============================================================
+   SET OVERVIEW MODE
+   ============================================================ */
+
+function setOverviewMode(mode) {
+
+  console.log("👉 SET OVERVIEW MODE:", mode);
+
+  OVERVIEW_TAB = mode;
+
+  if (ovKeyHeader) {
+    ovKeyHeader.textContent =
+      mode === "countries" ? "Country" :
+      mode === "cities" ? "City" :
+      mode === "stores" ? "Store" :
+      mode === "users" ? "User" :
+      "Key";
+  }
+
+  renderOverview(CURRENT_OVERVIEW_ROWS);
 }
+}
+  setOverviewMode("users");
+};
 const kpiViews = $("#kpiViews");
 const kpiClicks = $("#kpiClicks");
 const kpiCtr = $("#kpiCtr");
