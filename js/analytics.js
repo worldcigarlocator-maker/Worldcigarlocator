@@ -331,10 +331,27 @@ function bindKPI() {
 
 if (id === "kpiUsers") {
 
-  console.log("👉 redirect to mini KPI");
+  console.log("👉 USERS (MASTER FLOW)");
 
-  // 🔥 trigga mini-knappen istället
-  document.querySelector('[data-kpi="users"]')?.click();
+  setKPI("users");
+
+  OVERVIEW_TAB = "days";
+
+  // 🔥 viktigt: sätt rätt huvud-tab
+  document.querySelectorAll(".btn.tab")
+    .forEach(b => b.classList.remove("active"));
+
+  document.querySelector('[data-tab="overview"]')
+    ?.classList.add("active");
+
+  document.querySelectorAll(".analytics-tab")
+    .forEach(el => el.classList.add("hidden"));
+
+  document.getElementById("tab-overview")
+    ?.classList.remove("hidden");
+
+  // 🔥 render rätt
+  await renderOverview();
 
   return;
 }
