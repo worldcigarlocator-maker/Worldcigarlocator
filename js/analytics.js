@@ -624,14 +624,14 @@ storePanel.scrollIntoView({
   block: "start"
 });
 
-// 🔥 FORCE OPEN STORE TAB
+// 🔥 FORCE CLEAN TAB SWITCH
 document.querySelectorAll(".analytics-tab").forEach(el => {
-  el.classList.add("hidden");
+  el.style.display = "none";   // 🔥 istället för class hidden
 });
 
-const tab = document.getElementById("tab-stores");
-if (tab) {
-  tab.classList.remove("hidden");
+const overviewTab = document.getElementById("tab-overview");
+if (overviewTab) {
+  overviewTab.style.display = "block"; // 🔥 tvinga fram
 }
 
 // 🔥 CONTINUE
