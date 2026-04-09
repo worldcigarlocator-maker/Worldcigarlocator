@@ -878,13 +878,14 @@ if (table) {
    ============================================================ */
 
 async function renderOverview() {
-  console.log("RENDER OVERVIEW TAB:", OVERVIEW_TAB);
 
-// 🚫 STOP if USERS (handled separately)
-if (getKPI() === "users") {
-  console.log("⛔ renderOverview blocked for users");
-  return;
-}
+  // 🚫 STOP USERS DIRECTLY (BEFORE ANYTHING)
+  if (getKPI() === "users") {
+    console.log("⛔ renderOverview HARD BLOCK (users)");
+    return;
+  }
+
+  console.log("RENDER OVERVIEW TAB:", OVERVIEW_TAB);
   
   if (OVERVIEW_TAB === "days") {
 
