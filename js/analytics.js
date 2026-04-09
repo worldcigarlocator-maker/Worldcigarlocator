@@ -378,6 +378,8 @@ function bindKpiMini() {
       // ============================================================
       if (kpi === "users") {
 
+         OVERVIEW_TAB = "days"; // ✅
+
         console.log("👉 USERS → OVERVIEW");
 
         document.querySelectorAll(".btn.tab")
