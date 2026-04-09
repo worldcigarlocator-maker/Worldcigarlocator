@@ -366,8 +366,9 @@ function bindKpiMini() {
 
       console.log("KPI MINI CLICK:", kpi);
 
-      // 🔥 SET KPI
-      setKPI(kpi);
+     if (kpi !== "users") {
+  setKPI(kpi);
+}
 
       // 🔥 ACTIVE STATE
       items.forEach(i => i.classList.remove("active"));
