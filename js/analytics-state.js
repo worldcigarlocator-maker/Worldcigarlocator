@@ -46,6 +46,10 @@ export function getActiveDay() {
   return STATE.day;
 }
 
+export function setActiveDay(day) {
+  STATE.day = day;
+}
+
 export function getActiveCountry() {
   return STATE.country;
 }
