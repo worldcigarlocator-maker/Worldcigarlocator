@@ -883,9 +883,8 @@ if (table) {
 async function renderOverview() {
 
 if (getKPI() === "users") {
-  renderUsersOverview();
-} else {
-  renderOverview();
+  console.log("⛔ renderOverview BLOCKED (users)");
+  return;
 }
 
   console.log("RENDER OVERVIEW TAB:", OVERVIEW_TAB);
@@ -1526,7 +1525,6 @@ function init() {
   loadGlobalKpis();
   loadTrafficFlow();
   loadHeatmap();
-  renderOverview();
   loadMarketTable();
   loadTopStores();
 // 🔥 DEFAULT VIEW = OVERVIEW (USERS)
