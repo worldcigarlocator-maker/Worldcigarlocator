@@ -1540,11 +1540,9 @@ document.querySelectorAll(".analytics-tab")
 document.getElementById("tab-overview")
   ?.classList.remove("hidden");
 
-// 🔥 visa toolbar + title
-updateDrilldownUI("overview");
 
-// 🔥 ladda data
-renderOverview();
+updateDrilldownUI("overview");
+renderUsersOverview();
 
 }
 
