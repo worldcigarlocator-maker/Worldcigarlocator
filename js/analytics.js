@@ -855,10 +855,10 @@ if (!tbody) return;
 
       const tr = document.createElement("tr");
 
-      tr.innerHTML = `
-        <td>${row.date}</td>
-        <td class="num">${row.users ?? 0}</td>
-      `;
+     tr.innerHTML = `
+  <td>${row.date || row.day || "—"}</td>
+  <td class="num">${row.users ?? 0}</td>
+`;
 
       // 🔥 CLICK → DRILLDOWN (nästa steg senare)
       tr.addEventListener("click", () => {
