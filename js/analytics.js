@@ -1435,7 +1435,25 @@ function init() {
   renderOverview();
   loadMarketTable();
   loadTopStores();
-    
+// 🔥 DEFAULT VIEW = OVERVIEW (USERS)
+document.querySelectorAll(".btn.tab")
+  .forEach(b => b.classList.remove("active"));
+
+document.querySelector('[data-tab="overview"]')
+  ?.classList.add("active");
+
+document.querySelectorAll(".analytics-tab")
+  .forEach(el => el.classList.add("hidden"));
+
+document.getElementById("tab-overview")
+  ?.classList.remove("hidden");
+
+// 🔥 visa toolbar + title
+updateDrilldownUI("overview");
+
+// 🔥 ladda data
+renderOverview();
+
 }
 
 // ============================================================
