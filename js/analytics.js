@@ -6,8 +6,7 @@ import {
   getLevel,
   getActiveDay,
   getActiveCountry,
-  setCountry,   // 🔥 LÄGG TILL
-  setLevel      // 🔥 LÄGG TILL (du använder den också!)
+  applyCountry
 } from "./analytics-state.js";
 
 console.log("🔥 KPI SCRIPT LOADED");
