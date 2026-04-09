@@ -295,11 +295,9 @@ rows.forEach(row => {
     if (LEVEL === "country") {
 
       const country = row.dataset.country;
-
       if (!country) return;
 
-      setCountry(country);
-      setLevel("city");
+      applyCountry(country); // ✅ clean state transition
 
       loadMarketTable();
     }
