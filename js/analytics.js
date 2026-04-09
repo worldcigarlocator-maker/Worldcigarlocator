@@ -841,8 +841,8 @@ if (table) {
 }
     
     // 🔥 RENDER TABLE
-    const tbody = document.getElementById("overviewTableBody");
-    if (!tbody) return;
+ const tbody = overviewTableBody;
+if (!tbody) return;
 
     tbody.innerHTML = "";
 
