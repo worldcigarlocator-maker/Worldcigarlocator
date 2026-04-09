@@ -1052,6 +1052,10 @@ function filterOverview() {
 
 function getOverviewKey(r) {
 
+  if (OVERVIEW_TAB === "days") {
+    return r.day || "—";
+  }
+
   if (OVERVIEW_TAB === "countries") {
     return r.country || "—";
   }
