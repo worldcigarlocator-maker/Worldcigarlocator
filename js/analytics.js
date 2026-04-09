@@ -821,6 +821,22 @@ async function renderUsersOverview() {
 
     console.log("USERS DAYS:", data);
 
+// 🔥 FIX HEADER FOR USERS
+const table = document.getElementById("overviewTable");
+
+if (table) {
+  const thead = table.querySelector("thead");
+
+  if (thead) {
+    thead.innerHTML = `
+      <tr>
+        <th>Date</th>
+        <th class="num">Users</th>
+      </tr>
+    `;
+  }
+}
+    
     // 🔥 RENDER TABLE
     const tbody = document.getElementById("overviewTableBody");
     if (!tbody) return;
