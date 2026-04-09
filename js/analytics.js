@@ -396,9 +396,11 @@ function bindKpiMini() {
 
         updateDrilldownUI("overview");
 
-        await renderUsersOverview();
+ setTimeout(() => {
+  renderUsersOverview();
+}, 0);
 
-        return;
+return;
       }
 
       // ============================================================
