@@ -796,6 +796,67 @@ function renderEvents(rows) {
 }
 
 
+// ============================================================
+// USERS — OVERVIEW (DAY LEVEL)
+// ============================================================
+
+async function renderUsersOverview() {
+
+  console.log("👤 USERS OVERVIEW");
+
+  try {
+
+    const days = Number(globalRangeSelect?.value || 30);
+
+    // 🔥 HÄMTA DATA
+    const { data, error } = await sb.rpc(
+      "analytics_users_by_day",
+      { p_days: days }
+    );
+
+    if (error) {
+      console.error("Users overview error", error);
+      return;
+    }
+
+    console.log("USERS DAYS:", data);
+
+    // 🔥 RENDER TABLE
+    const tbody = document.getElementById("overviewTableBody");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    if (!data?.length) {
+      tbody.innerHTML = `<tr><td colspan="2" class="muted">No data yet</td></tr>`;
+      return;
+    }
+
+    data.forEach(row => {
+
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${row.date}</td>
+        <td class="num">${row.users ?? 0}</td>
+      `;
+
+      // 🔥 CLICK → DRILLDOWN (nästa steg senare)
+      tr.addEventListener("click", () => {
+        console.log("👉 DAY CLICK", row.date);
+      });
+
+      tbody.appendChild(tr);
+
+    });
+
+  } catch (err) {
+    console.error("Users overview crash", err);
+  }
+
+}
+
+
 /* ============================================================
    RENDER OVERVIEW
    ============================================================ */
