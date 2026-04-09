@@ -373,25 +373,54 @@ function bindKpiMini() {
       items.forEach(i => i.classList.remove("active"));
       el.classList.add("active");
 
-      // 🔥 PANEL SWITCH + LOAD
+      // ============================================================
+      // 🔵 USERS → OVERVIEW (SPECIAL CASE)
+      // ============================================================
+      if (kpi === "users") {
+
+        console.log("👉 USERS → OVERVIEW");
+
+        document.querySelectorAll(".btn.tab")
+          .forEach(b => b.classList.remove("active"));
+
+        document.querySelector('[data-tab="overview"]')
+          ?.classList.add("active");
+
+        document.querySelectorAll(".analytics-tab")
+          .forEach(el => el.classList.add("hidden"));
+
+        document.getElementById("tab-overview")
+          ?.classList.remove("hidden");
+
+        updateDrilldownUI("overview");
+
+        await renderOverview();
+
+        return;
+      }
+
+      // ============================================================
+      // 🟣 OTHER KPIs → MARKET
+      // ============================================================
+
       let panel = "panel-performance";
 
-if (kpi === "views") {
-  panel = "panel-heatmap";
-  await loadHeatmap();
-}
+      if (kpi === "views") {
+        panel = "panel-heatmap";
+        await loadHeatmap();
+      }
 
-else if (kpi === "stores") {
-  panel = "panel-intelligence";
-  await loadMarketTable();
-}
+      else if (kpi === "stores") {
+        panel = "panel-intelligence";
+        await loadMarketTable();
+      }
 
-else {
-  panel = "panel-performance";
-  await loadMarketTable();
-}
+      else {
+        panel = "panel-performance";
+        await loadMarketTable();
+      }
 
-  goToMarketTab(panel);
+      goToMarketTab(panel);
 
     });
 
