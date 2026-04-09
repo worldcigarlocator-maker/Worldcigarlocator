@@ -882,11 +882,11 @@ if (table) {
 
 async function renderOverview() {
 
-  // 🚫 STOP USERS DIRECTLY (BEFORE ANYTHING)
-  if (getKPI() === "users") {
-    console.log("⛔ renderOverview HARD BLOCK (users)");
-    return;
-  }
+if (getKPI() === "users") {
+  renderUsersOverview();
+} else {
+  renderOverview();
+}
 
   console.log("RENDER OVERVIEW TAB:", OVERVIEW_TAB);
   
@@ -1516,6 +1516,7 @@ function init() {
   // 🔹 bindings
   bindUI();
   bindKpiMini();
+  setKPI("users");
   initTabs();
 
   // 🔹 default KPI (toolbar)
