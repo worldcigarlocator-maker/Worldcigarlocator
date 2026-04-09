@@ -114,6 +114,54 @@ DRILLDOWN TOOLBAR
 MARKET TAB
 ============================================================ -->
 
+<!-- ============================================================
+OVERVIEW TAB
+============================================================ -->
+
+<div class="analytics-tab" id="tab-overview">
+
+  <!-- OVERVIEW TABLE -->
+  <section class="panel">
+
+    <div class="panelhead">
+      <h2>Overview</h2>
+    </div>
+
+    <div class="tablewrap">
+
+      <table class="table" id="overviewTable">
+
+        <thead>
+          <tr>
+            <th id="ovKeyHeader">Country</th>
+            <th class="num">Users</th>
+            <th class="num">Views</th>
+            <th class="num">Clicks</th>
+            <th class="num">CTR</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td colspan="5" class="muted center">
+              Loading overview…
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+<!-- ============================================================
+MARKET TAB
+============================================================ -->
+
 <div class="analytics-tab hidden" id="tab-market">
 
   <!-- GLOBAL HEATMAP -->
@@ -128,9 +176,8 @@ MARKET TAB
       <table class="table">
         <thead>
           <tr>
-            
             <th>Country</th>
-<th class="num">Views</th>
+            <th class="num">Views</th>
           </tr>
         </thead>
 
@@ -147,71 +194,70 @@ MARKET TAB
 
 
   <!-- GLOBAL MARKET PERFORMANCE -->
-
   <section class="panel" id="panel-traffic">
 
-  <div class="panelhead">
-    <h2>Traffic Flow</h2>
-  </div>
+    <div class="panelhead">
+      <h2>Traffic Flow</h2>
+    </div>
 
-  <table class="table">
-
-    <thead>
-      <tr>
-        <th>Source</th>
-        <th class="num">Views</th>
-        <th class="num">Clicks</th>
-        <th class="num">Conversion</th>
-      </tr>
-    </thead>
-
-    <tbody id="trafficFlowBody">
-      <tr>
-        <td colspan="4" class="muted center">Loading traffic data…</td>
-      </tr>
-    </tbody>
-
-  </table>
-
-</section>
-
-
-  <!-- MARKET PERFORMANCE PANEL -->
-  
-  <section class="panel" id="panel-performance">
-
-  <div class="panelhead">
-    <h2>Global Market Performance</h2>
-  </div>
-
-  <div class="tablewrap">
-
-    <table class="table" id="overviewTable">
+    <table class="table">
 
       <thead>
         <tr>
-          <th id="ovKeyHeader">Country</th>
-          <th class="num">Users</th>
+          <th>Source</th>
           <th class="num">Views</th>
-          <th class="num">Opens</th>
           <th class="num">Clicks</th>
-          <th class="num">CTR</th>
+          <th class="num">Conversion</th>
         </tr>
       </thead>
 
-      <tbody>
+      <tbody id="trafficFlowBody">
         <tr>
-          <td colspan="6" class="muted center">
-            Loading market intelligence…
-          </td>
+          <td colspan="4" class="muted center">Loading traffic data…</td>
         </tr>
       </tbody>
 
     </table>
 
-  </div>
+  </section>
 
-</section>
+
+  <!-- MARKET PERFORMANCE PANEL -->
+  <section class="panel" id="panel-performance">
+
+    <div class="panelhead">
+      <h2>Global Market Performance</h2>
+    </div>
+
+    <div class="tablewrap">
+
+      <table class="table">
+
+        <thead>
+          <tr>
+            <th id="ovKeyHeader">Country</th>
+            <th class="num">Users</th>
+            <th class="num">Views</th>
+            <th class="num">Opens</th>
+            <th class="num">Clicks</th>
+            <th class="num">CTR</th>
+          </tr>
+        </thead>
+
+        <tbody id="marketDemandBody">
+          <tr>
+            <td colspan="6" class="muted center">
+              Loading market intelligence…
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
 
   <!-- MARKET INTELLIGENCE -->
   <section class="panel" id="panel-intelligence">
@@ -226,16 +272,17 @@ MARKET TAB
 
         <thead>
           <tr>
-            
+            <th>Location</th>
+            <th class="num">Users</th>
             <th class="num">Views</th>
-            <th class="num">Stores</th>
-            <th>Demand</th>
+            <th class="num">Clicks</th>
+            <th class="num">CTR</th>
           </tr>
         </thead>
 
         <tbody id="marketDemandBody">
           <tr>
-            <td colspan="4" class="muted center">
+            <td colspan="5" class="muted center">
               Loading market intelligence…
             </td>
           </tr>
@@ -248,7 +295,6 @@ MARKET TAB
   </section>
 
 </div>
-
 
 <!-- ============================================================
 STORES TAB
