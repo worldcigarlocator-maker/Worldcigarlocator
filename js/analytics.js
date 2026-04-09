@@ -861,9 +861,28 @@ if (!tbody) return;
 `;
 
       // 🔥 CLICK → DRILLDOWN (nästa steg senare)
-      tr.addEventListener("click", () => {
-        console.log("👉 DAY CLICK", row.date);
-      });
+      tr.addEventListener("click", async () => {
+
+  const day = row.date || row.day;
+  if (!day) return;
+
+  console.log("👉 DAY CLICK", day);
+
+  // 🔥 SET STATE
+  setActiveDay(day);
+
+  // 🔥 RESET LEVEL → COUNTRY
+  // (vi börjar alltid på country när man drillar från users)
+  // du har redan getLevel → vi behöver bara säkerställa startläge
+  // om du har reset-funktion använd den annars skip
+
+  // 🔥 GÅ TILL MARKET
+  goToMarketTab("panel-performance");
+
+  // 🔥 LADA DATA (NU MED DAY FILTER)
+  await loadMarketTable();
+
+});
 
       tbody.appendChild(tr);
 
