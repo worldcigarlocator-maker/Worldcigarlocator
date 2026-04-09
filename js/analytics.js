@@ -5,6 +5,7 @@ import {
   setKPI,
   getLevel,
   getActiveDay,
+  setActiveDay,
   getActiveCountry,
   applyCountry
 } from "./analytics-state.js";
