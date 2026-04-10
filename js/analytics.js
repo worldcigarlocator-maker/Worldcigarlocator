@@ -1,5 +1,6 @@
 
 import { supabase } from "./globals.js";
+import { renderUsersOverview } from "./funnel-users.js";
 import {
   getKPI,
   setKPI,
