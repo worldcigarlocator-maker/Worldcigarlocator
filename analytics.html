@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
@@ -6,6 +7,7 @@
   <!-- ============================================================
        META
        ============================================================ -->
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Analytics — World Cigar Locator</title>
@@ -13,6 +15,7 @@
   <!-- ============================================================
        FAVICON
        ============================================================ -->
+
   <link rel="icon" href="/favicon.ico">
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
@@ -24,68 +27,38 @@
   <!-- ============================================================
        SUPABASE
        ============================================================ -->
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- ============================================================
        STYLES
        ============================================================ -->
+
   <link rel="stylesheet" href="css/analytics.css" />
 
 </head>
 
 <body class="analytics">
+
   <!-- ============================================================
        TOPBAR
        ============================================================ -->
+
   <header class="topbar">
-
     <h1>World Cigar Locator — Analytics</h1>
-
     <nav class="nav">
       <a class="navlink" href="backoffice.html">Backoffice</a>
     </nav>
-
   </header>
 
   <!-- ============================================================
-ANALYTICS NAV
-============================================================ -->
+       PRIMARY KPI BAR (MAIN NAV)
+       ============================================================ -->
 
+  <section class="panel">
 
-<section class="panel">
-
-  <div class="analytics-tabs">
-
-    <button class="btn tab active" data-tab="overview">
-      Overview
-    </button>
-
-    <button class="btn tab" data-tab="market">
-      Market
-    </button>
-
-    <button class="btn tab" data-tab="stores">
-      Stores
-    </button>
-
-  </div> <!-- analytics-tabs -->
-
-</section> <!-- panel -->
-
-<!-- ============================================================
-DRILLDOWN TOOLBAR
-============================================================ -->
-
-<section class="panel" id="drilldownToolbar">
-
-  <div class="toolbar">
-
-    <div class="toolbar-left">
-      <h2 id="viewTitle">Overview — Last 30 days</h2>
-    </div>
-    <div class="toolbar-right">
-      
-      <div class="kpi-primary">
+```
+<div class="kpi-primary">
 
   <div class="kpi-card active" data-kpi="users">
     <span class="kpi-label">Users</span>
@@ -113,244 +86,218 @@ DRILLDOWN TOOLBAR
   </div>
 
 </div>
-      <input
-        id="viewSearch"
-        type="text"
-        placeholder="Search country, city, store..."
-      />
+```
 
-      <button id="exportBtn" class="btn ghost">Export</button>
-      <button id="printBtn" class="btn ghost">Print</button>
-      <button id="mailBtn" class="btn ghost">Email</button>
-      <button id="toggleView" class="btn ghost">Chart</button>
+  </section>
 
-    </div>
+  <!-- ============================================================
+       TOOLBAR
+       ============================================================ -->
+
+  <section class="panel" id="drilldownToolbar">
+
+```
+<div class="toolbar">
+
+  <div class="toolbar-left">
+    <h2 id="viewTitle">Users — Last 30 days</h2>
+  </div>
+
+  <div class="toolbar-right">
+
+    <input
+      id="overviewSearch"
+      type="text"
+      placeholder="Search..."
+    />
+
+    <button id="exportBtn" class="btn ghost">Export</button>
+    <button id="printBtn" class="btn ghost">Print</button>
+    <button id="mailBtn" class="btn ghost">Email</button>
 
   </div>
 
-</section>
-
-<!-- ============================================================
-MARKET TAB
-============================================================ -->
-
-<!-- ============================================================
-OVERVIEW TAB
-============================================================ -->
-
-<div class="analytics-tab" id="tab-overview">
-
-  <!-- OVERVIEW TABLE -->
-  <section class="panel">
-
-    <div class="panelhead">
-      <h2>Overview</h2>
-    </div>
-
-    <div class="tablewrap">
-
-      <table class="table" id="overviewTable">
-
-        <thead>
-          <tr>
-            <th id="ovKeyHeader">Country</th>
-            <th class="num">Users</th>
-            <th class="num">Views</th>
-            <th class="num">Clicks</th>
-            <th class="num">CTR</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr>
-            <td colspan="5" class="muted center">
-              Loading overview…
-            </td>
-          </tr>
-        </tbody>
-
-      </table>
-
-    </div>
-
-  </section>
-
 </div>
-
-
-<!-- ============================================================
-MARKET TAB
-============================================================ -->
-
-<div class="analytics-tab hidden" id="tab-market">
-
-  <!-- GLOBAL HEATMAP -->
-  <section class="panel" id="panel-heatmap">
-
-    <div class="panelhead">
-      <h2 id="marketTitle">Global Heatmap</h2>
-    </div>
-
-    <div class="tablewrap">
-
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Country</th>
-            <th class="num">Views</th>
-          </tr>
-        </thead>
-
-        <tbody id="heatmapBody">
-          <tr>
-            <td colspan="2" class="muted center">Loading heatmap…</td>
-          </tr>
-        </tbody>
-      </table>
-
-    </div>
+```
 
   </section>
 
+  <!-- ============================================================
+       USERS (DEFAULT VIEW)
+       ============================================================ -->
 
-  <!-- GLOBAL MARKET PERFORMANCE -->
-  <section class="panel" id="panel-traffic">
+  <section id="view-users">
 
-    <div class="panelhead">
-      <h2>Traffic Flow</h2>
-    </div>
+```
+<section class="panel">
 
-    <table class="table">
+  <div class="panelhead">
+    <h2>Users</h2>
+  </div>
+
+  <div class="tablewrap">
+
+    <table class="table" id="overviewTable">
 
       <thead>
         <tr>
-          <th>Source</th>
-          <th class="num">Views</th>
-          <th class="num">Clicks</th>
-          <th class="num">Conversion</th>
+          <th id="ovKeyHeader">Date</th>
+          <th class="num">Users</th>
         </tr>
       </thead>
 
-      <tbody id="trafficFlowBody">
+      <tbody id="overviewTableBody">
         <tr>
-          <td colspan="4" class="muted center">Loading traffic data…</td>
+          <td colspan="2" class="muted center">
+            Loading users…
+          </td>
         </tr>
       </tbody>
 
     </table>
 
-  </section>
+  </div>
 
-
-  <!-- MARKET PERFORMANCE PANEL -->
-  <section class="panel" id="panel-performance">
-
-    <div class="panelhead">
-      <h2>Global Market Performance</h2>
-    </div>
-
-    <div class="tablewrap">
-
-      <table class="table">
-
-        <thead>
-          <tr>
-            <th id="ovKeyHeader">Country</th>
-            <th class="num">Users</th>
-            <th class="num">Views</th>
-            <th class="num">Opens</th>
-            <th class="num">Clicks</th>
-            <th class="num">CTR</th>
-          </tr>
-        </thead>
-
-        <tbody id="marketDemandBody">
-          <tr>
-            <td colspan="6" class="muted center">
-              Loading market intelligence…
-            </td>
-          </tr>
-        </tbody>
-
-      </table>
-
-    </div>
+</section>
+```
 
   </section>
 
+  <!-- ============================================================
+       MARKET (HIDDEN)
+       ============================================================ -->
 
-  <!-- MARKET INTELLIGENCE -->
-  <section class="panel" id="panel-intelligence">
+  <section id="view-market" class="hidden">
 
-    <div class="panelhead">
-      <h2>Market Intelligence</h2>
-    </div>
+```
+<!-- HEATMAP -->
+<section class="panel">
 
-    <div class="tablewrap">
+  <div class="panelhead">
+    <h2>Global Heatmap</h2>
+  </div>
 
-      <table class="table">
+  <div class="tablewrap">
 
-        <thead>
-          <tr>
-            <th>Location</th>
-            <th class="num">Users</th>
-            <th class="num">Views</th>
-            <th class="num">Clicks</th>
-            <th class="num">CTR</th>
-          </tr>
-        </thead>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th class="num">Views</th>
+        </tr>
+      </thead>
 
-        <tbody id="marketDemandBody">
-          <tr>
-            <td colspan="5" class="muted center">
-              Loading market intelligence…
-            </td>
-          </tr>
-        </tbody>
+      <tbody id="heatmapBody">
+        <tr>
+          <td colspan="2" class="muted center">Loading heatmap…</td>
+        </tr>
+      </tbody>
+    </table>
 
-      </table>
+  </div>
 
-    </div>
+</section>
+
+<!-- TRAFFIC FLOW -->
+<section class="panel">
+
+  <div class="panelhead">
+    <h2>Traffic Flow</h2>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th class="num">Views</th>
+        <th class="num">Clicks</th>
+        <th class="num">CTR</th>
+      </tr>
+    </thead>
+
+    <tbody id="trafficFlowBody">
+      <tr>
+        <td colspan="4" class="muted center">Loading traffic data…</td>
+      </tr>
+    </tbody>
+  </table>
+
+</section>
+
+<!-- MARKET TABLE -->
+<section class="panel">
+
+  <div class="panelhead">
+    <h2>Market Performance</h2>
+  </div>
+
+  <div class="tablewrap">
+
+    <table class="table">
+
+      <thead>
+        <tr>
+          <th>Location</th>
+          <th class="num">Users</th>
+          <th class="num">Views</th>
+          <th class="num">Clicks</th>
+          <th class="num">CTR</th>
+        </tr>
+      </thead>
+
+      <tbody id="marketDemandBody">
+        <tr>
+          <td colspan="5" class="muted center">
+            Loading market data…
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+
+  </div>
+
+</section>
+```
 
   </section>
 
-</div>
+  <!-- ============================================================
+       STORES (HIDDEN)
+       ============================================================ -->
 
-<!-- ============================================================
-STORES TAB
-============================================================ -->
+  <section id="view-stores" class="hidden">
 
-<div class="analytics-tab hidden" id="tab-stores">
-
-  <!-- STORE SEARCH -->
-  <section class="panel">
+```
+<!-- SEARCH -->
+<section class="panel">
 
   <div class="searchrow">
 
-  <div class="searchbox">
-    <input
-      id="searchInput"
-      type="text"
-      autocomplete="off"
-      placeholder="Search store, city, country…"
-    />
-    <div id="searchResults" class="search-results hidden"></div>
-  </div>
-
-  <div class="search-actions">
-    <button id="searchBtn" class="btn primary">Search</button>
-    <button id="clearBtn" class="btn ghost">Clear</button>
-  </div>
-
-</div>
-
-    <div class="hint">
-      Select a store to view detailed traffic metrics and performance data.
+    <div class="searchbox">
+      <input
+        id="searchInput"
+        type="text"
+        autocomplete="off"
+        placeholder="Search store, city, country…"
+      />
+      <div id="searchResults" class="search-results hidden"></div>
     </div>
 
-  </section>
+    <div class="search-actions">
+      <button id="searchBtn" class="btn primary">Search</button>
+      <button id="clearBtn" class="btn ghost">Clear</button>
+    </div>
 
-<!-- 🔥 TOP STORES TABLE -->
+  </div>
+
+  <div class="hint">
+    Select a store to view detailed analytics.
+  </div>
+
+</section>
+
+<!-- TOP STORES -->
 <section class="panel">
 
   <div class="panelhead">
@@ -380,9 +327,7 @@ STORES TAB
 
 </section>
 
-  
-<!-- STORE PERFORMANCE -->
-
+<!-- STORE PANEL -->
 <div id="storeEmpty" class="muted center">
   Search for a store to view analytics.
 </div>
@@ -391,87 +336,68 @@ STORES TAB
 
   <section class="panel">
 
-    ...
+    <div class="panelhead">
+      <h2 id="storeName">Store</h2>
+    </div>
 
-    <div class="kpis">
+    <div id="storeLocation"></div>
+    <div id="storeTypeAccess"></div>
+    <div id="storeWebsite"></div>
 
-      <div class="kpi">
-        <div class="kpiLabel">Views</div>
-        <div class="kpiVal" id="storeViews">0</div>   ❌
-      </div>
+  </section>
 
-      <div class="kpi">
-        <div class="kpiLabel">Clicks</div>
-        <div class="kpiVal" id="storeClicks">0</div> ❌
-      </div>
+  <section class="panel">
 
-      <div class="kpi">
-        <div class="kpiLabel">CTR</div>
-        <div class="kpiVal" id="storeCtr">0%</div>   ❌
-      </div>
+    <div class="panelhead">
+      <h2>Performance Trend</h2>
+    </div>
 
+    <div class="tablewrap">
+      <table class="table" id="trendTable">
+
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th class="num">Views</th>
+            <th class="num">Clicks</th>
+            <th class="num">CTR</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td colspan="4" class="muted center">
+              Select a store to load data.
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
     </div>
 
   </section>
 
-  <section class="panel">
-
-  <div class="panelhead">
-    <h2>Performance Trend</h2>
-  </div>
-
-  <div class="tablewrap">
-    <table class="table" id="trendTable">
-
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th class="num">Views</th>
-          <th class="num">Clicks</th>
-          <th class="num">CTR</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr>
-          <td colspan="4" class="muted center">
-            Select a store to load data.
-          </td>
-        </tr>
-      </tbody>
-
-    </table>
-  </div>
-
-</section>
-
 </div>
+```
 
-
-  <!-- AFFILIATE OPPORTUNITIES -->
-  <section class="panel">
-    <!-- affiliate table -->
   </section>
-
-
-  <!-- SUSPICIOUS USERS -->
-  <section class="panel">
-    <!-- suspicious users table -->
-  </section>
-
 
   <!-- ============================================================
        CONFIG
        ============================================================ -->
+
   <script>
     window.WCL_ANALYTICS_CFG = {
       supabaseUrl: "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4"
+      supabaseAnonKey: "YOUR_KEY"
     };
   </script>
 
+  <!-- ============================================================
+       SCRIPT
+       ============================================================ -->
 
-<!-- ============================================================
-     SCRIPT
-     ============================================================ -->
-<script type="module" src="js/analytics.js"></script>
+  <script type="module" src="js/analytics.js"></script>
+
+</body>
+</html>
