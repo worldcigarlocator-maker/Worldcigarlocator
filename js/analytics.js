@@ -330,15 +330,15 @@ if (title) title.style.display = "none";
 }
 
 /* ============================================================
-   KPI MINI (TOOLBAR)
+   KPI PRIMARY (MAIN CONTROL)
    ============================================================ */
 
 function bindKpiMini() {
 
-  const items = document.querySelectorAll(".kpi-mini");
+  const items = document.querySelectorAll(".kpi-card");
 
   if (!items.length) {
-    console.warn("No KPI mini found");
+    console.warn("No KPI cards found");
     return;
   }
 
@@ -349,30 +349,19 @@ function bindKpiMini() {
       const kpi = el.dataset.kpi;
       if (!kpi) return;
 
-      console.log("KPI MINI CLICK:", kpi);
+      console.log("KPI CLICK:", kpi);
 
-     if (kpi !== "users") {
-  setKPI(kpi);
-}
+      // 🔥 sätt KPI
+      setKPI(kpi);
 
       // 🔥 ACTIVE STATE
       items.forEach(i => i.classList.remove("active"));
       el.classList.add("active");
 
       // ============================================================
-      // 🔵 USERS → OVERVIEW (SPECIAL CASE)
+      // USERS = HOME (DEFAULT)
       // ============================================================
       if (kpi === "users") {
-
-         OVERVIEW_TAB = "days"; // ✅
-
-        console.log("👉 USERS → OVERVIEW");
-
-        document.querySelectorAll(".btn.tab")
-          .forEach(b => b.classList.remove("active"));
-
-        document.querySelector('[data-tab="overview"]')
-          ?.classList.add("active");
 
         document.querySelectorAll(".analytics-tab")
           .forEach(el => el.classList.add("hidden"));
@@ -381,81 +370,31 @@ function bindKpiMini() {
           ?.classList.remove("hidden");
 
         updateDrilldownUI("overview");
+        renderUsersOverview();
 
- setTimeout(() => {
-  renderUsersOverview();
-}, 0);
-
-return;
+        return;
       }
 
       // ============================================================
-      // 🟣 OTHER KPIs → MARKET
+      // ALLA ANDRA KPI = MARKET DATA
       // ============================================================
 
-      let panel = "panel-performance";
+      document.querySelectorAll(".analytics-tab")
+        .forEach(el => el.classList.add("hidden"));
 
-      if (kpi === "views") {
-        panel = "panel-heatmap";
-        await loadHeatmap();
-      }
+      document.getElementById("tab-market")
+        ?.classList.remove("hidden");
 
-      else if (kpi === "stores") {
-        panel = "panel-intelligence";
-        await loadMarketTable();
-      }
+      updateDrilldownUI("market");
 
-      else {
-        panel = "panel-performance";
-        await loadMarketTable();
-      }
-
-      goToMarketTab(panel);
+      await loadMarketTable();
 
     });
 
   });
 
 }
-/* ============================================================
-   UI BINDINGS
-   ============================================================ */
 
-function bindUI() {
-
-  searchInput?.addEventListener("input", onSearchInput);
-
-  searchInput?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") triggerSearchFromUI();
-    if (e.key === "Escape") hideAutocomplete();
-  });
-
-   overviewSearch?.addEventListener("input", () => {
-  filterOverview();
-});
-   
-  searchBtn?.addEventListener("click", triggerSearchFromUI);
-  clearBtn?.addEventListener("click", resetAll);
-
-document.addEventListener("click", (e) => {
-
-  if (!searchResults) return;
-
-  if (!searchResults.contains(e.target) && e.target !== searchInput) {
-    hideAutocomplete();
-  }
-
-});
-
-  globalRangeSelect?.addEventListener("change", async () => {
-    if (!ACTIVE_STORE) return;
-    await loadStoreDossier(ACTIVE_STORE.id);
-  });
-
-  exportBtn?.addEventListener("click", exportCSV);
-  printBtn?.addEventListener("click", () => window.print());
-  mailBtn?.addEventListener("click", emailStore);
-   }
 /* ============================================================
    STORES INDEX
    ============================================================ */
