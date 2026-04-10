@@ -2,6 +2,7 @@
 import { supabase } from "./globals.js";
 import { renderUsersOverview } from "./funnel-users.js";
 import { renderMarket, renderHeatmap } from "./funnel-market.js";
+import { renderTopStores } from "./funnel-stores.js";
 import {
   getKPI,
   setKPI,
@@ -333,8 +334,7 @@ function bindKpiMini() {
 
   const items = document.querySelectorAll(".kpi-card");
 
-  items.forEach(el => {
-
+  items.forEach((el) => {
     el.addEventListener("click", async () => {
 
       const kpi = el.dataset.kpi;
@@ -342,90 +342,48 @@ function bindKpiMini() {
 
       console.log("KPI CLICK:", kpi);
 
-      // 🔥 active state
-      items.forEach(i => i.classList.remove("active"));
+      items.forEach((i) => i.classList.remove("active"));
       el.classList.add("active");
 
       setKPI(kpi);
-
-      // ============================================================
-      // 🎯 ROUTING (CORE)
-      // ============================================================
 
       const usersView = document.getElementById("view-users");
       const marketView = document.getElementById("view-market");
       const storesView = document.getElementById("view-stores");
 
-      // reset
       usersView?.classList.add("hidden");
       marketView?.classList.add("hidden");
       storesView?.classList.add("hidden");
 
-      // -------------------------
-      // USERS
-      // -------------------------
-      if (kpi === "users") {
+      const days = Number(globalRangeSelect?.value || 30);
 
+      if (kpi === "users") {
         usersView?.classList.remove("hidden");
-
         updateDrilldownUI("overview");
-
-        await renderUsersOverview();
-
+        await renderUsersOverview(days);
         return;
       }
 
-      // -------------------------
-      // STORES
-      // -------------------------
       if (kpi === "stores") {
-
         storesView?.classList.remove("hidden");
-
         updateDrilldownUI("stores");
-
-        await loadTopStores();
-
+        await renderTopStores(days);
         return;
       }
 
-      // -------------------------
-      // MARKET (views / clicks / ctr)
-      // -------------------------
-     marketView?.classList.remove("hidden");
+      marketView?.classList.remove("hidden");
+      updateDrilldownUI("market");
 
-updateDrilldownUI("market");
+      if (kpi === "views") {
+        await renderHeatmap(days);
+      }
 
-const days = Number(globalRangeSelect?.value || 30);
+      await renderMarket(days);
 
-if (kpi === "views") {
-  await renderHeatmap(days);
+    });
+  });
+
 }
-
-await renderMarket(days);
-
-      // ============================================================
-      // USERS = HOME (DEFAULT)
-      // ============================================================
-      if (kpi === "users") {
-
-        document.querySelectorAll(".analytics-tab")
-          .forEach(el => el.classList.add("hidden"));
-
-        document.getElementById("tab-overview")
-          ?.classList.remove("hidden");
-
-        updateDrilldownUI("overview");
-        renderUsersOverview();
-
-        return;
-      }
-
- /* ============================================================
-   USERS = HOME (DEFAULT)
-   ============================================================ */
-
-   // OLD TAB ROUTING REMOVED (CLEAN KPI FLOW)
 
 /* ============================================================
    STORES INDEX
@@ -1248,100 +1206,6 @@ async function loadHeatmap() {
 
 }
 
-/* ============================================================
-   TOP STORES (STEP 2–4 — CLEAN)
-   ============================================================ */
-
-async function loadTopStores() {
-
-  try {
-
-    const days = Number(globalRangeSelect?.value || 30);
-
-    const { data, error } = await sb.rpc(
-      "analytics_top_stores_v2",
-      {
-        p_days: days,
-        p_country: null,
-        p_city: null,
-        p_state: null,
-        p_limit: 50
-      }
-    );
-
-    if (error) {
-      console.error("Top stores error", error);
-      return;
-    }
-
-    if (!topStoresBody) return;
-
-    if (!data || !data.length) {
-
-      topStoresBody.innerHTML =
-        `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
-
-      return;
-    }
-
-    // 🔥 RENDER
-    topStoresBody.innerHTML = data.map(r => {
-
-      const location =
-        [r.city, r.country].filter(Boolean).join(", ");
-
-return `
-  <tr data-id="${r.store_id}">
-
-    <td class="store-cell">
-      <div class="store-name">${escapeHtml(r.name)}</div>
-      <div class="store-geo">${escapeHtml(location)}</div>
-    </td>
-
-    <td>
-      <div class="kpi-pill kpi-views">
-        ${Number(r.views)}
-      </div>
-    </td>
-
-    <td>
-      <div class="kpi-pill kpi-clicks">
-        ${Number(r.clicks)}
-      </div>
-    </td>
-
-    <td>
-      <div class="kpi-pill kpi-ctr">
-        ${(Number(r.ctr) * 100).toFixed(1)}%
-      </div>
-    </td>
-
-  </tr>
-`;
-      }).join(""); 
-
-    // 🔥 CLICK HANDLER
-topStoresBody.querySelectorAll("tr").forEach((tr) => {
-
-  const id = tr.dataset.id;
-  if (!id) return;
-
-  tr.style.cursor = "pointer";
-
-tr.addEventListener("click", () => {
-  console.log("ROW DATASET", tr.dataset);
-  console.log("ID VALUE", tr.dataset.id);
-  selectStoreById(Number(tr.dataset.id));
-});
-
-});
-
-  } catch (err) {
-
-    console.error("Top stores crash", err);
-
-  }
-}
 
 // ============================================================
 // INIT
