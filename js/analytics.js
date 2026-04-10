@@ -778,97 +778,7 @@ function renderEvents(rows) {
 // USERS — OVERVIEW (DAY LEVEL)
 // ============================================================
 
-async function renderUsersOverview() {
-
-  console.log("👤 USERS OVERVIEW");
-
-  try {
-
-    const days = Number(globalRangeSelect?.value || 30);
-
-    // 🔥 HÄMTA DATA
-    const { data, error } = await sb.rpc(
-      "analytics_users_by_day",
-      { p_days: days }
-    );
-
-    if (error) {
-      console.error("Users overview error", error);
-      return;
-    }
-
-    console.log("USERS DAYS:", data);
-
-// 🔥 FIX HEADER FOR USERS
-const table = document.getElementById("overviewTable");
-
-if (table) {
-  const thead = table.querySelector("thead");
-
-  if (thead) {
-    thead.innerHTML = `
-      <tr>
-        <th>Date</th>
-        <th class="num">Users</th>
-      </tr>
-    `;
-  }
-}
-    
-    // 🔥 RENDER TABLE
- const tbody = overviewTableBody;
-if (!tbody) return;
-
-    tbody.innerHTML = "";
-
-    if (!data?.length) {
-      tbody.innerHTML = `<tr><td colspan="2" class="muted">No data yet</td></tr>`;
-      return;
-    }
-
-    data.forEach(row => {
-
-      const tr = document.createElement("tr");
-
-     tr.innerHTML = `
-  <td>${row.date || row.day || "—"}</td>
-  <td class="num">${row.users ?? 0}</td>
-`;
-
-      // 🔥 CLICK → DRILLDOWN (nästa steg senare)
-      tr.addEventListener("click", async () => {
-
-  const day = row.date || row.day;
-  if (!day) return;
-
-  console.log("👉 DAY CLICK", day);
-
-  // 🔥 SET STATE
-  setActiveDay(day);
-
-  // 🔥 RESET LEVEL → COUNTRY
-  // (vi börjar alltid på country när man drillar från users)
-  // du har redan getLevel → vi behöver bara säkerställa startläge
-  // om du har reset-funktion använd den annars skip
-
-  // 🔥 GÅ TILL MARKET
-  goToMarketTab("panel-performance");
-
-  // 🔥 LADA DATA (NU MED DAY FILTER)
-  await loadMarketTable();
-
-});
-
-      tbody.appendChild(tr);
-
-    });
-
-  } catch (err) {
-    console.error("Users overview crash", err);
-  }
-
-}
-
+// USERS HANDLED BY funnel-users.js
 
 /* ============================================================
    RENDER OVERVIEW
@@ -1509,34 +1419,34 @@ function init() {
   // 🔹 bindings
   bindUI();
   bindKpiMini();
+
+  // 🔹 default KPI
   setKPI("users");
-  initTabs();
 
-  // 🔹 default KPI (toolbar)
-  document.querySelector('[data-kpi="users"]')?.classList.add("active");
+  // 🔹 active state UI
+  document.querySelectorAll(".kpi-card")
+    .forEach(el => el.classList.remove("active"));
 
-  // 🔹 initial loads
+  document.querySelector('[data-kpi="users"]')
+    ?.classList.add("active");
+
+  // 🔹 views
+  const usersView = document.getElementById("view-users");
+  const marketView = document.getElementById("view-market");
+  const storesView = document.getElementById("view-stores");
+
+  usersView?.classList.remove("hidden");
+  marketView?.classList.add("hidden");
+  storesView?.classList.add("hidden");
+
+  // 🔹 toolbar
+  updateDrilldownUI("overview");
+
+  // 🔹 data load (ONLY USERS)
+  renderUsersOverview();
+
+  // 🔹 background loads (non-blocking)
   loadGlobalKpis();
-  loadTrafficFlow();
-  loadHeatmap();
-  loadMarketTable();
-  loadTopStores();
-// 🔥 DEFAULT VIEW = OVERVIEW (USERS)
-document.querySelectorAll(".btn.tab")
-  .forEach(b => b.classList.remove("active"));
-
-document.querySelector('[data-tab="overview"]')
-  ?.classList.add("active");
-
-document.querySelectorAll(".analytics-tab")
-  .forEach(el => el.classList.add("hidden"));
-
-document.getElementById("tab-overview")
-  ?.classList.remove("hidden");
-
-
-updateDrilldownUI("overview");
-renderUsersOverview();
 
 }
 
