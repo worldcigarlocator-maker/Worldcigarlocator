@@ -33,7 +33,6 @@ const globalStores = $("#globalStores");
 const globalUsers = $("#globalUsers");
 
 const trafficFlowBody = $("#trafficFlowBody");
-const heatmapBody = $("#heatmapBody");
 
 const searchInput = $("#searchInput");
 const searchResults = $("#searchResults");
