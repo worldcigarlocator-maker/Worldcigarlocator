@@ -219,14 +219,81 @@ margin:0 0 16px 0;
    }
 
 /* ============================================================
-   KPI PRIMARY GRID
-   ============================================================ */
+   KPI PRIMARY (MAIN CONTROL)
+============================================================ */
 
 .kpi-primary{
-  display:grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap:16px;
-  margin-bottom:24px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+/* BASE */
+.kpi-card{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+
+  min-width:110px;
+  padding:12px 14px;
+
+  border-radius:12px;
+  cursor:pointer;
+
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.06);
+
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+/* LABEL */
+.kpi-label{
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  opacity:.6;
+}
+
+/* VALUE */
+.kpi-value{
+  font-size:20px;
+  font-weight:600;
+  margin-top:4px;
+}
+
+/* HOVER */
+.kpi-card:hover{
+  transform:translateY(-2px);
+  background:rgba(255,255,255,0.08);
+  border-color:rgba(255,255,255,0.12);
+}
+
+/* ACTIVE */
+.kpi-card.active{
+  background:rgba(var(--global),0.15);
+  border:1px solid rgba(var(--global),0.35);
+
+  box-shadow:
+    0 0 0 1px rgba(var(--global),0.2),
+    0 8px 20px rgba(0,0,0,0.4);
+}
+
+.kpi-card.active .kpi-label{
+  opacity:1;
+}
+
+.kpi-card.active .kpi-value{
+  color:rgb(var(--global));
+}
+
+/* DIM OTHERS */
+.kpi-primary:has(.kpi-card.active) .kpi-card:not(.active){
+  opacity:0.5;
 }
 
 /* ============================================================
