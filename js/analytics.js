@@ -324,25 +324,9 @@ function updateDrilldownUI(tab) {
   // ✅ show annars
   tb.style.display = "block";
 
-  // 🔥 KPI label
-  let kpiLabel = "Views";
+  // 🔥 REMOVE TITLE (handled in UI instead)
+if (title) title.style.display = "none";
   
-const kpi = getKPI();
-
-if (kpi === "views") kpiLabel = "Views";
-if (kpi === "clicks") kpiLabel = "Clicks";
-if (kpi === "ctr") kpiLabel = "CTR";
-if (kpi === "stores") kpiLabel = "Stores";
-if (kpi === "users") kpiLabel = "Users";
-
-  // 🔥 TAB label
-  let tabLabel = "Market";
-
-  if (tab === "market") tabLabel = "Market";
-  if (tab === "stores") tabLabel = "Stores";
-
-  // 🧠 final title
-  title.textContent = `${kpiLabel} — ${tabLabel}`;
 }
 
 /* ============================================================
