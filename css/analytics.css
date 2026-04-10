@@ -219,228 +219,79 @@ margin:0 0 16px 0;
    }
 
 /* ============================================================
-   KPI GRID
+   KPI PRIMARY GRID
    ============================================================ */
 
-.kpis{
+.kpi-primary{
   display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap:1rem;
+  grid-template-columns: repeat(5, 1fr);
+  gap:16px;
+  margin-bottom:24px;
 }
 
-.kpi{
+/* ============================================================
+   KPI CARD
+   ============================================================ */
 
-  background:#0f1724;
+.kpi-card{
+  background:linear-gradient(145deg,#0f2447,#0b1e3c);
+  border-radius:14px;
+  padding:18px 16px;
 
-  border:1px solid var(--border);
+  cursor:pointer;
+  transition:all .2s ease;
 
-  border-radius:var(--radius);
-
-  padding:14px;
-
-  text-align:center;
-
-  box-shadow:0 0 12px rgba(47,120,196,.15);
-
+  border:1px solid rgba(255,255,255,0.06);
 }
 
-.kpiLabel{
+.kpi-card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(255,255,255,0.12);
+}
+
+.kpi-card.active{
+  border:1px solid rgba(255,255,255,0.22);
+  box-shadow:0 0 0 1px rgba(255,255,255,0.08) inset;
+}
+
+/* ============================================================
+   KPI CONTENT
+   ============================================================ */
+
+.kpi-label{
   font-size:12px;
-  font-weight:900;
-  color:rgba(255,255,255,0.65);
+  opacity:.6;
+  margin-bottom:6px;
 }
 
-.kpiVal{
-     color:#ffffff;
-
-  font-size:22px;
-
-  font-weight:1000;
-
-  margin-top:6px;
-
+.kpi-value{
+  font-size:26px;
+  font-weight:600;
+  letter-spacing:.5px;
 }
 
 /* ============================================================
-   KPI NEON COLORS
+   KPI COLORS
    ============================================================ */
 
-/* 🟣 Total Views */
-.kpi:nth-child(1){
-  background:linear-gradient(135deg,#6d28d9,#8b5cf6);
-  color:#fff;
-
-  box-shadow:
-    0 8px 25px rgba(139,92,246,.35),
-    inset 0 1px 0 rgba(255,255,255,.15);
+.kpi-card[data-kpi="users"] .kpi-value{
+  color:#4FC3F7;
 }
 
-/* 🟠 Website Clicks */
-.kpi:nth-child(2){
-  background:linear-gradient(135deg,#ea580c,#f97316);
-  color:#fff;
-
-  box-shadow:
-    0 8px 25px rgba(249,115,22,.35),
-    inset 0 1px 0 rgba(255,255,255,.15);
+.kpi-card[data-kpi="stores"] .kpi-value{
+  color:#81C784;
 }
 
-/* 🟦 Global CTR */
-.kpi:nth-child(3){
-  background:linear-gradient(135deg,#0891b2,#06b6d4);
-  color:#fff;
-
-  box-shadow:
-    0 8px 25px rgba(6,182,212,.35),
-    inset 0 1px 0 rgba(255,255,255,.15);
+.kpi-card[data-kpi="views"] .kpi-value{
+  color:#BA68C8;
 }
 
-/* ============================================================
-   TABLES
-   ============================================================ */
-
-.subhead{
-
-  margin-top:16px;
-
-  font-weight:900;
-
-  color:#e2e8f0;
-
+.kpi-card[data-kpi="clicks"] .kpi-value{
+  color:#FFB74D;
 }
 
-.tablewrap{
-
-  overflow:auto;
-
-  margin-top:10px;
-
-}
-
-.table{
-
-  width:100%;
-
-  border-collapse:collapse;
-
-  min-width:640px;
-
-}
-
-.table th,
-.table td{
-  color:#ffffff;
-  border-bottom:1px solid rgba(255,255,255,0.06);
-  padding:10px;
-  font-size:13px;
-  text-align:left;
-}
-
-.table th{
-
-  background:#101b2d;
-
-   color:#ffffff;
-
-  font-weight:900;
-
-  text-transform:uppercase;
-
-  letter-spacing:.04em;
-
-}
-
-.table tr:hover{
-
-  background:#111c2f;
-
-}
-
-.table td.num,
-.table th.num{
-
-  text-align:center;
-
-}
-
-
-/* ============================================================
-   UTILITIES
-   ============================================================ */
-
-.center{text-align:center}
-
-.muted{
-  color:var(--muted);
-  font-weight:800;
-}
-
-.hidden{
-  display:none;
-}
-
-/* ============================================================
-   RANGE FIX
-   ============================================================ */
-
-select{
-  background:#fff;
-  color:#111;
-
-  border-radius:8px;
-  padding:6px 10px;
-
-  border:1px solid #ccc;
-
-  font-weight:700;
-}
-
-/* ============================================================
-   STORE PANEL — STRUCTURE FIX
-   ============================================================ */
-
-#storePanel .panelhead{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-/* titel */
-#storeName{
-  font-size:20px;
-  font-weight:900;
-  color:#fff;
-}
-
-/* meta info */
-#storeLocation,
-#storeTypeAccess,
-#storeWebsite{
-  font-size:13px;
-  color:rgba(255,255,255,0.65);
-  font-weight:500;
-}
-
-/* spacing till KPIs */
-#storePanel .kpis{
-  margin-top:16px;
-}
-
-/* ============================================================
-   STORE PANEL POLISH
-   ============================================================ */
-
-#storePanel{
-  margin-top:10px;
-}
-
-#storeWebsite a{
-  color:#60a5fa;
-  text-decoration:none;
-}
-
-#storeWebsite a:hover{
-  text-decoration:underline;
+.kpi-card[data-kpi="ctr"] .kpi-value{
+  color:#4DD0E1;
 }
 
 /* =========================================
