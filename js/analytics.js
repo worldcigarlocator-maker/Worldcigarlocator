@@ -98,16 +98,12 @@ const overviewTableBody = $("#overviewTable tbody");
 const ovKeyHeader = $("#ovKeyHeader");
 const overviewSearch = $("#overviewSearch");
 
-const marketDemandBody = $("#marketDemandBody");
 const topStoresBody = $("#topStoresBody");
 
 
 let STORES_INDEX = [];
 let ACTIVE_STORE = null;
 
-let OVERVIEW_TAB = "countries";
-
-let CURRENT_OVERVIEW_ROWS = [];
 
 /* ============================================================
    GLOBAL KPIs
@@ -793,44 +789,8 @@ async function loadTrafficFlow() {
 }
 
 /* ============================================================
-   HEATMAP
+   HEATMAP HANDLED BY funnel-market.js
    ============================================================ */
-
-async function loadHeatmap() {
-
-  if (!heatmapBody) return;
-
-  const { data, error } = await sb.rpc(
-    "analytics_heatmap_countries",
-    { p_days: 30 }
-  );
-
-  if (error) {
-
-    console.error("Heatmap error", error);
-
-    heatmapBody.innerHTML =
-      `<tr><td colspan="3" class="muted center">Failed to load heatmap.</td></tr>`;
-
-    return;
-  }
-
-  if (!data?.length) {
-
-    heatmapBody.innerHTML =
-      `<tr><td colspan="3" class="muted center">No data yet.</td></tr>`;
-
-    return;
-  }
-
-  heatmapBody.innerHTML = data.map(r => `
-    <tr>
-      <td>${escapeHtml(r.country || "—")}</td>
-      <td class="num">${Number(r.views)}</td>
-    </tr>
-  `).join("");
-
-}
 
 
 // ============================================================
