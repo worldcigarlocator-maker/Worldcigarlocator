@@ -85,14 +85,34 @@ DRILLDOWN TOOLBAR
     </div>
     <div class="toolbar-right">
       
-      <div class="toolbar-kpis">
-      <div class="kpi-mini" data-kpi="users">Users</div>
-      <div class="kpi-mini" data-kpi="stores">Stores</div>
-      <div class="kpi-mini" data-kpi="views">Views</div>
-      <div class="kpi-mini" data-kpi="clicks">Clicks</div>
-      <div class="kpi-mini" data-kpi="ctr">CTR</div>
-    </div>
+      <div class="kpi-primary">
 
+  <div class="kpi-card active" data-kpi="users">
+    <span class="kpi-label">Users</span>
+    <span class="kpi-value" id="globalUsers">0</span>
+  </div>
+
+  <div class="kpi-card" data-kpi="stores">
+    <span class="kpi-label">Stores</span>
+    <span class="kpi-value" id="globalStores">0</span>
+  </div>
+
+  <div class="kpi-card" data-kpi="views">
+    <span class="kpi-label">Views</span>
+    <span class="kpi-value" id="globalViews">0</span>
+  </div>
+
+  <div class="kpi-card" data-kpi="clicks">
+    <span class="kpi-label">Clicks</span>
+    <span class="kpi-value" id="globalClicks">0</span>
+  </div>
+
+  <div class="kpi-card" data-kpi="ctr">
+    <span class="kpi-label">CTR</span>
+    <span class="kpi-value" id="globalCtr">0%</span>
+  </div>
+
+</div>
       <input
         id="viewSearch"
         type="text"
