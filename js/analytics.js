@@ -329,18 +329,9 @@ if (title) title.style.display = "none";
   
 }
 
-/* ============================================================
-   KPI PRIMARY (MAIN CONTROL)
-   ============================================================ */
-
 function bindKpiMini() {
 
   const items = document.querySelectorAll(".kpi-card");
-
-  if (!items.length) {
-    console.warn("No KPI cards found");
-    return;
-  }
 
   items.forEach(el => {
 
@@ -351,12 +342,71 @@ function bindKpiMini() {
 
       console.log("KPI CLICK:", kpi);
 
-      // 🔥 sätt KPI
-      setKPI(kpi);
-
-      // 🔥 ACTIVE STATE
+      // 🔥 active state
       items.forEach(i => i.classList.remove("active"));
       el.classList.add("active");
+
+      setKPI(kpi);
+
+      // ============================================================
+      // 🎯 ROUTING (CORE)
+      // ============================================================
+
+      const usersView = document.getElementById("view-users");
+      const marketView = document.getElementById("view-market");
+      const storesView = document.getElementById("view-stores");
+
+      // reset
+      usersView?.classList.add("hidden");
+      marketView?.classList.add("hidden");
+      storesView?.classList.add("hidden");
+
+      // -------------------------
+      // USERS
+      // -------------------------
+      if (kpi === "users") {
+
+        usersView?.classList.remove("hidden");
+
+        updateDrilldownUI("overview");
+
+        await renderUsersOverview();
+
+        return;
+      }
+
+      // -------------------------
+      // STORES
+      // -------------------------
+      if (kpi === "stores") {
+
+        storesView?.classList.remove("hidden");
+
+        updateDrilldownUI("stores");
+
+        await loadTopStores();
+
+        return;
+      }
+
+      // -------------------------
+      // MARKET (views / clicks / ctr)
+      // -------------------------
+      marketView?.classList.remove("hidden");
+
+      updateDrilldownUI("market");
+
+      if (kpi === "views") {
+        await loadHeatmap();
+      }
+
+      await loadMarketTable();
+
+    });
+
+  });
+
+}
 
       // ============================================================
       // USERS = HOME (DEFAULT)
