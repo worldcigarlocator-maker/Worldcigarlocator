@@ -49,8 +49,20 @@ if (globalRangeSelect) {
     const days = Number(globalRangeSelect?.value || 30);
 
     await loadGlobalKpis();
-    await loadTrafficFlow();
-    await renderOverview();
+
+    // 🔥 DRIVEN BY KPI
+    const kpi = getKPI();
+
+    if (kpi === "users") {
+      await renderUsersOverview(days);
+    } else if (kpi === "stores") {
+      await renderTopStores(days);
+    } else {
+      if (kpi === "views") {
+        await renderHeatmap(days);
+      }
+      await renderMarket(days);
+    }
 
     if (ACTIVE_STORE) {
       await loadStoreDossier(ACTIVE_STORE.id);
@@ -196,6 +208,8 @@ function goToMarketTab(panel = "panel-heatmap") {
    showMarketPanel(panel);
   updateDrilldownUI("market");
 }
+
+// OLD MARKET TABLE REMOVED (moved to funnel-market.js)
 
       // ============================================================
       // MARKET FLOW (alla andra KPI)
@@ -607,288 +621,10 @@ function renderEvents(rows) {
 // USERS — OVERVIEW (DAY LEVEL)
 // ============================================================
 
-// USERS HANDLED BY funnel-users.js
-
 /* ============================================================
-   RENDER OVERVIEW
+   OVERVIEW HANDLED BY funnel-users.js
    ============================================================ */
 
-async function renderOverview() {
-
-if (getKPI() === "users") {
-  console.log("⛔ renderOverview BLOCKED (users)");
-  return;
-}
-
-  console.log("RENDER OVERVIEW TAB:", OVERVIEW_TAB);
-  
-  if (OVERVIEW_TAB === "days") {
-
-  const { data, error } = await sb.rpc(
-    "analytics_users_by_day",
-    { p_days: 30 }
-  );
-
-  if (error) return renderOverviewError(error);
-
-  const rows = (data || []).map(r => ({
-    day: r.day,
-    users: r.users,
-    views: 0,
-    clicks: 0
-  }));
-
-// 🔥 FIX HEADER
-const table = document.getElementById("overviewTable");
-
-if (table) {
-  const thead = table.querySelector("thead");
-
-  if (thead) {
-    thead.innerHTML = `
-      <tr>
-        <th>Date</th>
-        <th class="num">Users</th>
-        <th class="num">Views</th>
-        <th class="num">Clicks</th>
-        <th class="num">CTR</th>
-      </tr>
-    `;
-  }
-}
-
-ovKeyHeader.textContent = "Date";
-
-renderOverviewTable(rows, r => r.day);
-
-return;
-}
-
-const days = 30;
-   
-  if (OVERVIEW_TAB === "countries")
-    ovKeyHeader.textContent = "Country";
-
-  if (OVERVIEW_TAB === "cities")
-    ovKeyHeader.textContent = "City";
-
-  if (OVERVIEW_TAB === "stores")
-    ovKeyHeader.textContent = "Store";
-
-  let rows = [];
-
-  if (OVERVIEW_TAB === "countries") {
-
-    const { data, error } =
-      await sb.rpc("analytics_top_countries", {
-        p_days: days,
-        p_limit: 100
-      });
- 
-
-    if (error) return renderOverviewError(error);
-
-    rows = data || [];
-    rows.sort((a, b) => {
-
-  const kpi = getKPI();
-
-  if (kpi === "users") return (b.users || 0) - (a.users || 0);
-  if (kpi === "clicks") return (b.clicks || 0) - (a.clicks || 0);
-  if (kpi === "ctr") return ((b.clicks / b.views) || 0) - ((a.clicks / a.views) || 0);
-
-  return (b.views || 0) - (a.views || 0);
-});
-
-    renderOverviewTable(rows, getOverviewKey);
-  }
-
-  
-
-  if (OVERVIEW_TAB === "cities") {
-
-    const { data, error } =
-      await sb.rpc("analytics_top_cities", {
-        p_days: days,
-        p_limit: 100
-      });
-
-
-    if (error) return renderOverviewError(error);
-
-    rows = data || [];
-    rows.sort((a, b) => {
-
-  const kpi = getKPI();
-
-  if (kpi === "users") return (b.users || 0) - (a.users || 0);
-  if (kpi === "clicks") return (b.clicks || 0) - (a.clicks || 0);
-  if (kpi === "ctr") return ((b.clicks / b.views) || 0) - ((a.clicks / a.views) || 0);
-
-  return (b.views || 0) - (a.views || 0);
-});
-
- renderOverviewTable(rows, getOverviewKey);
-  }
-
-  if (OVERVIEW_TAB === "stores") {
-
-    const { data, error } =
-      await sb.rpc("analytics_top_stores", {
-        p_days: days,
-        p_limit: 100
-      });
-
-    if (error) return renderOverviewError(error);
-
-    rows = data || [];
-    rows.sort((a, b) => {
-
-  const kpi = getKPI();
-
-  if (kpi === "users") return (b.users || 0) - (a.users || 0);
-  if (kpi === "clicks") return (b.clicks || 0) - (a.clicks || 0);
-  if (kpi === "ctr") return ((b.clicks / b.views) || 0) - ((a.clicks / a.views) || 0);
-
-  return (b.views || 0) - (a.views || 0);
-});
-
- renderOverviewTable(rows, getOverviewKey);
-  }
-}
-
-function renderOverviewError(err) {
-
-  console.error("Overview error", err);
-
-  overviewTableBody.innerHTML =
-    `<tr><td colspan="4" class="muted center">Error loading overview.</td></tr>`;
-}
-
-function renderOverviewTable(rows, keyFn) {
-
-  CURRENT_OVERVIEW_ROWS = rows || [];
-
-  if (!rows.length) {
-    overviewTableBody.innerHTML =
-      `<tr><td colspan="5" class="muted center">No data yet.</td></tr>`;
-    return;
-  }
-
-  overviewTableBody.innerHTML = rows.map(r => {
-
-    const users = Number(r.users || 0);
-    const views = Number(r.views || 0);
-    const clicks = Number(r.clicks || 0);
-
-    const ctr =
-      views
-        ? ((clicks / views) * 100).toFixed(1) + "%"
-        : "0%";
-
-   // 🔥 KPI-driven primary value
-let primary = 0;
-
-const kpi = getKPI();
-
-if (kpi === "users") primary = users;
-else if (kpi === "views") primary = views;
-else if (kpi === "clicks") primary = clicks;
-else if (kpi === "ctr") primary = ctr;
-else primary = views;
-
-    return `
-      <tr class="overview-row" data-key="${escapeHtml(keyFn(r))}">
-        <td>${escapeHtml(keyFn(r))}</td>
-        <td class="num">${primary} 🔥</td>
-        <td class="num">${views}</td>
-        <td class="num">${clicks}</td>
-        <td class="num">${ctr}</td>
-      </tr>
-    `;
-
-  }).join("");
-
-  setTimeout(() => {
-
-    const rowsEls = overviewTableBody.querySelectorAll(".overview-row");
-
-    console.log("BINDING ROWS:", rowsEls.length);
-
-    rowsEls.forEach(tr => {
-
-      tr.style.cursor = "pointer";
-
-      tr.addEventListener("click", async () => {
-
-        const key = tr.dataset.key;
-
-        console.log("CLICKED:", key);
-
-        if (OVERVIEW_TAB === "countries") {
-          OVERVIEW_TAB = "cities";
-          await renderOverview();
-          return;
-        }
-
-        if (OVERVIEW_TAB === "cities") {
-          OVERVIEW_TAB = "stores";
-          await renderOverview();
-          return;
-        }
-
-        if (OVERVIEW_TAB === "stores") {
-          console.log("TODO: open store", key);
-        }
-
-      });
-
-    });
-
-  }, 0);
-
-}
-
-function filterOverview() {
-
-  const q = (overviewSearch?.value || "").toLowerCase().trim();
-
-  // inget filter → visa allt igen
-  if (!q) {
-    renderOverviewTable(CURRENT_OVERVIEW_ROWS, getOverviewKey);
-    return;
-  }
-
-  const filtered = CURRENT_OVERVIEW_ROWS.filter(r => {
-
-    const key = getOverviewKey(r).toLowerCase();
-
-    return key.includes(q);
-  });
-
-  renderOverviewTable(filtered, getOverviewKey);
-}
-
-function getOverviewKey(r) {
-
-  if (OVERVIEW_TAB === "days") {
-    return r.day || "—";
-  }
-
-  if (OVERVIEW_TAB === "countries") {
-    return r.country || "—";
-  }
-
-  if (OVERVIEW_TAB === "cities") {
-    return [r.city, r.country].filter(Boolean).join(", ");
-  }
-
-  if (OVERVIEW_TAB === "stores") {
-    return `${r.name || "—"} (${[r.city, r.country].filter(Boolean).join(", ")})`;
-  }
-
-  return "—";
-}
 
 /* ============================================================
    EXPORT / EMAIL
