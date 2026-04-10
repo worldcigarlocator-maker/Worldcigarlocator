@@ -1,6 +1,7 @@
 
 import { supabase } from "./globals.js";
 import { renderUsersOverview } from "./funnel-users.js";
+import { renderMarket, renderHeatmap } from "./funnel-market.js";
 import {
   getKPI,
   setKPI,
@@ -48,8 +49,6 @@ if (globalRangeSelect) {
 
     await loadGlobalKpis();
     await loadTrafficFlow();
-    await loadHeatmap();
-    await loadMarketTable(days);
     await renderOverview();
 
     if (ACTIVE_STORE) {
@@ -393,21 +392,17 @@ function bindKpiMini() {
       // -------------------------
       // MARKET (views / clicks / ctr)
       // -------------------------
-      marketView?.classList.remove("hidden");
+     marketView?.classList.remove("hidden");
 
-      updateDrilldownUI("market");
+updateDrilldownUI("market");
 
-      if (kpi === "views") {
-        await loadHeatmap();
-      }
+const days = Number(globalRangeSelect?.value || 30);
 
-      await loadMarketTable();
-
-    });
-
-  });
-
+if (kpi === "views") {
+  await renderHeatmap(days);
 }
+
+await renderMarket(days);
 
       // ============================================================
       // USERS = HOME (DEFAULT)
@@ -1385,8 +1380,12 @@ function init() {
   // 🔹 data load (ONLY USERS)
   renderUsersOverview();
 
-  // 🔹 background loads (non-blocking)
-  loadGlobalKpis();
+// 🔹 background loads
+loadGlobalKpis();
+
+// preload market (optional men bra UX)
+renderHeatmap();
+renderMarket();
 
 }
 
