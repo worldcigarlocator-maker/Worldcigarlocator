@@ -361,6 +361,50 @@ margin:0 0 16px 0;
   color:#4DD0E1;
 }
 
+/* ============================================================
+   KPI COLOR SYSTEM
+============================================================ */
+
+/* USERS (neutral) */
+.kpi-users.active{
+  border-color:rgba(255,255,255,0.3);
+}
+.kpi-users.active .kpi-value{
+  color:#fff;
+}
+
+/* STORES (brand bronze) */
+.kpi-stores.active{
+  border-color:rgba(var(--global),0.5);
+}
+.kpi-stores.active .kpi-value{
+  color:rgb(var(--global));
+}
+
+/* VIEWS (purple) */
+.kpi-views.active{
+  border-color:rgba(168,85,247,0.5);
+}
+.kpi-views.active .kpi-value{
+  color:#a855f7;
+}
+
+/* CLICKS (orange) */
+.kpi-clicks.active{
+  border-color:rgba(251,146,60,0.5);
+}
+.kpi-clicks.active .kpi-value{
+  color:#fb923c;
+}
+
+/* CTR (turquoise) */
+.kpi-ctr.active{
+  border-color:rgba(34,211,238,0.5);
+}
+.kpi-ctr.active .kpi-value{
+  color:#22d3ee;
+}
+
 /* =========================================
    TABLE ALIGN FIX
    ========================================= */
