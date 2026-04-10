@@ -426,25 +426,11 @@ function bindKpiMini() {
         return;
       }
 
-      // ============================================================
-      // ALLA ANDRA KPI = MARKET DATA
-      // ============================================================
+ /* ============================================================
+   USERS = HOME (DEFAULT)
+   ============================================================ */
 
-      document.querySelectorAll(".analytics-tab")
-        .forEach(el => el.classList.add("hidden"));
-
-      document.getElementById("tab-market")
-        ?.classList.remove("hidden");
-
-      updateDrilldownUI("market");
-
-      await loadMarketTable();
-
-    });
-
-  });
-
-}
+   // OLD TAB ROUTING REMOVED (CLEAN KPI FLOW)
 
 /* ============================================================
    STORES INDEX
@@ -1361,52 +1347,6 @@ tr.addEventListener("click", () => {
 
   }
 }
-// ============================================================
-// TAB NAVIGATION
-// ============================================================
-
-function initTabs() {
-
-  const tabs = document.querySelectorAll(".btn.tab");
-
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", async () => {
-
-      // active state
-      tabs.forEach((t) => t.classList.remove("active"));
-      tab.classList.add("active");
-
-      // hide all tabs
-      document.querySelectorAll(".analytics-tab")
-        .forEach((el) => el.classList.add("hidden"));
-
-      // show selected tab
-      const target = document.getElementById("tab-" + tab.dataset.tab);
-      if (target) {
-        target.classList.remove("hidden");
-      }
-
-      // load data per tab
-      const days = Number(globalRangeSelect?.value || 30);
-
-      if (tab.dataset.tab === "market") {
-        await loadHeatmap();
-        await loadMarketTable(days);
-      }
-
-if (tab.dataset.tab === "overview") {
-  updateDrilldownUI("overview"); // 🔥 LÄGG TILL
-  await renderOverview();
-}
-
-      if (tab.dataset.tab === "stores") {
-        await loadTopStores();
-      }
-
-    });
-  });
-}
-
 
 // ============================================================
 // INIT
