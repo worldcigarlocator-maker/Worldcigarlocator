@@ -456,14 +456,14 @@ storePanel.scrollIntoView({
   block: "start"
 });
 
-// 🔥 FORCE CLEAN TAB SWITCH
+// 🔥 FORCE CLEAN TAB SWITCH (CLASS-BASED)
 document.querySelectorAll(".analytics-tab").forEach(el => {
-  el.style.display = "none";   // 🔥 istället för class hidden
+  el.classList.add("hidden");
 });
 
 const overviewTab = document.getElementById("tab-overview");
 if (overviewTab) {
-  overviewTab.style.display = "block"; // 🔥 tvinga fram
+  overviewTab.classList.remove("hidden");
 }
 
 // 🔥 CONTINUE
