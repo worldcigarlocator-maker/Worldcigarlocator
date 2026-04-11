@@ -279,18 +279,22 @@ function bindKpiMini() {
         return;
       }
 
-      // -------------------------
-      // MARKET
-      // -------------------------
-      marketView?.classList.remove("hidden");
-      updateDrilldownUI("market");
+   // -------------------------
+// MARKET
+// -------------------------
+marketView?.classList.remove("hidden");
 
-      if (kpi === "views") {
-        await renderHeatmap(days);
-      }
+updateDrilldownUI("market");
 
-      await renderMarket(days);
+if (kpi === "views") {
+  await renderHeatmap(days);
+}
 
+// 🔥 ADD THIS
+await loadTrafficFlow();
+
+// 🔥 AND THIS
+await renderMarket(days);
     });
   });
 
