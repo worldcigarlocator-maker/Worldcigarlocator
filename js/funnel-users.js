@@ -54,7 +54,7 @@ export async function renderUsersOverview(days = 30) {
     // RENDER
     tbody.innerHTML = data.map(row => `
       <tr>
-        <td>${row.date}</td>
+        <td>${row.day || "—"}</td>
         <td class="num">${row.users ?? 0}</td>
       </tr>
     `).join("");
