@@ -808,18 +808,23 @@ async function loadTrafficFlow() {
 // INIT
 // ============================================================
 
+// ============================================================
+// INIT
+// ============================================================
+
 function init() {
 
   console.log("🔥 INIT RUNNING");
 
-  // 🔹 bindings
-  bindUI();
+  // ❌ bindUI borttagen (fanns inte)
+
+  // 🔹 KPI click system
   bindKpiMini();
 
   // 🔹 default KPI
   setKPI("users");
 
-  // 🔹 active state UI
+  // 🔹 active UI state
   document.querySelectorAll(".kpi-card")
     .forEach(el => el.classList.remove("active"));
 
@@ -838,15 +843,11 @@ function init() {
   // 🔹 toolbar
   updateDrilldownUI("overview");
 
-  // 🔹 data load (ONLY USERS)
+  // 🔹 initial render
   renderUsersOverview();
 
-// 🔹 background loads
-loadGlobalKpis();
-
-// preload market (optional men bra UX)
-renderHeatmap();
-renderMarket();
+  // 🔹 background
+  loadGlobalKpis();
 
 }
 
