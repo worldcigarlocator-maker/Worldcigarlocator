@@ -241,7 +241,10 @@ function bindKpiMini() {
 
       console.log("KPI CLICK:", kpi);
 
+      // 🔥 RESET ALLT
       items.forEach((i) => i.classList.remove("active"));
+
+      // 🔥 SÄTT NY ACTIVE
       el.classList.add("active");
 
       setKPI(kpi);
@@ -256,6 +259,9 @@ function bindKpiMini() {
 
       const days = Number(globalRangeSelect?.value || 30);
 
+      // -------------------------
+      // USERS
+      // -------------------------
       if (kpi === "users") {
         usersView?.classList.remove("hidden");
         updateDrilldownUI("overview");
@@ -263,6 +269,9 @@ function bindKpiMini() {
         return;
       }
 
+      // -------------------------
+      // STORES
+      // -------------------------
       if (kpi === "stores") {
         storesView?.classList.remove("hidden");
         updateDrilldownUI("stores");
@@ -270,6 +279,9 @@ function bindKpiMini() {
         return;
       }
 
+      // -------------------------
+      // MARKET
+      // -------------------------
       marketView?.classList.remove("hidden");
       updateDrilldownUI("market");
 
