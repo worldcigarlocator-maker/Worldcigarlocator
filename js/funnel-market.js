@@ -45,10 +45,13 @@ console.log("RAW DATA:", data);
 
   if (LEVEL === "country") {
 
-    const { data: res, error } = await sb.rpc("analytics_top_countries", {
-      p_days: days,
-      p_limit: 100
-    });
+  const { data: res, error } = await sb.rpc("analytics_top_countries", {
+  p_days: days,
+  p_limit: 100
+});
+
+console.log("RPC RESULT:", res);
+console.log("RPC ERROR:", error);
 
     if (error) {
       console.error("❌ countries error", error);
