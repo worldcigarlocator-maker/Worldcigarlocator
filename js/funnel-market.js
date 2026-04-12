@@ -30,6 +30,8 @@ function getHeatmapBody() {
 
 export async function renderMarket(days = 30) {
 
+  console.log("RENDER MARKET KPI:", getKPI());
+
    console.log("LEVEL:", getLevel());
 console.log("COUNTRY:", getActiveCountry());
    
