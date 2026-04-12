@@ -10,7 +10,8 @@ import {
   getActiveDay,
   setActiveDay,
   getActiveCountry,
-  applyCountry
+  applyCountry,
+  subscribe   // 🔥 lägg till denna
 } from "./analytics-state.js";
 
 console.log("🔥 KPI SCRIPT LOADED");
