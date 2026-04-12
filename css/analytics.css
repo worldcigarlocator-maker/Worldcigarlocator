@@ -660,10 +660,32 @@ table tr{
     inset 0 1px 0 rgba(255,255,255,.15);
 }
 
-/* ============================================================
-   HIDDEN STATE (CRITICAL)
-   ============================================================ */
 
+
+/* ============================================================
+   HIDDEN STATE
+   ============================================================ */
 .hidden{
   display:none !important;
 }
+
+/* ============================================================
+   KPI ACTIVE STATE
+   ============================================================ */
+.kpi-card{
+  transition: all 0.2s ease;
+  opacity: 0.6;
+}
+
+.kpi-card.active{
+  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.kpi-users.active{ border-color: rgba(0,200,255,0.4); }
+.kpi-stores.active{ border-color: rgba(255,180,0,0.4); }
+.kpi-views.active{ border-color: rgba(180,120,255,0.4); }
+.kpi-clicks.active{ border-color: rgba(255,120,0,0.4); }
+.kpi-ctr.active{ border-color: rgba(0,255,200,0.4); }
