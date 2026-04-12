@@ -279,9 +279,6 @@ function bindKpiMini() {
         return;
       }
 
-   // -------------------------
-// MARKET
-// -------------------------
 // -------------------------
 // MARKET
 // -------------------------
@@ -296,6 +293,11 @@ await renderMarket(days);
 if (kpi === "views") {
   await renderHeatmap(days);
 }
+        }); // 🔥 stänger click
+
+  }); // 🔥 stänger foreach
+
+} // 🔥 stänger bindKpiMini
 
 /* ============================================================
    STORES INDEX
