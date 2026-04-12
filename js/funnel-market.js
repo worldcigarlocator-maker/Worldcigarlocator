@@ -134,10 +134,10 @@ console.log("RPC ERROR:", error);
     return `
       <tr data-country="${r.country}">
         <td>${label || "-"}</td>
-        <td class="num">${r.users || 0}</td>
-        <td class="num">${r.views || 0}</td>
-        <td class="num">${r.clicks || 0}</td>
-        <td class="num">${ctr}</td>
+      <td class="num">0</td>
+<td class="num">${r.count || 0}</td>
+<td class="num">0</td>
+<td class="num">0%</td>
       </tr>
     `;
   }).join("");
