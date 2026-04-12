@@ -369,9 +369,6 @@ margin:0 0 16px 0;
 .kpi-users.active{
   border-color:rgba(255,255,255,0.3);
 }
-.kpi-users.active .kpi-value{
-  color:#fff;
-}
 
 /* STORES (brand bronze) */
 .kpi-stores.active{
@@ -689,3 +686,45 @@ table tr{
 .kpi-views.active{ border-color: rgba(180,120,255,0.4); }
 .kpi-clicks.active{ border-color: rgba(255,120,0,0.4); }
 .kpi-ctr.active{ border-color: rgba(0,255,200,0.4); }
+
+/* ============================================================
+   TABLE POLISH (SPACING + PREMIUM LOOK)
+   ============================================================ */
+
+.table{
+  border-collapse:separate;
+  border-spacing:0 8px;
+}
+
+.table tbody tr{
+  background:#0a0a0a;
+  border:1px solid rgba(255,255,255,0.06);
+  transition:all 0.15s ease;
+}
+
+.table tbody tr:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,255,255,0.12);
+  background:#0f0f0f;
+}
+
+.table td{
+  padding:14px 16px;
+}
+
+.table th{
+  padding:10px 16px;
+  opacity:0.6;
+  font-weight:500;
+}
+
+/* left align first column */
+.table td:first-child,
+.table th:first-child{
+  text-align:left;
+}
+
+/* numbers right */
+.table td.num{
+  text-align:right;
+}
