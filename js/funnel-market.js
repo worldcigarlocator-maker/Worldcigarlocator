@@ -25,11 +25,14 @@ function getHeatmapBody() {
 }
 
 /* ============================================================
-   MARKET TABLE
+  RENDER MARKET
    ============================================================ */
 
 export async function renderMarket(days = 30) {
 
+   console.log("LEVEL:", getLevel());
+console.log("COUNTRY:", getActiveCountry());
+   
   const LEVEL = getLevel();
   const COUNTRY = getActiveCountry();
 
