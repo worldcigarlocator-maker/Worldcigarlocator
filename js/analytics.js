@@ -248,6 +248,7 @@ function bindKpiMini() {
       el.classList.add("active");
 
       setKPI(kpi);
+      await new Promise(r => setTimeout(r, 0));
 
       const usersView = document.getElementById("view-users");
       const marketView = document.getElementById("view-market");
