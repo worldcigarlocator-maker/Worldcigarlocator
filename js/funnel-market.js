@@ -29,9 +29,8 @@ function getHeatmapBody() {
    ============================================================ */
 
 export async function renderMarket(days = 30) {
-
-  console.log("RENDER MARKET KPI:", getKPI());
-
+   console.log("RENDER MARKET KPI:", getKPI());
+console.trace("RENDER MARKET TRACE");
    console.log("LEVEL:", getLevel());
 console.log("COUNTRY:", getActiveCountry());
    
