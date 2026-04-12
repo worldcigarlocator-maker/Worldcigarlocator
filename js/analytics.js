@@ -286,14 +286,13 @@ marketView?.classList.remove("hidden");
 
 updateDrilldownUI("market");
 
+// 🔥 VÄNTA PÅ DOM
+await new Promise(r => setTimeout(r, 0));
+
 if (kpi === "views") {
   await renderHeatmap(days);
 }
 
-// 🔥 ADD THIS
-await loadTrafficFlow();
-
-// 🔥 AND THIS
 await renderMarket(days);
     });
   });
