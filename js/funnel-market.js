@@ -12,8 +12,17 @@ import {
 
 const sb = supabase;
 
-const marketDemandBody = document.getElementById("marketDemandBody");
-const heatmapBody = document.getElementById("heatmapBody");
+/* ============================================================
+   DOM (DYNAMIC — NO CACHING)
+   ============================================================ */
+
+function getMarketBody() {
+  return document.getElementById("marketDemandBody");
+}
+
+function getHeatmapBody() {
+  return document.getElementById("heatmapBody");
+}
 
 /* ============================================================
    MARKET TABLE
@@ -26,28 +35,45 @@ export async function renderMarket(days = 30) {
 
   let data = [];
 
+  /* ============================================================
+     FETCH
+     ============================================================ */
+
   if (LEVEL === "country") {
 
-    const { data: res } = await sb.rpc("analytics_top_countries", {
+    const { data: res, error } = await sb.rpc("analytics_top_countries", {
       p_days: days,
       p_limit: 100
     });
+
+    if (error) {
+      console.error("❌ countries error", error);
+      return;
+    }
 
     data = res || [];
   }
 
   if (LEVEL === "city" && COUNTRY) {
 
-    const { data: res } = await sb.rpc("analytics_top_cities", {
+    const { data: res, error } = await sb.rpc("analytics_top_cities", {
       p_days: days,
       p_country: COUNTRY,
       p_limit: 100
     });
 
+    if (error) {
+      console.error("❌ cities error", error);
+      return;
+    }
+
     data = res || [];
   }
 
-  /* SORT */
+  /* ============================================================
+     SORT (KPI DRIVEN)
+     ============================================================ */
+
   data.sort((a, b) => {
 
     switch (getKPI()) {
@@ -70,9 +96,24 @@ export async function renderMarket(days = 30) {
 
   });
 
-  if (!marketDemandBody) return;
+  /* ============================================================
+     RENDER
+     ============================================================ */
 
-  marketDemandBody.innerHTML = data.map(r => {
+  const tbody = getMarketBody();
+
+  if (!tbody) {
+    console.error("❌ marketDemandBody missing");
+    return;
+  }
+
+  if (!data.length) {
+    tbody.innerHTML =
+      `<tr><td colspan="5" class="muted center">No data yet.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map(r => {
 
     const ctr = r.views
       ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
@@ -85,16 +126,19 @@ export async function renderMarket(days = 30) {
     return `
       <tr data-country="${r.country}">
         <td>${label || "-"}</td>
-        <td>${r.users || 0}</td>
-        <td>${r.views || 0}</td>
-        <td>${r.clicks || 0}</td>
-        <td>${ctr}</td>
+        <td class="num">${r.users || 0}</td>
+        <td class="num">${r.views || 0}</td>
+        <td class="num">${r.clicks || 0}</td>
+        <td class="num">${ctr}</td>
       </tr>
     `;
   }).join("");
 
-  /* CLICK DRILLDOWN */
-  marketDemandBody.querySelectorAll("tr").forEach(row => {
+  /* ============================================================
+     DRILLDOWN
+     ============================================================ */
+
+  tbody.querySelectorAll("tr").forEach(row => {
 
     row.addEventListener("click", () => {
 
@@ -104,6 +148,7 @@ export async function renderMarket(days = 30) {
         if (!country) return;
 
         applyCountry(country);
+
         renderMarket(days);
       }
 
@@ -119,7 +164,12 @@ export async function renderMarket(days = 30) {
 
 export async function renderHeatmap(days = 30) {
 
-  if (!heatmapBody) return;
+  const tbody = getHeatmapBody();
+
+  if (!tbody) {
+    console.error("❌ heatmapBody missing");
+    return;
+  }
 
   const { data, error } = await sb.rpc(
     "analytics_heatmap_countries",
@@ -127,22 +177,22 @@ export async function renderHeatmap(days = 30) {
   );
 
   if (error) {
-    console.error("Heatmap error", error);
+    console.error("❌ heatmap error", error);
     return;
   }
 
   if (!data?.length) {
 
-    heatmapBody.innerHTML =
+    tbody.innerHTML =
       `<tr><td colspan="2" class="muted center">No data yet.</td></tr>`;
 
     return;
   }
 
-  heatmapBody.innerHTML = data.map(r => `
+  tbody.innerHTML = data.map(r => `
     <tr>
       <td>${r.country || "—"}</td>
-      <td class="num">${Number(r.views)}</td>
+      <td class="num">${Number(r.views || 0)}</td>
     </tr>
   `).join("");
 
