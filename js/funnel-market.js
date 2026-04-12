@@ -108,6 +108,7 @@ console.log("RPC ERROR:", error);
      ============================================================ */
 
   const tbody = getMarketBody();
+   console.log("TBODY:", tbody);
 
   if (!tbody) {
     console.error("❌ marketDemandBody missing");
