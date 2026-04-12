@@ -687,27 +687,27 @@ table tr{
 .kpi-clicks.active{ border-color: rgba(255,120,0,0.4); }
 .kpi-ctr.active{ border-color: rgba(0,255,200,0.4); }
 
+
 /* ============================================================
-   TABLE POLISH (SPACING + PREMIUM LOOK)
+   TABLE POLISH (CLEAN VERSION)
    ============================================================ */
 
 .table{
   border-collapse:separate;
-  border-spacing:0 8px;
+  border-spacing:0 10px;
 }
 
+/* rows */
 .table tbody tr{
-  background:#0a0a0a;
-  border:1px solid rgba(255,255,255,0.06);
   transition:all 0.15s ease;
 }
 
+/* hover */
 .table tbody tr:hover{
   transform:translateY(-1px);
-  border-color:rgba(255,255,255,0.12);
-  background:#0f0f0f;
 }
 
+/* cells */
 .table td{
   padding:14px 16px;
 }
@@ -718,13 +718,12 @@ table tr{
   font-weight:500;
 }
 
-/* left align first column */
+/* alignment */
 .table td:first-child,
 .table th:first-child{
   text-align:left;
 }
 
-/* numbers right */
 .table td.num{
   text-align:right;
 }
