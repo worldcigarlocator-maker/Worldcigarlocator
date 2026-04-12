@@ -3,11 +3,7 @@
 // ============================================================
 
 import { qs } from "./globals.js";
-import { initAnalytics } from "./analytics-frontend.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  initAnalytics();
-});
 
 // ============================================================
 // AGE GATE
