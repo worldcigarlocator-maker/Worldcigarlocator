@@ -37,7 +37,8 @@ console.log("COUNTRY:", getActiveCountry());
   const COUNTRY = getActiveCountry();
 
   let data = [];
-
+console.log("RAW DATA:", data);
+   
   /* ============================================================
      FETCH
      ============================================================ */
