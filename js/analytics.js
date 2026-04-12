@@ -282,21 +282,19 @@ function bindKpiMini() {
    // -------------------------
 // MARKET
 // -------------------------
+// -------------------------
+// MARKET
+// -------------------------
 marketView?.classList.remove("hidden");
 
 updateDrilldownUI("market");
 
-// 🔥 VÄNTA PÅ DOM
-await new Promise(r => setTimeout(r, 0));
+// 🔥 ALLTID render market först
+await renderMarket(days);
 
+// 🔥 endast heatmap för views
 if (kpi === "views") {
   await renderHeatmap(days);
-}
-
-await renderMarket(days);
-    });
-  });
-
 }
 
 /* ============================================================
