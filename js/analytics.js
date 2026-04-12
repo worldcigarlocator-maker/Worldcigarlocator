@@ -48,21 +48,13 @@ if (globalRangeSelect) {
 
     const days = Number(globalRangeSelect?.value || 30);
 
-    await loadGlobalKpis();
+await loadGlobalKpis();
 
-    // 🔥 DRIVEN BY KPI
-    const kpi = getKPI();
+// 🔥 trigga re-render via state
+setKPI(getKPI());
 
-    if (kpi === "users") {
-      await renderUsersOverview(days);
-    } else if (kpi === "stores") {
-      await renderTopStores(days);
-    } else {
-      if (kpi === "views") {
-        await renderHeatmap(days);
-      }
-      await renderMarket(days);
-    }
+
+// 🔥 STATE-DRIVEN (handled via subscribe)
 
     if (ACTIVE_STORE) {
       await loadStoreDossier(ACTIVE_STORE.id);
@@ -841,6 +833,7 @@ function init() {
 
   // 🔹 background
   loadGlobalKpis();
+  
 
 }
 
