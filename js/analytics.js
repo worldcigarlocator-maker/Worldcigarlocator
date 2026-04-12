@@ -287,18 +287,14 @@ marketView?.classList.remove("hidden");
 
 updateDrilldownUI("market");
 
-// 🔥 ALLTID render market först
-await renderMarket(days);
-
-// 🔥 endast heatmap för views
 if (kpi === "views") {
   await renderHeatmap(days);
 }
-        }); // 🔥 stänger click
-
-  }); // 🔥 stänger foreach
-
-} // 🔥 stänger bindKpiMini
+await renderMarket(days);
+      
+        }); 
+ }); 
+}
 
 /* ============================================================
    STORES INDEX
