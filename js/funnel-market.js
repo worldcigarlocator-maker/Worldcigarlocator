@@ -158,7 +158,6 @@ let data = [];
 
   renderMarket(days);
 }
-      }
 
     };
 
