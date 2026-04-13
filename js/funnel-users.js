@@ -3,6 +3,8 @@
    ============================================================ */
 
 import { supabase } from "./globals.js";
+import { setActiveDay } from "./analytics-state.js";
+import { getActiveDay } from "./analytics-state.js";
 
 const sb = supabase;
 
@@ -66,7 +68,13 @@ tbody.innerHTML = data.map(row => `
     const day = tr.dataset.day;
     if (!day) return;
 
-    console.log("DRILL USERS → DAY:", day);
+setActiveDay(day);
+
+// 🔥 byt till market view
+document.getElementById("view-users")?.classList.add("hidden");
+document.getElementById("view-market")?.classList.remove("hidden");
+
+console.log("DRILL → DAY:", day);
 
   });
 
