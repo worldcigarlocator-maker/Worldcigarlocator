@@ -27,7 +27,7 @@ return document.getElementById("heatmapBody");
 /* ============================================================
 RENDER MARKET
 ============================================================ */
-
+console.trace("WHO CALLED RENDER MARKET");
 export async function renderMarket(days = 30) {
 
 // 🔥 RENDER LOCK (PREVENT DOUBLE EXECUTION)
