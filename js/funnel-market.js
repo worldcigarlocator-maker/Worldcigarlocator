@@ -146,18 +146,18 @@ let data = [];
      DRILLDOWN
      ============================================================ */
 
-  tbody.querySelectorAll("tr").forEach(row => {
+  if (LEVEL === "country") {
 
-    row.onclick = () => {
+  const country = row.dataset.country;
+  if (!country) return;
 
-      if (LEVEL === "country") {
+  applyCountry(country);
 
-        const country = row.dataset.country;
-        if (!country) return;
+  // 🔥 gå ner en nivå
+  setLevel("city");
 
-        applyCountry(country);
-
-        renderMarket(days);
+  renderMarket(days);
+}
       }
 
     };
