@@ -70,9 +70,16 @@ tbody.innerHTML = data.map(row => `
 
 setActiveDay(day);
 
-// 🔥 byt till market view
+// 🔥 byt view
 document.getElementById("view-users")?.classList.add("hidden");
 document.getElementById("view-market")?.classList.remove("hidden");
+
+// 🔥 TRIGGA MARKET
+const days = Number(document.getElementById("globalRange")?.value || 30);
+
+import("./funnel-market.js").then(m => {
+  m.renderMarket(days);
+});
 
 console.log("DRILL → DAY:", day);
 
