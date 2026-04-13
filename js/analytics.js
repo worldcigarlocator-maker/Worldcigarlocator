@@ -283,6 +283,7 @@ updateDrilldownUI("market");
 if (kpi === "views") {
   await renderHeatmap(days);
 }
+      console.log("CURRENT KPI BEFORE RENDER:", getKPI());
 await renderMarket(days);
       
         }); 
