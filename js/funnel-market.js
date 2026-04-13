@@ -142,29 +142,39 @@ let data = [];
 
   }).join("");
 
-  /* ============================================================
-     DRILLDOWN
-     ============================================================ */
+  
+/* ============================================================
+   DRILLDOWN
+   ============================================================ */
 
-  if (LEVEL === "country") {
+tbody.querySelectorAll("tr").forEach(row => {
 
-  const country = row.dataset.country;
-  if (!country) return;
+  row.onclick = () => {
 
-  applyCountry(country);
+    // 🔹 COUNTRY → CITY
+    if (LEVEL === "country") {
 
-  // 🔥 gå ner en nivå
-  setLevel("city");
+      const country = row.dataset.country;
+      if (!country) return;
 
-  renderMarket(days);
-}
+      applyCountry(country);
+      setLevel("city");
 
-    };
+      renderMarket(days);
+      return;
+    }
 
-  });
+    // 🔹 CITY → (framtid / stop)
+    if (LEVEL === "city") {
 
-}
+      console.log("CITY CLICK:", row.dataset.country);
+      return;
+    }
 
+  };
+
+});
+   
 /* ============================================================
    HEATMAP
    ============================================================ */
