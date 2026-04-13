@@ -51,14 +51,26 @@ export async function renderUsersOverview(days = 30) {
       return;
     }
 
-    // RENDER
-    tbody.innerHTML = data.map(row => `
-      <tr>
-        <td>${row.day || "—"}</td>
-        <td class="num">${row.users ?? 0}</td>
-      </tr>
-    `).join("");
+ // RENDER
+tbody.innerHTML = data.map(row => `
+  <tr data-day="${row.day}">
+    <td>${row.day || "—"}</td>
+    <td class="num">${row.users ?? 0}</td>
+  </tr>
+`).join("");
 
+     document.querySelectorAll("#overviewTable tbody tr").forEach(tr => {
+
+  tr.addEventListener("click", () => {
+
+    const day = tr.dataset.day;
+    if (!day) return;
+
+    console.log("DRILL USERS → DAY:", day);
+
+  });
+
+});
   } catch (err) {
     console.error("Users overview crash", err);
   }
