@@ -48,7 +48,7 @@ FETCH
 
 if (LEVEL === "country") {
 
-```
+
 const { data: res, error } = await sb.rpc("analytics_top_countries", {
   p_days: days,
   p_limit: 100
@@ -61,13 +61,13 @@ if (error) {
 }
 
 data = res || [];
-```
+
 
 }
 
 if (LEVEL === "city" && COUNTRY) {
 
-```
+
 const { data: res, error } = await sb.rpc("analytics_top_cities", {
   p_days: days,
   p_country: COUNTRY,
@@ -81,7 +81,7 @@ if (error) {
 }
 
 data = res || [];
-```
+
 
 }
 
@@ -91,7 +91,7 @@ SORT (KPI DRIVEN)
 
 data.sort((a, b) => {
 
-```
+
 switch (getKPI()) {
 
   case "views":
@@ -109,7 +109,7 @@ switch (getKPI()) {
   default:
     return (b.views || 0) - (a.views || 0);
 }
-```
+
 
 });
 
@@ -134,7 +134,7 @@ return;
 
 tbody.innerHTML = data.map(r => {
 
-```
+
 const ctr = r.views
   ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
   : "0%";
@@ -152,7 +152,7 @@ return `
     <td class="num">${ctr}</td>
   </tr>
 `;
-```
+
 
 }).join("");
 
@@ -162,7 +162,7 @@ DRILLDOWN
 
 tbody.querySelectorAll("tr").forEach(row => {
 
-```
+
 row.addEventListener("click", () => {
 
   if (LEVEL === "country") {
@@ -175,7 +175,7 @@ row.addEventListener("click", () => {
   }
 
 });
-```
+
 
 });
 
@@ -208,12 +208,12 @@ return;
 
 if (!data?.length) {
 
-```
+
 tbody.innerHTML =
   `<tr><td colspan="2" class="muted center">No data yet.</td></tr>`;
 
 return;
-```
+
 
 }
 
