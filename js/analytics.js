@@ -292,10 +292,13 @@ await renderMarket(days);
 
 if (kpi === "views") {
   await renderHeatmap(days);
-}
 
-        });
-});
+  }); // click
+  });   // foreach
+}       // function
+
+
+
 /* ============================================================
    STORES INDEX
    ============================================================ */
