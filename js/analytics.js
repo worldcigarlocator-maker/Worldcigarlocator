@@ -280,14 +280,18 @@ marketView?.classList.remove("hidden");
 
 updateDrilldownUI("market");
 
+// 🔥 PANEL CONTROL
+const heatmapPanel = document.getElementById("heatmapBody")?.closest("section");
+
+if (heatmapPanel) {
+  heatmapPanel.style.display = (kpi === "views") ? "block" : "none";
+}
+
+// 🔥 RENDER
+await renderMarket(days);
+
 if (kpi === "views") {
   await renderHeatmap(days);
-}
-      console.log("CURRENT KPI BEFORE RENDER:", getKPI());
-await renderMarket(days);
-      
-        }); 
- }); 
 }
 
 /* ============================================================
