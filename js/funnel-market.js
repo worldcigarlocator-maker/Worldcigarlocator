@@ -1,212 +1,223 @@
 /* ============================================================
-   WCL — MARKET FUNNEL
-   ============================================================ */
+WCL — MARKET FUNNEL
+============================================================ */
 
 import { supabase } from "./globals.js";
 import {
-  getKPI,
-  getLevel,
-  getActiveCountry,
-  applyCountry
+getKPI,
+getLevel,
+getActiveCountry,
+applyCountry
 } from "./analytics-state.js";
 
 const sb = supabase;
 
 /* ============================================================
-   DOM (DYNAMIC — NO CACHING)
-   ============================================================ */
+DOM (DYNAMIC — NO CACHING)
+============================================================ */
 
 function getMarketBody() {
-  return document.getElementById("marketDemandBody");
+return document.getElementById("marketDemandBody");
 }
 
 function getHeatmapBody() {
-  return document.getElementById("heatmapBody");
+return document.getElementById("heatmapBody");
 }
 
 /* ============================================================
-  RENDER MARKET
-   ============================================================ */
+RENDER MARKET
+============================================================ */
 
 export async function renderMarket(days = 30) {
-   console.log("RENDER MARKET KPI:", getKPI());
+
+// 🔥 RENDER LOCK (PREVENT DOUBLE EXECUTION)
+if (window.__WCL_MARKET_RENDERING) return;
+window.__WCL_MARKET_RENDERING = true;
+
+console.log("RENDER MARKET KPI:", getKPI());
 console.trace("RENDER MARKET TRACE");
-   console.log("LEVEL:", getLevel());
-console.log("COUNTRY:", getActiveCountry());
-   
-  const LEVEL = getLevel();
-  const COUNTRY = getActiveCountry();
 
-  let data = [];
-console.log("RAW DATA:", data);
-   
-  /* ============================================================
-     FETCH
-     ============================================================ */
+const LEVEL = getLevel();
+const COUNTRY = getActiveCountry();
 
-  if (LEVEL === "country") {
+let data = [];
 
-  const { data: res, error } = await sb.rpc("analytics_top_countries", {
+/* ============================================================
+FETCH
+============================================================ */
+
+if (LEVEL === "country") {
+
+```
+const { data: res, error } = await sb.rpc("analytics_top_countries", {
   p_days: days,
   p_limit: 100
 });
 
-console.log("RPC RESULT:", res);
-console.log("RPC ERROR:", error);
+if (error) {
+  console.error("❌ countries error", error);
+  window.__WCL_MARKET_RENDERING = false;
+  return;
+}
 
-    if (error) {
-      console.error("❌ countries error", error);
-      return;
-    }
+data = res || [];
+```
 
-    data = res || [];
-  }
+}
 
-  if (LEVEL === "city" && COUNTRY) {
+if (LEVEL === "city" && COUNTRY) {
 
-    const { data: res, error } = await sb.rpc("analytics_top_cities", {
-      p_days: days,
-      p_country: COUNTRY,
-      p_limit: 100
-    });
+```
+const { data: res, error } = await sb.rpc("analytics_top_cities", {
+  p_days: days,
+  p_country: COUNTRY,
+  p_limit: 100
+});
 
-    if (error) {
-      console.error("❌ cities error", error);
-      return;
-    }
+if (error) {
+  console.error("❌ cities error", error);
+  window.__WCL_MARKET_RENDERING = false;
+  return;
+}
 
-    data = res || [];
-  }
+data = res || [];
+```
 
-  /* ============================================================
-     SORT (KPI DRIVEN)
-     ============================================================ */
+}
 
-  data.sort((a, b) => {
+/* ============================================================
+SORT (KPI DRIVEN)
+============================================================ */
 
-    switch (getKPI()) {
+data.sort((a, b) => {
 
-      case "views":
-        return (b.views || 0) - (a.views || 0);
+```
+switch (getKPI()) {
 
-      case "clicks":
-        return (b.clicks || 0) - (a.clicks || 0);
+  case "views":
+    return (b.views || 0) - (a.views || 0);
 
-      case "stores":
-        return (b.stores || 0) - (a.stores || 0);
+  case "clicks":
+    return (b.clicks || 0) - (a.clicks || 0);
 
-      case "ctr":
-        return ((b.clicks / b.views) || 0) - ((a.clicks / a.views) || 0);
+  case "stores":
+    return (b.stores || 0) - (a.stores || 0);
 
-      default:
-        return (b.views || 0) - (a.views || 0);
-    }
+  case "ctr":
+    return ((b.clicks / b.views) || 0) - ((a.clicks / a.views) || 0);
 
-  });
+  default:
+    return (b.views || 0) - (a.views || 0);
+}
+```
 
-  /* ============================================================
-     RENDER
-     ============================================================ */
+});
 
-  const tbody = getMarketBody();
-   console.log("TBODY:", tbody);
+/* ============================================================
+RENDER
+============================================================ */
 
-  if (!tbody) {
-    console.error("❌ marketDemandBody missing");
-    return;
-  }
+const tbody = getMarketBody();
 
-  if (!data.length) {
-    tbody.innerHTML =
-      `<tr><td colspan="5" class="muted center">No data yet.</td></tr>`;
-    return;
-  }
+if (!tbody) {
+console.error("❌ marketDemandBody missing");
+window.__WCL_MARKET_RENDERING = false;
+return;
+}
 
-  tbody.innerHTML = data.map(r => {
+if (!data.length) {
+tbody.innerHTML =
+`<tr><td colspan="5" class="muted center">No data yet.</td></tr>`;
+window.__WCL_MARKET_RENDERING = false;
+return;
+}
 
-    const ctr = r.views
-      ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
-      : "0%";
+tbody.innerHTML = data.map(r => {
 
-    const label = LEVEL === "country"
-      ? r.country
-      : [r.city, r.country].filter(Boolean).join(", ");
+```
+const ctr = r.views
+  ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
+  : "0%";
 
- return `
+const label = LEVEL === "country"
+  ? r.country
+  : [r.city, r.country].filter(Boolean).join(", ");
+
+return `
   <tr data-country="${r.country}">
     <td>${label || "-"}</td>
     <td class="num">${r.users || 0}</td>
     <td class="num">${r.views || 0}</td>
     <td class="num">${r.clicks || 0}</td>
-    <td class="num">${
-      r.views
-        ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
-        : "0%"
-    }</td>
+    <td class="num">${ctr}</td>
   </tr>
 `;
-  }).join("");
+```
 
-  /* ============================================================
-     DRILLDOWN
-     ============================================================ */
+}).join("");
 
-  tbody.querySelectorAll("tr").forEach(row => {
+/* ============================================================
+DRILLDOWN
+============================================================ */
 
-    row.addEventListener("click", () => {
+tbody.querySelectorAll("tr").forEach(row => {
 
-      if (LEVEL === "country") {
+```
+row.addEventListener("click", () => {
 
-        const country = row.dataset.country;
-        if (!country) return;
+  if (LEVEL === "country") {
 
-        applyCountry(country);
+    const country = row.dataset.country;
+    if (!country) return;
 
-        renderMarket(days);
-      }
+    applyCountry(country);
+    renderMarket(days);
+  }
 
-    });
+});
+```
 
-  });
+});
 
+// 🔥 RELEASE LOCK
+window.__WCL_MARKET_RENDERING = false;
 }
 
 /* ============================================================
-   HEATMAP
-   ============================================================ */
+HEATMAP
+============================================================ */
 
 export async function renderHeatmap(days = 30) {
 
-  const tbody = getHeatmapBody();
+const tbody = getHeatmapBody();
 
-  if (!tbody) {
-    console.error("❌ heatmapBody missing");
-    return;
-  }
+if (!tbody) {
+console.error("❌ heatmapBody missing");
+return;
+}
 
-  const { data, error } = await sb.rpc(
-    "analytics_heatmap_countries",
-    { p_days: days }
-  );
+const { data, error } = await sb.rpc(
+"analytics_heatmap_countries",
+{ p_days: days }
+);
 
-  if (error) {
-    console.error("❌ heatmap error", error);
-    return;
-  }
+if (error) {
+console.error("❌ heatmap error", error);
+return;
+}
 
-  if (!data?.length) {
+if (!data?.length) {
 
-    tbody.innerHTML =
-      `<tr><td colspan="2" class="muted center">No data yet.</td></tr>`;
+```
+tbody.innerHTML =
+  `<tr><td colspan="2" class="muted center">No data yet.</td></tr>`;
 
-    return;
-  }
+return;
+```
 
-  tbody.innerHTML = data.map(r => `
-    <tr>
-      <td>${r.country || "—"}</td>
-      <td class="num">${Number(r.views || 0)}</td>
-    </tr>
+}
+
+tbody.innerHTML = data.map(r => `     <tr>       <td>${r.country || "—"}</td>       <td class="num">${Number(r.views || 0)}</td>     </tr>
   `).join("");
 
 }
