@@ -6,6 +6,7 @@ import { supabase } from "./globals.js";
 import {
   getKPI,
   getLevel,
+  getActiveDay,
   getActiveCountry,
   applyCountry
 } from "./analytics-state.js";
@@ -35,11 +36,12 @@ export async function renderMarket(days = 30) {
   const tbody = getMarketBody();
   if (!tbody) return;
 
-  const LEVEL = getLevel();
-  const COUNTRY = getActiveCountry();
-  const KPI = getKPI();
+const LEVEL = getLevel();
+const COUNTRY = getActiveCountry();
+const KPI = getKPI();
+const DAY = getActiveDay();
 
-  let data = [];
+let data = [];
 
   /* ============================================================
      FETCH
@@ -47,10 +49,11 @@ export async function renderMarket(days = 30) {
 
   if (LEVEL === "country") {
 
-    const { data: res, error } = await sb.rpc("analytics_top_countries", {
-      p_days: days,
-      p_limit: 100
-    });
+   const { data: res, error } = await sb.rpc("analytics_top_countries", {
+  p_days: days,
+  p_day: DAY,
+  p_limit: 100
+});
 
     if (error) {
       console.error("❌ countries error", error);
@@ -62,11 +65,12 @@ export async function renderMarket(days = 30) {
 
   if (LEVEL === "city" && COUNTRY) {
 
-    const { data: res, error } = await sb.rpc("analytics_top_cities", {
-      p_days: days,
-      p_country: COUNTRY,
-      p_limit: 100
-    });
+   const { data: res, error } = await sb.rpc("analytics_top_cities", {
+  p_days: days,
+  p_day: DAY,
+  p_country: COUNTRY,
+  p_limit: 100
+});
 
     if (error) {
       console.error("❌ cities error", error);
