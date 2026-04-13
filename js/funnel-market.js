@@ -51,7 +51,7 @@ let data = [];
 
    const { data: res, error } = await sb.rpc("analytics_top_countries", {
   p_days: days,
-  p_day: DAY,
+  p_day: null,
   p_limit: 100
 });
 
@@ -67,7 +67,7 @@ let data = [];
 
    const { data: res, error } = await sb.rpc("analytics_top_cities", {
   p_days: days,
-  p_day: DAY,
+  p_day: null,
   p_country: COUNTRY,
   p_limit: 100
 });
