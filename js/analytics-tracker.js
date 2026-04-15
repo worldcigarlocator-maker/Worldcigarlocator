@@ -16,11 +16,11 @@ import { supabase } from "./globals.js";
       localStorage.setItem("wcl_session", session);
 
       // 🔥 TRACKA ENDAST NY SESSION
-      trackEvent("session_start", {
-        session_hash: session,
-        country: window.CURRENT_COUNTRY || null,
-        city: window.CURRENT_CITY || null
-      });
+   trackEvent("session_start", {
+  session_hash: session,
+  country: window.CURRENT_COUNTRY || "Sweden",
+  city: window.CURRENT_CITY || "Norrköping"
+});
 
       console.log("🔥 SESSION START:", session);
     }
