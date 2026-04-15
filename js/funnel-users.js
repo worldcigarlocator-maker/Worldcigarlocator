@@ -88,13 +88,20 @@ document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
     setActiveDay(day);
 
     // 🔥 UI
-    const drillPanel = document.getElementById("usersDrillPanel");
-    const overviewSection = document.getElementById("overviewTable")?.closest("section");
+document.getElementById("view-users")?.classList.remove("hidden");
+document.getElementById("view-market")?.classList.add("hidden");
+document.getElementById("view-stores")?.classList.add("hidden");
 
-    if (drillPanel) drillPanel.classList.remove("hidden");
-    if (overviewSection) overviewSection.classList.add("hidden");
-    const days = Number(document.getElementById("globalRange")?.value || 30);
- const m = await import("./funnel-market.js");
+// 🔥 USERS PANELS
+const drillPanel = document.getElementById("usersDrillPanel");
+const overviewSection = document.getElementById("overviewTable")?.closest("section");
+
+if (drillPanel) drillPanel.classList.remove("hidden");
+if (overviewSection) overviewSection.classList.add("hidden");
+
+// 🔥 RENDER FUNNEL I USERS-TABELLEN
+const days = Number(document.getElementById("globalRange")?.value || 30);
+const m = await import("./funnel-market.js");
 await m.renderMarket(days);
 
   };
