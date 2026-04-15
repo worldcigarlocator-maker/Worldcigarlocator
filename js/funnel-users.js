@@ -5,6 +5,7 @@
 import { supabase as sb } from "/js/globals.js";
 import { setActiveDay } from "/js/analytics-state.js";
 
+
 console.log("🔥 FUNNEL USERS LOADED");
 console.log("🔥 sb =", sb);
 console.log("🔥 typeof sb.rpc =", typeof sb?.rpc);
@@ -86,13 +87,19 @@ document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
 
     console.log("SET DAY:", day);
 
-    // 🔥 STATE (REN OCH KORREKT)
-    setActiveDay(day);
-
     // 🔥 RESET COUNTRY (garanterar LEVEL = country)
-    const state = await import("/js/analytics-state.js");
-    state.applyCountry(null);
+ const state = await import("/js/analytics-state.js");
 
+// 🔥 1. RESET COUNTRY
+state.applyCountry(null);
+
+// 🔥 2. FORCE LEVEL DIREKT EFTER
+state.setLevel?.("country");
+
+// 🔥 3. SÄTT DAG SIST
+setActiveDay(day);
+
+     
     // 🔥 UI
     document.getElementById("view-users")?.classList.remove("hidden");
     document.getElementById("view-market")?.classList.add("hidden");
