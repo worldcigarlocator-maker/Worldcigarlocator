@@ -140,23 +140,30 @@ submit?.addEventListener("click", async () => {
   if (label) label.textContent = "Logging in…";
 
   const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password: pass,
-  });
+  email,
+  password: pass,
+});
 
-  if (error) {
-    alert(error.message);
-    submit.disabled = false;
-    spinner?.classList.add("hidden");
-    if (label) label.textContent = "Login";
-    return;
-  }
-
+if (error) {
+  alert(error.message);
   submit.disabled = false;
   spinner?.classList.add("hidden");
   if (label) label.textContent = "Login";
+  return;
+}
 
-  hideLoginPopup();
+// 🔥 TRACK LOGIN (KRITISKT)
+if (window.trackEvent) {
+  window.trackEvent("user_login", {
+    email: email
+  });
+}
+
+submit.disabled = false;
+spinner?.classList.add("hidden");
+if (label) label.textContent = "Login";
+
+hideLoginPopup();
 });
 
 
