@@ -104,7 +104,6 @@ export async function trackEvent(eventType, payload = {}) {
     // ------------------------------------------------------------
     // BUILD PAYLOAD
     // ------------------------------------------------------------
-const geo = await getGeo();
 
 let geo = GEO;
 
