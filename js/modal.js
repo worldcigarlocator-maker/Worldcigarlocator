@@ -3,7 +3,7 @@
 // Canonical · RPC-Only · Backend Authority · No Table Access
 // ============================================================
 
-import { supabase } from "./globals.js";
+import { supabase } from "/js/globals.js";
 import { getLastRenderedStores } from "./cards.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
 import { trackEvent } from "./analytics-tracker.js";
