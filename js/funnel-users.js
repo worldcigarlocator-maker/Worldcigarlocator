@@ -103,7 +103,6 @@ if (overviewSection) overviewSection.classList.add("hidden");
 // 🔥 RENDER FUNNEL I USERS-TABELLEN
 const days = Number(document.getElementById("globalRange")?.value || 30);
 const m = await import("./funnel-market.js");
-await m.renderMarket(days);
 
   };
 
