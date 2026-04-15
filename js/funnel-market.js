@@ -113,18 +113,19 @@ if (KPI === "users") {
 
   if (LEVEL === "country") {
 
-    const { data: res, error } = await sb.rpc("analytics_top_countries", {
-      p_days: days,
-      p_day: null,
-      p_limit: 100
-    });
+ const { data: res, error } = await sb.rpc("analytics_top_countries", {
+  p_days: days,
+  p_day: getActiveDay(), // 🔥 FIX
+  p_limit: 100
+});
 
-    if (error) {
-      console.error("❌ countries error", error);
-      return;
-    }
+if (error) {
+  console.error("❌ countries error", error);
+  return;
+}
 
-    data = res || [];
+data = res || [];
+
   }
 
   if (LEVEL === "city" && COUNTRY) {
