@@ -77,15 +77,22 @@ import("./analytics-state.js").then(s => {
 
 console.log("SET DAY:", day);
 
-        // 🔥 byt view till market
-        document.getElementById("view-users")?.classList.add("hidden");
-        document.getElementById("view-market")?.classList.remove("hidden");
+       // 🔥 VISA DRILLDOWN I SAMMA VIEW
+document.getElementById("usersDrillPanel")?.classList.remove("hidden");
 
-        // 🔥 trigga market
-        import("./funnel-market.js").then(m => {
-          const days = Number(document.getElementById("globalRange")?.value || 30);
-          m.renderMarket(days);
-        });
+// 🔥 DÖLJ DAG-LISTAN
+document.getElementById("overviewTable")?.closest("section")?.classList.add("hidden");
+
+// 🔥 SÄKERSTÄLL LEVEL
+import("./analytics-state.js").then(s => {
+  s.setLevel("country");
+});
+
+// 🔥 RENDERA (utan att byta view)
+import("./funnel-market.js").then(m => {
+  const days = Number(document.getElementById("globalRange")?.value || 30);
+  m.renderMarket(days);
+});
 
       });
 
