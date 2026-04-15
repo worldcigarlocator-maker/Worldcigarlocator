@@ -3,7 +3,7 @@
 // ============================================================
 
 import { activateLocation } from "./cards.js";
-import { supabase } from "./globals.js";
+import { supabase } from "/js/globals.js";
 
 // ============================================================
 // GEO DEFAULT (AUTO OPEN CONTINENT)
