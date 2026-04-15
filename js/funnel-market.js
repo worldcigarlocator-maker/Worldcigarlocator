@@ -2,7 +2,7 @@
    WCL — MARKET FUNNEL (CANONICAL)
    ============================================================ */
 
-import { supabase } from "./globals.js";
+import { supabase } from "/js/globals.js";
 const sb = supabase;
 import {
   getKPI,
