@@ -106,6 +106,12 @@ export async function trackEvent(eventType, payload = {}) {
     // ------------------------------------------------------------
 const geo = await getGeo();
 
+let geo = GEO;
+
+if (!geo) {
+  geo = await getGeo();
+}
+
 const finalPayload = {
   event_type: eventType,
   session_hash: getSessionId(),
@@ -116,11 +122,11 @@ const finalPayload = {
     window?.CURRENT_SOURCE ??
     "direct",
 
-  // 🔥 GEO (OVERRIDE ALLT)
-  country: geo?.country || null,
-  city: geo?.city || null,
+  ...payload,
 
-  ...payload
+  // 🔥 GEO SIST (VIKTIGT)
+  country: geo?.country || null,
+  city: geo?.city || null
 };
 
     // ------------------------------------------------------------
