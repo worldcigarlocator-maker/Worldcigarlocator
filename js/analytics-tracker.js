@@ -1,15 +1,47 @@
 import { supabase } from "./globals.js";
 
+
 // ============================================================
-// SESSION ID
+// SESSION START (AUTO)
+// ============================================================
+
+(function trackSessionStart() {
+
+  try {
+
+    let session = localStorage.getItem("wcl_session");
+
+    if (!session) {
+      session = crypto.randomUUID();
+      localStorage.setItem("wcl_session", session);
+
+      // 🔥 TRACKA ENDAST NY SESSION
+      trackEvent("session_start", {
+        session_hash: session,
+        country: window.CURRENT_COUNTRY || null,
+        city: window.CURRENT_CITY || null
+      });
+
+      console.log("🔥 SESSION START:", session);
+    }
+
+  } catch (err) {
+    console.error("Session tracking failed", err);
+  }
+
+})();
+
+
+// ============================================================
+// SESSION ID (SINGLE SOURCE OF TRUTH)
 // ============================================================
 
 function getSessionId() {
-  let id = localStorage.getItem("wcl_session_id");
+  let id = localStorage.getItem("wcl_session");
 
   if (!id) {
     id = crypto.randomUUID();
-    localStorage.setItem("wcl_session_id", id);
+    localStorage.setItem("wcl_session", id);
   }
 
   return id;
