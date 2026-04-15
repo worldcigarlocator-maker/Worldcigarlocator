@@ -3,7 +3,7 @@
    ============================================================ */
 
 import { supabase } from "./globals.js";
-import { setActiveDay, setLevel } from "./analytics-state.js";
+import { setActiveDay } from "./analytics-state.js";
 import { renderMarket } from "./funnel-market.js";
 
 const sb = supabase;
