@@ -102,7 +102,7 @@ const finalPayload = {
     // ------------------------------------------------------------
     // DEBUG LOGS (VIKTIGA NU)
     // ------------------------------------------------------------
-    console.log("🚀 ANALYTICS PAYLOAD:", finalPayload);
+    console.log("🚀 ANALYTICS PAYLOAD:", JSON.stringify(finalPayload, null, 2));
     console.log("🌐 ENDPOINT:", endpoint);
 
     // ------------------------------------------------------------
