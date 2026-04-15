@@ -276,22 +276,35 @@ function bindKpiMini() {
 // -------------------------
 // MARKET
 // -------------------------
+// -------------------------
+// MARKET / USERS FUNNEL
+// -------------------------
 marketView?.classList.remove("hidden");
 
 updateDrilldownUI("market");
 
-// 🔥 PANEL CONTROL
+// 🔥 HÄMTA PANELER
 const heatmapPanel = document.getElementById("heatmapBody")?.closest("section");
+const performancePanel = document.getElementById("marketDemandBody")?.closest("section");
 
-if (heatmapPanel) {
-  heatmapPanel.style.display = (kpi === "views") ? "block" : "none";
+// 🔥 USERS MODE
+if (kpi === "users") {
+
+  // ❌ dölj heatmap
+  if (heatmapPanel) heatmapPanel.style.display = "none";
+
+  // ✔ visa table (funnel)
+  if (performancePanel) performancePanel.style.display = "block";
+
+  await renderMarket(days);
+  return; // 🔥 viktigt — stoppar resten
 }
 
-// 🔥 RENDER
-await renderMarket(days);
+// 🔥 VIEWS / CLICKS MODE
+if (heatmapPanel) heatmapPanel.style.display = "block";
 
-if (kpi === "views") {
-  await renderHeatmap(days);
+await renderMarket(days);
+await renderHeatmap(days);
 }
 
 }); // click
