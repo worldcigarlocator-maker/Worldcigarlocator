@@ -43,9 +43,7 @@ async function getGeo() {
 
       // 🔥 TRACKA ENDAST NY SESSION
 trackEvent("session_start", {
-  session_hash: session,
-  country: window.CURRENT_COUNTRY || "Sweden",
-  city: window.CURRENT_CITY || "Norrköping"
+  session_hash: session
 });
 
       console.log("🔥 SESSION START:", session);
