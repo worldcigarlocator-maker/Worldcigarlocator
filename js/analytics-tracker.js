@@ -1,4 +1,4 @@
-import { supabase } from "./globals.js";
+import { supabase } from "/js/globals.js";
 
 
 // ============================================================
