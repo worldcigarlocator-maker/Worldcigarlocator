@@ -274,9 +274,6 @@ function bindKpiMini() {
       }
 
 // -------------------------
-// MARKET
-// -------------------------
-// -------------------------
 // MARKET / USERS FUNNEL
 // -------------------------
 marketView?.classList.remove("hidden");
@@ -305,7 +302,6 @@ if (heatmapPanel) heatmapPanel.style.display = "block";
 
 await renderMarket(days);
 await renderHeatmap(days);
-}
 
 }); // click
 }); // foreach
