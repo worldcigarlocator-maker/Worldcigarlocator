@@ -1,9 +1,10 @@
 /* ============================================================
-   WCL — USERS FUNNEL (CANONICAL v2)
+   WCL — USERS FUNNEL (CANONICAL v3)
    ============================================================ */
 
 import { supabase } from "./globals.js";
-import { setActiveDay } from "./analytics-state.js";
+import { setActiveDay, setLevel } from "./analytics-state.js";
+import { renderMarket } from "./funnel-market.js";
 
 const sb = supabase;
 
@@ -32,7 +33,10 @@ export async function renderUsersOverview(days = 7) {
 
     if (!table || !tbody) return;
 
-    // HEADER
+    /* ============================================================
+       HEADER
+       ============================================================ */
+
     const thead = table.querySelector("thead");
     if (thead) {
       thead.innerHTML = `
@@ -43,7 +47,10 @@ export async function renderUsersOverview(days = 7) {
       `;
     }
 
-    // EMPTY
+    /* ============================================================
+       EMPTY
+       ============================================================ */
+
     if (!data?.length) {
       tbody.innerHTML = `
         <tr>
@@ -52,7 +59,10 @@ export async function renderUsersOverview(days = 7) {
       return;
     }
 
-    // 🔥 RENDER (alla dagar, även 0)
+    /* ============================================================
+       RENDER
+       ============================================================ */
+
     tbody.innerHTML = data.map(row => `
       <tr data-day="${row.day}">
         <td>${row.day || "—"}</td>
@@ -60,41 +70,32 @@ export async function renderUsersOverview(days = 7) {
       </tr>
     `).join("");
 
-    // 🔥 CLICK → DRILLDOWN
+    /* ============================================================
+       CLICK → DRILLDOWN
+       ============================================================ */
+
     document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
 
-      tr.addEventListener("click", () => {
+      tr.onclick = async () => {
 
         const day = tr.dataset.day;
         if (!day) return;
 
-     setActiveDay(day);
+        console.log("SET DAY:", day);
 
-// 🔥 RESET STATE RÄTT
-import("./analytics-state.js").then(s => {
-  s.setLevel("country");
-});
+        // 🔥 STATE
+        setActiveDay(day);
+        setLevel("country");
 
-console.log("SET DAY:", day);
+        // 🔥 UI
+        document.getElementById("usersDrillPanel")?.classList.remove("hidden");
+        document.getElementById("overviewTable")?.closest("section")?.classList.add("hidden");
 
-       // 🔥 VISA DRILLDOWN I SAMMA VIEW
-document.getElementById("usersDrillPanel")?.classList.remove("hidden");
+        // 🔥 RENDER FUNNEL
+        const days = Number(document.getElementById("globalRange")?.value || 30);
+        await renderMarket(days);
 
-// 🔥 DÖLJ DAG-LISTAN
-document.getElementById("overviewTable")?.closest("section")?.classList.add("hidden");
-
-// 🔥 SÄKERSTÄLL LEVEL
-import("./analytics-state.js").then(s => {
-  s.setLevel("country");
-});
-
-// 🔥 RENDERA (utan att byta view)
-import("./funnel-market.js").then(m => {
-  const days = Number(document.getElementById("globalRange")?.value || 30);
-  m.renderMarket(days);
-});
-
-      });
+      };
 
     });
 
