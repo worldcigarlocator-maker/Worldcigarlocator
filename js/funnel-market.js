@@ -36,13 +36,20 @@ export async function renderMarket(days = 30) {
   const tbody = getMarketBody();
   if (!tbody) return;
 
-const LEVEL = getLevel();
-const COUNTRY = getActiveCountry();
-const KPI = getKPI();
-const DAY = getActiveDay();
+  const LEVEL = getLevel();
+  const COUNTRY = getActiveCountry();
+  const KPI = getKPI();
+  const DAY = getActiveDay();
 
-let data = [];
+  // 🔥 LOGGA EFTER
+  console.log("KPI:", KPI);
+  console.log("LEVEL:", LEVEL);
+  console.log("DAY:", DAY);
+  console.log("COUNTRY:", COUNTRY);
 
+  let data = [];
+
+   
   /* ============================================================
    FETCH
    ============================================================ */
