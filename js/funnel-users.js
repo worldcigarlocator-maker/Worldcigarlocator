@@ -85,13 +85,12 @@ const day = new Date(localDay).toISOString().slice(0, 10);
 
     console.log("SET DAY:", day);
      
-const { setLevel } = await import("/js/analytics-state.js");
-
-// 🔥 SÄTT LEVEL FÖRST
-setLevel("country");
-
-// 🔥 SEN DAG
 setActiveDay(day);
+
+// 🔥 FORCE LEVEL VIA STATE
+import("/js/analytics-state.js").then((state) => {
+  state.applyCountry(null); // reset country
+});
     // 🔥 UI
 document.getElementById("view-users")?.classList.remove("hidden");
 document.getElementById("view-market")?.classList.add("hidden");
