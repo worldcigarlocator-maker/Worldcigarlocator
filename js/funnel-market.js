@@ -3,14 +3,6 @@
    ============================================================ */
 
 import { supabase } from "./globals.js";
-import {
-  getKPI,
-  getLevel,
-  getActiveDay,
-  getActiveCountry,
-  applyCountry
-} from "./analytics-state.js";
-
 const sb = supabase;
 
 /* ============================================================
@@ -32,17 +24,18 @@ function getHeatmapBody() {
 export async function renderMarket(days = 30) {
 
   console.trace("RENDER MARKET");
+   
+const LEVEL = getLevel();
+const COUNTRY = getActiveCountry();
+const KPI = getKPI();
+const DAY = getActiveDay();
 
 const tbody =
   KPI === "users"
     ? document.getElementById("usersDrillBody")
     : getMarketBody();
-  if (!tbody) return;
 
-  const LEVEL = getLevel();
-  const COUNTRY = getActiveCountry();
-  const KPI = getKPI();
-  const DAY = getActiveDay();
+if (!tbody) return;
 
   // 🔥 LOGGA EFTER
   console.log("KPI:", KPI);
