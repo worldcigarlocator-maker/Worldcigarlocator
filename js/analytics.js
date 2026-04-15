@@ -199,59 +199,37 @@ function goToMarketTab(panel = "panel-heatmap") {
 
 // OLD MARKET TABLE REMOVED (moved to funnel-market.js)
 
-      // ============================================================
-      // MARKET FLOW (alla andra KPI)
-      // ============================================================
+      // -------------------------
+// MARKET / USERS FUNNEL
+// -------------------------
+marketView?.classList.remove("hidden");
 
-function updateDrilldownUI(tab) {
+updateDrilldownUI("market");
 
-  const tb = document.getElementById("drilldownToolbar");
-  const title = document.getElementById("viewTitle");
+// 🔥 HÄMTA PANELER
+const heatmapPanel = document.getElementById("heatmapBody")?.closest("section");
+const performancePanel = document.getElementById("marketDemandBody")?.closest("section");
 
-  if (!tb || !title) return;
+// 🔥 USERS MODE
+if (kpi === "users") {
 
-  if (tab === "overview") {
-  tb.style.display = "block"; // 🔥 visa toolbar
+  // ❌ dölj heatmap
+  if (heatmapPanel) heatmapPanel.style.display = "none";
+
+  // ✔ visa table (funnel)
+  if (performancePanel) performancePanel.style.display = "block";
+
+  await renderMarket(days);
+  return; // 🔥 viktigt — stoppar resten
 }
 
-  // ✅ show annars
-  tb.style.display = "block";
+// 🔥 VIEWS / CLICKS MODE
+if (heatmapPanel) heatmapPanel.style.display = "block";
 
-  // 🔥 REMOVE TITLE (handled in UI instead)
-if (title) title.style.display = "none";
-  
-}
+await renderMarket(days);
+await renderHeatmap(days);
 
-function bindKpiMini() {
-
-  const items = document.querySelectorAll(".kpi-card");
-
-  items.forEach((el) => {
-    el.addEventListener("click", async () => {
-
-      const kpi = el.dataset.kpi;
-      if (!kpi) return;
-
-      console.log("KPI CLICK:", kpi);
-
-      // 🔥 RESET ALLT
-      items.forEach((i) => i.classList.remove("active"));
-
-      // 🔥 SÄTT NY ACTIVE
-      el.classList.add("active");
-
-      setKPI(kpi);
-      await new Promise(r => setTimeout(r, 0));
-
-      const usersView = document.getElementById("view-users");
-      const marketView = document.getElementById("view-market");
-      const storesView = document.getElementById("view-stores");
-
-      usersView?.classList.add("hidden");
-      marketView?.classList.add("hidden");
-      storesView?.classList.add("hidden");
-
-      const days = Number(globalRangeSelect?.value || 30);
+      
 
       // -------------------------
       // USERS
