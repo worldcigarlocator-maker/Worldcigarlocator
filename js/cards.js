@@ -2,7 +2,7 @@
 // CARDS.JS — WCL FRONTEND (DISCOVERY + SORT READY · v5)
 // ============================================================
 
-import { supabase } from "./globals.js";
+import { supabase } from "/js/globals.js";
 import { openModal } from "./modal.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
 import { trackEvent } from "./analytics-tracker.js";
