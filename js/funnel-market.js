@@ -59,28 +59,32 @@ if (!tbody) return;
 
 if (KPI === "users") {
 
-  if (LEVEL === "country" && DAY) {
+ if (LEVEL === "country" && DAY) {
 
-    const { data: res, error } = await sb.rpc(
-      "analytics_visitors_by_country",
-      { p_day: DAY }
-    );
-
-    console.log("VISITORS COUNTRY RES:", res);
-    console.log("VISITORS COUNTRY ERROR:", error);
-
-    if (error) {
-      console.error("❌ visitors country error", error);
-      return;
+  const { data: res, error } = await sb.rpc(
+    "analytics_top_countries",
+    {
+      p_days: days,
+      p_day: DAY,
+      p_limit: 100
     }
+  );
 
-    data = (res || []).map(r => ({
-      country: r.country,
-      users: r.users,
-      views: 0,
-      clicks: 0
-    }));
+  console.log("USERS COUNTRY RES:", res);
+  console.log("USERS COUNTRY ERROR:", error);
+
+  if (error) {
+    console.error("❌ users country error", error);
+    return;
   }
+
+  data = (res || []).map(r => ({
+    country: r.country,
+    users: r.users,
+    views: 0,
+    clicks: 0
+  }));
+}
 
   if (LEVEL === "city" && COUNTRY && DAY) {
 
