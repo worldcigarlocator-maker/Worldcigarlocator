@@ -1,6 +1,32 @@
 import { supabase } from "/js/globals.js";
 
 
+/* ============================================================
+   GEO (IP → Country)
+   ============================================================ */
+
+let GEO = null;
+
+async function getGeo() {
+  if (GEO) return GEO;
+
+  try {
+    const res = await fetch("https://ipapi.co/json/");
+    const data = await res.json();
+
+    GEO = {
+      country: data.country_name,
+      country_code: data.country_code,
+      city: data.city
+    };
+
+    return GEO;
+  } catch (err) {
+    console.warn("GEO FAILED", err);
+    return null;
+  }
+}
+
 // ============================================================
 // SESSION START (AUTO)
 // ============================================================
@@ -80,6 +106,8 @@ export async function trackEvent(eventType, payload = {}) {
     // ------------------------------------------------------------
     // BUILD PAYLOAD
     // ------------------------------------------------------------
+const geo = await getGeo();
+
 const finalPayload = {
   event_type: eventType,
   session_hash: getSessionId(),
@@ -89,6 +117,10 @@ const finalPayload = {
     window?.MODAL_SOURCE ??
     window?.CURRENT_SOURCE ??
     "direct",
+
+  // 🔥 GEO (OVERRIDE ALLT)
+  country: geo?.country || null,
+  city: geo?.city || null,
 
   ...payload
 };
