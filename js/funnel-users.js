@@ -80,34 +80,34 @@ document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
   tr.onclick = async () => {
 
     const localDay = tr.dataset.day;
-const day = new Date(localDay).toISOString().slice(0, 10);
-    if (!day) return;
+    if (!localDay) return;
+
+    const day = new Date(localDay).toISOString().slice(0, 10);
 
     console.log("SET DAY:", day);
-     
-setActiveDay(day);
 
-// 🔥 FORCE LEVEL VIA STATE
-import("/js/analytics-state.js").then((state) => {
-  state.applyCountry(null); // reset country
-});
+    // 🔥 STATE (REN OCH KORREKT)
+    setActiveDay(day);
+
+    // 🔥 RESET COUNTRY (garanterar LEVEL = country)
+    const state = await import("/js/analytics-state.js");
+    state.applyCountry(null);
+
     // 🔥 UI
-document.getElementById("view-users")?.classList.remove("hidden");
-document.getElementById("view-market")?.classList.add("hidden");
-document.getElementById("view-stores")?.classList.add("hidden");
+    document.getElementById("view-users")?.classList.remove("hidden");
+    document.getElementById("view-market")?.classList.add("hidden");
+    document.getElementById("view-stores")?.classList.add("hidden");
 
-// 🔥 USERS PANELS
-const drillPanel = document.getElementById("usersDrillPanel");
-const overviewSection = document.getElementById("overviewTable")?.closest("section");
+    const drillPanel = document.getElementById("usersDrillPanel");
+    const overviewSection = document.getElementById("overviewTable")?.closest("section");
 
-if (drillPanel) drillPanel.classList.remove("hidden");
-if (overviewSection) overviewSection.classList.add("hidden");
+    if (drillPanel) drillPanel.classList.remove("hidden");
+    if (overviewSection) overviewSection.classList.add("hidden");
 
-// 🔥 RENDER FUNNEL I USERS-TABELLEN
-const days = Number(document.getElementById("globalRange")?.value || 30);
-
-const m = await import("./funnel-market.js");
-await m.renderMarket(days);
+    // 🔥 RENDER
+    const days = Number(document.getElementById("globalRange")?.value || 30);
+    const m = await import("./funnel-market.js");
+    await m.renderMarket(days);
 
   };
 
