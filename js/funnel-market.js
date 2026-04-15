@@ -47,19 +47,18 @@ let data = [];
    FETCH
    ============================================================ */
 
-// 🔹 USERS-FUNNEL (logins)
 if (KPI === "users") {
 
-  // COUNTRY nivå
+  // 🔹 DAY → COUNTRY (Visitors)
   if (LEVEL === "country" && DAY) {
 
     const { data: res, error } = await sb.rpc(
-      "analytics_logins_by_country",
+      "analytics_visitors_by_country",
       { p_day: DAY }
     );
 
     if (error) {
-      console.error("❌ logins by country error", error);
+      console.error("❌ visitors country error", error);
       return;
     }
 
@@ -71,11 +70,11 @@ if (KPI === "users") {
     }));
   }
 
-  // CITY nivå
+  // 🔹 COUNTRY → CITY (Visitors)
   if (LEVEL === "city" && COUNTRY && DAY) {
 
     const { data: res, error } = await sb.rpc(
-      "analytics_logins_by_city",
+      "analytics_visitors_by_city",
       {
         p_day: DAY,
         p_country: COUNTRY
@@ -83,7 +82,7 @@ if (KPI === "users") {
     );
 
     if (error) {
-      console.error("❌ logins by city error", error);
+      console.error("❌ visitors city error", error);
       return;
     }
 
@@ -96,45 +95,7 @@ if (KPI === "users") {
     }));
   }
 
-} else {
-
-  // 🔹 GAMMAL (views/clicks) – lämnar orörd
-
-  if (LEVEL === "country") {
-
-    const { data: res, error } = await sb.rpc("analytics_top_countries", {
-      p_days: days,
-      p_day: null,
-      p_limit: 100
-    });
-
-    if (error) {
-      console.error("❌ countries error", error);
-      return;
-    }
-
-    data = res || [];
-  }
-
-  if (LEVEL === "city" && COUNTRY) {
-
-    const { data: res, error } = await sb.rpc("analytics_top_cities", {
-      p_days: days,
-      p_day: null,
-      p_country: COUNTRY,
-      p_limit: 100
-    });
-
-    if (error) {
-      console.error("❌ cities error", error);
-      return;
-    }
-
-    data = res || [];
-  }
-
 }
-
   /* ============================================================
      EMPTY STATE
      ============================================================ */
