@@ -42,7 +42,7 @@ async function getGeo() {
       localStorage.setItem("wcl_session", session);
 
       // 🔥 TRACKA ENDAST NY SESSION
-   trackEvent("session_start", {
+trackEvent("session_start", {
   session_hash: session,
   country: window.CURRENT_COUNTRY || "Sweden",
   city: window.CURRENT_CITY || "Norrköping"
