@@ -46,12 +46,13 @@ const storePanel = $("#storePanel");
 if (globalRangeSelect) {
   globalRangeSelect.addEventListener("change", async () => {
 
-const days = Number(globalRangeSelect?.value || 30);
+    const days = Number(globalRangeSelect?.value || 30);
 
 await loadGlobalKpis();
 
 // 🔥 trigga re-render via state
 setKPI(getKPI());
+
 
 // 🔥 STATE-DRIVEN (handled via subscribe)
 
