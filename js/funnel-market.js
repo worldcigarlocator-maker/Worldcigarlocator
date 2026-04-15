@@ -44,16 +44,69 @@ const DAY = getActiveDay();
 let data = [];
 
   /* ============================================================
-     FETCH
-     ============================================================ */
+   FETCH
+   ============================================================ */
+
+// 🔹 USERS-FUNNEL (logins)
+if (KPI === "users") {
+
+  // COUNTRY nivå
+  if (LEVEL === "country" && DAY) {
+
+    const { data: res, error } = await sb.rpc(
+      "analytics_logins_by_country",
+      { p_day: DAY }
+    );
+
+    if (error) {
+      console.error("❌ logins by country error", error);
+      return;
+    }
+
+    data = (res || []).map(r => ({
+      country: r.country,
+      users: r.users,
+      views: 0,
+      clicks: 0
+    }));
+  }
+
+  // CITY nivå
+  if (LEVEL === "city" && COUNTRY && DAY) {
+
+    const { data: res, error } = await sb.rpc(
+      "analytics_logins_by_city",
+      {
+        p_day: DAY,
+        p_country: COUNTRY
+      }
+    );
+
+    if (error) {
+      console.error("❌ logins by city error", error);
+      return;
+    }
+
+    data = (res || []).map(r => ({
+      city: r.city,
+      country: r.country,
+      users: r.users,
+      views: 0,
+      clicks: 0
+    }));
+  }
+
+} else {
+
+  // 🔹 GAMMAL (views/clicks) – lämnar orörd
 
   if (LEVEL === "country") {
 
-   const { data: res, error } = await sb.rpc("analytics_top_countries", {
-  p_days: days,
-  p_day: null,
-  p_limit: 100
-});
+    const { data: res, error } = await sb.rpc("analytics_top_countries", {
+      p_days: days,
+      p_day: null,
+      p_limit: 100
+    });
 
     if (error) {
       console.error("❌ countries error", error);
@@ -65,12 +118,12 @@ let data = [];
 
   if (LEVEL === "city" && COUNTRY) {
 
-   const { data: res, error } = await sb.rpc("analytics_top_cities", {
-  p_days: days,
-  p_day: null,
-  p_country: COUNTRY,
-  p_limit: 100
-});
+    const { data: res, error } = await sb.rpc("analytics_top_cities", {
+      p_days: days,
+      p_day: null,
+      p_country: COUNTRY,
+      p_limit: 100
+    });
 
     if (error) {
       console.error("❌ cities error", error);
@@ -79,6 +132,8 @@ let data = [];
 
     data = res || [];
   }
+
+}
 
   /* ============================================================
      EMPTY STATE
