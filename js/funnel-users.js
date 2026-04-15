@@ -84,10 +84,14 @@ const day = new Date(localDay).toISOString().slice(0, 10);
     if (!day) return;
 
     console.log("SET DAY:", day);
+     
+const { setLevel } = await import("/js/analytics-state.js");
 
-    // 🔥 STATE (endast dag)
-    setActiveDay(day);
+// 🔥 SÄTT LEVEL FÖRST
+setLevel("country");
 
+// 🔥 SEN DAG
+setActiveDay(day);
     // 🔥 UI
 document.getElementById("view-users")?.classList.remove("hidden");
 document.getElementById("view-market")?.classList.add("hidden");
@@ -102,7 +106,9 @@ if (overviewSection) overviewSection.classList.add("hidden");
 
 // 🔥 RENDER FUNNEL I USERS-TABELLEN
 const days = Number(document.getElementById("globalRange")?.value || 30);
+
 const m = await import("./funnel-market.js");
+await m.renderMarket(days);
 
   };
 
