@@ -92,7 +92,6 @@ document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
 
     if (drillPanel) drillPanel.classList.remove("hidden");
     if (overviewSection) overviewSection.classList.add("hidden");
-
     const days = Number(document.getElementById("globalRange")?.value || 30);
     await renderMarket(days);
 
