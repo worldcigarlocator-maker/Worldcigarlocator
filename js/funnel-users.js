@@ -1,10 +1,9 @@
 /* ============================================================
-   WCL — USERS FUNNEL
+   WCL — USERS FUNNEL (CANONICAL v2)
    ============================================================ */
 
 import { supabase } from "./globals.js";
 import { setActiveDay } from "./analytics-state.js";
-import { getActiveDay } from "./analytics-state.js";
 
 const sb = supabase;
 
@@ -12,16 +11,16 @@ const sb = supabase;
    USERS OVERVIEW
    ============================================================ */
 
-export async function renderUsersOverview(days = 30) {
+export async function renderUsersOverview(days = 7) {
 
   console.log("👤 USERS OVERVIEW");
 
   try {
 
     const { data, error } = await sb.rpc(
-  "analytics_users_by_day_v2",
-  { p_days: days }
-);
+      "analytics_users_by_day_v2",
+      { p_days: days }
+    );
 
     if (error) {
       console.error("Users overview error", error);
@@ -53,39 +52,39 @@ export async function renderUsersOverview(days = 30) {
       return;
     }
 
- // RENDER
-tbody.innerHTML = data.map(row => `
-  <tr data-day="${row.day}">
-    <td>${row.day || "—"}</td>
-    <td class="num">${row.users ?? 0}</td>
-  </tr>
-`).join("");
+    // 🔥 RENDER (alla dagar, även 0)
+    tbody.innerHTML = data.map(row => `
+      <tr data-day="${row.day}">
+        <td>${row.day || "—"}</td>
+        <td class="num">${row.users ?? 0}</td>
+      </tr>
+    `).join("");
 
-     document.querySelectorAll("#overviewTable tbody tr").forEach(tr => {
+    // 🔥 CLICK → DRILLDOWN
+    document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
 
-  tr.addEventListener("click", () => {
+      tr.addEventListener("click", () => {
 
-    const day = tr.dataset.day;
-    if (!day) return;
+        const day = tr.dataset.day;
+        if (!day) return;
 
-setActiveDay(day);
+        setActiveDay(day);
+        console.log("SET DAY:", day);
 
-// 🔥 byt view
-document.getElementById("view-users")?.classList.add("hidden");
-document.getElementById("view-market")?.classList.remove("hidden");
+        // 🔥 byt view till market
+        document.getElementById("view-users")?.classList.add("hidden");
+        document.getElementById("view-market")?.classList.remove("hidden");
 
-// 🔥 TRIGGA MARKET
-const days = Number(document.getElementById("globalRange")?.value || 30);
+        // 🔥 trigga market
+        import("./funnel-market.js").then(m => {
+          const days = Number(document.getElementById("globalRange")?.value || 30);
+          m.renderMarket(days);
+        });
 
-import("./funnel-market.js").then(m => {
-  m.renderMarket(days);
-});
+      });
 
-console.log("DRILL → DAY:", day);
+    });
 
-  });
-
-});
   } catch (err) {
     console.error("Users overview crash", err);
   }
