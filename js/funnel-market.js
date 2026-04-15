@@ -33,7 +33,10 @@ export async function renderMarket(days = 30) {
 
   console.trace("RENDER MARKET");
 
-  const tbody = getMarketBody();
+const tbody =
+  KPI === "users"
+    ? document.getElementById("usersDrillBody")
+    : getMarketBody();
   if (!tbody) return;
 
   const LEVEL = getLevel();
