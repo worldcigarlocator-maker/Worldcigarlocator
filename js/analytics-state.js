@@ -39,7 +39,11 @@ export function getKPI() {
 }
 
 export function getLevel() {
-  return STATE.level;
+
+  // 🔥 SINGLE SOURCE OF TRUTH
+  if (STATE.location?.country) return "city";
+
+  return "country";
 }
 
 export function getActiveDay() {
