@@ -4,6 +4,14 @@
 
 import { supabase } from "./globals.js";
 const sb = supabase;
+import {
+  getKPI,
+  getLevel,
+  getActiveCountry,
+  getActiveDay,
+  applyCountry,
+  setLevel
+} from "./analytics-state.js";
 
 /* ============================================================
    DOM (DYNAMIC — NO CACHING)
