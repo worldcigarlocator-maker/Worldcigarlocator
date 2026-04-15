@@ -51,8 +51,9 @@ if (globalRangeSelect) {
 await loadGlobalKpis();
 
 // 🔥 trigga re-render via state
-setKPI(getKPI());
-
+const kpi = getKPI();
+setKPI(null);
+setTimeout(() => setKPI(kpi), 0);
 
 // 🔥 STATE-DRIVEN (handled via subscribe)
 
@@ -743,6 +744,57 @@ async function loadTrafficFlow() {
 // ============================================================
 // INIT
 // ============================================================
+
+// ============================================================
+// SUBSCRIBE (STATE → RENDER)
+// ============================================================
+
+subscribe(async (state) => {
+
+  console.log("SUBSCRIBE TRIGGER", state.kpi);
+
+  const days = Number(globalRangeSelect?.value || 30);
+
+  const usersView = document.getElementById("view-users");
+  const marketView = document.getElementById("view-market");
+  const storesView = document.getElementById("view-stores");
+
+  usersView?.classList.add("hidden");
+  marketView?.classList.add("hidden");
+  storesView?.classList.add("hidden");
+
+  if (state.kpi === "users") {
+    usersView?.classList.remove("hidden");
+    updateDrilldownUI("overview");
+    await renderUsersOverview(days);
+    return;
+  }
+
+  if (state.kpi === "stores") {
+    storesView?.classList.remove("hidden");
+    updateDrilldownUI("stores");
+    await renderTopStores(days);
+    return;
+  }
+
+  marketView?.classList.remove("hidden");
+  updateDrilldownUI("market");
+
+  const heatmapPanel =
+    document.getElementById("heatmapBody")?.closest("section");
+
+  const performancePanel =
+    document.getElementById("marketDemandBody")?.closest("section");
+
+  if (heatmapPanel) heatmapPanel.style.display = "block";
+
+  await renderMarket(days);
+
+  if (state.kpi === "views" || state.kpi === "clicks") {
+    await renderHeatmap(days);
+  }
+
+});
 
 function init() {
 
