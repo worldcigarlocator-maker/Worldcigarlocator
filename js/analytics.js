@@ -274,29 +274,34 @@ function bindKpiMini() {
       }
 
 // -------------------------
-// MARKET
+// MARKET / USERS FUNNEL
 // -------------------------
 marketView?.classList.remove("hidden");
 
 updateDrilldownUI("market");
 
-// 🔥 PANEL CONTROL
+// 🔥 HÄMTA PANELER
 const heatmapPanel = document.getElementById("heatmapBody")?.closest("section");
+const performancePanel = document.getElementById("marketDemandBody")?.closest("section");
 
-if (heatmapPanel) {
-  heatmapPanel.style.display = (kpi === "views") ? "block" : "none";
+// 🔥 USERS MODE
+if (kpi === "users") {
+
+  // ❌ dölj heatmap
+  if (heatmapPanel) heatmapPanel.style.display = "none";
+
+  // ❌ dölj annan market UI om den finns
+  if (performancePanel) performancePanel.style.display = "block";
+
+  await renderMarket(days);
+  return;
 }
 
-// 🔥 RENDER
+// 🔥 VIEWS / CLICKS MODE
+if (heatmapPanel) heatmapPanel.style.display = "block";
+
 await renderMarket(days);
-
-if (kpi === "views") {
-  await renderHeatmap(days);
-}
-
-}); // click
-}); // foreach
-}   // function
+await renderHeatmap(days);
 
 /* ============================================================
    STORES INDEX
