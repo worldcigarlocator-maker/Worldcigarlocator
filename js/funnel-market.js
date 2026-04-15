@@ -59,13 +59,15 @@ if (!tbody) return;
 
 if (KPI === "users") {
 
-  // 🔹 DAY → COUNTRY (Visitors)
   if (LEVEL === "country" && DAY) {
 
     const { data: res, error } = await sb.rpc(
       "analytics_visitors_by_country",
       { p_day: DAY }
     );
+
+    console.log("VISITORS COUNTRY RES:", res);
+    console.log("VISITORS COUNTRY ERROR:", error);
 
     if (error) {
       console.error("❌ visitors country error", error);
@@ -80,7 +82,6 @@ if (KPI === "users") {
     }));
   }
 
-  // 🔹 COUNTRY → CITY (Visitors)
   if (LEVEL === "city" && COUNTRY && DAY) {
 
     const { data: res, error } = await sb.rpc(
@@ -90,6 +91,9 @@ if (KPI === "users") {
         p_country: COUNTRY
       }
     );
+
+    console.log("VISITORS CITY RES:", res);
+    console.log("VISITORS CITY ERROR:", error);
 
     if (error) {
       console.error("❌ visitors city error", error);
@@ -103,6 +107,41 @@ if (KPI === "users") {
       views: 0,
       clicks: 0
     }));
+  }
+
+} else {
+
+  if (LEVEL === "country") {
+
+    const { data: res, error } = await sb.rpc("analytics_top_countries", {
+      p_days: days,
+      p_day: null,
+      p_limit: 100
+    });
+
+    if (error) {
+      console.error("❌ countries error", error);
+      return;
+    }
+
+    data = res || [];
+  }
+
+  if (LEVEL === "city" && COUNTRY) {
+
+    const { data: res, error } = await sb.rpc("analytics_top_cities", {
+      p_days: days,
+      p_day: null,
+      p_country: COUNTRY,
+      p_limit: 100
+    });
+
+    if (error) {
+      console.error("❌ cities error", error);
+      return;
+    }
+
+    data = res || [];
   }
 
 }
