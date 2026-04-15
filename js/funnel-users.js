@@ -79,7 +79,8 @@ document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
 
   tr.onclick = async () => {
 
-    const day = tr.dataset.day;
+    const localDay = tr.dataset.day;
+const day = new Date(localDay).toISOString().slice(0, 10);
     if (!day) return;
 
     console.log("SET DAY:", day);
