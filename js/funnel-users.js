@@ -2,9 +2,7 @@
    WCL — USERS FUNNEL (CANONICAL v3)
    ============================================================ */
 
-import { supabase } from "./globals.js";
 import { setActiveDay } from "./analytics-state.js";
-
 
 const sb = supabase;
 
