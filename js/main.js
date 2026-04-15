@@ -152,12 +152,10 @@ if (error) {
   return;
 }
 
-// 🔥 TRACK LOGIN (KRITISKT)
-if (window.trackEvent) {
-  window.trackEvent("user_login", {
-    email: email
-  });
-}
+// 🔥 TRACK LOGIN (HÄR!)
+await trackEvent("user_login", {
+  email: email
+});
 
 submit.disabled = false;
 spinner?.classList.add("hidden");
