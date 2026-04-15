@@ -155,7 +155,8 @@ if (error) {
 
 // 🔥 TRACK LOGIN (HÄR!)
 await trackEvent("user_login", {
-  email: email
+  email: email,
+  country: window.WCL_GEO?.country || null
 });
 
 submit.disabled = false;
