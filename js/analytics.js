@@ -778,21 +778,18 @@ subscribe(async (state) => {
   }
 
   marketView?.classList.remove("hidden");
-  updateDrilldownUI("market");
+updateDrilldownUI("market");
 
-  const heatmapPanel =
-    document.getElementById("heatmapBody")?.closest("section");
+const heatmapPanel =
+  document.getElementById("heatmapBody")?.closest("section");
 
-  const performancePanel =
-    document.getElementById("marketDemandBody")?.closest("section");
+// 🔥 ALLTID visa heatmap för market KPI
+if (heatmapPanel) heatmapPanel.style.display = "block";
 
-  if (heatmapPanel) heatmapPanel.style.display = "block";
-
-  await renderMarket(days);
-
-  if (state.kpi === "views" || state.kpi === "clicks") {
-    await renderHeatmap(days);
-  }
+await renderMarket(days);
+if (state.kpi === "views" || state.kpi === "clicks") {
+  await renderHeatmap(days);
+}
 
 });
 
