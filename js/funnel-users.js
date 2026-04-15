@@ -68,8 +68,14 @@ export async function renderUsersOverview(days = 7) {
         const day = tr.dataset.day;
         if (!day) return;
 
-        setActiveDay(day);
-        console.log("SET DAY:", day);
+     setActiveDay(day);
+
+// 🔥 RESET STATE RÄTT
+import("./analytics-state.js").then(s => {
+  s.setLevel("country");
+});
+
+console.log("SET DAY:", day);
 
         // 🔥 byt view till market
         document.getElementById("view-users")?.classList.add("hidden");
