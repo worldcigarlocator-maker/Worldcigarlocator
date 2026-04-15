@@ -199,37 +199,59 @@ function goToMarketTab(panel = "panel-heatmap") {
 
 // OLD MARKET TABLE REMOVED (moved to funnel-market.js)
 
-      // -------------------------
-// MARKET / USERS FUNNEL
-// -------------------------
-marketView?.classList.remove("hidden");
+      // ============================================================
+      // MARKET FLOW (alla andra KPI)
+      // ============================================================
 
-updateDrilldownUI("market");
+function updateDrilldownUI(tab) {
 
-// 🔥 HÄMTA PANELER
-const heatmapPanel = document.getElementById("heatmapBody")?.closest("section");
-const performancePanel = document.getElementById("marketDemandBody")?.closest("section");
+  const tb = document.getElementById("drilldownToolbar");
+  const title = document.getElementById("viewTitle");
 
-// 🔥 USERS MODE
-if (kpi === "users") {
+  if (!tb || !title) return;
 
-  // ❌ dölj heatmap
-  if (heatmapPanel) heatmapPanel.style.display = "none";
-
-  // ✔ visa table (funnel)
-  if (performancePanel) performancePanel.style.display = "block";
-
-  await renderMarket(days);
-  return; // 🔥 viktigt — stoppar resten
+  if (tab === "overview") {
+  tb.style.display = "block"; // 🔥 visa toolbar
 }
 
-// 🔥 VIEWS / CLICKS MODE
-if (heatmapPanel) heatmapPanel.style.display = "block";
+  // ✅ show annars
+  tb.style.display = "block";
 
-await renderMarket(days);
-await renderHeatmap(days);
+  // 🔥 REMOVE TITLE (handled in UI instead)
+if (title) title.style.display = "none";
+  
+}
 
-      
+function bindKpiMini() {
+
+  const items = document.querySelectorAll(".kpi-card");
+
+  items.forEach((el) => {
+    el.addEventListener("click", async () => {
+
+      const kpi = el.dataset.kpi;
+      if (!kpi) return;
+
+      console.log("KPI CLICK:", kpi);
+
+      // 🔥 RESET ALLT
+      items.forEach((i) => i.classList.remove("active"));
+
+      // 🔥 SÄTT NY ACTIVE
+      el.classList.add("active");
+
+      setKPI(kpi);
+      await new Promise(r => setTimeout(r, 0));
+
+      const usersView = document.getElementById("view-users");
+      const marketView = document.getElementById("view-market");
+      const storesView = document.getElementById("view-stores");
+
+      usersView?.classList.add("hidden");
+      marketView?.classList.add("hidden");
+      storesView?.classList.add("hidden");
+
+      const days = Number(globalRangeSelect?.value || 30);
 
       // -------------------------
       // USERS
@@ -252,34 +274,29 @@ await renderHeatmap(days);
       }
 
 // -------------------------
-// MARKET / USERS FUNNEL
+// MARKET
 // -------------------------
 marketView?.classList.remove("hidden");
 
 updateDrilldownUI("market");
 
-// 🔥 HÄMTA PANELER
+// 🔥 PANEL CONTROL
 const heatmapPanel = document.getElementById("heatmapBody")?.closest("section");
-const performancePanel = document.getElementById("marketDemandBody")?.closest("section");
 
-// 🔥 USERS MODE
-if (kpi === "users") {
-
-  // ❌ dölj heatmap
-  if (heatmapPanel) heatmapPanel.style.display = "none";
-
-  // ❌ dölj annan market UI om den finns
-  if (performancePanel) performancePanel.style.display = "block";
-
-  await renderMarket(days);
-  return;
+if (heatmapPanel) {
+  heatmapPanel.style.display = (kpi === "views") ? "block" : "none";
 }
 
-// 🔥 VIEWS / CLICKS MODE
-if (heatmapPanel) heatmapPanel.style.display = "block";
-
+// 🔥 RENDER
 await renderMarket(days);
-await renderHeatmap(days);
+
+if (kpi === "views") {
+  await renderHeatmap(days);
+}
+
+}); // click
+}); // foreach
+}   // function
 
 /* ============================================================
    STORES INDEX
