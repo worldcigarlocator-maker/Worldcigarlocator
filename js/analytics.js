@@ -221,91 +221,30 @@ function updateDrilldownUI(tab) {
 if (title) title.style.display = "none";
   
 }
-
 function bindKpiMini() {
 
   const items = document.querySelectorAll(".kpi-card");
 
   items.forEach((el) => {
-    el.addEventListener("click", async () => {
+    el.addEventListener("click", () => {
 
       const kpi = el.dataset.kpi;
       if (!kpi) return;
 
       console.log("KPI CLICK:", kpi);
 
-      // 🔥 RESET ALLT
+      // 🔥 UI highlight (OK att ha kvar)
       items.forEach((i) => i.classList.remove("active"));
-
-      // 🔥 SÄTT NY ACTIVE
       el.classList.add("active");
 
+      // 🔥 ENDA logiken
       setKPI(kpi);
-      await new Promise(r => setTimeout(r, 0));
 
-      const usersView = document.getElementById("view-users");
-      const marketView = document.getElementById("view-market");
-      const storesView = document.getElementById("view-stores");
+    });
+  });
 
-      usersView?.classList.add("hidden");
-      marketView?.classList.add("hidden");
-      storesView?.classList.add("hidden");
-
-      const days = Number(globalRangeSelect?.value || 30);
-
-      // -------------------------
-      // USERS
-      // -------------------------
-      if (kpi === "users") {
-        usersView?.classList.remove("hidden");
-        updateDrilldownUI("overview");
-        await renderUsersOverview(days);
-        return;
-      }
-
-      // -------------------------
-      // STORES
-      // -------------------------
-      if (kpi === "stores") {
-        storesView?.classList.remove("hidden");
-        updateDrilldownUI("stores");
-        await renderTopStores(days);
-        return;
-      }
-
-// -------------------------
-// MARKET / USERS FUNNEL
-// -------------------------
-marketView?.classList.remove("hidden");
-
-updateDrilldownUI("market");
-
-// 🔥 HÄMTA PANELER
-const heatmapPanel = document.getElementById("heatmapBody")?.closest("section");
-const performancePanel = document.getElementById("marketDemandBody")?.closest("section");
-
-// 🔥 USERS MODE
-if (kpi === "users") {
-
-  // ❌ dölj heatmap
-  if (heatmapPanel) heatmapPanel.style.display = "none";
-
-  // ✔ visa table (funnel)
-  if (performancePanel) performancePanel.style.display = "block";
-
-  await renderMarket(days);
-  return; // 🔥 viktigt — stoppar resten
 }
 
-// 🔥 VIEWS / CLICKS MODE
-if (heatmapPanel) heatmapPanel.style.display = "block";
-
-await renderMarket(days);
-await renderHeatmap(days);
-
-}); // click
-}); // foreach
-}   // function
 
 /* ============================================================
    STORES INDEX
@@ -634,16 +573,6 @@ function renderEvents(rows) {
   `).join("");
 }
 
-
-// ============================================================
-// USERS — OVERVIEW (DAY LEVEL)
-// ============================================================
-
-/* ============================================================
-   OVERVIEW HANDLED BY funnel-users.js
-   ============================================================ */
-
-
 /* ============================================================
    EXPORT / EMAIL
    ============================================================ */
@@ -819,9 +748,6 @@ function init() {
 
   console.log("🔥 INIT RUNNING");
 
-  // ❌ bindUI borttagen (fanns inte)
-
-  // 🔹 KPI click system
   bindKpiMini();
 
   // 🔹 default KPI
@@ -834,27 +760,10 @@ function init() {
   document.querySelector('[data-kpi="users"]')
     ?.classList.add("active");
 
-  // 🔹 views
-  const usersView = document.getElementById("view-users");
-  const marketView = document.getElementById("view-market");
-  const storesView = document.getElementById("view-stores");
-
-  usersView?.classList.remove("hidden");
-  marketView?.classList.add("hidden");
-  storesView?.classList.add("hidden");
-
-  // 🔹 toolbar
-  updateDrilldownUI("overview");
-
-  // 🔹 initial render
-  renderUsersOverview();
-
   // 🔹 background
   loadGlobalKpis();
-  
 
 }
-
 // ============================================================
 // START APP
 // ============================================================
