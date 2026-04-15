@@ -1,7 +1,7 @@
 /* ============================================================
    WCL — MARKET FUNNEL (CANONICAL)
    ============================================================ */
-import { getLevel } from "./analytics-state.js";
+
 import { supabase } from "./globals.js";
 const sb = supabase;
 import {
