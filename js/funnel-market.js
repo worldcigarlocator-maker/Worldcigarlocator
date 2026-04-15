@@ -9,8 +9,7 @@ import {
   getLevel,
   getActiveCountry,
   getActiveDay,
-  applyCountry,
-  setLevel
+  applyCountry
 } from "./analytics-state.js";
 
 /* ============================================================
