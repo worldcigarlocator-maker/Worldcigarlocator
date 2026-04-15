@@ -4,7 +4,7 @@
 // Enterprise · Stable · Fast
 // ============================================================
 
-import { supabase } from "./globals.js";
+import { supabase } from "/js/globals.js";
 import { openModal } from "./modal.js";
 import { buildPin } from "./map-pins.js";
 import { trackEvent } from "./analytics-tracker.js";
