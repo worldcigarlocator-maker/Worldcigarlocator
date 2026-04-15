@@ -71,36 +71,38 @@ export async function renderUsersOverview(days = 7) {
     `).join("");
 
     /* ============================================================
-       CLICK → DRILLDOWN
-       ============================================================ */
+   CLICK → DRILLDOWN
+   ============================================================ */
 
-    document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
+document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
 
-      tr.onclick = async () => {
+  tr.onclick = async () => {
 
-        const day = tr.dataset.day;
-        if (!day) return;
+    const day = tr.dataset.day;
+    if (!day) return;
 
-        console.log("SET DAY:", day);
+    console.log("SET DAY:", day);
 
-        // 🔥 STATE
-        setActiveDay(day);
-        setLevel("country");
+    // 🔥 STATE (endast dag)
+    setActiveDay(day);
 
-        // 🔥 UI
-        document.getElementById("usersDrillPanel")?.classList.remove("hidden");
-        document.getElementById("overviewTable")?.closest("section")?.classList.add("hidden");
+    // 🔥 UI
+    const drillPanel = document.getElementById("usersDrillPanel");
+    const overviewSection = document.getElementById("overviewTable")?.closest("section");
 
-        // 🔥 RENDER FUNNEL
-        const days = Number(document.getElementById("globalRange")?.value || 30);
-        await renderMarket(days);
+    if (drillPanel) drillPanel.classList.remove("hidden");
+    if (overviewSection) overviewSection.classList.add("hidden");
 
-      };
+    // 🔥 RENDER (låter market själv hantera level = country)
+    const days = Number(document.getElementById("globalRange")?.value || 30);
+    await renderMarket(days);
 
-    });
+  };
 
-  } catch (err) {
-    console.error("Users overview crash", err);
-  }
+});
+
+} catch (err) {
+  console.error("Users overview crash", err);
+}
 
 }
