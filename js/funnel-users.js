@@ -4,7 +4,7 @@
 
 import { supabase } from "./globals.js";
 import { setActiveDay } from "./analytics-state.js";
-import { renderMarket } from "./funnel-market.js";
+
 
 const sb = supabase;
 
@@ -93,7 +93,8 @@ document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
     if (drillPanel) drillPanel.classList.remove("hidden");
     if (overviewSection) overviewSection.classList.add("hidden");
     const days = Number(document.getElementById("globalRange")?.value || 30);
-    await renderMarket(days);
+ const m = await import("./funnel-market.js");
+await m.renderMarket(days);
 
   };
 
