@@ -2,7 +2,7 @@
 // MAIN.JS — WCL Frontend (CLEAN · DEBUG-SAFE · AUTH-GATE FIXED)
 // ============================================================
 
-import { supabase } from "./globals.js";
+import { supabase } from "/js/globals.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import { resetToHero } from "./cards.js";
 import "./analytics-frontend.js";
