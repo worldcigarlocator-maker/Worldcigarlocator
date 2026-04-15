@@ -1,5 +1,5 @@
 
-import { supabase } from "./globals.js";
+import { supabase } from "/js/globals.js";
 import { renderUsersOverview } from "./funnel-users.js";
 import { renderMarket, renderHeatmap } from "./funnel-market.js";
 import { renderTopStores } from "./funnel-stores.js";
