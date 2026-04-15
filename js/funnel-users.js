@@ -1,10 +1,13 @@
 /* ============================================================
-   WCL — USERS FUNNEL (CANONICAL v3)
+   WCL — USERS FUNNEL (DEBUG IMPORT)
    ============================================================ */
 
-import { setActiveDay } from "./analytics-state.js";
+import { supabase as sb } from "/js/globals.js";
+import { setActiveDay } from "/js/analytics-state.js";
 
-const sb = supabase;
+console.log("🔥 FUNNEL USERS LOADED");
+console.log("🔥 sb =", sb);
+console.log("🔥 typeof sb.rpc =", typeof sb?.rpc);
 
 /* ============================================================
    USERS OVERVIEW
