@@ -19,9 +19,9 @@ export async function renderUsersOverview(days = 30) {
   try {
 
     const { data, error } = await sb.rpc(
-      "analytics_users_by_day",
-      { p_days: days }
-    );
+  "analytics_users_by_day_v2",
+  { p_days: days }
+);
 
     if (error) {
       console.error("Users overview error", error);
