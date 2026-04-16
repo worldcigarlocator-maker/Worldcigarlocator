@@ -197,8 +197,13 @@ window.WCL_ANALYTICS.send("store_opened", {
 // ANALYTICS — STORE VIEW (CANONICAL)
 // ============================================================
 
-// 🔒 lås source från där user kom ifrån
-const MODAL_SOURCE = window.CURRENT_SOURCE;
+// 🔒 lås source från rätt ställe (robust)
+const MODAL_SOURCE =
+  store.source ||
+  window.CURRENT_SOURCE ||
+  window.MODAL_SOURCE ||
+  "direct";
+
 window.MODAL_SOURCE = MODAL_SOURCE;
 
 // DEBUG
@@ -209,7 +214,8 @@ trackEvent("store_view", {
   store_id: storeId,
   country: store.country || null,
   city: store.city || null,
-source: MODAL_SOURCE
+  source: MODAL_SOURCE,
+  session_hash: localStorage.getItem("wcl_session")
 });
 
   // ============================================================
