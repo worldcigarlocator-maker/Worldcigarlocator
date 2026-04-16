@@ -12,8 +12,10 @@ console.log("🔥 STORES V2 LOADED");
    ============================================================ */
 
 const STORES_STATE = {
-  level: "store",   // store | traffic
+  level: "store",   // store | traffic | city
   storeId: null,
+  city: null,
+  country: null,
   days: 30
 };
 
@@ -123,31 +125,65 @@ function renderTraffic(rows) {
   }).join("");
 }
 
-function bindStoreClicks(days) {
+function renderCityDetail(rows) {
   const tbody = getBody();
   if (!tbody) return;
 
-  tbody.querySelectorAll("tr[data-store-id]").forEach((row) => {
-    row.onclick = async () => {
-      const raw = row.dataset.storeId;
-      const storeId = Number(raw);
-      if (!storeId) return;
-
-      STORES_STATE.level = "traffic";
-      STORES_STATE.storeId = storeId;
-      STORES_STATE.days = days;
-
-      await renderStoresV2(days);
-    };
-  });
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>${escapeHtml(r.session_hash)}</td>
+      <td class="num">${r.events || 0}</td>
+      <td>${escapeHtml(r.source || "-")}</td>
+    </tr>
+  `).join("");
 }
 
-function escapeHtml(str) {
-  return String(str ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
+/* ============================================================
+   CLICK HANDLER
+   ============================================================ */
+
+function bindStoreClicks(days) {
+
+  const tbody = getBody();
+  if (!tbody) return;
+
+  tbody.querySelectorAll("tr").forEach(row => {
+
+    row.onclick = async () => {
+
+      // STORE → TRAFFIC
+      if (STORES_STATE.level === "store") {
+
+        const id = Number(row.dataset.storeId);
+        if (!id) return;
+
+        STORES_STATE.level = "traffic";
+        STORES_STATE.storeId = id;
+
+        await renderStoresV2(days);
+        return;
+      }
+
+      // TRAFFIC → CITY
+      if (STORES_STATE.level === "traffic") {
+
+        const raw = row.children[0]?.textContent || "";
+        const [city, country] = raw.split(",").map(s => s.trim());
+
+        if (!city) return;
+
+        STORES_STATE.level = "city";
+        STORES_STATE.city = city;
+        STORES_STATE.country = country;
+
+        await renderStoresV2(days);
+        return;
+      }
+
+    };
+
+  });
+
 }
 
 /* ============================================================
@@ -157,23 +193,40 @@ function escapeHtml(str) {
 export function resetStoresV2() {
   STORES_STATE.level = "store";
   STORES_STATE.storeId = null;
+  STORES_STATE.city = null;
+  STORES_STATE.country = null;
 }
 
+/* ============================================================
+   MAIN RENDER
+   ============================================================ */
+
 export async function renderStoresV2(days = 30) {
+
   STORES_STATE.days = days;
 
   ensureStoresSurface();
 
+  const marketPanel = getMarketPanel();
+  const head = marketPanel?.querySelector(".panelhead h2");
+
+  /* ============================================================
+     STORE LEVEL
+     ============================================================ */
+
   if (STORES_STATE.level === "store") {
+
+    if (head) head.textContent = "Top Stores";
+
     const { data, error } = await sb.rpc("analytics_top_stores", {
       p_days: days,
       p_limit: 50
     });
 
-    console.log("🔥 STORES V2 TOP STORES:", data, error);
+    console.log("🔥 TOP STORES:", data, error);
 
     if (error) {
-      console.error("❌ stores v2 top stores error", error);
+      console.error(error);
       renderEmpty("Failed to load stores");
       return;
     }
@@ -188,33 +241,88 @@ export async function renderStoresV2(days = 30) {
     return;
   }
 
+  /* ============================================================
+     TRAFFIC LEVEL
+     ============================================================ */
+
   if (STORES_STATE.level === "traffic") {
+
+    if (head) head.textContent = "Traffic by City";
+
     const { data, error } = await sb.rpc("analytics_store_traffic_by_city", {
       p_store_id: STORES_STATE.storeId,
       p_days: days
     });
 
-    console.log("🔥 STORES V2 TRAFFIC:", data, error);
-
-    const marketPanel = getMarketPanel();
-    const head = marketPanel?.querySelector(".panelhead h2");
-    if (head) head.textContent = "Store Traffic Origin";
+    console.log("🔥 TRAFFIC:", data, error);
 
     if (error) {
-      console.error("❌ stores v2 traffic error", error);
-      renderEmpty("Failed to load traffic origin");
+      console.error(error);
+      renderEmpty("Failed to load traffic");
       return;
     }
 
     if (!data?.length) {
-      renderEmpty("No traffic data yet");
+      renderEmpty("No traffic data");
       return;
     }
 
     renderTraffic(data);
+    bindStoreClicks(days);
     return;
   }
+
+  /* ============================================================
+     CITY DETAIL (FINAL)
+     ============================================================ */
+
+  if (STORES_STATE.level === "city") {
+
+    if (head) head.textContent = "Session Detail";
+
+    const { data, error } = await sb.rpc(
+      "analytics_store_traffic_by_session",
+      {
+        p_store_id: STORES_STATE.storeId,
+        p_city: STORES_STATE.city,
+        p_country: STORES_STATE.country,
+        p_days: days
+      }
+    );
+
+    console.log("🔥 CITY DETAIL:", data, error);
+
+    if (error) {
+      console.error(error);
+      renderEmpty("Failed to load sessions");
+      return;
+    }
+
+    if (!data?.length) {
+      renderEmpty("No session data");
+      return;
+    }
+
+    renderCityDetail(data);
+    return;
+  }
+
 }
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+/* ============================================================
+   DEBUG
+   ============================================================ */
 
 window.renderStoresV2 = renderStoresV2;
 window.resetStoresV2 = resetStoresV2;
