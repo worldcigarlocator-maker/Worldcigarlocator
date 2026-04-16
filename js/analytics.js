@@ -794,13 +794,14 @@ if (state.kpi === "stores") {
 
   marketView?.classList.remove("hidden");
 
-  // 🔥 HIDE HEATMAP PANEL
   const heatmapPanel = document.querySelector("#view-market .panel:first-of-type");
+  const marketPanel = document.querySelector("#view-market .panel:nth-of-type(2)");
+
   if (heatmapPanel) heatmapPanel.style.display = "none";
 
-  // 🔥 CLEAN MARKET PANEL (behåll tabell, ta bort rubrik)
-  const marketPanel = document.querySelector("#view-market .panel:nth-of-type(2)");
   if (marketPanel) {
+    marketPanel.style.display = "block";
+
     const head = marketPanel.querySelector(".panelhead");
     if (head) head.style.display = "none";
   }
@@ -811,8 +812,6 @@ if (state.kpi === "stores") {
   return;
 }
 
-
-
 // ============================================================
 // MARKET (views / clicks / ctr)
 // ============================================================
@@ -822,6 +821,17 @@ if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
   marketView?.classList.remove("hidden");
   updateDrilldownUI("market");
 
+  const heatmapPanel = document.querySelector("#view-market .panel:first-of-type");
+  const marketPanel = document.querySelector("#view-market .panel:nth-of-type(2)");
+
+  if (heatmapPanel) heatmapPanel.style.display = "block";
+  if (marketPanel) {
+    marketPanel.style.display = "block";
+
+    const head = marketPanel.querySelector(".panelhead");
+    if (head) head.style.display = "";
+  }
+
   await renderMarket(days);
 
   if (state.kpi === "views" || state.kpi === "clicks") {
@@ -830,6 +840,8 @@ if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
 
   return;
 }
+  
+});
 
   // ============================================================
   // INIT
