@@ -96,85 +96,88 @@ export async function renderMarketV2(days = 30) {
   });
 
   /* ============================================================
-     RENDER
+     RENDER COUNTRIES
      ============================================================ */
-tbody.innerHTML = data.map(r => {
 
-  const ctr = r.views
-    ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
-    : "0%";
+  tbody.innerHTML = data.map(r => {
 
-  return `
-    <tr data-country="${r.country}">
-      <td>${r.country || "-"}</td>
-      <td class="num">${r.views || 0}</td>
-      <td class="num">${r.clicks || 0}</td>
-      <td class="num">${ctr}</td>
-    </tr>
-  `;
+    const ctr = r.views
+      ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
+      : "0%";
 
-}).join("");
+    return `
+      <tr data-country="${r.country}">
+        <td>${r.country || "-"}</td>
+        <td class="num">${r.views || 0}</td>
+        <td class="num">${r.clicks || 0}</td>
+        <td class="num">${ctr}</td>
+      </tr>
+    `;
 
-/* ============================================================
-   DRILLDOWN (COUNTRY → CITY)
-   ============================================================ */
+  }).join("");
 
-tbody.querySelectorAll("tr").forEach(row => {
+  /* ============================================================
+     DRILLDOWN (COUNTRY → CITY)
+     ============================================================ */
 
-  row.onclick = async () => {
+  tbody.querySelectorAll("tr").forEach(row => {
 
-    if (MARKET_STATE.level === "country") {
+    row.onclick = async () => {
 
-      const country = row.dataset.country;
-      if (!country) return;
+      if (MARKET_STATE.level === "country") {
 
-      MARKET_STATE.level = "city";
-      MARKET_STATE.country = country;
+        const country = row.dataset.country;
+        if (!country) return;
 
-      const { data: res, error } = await sb.rpc(
-        "analytics_top_cities",
-        {
-          p_days: days,
-          p_day: null,
-          p_country: country,
-          p_limit: 100
+        MARKET_STATE.level = "city";
+        MARKET_STATE.country = country;
+
+        const { data: res, error } = await sb.rpc(
+          "analytics_top_cities",
+          {
+            p_days: days,
+            p_day: null,
+            p_country: country,
+            p_limit: 100
+          }
+        );
+
+        console.log("🏙️ CITIES:", res);
+
+        if (error) {
+          console.error("❌ cities error", error);
+          return;
         }
-      );
 
-      console.log("🏙️ CITIES:", res);
+        const cities = res || [];
 
-      if (error) {
-        console.error("❌ cities error", error);
-        return;
+        if (!cities.length) {
+          tbody.innerHTML =
+            `<tr><td colspan="4" class="muted center">No cities yet</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = cities.map(c => {
+
+          const ctr = c.views
+            ? ((c.clicks / c.views) * 100).toFixed(1) + "%"
+            : "0%";
+
+          return `
+            <tr data-city="${c.city}">
+              <td>${c.city}</td>
+              <td class="num">${c.views || 0}</td>
+              <td class="num">${c.clicks || 0}</td>
+              <td class="num">${ctr}</td>
+            </tr>
+          `;
+
+        }).join("");
+
       }
 
-      const cities = res || [];
+    };
 
-      if (!cities.length) {
-        tbody.innerHTML =
-          `<tr><td colspan="4" class="muted center">No cities yet</td></tr>`;
-        return;
-      }
+  });
 
-      tbody.innerHTML = cities.map(c => {
-
-        const ctr = c.views
-          ? ((c.clicks / c.views) * 100).toFixed(1) + "%"
-          : "0%";
-
-        return `
-          <tr data-city="${c.city}">
-            <td>${c.city}</td>
-            <td class="num">${c.views || 0}</td>
-            <td class="num">${c.clicks || 0}</td>
-            <td class="num">${ctr}</td>
-          </tr>
-        `;
-
-      }).join("");
-
-    }
-
-  };
-
-});
+}
