@@ -228,8 +228,7 @@ tbody.querySelectorAll("tr").forEach(row => {
       if (!country) return;
 
       applyCountry(country);
-      await renderMarket(days);
-      return;
+return;
     }
 
     // 🔹 CITY → STORES
