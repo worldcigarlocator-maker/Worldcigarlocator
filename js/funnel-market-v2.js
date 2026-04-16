@@ -43,6 +43,7 @@ export async function renderMarketV2(days = 30) {
      ============================================================ */
 
   if (MARKET_STATE.level === "country") {
+     
 
     const { data: res, error } = await sb.rpc(
       "analytics_top_countries",
@@ -122,62 +123,77 @@ export async function renderMarketV2(days = 30) {
 
   tbody.querySelectorAll("tr").forEach(row => {
 
-    row.onclick = async () => {
+  row.onclick = async () => {
 
-      if (MARKET_STATE.level === "country") {
+    // 🔹 COUNTRY → CITY
+    if (MARKET_STATE.level === "country") {
 
-        const country = row.dataset.country;
-        if (!country) return;
+      const country = row.dataset.country;
+      if (!country) return;
 
-        MARKET_STATE.level = "city";
-        MARKET_STATE.country = country;
+      MARKET_STATE.level = "city";
+      MARKET_STATE.country = country;
 
-        const { data: res, error } = await sb.rpc(
-          "analytics_top_cities",
-          {
-            p_days: days,
-            p_day: null,
-            p_country: country,
-            p_limit: 100
-          }
-        );
+      await renderMarketV2(days);
+      return;
+    }
 
-        console.log("🏙️ CITIES:", res);
+    // 🔹 CITY → STORES
+    if (MARKET_STATE.level === "city") {
 
-        if (error) {
-          console.error("❌ cities error", error);
-          return;
+      const city = row.dataset.city;
+      if (!city) return;
+
+      MARKET_STATE.level = "store";
+      MARKET_STATE.city = city;
+
+      const { data: res, error } = await sb.rpc(
+        "analytics_top_stores_by_city",
+        {
+          p_day: null,
+          p_country: MARKET_STATE.country,
+          p_city: city,
+          p_limit: 50
         }
+      );
 
-        const cities = res || [];
+      console.log("🏪 STORES:", res);
 
-        if (!cities.length) {
-          tbody.innerHTML =
-            `<tr><td colspan="4" class="muted center">No cities yet</td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = cities.map(c => {
-
-          const ctr = c.views
-            ? ((c.clicks / c.views) * 100).toFixed(1) + "%"
-            : "0%";
-
-          return `
-            <tr data-city="${c.city}">
-              <td>${c.city}</td>
-              <td class="num">${c.views || 0}</td>
-              <td class="num">${c.clicks || 0}</td>
-              <td class="num">${ctr}</td>
-            </tr>
-          `;
-
-        }).join("");
-
+      if (error) {
+        console.error("❌ stores error", error);
+        return;
       }
 
-    };
+      const stores = res || [];
 
-  });
+      if (!stores.length) {
+        tbody.innerHTML =
+          `<tr><td colspan="4" class="muted center">No stores yet</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = stores.map(s => {
+
+        const ctr = s.views
+          ? ((s.clicks / s.views) * 100).toFixed(1) + "%"
+          : "0%";
+
+        return `
+          <tr>
+            <td>${s.name}</td>
+            <td class="num">${s.views || 0}</td>
+            <td class="num">${s.clicks || 0}</td>
+            <td class="num">${ctr}</td>
+          </tr>
+        `;
+
+      }).join("");
+
+      return;
+    }
+
+  };
+
+});
 
 }
