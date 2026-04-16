@@ -1,5 +1,5 @@
+```javascript
 import { supabase } from "/js/globals.js";
-
 
 /* ============================================================
    GEO (IP → Country)
@@ -27,38 +27,32 @@ async function getGeo() {
   }
 }
 
-// ============================================================
-// SESSION START (AUTO)
-// ============================================================
+/* ============================================================
+   SESSION START (AUTO)
+   ============================================================ */
 
 (function trackSessionStart() {
-
   try {
-
     let session = localStorage.getItem("wcl_session");
 
     if (!session) {
       session = crypto.randomUUID();
       localStorage.setItem("wcl_session", session);
 
-      // 🔥 TRACKA ENDAST NY SESSION
-trackEvent("session_start", {
-  session_hash: session
-});
+      trackEvent("session_start", {
+        session_hash: session
+      });
 
       console.log("🔥 SESSION START:", session);
     }
-
   } catch (err) {
     console.error("Session tracking failed", err);
   }
-
 })();
 
-
-// ============================================================
-// SESSION ID (SINGLE SOURCE OF TRUTH)
-// ============================================================
+/* ============================================================
+   SESSION ID
+   ============================================================ */
 
 function getSessionId() {
   let id = localStorage.getItem("wcl_session");
@@ -71,9 +65,9 @@ function getSessionId() {
   return id;
 }
 
-// ============================================================
-// STORE VIEW MEMORY (DEDUPE)
-// ============================================================
+/* ============================================================
+   STORE VIEW DEDUPE
+   ============================================================ */
 
 const VIEWED_STORES = new Set();
 
@@ -85,9 +79,9 @@ function markStoreViewed(id) {
   VIEWED_STORES.add(id);
 }
 
-// ============================================================
-// TRACK EVENT (CANONICAL)
-// ============================================================
+/* ============================================================
+   TRACK EVENT (CANONICAL)
+   ============================================================ */
 
 export async function trackEvent(eventType, payload = {}) {
 
@@ -102,31 +96,30 @@ export async function trackEvent(eventType, payload = {}) {
     }
 
     // ------------------------------------------------------------
-    // BUILD PAYLOAD
+    // GEO
     // ------------------------------------------------------------
+    let geo = GEO;
+    if (!geo) geo = await getGeo();
 
-let geo = GEO;
+    // ------------------------------------------------------------
+    // BUILD PAYLOAD (🔴 SOURCE SIST!)
+    // ------------------------------------------------------------
+    const finalPayload = {
+      event_type: eventType,
+      session_hash: getSessionId(),
 
-if (!geo) {
-  geo = await getGeo();
-}
+      ...payload,
 
-const finalPayload = {
-  event_type: eventType,
-  session_hash: getSessionId(),
+      // 🔥 SOURCE SIST (KAN INTE SKRIVAS ÖVER)
+      source:
+        payload?.source ||
+        window?.MODAL_SOURCE ||
+        window?.CURRENT_SOURCE ||
+        "direct",
 
-  source:
-    payload?.source ??
-    window?.MODAL_SOURCE ??
-    window?.CURRENT_SOURCE ??
-    "direct",
-
-  ...payload,
-
-  // 🔥 GEO SIST (VIKTIGT)
-  country: geo?.country || null,
-  city: geo?.city || null
-};
+      country: geo?.country || null,
+      city: geo?.city || null
+    };
 
     // ------------------------------------------------------------
     // ENDPOINT
@@ -135,13 +128,12 @@ const finalPayload = {
       "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/functions/v1/analytics-ingest";
 
     // ------------------------------------------------------------
-    // DEBUG LOGS (VIKTIGA NU)
+    // DEBUG
     // ------------------------------------------------------------
     console.log("🚀 ANALYTICS PAYLOAD:", JSON.stringify(finalPayload, null, 2));
-    console.log("🌐 ENDPOINT:", endpoint);
 
     // ------------------------------------------------------------
-    // FETCH
+    // SEND
     // ------------------------------------------------------------
     const res = await fetch(endpoint, {
       method: "POST",
@@ -151,13 +143,7 @@ const finalPayload = {
       body: JSON.stringify(finalPayload)
     });
 
-    // ------------------------------------------------------------
-    // RESPONSE DEBUG
-    // ------------------------------------------------------------
-    console.log("📡 RESPONSE STATUS:", res.status);
-
     const text = await res.text();
-    console.log("📦 RESPONSE BODY:", text);
 
     if (!res.ok) {
       console.error("❌ ANALYTICS ERROR:", res.status, text);
@@ -166,9 +152,7 @@ const finalPayload = {
     }
 
   } catch (err) {
-
     console.error("💥 ANALYTICS CRASH:", err);
-
   }
-
 }
+```
