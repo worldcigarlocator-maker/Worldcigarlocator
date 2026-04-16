@@ -151,18 +151,18 @@ function bindStoreClicks(days) {
 
     row.onclick = async () => {
 
-      // STORE → TRAFFIC
-      if (STORES_STATE.level === "store") {
+      // STORE → CITY
+if (STORES_STATE.level === "store") {
 
-        const id = Number(row.dataset.storeId);
-        if (!id) return;
+  const id = Number(row.dataset.storeId);
+  if (!id) return;
 
-        STORES_STATE.level = "traffic";
-        STORES_STATE.storeId = id;
+  STORES_STATE.level = "city";
+  STORES_STATE.storeId = id;
 
-        await renderStoresV2(days);
-        return;
-      }
+  await renderStoresV2(days);
+  return;
+}
 
       // TRAFFIC → CITY
       if (STORES_STATE.level === "traffic") {
