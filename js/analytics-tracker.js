@@ -1,4 +1,4 @@
-javascript
+
 import { supabase } from "/js/globals.js";
 
 /* ============================================================
