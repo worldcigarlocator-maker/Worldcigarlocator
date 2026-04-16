@@ -119,7 +119,10 @@ export async function trackEvent(eventType, payload = {}) {
     // ------------------------------------------------------------
     const finalPayload = {
       event_type: eventType,
-      session_hash: getSessionId(),
+    session_hash:
+  payload?.session_hash ||
+  localStorage.getItem("wcl_session") ||
+  getSessionId(),
 
       ...payload,
 
