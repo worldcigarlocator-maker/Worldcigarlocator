@@ -794,15 +794,16 @@ if (state.kpi === "stores") {
 
   marketView?.classList.remove("hidden");
 
- // 🔥 HÄMTA ALLA PANELS I MARKET
-const panels = document.querySelectorAll("#view-market .panel");
+  // 🔥 HIDE HEATMAP PANEL
+  const heatmapPanel = document.querySelector("#view-market .panel:first-of-type");
+  if (heatmapPanel) heatmapPanel.style.display = "none";
 
-// 🔥 GÖM ALLA
-panels.forEach(p => p.style.display = "none");
-
-// 🔥 VISA ENDAST MARKET TABLE PANEL (nr 2)
-if (panels[1]) panels[1].style.display = "block";
-  
+  // 🔥 CLEAN MARKET PANEL (behåll tabell, ta bort rubrik)
+  const marketPanel = document.querySelector("#view-market .panel:nth-of-type(2)");
+  if (marketPanel) {
+    const head = marketPanel.querySelector(".panelhead");
+    if (head) head.style.display = "none";
+  }
 
   const { renderMarketV2 } = await import("./funnel-market-v2.js");
   await renderMarketV2(days);
