@@ -93,9 +93,12 @@ export function applyDay(day) {
 
 // 🔥 Click country (→ city level)
 export function applyCountry(country) {
-  STATE.country = country;
-  STATE.level = "city";
+
+  STATE.location.country = country;
+
+  // 🔥 KRITISKT
   notify();
+
 }
 
 // 🔥 External context (search etc)
