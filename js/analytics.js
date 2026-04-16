@@ -810,6 +810,8 @@ if (state.kpi === "stores") {
 
 if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
 
+   if (getKPI() === "stores") return;
+  
   marketView?.classList.remove("hidden");
   updateDrilldownUI("market");
 
