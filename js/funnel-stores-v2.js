@@ -138,6 +138,7 @@ function renderCityDetail(rows) {
   `).join("");
 }
 
+}
 /* ============================================================
    CLICK HANDLER
    ============================================================ */
@@ -152,27 +153,27 @@ function bindStoreClicks(days) {
     row.onclick = async () => {
 
       // STORE → CITY
-if (STORES_STATE.level === "store") {
+      if (STORES_STATE.level === "store") {
 
-  const id = Number(row.dataset.storeId);
-  if (!id) return;
+        const id = Number(row.dataset.storeId);
+        if (!id) return;
 
-  STORES_STATE.level = "city";
-  STORES_STATE.storeId = id;
+        STORES_STATE.level = "city";
+        STORES_STATE.storeId = id;
 
-  await renderStoresV2(days);
-  return;
-}
+        await renderStoresV2(days);
+        return;
+      }
 
-      // TRAFFIC → CITY
-      if (STORES_STATE.level === "traffic") {
+      // CITY → SOURCE
+      if (STORES_STATE.level === "city") {
 
         const raw = row.children[0]?.textContent || "";
         const [city, country] = raw.split(",").map(s => s.trim());
 
         if (!city) return;
 
-        STORES_STATE.level = "city";
+        STORES_STATE.level = "traffic";
         STORES_STATE.city = city;
         STORES_STATE.country = country;
 
@@ -185,7 +186,6 @@ if (STORES_STATE.level === "store") {
   });
 
 }
-
 /* ============================================================
    PUBLIC API
    ============================================================ */
@@ -242,7 +242,64 @@ export async function renderStoresV2(days = 30) {
   }
 
   /* ============================================================
-   SOURCE (STORE LEVEL INSIGHT)
+   CITY (WHERE DEMAND COMES FROM)
+   ============================================================ */
+
+if (STORES_STATE.level === "city") {
+
+  if (head) head.textContent = "Traffic by City";
+
+  const { data, error } = await sb.rpc(
+    "analytics_store_traffic_by_city",
+    {
+      p_store_id: STORES_STATE.storeId,
+      p_days: days
+    }
+  );
+
+  console.log("🔥 CITY:", data, error);
+
+  if (error) {
+    console.error(error);
+    renderEmpty("Failed to load city data");
+    return;
+  }
+
+  if (!data?.length) {
+    renderEmpty("No city data");
+    return;
+  }
+
+  const tbody = getBody();
+
+  tbody.innerHTML = data.map(c => {
+
+    const views = Number(c.views || 0);
+    const clicks = Number(c.clicks || 0);
+
+    const ctr =
+      views > 0
+        ? ((clicks / views) * 100).toFixed(1) + "%"
+        : "0%";
+
+    return `
+      <tr data-city="${c.city}" data-country="${c.country}">
+        <td>${escapeHtml(c.city)}, ${escapeHtml(c.country)}</td>
+        <td class="num">${views}</td>
+        <td class="num">${clicks}</td>
+        <td class="num">${ctr}</td>
+      </tr>
+    `;
+
+  }).join("");
+
+  bindStoreClicks(days);
+  return;
+}
+
+
+/* ============================================================
+   SOURCE (HOW USERS ARRIVED)
    ============================================================ */
 
 if (STORES_STATE.level === "traffic") {
@@ -253,7 +310,9 @@ if (STORES_STATE.level === "traffic") {
     "analytics_store_traffic_by_source",
     {
       p_store_id: STORES_STATE.storeId,
-      p_days: days
+      p_days: days,
+      p_city: STORES_STATE.city,
+      p_country: STORES_STATE.country
     }
   );
 
@@ -295,7 +354,7 @@ if (STORES_STATE.level === "traffic") {
 
   return;
 }
-}
+
    
 /* ============================================================
    UTILS
