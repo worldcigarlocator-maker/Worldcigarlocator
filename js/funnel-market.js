@@ -322,3 +322,5 @@ export async function renderHeatmap(days = 30) {
   `).join("");
 
 }
+
+window.renderMarketV2 = renderMarketV2;
