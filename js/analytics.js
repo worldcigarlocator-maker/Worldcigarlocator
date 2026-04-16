@@ -794,14 +794,15 @@ if (state.kpi === "stores") {
 
   marketView?.classList.remove("hidden");
 
-  // 🔥 GÖM ENDAST GAMLA PANELS
-  const heatmap = document.getElementById("panel-heatmap");
-  const performance = document.getElementById("panel-performance");
-  const intelligence = document.getElementById("panel-intelligence");
+ // 🔥 HÄMTA ALLA PANELS I MARKET
+const panels = document.querySelectorAll("#view-market .panel");
 
-  if (heatmap) heatmap.style.display = "none";
-  if (performance) performance.style.display = "none";
-  if (intelligence) intelligence.style.display = "none";
+// 🔥 GÖM ALLA
+panels.forEach(p => p.style.display = "none");
+
+// 🔥 VISA ENDAST MARKET TABLE PANEL (nr 2)
+if (panels[1]) panels[1].style.display = "block";
+  
 
   const { renderMarketV2 } = await import("./funnel-market-v2.js");
   await renderMarketV2(days);
