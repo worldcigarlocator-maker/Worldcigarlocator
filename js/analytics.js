@@ -793,11 +793,15 @@ if (performance) performance.style.display = "none";
 if (state.kpi === "stores") {
 
   marketView?.classList.remove("hidden");
-  updateDrilldownUI("market");
 
-  // 🔥 göm gamla panels
-  document.getElementById("panel-heatmap")?.style.setProperty("display", "none");
-  document.getElementById("panel-performance")?.style.setProperty("display", "none");
+  // 🔥 GÖM ENDAST GAMLA PANELS
+  const heatmap = document.getElementById("panel-heatmap");
+  const performance = document.getElementById("panel-performance");
+  const intelligence = document.getElementById("panel-intelligence");
+
+  if (heatmap) heatmap.style.display = "none";
+  if (performance) performance.style.display = "none";
+  if (intelligence) intelligence.style.display = "none";
 
   const { renderMarketV2 } = await import("./funnel-market-v2.js");
   await renderMarketV2(days);
