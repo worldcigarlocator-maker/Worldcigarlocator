@@ -763,7 +763,7 @@ subscribe(async (state) => {
   marketView?.classList.add("hidden");
   storesView?.classList.add("hidden");
 
-  if (state.kpi === "users") {
+  if (state.kpi === "users" && !state.day) {
     usersView?.classList.remove("hidden");
     updateDrilldownUI("overview");
     await renderUsersOverview(days);
