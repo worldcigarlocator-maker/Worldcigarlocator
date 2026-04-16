@@ -242,73 +242,59 @@ export async function renderStoresV2(days = 30) {
   }
 
   /* ============================================================
-     TRAFFIC LEVEL
-     ============================================================ */
+   SOURCE (STORE LEVEL INSIGHT)
+   ============================================================ */
 
-  if (STORES_STATE.level === "traffic") {
+if (STORES_STATE.level === "traffic") {
 
-    if (head) head.textContent = "Traffic by City";
+  if (head) head.textContent = "Traffic Source";
 
-    const { data, error } = await sb.rpc("analytics_store_traffic_by_city", {
+  const { data, error } = await sb.rpc(
+    "analytics_store_traffic_by_source",
+    {
       p_store_id: STORES_STATE.storeId,
       p_days: days
-    });
-
-    console.log("🔥 TRAFFIC:", data, error);
-
-    if (error) {
-      console.error(error);
-      renderEmpty("Failed to load traffic");
-      return;
     }
+  );
 
-    if (!data?.length) {
-      renderEmpty("No traffic data");
-      return;
-    }
+  console.log("🔥 SOURCE:", data, error);
 
-    renderTraffic(data);
-    bindStoreClicks(days);
+  if (error) {
+    console.error(error);
+    renderEmpty("Failed to load source data");
     return;
   }
 
-  /* ============================================================
-     CITY DETAIL (FINAL)
-     ============================================================ */
-
-  if (STORES_STATE.level === "city") {
-
-    if (head) head.textContent = "Session Detail";
-
-    const { data, error } = await sb.rpc(
-      "analytics_store_traffic_by_session",
-      {
-        p_store_id: STORES_STATE.storeId,
-        p_city: STORES_STATE.city,
-        p_country: STORES_STATE.country,
-        p_days: days
-      }
-    );
-
-    console.log("🔥 CITY DETAIL:", data, error);
-
-    if (error) {
-      console.error(error);
-      renderEmpty("Failed to load sessions");
-      return;
-    }
-
-    if (!data?.length) {
-      renderEmpty("No session data");
-      return;
-    }
-
-    renderCityDetail(data);
+  if (!data?.length) {
+    renderEmpty("No source data");
     return;
   }
 
+  const tbody = getBody();
+
+  tbody.innerHTML = data.map(r => {
+
+    const views = Number(r.views || 0);
+    const clicks = Number(r.clicks || 0);
+
+    const ctr =
+      views > 0
+        ? ((clicks / views) * 100).toFixed(1) + "%"
+        : "0%";
+
+    return `
+      <tr>
+        <td>${escapeHtml(r.source || "unknown")}</td>
+        <td class="num">${views}</td>
+        <td class="num">${clicks}</td>
+        <td class="num">${ctr}</td>
+      </tr>
+    `;
+
+  }).join("");
+
+  return;
 }
-
 /* ============================================================
    UTILS
    ============================================================ */
