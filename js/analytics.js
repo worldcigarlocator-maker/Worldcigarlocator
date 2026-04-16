@@ -777,8 +777,10 @@ subscribe(async (state) => {
     return;
   }
 
-  marketView?.classList.remove("hidden");
+marketView?.classList.remove("hidden");
 updateDrilldownUI("market");
+
+await renderMarket(days);
 
 const heatmapPanel =
   document.getElementById("heatmapBody")?.closest("section");
