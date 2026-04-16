@@ -38,7 +38,7 @@ if (!tbody) return;
 
 tbody.querySelectorAll("tr").forEach(row => {
 
-```
+
 row.onclick = async () => {
 
   if (MARKET_STATE.level === "country") {
@@ -78,7 +78,7 @@ row.onclick = async () => {
   }
 
 };
-```
+
 
 });
 
@@ -101,7 +101,7 @@ COUNTRY
 
 if (MARKET_STATE.level === "country") {
 
-```
+
 const { data, error } = await sb.rpc(
   "analytics_top_countries",
   { p_days: days, p_day: null, p_limit: 100 }
@@ -116,7 +116,7 @@ tbody.innerHTML = (data || []).map(r => {
     : "0%";
 
   return `
-```
+
 
 <tr data-country="${r.country}">
   <td>${r.country || "-"}</td>
@@ -125,12 +125,11 @@ tbody.innerHTML = (data || []).map(r => {
   <td class="num">${ctr}</td>
 </tr>`;
 
-```
+
 }).join("");
 
 bindRows(days);
 return;
-```
 
 }
 
@@ -140,7 +139,6 @@ CITY
 
 if (MARKET_STATE.level === "city") {
 
-```
 const { data, error } = await sb.rpc(
   "analytics_top_cities",
   {
@@ -160,7 +158,7 @@ tbody.innerHTML = (data || []).map(c => {
     : "0%";
 
   return `
-```
+
 
 <tr data-city="${c.city}">
   <td>${c.city}</td>
@@ -169,12 +167,12 @@ tbody.innerHTML = (data || []).map(c => {
   <td class="num">${ctr}</td>
 </tr>`;
 
-```
+
 }).join("");
 
 bindRows(days);
 return;
-```
+
 
 }
 
@@ -184,7 +182,7 @@ STORE
 
 if (MARKET_STATE.level === "store") {
 
-```
+
 const { data, error } = await sb.rpc(
   "analytics_top_stores_by_city",
   {
@@ -204,7 +202,7 @@ tbody.innerHTML = (data || []).map(s => {
     : "0%";
 
   return `
-```
+
 
 <tr data-store="${s.store_id}">
   <td>${s.name}</td>
@@ -213,12 +211,12 @@ tbody.innerHTML = (data || []).map(s => {
   <td class="num">${ctr}</td>
 </tr>`;
 
-```
+
 }).join("");
 
 bindRows(days);
 return;
-```
+
 
 }
 
@@ -228,7 +226,7 @@ TRAFFIC
 
 if (MARKET_STATE.level === "traffic") {
 
-```
+
 const { data, error } = await sb.rpc(
   "analytics_store_traffic_by_city",
   {
@@ -246,7 +244,7 @@ tbody.innerHTML = (data || []).map(c => {
     : "0%";
 
   return `
-```
+
 
 <tr>
   <td>${c.city}, ${c.country}</td>
@@ -255,11 +253,11 @@ tbody.innerHTML = (data || []).map(c => {
   <td class="num">${ctr}</td>
 </tr>`;
 
-```
+
 }).join("");
 
 return;
-```
+
 
 }
 
