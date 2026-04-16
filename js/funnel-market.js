@@ -219,7 +219,7 @@ data = res || [];
 
 tbody.querySelectorAll("tr").forEach(row => {
 
-  row.onclick = () => {
+  row.onclick = async () => {
 
     // 🔹 COUNTRY → CITY
     if (LEVEL === "country") {
@@ -228,23 +228,68 @@ tbody.querySelectorAll("tr").forEach(row => {
       if (!country) return;
 
       applyCountry(country);
-      setLevel("city");
-
-      renderMarket(days);
+      await renderMarket(days);
       return;
     }
 
-    // 🔹 CITY → (framtid / stop)
+    // 🔹 CITY → STORES
     if (LEVEL === "city") {
 
-      console.log("CITY CLICK:", row.dataset.country);
-      return;
+      const cityLabel = row.children[0]?.textContent;
+      if (!cityLabel) return;
+
+      const city = cityLabel.split(",")[0]?.trim();
+
+      const { data: stores, error } = await sb.rpc(
+  "analytics_top_stores_by_city",
+  {
+    p_day: getActiveDay(),
+    p_country: getActiveCountry(),
+    p_city: city,
+    p_limit: 50
+  }
+);
+
+      console.log("STORES RES:", stores);
+      console.log("STORES ERROR:", error);
+
+      if (error) {
+        console.error("❌ stores error", error);
+        return;
+      }
+
+      if (!stores?.length) {
+        tbody.innerHTML =
+          `<tr><td colspan="5" class="muted center">No stores yet</td></tr>`;
+        return;
+      }
+
+      // 🔥 RENDER STORES
+      tbody.innerHTML = stores.map(s => {
+
+        const ctr = s.views
+          ? ((s.clicks / s.views) * 100).toFixed(1) + "%"
+          : "0%";
+
+        return `
+          <tr>
+            <td>${s.name}</td>
+            <td class="num">${s.users || 0}</td>
+            <td class="num">${s.views || 0}</td>
+            <td class="num">${s.clicks || 0}</td>
+            <td class="num">${ctr}</td>
+          </tr>
+        `;
+
+      }).join("");
+
     }
 
   };
 
 });
-       }
+
+   
 /* ============================================================
    HEATMAP
    ============================================================ */
