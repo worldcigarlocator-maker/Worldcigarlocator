@@ -392,7 +392,7 @@ function initStoreViewObserver() {
         const country = el.dataset.country;
 
 trackEvent("store_view", {
-  store_id: store.id,
+  store_id: Number(storeId),
   source: window.CURRENT_SOURCE || "map",
   session_hash: localStorage.getItem("wcl_session")
 });
