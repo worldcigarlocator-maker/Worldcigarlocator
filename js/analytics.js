@@ -794,20 +794,12 @@ if (state.kpi === "stores") {
 
   marketView?.classList.remove("hidden");
 
-  const heatmapPanel = document.querySelector("#view-market .panel:first-of-type");
-  const marketPanel = document.querySelector("#view-market .panel:nth-of-type(2)");
+  const { renderStoresV2, resetStoresV2 } = await import("./funnel-stores-v2.js");
 
-  if (heatmapPanel) heatmapPanel.style.display = "none";
+  // 🔥 reset varje gång du går in
+  resetStoresV2();
 
-  if (marketPanel) {
-    marketPanel.style.display = "block";
-
-    const head = marketPanel.querySelector(".panelhead");
-    if (head) head.style.display = "none";
-  }
-
-  const { renderMarketV2 } = await import("./funnel-market-v2.js");
-  await renderMarketV2(days);
+  await renderStoresV2(days);
 
   return;
 }
