@@ -397,6 +397,12 @@ trackEvent("store_view", {
   session_hash: localStorage.getItem("wcl_session")
 });
 
+console.log("STORE VIEW EVENT", {
+  store_id: storeId,
+  source: window.CURRENT_SOURCE,
+  session: localStorage.getItem("wcl_session")
+});
+        
         storeViewObserver.unobserve(el);
       });
     },
