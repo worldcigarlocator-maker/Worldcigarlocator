@@ -118,10 +118,10 @@ export async function renderMarketV2(days = 30) {
   }).join("");
 
   /* ============================================================
-     DRILLDOWN (COUNTRY → CITY)
-     ============================================================ */
+   DRILLDOWN (COUNTRY → CITY → STORE → TRAFFIC ORIGIN)
+   ============================================================ */
 
-  tbody.querySelectorAll("tr").forEach(row => {
+tbody.querySelectorAll("tr").forEach(row => {
 
   row.onclick = async () => {
 
@@ -179,10 +179,59 @@ export async function renderMarketV2(days = 30) {
           : "0%";
 
         return `
-          <tr>
+          <tr data-store="${s.store_id}">
             <td>${s.name}</td>
             <td class="num">${s.views || 0}</td>
             <td class="num">${s.clicks || 0}</td>
+            <td class="num">${ctr}</td>
+          </tr>
+        `;
+
+      }).join("");
+
+      return;
+    }
+
+    // 🔥 STORE → TRAFFIC ORIGIN (CITY)
+    if (MARKET_STATE.level === "store") {
+
+      const storeId = row.dataset.store;
+      if (!storeId) return;
+
+      const { data: res, error } = await sb.rpc(
+        "analytics_store_traffic_by_city",
+        {
+          p_store_id: Number(storeId),
+          p_days: days
+        }
+      );
+
+      console.log("📍 STORE TRAFFIC:", res);
+
+      if (error) {
+        console.error("❌ store traffic error", error);
+        return;
+      }
+
+      const cities = res || [];
+
+      if (!cities.length) {
+        tbody.innerHTML =
+          `<tr><td colspan="4" class="muted center">No traffic data</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = cities.map(c => {
+
+        const ctr = c.views
+          ? ((c.clicks / c.views) * 100).toFixed(1) + "%"
+          : "0%";
+
+        return `
+          <tr>
+            <td>${c.city}, ${c.country}</td>
+            <td class="num">${c.views || 0}</td>
+            <td class="num">${c.clicks || 0}</td>
             <td class="num">${ctr}</td>
           </tr>
         `;
