@@ -41,7 +41,7 @@ export function getKPI() {
 export function getLevel() {
 
   // 🔥 SINGLE SOURCE OF TRUTH
-  if (STATE.location?.country) return "city";
+  if (STATE.country) return "city";
 
   return "country";
 }
@@ -94,7 +94,7 @@ export function applyDay(day) {
 // 🔥 Click country (→ city level)
 export function applyCountry(country) {
 
-  STATE.location.country = country;
+  STATE.country = country;
 
   // 🔥 KRITISKT
   notify();
