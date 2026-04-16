@@ -785,32 +785,34 @@ subscribe(async (state) => {
   }
 
   // ============================================================
-  // STORES
-  // ============================================================
+// STORES (V2 ONLY)
+// ============================================================
 
- if (state.kpi === "stores") {
+if (state.kpi === "stores") {
 
-  // 🔥 visa rätt vy (V2 använder market view)
   marketView?.classList.remove("hidden");
-
   updateDrilldownUI("market");
 
-  const { renderMarketV2 } = await import("./funnel-market-v2.js");
+  // 🔥 göm gamla panels
+  document.getElementById("panel-heatmap")?.style.setProperty("display", "none");
+  document.getElementById("panel-performance")?.style.setProperty("display", "none");
 
+  const { renderMarketV2 } = await import("./funnel-market-v2.js");
   await renderMarketV2(days);
 
   return;
 }
 
-  
-  // ============================================================
-  // MARKET (views / clicks / ctr)
-  // ============================================================
+// ============================================================
+// MARKET (views / clicks / ctr)
+// ============================================================
+
+if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
 
   marketView?.classList.remove("hidden");
   updateDrilldownUI("market");
 
-  // 🔥 Visa global UI igen
+  // 🔥 visa panels
   document.getElementById("panel-heatmap")?.style.setProperty("display", "block");
   document.getElementById("panel-performance")?.style.setProperty("display", "block");
 
@@ -820,7 +822,8 @@ subscribe(async (state) => {
     await renderHeatmap(days);
   }
 
-});
+  return;
+}
 
   // ============================================================
   // INIT
