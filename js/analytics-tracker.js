@@ -1,4 +1,4 @@
-```javascript
+javascript
 import { supabase } from "/js/globals.js";
 
 /* ============================================================
@@ -102,7 +102,7 @@ export async function trackEvent(eventType, payload = {}) {
     if (!geo) geo = await getGeo();
 
     // ------------------------------------------------------------
-    // BUILD PAYLOAD (🔴 SOURCE SIST!)
+    // BUILD PAYLOAD (SOURCE SIST + FALLBACK)
     // ------------------------------------------------------------
     const finalPayload = {
       event_type: eventType,
@@ -110,12 +110,11 @@ export async function trackEvent(eventType, payload = {}) {
 
       ...payload,
 
-      // 🔥 SOURCE SIST (KAN INTE SKRIVAS ÖVER)
       source:
-        payload?.source ||
-        window?.MODAL_SOURCE ||
-        window?.CURRENT_SOURCE ||
-        "direct",
+        payload?.source ??
+        window?.MODAL_SOURCE ??
+        window?.CURRENT_SOURCE ??
+        inferSource(eventType),
 
       country: geo?.country || null,
       city: geo?.city || null
@@ -155,4 +154,4 @@ export async function trackEvent(eventType, payload = {}) {
     console.error("💥 ANALYTICS CRASH:", err);
   }
 }
-```
+
