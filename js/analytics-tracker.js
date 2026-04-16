@@ -79,6 +79,19 @@ function markStoreViewed(id) {
   VIEWED_STORES.add(id);
 }
 
+
+/* ============================================================
+   SOURCE FALLBACK (DETERMINISTIC)
+   ============================================================ */
+
+function inferSource(eventType) {
+
+  if (eventType === "store_view") return "map";
+  if (eventType === "store_opened") return "search";
+
+  return "direct";
+}
+
 /* ============================================================
    TRACK EVENT (CANONICAL)
    ============================================================ */
