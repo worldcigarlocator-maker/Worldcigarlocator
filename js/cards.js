@@ -391,10 +391,10 @@ function initStoreViewObserver() {
         const city = el.dataset.city;
         const country = el.dataset.country;
 
-    trackEvent("store_view", {
-  store_id: Number(storeId),
-  city,
-  country
+trackEvent("store_view", {
+  store_id: store.id,
+  source: window.CURRENT_SOURCE || "map",
+  session_hash: localStorage.getItem("wcl_session")
 });
 
         storeViewObserver.unobserve(el);
