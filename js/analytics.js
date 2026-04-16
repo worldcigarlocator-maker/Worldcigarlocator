@@ -175,25 +175,25 @@ function showMarketPanel(panelId) {
 
 function goToMarketTab(panel = "panel-heatmap") {
 
+  // 🔥 STOPPA helt om vi är i STORES
+  if (getKPI() === "stores") return;
+
   const tb = document.getElementById("drilldownToolbar");
   if (tb) tb.style.display = "block";
 
-  // activate tab
   document.querySelectorAll(".btn.tab")
     .forEach(b => b.classList.remove("active"));
 
   document.querySelector('[data-tab="market"]')
     ?.classList.add("active");
 
-  // hide all tabs
   document.querySelectorAll(".analytics-tab")
     .forEach(el => el.classList.add("hidden"));
 
-  // show market tab
   document.getElementById("tab-market")
     ?.classList.remove("hidden");
 
-   showMarketPanel(panel);
+  showMarketPanel(panel);
   updateDrilldownUI("market");
 }
 
