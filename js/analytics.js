@@ -775,11 +775,14 @@ subscribe(async (state) => {
   if (state.kpi === "users" && state.day) {
     usersView?.classList.remove("hidden");
 
-    // 🔥 Dölj global UI
-    document.getElementById("panel-heatmap")?.style.setProperty("display", "none");
-    document.getElementById("panel-performance")?.style.setProperty("display", "none");
+// 🔥 HARD HIDE (bulletproof)
+const heatmap = document.getElementById("panel-heatmap");
+const performance = document.getElementById("panel-performance");
 
-    await renderMarket(days);
+if (heatmap) heatmap.style.display = "none";
+if (performance) performance.style.display = "none";
+
+  await renderMarketV2(days);
     return;
   }
 
