@@ -2,7 +2,6 @@
 import { supabase } from "/js/globals.js";
 import { renderUsersOverview } from "./funnel-users.js";
 import { renderMarket, renderHeatmap } from "./funnel-market.js";
-import { renderTopStores } from "./funnel-stores.js";
 import {
   getKPI,
   setKPI,
@@ -752,12 +751,12 @@ subscribe(async (state) => {
 
   const usersView = document.getElementById("view-users");
   const marketView = document.getElementById("view-market");
-  const storesView = document.getElementById("view-stores");
 
   usersView?.classList.add("hidden");
   marketView?.classList.add("hidden");
-  storesView?.classList.add("hidden");
 
+
+  
   // ============================================================
   // USERS (OVERVIEW)
   // ============================================================
@@ -824,6 +823,7 @@ if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
 
   return;
 }
+  });
 
   // ============================================================
   // INIT
