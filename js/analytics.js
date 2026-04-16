@@ -782,7 +782,7 @@ const performance = document.getElementById("panel-performance");
 if (heatmap) heatmap.style.display = "none";
 if (performance) performance.style.display = "none";
 
-  await renderMarketV2(days);
+await renderMarket(days);
     return;
   }
 
@@ -811,6 +811,8 @@ if (state.kpi === "stores") {
   return;
 }
 
+
+
 // ============================================================
 // MARKET (views / clicks / ctr)
 // ============================================================
@@ -820,10 +822,6 @@ if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
   marketView?.classList.remove("hidden");
   updateDrilldownUI("market");
 
-  // 🔥 visa panels
-  document.getElementById("panel-heatmap")?.style.setProperty("display", "block");
-  document.getElementById("panel-performance")?.style.setProperty("display", "block");
-
   await renderMarket(days);
 
   if (state.kpi === "views" || state.kpi === "clicks") {
@@ -832,7 +830,6 @@ if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
 
   return;
 }
-  });
 
   // ============================================================
   // INIT
