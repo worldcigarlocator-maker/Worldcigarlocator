@@ -700,11 +700,13 @@ function bindGrid() {
     const id = Number(card.dataset.storeId);
     if (!id) return;
 
-openModal({
-  id: id,
-  source: window.CURRENT_SOURCE
-});
+    openModal({
+      id: id,
+      source: window.CURRENT_SOURCE
+    });
+  });
 }
+
 
 // ============================================================
 // INIT
