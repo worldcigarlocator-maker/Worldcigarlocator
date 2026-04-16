@@ -8,11 +8,11 @@ const sb = supabase;
 console.log("🔥 MARKET V2 LOADED");
 
 /* ============================================================
-STATE (ISOLATED)
+STATE
 ============================================================ */
 
 const MARKET_STATE = {
-level: "country",   // country | city | store | traffic
+level: "country",
 country: null,
 city: null,
 store: null,
@@ -28,7 +28,7 @@ return document.getElementById("marketDemandBody");
 }
 
 /* ============================================================
-CLICK HANDLER (SINGLE SOURCE)
+CLICK HANDLER
 ============================================================ */
 
 function bindRows(days) {
@@ -41,7 +41,6 @@ tbody.querySelectorAll("tr").forEach(row => {
 ```
 row.onclick = async () => {
 
-  // 🔹 COUNTRY → CITY
   if (MARKET_STATE.level === "country") {
 
     const country = row.dataset.country;
@@ -54,7 +53,6 @@ row.onclick = async () => {
     return;
   }
 
-  // 🔹 CITY → STORE
   if (MARKET_STATE.level === "city") {
 
     const city = row.dataset.city;
@@ -67,7 +65,6 @@ row.onclick = async () => {
     return;
   }
 
-  // 🔹 STORE → TRAFFIC ORIGIN
   if (MARKET_STATE.level === "store") {
 
     const storeId = row.dataset.store;
@@ -98,8 +95,6 @@ console.log("🔥 MARKET V2 RENDER", MARKET_STATE);
 const tbody = getBody();
 if (!tbody) return;
 
-let data = [];
-
 /* ============================================================
 COUNTRY
 ============================================================ */
@@ -107,33 +102,30 @@ COUNTRY
 if (MARKET_STATE.level === "country") {
 
 ```
-const { data: res, error } = await sb.rpc(
+const { data, error } = await sb.rpc(
   "analytics_top_countries",
   { p_days: days, p_day: null, p_limit: 100 }
 );
 
-if (error) {
-  console.error("❌ countries error", error);
-  return;
-}
+if (error) return console.error(error);
 
-data = res || [];
-
-tbody.innerHTML = data.map(r => {
+tbody.innerHTML = (data || []).map(r => {
 
   const ctr = r.views
     ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
     : "0%";
 
   return `
-    <tr data-country="${r.country}">
-      <td>${r.country || "-"}</td>
-      <td class="num">${r.views || 0}</td>
-      <td class="num">${r.clicks || 0}</td>
-      <td class="num">${ctr}</td>
-    </tr>
-  `;
+```
 
+<tr data-country="${r.country}">
+  <td>${r.country || "-"}</td>
+  <td class="num">${r.views || 0}</td>
+  <td class="num">${r.clicks || 0}</td>
+  <td class="num">${ctr}</td>
+</tr>`;
+
+```
 }).join("");
 
 bindRows(days);
@@ -149,7 +141,7 @@ CITY
 if (MARKET_STATE.level === "city") {
 
 ```
-const { data: res, error } = await sb.rpc(
+const { data, error } = await sb.rpc(
   "analytics_top_cities",
   {
     p_days: days,
@@ -159,28 +151,25 @@ const { data: res, error } = await sb.rpc(
   }
 );
 
-if (error) {
-  console.error("❌ cities error", error);
-  return;
-}
+if (error) return console.error(error);
 
-data = res || [];
-
-tbody.innerHTML = data.map(c => {
+tbody.innerHTML = (data || []).map(c => {
 
   const ctr = c.views
     ? ((c.clicks / c.views) * 100).toFixed(1) + "%"
     : "0%";
 
   return `
-    <tr data-city="${c.city}">
-      <td>${c.city}</td>
-      <td class="num">${c.views || 0}</td>
-      <td class="num">${c.clicks || 0}</td>
-      <td class="num">${ctr}</td>
-    </tr>
-  `;
+```
 
+<tr data-city="${c.city}">
+  <td>${c.city}</td>
+  <td class="num">${c.views || 0}</td>
+  <td class="num">${c.clicks || 0}</td>
+  <td class="num">${ctr}</td>
+</tr>`;
+
+```
 }).join("");
 
 bindRows(days);
@@ -196,7 +185,7 @@ STORE
 if (MARKET_STATE.level === "store") {
 
 ```
-const { data: res, error } = await sb.rpc(
+const { data, error } = await sb.rpc(
   "analytics_top_stores_by_city",
   {
     p_day: null,
@@ -206,28 +195,25 @@ const { data: res, error } = await sb.rpc(
   }
 );
 
-if (error) {
-  console.error("❌ stores error", error);
-  return;
-}
+if (error) return console.error(error);
 
-data = res || [];
-
-tbody.innerHTML = data.map(s => {
+tbody.innerHTML = (data || []).map(s => {
 
   const ctr = s.views
     ? ((s.clicks / s.views) * 100).toFixed(1) + "%"
     : "0%";
 
   return `
-    <tr data-store="${s.store_id}">
-      <td>${s.name}</td>
-      <td class="num">${s.views || 0}</td>
-      <td class="num">${s.clicks || 0}</td>
-      <td class="num">${ctr}</td>
-    </tr>
-  `;
+```
 
+<tr data-store="${s.store_id}">
+  <td>${s.name}</td>
+  <td class="num">${s.views || 0}</td>
+  <td class="num">${s.clicks || 0}</td>
+  <td class="num">${ctr}</td>
+</tr>`;
+
+```
 }).join("");
 
 bindRows(days);
@@ -237,13 +223,13 @@ return;
 }
 
 /* ============================================================
-TRAFFIC (STORE → CITY ORIGIN)
+TRAFFIC
 ============================================================ */
 
 if (MARKET_STATE.level === "traffic") {
 
 ```
-const { data: res, error } = await sb.rpc(
+const { data, error } = await sb.rpc(
   "analytics_store_traffic_by_city",
   {
     p_store_id: MARKET_STATE.store,
@@ -251,28 +237,25 @@ const { data: res, error } = await sb.rpc(
   }
 );
 
-if (error) {
-  console.error("❌ traffic error", error);
-  return;
-}
+if (error) return console.error(error);
 
-data = res || [];
-
-tbody.innerHTML = data.map(c => {
+tbody.innerHTML = (data || []).map(c => {
 
   const ctr = c.views
     ? ((c.clicks / c.views) * 100).toFixed(1) + "%"
     : "0%";
 
   return `
-    <tr>
-      <td>${c.city}, ${c.country}</td>
-      <td class="num">${c.views || 0}</td>
-      <td class="num">${c.clicks || 0}</td>
-      <td class="num">${ctr}</td>
-    </tr>
-  `;
+```
 
+<tr>
+  <td>${c.city}, ${c.country}</td>
+  <td class="num">${c.views || 0}</td>
+  <td class="num">${c.clicks || 0}</td>
+  <td class="num">${ctr}</td>
+</tr>`;
+
+```
 }).join("");
 
 return;
@@ -283,7 +266,7 @@ return;
 }
 
 /* ============================================================
-DEBUG (OPTIONAL)
+DEBUG
 ============================================================ */
 
 window.renderMarketV2 = renderMarketV2;
