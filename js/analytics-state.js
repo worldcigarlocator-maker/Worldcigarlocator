@@ -52,6 +52,7 @@ export function getActiveDay() {
 
 export function setActiveDay(day) {
   STATE.day = day;
+  notify(); // 🔥 KRITISK
 }
 
 export function getActiveCountry() {
