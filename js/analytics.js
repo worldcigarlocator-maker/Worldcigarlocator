@@ -740,11 +740,6 @@ async function loadTrafficFlow() {
   }).join("");
 }
 
-
-// ============================================================
-// INIT
-// ============================================================
-
 // ============================================================
 // SUBSCRIBE (STATE → RENDER)
 // ============================================================
@@ -763,12 +758,35 @@ subscribe(async (state) => {
   marketView?.classList.add("hidden");
   storesView?.classList.add("hidden");
 
+  // ============================================================
+  // USERS (OVERVIEW)
+  // ============================================================
+
   if (state.kpi === "users" && !state.day) {
     usersView?.classList.remove("hidden");
     updateDrilldownUI("overview");
     await renderUsersOverview(days);
     return;
   }
+
+  // ============================================================
+  // USERS (DRILLDOWN)
+  // ============================================================
+
+  if (state.kpi === "users" && state.day) {
+    usersView?.classList.remove("hidden");
+
+    // 🔥 Dölj global UI
+    document.getElementById("panel-heatmap")?.style.setProperty("display", "none");
+    document.getElementById("panel-performance")?.style.setProperty("display", "none");
+
+    await renderMarket(days);
+    return;
+  }
+
+  // ============================================================
+  // STORES
+  // ============================================================
 
   if (state.kpi === "stores") {
     storesView?.classList.remove("hidden");
@@ -777,23 +795,28 @@ subscribe(async (state) => {
     return;
   }
 
-marketView?.classList.remove("hidden");
-updateDrilldownUI("market");
+  // ============================================================
+  // MARKET (views / clicks / ctr)
+  // ============================================================
 
-await renderMarket(days);
+  marketView?.classList.remove("hidden");
+  updateDrilldownUI("market");
 
-const heatmapPanel =
-  document.getElementById("heatmapBody")?.closest("section");
+  // 🔥 Visa global UI igen
+  document.getElementById("panel-heatmap")?.style.setProperty("display", "block");
+  document.getElementById("panel-performance")?.style.setProperty("display", "block");
 
-// 🔥 ALLTID visa heatmap för market KPI
-if (heatmapPanel) heatmapPanel.style.display = "block";
+  await renderMarket(days);
 
-await renderMarket(days);
-if (state.kpi === "views" || state.kpi === "clicks") {
-  await renderHeatmap(days);
-}
+  if (state.kpi === "views" || state.kpi === "clicks") {
+    await renderHeatmap(days);
+  }
 
 });
+
+  // ============================================================
+  // INIT
+  // ============================================================
 
 function init() {
 
