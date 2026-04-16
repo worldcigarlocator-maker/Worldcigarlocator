@@ -788,13 +788,21 @@ subscribe(async (state) => {
   // STORES
   // ============================================================
 
-  if (state.kpi === "stores") {
-    storesView?.classList.remove("hidden");
-    updateDrilldownUI("stores");
-    await renderTopStores(days);
-    return;
-  }
+ if (state.kpi === "stores") {
 
+  // 🔥 visa rätt vy (V2 använder market view)
+  marketView?.classList.remove("hidden");
+
+  updateDrilldownUI("market");
+
+  const { renderMarketV2 } = await import("./funnel-market-v2.js");
+
+  await renderMarketV2(days);
+
+  return;
+}
+
+  
   // ============================================================
   // MARKET (views / clicks / ctr)
   // ============================================================
