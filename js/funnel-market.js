@@ -2,6 +2,7 @@
    WCL — MARKET FUNNEL (CANONICAL)
    ============================================================ */
 
+import { renderMarketV2 } from "./funnel-market-v2.js";
 import { supabase } from "/js/globals.js";
 const sb = supabase;
 import {
