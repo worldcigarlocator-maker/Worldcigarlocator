@@ -123,11 +123,21 @@ export async function trackEvent(eventType, payload = {}) {
 
       ...payload,
 
-      source:
-        payload?.source ??
-        window?.MODAL_SOURCE ??
-        window?.CURRENT_SOURCE ??
-        inferSource(eventType),
+    source: (() => {
+
+  if (payload?.source) return payload.source;
+
+  if (window?.MODAL_SOURCE) return window.MODAL_SOURCE;
+
+  if (window?.CURRENT_SOURCE) return window.CURRENT_SOURCE;
+
+  // 🔥 HARD FALLBACK (KRITISK)
+  if (eventType === "store_view") return "map";
+  if (eventType === "store_opened") return "search";
+
+  return "direct";
+
+})(),
 
       country: geo?.country || null,
       city: geo?.city || null
