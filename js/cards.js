@@ -258,6 +258,7 @@ function applyChipFilters(rows) {
 // ============================================================
 
 export function activateSearch({ text = "", sort } = {}) {
+  CURRENT_RENDER_SOURCE = "search";
   MASTER_MODE = MASTER.SEARCH;
 
 STATE.location = {
@@ -308,7 +309,7 @@ STATE.location = {
 // ============================================================
 
 export function activateLocation(next = {}) {
-
+CURRENT_RENDER_SOURCE = "sidebar";
   MASTER_MODE = MASTER.LOCATION;
 
   STATE.search.text = "";
