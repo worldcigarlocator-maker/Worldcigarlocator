@@ -153,20 +153,28 @@ function resetModal() {
 export async function openModal(storeInput) {
   console.log("OPEN MODAL CALLED", storeInput);
 
-  let store =
+  const inputId =
     typeof storeInput === "object" && storeInput !== null
-      ? storeInput
-      : findStore(storeInput);
+      ? Number(storeInput.id)
+      : Number(storeInput);
+
+  if (!inputId) return;
+
+  const inputSource =
+    typeof storeInput === "object" && storeInput !== null
+      ? storeInput.source || null
+      : null;
+
+  let store = findStore(inputId);
 
   // ============================================================
-  // MAP VIEW FALLBACK (RPC ONLY)
+  // RPC FALLBACK / AUTHORITATIVE LOAD
   // ============================================================
 
-  if (!store && storeInput) {
-
+  if (!store) {
     const { data, error } = await supabase.rpc(
       "modal_store_card_v1",
-      { p_store_id: Number(storeInput) }
+      { p_store_id: inputId }
     );
 
     if (error) {
@@ -179,45 +187,42 @@ export async function openModal(storeInput) {
     store = data[0];
   }
 
-if (!store) return;
+  if (!store) return;
 
-const storeId = Number(store.id);
-if (!storeId) return;
+  const storeId = Number(store.id);
+  if (!storeId) return;
 
-window.WCL_ANALYTICS.send("store_opened", {
-  store_id: storeId,
-  country: store.country || null,
-  city: store.city || null,
-  source: MODAL_SOURCE
-});
+  // 🔒 SOURCE LOCK (ENDA GÅNGEN)
+  const MODAL_SOURCE =
+    inputSource ||
+    store.source ||
+    window.CURRENT_SOURCE ||
+    window.MODAL_SOURCE ||
+    "direct";
+
+  window.MODAL_SOURCE = MODAL_SOURCE;
+
+  console.log("🔥 MODAL SOURCE LOCKED:", MODAL_SOURCE);
+
+  // ✅ STORE OPENED
+  window.WCL_ANALYTICS.send("store_opened", {
+    store_id: storeId,
+    country: store.country || null,
+    city: store.city || null,
+    source: MODAL_SOURCE
+  });
 
   console.log("🔥 MODAL STEP 1", storeId);
   console.log("🚀 TRACKING STORE VIEW");
 
-// ============================================================
-// ANALYTICS — STORE VIEW (CANONICAL)
-// ============================================================
-
-// 🔒 lås source från rätt ställe (robust)
-const MODAL_SOURCE =
-  store.source ||
-  window.CURRENT_SOURCE ||
-  window.MODAL_SOURCE ||
-  "direct";
-
-window.MODAL_SOURCE = MODAL_SOURCE;
-
-// DEBUG
-console.log("🔥 MODAL SOURCE LOCKED:", MODAL_SOURCE);
-
-// ✅ exakt EN view per modal open
-trackEvent("store_view", {
-  store_id: storeId,
-  country: store.country || null,
-  city: store.city || null,
-  source: MODAL_SOURCE,
-  session_hash: localStorage.getItem("wcl_session")
-});
+  // ✅ STORE VIEW
+  trackEvent("store_view", {
+    store_id: storeId,
+    country: store.country || null,
+    city: store.city || null,
+    source: MODAL_SOURCE,
+    session_hash: localStorage.getItem("wcl_session")
+  });
 
   // ============================================================
   // MODAL STATE INIT
@@ -227,16 +232,16 @@ trackEvent("store_view", {
   MODAL_LOAD_SEQ++;
   const seq = MODAL_LOAD_SEQ;
 
-const m = modalEl();
-if (!m) return;
+  const m = modalEl();
+  if (!m) return;
 
-resetModal();
-m.classList.remove("hidden");
-lockScroll(true);
+  resetModal();
+  m.classList.remove("hidden");
+  lockScroll(true);
 
-// ----------------------------------
-// Static store data
-// ----------------------------------
+  // ----------------------------------
+  // Static store data
+  // ----------------------------------
 
   if (modalName()) modalName().textContent = store.name || "Unnamed";
   if (modalImg()) modalImg().src = getPhotoUrl(store);
@@ -258,37 +263,37 @@ lockScroll(true);
   if (modalAddress()) modalAddress().textContent = store.address || "—";
   if (modalPhone()) modalPhone().textContent = store.phone || "—";
 
-if (modalWebsite() && store.website) {
-const link = modalWebsite();
+  if (modalWebsite() && store.website) {
+    const link = modalWebsite();
 
-link.href =
-  `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/visit-store?store_id=${store.id}`;
+    link.href =
+      `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/visit-store?store_id=${store.id}`;
 
-link.style.display = "inline";
+    link.style.display = "inline";
 
-// ============================================================
-// WEBSITE CLICK (LOCKED SOURCE)
-// ============================================================
-console.log("🔥 CLICK SOURCE:", MODAL_SOURCE);
-link.onclick = (e) => {
-  e.preventDefault();
+    // ============================================================
+    // WEBSITE CLICK (LOCKED SOURCE)
+    // ============================================================
+    console.log("🔥 CLICK SOURCE:", MODAL_SOURCE);
 
-  trackEvent("website_clicked", {
-    store_id: Number(store.id),
-    country: store.country || null,
-    city: store.city || null,
-    source: window.MODAL_SOURCE // 🔥 KRITISK
-  });
+    link.onclick = (e) => {
+      e.preventDefault();
 
-  // liten delay så event hinner skickas
-  setTimeout(() => {
-    window.open(link.href, "_blank");
-  }, 120);
-};
+      trackEvent("website_clicked", {
+        store_id: Number(store.id),
+        country: store.country || null,
+        city: store.city || null,
+        source: window.MODAL_SOURCE
+      });
+
+      setTimeout(() => {
+        window.open(link.href, "_blank");
+      }, 120);
+    };
   }
 
   // ----------------------------------
-  // Directions (Google Maps Navigation)
+  // Directions
   // ----------------------------------
 
   const dir = modalDirections();
@@ -303,7 +308,7 @@ link.onclick = (e) => {
   }
 
   // ----------------------------------
-  // Interaction meta (RPC)
+  // Interaction meta
   // ----------------------------------
 
   const { data: meta, error } = await supabase.rpc("modal_store_meta_v1", {
@@ -324,10 +329,6 @@ link.onclick = (e) => {
     highlightStars(MODAL_USER_TEMP_RATING);
   }
 
-  // ----------------------------------
-  // Load comments
-  // ----------------------------------
-
   await loadComments(MODAL_ACTIVE_STORE_ID, seq);
 }
 
@@ -344,7 +345,6 @@ export function closeModal() {
   MODAL_ACTIVE_STORE_ID = null;
   MODAL_USER_TEMP_RATING = 0;
 }
-
 
 // ============================================================
 // RATING (RPC ONLY)
