@@ -114,7 +114,13 @@ function sendEvent(event_type, payload = {}) {
 
   try {
 
-    const { source: _ignore, ...rest } = payload ?? {};
+    const { source: explicitSource, ...rest } = payload ?? {};
+
+    const resolvedSource =
+      explicitSource ??
+      window.MODAL_SOURCE ??
+      window.CURRENT_SOURCE ??
+      "direct";
 
     const finalPayload = {
       event_type,
@@ -122,15 +128,11 @@ function sendEvent(event_type, payload = {}) {
       actor_type: "anon",
       session_hash: getSession(),
 
-      source:
-        window?.__WCL__?.MODAL_SOURCE ??
-        window?.__WCL__?.CURRENT_SOURCE ??
-        "direct",
+      source: resolvedSource,
 
       ...rest
     };
 
-    // 🔥 istället för fetch → push till queue
     EVENT_QUEUE.push(finalPayload);
 
     console.log("🧠 QUEUED EVENT", finalPayload);
