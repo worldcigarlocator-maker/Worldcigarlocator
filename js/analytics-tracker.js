@@ -1,4 +1,3 @@
-
 import { supabase } from "/js/globals.js";
 
 /* ============================================================
@@ -40,7 +39,8 @@ async function getGeo() {
       localStorage.setItem("wcl_session", session);
 
       trackEvent("session_start", {
-        session_hash: session
+        session_hash: session,
+        source: "direct"
       });
 
       console.log("🔥 SESSION START:", session);
@@ -79,19 +79,6 @@ function markStoreViewed(id) {
   VIEWED_STORES.add(id);
 }
 
-
-/* ============================================================
-   SOURCE FALLBACK (DETERMINISTIC)
-   ============================================================ */
-
-function inferSource(eventType) {
-
-  if (eventType === "store_view") return "map";
-  if (eventType === "store_opened") return "search";
-
-  return "direct";
-}
-
 /* ============================================================
    TRACK EVENT (CANONICAL)
    ============================================================ */
@@ -115,32 +102,28 @@ export async function trackEvent(eventType, payload = {}) {
     if (!geo) geo = await getGeo();
 
     // ------------------------------------------------------------
-    // BUILD PAYLOAD (SOURCE SIST + FALLBACK)
+    // SOURCE (STRICT — NO OVERRIDE)
+    // ------------------------------------------------------------
+    const resolvedSource =
+      payload?.source ??
+      window?.MODAL_SOURCE ??
+      window?.CURRENT_SOURCE ??
+      "direct";
+
+    // ------------------------------------------------------------
+    // BUILD PAYLOAD
     // ------------------------------------------------------------
     const finalPayload = {
       event_type: eventType,
-    session_hash:
-  payload?.session_hash ||
-  localStorage.getItem("wcl_session") ||
-  getSessionId(),
+
+      session_hash:
+        payload?.session_hash ||
+        localStorage.getItem("wcl_session") ||
+        getSessionId(),
 
       ...payload,
 
-    source: (() => {
-
-  if (payload?.source) return payload.source;
-
-  if (window?.MODAL_SOURCE) return window.MODAL_SOURCE;
-
-  if (window?.CURRENT_SOURCE) return window.CURRENT_SOURCE;
-
-  // 🔥 HARD FALLBACK (KRITISK)
-  if (eventType === "store_view") return "map";
-  if (eventType === "store_opened") return "search";
-
-  return "direct";
-
-})(),
+      source: resolvedSource,
 
       country: geo?.country || null,
       city: geo?.city || null
@@ -180,4 +163,3 @@ export async function trackEvent(eventType, payload = {}) {
     console.error("💥 ANALYTICS CRASH:", err);
   }
 }
-
