@@ -328,52 +328,48 @@ function createMarker(store) {
   // CLICK LISTENER (BOUND ONCE)
   // ============================================================
 
-  if (!marker.__clickBound) {
+ if (!marker.__clickBound) {
 
-    marker.addListener("gmp-click", (e) => {
+  marker.addListener("gmp-click", (e) => {
 
-  const s = marker.__store;
-  if (!s) return;
+    const s = marker.__store;
+    if (!s) return;
 
-  window.WCL_ANALYTICS.setSource("map"); // 🔥 FIX
+    // 🔒 SOURCE LOCK (MAP)
+    window.WCL_ANALYTICS.setSource("map");
 
-  trackEvent("store_view", {
-    store_id: s.id,
-    city: s.city,
-    country: s.country,
-    lat: s.lat,
-    lng: s.lng,
-    source: "map"
+    if (e?.domEvent) {
+      e.domEvent.stopPropagation();
+    }
+
+    if (hoverTooltip) {
+      hoverTooltip.remove();
+      hoverTooltip = null;
+    }
+
+    if (activePin && activePin !== pin) {
+      activePin.style.transform = "scale(1)";
+      activePin.style.boxShadow = "";
+      activePin.style.zIndex = "";
+    }
+
+    activePin = pin;
+
+    pin.style.transform = "scale(1.35)";
+    pin.style.boxShadow =
+      "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
+    pin.style.zIndex = "5";
+
+    // ✅ ENDA KORREKTA SÄTTET
+    openModal({
+      id: s.id,
+      source: "map"
+    });
+
   });
 
-  if (e?.domEvent) {
-    e.domEvent.stopPropagation();
-  }
-
-  if (hoverTooltip) {
-    hoverTooltip.remove();
-    hoverTooltip = null;
-  }
-
-  if (activePin && activePin !== pin) {
-    activePin.style.transform = "scale(1)";
-    activePin.style.boxShadow = "";
-    activePin.style.zIndex = "";
-  }
-
-  activePin = pin;
-
-  pin.style.transform = "scale(1.35)";
-  pin.style.boxShadow =
-    "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
-  pin.style.zIndex = "5";
-
-  openModal(s.id);
-
-});
-    marker.__clickBound = true;
-
-  }
+  marker.__clickBound = true;
+}
 
   // ============================================================
   // HOVER LISTENERS (BOUND ONCE)
