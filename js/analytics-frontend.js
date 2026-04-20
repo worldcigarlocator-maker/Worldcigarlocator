@@ -88,23 +88,20 @@ function sendEvent(event_type, payload = {}) {
 
   try {
 
-    const { source: explicitSource, ...rest } = payload ?? {};
-
-    const resolvedSource =
-      explicitSource ??
-      window.MODAL_SOURCE ??
-      window.CURRENT_SOURCE ??
-      "direct";
-
     const finalPayload = {
       event_type,
       timestamp: new Date().toISOString(),
       actor_type: "anon",
       session_hash: getSession(),
 
-      source: resolvedSource,
+      // 🔥 RESPEKTERA EXPLICIT SOURCE FÖRST
+      source:
+        payload?.source ||
+        window?.__WCL__?.MODAL_SOURCE ||
+        window?.__WCL__?.CURRENT_SOURCE ||
+        "direct",
 
-      ...rest
+      ...payload
     };
 
     EVENT_QUEUE.push(finalPayload);
