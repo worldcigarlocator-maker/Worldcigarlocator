@@ -187,7 +187,8 @@ if (!storeId) return;
 window.WCL_ANALYTICS.send("store_opened", {
   store_id: storeId,
   country: store.country || null,
-  city: store.city || null
+  city: store.city || null,
+  source: MODAL_SOURCE
 });
 
   console.log("🔥 MODAL STEP 1", storeId);
