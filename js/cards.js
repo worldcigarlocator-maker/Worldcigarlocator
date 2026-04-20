@@ -48,6 +48,7 @@ let SORT_MODE = "relevance";
 
 let RUN_SEQ = 0;
 
+let CURRENT_RENDER_SOURCE = "direct";
 // ============================================================
 // GLOBAL RESET (SINGLE SOURCE OF TRUTH)
 // ============================================================
@@ -482,7 +483,7 @@ function cardHTML(s) {
   data-store-id="${s.id}"
   data-city="${s.city || ""}"
   data-country="${s.country || ""}"
-  data-source="${window.CURRENT_SOURCE || 'map'}"
+  data-source="${CURRENT_RENDER_SOURCE}"
 >
     <img src="${img}" class="store-img" loading="lazy"
       onerror="this.onerror=null;this.src='images/store.jpg'" />
@@ -654,6 +655,8 @@ console.log(
   // SEARCH ANALYTICS
   // ============================================================
 
+CURRENT_RENDER_SOURCE = window.CURRENT_SOURCE || "direct";
+  
   if (!isLoadMore) {
     trackEvent("search", {
       query: STATE.search.text || null,
