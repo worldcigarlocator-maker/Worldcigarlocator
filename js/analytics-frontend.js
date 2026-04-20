@@ -37,50 +37,24 @@ if (!window.__WCL__.CURRENT_SOURCE || window.__WCL__.CURRENT_SOURCE === "direct"
 
 }
 
-
 // ============================================================
-// SESSION (anonymous, localStorage)
+// SESSION (SINGLE SOURCE OF TRUTH)
 // ============================================================
-
-let SESSION_ID = null;
 
 function getSession() {
-  if (!SESSION_ID) {
-    SESSION_ID = getOrCreateSession();
+
+  let id = localStorage.getItem("wcl_session");
+
+  if (!id) {
+    id =
+      crypto?.randomUUID?.() ??
+      `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    localStorage.setItem("wcl_session", id);
   }
-  return SESSION_ID;
-}
-
-function getOrCreateSession() {
-
-  const now = Date.now();
-  const raw = localStorage.getItem("wcl_session_v1");
-
-  if (raw) {
-    try {
-      const s = JSON.parse(raw);
-
-      if (s?.id && s?.t && now - s.t < SESSION_IDLE_MS) {
-        s.t = now;
-        localStorage.setItem("wcl_session_v1", JSON.stringify(s));
-        return s.id;
-      }
-
-    } catch {}
-  }
-
-  const id =
-    crypto?.randomUUID?.() ??
-    `${now}-${Math.random().toString(16).slice(2)}`;
-
-  localStorage.setItem(
-    "wcl_session_v1",
-    JSON.stringify({ id, t: now })
-  );
 
   return id;
 }
-
 
 // ============================================================
 // DEDUP — 1 view / store / session
