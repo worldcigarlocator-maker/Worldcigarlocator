@@ -113,21 +113,37 @@ export async function trackEvent(eventType, payload = {}) {
     // ------------------------------------------------------------
     // BUILD PAYLOAD
     // ------------------------------------------------------------
-    const finalPayload = {
-      event_type: eventType,
+const finalPayload = {
+  event_type: eventType,
 
-      session_hash:
-        payload?.session_hash ||
-        localStorage.getItem("wcl_session") ||
-        getSessionId(),
+  session_hash:
+    payload?.session_hash ||
+    localStorage.getItem("wcl_session") ||
+    getSessionId(),
 
-      ...payload,
+  // 🔒 SOURCE (orörd)
+  source: (() => {
+    if (payload?.source) return payload.source;
+    if (window?.MODAL_SOURCE) return window.MODAL_SOURCE;
+    if (window?.CURRENT_SOURCE) return window.CURRENT_SOURCE;
 
-      source: resolvedSource,
+    if (eventType === "store_view") return "map";
+    if (eventType === "store_opened") return "search";
 
-      country: geo?.country || null,
-      city: geo?.city || null
-    };
+    return "direct";
+  })(),
+
+  // 🔥 STORE GEO (från payload)
+  store_country: payload?.country || null,
+  store_city: payload?.city || null,
+
+  // 🔥 USER GEO (från IP)
+  user_country: geo?.country || null,
+  user_city: geo?.city || null,
+
+  // resten av payload (utan att skriva över ovan)
+  ...payload
+};
 
     // ------------------------------------------------------------
     // ENDPOINT
