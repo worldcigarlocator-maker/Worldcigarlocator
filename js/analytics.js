@@ -749,7 +749,9 @@ else if (ctrValue >= 0.2) ctrClass = "ctr-good";
         <td>${escapeHtml(r.source || "direct")}</td>
         <td class="num">${views}</td>
         <td class="num">${clicks}</td>
-        <td class="num ${ctrClass}">${ctr}</td>
+       <td class="num ${ctrClass}">
+  ${ctr} | class: ${ctrClass} | v:${views} c:${clicks}
+</td>
       </tr>
     `;
 
