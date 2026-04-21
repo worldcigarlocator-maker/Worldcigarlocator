@@ -1,7 +1,7 @@
 
 import { supabase } from "/js/globals.js";
 import { renderUsersOverview } from "./funnel-users.js";
-import { renderMarket, renderHeatmap } from "./funnel-market.js";
+import { renderMarketV2 } from "./funnel-market-v2.js";
 import {
   getKPI,
   setKPI,
@@ -801,7 +801,7 @@ const performance = document.getElementById("panel-performance");
 if (heatmap) heatmap.style.display = "none";
 if (performance) performance.style.display = "none";
 
-await renderMarket(days);
+await renderMarketV2(days);
     return;
   }
 
@@ -845,7 +845,7 @@ if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
     if (head) head.style.display = "";
   }
 
-  await renderMarket(days);
+  await renderMarketV2(days);
 
   if (state.kpi === "views" || state.kpi === "clicks") {
     await renderHeatmap(days);
