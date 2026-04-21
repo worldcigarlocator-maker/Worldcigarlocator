@@ -722,17 +722,21 @@ async function loadTrafficFlow() {
     const views = Number(r.views || 0);
     const clicks = Number(r.clicks || 0);
 
-    const ctr =
-      views
-        ? ((clicks / views) * 100).toFixed(2) + "%"
-        : "0%";
+    const ctrValue = views ? (clicks / views) : 0;
+    const ctr = (ctrValue * 100).toFixed(2) + "%";
+
+    // 🎯 HIGHLIGHT LOGIC
+    let ctrClass = "";
+    if (ctrValue === 0 && views >= 5) ctrClass = "ctr-bad";        // 🔴 hög trafik, 0 klick
+    else if (ctrValue < 0.1) ctrClass = "ctr-low";                 // 🟠 låg CTR
+    else if (ctrValue >= 0.3) ctrClass = "ctr-good";               // 🟢 bra CTR
 
     return `
       <tr>
         <td>${escapeHtml(r.source || "direct")}</td>
         <td class="num">${views}</td>
         <td class="num">${clicks}</td>
-        <td class="num">${ctr}</td>
+        <td class="num ${ctrClass}">${ctr}</td>
       </tr>
     `;
 
