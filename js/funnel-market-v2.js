@@ -8,15 +8,36 @@ const sb = supabase;
 console.log("🔥 MARKET V2 LOADED");
 
 /* ============================================================
+CTR HELPER (GLOBAL, CANONICAL)
+============================================================ */
+
+function getCtrMeta(views, clicks) {
+
+  const v = Number(views || 0);
+  const c = Number(clicks || 0);
+
+  const value = v ? (c / v) : 0;
+  const label = (value * 100).toFixed(1) + "%";
+
+  let cls = "";
+
+  if (value === 0 && v > 0) cls = "ctr-bad";
+  else if (value > 0 && value < 0.2) cls = "ctr-low";
+  else if (value >= 0.2) cls = "ctr-good";
+
+  return { label, cls };
+}
+
+/* ============================================================
 STATE
 ============================================================ */
 
 const MARKET_STATE = {
-level: "country",
-country: null,
-city: null,
-store: null,
-sort: "views"
+  level: "country",
+  country: null,
+  city: null,
+  store: null,
+  sort: "views"
 };
 
 /* ============================================================
@@ -24,7 +45,7 @@ DOM
 ============================================================ */
 
 function getBody() {
-return document.getElementById("marketDemandBody");
+  return document.getElementById("marketDemandBody");
 }
 
 /* ============================================================
@@ -33,54 +54,52 @@ CLICK HANDLER
 
 function bindRows(days) {
 
-const tbody = getBody();
-if (!tbody) return;
+  const tbody = getBody();
+  if (!tbody) return;
 
-tbody.querySelectorAll("tr").forEach(row => {
+  tbody.querySelectorAll("tr").forEach(row => {
 
+    row.onclick = async () => {
 
-row.onclick = async () => {
+      if (MARKET_STATE.level === "country") {
 
-  if (MARKET_STATE.level === "country") {
+        const country = row.dataset.country;
+        if (!country) return;
 
-    const country = row.dataset.country;
-    if (!country) return;
+        MARKET_STATE.level = "city";
+        MARKET_STATE.country = country;
 
-    MARKET_STATE.level = "city";
-    MARKET_STATE.country = country;
+        await renderMarketV2(days);
+        return;
+      }
 
-    await renderMarketV2(days);
-    return;
-  }
+      if (MARKET_STATE.level === "city") {
 
-  if (MARKET_STATE.level === "city") {
+        const city = row.dataset.city;
+        if (!city) return;
 
-    const city = row.dataset.city;
-    if (!city) return;
+        MARKET_STATE.level = "store";
+        MARKET_STATE.city = city;
 
-    MARKET_STATE.level = "store";
-    MARKET_STATE.city = city;
+        await renderMarketV2(days);
+        return;
+      }
 
-    await renderMarketV2(days);
-    return;
-  }
+      if (MARKET_STATE.level === "store") {
 
-  if (MARKET_STATE.level === "store") {
+        const storeId = row.dataset.store;
+        if (!storeId) return;
 
-    const storeId = row.dataset.store;
-    if (!storeId) return;
+        MARKET_STATE.level = "traffic";
+        MARKET_STATE.store = Number(storeId);
 
-    MARKET_STATE.level = "traffic";
-    MARKET_STATE.store = Number(storeId);
+        await renderMarketV2(days);
+        return;
+      }
 
-    await renderMarketV2(days);
-    return;
-  }
+    };
 
-};
-
-
-});
+  });
 
 }
 
@@ -90,176 +109,146 @@ MAIN RENDER
 
 export async function renderMarketV2(days = 30) {
 
-console.log("🔥 MARKET V2 RENDER", MARKET_STATE);
+  console.log("🔥 MARKET V2 RENDER", MARKET_STATE);
 
-const tbody = getBody();
-if (!tbody) return;
+  const tbody = getBody();
+  if (!tbody) return;
 
-/* ============================================================
-COUNTRY
-============================================================ */
+  /* ============================================================
+  COUNTRY
+  ============================================================ */
 
-if (MARKET_STATE.level === "country") {
+  if (MARKET_STATE.level === "country") {
 
+    const { data, error } = await sb.rpc(
+      "analytics_top_countries_v2",
+      { p_days: days, p_day: null, p_limit: 100 }
+    );
 
-const { data, error } = await sb.rpc(
-  "analytics_top_countries_v2",
-  { p_days: days, p_day: null, p_limit: 100 }
-);
+    if (error) return console.error(error);
 
-if (error) return console.error(error);
+    tbody.innerHTML = (data || []).map(r => {
 
-tbody.innerHTML = (data || []).map(r => {
+      const { label: ctr, cls } = getCtrMeta(r.views, r.clicks);
 
-  const ctr = r.views
-    ? ((r.clicks / r.views) * 100).toFixed(1) + "%"
-    : "0%";
-
-  return `
-
-
+      return `
 <tr data-country="${r.country}">
   <td>${r.country || "-"}</td>
   <td class="num">${r.views || 0}</td>
   <td class="num">${r.clicks || 0}</td>
-  <td class="num">${ctr}</td>
+  <td class="num ${cls}">${ctr}</td>
 </tr>`;
 
+    }).join("");
 
-}).join("");
-
-bindRows(days);
-return;
-
-}
-
-/* ============================================================
-CITY
-============================================================ */
-
-if (MARKET_STATE.level === "city") {
-
-const { data, error } = await sb.rpc(
-  "analytics_top_cities",
-  {
-    p_days: days,
-    p_day: null,
-    p_country: MARKET_STATE.country,
-    p_limit: 100
+    bindRows(days);
+    return;
   }
-);
 
-if (error) return console.error(error);
+  /* ============================================================
+  CITY
+  ============================================================ */
 
-tbody.innerHTML = (data || []).map(c => {
+  if (MARKET_STATE.level === "city") {
 
-  const ctr = c.views
-    ? ((c.clicks / c.views) * 100).toFixed(1) + "%"
-    : "0%";
+    const { data, error } = await sb.rpc(
+      "analytics_top_cities",
+      {
+        p_days: days,
+        p_day: null,
+        p_country: MARKET_STATE.country,
+        p_limit: 100
+      }
+    );
 
-  return `
+    if (error) return console.error(error);
 
+    tbody.innerHTML = (data || []).map(c => {
 
+      const { label: ctr, cls } = getCtrMeta(c.views, c.clicks);
+
+      return `
 <tr data-city="${c.city}">
   <td>${c.city}</td>
   <td class="num">${c.views || 0}</td>
   <td class="num">${c.clicks || 0}</td>
-  <td class="num">${ctr}</td>
+  <td class="num ${cls}">${ctr}</td>
 </tr>`;
 
+    }).join("");
 
-}).join("");
-
-bindRows(days);
-return;
-
-
-}
-
-/* ============================================================
-STORE
-============================================================ */
-
-if (MARKET_STATE.level === "store") {
-
-
-const { data, error } = await sb.rpc(
-  "analytics_top_stores_by_city",
-  {
-    p_day: null,
-    p_country: MARKET_STATE.country,
-    p_city: MARKET_STATE.city,
-    p_limit: 50
+    bindRows(days);
+    return;
   }
-);
 
-if (error) return console.error(error);
+  /* ============================================================
+  STORE
+  ============================================================ */
 
-tbody.innerHTML = (data || []).map(s => {
+  if (MARKET_STATE.level === "store") {
 
-  const ctr = s.views
-    ? ((s.clicks / s.views) * 100).toFixed(1) + "%"
-    : "0%";
+    const { data, error } = await sb.rpc(
+      "analytics_top_stores_by_city",
+      {
+        p_day: null,
+        p_country: MARKET_STATE.country,
+        p_city: MARKET_STATE.city,
+        p_limit: 50
+      }
+    );
 
-  return `
+    if (error) return console.error(error);
 
+    tbody.innerHTML = (data || []).map(s => {
 
+      const { label: ctr, cls } = getCtrMeta(s.views, s.clicks);
+
+      return `
 <tr data-store="${s.store_id}">
   <td>${s.name}</td>
   <td class="num">${s.views || 0}</td>
   <td class="num">${s.clicks || 0}</td>
-  <td class="num">${ctr}</td>
+  <td class="num ${cls}">${ctr}</td>
 </tr>`;
 
+    }).join("");
 
-}).join("");
-
-bindRows(days);
-return;
-
-
-}
-
-/* ============================================================
-TRAFFIC
-============================================================ */
-
-if (MARKET_STATE.level === "traffic") {
-
-
-const { data, error } = await sb.rpc(
-  "analytics_store_traffic_by_city",
-  {
-    p_store_id: MARKET_STATE.store,
-    p_days: days
+    bindRows(days);
+    return;
   }
-);
 
-if (error) return console.error(error);
+  /* ============================================================
+  TRAFFIC
+  ============================================================ */
 
-tbody.innerHTML = (data || []).map(c => {
+  if (MARKET_STATE.level === "traffic") {
 
-  const ctr = c.views
-    ? ((c.clicks / c.views) * 100).toFixed(1) + "%"
-    : "0%";
+    const { data, error } = await sb.rpc(
+      "analytics_store_traffic_by_city",
+      {
+        p_store_id: MARKET_STATE.store,
+        p_days: days
+      }
+    );
 
-  return `
+    if (error) return console.error(error);
 
+    tbody.innerHTML = (data || []).map(c => {
 
+      const { label: ctr, cls } = getCtrMeta(c.views, c.clicks);
+
+      return `
 <tr>
   <td>${c.city}, ${c.country}</td>
   <td class="num">${c.views || 0}</td>
   <td class="num">${c.clicks || 0}</td>
-  <td class="num">${ctr}</td>
+  <td class="num ${cls}">${ctr}</td>
 </tr>`;
 
+    }).join("");
 
-}).join("");
-
-return;
-
-
-}
+    return;
+  }
 
 }
 
