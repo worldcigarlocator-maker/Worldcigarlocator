@@ -161,31 +161,44 @@ data = res || [];
     return;
   }
 
+
   /* ============================================================
      SORT (KPI DRIVEN)
      ============================================================ */
 
-  data.sort((a, b) => {
+data.sort((a, b) => {
 
-    switch (KPI) {
+  const viewsA = a.views || 0;
+  const viewsB = b.views || 0;
 
-      case "views":
-        return (b.views || 0) - (a.views || 0);
+  const clicksA = a.clicks || 0;
+  const clicksB = b.clicks || 0;
 
-      case "clicks":
-        return (b.clicks || 0) - (a.clicks || 0);
+  const ctrA = viewsA ? (clicksA / viewsA) : 0;
+  const ctrB = viewsB ? (clicksB / viewsB) : 0;
 
-      case "stores":
-        return (b.stores || 0) - (a.stores || 0);
+  switch (KPI) {
 
-      case "ctr":
-        return ((b.clicks / b.views) || 0) - ((a.clicks / a.views) || 0);
+    case "views":
+      return viewsB - viewsA;
 
-      default:
-        return (b.views || 0) - (a.views || 0);
-    }
+    case "clicks":
+      // 🔥 OPPORTUNITY MODE
+      // hög views först, sen låg CTR
+      if (viewsB !== viewsA) return viewsB - viewsA;
+      return ctrA - ctrB;
 
-  });
+    case "stores":
+      return (b.stores || 0) - (a.stores || 0);
+
+    case "ctr":
+      return ctrB - ctrA;
+
+    default:
+      return viewsB - viewsA;
+  }
+
+});
 
   /* ============================================================
      RENDER
