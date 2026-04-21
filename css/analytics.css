@@ -745,19 +745,19 @@ table tr{
 }
 
 /* ============================================================
-   CTR COLORS
+   CTR COLORS (FIXED - HIGH PRIORITY)
    ============================================================ */
 
-.ctr-bad {
-  color: #ff5a5a;
+.table td.num.ctr-bad {
+  color: #ff5a5a !important;
   font-weight: 600;
 }
 
-.ctr-low {
-  color: #ffb347;
+.table td.num.ctr-low {
+  color: #ffb347 !important;
 }
 
-.ctr-good {
-  color: #3bd671;
+.table td.num.ctr-good {
+  color: #3bd671 !important;
   font-weight: 600;
 }
