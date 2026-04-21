@@ -743,3 +743,21 @@ table tr{
   color: #3bd671;
   font-weight: 600;
 }
+
+/* ============================================================
+   CTR COLORS
+   ============================================================ */
+
+.ctr-bad {
+  color: #ff5a5a;
+  font-weight: 600;
+}
+
+.ctr-low {
+  color: #ffb347;
+}
+
+.ctr-good {
+  color: #3bd671;
+  font-weight: 600;
+}
