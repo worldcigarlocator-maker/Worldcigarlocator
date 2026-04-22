@@ -121,7 +121,7 @@ export async function renderMarketV2(days = 30) {
   if (MARKET_STATE.level === "country") {
 
     const { data, error } = await sb.rpc(
-      "analytics_top_countries_v2",
+      "analytics_top_countries",
       { p_days: days, p_day: null, p_limit: 100 }
     );
 
