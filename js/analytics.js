@@ -829,27 +829,12 @@ if (state.kpi === "stores") {
 
 if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
 
-   if (getKPI() === "stores") return;
-  
+  if (getKPI() === "stores") return;
+
   marketView?.classList.remove("hidden");
   updateDrilldownUI("market");
 
-  const heatmapPanel = document.querySelector("#view-market .panel:first-of-type");
-  const marketPanel = document.querySelector("#view-market .panel:nth-of-type(2)");
-
-  if (heatmapPanel) heatmapPanel.style.display = "block";
-  if (marketPanel) {
-    marketPanel.style.display = "block";
-
-    const head = marketPanel.querySelector(".panelhead");
-    if (head) head.style.display = "";
-  }
-
   await renderMarketV2(days);
-
-  if (state.kpi === "views" || state.kpi === "clicks") {
-    await renderHeatmap(days);
-  }
 
   return;
 }
