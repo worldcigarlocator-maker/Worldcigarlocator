@@ -764,6 +764,8 @@ subscribe(async (state) => {
   const usersView = document.getElementById("view-users");
   const marketView = document.getElementById("view-market");
 
+  const days = Number(globalRangeSelect?.value || 30);
+
   // ============================================================
   // KPI UI SYNC (STATE → UI)
   // ============================================================
@@ -773,7 +775,6 @@ subscribe(async (state) => {
 
   document.querySelector(`[data-kpi="${state.kpi}"]`)
     ?.classList.add("active");
-
 // ============================================================
 // RESET DRILLDOWN (SAFE)
 // ============================================================
