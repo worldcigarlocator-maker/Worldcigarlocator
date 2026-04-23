@@ -83,7 +83,7 @@ document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
     const localDay = tr.dataset.day;
     if (!localDay) return;
 
-    const day = new Date(localDay).toISOString().slice(0, 10);
+   const day = localDay;
 
     console.log("SET DAY:", day);
 
