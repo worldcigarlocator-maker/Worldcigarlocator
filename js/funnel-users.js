@@ -1,5 +1,5 @@
 /* ============================================================
-   WCL — USERS FUNNEL (FIXED)
+   WCL — USERS FUNNEL (CLEAN & STABLE)
    ============================================================ */
 
 import { supabase as sb } from "/js/globals.js";
@@ -32,11 +32,9 @@ export async function renderUsersOverview(days = 7) {
 
     if (!table || !tbody) return;
 
-   
     const activeDay = getActiveDay();
+    console.log("ACTIVE DAY DEBUG:", activeDay);
 
-       console.log("ACTIVE DAY DEBUG:", activeDay);
-     
     /* ============================================================
        HEADER
        ============================================================ */
@@ -64,8 +62,9 @@ export async function renderUsersOverview(days = 7) {
        ============================================================ */
 
     if (activeDay) {
-console.log("CALLING COUNTRY RPC WITH:", activeDay);
-       
+
+      console.log("CALLING COUNTRY RPC WITH:", activeDay);
+
       const { data: countries, error } = await sb.rpc(
         "analytics_users_by_day_country",
         { p_day: activeDay }
@@ -95,7 +94,7 @@ console.log("CALLING COUNTRY RPC WITH:", activeDay);
     }
 
     /* ============================================================
-       EMPTY (OVERVIEW)
+       EMPTY
        ============================================================ */
 
     if (!data?.length) {
@@ -107,7 +106,7 @@ console.log("CALLING COUNTRY RPC WITH:", activeDay);
     }
 
     /* ============================================================
-       RENDER (DAYS)
+       RENDER DAYS
        ============================================================ */
 
     tbody.innerHTML = data.map(row => `
@@ -118,42 +117,42 @@ console.log("CALLING COUNTRY RPC WITH:", activeDay);
     `).join("");
 
     /* ============================================================
-       CLICK → DRILLDOWN
+       CLICK (bind ONCE)
        ============================================================ */
 
     if (!window.__USERS_CLICK_BOUND__) {
 
-  document.addEventListener("click", (e) => {
+      document.addEventListener("click", (e) => {
 
-    const tr = e.target.closest("#overviewTableBody tr");
-    if (!tr) return;
+        const tr = e.target.closest("#overviewTableBody tr");
+        if (!tr) return;
 
-    const localDay = tr.dataset.day;
-    if (!localDay) return;
+        const localDay = tr.dataset.day;
+        if (!localDay) return;
 
-    const day = new Date(localDay).toISOString().slice(0, 10);
+        const day = new Date(localDay).toISOString().slice(0, 10);
 
-    if (getActiveDay() !== day) {
-      setActiveDay(day);
+        if (getActiveDay() !== day) {
+          setActiveDay(day);
+        }
+
+        document.getElementById("view-users")?.classList.remove("hidden");
+        document.getElementById("view-market")?.classList.add("hidden");
+        document.getElementById("view-stores")?.classList.add("hidden");
+
+        const drillPanel = document.getElementById("usersDrillPanel");
+        const overviewSection = document.getElementById("overviewTable")?.closest("section");
+
+        if (drillPanel) drillPanel.classList.remove("hidden");
+        if (overviewSection) overviewSection.classList.add("hidden");
+
+      });
+
+      window.__USERS_CLICK_BOUND__ = true;
     }
-
-    document.getElementById("view-users")?.classList.remove("hidden");
-    document.getElementById("view-market")?.classList.add("hidden");
-    document.getElementById("view-stores")?.classList.add("hidden");
-
-    const drillPanel = document.getElementById("usersDrillPanel");
-    const overviewSection = document.getElementById("overviewTable")?.closest("section");
-
-    if (drillPanel) drillPanel.classList.remove("hidden");
-    if (overviewSection) overviewSection.classList.add("hidden");
-
-  });
-
-  window.__USERS_CLICK_BOUND__ = true;
-}
 
   } catch (err) {
     console.error("Users overview crash", err);
   }
 
-}}
+}
