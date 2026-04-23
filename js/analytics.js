@@ -817,7 +817,7 @@ const performance = document.getElementById("panel-performance");
 if (heatmap) heatmap.style.display = "none";
 if (performance) performance.style.display = "none";
 
-await renderMarketV2(days);
+await renderUsersOverview(days);
     return;
   }
 
