@@ -826,12 +826,15 @@ if (state.kpi === "users" && state.day) {
 
   marketView?.classList.remove("hidden");
 
-  // 🔥 reset market state
   const { resetMarketState } = await import("./funnel-market-v2.js");
   resetMarketState();
 
-  // 🔥 visa country-nivå (users)
-  await renderMarketV2(days);
+  const activeDay = getActiveDay();
+  console.log("🔥 USERS → MARKET DAY:", activeDay);
+
+  setTimeout(async () => {
+    await renderMarketV2(days);
+  }, 10);
 
   return;
 }
