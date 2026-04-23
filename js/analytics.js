@@ -799,8 +799,13 @@ subscribe(async (state) => {
   // RESET VIEWS
   // ============================================================
 
+// RESET VIEWS (SAFE)
+if (state.kpi !== "users") {
   usersView?.classList.add("hidden");
+}
+if (state.kpi !== "views" && state.kpi !== "clicks" && state.kpi !== "ctr" && state.kpi !== "stores") {
   marketView?.classList.add("hidden");
+}
 
   // ============================================================
   // USERS (OVERVIEW)
