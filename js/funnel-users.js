@@ -3,7 +3,7 @@
    ============================================================ */
 
 import { supabase as sb } from "/js/globals.js";
-import { setActiveDay } from "/js/analytics-state.js";
+import { setActiveDay, getActiveDay } from "/js/analytics-state.js";
 
 
 console.log("🔥 FUNNEL USERS LOADED");
