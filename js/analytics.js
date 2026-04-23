@@ -843,18 +843,15 @@ subscribe(async (state) => {
 
   if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
 
-    marketView?.classList.remove("hidden");
-    updateDrilldownUI("market");
+  if (getKPI() === "stores") return;
 
-    await renderMarketV2(days);
+  marketView?.classList.remove("hidden");
+  updateDrilldownUI("market");
 
-    if (state.kpi === "views" || state.kpi === "clicks") {
-      await renderHeatmap(days);
-    }
+  await renderMarketV2(days);
 
-    return;
-  }
-
+  return;
+}
 });
 
   // ============================================================
