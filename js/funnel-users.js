@@ -61,10 +61,13 @@ export async function renderUsersOverview(days = 7) {
        DRILLDOWN (DAY → COUNTRY)
        ============================================================ */
 
-    if (activeDay) {
+if (activeDay) {
 
-      console.log("CALLING COUNTRY RPC WITH:", activeDay);
+  const overviewSection = document.getElementById("overviewTable")?.closest("section");
+  if (overviewSection) overviewSection.classList.remove("hidden");
 
+  console.log("CALLING COUNTRY RPC WITH:", activeDay);
+   
       const { data: countries, error } = await sb.rpc(
         "analytics_users_by_day_country",
         { p_day: activeDay }
