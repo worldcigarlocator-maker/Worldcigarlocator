@@ -243,6 +243,10 @@ tbody.querySelectorAll("tr").forEach(row => {
 
 applyCountry(country);
 
+// 🔥 TRIGGA NY RENDER
+const days = Number(document.getElementById("globalRange")?.value || 30);
+await renderMarket(days);
+
 return;
     }
 
