@@ -243,8 +243,10 @@ tbody.querySelectorAll("tr").forEach(row => {
 
 applyCountry(country);
 
-const days = Number(document.getElementById("globalRange")?.value || 30);
-
+setTimeout(async () => {
+  const days = Number(document.getElementById("globalRange")?.value || 30);
+  await renderMarket(days);
+}, 0);
 
 return;
     }
