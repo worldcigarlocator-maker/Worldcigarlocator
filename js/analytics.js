@@ -2,7 +2,7 @@
 import { supabase } from "/js/globals.js";
 import { renderUsersOverview } from "./funnel-users.js";
 import { renderMarketV2 } from "./funnel-market-v2.js";
-import { renderHeatmap } from "./funnel-market.js";
+import { renderMarket, renderHeatmap } from "./funnel-market.js";
 import {
   getKPI,
   setKPI,
@@ -11,7 +11,7 @@ import {
   setActiveDay,
   getActiveCountry,
   applyCountry,
-  subscribe   // 🔥 lägg till denna
+  subscribe
 } from "./analytics-state.js";
 
 console.log("🔥 KPI SCRIPT LOADED");
@@ -841,14 +841,20 @@ subscribe(async (state) => {
   // MARKET (views / clicks / ctr)
   // ============================================================
 
-  if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
+if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
 
   if (getKPI() === "stores") return;
 
   marketView?.classList.remove("hidden");
   updateDrilldownUI("market");
 
+  // 🔥 TABLE (V2)
   await renderMarketV2(days);
+
+  // 🔥 HEATMAP (endast views + clicks)
+  if (state.kpi === "views" || state.kpi === "clicks") {
+    await renderHeatmap(days);
+  }
 
   return;
 }
