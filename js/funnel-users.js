@@ -121,35 +121,33 @@ console.log("CALLING COUNTRY RPC WITH:", activeDay);
        CLICK → DRILLDOWN
        ============================================================ */
 
-    document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
+    if (!window.__USERS_CLICK_BOUND__) {
 
-      tr.onclick = () => {
+  document.addEventListener("click", (e) => {
 
-        const localDay = tr.dataset.day;
-        if (!localDay) return;
+    const tr = e.target.closest("#overviewTableBody tr");
+    if (!tr) return;
 
-        const day = new Date(localDay).toISOString().slice(0, 10);
+    const localDay = tr.dataset.day;
+    if (!localDay) return;
 
-        if (getActiveDay() !== day) {
-          setActiveDay(day);
-        }
+    const day = new Date(localDay).toISOString().slice(0, 10);
 
-        document.getElementById("view-users")?.classList.remove("hidden");
-        document.getElementById("view-market")?.classList.add("hidden");
-        document.getElementById("view-stores")?.classList.add("hidden");
+    if (getActiveDay() !== day) {
+      setActiveDay(day);
+    }
 
-        const drillPanel = document.getElementById("usersDrillPanel");
-        const overviewSection = document.getElementById("overviewTable")?.closest("section");
+    document.getElementById("view-users")?.classList.remove("hidden");
+    document.getElementById("view-market")?.classList.add("hidden");
+    document.getElementById("view-stores")?.classList.add("hidden");
 
-        if (drillPanel) drillPanel.classList.remove("hidden");
-        if (overviewSection) overviewSection.classList.add("hidden");
+    const drillPanel = document.getElementById("usersDrillPanel");
+    const overviewSection = document.getElementById("overviewTable")?.closest("section");
 
-      };
+    if (drillPanel) drillPanel.classList.remove("hidden");
+    if (overviewSection) overviewSection.classList.add("hidden");
 
-    });
+  });
 
-  } catch (err) {
-    console.error("Users overview crash", err);
-  }
-
+  window.__USERS_CLICK_BOUND__ = true;
 }
