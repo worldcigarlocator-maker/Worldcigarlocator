@@ -820,7 +820,13 @@ subscribe(async (state) => {
 if (state.kpi === "users" && state.day) {
   usersView?.classList.remove("hidden");
 
+  // 🔥 STOPPA dubbel-render loop
+  if (window.__USERS_RENDER_LOCK__) return;
+  window.__USERS_RENDER_LOCK__ = true;
+
   await renderUsersOverview(days);
+
+  window.__USERS_RENDER_LOCK__ = false;
   return;
 }
 
