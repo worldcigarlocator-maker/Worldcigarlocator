@@ -818,27 +818,7 @@ if (state.kpi !== "views" && state.kpi !== "clicks" && state.kpi !== "ctr" && st
     return;
   }
 
-  // ============================================================
-  // USERS (DRILLDOWN)
-  // ============================================================
-
-if (state.kpi === "users" && state.day) {
-
-  marketView?.classList.remove("hidden");
-
-  const { resetMarketState } = await import("./funnel-market-v2.js");
-  resetMarketState();
-
-  const activeDay = getActiveDay();
-  console.log("🔥 USERS → MARKET DAY:", activeDay);
-
-  setTimeout(async () => {
-    await renderMarketV2(days);
-  }, 10);
-
-  return;
-}
-
+  
   // ============================================================
   // STORES (V2 ONLY)
   // ============================================================
