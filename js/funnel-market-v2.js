@@ -119,20 +119,26 @@ export async function renderMarketV2(days = 30) {
   COUNTRY
   ============================================================ */
 
-  if (MARKET_STATE.level === "country") {
+if (MARKET_STATE.level === "country") {
 
-    const { data, error } = await sb.rpc(
-      "analytics_top_countries",
-      { p_days: days, p_day: null, p_limit: 100 }
-    );
+  const activeDay = getActiveDay();
 
-    if (error) return console.error(error);
+  const { data, error } = await sb.rpc(
+    "analytics_top_countries",
+    { 
+      p_days: days,
+      p_day: activeDay,
+      p_limit: 100 
+    }
+  );
 
-    tbody.innerHTML = (data || []).map(r => {
+  if (error) return console.error(error);
 
-      const { label: ctr, cls } = getCtrMeta(r.views, r.clicks);
+  tbody.innerHTML = (data || []).map(r => {
 
-      return `
+    const { label: ctr, cls } = getCtrMeta(r.views, r.clicks);
+
+    return `
 <tr data-country="${r.country}">
   <td>${r.country || "-"}</td>
   <td class="num">${r.views || 0}</td>
@@ -140,12 +146,11 @@ export async function renderMarketV2(days = 30) {
   <td class="num ${cls}">${ctr}</td>
 </tr>`;
 
-    }).join("");
+  }).join("");
 
-    bindRows(days);
-    return;
-  }
-
+  bindRows(days);
+  return;
+}
   /* ============================================================
   CITY
   ============================================================ */
