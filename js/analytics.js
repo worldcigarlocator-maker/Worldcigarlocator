@@ -834,7 +834,13 @@ if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
   marketView?.classList.remove("hidden");
   updateDrilldownUI("market");
 
+  // 🔥 TABLE (V2)
   await renderMarketV2(days);
+
+  // 🔥 HEATMAP (endast views + clicks)
+  if (state.kpi === "views" || state.kpi === "clicks") {
+    await renderHeatmap(days);
+  }
 
   return;
 }
