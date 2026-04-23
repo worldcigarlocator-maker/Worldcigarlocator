@@ -772,13 +772,18 @@ document.querySelector(`[data-kpi="${state.kpi}"]`)
   ?.classList.add("active");
 
 // ============================================================
-// RESET DRILLDOWN (KRITISK)
+// RESET DRILLDOWN (SAFE)
 // ============================================================
 
-if (!state.day) {
-  applyCountry(null);
+if (state.kpi !== window.__LAST_KPI__) {
+  window.__LAST_KPI__ = state.kpi;
+
+  // 🔥 reset UI-nivå utan att trigga state-loop
+  const tbody = document.getElementById("marketDemandBody");
+  if (tbody) tbody.innerHTML = "";
 }
 
+// ============================================================
 // ============================================================
 
 console.log("SUBSCRIBE TRIGGER", state.kpi);
