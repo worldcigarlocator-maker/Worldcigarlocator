@@ -759,24 +759,30 @@ else if (ctrValue >= 0.2) ctrClass = "ctr-good";
   }).join("");
 }
 
-// ============================================================
-// SUBSCRIBE (STATE → RENDER)
-// ============================================================
-
 subscribe(async (state) => {
 
-  console.log("SUBSCRIBE TRIGGER", state.kpi);
+// ============================================================
+// KPI UI SYNC (STATE → UI)
+// ============================================================
 
-  const days = Number(globalRangeSelect?.value || 30);
+document.querySelectorAll(".kpi-card")
+  .forEach(el => el.classList.remove("active"));
 
-  const usersView = document.getElementById("view-users");
-  const marketView = document.getElementById("view-market");
+document.querySelector(`[data-kpi="${state.kpi}"]`)
+  ?.classList.add("active");
 
-  usersView?.classList.add("hidden");
-  marketView?.classList.add("hidden");
+// ============================================================
+// RESET DRILLDOWN (KRITISK)
+// ============================================================
 
+if (!state.day) {
+  applyCountry(null);
+}
 
-  
+// ============================================================
+
+console.log("SUBSCRIBE TRIGGER", state.kpi);
+
   // ============================================================
   // USERS (OVERVIEW)
   // ============================================================
