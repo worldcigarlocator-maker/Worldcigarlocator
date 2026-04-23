@@ -823,15 +823,16 @@ if (state.kpi !== "views" && state.kpi !== "clicks" && state.kpi !== "ctr" && st
   // ============================================================
 
 if (state.kpi === "users" && state.day) {
-  usersView?.classList.remove("hidden");
 
-  // 🔥 STOPPA dubbel-render loop
-  if (window.__USERS_RENDER_LOCK__) return;
-  window.__USERS_RENDER_LOCK__ = true;
+  marketView?.classList.remove("hidden");
 
-  await renderUsersOverview(days);
+  // 🔥 reset market state
+  const { resetMarketState } = await import("./funnel-market-v2.js");
+  resetMarketState();
 
-  window.__USERS_RENDER_LOCK__ = false;
+  // 🔥 visa country-nivå (users)
+  await renderMarketV2(days);
+
   return;
 }
 
