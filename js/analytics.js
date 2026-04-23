@@ -810,18 +810,12 @@ subscribe(async (state) => {
   // USERS (DRILLDOWN)
   // ============================================================
 
-  if (state.kpi === "users" && state.day) {
-    usersView?.classList.remove("hidden");
+if (state.kpi === "users" && state.day) {
+  usersView?.classList.remove("hidden");
 
-    const heatmap = document.getElementById("panel-heatmap");
-    const performance = document.getElementById("panel-performance");
-
-    if (heatmap) heatmap.style.display = "none";
-    if (performance) performance.style.display = "none";
-
-    await renderMarketV2(days);
-    return;
-  }
+  await renderUsersOverview(days);
+  return;
+}
 
   // ============================================================
   // STORES (V2 ONLY)
