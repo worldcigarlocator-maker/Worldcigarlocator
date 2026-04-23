@@ -32,6 +32,7 @@ export async function renderUsersOverview(days = 7) {
 
     if (!table || !tbody) return;
 
+     console.log("ACTIVE DAY DEBUG:", activeDay);
     const activeDay = getActiveDay();
 
     /* ============================================================
@@ -61,7 +62,7 @@ export async function renderUsersOverview(days = 7) {
        ============================================================ */
 
     if (activeDay) {
-
+console.log("CALLING COUNTRY RPC WITH:", activeDay);
       const { data: countries, error } = await sb.rpc(
         "analytics_users_by_day_country",
         { p_day: activeDay }
