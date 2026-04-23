@@ -88,16 +88,11 @@ document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
     console.log("SET DAY:", day);
 
     // 🔥 RESET COUNTRY (garanterar LEVEL = country)
- const state = await import("/js/analytics-state.js");
+import { getActiveDay } from "/js/analytics-state.js";
 
-// 🔥 1. RESET COUNTRY
-state.applyCountry(null);
-
-// 🔥 2. FORCE LEVEL DIREKT EFTER
-state.setLevel?.("country");
-
-// 🔥 3. SÄTT DAG SIST
-setActiveDay(day);
+if (getActiveDay() !== day) {
+  setActiveDay(day);
+}
 
      
     // 🔥 UI
