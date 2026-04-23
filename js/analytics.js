@@ -765,9 +765,9 @@ subscribe(async (state) => {
   const days = Number(globalRangeSelect?.value || 30);
 
   // 🔥 RESET DAY vid KPI byte
-  if (state.kpi !== window.__LAST_KPI__) {
-    setActiveDay(null);
-  }
+ if (state.kpi !== window.__LAST_KPI__) {
+  window.__LAST_KPI__ = state.kpi;
+}
 
   // 🔥 track current KPI
   window.__LAST_KPI__ = state.kpi;
