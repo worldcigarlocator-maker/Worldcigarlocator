@@ -151,4 +151,9 @@ console.log("CALLING COUNTRY RPC WITH:", activeDay);
 
   window.__USERS_CLICK_BOUND__ = true;
 }
-}
+
+  } catch (err) {
+    console.error("Users overview crash", err);
+  }
+
+}}
