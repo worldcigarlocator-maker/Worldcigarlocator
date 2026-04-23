@@ -65,13 +65,45 @@ export async function renderUsersOverview(days = 7) {
        RENDER
        ============================================================ */
 
-    tbody.innerHTML = data.map(row => `
-      <tr data-day="${row.day}">
-        <td>${row.day || "—"}</td>
-        <td class="num">${row.users ?? 0}</td>
-      </tr>
-    `).join("");
+   const activeDay = getActiveDay();
 
+if (activeDay) {
+
+  const { data: countries, error } = await sb.rpc(
+    "analytics_users_by_day_country",
+    { p_day: activeDay }
+  );
+
+  if (error) {
+    console.error("Users country error", error);
+    return;
+  }
+
+  if (!countries?.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="2" class="muted center">0 users on this day</td>
+      </tr>`;
+    return;
+  }
+
+  tbody.innerHTML = countries.map(c => `
+    <tr>
+      <td>${c.country}</td>
+      <td class="num">${c.users}</td>
+    </tr>
+  `).join("");
+
+  return;
+}
+
+// 🟢 fallback (din gamla kod)
+tbody.innerHTML = data.map(row => `
+  <tr data-day="${row.day}">
+    <td>${row.day || "—"}</td>
+    <td class="num">${row.users ?? 0}</td>
+  </tr>
+`).join("");
     /* ============================================================
    CLICK → DRILLDOWN
    ============================================================ */
