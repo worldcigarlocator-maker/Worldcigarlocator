@@ -222,6 +222,10 @@ function updateDrilldownUI(tab) {
 if (title) title.style.display = "none";
   
 }
+
+/* ============================================================
+KPI MINI
+   ============================================================ */
 function bindKpiMini() {
 
   const items = document.querySelectorAll(".kpi-card");
@@ -234,11 +238,7 @@ function bindKpiMini() {
 
       console.log("KPI CLICK:", kpi);
 
-      // 🔥 UI highlight (OK att ha kvar)
-      items.forEach((i) => i.classList.remove("active"));
-      el.classList.add("active");
-
-      // 🔥 ENDA logiken
+      // 🔥 ENDAST STATE
       setKPI(kpi);
 
     });
