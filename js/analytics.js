@@ -761,6 +761,9 @@ else if (ctrValue >= 0.2) ctrClass = "ctr-good";
 
 subscribe(async (state) => {
 
+  const usersView = document.getElementById("view-users");
+  const marketView = document.getElementById("view-market");
+
 // ============================================================
 // KPI UI SYNC (STATE → UI)
 // ============================================================
