@@ -89,13 +89,13 @@ if (KPI === "users") {
 
   if (LEVEL === "city" && COUNTRY && DAY) {
 
-    const { data: res, error } = await sb.rpc(
-      "analytics_visitors_by_city",
-      {
-        p_day: DAY,
-        p_country: COUNTRY
-      }
-    );
+  const { data: res, error } = await sb.rpc(
+  "analytics_users_by_day_city",
+  {
+    p_day: DAY,
+    p_country: COUNTRY
+  }
+);
 
     console.log("VISITORS CITY RES:", res);
     console.log("VISITORS CITY ERROR:", error);
