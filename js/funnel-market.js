@@ -260,13 +260,12 @@ return;
       const city = cityLabel.split(",")[0]?.trim();
 
       const { data: stores, error } = await sb.rpc(
-  "analytics_top_stores_by_city",
-  {
-    p_day: getActiveDay(),
-    p_country: getActiveCountry(),
-    p_city: city,
-    p_limit: 50
-  }
+ "analytics_users_stores_by_city_day",
+{
+  p_day: getActiveDay(),
+  p_country: getActiveCountry(),
+  p_city: city
+}
 );
 
       console.log("STORES RES:", stores);
@@ -295,7 +294,6 @@ return;
             <td>${s.name}</td>
             <td class="num">${s.users || 0}</td>
             <td class="num">${s.views || 0}</td>
-            <td class="num">${s.clicks || 0}</td>
             <td class="num">${ctr}</td>
           </tr>
         `;
