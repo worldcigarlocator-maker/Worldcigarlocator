@@ -241,7 +241,12 @@ tbody.querySelectorAll("tr").forEach(row => {
       const country = row.dataset.country;
       if (!country) return;
 
-      applyCountry(country);
+applyCountry(country);
+
+// 🔥 lägg till detta
+const state = await import("/js/analytics-state.js");
+state.setLevel("city");
+
 return;
     }
 
