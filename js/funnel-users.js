@@ -60,41 +60,14 @@ export async function renderUsersOverview(days = 7) {
     /* ============================================================
        DRILLDOWN (DAY → COUNTRY)
        ============================================================ */
-
 if (activeDay) {
 
-  const overviewSection = document.getElementById("overviewTable")?.closest("section");
-  if (overviewSection) overviewSection.classList.remove("hidden");
+  const days = Number(document.getElementById("globalRange")?.value || 30);
+  const m = await import("./funnel-market.js");
 
-  console.log("CALLING COUNTRY RPC WITH:", activeDay);
-   
-      const { data: countries, error } = await sb.rpc(
-        "analytics_users_by_day_country",
-        { p_day: activeDay }
-      );
-
-      if (error) {
-        console.error("Users country error", error);
-        return;
-      }
-
-      if (!countries?.length) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="2" class="muted center">0 users on this day</td>
-          </tr>`;
-        return;
-      }
-
-      tbody.innerHTML = countries.map(c => `
-        <tr>
-          <td>${c.country}</td>
-          <td class="num">${c.users}</td>
-        </tr>
-      `).join("");
-
-      return;
-    }
+  await m.renderMarket(days);
+  return;
+}
 
     /* ============================================================
        EMPTY
