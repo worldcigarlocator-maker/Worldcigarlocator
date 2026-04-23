@@ -764,15 +764,15 @@ subscribe(async (state) => {
   const usersView = document.getElementById("view-users");
   const marketView = document.getElementById("view-market");
 
-// ============================================================
-// KPI UI SYNC (STATE → UI)
-// ============================================================
+  // ============================================================
+  // KPI UI SYNC (STATE → UI)
+  // ============================================================
 
-document.querySelectorAll(".kpi-card")
-  .forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".kpi-card")
+    .forEach(el => el.classList.remove("active"));
 
-document.querySelector(`[data-kpi="${state.kpi}"]`)
-  ?.classList.add("active");
+  document.querySelector(`[data-kpi="${state.kpi}"]`)
+    ?.classList.add("active");
 
 // ============================================================
 // RESET DRILLDOWN (SAFE)
