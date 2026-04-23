@@ -63,7 +63,7 @@ if (KPI === "users") {
  if (LEVEL === "country" && DAY) {
 
   const { data: res, error } = await sb.rpc(
-    "analytics_top_countries_v2",
+    "analytics_top_countries",
     {
       p_days: days,
       p_day: DAY,
