@@ -253,6 +253,17 @@ export async function renderMarketV2(days = 30) {
 }
 
 /* ============================================================
+RESET (EXTERNAL CONTROL)
+============================================================ */
+
+export function resetMarketState() {
+  MARKET_STATE.level = "country";
+  MARKET_STATE.country = null;
+  MARKET_STATE.city = null;
+  MARKET_STATE.store = null;
+}
+
+/* ============================================================
 DEBUG
 ============================================================ */
 
