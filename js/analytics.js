@@ -763,7 +763,6 @@ subscribe(async (state) => {
 
   const usersView = document.getElementById("view-users");
   const marketView = document.getElementById("view-market");
-
   const days = Number(globalRangeSelect?.value || 30);
 
   // ============================================================
@@ -775,22 +774,26 @@ subscribe(async (state) => {
 
   document.querySelector(`[data-kpi="${state.kpi}"]`)
     ?.classList.add("active");
-// ============================================================
-// RESET DRILLDOWN (SAFE)
-// ============================================================
 
-if (state.kpi !== window.__LAST_KPI__) {
-  window.__LAST_KPI__ = state.kpi;
+  // ============================================================
+  // RESET DRILLDOWN (SAFE)
+  // ============================================================
 
-  // 🔥 reset UI-nivå utan att trigga state-loop
-  const tbody = document.getElementById("marketDemandBody");
-  if (tbody) tbody.innerHTML = "";
-}
+  if (state.kpi !== window.__LAST_KPI__) {
+    window.__LAST_KPI__ = state.kpi;
 
-// ============================================================
-// ============================================================
+    const tbody = document.getElementById("marketDemandBody");
+    if (tbody) tbody.innerHTML = "";
+  }
 
-console.log("SUBSCRIBE TRIGGER", state.kpi);
+  console.log("SUBSCRIBE TRIGGER", state.kpi);
+
+  // ============================================================
+  // RESET VIEWS
+  // ============================================================
+
+  usersView?.classList.add("hidden");
+  marketView?.classList.add("hidden");
 
   // ============================================================
   // USERS (OVERVIEW)
@@ -810,57 +813,48 @@ console.log("SUBSCRIBE TRIGGER", state.kpi);
   if (state.kpi === "users" && state.day) {
     usersView?.classList.remove("hidden");
 
-// 🔥 HARD HIDE (bulletproof)
-const heatmap = document.getElementById("panel-heatmap");
-const performance = document.getElementById("panel-performance");
+    const heatmap = document.getElementById("panel-heatmap");
+    const performance = document.getElementById("panel-performance");
 
-if (heatmap) heatmap.style.display = "none";
-if (performance) performance.style.display = "none";
+    if (heatmap) heatmap.style.display = "none";
+    if (performance) performance.style.display = "none";
 
-await renderMarketV2(days);
+    await renderMarketV2(days);
     return;
   }
 
   // ============================================================
-// STORES (V2 ONLY)
-// ============================================================
+  // STORES (V2 ONLY)
+  // ============================================================
 
-if (state.kpi === "stores") {
+  if (state.kpi === "stores") {
+    marketView?.classList.remove("hidden");
 
-  marketView?.classList.remove("hidden");
+    const { renderStoresV2, resetStoresV2 } = await import("./funnel-stores-v2.js");
 
-  const { renderStoresV2, resetStoresV2 } = await import("./funnel-stores-v2.js");
-
-  // 🔥 reset varje gång du går in
-  resetStoresV2();
-
-  await renderStoresV2(days);
-
-  return;
-}
-
-// ============================================================
-// MARKET (views / clicks / ctr)
-// ============================================================
-
-if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
-
-  if (getKPI() === "stores") return;
-
-  marketView?.classList.remove("hidden");
-  updateDrilldownUI("market");
-
-  // 🔥 TABLE (V2)
-  await renderMarketV2(days);
-
-  // 🔥 HEATMAP (endast views + clicks)
-  if (state.kpi === "views" || state.kpi === "clicks") {
-    await renderHeatmap(days);
+    resetStoresV2();
+    await renderStoresV2(days);
+    return;
   }
 
-  return;
-}
-  
+  // ============================================================
+  // MARKET (views / clicks / ctr)
+  // ============================================================
+
+  if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
+
+    marketView?.classList.remove("hidden");
+    updateDrilldownUI("market");
+
+    await renderMarketV2(days);
+
+    if (state.kpi === "views" || state.kpi === "clicks") {
+      await renderHeatmap(days);
+    }
+
+    return;
+  }
+
 });
 
   // ============================================================
