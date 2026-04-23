@@ -88,8 +88,7 @@ document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
     console.log("SET DAY:", day);
 
     // 🔥 RESET COUNTRY (garanterar LEVEL = country)
-import { getActiveDay } from "/js/analytics-state.js";
-
+     
 if (getActiveDay() !== day) {
   setActiveDay(day);
 }
