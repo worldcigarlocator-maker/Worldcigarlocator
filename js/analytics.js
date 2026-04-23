@@ -879,6 +879,7 @@ function init() {
 
   // 🔹 default KPI
   setKPI("users");
+  setActiveDay(null);
 
   // 🔹 active UI state
   document.querySelectorAll(".kpi-card")
