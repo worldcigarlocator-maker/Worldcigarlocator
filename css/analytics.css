@@ -308,31 +308,6 @@ margin:0 0 16px 0;
 }
 
 /* ============================================================
-   KPI CARD
-   ============================================================ */
-
-.kpi-card{
-  background:linear-gradient(145deg,#0f2447,#0b1e3c);
-  border-radius:14px;
-  padding:18px 16px;
-
-  cursor:pointer;
-  transition:all .2s ease;
-
-  border:1px solid rgba(255,255,255,0.06);
-}
-
-.kpi-card:hover{
-  transform:translateY(-2px);
-  border-color:rgba(255,255,255,0.12);
-}
-
-.kpi-card.active{
-  border:1px solid rgba(255,255,255,0.22);
-  box-shadow:0 0 0 1px rgba(255,255,255,0.08) inset;
-}
-
-/* ============================================================
    KPI CONTENT
    ============================================================ */
 
