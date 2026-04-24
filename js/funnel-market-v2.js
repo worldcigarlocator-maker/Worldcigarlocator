@@ -109,7 +109,15 @@ MAIN RENDER
 
 export async function renderMarketV2(days = 30) {
 
-  console.log("🔥 MARKET V2 RENDER", MARKET_STATE);
+  const KPI = getKPI();
+
+  // 🔥 SYNC SORT MED KPI
+  MARKET_STATE.sort = KPI;
+
+  console.log("🔥 MARKET V2 RENDER", {
+    ...MARKET_STATE,
+    kpi: KPI
+  });
 
   const tbody = getBody();
   if (!tbody) return;
@@ -224,7 +232,7 @@ export async function renderMarketV2(days = 30) {
   if (MARKET_STATE.level === "traffic") {
 
     const { data, error } = await sb.rpc(
-      "analytics_store_traffic_by_city",
+      "analytics_store_traffic_by_source",
       {
         p_store_id: MARKET_STATE.store,
         p_days: days
@@ -233,15 +241,15 @@ export async function renderMarketV2(days = 30) {
 
     if (error) return console.error(error);
 
-    tbody.innerHTML = (data || []).map(c => {
+    tbody.innerHTML = (data || []).map(r => {
 
-      const { label: ctr, cls } = getCtrMeta(c.views, c.clicks);
+      const { label: ctr, cls } = getCtrMeta(r.views, r.clicks);
 
       return `
 <tr>
-  <td>${c.city}, ${c.country}</td>
-  <td class="num">${c.views || 0}</td>
-  <td class="num">${c.clicks || 0}</td>
+  <td>${r.source || "unknown"}</td>
+  <td class="num">${r.views || 0}</td>
+  <td class="num">${r.clicks || 0}</td>
   <td class="num ${cls}">${ctr}</td>
 </tr>`;
 
@@ -251,6 +259,7 @@ export async function renderMarketV2(days = 30) {
   }
 
 }
+
 
 /* ============================================================
 DEBUG
