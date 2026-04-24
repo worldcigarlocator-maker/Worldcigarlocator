@@ -809,22 +809,20 @@ subscribe(async (state) => {
   // MARKET (views / clicks / ctr)
   // ============================================================
 
-  if (
-    state.kpi === "views" ||
-    state.kpi === "clicks" ||
-    state.kpi === "ctr"
-  ) {
+if (
+  state.kpi === "views" ||
+  state.kpi === "clicks" ||
+  state.kpi === "ctr"
+) {
+  console.log("→ MARKET VIEW");
 
-    marketView?.classList.remove("hidden");
+  document.getElementById("view-market")?.classList.remove("hidden");
 
-    await renderMarketV2(days);
+  const { renderMarketV2 } = await import("./funnel-market-v2.js");
+  await renderMarketV2(days);
 
-    if (state.kpi === "views" || state.kpi === "clicks") {
-      await renderHeatmap(days);
-    }
-
-    return;
-  }
+  return;
+}
 
 });
 
