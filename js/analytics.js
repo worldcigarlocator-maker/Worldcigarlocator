@@ -807,19 +807,14 @@ console.log("SUBSCRIBE TRIGGER", state.kpi);
   // USERS (DRILLDOWN)
   // ============================================================
 
-  if (state.kpi === "users" && state.day) {
-    usersView?.classList.remove("hidden");
+if (state.kpi === "users" && state.day) {
+  usersView?.classList.remove("hidden");
 
-// 🔥 HARD HIDE (bulletproof)
-const heatmap = document.getElementById("panel-heatmap");
-const performance = document.getElementById("panel-performance");
+  const m = await import("./funnel-market.js");
+  await m.renderMarket(days);
 
-if (heatmap) heatmap.style.display = "none";
-if (performance) performance.style.display = "none";
-
-await renderUsersOverview(days);
-    return;
-  }
+  return;
+}
 
   // ============================================================
 // STORES (V2 ONLY)
