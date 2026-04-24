@@ -117,13 +117,17 @@ async function loadGlobalKpis() {
     return;
   }
 
-  if (data?.length) {
-    const row = data[0];
+ if (data?.length) {
+  const row = data[0];
 
-    if (globalViews) globalViews.textContent = row.views ?? "0";
-    if (globalClicks) globalClicks.textContent = row.clicks ?? "0";
-    if (globalCtr) globalCtr.textContent = (row.ctr ?? 0) + "%";
-  }
+  if (globalViews) globalViews.textContent = row.views ?? "0";
+
+  const globalMarket = document.getElementById("globalMarket");
+  if (globalMarket) globalMarket.textContent = row.views ?? "0";
+
+  if (globalClicks) globalClicks.textContent = row.clicks ?? "0";
+  if (globalCtr) globalCtr.textContent = (row.ctr ?? 0) + "%";
+}
 
   // -------------------------
   // USERS (sessions)
