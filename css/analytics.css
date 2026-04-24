@@ -761,3 +761,33 @@ table tr{
   color: #3bd671 !important;
   font-weight: 600;
 }
+/* ============================================================
+   KPI — MARKET (DEMAND STYLE)
+   ============================================================ */
+
+.kpi-market {
+  border: 1px solid rgba(79, 209, 255, 0.25);
+  background: linear-gradient(
+    180deg,
+    rgba(10, 30, 60, 0.6),
+    rgba(5, 15, 35, 0.9)
+  );
+}
+
+.kpi-market .kpi-label {
+  color: rgba(255,255,255,0.7);
+}
+
+.kpi-market .kpi-value {
+  color: #4fd1ff;
+  text-shadow: 0 0 12px rgba(79, 209, 255, 0.6);
+}
+
+/* 🔥 ACTIVE STATE */
+
+.kpi-card.active.kpi-market {
+  border-color: rgba(79, 209, 255, 0.6);
+  box-shadow:
+    0 0 0 1px rgba(79, 209, 255, 0.3),
+    0 10px 30px rgba(0, 150, 255, 0.15);
+}
