@@ -127,32 +127,35 @@ export async function renderMarketV2(days = 30) {
   COUNTRY
   ============================================================ */
 
-  if (MARKET_STATE.level === "country") {
+   if (MARKET_STATE.level === "country") {
 
-    const { data, error } = await sb.rpc(
-      "analytics_heatmap_countries",
-      { p_days: days, p_day: null, p_limit: 100 }
-    );
+  const { data, error } = await sb.rpc(
+    "analytics_heatmap_countries",
+    { p_days: days }
+  );
 
-    if (error) return console.error(error);
+  if (error) return console.error(error);
 
-    tbody.innerHTML = (data || []).map(r => {
+  tbody.innerHTML = (data || []).map(r => {
 
-      const { label: ctr, cls } = getCtrMeta(r.views, r.clicks);
+    const views = Number(r.views || 0);
+    const clicks = Number(r.clicks || 0);
 
-      return `
+    const { label: ctr, cls } = getCtrMeta(views, clicks);
+
+    return `
 <tr data-country="${r.country}">
   <td>${r.country || "-"}</td>
-  <td class="num">${r.views || 0}</td>
-  <td class="num">${r.clicks || 0}</td>
+  <td class="num">${views}</td>
+  <td class="num">${clicks}</td>
   <td class="num ${cls}">${ctr}</td>
 </tr>`;
 
-    }).join("");
+  }).join("");
 
-    bindRows(days);
-    return;
-  }
+  bindRows(days);
+  return;
+}
 
   /* ============================================================
   CITY
