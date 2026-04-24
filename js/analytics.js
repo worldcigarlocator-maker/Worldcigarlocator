@@ -761,101 +761,67 @@ else if (ctrValue >= 0.2) ctrClass = "ctr-good";
 
 subscribe(async (state) => {
 
+  // 🔥 HARD RESET
+  document.getElementById("view-users")?.classList.add("hidden");
+  document.getElementById("view-market")?.classList.add("hidden");
+  document.getElementById("view-stores")?.classList.add("hidden");
+
   const usersView = document.getElementById("view-users");
   const marketView = document.getElementById("view-market");
 
   const days = Number(globalRangeSelect?.value || 30);
 
   // ============================================================
-  // KPI UI SYNC (STATE → UI)
+  // USERS
   // ============================================================
 
-  document.querySelectorAll(".kpi-card")
-    .forEach(el => el.classList.remove("active"));
+  if (state.kpi === "users") {
 
-  document.querySelector(`[data-kpi="${state.kpi}"]`)
-    ?.classList.add("active");
-// ============================================================
-// RESET DRILLDOWN (SAFE)
-// ============================================================
-
-if (state.kpi !== window.__LAST_KPI__) {
-  window.__LAST_KPI__ = state.kpi;
-
-  // 🔥 reset UI-nivå utan att trigga state-loop
-  const tbody = document.getElementById("marketDemandBody");
-  if (tbody) tbody.innerHTML = "";
-}
-
-// ============================================================
-// ============================================================
-
-console.log("SUBSCRIBE TRIGGER", state.kpi);
-
-  // ============================================================
-  // USERS (OVERVIEW)
-  // ============================================================
-
-  if (state.kpi === "users" && !state.day) {
     usersView?.classList.remove("hidden");
-    updateDrilldownUI("overview");
-    await renderUsersOverview(days);
+
+    const m = await import("./funnel-users.js");
+    await m.renderUsersOverview(days);
+
     return;
   }
 
   // ============================================================
-  // USERS (DRILLDOWN)
+  // STORES
   // ============================================================
 
-if (state.kpi === "users" && state.day) {
-  usersView?.classList.remove("hidden");
+  if (state.kpi === "stores") {
 
-  const m = await import("./funnel-market.js");
-  await m.renderMarket(days);
+    marketView?.classList.remove("hidden");
 
-  return;
-}
+    const { renderStoresV2, resetStoresV2 } = await import("./funnel-stores-v2.js");
 
-  // ============================================================
-// STORES (V2 ONLY)
-// ============================================================
+    resetStoresV2();
+    await renderStoresV2(days);
 
-if (state.kpi === "stores") {
-
-  marketView?.classList.remove("hidden");
-
-  const { renderStoresV2, resetStoresV2 } = await import("./funnel-stores-v2.js");
-
-  // 🔥 reset varje gång du går in
-  resetStoresV2();
-
-  await renderStoresV2(days);
-
-  return;
-}
-
-// ============================================================
-// MARKET (views / clicks / ctr)
-// ============================================================
-
-if (state.kpi === "views" || state.kpi === "clicks" || state.kpi === "ctr") {
-
-  if (getKPI() === "stores") return;
-
-  marketView?.classList.remove("hidden");
-  updateDrilldownUI("market");
-
-  // 🔥 TABLE (V2)
-  await renderMarketV2(days);
-
-  // 🔥 HEATMAP (endast views + clicks)
-  if (state.kpi === "views" || state.kpi === "clicks") {
-    await renderHeatmap(days);
+    return;
   }
 
-  return;
-}
-  
+  // ============================================================
+  // MARKET (views / clicks / ctr)
+  // ============================================================
+
+  if (
+    state.kpi === "views" ||
+    state.kpi === "clicks" ||
+    state.kpi === "ctr"
+  ) {
+
+    marketView?.classList.remove("hidden");
+
+    await renderMarketV2(days);
+
+    if (state.kpi === "views" || state.kpi === "clicks") {
+      await renderHeatmap(days);
+    }
+
+    return;
+  }
+
 });
 
   // ============================================================
