@@ -791,3 +791,10 @@ table tr{
     0 0 0 1px rgba(79, 209, 255, 0.3),
     0 10px 30px rgba(0, 150, 255, 0.15);
 }
+
+.kpi-card.kpi-market:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 1px rgba(79, 209, 255, 0.4),
+    0 15px 40px rgba(0, 150, 255, 0.25);
+}
