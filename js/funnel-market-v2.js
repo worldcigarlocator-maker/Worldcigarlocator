@@ -54,7 +54,8 @@ CLICK HANDLER
 ============================================================ */
 
 function bindRows(days) {
-
+bindMarketToggle(days);
+  
   const tbody = getBody();
   if (!tbody) return;
 
@@ -263,6 +264,33 @@ export async function renderMarketV2(days = 30) {
   }
 
 }
+
+function bindMarketToggle(days) {
+
+  const buttons = document.querySelectorAll(".toggle-btn");
+
+  buttons.forEach(btn => {
+
+    btn.onclick = async () => {
+
+      const sort = btn.dataset.sort;
+
+      // 🔥 sätt sort manuellt
+      MARKET_STATE.sort = sort;
+
+      // 🔥 UI active state
+      buttons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      // 🔥 re-render
+      await renderMarketV2(days);
+    };
+
+  });
+
+}
+
+
 
 
 /* ============================================================
