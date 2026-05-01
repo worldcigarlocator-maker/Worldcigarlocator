@@ -661,9 +661,10 @@ table tr{
 .searchrow{
   display:flex;
   align-items:center;
-  gap:12px;
-  margin-bottom:14px;
-  flex-wrap:wrap;
+  gap:10px;
+
+  margin:0;          /* 🔥 viktigt */
+  flex-shrink:0;     /* 🔥 stoppar den från att tryckas ner */
 }
 
 .hint{
@@ -1207,4 +1208,35 @@ TABLE POLISH — STEP 1
 
   box-shadow:
     0 0 8px rgba(255,255,255,0.1);
+}
+
+/* ============================================================
+   TOP CONTROLS LAYOUT (KPI LEFT / TOOLBAR RIGHT)
+   ============================================================ */
+
+.top-controls-inner{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  flex-wrap:nowrap;
+}
+
+.kpi-primary{
+  display:flex;
+  gap:14px;
+  align-items:center;
+  flex-wrap:nowrap;
+}
+
+.searchrow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:0;
+  flex-shrink:0;
+}
+
+.searchbox input{
+  width:220px;
 }
