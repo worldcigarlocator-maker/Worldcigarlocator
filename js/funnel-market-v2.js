@@ -157,12 +157,13 @@ if (MARKET_STATE.level === "country") {
 
   tbody.innerHTML = data.map(r => {
 
-    const ctrLabel = (r.ctr ?? 0).toFixed(1) + "%";
+const ctrValue = Number(r.ctr || 0);
+const ctrLabel = ctrValue.toFixed(1) + "%";
 
-    let cls = "";
-    if (r.ctr === 0 && r.views > 0) cls = "ctr-bad";
-    else if (r.ctr > 0 && r.ctr < 20) cls = "ctr-low";
-    else if (r.ctr >= 20) cls = "ctr-good";
+let cls = "";
+if (ctrValue === 0 && r.views > 0) cls = "ctr-bad";
+else if (ctrValue > 0 && ctrValue < 20) cls = "ctr-low";
+else if (ctrValue >= 20) cls = "ctr-good";
 
     return `
 <tr data-country="${r.country}">
