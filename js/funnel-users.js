@@ -71,7 +71,9 @@ export async function renderUsersOverview(days = 7) {
         <td class="num">${row.users ?? 0}</td>
       </tr>
     `).join("");
-
+     
+renderUsersChart(data);
+     
     /* ============================================================
    CLICK → DRILLDOWN
    ============================================================ */
