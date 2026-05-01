@@ -121,31 +121,53 @@ export async function renderMarketV2(days = 30) {
 
 if (MARKET_STATE.level === "country") {
 
-  const activeDay = getActiveDay();
-
   const { data, error } = await sb.rpc(
-    "analytics_top_countries",
-    { 
-      p_days: days,
-      p_day: activeDay,
-      p_limit: 100 
-    }
+    "analytics_market_v1",
+    { p_days: days }
   );
 
   if (error) return console.error(error);
 
-  tbody.innerHTML = (data || []).map(r => {
+  if (!data?.length) {
+    tbody.innerHTML =
+      `<tr><td colspan="5" class="muted center">No data yet.</td></tr>`;
+    return;
+  }
 
-    const { label: ctr, cls } = getCtrMeta(r.views, r.clicks);
+  // 🔥 SORT (KPI DRIVEN)
+  data.sort((a, b) => {
+
+    const KPI = MARKET_STATE.sort;
+
+    switch (KPI) {
+      case "views":
+        return (b.views || 0) - (a.views || 0);
+      case "clicks":
+        return (b.clicks || 0) - (a.clicks || 0);
+      case "ctr":
+        return (b.ctr || 0) - (a.ctr || 0);
+      default:
+        return (b.views || 0) - (a.views || 0);
+    }
+
+  });
+
+  tbody.innerHTML = data.map(r => {
+
+    const ctrLabel = (r.ctr ?? 0).toFixed(2) + "%";
+
+    let ctrClass = "";
+    if (r.ctr === 0 && r.views > 0) ctrClass = "ctr-bad";
+    else if (r.ctr > 0 && r.ctr < 20) ctrClass = "ctr-low";
+    else if (r.ctr >= 20) ctrClass = "ctr-good";
 
     return `
 <tr data-country="${r.country}">
   <td>${r.country || "-"}</td>
   <td class="num">${r.views || 0}</td>
   <td class="num">${r.clicks || 0}</td>
-  <td class="num ${cls}">${ctr}</td>
+  <td class="num ${ctrClass}">${ctrLabel}</td>
 </tr>`;
-
   }).join("");
 
   bindRows(days);
