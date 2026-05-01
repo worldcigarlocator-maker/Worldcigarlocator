@@ -1240,3 +1240,94 @@ TABLE POLISH — STEP 1
 .searchbox input{
   width:220px;
 }
+
+/* ============================================================
+   TABLE — NEON GLOW UPGRADE (FINAL)
+   ============================================================ */
+
+/* ROW BASE */
+.table tbody tr{
+  position:relative;
+  overflow:hidden;
+
+  background:linear-gradient(
+    90deg,
+    rgba(255,255,255,0.02),
+    rgba(255,255,255,0.05)
+  );
+
+  border-radius:12px;
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    background .18s ease;
+}
+
+/* 🔥 GLOW LAYER */
+.table tbody tr::before{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  background:linear-gradient(
+    120deg,
+    rgba(0,255,255,0.12),
+    rgba(140,0,255,0.10),
+    rgba(255,0,180,0.08)
+  );
+
+  opacity:0;
+  transition:opacity .2s ease;
+
+  pointer-events:none;
+}
+
+/* HOVER */
+.table tbody tr:hover{
+  transform:translateY(-3px);
+
+  box-shadow:
+    0 14px 35px rgba(0,0,0,0.6),
+    0 0 25px rgba(0,255,255,0.25),
+    0 0 35px rgba(180,0,255,0.18);
+}
+
+/* 🔥 ACTIVATE GLOW */
+.table tbody tr:hover::before{
+  opacity:1;
+}
+
+/* CELLS */
+.table td{
+  position:relative;
+  z-index:1;
+}
+
+/* HEADER LINE STRONGER */
+.table thead::after{
+  height:2px;
+
+  background:linear-gradient(
+    90deg,
+    rgba(0,255,255,0.8),
+    rgba(180,0,255,0.8),
+    rgba(255,0,140,0.8)
+  );
+
+  box-shadow:
+    0 0 12px rgba(0,255,255,0.5),
+    0 0 18px rgba(180,0,255,0.4);
+}
+
+/* FIRST COLUMN EXTRA GLOW */
+.table td:first-child{
+  text-shadow:
+    0 0 8px rgba(255,255,255,0.2),
+    0 0 12px rgba(0,255,255,0.15);
+}
+
+/* NUMBERS SUBTLE GLOW */
+.table td.num{
+  text-shadow:0 0 10px rgba(255,255,255,0.12);
+}
