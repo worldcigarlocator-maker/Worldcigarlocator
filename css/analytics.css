@@ -984,65 +984,121 @@ table tr{
 
 
 /* ============================================================
-   TABLE POLISH (CLEAN VERSION)
+   TABLE — NEON PREMIUM SYSTEM
    ============================================================ */
 
 .table{
   width:100%;
   border-collapse:separate;
-  border-spacing:0 10px;
+  border-spacing:0;
 }
 
-/* rows */
-.table tbody tr{
-  transition:all 0.16s ease;
-
-  background:
-    linear-gradient(135deg,rgba(255,255,255,0.045),rgba(255,255,255,0.022));
-
-  box-shadow:
-    0 10px 24px rgba(0,0,0,0.14),
-    inset 0 0 0 1px rgba(255,255,255,0.045);
+/* HEADER */
+.table thead{
+  position:relative;
 }
 
-/* hover */
-.table tbody tr:hover{
-  transform:translateY(-2px);
-  box-shadow:
-    0 16px 30px rgba(0,0,0,0.22),
-    inset 0 0 0 1px rgba(79,209,255,0.18),
-    0 0 18px rgba(79,209,255,0.10);
-}
-
-/* cells */
-.table td{
-  padding:15px 17px;
-  color:rgba(255,255,255,0.88);
-}
-
-.table th{
-  padding:11px 17px;
-  opacity:0.68;
-  font-weight:700;
-  color:rgba(255,255,255,0.78);
-  letter-spacing:0.02em;
-}
-
-/* alignment */
-.table td:first-child,
-.table th:first-child{
+.table thead th{
   text-align:left;
+  padding:14px 18px;
+
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+
+  color:rgba(255,255,255,0.65);
 }
 
+/* 🔥 GRADIENT DIVIDER LINE (KEY EFFECT) */
+.table thead::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:1px;
+
+  background:linear-gradient(
+    90deg,
+    rgba(0,255,255,0.5),
+    rgba(180,0,255,0.5),
+    rgba(255,0,140,0.5)
+  );
+}
+
+/* BODY ROWS */
+.table tbody tr{
+  position:relative;
+
+  transition:all .2s ease;
+
+  border-radius:12px;
+}
+
+/* CELLS */
+.table td{
+  padding:16px 18px;
+  font-size:14px;
+
+  color:rgba(255,255,255,0.9);
+}
+
+/* LEFT COLUMN (LABEL) */
+.table td:first-child{
+  display:flex;
+  align-items:center;
+  gap:10px;
+
+  font-weight:600;
+}
+
+/* OPTIONAL ICON (DATE STYLE) */
+.table td:first-child::before{
+  content:"📅";
+  opacity:0.6;
+  font-size:14px;
+}
+
+/* NUMBERS RIGHT */
 .table td.num{
   text-align:right;
+  font-variant-numeric:tabular-nums;
 }
 
+/* ROW BACKGROUND (SUBTLE GLASS) */
+.table tbody tr{
+  background:linear-gradient(
+    90deg,
+    rgba(255,255,255,0.02),
+    rgba(255,255,255,0.04)
+  );
+}
 
-/* CTR highlight */
+/* ROW HOVER */
+.table tbody tr:hover{
+  transform:translateY(-2px);
+
+  background:linear-gradient(
+    90deg,
+    rgba(0,255,255,0.08),
+    rgba(140,0,255,0.08)
+  );
+
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.4),
+    0 0 20px rgba(0,255,255,0.15);
+}
+
+/* ROW SEPARATION */
+.table tbody tr + tr{
+  margin-top:6px;
+}
+
+/* CTR COLORS (ENHANCED) */
 
 .ctr-bad{
-  color:#ff5a5a;
+  color:#ff4d4d;
   font-weight:700;
 }
 
@@ -1052,33 +1108,14 @@ table tr{
 }
 
 .ctr-good{
-  color:#3bd671;
+  color:#00ffae;
   font-weight:800;
 }
 
-
-/* ============================================================
-   CTR COLORS (FIXED - HIGH PRIORITY)
-   ============================================================ */
-
-.table td.num.ctr-bad{
-  color:#ff5a5a !important;
-  font-weight:700;
-  text-shadow:0 0 10px rgba(255,90,90,0.30);
+/* EXTRA GLOW ON GOOD */
+.table td.ctr-good{
+  text-shadow:0 0 12px rgba(0,255,170,0.5);
 }
-
-.table td.num.ctr-low{
-  color:#ffb347 !important;
-  font-weight:700;
-  text-shadow:0 0 10px rgba(255,179,71,0.24);
-}
-
-.table td.num.ctr-good{
-  color:#3bd671 !important;
-  font-weight:800;
-  text-shadow:0 0 10px rgba(59,214,113,0.28);
-}
-
 
 /* ============================================================
    KPI — MARKET (DEMAND STYLE)
