@@ -54,8 +54,8 @@ CLICK HANDLER
 ============================================================ */
 
 function bindRows(days) {
-bindMarketToggle(days);
-  
+  bindMarketToggle(days);
+
   const tbody = getBody();
   if (!tbody) return;
 
@@ -63,45 +63,55 @@ bindMarketToggle(days);
 
     row.onclick = async () => {
 
+      // ============================================================
+      // COUNTRY → CITY
+      // ============================================================
       if (MARKET_STATE.level === "country") {
 
-  const { data, error } = await sb.rpc(
-    "analytics_top_countries",
-    {
-      p_days: days,
-      p_limit: 100
-    }
-  );
+        const country = row.dataset.country;
+        if (!country) return;
 
-  if (error) return console.error(error);
+        MARKET_STATE.level = "city";
+        MARKET_STATE.country = country;
 
-  tbody.innerHTML = (data || []).map(r => {
+        await renderMarketV2(days);
+        return;
+      }
 
-    const views = Number(r.views || 0);
-    const clicks = Number(r.clicks || 0);
+      // ============================================================
+      // CITY → STORE
+      // ============================================================
+      if (MARKET_STATE.level === "city") {
 
-    const { label: ctr, cls } = getCtrMeta(views, clicks);
+        const city = row.dataset.city;
+        if (!city) return;
 
-    return `
-<tr data-country="${r.country}">
-  <td>${r.country || "-"}</td>
-  <td class="num">${views}</td>
-  <td class="num">${clicks}</td>
-  <td class="num ${cls}">${ctr}</td>
-</tr>`;
-    
-  }).join("");
+        MARKET_STATE.level = "store";
+        MARKET_STATE.city = city;
 
-  bindRows(days);
-  return;
-}
+        await renderMarketV2(days);
+        return;
+      }
+
+      // ============================================================
+      // STORE → TRAFFIC
+      // ============================================================
+      if (MARKET_STATE.level === "store") {
+
+        const storeId = row.dataset.store;
+        if (!storeId) return;
+
+        MARKET_STATE.level = "traffic";
+        MARKET_STATE.store = Number(storeId);
+
+        await renderMarketV2(days);
+        return;
+      }
 
     };
 
   });
-
 }
-
 /* ============================================================
 MAIN RENDER
 ============================================================ */
