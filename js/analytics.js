@@ -1,3 +1,6 @@
+/* ============================================================
+WCL — ANALYTICS.JS
+============================================================ */
 
 import { supabase } from "/js/globals.js";
 import { renderUsersOverview } from "./funnel-users.js";
@@ -796,15 +799,15 @@ subscribe(async (state) => {
   // STORES
   // ============================================================
 
-  if (state.kpi === "stores") {
+if (state.kpi === "stores") {
 
-    storesView?.classList.remove("hidden");
+  marketView?.classList.remove("hidden"); // 🔥 FIX
 
-    const m = await import("./funnel-stores-v2.js");
-    await m.renderStoresV2(days);
+  const m = await import("./funnel-stores-v2.js");
+  await m.renderStoresV2(days);
 
-    return;
-  }
+  return;
+}
 
   // ============================================================
   // MARKET (views / clicks / ctr)
