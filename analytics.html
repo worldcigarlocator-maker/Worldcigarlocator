@@ -200,27 +200,32 @@
   <section id="view-stores" class="hidden">
 
 
-<!-- SEARCH -->
+<!-- SEARCH / TOOLBAR -->
 <section class="panel">
 
-  <div class="searchrow">
+  <div class="analytics-toolbar">
 
-    <div class="searchbox">
+    <div class="toolbar-search">
       <input
         id="searchInput"
         type="text"
         autocomplete="off"
         placeholder="Search store, city, country…"
       />
-      <div id="searchResults" class="search-results hidden"></div>
     </div>
 
-    <div class="search-actions">
-      <button id="searchBtn" class="btn primary">Search</button>
-      <button id="clearBtn" class="btn ghost">Clear</button>
-    </div>
+    <button class="toolbar-btn btn-arrow" id="prevBtn">←</button>
+    <button class="toolbar-btn btn-arrow" id="nextBtn">→</button>
+
+    <button id="searchBtn" class="toolbar-btn">Search</button>
+    <button id="clearBtn" class="toolbar-btn">Clear</button>
+
+    <button class="toolbar-btn btn-pdf" id="exportBtn">PDF</button>
+    <button class="toolbar-btn btn-mail" id="mailBtn">Email</button>
 
   </div>
+
+  <div id="searchResults" class="search-results hidden"></div>
 
   <div class="hint">
     Select a store to view detailed analytics.
