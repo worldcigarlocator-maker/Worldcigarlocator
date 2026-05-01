@@ -78,42 +78,65 @@ html,body{
 
 }
 
-
 /* ============================================================
-   BASE
+   BASE — SPACE BACKGROUND SYSTEM
    ============================================================ */
 
 body.analytics{
   min-height:100vh;
-  font-family:var(--font);
 
   background:
-    radial-gradient(circle at 18% 8%, rgba(79,209,255,0.18), transparent 30%),
-    radial-gradient(circle at 82% 18%, rgba(192,132,252,0.16), transparent 34%),
-    radial-gradient(circle at 50% 95%, rgba(110,231,183,0.10), transparent 42%),
-    linear-gradient(135deg,#070a12 0%,#0d1424 42%,#111827 100%);
+    radial-gradient(circle at 15% 10%, rgba(0,255,255,0.15), transparent 30%),
+    radial-gradient(circle at 85% 20%, rgba(180,0,255,0.18), transparent 35%),
+    radial-gradient(circle at 70% 90%, rgba(0,255,180,0.12), transparent 40%),
+    linear-gradient(135deg,#05070f 0%,#0b1325 50%,#0f1a35 100%);
 
-  color:var(--text);
+  color:#fff;
   overflow-x:hidden;
 }
 
+/* ✨ STARS LAYER */
 body.analytics::before{
   content:"";
   position:fixed;
   inset:0;
   pointer-events:none;
-  z-index:-1;
+  z-index:0;
 
   background:
-    radial-gradient(circle at 12% 28%, rgba(255,255,255,0.26) 0 1px, transparent 2px),
-    radial-gradient(circle at 38% 14%, rgba(255,255,255,0.18) 0 1px, transparent 2px),
-    radial-gradient(circle at 72% 36%, rgba(255,255,255,0.20) 0 1px, transparent 2px),
-    radial-gradient(circle at 90% 72%, rgba(255,255,255,0.16) 0 1px, transparent 2px),
-    radial-gradient(circle at 24% 82%, rgba(255,255,255,0.14) 0 1px, transparent 2px);
+    radial-gradient(circle at 10% 20%, rgba(255,255,255,0.8) 0 1px, transparent 2px),
+    radial-gradient(circle at 30% 40%, rgba(255,255,255,0.6) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 30%, rgba(255,255,255,0.7) 0 1px, transparent 2px),
+    radial-gradient(circle at 90% 80%, rgba(255,255,255,0.5) 0 1px, transparent 2px),
+    radial-gradient(circle at 50% 60%, rgba(255,255,255,0.6) 0 1px, transparent 2px);
 
-  opacity:0.38;
+  opacity:0.25;
 }
 
+/* 🌌 PLANET GLOW (RIGHT SIDE) */
+body.analytics::after{
+  content:"";
+  position:fixed;
+
+  right:-200px;
+  bottom:-200px;
+
+  width:600px;
+  height:600px;
+
+  border-radius:50%;
+
+  background:radial-gradient(
+    circle,
+    rgba(180,0,255,0.35),
+    rgba(0,0,0,0) 70%
+  );
+
+  filter:blur(40px);
+
+  pointer-events:none;
+  z-index:0;
+}
 
 /* ============================================================
    TOPBAR
