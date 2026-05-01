@@ -926,3 +926,4 @@ function renderUsersChart(rows){
     }
   });
 }
+window.renderUsersChart = renderUsersChart;
