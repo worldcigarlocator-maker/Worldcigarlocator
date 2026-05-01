@@ -22,7 +22,7 @@ const STORES_STATE = {
    ============================================================ */
 
 function getBody() {
-  return document.getElementById("topStoresBody");
+  return document.getElementById("marketDemandBody");
 }
 
 function getMarketPanel() {
