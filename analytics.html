@@ -55,30 +55,56 @@
        PRIMARY KPI BAR (MAIN NAV)
        ============================================================ -->
 
-  <section class="panel">
+<section class="panel">
 
+  <div class="panelhead">
 
-<div class="kpi-primary">
+    <!-- KPI LEFT -->
+    <div class="kpi-primary">
 
-  <div class="kpi-card kpi-users active" data-kpi="users">
-    <span class="kpi-label">Users</span>
-    <span class="kpi-value" id="globalUsers">0</span>
+      <div class="kpi-card kpi-users active" data-kpi="users">
+        <span class="kpi-label">Users</span>
+        <span class="kpi-value" id="globalUsers">0</span>
+      </div>
+
+      <div class="kpi-card kpi-stores" data-kpi="stores">
+        <span class="kpi-label">Stores</span>
+        <span class="kpi-value" id="globalStores">0</span>
+      </div>
+
+      <div class="kpi-card kpi-market" data-kpi="views">
+        <span class="kpi-label">Market</span>
+        <span class="kpi-value" id="globalMarket">0</span>
+      </div>
+
+    </div>
+
+    <!-- TOOLBAR RIGHT -->
+    <div class="searchrow">
+
+      <div class="searchbox">
+        <input
+          id="searchInput"
+          type="text"
+          autocomplete="off"
+          placeholder="Search..."
+        />
+        <div id="searchResults" class="search-results hidden"></div>
+      </div>
+
+      <div class="search-actions">
+        <button id="searchBtn" class="btn primary">Search</button>
+        <button id="clearBtn" class="btn ghost">Clear</button>
+      </div>
+
+      <button id="exportBtn" class="btn ghost">Export PDF</button>
+      <button id="mailBtn" class="btn ghost">Send Email</button>
+
+    </div>
+
   </div>
 
-  <div class="kpi-card kpi-stores" data-kpi="stores">
-    <span class="kpi-label">Stores</span>
-    <span class="kpi-value" id="globalStores">0</span>
-  </div>
-
-<div class="kpi-card kpi-market" data-kpi="views">
-  <span class="kpi-label">Market</span>
-  <span class="kpi-value" id="globalMarket">0</span>
-</div>
-
-</div>
-
-
-  </section>
+</section>
 
   
   <!-- ============================================================
