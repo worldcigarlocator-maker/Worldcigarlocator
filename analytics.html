@@ -55,11 +55,11 @@
        PRIMARY KPI BAR (MAIN NAV)
        ============================================================ -->
 
-<section class="panel">
+<section class="panel top-controls">
 
-  <div class="panelhead">
+  <div class="top-controls-inner">
 
-    <!-- KPI LEFT -->
+    <!-- KPI -->
     <div class="kpi-primary">
 
       <div class="kpi-card kpi-users active" data-kpi="users">
@@ -79,6 +79,23 @@
 
     </div>
 
+    <!-- TOOLBAR -->
+    <div class="searchrow">
+
+      <div class="searchbox">
+        <input id="searchInput" type="text" placeholder="Search..." />
+      </div>
+
+      <button id="searchBtn" class="btn primary">Search</button>
+      <button id="clearBtn" class="btn ghost">Clear</button>
+      <button id="exportBtn" class="btn ghost">Export PDF</button>
+      <button id="mailBtn" class="btn ghost">Send Email</button>
+
+    </div>
+
+  </div>
+
+</section>
       
   <!-- ============================================================
        USERS (DEFAULT VIEW)
