@@ -860,3 +860,69 @@ function init() {
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", init);
+
+/* ============================================================
+   USERS CHART
+   ============================================================ */
+
+let usersChart;
+
+function renderUsersChart(rows){
+
+  const labels = rows.map(r => r.date).reverse();
+  const values = rows.map(r => Number(r.users || 0)).reverse();
+
+  const ctx = document.getElementById("usersChart");
+
+  if (!ctx) return;
+
+  if (usersChart) {
+    usersChart.destroy();
+  }
+
+  usersChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Users",
+        data: values,
+        tension: 0.35,
+
+        borderColor: "#4fd1ff",
+        borderWidth: 2,
+
+        pointRadius: 3,
+        pointBackgroundColor: "#4fd1ff",
+
+        fill: true,
+        backgroundColor: (ctx) => {
+          const gradient = ctx.chart.ctx.createLinearGradient(0,0,0,260);
+          gradient.addColorStop(0, "rgba(79,209,255,0.35)");
+          gradient.addColorStop(1, "rgba(79,209,255,0.02)");
+          return gradient;
+        }
+      }]
+    },
+
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+
+      plugins: {
+        legend: { display:false }
+      },
+
+      scales: {
+        x: {
+          ticks: { color: "rgba(255,255,255,0.6)" },
+          grid: { color: "rgba(255,255,255,0.05)" }
+        },
+        y: {
+          ticks: { color: "rgba(255,255,255,0.6)" },
+          grid: { color: "rgba(255,255,255,0.05)" }
+        }
+      }
+    }
+  });
+}
