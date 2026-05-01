@@ -2,9 +2,6 @@
    WCL — STORES V2 (STORE PERFORMANCE ENGINE)
    ============================================================ */
 
-import { supabase } from "/js/globals.js";
-const sb = supabase;
-
 console.log("🔥 STORES V2 LOADED");
 
 /* ============================================================
@@ -24,7 +21,7 @@ const STORES_STATE = {
    ============================================================ */
 
 function getBody() {
-  return document.getElementById("marketDemandBody");
+  return document.getElementById("topStoresBody");
 }
 
 function getMarketPanel() {
