@@ -65,39 +65,36 @@ bindMarketToggle(days);
 
       if (MARKET_STATE.level === "country") {
 
-        const country = row.dataset.country;
-        if (!country) return;
+  const { data, error } = await sb.rpc(
+    "analytics_top_countries",
+    {
+      p_days: days,
+      p_limit: 100
+    }
+  );
 
-        MARKET_STATE.level = "city";
-        MARKET_STATE.country = country;
+  if (error) return console.error(error);
 
-        await renderMarketV2(days);
-        return;
-      }
+  tbody.innerHTML = (data || []).map(r => {
 
-      if (MARKET_STATE.level === "city") {
+    const views = Number(r.views || 0);
+    const clicks = Number(r.clicks || 0);
 
-        const city = row.dataset.city;
-        if (!city) return;
+    const { label: ctr, cls } = getCtrMeta(views, clicks);
 
-        MARKET_STATE.level = "store";
-        MARKET_STATE.city = city;
+    return `
+<tr data-country="${r.country}">
+  <td>${r.country || "-"}</td>
+  <td class="num">${views}</td>
+  <td class="num">${clicks}</td>
+  <td class="num ${cls}">${ctr}</td>
+</tr>`;
+    
+  }).join("");
 
-        await renderMarketV2(days);
-        return;
-      }
-
-      if (MARKET_STATE.level === "store") {
-
-        const storeId = row.dataset.store;
-        if (!storeId) return;
-
-        MARKET_STATE.level = "traffic";
-        MARKET_STATE.store = Number(storeId);
-
-        await renderMarketV2(days);
-        return;
-      }
+  bindRows(days);
+  return;
+}
 
     };
 
