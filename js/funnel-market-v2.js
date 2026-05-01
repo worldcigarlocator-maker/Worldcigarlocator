@@ -127,37 +127,59 @@ export async function renderMarketV2(days = 30) {
   /* ============================================================
   COUNTRY
   ============================================================ */
-
-   if (MARKET_STATE.level === "country") {
+if (MARKET_STATE.level === "country") {
 
   const { data, error } = await sb.rpc(
-    "analytics_heatmap_countries",
+    "analytics_market_v1",
     { p_days: days }
   );
 
   if (error) return console.error(error);
 
-  tbody.innerHTML = (data || []).map(r => {
+  if (!data?.length) {
+    tbody.innerHTML =
+      `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
+    return;
+  }
 
-    const views = Number(r.views || 0);
-    const clicks = Number(r.clicks || 0);
+  // 🔥 SORT (KPI / TOGGLE)
+  data.sort((a, b) => {
 
-    const { label: ctr, cls } = getCtrMeta(views, clicks);
+    switch (MARKET_STATE.sort) {
+      case "views":
+        return (b.views || 0) - (a.views || 0);
+      case "clicks":
+        return (b.clicks || 0) - (a.clicks || 0);
+      case "ctr":
+        return (b.ctr || 0) - (a.ctr || 0);
+      default:
+        return (b.views || 0) - (a.views || 0);
+    }
+
+  });
+
+  tbody.innerHTML = data.map(r => {
+
+    const ctrLabel = (r.ctr ?? 0).toFixed(1) + "%";
+
+    let cls = "";
+    if (r.ctr === 0 && r.views > 0) cls = "ctr-bad";
+    else if (r.ctr > 0 && r.ctr < 20) cls = "ctr-low";
+    else if (r.ctr >= 20) cls = "ctr-good";
 
     return `
 <tr data-country="${r.country}">
   <td>${r.country || "-"}</td>
-  <td class="num">${views}</td>
-  <td class="num">${clicks}</td>
-  <td class="num ${cls}">${ctr}</td>
+  <td class="num">${r.views || 0}</td>
+  <td class="num">${r.clicks || 0}</td>
+  <td class="num ${cls}">${ctrLabel}</td>
 </tr>`;
-
   }).join("");
 
   bindRows(days);
   return;
 }
-
+   
   /* ============================================================
   CITY
   ============================================================ */
