@@ -802,9 +802,11 @@ subscribe(async (state) => {
 
 if (state.kpi === "stores") {
 
-  marketView?.classList.remove("hidden"); // 🔥 FIX
+  marketView?.classList.remove("hidden");
 
   const m = await import("./funnel-stores-v2.js");
+  console.log("MODULE STORES:", m); // 🔥
+
   await m.renderStoresV2(days);
 
   return;
