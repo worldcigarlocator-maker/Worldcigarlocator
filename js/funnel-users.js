@@ -72,7 +72,7 @@ export async function renderUsersOverview(days = 7) {
       </tr>
     `).join("");
      
-renderUsersChart(data);
+window.renderUsersChart?.(data);
      
     /* ============================================================
    CLICK → DRILLDOWN
