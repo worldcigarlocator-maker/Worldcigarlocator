@@ -1,5 +1,5 @@
 /* ============================================================
-   WCL Analytics — Clean Dark Dashboard
+   WCL Analytics — Neon Space Dashboard
    ============================================================ */
 
 
@@ -24,16 +24,17 @@ html,body{
 :root{
 
   /* ============================================================
-     BASE COLORS (NEUTRAL DARK)
+     BASE COLORS — NEON SPACE
      ============================================================ */
 
-  --bg:#0a0d12;
-  --panel:rgba(15,20,28,0.85);
+  --bg:#070a12;
+  --panel:rgba(18,24,42,0.72);
+  --panel-strong:rgba(22,30,52,0.88);
 
-  --text:#ffffff;
-  --muted:rgba(255,255,255,0.65);
+  --text:#f6fbff;
+  --muted:rgba(246,251,255,0.66);
 
-  --border:rgba(255,255,255,0.06);
+  --border:rgba(255,255,255,0.10);
 
   /* ============================================================
      NEON ACCENTS
@@ -43,69 +44,108 @@ html,body{
   --green:#6ee7b7;
   --purple:#c084fc;
   --orange:#f59e0b;
+  --pink:#ec4899;
+  --blue:#60a5fa;
 
   /* ============================================================
      SHADOWS / GLOW
      ============================================================ */
 
   --shadow:
-    0 10px 30px rgba(0,0,0,0.5),
-    0 0 20px rgba(0,255,200,0.08);
+    0 24px 70px rgba(0,0,0,0.46),
+    0 0 34px rgba(79,209,255,0.10),
+    inset 0 0 0 1px rgba(255,255,255,0.025);
 
-  --radius:14px;
+  --glow-cyan:
+    0 0 0 1px rgba(79,209,255,0.28),
+    0 0 26px rgba(79,209,255,0.26);
+
+  --glow-purple:
+    0 0 0 1px rgba(192,132,252,0.28),
+    0 0 26px rgba(192,132,252,0.26);
+
+  --glow-green:
+    0 0 0 1px rgba(110,231,183,0.28),
+    0 0 26px rgba(110,231,183,0.24);
+
+  --glow-orange:
+    0 0 0 1px rgba(245,158,11,0.30),
+    0 0 26px rgba(245,158,11,0.24);
+
+  --radius:18px;
 
   --font:"DM Sans",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 
 }
 
+
 /* ============================================================
    BASE
    ============================================================ */
 
-body.analytics {
-  background: radial-gradient(
-      circle at 20% 20%,
-      rgba(0, 255, 200, 0.08),
-      transparent 40%
-    ),
-    radial-gradient(
-      circle at 80% 30%,
-      rgba(150, 0, 255, 0.08),
-      transparent 40%
-    ),
-    #0b0f14;
-  color: #fff;
+body.analytics{
+  min-height:100vh;
+  font-family:var(--font);
+
+  background:
+    radial-gradient(circle at 18% 8%, rgba(79,209,255,0.18), transparent 30%),
+    radial-gradient(circle at 82% 18%, rgba(192,132,252,0.16), transparent 34%),
+    radial-gradient(circle at 50% 95%, rgba(110,231,183,0.10), transparent 42%),
+    linear-gradient(135deg,#070a12 0%,#0d1424 42%,#111827 100%);
+
+  color:var(--text);
+  overflow-x:hidden;
 }
+
+body.analytics::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+
+  background:
+    radial-gradient(circle at 12% 28%, rgba(255,255,255,0.26) 0 1px, transparent 2px),
+    radial-gradient(circle at 38% 14%, rgba(255,255,255,0.18) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 36%, rgba(255,255,255,0.20) 0 1px, transparent 2px),
+    radial-gradient(circle at 90% 72%, rgba(255,255,255,0.16) 0 1px, transparent 2px),
+    radial-gradient(circle at 24% 82%, rgba(255,255,255,0.14) 0 1px, transparent 2px);
+
+  opacity:0.38;
+}
+
 
 /* ============================================================
    TOPBAR
    ============================================================ */
 
 .topbar{
-
   display:flex;
   justify-content:space-between;
   align-items:center;
 
-  padding:18px 26px;
+  padding:20px 30px;
 
-  background:rgba(10,18,34,.75);
+  background:
+    linear-gradient(135deg,rgba(18,28,52,0.82),rgba(9,13,24,0.72));
 
-  border-bottom:1px solid var(--border);
+  border-bottom:1px solid rgba(255,255,255,0.10);
 
-  backdrop-filter:blur(10px);
-
+  backdrop-filter:blur(18px);
+  box-shadow:
+    0 18px 50px rgba(0,0,0,0.32),
+    0 0 30px rgba(79,209,255,0.06);
 }
 
 .topbar h1{
-
   margin:0;
 
-  font-size:22px;
+  font-size:23px;
   font-weight:900;
+  letter-spacing:0.3px;
 
-  color:#e2e8f0;
-
+  color:#f8fbff;
+  text-shadow:0 0 20px rgba(79,209,255,0.28);
 }
 
 
@@ -114,45 +154,67 @@ body.analytics {
    ============================================================ */
 
 .panel{
+  position:relative;
 
-  background:var(--panel);
+  background:
+    linear-gradient(145deg,rgba(26,35,62,0.78),rgba(13,18,34,0.68));
 
-  border:1px solid rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.11);
 
   border-radius:var(--radius);
 
   box-shadow:var(--shadow);
 
-  padding:18px;
+  padding:20px;
 
-  margin:24px auto;
+  margin:28px auto;
 
-  max-width:1100px;
+  max-width:1180px;
 
+  backdrop-filter:blur(18px);
+}
+
+.panel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+
+  border-radius:inherit;
+
+  background:
+    linear-gradient(135deg,rgba(79,209,255,0.12),transparent 36%),
+    linear-gradient(315deg,rgba(192,132,252,0.10),transparent 40%);
+
+  opacity:0.75;
+}
+
+.panel > *{
+  position:relative;
+  z-index:1;
 }
 
 .panelhead{
-
   display:flex;
 
   align-items:center;
 
   justify-content:space-between;
 
-  gap:12px;
+  gap:14px;
 
   flex-wrap:wrap;
-
 }
 
 .panelhead h2{
-
-margin:0 0 16px 0;
+  margin:0 0 16px 0;
 
   font-size:16px;
 
   font-weight:900;
 
+  color:#f8fbff;
+  text-shadow:0 0 16px rgba(79,209,255,0.18);
 }
 
 
@@ -161,28 +223,27 @@ margin:0 0 16px 0;
    ============================================================ */
 
 .analytics-tabs{
-
   display:flex;
   gap:10px;
   flex-wrap:wrap;
 
   padding:10px;
 
-  border-radius:12px;
+  border-radius:16px;
 
-  background:rgba(12,18,32,.55);
+  background:rgba(255,255,255,0.045);
 
-  border:1px solid rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.10);
 
+  backdrop-filter:blur(14px);
 }
 
 .btn.tab{
+  padding:9px 15px;
 
-  padding:8px 14px;
+  border-radius:999px;
 
-  border-radius:8px;
-
-  border:1px solid var(--border);
+  border:1px solid rgba(255,255,255,0.12);
 
   color:#fff;
 
@@ -190,31 +251,36 @@ margin:0 0 16px 0;
 
   cursor:pointer;
 
-  transition:.15s;
-
+  transition:
+    transform .16s ease,
+    filter .16s ease,
+    box-shadow .16s ease,
+    border .16s ease;
 }
 
 .btn.tab[data-tab="overview"]{
   background:linear-gradient(135deg,#ec4899,#f472b6);
-  box-shadow:0 0 12px rgba(244,114,182,.35);
+  box-shadow:0 0 16px rgba(244,114,182,.40);
 }
 
 .btn.tab[data-tab="market"]{
-  background:linear-gradient(135deg,#eab308,#facc15);
-  box-shadow:0 0 12px rgba(250,204,21,.35);
+  background:linear-gradient(135deg,#d97706,#facc15);
+  box-shadow:0 0 16px rgba(250,204,21,.36);
 }
 
 .btn.tab[data-tab="stores"]{
-  background:linear-gradient(135deg,#15803d,#22c55e)
+  background:linear-gradient(135deg,#15803d,#22c55e);
+  box-shadow:0 0 16px rgba(34,197,94,.34);
 }
 
 .btn.tab:hover{
+  filter:brightness(1.12);
 
-  filter:brightness(1.1);
+  box-shadow:0 0 18px rgba(255,255,255,.22);
 
-  box-shadow:0 0 12px rgba(255,255,255,.2);
-
+  transform:translateY(-1px);
 }
+
 
 /* ============================================================
    ACTIVE TAB COLORS (FIXED)
@@ -222,22 +288,24 @@ margin:0 0 16px 0;
 
 .btn.tab.active{
   box-shadow:
-    0 0 0 2px rgba(255,255,255,0.2),
-    0 0 20px rgba(255,255,255,0.15);
+    0 0 0 2px rgba(255,255,255,0.22),
+    0 0 28px rgba(255,255,255,0.20);
 
-  transform:translateY(-1px);
+  transform:translateY(-2px);
+}
 
-   }
 
 /* ============================================================
    KPI PRIMARY (MAIN CONTROL)
-============================================================ */
+   ============================================================ */
 
 .kpi-primary{
   display:flex;
-  gap:12px;
+  gap:14px;
   align-items:center;
+  flex-wrap:wrap;
 }
+
 
 /* BASE */
 .kpi-card{
@@ -245,53 +313,72 @@ margin:0 0 16px 0;
   flex-direction:column;
   justify-content:center;
 
-  min-width:110px;
-  padding:12px 14px;
+  min-width:118px;
+  padding:15px 16px;
 
-  border-radius:12px;
+  border-radius:16px;
   cursor:pointer;
 
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.06);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,0.075),rgba(255,255,255,0.035));
+
+  border:1px solid rgba(255,255,255,0.10);
+
+  box-shadow:
+    0 12px 28px rgba(0,0,0,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.055);
 
   transition:
-    transform 0.15s ease,
-    background 0.15s ease,
-    border 0.15s ease,
-    box-shadow 0.15s ease,
-    opacity 0.15s ease;
+    transform 0.16s ease,
+    background 0.16s ease,
+    border 0.16s ease,
+    box-shadow 0.16s ease,
+    opacity 0.16s ease;
 }
+
 
 /* LABEL */
 .kpi-label{
   font-size:11px;
-  letter-spacing:.08em;
+  letter-spacing:.10em;
   text-transform:uppercase;
-  opacity:.6;
+  opacity:.68;
 }
+
 
 /* VALUE */
 .kpi-value{
-  font-size:20px;
-  font-weight:600;
-  margin-top:4px;
+  font-size:22px;
+  font-weight:700;
+  margin-top:5px;
 }
+
 
 /* HOVER */
 .kpi-card:hover{
-  transform:translateY(-2px);
-  background:rgba(255,255,255,0.08);
-  border-color:rgba(255,255,255,0.12);
+  transform:translateY(-3px);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,0.11),rgba(255,255,255,0.05));
+
+  border-color:rgba(255,255,255,0.18);
+
+  box-shadow:
+    0 18px 38px rgba(0,0,0,0.30),
+    0 0 22px rgba(79,209,255,0.12);
 }
+
 
 /* ACTIVE */
 .kpi-card.active{
-  background:rgba(var(--global),0.15);
-  border:1px solid rgba(var(--global),0.35);
+  background:
+    linear-gradient(145deg,rgba(79,209,255,0.14),rgba(192,132,252,0.07));
+
+  border:1px solid rgba(79,209,255,0.35);
 
   box-shadow:
-    0 0 0 1px rgba(var(--global),0.2),
-    0 8px 20px rgba(0,0,0,0.4);
+    0 0 0 1px rgba(79,209,255,0.18),
+    0 12px 34px rgba(0,0,0,0.36),
+    0 0 28px rgba(79,209,255,0.18);
 }
 
 .kpi-card.active .kpi-label{
@@ -299,13 +386,16 @@ margin:0 0 16px 0;
 }
 
 .kpi-card.active .kpi-value{
-  color:rgb(var(--global));
+  color:var(--cyan);
+  text-shadow:0 0 14px rgba(79,209,255,0.45);
 }
+
 
 /* DIM OTHERS */
 .kpi-primary:has(.kpi-card.active) .kpi-card:not(.active){
-  opacity:0.5;
+  opacity:0.58;
 }
+
 
 /* ============================================================
    KPI CONTENT
@@ -313,15 +403,16 @@ margin:0 0 16px 0;
 
 .kpi-label{
   font-size:12px;
-  opacity:.6;
+  opacity:.68;
   margin-bottom:6px;
 }
 
 .kpi-value{
-  font-size:26px;
-  font-weight:600;
-  letter-spacing:.5px;
+  font-size:27px;
+  font-weight:800;
+  letter-spacing:.4px;
 }
+
 
 /* ============================================================
    KPI COLORS
@@ -329,52 +420,62 @@ margin:0 0 16px 0;
 
 .kpi-card[data-kpi="users"] .kpi-value{
   color:#4FC3F7;
+  text-shadow:0 0 12px rgba(79,195,247,0.42);
 }
 
 .kpi-card[data-kpi="stores"] .kpi-value{
   color:#81C784;
+  text-shadow:0 0 12px rgba(129,199,132,0.35);
 }
 
 .kpi-card[data-kpi="views"] .kpi-value{
   color:#BA68C8;
+  text-shadow:0 0 12px rgba(186,104,200,0.42);
 }
 
 .kpi-card[data-kpi="clicks"] .kpi-value{
   color:#FFB74D;
+  text-shadow:0 0 12px rgba(255,183,77,0.38);
 }
 
 .kpi-card[data-kpi="ctr"] .kpi-value{
   color:#4DD0E1;
+  text-shadow:0 0 12px rgba(77,208,225,0.42);
 }
+
 
 /* ============================================================
    KPI COLOR SYSTEM
-============================================================ */
+   ============================================================ */
 
-/* USERS (neutral) */
+/* USERS (cyan) */
 .kpi-users.active{
-  border-color:rgba(255,255,255,0.3);
+  border-color:rgba(79,209,255,0.58);
+  box-shadow:var(--glow-cyan), 0 16px 40px rgba(0,0,0,0.35);
 }
 
-/* STORES (brand bronze) */
+/* STORES (green) */
 .kpi-stores.active{
-  border-color:rgba(var(--global),0.5);
+  border-color:rgba(110,231,183,0.58);
+  box-shadow:var(--glow-green), 0 16px 40px rgba(0,0,0,0.35);
 }
 .kpi-stores.active .kpi-value{
-  color:rgb(var(--global));
+  color:var(--green);
 }
 
 /* VIEWS (purple) */
 .kpi-views.active{
-  border-color:rgba(168,85,247,0.5);
+  border-color:rgba(168,85,247,0.58);
+  box-shadow:var(--glow-purple), 0 16px 40px rgba(0,0,0,0.35);
 }
 .kpi-views.active .kpi-value{
-  color:#a855f7;
+  color:#c084fc;
 }
 
 /* CLICKS (orange) */
 .kpi-clicks.active{
-  border-color:rgba(251,146,60,0.5);
+  border-color:rgba(251,146,60,0.60);
+  box-shadow:var(--glow-orange), 0 16px 40px rgba(0,0,0,0.35);
 }
 .kpi-clicks.active .kpi-value{
   color:#fb923c;
@@ -382,107 +483,248 @@ margin:0 0 16px 0;
 
 /* CTR (turquoise) */
 .kpi-ctr.active{
-  border-color:rgba(34,211,238,0.5);
+  border-color:rgba(34,211,238,0.60);
+  box-shadow:var(--glow-cyan), 0 16px 40px rgba(0,0,0,0.35);
 }
 .kpi-ctr.active .kpi-value{
   color:#22d3ee;
 }
 
-/* =========================================
+
+/* ============================================================
    TABLE ALIGN FIX
-   ========================================= */
+   ============================================================ */
 
 table th:first-child,
 table td:first-child{
   text-align:left;
-  padding-left:12px;
+  padding-left:14px;
 }
-/* =========================================
+
+
+/* ============================================================
    TABLE ROW SPACING
-   ========================================= */
+   ============================================================ */
 
 table td{
-  padding:10px 8px;
+  padding:11px 9px;
 }
 
 table tr{
-  border-bottom:1px solid rgba(255,255,255,0.05);
+  border-bottom:1px solid rgba(255,255,255,0.06);
 }
 
-/* =========================================
+
+/* ============================================================
    SEARCH ACTIONS — PILLS
-   ========================================= */
+   ============================================================ */
 
 .search-actions{
   display:flex;
   gap:8px;
+  flex-wrap:wrap;
 }
 
 .search-actions .btn{
   border-radius:999px;
-  padding:6px 14px;
+  padding:7px 15px;
   font-size:13px;
-  font-weight:500;
+  font-weight:700;
 }
 
-/* =========================================
-   SEARCH BUTTONS — COLORS
-   ========================================= */
 
-/* 🔥 SEARCH (turkos) */
+/* ============================================================
+   SEARCH BUTTONS — COLORS
+   ============================================================ */
+
+/* SEARCH (turkos) */
 #searchBtn{
-  background:#14b8a6;
-  color:#fff;
+  background:linear-gradient(135deg,#14b8a6,#22d3ee);
+  color:#031014;
   border:none;
+  box-shadow:0 0 16px rgba(34,211,238,0.30);
 }
 
 #searchBtn:hover{
-  background:#0d9488;
+  background:linear-gradient(135deg,#0d9488,#67e8f9);
+  box-shadow:0 0 22px rgba(34,211,238,0.42);
 }
 
-/* 🔥 CLEAR (orange) */
+/* CLEAR (orange) */
 #clearBtn{
-  background:#f59e0b;
-  color:#000;
+  background:linear-gradient(135deg,#f59e0b,#fb923c);
+  color:#130b02;
   border:none;
+  box-shadow:0 0 16px rgba(245,158,11,0.28);
 }
 
 #clearBtn:hover{
-  background:#d97706;
+  background:linear-gradient(135deg,#d97706,#f97316);
+  box-shadow:0 0 22px rgba(249,115,22,0.36);
 }
 
-/* =========================================
+
+/* ============================================================
    SEARCH INPUT POLISH
-   ========================================= */
+   ============================================================ */
 
 .searchbox input{
   border-radius:999px;
-  padding:8px 14px;
-  border:none;
+  padding:10px 16px;
+  border:1px solid rgba(255,255,255,0.12);
   outline:none;
-  background:#ffffff;
+
+  background:rgba(255,255,255,0.92);
+  color:#07111f;
+
   font-size:14px;
+
+  box-shadow:
+    0 8px 20px rgba(0,0,0,0.18),
+    0 0 0 1px rgba(79,209,255,0.08);
 }
 
-/* =========================================
+.searchbox input:focus{
+  border-color:rgba(79,209,255,0.65);
+  box-shadow:
+    0 0 0 3px rgba(79,209,255,0.16),
+    0 10px 26px rgba(0,0,0,0.24);
+}
+
+
+/* ============================================================
    SEARCH ROW SPACING
-   ========================================= */
+   ============================================================ */
 
 .searchrow{
   display:flex;
   align-items:center;
   gap:12px;
-  margin-bottom:12px;
+  margin-bottom:14px;
+  flex-wrap:wrap;
 }
 
 .hint{
   margin-top:6px;
-  opacity:0.7;
+  opacity:0.72;
   font-size:14px;
+  color:var(--muted);
 }
-.searchbox input{
-  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+
+
+/* ============================================================
+   ANALYTICS TOOLBAR — SEARCH / ARROWS / PDF / EMAIL
+   ============================================================ */
+
+.analytics-toolbar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+
+  margin:0 0 16px 0;
+  padding:12px;
+
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,0.10);
+
+  background:
+    linear-gradient(135deg,rgba(255,255,255,0.075),rgba(255,255,255,0.035));
+
+  box-shadow:
+    0 16px 36px rgba(0,0,0,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+
+  backdrop-filter:blur(16px);
 }
+
+.analytics-toolbar .toolbar-search{
+  flex:1 1 260px;
+}
+
+.analytics-toolbar input,
+.analytics-toolbar .toolbar-search input{
+  width:100%;
+  min-height:40px;
+
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.14);
+
+  padding:9px 15px;
+
+  background:rgba(255,255,255,0.92);
+  color:#07111f;
+
+  font-size:14px;
+  outline:none;
+
+  box-shadow:0 8px 20px rgba(0,0,0,0.16);
+}
+
+.analytics-toolbar input:focus,
+.analytics-toolbar .toolbar-search input:focus{
+  border-color:rgba(79,209,255,0.75);
+  box-shadow:
+    0 0 0 3px rgba(79,209,255,0.16),
+    0 8px 24px rgba(0,0,0,0.22);
+}
+
+.toolbar-btn,
+.analytics-toolbar button{
+  min-height:40px;
+
+  padding:9px 14px;
+
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.14);
+
+  background:rgba(255,255,255,0.06);
+  color:#fff;
+
+  font-size:13px;
+  font-weight:800;
+
+  cursor:pointer;
+
+  transition:
+    transform .15s ease,
+    filter .15s ease,
+    box-shadow .15s ease,
+    background .15s ease;
+}
+
+.toolbar-btn:hover,
+.analytics-toolbar button:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.08);
+  box-shadow:0 0 18px rgba(255,255,255,0.18);
+}
+
+.btn-arrow{
+  width:42px;
+  padding-left:0;
+  padding-right:0;
+  text-align:center;
+
+  background:rgba(79,209,255,0.10);
+  border-color:rgba(79,209,255,0.24);
+  box-shadow:0 0 14px rgba(79,209,255,0.16);
+}
+
+.btn-pdf{
+  background:linear-gradient(135deg,#ec4899,#c084fc);
+  border:none;
+  color:#fff;
+  box-shadow:0 0 18px rgba(236,72,153,0.32);
+}
+
+.btn-mail{
+  background:linear-gradient(135deg,#2563eb,#22d3ee);
+  border:none;
+  color:#fff;
+  box-shadow:0 0 18px rgba(34,211,238,0.30);
+}
+
 
 /* ============================================================
    TABLE POLISH — STEP 1
@@ -490,71 +732,82 @@ table tr{
 
 /* vänsterjustera första kolumn */
 .table td:first-child,
-.table th:first-child {
-  text-align: left;
+.table th:first-child{
+  text-align:left;
 }
 
 /* luft mellan rader */
-.table tbody tr {
-  height: 44px;
+.table tbody tr{
+  height:46px;
 }
 
 /* bättre spacing i celler */
 .table td,
-.table th {
-  padding: 12px 14px;
+.table th{
+  padding:13px 15px;
 }
 
 /* snyggare hover */
-.table tbody tr:hover {
-  background: rgba(255,255,255,0.03);
+.table tbody tr:hover{
+  background:rgba(255,255,255,0.055);
 }
 
-.kpi-purple td:first-child {
-  color: #a855f7;
-  font-weight: 600;
+.kpi-purple td:first-child{
+  color:#c084fc;
+  font-weight:700;
+  text-shadow:0 0 12px rgba(192,132,252,0.26);
 }
 
-.kpi-orange td:first-child {
-  color: #f97316;
-  font-weight: 600;
+.kpi-orange td:first-child{
+  color:#fb923c;
+  font-weight:700;
+  text-shadow:0 0 12px rgba(251,146,60,0.24);
 }
 
-.kpi-turquoise td:first-child {
-  color: #14b8a6;
-  font-weight: 600;
+.kpi-turquoise td:first-child{
+  color:#22d3ee;
+  font-weight:700;
+  text-shadow:0 0 12px rgba(34,211,238,0.24);
 }
 
-.kpi-green td:first-child {
-  color: #22c55e;
-  font-weight: 600;
+.kpi-green td:first-child{
+  color:#22c55e;
+  font-weight:700;
+  text-shadow:0 0 12px rgba(34,197,94,0.22);
 }
 
-.kpi-blue td:first-child {
-  color: #3b82f6;
-  font-weight: 600;
+.kpi-blue td:first-child{
+  color:#60a5fa;
+  font-weight:700;
+  text-shadow:0 0 12px rgba(96,165,250,0.24);
 }
+
 
 /* ============================================================
    TOP ROW HIGHLIGHT (HEAT EFFECT)
    ============================================================ */
 
-.top-row {
-  background: rgba(255,255,255,0.03);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+.top-row{
+  background:
+    linear-gradient(135deg,rgba(79,209,255,0.075),rgba(192,132,252,0.045));
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.075),
+    0 0 18px rgba(79,209,255,0.10);
 }
 
-.top-row td:first-child {
-  font-weight: 700;
-  letter-spacing: 0.3px;
+.top-row td:first-child{
+  font-weight:800;
+  letter-spacing:0.3px;
 }
+
 
 /* ============================================================
    DRILLDOWN TOOLBAR (HIDDEN BY DEFAULT)
    ============================================================ */
 
-#drilldownToolbar {
-  display: none;
+#drilldownToolbar{
+  display:none;
 }
 
 
@@ -562,116 +815,133 @@ table tr{
    TOP STORES — PREMIUM TABLE
    ============================================================ */
 
-/* 🔹 spacing mellan rader */
-#topStoresBody tr {
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+/* spacing mellan rader */
+#topStoresBody tr{
+  border-bottom:1px solid rgba(255,255,255,0.06);
 }
 
-#topStoresBody td {
-  padding: 14px 10px;
-  vertical-align: middle;
+#topStoresBody td{
+  padding:15px 11px;
+  vertical-align:middle;
 }
 
-/* 🔹 vänster kolumn (store) */
-.store-cell {
-  text-align: left;
+/* vänster kolumn (store) */
+.store-cell{
+  text-align:left;
 }
 
-.store-name {
-  font-weight: 600;
-  font-size: 14px;
-  color: #fff;
+.store-name{
+  font-weight:700;
+  font-size:14px;
+  color:#fff;
+  text-shadow:0 0 12px rgba(79,209,255,0.14);
 }
 
-.store-geo {
-  font-size: 12px;
-  color: rgba(255,255,255,0.5);
-  margin-top: 2px;
+.store-geo{
+  font-size:12px;
+  color:rgba(255,255,255,0.58);
+  margin-top:3px;
 }
+
 
 /* ============================================================
    KPI PILLS
    ============================================================ */
 
-.kpi-pill {
-  display: inline-block;
-  min-width: 52px;
-  text-align: center;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
+.kpi-pill{
+  display:inline-block;
+  min-width:54px;
+  text-align:center;
+  padding:7px 13px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:0.3px;
 }
 
-.kpi-views {
-  background: rgba(140, 90, 255, 0.15);
-  color: #c6a8ff;
-  box-shadow: 0 0 8px rgba(140, 90, 255, 0.3);
+.kpi-views{
+  background:rgba(140,90,255,0.18);
+  color:#d8c4ff;
+  box-shadow:0 0 12px rgba(140,90,255,0.34);
 }
 
-.kpi-clicks {
-  background: rgba(255, 140, 0, 0.15);
-  color: #ffb366;
-  box-shadow: 0 0 8px rgba(255, 140, 0, 0.25);
+.kpi-clicks{
+  background:rgba(255,140,0,0.18);
+  color:#ffc078;
+  box-shadow:0 0 12px rgba(255,140,0,0.30);
 }
 
-.kpi-ctr {
-  background: rgba(0, 200, 170, 0.15);
-  color: #66ffe0;
-  box-shadow: 0 0 8px rgba(0, 200, 170, 0.25);
+.kpi-ctr{
+  background:rgba(0,200,170,0.18);
+  color:#7fffe7;
+  box-shadow:0 0 12px rgba(0,200,170,0.30);
 }
 
 
-/* 🟣 Clicks (indigo / deep blue) */
+/* Clicks (indigo / deep blue) */
 .kpi:nth-child(4){
   background:linear-gradient(135deg,#1e3a8a,#3b82f6);
   color:#fff;
 
   box-shadow:
-    0 8px 25px rgba(59,130,246,.35),
-    inset 0 1px 0 rgba(255,255,255,.15);
+    0 10px 30px rgba(59,130,246,.38),
+    inset 0 1px 0 rgba(255,255,255,.16);
 }
 
-/* 🟢 CTR (green / success) */
+/* CTR (green / success) */
 .kpi:nth-child(5){
   background:linear-gradient(135deg,#15803d,#22c55e);
   color:#fff;
 
   box-shadow:
-    0 8px 25px rgba(34,197,94,.35),
-    inset 0 1px 0 rgba(255,255,255,.15);
+    0 10px 30px rgba(34,197,94,.36),
+    inset 0 1px 0 rgba(255,255,255,.16);
 }
-
 
 
 /* ============================================================
    HIDDEN STATE
    ============================================================ */
+
 .hidden{
   display:none !important;
 }
 
+
 /* ============================================================
    KPI ACTIVE STATE
    ============================================================ */
+
 .kpi-card{
-  transition: all 0.2s ease;
-  opacity: 0.6;
+  transition:all 0.2s ease;
+  opacity:0.72;
 }
 
 .kpi-card.active{
-  opacity: 1;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-  border: 1px solid rgba(255,255,255,0.15);
+  opacity:1;
+  transform:translateY(-3px);
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.32),
+    0 0 24px rgba(79,209,255,0.14);
+
+  border:1px solid rgba(255,255,255,0.17);
 }
 
-.kpi-users.active{ border-color: rgba(0,200,255,0.4); }
-.kpi-stores.active{ border-color: rgba(255,180,0,0.4); }
-.kpi-views.active{ border-color: rgba(180,120,255,0.4); }
-.kpi-clicks.active{ border-color: rgba(255,120,0,0.4); }
-.kpi-ctr.active{ border-color: rgba(0,255,200,0.4); }
+.kpi-users.active{
+  border-color:rgba(0,200,255,0.55);
+}
+.kpi-stores.active{
+  border-color:rgba(110,231,183,0.55);
+}
+.kpi-views.active{
+  border-color:rgba(180,120,255,0.56);
+}
+.kpi-clicks.active{
+  border-color:rgba(255,120,0,0.56);
+}
+.kpi-ctr.active{
+  border-color:rgba(0,255,200,0.56);
+}
 
 
 /* ============================================================
@@ -679,29 +949,44 @@ table tr{
    ============================================================ */
 
 .table{
+  width:100%;
   border-collapse:separate;
   border-spacing:0 10px;
 }
 
 /* rows */
 .table tbody tr{
-  transition:all 0.15s ease;
+  transition:all 0.16s ease;
+
+  background:
+    linear-gradient(135deg,rgba(255,255,255,0.045),rgba(255,255,255,0.022));
+
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.14),
+    inset 0 0 0 1px rgba(255,255,255,0.045);
 }
 
 /* hover */
 .table tbody tr:hover{
-  transform:translateY(-1px);
+  transform:translateY(-2px);
+  box-shadow:
+    0 16px 30px rgba(0,0,0,0.22),
+    inset 0 0 0 1px rgba(79,209,255,0.18),
+    0 0 18px rgba(79,209,255,0.10);
 }
 
 /* cells */
 .table td{
-  padding:14px 16px;
+  padding:15px 17px;
+  color:rgba(255,255,255,0.88);
 }
 
 .table th{
-  padding:10px 16px;
-  opacity:0.6;
-  font-weight:500;
+  padding:11px 17px;
+  opacity:0.68;
+  font-weight:700;
+  color:rgba(255,255,255,0.78);
+  letter-spacing:0.02em;
 }
 
 /* alignment */
@@ -714,73 +999,148 @@ table tr{
   text-align:right;
 }
 
+
 /* CTR highlight */
 
-.ctr-bad {
-  color: #ff5a5a;
-  font-weight: 600;
+.ctr-bad{
+  color:#ff5a5a;
+  font-weight:700;
 }
 
-.ctr-low {
-  color: #ffb347;
+.ctr-low{
+  color:#ffb347;
+  font-weight:700;
 }
 
-.ctr-good {
-  color: #3bd671;
-  font-weight: 600;
+.ctr-good{
+  color:#3bd671;
+  font-weight:800;
 }
+
 
 /* ============================================================
    CTR COLORS (FIXED - HIGH PRIORITY)
    ============================================================ */
 
-.table td.num.ctr-bad {
-  color: #ff5a5a !important;
-  font-weight: 600;
+.table td.num.ctr-bad{
+  color:#ff5a5a !important;
+  font-weight:700;
+  text-shadow:0 0 10px rgba(255,90,90,0.30);
 }
 
-.table td.num.ctr-low {
-  color: #ffb347 !important;
+.table td.num.ctr-low{
+  color:#ffb347 !important;
+  font-weight:700;
+  text-shadow:0 0 10px rgba(255,179,71,0.24);
 }
 
-.table td.num.ctr-good {
-  color: #3bd671 !important;
-  font-weight: 600;
+.table td.num.ctr-good{
+  color:#3bd671 !important;
+  font-weight:800;
+  text-shadow:0 0 10px rgba(59,214,113,0.28);
 }
+
+
 /* ============================================================
    KPI — MARKET (DEMAND STYLE)
    ============================================================ */
 
-.kpi-market {
-  border: 1px solid rgba(79, 209, 255, 0.25);
-  background: linear-gradient(
+.kpi-market{
+  border:1px solid rgba(79,209,255,0.28);
+  background:linear-gradient(
     180deg,
-    rgba(10, 30, 60, 0.6),
-    rgba(5, 15, 35, 0.9)
+    rgba(16,38,74,0.66),
+    rgba(8,18,42,0.84)
   );
-}
 
-.kpi-market .kpi-label {
-  color: rgba(255,255,255,0.7);
-}
-
-.kpi-market .kpi-value {
-  color: #4fd1ff;
-  text-shadow: 0 0 12px rgba(79, 209, 255, 0.6);
-}
-
-/* 🔥 ACTIVE STATE */
-
-.kpi-card.active.kpi-market {
-  border-color: rgba(79, 209, 255, 0.6);
   box-shadow:
-    0 0 0 1px rgba(79, 209, 255, 0.3),
-    0 10px 30px rgba(0, 150, 255, 0.15);
+    0 12px 30px rgba(0,0,0,0.24),
+    0 0 20px rgba(79,209,255,0.10);
 }
 
-.kpi-card.kpi-market:hover {
-  transform: translateY(-2px);
+.kpi-market .kpi-label{
+  color:rgba(255,255,255,0.74);
+}
+
+.kpi-market .kpi-value{
+  color:#4fd1ff;
+  text-shadow:0 0 14px rgba(79,209,255,0.62);
+}
+
+
+/* ACTIVE STATE */
+
+.kpi-card.active.kpi-market{
+  border-color:rgba(79,209,255,0.68);
   box-shadow:
-    0 0 0 1px rgba(79, 209, 255, 0.4),
-    0 15px 40px rgba(0, 150, 255, 0.25);
+    0 0 0 1px rgba(79,209,255,0.34),
+    0 12px 34px rgba(0,150,255,0.18),
+    0 0 30px rgba(79,209,255,0.22);
+}
+
+.kpi-card.kpi-market:hover{
+  transform:translateY(-3px);
+  box-shadow:
+    0 0 0 1px rgba(79,209,255,0.44),
+    0 18px 44px rgba(0,150,255,0.28);
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width:760px){
+
+  .topbar{
+    padding:16px 18px;
+    align-items:flex-start;
+    gap:12px;
+    flex-direction:column;
+  }
+
+  .topbar h1{
+    font-size:20px;
+  }
+
+  .panel{
+    margin:18px 12px;
+    padding:16px;
+  }
+
+  .panelhead{
+    align-items:flex-start;
+  }
+
+  .kpi-primary{
+    width:100%;
+  }
+
+  .kpi-card{
+    min-width:calc(50% - 7px);
+    flex:1 1 calc(50% - 7px);
+  }
+
+  .analytics-toolbar{
+    align-items:stretch;
+  }
+
+  .analytics-toolbar .toolbar-search{
+    flex:1 1 100%;
+  }
+
+  .toolbar-btn,
+  .analytics-toolbar button{
+    flex:1 1 auto;
+  }
+
+  .table{
+    font-size:13px;
+  }
+
+  .table td,
+  .table th{
+    padding:12px 10px;
+  }
+
 }
