@@ -765,15 +765,18 @@ else if (ctrValue >= 0.2) ctrClass = "ctr-good";
 
 subscribe(async (state) => {
 
-  // 🔥 HARD RESET
-  document.getElementById("view-users")?.classList.add("hidden");
-  document.getElementById("view-market")?.classList.add("hidden");
-  document.getElementById("view-stores")?.classList.add("hidden");
+  const days = Number(globalRangeSelect?.value || 30);
 
   const usersView = document.getElementById("view-users");
   const marketView = document.getElementById("view-market");
+  const storesView = document.getElementById("view-stores");
 
-  const days = Number(globalRangeSelect?.value || 30);
+  // 🔥 RESET ALL
+  usersView?.classList.add("hidden");
+  marketView?.classList.add("hidden");
+  storesView?.classList.add("hidden");
+
+  console.log("SUBSCRIBE TRIGGER", state.kpi);
 
   // ============================================================
   // USERS
@@ -795,12 +798,10 @@ subscribe(async (state) => {
 
   if (state.kpi === "stores") {
 
-    marketView?.classList.remove("hidden");
+    storesView?.classList.remove("hidden");
 
-    const { renderStoresV2, resetStoresV2 } = await import("./funnel-stores-v2.js");
-
-    resetStoresV2();
-    await renderStoresV2(days);
+    const m = await import("./funnel-stores-v2.js");
+    await m.renderStoresV2(days);
 
     return;
   }
@@ -809,23 +810,21 @@ subscribe(async (state) => {
   // MARKET (views / clicks / ctr)
   // ============================================================
 
-if (
-  state.kpi === "views" ||
-  state.kpi === "clicks" ||
-  state.kpi === "ctr"
-) {
-  console.log("→ MARKET VIEW");
+  if (
+    state.kpi === "views" ||
+    state.kpi === "clicks" ||
+    state.kpi === "ctr"
+  ) {
 
-  document.getElementById("view-market")?.classList.remove("hidden");
+    marketView?.classList.remove("hidden");
 
-  const { renderMarketV2 } = await import("./funnel-market-v2.js");
-  await renderMarketV2(days);
+    const m = await import("./funnel-market-v2.js");
+    await m.renderMarketV2(days);
 
-  return;
-}
+    return;
+  }
 
 });
-
   // ============================================================
   // INIT
   // ============================================================
