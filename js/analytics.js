@@ -21,6 +21,7 @@ console.log("🔥 KPI SCRIPT LOADED");
 console.log("STEP 1");
 
 const sb = supabase;
+window.sb = sb; // 
 
 console.log("STEP 2");
 
