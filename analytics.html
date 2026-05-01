@@ -52,116 +52,88 @@
   </header>
 
   <!-- ============================================================
-       PRIMARY KPI BAR (MAIN NAV)
+       GLOBAL CONTROLS (KPI + TOOLBAR)
        ============================================================ -->
 
-<section class="panel top-controls">
+  <section class="panel top-controls">
 
-  <div class="top-controls-inner">
+```
+<div class="top-controls-inner">
 
-    <!-- KPI -->
-    <div class="kpi-primary">
+  <!-- KPI -->
+  <div class="kpi-primary">
 
-      <div class="kpi-card kpi-users active" data-kpi="users">
-        <span class="kpi-label">Users</span>
-        <span class="kpi-value" id="globalUsers">0</span>
-      </div>
-
-      <div class="kpi-card kpi-stores" data-kpi="stores">
-        <span class="kpi-label">Stores</span>
-        <span class="kpi-value" id="globalStores">0</span>
-      </div>
-
-      <div class="kpi-card kpi-market" data-kpi="views">
-        <span class="kpi-label">Market</span>
-        <span class="kpi-value" id="globalMarket">0</span>
-      </div>
-
+    <div class="kpi-card kpi-users active" data-kpi="users">
+      <span class="kpi-label">Users</span>
+      <span class="kpi-value" id="globalUsers">0</span>
     </div>
 
-    <!-- TOOLBAR -->
-    <div class="searchrow">
+    <div class="kpi-card kpi-stores" data-kpi="stores">
+      <span class="kpi-label">Stores</span>
+      <span class="kpi-value" id="globalStores">0</span>
+    </div>
 
-      <div class="searchbox">
-        <input id="searchInput" type="text" placeholder="Search..." />
-      </div>
-
-      <button id="searchBtn" class="btn primary">Search</button>
-      <button id="clearBtn" class="btn ghost">Clear</button>
-      <button id="exportBtn" class="btn ghost">Export PDF</button>
-      <button id="mailBtn" class="btn ghost">Send Email</button>
-
+    <div class="kpi-card kpi-market" data-kpi="views">
+      <span class="kpi-label">Market</span>
+      <span class="kpi-value" id="globalMarket">0</span>
     </div>
 
   </div>
 
-</section>
-      
-  <!-- ============================================================
-       USERS (DEFAULT VIEW)
-       ============================================================ -->
+  <!-- TOOLBAR -->
+  <div class="searchrow">
 
-  <section id="view-users">
-
-
-<section class="panel">
-
-  <div class="panelhead">
-
-  <div class="panel-title">
-    <span class="panel-icon">👥</span>
-    <h2>Users</h2>
-  </div>
-
-  <div class="analytics-toolbar">
-
-    <div class="toolbar-search">
-      <input
-        id="searchInput"
-        type="text"
-        placeholder="Search..."
-      />
+    <div class="searchbox">
+      <input id="searchInput" type="text" placeholder="Search..." />
     </div>
 
-    <button class="toolbar-btn btn-arrow">←</button>
-    <button class="toolbar-btn btn-arrow">→</button>
-
-    <button class="toolbar-btn btn-pdf">Export PDF</button>
-    <button class="toolbar-btn btn-mail">Send Email</button>
+    <button id="searchBtn" class="btn primary">Search</button>
+    <button id="clearBtn" class="btn ghost">Clear</button>
+    <button id="exportBtn" class="btn ghost">Export PDF</button>
+    <button id="mailBtn" class="btn ghost">Send Email</button>
 
   </div>
 
 </div>
+```
+
+  </section>
+
+  <!-- ============================================================
+       USERS
+       ============================================================ -->
+
+  <section id="view-users">
+
+```
+<section class="panel">
+
+  <div class="panelhead">
+    <div class="panel-title">
+      <span class="panel-icon">👥</span>
+      <h2>Users</h2>
+    </div>
+  </div>
 
   <div class="tablewrap">
-
     <table class="table" id="overviewTable">
-
       <thead>
         <tr>
           <th id="ovKeyHeader">Date</th>
           <th class="num">Users</th>
         </tr>
       </thead>
-
       <tbody id="overviewTableBody">
         <tr>
-          <td colspan="2" class="muted center">
-            Loading users…
-          </td>
+          <td colspan="2" class="muted center">Loading users…</td>
         </tr>
       </tbody>
-
     </table>
-
   </div>
 
 </section>
 
-
-  </section>
-
-  <section class="panel hidden" id="usersDrillPanel">
+<section class="panel hidden" id="usersDrillPanel">
 
   <div class="panelhead">
     <h2>Users Drilldown</h2>
@@ -184,95 +156,61 @@
   </div>
 
 </section>
-
-
-  <!-- ============================================================
-     MARKET (UNIFIED)
-     ============================================================ -->
-
-<section id="view-market" class="hidden">
-
-  <section class="panel">
-
-   <div class="panelhead market-head">
-
-  <h2>Market</h2>
-
-  <div class="market-toggle">
-    <button class="toggle-btn active" data-sort="views">Views</button>
-    <button class="toggle-btn" data-sort="clicks">Clicks</button>
-    <button class="toggle-btn" data-sort="ctr">CTR</button>
-  </div>
-
-</div>
-
-    <div class="tablewrap">
-      <table class="table">
-
-        <thead>
-          <tr>
-            <th>Location</th>
-            <th class="num">Views</th>
-            <th class="num">Clicks</th>
-            <th class="num">CTR</th>
-          </tr>
-        </thead>
-
-        <tbody id="marketDemandBody">
-          <tr>
-            <td colspan="4" class="muted center">Loading market data…</td>
-          </tr>
-        </tbody>
-
-      </table>
-    </div>
+```
 
   </section>
 
-</section>
+  <!-- ============================================================
+       MARKET
+       ============================================================ -->
 
+  <section id="view-market" class="hidden">
+
+```
+<section class="panel">
+
+  <div class="panelhead market-head">
+
+    <h2>Market</h2>
+
+    <div class="market-toggle">
+      <button class="toggle-btn active" data-sort="views">Views</button>
+      <button class="toggle-btn" data-sort="clicks">Clicks</button>
+      <button class="toggle-btn" data-sort="ctr">CTR</button>
+    </div>
+
+  </div>
+
+  <div class="tablewrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Location</th>
+          <th class="num">Views</th>
+          <th class="num">Clicks</th>
+          <th class="num">CTR</th>
+        </tr>
+      </thead>
+      <tbody id="marketDemandBody">
+        <tr>
+          <td colspan="4" class="muted center">Loading market data…</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</section>
+```
+
+  </section>
 
   <!-- ============================================================
-       STORES (HIDDEN)
+       STORES
        ============================================================ -->
 
   <section id="view-stores" class="hidden">
 
-
-<!-- SEARCH / TOOLBAR -->
-<section class="panel">
-
-  <div class="analytics-toolbar">
-
-    <div class="toolbar-search">
-      <input
-        id="searchInput"
-        type="text"
-        autocomplete="off"
-        placeholder="Search store, city, country…"
-      />
-    </div>
-
-    <button class="toolbar-btn btn-arrow" id="prevBtn">←</button>
-    <button class="toolbar-btn btn-arrow" id="nextBtn">→</button>
-
-    <button id="searchBtn" class="toolbar-btn">Search</button>
-    <button id="clearBtn" class="toolbar-btn">Clear</button>
-
-    <button class="toolbar-btn btn-pdf" id="exportBtn">PDF</button>
-    <button class="toolbar-btn btn-mail" id="mailBtn">Email</button>
-
-  </div>
-
-  <div id="searchResults" class="search-results hidden"></div>
-
-  <div class="hint">
-    Select a store to view detailed analytics.
-  </div>
-
-</section>
-
-<!-- TOP STORES -->
+```
 <section class="panel">
 
   <div class="panelhead">
@@ -281,7 +219,6 @@
 
   <div class="tablewrap">
     <table class="table">
-
       <thead>
         <tr>
           <th>Store</th>
@@ -290,70 +227,16 @@
           <th class="num">CTR</th>
         </tr>
       </thead>
-
       <tbody id="topStoresBody">
         <tr>
           <td colspan="4" class="muted center">Loading top stores…</td>
         </tr>
       </tbody>
-
     </table>
   </div>
 
 </section>
-
-<!-- STORE PANEL -->
-<div id="storeEmpty" class="muted center">
-  Search for a store to view analytics.
-</div>
-
-<div id="storePanel" class="hidden">
-
-  <section class="panel">
-
-    <div class="panelhead">
-      <h2 id="storeName">Store</h2>
-    </div>
-
-    <div id="storeLocation"></div>
-    <div id="storeTypeAccess"></div>
-    <div id="storeWebsite"></div>
-
-  </section>
-
-  <section class="panel">
-
-    <div class="panelhead">
-      <h2>Performance Trend</h2>
-    </div>
-
-    <div class="tablewrap">
-      <table class="table" id="trendTable">
-
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th class="num">Views</th>
-            <th class="num">Clicks</th>
-            <th class="num">CTR</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr>
-            <td colspan="4" class="muted center">
-              Select a store to load data.
-            </td>
-          </tr>
-        </tbody>
-
-      </table>
-    </div>
-
-  </section>
-
-</div>
-
+```
 
   </section>
 
