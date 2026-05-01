@@ -26,7 +26,7 @@ function getBody() {
 }
 
 function getMarketPanel() {
-  return document.querySelector("#view-market .panel:nth-of-type(2)");
+  return document.querySelector("#view-market .panel");
 }
 
 function ensureStoresSurface() {
