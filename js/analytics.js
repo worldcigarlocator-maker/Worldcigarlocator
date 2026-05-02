@@ -1016,28 +1016,30 @@ window.renderMarketChart = function (rows, sort, type = "bar") {
      INIT (FIRST TIME)
      ============================================================ */
 
-  if (!marketChart) {
+if (!marketChart) {
 
-    marketChart = new Chart(ctx, {
-      type,
+  marketChart = new Chart(ctx, {
+    type: type || "bar", // 🔥 FIX
 
-      data: {
-        labels: finalLabels,
-        datasets: [{
-          label: sort.toUpperCase(),
-          data: finalValues,
-          tension: 0.35,
-          borderWidth: 2
-        }]
-      },
+    data: {
+      labels: finalLabels,
+      datasets: [{
+        label: sort.toUpperCase(),
+        data: finalValues,
+        tension: 0.35,
+        borderWidth: 2
+      }]
+    },
 
-      options: getMarketChartOptions(sort)
-    });
+    options: getMarketChartOptions(sort)
+  });
 
-    applyMarketStyle(marketChart, sort, type);
+  applyMarketStyle(marketChart, sort, type || "bar");
 
-    return;
-  }
+  marketChart.update(); // 🔥 säkerställ render
+
+  return;
+}
 
   /* ============================================================
      UPDATE (🔥 SMOOTH)
