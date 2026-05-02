@@ -1390,3 +1390,63 @@ TABLE POLISH — STEP 1
 .table th.num {
   text-align: center !important;
 }
+
+/* ============================================================
+   MARKET CONTROLS (FIXED LAYOUT)
+   ============================================================ */
+
+.market-controls{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+/* KPI + chart toggle i rad */
+.market-toggle,
+.chart-toggle{
+  display:flex;
+  gap:8px;
+}
+
+/* ============================================================
+   BUTTON STYLE (PREMIUM)
+   ============================================================ */
+
+.toggle-btn,
+.chart-type-btn{
+  padding:6px 12px;
+
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.15);
+
+  background:rgba(255,255,255,0.05);
+
+  color:rgba(255,255,255,0.7);
+  font-size:12px;
+
+  cursor:pointer;
+
+  transition:all 0.2s ease;
+}
+
+/* hover */
+.toggle-btn:hover,
+.chart-type-btn:hover{
+  background:rgba(255,255,255,0.1);
+  color:#fff;
+}
+
+/* active */
+.toggle-btn.active{
+  background:linear-gradient(90deg,#c084fc,#9333ea);
+  color:#fff;
+  border-color:transparent;
+}
+
+.chart-type-btn.active{
+  background:linear-gradient(90deg,#4fd1ff,#22d3ee);
+  color:#fff;
+  border-color:transparent;
+}
