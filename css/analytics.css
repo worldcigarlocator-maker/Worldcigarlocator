@@ -1333,10 +1333,10 @@ TABLE POLISH — STEP 1
 }
 
 /* ============================================================
-   CHART — WCL PREMIUM GLOW
+   CHART PANEL — GLOBAL
    ============================================================ */
 
-.chart-wrap{
+.chart-panel{
   margin-top:24px;
   padding:24px;
 
@@ -1359,7 +1359,7 @@ TABLE POLISH — STEP 1
   backdrop-filter: blur(10px);
 }
 
-#usersChart{
+.chart-panel canvas{
   width:100% !important;
   height:100% !important;
 }
