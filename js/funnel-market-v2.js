@@ -38,7 +38,8 @@ const MARKET_STATE = {
   country: null,
   city: null,
   store: null,
-  sort: "views"
+  sort: "views",
+  chartType: "bar"
 };
 
 /* ============================================================
@@ -54,7 +55,6 @@ CLICK HANDLER
 ============================================================ */
 
 function bindRows(days) {
-  bindMarketToggle(days);
 
   const tbody = getBody();
   if (!tbody) return;
@@ -74,7 +74,7 @@ function bindRows(days) {
         MARKET_STATE.level = "city";
         MARKET_STATE.country = country;
 
-        await renderMarketV2(days);
+        await renderMarketV2(getDays());
         return;
       }
 
@@ -89,7 +89,7 @@ function bindRows(days) {
         MARKET_STATE.level = "store";
         MARKET_STATE.city = city;
 
-        await renderMarketV2(days);
+        await renderMarketV2(getDays());
         return;
       }
 
@@ -104,7 +104,7 @@ function bindRows(days) {
         MARKET_STATE.level = "traffic";
         MARKET_STATE.store = Number(storeId);
 
-        await renderMarketV2(days);
+        await renderMarketV2(getDays());
         return;
       }
 
@@ -147,25 +147,32 @@ if (MARKET_STATE.level === "country") {
     return;
   }
 
-  // 🔥 SORT (KPI / TOGGLE)
-  data.sort((a, b) => {
+data.sort((a, b) => {
 
-    switch (MARKET_STATE.sort) {
-      case "views":
-        return (b.views || 0) - (a.views || 0);
-      case "clicks":
-        return (b.clicks || 0) - (a.clicks || 0);
-      case "ctr":
-        return (b.ctr || 0) - (a.ctr || 0);
-      default:
-        return (b.views || 0) - (a.views || 0);
-    }
+  switch (MARKET_STATE.sort) {
 
-  });
+    case "views":
+      return (b.views || 0) - (a.views || 0);
+
+    case "clicks":
+      return (b.clicks || 0) - (a.clicks || 0);
+
+    case "ctr":
+      return ((b.clicks || 0) / (b.views || 1)) -
+             ((a.clicks || 0) / (a.views || 1));
+
+    default:
+      return (b.views || 0) - (a.views || 0);
+  }
+
+});
 
   tbody.innerHTML = data.map(r => {
 
-const ctrValue = Number(r.ctr || 0);
+const views = Number(r.views || 0);
+const clicks = Number(r.clicks || 0);
+
+const ctrValue = views > 0 ? (clicks / views) * 100 : 0;
 const ctrLabel = ctrValue.toFixed(1) + "%";
 
 let cls = "";
@@ -181,18 +188,13 @@ else if (ctrValue >= 20) cls = "ctr-good";
   <td class="num ${cls}">${ctrLabel}</td>
 </tr>`;
   }).join("");
-  
-console.log("SEND TO CHART:", MARKET_STATE.sort);
-  if (window.renderMarketChart) {
-  window.renderMarketChart(data);
-}
-
+    
  bindRows(days);
 
 // 🔥 UPDATE CHART
   console.log("SEND TO CHART:", MARKET_STATE.sort);
 if (window.renderMarketChart) {
-  window.renderMarketChart(data, MARKET_STATE.sort);
+  window.renderMarketChart(   data,   MARKET_STATE.sort,   MARKET_STATE.chartType );
 }
 
 return;
@@ -231,9 +233,9 @@ return;
     }).join("");
 
     bindRows(days);
-    console.log("SEND TO CHART:", MARKET_STATE.sort);
+    
     if (window.renderMarketChart) {
-  window.renderMarketChart(data, MARKET_STATE.sort);
+  window.renderMarketChart(   data,   MARKET_STATE.sort,   MARKET_STATE.chartType );
 }
     return;
   }
@@ -273,7 +275,7 @@ return;
     bindRows(days);
     console.log("SEND TO CHART:", MARKET_STATE.sort);
     if (window.renderMarketChart) {
-  window.renderMarketChart(data, MARKET_STATE.sort);
+  window.renderMarketChart(   data,   MARKET_STATE.sort,   MARKET_STATE.chartType );
 }
     return;
   }
@@ -310,7 +312,7 @@ return;
     
     console.log("SEND TO CHART:", MARKET_STATE.sort);
     if (window.renderMarketChart) {
-  window.renderMarketChart(data, MARKET_STATE.sort);
+  window.renderMarketChart(   data,   MARKET_STATE.sort,   MARKET_STATE.chartType );
 }
 
     return;
@@ -318,7 +320,7 @@ return;
 
 }
 
-function bindMarketToggle(days) {
+function bindMarketToggle(getDays) {
 
   const buttons = document.querySelectorAll(".toggle-btn");
 
@@ -336,18 +338,47 @@ function bindMarketToggle(days) {
       btn.classList.add("active");
 
       // 🔥 re-render
-      await renderMarketV2(days);
+      await renderMarketV2(getDays());
     };
 
   });
 
+  /* ============================================================
+   CHART TYPE TOGGLE
+============================================================ */
+
+const typeBtns = document.querySelectorAll(".chart-type-btn");
+
+typeBtns.forEach(btn => {
+
+  btn.onclick = async () => {
+
+    const type = btn.dataset.type;
+
+    MARKET_STATE.chartType = type;
+
+    typeBtns.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    await renderMarketV2(getDays());
+
+  };
+
+});
 }
-
-
-
 
 /* ============================================================
 DEBUG
 ============================================================ */
 
 window.renderMarketV2 = renderMarketV2;
+document.addEventListener("DOMContentLoaded", () => {
+
+  const rangeEl = document.getElementById("globalRange");
+
+  const getDays = () =>
+    Number(rangeEl?.value || 30);
+
+  bindMarketToggle(getDays);
+
+});
