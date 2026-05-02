@@ -868,6 +868,8 @@ document.addEventListener("DOMContentLoaded", init);
 let usersChart;
 
 window.renderUsersChart = function(rows){
+  console.log("CHART INIT", rows);
+console.log("CANVAS:", document.getElementById("usersChart"));
 
 const labels = rows.map(r => r.day).reverse();
 const values = rows.map(r => Number(r.users || 0)).reverse();
