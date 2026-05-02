@@ -44,6 +44,29 @@ const searchResults = $("#searchResults");
 const searchBtn = $("#searchBtn");
 const clearBtn = $("#clearBtn");
 
+/* ============================================================
+   SEARCH BINDINGS (LOCAL FILTER)
+   ============================================================ */
+
+if (searchInput) {
+  searchInput.addEventListener("input", () => {
+    runLocalFilter();
+  });
+}
+
+if (searchBtn) {
+  searchBtn.addEventListener("click", () => {
+    runLocalFilter();
+  });
+}
+
+if (clearBtn) {
+  clearBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    resetLocalFilter();
+  });
+}
+
 const storeEmpty = $("#storeEmpty");
 const storePanel = $("#storePanel");
 
@@ -583,6 +606,69 @@ function renderEvents(rows) {
 }
 
 /* ============================================================
+   SEARCH — LOCAL FILTER (MARKET)
+   ============================================================ */
+
+function runLocalFilter() {
+
+  const q = (searchInput.value || "").trim().toLowerCase();
+  if (!q) {
+    resetLocalFilter();
+    return;
+  }
+
+  const tbody = document.getElementById("marketDemandBody");
+  if (!tbody) return;
+
+  const rows = [...tbody.querySelectorAll("tr")];
+
+  const filtered = rows.filter(tr => {
+    const text = tr.textContent.toLowerCase();
+    return text.includes(q);
+  });
+
+  tbody.innerHTML = "";
+
+  if (!filtered.length) {
+    tbody.innerHTML =
+      `<tr><td colspan="4" class="muted center">No results</td></tr>`;
+    return;
+  }
+
+  filtered.forEach(tr => tbody.appendChild(tr));
+
+  // 🔥 rebuild dataset for chart
+  const chartRows = filtered.map(tr => {
+
+    const tds = tr.querySelectorAll("td");
+
+    return {
+      label: tds[0]?.textContent || "",
+      views: Number(tds[1]?.textContent || 0),
+      clicks: Number(tds[2]?.textContent || 0)
+    };
+
+  });
+
+  if (window.renderMarketChart) {
+    window.renderMarketChart(
+      chartRows,
+      window.MARKET_STATE?.sort || "views",
+      window.MARKET_STATE?.chartType || "bar"
+    );
+  }
+}
+
+function resetLocalFilter() {
+
+  const kpi = getKPI();
+
+  // 🔥 trigga re-render korrekt via state
+  setKPI(null);
+  setTimeout(() => setKPI(kpi), 0);
+}
+
+/* ============================================================
    EXPORT / EMAIL
    ============================================================ */
 
@@ -648,26 +734,6 @@ function emailStore() {
     `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
   window.location.href = mailto;
-}
-
-function downloadText(filename, text, mime) {
-
-  const blob = new Blob([text], { type: mime });
-
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-
-  a.href = url;
-  a.download = filename;
-
-  document.body.appendChild(a);
-
-  a.click();
-
-  a.remove();
-
-  URL.revokeObjectURL(url);
 }
 
 /* ============================================================
