@@ -981,9 +981,7 @@ container.appendChild(footer);
    MULTI PAGE RENDER
    ============================================================ */
 
-const pdf = new jsPDF("p", "mm", "a4");
-
-const renderPage = async (el) => {
+const renderPage = async (el, full = false) => {
 
   document.body.appendChild(el);
 
@@ -994,7 +992,18 @@ const renderPage = async (el) => {
 
   const imgData = canvas.toDataURL("image/png");
 
-  pdf.addImage(imgData, "PNG", 10, 10, 190, 0);
+  if (full) {
+    pdf.addImage(
+      imgData,
+      "PNG",
+      0,
+      0,
+      pdf.internal.pageSize.getWidth(),
+      pdf.internal.pageSize.getHeight()
+    );
+  } else {
+    pdf.addImage(imgData, "PNG", 10, 10, 190, 0);
+  }
 
   el.remove();
 };
@@ -1049,7 +1058,7 @@ if (chartCanvas) {
   page3.appendChild(img);
 }
 
-await renderPage(page3);
+await renderPage(page3, true); // 🔥 full bleed
 
 /* ============================================================
    SAVE
