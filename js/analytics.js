@@ -1341,7 +1341,11 @@ if (!marketChart) {
     label: sort.toUpperCase(),
     data: finalValues,
     tension: 0.35,
-    borderWidth: 2
+    borderWidth: 2,
+
+    // 🔥 spacing fix
+    categoryPercentage: 0.7,
+    barPercentage: 0.8
   }]
 },
 
@@ -1441,13 +1445,19 @@ function getMarketChartOptions(sort){
     },
 
     scales: {
+
       x: {
-  ticks: {
-    color: "rgba(255,255,255,0.7)",
-    maxRotation: 0,
-    minRotation: 0,
-    autoSkip: false
-  },
+        ticks: {
+          color: "rgba(255,255,255,0.7)",
+          maxRotation: 0,
+          minRotation: 0,
+          autoSkip: false
+        },
+        grid: {
+          color: "rgba(255,255,255,0.05)"
+        }
+      },
+
       y: {
         beginAtZero: true,
 
@@ -1460,6 +1470,7 @@ function getMarketChartOptions(sort){
           color: "rgba(255,255,255,0.05)"
         }
       }
+
     }
   };
 }
