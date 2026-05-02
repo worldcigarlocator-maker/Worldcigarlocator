@@ -900,9 +900,14 @@ if (filterInfo && !filterInfo.classList.contains("hidden")) {
 
     const chartImage = chartCanvas.toDataURL("image/png");
 
-    const img = document.createElement("img");
-    img.src = chartImage;
-    img.style.width = "100%";
+ const img = document.createElement("img");
+img.src = chartImage;
+
+img.style.width = "100%";
+img.style.marginTop = "20px";
+
+// 🔥 CRITICAL FIX
+img.style.paddingBottom = "30px"; 
 
     container.appendChild(img);
   }
