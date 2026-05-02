@@ -1032,10 +1032,12 @@ pdf.addPage();
    PAGE 3 — CHART
    ============================================================ */
 
+pdf.addPage("l"); // 🔥 landscape
+
 const page3 = document.createElement("div");
 page3.style.background = "#050505";
 page3.style.padding = "30px";
-page3.style.width = "1000px";
+page3.style.width = "1400px"; // 🔥 bredare för landscape
 
 if (chartCanvas) {
   const chartImage = chartCanvas.toDataURL("image/png");
