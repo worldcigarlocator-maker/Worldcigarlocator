@@ -188,8 +188,14 @@ else if (ctrValue >= 20) cls = "ctr-good";
   window.renderMarketChart(data);
 }
 
-  bindRows(days);
-  return;
+ bindRows(days);
+
+// 🔥 UPDATE CHART
+if (window.renderMarketChart) {
+  window.renderMarketChart(data, MARKET_STATE.sort);
+}
+
+return;
 }
    
   /* ============================================================
@@ -225,6 +231,9 @@ else if (ctrValue >= 20) cls = "ctr-good";
     }).join("");
 
     bindRows(days);
+    if (window.renderMarketChart) {
+  window.renderMarketChart(data, MARKET_STATE.sort);
+}
     return;
   }
 
@@ -261,6 +270,9 @@ else if (ctrValue >= 20) cls = "ctr-good";
     }).join("");
 
     bindRows(days);
+    if (window.renderMarketChart) {
+  window.renderMarketChart(data, MARKET_STATE.sort);
+}
     return;
   }
 
@@ -293,6 +305,10 @@ else if (ctrValue >= 20) cls = "ctr-good";
 </tr>`;
 
     }).join("");
+    
+    if (window.renderMarketChart) {
+  window.renderMarketChart(data, MARKET_STATE.sort);
+}
 
     return;
   }
