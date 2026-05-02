@@ -696,19 +696,84 @@ async function exportPDF() {
   /* ============================================================
      HEADER
      ============================================================ */
+/* ============================================================
+   HEADER (WCL BRAND + LOGO)
+   ============================================================ */
 
-  const title = document.createElement("h1");
-  title.textContent = "WCL Analytics Report";
-  title.style.marginBottom = "10px";
+const header = document.createElement("div");
+header.style.display = "flex";
+header.style.alignItems = "center";
+header.style.justifyContent = "space-between";
+header.style.marginBottom = "30px";
 
-  const date = document.createElement("div");
-  date.textContent = new Date().toLocaleString();
-  date.style.marginBottom = "20px";
-  date.style.opacity = "0.7";
+/* ============================================================
+   LEFT: LOGO + BRAND
+   ============================================================ */
 
-  container.appendChild(title);
-  container.appendChild(date);
+const left = document.createElement("div");
+left.style.display = "flex";
+left.style.alignItems = "center";
+left.style.gap = "15px";
 
+const logo = document.createElement("img");
+logo.src = "/images/favicon.svg"; // 🔥 byt till din riktiga logo om du vill
+logo.style.width = "40px";
+logo.style.height = "40px";
+logo.style.opacity = "0.9";
+
+const brandWrap = document.createElement("div");
+
+const brand = document.createElement("div");
+brand.textContent = "World Cigar Locator";
+brand.style.fontSize = "22px";
+brand.style.fontWeight = "600";
+brand.style.color = "rgb(115,98,75)";
+
+const subtitle = document.createElement("div");
+subtitle.textContent = "Analytics Report";
+subtitle.style.fontSize = "14px";
+subtitle.style.opacity = "0.7";
+
+brandWrap.appendChild(brand);
+brandWrap.appendChild(subtitle);
+
+left.appendChild(logo);
+left.appendChild(brandWrap);
+
+/* ============================================================
+   RIGHT: DATE
+   ============================================================ */
+
+const right = document.createElement("div");
+right.style.textAlign = "right";
+
+const date = document.createElement("div");
+date.textContent = new Date().toLocaleString();
+date.style.fontSize = "13px";
+date.style.opacity = "0.6";
+
+right.appendChild(date);
+
+/* ============================================================
+   BUILD HEADER
+   ============================================================ */
+
+header.appendChild(left);
+header.appendChild(right);
+
+container.appendChild(header);
+
+/* ============================================================
+   DIVIDER
+   ============================================================ */
+
+const divider = document.createElement("div");
+divider.style.height = "1px";
+divider.style.background = "linear-gradient(to right, transparent, rgba(115,98,75,0.8), transparent)";
+divider.style.marginBottom = "25px";
+
+container.appendChild(divider);
+  
   /* ============================================================
      KPI
      ============================================================ */
