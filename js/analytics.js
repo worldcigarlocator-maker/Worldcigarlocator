@@ -1009,14 +1009,23 @@ const renderPage = async (el, full = false) => {
 /* ============================================================
    PAGE 1 — HEADER + KPI
    ============================================================ */
+const page1 = document.createElement("div");
 
-const page1 = container.cloneNode(true);
+page1.style.background = "#050505";
+page1.style.padding = "30px";
+page1.style.width = "1000px";
 
-// 🔥 ta bort tunga delar
-page1.querySelector("table")?.remove();
-page1.querySelector("img")?.remove();
+// HERO
+page1.appendChild(hero.cloneNode(true));
 
-await renderPage(page1);
+// HEADER
+page1.appendChild(header.cloneNode(true));
+
+// TITLE
+page1.appendChild(levelTitle.cloneNode(true));
+
+// KPI
+page1.appendChild(kpiWrap.cloneNode(true));
 
 pdf.addPage();
 
@@ -1025,38 +1034,101 @@ pdf.addPage();
    ============================================================ */
 
 const page2 = document.createElement("div");
+
 page2.style.background = "#050505";
-page2.style.padding = "30px";
+page2.style.padding = "40px 30px";
 page2.style.width = "1000px";
 
-page2.appendChild(table.cloneNode(true));
+/* ============================================================
+   HEADER MINI
+   ============================================================ */
 
-await renderPage(page2);
+const p2Header = document.createElement("div");
+p2Header.style.display = "flex";
+p2Header.style.justifyContent = "space-between";
+p2Header.style.marginBottom = "25px";
 
-pdf.addPage();
+const p2Title = document.createElement("div");
+p2Title.textContent = levelTitle.textContent;
+p2Title.style.fontSize = "16px";
+p2Title.style.opacity = "0.85";
+
+const p2Date = document.createElement("div");
+p2Date.textContent = new Date().toLocaleDateString();
+p2Date.style.fontSize = "12px";
+p2Date.style.opacity = "0.5";
+
+p2Header.appendChild(p2Title);
+p2Header.appendChild(p2Date);
+
+page2.appendChild(p2Header);
+
+/* ============================================================
+   TABLE WRAP (CENTER + SPACING)
+   ============================================================ */
+
+const tableWrap = document.createElement("div");
+tableWrap.style.marginTop = "10px";
+
+tableWrap.appendChild(table.cloneNode(true));
+
+page2.appendChild(tableWrap);
 
 /* ============================================================
    PAGE 3 — CHART
    ============================================================ */
 
-pdf.addPage("l"); // 🔥 landscape
+/* ============================================================
+   PAGE 3 — CHART (FIXED)
+   ============================================================ */
+
+pdf.addPage("l"); // landscape
 
 const page3 = document.createElement("div");
+
 page3.style.background = "#050505";
-page3.style.padding = "30px";
-page3.style.width = "1400px"; // 🔥 bredare för landscape
+page3.style.padding = "40px";
+page3.style.width = "1400px";
+
+/* ============================================================
+   TITLE
+   ============================================================ */
+
+const p3Title = document.createElement("div");
+p3Title.textContent = levelTitle.textContent;
+p3Title.style.fontSize = "18px";
+p3Title.style.marginBottom = "25px";
+p3Title.style.opacity = "0.85";
+
+page3.appendChild(p3Title);
+
+/* ============================================================
+   CHART WRAP (CENTERED)
+   ============================================================ */
 
 if (chartCanvas) {
+
   const chartImage = chartCanvas.toDataURL("image/png");
+
+  const wrap = document.createElement("div");
+
+  wrap.style.display = "flex";
+  wrap.style.justifyContent = "center";
+  wrap.style.alignItems = "center";
+  wrap.style.height = "500px";
 
   const img = document.createElement("img");
   img.src = chartImage;
-  img.style.width = "100%";
 
-  page3.appendChild(img);
+  img.style.maxWidth = "100%";
+  img.style.maxHeight = "100%";
+  img.style.objectFit = "contain";
+
+  wrap.appendChild(img);
+  page3.appendChild(wrap);
 }
 
-await renderPage(page3, true); // 🔥 full bleed
+await renderPage(page3);
 
 /* ============================================================
    SAVE
