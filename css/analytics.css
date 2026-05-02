@@ -1450,3 +1450,35 @@ TABLE POLISH — STEP 1
   color:#fff;
   border-color:transparent;
 }
+
+/* ============================================================
+   KPI COLORS
+   ============================================================ */
+
+.toggle-btn[data-sort="views"].active{
+  background:linear-gradient(90deg,#c084fc,#9333ea);
+  color:#fff;
+  border:none;
+}
+
+.toggle-btn[data-sort="clicks"].active{
+  background:linear-gradient(90deg,#4fd1ff,#0ea5e9);
+  color:#fff;
+  border:none;
+}
+
+.toggle-btn[data-sort="ctr"].active{
+  background:linear-gradient(90deg,#22d3ee,#06b6d4);
+  color:#fff;
+  border:none;
+}
+
+/* ============================================================
+   CHART TYPE
+   ============================================================ */
+
+.chart-type-btn.active{
+  background:rgba(255,255,255,0.15);
+  color:#fff;
+  border:none;
+}
