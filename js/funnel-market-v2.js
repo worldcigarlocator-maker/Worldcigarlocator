@@ -74,7 +74,7 @@ function bindRows(days) {
         MARKET_STATE.level = "city";
         MARKET_STATE.country = country;
 
-        await renderMarketV2(getDays());
+        await renderMarketV2(days);
         return;
       }
 
@@ -89,7 +89,7 @@ function bindRows(days) {
         MARKET_STATE.level = "store";
         MARKET_STATE.city = city;
 
-        await renderMarketV2(getDays());
+        await renderMarketV2(days);
         return;
       }
 
@@ -104,7 +104,7 @@ function bindRows(days) {
         MARKET_STATE.level = "traffic";
         MARKET_STATE.store = Number(storeId);
 
-        await renderMarketV2(getDays());
+        await renderMarketV2(days);
         return;
       }
 
