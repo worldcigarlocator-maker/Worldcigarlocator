@@ -935,27 +935,45 @@ const values = rows.map(r => Number(r.users || 0)).reverse();
 
 let marketChart;
 
-window.renderMarketChart = function(rows){
+window.renderMarketChart = function(rows, sort){
 
   if (!rows?.length) return;
 
-  const sort = window.MARKET_STATE?.sort || "views";
+  // 🔥 fallback om sort inte skickas
+  sort = sort || window.MARKET_STATE?.sort || "views";
 
-  const labels = rows.map(r => r.country || r.city || "—");
+  /* ============================================================
+     LABELS (SMART LEVEL DETECTION)
+     ============================================================ */
 
-  let values = [];
+  const labels = rows.map(r =>
+    r.city ||
+    r.country ||
+    r.name ||
+    r.source ||
+    "—"
+  );
 
-  if (sort === "views") {
-    values = rows.map(r => Number(r.views || 0));
-  }
+  /* ============================================================
+     VALUES (KPI SWITCH)
+     ============================================================ */
 
-  if (sort === "clicks") {
-    values = rows.map(r => Number(r.clicks || 0));
-  }
+  const values = rows.map(r => {
 
-  if (sort === "ctr") {
-    values = rows.map(r => Number(r.ctr || 0));
-  }
+    if (sort === "views") return Number(r.views || 0);
+    if (sort === "clicks") return Number(r.clicks || 0);
+
+    if (sort === "ctr") {
+      // 🔥 säkerställ rätt format
+      return Number(r.ctr || 0);
+    }
+
+    return 0;
+  });
+
+  /* ============================================================
+     CHART INIT
+     ============================================================ */
 
   const ctx = document.getElementById("marketChart");
   if (!ctx) return;
@@ -966,40 +984,46 @@ window.renderMarketChart = function(rows){
 
   marketChart = new Chart(ctx, {
     type: "bar",
+
     data: {
       labels,
       datasets: [{
-  label: sort.toUpperCase(),
-  data: values,
+        label: sort.toUpperCase(),
+        data: values,
 
-  backgroundColor: (ctx) => {
-    const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
+        /* ======================================================
+           GRADIENT (NEON)
+           ====================================================== */
 
-    if (sort === "views") {
-      gradient.addColorStop(0, "rgba(192,132,252,0.9)");
-      gradient.addColorStop(1, "rgba(192,132,252,0.05)");
-    }
+        backgroundColor: (ctx) => {
 
-    if (sort === "clicks") {
-      gradient.addColorStop(0, "rgba(79,209,255,0.9)");
-      gradient.addColorStop(1, "rgba(79,209,255,0.05)");
-    }
+          const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
 
-    if (sort === "ctr") {
-      gradient.addColorStop(0, "rgba(34,211,238,0.9)");
-      gradient.addColorStop(1, "rgba(34,211,238,0.05)");
-    }
+          if (sort === "views") {
+            gradient.addColorStop(0, "rgba(192,132,252,0.9)");
+            gradient.addColorStop(1, "rgba(192,132,252,0.05)");
+          }
 
-    return gradient;
-  },
+          if (sort === "clicks") {
+            gradient.addColorStop(0, "rgba(79,209,255,0.9)");
+            gradient.addColorStop(1, "rgba(79,209,255,0.05)");
+          }
 
-  borderRadius: 8,
+          if (sort === "ctr") {
+            gradient.addColorStop(0, "rgba(34,211,238,0.9)");
+            gradient.addColorStop(1, "rgba(34,211,238,0.05)");
+          }
 
-  borderWidth: 1,
-  borderColor: "rgba(255,255,255,0.15)",
+          return gradient;
+        },
 
-  hoverBackgroundColor: "rgba(255,255,255,0.15)"
-}]
+        borderRadius: 10,
+
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.15)",
+
+        hoverBackgroundColor: "rgba(255,255,255,0.15)"
+      }]
     },
 
     options: {
@@ -1008,20 +1032,35 @@ window.renderMarketChart = function(rows){
 
       plugins: {
         legend: {
-          labels: { color: "#fff" }
+          labels: {
+            color: "#fff"
+          }
         }
       },
 
       scales: {
         x: {
-          ticks: { color: "rgba(255,255,255,0.7)" },
-          grid: { color: "rgba(255,255,255,0.05)" }
+          ticks: {
+            color: "rgba(255,255,255,0.7)"
+          },
+          grid: {
+            color: "rgba(255,255,255,0.05)"
+          }
         },
+
         y: {
-          ticks: { color: "rgba(255,255,255,0.7)" },
-          grid: { color: "rgba(255,255,255,0.05)" }
+          beginAtZero: true,
+
+          ticks: {
+            color: "rgba(255,255,255,0.7)"
+          },
+
+          grid: {
+            color: "rgba(255,255,255,0.05)"
+          }
         }
       }
     }
   });
+
 };
