@@ -1045,7 +1045,9 @@ if (!marketChart) {
      UPDATE (🔥 SMOOTH)
      ============================================================ */
 
+if (marketChart.config.type !== type) {
   marketChart.config.type = type;
+}
 
   marketChart.data.labels = finalLabels;
   marketChart.data.datasets[0].data = finalValues;
