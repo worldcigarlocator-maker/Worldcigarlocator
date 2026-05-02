@@ -956,7 +956,7 @@ window.renderUsersChart = function (rows) {
 };
 
 /* ============================================================
-   MARKET CHART (V2 — PRO)
+   MARKET CHART (SMOOTH ENGINE)
    ============================================================ */
 
 let marketChart;
@@ -965,10 +965,10 @@ window.renderMarketChart = function (rows, sort, type = "bar") {
 
   if (!rows?.length) return;
 
-  sort = sort || window.MARKET_STATE?.sort || "views";
+  sort = sort || "views";
 
   /* ============================================================
-     LABELS (AUTO LEVEL)
+     LABELS
      ============================================================ */
 
   const labels = rows.map(r =>
@@ -980,7 +980,7 @@ window.renderMarketChart = function (rows, sort, type = "bar") {
   );
 
   /* ============================================================
-     VALUES (KPI LOGIC)
+     VALUES
      ============================================================ */
 
   const values = rows.map(r => {
@@ -999,7 +999,7 @@ window.renderMarketChart = function (rows, sort, type = "bar") {
   });
 
   /* ============================================================
-     LIMIT (TOP 10 = CLEAN UI)
+     TOP 10
      ============================================================ */
 
   const zipped = labels.map((l, i) => ({ label: l, value: values[i] }))
@@ -1009,104 +1009,137 @@ window.renderMarketChart = function (rows, sort, type = "bar") {
   const finalLabels = zipped.map(x => x.label);
   const finalValues = zipped.map(x => x.value);
 
-  /* ============================================================
-     INIT
-     ============================================================ */
-
   const ctx = document.getElementById("marketChart");
   if (!ctx) return;
 
-  if (marketChart) {
-    marketChart.destroy();
+  /* ============================================================
+     INIT (FIRST TIME)
+     ============================================================ */
+
+  if (!marketChart) {
+
+    marketChart = new Chart(ctx, {
+      type,
+
+      data: {
+        labels: finalLabels,
+        datasets: [{
+          label: sort.toUpperCase(),
+          data: finalValues,
+          tension: 0.35,
+          borderWidth: 2
+        }]
+      },
+
+      options: getMarketChartOptions(sort)
+    });
+
+    applyMarketStyle(marketChart, sort, type);
+
+    return;
   }
 
-  marketChart = new Chart(ctx, {
-    type,
+  /* ============================================================
+     UPDATE (🔥 SMOOTH)
+     ============================================================ */
 
-    data: {
-      labels: finalLabels,
+  marketChart.config.type = type;
 
-      datasets: [{
-        label: sort.toUpperCase(),
-        data: finalValues,
+  marketChart.data.labels = finalLabels;
+  marketChart.data.datasets[0].data = finalValues;
+  marketChart.data.datasets[0].label = sort.toUpperCase();
 
-        tension: 0.35,
+  applyMarketStyle(marketChart, sort, type);
 
-        borderWidth: 2,
+  marketChart.options = getMarketChartOptions(sort);
 
-        borderColor:
-          sort === "views"
-            ? "#c084fc"
-            : sort === "clicks"
-            ? "#4fd1ff"
-            : "#22d3ee",
+  marketChart.update(); // 🔥 NO DESTROY
 
-        backgroundColor: (ctx) => {
-          const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
+};
 
-          if (sort === "views") {
-            gradient.addColorStop(0, "rgba(192,132,252,0.9)");
-            gradient.addColorStop(1, "rgba(192,132,252,0.05)");
-          }
 
-          if (sort === "clicks") {
-            gradient.addColorStop(0, "rgba(79,209,255,0.9)");
-            gradient.addColorStop(1, "rgba(79,209,255,0.05)");
-          }
+/* ============================================================
+   STYLE ENGINE
+   ============================================================ */
 
-          if (sort === "ctr") {
-            gradient.addColorStop(0, "rgba(34,211,238,0.9)");
-            gradient.addColorStop(1, "rgba(34,211,238,0.05)");
-          }
+function applyMarketStyle(chart, sort, type){
 
-          return gradient;
-        },
+  const ds = chart.data.datasets[0];
 
-        borderRadius: type === "bar" ? 10 : 0,
-        fill: type === "line",
+  ds.borderColor =
+    sort === "views" ? "#c084fc" :
+    sort === "clicks" ? "#4fd1ff" :
+    "#22d3ee";
 
-        pointRadius: type === "line" ? 3 : 0,
-        pointHoverRadius: 6,
-        pointBackgroundColor: "#fff"
-      }]
+  ds.backgroundColor = (ctx) => {
+    const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
+
+    if (sort === "views") {
+      gradient.addColorStop(0, "rgba(192,132,252,0.9)");
+      gradient.addColorStop(1, "rgba(192,132,252,0.05)");
+    }
+
+    if (sort === "clicks") {
+      gradient.addColorStop(0, "rgba(79,209,255,0.9)");
+      gradient.addColorStop(1, "rgba(79,209,255,0.05)");
+    }
+
+    if (sort === "ctr") {
+      gradient.addColorStop(0, "rgba(34,211,238,0.9)");
+      gradient.addColorStop(1, "rgba(34,211,238,0.05)");
+    }
+
+    return gradient;
+  };
+
+  ds.borderRadius = type === "bar" ? 10 : 0;
+  ds.fill = type === "line";
+
+  ds.pointRadius = type === "line" ? 3 : 0;
+  ds.pointHoverRadius = 6;
+  ds.pointBackgroundColor = "#ffffff";
+}
+
+
+/* ============================================================
+   OPTIONS
+   ============================================================ */
+
+function getMarketChartOptions(sort){
+
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+
+    interaction: {
+      mode: "index",
+      intersect: false
     },
 
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: { color: "#fff" }
+      }
+    },
 
-      interaction: {
-        mode: "index",
-        intersect: false
+    scales: {
+      x: {
+        ticks: { color: "rgba(255,255,255,0.7)" },
+        grid: { color: "rgba(255,255,255,0.05)" }
       },
 
-      plugins: {
-        legend: {
-          labels: { color: "#fff" }
-        }
-      },
+      y: {
+        beginAtZero: true,
 
-      scales: {
-        x: {
-          ticks: { color: "rgba(255,255,255,0.7)" },
-          grid: { color: "rgba(255,255,255,0.05)" }
+        ticks: {
+          color: "rgba(255,255,255,0.7)",
+          callback: (v) => sort === "ctr" ? v + "%" : v
         },
 
-        y: {
-          beginAtZero: true,
-
-          ticks: {
-            color: "rgba(255,255,255,0.7)",
-            callback: (value) =>
-              sort === "ctr" ? value + "%" : value
-          },
-
-          grid: {
-            color: "rgba(255,255,255,0.05)"
-          }
+        grid: {
+          color: "rgba(255,255,255,0.05)"
         }
       }
     }
-  });
-
-};
+  };
+}
