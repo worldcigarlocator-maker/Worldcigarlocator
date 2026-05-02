@@ -713,10 +713,11 @@ left.style.alignItems = "center";
 left.style.gap = "15px";
 
 const logo = document.createElement("img");
-logo.src = "/images/favicon.svg"; // 🔥 byt till din riktiga logo om du vill
-logo.style.width = "40px";
-logo.style.height = "40px";
-logo.style.opacity = "0.9";
+logo.src = "/images/store.jpg"; 
+logo.style.width = "60px";
+logo.style.height = "60px";
+logo.style.objectFit = "cover";
+logo.style.borderRadius = "8px"; 
 
 const brandWrap = document.createElement("div");
 
@@ -826,12 +827,12 @@ container.appendChild(divider);
     if (!tds.length) return "";
 
     return `
-      <tr>
-        <td style="padding:6px 8px">${tds[0].textContent}</td>
-        <td style="padding:6px 8px;text-align:right">${tds[1].textContent}</td>
-        <td style="padding:6px 8px;text-align:right">${tds[2].textContent}</td>
-        <td style="padding:6px 8px;text-align:right">${tds[3].textContent}</td>
-      </tr>
+     <tr>
+  <td style="padding:6px 8px">${tds[0].textContent}</td>
+  <td style="padding:6px 8px;text-align:right">${tds[1].textContent}</td>
+  <td style="padding:6px 8px;text-align:right">${tds[2].textContent}</td>
+  <td style="padding:6px 8px;text-align:right">${tds[3].textContent}</td>
+</tr>
     `;
 
   }).join("");
