@@ -929,3 +929,71 @@ const values = rows.map(r => Number(r.users || 0)).reverse();
   });
 }
 
+/* ============================================================
+   MARKET CHART
+   ============================================================ */
+
+let marketChart;
+
+window.renderMarketChart = function(rows){
+
+  console.log("📊 MARKET CHART INIT", rows);
+
+  if (!rows?.length) return;
+
+  const labels = rows.map(r => r.country || r.city || "—");
+
+  const views = rows.map(r => Number(r.views || 0));
+  const clicks = rows.map(r => Number(r.clicks || 0));
+
+  const ctx = document.getElementById("marketChart");
+  if (!ctx) return;
+
+  if (marketChart) {
+    marketChart.destroy();
+  }
+
+  marketChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Views",
+          data: views,
+          backgroundColor: "rgba(192,132,252,0.6)"
+        },
+        {
+          label: "Clicks",
+          data: clicks,
+          backgroundColor: "rgba(79,209,255,0.6)"
+        }
+      ]
+    },
+
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+
+      plugins: {
+        legend: {
+          labels: {
+            color: "#fff"
+          }
+        }
+      },
+
+      scales: {
+        x: {
+          ticks: { color: "rgba(255,255,255,0.7)" },
+          grid: { color: "rgba(255,255,255,0.05)" }
+        },
+        y: {
+          ticks: { color: "rgba(255,255,255,0.7)" },
+          grid: { color: "rgba(255,255,255,0.05)" }
+        }
+      }
+    }
+  });
+
+};
