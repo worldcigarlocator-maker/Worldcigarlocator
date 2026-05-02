@@ -694,6 +694,29 @@ async function exportPDF() {
   container.style.width = "1000px";
 
   /* ============================================================
+   WATERMARK (BACKGROUND BRANDING)
+   ============================================================ */
+
+const watermark = document.createElement("img");
+
+watermark.src = "/images/store.jpg"; // 🔥 byt till riktig logo senare
+
+watermark.style.position = "absolute";
+watermark.style.top = "50%";
+watermark.style.left = "50%";
+watermark.style.transform = "translate(-50%, -50%)";
+
+watermark.style.width = "500px";
+watermark.style.opacity = "0.04"; // 🔥 super subtle
+
+watermark.style.pointerEvents = "none";
+
+/* 🔥 viktigt */
+container.style.position = "relative";
+
+container.appendChild(watermark);
+
+  /* ============================================================
    HERO (VISUAL HEADER)
    ============================================================ */
 
@@ -802,28 +825,36 @@ divider.style.background = "linear-gradient(to right, transparent, rgba(115,98,7
 divider.style.marginBottom = "25px";
 
 container.appendChild(divider);
+  
   /* ============================================================
    TITLE (LEVEL CONTEXT)
    ============================================================ */
 
 const levelTitle = document.createElement("div");
 
-let titleText = "Market Overview";
+const currentKpi = getKPI();
+
+let kpiLabel = "Views";
+
+if (currentKpi === "clicks") kpiLabel = "Clicks";
+if (currentKpi === "ctr") kpiLabel = "CTR";
+
+let titleText = `${kpiLabel} — Market Overview`;
 
 if (window.MARKET_STATE?.level === "country") {
-  titleText = "Top Countries";
+  titleText = `${kpiLabel} — Top Countries`;
 }
 
 if (window.MARKET_STATE?.level === "city") {
-  titleText = `Top Cities — ${window.MARKET_STATE.country}`;
+  titleText = `${kpiLabel} — Top Cities — ${window.MARKET_STATE.country}`;
 }
 
 if (window.MARKET_STATE?.level === "store") {
-  titleText = `Top Stores — ${window.MARKET_STATE.city}`;
+  titleText = `${kpiLabel} — Top Stores — ${window.MARKET_STATE.city}`;
 }
 
 if (window.MARKET_STATE?.level === "traffic") {
-  titleText = `Traffic Sources — Store`;
+  titleText = `${kpiLabel} — Traffic Sources`;
 }
 
 levelTitle.textContent = titleText;
@@ -833,7 +864,7 @@ levelTitle.style.marginBottom = "15px";
 levelTitle.style.opacity = "0.85";
 
 container.appendChild(levelTitle);
-
+  
   /* ============================================================
    FILTER INFO (IF ACTIVE)
    ============================================================ */
@@ -885,16 +916,20 @@ box.style.border = "1px solid rgba(115,98,75,0.2)";
      TABLE
      ============================================================ */
 
-  const table = document.createElement("table");
-  table.style.width = "100%";
-  table.style.borderCollapse = "collapse";
-  table.style.marginBottom = "30px";
+const table = document.createElement("table");
+table.style.width = "100%";
+table.style.borderCollapse = "collapse";
+table.style.marginBottom = "40px";
+table.style.background = "#0a0a0a";
+table.style.borderRadius = "10px";
+table.style.overflow = "hidden";
+table.style.boxShadow = "0 0 25px rgba(0,0,0,0.6)";
 
   const originalRows = document.querySelectorAll("#marketDemandBody tr");
 
   const tableHeader = `
     <tr>
-      <th style="text-align:left;padding:8px;border-bottom:1px solid #333">Name</th>
+      <th style="text-align:left;padding:10px;border-bottom:1px solid #333;background:#111">Name</th>
       <th style="text-align:right;padding:8px;border-bottom:1px solid #333">Views</th>
       <th style="text-align:right;padding:8px;border-bottom:1px solid #333">Clicks</th>
       <th style="text-align:right;padding:8px;border-bottom:1px solid #333">CTR</th>
