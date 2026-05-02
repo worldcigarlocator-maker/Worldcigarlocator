@@ -1366,3 +1366,27 @@ TABLE POLISH — STEP 1
   width: 100% !important;
   height: 100% !important;
 }
+
+/* ============================================================
+   TABLE ALIGNMENT FIX (CANONICAL)
+   ============================================================ */
+
+/* 🔥 FORCE ALL CELLS CENTER */
+.table th,
+.table td {
+  text-align: center !important;
+  vertical-align: middle;
+}
+
+/* 🔥 FIRST COLUMN = LEFT (LABELS) */
+.table th:first-child,
+.table td:first-child {
+  text-align: left !important;
+  padding-left: 24px;
+}
+
+/* 🔥 NUMERIC COLUMNS = CENTER CLEAN */
+.table td.num,
+.table th.num {
+  text-align: center !important;
+}
