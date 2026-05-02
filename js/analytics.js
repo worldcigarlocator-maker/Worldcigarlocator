@@ -867,7 +867,7 @@ document.addEventListener("DOMContentLoaded", init);
 
 let usersChart;
 
-function renderUsersChart(rows){
+window.renderUsersChart = function(rows){
 
   const labels = rows.map(r => r.date).reverse();
   const values = rows.map(r => Number(r.users || 0)).reverse();
@@ -926,4 +926,4 @@ function renderUsersChart(rows){
     }
   });
 }
-window.renderUsersChart = renderUsersChart;
+
