@@ -612,15 +612,18 @@ function renderEvents(rows) {
 function runLocalFilter() {
 
   const q = (searchInput.value || "").trim().toLowerCase();
-  if (!q) {
-    resetLocalFilter();
-    return;
-  }
-
   const tbody = document.getElementById("marketDemandBody");
+  const info = document.getElementById("filterInfo");
+
   if (!tbody) return;
 
   const rows = [...tbody.querySelectorAll("tr")];
+
+  if (!q) {
+    resetLocalFilter();
+    if (info) info.classList.add("hidden");
+    return;
+  }
 
   const filtered = rows.filter(tr => {
     const text = tr.textContent.toLowerCase();
@@ -630,12 +633,25 @@ function runLocalFilter() {
   tbody.innerHTML = "";
 
   if (!filtered.length) {
+
     tbody.innerHTML =
       `<tr><td colspan="4" class="muted center">No results</td></tr>`;
+
+    if (info) {
+      info.innerHTML = `0 results for "<strong>${q}</strong>" — clear filter to reset`;
+      info.classList.remove("hidden");
+    }
+
     return;
   }
 
   filtered.forEach(tr => tbody.appendChild(tr));
+
+  // 🔥 INFO BAR
+  if (info) {
+    info.innerHTML = `${filtered.length} results for "<strong>${q}</strong>"`;
+    info.classList.remove("hidden");
+  }
 
   // 🔥 rebuild dataset for chart
   const chartRows = filtered.map(tr => {
@@ -657,15 +673,6 @@ function runLocalFilter() {
       window.MARKET_STATE?.chartType || "bar"
     );
   }
-}
-
-function resetLocalFilter() {
-
-  const kpi = getKPI();
-
-  // 🔥 trigga re-render korrekt via state
-  setKPI(null);
-  setTimeout(() => setKPI(kpi), 0);
 }
 
 /* ============================================================
