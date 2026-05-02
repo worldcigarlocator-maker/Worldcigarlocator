@@ -679,68 +679,164 @@ function runLocalFilter() {
    EXPORT / EMAIL
    ============================================================ */
 
-function exportCSV() {
+/* ============================================================
+   PDF EXPORT — FULL REPORT
+   ============================================================ */
 
-  if (!ACTIVE_STORE) return;
+async function exportPDF() {
 
-  const rows = [...trendTbody.querySelectorAll("tr")].map(tr =>
-    [...tr.querySelectorAll("td")].map(td =>
-      (td.textContent || "").trim()
-    )
-  );
+  const { jsPDF } = window.jspdf;
 
-  if (!rows.length) return;
+  const container = document.createElement("div");
+  container.style.padding = "30px";
+  container.style.background = "#050505";
+  container.style.color = "#fff";
+  container.style.width = "1000px";
 
-  const header = ["Date", "Views", "Clicks", "CTR"];
+  /* ============================================================
+     HEADER
+     ============================================================ */
 
-  const csv = [header, ...rows]
-    .map(line =>
-      line.map(v =>
-        `"${String(v).replaceAll(`"`, `""`)}"`
-      ).join(",")
-    )
-    .join("\n");
+  const title = document.createElement("h1");
+  title.textContent = "WCL Analytics Report";
+  title.style.marginBottom = "10px";
 
-  const filename =
-    `wcl-analytics-store-${ACTIVE_STORE.id}.csv`;
+  const date = document.createElement("div");
+  date.textContent = new Date().toLocaleString();
+  date.style.marginBottom = "20px";
+  date.style.opacity = "0.7";
 
-  downloadText(filename, csv, "text/csv");
+  container.appendChild(title);
+  container.appendChild(date);
+
+  /* ============================================================
+     KPI
+     ============================================================ */
+
+  const kpiWrap = document.createElement("div");
+  kpiWrap.style.display = "flex";
+  kpiWrap.style.gap = "20px";
+  kpiWrap.style.marginBottom = "20px";
+
+  const makeKpi = (label, value) => {
+    const box = document.createElement("div");
+    box.style.background = "#111";
+    box.style.padding = "15px 20px";
+    box.style.borderRadius = "10px";
+
+    box.innerHTML = `
+      <div style="opacity:0.6;font-size:12px">${label}</div>
+      <div style="font-size:20px;font-weight:bold">${value}</div>
+    `;
+    return box;
+  };
+
+  kpiWrap.appendChild(makeKpi("Views", document.getElementById("globalMarket")?.textContent || "0"));
+  kpiWrap.appendChild(makeKpi("Stores", document.getElementById("globalStores")?.textContent || "0"));
+  kpiWrap.appendChild(makeKpi("Users", document.getElementById("globalUsers")?.textContent || "0"));
+
+  container.appendChild(kpiWrap);
+
+  /* ============================================================
+     TABLE
+     ============================================================ */
+
+  const table = document.createElement("table");
+  table.style.width = "100%";
+  table.style.borderCollapse = "collapse";
+  table.style.marginBottom = "30px";
+
+  const originalRows = document.querySelectorAll("#marketDemandBody tr");
+
+  const header = `
+    <tr>
+      <th style="text-align:left;padding:8px;border-bottom:1px solid #333">Name</th>
+      <th style="text-align:right;padding:8px;border-bottom:1px solid #333">Views</th>
+      <th style="text-align:right;padding:8px;border-bottom:1px solid #333">Clicks</th>
+      <th style="text-align:right;padding:8px;border-bottom:1px solid #333">CTR</th>
+    </tr>
+  `;
+
+  const rows = [...originalRows].map(tr => {
+
+    const tds = tr.querySelectorAll("td");
+
+    if (!tds.length) return "";
+
+    return `
+      <tr>
+        <td style="padding:6px 8px">${tds[0].textContent}</td>
+        <td style="padding:6px 8px;text-align:right">${tds[1].textContent}</td>
+        <td style="padding:6px 8px;text-align:right">${tds[2].textContent}</td>
+        <td style="padding:6px 8px;text-align:right">${tds[3].textContent}</td>
+      </tr>
+    `;
+
+  }).join("");
+
+  table.innerHTML = header + rows;
+  container.appendChild(table);
+
+  /* ============================================================
+     CHART
+     ============================================================ */
+
+  const chartCanvas = document.getElementById("marketChart");
+
+  if (chartCanvas) {
+
+    const chartImage = chartCanvas.toDataURL("image/png");
+
+    const img = document.createElement("img");
+    img.src = chartImage;
+    img.style.width = "100%";
+
+    container.appendChild(img);
+  }
+
+  document.body.appendChild(container);
+
+  /* ============================================================
+     RENDER PDF
+     ============================================================ */
+
+  const canvas = await html2canvas(container, {
+    backgroundColor: "#050505",
+    scale: 2
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const imgWidth = 190;
+  const pageHeight = 297;
+  const imgHeight = canvas.height * imgWidth / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = 10;
+
+  pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+
+  pdf.save("wcl-analytics-report.pdf");
+
+  container.remove();
 }
 
+/* ============================================================
+   EMAIL (OPTIONAL)
+   ============================================================ */
+
 function emailStore() {
-
-  if (!ACTIVE_STORE) return;
-
-  const days = Number(globalRangeSelect?.value || 30);
-
-  const v = kpiViews.textContent || "0";
-  const c = kpiClicks.textContent || "0";
-  const ctr = kpiCtr.textContent || "0%";
-
-  const subject =
-    `World Cigar Locator — traffic report (${days === 0 ? "All time" : `Last ${days} days`})`;
-
-  const body = [
-    `Hi!`,
-    ``,
-    `Here is your World Cigar Locator traffic report:`,
-    ``,
-    `Store: ${ACTIVE_STORE.name}`,
-    `Location: ${[ACTIVE_STORE.city, ACTIVE_STORE.country].filter(Boolean).join(", ")}`,
-    `Website: ${ACTIVE_STORE.website || "—"}`,
-    ``,
-    `Views: ${v}`,
-    `Website clicks: ${c}`,
-    `CTR: ${ctr}`,
-    ``,
-    `Regards,`,
-    `World Cigar Locator`
-  ].join("\n");
-
-  const mailto =
-    `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-  window.location.href = mailto;
+  alert("Use Export PDF and attach it manually.");
 }
 
 /* ============================================================
@@ -913,6 +1009,10 @@ function init() {
   console.log("🔥 INIT RUNNING");
 
   bindKpiMini();
+
+  if (exportBtn) {
+    exportBtn.addEventListener("click", exportPDF);
+  }
 
   // 🔹 default KPI
   setKPI("users");
