@@ -898,6 +898,7 @@ if (filterInfo && !filterInfo.classList.contains("hidden")) {
 
   if (chartCanvas) {
 
+    chartCanvas.style.paddingBottom = "40px";
     const chartImage = chartCanvas.toDataURL("image/png");
 
  const img = document.createElement("img");
