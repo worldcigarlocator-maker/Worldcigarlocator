@@ -810,7 +810,7 @@ container.appendChild(divider);
 
   const originalRows = document.querySelectorAll("#marketDemandBody tr");
 
-  const header = `
+  const tableHeader = `
     <tr>
       <th style="text-align:left;padding:8px;border-bottom:1px solid #333">Name</th>
       <th style="text-align:right;padding:8px;border-bottom:1px solid #333">Views</th>
@@ -836,7 +836,7 @@ container.appendChild(divider);
 
   }).join("");
 
-  table.innerHTML = header + rows;
+  table.innerHTML = tableHeader + rows;
   container.appendChild(table);
 
   /* ============================================================
