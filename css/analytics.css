@@ -1482,3 +1482,29 @@ TABLE POLISH — STEP 1
   color:#fff;
   border:none;
 }
+
+/* ============================================================
+   CHART TYPE — FORCE ACTIVE STATE
+   ============================================================ */
+
+.chart-type-btn{
+  background:rgba(255,255,255,0.05);
+  color:rgba(255,255,255,0.6);
+  border:1px solid rgba(255,255,255,0.1);
+}
+
+/* 🔥 BAR ACTIVE */
+.chart-type-btn[data-type="bar"].active{
+  background:linear-gradient(90deg,#c084fc,#9333ea);
+  color:#fff;
+  border:none;
+  box-shadow:0 0 10px rgba(192,132,252,0.6);
+}
+
+/* 🔥 LINE ACTIVE */
+.chart-type-btn[data-type="line"].active{
+  background:linear-gradient(90deg,#4fd1ff,#22d3ee);
+  color:#fff;
+  border:none;
+  box-shadow:0 0 10px rgba(79,209,255,0.6);
+}
