@@ -120,8 +120,6 @@ export async function renderMarketV2(days = 30) {
 
   const KPI = getKPI();
 
-  // 🔥 SYNC SORT MED KPI
-  MARKET_STATE.sort = KPI;
 
   console.log("🔥 MARKET V2 RENDER", {
     ...MARKET_STATE,
