@@ -693,28 +693,7 @@ async function exportPDF() {
   container.style.color = "#fff";
   container.style.width = "1000px";
 
-  /* ============================================================
-   WATERMARK (BACKGROUND BRANDING)
-   ============================================================ */
-
-const watermark = document.createElement("img");
-
-watermark.src = "/images/store.jpg"; // 🔥 byt till riktig logo senare
-
-watermark.style.position = "absolute";
-watermark.style.top = "50%";
-watermark.style.left = "50%";
-watermark.style.transform = "translate(-50%, -50%)";
-
-watermark.style.width = "500px";
-watermark.style.opacity = "0.04"; // 🔥 super subtle
-
-watermark.style.pointerEvents = "none";
-
-/* 🔥 viktigt */
-container.style.position = "relative";
-
-container.appendChild(watermark);
+  
 
   /* ============================================================
    HERO (VISUAL HEADER)
