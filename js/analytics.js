@@ -960,16 +960,18 @@ window.renderMarketChart = function(rows, sort){
 
   const values = rows.map(r => {
 
-    if (sort === "views") return Number(r.views || 0);
-    if (sort === "clicks") return Number(r.clicks || 0);
+  const views = Number(r.views || 0);
+  const clicks = Number(r.clicks || 0);
 
-    if (sort === "ctr") {
-      // 🔥 säkerställ rätt format
-      return Number(r.ctr || 0);
-    }
+  if (sort === "views") return views;
+  if (sort === "clicks") return clicks;
 
-    return 0;
-  });
+  if (sort === "ctr") {
+    return views > 0 ? (clicks / views) * 100 : 0;
+  }
+
+  return 0;
+});
 
   /* ============================================================
      CHART INIT
