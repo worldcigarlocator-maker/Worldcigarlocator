@@ -977,40 +977,85 @@ footer.innerHTML = `
 
 container.appendChild(footer);
 
-  /* ============================================================
-     RENDER PDF
-     ============================================================ */
+/* ============================================================
+   MULTI PAGE RENDER
+   ============================================================ */
 
-  const canvas = await html2canvas(container, {
+const pdf = new jsPDF("p", "mm", "a4");
+
+const renderPage = async (el) => {
+
+  document.body.appendChild(el);
+
+  const canvas = await html2canvas(el, {
     backgroundColor: "#050505",
     scale: 2
   });
 
   const imgData = canvas.toDataURL("image/png");
 
-  const pdf = new jsPDF("p", "mm", "a4");
+  pdf.addImage(imgData, "PNG", 10, 10, 190, 0);
 
-  const imgWidth = 190;
-  const pageHeight = 297;
-  const imgHeight = canvas.height * imgWidth / canvas.width;
+  el.remove();
+};
 
-  let heightLeft = imgHeight;
-  let position = 10;
+/* ============================================================
+   PAGE 1 — HEADER + KPI
+   ============================================================ */
 
-  pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
+const page1 = container.cloneNode(true);
 
-  while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-  }
+// 🔥 ta bort tunga delar
+page1.querySelector("table")?.remove();
+page1.querySelector("img")?.remove();
 
-  pdf.save("wcl-analytics-report.pdf");
+await renderPage(page1);
 
-  container.remove();
+pdf.addPage();
+
+/* ============================================================
+   PAGE 2 — TABLE
+   ============================================================ */
+
+const page2 = document.createElement("div");
+page2.style.background = "#050505";
+page2.style.padding = "30px";
+page2.style.width = "1000px";
+
+page2.appendChild(table.cloneNode(true));
+
+await renderPage(page2);
+
+pdf.addPage();
+
+/* ============================================================
+   PAGE 3 — CHART
+   ============================================================ */
+
+const page3 = document.createElement("div");
+page3.style.background = "#050505";
+page3.style.padding = "30px";
+page3.style.width = "1000px";
+
+if (chartCanvas) {
+  const chartImage = chartCanvas.toDataURL("image/png");
+
+  const img = document.createElement("img");
+  img.src = chartImage;
+  img.style.width = "100%";
+
+  page3.appendChild(img);
 }
+
+await renderPage(page3);
+
+/* ============================================================
+   SAVE
+   ============================================================ */
+
+pdf.save("wcl-analytics-report.pdf");
+
+container.remove();
 
 /* ============================================================
    EMAIL (OPTIONAL)
