@@ -4,6 +4,7 @@
 
 import { supabase as sb } from "/js/globals.js";
 import { setActiveDay } from "/js/analytics-state.js";
+import { renderUsersChart } from "./analytics.js";
 
 
 console.log("🔥 FUNNEL USERS LOADED");
@@ -72,7 +73,7 @@ export async function renderUsersOverview(days = 7) {
       </tr>
     `).join("");
      
-window.renderUsersChart?.(data);
+renderUsersChart(data);
      
     /* ============================================================
    CLICK → DRILLDOWN
