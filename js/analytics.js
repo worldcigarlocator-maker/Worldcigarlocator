@@ -920,11 +920,17 @@ const values = rows.map(r => Number(r.users || 0)).reverse();
           ticks: { color: "rgba(255,255,255,0.6)" },
           grid: { color: "rgba(255,255,255,0.05)" }
         },
-        y: {
-          ticks: { color: "rgba(255,255,255,0.6)" },
-          grid: { color: "rgba(255,255,255,0.05)" }
-        }
-      }
+    y: {
+  beginAtZero: true,
+
+  ticks: {
+    color: "rgba(255,255,255,0.7)"
+  },
+
+  grid: {
+    color: "rgba(255,255,255,0.05)"
+  }
+}
     }
   });
 }
