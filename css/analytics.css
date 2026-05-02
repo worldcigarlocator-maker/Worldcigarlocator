@@ -1508,3 +1508,17 @@ TABLE POLISH — STEP 1
   border:none;
   box-shadow:0 0 10px rgba(79,209,255,0.6);
 }
+
+.filter-info {
+  margin: 10px 0 15px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+}
+
+.filter-info strong {
+  color: #fff;
+}
+
+.hidden {
+  display: none;
+}
