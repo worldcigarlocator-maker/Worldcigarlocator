@@ -693,6 +693,37 @@ async function exportPDF() {
   container.style.color = "#fff";
   container.style.width = "1000px";
 
+  /* ============================================================
+   HERO (VISUAL HEADER)
+   ============================================================ */
+
+const hero = document.createElement("div");
+hero.style.height = "180px";
+hero.style.marginBottom = "25px";
+hero.style.borderRadius = "12px";
+hero.style.overflow = "hidden";
+hero.style.position = "relative";
+
+const heroImg = document.createElement("img");
+heroImg.src = "/images/store.jpg";
+heroImg.style.width = "100%";
+heroImg.style.height = "100%";
+heroImg.style.objectFit = "cover";
+
+// 🔥 overlay (pro look)
+const overlay = document.createElement("div");
+overlay.style.position = "absolute";
+overlay.style.top = "0";
+overlay.style.left = "0";
+overlay.style.width = "100%";
+overlay.style.height = "100%";
+overlay.style.background = "linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8))";
+
+hero.appendChild(heroImg);
+hero.appendChild(overlay);
+
+container.appendChild(hero);
+
 /* ============================================================
    HEADER (WCL BRAND + LOGO)
    ============================================================ */
@@ -833,9 +864,9 @@ if (filterInfo && !filterInfo.classList.contains("hidden")) {
 
   const makeKpi = (label, value) => {
     const box = document.createElement("div");
-    box.style.background = "#111";
-    box.style.padding = "15px 20px";
-    box.style.borderRadius = "10px";
+  box.style.background = "linear-gradient(145deg, #0f0f0f, #1a1a1a)";
+box.style.boxShadow = "0 0 20px rgba(115,98,75,0.2)";
+box.style.border = "1px solid rgba(115,98,75,0.2)";
 
     box.innerHTML = `
       <div style="opacity:0.6;font-size:12px">${label}</div>
@@ -876,14 +907,14 @@ if (filterInfo && !filterInfo.classList.contains("hidden")) {
 
     if (!tds.length) return "";
 
-    return `
-     <tr>
-  <td style="padding:6px 8px">${tds[0].textContent}</td>
-  <td style="padding:6px 8px;text-align:right">${tds[1].textContent}</td>
-  <td style="padding:6px 8px;text-align:right">${tds[2].textContent}</td>
-  <td style="padding:6px 8px;text-align:right">${tds[3].textContent}</td>
+return `
+<tr>
+  <td style="padding:6px 8px;font-weight:500">${tds[0].textContent}</td>
+  <td style="padding:6px 8px;text-align:center;font-weight:500">${tds[1].textContent}</td>
+  <td style="padding:6px 8px;text-align:center;font-weight:500">${tds[2].textContent}</td>
+  <td style="padding:6px 8px;text-align:center;font-weight:500">${tds[3].textContent}</td>
 </tr>
-    `;
+`;
 
   }).join("");
 
@@ -914,6 +945,23 @@ img.style.paddingBottom = "30px";
   }
 
   document.body.appendChild(container);
+
+  /* ============================================================
+   FOOTER
+   ============================================================ */
+
+const footer = document.createElement("div");
+
+footer.style.marginTop = "40px";
+footer.style.fontSize = "12px";
+footer.style.opacity = "0.5";
+footer.style.textAlign = "center";
+
+footer.innerHTML = `
+  Powered by <span style="color:rgb(115,98,75)">World Cigar Locator</span>
+`;
+
+container.appendChild(footer);
 
   /* ============================================================
      RENDER PDF
