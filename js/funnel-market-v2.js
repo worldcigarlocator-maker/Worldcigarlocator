@@ -183,7 +183,8 @@ else if (ctrValue >= 20) cls = "ctr-good";
   <td class="num ${cls}">${ctrLabel}</td>
 </tr>`;
   }).join("");
-
+  
+console.log("SEND TO CHART:", MARKET_STATE.sort);
   if (window.renderMarketChart) {
   window.renderMarketChart(data);
 }
@@ -231,6 +232,7 @@ return;
     }).join("");
 
     bindRows(days);
+    console.log("SEND TO CHART:", MARKET_STATE.sort);
     if (window.renderMarketChart) {
   window.renderMarketChart(data, MARKET_STATE.sort);
 }
@@ -270,6 +272,7 @@ return;
     }).join("");
 
     bindRows(days);
+    console.log("SEND TO CHART:", MARKET_STATE.sort);
     if (window.renderMarketChart) {
   window.renderMarketChart(data, MARKET_STATE.sort);
 }
@@ -306,6 +309,7 @@ return;
 
     }).join("");
     
+    console.log("SEND TO CHART:", MARKET_STATE.sort);
     if (window.renderMarketChart) {
   window.renderMarketChart(data, MARKET_STATE.sort);
 }
