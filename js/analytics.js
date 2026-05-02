@@ -675,9 +675,6 @@ function runLocalFilter() {
   }
 }
 
-/* ============================================================
-   EXPORT / EMAIL
-   ============================================================ */
 
 /* ============================================================
    PDF EXPORT — FULL REPORT
@@ -686,7 +683,8 @@ function runLocalFilter() {
 async function exportPDF() {
 
   const { jsPDF } = window.jspdf;
-
+const pdf = new jsPDF("p", "mm", "a4");
+  
   const container = document.createElement("div");
   container.style.padding = "30px";
   container.style.background = "#050505";
