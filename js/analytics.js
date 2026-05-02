@@ -969,15 +969,37 @@ window.renderMarketChart = function(rows){
     data: {
       labels,
       datasets: [{
-        label: sort.toUpperCase(),
-        data: values,
-        backgroundColor:
-          sort === "views"
-            ? "rgba(192,132,252,0.6)"
-            : sort === "clicks"
-            ? "rgba(79,209,255,0.6)"
-            : "rgba(34,211,238,0.6)"
-      }]
+  label: sort.toUpperCase(),
+  data: values,
+
+  backgroundColor: (ctx) => {
+    const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
+
+    if (sort === "views") {
+      gradient.addColorStop(0, "rgba(192,132,252,0.9)");
+      gradient.addColorStop(1, "rgba(192,132,252,0.05)");
+    }
+
+    if (sort === "clicks") {
+      gradient.addColorStop(0, "rgba(79,209,255,0.9)");
+      gradient.addColorStop(1, "rgba(79,209,255,0.05)");
+    }
+
+    if (sort === "ctr") {
+      gradient.addColorStop(0, "rgba(34,211,238,0.9)");
+      gradient.addColorStop(1, "rgba(34,211,238,0.05)");
+    }
+
+    return gradient;
+  },
+
+  borderRadius: 8,
+
+  borderWidth: 1,
+  borderColor: "rgba(255,255,255,0.15)",
+
+  hoverBackgroundColor: "rgba(255,255,255,0.15)"
+}]
     },
 
     options: {
