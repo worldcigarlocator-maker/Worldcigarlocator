@@ -937,14 +937,25 @@ let marketChart;
 
 window.renderMarketChart = function(rows){
 
-  console.log("📊 MARKET CHART INIT", rows);
-
   if (!rows?.length) return;
+
+  const sort = window.MARKET_STATE?.sort || "views";
 
   const labels = rows.map(r => r.country || r.city || "—");
 
-  const views = rows.map(r => Number(r.views || 0));
-  const clicks = rows.map(r => Number(r.clicks || 0));
+  let values = [];
+
+  if (sort === "views") {
+    values = rows.map(r => Number(r.views || 0));
+  }
+
+  if (sort === "clicks") {
+    values = rows.map(r => Number(r.clicks || 0));
+  }
+
+  if (sort === "ctr") {
+    values = rows.map(r => Number(r.ctr || 0));
+  }
 
   const ctx = document.getElementById("marketChart");
   if (!ctx) return;
@@ -957,18 +968,16 @@ window.renderMarketChart = function(rows){
     type: "bar",
     data: {
       labels,
-      datasets: [
-        {
-          label: "Views",
-          data: views,
-          backgroundColor: "rgba(192,132,252,0.6)"
-        },
-        {
-          label: "Clicks",
-          data: clicks,
-          backgroundColor: "rgba(79,209,255,0.6)"
-        }
-      ]
+      datasets: [{
+        label: sort.toUpperCase(),
+        data: values,
+        backgroundColor:
+          sort === "views"
+            ? "rgba(192,132,252,0.6)"
+            : sort === "clicks"
+            ? "rgba(79,209,255,0.6)"
+            : "rgba(34,211,238,0.6)"
+      }]
     },
 
     options: {
@@ -977,9 +986,7 @@ window.renderMarketChart = function(rows){
 
       plugins: {
         legend: {
-          labels: {
-            color: "#fff"
-          }
+          labels: { color: "#fff" }
         }
       },
 
@@ -995,5 +1002,4 @@ window.renderMarketChart = function(rows){
       }
     }
   });
-
 };
