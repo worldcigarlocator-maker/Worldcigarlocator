@@ -771,6 +771,56 @@ divider.style.background = "linear-gradient(to right, transparent, rgba(115,98,7
 divider.style.marginBottom = "25px";
 
 container.appendChild(divider);
+  /* ============================================================
+   TITLE (LEVEL CONTEXT)
+   ============================================================ */
+
+const levelTitle = document.createElement("div");
+
+let titleText = "Market Overview";
+
+if (window.MARKET_STATE?.level === "country") {
+  titleText = "Top Countries";
+}
+
+if (window.MARKET_STATE?.level === "city") {
+  titleText = `Top Cities — ${window.MARKET_STATE.country}`;
+}
+
+if (window.MARKET_STATE?.level === "store") {
+  titleText = `Top Stores — ${window.MARKET_STATE.city}`;
+}
+
+if (window.MARKET_STATE?.level === "traffic") {
+  titleText = `Traffic Sources — Store`;
+}
+
+levelTitle.textContent = titleText;
+
+levelTitle.style.fontSize = "18px";
+levelTitle.style.marginBottom = "15px";
+levelTitle.style.opacity = "0.85";
+
+container.appendChild(levelTitle);
+
+  /* ============================================================
+   FILTER INFO (IF ACTIVE)
+   ============================================================ */
+
+const filterInfo = document.getElementById("filterInfo");
+
+if (filterInfo && !filterInfo.classList.contains("hidden")) {
+
+  const filter = document.createElement("div");
+
+  filter.innerHTML = filterInfo.innerHTML;
+
+  filter.style.fontSize = "13px";
+  filter.style.opacity = "0.6";
+  filter.style.marginBottom = "20px";
+
+  container.appendChild(filter);
+}
   
   /* ============================================================
      KPI
