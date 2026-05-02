@@ -184,6 +184,10 @@ else if (ctrValue >= 20) cls = "ctr-good";
 </tr>`;
   }).join("");
 
+  if (window.renderMarketChart) {
+  window.renderMarketChart(data);
+}
+
   bindRows(days);
   return;
 }
