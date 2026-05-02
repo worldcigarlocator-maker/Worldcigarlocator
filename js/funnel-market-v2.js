@@ -192,6 +192,7 @@ console.log("SEND TO CHART:", MARKET_STATE.sort);
  bindRows(days);
 
 // 🔥 UPDATE CHART
+  console.log("SEND TO CHART:", MARKET_STATE.sort);
 if (window.renderMarketChart) {
   window.renderMarketChart(data, MARKET_STATE.sort);
 }
