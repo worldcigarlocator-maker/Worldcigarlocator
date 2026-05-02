@@ -182,53 +182,67 @@
 </section>
 
 
-  <!-- ============================================================
-       MARKET
-       ============================================================ -->
+ <!-- ============================================================
+     MARKET
+     ============================================================ -->
 
-  <section id="view-market" class="hidden">
+<section id="view-market" class="hidden">
 
+  <section class="panel">
 
-<section class="panel">
+    <div class="panelhead market-head">
 
-  <div class="panelhead market-head">
+      <h2>Market</h2>
 
-    <h2>Market</h2>
+      <div class="market-controls">
 
-    <div class="market-toggle">
-      <button class="toggle-btn active" data-sort="views">Views</button>
-      <button class="toggle-btn" data-sort="clicks">Clicks</button>
-      <button class="toggle-btn" data-sort="ctr">CTR</button>
+        <!-- KPI TOGGLE -->
+        <div class="market-toggle">
+          <button class="toggle-btn active" data-sort="views">Views</button>
+          <button class="toggle-btn" data-sort="clicks">Clicks</button>
+          <button class="toggle-btn" data-sort="ctr">CTR</button>
+        </div>
+
+        <!-- CHART TYPE TOGGLE -->
+        <div class="chart-toggle">
+          <button class="chart-type-btn active" data-type="bar">Bar</button>
+          <button class="chart-type-btn" data-type="line">Line</button>
+        </div>
+
+      </div>
+
     </div>
 
-  </div>
+    <!-- TABLE -->
+    <div class="tablewrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Location</th>
+            <th class="num">Views</th>
+            <th class="num">Clicks</th>
+            <th class="num">CTR</th>
+          </tr>
+        </thead>
 
-  <div class="tablewrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Location</th>
-          <th class="num">Views</th>
-          <th class="num">Clicks</th>
-          <th class="num">CTR</th>
-        </tr>
-      </thead>
-      <tbody id="marketDemandBody">
-        <tr>
-          <td colspan="4" class="muted center">Loading market data…</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+        <tbody id="marketDemandBody">
+          <tr>
+            <td colspan="4" class="muted center">
+              Loading market data…
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  <div class="chart-panel">
-  <canvas id="marketChart"></canvas>
-</div>
-
-</section>
-
+    <!-- CHART -->
+    <div class="chart-panel">
+      <canvas id="marketChart"></canvas>
+    </div>
 
   </section>
+
+</section>
 
   <!-- ============================================================
        STORES
