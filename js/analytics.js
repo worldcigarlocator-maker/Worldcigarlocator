@@ -1055,7 +1055,7 @@ if (marketChart.config.type !== type) {
 
   applyMarketStyle(marketChart, sort, type);
 
-  marketChart.options = getMarketChartOptions(sort);
+  Object.assign(marketChart.options, getMarketChartOptions(sort));
 
   marketChart.update(); // 🔥 NO DESTROY
 
