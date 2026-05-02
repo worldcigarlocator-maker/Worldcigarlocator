@@ -869,8 +869,8 @@ let usersChart;
 
 window.renderUsersChart = function(rows){
 
-  const labels = rows.map(r => r.date).reverse();
-  const values = rows.map(r => Number(r.users || 0)).reverse();
+const labels = rows.map(r => r.day).reverse();
+const values = rows.map(r => Number(r.users || 0)).reverse();
 
   const ctx = document.getElementById("usersChart");
 
