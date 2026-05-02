@@ -956,20 +956,19 @@ window.renderUsersChart = function (rows) {
 };
 
 /* ============================================================
-   MARKET CHART
+   MARKET CHART (V2 — PRO)
    ============================================================ */
 
 let marketChart;
 
-window.renderMarketChart = function(rows, sort){
+window.renderMarketChart = function (rows, sort, type = "bar") {
 
   if (!rows?.length) return;
 
-  // 🔥 fallback om sort inte skickas
   sort = sort || window.MARKET_STATE?.sort || "views";
 
   /* ============================================================
-     LABELS (SMART LEVEL DETECTION)
+     LABELS (AUTO LEVEL)
      ============================================================ */
 
   const labels = rows.map(r =>
@@ -981,26 +980,37 @@ window.renderMarketChart = function(rows, sort){
   );
 
   /* ============================================================
-     VALUES (KPI SWITCH)
+     VALUES (KPI LOGIC)
      ============================================================ */
 
   const values = rows.map(r => {
 
-  const views = Number(r.views || 0);
-  const clicks = Number(r.clicks || 0);
+    const views = Number(r.views || 0);
+    const clicks = Number(r.clicks || 0);
 
-  if (sort === "views") return views;
-  if (sort === "clicks") return clicks;
+    if (sort === "views") return views;
+    if (sort === "clicks") return clicks;
 
-  if (sort === "ctr") {
-    return views > 0 ? (clicks / views) * 100 : 0;
-  }
+    if (sort === "ctr") {
+      return views > 0 ? (clicks / views) * 100 : 0;
+    }
 
-  return 0;
-});
+    return 0;
+  });
 
   /* ============================================================
-     CHART INIT
+     LIMIT (TOP 10 = CLEAN UI)
+     ============================================================ */
+
+  const zipped = labels.map((l, i) => ({ label: l, value: values[i] }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10);
+
+  const finalLabels = zipped.map(x => x.label);
+  const finalValues = zipped.map(x => x.value);
+
+  /* ============================================================
+     INIT
      ============================================================ */
 
   const ctx = document.getElementById("marketChart");
@@ -1011,20 +1021,27 @@ window.renderMarketChart = function(rows, sort){
   }
 
   marketChart = new Chart(ctx, {
-    type: "bar",
+    type,
 
     data: {
-      labels,
+      labels: finalLabels,
+
       datasets: [{
         label: sort.toUpperCase(),
-        data: values,
+        data: finalValues,
 
-        /* ======================================================
-           GRADIENT (NEON)
-           ====================================================== */
+        tension: 0.35,
+
+        borderWidth: 2,
+
+        borderColor:
+          sort === "views"
+            ? "#c084fc"
+            : sort === "clicks"
+            ? "#4fd1ff"
+            : "#22d3ee",
 
         backgroundColor: (ctx) => {
-
           const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
 
           if (sort === "views") {
@@ -1045,12 +1062,12 @@ window.renderMarketChart = function(rows, sort){
           return gradient;
         },
 
-        borderRadius: 10,
+        borderRadius: type === "bar" ? 10 : 0,
+        fill: type === "line",
 
-        borderWidth: 1,
-        borderColor: "rgba(255,255,255,0.15)",
-
-        hoverBackgroundColor: "rgba(255,255,255,0.15)"
+        pointRadius: type === "line" ? 3 : 0,
+        pointHoverRadius: 6,
+        pointBackgroundColor: "#fff"
       }]
     },
 
@@ -1058,29 +1075,30 @@ window.renderMarketChart = function(rows, sort){
       responsive: true,
       maintainAspectRatio: false,
 
+      interaction: {
+        mode: "index",
+        intersect: false
+      },
+
       plugins: {
         legend: {
-          labels: {
-            color: "#fff"
-          }
+          labels: { color: "#fff" }
         }
       },
 
       scales: {
         x: {
-          ticks: {
-            color: "rgba(255,255,255,0.7)"
-          },
-          grid: {
-            color: "rgba(255,255,255,0.05)"
-          }
+          ticks: { color: "rgba(255,255,255,0.7)" },
+          grid: { color: "rgba(255,255,255,0.05)" }
         },
 
         y: {
           beginAtZero: true,
 
           ticks: {
-            color: "rgba(255,255,255,0.7)"
+            color: "rgba(255,255,255,0.7)",
+            callback: (value) =>
+              sort === "ctr" ? value + "%" : value
           },
 
           grid: {
