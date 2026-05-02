@@ -1263,13 +1263,22 @@ window.renderMarketChart = function (rows, sort, type = "bar") {
      LABELS
      ============================================================ */
 
-  const labels = rows.map(r =>
+const labels = rows.map(r => {
+
+  let label =
     r.city ||
     r.country ||
     r.name ||
     r.source ||
-    "—"
-  );
+    "—";
+
+  // 🔥 MAX 18 chars
+  if (label.length > 18) {
+    label = label.slice(0, 18) + "...";
+  }
+
+  return label;
+});
 
   /* ============================================================
      VALUES
@@ -1298,7 +1307,20 @@ window.renderMarketChart = function (rows, sort, type = "bar") {
     .sort((a, b) => b.value - a.value)
     .slice(0, 10);
 
-  const finalLabels = zipped.map(x => x.label);
+ const finalLabels = zipped.map(x => {
+
+  const words = x.label.split(" ");
+
+  // 🔥 bryt rad efter 2 ord
+  if (words.length > 2) {
+    return [
+      words.slice(0, 2).join(" "),
+      words.slice(2).join(" ")
+    ];
+  }
+
+  return x.label;
+});
   const finalValues = zipped.map(x => x.value);
 
   const ctx = document.getElementById("marketChart");
@@ -1313,15 +1335,15 @@ if (!marketChart) {
   marketChart = new Chart(ctx, {
     type: type || "bar", // 🔥 FIX
 
-    data: {
-      labels: finalLabels,
-      datasets: [{
-        label: sort.toUpperCase(),
-        data: finalValues,
-        tension: 0.35,
-        borderWidth: 2
-      }]
-    },
+   data: {
+  labels: finalLabels,
+  datasets: [{
+    label: sort.toUpperCase(),
+    data: finalValues,
+    tension: 0.35,
+    borderWidth: 2
+  }]
+},
 
     options: getMarketChartOptions(sort)
   });
@@ -1420,10 +1442,12 @@ function getMarketChartOptions(sort){
 
     scales: {
       x: {
-        ticks: { color: "rgba(255,255,255,0.7)" },
-        grid: { color: "rgba(255,255,255,0.05)" }
-      },
-
+  ticks: {
+    color: "rgba(255,255,255,0.7)",
+    maxRotation: 0,
+    minRotation: 0,
+    autoSkip: false
+  },
       y: {
         beginAtZero: true,
 
