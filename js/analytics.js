@@ -728,18 +728,53 @@ if (logoLoaded) {
      KPI
      ============================================================ */
 
-  const views = document.getElementById("globalMarket")?.textContent || "0";
-  const stores = document.getElementById("globalStores")?.textContent || "0";
-  const users = document.getElementById("globalUsers")?.textContent || "0";
+  /* ============================================================
+   KPI (PREMIUM CARDS)
+   ============================================================ */
 
-  pdf.setFontSize(11);
+const views = document.getElementById("globalMarket")?.textContent || "0";
+const stores = document.getElementById("globalStores")?.textContent || "0";
+const users = document.getElementById("globalUsers")?.textContent || "0";
+
+const kpis = [
+  { label: "Views", value: views },
+  { label: "Stores", value: stores },
+  { label: "Users", value: users }
+];
+
+const cardWidth = 55;
+const cardHeight = 20;
+const gap = 10;
+
+kpis.forEach((kpi, i) => {
+
+  const x = margin + i * (cardWidth + gap);
+
+  // 🔥 card background
+  pdf.setFillColor(12, 12, 12);
+  pdf.roundedRect(x, y, cardWidth, cardHeight, 3, 3, "F");
+
+  // 🔥 subtle border
+  pdf.setDrawColor(40);
+  pdf.roundedRect(x, y, cardWidth, cardHeight, 3, 3);
+
+  // 🔥 label
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(8);
+  pdf.setTextColor(140);
+
+  pdf.text(kpi.label.toUpperCase(), x + 4, y + 6);
+
+  // 🔥 value
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(14);
   pdf.setTextColor(255);
 
-  pdf.text(`Views: ${views}`, margin, y);
-  pdf.text(`Stores: ${stores}`, margin + 60, y);
-  pdf.text(`Users: ${users}`, margin + 120, y);
+  pdf.text(String(kpi.value), x + 4, y + 14);
 
-  y += 10;
+});
+
+y += 30;
 
   /* ============================================================
      TABLE HEADER
