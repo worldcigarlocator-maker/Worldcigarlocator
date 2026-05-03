@@ -697,7 +697,7 @@ pdf.rect(0, 0, 210, 297, "F");
 let logoLoaded = false;
 const logo = new Image();
 
-logo.src = "/images/favicon.png";
+logo.src = "/images/favicon.svg";
 
 await new Promise(res => {
   logo.onload = () => {
