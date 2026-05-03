@@ -694,47 +694,26 @@ pdf.rect(0, 0, 210, 297, "F");
    HEADER (WCL — PRO)
    ============================================================ */
 
-// 🔥 LOGO (vänster)
+let logoLoaded = false;
 const logo = new Image();
-logo.src = "/images/favicon.png"; // ⚠️ säkerställ att denna finns
+
+logo.src = "/images/favicon.png";
 
 await new Promise(res => {
-  logo.onload = res;
+  logo.onload = () => {
+    logoLoaded = true;
+    res();
+  };
+  logo.onerror = () => {
+    console.warn("Logo failed to load");
+    res(); // 🔥 fortsätt ändå
+  };
 });
 
-// placera logo
-pdf.addImage(logo, "PNG", margin, y - 6, 8, 8);
-
-// 🔥 BRAND TEXT
-pdf.setFont("helvetica", "bold");
-pdf.setFontSize(14);
-pdf.setTextColor(115, 98, 75); // bronze
-
-pdf.text("World Cigar Locator", margin + 12, y);
-
-// 🔥 SUBTITLE
-pdf.setFont("helvetica", "normal");
-pdf.setFontSize(9);
-pdf.setTextColor(150);
-
-y += 5;
-pdf.text("Analytics Report", margin + 12, y);
-
-// 🔥 DATE (höger)
-const date = new Date().toLocaleString();
-
-pdf.setFontSize(8);
-pdf.setTextColor(120);
-
-pdf.text(date, pageWidth - margin - 50, y);
-
-// 🔥 DIVIDER
-y += 6;
-
-pdf.setDrawColor(80);
-pdf.line(margin, y, pageWidth - margin, y);
-
-y += 10;
+// 🔥 använd bara om den finns
+if (logoLoaded) {
+  pdf.addImage(logo, "PNG", margin, y - 6, 8, 8);
+}
 
   /* ============================================================
      KPI
