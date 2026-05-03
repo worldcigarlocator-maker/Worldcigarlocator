@@ -823,7 +823,9 @@ async function exportPDF() {
      PDF RENDER
      ============================================================ */
 
-  const canvas = await html2canvas(container, {
+  await new Promise(r => setTimeout(r, 300)); // 🔥 WAIT FOR CHART
+
+const canvas = await html2canvas(container, {
     backgroundColor: "#050505",
     scale: 2
   });
