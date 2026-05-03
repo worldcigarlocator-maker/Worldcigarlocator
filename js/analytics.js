@@ -679,6 +679,8 @@ function runLocalFilter() {
      EXPORT PDF
      ============================================================ */
 async function exportPDF() {
+  const kpi = getKPI();
+console.log("📄 EXPORT KPI:", kpi);
   console.log("🔥 NEW PDF VERSION RUNNING");
 
   const { jsPDF } = window.jspdf;
@@ -732,6 +734,22 @@ async function exportPDF() {
   header.appendChild(left);
   header.appendChild(right);
   container.appendChild(header);
+
+  /* ============================================================
+   ROUTING (STATE-BASED EXPORT)
+   ============================================================ */
+
+if (kpi === "users") {
+  console.log("👉 EXPORT USERS VIEW");
+}
+
+if (kpi === "views" || kpi === "clicks" || kpi === "ctr") {
+  console.log("👉 EXPORT MARKET VIEW");
+}
+
+if (kpi === "stores") {
+  console.log("👉 EXPORT STORES VIEW");
+}
 
   /* ============================================================
      KPI
