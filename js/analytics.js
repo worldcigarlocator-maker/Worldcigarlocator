@@ -675,192 +675,35 @@ function runLocalFilter() {
   }
 }
 
-
-/* ============================================================
-   PDF EXPORT — FULL REPORT
-   ============================================================ */
-
 async function exportPDF() {
 
   const { jsPDF } = window.jspdf;
-const pdf = new jsPDF("p", "mm", "a4");
-  
+
   const container = document.createElement("div");
-  container.style.padding = "30px";
+
+  container.style.width = "1000px";
+  container.style.padding = "40px";
   container.style.background = "#050505";
   container.style.color = "#fff";
-  container.style.width = "1000px";
-
-  
+  container.style.fontFamily = "sans-serif";
 
   /* ============================================================
-   HERO (VISUAL HEADER)
-   ============================================================ */
+     HEADER
+     ============================================================ */
 
-const hero = document.createElement("div");
-hero.style.height = "180px";
-hero.style.marginBottom = "25px";
-hero.style.borderRadius = "12px";
-hero.style.overflow = "hidden";
-hero.style.position = "relative";
+  const title = document.createElement("div");
+  title.textContent = "World Cigar Locator — Analytics Report";
+  title.style.fontSize = "22px";
+  title.style.marginBottom = "10px";
 
-const heroImg = document.createElement("img");
-heroImg.src = "/images/store.jpg";
-heroImg.style.width = "100%";
-heroImg.style.height = "100%";
-heroImg.style.objectFit = "cover";
+  const subtitle = document.createElement("div");
+  subtitle.textContent = new Date().toLocaleString();
+  subtitle.style.opacity = "0.6";
+  subtitle.style.marginBottom = "30px";
 
-// 🔥 overlay (pro look)
-const overlay = document.createElement("div");
-overlay.style.position = "absolute";
-overlay.style.top = "0";
-overlay.style.left = "0";
-overlay.style.width = "100%";
-overlay.style.height = "100%";
-overlay.style.background = "linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8))";
+  container.appendChild(title);
+  container.appendChild(subtitle);
 
-hero.appendChild(heroImg);
-hero.appendChild(overlay);
-
-container.appendChild(hero);
-
-/* ============================================================
-   HEADER (WCL BRAND + LOGO)
-   ============================================================ */
-
-const header = document.createElement("div");
-header.style.display = "flex";
-header.style.alignItems = "center";
-header.style.justifyContent = "space-between";
-header.style.marginBottom = "30px";
-
-/* ============================================================
-   LEFT: LOGO + BRAND
-   ============================================================ */
-
-const left = document.createElement("div");
-left.style.display = "flex";
-left.style.alignItems = "center";
-left.style.gap = "15px";
-
-const logo = document.createElement("img");
-logo.src = "/images/store.jpg"; 
-logo.style.width = "60px";
-logo.style.height = "60px";
-logo.style.objectFit = "cover";
-logo.style.borderRadius = "8px"; 
-
-const brandWrap = document.createElement("div");
-
-const brand = document.createElement("div");
-brand.textContent = "World Cigar Locator";
-brand.style.fontSize = "22px";
-brand.style.fontWeight = "600";
-brand.style.color = "rgb(115,98,75)";
-
-const subtitle = document.createElement("div");
-subtitle.textContent = "Analytics Report";
-subtitle.style.fontSize = "14px";
-subtitle.style.opacity = "0.7";
-
-brandWrap.appendChild(brand);
-brandWrap.appendChild(subtitle);
-
-left.appendChild(logo);
-left.appendChild(brandWrap);
-
-/* ============================================================
-   RIGHT: DATE
-   ============================================================ */
-
-const right = document.createElement("div");
-right.style.textAlign = "right";
-
-const date = document.createElement("div");
-date.textContent = new Date().toLocaleString();
-date.style.fontSize = "13px";
-date.style.opacity = "0.6";
-
-right.appendChild(date);
-
-/* ============================================================
-   BUILD HEADER
-   ============================================================ */
-
-header.appendChild(left);
-header.appendChild(right);
-
-container.appendChild(header);
-
-/* ============================================================
-   DIVIDER
-   ============================================================ */
-
-const divider = document.createElement("div");
-divider.style.height = "1px";
-divider.style.background = "linear-gradient(to right, transparent, rgba(115,98,75,0.8), transparent)";
-divider.style.marginBottom = "25px";
-
-container.appendChild(divider);
-  
-  /* ============================================================
-   TITLE (LEVEL CONTEXT)
-   ============================================================ */
-
-const levelTitle = document.createElement("div");
-
-const currentKpi = getKPI();
-
-let kpiLabel = "Views";
-
-if (currentKpi === "clicks") kpiLabel = "Clicks";
-if (currentKpi === "ctr") kpiLabel = "CTR";
-
-let titleText = `${kpiLabel} — Market Overview`;
-
-if (window.MARKET_STATE?.level === "country") {
-  titleText = `${kpiLabel} — Top Countries`;
-}
-
-if (window.MARKET_STATE?.level === "city") {
-  titleText = `${kpiLabel} — Top Cities — ${window.MARKET_STATE.country}`;
-}
-
-if (window.MARKET_STATE?.level === "store") {
-  titleText = `${kpiLabel} — Top Stores — ${window.MARKET_STATE.city}`;
-}
-
-if (window.MARKET_STATE?.level === "traffic") {
-  titleText = `${kpiLabel} — Traffic Sources`;
-}
-
-levelTitle.textContent = titleText;
-
-levelTitle.style.fontSize = "18px";
-levelTitle.style.marginBottom = "15px";
-levelTitle.style.opacity = "0.85";
-
-container.appendChild(levelTitle);
-  
-  /* ============================================================
-   FILTER INFO (IF ACTIVE)
-   ============================================================ */
-
-const filterInfo = document.getElementById("filterInfo");
-
-if (filterInfo && !filterInfo.classList.contains("hidden")) {
-
-  const filter = document.createElement("div");
-
-  filter.innerHTML = filterInfo.innerHTML;
-
-  filter.style.fontSize = "13px";
-  filter.style.opacity = "0.6";
-  filter.style.marginBottom = "20px";
-
-  container.appendChild(filter);
-}
-  
   /* ============================================================
      KPI
      ============================================================ */
@@ -868,13 +711,13 @@ if (filterInfo && !filterInfo.classList.contains("hidden")) {
   const kpiWrap = document.createElement("div");
   kpiWrap.style.display = "flex";
   kpiWrap.style.gap = "20px";
-  kpiWrap.style.marginBottom = "20px";
+  kpiWrap.style.marginBottom = "30px";
 
   const makeKpi = (label, value) => {
     const box = document.createElement("div");
-  box.style.background = "linear-gradient(145deg, #0f0f0f, #1a1a1a)";
-box.style.boxShadow = "0 0 20px rgba(115,98,75,0.2)";
-box.style.border = "1px solid rgba(115,98,75,0.2)";
+    box.style.background = "#111";
+    box.style.padding = "15px 20px";
+    box.style.borderRadius = "8px";
 
     box.innerHTML = `
       <div style="opacity:0.6;font-size:12px">${label}</div>
@@ -893,20 +736,16 @@ box.style.border = "1px solid rgba(115,98,75,0.2)";
      TABLE
      ============================================================ */
 
-const table = document.createElement("table");
-table.style.width = "100%";
-table.style.borderCollapse = "collapse";
-table.style.marginBottom = "40px";
-table.style.background = "#0a0a0a";
-table.style.borderRadius = "10px";
-table.style.overflow = "hidden";
-table.style.boxShadow = "0 0 25px rgba(0,0,0,0.6)";
+  const table = document.createElement("table");
+  table.style.width = "100%";
+  table.style.borderCollapse = "collapse";
+  table.style.marginBottom = "40px";
 
   const originalRows = document.querySelectorAll("#marketDemandBody tr");
 
-  const tableHeader = `
+  const header = `
     <tr>
-      <th style="text-align:left;padding:10px;border-bottom:1px solid #333;background:#111">Name</th>
+      <th style="text-align:left;padding:8px;border-bottom:1px solid #333">Name</th>
       <th style="text-align:right;padding:8px;border-bottom:1px solid #333">Views</th>
       <th style="text-align:right;padding:8px;border-bottom:1px solid #333">Clicks</th>
       <th style="text-align:right;padding:8px;border-bottom:1px solid #333">CTR</th>
@@ -916,21 +755,20 @@ table.style.boxShadow = "0 0 25px rgba(0,0,0,0.6)";
   const rows = [...originalRows].map(tr => {
 
     const tds = tr.querySelectorAll("td");
-
     if (!tds.length) return "";
 
-return `
-<tr>
-  <td style="padding:6px 8px;font-weight:500">${tds[0].textContent}</td>
-  <td style="padding:6px 8px;text-align:center;font-weight:500">${tds[1].textContent}</td>
-  <td style="padding:6px 8px;text-align:center;font-weight:500">${tds[2].textContent}</td>
-  <td style="padding:6px 8px;text-align:center;font-weight:500">${tds[3].textContent}</td>
-</tr>
-`;
+    return `
+      <tr>
+        <td style="padding:6px 8px">${tds[0].textContent}</td>
+        <td style="padding:6px 8px;text-align:right">${tds[1].textContent}</td>
+        <td style="padding:6px 8px;text-align:right">${tds[2].textContent}</td>
+        <td style="padding:6px 8px;text-align:right">${tds[3].textContent}</td>
+      </tr>
+    `;
 
   }).join("");
 
-  table.innerHTML = tableHeader + rows;
+  table.innerHTML = header + rows;
   container.appendChild(table);
 
   /* ============================================================
@@ -941,17 +779,9 @@ return `
 
   if (chartCanvas) {
 
-    chartCanvas.style.paddingBottom = "40px";
-    const chartImage = chartCanvas.toDataURL("image/png");
-
- const img = document.createElement("img");
-img.src = chartImage;
-
-img.style.width = "100%";
-img.style.marginTop = "20px";
-
-// 🔥 CRITICAL FIX
-img.style.paddingBottom = "30px"; 
+    const img = document.createElement("img");
+    img.src = chartCanvas.toDataURL("image/png");
+    img.style.width = "100%";
 
     container.appendChild(img);
   }
@@ -959,186 +789,39 @@ img.style.paddingBottom = "30px";
   document.body.appendChild(container);
 
   /* ============================================================
-   FOOTER
-   ============================================================ */
+     RENDER ONE CANVAS
+     ============================================================ */
 
-const footer = document.createElement("div");
-
-footer.style.marginTop = "40px";
-footer.style.fontSize = "12px";
-footer.style.opacity = "0.5";
-footer.style.textAlign = "center";
-
-footer.innerHTML = `
-  Powered by <span style="color:rgb(115,98,75)">World Cigar Locator</span>
-`;
-
-container.appendChild(footer);
-
-/* ============================================================
-   MULTI PAGE RENDER
-   ============================================================ */
-
-const renderPage = async (el, full = false) => {
-
-  document.body.appendChild(el);
-
-  const canvas = await html2canvas(el, {
+  const canvas = await html2canvas(container, {
     backgroundColor: "#050505",
-    scale: 2
+   scale: 1.2
   });
 
   const imgData = canvas.toDataURL("image/png");
 
-  if (full) {
-    pdf.addImage(
-      imgData,
-      "PNG",
-      0,
-      0,
-      pdf.internal.pageSize.getWidth(),
-      pdf.internal.pageSize.getHeight()
-    );
-  } else {
-    pdf.addImage(imgData, "PNG", 10, 10, 190, 0);
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const imgWidth = 190;
+  const pageHeight = 297;
+  const imgHeight = canvas.height * imgWidth / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = 10;
+
+  pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
   }
 
-  el.remove();
-};
+  pdf.save("wcl-analytics-report.pdf");
 
-/* ============================================================
-   PAGE 1 — HEADER + KPI
-   ============================================================ */
-const page1 = document.createElement("div");
-
-page1.style.background = "#050505";
-page1.style.padding = "30px";
-page1.style.width = "1000px";
-
-// HERO
-page1.appendChild(hero.cloneNode(true));
-
-// HEADER
-page1.appendChild(header.cloneNode(true));
-
-// TITLE
-page1.appendChild(levelTitle.cloneNode(true));
-
-// KPI
-page1.appendChild(kpiWrap.cloneNode(true));
-
-pdf.addPage();
-
-/* ============================================================
-   PAGE 2 — TABLE
-   ============================================================ */
-
-const page2 = document.createElement("div");
-
-page2.style.background = "#050505";
-page2.style.padding = "40px 30px";
-page2.style.width = "1000px";
-
-/* ============================================================
-   HEADER MINI
-   ============================================================ */
-
-const p2Header = document.createElement("div");
-p2Header.style.display = "flex";
-p2Header.style.justifyContent = "space-between";
-p2Header.style.marginBottom = "25px";
-
-const p2Title = document.createElement("div");
-p2Title.textContent = levelTitle.textContent;
-p2Title.style.fontSize = "16px";
-p2Title.style.opacity = "0.85";
-
-const p2Date = document.createElement("div");
-p2Date.textContent = new Date().toLocaleDateString();
-p2Date.style.fontSize = "12px";
-p2Date.style.opacity = "0.5";
-
-p2Header.appendChild(p2Title);
-p2Header.appendChild(p2Date);
-
-page2.appendChild(p2Header);
-
-/* ============================================================
-   TABLE WRAP (CENTER + SPACING)
-   ============================================================ */
-
-const tableWrap = document.createElement("div");
-tableWrap.style.marginTop = "10px";
-
-tableWrap.appendChild(table.cloneNode(true));
-
-page2.appendChild(tableWrap);
-
-/* ============================================================
-   PAGE 3 — CHART
-   ============================================================ */
-
-/* ============================================================
-   PAGE 3 — CHART (FIXED)
-   ============================================================ */
-
-pdf.addPage("l"); // landscape
-
-const page3 = document.createElement("div");
-
-page3.style.background = "#050505";
-page3.style.padding = "40px";
-page3.style.width = "1400px";
-
-/* ============================================================
-   TITLE
-   ============================================================ */
-
-const p3Title = document.createElement("div");
-p3Title.textContent = levelTitle.textContent;
-p3Title.style.fontSize = "18px";
-p3Title.style.marginBottom = "25px";
-p3Title.style.opacity = "0.85";
-
-page3.appendChild(p3Title);
-
-/* ============================================================
-   CHART WRAP (CENTERED)
-   ============================================================ */
-
-if (chartCanvas) {
-
-  const chartImage = chartCanvas.toDataURL("image/png");
-
-  const wrap = document.createElement("div");
-
-  wrap.style.display = "flex";
-  wrap.style.justifyContent = "center";
-  wrap.style.alignItems = "center";
-  wrap.style.height = "500px";
-
-  const img = document.createElement("img");
-  img.src = chartImage;
-
-  img.style.maxWidth = "100%";
-  img.style.maxHeight = "100%";
-  img.style.objectFit = "contain";
-
-  wrap.appendChild(img);
-  page3.appendChild(wrap);
+  container.remove();
 }
-
-await renderPage(page3);
-
-/* ============================================================
-   SAVE
-   ============================================================ */
-
-pdf.save("wcl-analytics-report.pdf");
-
-container.remove();
-
-  }
 
 /* ============================================================
    EMAIL (OPTIONAL)
