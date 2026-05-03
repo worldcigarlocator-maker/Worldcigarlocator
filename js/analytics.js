@@ -691,9 +691,8 @@ pdf.rect(0, 0, 210, 297, "F");
   let y = 20;
 
 /* ============================================================
-   HEADER (WCL — PRO)
+   HEADER (WCL — PRO) LOGO
    ============================================================ */
-
 let logoLoaded = false;
 const logo = new Image();
 
@@ -706,13 +705,23 @@ await new Promise(res => {
   };
   logo.onerror = () => {
     console.warn("Logo failed to load");
-    res(); // 🔥 fortsätt ändå
+    res();
   };
 });
 
-// 🔥 använd bara om den finns
+// 🔥 fallback: rita text istället om svg inte funkar
 if (logoLoaded) {
-  pdf.addImage(logo, "PNG", margin, y - 6, 8, 8);
+  try {
+    pdf.addImage(logo, "PNG", margin, y - 6, 8, 8);
+  } catch (e) {
+    pdf.setTextColor(115, 98, 75);
+    pdf.setFontSize(12);
+    pdf.text("WC", margin, y);
+  }
+} else {
+  pdf.setTextColor(115, 98, 75);
+  pdf.setFontSize(12);
+  pdf.text("WC", margin, y);
 }
 
   /* ============================================================
