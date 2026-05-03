@@ -680,7 +680,99 @@ function runLocalFilter() {
    ============================================================ */
 
 async function exportPDF() {
-  ...
+
+  const { jsPDF } = window.jspdf;
+
+  const container = document.createElement("div");
+
+  container.style.width = "1000px";
+  container.style.padding = "30px";
+  container.style.background = "#050505";
+  container.style.color = "#fff";
+
+  /* ================= HEADER ================= */
+
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.marginBottom = "25px";
+
+  const left = document.createElement("div");
+  left.innerHTML = `
+    <div style="font-size:20px;color:rgb(115,98,75);font-weight:600">
+      World Cigar Locator
+    </div>
+    <div style="font-size:12px;opacity:0.6">
+      Analytics Report
+    </div>
+  `;
+
+  const right = document.createElement("div");
+  right.textContent = new Date().toLocaleString();
+  right.style.fontSize = "12px";
+  right.style.opacity = "0.6";
+
+  header.appendChild(left);
+  header.appendChild(right);
+  container.appendChild(header);
+
+  /* ================= KPI ================= */
+
+  const kpi = document.createElement("div");
+  kpi.style.display = "flex";
+  kpi.style.gap = "15px";
+  kpi.style.marginBottom = "25px";
+
+  const make = (l, v) => `
+    <div style="background:#111;padding:10px 14px;border-radius:8px">
+      <div style="font-size:11px;opacity:0.6">${l}</div>
+      <div style="font-size:18px;font-weight:bold">${v}</div>
+    </div>
+  `;
+
+  kpi.innerHTML =
+    make("Views", document.getElementById("globalMarket")?.textContent || 0) +
+    make("Stores", document.getElementById("globalStores")?.textContent || 0) +
+    make("Users", document.getElementById("globalUsers")?.textContent || 0);
+
+  container.appendChild(kpi);
+
+  /* ================= TABLE ================= */
+
+  const table = document.querySelector(".tablewrap")?.cloneNode(true);
+  if (table) container.appendChild(table);
+
+  /* ================= CHART ================= */
+
+  const chart = document.getElementById("marketChart");
+  if (chart) {
+
+    const img = document.createElement("img");
+    img.src = chart.toDataURL("image/png");
+    img.style.width = "100%";
+    img.style.marginTop = "20px";
+
+    container.appendChild(img);
+  }
+
+  document.body.appendChild(container);
+
+  /* ================= RENDER ================= */
+
+  const canvas = await html2canvas(container, {
+    backgroundColor: "#050505",
+    scale: 2
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF("l", "mm", "a4");
+
+  pdf.addImage(imgData, "PNG", 0, 0, 297, 210);
+
+  pdf.save("wcl-analytics-report.pdf");
+
+  container.remove();
 }
 
 /* ============================================================
