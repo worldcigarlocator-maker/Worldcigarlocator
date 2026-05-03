@@ -675,153 +675,91 @@ function runLocalFilter() {
   }
 }
 
-/* ============================================================
-   EXPORT / EMAIL
-   ============================================================ */
-
-/* ============================================================
-   PDF EXPORT — FULL REPORT
-   ============================================================ */
-
 async function exportPDF() {
 
   const { jsPDF } = window.jspdf;
 
   const container = document.createElement("div");
-  container.style.padding = "30px";
+  container.style.width = "900px";
+  container.style.padding = "50px 60px";
   container.style.background = "#050505";
   container.style.color = "#fff";
-  container.style.width = "1000px";
+  container.style.fontFamily = "sans-serif";
+  container.style.boxSizing = "border-box";
 
-/* ============================================================
-   HEADER (WCL BRAND + LOGO)
-   ============================================================ */
-const container = document.createElement("div");
+  /* ============================================================
+     HEADER
+     ============================================================ */
 
-container.style.width = "900px"; // 🔥 mindre = bättre A4 fit
-container.style.padding = "50px 60px"; // 🔥 mer luft
-container.style.background = "#050505";
-container.style.color = "#fff";
-container.style.fontFamily = "sans-serif";
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "30px";
 
-// 🔥 global spacing reset
-container.style.boxSizing = "border-box";
-container.style.lineHeight = "1.4";
+  const left = document.createElement("div");
+  left.style.display = "flex";
+  left.style.alignItems = "center";
+  left.style.gap = "12px";
 
-/* ============================================================
-   LEFT: LOGO + BRAND
-   ============================================================ */
+  const logo = document.createElement("img");
+  logo.src = window.location.origin + "/images/favicon.svg";
+  logo.style.width = "36px";
+  logo.style.height = "36px";
 
-const left = document.createElement("div");
-left.style.display = "flex";
-left.style.alignItems = "center";
-left.style.gap = "15px";
+  const brand = document.createElement("div");
+  brand.innerHTML = `
+    <div style="font-size:18px;font-weight:600;color:rgb(115,98,75)">
+      World Cigar Locator
+    </div>
+    <div style="font-size:12px;opacity:0.6">
+      Analytics Report
+    </div>
+  `;
 
-const logo = document.createElement("img");
-logo.src = window.location.origin + "/images/favicon.svg"; 
-logo.style.width = "40px";
-logo.style.height = "40px";
-logo.style.opacity = "0.9";
+  left.appendChild(logo);
+  left.appendChild(brand);
 
-const brandWrap = document.createElement("div");
+  const right = document.createElement("div");
+  right.style.fontSize = "12px";
+  right.style.opacity = "0.6";
+  right.textContent = new Date().toLocaleString();
 
-const brand = document.createElement("div");
-brand.textContent = "World Cigar Locator";
-brand.style.fontSize = "22px";
-brand.style.fontWeight = "600";
-brand.style.color = "rgb(115,98,75)";
+  header.appendChild(left);
+  header.appendChild(right);
+  container.appendChild(header);
 
-const subtitle = document.createElement("div");
-subtitle.textContent = "Analytics Report";
-subtitle.style.fontSize = "14px";
-subtitle.style.opacity = "0.7";
-
-brandWrap.appendChild(brand);
-brandWrap.appendChild(subtitle);
-
-left.appendChild(logo);
-left.appendChild(brandWrap);
-
-/* ============================================================
-   RIGHT: DATE
-   ============================================================ */
-
-const right = document.createElement("div");
-right.style.textAlign = "right";
-
-const date = document.createElement("div");
-date.textContent = new Date().toLocaleString();
-date.style.fontSize = "13px";
-date.style.opacity = "0.6";
-
-right.appendChild(date);
-
-/* ============================================================
-   BUILD HEADER
-   ============================================================ */
-
-header.appendChild(left);
-header.appendChild(right);
-
-container.appendChild(header);
-
-/* ============================================================
-   DIVIDER
-   ============================================================ */
-
-const divider = document.createElement("div");
-divider.style.height = "1px";
-divider.style.background = "linear-gradient(to right, transparent, rgba(115,98,75,0.8), transparent)";
-divider.style.marginBottom = "25px";
-
-container.appendChild(divider);
-  
   /* ============================================================
      KPI
      ============================================================ */
 
-const kpiWrap = document.createElement("div");
+  const kpiWrap = document.createElement("div");
+  kpiWrap.style.display = "flex";
+  kpiWrap.style.gap = "20px";
+  kpiWrap.style.marginBottom = "40px";
 
-kpiWrap.style.display = "flex";
-kpiWrap.style.gap = "30px"; // 🔥 mer luft
-kpiWrap.style.marginBottom = "40px"; // 🔥 mer separation
+  const makeKpi = (label, value) => {
+    const box = document.createElement("div");
 
-const makeKpi = (label, value) => {
+    box.style.flex = "1";
+    box.style.padding = "18px";
+    box.style.borderRadius = "12px";
+    box.style.background = "#111";
 
-  const box = document.createElement("div");
+    box.innerHTML = `
+      <div style="opacity:0.6;font-size:12px">${label}</div>
+      <div style="font-size:22px;font-weight:600">${value}</div>
+    `;
 
-  box.style.flex = "1";
-  box.style.padding = "20px 24px"; // 🔥 större kort
-  box.style.borderRadius = "14px";
+    return box;
+  };
 
-  // 🔥 premium gradient + glow
-  box.style.background = "linear-gradient(145deg, #0f0f0f, #1a1a1a)";
-  box.style.border = "1px solid rgba(115,98,75,0.25)";
-  box.style.boxShadow = "0 0 25px rgba(115,98,75,0.15)";
+  kpiWrap.appendChild(makeKpi("Views", document.getElementById("globalMarket")?.textContent || "0"));
+  kpiWrap.appendChild(makeKpi("Stores", document.getElementById("globalStores")?.textContent || "0"));
+  kpiWrap.appendChild(makeKpi("Users", document.getElementById("globalUsers")?.textContent || "0"));
 
-  box.innerHTML = `
-    <div style="opacity:0.6;font-size:12px;margin-bottom:6px">
-      ${label}
-    </div>
-    <div style="font-size:26px;font-weight:600;letter-spacing:0.5px">
-      ${value}
-    </div>
-  `;
+  container.appendChild(kpiWrap);
 
-  return box;
-};
-
-kpiWrap.appendChild(
-  makeKpi("Views", document.getElementById("globalMarket")?.textContent || "0")
-);
-
-kpiWrap.appendChild(
-  makeKpi("Stores", document.getElementById("globalStores")?.textContent || "0")
-);
-
-kpiWrap.appendChild(
-  makeKpi("Users", document.getElementById("globalUsers")?.textContent || "0")
-);
   /* ============================================================
      TABLE
      ============================================================ */
@@ -829,37 +767,34 @@ kpiWrap.appendChild(
   const table = document.createElement("table");
   table.style.width = "100%";
   table.style.borderCollapse = "collapse";
-  table.style.marginBottom = "30px";
+  table.style.marginBottom = "40px";
 
   const originalRows = document.querySelectorAll("#marketDemandBody tr");
 
-  const tableHeader = `
+  const headerHtml = `
     <tr>
-      <th style="text-align:left;padding:8px;border-bottom:1px solid #333">Name</th>
-      <th style="text-align:right;padding:8px;border-bottom:1px solid #333">Views</th>
-      <th style="text-align:right;padding:8px;border-bottom:1px solid #333">Clicks</th>
-      <th style="text-align:right;padding:8px;border-bottom:1px solid #333">CTR</th>
+      <th style="text-align:left;padding:10px;border-bottom:1px solid #333">Name</th>
+      <th style="text-align:right;padding:10px;border-bottom:1px solid #333">Views</th>
+      <th style="text-align:right;padding:10px;border-bottom:1px solid #333">Clicks</th>
+      <th style="text-align:right;padding:10px;border-bottom:1px solid #333">CTR</th>
     </tr>
   `;
 
   const rows = [...originalRows].map(tr => {
-
     const tds = tr.querySelectorAll("td");
-
     if (!tds.length) return "";
 
     return `
       <tr>
-        <td style="padding:6px 8px">${tds[0].textContent}</td>
-        <td style="padding:6px 8px;text-align:right">${tds[1].textContent}</td>
-        <td style="padding:6px 8px;text-align:right">${tds[2].textContent}</td>
-        <td style="padding:6px 8px;text-align:right">${tds[3].textContent}</td>
+        <td style="padding:8px">${tds[0].textContent}</td>
+        <td style="padding:8px;text-align:right">${tds[1].textContent}</td>
+        <td style="padding:8px;text-align:right">${tds[2].textContent}</td>
+        <td style="padding:8px;text-align:right">${tds[3].textContent}</td>
       </tr>
     `;
-
   }).join("");
 
-  table.innerHTML = tableHeader + rows;
+  table.innerHTML = headerHtml + rows;
   container.appendChild(table);
 
   /* ============================================================
@@ -869,11 +804,10 @@ kpiWrap.appendChild(
   const chartCanvas = document.getElementById("marketChart");
 
   if (chartCanvas) {
-
-    const chartImage = chartCanvas.toDataURL("image/png");
+    chartCanvas.style.background = "#050505";
 
     const img = document.createElement("img");
-    img.src = chartImage;
+    img.src = chartCanvas.toDataURL("image/png", 1.0);
     img.style.width = "100%";
 
     container.appendChild(img);
@@ -882,7 +816,7 @@ kpiWrap.appendChild(
   document.body.appendChild(container);
 
   /* ============================================================
-     RENDER PDF
+     PDF RENDER
      ============================================================ */
 
   const canvas = await html2canvas(container, {
@@ -895,21 +829,9 @@ kpiWrap.appendChild(
   const pdf = new jsPDF("p", "mm", "a4");
 
   const imgWidth = 190;
-  const pageHeight = 297;
   const imgHeight = canvas.height * imgWidth / canvas.width;
 
-  let heightLeft = imgHeight;
-  let position = 10;
-
-  pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
-
-  while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-  }
+  pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
 
   pdf.save("wcl-analytics-report.pdf");
 
