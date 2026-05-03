@@ -191,14 +191,24 @@ else if (ctrValue >= 20) cls = "ctr-good";
     
  bindRows(days);
 
-// 🔥 UPDATE CHART
-  console.log("SEND TO CHART:", MARKET_STATE.sort);
+
+window.WCL_MARKET_DATA = {
+  rows: data,
+  sort: MARKET_STATE.sort,
+  chartType: MARKET_STATE.chartType || "bar"
+};
+
+console.log("SEND TO CHART:", MARKET_STATE.sort);
+
 if (window.renderMarketChart) {
-  window.renderMarketChart(   data,   MARKET_STATE.sort,   MARKET_STATE.chartType );
+  window.renderMarketChart(
+    data,
+    MARKET_STATE.sort,
+    MARKET_STATE.chartType
+  );
 }
 
 return;
-}
    
   /* ============================================================
   CITY
