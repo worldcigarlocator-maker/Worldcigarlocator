@@ -696,12 +696,17 @@ async function exportPDF() {
 /* ============================================================
    HEADER (WCL BRAND + LOGO)
    ============================================================ */
+const container = document.createElement("div");
 
-const header = document.createElement("div");
-header.style.display = "flex";
-header.style.alignItems = "center";
-header.style.justifyContent = "space-between";
-header.style.marginBottom = "30px";
+container.style.width = "900px"; // 🔥 mindre = bättre A4 fit
+container.style.padding = "50px 60px"; // 🔥 mer luft
+container.style.background = "#050505";
+container.style.color = "#fff";
+container.style.fontFamily = "sans-serif";
+
+// 🔥 global spacing reset
+container.style.boxSizing = "border-box";
+container.style.lineHeight = "1.4";
 
 /* ============================================================
    LEFT: LOGO + BRAND
@@ -713,7 +718,7 @@ left.style.alignItems = "center";
 left.style.gap = "15px";
 
 const logo = document.createElement("img");
-logo.src = "/images/favicon.svg"; // 🔥 byt till din riktiga logo om du vill
+logo.src = window.location.origin + "/images/favicon.svg"; 
 logo.style.width = "40px";
 logo.style.height = "40px";
 logo.style.opacity = "0.9";
