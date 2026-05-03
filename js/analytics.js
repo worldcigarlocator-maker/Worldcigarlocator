@@ -676,6 +676,10 @@ function runLocalFilter() {
 }
 
 /* ============================================================
+   EXPORT / EMAIL
+   ============================================================ */
+
+/* ============================================================
    PDF EXPORT — FULL REPORT
    ============================================================ */
 
@@ -684,80 +688,179 @@ async function exportPDF() {
   const { jsPDF } = window.jspdf;
 
   const container = document.createElement("div");
-
-  container.style.width = "1000px";
   container.style.padding = "30px";
   container.style.background = "#050505";
   container.style.color = "#fff";
+  container.style.width = "1000px";
 
-  /* ================= HEADER ================= */
+/* ============================================================
+   HEADER (WCL BRAND + LOGO)
+   ============================================================ */
 
-  const header = document.createElement("div");
-  header.style.display = "flex";
-  header.style.justifyContent = "space-between";
-  header.style.marginBottom = "25px";
+const header = document.createElement("div");
+header.style.display = "flex";
+header.style.alignItems = "center";
+header.style.justifyContent = "space-between";
+header.style.marginBottom = "30px";
 
-  const left = document.createElement("div");
-  left.innerHTML = `
-    <div style="font-size:20px;color:rgb(115,98,75);font-weight:600">
-      World Cigar Locator
-    </div>
-    <div style="font-size:12px;opacity:0.6">
-      Analytics Report
-    </div>
+/* ============================================================
+   LEFT: LOGO + BRAND
+   ============================================================ */
+
+const left = document.createElement("div");
+left.style.display = "flex";
+left.style.alignItems = "center";
+left.style.gap = "15px";
+
+const logo = document.createElement("img");
+logo.src = "/images/favicon.svg"; // 🔥 byt till din riktiga logo om du vill
+logo.style.width = "40px";
+logo.style.height = "40px";
+logo.style.opacity = "0.9";
+
+const brandWrap = document.createElement("div");
+
+const brand = document.createElement("div");
+brand.textContent = "World Cigar Locator";
+brand.style.fontSize = "22px";
+brand.style.fontWeight = "600";
+brand.style.color = "rgb(115,98,75)";
+
+const subtitle = document.createElement("div");
+subtitle.textContent = "Analytics Report";
+subtitle.style.fontSize = "14px";
+subtitle.style.opacity = "0.7";
+
+brandWrap.appendChild(brand);
+brandWrap.appendChild(subtitle);
+
+left.appendChild(logo);
+left.appendChild(brandWrap);
+
+/* ============================================================
+   RIGHT: DATE
+   ============================================================ */
+
+const right = document.createElement("div");
+right.style.textAlign = "right";
+
+const date = document.createElement("div");
+date.textContent = new Date().toLocaleString();
+date.style.fontSize = "13px";
+date.style.opacity = "0.6";
+
+right.appendChild(date);
+
+/* ============================================================
+   BUILD HEADER
+   ============================================================ */
+
+header.appendChild(left);
+header.appendChild(right);
+
+container.appendChild(header);
+
+/* ============================================================
+   DIVIDER
+   ============================================================ */
+
+const divider = document.createElement("div");
+divider.style.height = "1px";
+divider.style.background = "linear-gradient(to right, transparent, rgba(115,98,75,0.8), transparent)";
+divider.style.marginBottom = "25px";
+
+container.appendChild(divider);
+  
+  /* ============================================================
+     KPI
+     ============================================================ */
+
+  const kpiWrap = document.createElement("div");
+  kpiWrap.style.display = "flex";
+  kpiWrap.style.gap = "20px";
+  kpiWrap.style.marginBottom = "20px";
+
+  const makeKpi = (label, value) => {
+    const box = document.createElement("div");
+    box.style.background = "#111";
+    box.style.padding = "15px 20px";
+    box.style.borderRadius = "10px";
+
+    box.innerHTML = `
+      <div style="opacity:0.6;font-size:12px">${label}</div>
+      <div style="font-size:20px;font-weight:bold">${value}</div>
+    `;
+    return box;
+  };
+
+  kpiWrap.appendChild(makeKpi("Views", document.getElementById("globalMarket")?.textContent || "0"));
+  kpiWrap.appendChild(makeKpi("Stores", document.getElementById("globalStores")?.textContent || "0"));
+  kpiWrap.appendChild(makeKpi("Users", document.getElementById("globalUsers")?.textContent || "0"));
+
+  container.appendChild(kpiWrap);
+
+  /* ============================================================
+     TABLE
+     ============================================================ */
+
+  const table = document.createElement("table");
+  table.style.width = "100%";
+  table.style.borderCollapse = "collapse";
+  table.style.marginBottom = "30px";
+
+  const originalRows = document.querySelectorAll("#marketDemandBody tr");
+
+  const tableHeader = `
+    <tr>
+      <th style="text-align:left;padding:8px;border-bottom:1px solid #333">Name</th>
+      <th style="text-align:right;padding:8px;border-bottom:1px solid #333">Views</th>
+      <th style="text-align:right;padding:8px;border-bottom:1px solid #333">Clicks</th>
+      <th style="text-align:right;padding:8px;border-bottom:1px solid #333">CTR</th>
+    </tr>
   `;
 
-  const right = document.createElement("div");
-  right.textContent = new Date().toLocaleString();
-  right.style.fontSize = "12px";
-  right.style.opacity = "0.6";
+  const rows = [...originalRows].map(tr => {
 
-  header.appendChild(left);
-  header.appendChild(right);
-  container.appendChild(header);
+    const tds = tr.querySelectorAll("td");
 
-  /* ================= KPI ================= */
+    if (!tds.length) return "";
 
-  const kpi = document.createElement("div");
-  kpi.style.display = "flex";
-  kpi.style.gap = "15px";
-  kpi.style.marginBottom = "25px";
+    return `
+      <tr>
+        <td style="padding:6px 8px">${tds[0].textContent}</td>
+        <td style="padding:6px 8px;text-align:right">${tds[1].textContent}</td>
+        <td style="padding:6px 8px;text-align:right">${tds[2].textContent}</td>
+        <td style="padding:6px 8px;text-align:right">${tds[3].textContent}</td>
+      </tr>
+    `;
 
-  const make = (l, v) => `
-    <div style="background:#111;padding:10px 14px;border-radius:8px">
-      <div style="font-size:11px;opacity:0.6">${l}</div>
-      <div style="font-size:18px;font-weight:bold">${v}</div>
-    </div>
-  `;
+  }).join("");
 
-  kpi.innerHTML =
-    make("Views", document.getElementById("globalMarket")?.textContent || 0) +
-    make("Stores", document.getElementById("globalStores")?.textContent || 0) +
-    make("Users", document.getElementById("globalUsers")?.textContent || 0);
+  table.innerHTML = tableHeader + rows;
+  container.appendChild(table);
 
-  container.appendChild(kpi);
+  /* ============================================================
+     CHART
+     ============================================================ */
 
-  /* ================= TABLE ================= */
+  const chartCanvas = document.getElementById("marketChart");
 
-  const table = document.querySelector(".tablewrap")?.cloneNode(true);
-  if (table) container.appendChild(table);
+  if (chartCanvas) {
 
-  /* ================= CHART ================= */
-
-  const chart = document.getElementById("marketChart");
-  if (chart) {
+    const chartImage = chartCanvas.toDataURL("image/png");
 
     const img = document.createElement("img");
-    img.src = chart.toDataURL("image/png");
+    img.src = chartImage;
     img.style.width = "100%";
-    img.style.marginTop = "20px";
 
     container.appendChild(img);
   }
 
   document.body.appendChild(container);
 
-  /* ================= RENDER ================= */
+  /* ============================================================
+     RENDER PDF
+     ============================================================ */
 
   const canvas = await html2canvas(container, {
     backgroundColor: "#050505",
@@ -766,9 +869,24 @@ async function exportPDF() {
 
   const imgData = canvas.toDataURL("image/png");
 
-  const pdf = new jsPDF("l", "mm", "a4");
+  const pdf = new jsPDF("p", "mm", "a4");
 
-  pdf.addImage(imgData, "PNG", 0, 0, 297, 210);
+  const imgWidth = 190;
+  const pageHeight = 297;
+  const imgHeight = canvas.height * imgWidth / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = 10;
+
+  pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
 
   pdf.save("wcl-analytics-report.pdf");
 
@@ -1088,22 +1206,13 @@ window.renderMarketChart = function (rows, sort, type = "bar") {
      LABELS
      ============================================================ */
 
-const labels = rows.map(r => {
-
-  let label =
+  const labels = rows.map(r =>
     r.city ||
     r.country ||
     r.name ||
     r.source ||
-    "—";
-
-  // 🔥 MAX 18 chars
-  if (label.length > 18) {
-    label = label.slice(0, 18) + "...";
-  }
-
-  return label;
-});
+    "—"
+  );
 
   /* ============================================================
      VALUES
@@ -1132,20 +1241,7 @@ const labels = rows.map(r => {
     .sort((a, b) => b.value - a.value)
     .slice(0, 10);
 
- const finalLabels = zipped.map(x => {
-
-  const words = x.label.split(" ");
-
-  // 🔥 bryt rad efter 2 ord
-  if (words.length > 2) {
-    return [
-      words.slice(0, 2).join(" "),
-      words.slice(2).join(" ")
-    ];
-  }
-
-  return x.label;
-});
+  const finalLabels = zipped.map(x => x.label);
   const finalValues = zipped.map(x => x.value);
 
   const ctx = document.getElementById("marketChart");
@@ -1160,19 +1256,15 @@ if (!marketChart) {
   marketChart = new Chart(ctx, {
     type: type || "bar", // 🔥 FIX
 
-   data: {
-  labels: finalLabels,
-  datasets: [{
-    label: sort.toUpperCase(),
-    data: finalValues,
-    tension: 0.35,
-    borderWidth: 2,
-
-    // 🔥 spacing fix
-    categoryPercentage: 0.7,
-    barPercentage: 0.8
-  }]
-},
+    data: {
+      labels: finalLabels,
+      datasets: [{
+        label: sort.toUpperCase(),
+        data: finalValues,
+        tension: 0.35,
+        borderWidth: 2
+      }]
+    },
 
     options: getMarketChartOptions(sort)
   });
@@ -1270,17 +1362,9 @@ function getMarketChartOptions(sort){
     },
 
     scales: {
-
       x: {
-        ticks: {
-          color: "rgba(255,255,255,0.7)",
-          maxRotation: 0,
-          minRotation: 0,
-          autoSkip: false
-        },
-        grid: {
-          color: "rgba(255,255,255,0.05)"
-        }
+        ticks: { color: "rgba(255,255,255,0.7)" },
+        grid: { color: "rgba(255,255,255,0.05)" }
       },
 
       y: {
@@ -1295,7 +1379,6 @@ function getMarketChartOptions(sort){
           color: "rgba(255,255,255,0.05)"
         }
       }
-
     }
   };
 }
