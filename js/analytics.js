@@ -949,6 +949,8 @@ else if (ctrValue >= 0.2) ctrClass = "ctr-good";
 
 subscribe(async (state) => {
 
+  console.log("🔥 STATE UPDATE:", state); // 🔥 ADD THIS
+
   const days = Number(globalRangeSelect?.value || 30);
 
   const usersView = document.getElementById("view-users");
