@@ -675,7 +675,11 @@ function runLocalFilter() {
   }
 }
 
+  /* ============================================================
+     EXPORT PDF
+     ============================================================ */
 async function exportPDF() {
+  console.log("🔥 NEW PDF VERSION RUNNING");
 
   const { jsPDF } = window.jspdf;
 
