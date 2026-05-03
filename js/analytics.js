@@ -780,30 +780,48 @@ container.appendChild(divider);
      KPI
      ============================================================ */
 
-  const kpiWrap = document.createElement("div");
-  kpiWrap.style.display = "flex";
-  kpiWrap.style.gap = "20px";
-  kpiWrap.style.marginBottom = "20px";
+const kpiWrap = document.createElement("div");
 
-  const makeKpi = (label, value) => {
-    const box = document.createElement("div");
-    box.style.background = "#111";
-    box.style.padding = "15px 20px";
-    box.style.borderRadius = "10px";
+kpiWrap.style.display = "flex";
+kpiWrap.style.gap = "30px"; // 🔥 mer luft
+kpiWrap.style.marginBottom = "40px"; // 🔥 mer separation
 
-    box.innerHTML = `
-      <div style="opacity:0.6;font-size:12px">${label}</div>
-      <div style="font-size:20px;font-weight:bold">${value}</div>
-    `;
-    return box;
-  };
+const makeKpi = (label, value) => {
 
-  kpiWrap.appendChild(makeKpi("Views", document.getElementById("globalMarket")?.textContent || "0"));
-  kpiWrap.appendChild(makeKpi("Stores", document.getElementById("globalStores")?.textContent || "0"));
-  kpiWrap.appendChild(makeKpi("Users", document.getElementById("globalUsers")?.textContent || "0"));
+  const box = document.createElement("div");
 
-  container.appendChild(kpiWrap);
+  box.style.flex = "1";
+  box.style.padding = "20px 24px"; // 🔥 större kort
+  box.style.borderRadius = "14px";
 
+  // 🔥 premium gradient + glow
+  box.style.background = "linear-gradient(145deg, #0f0f0f, #1a1a1a)";
+  box.style.border = "1px solid rgba(115,98,75,0.25)";
+  box.style.boxShadow = "0 0 25px rgba(115,98,75,0.15)";
+
+  box.innerHTML = `
+    <div style="opacity:0.6;font-size:12px;margin-bottom:6px">
+      ${label}
+    </div>
+    <div style="font-size:26px;font-weight:600;letter-spacing:0.5px">
+      ${value}
+    </div>
+  `;
+
+  return box;
+};
+
+kpiWrap.appendChild(
+  makeKpi("Views", document.getElementById("globalMarket")?.textContent || "0")
+);
+
+kpiWrap.appendChild(
+  makeKpi("Stores", document.getElementById("globalStores")?.textContent || "0")
+);
+
+kpiWrap.appendChild(
+  makeKpi("Users", document.getElementById("globalUsers")?.textContent || "0")
+);
   /* ============================================================
      TABLE
      ============================================================ */
