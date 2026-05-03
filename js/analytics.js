@@ -681,7 +681,7 @@ async function exportPDF() {
 
   const container = document.createElement("div");
 
-  container.style.width = "1000px";
+  container.style.width = "794px";
   container.style.padding = "40px";
   container.style.background = "#050505";
   container.style.color = "#fff";
