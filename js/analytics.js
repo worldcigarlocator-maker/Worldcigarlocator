@@ -791,7 +791,19 @@ if (kpi === "stores") {
   table.style.borderCollapse = "collapse";
   table.style.marginBottom = "40px";
 
-  const originalRows = document.querySelectorAll("#marketDemandBody tr");
+let originalRows = [];
+
+if (kpi === "users") {
+  originalRows = document.querySelectorAll("#usersTable tbody tr");
+}
+
+if (kpi === "stores") {
+  originalRows = document.querySelectorAll("#topStoresBody tr");
+}
+
+if (kpi === "views" || kpi === "clicks" || kpi === "ctr") {
+  originalRows = document.querySelectorAll("#marketDemandBody tr");
+}
 
   const headerHtml = `
     <tr>
