@@ -46,8 +46,13 @@ const mobileFilters   = qs("#mobileFilters");
 const submitBtnDesktop = document.getElementById("searchSubmitMobile");
 const submitBtnMobile  = document.getElementById("searchSubmitMobileNew");
 
-if (!input) return;
+if (!input) {
+  resetToHero();
+  return;
+}
 
+resetToHero();
+  
 let MAP_MODE = false;
 let TIMER = null;
 
