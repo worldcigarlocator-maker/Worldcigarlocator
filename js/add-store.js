@@ -228,29 +228,40 @@ async function changePhoto(dir) {
    ================================================================ */
 function bindTypeSelector() {
 
-  document.querySelectorAll(
-    ".pill input[type='checkbox'], .type-btn input[type='checkbox']"
-  ).forEach((cb) => {
+  document.querySelectorAll(".pill, .type-btn")
+    .forEach((pill) => {
 
-    cb.addEventListener("change", () => {
+      const input = pill.querySelector("input[type='checkbox']");
+      if (!input) return;
 
-      const val = cb.value;
+      pill.addEventListener("click", () => {
 
-      if (cb.checked) {
-        if (!selectedTypes.includes(val))
-          selectedTypes.push(val);
+        const val = input.value;
 
-        cb.closest("label")?.classList.add("active");
+        // Toggle state
+        if (pill.classList.contains("active")) {
 
-      } else {
-        selectedTypes =
-          selectedTypes.filter((t) => t !== val);
+          pill.classList.remove("active");
+          input.checked = false;
 
-        cb.closest("label")?.classList.remove("active");
-      }
+          selectedTypes =
+            selectedTypes.filter((t) => t !== val);
 
+        } else {
+
+          pill.classList.add("active");
+          input.checked = true;
+
+          if (!selectedTypes.includes(val)) {
+            selectedTypes.push(val);
+          }
+
+        }
+
+        console.log("selectedTypes:", selectedTypes);
+
+      });
     });
-  });
 }
 /* ================================================================
    SAVE STORE (STRICT MODE)
