@@ -1,5 +1,6 @@
 /* ============================================================
-   WCL Backoffice — Neon Dark (Canonical)
+   WCL Backoffice — Harmonised UI
+   Cards restored to original design
    ============================================================ */
 
 /* ============================================================
@@ -7,37 +8,82 @@
    ============================================================ */
 
 :root{
-  --bg:#070a12;
-  --panel:rgba(18,24,42,0.72);
+  --blue:#2f78c4;
+  --blue2:#2466a8;
 
-  --text:#f6fbff;
-  --muted:rgba(246,251,255,0.66);
+  --green:#28a745;
+  --red:#dc3545;
+  --gold:#ffc107;
+  --gray:#999;
+  --yellow:#ffeb3b;
 
-  --border:rgba(255,255,255,0.10);
+  --bg:#f5f6f8;
+  --card-bg:#fff;
 
-  --cyan:#4fd1ff;
-  --green:#6ee7b7;
-  --red:#ff5a5a;
-  --orange:#f59e0b;
-  --gold:#facc15;
+  --text:#1f2937;
+  --muted:#6b7280;
 
-  --radius:16px;
+  --border:#e5e7eb;
+
+  --shadow:0 1px 3px rgba(0,0,0,.06);
+  --radius:12px;
+
+  --font:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+
+   --glow-soft:0 0 10px rgba(47,128,237,0.18);
+--glow-hover:0 0 16px rgba(47,128,237,0.28);
 }
 
 /* ============================================================
    BASE
    ============================================================ */
 
+*{box-sizing:border-box}
+
 body{
+  font-family:var(--font);
   margin:0;
-  font-family:system-ui;
 
   background:
-    radial-gradient(circle at 20% 10%, rgba(0,255,255,0.12), transparent 30%),
-    radial-gradient(circle at 80% 30%, rgba(180,0,255,0.15), transparent 35%),
-    linear-gradient(135deg,#05070f,#0b1325,#0f1a35);
 
-  color:#fff;
+  radial-gradient(
+    circle at 15% -10%,
+    rgba(28,221,255,0.38),
+    transparent 45%
+  ),
+
+  radial-gradient(
+    circle at 60% 30%,
+    rgba(28,90,255,0.30),
+    transparent 50%
+  ),
+
+  radial-gradient(
+    circle at 90% 110%,
+    rgba(200,0,166,0.28),
+    transparent 50%
+  ),
+
+  linear-gradient(
+    180deg,
+    #eef2ff 0%,
+    #f6f8fb 100%
+  );
+
+  background-size:140% 140%;
+  animation:bgShift 14s ease-in-out infinite;
+
+  color:#1f2937;
+}
+
+/* ============================================================
+   BACKGROUND ANIMATION
+   ============================================================ */
+
+@keyframes bgShift{
+  0%{background-position:0% 0%;}
+  50%{background-position:100% 100%;}
+  100%{background-position:0% 0%;}
 }
 
 /* ============================================================
@@ -45,20 +91,42 @@ body{
    ============================================================ */
 
 .topbar{
+
+  max-width:1200px;
+  margin:20px auto 10px;
+
   display:flex;
   justify-content:space-between;
   align-items:center;
 
-  padding:18px 24px;
+  padding:18px 22px;
 
-  background:rgba(10,20,40,0.8);
-  backdrop-filter:blur(16px);
+  background:#0b0b0c;
 
-  border-bottom:1px solid var(--border);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
 
   box-shadow:
-    0 10px 40px rgba(0,0,0,0.6),
-    0 0 20px rgba(79,209,255,0.08);
+    0 4px 20px rgba(0,0,0,0.35);
+}
+.left-block img{
+  width:52px;
+  height:52px;
+
+  object-fit:cover;
+
+  border-radius:10px;
+
+  flex-shrink:0;
+
+  display:block;
+}
+
+/* höger actions */
+.topbar .actions{
+  display:flex;
+  gap:10px;
+  align-items:center;
 }
 
 /* ============================================================
@@ -66,37 +134,50 @@ body{
    ============================================================ */
 
 .btn{
-  border:none;
-  border-radius:999px;
-  padding:8px 14px;
-  font-weight:600;
+  border:1.6px solid var(--blue);
+  background:#fff;
+  color:var(--blue);
+  padding:8px 12px;
+  border-radius:10px;
+  font-weight:800;
   cursor:pointer;
-  color:#000;
+  user-select:none;
 
-  transition:.2s;
+  transition:all .18s ease;
 }
 
 .btn:hover{
+  background:var(--blue);
+  color:#fff;
+
+  box-shadow:var(--glow-hover);
   transform:translateY(-1px);
 }
 
-/* TYPES */
-
-.btn.blue{
-  background:linear-gradient(135deg,#00d2ff,#3a7bd5);
-  box-shadow:0 0 14px rgba(0,210,255,0.5);
+.btn.primary{
+  background:var(--blue);
+  color:#fff;
 }
 
-.btn.green{
-  background:linear-gradient(135deg,#22c55e,#4ade80);
+.btn.primary:hover{
+  background:var(--blue2);
+  border-color:var(--blue2);
 }
 
-.btn.danger{
-  background:linear-gradient(135deg,#ff5a5a,#ff2d2d);
+.btn.blue{background:var(--blue);color:#fff}
+.btn.green{background:var(--green);color:#fff}
+.btn.danger{background:var(--red);color:#fff}
+.btn.yellow{background:var(--yellow);color:#111}
+.btn.orange{background:#ff8c42;color:#fff}
+
+.btn.ghost{
+  border-color:var(--border);
+  color:var(--text);
 }
 
-.btn.orange{
-  background:linear-gradient(135deg,#f59e0b,#fb923c);
+.btn.small{
+  padding:4px 8px;
+  font-size:12px;
 }
 
 /* ============================================================
@@ -106,31 +187,71 @@ body{
 .filters{
   display:flex;
   justify-content:center;
-  gap:10px;
+
+  gap:8px;
+  margin-bottom:18px;
+
   flex-wrap:wrap;
-  margin:18px 0;
 }
 
 .pill{
-  padding:6px 14px;
-  border-radius:999px;
-
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.1);
-
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:6px 12px;
+  font-weight:700;
   cursor:pointer;
-  font-weight:600;
-
-  transition:.2s;
 }
 
 .pill:hover{
-  background:rgba(255,255,255,0.1);
+  box-shadow:var(--glow-soft);
+  transform:translateY(-1px);
 }
 
-.pill.active{
-  background:linear-gradient(135deg,#4fd1ff,#9333ea);
-  color:#fff;
+.pill[data-tab="all"]{border-color:var(--blue);color:var(--blue)}
+.pill[data-tab="approved"]{border-color:var(--green);color:var(--green)}
+.pill[data-tab="pending"]{border-color:var(--gold);color:#b88a00}
+.pill[data-tab="flagged"]{border-color:var(--red);color:var(--red)}
+.pill[data-tab="deleted"]{border-color:var(--gray);color:var(--gray)}
+.pill[data-tab="repair"]{border-color:var(--yellow);color:#a07d00}
+
+.pill.active[data-tab="all"]{background:var(--blue);color:#fff}
+.pill.active[data-tab="approved"]{background:var(--green);color:#fff}
+.pill.active[data-tab="pending"]{background:var(--gold);color:#111}
+.pill.active[data-tab="flagged"]{background:var(--red);color:#fff}
+.pill.active[data-tab="deleted"]{background:var(--gray);color:#fff}
+.pill.active[data-tab="repair"]{background:var(--yellow);color:#111}
+/* ============================================================
+   SEARCH BAR
+   ============================================================ */
+
+/* ============================================================
+   SEARCH BAR
+   ============================================================ */
+
+.searchbar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+
+  max-width:1200px;
+  margin:0 auto 16px;
+}
+
+.searchbar input{
+  flex:1;
+
+  padding:10px 12px;
+
+  border:1px solid var(--border);
+  border-radius:12px;
+
+  font-size:14px;
+}
+
+.searchbar input:focus{
+  border-color:var(--blue);
+  outline:none;
 }
 
 /* ============================================================
@@ -139,131 +260,167 @@ body{
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-  gap:16px;
+  grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+  gap:14px;
 }
 
 /* ============================================================
-   CARD
+   CARDS  (ORIGINAL DESIGN RESTORED)
    ============================================================ */
 
 .card{
-  background:linear-gradient(
-    180deg,
-    rgba(20,30,50,0.8),
-    rgba(10,15,30,0.95)
-  );
-
-  border-radius:14px;
+  background:#ffffff;
+  border-radius:10px;
+  box-shadow:var(--shadow);
   overflow:hidden;
-
-  border:1px solid rgba(255,255,255,0.06);
-
-  box-shadow:
-    0 10px 30px rgba(0,0,0,0.6),
-    0 0 14px rgba(79,209,255,0.06);
-
-  transition:.2s;
+  display:flex;
+  flex-direction:column;
+  border:2px solid transparent;
+  transition:transform .15s, border-color .25s;
+  min-height:350px;
 }
 
-.card:hover{
-  transform:translateY(-3px);
-  box-shadow:
-    0 20px 40px rgba(0,0,0,0.7),
-    0 0 25px rgba(79,209,255,0.2);
-}
+.card:hover{transform:translateY(-2px)}
 
-/* STATUS BORDER */
+.card.border-green{border-color:var(--green)}
+.card.border-red{border-color:var(--red)}
+.card.border-gold{border-color:var(--gold)}
+.card.border-gray{border-color:var(--gray)}
 
-.card.border-green{border-color:rgba(34,197,94,0.6)}
-.card.border-red{border-color:rgba(255,80,80,0.6)}
-.card.border-gold{border-color:rgba(250,204,21,0.6)}
-.card.border-gray{border-color:rgba(180,180,180,0.3)}
-
-/* IMAGE */
-
-.card img{
+.card img.photo{
   width:100%;
   height:150px;
   object-fit:cover;
 }
 
-/* BODY */
-
 .card .body{
-  padding:14px;
+  padding:1rem;
   display:flex;
   flex-direction:column;
-  gap:6px;
+  gap:.35rem;
+  flex:1;
 }
 
 /* ============================================================
-   TEXT
+   CARD TITLE
    ============================================================ */
 
 .twoline{
-  font-size:16px;
-  font-weight:700;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  font-size:1.1rem;
+  font-weight:600;
+  line-height:1.25rem;
+  margin-bottom:.3rem;
+  min-height:2.5rem;
 }
 
 /* ============================================================
    BADGES
    ============================================================ */
 
-.badge{
-  padding:3px 7px;
-  border-radius:6px;
-  font-size:11px;
-  font-weight:700;
+.badges{
+  margin-top:.4rem;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  font-size:.85rem;
 }
 
-.badge.green{background:#22c55e}
-.badge.red{background:#ef4444}
-.badge.gold{background:#facc15;color:#000}
-.badge.gray{background:#6b7280}
+.badge{
+  display:inline-block;
+  padding:2px 6px;
+  border-radius:4px;
+  font-size:.75rem;
+  font-weight:600;
+  color:#fff;
+}
+
+.badge.green{background:var(--green)}
+.badge.red{background:var(--red)}
+.badge.gray{background:var(--gray)}
+.badge.gold{background:var(--gold);color:#000}
+.badge.blue{background:var(--blue)}
 
 /* ============================================================
-   ACTIONS
+   ACTION BUTTONS
    ============================================================ */
 
 .actions{
   display:flex;
   flex-wrap:wrap;
-  gap:6px;
-  padding:10px;
-  border-top:1px solid rgba(255,255,255,0.06);
+  gap:.4rem;
+  padding:.6rem;
+  border-top:1px solid var(--border);
   justify-content:center;
 }
 
 /* ============================================================
-   TABLE
+   TABLE VIEW
    ============================================================ */
+
+.table-wrap{overflow:auto}
 
 table{
   width:100%;
   border-collapse:collapse;
+  background:#fff;
+  border-radius:6px;
+  box-shadow:var(--shadow);
 }
 
 th,td{
-  padding:12px;
+  padding:8px 10px;
+  border-bottom:1px solid #eef0f3;
+  font-size:13px;
+  text-align:left;
 }
 
-tr{
-  border-bottom:1px solid rgba(255,255,255,0.06);
+th{
+  background:#f3f4f6;
+  font-weight:800;
+  text-transform:uppercase;
 }
 
-tr:hover{
-  background:rgba(255,255,255,0.05);
-}
+tr:hover td{background:#f7f8fb}
 
 /* ============================================================
    MODAL
    ============================================================ */
 
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
 .modal{
-  background:#0b1325;
-  border-radius:16px;
-  padding:20px;
+  background:#fff;
+  border-radius:var(--radius);
+  box-shadow:0 6px 20px rgba(0,0,0,.2);
+  padding:24px;
+  width:100%;
+  max-width:520px;
+}
+
+.modal h3{margin-bottom:16px}
+
+.edit-grid{
+  display:grid;
+  gap:10px;
+}
+
+.edit-grid input,
+.edit-grid select{
+  padding:8px 10px;
+  border:1px solid var(--border);
+  border-radius:10px;
 }
 
 /* ============================================================
@@ -272,115 +429,29 @@ tr:hover{
 
 .toast{
   position:fixed;
-  bottom:20px;
   right:20px;
-
+  bottom:20px;
+  background:var(--blue);
+  color:#fff;
   padding:10px 14px;
-
-  border-radius:10px;
-
-  background:linear-gradient(135deg,#4fd1ff,#9333ea);
+  border-radius:8px;
+  box-shadow:var(--shadow);
 }
 
+.toast.error{background:var(--red)}
+.toast.info{background:var(--gold);color:#111}
 
 /* ============================================================
-   NEON OVERLAY (SAFE — NO BREAK)
+   UTILITIES
    ============================================================ */
 
-/* Background upgrade */
-body{
-  background:
-    radial-gradient(circle at 15% 10%, rgba(0,255,255,0.15), transparent 30%),
-    radial-gradient(circle at 80% 30%, rgba(180,0,255,0.15), transparent 35%),
-    linear-gradient(135deg,#05070f,#0b1325,#0f1a35);
+.center{text-align:center}
+.muted{color:var(--muted)}
 
-  color:#eaf6ff;
-}
-
-/* Cards glow (utan att förstöra layout) */
-.card{
-  background:rgba(18,24,42,0.85) !important;
-
-  box-shadow:
-    0 10px 30px rgba(0,0,0,0.6),
-    0 0 14px rgba(79,209,255,0.06);
-
-  border:1px solid rgba(255,255,255,0.06);
-}
-
-/* Hover */
-.card:hover{
-  box-shadow:
-    0 20px 40px rgba(0,0,0,0.7),
-    0 0 25px rgba(79,209,255,0.2);
-}
-
-/* Topbar glow */
-.topbar{
-  background:rgba(10,20,40,0.85) !important;
-
-  box-shadow:
-    0 10px 40px rgba(0,0,0,0.6),
-    0 0 20px rgba(79,209,255,0.1);
-}
-
-/* Pills neon */
-.pill.active{
-  background:linear-gradient(135deg,#4fd1ff,#9333ea) !important;
-  color:#fff !important;
-}
-
-/* Buttons glow */
-.btn.blue{
-  box-shadow:0 0 12px rgba(0,210,255,0.5);
-}
-.btn.green{
-  box-shadow:0 0 12px rgba(34,197,94,0.4);
-}
-.btn.danger{
-  box-shadow:0 0 12px rgba(255,80,80,0.4);
-}
-
-/* Table */
-table{
-  background:rgba(18,24,42,0.85);
-}
-
-tr:hover td{
-  background:rgba(255,255,255,0.05);
-}
-
-/* ============================================================
-   LAYOUT FIX — CONTAINER + HERO CONTROL
-   ============================================================ */
-
-/* Stoppa full-screen overlay känsla */
-body{
-  overflow-x:hidden;
-}
-
-/* Wrap (huvudcontainer) */
-.wrap{
-  max-width:1200px;
-  margin:0 auto;
-  position:relative;
-  z-index:2;
-}
-
-/* Topbar ska inte flyta */
-.topbar{
-  position:relative;
-  z-index:3;
-}
-
-/* Cards/grid ska alltid ligga under */
-.grid{
-  position:relative;
-  z-index:2;
-}
-
-/* Säkerställ att inget “cover layer” ligger över */
-body::before,
-body::after{
-  z-index:0;
+.card .flag{
+  width:18px;
+  height:12px;
+  object-fit:cover;
+  border-radius:2px;
+  display:inline-block;
 }
