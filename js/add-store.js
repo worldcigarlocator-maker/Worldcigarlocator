@@ -317,9 +317,9 @@ const state = stateRaw || null;
   };
 
   try {
-    const { error } = await WCL.supabase
-      .from("stores")
-      .insert([payload]);
+ const { error } = await WCL.supabase
+  .from("store_pending")
+  .insert([payload]);
 
     if (error) throw error;
 
