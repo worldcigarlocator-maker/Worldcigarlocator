@@ -42,10 +42,14 @@ function showLoginPopup() {
 async function syncAuthGate() {
 
   const popup = document.getElementById("loginPopup");
+  const loginBtn = document.getElementById("loginBtn");
+  const authStatus = document.getElementById("authStatus");
 
   const { data: { session } } = await supabase.auth.getSession();
 
+  // ============================================================
   // NOT LOGGED IN
+  // ============================================================
   if (!session) {
 
     document.body.classList.add("auth-locked");
@@ -55,10 +59,15 @@ async function syncAuthGate() {
       popup.style.display = "flex";
     }
 
+    if (loginBtn) loginBtn.textContent = "Login";
+    if (authStatus) authStatus.textContent = "";
+
     return;
   }
 
+  // ============================================================
   // LOGGED IN
+  // ============================================================
   document.body.classList.remove("auth-locked");
 
   if (popup) {
@@ -66,8 +75,11 @@ async function syncAuthGate() {
     popup.style.display = "none";
   }
 
+  if (loginBtn) loginBtn.textContent = "Logout";
+  if (authStatus) {
+    authStatus.textContent = `Inloggad som: ${session.user.email}`;
+  }
 }
-
 // ============================================================
 // LOGIN BINDINGS
 // ============================================================
@@ -75,8 +87,19 @@ function bindLoginButtons() {
 
   // Sidebar "Login" button
   const loginBtn = qs("#loginBtn");
-  loginBtn?.addEventListener("click", () => showLoginPopup());
+loginBtn?.addEventListener("click", async () => {
 
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (session) {
+    // 🔥 LOGOUT
+    await supabase.auth.signOut();
+    return;
+  }
+
+  // 🔥 LOGIN
+  showLoginPopup();
+});
   // 🔥 AUTH MESSAGE
   const msg = qs("#authMessage");
 
