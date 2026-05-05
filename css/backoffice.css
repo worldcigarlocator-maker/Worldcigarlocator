@@ -480,3 +480,7 @@ tr:hover td{background:#f7f8fb}
   border-radius:2px;
   display:inline-block;
 }
+
+.topbar{
+  background:#070a12 !important;
+}
