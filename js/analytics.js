@@ -786,13 +786,53 @@ y += 16;
 
   y += 22;
 
-  /* ============================================================
-     TABLE HEADER
-     ============================================================ */
+ /* ============================================================
+   TABLE (KPI AWARE)
+   ============================================================ */
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(9);
-  pdf.setTextColor(180, 180, 180);
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(9);
+pdf.setTextColor(180, 180, 180);
+
+// ============================================================
+// USERS
+// ============================================================
+
+if (kpi === "users") {
+
+  pdf.text("Date", margin, y);
+  pdf.text("Users", 190, y, { align: "right" });
+
+  y += 3;
+  pdf.setDrawColor(60, 60, 60);
+  pdf.line(margin, y, pageWidth - margin, y);
+  y += 6;
+
+  const rows = document.querySelectorAll("#usersTable tbody tr");
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(230, 230, 230);
+
+  [...rows].slice(0, 12).forEach(tr => {
+
+    const tds = tr.querySelectorAll("td");
+    if (tds.length < 2) return;
+
+    const date = tds[0].textContent;
+    const users = tds[1].textContent;
+
+    pdf.text(date, margin, y);
+    pdf.text(users, 190, y, { align: "right" });
+
+    y += 6;
+  });
+}
+
+// ============================================================
+// MARKET
+// ============================================================
+
+if (kpi === "views" || kpi === "clicks" || kpi === "ctr") {
 
   pdf.text("Name", margin, y);
   pdf.text("Views", 120, y, { align: "right" });
@@ -800,81 +840,102 @@ y += 16;
   pdf.text("CTR", 190, y, { align: "right" });
 
   y += 3;
-
   pdf.setDrawColor(60, 60, 60);
   pdf.line(margin, y, pageWidth - margin, y);
-
   y += 6;
 
-  /* ============================================================
-     TABLE ROWS
-     ============================================================ */
-
-  let rows = [];
-
-  if (kpi === "users") {
-    rows = document.querySelectorAll("#usersTable tbody tr");
-  }
-
-  if (kpi === "stores") {
-    rows = document.querySelectorAll("#topStoresBody tr");
-  }
-
-  if (kpi === "views" || kpi === "clicks" || kpi === "ctr") {
-    rows = document.querySelectorAll("#marketDemandBody tr");
-  }
+  const rows = document.querySelectorAll("#marketDemandBody tr");
 
   pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(9);
   pdf.setTextColor(230, 230, 230);
 
   [...rows].slice(0, 12).forEach(tr => {
 
-const tds = tr.querySelectorAll("td");
-if (!tds || tds.length < 2) return;
+    const tds = tr.querySelectorAll("td");
+    if (tds.length < 4) return;
 
-// 🔥 SAFE READ
-const name = tds[0]?.textContent || "";
-const views = tds[1]?.textContent || "";
-const clicks = tds[2]?.textContent || "";
-const ctr = tds[3]?.textContent || "";
-
-    pdf.text(name, margin, y);
-    pdf.text(views, 120, y, { align: "right" });
-    pdf.text(clicks, 150, y, { align: "right" });
-    pdf.text(ctr, 190, y, { align: "right" });
+    pdf.text(tds[0].textContent, margin, y);
+    pdf.text(tds[1].textContent, 120, y, { align: "right" });
+    pdf.text(tds[2].textContent, 150, y, { align: "right" });
+    pdf.text(tds[3].textContent, 190, y, { align: "right" });
 
     y += 6;
-
   });
+}
 
-  y += 4;
+// ============================================================
+// STORES
+// ============================================================
 
-  /* ============================================================
-     CHART (DIRECT — NO CANVAS CLONE)
-     ============================================================ */
+if (kpi === "stores") {
 
-  const chartCanvas = document.getElementById("marketChart");
+  pdf.text("Store", margin, y);
+  pdf.text("Views", 150, y, { align: "right" });
+  pdf.text("Clicks", 190, y, { align: "right" });
 
-  if (chartCanvas && chartCanvas.toDataURL) {
+  y += 3;
+  pdf.setDrawColor(60, 60, 60);
+  pdf.line(margin, y, pageWidth - margin, y);
+  y += 6;
 
-    try {
+  const rows = document.querySelectorAll("#topStoresBody tr");
 
-      const imgData = chartCanvas.toDataURL("image/png", 1.0);
+  pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(230, 230, 230);
 
-      pdf.addImage(
-        imgData,
-        "PNG",
-        margin,
-        y,
-        pageWidth - margin * 2,
-        80
-      );
+  [...rows].slice(0, 12).forEach(tr => {
 
-    } catch (e) {
-      console.warn("Chart export failed", e);
-    }
+    const tds = tr.querySelectorAll("td");
+    if (tds.length < 3) return;
+
+    pdf.text(tds[0].textContent, margin, y);
+    pdf.text(tds[1].textContent, 150, y, { align: "right" });
+    pdf.text(tds[2].textContent, 190, y, { align: "right" });
+
+    y += 6;
+  });
+}
+
+y += 4;
+
+ /* ============================================================
+   CHART (KPI AWARE)
+   ============================================================ */
+
+let chartCanvas = null;
+
+// 🔥 USERS
+if (kpi === "users") {
+  chartCanvas = document.getElementById("usersChart");
+}
+
+// 🔥 MARKET
+if (kpi === "views" || kpi === "clicks" || kpi === "ctr") {
+  chartCanvas = document.getElementById("marketChart");
+}
+
+// 🔥 STORES → no chart
+
+if (chartCanvas && chartCanvas.toDataURL) {
+
+  try {
+
+    const imgData = chartCanvas.toDataURL("image/png", 1.0);
+
+    pdf.addImage(
+      imgData,
+      "PNG",
+      margin,
+      y,
+      pageWidth - margin * 2,
+      80
+    );
+
+  } catch (e) {
+    console.warn("Chart export failed", e);
   }
+
+}
 
   /* ============================================================
      SAVE
