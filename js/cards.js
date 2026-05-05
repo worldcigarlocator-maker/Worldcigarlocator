@@ -610,8 +610,12 @@ if (
   (!snap.type || snap.type.length === 0) &&
   (!snap.access || snap.access.length === 0)
 ) {
+
+  // 🔥 ENDast visa hero — MEN nollställ UI korrekt
   resetToHero();
+
   updateSearchCount(GLOBAL_TOTAL);
+
   return;
 }
 
