@@ -645,6 +645,11 @@ console.log(
   console.log("RUN SEARCH FIRED", STATE.search.text);
 
   renderCards(filteredRows, isLoadMore);
+  if (!isLoadMore) {
+  requestAnimationFrame(() => {
+    window.scrollTo(0, 0);
+  });
+}
 
   /* ============================================================
    STORE GRID VISIBILITY
