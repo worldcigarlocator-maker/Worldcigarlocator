@@ -48,23 +48,23 @@ async function syncAuthGate() {
   const { data: { session } } = await supabase.auth.getSession();
 
   // ============================================================
-  // NOT LOGGED IN
-  // ============================================================
-  if (!session) {
+// NOT LOGGED IN
+// ============================================================
+if (!session) {
 
-    document.body.classList.add("auth-locked");
+  document.body.classList.add("auth-locked");
 
-    if (popup) {
-      popup.classList.remove("hidden");
-      popup.style.display = "flex";
-    }
-
-    if (loginBtn) loginBtn.textContent = "Login";
-    if (authStatus) authStatus.textContent = "";
-
-    return;
+  // ❌ Ta bort auto-popup
+  if (popup) {
+    popup.classList.add("hidden");
+    popup.style.display = "none";
   }
 
+  if (loginBtn) loginBtn.textContent = "Login";
+  if (authStatus) authStatus.textContent = "";
+
+  return;
+}
   // ============================================================
   // LOGGED IN
   // ============================================================
