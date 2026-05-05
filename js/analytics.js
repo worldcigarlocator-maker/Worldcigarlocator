@@ -707,8 +707,14 @@ async function exportPDF() {
 const logoBase64 =
 "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAABAfUpfAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAKklEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAA4G8GAAE1qv0rAAAAAElFTkSuQmCC";
 
-pdf.addImage(logoBase64, "PNG", margin, y - 6, 8, 8);
-
+pdf.addImage(
+  window.location.origin + "/images/favicon-32.png",
+  "PNG",
+  margin,
+  y - 6,
+  8,
+  8
+);
 
 // TEXT
 pdf.setTextColor(255, 255, 255);
