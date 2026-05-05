@@ -1521,8 +1521,12 @@ function makeBtn(label, onclick, cls = "") {
 /*  APPROVE — pending → stores */
 async function approveStore(id) {
 
-  const { error } = await WCL.supabase
+  console.log("APPROVE CLICK ID:", id);
+
+  const { data, error } = await WCL.supabase
     .rpc("approve_store_pending", { p_id: id });
+
+  console.log("RPC RESPONSE:", data, error);
 
   if (error) {
     console.error("Approve failed:", error);
