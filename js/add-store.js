@@ -374,3 +374,11 @@ function bindButtons() {
   document.getElementById("clearBtn")
     ?.addEventListener("click", resetForm);
 }
+
+/* ================================================================
+   INIT SAFETY (FRONTEND)
+   ================================================================ */
+
+setTimeout(() => {
+  bindTypeSelector();
+}, 0);
