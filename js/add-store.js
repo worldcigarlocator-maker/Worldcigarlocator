@@ -228,39 +228,25 @@ async function changePhoto(dir) {
    ================================================================ */
 function bindTypeSelector() {
 
-  document.querySelectorAll(".pill, .type-btn")
-    .forEach((pill) => {
+  document.querySelectorAll("input[type='checkbox']")
+    .forEach((cb) => {
 
-      const input = pill.querySelector("input[type='checkbox']");
-      if (!input) return;
+      cb.addEventListener("change", () => {
 
-      pill.addEventListener("click", () => {
+        const val = cb.value;
 
-        const val = input.value;
-
-        // Toggle state
-        if (pill.classList.contains("active")) {
-
-          pill.classList.remove("active");
-          input.checked = false;
-
-          selectedTypes =
-            selectedTypes.filter((t) => t !== val);
-
-        } else {
-
-          pill.classList.add("active");
-          input.checked = true;
-
+        if (cb.checked) {
           if (!selectedTypes.includes(val)) {
             selectedTypes.push(val);
           }
-
+        } else {
+          selectedTypes =
+            selectedTypes.filter((t) => t !== val);
         }
 
         console.log("selectedTypes:", selectedTypes);
-
       });
+
     });
 }
 /* ================================================================
