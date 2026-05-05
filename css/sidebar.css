@@ -265,3 +265,17 @@ max-height: 9999px;
   color: rgb(var(--global));
 }
 
+/* ============================================================
+   AUTH STATUS (LOGGED IN TEXT)
+============================================================ */
+
+.auth-status{
+  font-size:12px;
+  color:#aaa;
+  display:block;
+  margin-top:4px;
+  max-width:160px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
