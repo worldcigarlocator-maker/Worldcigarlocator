@@ -228,7 +228,7 @@ async function changePhoto(dir) {
    ================================================================ */
 function bindTypeSelector() {
 
-  document.querySelectorAll(".type-btn input")
+  document.querySelectorAll(".pill input[type='checkbox']")
     .forEach((cb) => {
 
       cb.addEventListener("change", () => {
@@ -238,12 +238,11 @@ function bindTypeSelector() {
         if (cb.checked) {
           if (!selectedTypes.includes(val))
             selectedTypes.push(val);
-          cb.parentElement.classList.add("active");
         } else {
           selectedTypes =
             selectedTypes.filter((t) => t !== val);
-          cb.parentElement.classList.remove("active");
         }
+
       });
     });
 }
