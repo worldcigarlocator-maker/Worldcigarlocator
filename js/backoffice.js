@@ -1406,6 +1406,7 @@ async function loadStoreReports() {
 
   render();
 }
+
 /* ===================== UI WIRING ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   console.log(" DOM fully loaded — Backoffice ready");
@@ -1432,41 +1433,50 @@ document.addEventListener("DOMContentLoaded", () => {
         $("#cards").style.display = "none";
         $(".listview-wrap").style.display = "flex";
       }
-     reloadData(CURRENT_TAB);
+
+      reloadData(CURRENT_TAB);
     })
   );
 
-  //  Sökfält
-$("#searchInput")?.addEventListener("input", async (e) => {
+  // ============================================================
+  // SEARCH — TAB-AWARE (FIX)
+  // ============================================================
 
-  const term = e.target.value.trim();
+  $("#searchInput")?.addEventListener("input", async (e) => {
 
-  // Tomt → normal render
-  if (!term) {
+    const term = e.target.value.trim();
+
+    // Tomt → tillbaka till normal state
+    if (!term) {
+      await reloadData(CURRENT_TAB);
+      return;
+    }
+
+    console.log("🔎 Searching DB:", term, "TAB:", CURRENT_TAB);
+
+    let table = "stores";
+
+    if (CURRENT_TAB === "pending") {
+      table = "store_pending";
+    }
+
+    const { data, error } = await WCL.supabase
+      .from(table)
+      .select("*")
+      .ilike("name", `%${term}%`)
+      .limit(100);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    STORES = data || [];
+
     render();
-    return;
-  }
+  });
 
-  console.log("🔎 Searching DB:", term);
-
-  const { data, error } = await WCL.supabase
-    .from("stores")
-    .select("*")
-    .ilike("name", `%${term}%`)
-    .limit(100);
-
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  STORES = data || [];
-
-  render();
 });
-   });
-
-
 /* ===================== BUTTON ===================== */
 function makeBtn(label, onclick, cls = "") {
   const b = document.createElement("button");
