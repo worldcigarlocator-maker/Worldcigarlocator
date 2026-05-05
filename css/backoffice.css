@@ -270,14 +270,28 @@ body{
    ============================================================ */
 
 .card{
-  background:#ffffff;
+  background:linear-gradient(
+    180deg,
+    rgba(18,24,42,0.85),
+    rgba(10,15,30,0.95)
+  );
+
   border-radius:10px;
-  box-shadow:var(--shadow);
+  box-shadow:
+    0 6px 20px rgba(0,0,0,0.6),
+    0 0 14px rgba(79,209,255,0.08);
+
   overflow:hidden;
   display:flex;
   flex-direction:column;
-  border:2px solid transparent;
-  transition:transform .15s, border-color .25s;
+
+  border:2px solid rgba(255,255,255,0.05);
+
+  transition:
+    transform .15s,
+    border-color .25s,
+    box-shadow .25s;
+
   min-height:350px;
 }
 
