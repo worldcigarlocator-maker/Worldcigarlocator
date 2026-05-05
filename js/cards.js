@@ -138,7 +138,7 @@ function updateSearchCount(value) {
   }
 
   const formatted = new Intl.NumberFormat().format(value);
-el.textContent = `${formatted} listings worldwide`;
+el.textContent = `${formatted} Listings found`;
 }
 // ============================================================
 // HERO RESET
