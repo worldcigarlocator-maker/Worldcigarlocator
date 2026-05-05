@@ -699,28 +699,18 @@ async function exportPDF() {
   pdf.setFillColor(5, 5, 5);
   pdf.rect(0, 0, 210, 297, "F");
 
-  /* ============================================================
+/* ============================================================
    HEADER
    ============================================================ */
 
-try {
+// 🔥 INLINE LOGO (STABLE – NO FETCH)
+const logoBase64 =
+"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAABAfUpfAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAKklEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAA4G8GAAE1qv0rAAAAAElFTkSuQmCC";
 
-  const res = await fetch("/images/favicon-32.png");
-  const blob = await res.blob();
+pdf.addImage(logoBase64, "PNG", margin, y - 6, 8, 8);
 
-  const reader = new FileReader();
 
-  const base64 = await new Promise(resolve => {
-    reader.onloadend = () => resolve(reader.result);
-    reader.readAsDataURL(blob);
-  });
-
-  pdf.addImage(base64, "PNG", margin, y - 6, 8, 8);
-
-} catch (e) {
-  console.warn("Logo load failed", e);
-}
-
+// TEXT
 pdf.setTextColor(255, 255, 255);
 pdf.setFont("helvetica", "bold");
 pdf.setFontSize(14);
