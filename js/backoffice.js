@@ -1437,6 +1437,7 @@ $("#searchInput")?.addEventListener("input", async (e) => {
 
   render();
 });
+   });
 
 
 /* ===================== BUTTON ===================== */
