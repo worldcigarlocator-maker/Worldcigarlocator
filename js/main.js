@@ -77,7 +77,7 @@ if (!session) {
 
   if (loginBtn) loginBtn.textContent = "Logout";
   if (authStatus) {
-    authStatus.textContent = `Inloggad som: ${session.user.email}`;
+    authStatus.textContent = `Welcome: ${session.user.email}`;
   }
 }
 // ============================================================
