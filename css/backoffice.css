@@ -94,7 +94,7 @@ color:#e6edf7;
 .topbar{
 
   position:relative;
-  z-index:10;
+  z-index:9999;
 
   max-width:1200px;
   margin:20px auto 10px;
