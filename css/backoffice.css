@@ -47,34 +47,35 @@ body{
   background:
 
   radial-gradient(
-    circle at 15% -10%,
-    rgba(28,221,255,0.38),
+    circle at 15% 10%,
+    rgba(0,255,255,0.18),
+    transparent 40%
+  ),
+
+  radial-gradient(
+    circle at 70% 30%,
+    rgba(140,0,255,0.18),
     transparent 45%
   ),
 
   radial-gradient(
-    circle at 60% 30%,
-    rgba(28,90,255,0.30),
-    transparent 50%
-  ),
-
-  radial-gradient(
-    circle at 90% 110%,
-    rgba(200,0,166,0.28),
-    transparent 50%
+    circle at 90% 90%,
+    rgba(0,255,180,0.12),
+    transparent 40%
   ),
 
   linear-gradient(
     180deg,
-    #eef2ff 0%,
-    #f6f8fb 100%
+    #05070f 0%,
+    #0b1325 60%,
+    #0f1a35 100%
   );
 
   background-size:140% 140%;
-  animation:bgShift 14s ease-in-out infinite;
+  animation:bgShift 18s ease-in-out infinite;
 
-  color:#1f2937;
-}
+  color:#e6edf7;
+}}
 
 /* ============================================================
    BACKGROUND ANIMATION
