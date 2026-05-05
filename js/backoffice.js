@@ -702,7 +702,9 @@ function render() {
    ============================================================ */
 async function reloadData(tab = CURRENT_TAB) {
 
-  if (tab !== CURRENT_TAB) {
+  const prevTab = CURRENT_TAB;
+
+  if (tab !== prevTab) {
     RENDER_LIMIT = 100;
   }
 
