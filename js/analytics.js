@@ -676,202 +676,194 @@ function runLocalFilter() {
 }
 
   /* ============================================================
-     EXPORT PDF
-     ============================================================ */
+   EXPORT PDF (NATIVE — SINGLE PAGE, CANONICAL)
+   ============================================================ */
 async function exportPDF() {
-  const kpi = getKPI();
-console.log("📄 EXPORT KPI:", kpi);
-  console.log("🔥 NEW PDF VERSION RUNNING");
+
+  console.log("📄 EXPORT (NATIVE PDF)");
 
   const { jsPDF } = window.jspdf;
 
-  const container = document.createElement("div");
-  container.style.width = "900px";
-  container.style.padding = "50px 60px";
-  container.style.background = "#050505";
-  container.style.color = "#fff";
-  container.style.fontFamily = "sans-serif";
-  container.style.boxSizing = "border-box";
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const pageWidth = 210;
+  const margin = 14;
+  let y = 18;
 
   /* ============================================================
      HEADER
      ============================================================ */
 
-  const header = document.createElement("div");
-  header.style.display = "flex";
-  header.style.justifyContent = "space-between";
-  header.style.alignItems = "center";
-  header.style.marginBottom = "30px";
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(16);
+  pdf.setTextColor(115, 98, 75);
+  pdf.text("World Cigar Locator", margin, y);
 
-  const left = document.createElement("div");
-  left.style.display = "flex";
-  left.style.alignItems = "center";
-  left.style.gap = "12px";
+  pdf.setFontSize(10);
+  pdf.setTextColor(120);
+  pdf.text("Analytics Report", margin, y + 6);
 
-  const logo = document.createElement("img");
-  logo.src = window.location.origin + "/images/favicon.svg";
-  logo.style.width = "36px";
-  logo.style.height = "36px";
+  const now = new Date().toLocaleString();
+  pdf.text(now, pageWidth - margin - 40, y);
 
-  const brand = document.createElement("div");
-  brand.innerHTML = `
-    <div style="font-size:18px;font-weight:600;color:rgb(115,98,75)">
-      World Cigar Locator
-    </div>
-    <div style="font-size:12px;opacity:0.6">
-      Analytics Report
-    </div>
-  `;
-
-  left.appendChild(logo);
-  left.appendChild(brand);
-
-  const right = document.createElement("div");
-  right.style.fontSize = "12px";
-  right.style.opacity = "0.6";
-  right.textContent = new Date().toLocaleString();
-
-  header.appendChild(left);
-  header.appendChild(right);
-  container.appendChild(header);
-
-  /* ============================================================
-   ROUTING (STATE-BASED EXPORT)
-   ============================================================ */
-
-if (kpi === "users") {
-  console.log("👉 EXPORT USERS VIEW");
-}
-
-if (kpi === "views" || kpi === "clicks" || kpi === "ctr") {
-  console.log("👉 EXPORT MARKET VIEW");
-}
-
-if (kpi === "stores") {
-  console.log("👉 EXPORT STORES VIEW");
-}
+  y += 14;
 
   /* ============================================================
      KPI
      ============================================================ */
 
-  const kpiWrap = document.createElement("div");
-  kpiWrap.style.display = "flex";
-  kpiWrap.style.gap = "20px";
-  kpiWrap.style.marginBottom = "40px";
+  const views = document.getElementById("globalMarket")?.textContent || "0";
+  const stores = document.getElementById("globalStores")?.textContent || "0";
+  const users = document.getElementById("globalUsers")?.textContent || "0";
 
-  const makeKpi = (label, value) => {
-    const box = document.createElement("div");
+  const drawKpi = (label, value, x) => {
 
-    box.style.flex = "1";
-    box.style.padding = "18px";
-    box.style.borderRadius = "12px";
-    box.style.background = "#111";
+    pdf.setDrawColor(40);
+    pdf.setFillColor(15);
+    pdf.roundedRect(x, y, 55, 20, 3, 3, "F");
 
-    box.innerHTML = `
-      <div style="opacity:0.6;font-size:12px">${label}</div>
-      <div style="font-size:22px;font-weight:600">${value}</div>
-    `;
+    pdf.setFontSize(9);
+    pdf.setTextColor(150);
+    pdf.text(label, x + 4, y + 6);
 
-    return box;
+    pdf.setFontSize(14);
+    pdf.setTextColor(255);
+    pdf.text(String(value), x + 4, y + 15);
   };
 
-  kpiWrap.appendChild(makeKpi("Views", document.getElementById("globalMarket")?.textContent || "0"));
-  kpiWrap.appendChild(makeKpi("Stores", document.getElementById("globalStores")?.textContent || "0"));
-  kpiWrap.appendChild(makeKpi("Users", document.getElementById("globalUsers")?.textContent || "0"));
+  drawKpi("Views", views, margin);
+  drawKpi("Stores", stores, margin + 60);
+  drawKpi("Users", users, margin + 120);
 
-  container.appendChild(kpiWrap);
+  y += 30;
 
   /* ============================================================
-     TABLE
+     TABLE SOURCE
      ============================================================ */
 
-  const table = document.createElement("table");
-  table.style.width = "100%";
-  table.style.borderCollapse = "collapse";
-  table.style.marginBottom = "40px";
+  const kpi = getKPI();
 
-let originalRows = [];
+  let rows = [];
 
-if (kpi === "users") {
-  originalRows = document.querySelectorAll("#usersTable tbody tr");
-}
+  if (kpi === "views" || kpi === "clicks" || kpi === "ctr") {
+    rows = window.WCL_MARKET_DATA || [];
+  }
 
-if (kpi === "stores") {
-  originalRows = document.querySelectorAll("#topStoresBody tr");
-}
+  if (kpi === "stores") {
+    rows = window.WCL_STORES_DATA || [];
+  }
 
-if (kpi === "views" || kpi === "clicks" || kpi === "ctr") {
-  originalRows = document.querySelectorAll("#marketDemandBody tr");
-}
+  if (kpi === "users") {
+    rows = window.WCL_USERS_DATA || [];
+  }
 
-  const headerHtml = `
-    <tr>
-      <th style="text-align:left;padding:10px;border-bottom:1px solid #333">Name</th>
-      <th style="text-align:right;padding:10px;border-bottom:1px solid #333">Views</th>
-      <th style="text-align:right;padding:10px;border-bottom:1px solid #333">Clicks</th>
-      <th style="text-align:right;padding:10px;border-bottom:1px solid #333">CTR</th>
-    </tr>
-  `;
-
-  const rows = [...originalRows].map(tr => {
-    const tds = tr.querySelectorAll("td");
-    if (!tds.length) return "";
-
-    return `
-      <tr>
-        <td style="padding:8px">${tds[0].textContent}</td>
-        <td style="padding:8px;text-align:right">${tds[1].textContent}</td>
-        <td style="padding:8px;text-align:right">${tds[2].textContent}</td>
-        <td style="padding:8px;text-align:right">${tds[3].textContent}</td>
-      </tr>
-    `;
-  }).join("");
-
-  table.innerHTML = headerHtml + rows;
-  container.appendChild(table);
+  if (!rows.length) {
+    pdf.setTextColor(180);
+    pdf.text("No data available", margin, y);
+    pdf.save("wcl-analytics-report.pdf");
+    return;
+  }
 
   /* ============================================================
-     CHART
+     NORMALIZE DATA (TOP 10)
+     ============================================================ */
+
+  const normalized = rows.map(r => {
+
+    const label =
+      r.city ||
+      r.country ||
+      r.name ||
+      r.source ||
+      "—";
+
+    const views = Number(r.views || 0);
+    const clicks = Number(r.clicks || 0);
+    const ctr = views > 0 ? (clicks / views) * 100 : 0;
+
+    return {
+      label,
+      views,
+      clicks,
+      ctr
+    };
+
+  })
+  .sort((a, b) => b.views - a.views)
+  .slice(0, 10);
+
+  /* ============================================================
+     TABLE HEADER
+     ============================================================ */
+
+  pdf.setFontSize(10);
+  pdf.setTextColor(180);
+
+  pdf.text("Name", margin, y);
+  pdf.text("Views", margin + 90, y, { align: "right" });
+  pdf.text("Clicks", margin + 120, y, { align: "right" });
+  pdf.text("CTR", margin + 150, y, { align: "right" });
+
+  y += 6;
+
+  pdf.setDrawColor(60);
+  pdf.line(margin, y, pageWidth - margin, y);
+
+  y += 6;
+
+  /* ============================================================
+     TABLE ROWS
+     ============================================================ */
+
+  pdf.setFont("helvetica", "normal");
+
+  normalized.forEach(r => {
+
+    if (y > 270) return;
+
+    pdf.setTextColor(230);
+    pdf.text(String(r.label), margin, y);
+
+    pdf.text(String(r.views), margin + 90, y, { align: "right" });
+    pdf.text(String(r.clicks), margin + 120, y, { align: "right" });
+    pdf.text(r.ctr.toFixed(1) + "%", margin + 150, y, { align: "right" });
+
+    y += 6;
+  });
+
+  y += 10;
+
+  /* ============================================================
+     CHART (REAL CANVAS — NOT HTML SNAPSHOT)
      ============================================================ */
 
   const chartCanvas = document.getElementById("marketChart");
 
-  if (chartCanvas) {
-    chartCanvas.style.background = "#050505";
+  if (chartCanvas && chartCanvas.width > 0) {
 
-    const img = document.createElement("img");
-    img.src = chartCanvas.toDataURL("image/png", 1.0);
-    img.style.width = "100%";
+    try {
 
-    container.appendChild(img);
+      const img = chartCanvas.toDataURL("image/png", 1.0);
+
+      pdf.addImage(
+        img,
+        "PNG",
+        margin,
+        y,
+        pageWidth - margin * 2,
+        80
+      );
+
+    } catch (e) {
+      console.warn("Chart export failed", e);
+    }
   }
 
-  document.body.appendChild(container);
-
   /* ============================================================
-     PDF RENDER
+     SAVE
      ============================================================ */
 
-  await new Promise(r => setTimeout(r, 300)); // 🔥 WAIT FOR CHART
-
-const canvas = await html2canvas(container, {
-    backgroundColor: "#050505",
-    scale: 2
-  });
-
-  const imgData = canvas.toDataURL("image/png");
-
-  const pdf = new jsPDF("p", "mm", "a4");
-
-  const imgWidth = 190;
-  const imgHeight = canvas.height * imgWidth / canvas.width;
-
-  pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-
   pdf.save("wcl-analytics-report.pdf");
-
-  container.remove();
 }
 
 /* ============================================================
