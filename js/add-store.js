@@ -228,25 +228,30 @@ async function changePhoto(dir) {
    ================================================================ */
 function bindTypeSelector() {
 
-  document.querySelectorAll(".pill input[type='checkbox']")
-    .forEach((cb) => {
+  document.querySelectorAll(
+    ".pill input[type='checkbox'], .type-btn input[type='checkbox']"
+  ).forEach((cb) => {
 
-      cb.addEventListener("change", () => {
+    cb.addEventListener("change", () => {
 
-        const val = cb.value;
+      const val = cb.value;
 
-        if (cb.checked) {
-          if (!selectedTypes.includes(val))
-            selectedTypes.push(val);
-        } else {
-          selectedTypes =
-            selectedTypes.filter((t) => t !== val);
-        }
+      if (cb.checked) {
+        if (!selectedTypes.includes(val))
+          selectedTypes.push(val);
 
-      });
+        cb.closest("label")?.classList.add("active");
+
+      } else {
+        selectedTypes =
+          selectedTypes.filter((t) => t !== val);
+
+        cb.closest("label")?.classList.remove("active");
+      }
+
     });
+  });
 }
-
 /* ================================================================
    SAVE STORE (STRICT MODE)
    ================================================================ */
