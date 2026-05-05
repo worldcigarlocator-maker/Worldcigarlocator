@@ -105,7 +105,8 @@ color:#e6edf7;
 
   padding:18px 22px;
 
-  background:#070a12;
+background:rgba(7,10,18,0.82);
+backdrop-filter:blur(14px);
 
   border:1px solid rgba(255,255,255,0.06);
   border-radius:14px;
@@ -238,9 +239,6 @@ color:#e6edf7;
    SEARCH BAR
    ============================================================ */
 
-/* ============================================================
-   SEARCH BAR
-   ============================================================ */
 
 .searchbar{
   display:flex;
@@ -483,6 +481,3 @@ tr:hover td{background:#f7f8fb}
   display:inline-block;
 }
 
-.topbar{
-  background:#0f344f !important !important;
-}
