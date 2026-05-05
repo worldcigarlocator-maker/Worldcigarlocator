@@ -700,42 +700,47 @@ async function exportPDF() {
   pdf.rect(0, 0, 210, 297, "F");
 
   /* ============================================================
-     HEADER
-     ============================================================ */
+   HEADER
+   ============================================================ */
 
-  // LOGO (PNG ONLY)
-  try {
-    const img = new Image();
-    img.src = "/images/favicon-32.png";
+try {
 
-    await new Promise(res => {
-      img.onload = res;
-      img.onerror = res;
-    });
+  const res = await fetch("/images/favicon-32.png");
+  const blob = await res.blob();
 
-    pdf.addImage(img, "PNG", margin, y - 6, 8, 8);
-  } catch {}
+  const reader = new FileReader();
 
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(14);
+  const base64 = await new Promise(resolve => {
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
 
-  pdf.text("World Cigar Locator", margin + 10, y);
+  pdf.addImage(base64, "PNG", margin, y - 6, 8, 8);
 
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(9);
-  pdf.setTextColor(150, 150, 150);
+} catch (e) {
+  console.warn("Logo load failed", e);
+}
 
-  pdf.text("Analytics Report", margin + 10, y + 4);
+pdf.setTextColor(255, 255, 255);
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(14);
 
-  pdf.text(
-    new Date().toLocaleString(),
-    pageWidth - margin,
-    y,
-    { align: "right" }
-  );
+pdf.text("World Cigar Locator", margin + 10, y);
 
-  y += 16;
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(9);
+pdf.setTextColor(150, 150, 150);
+
+pdf.text("Analytics Report", margin + 10, y + 4);
+
+pdf.text(
+  new Date().toLocaleString(),
+  pageWidth - margin,
+  y,
+  { align: "right" }
+);
+
+y += 16;
 
   /* ============================================================
      KPI BOXES
