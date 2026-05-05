@@ -703,22 +703,28 @@ async function exportPDF() {
    HEADER
    ============================================================ */
 
-/* ============================================================
-   HEADER
-   ============================================================ */
-
-// 🔥 LOAD IMAGE (CORRECT WAY)
+// 🔥 LOAD SVG LOGO
 const img = new Image();
-img.src = window.location.origin + "/images/favicon-32.png";
+img.src = "/images/favicon.svg";
 
 await new Promise((resolve, reject) => {
   img.onload = resolve;
   img.onerror = reject;
 });
 
+// 🔥 CONVERT SVG → CANVAS → PNG
+const canvas = document.createElement("canvas");
+canvas.width = img.width || 32;
+canvas.height = img.height || 32;
+
+const ctx = canvas.getContext("2d");
+ctx.drawImage(img, 0, 0);
+
 // 🔥 ADD TO PDF
+const png = canvas.toDataURL("image/png");
+
 pdf.addImage(
-  img,
+  png,
   "PNG",
   margin,
   y - 6,
@@ -726,7 +732,7 @@ pdf.addImage(
   8
 );
 
-// TEXT
+// 🔥 TEXT
 pdf.setTextColor(255, 255, 255);
 pdf.setFont("helvetica", "bold");
 pdf.setFontSize(14);
@@ -747,7 +753,7 @@ pdf.text(
 );
 
 y += 16;
-
+  
   /* ============================================================
      KPI BOXES
      ============================================================ */
