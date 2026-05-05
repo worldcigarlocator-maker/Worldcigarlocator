@@ -777,17 +777,45 @@ window.STORE_COUNTS = countsData?.[0] || {
     .select(SELECT_FIELDS);
 
   /* ============================================================
-     TAB LOGIC — FAST SORTERING
-     ============================================================ */
-//  PENDING = arbetskö (äldst först)
-if (tab === "pending") {
-  base = base
-    .eq("approved", false)
-    .eq("flagged", false)
-    .eq("deleted", false)
-    .order("id", { ascending: true });
+   TAB LOGIC — CANONICAL (PENDING = egen tabell)
+   ============================================================ */
 
-// APPROVED = nyast först
+// ========================
+// PENDING (store_pending)
+// ========================
+if (tab === "pending") {
+
+  try {
+
+    const { data, error } = await WCL.supabase
+      .from("store_pending")
+      .select("*")
+      .order("id", { ascending: true });
+
+    if (error) throw error;
+
+    STORES = data || [];
+
+    render();
+    updateRegionCounts();
+
+    return;
+
+  } catch (error) {
+
+    console.error("Fetch pending failed:", error);
+
+    if (grid) {
+      grid.innerHTML = "<p class='error center'>Error loading pending</p>";
+    }
+
+    return;
+  }
+
+
+// ========================
+// APPROVED (stores)
+// ========================
 } else if (tab === "approved") {
 
   base = base
@@ -796,33 +824,50 @@ if (tab === "pending") {
     .order("id", { ascending: false });
 
 
-// FLAGGED = nyast först
+// ========================
+// FLAGGED
+// ========================
 } else if (tab === "flagged") {
+
   base = base
     .eq("flagged", true)
     .eq("deleted", false)
     .order("id", { ascending: false });
 
-// DUPLICATES = flagged + possible_duplicate
+
+// ========================
+// DUPLICATES
+// ========================
 } else if (tab === "duplicates") {
+
   base = base
     .eq("flagged", true)
     .eq("deleted", false)
     .eq("flag_reason", "possible_duplicate")
     .order("id", { ascending: false });
 
-// DELETED = nyast först
+
+// ========================
+// DELETED
+// ========================
 } else if (tab === "deleted") {
+
   base = base
     .eq("deleted", true)
     .order("id", { ascending: false });
 
-// REPORTS (Store Reports)
+
+// ========================
+// REPORTS
+// ========================
 } else if (tab === "reports") {
 
   return loadStoreReports();
 
-// ALL = fallback
+
+// ========================
+// DEFAULT
+// ========================
 } else {
 
   base = base
