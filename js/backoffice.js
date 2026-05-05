@@ -718,39 +718,64 @@ async function reloadData(tab = CURRENT_TAB) {
   );
 
   /* =========================
-     HARD STOP — PENDING (egen tabell)
-     ========================= */
-  if (CURRENT_TAB === "pending") {
+   HARD STOP — PENDING (CANONICAL FIX)
+   ========================= */
+if (CURRENT_TAB === "pending") {
 
-    try {
+  try {
 
-      const { data, error } = await WCL.supabase
-        .from("store_pending")
-        .select("*")
-        .order("id", { ascending: true });
+    const { data, error } = await WCL.supabase
+      .from("store_pending")
+      .select("*")
+      .order("id", { ascending: true });
 
-      if (error) throw error;
+    if (error) throw error;
 
-      STORES = data || [];
+    // 🔥 NORMALISERA → SAMMA SHAPE SOM stores
+    STORES = (data || []).map(s => ({
 
-      render();
-      updateRegionCounts();
+      id: s.id,
+      name: s.name,
+      city: s.city,
+      country: s.country,
+      continent: s.continent || null,
 
-      return;
+      types: s.types || [],
+      access: s.access || null,
+      rating: null,
 
-    } catch (error) {
+      address: s.address || null,
+      phone: s.phone || null,
+      website: s.website || null,
 
-      console.error("Fetch pending failed:", error);
+      photo_reference: s.photo_reference || null,
+      place_id: s.place_id || null,
 
-      const grid = document.getElementById("cards");
-      if (grid) {
-        grid.innerHTML = "<p class='error center'>Error loading pending</p>";
-      }
+      approved: false,
+      flagged: false,
+      deleted: false,
 
-      return;
+      status: "pending"
+
+    }));
+
+    render();
+    updateRegionCounts();
+
+    return;
+
+  } catch (error) {
+
+    console.error("Fetch pending failed:", error);
+
+    const grid = document.getElementById("cards");
+    if (grid) {
+      grid.innerHTML = "<p class='error center'>Error loading pending</p>";
     }
-  }
 
+    return;
+  }
+}
   /* =========================
      Bevara scroll-position
      ========================= */
