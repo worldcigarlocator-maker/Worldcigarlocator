@@ -295,26 +295,23 @@ const state = stateRaw || null;
   if (!access)
     return WCL.toastShared("Select access type", "error");
 
-  const payload = {
-    name,
-    address,
-    city,
-    state,
-    country,
-    phone,
-    website,
-    types: [...selectedTypes],
-    access,
-    approved: false,
-    flagged: false,
-    deleted: false,
-    place_id: window.selectedPlace?.place_id || null,
-    country_iso2: window.selectedPlace?.country_iso2 || null,
-    lat: window.selectedPlace?.lat || null,
-    lng: window.selectedPlace?.lng || null,
-    photo_reference:
-      window.selectedPlace?.photo_reference || null,
-  };
+const payload = {
+  name,
+  address,
+  city,
+  state,
+  country,
+  phone,
+  website,
+  types: [...selectedTypes],
+  access,
+  place_id: window.selectedPlace?.place_id || null,
+  country_iso2: window.selectedPlace?.country_iso2 || null,
+  lat: window.selectedPlace?.lat || null,
+  lng: window.selectedPlace?.lng || null,
+  photo_reference:
+    window.selectedPlace?.photo_reference || null,
+};
 
   try {
  const { error } = await WCL.supabase
