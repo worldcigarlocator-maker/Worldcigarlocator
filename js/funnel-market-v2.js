@@ -120,7 +120,6 @@ export async function renderMarketV2(days = 30) {
 
   const KPI = getKPI();
 
-
   console.log("🔥 MARKET V2 RENDER", {
     ...MARKET_STATE,
     kpi: KPI
@@ -132,95 +131,79 @@ export async function renderMarketV2(days = 30) {
   /* ============================================================
   COUNTRY
   ============================================================ */
-if (MARKET_STATE.level === "country") {
+  if (MARKET_STATE.level === "country") {
 
-  const { data, error } = await sb.rpc(
-    "analytics_market_v1",
-    { p_days: days }
-  );
+    const { data, error } = await sb.rpc(
+      "analytics_market_v1",
+      { p_days: days }
+    );
 
-  if (error) return console.error(error);
+    if (error) return console.error(error);
 
-  if (!data?.length) {
-    tbody.innerHTML =
-      `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
+    if (!data?.length) {
+      tbody.innerHTML =
+        `<tr><td colspan="4" class="muted center">No data yet.</td></tr>`;
+      return;
+    }
+
+    data.sort((a, b) => {
+      switch (MARKET_STATE.sort) {
+        case "views": return (b.views || 0) - (a.views || 0);
+        case "clicks": return (b.clicks || 0) - (a.clicks || 0);
+        case "ctr":
+          return ((b.clicks || 0) / (b.views || 1)) -
+                 ((a.clicks || 0) / (a.views || 1));
+        default:
+          return (b.views || 0) - (a.views || 0);
+      }
+    });
+
+    tbody.innerHTML = data.map(r => {
+
+      const views = Number(r.views || 0);
+      const clicks = Number(r.clicks || 0);
+
+      const ctrValue = views > 0 ? (clicks / views) * 100 : 0;
+      const ctrLabel = ctrValue.toFixed(1) + "%";
+
+      let cls = "";
+      if (ctrValue === 0 && views > 0) cls = "ctr-bad";
+      else if (ctrValue > 0 && ctrValue < 20) cls = "ctr-low";
+      else if (ctrValue >= 20) cls = "ctr-good";
+
+      return `
+<tr data-country="${r.country}">
+  <td>${r.country || "-"}</td>
+  <td class="num">${views}</td>
+  <td class="num">${clicks}</td>
+  <td class="num ${cls}">${ctrLabel}</td>
+</tr>`;
+    }).join("");
+
+    bindRows(days);
+
+    window.WCL_MARKET_DATA = data;
+
+    if (window.renderMarketChart) {
+      window.renderMarketChart(
+        data,
+        MARKET_STATE.sort,
+        MARKET_STATE.chartType
+      );
+    }
+
     return;
   }
 
-data.sort((a, b) => {
-
-  switch (MARKET_STATE.sort) {
-
-    case "views":
-      return (b.views || 0) - (a.views || 0);
-
-    case "clicks":
-      return (b.clicks || 0) - (a.clicks || 0);
-
-    case "ctr":
-      return ((b.clicks || 0) / (b.views || 1)) -
-             ((a.clicks || 0) / (a.views || 1));
-
-    default:
-      return (b.views || 0) - (a.views || 0);
-  }
-
-});
-
-  tbody.innerHTML = data.map(r => {
-
-const views = Number(r.views || 0);
-const clicks = Number(r.clicks || 0);
-
-const ctrValue = views > 0 ? (clicks / views) * 100 : 0;
-const ctrLabel = ctrValue.toFixed(1) + "%";
-
-let cls = "";
-if (ctrValue === 0 && r.views > 0) cls = "ctr-bad";
-else if (ctrValue > 0 && ctrValue < 20) cls = "ctr-low";
-else if (ctrValue >= 20) cls = "ctr-good";
-
-    return `
-<tr data-country="${r.country}">
-  <td>${r.country || "-"}</td>
-  <td class="num">${r.views || 0}</td>
-  <td class="num">${r.clicks || 0}</td>
-  <td class="num ${cls}">${ctrLabel}</td>
-</tr>`;
-  }).join("");
-    
- bindRows(days);
-
-
-window.WCL_MARKET_DATA = {
-  rows: data,
-  sort: MARKET_STATE.sort,
-  chartType: MARKET_STATE.chartType || "bar"
-};
-
-console.log("SEND TO CHART:", MARKET_STATE.sort);
-
-if (window.renderMarketChart) {
-  window.renderMarketChart(
-    data,
-    MARKET_STATE.sort,
-    MARKET_STATE.chartType
-  );
-}
-
-return;
-   
   /* ============================================================
   CITY
   ============================================================ */
-
   if (MARKET_STATE.level === "city") {
 
     const { data, error } = await sb.rpc(
       "analytics_top_cities",
       {
         p_days: days,
-        p_day: null,
         p_country: MARKET_STATE.country,
         p_limit: 100
       }
@@ -239,27 +222,31 @@ return;
   <td class="num">${c.clicks || 0}</td>
   <td class="num ${cls}">${ctr}</td>
 </tr>`;
-
     }).join("");
 
     bindRows(days);
-    
+
+    window.WCL_MARKET_DATA = data;
+
     if (window.renderMarketChart) {
-  window.renderMarketChart(   data,   MARKET_STATE.sort,   MARKET_STATE.chartType );
-}
+      window.renderMarketChart(
+        data,
+        MARKET_STATE.sort,
+        MARKET_STATE.chartType
+      );
+    }
+
     return;
   }
 
   /* ============================================================
   STORE
   ============================================================ */
-
   if (MARKET_STATE.level === "store") {
 
     const { data, error } = await sb.rpc(
       "analytics_top_stores_by_city",
       {
-        p_day: null,
         p_country: MARKET_STATE.country,
         p_city: MARKET_STATE.city,
         p_limit: 50
@@ -279,21 +266,26 @@ return;
   <td class="num">${s.clicks || 0}</td>
   <td class="num ${cls}">${ctr}</td>
 </tr>`;
-
     }).join("");
 
     bindRows(days);
-    console.log("SEND TO CHART:", MARKET_STATE.sort);
+
+    window.WCL_MARKET_DATA = data;
+
     if (window.renderMarketChart) {
-  window.renderMarketChart(   data,   MARKET_STATE.sort,   MARKET_STATE.chartType );
-}
+      window.renderMarketChart(
+        data,
+        MARKET_STATE.sort,
+        MARKET_STATE.chartType
+      );
+    }
+
     return;
   }
 
   /* ============================================================
   TRAFFIC
   ============================================================ */
-
   if (MARKET_STATE.level === "traffic") {
 
     const { data, error } = await sb.rpc(
@@ -317,18 +309,26 @@ return;
   <td class="num">${r.clicks || 0}</td>
   <td class="num ${cls}">${ctr}</td>
 </tr>`;
-
     }).join("");
-    
-    console.log("SEND TO CHART:", MARKET_STATE.sort);
+
+    window.WCL_MARKET_DATA = data;
+
     if (window.renderMarketChart) {
-  window.renderMarketChart(   data,   MARKET_STATE.sort,   MARKET_STATE.chartType );
-}
+      window.renderMarketChart(
+        data,
+        MARKET_STATE.sort,
+        MARKET_STATE.chartType
+      );
+    }
 
     return;
   }
 
 }
+
+  /* ============================================================
+     BIND MARKET
+  ============================================================ */
 
 function bindMarketToggle(getDays) {
 
