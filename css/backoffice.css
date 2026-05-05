@@ -97,7 +97,7 @@ color:#e6edf7;
   z-index:9999;
 
   max-width:1200px;
-  margin:20px auto 10px;
+ margin:0 auto;
 
   display:flex;
   justify-content:space-between;
