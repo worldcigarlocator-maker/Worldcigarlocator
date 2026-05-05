@@ -730,6 +730,7 @@ if (CURRENT_TAB === "pending") {
       .from("store_pending")
       .select("*")
       .order("id", { ascending: true });
+     console.log("PENDING RAW DATA:", data);
 
     if (error) throw error;
 
