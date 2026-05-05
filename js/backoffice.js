@@ -1410,8 +1410,34 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   //  Sökfält
- $("#searchInput")?.addEventListener("input", () => render());
+$("#searchInput")?.addEventListener("input", async (e) => {
+
+  const term = e.target.value.trim();
+
+  // Tomt → normal render
+  if (!term) {
+    render();
+    return;
+  }
+
+  console.log("🔎 Searching DB:", term);
+
+  const { data, error } = await WCL.supabase
+    .from("stores")
+    .select("*")
+    .ilike("name", `%${term}%`)
+    .limit(100);
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  STORES = data || [];
+
+  render();
 });
+
 
 /* ===================== BUTTON ===================== */
 function makeBtn(label, onclick, cls = "") {
