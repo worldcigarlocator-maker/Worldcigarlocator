@@ -701,7 +701,9 @@ function render() {
    DATA LOADING — STABIL, FÖRUTSÄGBAR & UX-SÄKER
    ============================================================ */
 async function reloadData(tab = CURRENT_TAB) {
-
+console.log("RELOAD CALLED WITH:", tab);
+console.log("CURRENT_TAB BEFORE SET:", CURRENT_TAB);
+   
   const prevTab = CURRENT_TAB;
 
   if (tab !== prevTab) {
@@ -709,7 +711,7 @@ async function reloadData(tab = CURRENT_TAB) {
   }
 
   CURRENT_TAB = tab;
-
+console.log("CURRENT_TAB AFTER SET:", CURRENT_TAB);
   /* =========================
      UI: active tab
      ========================= */
