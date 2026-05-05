@@ -1451,17 +1451,11 @@ function makeBtn(label, onclick, cls = "") {
 
 /* ==================== MOD ACTIONS ================= */
 
-/*  APPROVE — enda sanningen (ingen edge, ingen fetch) */
+/*  APPROVE — pending → stores */
 async function approveStore(id) {
-  const { error } = await WCL.supabase
-    .from("stores")
-.update({
-  approved: true,
-  status: "approved",
-  flagged: false
-})
 
-    .eq("id", id);
+  const { error } = await WCL.supabase
+    .rpc("approve_store_pending", { p_id: id });
 
   if (error) {
     console.error("Approve failed:", error);
@@ -1472,7 +1466,6 @@ async function approveStore(id) {
   toast("Approved ");
   await reloadData(CURRENT_TAB);
 }
-
 
 /*  UNFLAG */
 async function unflagStore(id) {
