@@ -703,12 +703,22 @@ async function exportPDF() {
    HEADER
    ============================================================ */
 
-// 🔥 INLINE LOGO (STABLE – NO FETCH)
-const logoBase64 =
-"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAABAfUpfAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAKklEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAA4G8GAAE1qv0rAAAAAElFTkSuQmCC";
+/* ============================================================
+   HEADER
+   ============================================================ */
 
+// 🔥 LOAD IMAGE (CORRECT WAY)
+const img = new Image();
+img.src = window.location.origin + "/images/favicon-32.png";
+
+await new Promise((resolve, reject) => {
+  img.onload = resolve;
+  img.onerror = reject;
+});
+
+// 🔥 ADD TO PDF
 pdf.addImage(
-  window.location.origin + "/images/favicon-32.png",
+  img,
   "PNG",
   margin,
   y - 6,
