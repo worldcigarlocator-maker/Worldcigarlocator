@@ -386,10 +386,3 @@ function bindButtons() {
     ?.addEventListener("click", resetForm);
 }
 
-/* ================================================================
-   INIT SAFETY (FRONTEND)
-   ================================================================ */
-
-setTimeout(() => {
-  bindTypeSelector();
-}, 0);
