@@ -830,13 +830,14 @@ y += 16;
 
   [...rows].slice(0, 12).forEach(tr => {
 
-    const tds = tr.querySelectorAll("td");
-    if (!tds.length) return;
+const tds = tr.querySelectorAll("td");
+if (!tds || tds.length < 2) return;
 
-    const name = tds[0].textContent;
-    const views = tds[1].textContent;
-    const clicks = tds[2].textContent;
-    const ctr = tds[3].textContent;
+// 🔥 SAFE READ
+const name = tds[0]?.textContent || "";
+const views = tds[1]?.textContent || "";
+const clicks = tds[2]?.textContent || "";
+const ctr = tds[3]?.textContent || "";
 
     pdf.text(name, margin, y);
     pdf.text(views, 120, y, { align: "right" });
