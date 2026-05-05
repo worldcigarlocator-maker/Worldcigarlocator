@@ -349,3 +349,38 @@ table{
 tr:hover td{
   background:rgba(255,255,255,0.05);
 }
+
+/* ============================================================
+   LAYOUT FIX — CONTAINER + HERO CONTROL
+   ============================================================ */
+
+/* Stoppa full-screen overlay känsla */
+body{
+  overflow-x:hidden;
+}
+
+/* Wrap (huvudcontainer) */
+.wrap{
+  max-width:1200px;
+  margin:0 auto;
+  position:relative;
+  z-index:2;
+}
+
+/* Topbar ska inte flyta */
+.topbar{
+  position:relative;
+  z-index:3;
+}
+
+/* Cards/grid ska alltid ligga under */
+.grid{
+  position:relative;
+  z-index:2;
+}
+
+/* Säkerställ att inget “cover layer” ligger över */
+body::before,
+body::after{
+  z-index:0;
+}
