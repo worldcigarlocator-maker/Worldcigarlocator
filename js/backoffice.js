@@ -716,12 +716,46 @@ async function reloadData(tab = CURRENT_TAB) {
   );
 
   /* =========================
+     HARD STOP — PENDING (egen tabell)
+     ========================= */
+  if (CURRENT_TAB === "pending") {
+
+    try {
+
+      const { data, error } = await WCL.supabase
+        .from("store_pending")
+        .select("*")
+        .order("id", { ascending: true });
+
+      if (error) throw error;
+
+      STORES = data || [];
+
+      render();
+      updateRegionCounts();
+
+      return;
+
+    } catch (error) {
+
+      console.error("Fetch pending failed:", error);
+
+      const grid = document.getElementById("cards");
+      if (grid) {
+        grid.innerHTML = "<p class='error center'>Error loading pending</p>";
+      }
+
+      return;
+    }
+  }
+
+  /* =========================
      Bevara scroll-position
      ========================= */
   const scrollY = window.scrollY;
 
   /* =========================
-     Cards/List toggle (orörd)
+     Cards/List toggle
      ========================= */
   if (CURRENT_VIEW === "cards") {
     $("#cards") && ($("#cards").style.display = "grid");
@@ -732,37 +766,37 @@ async function reloadData(tab = CURRENT_TAB) {
   }
 
   const grid = $("#cards");
-if (grid) grid.innerHTML = "<p class='muted center'>Loading...</p>";
+  if (grid) grid.innerHTML = "<p class='muted center'>Loading...</p>";
 
-/* =========================
-   1) HÄMTA COUNTS (utan 1000-limit)
-   ========================= */
-let countsData = null;
+  /* =========================
+     1) HÄMTA COUNTS
+     ========================= */
+  let countsData = null;
 
-try {
+  try {
 
-  const res = await WCL.supabase.rpc("stores_counts");
+    const res = await WCL.supabase.rpc("stores_counts");
 
-  countsData = res.data;
+    countsData = res.data;
 
-  if (res.error) {
-    console.error("Count RPC error:", res.error);
+    if (res.error) {
+      console.error("Count RPC error:", res.error);
+    }
+
+  } catch (e) {
+
+    console.error("Count RPC network error:", e);
+
   }
 
-} catch (e) {
-
-  console.error("Count RPC network error:", e);
-
-}
-
-window.STORE_COUNTS = countsData?.[0] || {
-  all: 0,
-  approved: 0,
-  pending: 0,
-  flagged: 0,
-  deleted: 0,
-  repair: 0,
-};
+  window.STORE_COUNTS = countsData?.[0] || {
+    all: 0,
+    approved: 0,
+    pending: 0,
+    flagged: 0,
+    deleted: 0,
+    repair: 0,
+  };
 
   /* =========================
      2) Bas-query (stores)
@@ -777,150 +811,98 @@ window.STORE_COUNTS = countsData?.[0] || {
     .select(SELECT_FIELDS);
 
   /* ============================================================
-   TAB LOGIC — CANONICAL (PENDING = egen tabell)
-   ============================================================ */
+     TAB LOGIC
+     ============================================================ */
 
-// ========================
-// PENDING (store_pending)
-// ========================
-if (tab === "pending") {
+  if (tab === "approved") {
+
+    base = base
+      .eq("approved", true)
+      .eq("deleted", false)
+      .order("id", { ascending: false });
+
+  } else if (tab === "flagged") {
+
+    base = base
+      .eq("flagged", true)
+      .eq("deleted", false)
+      .order("id", { ascending: false });
+
+  } else if (tab === "duplicates") {
+
+    base = base
+      .eq("flagged", true)
+      .eq("deleted", false)
+      .eq("flag_reason", "possible_duplicate")
+      .order("id", { ascending: false });
+
+  } else if (tab === "deleted") {
+
+    base = base
+      .eq("deleted", true)
+      .order("id", { ascending: false });
+
+  } else if (tab === "reports") {
+
+    return loadStoreReports();
+
+  } else {
+
+    base = base
+      .eq("deleted", false)
+      .order("id", { ascending: false });
+
+  }
+
+  /* =========================
+     3) Fetch rows
+     ========================= */
+  let data;
 
   try {
 
-    const { data, error } = await WCL.supabase
-      .from("store_pending")
-      .select("*")
-      .order("id", { ascending: true });
+    if (CURRENT_TAB === "approved" && CURRENT_VIEW === "cards") {
 
-    if (error) throw error;
+      const { data: rows, error } = await base.limit(RENDER_LIMIT);
 
-    STORES = data || [];
+      if (error) throw error;
 
-    render();
-    updateRegionCounts();
+      data = rows;
 
-    return;
+    } else {
+
+      data = await fetchAllStores(base);
+
+    }
+
+    STORES = data;
 
   } catch (error) {
 
-    console.error("Fetch pending failed:", error);
+    console.error("Fetch stores failed:", error);
 
     if (grid) {
-      grid.innerHTML = "<p class='error center'>Error loading pending</p>";
+      grid.innerHTML = "<p class='error center'>Error loading stores</p>";
     }
 
     return;
   }
 
-
-// ========================
-// APPROVED (stores)
-// ========================
-} else if (tab === "approved") {
-
-  base = base
-    .eq("approved", true)
-    .eq("deleted", false)
-    .order("id", { ascending: false });
-
-
-// ========================
-// FLAGGED
-// ========================
-} else if (tab === "flagged") {
-
-  base = base
-    .eq("flagged", true)
-    .eq("deleted", false)
-    .order("id", { ascending: false });
-
-
-// ========================
-// DUPLICATES
-// ========================
-} else if (tab === "duplicates") {
-
-  base = base
-    .eq("flagged", true)
-    .eq("deleted", false)
-    .eq("flag_reason", "possible_duplicate")
-    .order("id", { ascending: false });
-
-
-// ========================
-// DELETED
-// ========================
-} else if (tab === "deleted") {
-
-  base = base
-    .eq("deleted", true)
-    .order("id", { ascending: false });
-
-
-// ========================
-// REPORTS
-// ========================
-} else if (tab === "reports") {
-
-  return loadStoreReports();
-
-
-// ========================
-// DEFAULT
-// ========================
-} else {
-
-  base = base
-    .eq("deleted", false)
-    .order("id", { ascending: false });
-
-}
- 
-/* =========================
-   3) Fetch rows
-   ========================= */
-
-let data;
-
-try {
-
-  data = await fetchAllStores(base);
-
-  STORES = data;
-
-  console.log("fetchAllStores result:", {
-    length: data.length,
-    hasCigarrummet: data.some(s => s.name === "Cigarrummet"),
-    sampleFirst5: data.slice(0, 5).map(s => ({ id: s.id, name: s.name })),
-    sampleLast5: data.slice(-5).map(s => ({ id: s.id, name: s.name })),
-  });
-
-} catch (error) {
-
-  console.error("Fetch stores failed:", error);
-
-  if (grid) {
-    grid.innerHTML = "<p class='error center'>Error loading stores</p>";
-  }
-
-  return;
-}
   /* =========================
      4) Render + counts
      ========================= */
-render();
-updateRegionCounts();
+  render();
+  updateRegionCounts();
 
   /* =========================
-     Återställ scroll-position
+     Återställ scroll
      ========================= */
   window.scrollTo(0, scrollY);
 
-console.log(
-  ` reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}, total=${STORES.length}`
-);
+  console.log(
+    `reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}`
+  );
 }
-
 
 /* ===================== CARDS ===================== */
 function renderCards(list) {
