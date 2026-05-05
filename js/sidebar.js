@@ -362,6 +362,12 @@ if (clickedLabel && level !== "continent") {
     city: line.dataset.city || null,
   });
 
+  // 🔥 SCROLL TO TOP (MAIN CONTENT)
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
 }
   });
 }
