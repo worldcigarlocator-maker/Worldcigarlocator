@@ -74,7 +74,8 @@ background: var(--bg);
 }
 
 .sidebar-actions .sidebar-btn{
-  flex:1;
+  flex:1 1 0;
+  min-width:0;   /* 🔥 stoppar overflow-buggen */
 }
 
 
