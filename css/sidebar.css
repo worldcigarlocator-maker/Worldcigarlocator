@@ -100,12 +100,17 @@ background: var(--bg);
 
 
 /* ============================================================
-   NAV SECTION (STRONG DIVIDER ABOVE)
+   NAV SECTION (SCROLL ENGINE — CANONICAL)
 ============================================================ */
 
 .sidebar-nav{
+  flex:1;                 /* 🔥 tar all remaining height */
+  min-height:0;           /* 🔥 KRITISK för scroll */
+
+  overflow-y:auto;        /* 🔥 scroll här */
   padding:0.6rem 0;
-  border-top:1px solid rgba(255,255,255,0.12); /* 🔥 stronger */
+
+  border-top:1px solid rgba(255,255,255,0.12);
 }
 
 
