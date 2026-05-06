@@ -62,8 +62,12 @@ if (searchBtn) {
 
 if (clearBtn) {
   clearBtn.addEventListener("click", () => {
+
+    resetAll();           // 🔥 NY – reset sidebar + state
+
     searchInput.value = "";
     resetLocalFilter();
+
   });
 }
 
