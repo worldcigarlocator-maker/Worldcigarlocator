@@ -32,14 +32,11 @@ background: var(--bg);
   justify-content:center;
 }
 
-/* COUNT (under label) */
 .sidebar-total{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:0.3rem 0 0.6rem;
-
-  border-bottom:1px solid rgba(255,255,255,0.08);
+  margin-top:2px;        /* 🔥 närmare label */
+  margin-bottom:6px;     /* 🔥 mer luft till divider */
+  font-size:13px;
+  color:rgba(255,255,255,0.65);
 }
 
 #sidebarGlobalCount{
