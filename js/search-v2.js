@@ -233,43 +233,47 @@ let TIMER = null;
 
   });
 
+
   // ============================================================
-  // CLEAR
-  // ============================================================
+// CLEAR
+// ============================================================
 
-  clearBtn?.addEventListener("click", () => {
+clearBtn?.addEventListener("click", () => {
 
-    clearTimeout(TIMER);
+  clearTimeout(TIMER);
 
-    input.value = "";
+  input.value = "";
 
-    resetAllFilters();
-    resetToHero();
+  resetAllFilters();
+  resetToHero();
 
-    controls?.querySelectorAll(".active")
-      .forEach(el => el.classList.remove("active"));
+  // 🔥 NEW — RESET SIDEBAR
+  document.dispatchEvent(new CustomEvent("wcl:reset-sidebar"));
 
-    document.querySelectorAll("#mobileFilters .active")
-      .forEach(el => el.classList.remove("active"));
+  controls?.querySelectorAll(".active")
+    .forEach(el => el.classList.remove("active"));
 
-    mobileFilters?.classList.remove("open");
-    filterBtnMobile?.classList.remove("active");
+  document.querySelectorAll("#mobileFilters .active")
+    .forEach(el => el.classList.remove("active"));
 
-    if (MAP_MODE) {
-      MAP_MODE = false;
-      mapBtn?.classList.remove("active");
+  mobileFilters?.classList.remove("open");
+  filterBtnMobile?.classList.remove("active");
 
-      hero?.classList.remove("hidden");
-      storeGrid?.classList.remove("hidden");
-      resultsToolbar?.classList.remove("hidden");
-      mapView?.classList.add("hidden");
+  if (MAP_MODE) {
+    MAP_MODE = false;
+    mapBtn?.classList.remove("active");
 
-      document.dispatchEvent(new CustomEvent("wcl:map-close"));
-    }
+    hero?.classList.remove("hidden");
+    storeGrid?.classList.remove("hidden");
+    resultsToolbar?.classList.remove("hidden");
+    mapView?.classList.add("hidden");
 
-    input.focus();
+    document.dispatchEvent(new CustomEvent("wcl:map-close"));
+  }
 
-  });
+  input.focus();
+
+});
 
   // ============================================================
   // DESKTOP FILTERS
