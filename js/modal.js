@@ -588,20 +588,29 @@ function bindEvents() {
 
   document.addEventListener("click", async (e) => {
 
+    // ============================================================
     // CLOSE
+    // ============================================================
+
     if (e.target.closest(".modal-close") ||
         e.target.classList.contains("modal-backdrop")) {
       closeModal();
       return;
     }
 
+    // ============================================================
     // RATING
+    // ============================================================
+
     if (e.target.closest("#modalSendRating")) {
       await saveRating();
       return;
     }
 
-    // COMMENT
+    // ============================================================
+    // COMMENT SUBMIT
+    // ============================================================
+
     if (e.target.closest("#modalSendComment")) {
       await submitComment();
       return;
@@ -615,12 +624,10 @@ function bindEvents() {
 
     if (header) {
       const parent = header.closest(".modal-comment");
-
       if (!parent) return;
 
       const next = parent.nextElementSibling;
 
-      // only collapse if next is a reply
       if (next && next.classList.contains("reply")) {
         parent.classList.toggle("collapsed");
 
@@ -637,7 +644,7 @@ function bindEvents() {
     }
 
     // ============================================================
-    // REPORT
+    // REPORT TOGGLE
     // ============================================================
 
     if (e.target.closest("#modalReportIssue")) {
@@ -648,6 +655,10 @@ function bindEvents() {
       resetReportUI();
       return;
     }
+
+    // ============================================================
+    // REPORT CHIPS
+    // ============================================================
 
     const chip = e.target.closest(".report-chip");
     if (chip) {
@@ -666,12 +677,19 @@ function bindEvents() {
       return;
     }
 
+    // ============================================================
+    // REPORT SUBMIT
+    // ============================================================
+
     if (e.target.closest("#modalSubmitReport")) {
       await submitReportIssue();
       return;
     }
 
-    // DELETE
+    // ============================================================
+    // DELETE COMMENT
+    // ============================================================
+
     const del = e.target.closest(".modal-comment-delete");
     if (del && del.dataset.id) {
       const { error } = await supabase.rpc("modal_delete_comment_v1", {
@@ -682,10 +700,14 @@ function bindEvents() {
         MODAL_LOAD_SEQ++;
         loadComments(MODAL_ACTIVE_STORE_ID, MODAL_LOAD_SEQ);
       }
+
       return;
     }
 
+    // ============================================================
     // REPLY
+    // ============================================================
+
     const reply = e.target.closest(".modal-comment-reply");
 
     if (reply && reply.dataset.id) {
@@ -700,7 +722,10 @@ function bindEvents() {
       return;
     }
 
+    // ============================================================
     // TRANSLATE
+    // ============================================================
+
     const translate = e.target.closest(".modal-comment-translate");
 
     if (translate && translate.dataset.id) {
@@ -733,142 +758,35 @@ function bindEvents() {
 
   });
 
+  // ============================================================
+  // ESC CLOSE
+  // ============================================================
+
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeModal();
   });
+
+  // ============================================================
+  // STAR PICKER
+  // ============================================================
 
   const picker = modalStarPicker();
   if (picker) {
     picker.querySelectorAll("span").forEach((star) => {
       star.addEventListener("click", () => {
         const val = Number(star.dataset.val) || 0;
+
         MODAL_USER_TEMP_RATING =
           MODAL_USER_TEMP_RATING === val ? 0 : val;
+
         highlightStars(MODAL_USER_TEMP_RATING);
       });
     });
   }
 }
 
-document.addEventListener("DOMContentLoaded", bindEvents);
- // ------------------------------------------------------------
-// REPORT SECTION TOGGLE
-// ------------------------------------------------------------
-if (e.target.closest("#modalReportIssue")) {
-  const section = reportSection();
-  if (!section) return;
-
-  section.classList.toggle("hidden");
-  resetReportUI();
-  return;
-}
-
-// ------------------------------------------------------------
-// CHIP TOGGLE
-// ------------------------------------------------------------
-const chip = e.target.closest(".report-chip");
-if (chip) {
-  const type = chip.dataset.type;
-  if (!type) return;
-
-  if (REPORT_SELECTED.has(type)) {
-    REPORT_SELECTED.delete(type);
-    chip.classList.remove("active");
-  } else {
-    REPORT_SELECTED.add(type);
-    chip.classList.add("active");
-  }
-
-  updateReportUI();
-  return;
-}
-
-// ------------------------------------------------------------
-// SUBMIT REPORT
-// ------------------------------------------------------------
-if (e.target.closest("#modalSubmitReport")) {
-  await submitReportIssue();
-  return;
-}
-    
-    const del = e.target.closest(".modal-comment-delete");
-    if (del && del.dataset.id) {
-      const { error } = await supabase.rpc("modal_delete_comment_v1", {
-        p_comment_id: Number(del.dataset.id),
-      });
-
-      if (!error) {
-        MODAL_LOAD_SEQ++;
-        loadComments(MODAL_ACTIVE_STORE_ID, MODAL_LOAD_SEQ);
-      }
-    }
-    
-const reply = e.target.closest(".modal-comment-reply");
-
-if (reply && reply.dataset.id) {
-  MODAL_REPLY_TO = Number(reply.dataset.id);
-
-  const input = modalCommentInput();
-  if (input) {
-    input.focus();
-    input.placeholder = "Reply...";
-  }
-
-  return;
-}
-
-// ------------------------------------------------------------
-// TRANSLATE
-// ------------------------------------------------------------
-const translate = e.target.closest(".modal-comment-translate");
-
-if (translate && translate.dataset.id) {
-  const id = Number(translate.dataset.id);
-
- const el = modalComments()?.querySelector(
-  `.modal-comment-text[data-id="${id}"]`
-);
-
-  if (!el) return;
-
-  // toggle tillbaka
-  if (el.dataset.translated === "true") {
-    el.textContent = el.dataset.original;
-    el.dataset.translated = "false";
-    return;
-  }
-
-  const original = el.textContent;
-  el.dataset.original = original;
-
-  el.textContent = "Translating...";
-
-  setTimeout(() => {
-    el.textContent = original + " (translated)";
-    el.dataset.translated = "true";
-  }, 400);
-
-  return;
-}
-
-    
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeModal();
-  });
-
-  const picker = modalStarPicker();
-  if (picker) {
-    picker.querySelectorAll("span").forEach((star) => {
-      star.addEventListener("click", () => {
-        const val = Number(star.dataset.val) || 0;
-        MODAL_USER_TEMP_RATING =
-          MODAL_USER_TEMP_RATING === val ? 0 : val;
-        highlightStars(MODAL_USER_TEMP_RATING);
-      });
-    });
-  }
-}
+// ============================================================
+// INIT
+// ============================================================
 
 document.addEventListener("DOMContentLoaded", bindEvents);
