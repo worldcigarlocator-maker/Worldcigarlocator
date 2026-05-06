@@ -287,12 +287,27 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.35rem;
+  cursor: pointer;
 }
 
-.modal-comment-user {
-  font-weight: 600;
+/* ================= COLLAPSE ICON ================= */
+
+.modal-comment-header::before {
+  content: "▾";
+  font-size: 0.7rem;
+  margin-right: 6px;
+  color: rgba(255,255,255,0.4);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* rotate when collapsed */
+.modal-comment.collapsed > .modal-comment-header::before {
+  transform: rotate(-90deg);
+}
+
+/* hover hint */
+.modal-comment-header:hover::before {
   color: rgb(var(--global));
-  font-size: 0.9rem;
 }
 
 /* ================= TEXT ================= */
