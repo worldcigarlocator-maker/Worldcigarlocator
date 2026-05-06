@@ -466,3 +466,9 @@ color: rgb(var(--global));
 #modalDirections:hover {
   text-decoration: underline;
 }
+
+.modal-comment.reply {
+  margin-left: 28px;
+  padding-left: 12px;
+  border-left: 2px solid rgba(255,255,255,0.08);
+}
