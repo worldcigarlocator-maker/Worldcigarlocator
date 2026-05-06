@@ -32,6 +32,7 @@ background: var(--bg);
 .sidebar-brand {
   display: flex;
   align-items: center;
+  margin-top: -4px; /* 🔥 lyfter upp exakt rätt */
 }
 /* ============================================================
    SIDEBAR ACTIONS (BUTTON ROW LAYOUT)
