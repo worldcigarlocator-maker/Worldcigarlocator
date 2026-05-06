@@ -8,6 +8,7 @@ import { getLastRenderedStores } from "./cards.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
 import { trackEvent } from "./analytics-tracker.js";
 
+
 // ============================================================
 // STATE
 // ============================================================
@@ -16,6 +17,7 @@ let MODAL_ACTIVE_STORE_ID = null;
 let MODAL_LOAD_SEQ = 0;
 let MODAL_USER_TEMP_RATING = 0;
 let MODAL_EVENTS_BOUND = false;
+let MODAL_REPLY_TO = null;
 
 // ============================================================
 // REPORT UI STATE
@@ -423,6 +425,12 @@ async function loadComments(storeId, seq) {
           ${c.comment || ""}
         </div>
 
+        <div class="modal-comment-actions">
+          <button class="modal-comment-reply" data-id="${c.id}">
+            Reply
+          </button>
+        </div>
+
       </div>
     `;
   })
@@ -438,7 +446,8 @@ async function submitComment() {
 
   const { error } = await supabase.rpc("modal_add_comment_v1", {
     p_store_id: MODAL_ACTIVE_STORE_ID,
-    p_comment: text,
+p_comment: text,
+p_parent_id: MODAL_REPLY_TO,
   });
 
   if (error) {
@@ -447,6 +456,11 @@ async function submitComment() {
   }
 
   if (input) input.value = "";
+  MODAL_REPLY_TO = null;
+
+if (modalCommentInput()) {
+  modalCommentInput().placeholder = "Write a comment...";
+}
 
   MODAL_LOAD_SEQ++;
   loadComments(MODAL_ACTIVE_STORE_ID, MODAL_LOAD_SEQ);
@@ -584,6 +598,21 @@ if (e.target.closest("#modalSubmitReport")) {
         loadComments(MODAL_ACTIVE_STORE_ID, MODAL_LOAD_SEQ);
       }
     }
+    
+const reply = e.target.closest(".modal-comment-reply");
+
+if (reply && reply.dataset.id) {
+  MODAL_REPLY_TO = Number(reply.dataset.id);
+
+  const input = modalCommentInput();
+  if (input) {
+    input.focus();
+    input.placeholder = "Reply...";
+  }
+
+  return;
+}
+    
   });
 
   document.addEventListener("keydown", (e) => {
