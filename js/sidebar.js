@@ -405,6 +405,9 @@ document.addEventListener("wcl:reset-sidebar", () => {
   const sidebar = document.querySelector(".sidebar");
   if (!sidebar) return;
 
+  // 🔥 SCROLL TO TOP (NEW)
+  sidebar.scrollTop = 0;
+
   // 🔥 stäng allt
   const nodes = sidebar.querySelectorAll(".node");
   const children = sidebar.querySelectorAll(".children");
@@ -412,7 +415,7 @@ document.addEventListener("wcl:reset-sidebar", () => {
   nodes.forEach(n => n.classList.remove("open"));
   children.forEach(c => c.classList.remove("show"));
 
-  // 🔥 default continent (samma logik som init)
+  // 🔥 default continent
   const userLang = navigator.language;
   const defaultContinent = getDefaultContinent(userLang);
 
@@ -429,5 +432,3 @@ document.addEventListener("wcl:reset-sidebar", () => {
   if (child) child.classList.add("show");
 
 });
-
-
