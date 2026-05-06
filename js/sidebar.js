@@ -395,3 +395,39 @@ document.addEventListener("click", (e) => {
   if (btn) btn.textContent = "☰";
 
 });
+
+/* ============================================================
+   RESET SIDEBAR (EXTERNAL EVENT — CANONICAL)
+============================================================ */
+
+document.addEventListener("wcl:reset-sidebar", () => {
+
+  const sidebar = document.querySelector(".sidebar");
+  if (!sidebar) return;
+
+  // 🔥 stäng allt
+  const nodes = sidebar.querySelectorAll(".node");
+  const children = sidebar.querySelectorAll(".children");
+
+  nodes.forEach(n => n.classList.remove("open"));
+  children.forEach(c => c.classList.remove("show"));
+
+  // 🔥 default continent (samma logik som init)
+  const userLang = navigator.language;
+  const defaultContinent = getDefaultContinent(userLang);
+
+  const target = sidebar.querySelector(
+    `.line[data-level="continent"][data-continent="${defaultContinent}"]`
+  );
+
+  if (!target) return;
+
+  const wrapper = target.closest(".node");
+  const child = wrapper?.querySelector(":scope > .children");
+
+  if (wrapper) wrapper.classList.add("open");
+  if (child) child.classList.add("show");
+
+});
+
+
