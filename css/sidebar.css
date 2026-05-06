@@ -33,8 +33,15 @@ background: var(--bg);
 }
 
 .sidebar-total{
-  margin-top:2px;        /* 🔥 närmare label */
-  margin-bottom:6px;     /* 🔥 mer luft till divider */
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  margin-top:-4px;          /* 🔥 närmare label */
+  padding:0 0 0.9rem;      /* 🔥 mer luft till divider */
+
+  border-bottom:1px solid rgba(255,255,255,0.08);
+
   font-size:13px;
   color:rgba(255,255,255,0.65);
 }
