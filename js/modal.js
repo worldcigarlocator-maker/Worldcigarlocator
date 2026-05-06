@@ -397,12 +397,47 @@ async function loadComments(storeId, seq) {
 
   if (!comments.length) return;
 
-  box.innerHTML = comments.map((c) => {
+  // ============================================================
+  // BUILD TREE
+  // ============================================================
 
+  const map = {};
+  const roots = [];
+
+  comments.forEach((c) => {
+    c.children = [];
+    map[c.id] = c;
+  });
+
+  comments.forEach((c) => {
+    if (c.parent_id && map[c.parent_id]) {
+      map[c.parent_id].children.push(c);
+    } else {
+      roots.push(c);
+    }
+  });
+
+  // sort roots (newest first)
+  roots.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  // sort replies (oldest first)
+  Object.values(map).forEach((c) => {
+    if (c.children?.length) {
+      c.children.sort(
+        (a, b) => new Date(a.created_at) - new Date(b.created_at)
+      );
+    }
+  });
+
+  // ============================================================
+  // RENDER
+  // ============================================================
+
+  function renderComment(c, isReply = false) {
     const name = c.display_name || "Anonymous";
 
     return `
-      <div class="modal-comment ${c.parent_id ? "reply" : ""}">
+      <div class="modal-comment ${isReply ? "reply" : ""}">
 
         <div class="modal-comment-header">
           <div class="modal-comment-user">
@@ -438,9 +473,22 @@ async function loadComments(storeId, seq) {
 
       </div>
     `;
-  }).join("");
-}
+  }
 
+  let html = "";
+
+  roots.forEach((root) => {
+    html += renderComment(root, false);
+
+    if (root.children?.length) {
+      root.children.forEach((child) => {
+        html += renderComment(child, true);
+      });
+    }
+  });
+
+  box.innerHTML = html;
+}
 // ============================================================
 // SUBMIT COMMENT
 // ============================================================
@@ -630,9 +678,9 @@ const translate = e.target.closest(".modal-comment-translate");
 if (translate && translate.dataset.id) {
   const id = Number(translate.dataset.id);
 
-  const el = document.querySelector(
-    `.modal-comment-text[data-id="${id}"]`
-  );
+ const el = modalComments()?.querySelector(
+  `.modal-comment-text[data-id="${id}"]`
+);
 
   if (!el) return;
 
