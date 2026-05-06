@@ -149,11 +149,15 @@ background: var(--bg);
   font-weight: 600;
   color: #766148;
 
-border-top: 1px solid var(--border);
-border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border); /* 🔥 bara under */
 
   padding-top: 0.65rem;
   padding-bottom: 0.65rem;
+}
+
+/* 🔥 ta bort linje ovanför första continent */
+.node:first-child .line.continent {
+  border-top: none;
 }
 
 /* ================= COUNTRY ================= */
