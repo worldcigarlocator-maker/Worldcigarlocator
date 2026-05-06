@@ -393,27 +393,40 @@ async function loadComments(storeId, seq) {
 
   if (!comments.length) return;
 
-  box.innerHTML = comments
-    .map((c) => {
-      return `
-        <div class="modal-comment">
-          <div class="modal-comment-header">
-            <div class="modal-comment-meta">
-              <span class="modal-comment-date">
-                ${new Date(c.created_at).toLocaleDateString()}
-              </span>
-              ${
-                c.is_owner
-                  ? `<button class="modal-comment-delete" data-id="${c.id}">Delete</button>`
-                  : ""
-              }
-            </div>
+ box.innerHTML = comments
+  .map((c) => {
+
+    const name = c.display_name || "Anonymous";
+
+    return `
+      <div class="modal-comment ${c.parent_id ? 'reply' : ''}">
+        
+        <div class="modal-comment-header">
+          <div class="modal-comment-user">
+            ${name}
           </div>
-          <div class="modal-comment-text">${c.comment || ""}</div>
+
+          <div class="modal-comment-meta">
+            <span class="modal-comment-date">
+              ${new Date(c.created_at).toLocaleDateString()}
+            </span>
+
+            ${
+              c.is_owner
+                ? `<button class="modal-comment-delete" data-id="${c.id}">Delete</button>`
+                : ""
+            }
+          </div>
         </div>
-      `;
-    })
-    .join("");
+
+        <div class="modal-comment-text">
+          ${c.comment || ""}
+        </div>
+
+      </div>
+    `;
+  })
+  .join("");
 }
 
 async function submitComment() {
