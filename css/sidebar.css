@@ -84,7 +84,7 @@ background: var(--bg);
 ============================================================ */
 
 .sidebar-btn.primary{
-  background: rgb(var(--global));   /* 🔥 din brand-färg */
+  background: rgb(var(--global));
   color:#fff;
   border:none;
 
@@ -99,7 +99,6 @@ background: var(--bg);
   background:rgba(var(--global),0.85);
   transform:translateY(-1px);
 }
-
 /* ============================================================
    USER (WELCOME TEXT)
 ============================================================ */
