@@ -383,7 +383,9 @@ async function loadComments(storeId, seq) {
 
   if (error) {
     console.error("modal_load_comments_v1 error:", error);
-    if (modalCommentCount()) modalCommentCount().textContent = "Comments 0";
+    if (modalCommentCount()) {
+      modalCommentCount().textContent = "Comments 0";
+    }
     return;
   }
 
@@ -395,14 +397,13 @@ async function loadComments(storeId, seq) {
 
   if (!comments.length) return;
 
- box.innerHTML = comments
-  .map((c) => {
+  box.innerHTML = comments.map((c) => {
 
     const name = c.display_name || "Anonymous";
 
     return `
-      <div class="modal-comment ${c.parent_id ? 'reply' : ''}">
-        
+      <div class="modal-comment ${c.parent_id ? "reply" : ""}">
+
         <div class="modal-comment-header">
           <div class="modal-comment-user">
             ${name}
@@ -421,7 +422,7 @@ async function loadComments(storeId, seq) {
           </div>
         </div>
 
-        <div class="modal-comment-text">
+        <div class="modal-comment-text" data-id="${c.id}">
           ${c.comment || ""}
         </div>
 
@@ -429,13 +430,20 @@ async function loadComments(storeId, seq) {
           <button class="modal-comment-reply" data-id="${c.id}">
             Reply
           </button>
+
+          <button class="modal-comment-translate" data-id="${c.id}">
+            Translate
+          </button>
         </div>
 
       </div>
     `;
-  })
-  .join("");
+  }).join("");
 }
+
+// ============================================================
+// SUBMIT COMMENT
+// ============================================================
 
 async function submitComment() {
   if (!MODAL_ACTIVE_STORE_ID) return;
@@ -446,8 +454,8 @@ async function submitComment() {
 
   const { error } = await supabase.rpc("modal_add_comment_v1", {
     p_store_id: MODAL_ACTIVE_STORE_ID,
-p_comment: text,
-p_parent_id: MODAL_REPLY_TO,
+    p_comment: text,
+    p_parent_id: MODAL_REPLY_TO,
   });
 
   if (error) {
@@ -456,16 +464,17 @@ p_parent_id: MODAL_REPLY_TO,
   }
 
   if (input) input.value = "";
+
+  // reset reply state
   MODAL_REPLY_TO = null;
 
-if (modalCommentInput()) {
-  modalCommentInput().placeholder = "Write a comment...";
-}
+  if (modalCommentInput()) {
+    modalCommentInput().placeholder = "Write a comment...";
+  }
 
   MODAL_LOAD_SEQ++;
   loadComments(MODAL_ACTIVE_STORE_ID, MODAL_LOAD_SEQ);
 }
-
 // ============================================================
 // REPORT ISSUE (EDGE ARRAY VERSION)
 // ============================================================
@@ -612,6 +621,41 @@ if (reply && reply.dataset.id) {
 
   return;
 }
+
+// ------------------------------------------------------------
+// TRANSLATE
+// ------------------------------------------------------------
+const translate = e.target.closest(".modal-comment-translate");
+
+if (translate && translate.dataset.id) {
+  const id = Number(translate.dataset.id);
+
+  const el = document.querySelector(
+    `.modal-comment-text[data-id="${id}"]`
+  );
+
+  if (!el) return;
+
+  // toggle tillbaka
+  if (el.dataset.translated === "true") {
+    el.textContent = el.dataset.original;
+    el.dataset.translated = "false";
+    return;
+  }
+
+  const original = el.textContent;
+  el.dataset.original = original;
+
+  el.textContent = "Translating...";
+
+  setTimeout(() => {
+    el.textContent = original + " (translated)";
+    el.dataset.translated = "true";
+  }, 400);
+
+  return;
+}
+
     
   });
 
