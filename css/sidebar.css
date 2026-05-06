@@ -90,14 +90,25 @@ background: var(--bg);
 
   border-radius:10px;
 
-  box-shadow:0 4px 12px rgba(var(--global),0.35);
+  /* 🔥 BASE GLOW */
+  box-shadow:
+    0 4px 12px rgba(var(--global),0.35),
+    0 0 0 1px rgba(var(--global),0.25),
+    0 0 18px rgba(var(--global),0.25);
 
-  transition:all .15s ease;
+  transition:all .18s ease;
 }
 
 .sidebar-btn.primary:hover{
-  background:rgba(var(--global),0.85);
+  background: rgba(var(--global),0.9);
+
   transform:translateY(-1px);
+
+  /* 🔥 HOVER GLOW BOOST */
+  box-shadow:
+    0 6px 18px rgba(var(--global),0.45),
+    0 0 0 1px rgba(var(--global),0.4),
+    0 0 28px rgba(var(--global),0.45);
 }
 /* ============================================================
    USER (WELCOME TEXT)
