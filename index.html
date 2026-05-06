@@ -132,45 +132,79 @@
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
-      <header class="sidebar-header">
-        <div class="sidebar-brand" id="homeBtn" role="button" aria-label="Go to Home">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160" aria-hidden="true">
-            <text
-              x="260"
-              y="100"
-              text-anchor="middle"
-              font-size="56"
-              fill="rgb(115, 98, 75)"
-              font-family="Georgia, 'Times New Roman', serif"
-            >
-              World Cigar Locator
-            </text>
-          </svg>
-        </div>
 
-     <div class="sidebar-actions">
-  <button class="sidebar-btn" id="loginBtn">Login</button>
-  <span id="authStatus" class="auth-status"></span>
-  <button class="sidebar-btn primary" onclick="location.href='add-store.html'">Add Listing</button>
-</div>
-      </header>
+  <!-- ============================================================
+       HEADER (LABEL + COUNT)
+  ============================================================ -->
+  <header class="sidebar-header">
 
-      <div class="sidebar-total">
-        <span id="sidebarGlobalCount"></span>
-      </div>
+    <div class="sidebar-brand" id="homeBtn" role="button" aria-label="Go to Home">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160" aria-hidden="true">
+        <text
+          x="260"
+          y="100"
+          text-anchor="middle"
+          font-size="56"
+          fill="rgb(115, 98, 75)"
+          font-family="Georgia, 'Times New Roman', serif"
+        >
+          World Cigar Locator
+        </text>
+      </svg>
+    </div>
 
-      <div id="sidebarMenu" class="sidebar-menu"></div>
+    <!-- COUNT UNDER LABEL -->
+    <div class="sidebar-total">
+      <span id="sidebarGlobalCount"></span>
+    </div>
 
-      <footer class="sidebar-footer">
-        <a href="about.html">About</a>
-        <a href="report.html">Report a Listing</a>
-        <a href="legal.html">Legal</a>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="mailto:support@worldcigarlocator.com">Contact / Support</a>
-      </footer>
-    </aside>
+  </header>
 
-    <!-- MAIN -->
+  <!-- ============================================================
+       ACTIONS (PILLS + USER)
+  ============================================================ -->
+  <div class="sidebar-section sidebar-actions-wrap">
+
+    <div class="sidebar-actions">
+      <button class="sidebar-btn" id="loginBtn">Login</button>
+      <button class="sidebar-btn primary" onclick="location.href='add-store.html'">
+        Add Listing
+      </button>
+    </div>
+
+    <div class="sidebar-user">
+      <span id="authStatus" class="auth-status"></span>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       NAV (HIERARCHY)
+  ============================================================ -->
+  <div class="sidebar-section sidebar-nav">
+
+    <div id="sidebarMenu" class="sidebar-menu"></div>
+
+  </div>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="sidebar-footer">
+
+    <a href="about.html">About</a>
+    <a href="report.html">Report a Listing</a>
+    <a href="legal.html">Legal</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="mailto:support@worldcigarlocator.com">Contact / Support</a>
+
+  </footer>
+
+</aside>
+
+   <!-- ============================================================
+      MAIN
+  ============================================================ -->
     <main class="main">
       <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open menu">
         ☰
@@ -189,7 +223,10 @@
     autocomplete="off"
   >
 
-  <!-- 🔥 MOBILE SEARCH BUTTON -->
+     <!-- ============================================================
+   MOBILE SEARCH BUTTON
+  ============================================================ -->
+ 
 <button id="searchSubmitMobileNew" class="search-submit-mobile" aria-label="Search">
 
   <svg viewBox="0 0 140 140" aria-hidden="true">
