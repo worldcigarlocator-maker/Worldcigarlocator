@@ -295,3 +295,13 @@ max-height: 9999px;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
+
+/* ============================================================
+SCROLL AREA (ONLY HIERARCHY SCROLLS)
+============================================================ */
+
+.sidebar-scroll{
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+}
