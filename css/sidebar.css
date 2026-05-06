@@ -79,6 +79,27 @@ background: var(--bg);
 
 
 /* ============================================================
+   PRIMARY BUTTON (ADD LISTING)
+============================================================ */
+
+.sidebar-btn.primary{
+  background: rgb(var(--global));   /* 🔥 din brand-färg */
+  color:#fff;
+  border:none;
+
+  border-radius:10px;
+
+  box-shadow:0 4px 12px rgba(var(--global),0.35);
+
+  transition:all .15s ease;
+}
+
+.sidebar-btn.primary:hover{
+  background:rgba(var(--global),0.85);
+  transform:translateY(-1px);
+}
+
+/* ============================================================
    USER (WELCOME TEXT)
 ============================================================ */
 
