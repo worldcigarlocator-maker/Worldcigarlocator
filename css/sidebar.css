@@ -37,7 +37,7 @@ background: var(--bg);
   justify-content:center;
   align-items:center;
 
-  margin-top:-8px;          /* 🔥 närmare label */
+  margin-top:-10px;          /* 🔥 närmare label */
   padding:0 0 0.9rem;      /* 🔥 mer luft till divider */
 
   border-bottom:1px solid rgba(255,255,255,0.08);
