@@ -247,17 +247,40 @@
 }
 
 /* ============================================================
-   MODAL COMMENTS — PROFESSIONAL LAYOUT
+   MODAL COMMENTS — THREADED (LEVELS)
    ============================================================ */
 
 .modal-comment {
   padding: 1rem 0;
   border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: relative;
 }
 
 .modal-comment:last-child {
   border-bottom: none;
 }
+
+/* ================= LEVEL INDENT ================= */
+
+.modal-comment.reply {
+  margin-left: 22px;
+  padding-left: 14px;
+  border-left: 2px solid rgba(var(--global), 0.25);
+}
+
+/* subtle glow line */
+.modal-comment.reply::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background: rgba(var(--global), 0.35);
+  border-radius: 2px;
+}
+
+/* ================= HEADER ================= */
 
 .modal-comment-header {
   display: flex;
@@ -266,21 +289,40 @@
   margin-bottom: 0.35rem;
 }
 
-.modal-comment-author {
+.modal-comment-user {
   font-weight: 600;
-color: rgb(var(--global));
+  color: rgb(var(--global));
   font-size: 0.9rem;
 }
 
-.modal-comment-date {
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.45);
-}
+/* ================= TEXT ================= */
 
 .modal-comment-text {
   font-size: 0.9rem;
   line-height: 1.5;
   color: #ddd;
+  margin-bottom: 0.35rem;
+}
+
+/* ================= ACTIONS ================= */
+
+.modal-comment-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.modal-comment-actions button {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: rgba(255,255,255,0.4);
+  transition: color 0.2s ease;
+}
+
+.modal-comment-actions button:hover {
+  color: rgb(var(--global));
 }
 
 /* ============================================================
