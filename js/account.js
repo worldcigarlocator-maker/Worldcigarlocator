@@ -1,5 +1,6 @@
+```javascript
 // ============================================================
-// ACCOUNT.JS — WCL ACCOUNT SYSTEM
+// ACCOUNT.JS — WCL ACCOUNT PAGE
 // ============================================================
 
 import { supabase } from "/js/globals.js";
@@ -7,17 +8,6 @@ import { supabase } from "/js/globals.js";
 // ============================================================
 // DOM
 // ============================================================
-
-const accountModal = document.getElementById("accountModal");
-
-const manageBtn =
-  document.getElementById("manageAccountBtn");
-
-const closeBtn =
-  document.getElementById("accountModalClose");
-
-const backdrop =
-  accountModal?.querySelector("[data-account-close]");
 
 const emailInput =
   document.getElementById("accountEmail");
@@ -59,16 +49,6 @@ function setMessage(text, isError = false) {
       : "rgba(255,255,255,0.78)";
 }
 
-function openAccountModal() {
-  accountModal?.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-}
-
-function closeAccountModal() {
-  accountModal?.classList.add("hidden");
-  document.body.style.overflow = "";
-}
-
 // ============================================================
 // LOAD ACCOUNT
 // ============================================================
@@ -79,11 +59,10 @@ async function loadAccount() {
     data: { user }
   } = await supabase.auth.getUser();
 
-  if (!user) return;
-
-  // ============================================================
-  // LOAD PROFILE (SSOT)
-  // ============================================================
+  if (!user) {
+    window.location.href = "/";
+    return;
+  }
 
   const { data, error } =
     await supabase
@@ -109,8 +88,6 @@ async function loadAccount() {
     displayNameInput.value =
       data?.display_name || "";
   }
-
-  setMessage("");
 }
 
 // ============================================================
@@ -154,10 +131,12 @@ async function changePassword() {
     passwordInput?.value?.trim() || "";
 
   if (password.length < 6) {
+
     setMessage(
       "Password must be at least 6 characters",
       true
     );
+
     return;
   }
 
@@ -184,12 +163,8 @@ async function logout() {
 
   await supabase.auth.signOut();
 
-  window.location.reload();
+  window.location.href = "/";
 }
-
-// ============================================================
-// DELETE ACCOUNT
-// ============================================================
 
 // ============================================================
 // DELETE ACCOUNT
@@ -219,7 +194,7 @@ async function deleteAccount() {
 
     await supabase.auth.signOut();
 
-    window.location.reload();
+    window.location.href = "/";
 
   } catch (err) {
 
@@ -231,20 +206,44 @@ async function deleteAccount() {
 }
 
 // ============================================================
-// EVENTS
+// LOAD COMMENTS
 // ============================================================
 
-manageBtn?.addEventListener("click", async (e) => {
-  e.preventDefault();
+async function loadMyComments() {
 
-  await loadAccount();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
 
-  openAccountModal();
-});
+  if (!user) return;
 
-closeBtn?.addEventListener("click", closeAccountModal);
+  console.log(
+    "LOAD MY COMMENTS:",
+    user.id
+  );
+}
 
-backdrop?.addEventListener("click", closeAccountModal);
+// ============================================================
+// LOAD RATINGS
+// ============================================================
+
+async function loadMyRatings() {
+
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) return;
+
+  console.log(
+    "LOAD MY RATINGS:",
+    user.id
+  );
+}
+
+// ============================================================
+// EVENTS
+// ============================================================
 
 saveDisplayBtn?.addEventListener(
   "click",
@@ -266,12 +265,20 @@ deleteBtn?.addEventListener(
   deleteAccount
 );
 
-document.addEventListener("keydown", (e) => {
+// ============================================================
+// INIT
+// ============================================================
 
-  if (
-    e.key === "Escape" &&
-    !accountModal?.classList.contains("hidden")
-  ) {
-    closeAccountModal();
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    await loadAccount();
+
+    await loadMyComments();
+
+    await loadMyRatings();
+
   }
-});
+);
+```
