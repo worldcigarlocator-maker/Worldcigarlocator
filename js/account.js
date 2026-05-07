@@ -119,15 +119,22 @@ async function loadAccount() {
 
 async function saveDisplayName() {
 
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) return;
+
   const value =
     displayNameInput?.value?.trim() || "";
 
   const { error } =
-    await supabase.auth.updateUser({
-      data: {
+    await supabase
+      .from("profiles")
+      .update({
         display_name: value
-      }
-    });
+      })
+      .eq("id", user.id);
 
   if (error) {
     setMessage(error.message, true);
