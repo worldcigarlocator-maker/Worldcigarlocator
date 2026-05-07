@@ -77,8 +77,20 @@ if (!session) {
 
   if (loginBtn) loginBtn.textContent = "Logout";
   if (authStatus) {
-    authStatus.textContent = `Welcome: ${session.user.email}`;
-  }
+
+  const { data: profile } =
+    await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", session.user.id)
+      .single();
+
+  authStatus.textContent =
+    `Welcome: ${
+      profile?.display_name ||
+      session.user.email
+    }`;
+}
 }
 // ============================================================
 // LOGIN BINDINGS
