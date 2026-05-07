@@ -1,364 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
 
-<main class="account-page">
-
-  <!-- ============================================================
-       SIDEBAR
-  ============================================================ -->
-  <aside class="account-sidebar">
-
-    <button class="account-nav-btn active">
-      Profile
-    </button>
-
-    <button class="account-nav-btn">
-      Security
-    </button>
-
-    <button class="account-nav-btn">
-      My Comments
-    </button>
-
-    <button class="account-nav-btn">
-      My Ratings
-    </button>
-
-    <button class="account-nav-btn">
-      Favorites
-    </button>
-
-    <button class="account-nav-btn">
-      Notifications
-    </button>
-
-    <button class="account-nav-btn">
-      Language
-    </button>
-
-    <button class="account-nav-btn">
-      Sessions
-    </button>
-
-    <button class="account-nav-btn">
-      Contributor
-    </button>
-
-    <button class="account-nav-btn">
-      Admin
-    </button>
-
-    <button class="account-nav-btn danger">
-      Danger Zone
-    </button>
-
-  </aside>
+<head>
 
   <!-- ============================================================
-       CONTENT
+       META
   ============================================================ -->
-  <section class="account-content">
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <title>
+    My Account — World Cigar Locator
+  </title>
+
+  <!-- ============================================================
+       FAVICON
+  ============================================================ -->
+
+  <link rel="icon" href="/favicon.ico">
+
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="/images/favicon.svg"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="/images/favicon-32.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="16x16"
+    href="/images/favicon-16.png"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="/images/apple-touch-icon.png"
+  >
+
+  <!-- ============================================================
+       THEME
+  ============================================================ -->
+
+  <meta
+    name="theme-color"
+    content="#050505"
+  >
+
+  <!-- ============================================================
+       FONTS
+  ============================================================ -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- ============================================================
+       CORE
+  ============================================================ -->
+
+  <link rel="stylesheet" href="css/core/reset.css">
+  <link rel="stylesheet" href="css/core/variables.css">
+  <link rel="stylesheet" href="css/core/zindex.css">
+  <link rel="stylesheet" href="css/core/layout.css">
+
+  <!-- ============================================================
+       UI
+  ============================================================ -->
+
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/modal.css">
+  <link rel="stylesheet" href="css/account.css">
+
+  <!-- ============================================================
+       RESPONSIVE
+  ============================================================ -->
+
+  <link rel="stylesheet" href="css/mobile.css">
+
+</head>
+
+<body>
+
+  <!-- ============================================================
+       ACCOUNT PAGE
+  ============================================================ -->
+
+  <main class="account-page">
 
     <!-- ============================================================
-         PROFILE
+         SIDEBAR
     ============================================================ -->
-    <section id="accountProfile">
 
-      <div class="account-card">
+    <aside class="account-sidebar">
 
-        <div class="account-card-header">
-          <h2>Profile</h2>
-        </div>
+      <button class="account-nav-btn active">
+        Profile
+      </button>
 
-        <div class="account-field">
+      <button class="account-nav-btn">
+        Security
+      </button>
 
-          <label class="account-label">
-            Email
-          </label>
+      <button class="account-nav-btn">
+        My Comments
+      </button>
 
-          <input
-            id="accountEmail"
-            class="account-input"
-            type="email"
-            disabled
-          >
+      <button class="account-nav-btn">
+        My Ratings
+      </button>
 
-        </div>
+      <button class="account-nav-btn">
+        Favorites
+      </button>
 
-        <div class="account-field">
+      <button class="account-nav-btn">
+        Notifications
+      </button>
 
-          <label class="account-label">
-            Display Name
-          </label>
+      <button class="account-nav-btn">
+        Language
+      </button>
 
-          <input
-            id="accountDisplayName"
-            class="account-input"
-            type="text"
-            placeholder="Display name"
-          >
+      <button class="account-nav-btn">
+        Sessions
+      </button>
 
-        </div>
+      <button class="account-nav-btn">
+        Contributor
+      </button>
 
-        <div class="account-actions">
+      <button class="account-nav-btn">
+        Admin
+      </button>
 
-          <button
-            id="saveDisplayNameBtn"
-            class="account-btn"
-            type="button"
-          >
-            Save Changes
-          </button>
+      <button class="account-nav-btn danger">
+        Danger Zone
+      </button>
 
-        </div>
-
-      </div>
-
-    </section>
+    </aside>
 
     <!-- ============================================================
-         SECURITY
+         CONTENT
     ============================================================ -->
-    <section id="accountSecurity">
 
-      <div class="account-card">
+    <section class="account-content">
 
-        <div class="account-card-header">
-          <h2>Security</h2>
-        </div>
+      <!-- ============================================================
+           PROFILE
+      ============================================================ -->
 
-        <div class="account-field">
+      <section id="accountProfile">
 
-          <label class="account-label">
-            Change Password
-          </label>
+        <div class="account-card">
 
-          <input
-            id="accountPassword"
-            class="account-input"
-            type="password"
-            placeholder="New password"
-          >
+          <div class="account-card-header">
+            <h2>Profile</h2>
+          </div>
 
-        </div>
+          <div class="account-field">
 
-        <div class="account-actions">
+            <label class="account-label">
+              Email
+            </label>
 
-          <button
-            id="changePasswordBtn"
-            class="account-btn"
-            type="button"
-          >
-            Change Password
-          </button>
+            <input
+              id="accountEmail"
+              class="account-input"
+              type="email"
+              disabled
+            >
 
-        </div>
+          </div>
 
-      </div>
+          <div class="account-field">
 
-    </section>
+            <label class="account-label">
+              Display Name
+            </label>
 
-    <!-- ============================================================
-         MY COMMENTS
-    ============================================================ -->
-    <section id="accountComments">
+            <input
+              id="accountDisplayName"
+              class="account-input"
+              type="text"
+              placeholder="Display name"
+            >
 
-      <div class="account-card">
+          </div>
 
-        <div class="account-card-header">
-          <h2>My Comments</h2>
-        </div>
+          <div class="account-actions">
 
-        <div class="account-comments-list">
+            <button
+              id="saveDisplayNameBtn"
+              class="account-btn"
+              type="button"
+            >
+              Save Changes
+            </button>
 
-          <div class="account-empty">
-            No comments yet
           </div>
 
         </div>
 
-      </div>
+      </section>
 
-    </section>
+      <!-- ============================================================
+           SECURITY
+      ============================================================ -->
 
-    <!-- ============================================================
-         MY RATINGS
-    ============================================================ -->
-    <section id="accountRatings">
+      <section id="accountSecurity">
 
-      <div class="account-card">
+        <div class="account-card">
 
-        <div class="account-card-header">
-          <h2>My Ratings</h2>
-        </div>
+          <div class="account-card-header">
+            <h2>Security</h2>
+          </div>
 
-        <div class="account-ratings-list">
+          <div class="account-field">
 
-          <div class="account-empty">
-            No ratings yet
+            <label class="account-label">
+              Change Password
+            </label>
+
+            <input
+              id="accountPassword"
+              class="account-input"
+              type="password"
+              placeholder="New password"
+            >
+
+          </div>
+
+          <div class="account-actions">
+
+            <button
+              id="changePasswordBtn"
+              class="account-btn"
+              type="button"
+            >
+              Change Password
+            </button>
+
           </div>
 
         </div>
 
-      </div>
+      </section>
+
+      <!-- ============================================================
+           MY COMMENTS
+      ============================================================ -->
+
+      <section id="accountComments">
+
+        <div class="account-card">
+
+          <div class="account-card-header">
+            <h2>My Comments</h2>
+          </div>
+
+          <div class="account-comments-list">
+
+            <div class="account-empty">
+              No comments yet
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================================================
+           MY RATINGS
+      ============================================================ -->
+
+      <section id="accountRatings">
+
+        <div class="account-card">
+
+          <div class="account-card-header">
+            <h2>My Ratings</h2>
+          </div>
+
+          <div class="account-ratings-list">
+
+            <div class="account-empty">
+              No ratings yet
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================================================
+           FAVORITES
+      ============================================================ -->
+
+      <section id="accountFavorites">
+
+        <div class="account-card">
+
+          <div class="account-card-header">
+            <h2>Favorites</h2>
+          </div>
+
+          <div class="account-empty">
+            No favorites yet
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================================================
+           NOTIFICATIONS
+      ============================================================ -->
+
+      <section id="accountNotifications">
+
+        <div class="account-card">
+
+          <div class="account-card-header">
+            <h2>Notifications</h2>
+          </div>
+
+          <div class="account-empty">
+            Notification settings coming soon
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================================================
+           LANGUAGE
+      ============================================================ -->
+
+      <section id="accountLanguage">
+
+        <div class="account-card">
+
+          <div class="account-card-header">
+            <h2>Language</h2>
+          </div>
+
+          <div class="account-empty">
+            Language settings coming soon
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================================================
+           SESSIONS
+      ============================================================ -->
+
+      <section id="accountSessions">
+
+        <div class="account-card">
+
+          <div class="account-card-header">
+            <h2>Sessions</h2>
+          </div>
+
+          <div class="account-empty">
+            Session management coming soon
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================================================
+           CONTRIBUTOR
+      ============================================================ -->
+
+      <section id="accountContributor">
+
+        <div class="account-card">
+
+          <div class="account-card-header">
+            <h2>Contributor</h2>
+          </div>
+
+          <div class="account-empty">
+            Contributor tools coming soon
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================================================
+           ADMIN
+      ============================================================ -->
+
+      <section id="accountAdmin">
+
+        <div class="account-card">
+
+          <div class="account-card-header">
+            <h2>Admin</h2>
+          </div>
+
+          <div class="account-empty">
+            Admin tools coming soon
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================================================
+           DANGER ZONE
+      ============================================================ -->
+
+      <section id="accountDanger">
+
+        <div class="account-card danger">
+
+          <div class="account-card-header">
+            <h2>Danger Zone</h2>
+          </div>
+
+          <div class="account-danger-actions">
+
+            <button
+              id="logoutAccountBtn"
+              class="account-btn"
+              type="button"
+            >
+              Logout
+            </button>
+
+            <button
+              id="deleteAccountBtn"
+              class="account-btn danger"
+              type="button"
+            >
+              Delete Account
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================================================
+           GLOBAL MESSAGE
+      ============================================================ -->
+
+      <div
+        id="accountMessage"
+        class="account-message"
+      ></div>
 
     </section>
 
-    <!-- ============================================================
-         FAVORITES
-    ============================================================ -->
-    <section id="accountFavorites">
+  </main>
 
-      <div class="account-card">
+  <!-- ============================================================
+       SCRIPTS
+  ============================================================ -->
 
-        <div class="account-card-header">
-          <h2>Favorites</h2>
-        </div>
+  <script
+    type="module"
+    src="js/account.js"
+  ></script>
 
-        <div class="account-empty">
-          No favorites yet
-        </div>
+</body>
 
-      </div>
-
-    </section>
-
-    <!-- ============================================================
-         NOTIFICATIONS
-    ============================================================ -->
-    <section id="accountNotifications">
-
-      <div class="account-card">
-
-        <div class="account-card-header">
-          <h2>Notifications</h2>
-        </div>
-
-        <div class="account-empty">
-          Notification settings coming soon
-        </div>
-
-      </div>
-
-    </section>
-
-    <!-- ============================================================
-         LANGUAGE
-    ============================================================ -->
-    <section id="accountLanguage">
-
-      <div class="account-card">
-
-        <div class="account-card-header">
-          <h2>Language</h2>
-        </div>
-
-        <div class="account-empty">
-          Language settings coming soon
-        </div>
-
-      </div>
-
-    </section>
-
-    <!-- ============================================================
-         SESSIONS
-    ============================================================ -->
-    <section id="accountSessions">
-
-      <div class="account-card">
-
-        <div class="account-card-header">
-          <h2>Sessions</h2>
-        </div>
-
-        <div class="account-empty">
-          Session management coming soon
-        </div>
-
-      </div>
-
-    </section>
-
-    <!-- ============================================================
-         CONTRIBUTOR
-    ============================================================ -->
-    <section id="accountContributor">
-
-      <div class="account-card">
-
-        <div class="account-card-header">
-          <h2>Contributor</h2>
-        </div>
-
-        <div class="account-empty">
-          Contributor tools coming soon
-        </div>
-
-      </div>
-
-    </section>
-
-    <!-- ============================================================
-         ADMIN
-    ============================================================ -->
-    <section id="accountAdmin">
-
-      <div class="account-card">
-
-        <div class="account-card-header">
-          <h2>Admin</h2>
-        </div>
-
-        <div class="account-empty">
-          Admin tools coming soon
-        </div>
-
-      </div>
-
-    </section>
-
-    <!-- ============================================================
-         DANGER ZONE
-    ============================================================ -->
-    <section id="accountDanger">
-
-      <div class="account-card danger">
-
-        <div class="account-card-header">
-          <h2>Danger Zone</h2>
-        </div>
-
-        <div class="account-danger-actions">
-
-          <button
-            id="logoutAccountBtn"
-            class="account-btn"
-            type="button"
-          >
-            Logout
-          </button>
-
-          <button
-            id="deleteAccountBtn"
-            class="account-btn danger"
-            type="button"
-          >
-            Delete Account
-          </button>
-
-        </div>
-
-      </div>
-
-    </section>
-
-    <!-- ============================================================
-         GLOBAL MESSAGE
-    ============================================================ -->
-    <div
-      id="accountMessage"
-      class="account-message"
-    ></div>
-
-  </section>
-
-</main>
+</html>
