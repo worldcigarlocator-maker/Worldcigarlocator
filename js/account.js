@@ -69,6 +69,10 @@ function closeAccountModal() {
   document.body.style.overflow = "";
 }
 
+// ============================================================
+// LOAD ACCOUNT
+// ============================================================
+
 async function loadAccount() {
 
   const {
@@ -77,13 +81,33 @@ async function loadAccount() {
 
   if (!user) return;
 
+  // ============================================================
+  // LOAD PROFILE (SSOT)
+  // ============================================================
+
+  const { data, error } =
+    await supabase
+      .from("profiles")
+      .select(`
+        email,
+        display_name
+      `)
+      .eq("id", user.id)
+      .single();
+
+  if (error) {
+    setMessage(error.message, true);
+    return;
+  }
+
   if (emailInput) {
-    emailInput.value = user.email || "";
+    emailInput.value =
+      data?.email || user.email || "";
   }
 
   if (displayNameInput) {
     displayNameInput.value =
-      user.user_metadata?.display_name || "";
+      data?.display_name || "";
   }
 
   setMessage("");
