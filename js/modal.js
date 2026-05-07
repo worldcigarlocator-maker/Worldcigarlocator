@@ -620,7 +620,17 @@ function bindEvents() {
     // COLLAPSE THREAD
     // ============================================================
 
-    const header = e.target.closest(".modal-comment-header");
+   const header =
+  e.target.closest(".modal-comment-header");
+
+const isActionButton =
+  e.target.closest(".modal-comment-actions");
+
+if (
+  header &&
+  !isActionButton &&
+  !e.target.closest(".modal-comment-delete")
+) {
 
 // 🔥 ignorera delete-knappen
 if (
