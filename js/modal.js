@@ -622,7 +622,11 @@ function bindEvents() {
 
     const header = e.target.closest(".modal-comment-header");
 
-    if (header) {
+// 🔥 ignorera delete-knappen
+if (
+  header &&
+  !e.target.closest(".modal-comment-delete")
+) {
       const parent = header.closest(".modal-comment");
       if (!parent) return;
 
