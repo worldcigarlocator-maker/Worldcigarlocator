@@ -730,9 +730,11 @@ if (
     // TRANSLATE
     // ============================================================
 
+        // TRANSLATE
     const translate = e.target.closest(".modal-comment-translate");
 
     if (translate && translate.dataset.id) {
+
       const id = Number(translate.dataset.id);
 
       const el = modalComments()?.querySelector(
@@ -741,6 +743,7 @@ if (
 
       if (!el) return;
 
+      // toggle back
       if (el.dataset.translated === "true") {
         el.textContent = el.dataset.original;
         el.dataset.translated = "false";
@@ -748,14 +751,30 @@ if (
       }
 
       const original = el.textContent;
+
       el.dataset.original = original;
 
       el.textContent = "Translating...";
 
-      setTimeout(() => {
-        el.textContent = original + " (translated)";
-        el.dataset.translated = "true";
-      }, 400);
+      const { data, error } = await supabase.functions.invoke(
+        "translate_comment_v1",
+        {
+          body: {
+            text: original,
+          },
+        }
+      );
+
+      if (error) {
+        console.error(error);
+        el.textContent = original;
+        return;
+      }
+
+      el.textContent =
+        data?.translated || original;
+
+      el.dataset.translated = "true";
 
       return;
     }
