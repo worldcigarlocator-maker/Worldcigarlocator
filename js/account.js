@@ -1,4 +1,4 @@
-```javascript
+
 // ============================================================
 // ACCOUNT.JS — WCL ACCOUNT PAGE
 // ============================================================
@@ -211,16 +211,80 @@ async function deleteAccount() {
 
 async function loadMyComments() {
 
+  const container =
+    document.querySelector(
+      ".account-comments-list"
+    );
+
+  if (!container) return;
+
   const {
     data: { user }
   } = await supabase.auth.getUser();
 
   if (!user) return;
 
-  console.log(
-    "LOAD MY COMMENTS:",
-    user.id
-  );
+  const { data, error } =
+    await supabase
+      .from("store_comments")
+      .select(`
+        id,
+        comment,
+        created_at,
+        store_id
+      `)
+      .eq("user_id", user.id)
+      .order("created_at", {
+        ascending: false
+      });
+
+  if (error) {
+
+    console.error(error);
+
+    container.innerHTML = `
+      <div class="account-empty">
+        Failed to load comments
+      </div>
+    `;
+
+    return;
+  }
+
+  if (!data?.length) {
+
+    container.innerHTML = `
+      <div class="account-empty">
+        No comments yet
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML = data.map((item) => {
+
+    return `
+      <div class="account-comment-item">
+
+        <div class="account-comment-top">
+
+          <div class="account-comment-date">
+            ${new Date(
+              item.created_at
+            ).toLocaleDateString()}
+          </div>
+
+        </div>
+
+        <div class="account-comment-text">
+          ${item.comment || ""}
+        </div>
+
+      </div>
+    `;
+
+  }).join("");
 }
 
 // ============================================================
@@ -229,16 +293,80 @@ async function loadMyComments() {
 
 async function loadMyRatings() {
 
+  const container =
+    document.querySelector(
+      ".account-ratings-list"
+    );
+
+  if (!container) return;
+
   const {
     data: { user }
   } = await supabase.auth.getUser();
 
   if (!user) return;
 
-  console.log(
-    "LOAD MY RATINGS:",
-    user.id
-  );
+  const { data, error } =
+    await supabase
+      .from("store_ratings")
+      .select(`
+        id,
+        rating,
+        created_at,
+        store_id
+      `)
+      .eq("user_id", user.id)
+      .order("created_at", {
+        ascending: false
+      });
+
+  if (error) {
+
+    console.error(error);
+
+    container.innerHTML = `
+      <div class="account-empty">
+        Failed to load ratings
+      </div>
+    `;
+
+    return;
+  }
+
+  if (!data?.length) {
+
+    container.innerHTML = `
+      <div class="account-empty">
+        No ratings yet
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML = data.map((item) => {
+
+    return `
+      <div class="account-rating-item">
+
+        <div class="account-rating-top">
+
+          <div class="account-rating-date">
+            ${new Date(
+              item.created_at
+            ).toLocaleDateString()}
+          </div>
+
+          <div class="account-rating-stars">
+            ${"★".repeat(item.rating || 0)}
+          </div>
+
+        </div>
+
+      </div>
+    `;
+
+  }).join("");
 }
 
 // ============================================================
@@ -281,4 +409,4 @@ document.addEventListener(
 
   }
 );
-```
+
