@@ -54,7 +54,6 @@
   <link rel="stylesheet" href="css/search.css">
   <link rel="stylesheet" href="css/cards.css">
   <link rel="stylesheet" href="css/modal.css">
-<link rel="stylesheet" href="css/account.css">
   
   <!-- =========================================================
        PAGE
@@ -459,135 +458,10 @@
     </div>
   </div>
 
-  <!-- ============================================================
-     ACCOUNT MODAL
-============================================================ -->
-<div
-  id="accountModal"
-  class="modal hidden"
-  role="dialog"
-  aria-modal="true"
->
-
-  <div
-    class="modal-backdrop"
-    data-account-close
-    aria-hidden="true"
-  ></div>
-
-  <div class="modal-content account-modal-content">
-
-    <button
-      class="modal-close"
-      id="accountModalClose"
-      type="button"
-    >
-      ✕
-    </button>
-
-    <div class="modal-body">
-
-      <h2 class="modal-title">
-        Manage Account
-      </h2>
-
-      <div class="account-section">
-
-        <label class="account-label">
-          Email
-        </label>
-
-        <input
-          id="accountEmail"
-          class="account-input"
-          type="email"
-          disabled
-        >
-
-      </div>
-
-      <div class="account-section">
-
-        <label class="account-label">
-          Display Name
-        </label>
-
-        <input
-          id="accountDisplayName"
-          class="account-input"
-          type="text"
-          placeholder="Display name"
-        >
-
-        <button
-          id="saveDisplayNameBtn"
-          class="account-btn"
-          type="button"
-        >
-          Save Display Name
-        </button>
-
-      </div>
-
-      <div class="account-section">
-
-        <label class="account-label">
-          Change Password
-        </label>
-
-        <input
-          id="accountPassword"
-          class="account-input"
-          type="password"
-          placeholder="New password"
-        >
-
-        <button
-          id="changePasswordBtn"
-          class="account-btn"
-          type="button"
-        >
-          Change Password
-        </button>
-
-      </div>
-
-      <div class="account-section account-danger-zone">
-
-        <button
-          id="logoutAccountBtn"
-          class="account-btn"
-          type="button"
-        >
-          Logout
-        </button>
-
-        <button
-          id="deleteAccountBtn"
-          class="account-btn danger"
-          type="button"
-        >
-          Delete Account
-        </button>
-
-      </div>
-
-      <div
-        id="accountMessage"
-        class="account-message"
-      ></div>
-
-    </div>
-
-  </div>
-
-</div>
-
 <!-- SCRIPTS -->
 <script type="module" src="js/main.js"></script>
   <script type="module" src="js/search-v2.js"></script>
   <script type="module" src="js/map.js"></script>
-  <script type="module" src="js/account.js"></script>
 
   <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
 </body>
