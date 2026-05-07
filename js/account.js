@@ -160,19 +160,43 @@ async function logout() {
 // DELETE ACCOUNT
 // ============================================================
 
+// ============================================================
+// DELETE ACCOUNT
+// ============================================================
+
 async function deleteAccount() {
 
-  const confirmed =
-    confirm(
-      "Delete your account permanently?"
-    );
+  const confirmed = confirm(
+    "Delete your account permanently?\n\nThis cannot be undone."
+  );
 
   if (!confirmed) return;
 
-  setMessage(
-    "Account deletion endpoint not connected yet",
-    true
-  );
+  setMessage("Deleting account...");
+
+  try {
+
+    const { error } =
+      await supabase.functions.invoke(
+        "delete_account_v1"
+      );
+
+    if (error) {
+      setMessage(error.message, true);
+      return;
+    }
+
+    await supabase.auth.signOut();
+
+    window.location.reload();
+
+  } catch (err) {
+
+    setMessage(
+      err.message || "Delete failed",
+      true
+    );
+  }
 }
 
 // ============================================================
