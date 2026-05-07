@@ -225,64 +225,68 @@ async function loadMyComments() {
   if (!user) return;
 
   const { data, error } =
-    await supabase
-      .from("store_comments")
-      .select(`
-        id,
-        comment,
-        created_at,
-        store_id
-      `)
-      .eq("user_id", user.id)
-      .order("created_at", {
-        ascending: false
-      });
-
-  if (error) {
-
-    console.error(error);
-
-    container.innerHTML = `
-      <div class="account-empty">
-        Failed to load comments
-      </div>
-    `;
-
-    return;
-  }
-
-  if (!data?.length) {
-
-    container.innerHTML = `
-      <div class="account-empty">
-        No comments yet
-      </div>
-    `;
-
-    return;
-  }
+  await supabase
+    .from("store_comments")
+    .select(`
+      id,
+      comment,
+      created_at,
+      store_id,
+      stores (
+        name,
+        country,
+        city
+      )
+    `)
+    .eq("user_id", user.id)
+    .order("created_at", {
+      ascending: false
+    });
 
   container.innerHTML = data.map((item) => {
+const store =
+  item.stores || {};
 
-    return `
-      <div class="account-comment-item">
+const store =
+  item.stores || {};
 
-        <div class="account-comment-top">
+return `
+  <div class="account-comment-item">
 
-          <div class="account-comment-date">
-            ${new Date(
-              item.created_at
-            ).toLocaleDateString()}
-          </div>
+    <div class="account-comment-top">
 
+      <div>
+
+        <div class="account-comment-store">
+          ${store.name || "Unknown Store"}
         </div>
 
-        <div class="account-comment-text">
-          ${item.comment || ""}
+        <div class="account-comment-location">
+          ${[
+            store.country,
+            store.city
+          ]
+            .filter(Boolean)
+            .join(", ")}
         </div>
 
       </div>
-    `;
+
+      <div class="account-comment-date">
+        ${new Date(
+          item.created_at
+        ).toLocaleDateString()}
+      </div>
+
+    </div>
+
+    <div class="account-comment-text">
+      ${item.comment || ""}
+    </div>
+
+  </div>
+`;
+    
 
   }).join("");
 }
@@ -308,7 +312,7 @@ async function loadMyRatings() {
 
   const { data, error } =
     await supabase
-      .from("store_ratings")
+      .from("ratings")
       .select(`
         id,
         rating,
