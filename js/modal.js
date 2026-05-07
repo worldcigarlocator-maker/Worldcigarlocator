@@ -616,11 +616,11 @@ function bindEvents() {
       return;
     }
 
-    // ============================================================
-    // COLLAPSE THREAD
-    // ============================================================
+   // ============================================================
+// COLLAPSE THREAD
+// ============================================================
 
-   const header =
+const header =
   e.target.closest(".modal-comment-header");
 
 const isActionButton =
@@ -632,31 +632,32 @@ if (
   !e.target.closest(".modal-comment-delete")
 ) {
 
-// 🔥 ignorera delete-knappen
-if (
-  header &&
-  !e.target.closest(".modal-comment-delete")
-) {
-      const parent = header.closest(".modal-comment");
-      if (!parent) return;
+  const parent =
+    header.closest(".modal-comment");
 
-      const next = parent.nextElementSibling;
+  if (!parent) return;
 
-      if (next && next.classList.contains("reply")) {
-        parent.classList.toggle("collapsed");
+  const next = parent.nextElementSibling;
 
-        let el = parent.nextElementSibling;
+  if (next && next.classList.contains("reply")) {
 
-        while (el && el.classList.contains("reply")) {
-          el.style.display =
-            parent.classList.contains("collapsed") ? "none" : "";
-          el = el.nextElementSibling;
-        }
-      }
+    parent.classList.toggle("collapsed");
 
-      return;
+    let el = parent.nextElementSibling;
+
+    while (el && el.classList.contains("reply")) {
+
+      el.style.display =
+        parent.classList.contains("collapsed")
+          ? "none"
+          : "";
+
+      el = el.nextElementSibling;
     }
+  }
 
+  return;
+}
     // ============================================================
     // REPORT TOGGLE
     // ============================================================
