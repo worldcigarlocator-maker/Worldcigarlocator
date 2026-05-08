@@ -763,7 +763,7 @@ navButtons.forEach((btn) => {
 // DEFAULT
 // ============================================================
 
-openSection("Account Settings");
+openSection("accountSettings");
 
 
 // ============================================================
