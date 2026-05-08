@@ -217,7 +217,7 @@ export async function openModal(storeInput) {
   // ANALYTICS
   // ============================================================
 
-  window.WCL_ANALYTICS.send(
+ window.WCL_ANALYTICS?.send?.(
     "store_opened",
     {
       store_id: storeId,
