@@ -691,26 +691,54 @@ const navButtons =
   );
 
 // ============================================================
+// ACCOUNT SECTIONS
+// ============================================================
+
+const accountSections = [
+  "accountSettings",
+  "accountComments",
+  "accountRatings",
+  "accountFavorites",
+  "accountNotifications",
+  "accountLanguage",
+  "accountSessions",
+  "accountContributor",
+  "accountAdmin"
+];
+
+// ============================================================
 // HIDE ALL
 // ============================================================
 
 function hideAllSections() {
 
-  document
-    .querySelectorAll(
-      ".account-content section"
-    )
-    .forEach((section) => {
+  accountSections.forEach((id) => {
 
+    const section =
+      document.getElementById(id);
+
+    if (section) {
       section.style.display = "none";
+    }
 
-    });
+  });
 
 }
 
 // ============================================================
 // OPEN SECTION
 // ============================================================
+Varför detta är rätt
+
+Nu styrs navigation ENDAST av:
+
+explicit account sections
+
+inte:
+
+alla sections i DOM
+
+vilket är mycket säkrare och canonical.
 
 function openSection(sectionId) {
 
