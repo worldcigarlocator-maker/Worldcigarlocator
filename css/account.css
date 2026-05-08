@@ -514,3 +514,19 @@
   }
 
 }
+
+.account-page{
+  align-items:start;
+}
+
+.account-content{
+  min-height:calc(100vh - 120px);
+}
+
+.account-nav-btn{
+  scroll-margin-top:0;
+}
+
+.account-nav-btn:focus{
+  outline:none;
+}
