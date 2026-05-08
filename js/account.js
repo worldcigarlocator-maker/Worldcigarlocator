@@ -638,3 +638,16 @@ Object.values(sections).forEach((selector) => {
   }
 
 });
+
+// ============================================================
+// RESET SCROLL ON SECTION CHANGE
+// ============================================================
+
+function resetAccountScroll() {
+
+  window.scrollTo({
+    top: 0,
+    behavior: "instant"
+  });
+
+}
