@@ -110,6 +110,9 @@
 /* ================= FAVORITE BUTTON ================= */
 
 .modal-favorite-btn{
+  position:relative;
+  z-index:12;
+
   width:42px;
   height:42px;
 
@@ -125,6 +128,8 @@
   backdrop-filter:blur(8px);
 
   cursor:pointer;
+
+  pointer-events:auto;
 
   transition:
     transform .18s ease,
@@ -146,6 +151,8 @@
   width:20px;
   height:20px;
 
+  pointer-events:none;
+
   stroke:rgb(var(--global));
   fill:transparent;
 
@@ -153,7 +160,6 @@
     fill .18s ease,
     stroke .18s ease;
 }
-
 /* ================= ACTIVE ================= */
 
 .modal-favorite-btn.active svg{
