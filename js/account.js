@@ -484,6 +484,82 @@ const sections = {
 };
 
 // ============================================================
+// HIDE ALL
+// ============================================================
+
+function hideAllSections() {
+
+  Object.values(sections).forEach((selector) => {
+
+    const section =
+      document.querySelector(selector);
+
+    if (section) {
+      section.style.display = "none";
+    }
+
+  });
+
+}
+
+// ============================================================
+// OPEN SECTION
+// ============================================================
+
+function openSection(name) {
+
+  hideAllSections();
+
+  navButtons.forEach((btn) => {
+    btn.classList.remove("active");
+  });
+
+  const selector =
+    sections[name];
+
+  const target =
+    document.querySelector(selector);
+
+  if (target) {
+    target.style.display = "block";
+  }
+
+  navButtons.forEach((btn) => {
+
+    if (
+      btn.textContent.trim() === name
+    ) {
+      btn.classList.add("active");
+    }
+
+  });
+
+}
+
+// ============================================================
+// CLICK NAVIGATION
+// ============================================================
+
+navButtons.forEach((btn) => {
+
+  btn.addEventListener("click", () => {
+
+    const key =
+      btn.textContent.trim();
+
+    openSection(key);
+
+  });
+
+});
+
+// ============================================================
+// DEFAULT
+// ============================================================
+
+openSection("Profile");
+
+// ============================================================
 // CLICK NAVIGATION
 // ============================================================
 
