@@ -628,31 +628,85 @@
 }
 
 /* ============================================================
-   FAVORITE ITEM
+   FAVORITE CARD
    ============================================================ */
 
-.account-favorites-grid .account-comment-item{
+.account-favorite-card{
+  overflow:hidden;
+
+  border-radius:28px;
+
+  border:1px solid rgba(var(--global),0.16);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,0.035),
+      rgba(255,255,255,0.018)
+    );
+
   cursor:pointer;
+
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    box-shadow .18s ease,
+    background .18s ease;
 }
 
-.account-comment-store-wrap{
-  display:flex;
-  align-items:center;
-  gap:16px;
+.account-favorite-card:hover{
+  transform:translateY(-2px);
+
+  border-color:rgba(var(--global),0.34);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,0.05),
+      rgba(255,255,255,0.025)
+    );
+
+  box-shadow:
+    0 10px 34px rgba(0,0,0,0.24),
+    0 0 28px rgba(var(--global),0.08);
 }
 
-.account-comment-thumb{
-  width:88px;
-  height:88px;
+/* ============================================================
+   FAVORITE IMAGE
+   ============================================================ */
 
-  border-radius:18px;
+.account-favorite-img{
+  width:100%;
+  height:320px;
+
+  display:block;
 
   object-fit:cover;
-  flex-shrink:0;
-
-  border:1px solid rgba(255,255,255,0.08);
 
   background:#111;
+}
+
+/* ============================================================
+   FAVORITE BODY
+   ============================================================ */
+
+.account-favorite-body{
+  padding:22px;
+}
+
+.account-favorite-title{
+  font-size:22px;
+  font-weight:700;
+
+  color:#fff;
+}
+
+.account-favorite-location{
+  margin-top:6px;
+
+  font-size:15px;
+
+  color:rgba(255,255,255,0.58);
 }
 
 /* ============================================================
@@ -671,3 +725,4 @@
 
   display:block;
 }
+
