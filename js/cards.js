@@ -757,6 +757,86 @@ IS_LOADING_MORE = false;
 }
 
 // ============================================================
+// FAVORITES
+// ============================================================
+
+const FAVORITES = new Set();
+
+async function loadFavoritesState() {
+
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) return;
+
+  const { data, error } =
+    await supabase
+      .from("store_favorites")
+      .select("store_id");
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  FAVORITES.clear();
+
+  (data || []).forEach((row) => {
+    FAVORITES.add(Number(row.store_id));
+  });
+
+  syncAllFavoriteButtons();
+}
+
+export function syncFavoriteUI(storeId) {
+
+  const id = Number(storeId);
+
+  if (!id) return;
+
+  const active =
+    FAVORITES.has(id);
+
+  document
+    .querySelectorAll(
+      `[data-store-id="${id}"].favorite-heart,
+       #modalFavoriteBtn[data-store-id="${id}"]`
+    )
+    .forEach((el) => {
+
+      el.classList.toggle(
+        "active",
+        active
+      );
+
+    });
+}
+
+function syncAllFavoriteButtons() {
+
+  document
+    .querySelectorAll(
+      ".favorite-heart"
+    )
+    .forEach((btn) => {
+
+      const storeId =
+        Number(
+          btn.dataset.storeId
+        );
+
+      if (!storeId) return;
+
+      syncFavoriteUI(storeId);
+
+    });
+}
+
+window.syncFavoriteUI =
+  syncFavoriteUI;
+
+// ============================================================
 // GRID CLICK
 // ============================================================
 
@@ -772,47 +852,124 @@ function bindGrid() {
 
   if (!grid) return;
 
-  grid.addEventListener("click", (e) => {
+  grid.addEventListener(
+    "click",
+    async (e) => {
 
-    // ============================================================
-    // FAVORITE HEART
-    // ============================================================
+      // ============================================================
+      // FAVORITE HEART
+      // ============================================================
 
-    const favoriteBtn =
-      e.target.closest(".favorite-heart");
+      const favoriteBtn =
+        e.target.closest(
+          ".favorite-heart"
+        );
 
-    if (favoriteBtn) {
+      if (favoriteBtn) {
 
-      e.stopPropagation();
+        e.stopPropagation();
 
-      favoriteBtn.classList.toggle("active");
+        const storeId =
+          Number(
+            favoriteBtn.dataset.storeId
+          );
 
-      return;
+        if (!storeId) return;
+
+        const isActive =
+          FAVORITES.has(storeId);
+
+        if (isActive) {
+
+          const { error } =
+            await supabase.rpc(
+              "remove_store_favorite_v1",
+              {
+                p_store_id: storeId
+              }
+            );
+
+          if (error) {
+            console.error(error);
+            return;
+          }
+
+          FAVORITES.delete(storeId);
+
+        } else {
+
+          const { error } =
+            await supabase.rpc(
+              "save_store_favorite_v1",
+              {
+                p_store_id: storeId
+              }
+            );
+
+          if (error) {
+            console.error(error);
+            return;
+          }
+
+          FAVORITES.add(storeId);
+        }
+
+        syncFavoriteUI(storeId);
+
+        return;
+      }
+
+      // ============================================================
+      // STORE CARD
+      // ============================================================
+
+      const card =
+        e.target.closest(
+          ".store-card"
+        );
+
+      if (!card) return;
+
+      const id =
+        Number(
+          card.dataset.storeId
+        );
+
+      if (!id) return;
+
+      openModal({
+        id: id,
+        source:
+          card.dataset.source
+      });
+
     }
-
-    // ============================================================
-    // STORE CARD
-    // ============================================================
-
-    const card =
-      e.target.closest(".store-card");
-
-    if (!card) return;
-
-    const id =
-      Number(card.dataset.storeId);
-
-    if (!id) return;
-
-    openModal({
-      id: id,
-      source: card.dataset.source
-    });
-
-  });
+  );
 
 }
 
+// ============================================================
+// INIT
+// ============================================================
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    bindGrid();
+
+    initStoreViewObserver();
+
+    await loadGlobalTotal();
+
+    await loadFavoritesState();
+
+    updateSearchCount(
+      GLOBAL_TOTAL
+    );
+
+  }
+);
 // ============================================================
 // INIT
 // ============================================================
