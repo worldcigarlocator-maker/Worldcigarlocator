@@ -740,19 +740,30 @@
             </span>
           </div>
 
-          <textarea
-            id="modalCommentInput"
-            placeholder="Write a comment…"
-          ></textarea>
+        <textarea
+  id="modalCommentInput"
+  data-i18n-placeholder="write_comment"
+  placeholder="Write a comment…"
+></textarea>
 
-          <button id="modalSendComment">Post comment</button>
+         <button
+  id="modalSendComment"
+  data-i18n="post_comment"
+>
+  Post comment
+</button>
 
           <div id="modalComments" class="modal-comments-feed"></div>
         </div>
 
         <!-- REPORT SECTION -->
         <div id="modalReportSection" class="modal-report-section hidden">
-          <h3 class="modal-report-title">Report an issue</h3>
+        <h3
+  class="modal-report-title"
+  data-i18n="report_issue"
+>
+  Report an issue
+</h3>
 
           <div id="modalReportChips" class="modal-report-chips">
             <button class="report-chip" data-type="no_longer_sells">Don’t sell cigars</button>
@@ -770,13 +781,22 @@
             placeholder="Describe the issue..."
           ></textarea>
 
-          <button id="modalSubmitReport" class="modal-submit-report" disabled>
-            Submit report
-          </button>
+        <button
+  id="modalSubmitReport"
+  class="modal-submit-report"
+  disabled
+  data-i18n="submit_report"
+>
+  Submit report
+</button>
 
-          <div id="modalReportSuccess" class="modal-report-success hidden">
-            Thank you for helping us keep World Cigar Locator accurate and up to date.
-          </div>
+          <div
+  id="modalReportSuccess"
+  class="modal-report-success hidden"
+  data-i18n="report_success"
+>
+  Thank you for helping us keep World Cigar Locator accurate and up to date.
+</div>
         </div>
 
       </div>
