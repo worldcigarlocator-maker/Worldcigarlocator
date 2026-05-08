@@ -75,7 +75,8 @@ async function loadLocale(lang) {
       `../locales/${lang}.js`
     );
 
-    CURRENT_DICT = mod.default || {};
+    CURRENT_DICT =
+      mod.default || {};
 
   } catch (err) {
 
@@ -86,8 +87,12 @@ async function loadLocale(lang) {
 
     CURRENT_DICT = {};
   }
+
 }
 
+/* ============================================================
+   TRANSLATE
+============================================================ */
 /* ============================================================
    TRANSLATE
 ============================================================ */
