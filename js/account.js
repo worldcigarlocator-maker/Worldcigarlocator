@@ -697,7 +697,7 @@ const sections = {
   "Account Settings": "#accountSettings",
   "My Comments": "#accountComments",
   "My Ratings": "#accountRatings",
-  "Favorites": "#accountFavorites",
+  "My Favorites": "#accountFavorites",
   "Notifications": "#accountNotifications",
   "Language": "#accountLanguage",
   "Sessions": "#accountSessions",
