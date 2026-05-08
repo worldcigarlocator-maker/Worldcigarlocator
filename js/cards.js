@@ -790,6 +790,7 @@ async function loadFavoritesState() {
 });
 
 syncAllFavoriteButtons();
+}
 
 export async function toggleFavorite(storeId) {
 
