@@ -182,32 +182,39 @@ export async function openModal(storeInput) {
 
   let store =
     findStore(inputId);
-
+console.log("STORE FOUND", store);
+  
   // ============================================================
   // RPC FALLBACK / AUTHORITATIVE LOAD
   // ============================================================
 
-  if (!store) {
+ if (!store) {
 
-    const { data, error } = await supabase.rpc(
-      "modal_store_card_v1",
-      { p_store_id: inputId }
+  const { data, error } = await supabase.rpc(
+    "modal_store_card_v1",
+    { p_store_id: inputId }
+  );
+
+  if (error) {
+    console.error(
+      "modal_store_card_v1 error:",
+      error
     );
 
-    if (error) {
-      console.error(
-        "modal_store_card_v1 error:",
-        error
-      );
-
-      return;
-    }
-
-    if (!data || !data.length) return;
-
-    store = data[0];
+    return;
   }
 
+  if (!data || !data.length) return;
+
+  store = data[0];
+
+  console.log(
+    "STORE AFTER RPC",
+    store
+  );
+
+}
+  
   if (!store) return;
 
   const storeId = Number(store.id);
