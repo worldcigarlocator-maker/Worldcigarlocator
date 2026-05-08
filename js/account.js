@@ -470,8 +470,7 @@ const navButtons =
   );
 
 const sections = {
-  "Profile": "#accountProfile",
-  "Security": "#accountSecurity",
+  "Account Settings": "#accountSettings",
   "My Comments": "#accountComments",
   "My Ratings": "#accountRatings",
   "Favorites": "#accountFavorites",
@@ -479,8 +478,7 @@ const sections = {
   "Language": "#accountLanguage",
   "Sessions": "#accountSessions",
   "Contributor": "#accountContributor",
-  "Admin": "#accountAdmin",
-  "Danger Zone": "#accountDanger"
+  "Admin": "#accountAdmin"
 };
 
 // ============================================================
@@ -565,7 +563,7 @@ navButtons.forEach((btn) => {
 // DEFAULT
 // ============================================================
 
-openSection("Profile");
+openSection("Account Settings");
 
 
 // ============================================================
