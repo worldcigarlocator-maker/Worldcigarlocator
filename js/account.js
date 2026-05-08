@@ -39,7 +39,20 @@ const messageBox =
 // HELPERS
 // ============================================================
 
-function setMessage(text, isError = false) {
+function tr(key, fallback = "") {
+
+  if (window.t) {
+    return window.t(key, fallback);
+  }
+
+  return fallback || key;
+
+}
+
+function setMessage(
+  text,
+  isError = false
+) {
 
   if (!messageBox) return;
 
