@@ -505,12 +505,13 @@ async function saveRating() {
 
   if (!MODAL_ACTIVE_STORE_ID) return;
 
-  const rating =
-    Number(MODAL_USER_TEMP_RATING) || 0;
+  console.log(
+    "SAVE RATING:",
+    MODAL_ACTIVE_STORE_ID,
+    MODAL_USER_TEMP_RATING
+  );
 
-  if (!rating) return;
-
-  const { error } =
+  const { data, error } =
     await supabase.rpc(
       "modal_save_rating_v1",
       {
@@ -518,30 +519,33 @@ async function saveRating() {
           MODAL_ACTIVE_STORE_ID,
 
         p_rating:
-          rating
+          Number(
+            MODAL_USER_TEMP_RATING
+          ) || 0
       }
     );
 
-  if (error) {
+  console.log(
+    "RATING RPC DATA:",
+    data
+  );
 
+  console.log(
+    "RATING RPC ERROR:",
+    error
+  );
+
+  if (error) {
     console.error(
       "modal_save_rating_v1 error:",
       error
     );
-
     return;
   }
 
-  console.log(
-    "RATING SAVED",
-    rating
-  );
-
-  await loadModalMeta(
-    MODAL_ACTIVE_STORE_ID
-  );
-
+  console.log("RATING SAVED");
 }
+
 // ============================================================
 // COMMENTS (RPC ONLY)
 // ============================================================
