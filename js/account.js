@@ -520,9 +520,11 @@ function openSection(name) {
   const target =
     document.querySelector(selector);
 
-  if (target) {
-    target.style.display = "block";
-  }
+ if (target) {
+  target.style.display = "block";
+}
+
+resetAccountScroll();
 
   navButtons.forEach((btn) => {
 
