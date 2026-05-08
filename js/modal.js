@@ -760,6 +760,72 @@ if (
 
   return;
 }
+
+    // ============================================================
+    // FAVORITE TOGGLE
+    // ============================================================
+
+    if (e.target.closest("#modalFavoriteBtn")) {
+
+      const btn =
+        document.getElementById(
+          "modalFavoriteBtn"
+        );
+
+      const storeId =
+        Number(btn?.dataset.storeId);
+
+      if (!storeId) return;
+
+      const isActive =
+        btn.classList.contains("active");
+
+      if (isActive) {
+
+        const { error } =
+          await supabase.rpc(
+            "remove_store_favorite_v1",
+            {
+              p_store_id: storeId
+            }
+          );
+
+        if (error) {
+          console.error(
+            "remove_store_favorite_v1 error:",
+            error
+          );
+
+          return;
+        }
+
+      } else {
+
+        const { error } =
+          await supabase.rpc(
+            "save_store_favorite_v1",
+            {
+              p_store_id: storeId
+            }
+          );
+
+        if (error) {
+          console.error(
+            "save_store_favorite_v1 error:",
+            error
+          );
+
+          return;
+        }
+      }
+
+      if (window.syncFavoriteUI) {
+        window.syncFavoriteUI(storeId);
+      }
+
+      return;
+    }
+
     // ============================================================
     // REPORT TOGGLE
     // ============================================================
