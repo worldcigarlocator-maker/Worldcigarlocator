@@ -515,10 +515,7 @@ async function loadFavorites() {
           id,
           name,
           country,
-          city,
-          photo_url,
-          photo_cdn_url,
-          photo_reference
+          city
         )
       `)
       .eq("user_id", user.id)
@@ -555,48 +552,35 @@ async function loadFavorites() {
     const store =
       item.stores || {};
 
-    let image =
-      store.photo_cdn_url ||
-      store.photo_url ||
-      "images/store.jpg";
-
-    if (
-      !store.photo_cdn_url &&
-      !store.photo_url &&
-      store.photo_reference
-    ) {
-
-      image =
-        `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?photo_reference=${encodeURIComponent(
-          store.photo_reference
-        )}&maxwidth=800`;
-    }
-
     return `
       <div
-        class="account-favorite-card"
-        data-store-id="${store.id || ""}"
+        class="account-comment-item"
+        data-store-id="${item.store_id || ""}"
       >
 
-        <img
-          class="account-favorite-img"
-          src="${image}"
-          loading="lazy"
-        >
+        <div class="account-comment-top">
 
-        <div class="account-favorite-body">
+          <div>
 
-          <div class="account-favorite-title">
-            ${store.name || "Unknown Store"}
+            <div class="account-comment-store">
+              ${store.name || "Unknown Store"}
+            </div>
+
+            <div class="account-comment-location">
+              ${[
+                store.country,
+                store.city
+              ]
+                .filter(Boolean)
+                .join(", ")}
+            </div>
+
           </div>
 
-          <div class="account-favorite-location">
-            ${[
-              store.country,
-              store.city
-            ]
-              .filter(Boolean)
-              .join(", ")}
+          <div class="account-comment-date">
+            ${new Date(
+              item.created_at
+            ).toLocaleDateString()}
           </div>
 
         </div>
@@ -610,30 +594,30 @@ async function loadFavorites() {
   // FAVORITE CLICK
   // ============================================================
 
-container
-  .querySelectorAll(
-    ".account-favorite-card"
-  )
-  .forEach((item) => {
+  container
+    .querySelectorAll(
+      ".account-comment-item"
+    )
+    .forEach((item) => {
 
-    item.addEventListener(
-      "click",
-      () => {
+      item.addEventListener(
+        "click",
+        () => {
 
-        const storeId =
-          item.dataset.storeId;
+          const storeId =
+            item.dataset.storeId;
 
-        if (!storeId) return;
+          if (!storeId) return;
 
-        openModal({
-          id: Number(storeId),
-          source: "account"
-        });
+          openModal({
+            id: Number(storeId),
+            source: "account"
+          });
 
-      }
-    );
+        }
+      );
 
-  });
+    });
 
 }
 
@@ -679,10 +663,6 @@ document.addEventListener(
 
   }
 );
-
-// ============================================================
-// ACCOUNT NAVIGATION
-// ============================================================
 
 // ============================================================
 // ACCOUNT NAVIGATION
