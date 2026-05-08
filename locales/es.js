@@ -71,7 +71,7 @@ export default {
   /* ================= ADMIN ================= */
 
   admin_tools_coming:
-    "Las herramientas de administrador llegarán pronto"
+    "Las herramientas de administrador llegarán pronto",
 
      /* ================= MODAL ================= */
 
