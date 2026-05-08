@@ -667,6 +667,7 @@ document.addEventListener(
   }
 );
 
+
 // ============================================================
 // ACCOUNT NAVIGATION
 // ============================================================
@@ -676,34 +677,21 @@ const navButtons =
     ".account-nav-btn"
   );
 
-const sections = {
-  "Account Settings": "#accountSettings",
-  "My Comments": "#accountComments",
-  "My Ratings": "#accountRatings",
-  "My Favorites": "#accountFavorites",
-  "Notifications": "#accountNotifications",
-  "Language": "#accountLanguage",
-  "Sessions": "#accountSessions",
-  "Contributor": "#accountContributor",
-  "Admin": "#accountAdmin"
-};
-
 // ============================================================
 // HIDE ALL
 // ============================================================
 
 function hideAllSections() {
 
-  Object.values(sections).forEach((selector) => {
+  document
+    .querySelectorAll(
+      ".account-content section"
+    )
+    .forEach((section) => {
 
-    const section =
-      document.querySelector(selector);
-
-    if (section) {
       section.style.display = "none";
-    }
 
-  });
+    });
 
 }
 
@@ -711,7 +699,7 @@ function hideAllSections() {
 // OPEN SECTION
 // ============================================================
 
-function openSection(name) {
+function openSection(sectionId) {
 
   hideAllSections();
 
@@ -719,22 +707,22 @@ function openSection(name) {
     btn.classList.remove("active");
   });
 
-  const selector =
-    sections[name];
-
   const target =
-    document.querySelector(selector);
+    document.getElementById(
+      sectionId
+    );
 
- if (target) {
-  target.style.display = "block";
-}
+  if (target) {
+    target.style.display = "block";
+  }
 
-resetAccountScroll();
+  resetAccountScroll();
 
   navButtons.forEach((btn) => {
 
     if (
-      btn.textContent.trim() === name
+      btn.dataset.section ===
+      sectionId
     ) {
       btn.classList.add("active");
     }
@@ -749,20 +737,25 @@ resetAccountScroll();
 
 navButtons.forEach((btn) => {
 
-  btn.addEventListener("click", (e) => {
+  btn.addEventListener(
+    "click",
+    (e) => {
 
-    e.preventDefault();
+      e.preventDefault();
 
-    e.currentTarget.blur();
+      e.currentTarget.blur();
 
-    const key =
-      btn.textContent.trim();
+      const sectionId =
+        btn.dataset.section;
 
-    openSection(key);
+      if (!sectionId) return;
 
-    window.scrollTo(0, 0);
+      openSection(sectionId);
 
-  });
+      window.scrollTo(0, 0);
+
+    }
+  );
 
 });
 
