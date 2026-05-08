@@ -859,6 +859,7 @@ ratingsSearchInput?.addEventListener(
 // LANGUAGE SWITCHER
 // ============================================================
 
+
 const languageButtons =
   document.querySelectorAll(
     ".account-language-btn"
@@ -875,10 +876,48 @@ languageButtons.forEach((btn) => {
 
       if (!lang) return;
 
-      localStorage.setItem(
-        "wcl_language",
-        lang
-      );
+      try {
+
+        /* ================= LOCAL ================= */
+
+        localStorage.setItem(
+          "wcl_language",
+          lang
+        );
+
+        /* ================= PROFILE ================= */
+
+        const {
+          data: { user }
+        } = await supabase.auth.getUser();
+
+        if (user?.id) {
+
+          const { error } =
+            await supabase
+              .from("profiles")
+              .update({
+                language: lang
+              })
+              .eq("id", user.id);
+
+          if (error) {
+            console.error(
+              "LANGUAGE SAVE ERROR",
+              error
+            );
+          }
+
+        }
+
+      } catch (err) {
+
+        console.error(
+          "LANGUAGE SWITCH ERROR",
+          err
+        );
+
+      }
 
       window.location.reload();
 
