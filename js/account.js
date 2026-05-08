@@ -861,3 +861,35 @@ ratingsSearchInput?.addEventListener(
 
   }
 );
+
+// ============================================================
+// LANGUAGE SWITCHER
+// ============================================================
+
+const languageButtons =
+  document.querySelectorAll(
+    ".account-language-btn"
+  );
+
+languageButtons.forEach((btn) => {
+
+  btn.addEventListener(
+    "click",
+    async () => {
+
+      const lang =
+        btn.dataset.lang;
+
+      if (!lang) return;
+
+      localStorage.setItem(
+        "wcl_language",
+        lang
+      );
+
+      window.location.reload();
+
+    }
+  );
+
+});
