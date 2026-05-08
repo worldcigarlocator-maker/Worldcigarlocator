@@ -324,6 +324,7 @@
     0 0 24px rgba(var(--global),0.12);
 }
 
+
 /* ============================================================
    COMMENT / RATING ITEM
    ============================================================ */
@@ -342,6 +343,8 @@
       rgba(255,255,255,0.035),
       rgba(255,255,255,0.018)
     );
+
+  cursor:pointer;
 
   transition:
     transform .18s ease,
@@ -413,13 +416,17 @@
 }
 
 .account-rating-stars{
-  margin-top:12px;
+  margin-top:14px;
 
-  font-size:20px;
-  letter-spacing:2px;
+  font-size:22px;
+  letter-spacing:3px;
 
   color:rgb(var(--global));
+
+  text-shadow:
+    0 0 18px rgba(var(--global),0.28);
 }
+
 /* ============================================================
    EMPTY
    ============================================================ */
