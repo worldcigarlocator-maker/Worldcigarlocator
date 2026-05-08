@@ -891,6 +891,11 @@ function syncAllFavoriteButtons() {
 
 window.syncFavoriteUI =
   syncFavoriteUI;
+
+window.toggleFavorite =
+  toggleFavorite;
+
+
 // ============================================================
 // GRID CLICK
 // ============================================================
