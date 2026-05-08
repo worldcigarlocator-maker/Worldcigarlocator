@@ -504,12 +504,15 @@ async function loadFavorites() {
       .from("store_favorites")
       .select(`
         created_at,
+        store_id,
         stores (
           id,
           name,
-          city,
           country,
-          photo_url
+          city,
+          photo_url,
+          photo_cdn_url,
+          photo_reference
         )
       `)
       .eq("user_id", user.id)
@@ -546,34 +549,63 @@ async function loadFavorites() {
     const store =
       item.stores || {};
 
+    let image =
+      store.photo_cdn_url ||
+      store.photo_url ||
+      "images/store.jpg";
+
+    if (
+      !store.photo_cdn_url &&
+      !store.photo_url &&
+      store.photo_reference
+    ) {
+
+      image =
+        `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy?photo_reference=${encodeURIComponent(
+          store.photo_reference
+        )}&maxwidth=800`;
+    }
+
     return `
       <div
-        class="account-favorite-card"
+        class="account-comment-item"
         data-store-id="${store.id || ""}"
       >
 
-        <img
-          class="account-favorite-img"
-          src="${
-            store.photo_url ||
-            "images/store.jpg"
-          }"
-          loading="lazy"
-        >
+        <div class="account-comment-top">
 
-        <div class="account-favorite-body">
+          <div class="account-comment-store-wrap">
 
-          <div class="account-favorite-title">
-            ${store.name || "Unknown Store"}
+            <img
+              class="account-comment-thumb"
+              src="${image}"
+              alt="${store.name || ""}"
+              loading="lazy"
+            >
+
+            <div>
+
+              <div class="account-comment-store">
+                ${store.name || "Unknown Store"}
+              </div>
+
+              <div class="account-comment-location">
+                ${[
+                  store.country,
+                  store.city
+                ]
+                  .filter(Boolean)
+                  .join(", ")}
+              </div>
+
+            </div>
+
           </div>
 
-          <div class="account-favorite-location">
-            ${[
-              store.country,
-              store.city
-            ]
-              .filter(Boolean)
-              .join(", ")}
+          <div class="account-comment-date">
+            ${new Date(
+              item.created_at
+            ).toLocaleDateString()}
           </div>
 
         </div>
@@ -582,6 +614,33 @@ async function loadFavorites() {
     `;
 
   }).join("");
+
+  // ============================================================
+  // FAVORITE CLICK
+  // ============================================================
+
+  container
+    .querySelectorAll(
+      ".account-comment-item"
+    )
+    .forEach((item) => {
+
+      item.addEventListener(
+        "click",
+        () => {
+
+          const storeId =
+            item.dataset.storeId;
+
+          if (!storeId) return;
+
+          window.location.href =
+            `/?store=${storeId}`;
+
+        }
+      );
+
+    });
 
 }
 
