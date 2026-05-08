@@ -3,7 +3,7 @@
 // ACCOUNT.JS — WCL ACCOUNT PAGE
 // ============================================================
 
-import { supabase } from "/js/globals.js";
+import { supabase } from "/js/globals.js";x
 import { openModal } from "/js/modal.js";
 
 // ============================================================
