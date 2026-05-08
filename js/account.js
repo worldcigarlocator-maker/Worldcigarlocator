@@ -4,6 +4,7 @@
 // ============================================================
 
 import { supabase } from "/js/globals.js";
+import { openModal } from "/js/modal.js";
 
 // ============================================================
 // DOM
@@ -333,13 +334,16 @@ container
 
         if (!storeId) return;
 
-        window.location.href =
-          `/?store=${storeId}`;
+        openModal({
+          id: Number(storeId),
+          source: "account"
+        });
 
       }
     );
 
   });
+
 }
 
 // ============================================================
@@ -470,8 +474,10 @@ async function loadMyRatings() {
 
           if (!storeId) return;
 
-          window.location.href =
-            `/?store=${storeId}`;
+          openModal({
+            id: Number(storeId),
+            source: "account"
+          });
 
         }
       );
@@ -568,44 +574,29 @@ async function loadFavorites() {
 
     return `
       <div
-        class="account-comment-item"
+        class="account-favorite-card"
         data-store-id="${store.id || ""}"
       >
 
-        <div class="account-comment-top">
+        <img
+          class="account-favorite-img"
+          src="${image}"
+          loading="lazy"
+        >
 
-          <div class="account-comment-store-wrap">
+        <div class="account-favorite-body">
 
-            <img
-              class="account-comment-thumb"
-              src="${image}"
-              alt="${store.name || ""}"
-              loading="lazy"
-            >
-
-            <div>
-
-              <div class="account-comment-store">
-                ${store.name || "Unknown Store"}
-              </div>
-
-              <div class="account-comment-location">
-                ${[
-                  store.country,
-                  store.city
-                ]
-                  .filter(Boolean)
-                  .join(", ")}
-              </div>
-
-            </div>
-
+          <div class="account-favorite-title">
+            ${store.name || "Unknown Store"}
           </div>
 
-          <div class="account-comment-date">
-            ${new Date(
-              item.created_at
-            ).toLocaleDateString()}
+          <div class="account-favorite-location">
+            ${[
+              store.country,
+              store.city
+            ]
+              .filter(Boolean)
+              .join(", ")}
           </div>
 
         </div>
@@ -621,7 +612,7 @@ async function loadFavorites() {
 
   container
     .querySelectorAll(
-      ".account-comment-item"
+      ".account-favorite-card"
     )
     .forEach((item) => {
 
@@ -634,8 +625,10 @@ async function loadFavorites() {
 
           if (!storeId) return;
 
-          window.location.href =
-            `/?store=${storeId}`;
+          openModal({
+            id: Number(storeId),
+            source: "account"
+          });
 
         }
       );
