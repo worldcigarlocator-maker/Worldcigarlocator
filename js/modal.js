@@ -268,17 +268,35 @@ console.log("STORE FOUND", store);
 
   MODAL_ACTIVE_STORE_ID = storeId;
 
-  MODAL_LOAD_SEQ++;
+MODAL_LOAD_SEQ++;
 
-  const seq = MODAL_LOAD_SEQ;
+const seq = MODAL_LOAD_SEQ;
 
-  const m = modalEl();
+const m = modalEl();
 
-  if (!m) return;
+console.log(
+  "MODAL ELEMENT",
+  m
+);
 
-  resetModal();
+if (!m) {
 
-  m.classList.remove("hidden");
+  console.log(
+    "MODAL ELEMENT MISSING"
+  );
+
+  return;
+}
+
+resetModal();
+
+m.classList.remove("hidden");
+
+lockScroll(true);
+
+console.log(
+  "MODAL OPENED UI"
+);
 
   lockScroll(true);
   console.log(
