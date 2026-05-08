@@ -174,13 +174,18 @@ export async function openModal(storeInput) {
   // ============================================================
 
   if (!store) {
+
     const { data, error } = await supabase.rpc(
       "modal_store_card_v1",
       { p_store_id: inputId }
     );
 
     if (error) {
-      console.error("modal_store_card_v1 error:", error);
+      console.error(
+        "modal_store_card_v1 error:",
+        error
+      );
+
       return;
     }
 
@@ -192,9 +197,13 @@ export async function openModal(storeInput) {
   if (!store) return;
 
   const storeId = Number(store.id);
+
   if (!storeId) return;
 
-  // 🔒 SOURCE LOCK (ENDA GÅNGEN)
+  // ============================================================
+  // SOURCE LOCK
+  // ============================================================
+
   const MODAL_SOURCE =
     inputSource ||
     store.source ||
@@ -204,68 +213,121 @@ export async function openModal(storeInput) {
 
   window.MODAL_SOURCE = MODAL_SOURCE;
 
-  console.log("🔥 MODAL SOURCE LOCKED:", MODAL_SOURCE);
+  // ============================================================
+  // ANALYTICS
+  // ============================================================
 
-  // ✅ STORE OPENED
-  window.WCL_ANALYTICS.send("store_opened", {
-    store_id: storeId,
-    country: store.country || null,
-    city: store.city || null,
-    source: MODAL_SOURCE
-  });
+  window.WCL_ANALYTICS.send(
+    "store_opened",
+    {
+      store_id: storeId,
+      country: store.country || null,
+      city: store.city || null,
+      source: MODAL_SOURCE
+    }
+  );
 
-  console.log("🔥 MODAL STEP 1", storeId);
-  console.log("🚀 TRACKING STORE VIEW");
-
-  // ✅ STORE VIEW
   trackEvent("store_view", {
     store_id: storeId,
     country: store.country || null,
     city: store.city || null,
     source: MODAL_SOURCE,
-    session_hash: localStorage.getItem("wcl_session")
+    session_hash:
+      localStorage.getItem("wcl_session")
   });
 
   // ============================================================
-  // MODAL STATE INIT
+  // MODAL STATE
   // ============================================================
 
   MODAL_ACTIVE_STORE_ID = storeId;
+
   MODAL_LOAD_SEQ++;
+
   const seq = MODAL_LOAD_SEQ;
 
   const m = modalEl();
+
   if (!m) return;
 
   resetModal();
+
   m.classList.remove("hidden");
+
   lockScroll(true);
 
-  // ----------------------------------
-  // Static store data
-  // ----------------------------------
+  // ============================================================
+  // FAVORITE BUTTON
+  // ============================================================
 
-  if (modalName()) modalName().textContent = store.name || "Unnamed";
-  if (modalImg()) modalImg().src = getPhotoUrl(store);
+  const favoriteBtn =
+    document.getElementById(
+      "modalFavoriteBtn"
+    );
+
+  if (favoriteBtn) {
+    favoriteBtn.dataset.storeId = storeId;
+  }
+
+  if (window.syncFavoriteUI) {
+    window.syncFavoriteUI(storeId);
+  }
+
+  // ============================================================
+  // STATIC DATA
+  // ============================================================
+
+  if (modalName()) {
+    modalName().textContent =
+      store.name || "Unnamed";
+  }
+
+  if (modalImg()) {
+    modalImg().src = getPhotoUrl(store);
+  }
 
   const flagUrl = getFlagUrl(store);
+
   if (modalFlag() && flagUrl) {
+
     modalFlag().src = flagUrl;
+
     modalFlag().style.display = "";
   }
 
   if (modalLocation()) {
+
     modalLocation().textContent =
-      [store.continent, store.country, store.city]
+      [
+        store.continent,
+        store.country,
+        store.city
+      ]
         .filter(Boolean)
         .join(", ");
   }
 
-  if (modalBadges()) modalBadges().innerHTML = buildBadges(store);
-  if (modalAddress()) modalAddress().textContent = store.address || "—";
-  if (modalPhone()) modalPhone().textContent = store.phone || "—";
+  if (modalBadges()) {
+    modalBadges().innerHTML =
+      buildBadges(store);
+  }
+
+  if (modalAddress()) {
+    modalAddress().textContent =
+      store.address || "—";
+  }
+
+  if (modalPhone()) {
+    modalPhone().textContent =
+      store.phone || "—";
+  }
+
+  // ============================================================
+  // WEBSITE
+  // ============================================================
 
   if (modalWebsite() && store.website) {
+
     const link = modalWebsite();
 
     link.href =
@@ -273,35 +335,43 @@ export async function openModal(storeInput) {
 
     link.style.display = "inline";
 
-    // ============================================================
-    // WEBSITE CLICK (LOCKED SOURCE)
-    // ============================================================
-    console.log("🔥 CLICK SOURCE:", MODAL_SOURCE);
-
     link.onclick = (e) => {
+
       e.preventDefault();
 
-      trackEvent("website_clicked", {
-        store_id: Number(store.id),
-        country: store.country || null,
-        city: store.city || null,
-        source: window.MODAL_SOURCE
-      });
+      trackEvent(
+        "website_clicked",
+        {
+          store_id: Number(store.id),
+          country: store.country || null,
+          city: store.city || null,
+          source: window.MODAL_SOURCE
+        }
+      );
 
       setTimeout(() => {
-        window.open(link.href, "_blank");
+
+        window.open(
+          link.href,
+          "_blank"
+        );
+
       }, 120);
     };
   }
 
-  // ----------------------------------
-  // Directions
-  // ----------------------------------
+  // ============================================================
+  // DIRECTIONS
+  // ============================================================
 
   const dir = modalDirections();
 
   if (dir && store.place_id) {
-    const name = encodeURIComponent(store.name || "Destination");
+
+    const name =
+      encodeURIComponent(
+        store.name || "Destination"
+      );
 
     dir.href =
       `https://www.google.com/maps/dir/?api=1&destination=${name}&destination_place_id=${store.place_id}`;
@@ -309,42 +379,74 @@ export async function openModal(storeInput) {
     dir.style.display = "inline";
   }
 
-  // ----------------------------------
-  // Interaction meta
-  // ----------------------------------
+  // ============================================================
+  // META
+  // ============================================================
 
-  const { data: meta, error } = await supabase.rpc("modal_store_meta_v1", {
-    p_store_id: MODAL_ACTIVE_STORE_ID,
-  });
+  const { data: meta, error } =
+    await supabase.rpc(
+      "modal_store_meta_v1",
+      {
+        p_store_id:
+          MODAL_ACTIVE_STORE_ID
+      }
+    );
 
   if (seq !== MODAL_LOAD_SEQ) return;
 
   if (!error && meta && meta.length) {
+
     const row = meta[0];
 
     if (modalCommentCount()) {
+
       modalCommentCount().textContent =
         `Comments ${row.comment_count || 0}`;
     }
 
-    MODAL_USER_TEMP_RATING = row.user_rating || 0;
-    highlightStars(MODAL_USER_TEMP_RATING);
+    MODAL_USER_TEMP_RATING =
+      row.user_rating || 0;
+
+    highlightStars(
+      MODAL_USER_TEMP_RATING
+    );
   }
 
-  await loadComments(MODAL_ACTIVE_STORE_ID, seq);
+  await loadComments(
+    MODAL_ACTIVE_STORE_ID,
+    seq
+  );
 }
 
 export function closeModal() {
+
   const m = modalEl();
+
   if (!m) return;
 
   m.classList.add("hidden");
+
   lockScroll(false);
 
   resetReportUI();
-  reportSection()?.classList.add("hidden");
+
+  reportSection()?.classList.add(
+    "hidden"
+  );
+
+  const favoriteBtn =
+    document.getElementById(
+      "modalFavoriteBtn"
+    );
+
+  if (favoriteBtn) {
+    favoriteBtn.removeAttribute(
+      "data-store-id"
+    );
+  }
 
   MODAL_ACTIVE_STORE_ID = null;
+
   MODAL_USER_TEMP_RATING = 0;
 }
 
