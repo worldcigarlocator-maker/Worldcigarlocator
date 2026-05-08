@@ -137,8 +137,8 @@ async function loadLocale(lang) {
   try {
 
     const mod = await import(
-      `../locales/${lang}.js`
-    );
+  `/locales/${lang}.js`
+);
 
     CURRENT_DICT =
       mod.default || {};
