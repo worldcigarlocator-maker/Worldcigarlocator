@@ -970,18 +970,4 @@ document.addEventListener(
 
   }
 );
-// ============================================================
-// INIT
-// ============================================================
 
-document.addEventListener("DOMContentLoaded", async () => {
-
-  bindGrid();
-
-  initStoreViewObserver();   // ← lägg till denna
-
-  await loadGlobalTotal();
-
-  updateSearchCount(GLOBAL_TOTAL);
-
-});
