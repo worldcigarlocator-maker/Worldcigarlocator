@@ -728,17 +728,6 @@ function hideAllSections() {
 // ============================================================
 // OPEN SECTION
 // ============================================================
-Varför detta är rätt
-
-Nu styrs navigation ENDAST av:
-
-explicit account sections
-
-inte:
-
-alla sections i DOM
-
-vilket är mycket säkrare och canonical.
 
 function openSection(sectionId) {
 
