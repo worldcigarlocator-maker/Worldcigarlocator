@@ -269,47 +269,77 @@ async function loadMyComments() {
 
   container.innerHTML = data.map((item) => {
 
-    const store =
-      item.stores || {};
+  const store =
+    item.stores || {};
 
-    return `
-      <div class="account-comment-item">
+  return `
+    <div
+      class="account-comment-item"
+      data-store-id="${item.store_id || ""}"
+    >
 
-        <div class="account-comment-top">
+      <div class="account-comment-top">
 
-          <div>
+        <div>
 
-            <div class="account-comment-store">
-              ${store.name || "Unknown Store"}
-            </div>
-
-            <div class="account-comment-location">
-              ${[
-                store.country,
-                store.city
-              ]
-                .filter(Boolean)
-                .join(", ")}
-            </div>
-
+          <div class="account-comment-store">
+            ${store.name || "Unknown Store"}
           </div>
 
-          <div class="account-comment-date">
-            ${new Date(
-              item.created_at
-            ).toLocaleDateString()}
+          <div class="account-comment-location">
+            ${[
+              store.country,
+              store.city
+            ]
+              .filter(Boolean)
+              .join(", ")}
           </div>
 
         </div>
 
-        <div class="account-comment-text">
-          ${item.comment || ""}
+        <div class="account-comment-date">
+          ${new Date(
+            item.created_at
+          ).toLocaleDateString()}
         </div>
 
       </div>
-    `;
 
-  }).join("");
+      <div class="account-comment-text">
+        ${item.comment || ""}
+      </div>
+
+    </div>
+  `;
+
+}).join("");
+
+// ============================================================
+// COMMENT CLICK
+// ============================================================
+
+container
+  .querySelectorAll(
+    ".account-comment-item"
+  )
+  .forEach((item) => {
+
+    item.addEventListener(
+      "click",
+      () => {
+
+        const storeId =
+          item.dataset.storeId;
+
+        if (!storeId) return;
+
+        window.location.href =
+          `/?store=${storeId}`;
+
+      }
+    );
+
+  });
 }
 
 // ============================================================
@@ -376,47 +406,77 @@ async function loadMyRatings() {
 
   container.innerHTML = data.map((item) => {
 
-    const store =
-      item.stores || {};
+  const store =
+    item.stores || {};
 
-    return `
-      <div class="account-rating-item">
+  return `
+    <div
+      class="account-rating-item"
+      data-store-id="${item.store_id || ""}"
+    >
 
-        <div class="account-rating-top">
+      <div class="account-rating-top">
 
-          <div>
+        <div>
 
-            <div class="account-rating-store">
-              ${store.name || "Unknown Store"}
-            </div>
-
-            <div class="account-rating-location">
-              ${[
-                store.country,
-                store.city
-              ]
-                .filter(Boolean)
-                .join(", ")}
-            </div>
-
+          <div class="account-rating-store">
+            ${store.name || "Unknown Store"}
           </div>
 
-          <div class="account-rating-date">
-            ${new Date(
-              item.created_at
-            ).toLocaleDateString()}
+          <div class="account-rating-location">
+            ${[
+              store.country,
+              store.city
+            ]
+              .filter(Boolean)
+              .join(", ")}
           </div>
 
         </div>
 
-        <div class="account-rating-stars">
-          ${"★".repeat(item.rating || 0)}
+        <div class="account-rating-date">
+          ${new Date(
+            item.created_at
+          ).toLocaleDateString()}
         </div>
 
       </div>
-    `;
 
-  }).join("");
+      <div class="account-rating-stars">
+        ${"★".repeat(item.rating || 0)}
+      </div>
+
+    </div>
+  `;
+
+}).join("");
+
+// ============================================================
+// RATING CLICK
+// ============================================================
+
+container
+  .querySelectorAll(
+    ".account-rating-item"
+  )
+  .forEach((item) => {
+
+    item.addEventListener(
+      "click",
+      () => {
+
+        const storeId =
+          item.dataset.storeId;
+
+        if (!storeId) return;
+
+        window.location.href =
+          `/?store=${storeId}`;
+
+      }
+    );
+
+  });
 }
 
 // ============================================================
