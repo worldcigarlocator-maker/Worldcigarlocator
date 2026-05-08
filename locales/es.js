@@ -92,4 +92,30 @@ submit_rating: "Enviar valoración",
   report_success:
     "Gracias por ayudarnos a mantener World Cigar Locator preciso y actualizado."
 
+  /* ================= MESSAGES ================= */
+
+  display_name_updated:
+    "Nombre visible actualizado",
+
+  password_updated:
+    "Contraseña actualizada",
+
+  password_min_length:
+    "La contraseña debe tener al menos 6 caracteres",
+
+  deleting_account:
+    "Eliminando cuenta...",
+
+  delete_failed:
+    "No se pudo eliminar la cuenta",
+
+  failed_to_load_comments:
+    "No se pudieron cargar los comentarios",
+
+  failed_to_load_ratings:
+    "No se pudieron cargar las valoraciones",
+
+  failed_to_load_favorites:
+    "No se pudieron cargar los favoritos"
+   
 };
