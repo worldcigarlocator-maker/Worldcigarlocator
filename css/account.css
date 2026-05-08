@@ -274,18 +274,98 @@
 .account-ratings-list{
   display:flex;
   flex-direction:column;
-  gap:16px;
+  gap:18px;
 }
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+
+.account-search{
+  width:320px;
+
+  height:50px;
+
+  padding:0 18px;
+
+  border-radius:16px;
+
+  border:1px solid rgba(var(--global),0.22);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.05),
+      rgba(255,255,255,0.025)
+    );
+
+  color:#fff;
+
+  font-size:14px;
+  font-family:inherit;
+
+  outline:none;
+
+  transition:
+    border-color .18s ease,
+    box-shadow .18s ease,
+    background .18s ease;
+}
+
+.account-search::placeholder{
+  color:rgba(255,255,255,0.4);
+}
+
+.account-search:focus{
+  border-color:rgba(var(--global),0.58);
+
+  box-shadow:
+    0 0 0 1px rgba(var(--global),0.12),
+    0 0 24px rgba(var(--global),0.12);
+}
+
+/* ============================================================
+   COMMENT / RATING ITEM
+   ============================================================ */
 
 .account-comment-item,
 .account-rating-item{
-  padding:18px;
+  padding:24px;
 
-  border-radius:20px;
+  border-radius:28px;
 
-  border:1px solid rgba(255,255,255,0.06);
+  border:1px solid rgba(var(--global),0.16);
 
-  background:rgba(255,255,255,0.03);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,0.035),
+      rgba(255,255,255,0.018)
+    );
+
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    box-shadow .18s ease,
+    background .18s ease;
+}
+
+.account-comment-item:hover,
+.account-rating-item:hover{
+  transform:translateY(-2px);
+
+  border-color:rgba(var(--global),0.34);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,0.05),
+      rgba(255,255,255,0.025)
+    );
+
+  box-shadow:
+    0 10px 34px rgba(0,0,0,0.24),
+    0 0 28px rgba(var(--global),0.08);
 }
 
 .account-comment-top,
@@ -295,7 +375,7 @@
   justify-content:space-between;
   gap:18px;
 
-  margin-bottom:12px;
+  margin-bottom:14px;
 }
 
 .account-comment-store,
@@ -333,14 +413,13 @@
 }
 
 .account-rating-stars{
-  margin-top:10px;
+  margin-top:12px;
 
   font-size:20px;
   letter-spacing:2px;
 
   color:rgb(var(--global));
 }
-
 /* ============================================================
    EMPTY
    ============================================================ */
