@@ -461,15 +461,57 @@ setTimeout(() => {
   ensureLoadMoreButton();
 }
 
-function buildStars(avg, count) {
-  const v = Number(avg) || 0;
-  const full = "★".repeat(Math.round(v));
-  const empty = "☆".repeat(5 - Math.round(v));
+function buildStars(avg, count, userRating = 0) {
+
+  const avgValue =
+    Number(avg) || 0;
+
+  const avgFull =
+    "★".repeat(
+      Math.round(avgValue)
+    );
+
+  const avgEmpty =
+    "☆".repeat(
+      5 - Math.round(avgValue)
+    );
+
+  const userFull =
+    "★".repeat(
+      Number(userRating) || 0
+    );
+
+  const userEmpty =
+    "☆".repeat(
+      5 - (Number(userRating) || 0)
+    );
 
   return `
-    <div class="stars-row">
-      <span class="stars">${full}${empty}</span>
-      <span class="rating-count">(${count || 0})</span>
+    <div class="stars-wrap">
+
+      <div class="stars-row">
+        <span class="stars">
+          ${avgFull}${avgEmpty}
+        </span>
+
+        <span class="rating-count">
+          (${count || 0})
+        </span>
+      </div>
+
+      ${
+        userRating
+          ? `
+            <div class="user-rating-row">
+              Your rating:
+              <span class="user-stars">
+                ${userFull}${userEmpty}
+              </span>
+            </div>
+          `
+          : ""
+      }
+
     </div>
   `;
 }
