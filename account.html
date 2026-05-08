@@ -501,3 +501,73 @@
 </body>
 
 </html>
+/* ============================================================
+   ACCOUNT SEARCH
+   ============================================================ */
+
+.account-search{
+  width:240px;
+  height:42px;
+
+  padding:0 16px;
+
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.06);
+
+  background:rgba(255,255,255,0.04);
+
+  color:#fff;
+
+  font-size:14px;
+  font-family:inherit;
+
+  outline:none;
+
+  transition:
+    border-color .18s ease,
+    background .18s ease,
+    box-shadow .18s ease;
+}
+
+.account-search::placeholder{
+  color:rgba(255,255,255,0.35);
+}
+
+.account-search:focus{
+  border-color:
+    rgba(var(--global),0.45);
+
+  background:
+    rgba(255,255,255,0.06);
+
+  box-shadow:
+    0 0 0 3px rgba(var(--global),0.10);
+}
+
+/* ============================================================
+   HEADER LAYOUT
+   ============================================================ */
+
+.account-card-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 768px){
+
+  .account-card-header{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .account-search{
+    width:100%;
+  }
+
+}
