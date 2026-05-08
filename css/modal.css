@@ -51,108 +51,115 @@
 
 /* ================= TOP ACTIONS ================= */
 
-.modal-top-actions {
-  position: absolute;
+.modal-top-actions{
+  position:absolute;
 
-  top: 14px;
-  right: 18px;
+  top:14px;
+  right:18px;
 
-  z-index: 10;
+  z-index:10;
 
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 
 /* ================= CLOSE ================= */
 
-.modal-close {
-  width: 38px;
-  height: 38px;
+.modal-close{
+  width:42px;
+  height:42px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position:relative;
+  z-index:3;
 
-  border-radius: 999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-  background: rgba(0,0,0,0.55);
+  border:none;
+  border-radius:999px;
 
-  backdrop-filter: blur(8px);
+  background:rgba(0,0,0,0.45);
 
-  border: 1px solid rgba(255,255,255,0.14);
+  backdrop-filter:blur(8px);
 
-  color: #fff;
+  color:#fff;
 
-  font-size: 24px;
-  line-height: 1;
+  font-size:24px;
+  line-height:1;
 
-  cursor: pointer;
-
-  transition:
-    transform 0.18s ease,
-    border-color 0.18s ease,
-    background 0.18s ease;
-}
-
-.modal-close:hover {
-  transform: scale(1.06);
-
-  background: rgba(0,0,0,0.72);
-
-  border-color: rgba(var(--global), 0.45);
-}
-
-/* ================= MODAL FAVORITE ================= */
-
-.modal-favorite-btn {
-  width: 38px;
-  height: 38px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 999px;
-
-  background: rgba(0,0,0,0.55);
-
-  backdrop-filter: blur(8px);
-
-  border: 1px solid rgba(var(--global), 0.45);
-
-  cursor: pointer;
+  cursor:pointer;
 
   transition:
-    transform 0.18s ease,
-    background 0.18s ease,
-    border-color 0.18s ease;
+    transform .18s ease,
+    background .18s ease,
+    box-shadow .18s ease;
 }
 
-.modal-favorite-btn:hover {
-  transform: scale(1.06);
+.modal-close:hover{
+  transform:scale(1.06);
 
-  background: rgba(0,0,0,0.72);
+  background:rgba(0,0,0,0.62);
 
-  border-color: rgba(var(--global), 0.8);
+  box-shadow:
+    0 0 0 1px rgba(var(--global),0.28),
+    0 0 18px rgba(var(--global),0.22);
 }
 
-.modal-favorite-btn svg {
-  width: 18px;
-  height: 18px;
+/* ================= FAVORITE BUTTON ================= */
 
-  stroke: rgb(var(--global));
-  fill: transparent;
+.modal-favorite-btn{
+  width:42px;
+  height:42px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border:none;
+  border-radius:999px;
+
+  background:rgba(0,0,0,0.45);
+
+  backdrop-filter:blur(8px);
+
+  cursor:pointer;
 
   transition:
-    fill 0.18s ease,
-    stroke 0.18s ease;
+    transform .18s ease,
+    background .18s ease,
+    box-shadow .18s ease;
 }
 
-.modal-favorite-btn.active svg {
-  fill: rgb(var(--global));
+.modal-favorite-btn:hover{
+  transform:scale(1.06);
+
+  background:rgba(0,0,0,0.62);
+
+  box-shadow:
+    0 0 0 1px rgba(var(--global),0.28),
+    0 0 18px rgba(var(--global),0.22);
 }
 
+.modal-favorite-btn svg{
+  width:20px;
+  height:20px;
+
+  stroke:rgb(var(--global));
+  fill:transparent;
+
+  transition:
+    fill .18s ease,
+    stroke .18s ease;
+}
+
+/* ================= ACTIVE ================= */
+
+.modal-favorite-btn.active svg{
+  fill:rgb(var(--global));
+  stroke:rgb(var(--global));
+}
 
 /* ================= IMAGE ================= */
 
