@@ -73,4 +73,14 @@ export default {
   admin_tools_coming:
     "Las herramientas de administrador llegarán pronto"
 
+     /* ================= MODAL ================= */
+
+  address: "Dirección:",
+  phone: "Teléfono:",
+  visit_website: "Visitar sitio web",
+  directions: "Direcciones",
+
+  your_rating: "Tu valoración",
+  submit_rating: "Enviar valoración"
+
 };
