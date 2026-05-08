@@ -529,7 +529,6 @@ document.addEventListener("click", (e) => {
 window.addEventListener("pageshow", () => {
   window.scrollTo(0, 0);
 });
-
 // ============================================================
 // STORE DEEP LINK
 // ============================================================
@@ -564,3 +563,77 @@ window.addEventListener(
 
   }
 );
+
+// ============================================================
+// FAVORITES UI SYNC
+// ============================================================
+
+window.syncFavoriteUI =
+  async function(storeId) {
+
+    const id = Number(storeId);
+
+    if (!id) return;
+
+    const {
+      data,
+      error
+    } = await supabase.rpc(
+      "is_store_favorited_v1",
+      {
+        p_store_id: id
+      }
+    );
+
+    if (error) {
+      console.error(
+        "is_store_favorited_v1 error:",
+        error
+      );
+
+      return;
+    }
+
+    const active =
+      !!data;
+
+    // ============================================================
+    // MODAL BUTTON
+    // ============================================================
+
+    const modalBtn =
+      document.getElementById(
+        "modalFavoriteBtn"
+      );
+
+    if (
+      modalBtn &&
+      Number(
+        modalBtn.dataset.storeId
+      ) === id
+    ) {
+      modalBtn.classList.toggle(
+        "active",
+        active
+      );
+    }
+
+    // ============================================================
+    // CARD BUTTONS
+    // ============================================================
+
+    document
+      .querySelectorAll(
+        `.favorite-btn[data-store-id="${id}"]`
+      )
+      .forEach((btn) => {
+
+        btn.classList.toggle(
+          "active",
+          active
+        );
+
+      });
+
+  };
+
