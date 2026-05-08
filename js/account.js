@@ -460,3 +460,105 @@ document.addEventListener(
   }
 );
 
+// ============================================================
+// ACCOUNT NAVIGATION
+// ============================================================
+
+const navButtons =
+  document.querySelectorAll(
+    ".account-nav-btn"
+  );
+
+const sections = {
+  "Profile": "#accountProfile",
+  "Security": "#accountSecurity",
+  "My Comments": "#accountComments",
+  "My Ratings": "#accountRatings",
+  "Favorites": "#accountFavorites",
+  "Notifications": "#accountNotifications",
+  "Language": "#accountLanguage",
+  "Sessions": "#accountSessions",
+  "Contributor": "#accountContributor",
+  "Admin": "#accountAdmin",
+  "Danger Zone": "#accountDanger"
+};
+
+// ============================================================
+// CLICK NAVIGATION
+// ============================================================
+
+navButtons.forEach((btn) => {
+
+  btn.addEventListener("click", () => {
+
+    const key =
+      btn.textContent.trim();
+
+    const target =
+      document.querySelector(
+        sections[key]
+      );
+
+    if (!target) return;
+
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+  });
+
+});
+
+// ============================================================
+// ACTIVE SECTION
+// ============================================================
+
+const observer =
+  new IntersectionObserver(
+
+    (entries) => {
+
+      entries.forEach((entry) => {
+
+        if (!entry.isIntersecting) return;
+
+        const id = "#" + entry.target.id;
+
+        navButtons.forEach((btn) => {
+
+          const key =
+            btn.textContent.trim();
+
+          btn.classList.remove("active");
+
+          if (sections[key] === id) {
+            btn.classList.add("active");
+          }
+
+        });
+
+      });
+
+    },
+
+    {
+      threshold: 0.35
+    }
+
+  );
+
+// ============================================================
+// OBSERVE SECTIONS
+// ============================================================
+
+Object.values(sections).forEach((selector) => {
+
+  const section =
+    document.querySelector(selector);
+
+  if (section) {
+    observer.observe(section);
+  }
+
+});
