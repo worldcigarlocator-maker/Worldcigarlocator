@@ -217,7 +217,7 @@
 
     <section class="account-content">
 
-      <!-- ============================================================
+<!-- ============================================================
      ACCOUNT SETTINGS
 ============================================================ -->
 
@@ -226,12 +226,17 @@
   <div class="account-card">
 
     <div class="account-card-header">
-      <h2>Account Settings</h2>
+      <h2 data-i18n="account_settings">
+        Account Settings
+      </h2>
     </div>
 
     <div class="account-field">
 
-      <label class="account-label">
+      <label
+        class="account-label"
+        data-i18n="email"
+      >
         Email
       </label>
 
@@ -246,7 +251,10 @@
 
     <div class="account-field">
 
-      <label class="account-label">
+      <label
+        class="account-label"
+        data-i18n="display_name"
+      >
         Display Name
       </label>
 
@@ -255,6 +263,7 @@
         class="account-input"
         type="text"
         placeholder="Display name"
+        data-i18n-placeholder="display_name"
       >
 
     </div>
@@ -265,6 +274,7 @@
         id="saveDisplayNameBtn"
         class="account-btn"
         type="button"
+        data-i18n="save_changes"
       >
         Save Changes
       </button>
@@ -273,7 +283,10 @@
 
     <div class="account-field">
 
-      <label class="account-label">
+      <label
+        class="account-label"
+        data-i18n="change_password"
+      >
         Change Password
       </label>
 
@@ -282,6 +295,7 @@
         class="account-input"
         type="password"
         placeholder="New password"
+        data-i18n-placeholder="new_password"
       >
 
     </div>
@@ -292,6 +306,7 @@
         id="changePasswordBtn"
         class="account-btn"
         type="button"
+        data-i18n="change_password"
       >
         Change Password
       </button>
@@ -304,6 +319,7 @@
         id="logoutAccountBtn"
         class="account-btn"
         type="button"
+        data-i18n="logout"
       >
         Logout
       </button>
@@ -312,6 +328,7 @@
         id="deleteAccountBtn"
         class="account-btn danger"
         type="button"
+        data-i18n="delete_account"
       >
         Delete Account
       </button>
@@ -322,7 +339,7 @@
 
 </section>
       
-    <!-- ============================================================
+<!-- ============================================================
      MY COMMENTS
 ============================================================ -->
 
