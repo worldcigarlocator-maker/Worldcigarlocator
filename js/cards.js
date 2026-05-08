@@ -787,6 +787,7 @@ async function loadFavoritesState() {
   });
 
   syncAllFavoriteButtons();
+  renderCards(filteredRows, isLoadMore);
 }
 
 export async function toggleFavorite(storeId) {
