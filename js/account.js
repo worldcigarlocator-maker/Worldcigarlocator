@@ -567,58 +567,6 @@ navButtons.forEach((btn) => {
 
 openSection("Profile");
 
-// ============================================================
-// ACTIVE SECTION
-// ============================================================
-
-const observer =
-  new IntersectionObserver(
-
-    (entries) => {
-
-      entries.forEach((entry) => {
-
-        if (!entry.isIntersecting) return;
-
-        const id = "#" + entry.target.id;
-
-        navButtons.forEach((btn) => {
-
-          const key =
-            btn.textContent.trim();
-
-          btn.classList.remove("active");
-
-          if (sections[key] === id) {
-            btn.classList.add("active");
-          }
-
-        });
-
-      });
-
-    },
-
-    {
-      threshold: 0.35
-    }
-
-  );
-
-// ============================================================
-// OBSERVE SECTIONS
-// ============================================================
-
-Object.values(sections).forEach((selector) => {
-
-  const section =
-    document.querySelector(selector);
-
-  if (section) {
-    observer.observe(section);
-  }
-
-});
 
 // ============================================================
 // RESET SCROLL ON SECTION CHANGE
