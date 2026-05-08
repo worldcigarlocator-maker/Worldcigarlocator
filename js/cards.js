@@ -857,8 +857,8 @@ export function syncFavoriteUI(storeId) {
 
   document
     .querySelectorAll(
-      `[data-store-id="${id}"].favorite-heart,
-       #modalFavoriteBtn[data-store-id="${id}"]`
+    `.favorite-heart[data-store-id="${id}"],
+ #modalFavoriteBtn[data-store-id="${id}"]`
     )
     .forEach((el) => {
 
