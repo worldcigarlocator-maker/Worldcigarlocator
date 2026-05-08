@@ -544,12 +544,18 @@ resetAccountScroll();
 
 navButtons.forEach((btn) => {
 
-  btn.addEventListener("click", () => {
+  btn.addEventListener("click", (e) => {
+
+    e.preventDefault();
+
+    e.currentTarget.blur();
 
     const key =
       btn.textContent.trim();
 
     openSection(key);
+
+    window.scrollTo(0, 0);
 
   });
 
@@ -560,33 +566,6 @@ navButtons.forEach((btn) => {
 // ============================================================
 
 openSection("Profile");
-
-// ============================================================
-// CLICK NAVIGATION
-// ============================================================
-
-navButtons.forEach((btn) => {
-
-  btn.addEventListener("click", () => {
-
-    const key =
-      btn.textContent.trim();
-
-    const target =
-      document.querySelector(
-        sections[key]
-      );
-
-    if (!target) return;
-
-    target.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-
-  });
-
-});
 
 // ============================================================
 // ACTIVE SECTION
