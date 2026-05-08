@@ -726,3 +726,89 @@
   display:block;
 }
 
+/* ============================================================
+   ACCOUNT LANGUAGE
+============================================================ */
+
+.account-language-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+
+  margin-top:18px;
+}
+
+.account-language-btn{
+
+  appearance:none;
+  border:none;
+  outline:none;
+  cursor:pointer;
+
+  padding:10px 16px;
+
+  border-radius:999px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.06),
+      rgba(255,255,255,0.03)
+    );
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  color:rgba(255,255,255,0.88);
+
+  font-size:14px;
+  font-weight:600;
+  font-family:inherit;
+
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    background .18s ease,
+    box-shadow .18s ease;
+
+  backdrop-filter:blur(10px);
+}
+
+.account-language-btn:hover{
+
+  transform:translateY(-1px);
+
+  border-color:
+    rgba(205,127,50,0.55);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(205,127,50,0.16),
+      rgba(205,127,50,0.08)
+    );
+
+  box-shadow:
+    0 0 18px rgba(205,127,50,0.14);
+}
+
+.account-language-btn:active{
+  transform:scale(0.98);
+}
+
+.account-language-btn.active{
+
+  border-color:
+    rgba(205,127,50,0.85);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(205,127,50,0.22),
+      rgba(205,127,50,0.12)
+    );
+
+  color:#fff;
+
+  box-shadow:
+    0 0 22px rgba(205,127,50,0.22);
+}
