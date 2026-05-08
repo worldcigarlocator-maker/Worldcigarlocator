@@ -548,19 +548,21 @@ window.addEventListener(
 
     if (!storeId) return;
 
-    // wait for frontend
-    await new Promise((resolve) =>
-      setTimeout(resolve, 1200)
-    );
+    // wait until cards exist
+    const waitForCards = setInterval(() => {
 
-    const card =
-      document.querySelector(
-        `[data-store-id="${storeId}"]`
-      );
+      const card =
+        document.querySelector(
+          `[data-store-id="${storeId}"]`
+        );
 
-    if (!card) return;
+      if (!card) return;
 
-    card.click();
+      clearInterval(waitForCards);
+
+      card.click();
+
+    }, 250);
 
   }
 );
