@@ -270,7 +270,7 @@ export function applyTranslations() {
 export async function initI18n() {
 
   CURRENT_LANGUAGE =
-    getLanguage();
+  await getLanguage();
 
   await loadLocale(
     CURRENT_LANGUAGE
