@@ -789,6 +789,62 @@ async function loadFavoritesState() {
   syncAllFavoriteButtons();
 }
 
+export async function toggleFavorite(storeId) {
+
+  const id = Number(storeId);
+
+  if (!id) return false;
+
+  const isActive =
+    FAVORITES.has(id);
+
+  if (isActive) {
+
+    const { error } =
+      await supabase.rpc(
+        "remove_store_favorite_v1",
+        {
+          p_store_id: id
+        }
+      );
+
+    if (error) {
+      console.error(error);
+      return false;
+    }
+
+    FAVORITES.delete(id);
+
+  } else {
+
+    const { error } =
+      await supabase.rpc(
+        "save_store_favorite_v1",
+        {
+          p_store_id: id
+        }
+      );
+
+    if (error) {
+      console.error(error);
+      return false;
+    }
+
+    FAVORITES.add(id);
+  }
+
+  syncFavoriteUI(id);
+
+  return FAVORITES.has(id);
+}
+
+export function isFavorite(storeId) {
+
+  return FAVORITES.has(
+    Number(storeId)
+  );
+}
+
 export function syncFavoriteUI(storeId) {
 
   const id = Number(storeId);
@@ -835,7 +891,6 @@ function syncAllFavoriteButtons() {
 
 window.syncFavoriteUI =
   syncFavoriteUI;
-
 // ============================================================
 // GRID CLICK
 // ============================================================
