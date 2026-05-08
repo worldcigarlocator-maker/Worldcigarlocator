@@ -27,10 +27,71 @@ let CURRENT_DICT = {};
    STORAGE
 ============================================================ */
 
-export function getLanguage() {
+/* ============================================================
+   STORAGE
+============================================================ */
+
+export async function getLanguage() {
+
+  try {
+
+    /* ================= PROFILE ================= */
+
+    if (window.supabase) {
+
+      const {
+        data: { user }
+      } = await window.supabase
+        .auth
+        .getUser();
+
+      if (user?.id) {
+
+        const { data } =
+          await window.supabase
+            .from("profiles")
+            .select("language")
+            .eq("id", user.id)
+            .single();
+
+        const profileLang =
+          data?.language;
+
+        if (
+          profileLang &&
+          SUPPORTED_LANGUAGES.includes(
+            profileLang
+          )
+        ) {
+
+          localStorage.setItem(
+            "wcl_language",
+            profileLang
+          );
+
+          return profileLang;
+
+        }
+
+      }
+
+    }
+
+  } catch (err) {
+
+    console.error(
+      "I18N PROFILE LOAD ERROR",
+      err
+    );
+
+  }
+
+  /* ================= LOCAL STORAGE ================= */
 
   const local =
-    localStorage.getItem("wcl_language");
+    localStorage.getItem(
+      "wcl_language"
+    );
 
   if (
     local &&
@@ -39,7 +100,10 @@ export function getLanguage() {
     return local;
   }
 
+  /* ================= DEFAULT ================= */
+
   return DEFAULT_LANGUAGE;
+
 }
 
 export function setLanguage(lang) {
@@ -56,6 +120,7 @@ export function setLanguage(lang) {
     "wcl_language",
     lang
   );
+
 }
 
 /* ============================================================
@@ -90,9 +155,6 @@ async function loadLocale(lang) {
 
 }
 
-/* ============================================================
-   TRANSLATE
-============================================================ */
 /* ============================================================
    TRANSLATE
 ============================================================ */
