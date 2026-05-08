@@ -534,6 +534,8 @@ window.addEventListener("pageshow", () => {
 // STORE DEEP LINK
 // ============================================================
 
+import { openModal } from "./modal.js";
+
 window.addEventListener(
   "load",
   async () => {
@@ -544,25 +546,21 @@ window.addEventListener(
       );
 
     const storeId =
-      params.get("store");
+      Number(
+        params.get("store")
+      );
 
     if (!storeId) return;
 
-    // wait until cards exist
-    const waitForCards = setInterval(() => {
+    // wait for app boot
+    await new Promise((resolve) =>
+      setTimeout(resolve, 900)
+    );
 
-      const card =
-        document.querySelector(
-          `[data-store-id="${storeId}"]`
-        );
-
-      if (!card) return;
-
-      clearInterval(waitForCards);
-
-      card.click();
-
-    }, 250);
+    openModal({
+      id: storeId,
+      source: "account"
+    });
 
   }
 );
