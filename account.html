@@ -349,20 +349,26 @@
 
     <div class="account-card-header">
 
-      <h2>My Comments</h2>
+      <h2 data-i18n="comments">
+        My Comments
+      </h2>
 
       <input
         id="commentsSearchInput"
         class="account-search"
         type="text"
         placeholder="Search comments..."
+        data-i18n-placeholder="search_comments"
       >
 
     </div>
 
     <div class="account-comments-list">
 
-      <div class="account-empty">
+      <div
+        class="account-empty"
+        data-i18n="no_comments_yet"
+      >
         No comments yet
       </div>
 
@@ -371,7 +377,7 @@
   </div>
 
 </section>
-
+      
 <!-- ============================================================
      MY RATINGS
 ============================================================ -->
@@ -382,20 +388,26 @@
 
     <div class="account-card-header">
 
-      <h2>My Ratings</h2>
+      <h2 data-i18n="ratings">
+        My Ratings
+      </h2>
 
       <input
         id="ratingsSearchInput"
         class="account-search"
         type="text"
         placeholder="Search ratings..."
+        data-i18n-placeholder="search_ratings"
       >
 
     </div>
 
     <div class="account-ratings-list">
 
-      <div class="account-empty">
+      <div
+        class="account-empty"
+        data-i18n="no_ratings_yet"
+      >
         No ratings yet
       </div>
 
@@ -404,7 +416,6 @@
   </div>
 
 </section>
-
 
       <!-- ============================================================
      FAVORITES
@@ -416,13 +427,16 @@
 
     <div class="account-card-header">
 
-      <h2>Favorites</h2>
+      <h2 data-i18n="favorites">
+        Favorites
+      </h2>
 
       <input
         id="favoritesSearchInput"
         class="account-search"
         type="text"
         placeholder="Search favorites..."
+        data-i18n-placeholder="search_favorites"
       >
 
     </div>
@@ -431,7 +445,10 @@
       class="account-favorites-grid"
     >
 
-      <div class="account-empty">
+      <div
+        class="account-empty"
+        data-i18n="no_favorites_yet"
+      >
         No favorites yet
       </div>
 
@@ -440,31 +457,32 @@
   </div>
 
 </section>
-
+      
       <!-- ============================================================
-           NOTIFICATIONS
-      ============================================================ -->
+     NOTIFICATIONS
+============================================================ -->
 
-      <section id="accountNotifications">
+<section id="accountNotifications">
 
-        <div class="account-card">
+  <div class="account-card">
 
-          <div class="account-card-header">
-            <h2>Notifications</h2>
-          </div>
+    <div class="account-card-header">
+      <h2 data-i18n="notifications">
+        Notifications
+      </h2>
+    </div>
 
-          <div class="account-empty">
-            Notification settings coming soon
-          </div>
+    <div
+      class="account-empty"
+      data-i18n="notification_settings_coming"
+    >
+      Notification settings coming soon
+    </div>
 
-        </div>
+  </div>
 
-      </section>
-
-      <!-- ============================================================
-           LANGUAGE
-      ============================================================ -->
-
+</section>
+      
       <!-- ============================================================
      LANGUAGE
 ============================================================ -->
@@ -557,73 +575,91 @@
 
     </div>
 
+    <div
+      class="account-empty"
+      data-i18n="language_settings_coming"
+    >
+      Language settings coming soon
+    </div>
+
   </div>
 
 </section>
-
+      
 <!-- ============================================================
      SESSIONS
 ============================================================ -->
-      <!-- ============================================================
-           SESSIONS
-      ============================================================ -->
 
-      <section id="accountSessions">
+<section id="accountSessions">
 
-        <div class="account-card">
+  <div class="account-card">
 
-          <div class="account-card-header">
-            <h2>Sessions</h2>
-          </div>
+    <div class="account-card-header">
+      <h2 data-i18n="sessions">
+        Sessions
+      </h2>
+    </div>
 
-          <div class="account-empty">
-            Session management coming soon
-          </div>
+    <div
+      class="account-empty"
+      data-i18n="session_management_coming"
+    >
+      Session management coming soon
+    </div>
 
-        </div>
+  </div>
 
-      </section>
+</section>
+      
+     <!-- ============================================================
+     CONTRIBUTOR
+============================================================ -->
 
-      <!-- ============================================================
-           CONTRIBUTOR
-      ============================================================ -->
+<section id="accountContributor">
 
-      <section id="accountContributor">
+  <div class="account-card">
 
-        <div class="account-card">
+    <div class="account-card-header">
+      <h2 data-i18n="contributor">
+        Contributor
+      </h2>
+    </div>
 
-          <div class="account-card-header">
-            <h2>Contributor</h2>
-          </div>
+    <div
+      class="account-empty"
+      data-i18n="contributor_tools_coming"
+    >
+      Contributor tools coming soon
+    </div>
 
-          <div class="account-empty">
-            Contributor tools coming soon
-          </div>
+  </div>
 
-        </div>
+</section>
+      
+     <!-- ============================================================
+     ADMIN
+============================================================ -->
 
-      </section>
+<section id="accountAdmin">
 
-      <!-- ============================================================
-           ADMIN
-      ============================================================ -->
+  <div class="account-card">
 
-      <section id="accountAdmin">
+    <div class="account-card-header">
+      <h2 data-i18n="admin">
+        Admin
+      </h2>
+    </div>
 
-        <div class="account-card">
+    <div
+      class="account-empty"
+      data-i18n="admin_tools_coming"
+    >
+      Admin tools coming soon
+    </div>
 
-          <div class="account-card-header">
-            <h2>Admin</h2>
-          </div>
+  </div>
 
-          <div class="account-empty">
-            Admin tools coming soon
-          </div>
-
-        </div>
-
-      </section>
-
+</section>
   
       <!-- ============================================================
            GLOBAL MESSAGE
