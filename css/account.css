@@ -654,3 +654,20 @@
 
   background:#111;
 }
+
+/* ============================================================
+   ACCOUNT MODAL FLAG FIX
+   ============================================================ */
+
+#storeModal .modal-location .flag{
+  width:22px;
+  height:16px;
+
+  object-fit:cover;
+
+  border-radius:3px;
+
+  flex-shrink:0;
+
+  display:block;
+}
