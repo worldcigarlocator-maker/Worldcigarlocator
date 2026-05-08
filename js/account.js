@@ -578,3 +578,79 @@ function resetAccountScroll() {
   });
 
 }
+
+// ============================================================
+// LOCAL SEARCH — COMMENTS
+// ============================================================
+
+const commentsSearchInput =
+  document.getElementById(
+    "commentsSearchInput"
+  );
+
+commentsSearchInput?.addEventListener(
+  "input",
+  () => {
+
+    const value =
+      commentsSearchInput.value
+        .trim()
+        .toLowerCase();
+
+    const rows =
+      document.querySelectorAll(
+        ".account-comment-item"
+      );
+
+    rows.forEach((row) => {
+
+      const text =
+        row.textContent.toLowerCase();
+
+      row.style.display =
+        text.includes(value)
+          ? "block"
+          : "none";
+
+    });
+
+  }
+);
+
+// ============================================================
+// LOCAL SEARCH — RATINGS
+// ============================================================
+
+const ratingsSearchInput =
+  document.getElementById(
+    "ratingsSearchInput"
+  );
+
+ratingsSearchInput?.addEventListener(
+  "input",
+  () => {
+
+    const value =
+      ratingsSearchInput.value
+        .trim()
+        .toLowerCase();
+
+    const rows =
+      document.querySelectorAll(
+        ".account-rating-item"
+      );
+
+    rows.forEach((row) => {
+
+      const text =
+        row.textContent.toLowerCase();
+
+      row.style.display =
+        text.includes(value)
+          ? "block"
+          : "none";
+
+    });
+
+  }
+);
