@@ -610,30 +610,30 @@ async function loadFavorites() {
   // FAVORITE CLICK
   // ============================================================
 
-  container
-    .querySelectorAll(
-      ".account-favorite-card"
-    )
-    .forEach((item) => {
+container
+  .querySelectorAll(
+    ".account-favorite-card"
+  )
+  .forEach((item) => {
 
-      item.addEventListener(
-        "click",
-        () => {
+    item.addEventListener(
+      "click",
+      () => {
 
-          const storeId =
-            item.dataset.storeId;
+        const storeId =
+          item.dataset.storeId;
 
-          if (!storeId) return;
+        if (!storeId) return;
 
-          openModal({
-            id: Number(storeId),
-            source: "account"
-          });
+        openModal({
+          id: Number(storeId),
+          source: "account"
+        });
 
-        }
-      );
+      }
+    );
 
-    });
+  });
 
 }
 
