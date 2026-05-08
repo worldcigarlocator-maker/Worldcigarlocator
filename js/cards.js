@@ -706,8 +706,11 @@ console.log(
   // TEST LOG
   console.log("RUN SEARCH FIRED", STATE.search.text);
 
-  renderCards(filteredRows, isLoadMore);
-  if (!isLoadMore) {
+renderCards(filteredRows, isLoadMore);
+
+syncAllFavoriteButtons();
+
+if (!isLoadMore) {
   requestAnimationFrame(() => {
     window.scrollTo(0, 0);
   });
@@ -782,13 +785,11 @@ async function loadFavoritesState() {
 
   FAVORITES.clear();
 
-  (data || []).forEach((row) => {
-    FAVORITES.add(Number(row.store_id));
-  });
+(data || []).forEach((row) => {
+  FAVORITES.add(Number(row.store_id));
+});
 
-  syncAllFavoriteButtons();
-  renderCards(filteredRows, isLoadMore);
-}
+syncAllFavoriteButtons();
 
 export async function toggleFavorite(storeId) {
 
