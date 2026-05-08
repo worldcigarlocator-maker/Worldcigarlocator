@@ -577,10 +577,11 @@ function cardHTML(s) {
 
       </div>
 
-      ${buildStars(
-        s.rating_avg,
-        s.rating_count
-      )}
+    ${buildStars(
+  s.rating_avg,
+  s.rating_count,
+  s.user_rating
+)}
 
       <div class="badge-row">
         ${buildBadges(s)}
