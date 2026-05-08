@@ -475,6 +475,7 @@ function buildStars(avg, count) {
 }
 
 function cardHTML(s) {
+
   const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
 
@@ -486,51 +487,112 @@ function cardHTML(s) {
   data-country="${s.country || ""}"
   data-source="${CURRENT_RENDER_SOURCE}"
 >
-    <img src="${img}" class="store-img" loading="lazy"
-      onerror="this.onerror=null;this.src='images/store.jpg'" />
+
+    <button
+      class="favorite-heart"
+      type="button"
+      data-store-id="${s.id}"
+      aria-label="Favorite"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M12 21s-6.7-4.35-9.2-8.1C.9 9.9 2 5.9 5.7 4.5c2.1-.8 4.4-.1 5.8 1.7 1.4-1.8 3.7-2.5 5.8-1.7 3.7 1.4 4.8 5.4 2.9 8.4C18.7 16.65 12 21 12 21z"/>
+      </svg>
+    </button>
+
+    <img
+      src="${img}"
+      class="store-img"
+      loading="lazy"
+      onerror="this.onerror=null;this.src='images/store.jpg'"
+    />
 
     <div class="store-body">
-      <h3 class="store-title">${s.name || "Unnamed"}</h3>
+
+      <h3 class="store-title">
+        ${s.name || "Unnamed"}
+      </h3>
 
       <div class="locrow">
+
         <div class="loc-top">
           ${flag ? `<img src="${flag}" class="flag" />` : ""}
-          <span>${[s.continent, s.country].filter(Boolean).join(", ")}</span>
+          <span>
+            ${[s.continent, s.country]
+              .filter(Boolean)
+              .join(", ")}
+          </span>
         </div>
-        <p class="city-label">${s.city || ""}</p>
+
+        <p class="city-label">
+          ${s.city || ""}
+        </p>
+
       </div>
 
-      ${buildStars(s.rating_avg, s.rating_count)}
+      ${buildStars(
+        s.rating_avg,
+        s.rating_count
+      )}
 
       <div class="badge-row">
         ${buildBadges(s)}
       </div>
 
       <div class="infoblock">
+
         <div class="info-row">
-          <span class="info-label">Address</span>
-          <span class="info-value">${s.address || "—"}</span>
+          <span class="info-label">
+            Address
+          </span>
+
+          <span class="info-value">
+            ${s.address || "—"}
+          </span>
         </div>
+
         <div class="info-row">
-          <span class="info-label">Phone</span>
-          <span class="info-value">${s.phone || "—"}</span>
+          <span class="info-label">
+            Phone
+          </span>
+
+          <span class="info-value">
+            ${s.phone || "—"}
+          </span>
         </div>
+
       </div>
 
       ${
         s.website
-          ? `<div class="visit-link">
-               <a href="${s.website}" target="_blank" rel="noopener">
-                 Visit
-               </a>
-             </div>`
+          ? `
+            <div class="visit-link">
+              <a
+                href="${s.website}"
+                target="_blank"
+                rel="noopener"
+              >
+                Visit
+              </a>
+            </div>
+          `
           : ""
       }
 
-      <button class="reviews-btn" type="button">
+      <button
+        class="reviews-btn"
+        type="button"
+      >
         Comment (${s.comment_count || 0})
       </button>
+
     </div>
+
   </article>
   `;
 }
@@ -701,26 +763,55 @@ IS_LOADING_MORE = false;
 let GRID_BOUND = false;
 
 function bindGrid() {
+
   if (GRID_BOUND) return;
+
   GRID_BOUND = true;
 
   const grid = dom("#storeGrid");
+
   if (!grid) return;
 
   grid.addEventListener("click", (e) => {
-    const card = e.target.closest(".store-card");
+
+    // ============================================================
+    // FAVORITE HEART
+    // ============================================================
+
+    const favoriteBtn =
+      e.target.closest(".favorite-heart");
+
+    if (favoriteBtn) {
+
+      e.stopPropagation();
+
+      favoriteBtn.classList.toggle("active");
+
+      return;
+    }
+
+    // ============================================================
+    // STORE CARD
+    // ============================================================
+
+    const card =
+      e.target.closest(".store-card");
+
     if (!card) return;
 
-    const id = Number(card.dataset.storeId);
+    const id =
+      Number(card.dataset.storeId);
+
     if (!id) return;
 
- openModal({
-  id: id,
-  source: card.dataset.source
-});
-  });
-}
+    openModal({
+      id: id,
+      source: card.dataset.source
+    });
 
+  });
+
+}
 
 // ============================================================
 // INIT
