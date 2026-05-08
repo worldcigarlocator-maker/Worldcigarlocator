@@ -83,4 +83,13 @@ export default {
   your_rating: "Tu valoración",
   submit_rating: "Enviar valoración"
 
+ write_comment: "Escribe un comentario…",
+  post_comment: "Publicar comentario",
+
+  report_issue: "Reportar un problema",
+  submit_report: "Enviar reporte",
+
+  report_success:
+    "Gracias por ayudarnos a mantener World Cigar Locator preciso y actualizado."
+
 };
