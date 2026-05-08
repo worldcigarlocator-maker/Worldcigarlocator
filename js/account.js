@@ -654,6 +654,8 @@ document.addEventListener(
   "DOMContentLoaded",
   async () => {
 
+    await initI18n();
+
     await loadAccount();
 
     await loadMyComments();
