@@ -855,6 +855,7 @@ ratingsSearchInput?.addEventListener(
   }
 );
 
+
 // ============================================================
 // LANGUAGE SWITCHER
 // ============================================================
@@ -875,20 +876,21 @@ languageButtons.forEach((btn) => {
 
       if (!lang) return;
 
-      /* ================= LOCAL ================= */
-
-      localStorage.setItem(
-        "wcl_language",
-        lang
-      );
-
-      /* ================= FAST RELOAD ================= */
-
-      window.location.reload();
-
-      /* ================= BACKGROUND SAVE ================= */
-
       try {
+
+        /* ================= LOCK UI ================= */
+
+        document.body.style.pointerEvents =
+          "none";
+
+        /* ================= LOCAL ================= */
+
+        localStorage.setItem(
+          "wcl_language",
+          lang
+        );
+
+        /* ================= PROFILE ================= */
 
         const {
           data: { user }
@@ -908,11 +910,13 @@ languageButtons.forEach((btn) => {
       } catch (err) {
 
         console.error(
-          "LANGUAGE SAVE ERROR",
+          "LANGUAGE SWITCH ERROR",
           err
         );
 
       }
+
+      window.location.reload();
 
     }
   );
