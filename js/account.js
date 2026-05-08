@@ -5,6 +5,7 @@
 
 import { supabase } from "/js/globals.js";
 import { openModal } from "/js/modal.js";
+import { initI18n } from "./i18n.js";
 
 // ============================================================
 // DOM
