@@ -81,7 +81,7 @@ export default {
   directions: "Direcciones",
 
   your_rating: "Tu valoración",
-  submit_rating: "Enviar valoración"
+submit_rating: "Enviar valoración",
 
  write_comment: "Escribe un comentario…",
   post_comment: "Publicar comentario",
