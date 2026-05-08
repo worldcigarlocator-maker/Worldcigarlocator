@@ -153,21 +153,35 @@ function resetModal() {
 // ============================================================
 
 export async function openModal(storeInput) {
-  console.log("OPEN MODAL CALLED", storeInput);
+
+  console.log(
+    "OPEN MODAL CALLED",
+    storeInput
+  );
 
   const inputId =
-    typeof storeInput === "object" && storeInput !== null
+    typeof storeInput === "object" &&
+    storeInput !== null
       ? Number(storeInput.id)
       : Number(storeInput);
 
-  if (!inputId) return;
+  if (!inputId) {
+
+    console.log(
+      "MODAL EARLY RETURN"
+    );
+
+    return;
+  }
 
   const inputSource =
-    typeof storeInput === "object" && storeInput !== null
+    typeof storeInput === "object" &&
+    storeInput !== null
       ? storeInput.source || null
       : null;
 
-  let store = findStore(inputId);
+  let store =
+    findStore(inputId);
 
   // ============================================================
   // RPC FALLBACK / AUTHORITATIVE LOAD
