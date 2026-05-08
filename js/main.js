@@ -530,3 +530,37 @@ window.addEventListener("pageshow", () => {
   window.scrollTo(0, 0);
 });
 
+// ============================================================
+// STORE DEEP LINK
+// ============================================================
+
+window.addEventListener(
+  "load",
+  async () => {
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const storeId =
+      params.get("store");
+
+    if (!storeId) return;
+
+    // wait for frontend
+    await new Promise((resolve) =>
+      setTimeout(resolve, 1200)
+    );
+
+    const card =
+      document.querySelector(
+        `[data-store-id="${storeId}"]`
+      );
+
+    if (!card) return;
+
+    card.click();
+
+  }
+);
