@@ -27,10 +27,6 @@ let CURRENT_DICT = {};
    STORAGE
 ============================================================ */
 
-/* ============================================================
-   STORAGE
-============================================================ */
-
 export async function getLanguage() {
 
   try {
@@ -123,6 +119,7 @@ export function setLanguage(lang) {
 
 }
 
+
 /* ============================================================
    LOAD LOCALE
 ============================================================ */
@@ -136,9 +133,19 @@ async function loadLocale(lang) {
 
   try {
 
-    const mod = await import(
-  `/locales/${lang}.js`
-);
+    let mod;
+
+    switch (lang) {
+
+      case "es":
+        mod = await import("/locales/es.js");
+        break;
+
+      default:
+        CURRENT_DICT = {};
+        return;
+
+    }
 
     CURRENT_DICT =
       mod.default || {};
@@ -151,6 +158,7 @@ async function loadLocale(lang) {
     );
 
     CURRENT_DICT = {};
+
   }
 
 }
