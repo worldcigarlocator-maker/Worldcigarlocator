@@ -221,6 +221,11 @@ console.log("STORE FOUND", store);
 
   if (!storeId) return;
 
+  console.log(
+  "MODAL RENDER START",
+  store
+);
+  
   // ============================================================
   // SOURCE LOCK
   // ============================================================
@@ -276,6 +281,9 @@ console.log("STORE FOUND", store);
   m.classList.remove("hidden");
 
   lockScroll(true);
+  console.log(
+  "MODAL OPENED UI"
+);
 
   // ============================================================
   // FAVORITE BUTTON
