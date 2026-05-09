@@ -78,12 +78,12 @@ export default {
   address: "Dirección:",
   phone: "Teléfono:",
   visit_website: "Visitar sitio web",
-  directions: "Direcciones",
+  directions: "Cómo llegar",
 
   your_rating: "Tu valoración",
-submit_rating: "Enviar valoración",
+  submit_rating: "Enviar valoración",
 
- write_comment: "Escribe un comentario…",
+  write_comment: "Escribe un comentario…",
   post_comment: "Publicar comentario",
 
   report_issue: "Reportar un problema",
@@ -91,6 +91,21 @@ submit_rating: "Enviar valoración",
 
   report_success:
     "Gracias por ayudarnos a mantener World Cigar Locator preciso y actualizado.",
+
+  modal_loading:
+    "Cargando ubicación...",
+
+  modal_failed:
+    "No se pudo cargar la ubicación",
+
+  unknown_store:
+    "Ubicación desconocida",
+
+  no_comments:
+    "Aún no hay comentarios",
+
+  no_ratings:
+    "Aún no hay valoraciones",
 
   /* ================= MESSAGES ================= */
 
@@ -116,7 +131,18 @@ submit_rating: "Enviar valoración",
     "No se pudieron cargar las valoraciones",
 
   failed_to_load_favorites:
-    "No se pudieron cargar los favoritos"
+    "No se pudieron cargar los favoritos",
+
+   
+     /* ================= STATIC PAGES ================= */
+
+  loading: "Cargando...",
+  back_home: "Volver al inicio",
+
+  about_title: "Acerca de",
+  legal_title: "Legal",
+  privacy_title: "Privacidad",
+  report_title: "Reportar",
      /* ================= ABOUT ================= */
 
   about: "Acerca de",
