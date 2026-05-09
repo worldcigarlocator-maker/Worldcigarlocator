@@ -46,6 +46,63 @@
   </div>
 
 </main>
+
+  <script type="module">
+
+import {
+  getLanguage
+} from "/js/i18n.js";
+
+async function loadLegalPage() {
+
+  const lang =
+    await getLanguage();
+
+  const container =
+    document.getElementById(
+      "legalContent"
+    );
+
+  if (!container) return;
+
+  try {
+
+    const response =
+      await fetch(
+        `/locales/pages/legal/${lang}.html`
+      );
+
+    if (!response.ok) {
+      throw new Error(
+        "Locale not found"
+      );
+    }
+
+    container.innerHTML =
+      await response.text();
+
+  } catch (err) {
+
+    console.error(
+      "LEGAL LOAD ERROR",
+      err
+    );
+
+    const fallback =
+      await fetch(
+        "/locales/pages/legal/en.html"
+      );
+
+    container.innerHTML =
+      await fallback.text();
+
+  }
+
+}
+
+loadLegalPage();
+
+</script>
   
 </body>
 </html>
