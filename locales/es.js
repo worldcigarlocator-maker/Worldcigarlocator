@@ -90,7 +90,7 @@ submit_rating: "Enviar valoración",
   submit_report: "Enviar reporte",
 
   report_success:
-    "Gracias por ayudarnos a mantener World Cigar Locator preciso y actualizado."
+    "Gracias por ayudarnos a mantener World Cigar Locator preciso y actualizado.",
 
   /* ================= MESSAGES ================= */
 
