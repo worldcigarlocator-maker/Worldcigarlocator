@@ -117,5 +117,19 @@ submit_rating: "Enviar valoración",
 
   failed_to_load_favorites:
     "No se pudieron cargar los favoritos"
-   
+     /* ================= ABOUT ================= */
+
+  about: "Acerca de",
+
+  /* ================= REPORT ================= */
+
+  report: "Reportar",
+
+  /* ================= LEGAL ================= */
+
+  legal: "Legal",
+
+  /* ================= PRIVACY ================= */
+
+  privacy: "Privacidad"
 };
