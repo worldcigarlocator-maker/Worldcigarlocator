@@ -33,177 +33,73 @@
 
 </header>
 
-  <!-- ================= PAGE CONTENT ================= -->
-  <main class="legal-page">
-    <div class="legal-inner">
+ <!-- ================= PAGE CONTENT ================= -->
 
-      <h1>Privacy Policy</h1>
+<main class="legal-page">
 
-      <p><em>Last updated: February 2026</em></p>
+  <div
+    id="privacyContent"
+    class="legal-inner"
+  >
+    Loading...
+  </div>
 
-      <p>
-        World Cigar Locator (“WCL”, “we”, “our”, “us”) respects your privacy and is committed to protecting
-        personal data in accordance with the EU General Data Protection Regulation (GDPR).
-      </p>
+</main>
+<script type="module">
 
-      <p>
-        This policy explains what data we collect, how we use it, and your rights.
-      </p>
+import {
+  getLanguage
+} from "/js/i18n.js";
 
-      <h2>1. Data Controller</h2>
+async function loadPrivacyPage() {
 
-      <p>
-        World Cigar Locator is the data controller for personal data processed through this website.
-        For privacy-related inquiries, please contact us via the Contact / Support link.
-      </p>
+  const lang =
+    await getLanguage();
 
-      <h2>2. What Data We Collect</h2>
+  const container =
+    document.getElementById(
+      "privacyContent"
+    );
 
-      <h3>a) Information You Provide</h3>
+  if (!container) return;
 
-      <p>We may collect:</p>
+  try {
 
-      <ul>
-        <li>Name (if submitted)</li>
-        <li>Email address</li>
-        <li>Messages sent via Contact / Support</li>
-        <li>Reports submitted via Report a Listing</li>
-      </ul>
+    const response =
+      await fetch(
+        `/locales/pages/privacy/${lang}.html`
+      );
 
-      <p>
-        Providing this information is voluntary.
-      </p>
+    if (!response.ok) {
+      throw new Error(
+        "Locale not found"
+      );
+    }
 
-      <h3>b) Automatically Collected Information</h3>
+    container.innerHTML =
+      await response.text();
 
-      <p>When you visit the site, we may collect:</p>
+  } catch (err) {
 
-      <ul>
-        <li>IP address</li>
-        <li>Browser type</li>
-        <li>Device information</li>
-        <li>Pages visited</li>
-        <li>Interaction data</li>
-      </ul>
+    console.error(
+      "PRIVACY LOAD ERROR",
+      err
+    );
 
-      <p>
-        This data is used for security, analytics, and platform improvement.
-      </p>
+    const fallback =
+      await fetch(
+        "/locales/pages/privacy/en.html"
+      );
 
-      <h2>3. Legal Basis for Processing (GDPR)</h2>
+    container.innerHTML =
+      await fallback.text();
 
-      <p>
-        We process personal data under one or more of the following legal bases:
-      </p>
+  }
 
-      <ul>
-        <li>Legitimate interest (operating and improving the platform)</li>
-        <li>Consent (where applicable)</li>
-        <li>Compliance with legal obligations</li>
-      </ul>
+}
 
-      <h2>4. How We Use Personal Data</h2>
+loadPrivacyPage();
 
-      <p>We use data to:</p>
-
-      <ul>
-        <li>Respond to inquiries</li>
-        <li>Review and moderate reported listings</li>
-        <li>Improve functionality and performance</li>
-        <li>Monitor and prevent abuse</li>
-        <li>Maintain operational analytics</li>
-      </ul>
-
-      <p>
-        We do not sell personal data.
-      </p>
-
-      <h2>5. Data Processing & Infrastructure</h2>
-
-      <p>
-        To operate World Cigar Locator, we use trusted third-party service providers for cloud hosting,
-        database infrastructure, backend services, and analytics.
-      </p>
-
-      <p>
-        This includes modern cloud-based platforms (such as Supabase) used to securely store and process operational data.
-      </p>
-
-      <p>
-        These providers act as data processors and process data on our behalf under appropriate safeguards
-        in accordance with GDPR requirements.
-      </p>
-
-      <h2>6. Data Retention</h2>
-
-      <p>
-        Personal data is retained only as long as necessary to fulfill the purposes described in this policy
-        or as required by law.
-      </p>
-
-      <p>
-        Support messages and listing reports may be stored for operational, audit, and quality control purposes.
-      </p>
-
-      <h2>7. International Data Transfers</h2>
-
-      <p>
-        If personal data is processed outside the European Economic Area (EEA),
-        appropriate safeguards are implemented in accordance with GDPR requirements.
-      </p>
-
-      <h2>8. Your Rights Under GDPR</h2>
-
-      <p>
-        If you are located in the EU/EEA, you have the right to:
-      </p>
-
-      <ul>
-        <li>Access your personal data</li>
-        <li>Request correction</li>
-        <li>Request deletion (“right to be forgotten”)</li>
-        <li>Restrict processing</li>
-        <li>Object to processing</li>
-        <li>Request data portability</li>
-        <li>Lodge a complaint with your local supervisory authority</li>
-      </ul>
-
-      <p>
-        To exercise your rights, please contact us via Contact / Support.
-      </p>
-
-      <h2>9. Cookies</h2>
-
-      <p>
-        World Cigar Locator uses essential cookies required for site functionality and limited analytics
-        to understand usage patterns and improve performance.
-      </p>
-
-      <p>
-        You can control cookies through your browser settings.
-      </p>
-
-      <h2>10. Security</h2>
-
-      <p>
-        We use modern cloud infrastructure and database services to protect personal data against unauthorized access,
-        alteration, or destruction.
-      </p>
-
-      <p>
-        Access to operational systems is restricted and monitored.
-        However, no system can guarantee absolute security.
-      </p>
-
-      <h2>11. Changes to This Policy</h2>
-
-      <p>
-        We may update this Privacy Policy from time to time.
-        Continued use of the site constitutes acceptance of any updates.
-      </p>
-
-    </div>
-  </main>
-
+</script>
 </body>
 </html>
