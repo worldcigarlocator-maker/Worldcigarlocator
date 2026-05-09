@@ -44,5 +44,62 @@
 
 </main>
 
+  <script type="module">
+
+import {
+  getLanguage
+} from "/js/i18n.js";
+
+async function loadAboutPage() {
+
+  const lang =
+    await getLanguage();
+
+  const container =
+    document.getElementById(
+      "aboutContent"
+    );
+
+  if (!container) return;
+
+  try {
+
+    const response =
+      await fetch(
+        `/locales/pages/about/${lang}.html`
+      );
+
+    if (!response.ok) {
+      throw new Error(
+        "Locale not found"
+      );
+    }
+
+    container.innerHTML =
+      await response.text();
+
+  } catch (err) {
+
+    console.error(
+      "ABOUT LOAD ERROR",
+      err
+    );
+
+    const fallback =
+      await fetch(
+        "/locales/pages/about/en.html"
+      );
+
+    container.innerHTML =
+      await fallback.text();
+
+  }
+
+}
+
+loadAboutPage();
+
+</script>
+  
 </body>
 </html>
