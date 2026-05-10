@@ -145,6 +145,9 @@ export default {
   start_typing_place:
     "Empieza a escribir un lugar...",
 
+   auto_can_be_edited:
+  "Automático (puede editarse)",
+
   state_region:
     "Estado / Región",
 
