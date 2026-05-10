@@ -73,6 +73,83 @@ export default {
   admin_tools_coming:
     "Las herramientas de administrador llegarán pronto",
 
+     /* ================= GLOBAL ================= */
+
+  login: "Iniciar sesión",
+  logout: "Cerrar sesión",
+
+  email: "Correo electrónico",
+  password: "Contraseña",
+
+  remember_me: "Recuérdame",
+
+  create_new_account:
+    "Crear una nueva cuenta",
+
+  reset_password:
+    "Restablecer contraseña",
+
+  add_listing:
+    "Agregar ubicación",
+
+  about: "Acerca de",
+
+  report_listing:
+    "Reportar una ubicación",
+
+  legal: "Legal",
+
+  privacy_policy:
+    "Política de privacidad",
+
+  manage_my_account:
+    "Administrar mi cuenta",
+
+  contact_support:
+    "Contacto / Soporte",
+
+  search: "Buscar",
+
+  search_by_name_city_address:
+    "Buscar por nombre, ciudad o dirección",
+
+  stores: "Tiendas",
+
+  members: "Miembros",
+
+  top_rated:
+    "Mejor valorados",
+
+  newest: "Más recientes",
+
+  map_view:
+    "Vista de mapa",
+
+  map: "Mapa",
+
+  clear: "Limpiar",
+
+  filter: "Filtrar",
+
+  ok: "OK",
+
+  favorite: "Favorito",
+
+  close: "Cerrar",
+
+  legal_smoking_age:
+    "Debes tener la edad legal para fumar para entrar.",
+
+  enter: "Entrar",
+
+  leave: "Salir",
+
+  global_humidor_opens_soon:
+    "Nuestro humidor global abre pronto",
+
+  cookie_message:
+    "Usamos cookies esenciales y análisis limitados para mejorar tu experiencia y mantener la seguridad de la plataforma. Al continuar usando este sitio, aceptas nuestra Política de privacidad.",
+
      /* ================= MODAL ================= */
 
   address: "Dirección:",
