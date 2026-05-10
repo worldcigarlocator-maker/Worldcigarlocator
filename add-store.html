@@ -56,96 +56,184 @@
     <input id="gAddress" type="text" placeholder="Start typing a place..." />
   </div>
 
-  <!-- Basic Info -->
-  <div>
-    <label>Name</label>
-    <input id="name" type="text">
-  </div>
+ <!-- Basic Info -->
 
-  <div>
-    <label>Phone</label>
-    <input id="phone" type="tel">
-  </div>
+<div>
+  <label data-i18n="name">
+    Name
+  </label>
 
-  <div class="full">
-    <label>Address</label>
-    <input id="addr" type="text">
-  </div>
+  <input id="name" type="text">
+</div>
 
-  <div>
-    <label>City</label>
-    <input id="city" type="text" list="city-list" autocomplete="off">
-    <datalist id="city-list"></datalist>
-  </div>
+<div>
+  <label data-i18n="phone">
+    Phone
+  </label>
 
-  <div>
-    <label>State / Region</label>
-    <input id="state" type="text" placeholder="Auto (can be edited)">
-  </div>
+  <input id="phone" type="tel">
+</div>
 
-  <div>
-    <label>Country</label>
-    <input id="country" type="text">
-  </div>
+<div class="full">
+  <label data-i18n="address">
+    Address
+  </label>
 
-  <div>
-    <label>Website</label>
-    <input id="website" type="url">
-  </div>
+  <input id="addr" type="text">
+</div>
 
-  <!-- Pills -->
-  <div class="full">
-    <div class="pill-row">
+<div>
+  <label data-i18n="city">
+    City
+  </label>
 
-      <label class="pill">
-        <input type="checkbox" value="store">
-        <span>Store</span>
-      </label>
+  <input
+    id="city"
+    type="text"
+    list="city-list"
+    autocomplete="off"
+  >
 
-      <label class="pill">
-        <input type="checkbox" value="lounge">
-        <span>Lounge</span>
-      </label>
+  <datalist id="city-list"></datalist>
+</div>
 
-      <label class="pill">
-        <input type="radio" name="access" value="public">
-        <span>Public</span>
-      </label>
+<div>
+  <label data-i18n="state_region">
+    State / Region
+  </label>
 
-      <label class="pill">
-        <input type="radio" name="access" value="members">
-        <span>Members Only</span>
-      </label>
+  <input
+    id="state"
+    type="text"
+    placeholder="Auto (can be edited)"
+  >
+</div>
 
-    </div>
-  </div>
+<div>
+  <label data-i18n="country">
+    Country
+  </label>
 
-  <!-- Comment -->
-  <div class="full">
-    <label>Comment</label>
-    <textarea id="comment"></textarea>
-  </div>
+  <input id="country" type="text">
+</div>
 
-  <!-- Photo -->
-  <div class="full">
-    <label>Photo Preview</label>
-    <div class="photo-picker">
-      <button id="prev-photo" class="photo-nav">◀</button>
-      <img id="preview-photo"
-           class="preview-photo"
-           src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg">
-      <button id="next-photo" class="photo-nav">▶</button>
-    </div>
-    <div id="photo-meta" style="text-align:center;margin-top:.4rem;">
-      No photo loaded
-    </div>
+<div>
+  <label data-i18n="website">
+    Website
+  </label>
+
+  <input id="website" type="url">
+</div>
+
+<!-- Pills -->
+
+<div class="full">
+
+  <div class="pill-row">
+
+    <label class="pill">
+      <input type="checkbox" value="store">
+
+      <span data-i18n="store">
+        Store
+      </span>
+    </label>
+
+    <label class="pill">
+      <input type="checkbox" value="lounge">
+
+      <span data-i18n="lounge">
+        Lounge
+      </span>
+    </label>
+
+    <label class="pill">
+      <input
+        type="radio"
+        name="access"
+        value="public"
+      >
+
+      <span data-i18n="public">
+        Public
+      </span>
+    </label>
+
+    <label class="pill">
+      <input
+        type="radio"
+        name="access"
+        value="members"
+      >
+
+      <span data-i18n="members_only">
+        Members Only
+      </span>
+    </label>
+
   </div>
 
 </div>
 
+<!-- Comment -->
+
+<div class="full">
+
+  <label data-i18n="comment">
+    Comment
+  </label>
+
+  <textarea id="comment"></textarea>
+
+</div>
+
+<!-- Photo -->
+
+<div class="full">
+
+  <label data-i18n="photo_preview">
+    Photo Preview
+  </label>
+
+  <div class="photo-picker">
+
+    <button
+      id="prev-photo"
+      class="photo-nav"
+    >
+      ◀
+    </button>
+
+    <img
+      id="preview-photo"
+      class="preview-photo"
+      src="https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg"
+    >
+
+    <button
+      id="next-photo"
+      class="photo-nav"
+    >
+      ▶
+    </button>
+
   </div>
 
-  <!-- Toast -->
+  <div
+    id="photo-meta"
+    style="text-align:center;margin-top:.4rem;"
+    data-i18n="no_photo_loaded"
+  >
+    No photo loaded
+  </div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Toast -->
 
   <div id="toast-container"></div>
 
