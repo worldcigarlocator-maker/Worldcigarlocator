@@ -111,6 +111,9 @@ export default {
   search_by_name_city_address:
     "Buscar por nombre, ciudad o dirección",
 
+     listings_found:
+    "ubicaciones encontradas",
+
   stores: "Tiendas",
 
   members: "Miembros",
@@ -150,6 +153,7 @@ export default {
 
   /* ================= MODAL ================= */
 
+  comments_count: "Comentarios",
   address: "Dirección:",
   phone: "Teléfono:",
   visit_website: "Visitar sitio web",
@@ -245,6 +249,12 @@ export default {
   start_typing_place:
     "Empieza a escribir un lugar...",
 
+  city:
+    "Ciudad",
+
+  country:
+    "País",
+   
   auto_can_be_edited:
     "Automático (puede editarse)",
 
