@@ -171,7 +171,7 @@ async function syncAuthGate() {
         .single();
 
     authStatus.textContent =
-      `Welcome: ${
+      `${t("welcome", "Welcome")}: ${
         profile?.display_name ||
         session.user.email
       }`;
@@ -179,7 +179,6 @@ async function syncAuthGate() {
   }
 
 }
-
 // ============================================================
 // LOGIN BINDINGS
 // ============================================================
@@ -288,114 +287,94 @@ function bindLoginButtons() {
     updateButtons
   );
 
-  // ============================================================
-  // LOGIN
-  // ============================================================
+ // ============================================================
+// LOGIN
+// ============================================================
 
-  submit?.addEventListener(
-    "click",
-    async () => {
+submit?.addEventListener(
+  "click",
+  async () => {
 
-      const email =
-        qs("#loginEmail")
-          ?.value
-          ?.trim();
+    const email =
+      qs("#loginEmail")
+        ?.value
+        ?.trim();
 
-      const pass =
-        qs("#loginPassword")
-          ?.value
-          ?.trim();
+    const pass =
+      qs("#loginPassword")
+        ?.value
+        ?.trim();
 
-      const remember =
-        qs("#rememberMe");
+    const remember =
+      qs("#rememberMe");
 
-      const spinner =
-        qs("#loginSpinner");
+    const spinner =
+      qs("#loginSpinner");
 
-      const label =
-        qs(".login-text");
+    const label =
+      qs(".login-text");
 
-      if (!email || !pass) {
+    if (!email || !pass) {
 
-        setMessage(
-          "Enter email and password",
-          "error"
-        );
-
-        return;
-
-      }
-
-      try {
-
-        if (remember?.checked) {
-
-          localStorage.setItem(
-            "wcl_saved_email",
-            email
-          );
-
-        } else {
-
-          localStorage.removeItem(
-            "wcl_saved_email"
-          );
-
-        }
-
-      } catch {}
-
-      submit.disabled = true;
-
-      spinner?.classList.remove(
-        "hidden"
+      setMessage(
+        t(
+          "enter_email_password",
+          "Enter email and password"
+        ),
+        "error"
       );
 
-      if (label) {
+      return;
 
-        label.textContent =
-          "Logging in…";
+    }
 
-      }
+    try {
 
-      const { error } =
-        await supabase.auth
-          .signInWithPassword({
-            email,
-            password: pass,
-          });
+      if (remember?.checked) {
 
-      if (error) {
-
-        alert(error.message);
-
-        submit.disabled = false;
-
-        spinner?.classList.add(
-          "hidden"
+        localStorage.setItem(
+          "wcl_saved_email",
+          email
         );
 
-        if (label) {
+      } else {
 
-          label.textContent =
-            t("login", "Login");
-
-        }
-
-        return;
+        localStorage.removeItem(
+          "wcl_saved_email"
+        );
 
       }
 
-      // 🔥 TRACK LOGIN (HÄR!)
+    } catch {}
 
-      await trackEvent(
-        "user_login",
-        {
-          email: email,
-          country:
-            window.WCL_GEO
-              ?.country || null
-        }
+    submit.disabled = true;
+
+    spinner?.classList.remove(
+      "hidden"
+    );
+
+    if (label) {
+
+      label.textContent =
+        t(
+          "logging_in",
+          "Logging in…"
+        );
+
+    }
+
+    const { error } =
+      await supabase.auth
+        .signInWithPassword({
+          email,
+          password: pass,
+        });
+
+    if (error) {
+
+      setMessage(
+        error.message,
+        "error"
       );
 
       submit.disabled = false;
@@ -411,11 +390,40 @@ function bindLoginButtons() {
 
       }
 
-      hideLoginPopup();
+      return;
 
     }
-  );
 
+    // 🔥 TRACK LOGIN (HÄR!)
+
+    await trackEvent(
+      "user_login",
+      {
+        email: email,
+        country:
+          window.WCL_GEO
+            ?.country || null
+      }
+    );
+
+    submit.disabled = false;
+
+    spinner?.classList.add(
+      "hidden"
+    );
+
+    if (label) {
+
+      label.textContent =
+        t("login", "Login");
+
+    }
+
+    hideLoginPopup();
+
+  }
+);
+  
   // ============================================================
 // CREATE ACCOUNT
 // ============================================================
