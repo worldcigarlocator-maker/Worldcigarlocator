@@ -73,12 +73,10 @@ export default {
   admin_tools_coming:
     "Las herramientas de administrador llegarán pronto",
 
-     /* ================= GLOBAL ================= */
+  /* ================= GLOBAL ================= */
 
   login: "Iniciar sesión",
-  logout: "Cerrar sesión",
 
-  email: "Correo electrónico",
   password: "Contraseña",
 
   remember_me: "Recuérdame",
@@ -150,7 +148,7 @@ export default {
   cookie_message:
     "Usamos cookies esenciales y análisis limitados para mejorar tu experiencia y mantener la seguridad de la plataforma. Al continuar usando este sitio, aceptas nuestra Política de privacidad.",
 
-     /* ================= MODAL ================= */
+  /* ================= MODAL ================= */
 
   address: "Dirección:",
   phone: "Teléfono:",
@@ -184,7 +182,7 @@ export default {
   no_ratings:
     "Aún no hay valoraciones",
 
-     dont_sell_cigars:
+  dont_sell_cigars:
     "No venden cigarros",
 
   not_allowed_to_smoke:
@@ -207,7 +205,7 @@ export default {
 
   describe_issue:
     "Describe el problema...",
-   
+
   /* ================= MESSAGES ================= */
 
   display_name_updated:
@@ -236,9 +234,10 @@ export default {
 
   /* ================= ADD STORE ================= */
 
-  add_listing: "Agregar ubicación",
   save: "Guardar",
-  back_to_home: "Volver al inicio",
+
+  back_to_home:
+    "Volver al inicio",
 
   search_with_google:
     "Buscar con Google",
@@ -246,8 +245,8 @@ export default {
   start_typing_place:
     "Empieza a escribir un lugar...",
 
-   auto_can_be_edited:
-  "Automático (puede editarse)",
+  auto_can_be_edited:
+    "Automático (puede editarse)",
 
   state_region:
     "Estado / Región",
@@ -259,59 +258,61 @@ export default {
     "Vista previa de la foto",
 
   no_photo_loaded:
-    "No se cargó ninguna foto"
+    "No se cargó ninguna foto",
 
-login: "Iniciar sesión",
-logout: "Cerrar sesión",
-welcome: "Bienvenido",
+  /* ================= AUTH ================= */
 
-enter_email_password:
-  "Introduce correo electrónico y contraseña",
+  welcome: "Bienvenido",
 
-logging_in:
-  "Iniciando sesión…",
+  enter_email_password:
+    "Introduce correo electrónico y contraseña",
 
-signup_enter_email_password:
-  "Introduce un correo electrónico y crea una contraseña para tu nueva cuenta. Recibirás un correo de confirmación, solo sigue el enlace proporcionado. ¡Bienvenido!",
+  logging_in:
+    "Iniciando sesión…",
 
-creating_account:
-  "Creando cuenta…",
+  signup_enter_email_password:
+    "Introduce un correo electrónico y crea una contraseña para tu nueva cuenta. Recibirás un correo de confirmación, solo sigue el enlace proporcionado. ¡Bienvenido!",
 
-confirm_new_account:
-  "Introduce tu correo electrónico y crea una contraseña para confirmar tu nueva cuenta",
+  creating_account:
+    "Creando cuenta…",
 
-reset_password_help:
-  "Para restablecer tu contraseña, introduce tu correo electrónico y sigue el enlace enviado a tu correo.",
+  confirm_new_account:
+    "Introduce tu correo electrónico y crea una contraseña para confirmar tu nueva cuenta",
 
-sending_reset_email:
-  "Enviando correo de restablecimiento…",
+  reset_password_help:
+    "Para restablecer tu contraseña, introduce tu correo electrónico y sigue el enlace enviado a tu correo.",
 
-password_reset_email_sent:
-  "Correo de restablecimiento enviado",
+  sending_reset_email:
+    "Enviando correo de restablecimiento…",
 
+  password_reset_email_sent:
+    "Correo de restablecimiento enviado",
 
-     /* ================= STATIC PAGES ================= */
+  /* ================= STATIC PAGES ================= */
 
   loading: "Cargando...",
-  back_home: "Volver al inicio",
 
-  about_title: "Acerca de",
-  legal_title: "Legal",
-  privacy_title: "Privacidad",
-  report_title: "Reportar",
-     /* ================= ABOUT ================= */
+  back_home:
+    "Volver al inicio",
 
-  about: "Acerca de",
+  about_title:
+    "Acerca de",
+
+  legal_title:
+    "Legal",
+
+  privacy_title:
+    "Privacidad",
+
+  report_title:
+    "Reportar",
 
   /* ================= REPORT ================= */
 
   report: "Reportar",
 
-  /* ================= LEGAL ================= */
-
-  legal: "Legal",
-
   /* ================= PRIVACY ================= */
 
   privacy: "Privacidad"
 };
+
