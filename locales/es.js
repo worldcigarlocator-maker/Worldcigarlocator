@@ -184,6 +184,30 @@ export default {
   no_ratings:
     "Aún no hay valoraciones",
 
+     dont_sell_cigars:
+    "No venden cigarros",
+
+  not_allowed_to_smoke:
+    "No se permite fumar",
+
+  membership_policy_wrong:
+    "Política de membresía incorrecta",
+
+  wrong_address:
+    "Dirección incorrecta",
+
+  permanently_closed:
+    "Cerrado permanentemente",
+
+  duplicate:
+    "Duplicado",
+
+  other:
+    "Otro",
+
+  describe_issue:
+    "Describe el problema...",
+   
   /* ================= MESSAGES ================= */
 
   display_name_updated:
