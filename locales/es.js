@@ -260,7 +260,36 @@ export default {
 
   no_photo_loaded:
     "No se cargó ninguna foto"
-   
+
+login: "Iniciar sesión",
+logout: "Cerrar sesión",
+welcome: "Bienvenido",
+
+enter_email_password:
+  "Introduce correo electrónico y contraseña",
+
+logging_in:
+  "Iniciando sesión…",
+
+signup_enter_email_password:
+  "Introduce un correo electrónico y crea una contraseña para tu nueva cuenta. Recibirás un correo de confirmación, solo sigue el enlace proporcionado. ¡Bienvenido!",
+
+creating_account:
+  "Creando cuenta…",
+
+confirm_new_account:
+  "Introduce tu correo electrónico y crea una contraseña para confirmar tu nueva cuenta",
+
+reset_password_help:
+  "Para restablecer tu contraseña, introduce tu correo electrónico y sigue el enlace enviado a tu correo.",
+
+sending_reset_email:
+  "Enviando correo de restablecimiento…",
+
+password_reset_email_sent:
+  "Correo de restablecimiento enviado",
+
+
      /* ================= STATIC PAGES ================= */
 
   loading: "Cargando...",
