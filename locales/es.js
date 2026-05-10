@@ -133,6 +133,29 @@ export default {
   failed_to_load_favorites:
     "No se pudieron cargar los favoritos",
 
+  /* ================= ADD STORE ================= */
+
+  add_listing: "Agregar ubicación",
+  save: "Guardar",
+  back_to_home: "Volver al inicio",
+
+  search_with_google:
+    "Buscar con Google",
+
+  start_typing_place:
+    "Empieza a escribir un lugar...",
+
+  state_region:
+    "Estado / Región",
+
+  members_only:
+    "Solo miembros",
+
+  photo_preview:
+    "Vista previa de la foto",
+
+  no_photo_loaded:
+    "No se cargó ninguna foto"
    
      /* ================= STATIC PAGES ================= */
 
