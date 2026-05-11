@@ -1,7 +1,38 @@
-import { supabase } from "/js/globals.js";
+/* ============================================================
+   WCL — ANALYTICS TRACKER
+   CANONICAL · VISITOR + DAILY SESSION MODEL
+   ============================================================ */
 
 /* ============================================================
-   GEO (IP → Country)
+   CONFIG
+   ============================================================ */
+
+const ANALYTICS_ENDPOINT =
+  "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/functions/v1/analytics-ingest";
+
+const VISITOR_KEY = "wcl_visitor_id";
+const SESSION_KEY = "wcl_session_id";
+const SESSION_DATE_KEY = "wcl_session_date";
+
+/* Legacy compatibility */
+const LEGACY_SESSION_KEY = "wcl_session";
+
+/* ============================================================
+   DATE HELPER
+   ============================================================ */
+
+function getTodayKey() {
+  const d = new Date();
+
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+/* ============================================================
+   GEO (IP → USER COUNTRY / CITY)
    ============================================================ */
 
 let GEO = null;
@@ -14,9 +45,9 @@ async function getGeo() {
     const data = await res.json();
 
     GEO = {
-      country: data.country_name,
-      country_code: data.country_code,
-      city: data.city
+      country: data.country_name || null,
+      country_code: data.country_code || null,
+      city: data.city || null
     };
 
     return GEO;
@@ -27,139 +58,168 @@ async function getGeo() {
 }
 
 /* ============================================================
-   SESSION START (AUTO)
+   IDENTITY MODEL
    ============================================================ */
 
-(function trackSessionStart() {
-  try {
-    let session = localStorage.getItem("wcl_session");
+function getOrCreateVisitorId() {
+  let visitorId = localStorage.getItem(VISITOR_KEY);
 
-    if (!session) {
-      session = crypto.randomUUID();
-      localStorage.setItem("wcl_session", session);
-
-      trackEvent("session_start", {
-        session_hash: session,
-        source: "direct"
-      });
-
-      console.log("🔥 SESSION START:", session);
-    }
-  } catch (err) {
-    console.error("Session tracking failed", err);
+  if (!visitorId) {
+    visitorId = crypto.randomUUID();
+    localStorage.setItem(VISITOR_KEY, visitorId);
   }
-})();
+
+  return visitorId;
+}
+
+function getOrCreateSessionId() {
+  const today = getTodayKey();
+
+  let sessionId = localStorage.getItem(SESSION_KEY);
+  const sessionDate = localStorage.getItem(SESSION_DATE_KEY);
+
+  if (!sessionId || sessionDate !== today) {
+    sessionId = crypto.randomUUID();
+
+    localStorage.setItem(SESSION_KEY, sessionId);
+    localStorage.setItem(SESSION_DATE_KEY, today);
+
+    /* legacy compatibility */
+    localStorage.setItem(LEGACY_SESSION_KEY, sessionId);
+  }
+
+  if (!localStorage.getItem(LEGACY_SESSION_KEY)) {
+    localStorage.setItem(LEGACY_SESSION_KEY, sessionId);
+  }
+
+  return sessionId;
+}
+
+function getIdentity() {
+  return {
+    visitor_id: getOrCreateVisitorId(),
+    session_id: getOrCreateSessionId(),
+    session_date: getTodayKey()
+  };
+}
 
 /* ============================================================
-   SESSION ID
+   SOURCE RESOLUTION
    ============================================================ */
 
-function getSessionId() {
-  let id = localStorage.getItem("wcl_session");
+function resolveSource(eventType, payload = {}) {
+  if (payload?.source) return payload.source;
+  if (window?.MODAL_SOURCE) return window.MODAL_SOURCE;
+  if (window?.CURRENT_SOURCE) return window.CURRENT_SOURCE;
 
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("wcl_session", id);
-  }
+  if (eventType === "store_view") return "map";
+  if (eventType === "store_opened") return "search";
 
-  return id;
+  return "direct";
 }
 
 /* ============================================================
    STORE VIEW DEDUPE
    ============================================================ */
 
-const VIEWED_STORES = new Set();
-
-function hasViewedStore(id) {
-  return VIEWED_STORES.has(id);
+function getViewedStoreKey() {
+  const sessionId = getOrCreateSessionId();
+  return `wcl_viewed_stores_${sessionId}`;
 }
 
-function markStoreViewed(id) {
-  VIEWED_STORES.add(id);
+function getViewedStores() {
+  try {
+    return new Set(
+      JSON.parse(
+        sessionStorage.getItem(getViewedStoreKey()) || "[]"
+      )
+    );
+  } catch {
+    return new Set();
+  }
+}
+
+function hasViewedStore(storeId) {
+  return getViewedStores().has(Number(storeId));
+}
+
+function markStoreViewed(storeId) {
+  const viewed = getViewedStores();
+  viewed.add(Number(storeId));
+
+  sessionStorage.setItem(
+    getViewedStoreKey(),
+    JSON.stringify([...viewed])
+  );
 }
 
 /* ============================================================
-   TRACK EVENT (CANONICAL)
+   PAYLOAD SANITIZER
+   ============================================================ */
+
+function getExtraPayload(payload = {}) {
+  const {
+    event_type,
+    visitor_id,
+    session_id,
+    session_hash,
+    session_date,
+    source,
+    user_country,
+    user_city,
+    store_country,
+    store_city,
+    ...extra
+  } = payload;
+
+  return extra;
+}
+
+/* ============================================================
+   TRACK EVENT
    ============================================================ */
 
 export async function trackEvent(eventType, payload = {}) {
-
   try {
+    if (!eventType) return;
 
-    // ------------------------------------------------------------
-    // STORE VIEW DEDUPE
-    // ------------------------------------------------------------
     if (eventType === "store_view" && payload.store_id) {
       if (hasViewedStore(payload.store_id)) return;
       markStoreViewed(payload.store_id);
     }
 
-    // ------------------------------------------------------------
-    // GEO
-    // ------------------------------------------------------------
+    const identity = getIdentity();
+
     let geo = GEO;
     if (!geo) geo = await getGeo();
 
-    // ------------------------------------------------------------
-    // SOURCE (STRICT — NO OVERRIDE)
-    // ------------------------------------------------------------
-    const resolvedSource =
-      payload?.source ??
-      window?.MODAL_SOURCE ??
-      window?.CURRENT_SOURCE ??
-      "direct";
+    const source = resolveSource(eventType, payload);
 
-    // ------------------------------------------------------------
-    // BUILD PAYLOAD
-    // ------------------------------------------------------------
-const finalPayload = {
-  event_type: eventType,
+    const finalPayload = {
+      event_type: eventType,
 
-  session_hash:
-    payload?.session_hash ||
-    localStorage.getItem("wcl_session") ||
-    getSessionId(),
+      visitor_id: identity.visitor_id,
+      session_id: identity.session_id,
+      session_hash: identity.session_id,
+      session_date: identity.session_date,
 
-  // 🔒 SOURCE (orörd)
-  source: (() => {
-    if (payload?.source) return payload.source;
-    if (window?.MODAL_SOURCE) return window.MODAL_SOURCE;
-    if (window?.CURRENT_SOURCE) return window.CURRENT_SOURCE;
+      source,
 
-    if (eventType === "store_view") return "map";
-    if (eventType === "store_opened") return "search";
+      store_country: payload?.country || payload?.store_country || null,
+      store_city: payload?.city || payload?.store_city || null,
 
-    return "direct";
-  })(),
+      user_country: geo?.country || null,
+      user_city: geo?.city || null,
 
-  // 🔥 STORE GEO (från payload)
-  store_country: payload?.country || null,
-  store_city: payload?.city || null,
+      ...getExtraPayload(payload)
+    };
 
-  // 🔥 USER GEO (från IP)
-  user_country: geo?.country || null,
-  user_city: geo?.city || null,
+    console.log(
+      "🚀 ANALYTICS PAYLOAD:",
+      JSON.stringify(finalPayload, null, 2)
+    );
 
-  // resten av payload (utan att skriva över ovan)
-  ...payload
-};
-
-    // ------------------------------------------------------------
-    // ENDPOINT
-    // ------------------------------------------------------------
-    const endpoint =
-      "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/functions/v1/analytics-ingest";
-
-    // ------------------------------------------------------------
-    // DEBUG
-    // ------------------------------------------------------------
-    console.log("🚀 ANALYTICS PAYLOAD:", JSON.stringify(finalPayload, null, 2));
-
-    // ------------------------------------------------------------
-    // SEND
-    // ------------------------------------------------------------
-    const res = await fetch(endpoint, {
+    const res = await fetch(ANALYTICS_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -171,11 +231,42 @@ const finalPayload = {
 
     if (!res.ok) {
       console.error("❌ ANALYTICS ERROR:", res.status, text);
-    } else {
-      console.log("✅ ANALYTICS SENT");
+      return;
     }
+
+    console.log("✅ ANALYTICS SENT");
 
   } catch (err) {
     console.error("💥 ANALYTICS CRASH:", err);
   }
 }
+
+/* ============================================================
+   SESSION START
+   ============================================================ */
+
+(function trackSessionStart() {
+  try {
+    const today = getTodayKey();
+    const previousTrackedDate =
+      localStorage.getItem("wcl_session_start_tracked_date");
+
+    getIdentity();
+
+    if (previousTrackedDate === today) return;
+
+    localStorage.setItem(
+      "wcl_session_start_tracked_date",
+      today
+    );
+
+    trackEvent("session_start", {
+      source: "direct"
+    });
+
+    console.log("🔥 SESSION START TRACKED:", today);
+
+  } catch (err) {
+    console.error("Session tracking failed", err);
+  }
+})();
