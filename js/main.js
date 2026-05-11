@@ -136,29 +136,35 @@ async function syncAuthGate() {
   // LOGGED IN
   // ============================================================
 
-  document.body.classList.remove(
-    "auth-locked"
+  // ============================================================
+// LOGGED IN
+// ============================================================
+
+document.body.classList.remove(
+  "auth-locked"
+);
+
+if (popup) {
+
+  popup.classList.add(
+    "hidden"
   );
 
-  if (popup) {
+  popup.style.display =
+    "none";
 
-    popup.classList.add(
-      "hidden"
-    );
+}
 
-    popup.style.display =
-      "none";
+if (loginBtn) {
 
-  }
+  loginBtn.textContent =
+    t("logout", "Logout");
 
-  if (loginBtn) {
+}
 
-    loginBtn.textContent =
-      t("logout", "Logout");
+if (authStatus) {
 
-  }
-
-  if (authStatus) {
+  try {
 
     const { data: profile } =
       await supabase
@@ -171,10 +177,20 @@ async function syncAuthGate() {
         .single();
 
     authStatus.textContent =
-      `${t("welcome", "Welcome")}: ${
+      `${
         profile?.display_name ||
         session.user.email
       }`;
+
+  } catch (err) {
+
+    console.error(
+      "AUTH STATUS ERROR",
+      err
+    );
+
+    authStatus.textContent =
+      session.user.email || "";
 
   }
 
