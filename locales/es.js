@@ -151,9 +151,6 @@ export default {
   cookie_message:
     "Usamos cookies esenciales y análisis limitados para mejorar tu experiencia y mantener la seguridad de la plataforma. Al continuar usando este sitio, aceptas nuestra Política de privacidad.",
 
-lounge: "Lounge",
-
-   stores: "Tiendas",
    
   /* ================= MODAL ================= */
 
