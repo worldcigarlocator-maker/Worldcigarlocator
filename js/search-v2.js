@@ -338,9 +338,13 @@ clearBtn?.addEventListener("click", () => {
     if (label === "Stores") toggleChip({ type: "store" });
     if (label === "Lounge") toggleChip({ type: "lounge" });
     if (label === "Members") toggleChip({ access: "members" });
-    if (label === "Top Rated") setSort("rating_desc");
+    if (label === "Top Rated") {
+  setSort("rating_desc");
+}
 
-    activateSearch({ text: input.value.trim() });
+if (label === "Most Saved") {
+  setSort("favorites_desc");
+}
 
     mobileFilters.classList.remove("open");
     filterBtnMobile.classList.remove("active");
