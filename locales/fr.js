@@ -121,7 +121,7 @@ members: "Membres",
 top_rated:
 "Les mieux notés",
 
-newest: "Les plus récents",
+most_saved: "Les plus enregistrés",
 
 map_view:
 "Vue carte",
