@@ -103,42 +103,100 @@
   </div>
 
 <!-- LOGIN POPUP -->
-<div id="loginPopup" class="login-popup hidden" style="display: none;">
+<div
+  id="loginPopup"
+  class="login-popup hidden"
+  style="display: none;"
+>
+
   <div class="login-box">
 
-    <h1 class="login-title">World Cigar Locator</h1>
-    <p class="login-sub">Our global humidor opens soon</p>
+    <h1 class="login-title">
+      World Cigar Locator
+    </h1>
 
-    <input id="loginEmail" type="email" placeholder="Email" autocomplete="username">
-    <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password">
+    <p
+      class="login-sub"
+      data-i18n="global_humidor_opens_soon"
+    >
+      Our global humidor opens soon
+    </p>
+
+    <input
+      id="loginEmail"
+      type="email"
+      placeholder="Email"
+      autocomplete="username"
+      data-i18n-placeholder="email"
+    >
+
+    <input
+      id="loginPassword"
+      type="password"
+      placeholder="Password"
+      autocomplete="current-password"
+      data-i18n-placeholder="password"
+    >
 
     <label class="remember">
-      <input type="checkbox" id="rememberMe">
-      Remember me
+
+      <input
+        type="checkbox"
+        id="rememberMe"
+      >
+
+      <span data-i18n="remember_me">
+        Remember me
+      </span>
+
     </label>
 
-    <button id="loginSubmit">
-      <span class="login-text">Login</span>
-      <span id="loginSpinner" class="hidden">⏳</span>
+    <button
+      id="loginSubmit"
+      data-i18n="login"
+    >
+
+      <span class="login-text">
+        Login
+      </span>
+
+      <span
+        id="loginSpinner"
+        class="hidden"
+      >
+        ⏳
+      </span>
+
     </button>
 
     <div class="auth-actions">
-      <button id="signupSubmit">
+
+      <button
+        id="signupSubmit"
+        data-i18n="create_new_account"
+      >
         Create A New Account
       </button>
 
-      <button id="resetSubmit">
+      <button
+        id="resetSubmit"
+        data-i18n="reset_password"
+      >
         Reset Password
       </button>
+
     </div>
 
     <!-- 🔥 AUTH MESSAGE -->
-    <div id="authMessage" class="auth-message"></div>
 
-  </div> <!-- login-box -->
-</div> <!-- loginPopup -->
-    </div> <!-- login-box -->
-  </div> <!-- 🔥 loginPopup -->
+    <div
+      id="authMessage"
+      class="auth-message"
+    ></div>
+
+  </div>
+
+</div>
 
   <!-- APP -->
   <div class="container">
@@ -174,22 +232,40 @@
   </header>
 
   <!-- ============================================================
-       ACTIONS (PILLS + USER)
-  ============================================================ -->
-  <div class="sidebar-section sidebar-actions-wrap">
+     ACTIONS (PILLS + USER)
+============================================================ -->
 
-    <div class="sidebar-actions">
-      <button class="sidebar-btn" id="loginBtn">Login</button>
-      <button class="sidebar-btn primary" onclick="location.href='add-store.html'">
-        Add Listing
-      </button>
-    </div>
+<div class="sidebar-section sidebar-actions-wrap">
 
-    <div class="sidebar-user">
-      <span id="authStatus" class="auth-status"></span>
-    </div>
+  <div class="sidebar-actions">
+
+    <button
+      class="sidebar-btn"
+      id="loginBtn"
+      data-i18n="login"
+    >
+      Login
+    </button>
+
+    <button
+      class="sidebar-btn primary"
+      onclick="location.href='add-store.html'"
+      data-i18n="add_listing"
+    >
+      Add Listing
+    </button>
 
   </div>
+
+  <div class="sidebar-user">
+    <span
+      id="authStatus"
+      class="auth-status"
+    ></span>
+  </div>
+
+</div>
+
 
   <!-- ============================================================
      NAV (SCROLL ONLY)
@@ -198,42 +274,58 @@
   <div id="sidebarMenu"></div>
 </div>
 
-
 <!-- ============================================================
      FOOTER (LOCKED BOTTOM)
 ============================================================ -->
+
 <footer class="sidebar-footer">
 
-  <a href="about.html">
+  <a
+    href="about.html"
+    data-i18n="about"
+  >
     About
   </a>
 
-  <a href="report.html">
+  <a
+    href="report.html"
+    data-i18n="report_listing"
+  >
     Report a Listing
   </a>
 
-  <a href="legal.html">
+  <a
+    href="legal.html"
+    data-i18n="legal"
+  >
     Legal
   </a>
 
-  <a href="privacy.html">
+  <a
+    href="privacy.html"
+    data-i18n="privacy_policy"
+  >
     Privacy Policy
   </a>
 
   <a
-   href="account.html"
+    href="account.html"
+    data-i18n="manage_my_account"
   >
     Manage My Account
   </a>
 
-  <a href="mailto:support@worldcigarlocator.com">
+  <a
+    href="mailto:support@worldcigarlocator.com"
+    data-i18n="contact_support"
+  >
     Contact / Support
   </a>
 
 </footer>
 
-      </aside>
-      
+</aside>
+
    <!-- ============================================================
       MAIN
   ============================================================ -->
@@ -245,61 +337,137 @@
       <div id="searchPanel" class="search-panel">
         <div class="search-capsule">
 
-   <div class="search-zone zone-search" id="searchZone">
-  <span class="search-label">Search</span>
+<div
+  class="search-zone zone-search"
+  id="searchZone"
+>
+
+  <span
+    class="search-label"
+    data-i18n="search"
+  >
+    Search
+  </span>
 
   <input
     id="searchInput"
     type="text"
     placeholder="Search by name, city or address"
     autocomplete="off"
+    data-i18n-placeholder="search_by_name_city_address"
   >
 
-     <!-- ============================================================
-   MOBILE SEARCH BUTTON
+  <!-- ============================================================
+       MOBILE SEARCH BUTTON
   ============================================================ -->
- 
-<button id="searchSubmitMobileNew" class="search-submit-mobile" aria-label="Search">
 
-  <svg viewBox="0 0 140 140" aria-hidden="true">
-    <circle cx="60" cy="60" r="44" class="ink"/>
-    <line x1="92" y1="92" x2="130" y2="130" class="ink"/>
-  </svg>
+  <button
+    id="searchSubmitMobileNew"
+    class="search-submit-mobile"
+    aria-label="Search"
+    data-i18n-aria="search"
+  >
 
-</button>
+    <svg viewBox="0 0 140 140" aria-hidden="true">
+      <circle cx="60" cy="60" r="44" class="ink"/>
+      <line x1="92" y1="92" x2="130" y2="130" class="ink"/>
+    </svg>
+
+  </button>
+
 </div>
 
-          <div class="zone-divider"></div>
+<div class="zone-divider"></div>
 
-          <div class="search-zone zone-filters" id="searchControls">
-            <button class="control-btn" data-filter="type" data-value="store">Stores</button>
-            <button class="control-btn" data-filter="type" data-value="lounge">Lounge</button>
-            <button class="control-btn" data-filter="access" data-value="members">Members</button>
+          <div
+  class="search-zone zone-filters"
+  id="searchControls"
+>
 
-            <button class="control-btn sort-btn" data-sort="rating_desc">Top Rated</button>
-            <button class="control-btn sort-btn" data-sort="newest">Newest</button>
-          </div>
+  <button
+    class="control-btn"
+    data-filter="type"
+    data-value="store"
+    data-i18n="stores"
+  >
+    Stores
+  </button>
 
-          <div class="zone-divider"></div>
+<button
+  class="control-btn"
+  data-filter="type"
+  data-value="lounge"
+  data-i18n="lounge"
+>
+  Lounge
+</button>
+
+  <button
+    class="control-btn"
+    data-filter="access"
+    data-value="members"
+    data-i18n="members"
+  >
+    Members
+  </button>
+
+  <button
+    class="control-btn sort-btn"
+    data-sort="rating_desc"
+    data-i18n="top_rated"
+  >
+    Top Rated
+  </button>
+
+  <button
+    class="control-btn sort-btn"
+    data-sort="newest"
+    data-i18n="newest"
+  >
+    Newest
+  </button>
+
+</div>
+
+<div class="zone-divider"></div>
 
           <div class="search-zone zone-map">
-            <button class="map-btn" id="mapViewBtn" aria-label="Map view" title="Map view">
-              Map View
-            </button>
-          </div>
 
-          <div class="zone-divider"></div>
+  <button
+    class="map-btn"
+    id="mapViewBtn"
+    aria-label="Map view"
+    title="Map view"
+    data-i18n="map_view"
+    data-i18n-aria="map_view"
+  >
+    Map View
+  </button>
 
-          <div class="search-zone zone-clear">
-            <button class="clear-btn" id="clearBtn" aria-label="Clear search">
-              Clear
-            </button>
-          </div>
+</div>
 
-        </div>
+<div class="zone-divider"></div>
+          
+<div class="search-zone zone-clear">
+
+  <button
+    class="clear-btn"
+    id="clearBtn"
+    aria-label="Clear search"
+    data-i18n="clear"
+    data-i18n-aria="clear"
+  >
+    Clear
+  </button>
+
+</div>
+
+</div>
+          
       </div>
 
 <!-- 🔥 MOBILE SEARCH (ISOLATED) -->
+
 <div class="mobile-search">
 
   <div class="mobile-search-input-wrap">
@@ -309,13 +477,21 @@
       type="text"
       placeholder="Search by name, city or address"
       autocomplete="off"
+      data-i18n-placeholder="search_by_name_city_address"
     >
 
-    <button id="searchSubmitMobile" class="search-submit-mobile" aria-label="Search">
+    <button
+      id="searchSubmitMobile"
+      class="search-submit-mobile"
+      aria-label="Search"
+      data-i18n-aria="search"
+    >
+
       <svg viewBox="0 0 140 140" aria-hidden="true">
         <circle cx="60" cy="60" r="44" class="ink"/>
         <line x1="92" y1="92" x2="130" y2="130" class="ink"/>
       </svg>
+
     </button>
 
   </div>
@@ -323,17 +499,36 @@
 </div>
 
 <!-- 🔥 MOBILE ACTIONS -->
+
 <div class="mobile-actions">
 
-  <button class="filter-btn" id="filterBtnMobile" aria-label="Open filters">
+  <button
+    class="filter-btn"
+    id="filterBtnMobile"
+    aria-label="Open filters"
+    data-i18n="filter"
+    data-i18n-aria="filter"
+  >
     Filter
   </button>
 
-  <button class="map-btn" id="mapViewBtnMobile" aria-label="Map view">
+  <button
+    class="map-btn"
+    id="mapViewBtnMobile"
+    aria-label="Map view"
+    data-i18n="map"
+    data-i18n-aria="map"
+  >
     Map
   </button>
 
-  <button class="clear-btn" id="clearBtnMobile" aria-label="Clear search">
+  <button
+    class="clear-btn"
+    id="clearBtnMobile"
+    aria-label="Clear search"
+    data-i18n="clear"
+    data-i18n-aria="clear"
+  >
     Clear
   </button>
 
@@ -352,17 +547,31 @@
 
       <section id="mapView"></section>
 
-      <div id="cookieBanner" class="cookie-banner">
-        <div class="cookie-inner">
-          <div class="cookie-text">
-            We use essential cookies and limited analytics to improve your experience and maintain platform security.
-            By continuing to use this site, you agree to our
-            <a href="privacy.html">Privacy Policy</a>.
-          </div>
+ <div id="cookieBanner" class="cookie-banner">
 
-          <button id="cookieOkBtn" type="button" class="cookie-btn">OK</button>
-        </div>
-      </div>
+  <div class="cookie-inner">
+
+    <div
+      class="cookie-text"
+      data-i18n="cookie_message"
+    >
+      We use essential cookies and limited analytics to improve your experience and maintain platform security.
+      By continuing to use this site, you agree to our
+      Privacy Policy.
+    </div>
+
+    <button
+      id="cookieOkBtn"
+      type="button"
+      class="cookie-btn"
+      data-i18n="ok"
+    >
+      OK
+    </button>
+
+  </div>
+
+</div>
     </main>
 
   </div>
@@ -375,12 +584,14 @@
     <div class="modal-content">
    <div class="modal-top-actions">
 
-  <button
-    id="modalFavoriteBtn"
-    class="modal-favorite-btn"
-    type="button"
-    aria-label="Favorite"
-  >
+<button
+  id="modalFavoriteBtn"
+  class="modal-favorite-btn"
+  type="button"
+  aria-label="Favorite"
+  data-i18n-aria="favorite"
+>
+  
     <svg
       viewBox="0 0 24 24"
       fill="none"
@@ -392,11 +603,12 @@
     </svg>
   </button>
 
-  <button
-    class="modal-close"
-    type="button"
-    aria-label="Close"
-  >
+<button
+  class="modal-close"
+  type="button"
+  aria-label="Close"
+  data-i18n-aria="close"
+>
     ✕
   </button>
 
@@ -416,81 +628,214 @@
         <div id="modalBadges" class="modal-badges"></div>
 
         <div class="modal-info">
-          <p><strong>Address:</strong> <span id="modalAddress"></span></p>
-          <p><strong>Phone:</strong> <span id="modalPhone"></span></p>
 
-          <p>
-            <a id="modalWebsite" href="#" target="_blank" rel="noopener">
-              Visit website
-            </a>
-          </p>
+  <p>
+    <strong data-i18n="address">
+      Address:
+    </strong>
 
-          <p>
-            <a id="modalDirections" href="#" target="_blank" rel="noopener">
-              Directions
-            </a>
-          </p>
-        </div>
+    <span id="modalAddress"></span>
+  </p>
 
-        <div class="modal-rating">
-          <h3>Your rating</h3>
+  <p>
+    <strong data-i18n="phone">
+      Phone:
+    </strong>
 
-          <div id="modalStarPicker" class="star-picker">
-            <span data-val="1">☆</span>
-            <span data-val="2">☆</span>
-            <span data-val="3">☆</span>
-            <span data-val="4">☆</span>
-            <span data-val="5">☆</span>
-          </div>
+    <span id="modalPhone"></span>
+  </p>
 
-          <button id="modalSendRating">Submit rating</button>
-        </div>
+  <p>
 
+    <a
+      id="modalWebsite"
+      href="#"
+      target="_blank"
+      rel="noopener"
+      data-i18n="visit_website"
+    >
+      Visit website
+    </a>
+
+  </p>
+
+  <p>
+
+    <a
+      id="modalDirections"
+      href="#"
+      target="_blank"
+      rel="noopener"
+      data-i18n="directions"
+    >
+      Directions
+    </a>
+
+  </p>
+
+</div>
+
+<div class="modal-rating">
+
+  <h3 data-i18n="your_rating">
+    Your rating
+  </h3>
+
+  <div
+    id="modalStarPicker"
+    class="star-picker"
+  >
+    <span data-val="1">☆</span>
+    <span data-val="2">☆</span>
+    <span data-val="3">☆</span>
+    <span data-val="4">☆</span>
+    <span data-val="5">☆</span>
+  </div>
+
+  <button
+    id="modalSendRating"
+    data-i18n="submit_rating"
+  >
+    Submit rating
+  </button>
+
+</div>
         <div class="modal-comments">
-          <div class="modal-comments-header">
-            <span id="modalCommentCount" class="modal-count-pill">
-              Comments 0
-            </span>
-          </div>
 
-          <textarea
-            id="modalCommentInput"
-            placeholder="Write a comment…"
-          ></textarea>
+  <div class="modal-comments-header">
 
-          <button id="modalSendComment">Post comment</button>
+    <span
+      id="modalCommentCount"
+      class="modal-count-pill"
+      data-i18n="comments_count"
+    >
+      Comments
+    </span>
 
-          <div id="modalComments" class="modal-comments-feed"></div>
-        </div>
+  </div>
 
-        <!-- REPORT SECTION -->
-        <div id="modalReportSection" class="modal-report-section hidden">
-          <h3 class="modal-report-title">Report an issue</h3>
+  <textarea
+    id="modalCommentInput"
+    placeholder="Write a comment…"
+    data-i18n-placeholder="write_comment"
+  ></textarea>
 
-          <div id="modalReportChips" class="modal-report-chips">
-            <button class="report-chip" data-type="no_longer_sells">Don’t sell cigars</button>
-            <button class="report-chip" data-type="no_smoking_allowed">Not allowed to smoke</button>
-            <button class="report-chip" data-type="membership_policy_wrong">Membership policy wrong</button>
-            <button class="report-chip" data-type="wrong_address">Wrong address</button>
-            <button class="report-chip" data-type="permanently_closed">Permanently closed</button>
-            <button class="report-chip" data-type="duplicate">Duplicate</button>
-            <button class="report-chip" data-type="other">Other</button>
-          </div>
+  <button
+    id="modalSendComment"
+    data-i18n="post_comment"
+  >
+    Post comment
+  </button>
 
-          <textarea
-            id="modalReportMessage"
-            class="modal-report-textarea hidden"
-            placeholder="Describe the issue..."
-          ></textarea>
+  <div
+    id="modalComments"
+    class="modal-comments-feed"
+  ></div>
 
-          <button id="modalSubmitReport" class="modal-submit-report" disabled>
-            Submit report
-          </button>
+</div>
 
-          <div id="modalReportSuccess" class="modal-report-success hidden">
-            Thank you for helping us keep World Cigar Locator accurate and up to date.
-          </div>
-        </div>
+      <!-- REPORT SECTION -->
+
+<div
+  id="modalReportSection"
+  class="modal-report-section hidden"
+>
+
+  <h3
+    class="modal-report-title"
+    data-i18n="report_issue"
+  >
+    Report an issue
+  </h3>
+
+  <div
+    id="modalReportChips"
+    class="modal-report-chips"
+  >
+
+    <button
+      class="report-chip"
+      data-type="no_longer_sells"
+      data-i18n="dont_sell_cigars"
+    >
+      Don’t sell cigars
+    </button>
+
+    <button
+      class="report-chip"
+      data-type="no_smoking_allowed"
+      data-i18n="not_allowed_to_smoke"
+    >
+      Not allowed to smoke
+    </button>
+
+    <button
+      class="report-chip"
+      data-type="membership_policy_wrong"
+      data-i18n="membership_policy_wrong"
+    >
+      Membership policy wrong
+    </button>
+
+    <button
+      class="report-chip"
+      data-type="wrong_address"
+      data-i18n="wrong_address"
+    >
+      Wrong address
+    </button>
+
+    <button
+      class="report-chip"
+      data-type="permanently_closed"
+      data-i18n="permanently_closed"
+    >
+      Permanently closed
+    </button>
+
+    <button
+      class="report-chip"
+      data-type="duplicate"
+      data-i18n="duplicate"
+    >
+      Duplicate
+    </button>
+
+    <button
+      class="report-chip"
+      data-type="other"
+      data-i18n="other"
+    >
+      Other
+    </button>
+
+  </div>
+
+  <textarea
+    id="modalReportMessage"
+    class="modal-report-textarea hidden"
+    placeholder="Describe the issue..."
+    data-i18n-placeholder="describe_issue"
+  ></textarea>
+
+  <button
+    id="modalSubmitReport"
+    class="modal-submit-report"
+    disabled
+    data-i18n="submit_report"
+  >
+    Submit report
+  </button>
+
+  <div
+    id="modalReportSuccess"
+    class="modal-report-success hidden"
+    data-i18n="report_success"
+  >
+    Thank you for helping us keep World Cigar Locator accurate and up to date.
+  </div>
+
+</div>
 
       </div>
     </div>
