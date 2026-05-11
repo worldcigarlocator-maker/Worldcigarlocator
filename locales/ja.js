@@ -121,7 +121,7 @@ export default {
   top_rated:
     "高評価",
 
-  newest: "最新",
+most_saved: "最も保存済み",
 
   map_view:
     "地図表示",
