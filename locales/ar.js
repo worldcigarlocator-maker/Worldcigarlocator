@@ -121,7 +121,7 @@ export default {
   top_rated:
     "الأعلى تقييمًا",
 
-  newest: "الأحدث",
+ most_saved: "الأكثر حفظًا",
 
   map_view:
     "عرض الخريطة",
