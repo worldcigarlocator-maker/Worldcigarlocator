@@ -866,10 +866,17 @@ addBtn?.addEventListener(
 // AUTH LISTENER (sync gate only; never rebuild sidebar)
 // ------------------------------------------------------------
 
-supabase.auth.onAuthStateChange(
+window.addEventListener(
+  "load",
   () => {
 
-    syncAuthGate();
+    supabase.auth.onAuthStateChange(
+      () => {
+
+        syncAuthGate();
+
+      }
+    );
 
   }
 );
