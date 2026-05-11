@@ -121,7 +121,7 @@ export default {
   top_rated:
     "最高评分",
 
-  newest: "最新",
+most_saved: "最多收藏",
 
   map_view:
     "地图视图",
