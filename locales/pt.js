@@ -121,7 +121,7 @@ export default {
   top_rated:
     "Mais bem avaliados",
 
-  newest: "Mais recentes",
+most_saved: "Mais salvos",
 
   map_view:
     "Visualização do mapa",
