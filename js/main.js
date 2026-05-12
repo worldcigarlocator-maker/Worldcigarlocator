@@ -391,63 +391,70 @@ submit?.addEventListener(
 
     }
 
-    const { error } =
-      await supabase.auth
-        .signInWithPassword({
-          email,
-          password: pass,
-        });
+    const {
+  data,
+  error
+} =
+  await supabase.auth
+    .signInWithPassword({
+      email,
+      password: pass,
+    });
 
-    if (error) {
+if (error) {
 
-      setMessage(
-        error.message,
-        "error"
-      );
+  setMessage(
+    error.message,
+    "error"
+  );
 
-      submit.disabled = false;
+  submit.disabled = false;
 
-      spinner?.classList.add(
-        "hidden"
-      );
+  spinner?.classList.add(
+    "hidden"
+  );
 
-      if (label) {
+  if (label) {
 
-        label.textContent =
-          t("login", "Login");
+    label.textContent =
+      t("login", "Login");
 
-      }
+  }
 
-      return;
+  return;
 
-    }
+}
 
-    // 🔥 TRACK LOGIN (HÄR!)
+// 🔥 force session persist
+await supabase.auth.getSession();
 
-    await trackEvent(
-      "user_login",
-      {
-        email: email,
-        country:
-          window.WCL_GEO
-            ?.country || null
-      }
-    );
+// 🔥 TRACK LOGIN
+await trackEvent(
+  "user_login",
+  {
+    email: email,
+    country:
+      window.WCL_GEO
+        ?.country || null
+  }
+);
 
-    submit.disabled = false;
+submit.disabled = false;
 
-    spinner?.classList.add(
-      "hidden"
-    );
+spinner?.classList.add(
+  "hidden"
+);
 
-    if (label) {
+if (label) {
 
-      label.textContent =
-        t("login", "Login");
+  label.textContent =
+    t("login", "Login");
 
-    }
+}
 
-    hideLoginPopup();
+hideLoginPopup();
+
+await syncAuthGate();
 
   }
 );
