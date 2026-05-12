@@ -198,9 +198,39 @@ export async function renderMarketV2(days = 30) {
   /* ============================================================
   CITY
   ============================================================ */
-  if (MARKET_STATE.level === "city") {
+if (
+  MARKET_STATE.level === "city" ||
+  MARKET_STATE.level === "member_city"
+) {
+  let data = null;
+  let error = null;
 
-    const { data, error } = await sb.rpc(
+  /* ============================================================
+     MEMBERS CITY
+     ============================================================ */
+
+if (MARKET_STATE.level === "member_city") {
+
+    const res = await sb.rpc(
+      "analytics_member_cities",
+      {
+        p_day: getActiveDay(),
+        p_country: MARKET_STATE.country
+      }
+    );
+
+    data = res.data;
+    error = res.error;
+
+  }
+
+  /* ============================================================
+     MARKET CITY
+     ============================================================ */
+
+  else {
+
+    const res = await sb.rpc(
       "analytics_top_cities",
       {
         p_days: days,
@@ -209,36 +239,42 @@ export async function renderMarketV2(days = 30) {
       }
     );
 
-    if (error) return console.error(error);
+    data = res.data;
+    error = res.error;
 
-    tbody.innerHTML = (data || []).map(c => {
+  }
 
-      const { label: ctr, cls } = getCtrMeta(c.views, c.clicks);
+  if (error) return console.error(error);
 
-      return `
+  tbody.innerHTML = (data || []).map(c => {
+
+    const { label: ctr, cls } =
+      getCtrMeta(c.views, c.clicks);
+
+    return `
 <tr data-city="${c.city}">
   <td>${c.city}</td>
   <td class="num">${c.views || 0}</td>
   <td class="num">${c.clicks || 0}</td>
   <td class="num ${cls}">${ctr}</td>
 </tr>`;
-    }).join("");
 
-    bindRows(days);
+  }).join("");
 
-    window.WCL_MARKET_DATA = data;
+  bindRows(days);
 
-    if (window.renderMarketChart) {
-      window.renderMarketChart(
-        data,
-        MARKET_STATE.sort,
-        MARKET_STATE.chartType
-      );
-    }
+  window.WCL_MARKET_DATA = data;
 
-    return;
+  if (window.renderMarketChart) {
+    window.renderMarketChart(
+      data,
+      MARKET_STATE.sort,
+      MARKET_STATE.chartType
+    );
   }
 
+  return;
+}
   /* ============================================================
   STORE
   ============================================================ */
