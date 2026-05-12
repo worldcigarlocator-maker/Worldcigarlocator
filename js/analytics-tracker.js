@@ -241,7 +241,10 @@ export async function trackEvent(eventType, payload = {}) {
     /* ============================================================
        SOURCE
        ============================================================ */
-
+console.log(
+  "AUTH USER DEBUG",
+  authUser
+);
     const source =
       resolveSource(eventType, payload);
 
