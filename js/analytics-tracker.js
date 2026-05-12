@@ -225,13 +225,13 @@ export async function trackEvent(eventType, payload = {}) {
 
     try {
 
-      if (window?.supabase?.auth?.getUser) {
+  if (supabase?.auth?.getUser) {
 
-        const { data } =
-          await window.supabase.auth.getUser();
+  const { data } =
+    await supabase.auth.getUser();
 
-        authUser = data?.user || null;
-      }
+  authUser = data?.user || null;
+}
 
     } catch (err) {
 
