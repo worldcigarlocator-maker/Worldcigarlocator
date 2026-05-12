@@ -451,10 +451,9 @@
 
 /* ============================================================
    AUTH LOCK
-   Hide login button while auth overlay active
    ============================================================ */
 
-body.auth-locked .sidebar-actions #loginBtn{
+body.auth-locked .sidebar-actions .primary{
   display:none;
 }
 
