@@ -39,12 +39,16 @@ STATE
 
 const MARKET_STATE = {
   level: "country",
+
   country: null,
   city: null,
   store: null,
+  user: null,
+
   sort: "views",
   chartType: "bar"
 };
+
 
 /* ============================================================
 DOM
@@ -110,6 +114,22 @@ if (
   return;
 }
 
+      // ============================================================
+// MEMBER USER → TIMELINE
+// ============================================================
+
+if (MARKET_STATE.level === "member_user") {
+
+  const userId = row.dataset.user;
+  if (!userId) return;
+
+  MARKET_STATE.user = userId;
+  MARKET_STATE.level = "member_timeline";
+
+  await renderMarketV2(days);
+  return;
+}
+      
       // ============================================================
       // STORE → TRAFFIC
       // ============================================================
@@ -292,6 +312,75 @@ if (MARKET_STATE.level === "member_city") {
 
   return;
 }
+
+  /* ============================================================
+MEMBER USER
+============================================================ */
+
+if (MARKET_STATE.level === "member_user") {
+
+  const { data, error } = await sb.rpc(
+    "analytics_members_by_city",
+    {
+      p_day: getActiveDay(),
+      p_country: MARKET_STATE.country,
+      p_city: MARKET_STATE.city
+    }
+  );
+
+  if (error) return console.error(error);
+
+  tbody.innerHTML = (data || []).map(u => {
+
+    return `
+<tr data-user="${u.user_id}">
+  <td>${u.display_name || u.email || "Unknown"}</td>
+  <td>${u.email || "-"}</td>
+  <td class="num">${u.total_logins || 0}</td>
+  <td>${u.language || "-"}</td>
+</tr>`;
+
+  }).join("");
+
+  bindRows(days);
+
+  window.WCL_MARKET_DATA = data;
+
+  return;
+}
+
+  /* ============================================================
+MEMBER TIMELINE
+============================================================ */
+
+if (MARKET_STATE.level === "member_timeline") {
+
+  const { data, error } = await sb.rpc(
+    "analytics_member_timeline",
+    {
+      p_user_id: MARKET_STATE.user
+    }
+  );
+
+  if (error) return console.error(error);
+
+  tbody.innerHTML = (data || []).map(e => {
+
+    return `
+<tr>
+  <td>${e.event_time || "-"}</td>
+  <td>${e.event_type || "-"}</td>
+  <td>${e.source || "-"}</td>
+  <td>${e.store_country || "-"}</td>
+</tr>`;
+
+  }).join("");
+
+  window.WCL_MARKET_DATA = data;
+
+  return;
+}
+  
   /* ============================================================
   STORE
   ============================================================ */
