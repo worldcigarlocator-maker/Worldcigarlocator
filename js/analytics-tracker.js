@@ -180,22 +180,72 @@ function getExtraPayload(payload = {}) {
    ============================================================ */
 
 export async function trackEvent(eventType, payload = {}) {
+
   try {
+
     if (!eventType) return;
 
+    /* ============================================================
+       DEDUPE
+       ============================================================ */
+
     if (eventType === "store_view" && payload.store_id) {
+
       if (hasViewedStore(payload.store_id)) return;
+
       markStoreViewed(payload.store_id);
     }
 
+    /* ============================================================
+       IDENTITY
+       ============================================================ */
+
     const identity = getIdentity();
 
-    let geo = GEO;
-    if (!geo) geo = await getGeo();
+    /* ============================================================
+       GEO
+       ============================================================ */
 
-    const source = resolveSource(eventType, payload);
+    let geo = GEO;
+
+    if (!geo) {
+      geo = await getGeo();
+    }
+
+    /* ============================================================
+       AUTH USER
+       ============================================================ */
+
+    let authUser = null;
+
+    try {
+
+      if (window?.supabase?.auth?.getUser) {
+
+        const { data } =
+          await window.supabase.auth.getUser();
+
+        authUser = data?.user || null;
+      }
+
+    } catch (err) {
+
+      console.warn("AUTH USER LOAD FAILED", err);
+    }
+
+    /* ============================================================
+       SOURCE
+       ============================================================ */
+
+    const source =
+      resolveSource(eventType, payload);
+
+    /* ============================================================
+       FINAL PAYLOAD
+       ============================================================ */
 
     const finalPayload = {
+
       event_type: eventType,
 
       visitor_id: identity.visitor_id,
@@ -205,39 +255,100 @@ export async function trackEvent(eventType, payload = {}) {
 
       source,
 
-      store_country: payload?.country || payload?.store_country || null,
-      store_city: payload?.city || payload?.store_city || null,
+      /* ============================================================
+         AUTH
+         ============================================================ */
 
-      user_country: geo?.country || null,
-      user_city: geo?.city || null,
+      user_id: authUser?.id || null,
+
+      email:
+        authUser?.email ||
+        payload?.email ||
+        null,
+
+      display_name:
+        authUser?.user_metadata?.display_name ||
+        payload?.display_name ||
+        null,
+
+      /* ============================================================
+         STORE
+         ============================================================ */
+
+      store_country:
+        payload?.country ||
+        payload?.store_country ||
+        null,
+
+      store_city:
+        payload?.city ||
+        payload?.store_city ||
+        null,
+
+      /* ============================================================
+         GEO
+         ============================================================ */
+
+      user_country:
+        geo?.country || null,
+
+      user_city:
+        geo?.city || null,
+
+      /* ============================================================
+         EXTRA
+         ============================================================ */
 
       ...getExtraPayload(payload)
     };
+
+    /* ============================================================
+       DEBUG
+       ============================================================ */
 
     console.log(
       "🚀 ANALYTICS PAYLOAD:",
       JSON.stringify(finalPayload, null, 2)
     );
 
-    const res = await fetch(ANALYTICS_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(finalPayload)
-    });
+    /* ============================================================
+       SEND
+       ============================================================ */
+
+    const res = await fetch(
+      ANALYTICS_ENDPOINT,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(finalPayload)
+      }
+    );
 
     const text = await res.text();
 
     if (!res.ok) {
-      console.error("❌ ANALYTICS ERROR:", res.status, text);
+
+      console.error(
+        "❌ ANALYTICS ERROR:",
+        res.status,
+        text
+      );
+
       return;
     }
 
     console.log("✅ ANALYTICS SENT");
 
   } catch (err) {
-    console.error("💥 ANALYTICS CRASH:", err);
+
+    console.error(
+      "💥 ANALYTICS CRASH:",
+      err
+    );
   }
 }
 
