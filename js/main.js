@@ -127,9 +127,14 @@ console.log("AUTH UI CHECK", {
 
       loginBtn.textContent =
         t("login", "Login");
+      console.log(
+  "LOGIN BTN AFTER SET:",
+  loginBtn.textContent
+);
 
     }
 
+    
     if (authStatus) {
       authStatus.textContent = "";
     }
@@ -181,6 +186,11 @@ if (authStatus) {
     authStatus.textContent =
       profile?.display_name ||
       session.user.email;
+
+    console.log(
+  "AUTH STATUS AFTER SET:",
+  authStatus.textContent
+);
 
   } catch (err) {
 
