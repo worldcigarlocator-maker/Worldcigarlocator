@@ -99,7 +99,7 @@ document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
 state.applyCountry(null);
 
 // 🔥 2. FORCE LEVEL DIREKT EFTER
-state.setLevel?.("country");
+state.setLevel?.("member_country");
 
 // 🔥 3. SÄTT DAG SIST
 setActiveDay(day);
