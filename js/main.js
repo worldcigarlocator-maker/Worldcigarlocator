@@ -88,7 +88,13 @@ async function syncAuthGate() {
     document.getElementById(
       "authStatus"
     );
-
+  
+console.log("AUTH UI CHECK", {
+  popup,
+  loginBtn,
+  authStatus
+});
+  
   const {
     data: { session }
   } =
