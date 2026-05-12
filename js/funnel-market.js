@@ -31,6 +31,9 @@ function getHeatmapBody() {
 
 export async function renderMarket(days = 30) {
 
+  return window.renderMarketV2(days);
+
+}
   console.trace("RENDER MARKET");
    
 const LEVEL = getLevel();
