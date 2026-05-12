@@ -236,12 +236,13 @@ tbody.querySelectorAll("tr").forEach(row => {
   row.onclick = async () => {
 
     // 🔹 COUNTRY → CITY
-    if (LEVEL === "country") {
+    if (LEVEL === "country" || LEVEL === "member_country") {
 
       const country = row.dataset.country;
       if (!country) return;
 
 applyCountry(country);
+       setLevel("member_city");
 
 setTimeout(async () => {
   const days = Number(document.getElementById("globalRange")?.value || 30);
@@ -252,7 +253,7 @@ return;
     }
 
     // 🔹 CITY → STORES
-    if (LEVEL === "city") {
+    if (LEVEL = "member_city") {
 
       const cityLabel = row.children[0]?.textContent;
       if (!cityLabel) return;
