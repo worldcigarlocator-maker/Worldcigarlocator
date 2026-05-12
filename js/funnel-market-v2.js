@@ -82,20 +82,33 @@ function bindRows(days) {
         return;
       }
 
-      // ============================================================
-      // CITY → STORE
-      // ============================================================
-      if (MARKET_STATE.level === "city") {
+// ============================================================
+// CITY → STORE / MEMBER USER
+// ============================================================
 
-        const city = row.dataset.city;
-        if (!city) return;
+if (
+  MARKET_STATE.level === "city" ||
+  MARKET_STATE.level === "member_city"
+) {
 
-        MARKET_STATE.level = "store";
-        MARKET_STATE.city = city;
+  const city = row.dataset.city;
+  if (!city) return;
 
-        await renderMarketV2(days);
-        return;
-      }
+  MARKET_STATE.city = city;
+
+  // 🔥 MEMBER FLOW
+  if (MARKET_STATE.level === "member_city") {
+    MARKET_STATE.level = "member_user";
+  }
+
+  // 🔥 MARKET FLOW
+  else {
+    MARKET_STATE.level = "store";
+  }
+
+  await renderMarketV2(days);
+  return;
+}
 
       // ============================================================
       // STORE → TRAFFIC
