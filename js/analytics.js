@@ -1148,25 +1148,43 @@ if (state.kpi === "stores") {
   return;
 }
 
-  // ============================================================
-  // MARKET (views / clicks / ctr)
-  // ============================================================
+ // ============================================================
+// MARKET + MEMBERS
+// ============================================================
 
-  if (
-    state.kpi === "views" ||
-    state.kpi === "clicks" ||
-    state.kpi === "ctr"
-  ) {
+if (
+  state.kpi === "users" ||
+  state.kpi === "views" ||
+  state.kpi === "clicks" ||
+  state.kpi === "ctr"
+) {
 
-    marketView?.classList.remove("hidden");
+  marketView?.classList.remove("hidden");
 
-    const m = await import("./funnel-market-v2.js");
-    await m.renderMarketV2(days);
+  const title =
+    document.querySelector("#view-market h2");
 
-    return;
+  if (title) {
+
+    if (state.kpi === "users") {
+      title.textContent = "Members";
+    }
+
+    if (
+      state.kpi === "views" ||
+      state.kpi === "clicks" ||
+      state.kpi === "ctr"
+    ) {
+      title.textContent = "Market";
+    }
   }
 
-});
+  const m = await import("./funnel-market-v2.js");
+
+  await m.renderMarketV2(days);
+
+  return;
+}
   // ============================================================
   // INIT
   // ============================================================
