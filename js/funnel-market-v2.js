@@ -166,61 +166,64 @@ function bindRows(days) {
     row.onclick = async () => {
 
       /* ============================================================
-      COUNTRY → CITY / MEMBER CITY
-      ============================================================ */
+COUNTRY → CITY / MEMBER CITY
+============================================================ */
 
-      if (MARKET_STATE.level === "country") {
+if (MARKET_STATE.level === "country") {
 
-        const country = row.dataset.country;
-        if (!country) return;
+  const country = row.dataset.country;
+  if (!country) return;
 
-        MARKET_STATE.country = country;
-        MARKET_STATE.city = null;
-        MARKET_STATE.store = null;
-        MARKET_STATE.user = null;
+  MARKET_STATE.country = country;
 
-        if (!getActiveDay()) {
-  setActiveDay(
-    new Date().toISOString().split("T")[0]
-  );
+  MARKET_STATE.city = null;
+  MARKET_STATE.store = null;
+  MARKET_STATE.user = null;
+
+  if (!getActiveDay()) {
+    setActiveDay(
+      new Date().toISOString().split("T")[0]
+    );
+  }
+
+  if (getKPI() === "users") {
+    MARKET_STATE.level = "member_city";
+  } else {
+    MARKET_STATE.level = "city";
+  }
+
+  await renderMarketV2(days);
+
+  return;
 }
 
-        if (getKPI() === "users") {
-          MARKET_STATE.level = "member_city";
-        } else {
-          MARKET_STATE.level = "city";
-        }
+/* ============================================================
+CITY → STORE / MEMBER USER
+============================================================ */
 
-        await renderMarketV2(days);
-        return;
-      }
+if (
+  MARKET_STATE.level === "city" ||
+  MARKET_STATE.level === "member_city"
+) {
 
-      /* ============================================================
-      CITY → STORE / MEMBER USER
-      ============================================================ */
+  const city = row.dataset.city;
+  if (!city) return;
 
-      if (
-        MARKET_STATE.level === "city" ||
-        MARKET_STATE.level === "member_city"
-      ) {
+  MARKET_STATE.city = city;
 
-        const city = row.dataset.city;
-        if (!city) return;
+  MARKET_STATE.store = null;
+  MARKET_STATE.user = null;
 
-        MARKET_STATE.city = city;
-        MARKET_STATE.store = null;
-        MARKET_STATE.user = null;
+  if (MARKET_STATE.level === "member_city") {
+    MARKET_STATE.level = "member_user";
+  } else {
+    MARKET_STATE.level = "store";
+  }
 
-        if (MARKET_STATE.level === "member_city") {
-          MARKET_STATE.level = "member_user";
-        } else {
-          MARKET_STATE.level = "store";
-        }
+  await renderMarketV2(days);
 
-        await renderMarketV2(days);
-        return;
-      }
-
+  return;
+}
       /* ============================================================
       MEMBER USER → TIMELINE
       ============================================================ */
