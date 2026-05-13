@@ -579,26 +579,45 @@ export async function renderMarketV2(days = 30) {
   const tbody = getBody();
   if (!tbody) return;
 
+  /* ============================================================
+     USERS FLOW
+  ============================================================ */
+
+  if (KPI === "users") {
+
+    if (MARKET_STATE.level === "country") {
+      MARKET_STATE.level = "member_city";
+    }
+
+    if (MARKET_STATE.level === "member_city") {
+      await renderCity(days, tbody);
+      return;
+    }
+
+    if (MARKET_STATE.level === "member_user") {
+      await renderMemberUser(days, tbody);
+      return;
+    }
+
+    if (MARKET_STATE.level === "member_timeline") {
+      await renderMemberTimeline(tbody);
+      return;
+    }
+
+    return;
+  }
+
+  /* ============================================================
+     MARKET FLOW
+  ============================================================ */
+
   if (MARKET_STATE.level === "country") {
     await renderCountry(days, tbody);
     return;
   }
 
-  if (
-    MARKET_STATE.level === "city" ||
-    MARKET_STATE.level === "member_city"
-  ) {
+  if (MARKET_STATE.level === "city") {
     await renderCity(days, tbody);
-    return;
-  }
-
-  if (MARKET_STATE.level === "member_user") {
-    await renderMemberUser(days, tbody);
-    return;
-  }
-
-  if (MARKET_STATE.level === "member_timeline") {
-    await renderMemberTimeline(tbody);
     return;
   }
 
