@@ -180,6 +180,19 @@ function setMemberDayHeaders() {
 </tr>`;
 }
 
+function setMemberCountryHeaders() {
+
+  const thead = getTableHead();
+  if (!thead) return;
+
+  thead.innerHTML = `
+<tr>
+  <th>Country</th>
+  <th class="num">Logins</th>
+</tr>`;
+}
+
+
 function setMemberCityHeaders() {
 
   const thead = getTableHead();
@@ -498,7 +511,7 @@ MEMBER COUNTRY RENDER
 
 async function renderMemberCountries(days, tbody) {
 
-  setMarketHeaders("Country");
+  setMemberCountryHeaders();
 
   const activeDay =
     getActiveDay() ||
@@ -521,17 +534,15 @@ async function renderMemberCountries(days, tbody) {
     return;
   }
 
-  tbody.innerHTML = data.map(r => {
+tbody.innerHTML = data.map(r => {
 
-    return `
+  return `
 <tr data-country="${r.country}">
   <td>${r.country || "-"}</td>
   <td class="num">${r.views || 0}</td>
-  <td class="num">0</td>
-  <td class="num">—</td>
 </tr>`;
 
-  }).join("");
+}).join("");
 
   bindRows(days);
 
@@ -594,20 +605,15 @@ async function renderCity(days, tbody) {
     return;
   }
 
-  tbody.innerHTML = data.map(c => {
+tbody.innerHTML = data.map(c => {
 
-    const { label: ctr, cls } =
-      getCtrMeta(c.views, c.clicks);
-
-    return `
+  return `
 <tr data-city="${c.city}">
   <td>${c.city || "-"}</td>
   <td class="num">${c.views || 0}</td>
-  <td class="num">${c.clicks || 0}</td>
-  <td class="num ${cls}">${ctr}</td>
 </tr>`;
 
-  }).join("");
+}).join("");
 
   bindRows(days);
 
