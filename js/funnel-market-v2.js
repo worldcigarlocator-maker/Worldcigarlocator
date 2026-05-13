@@ -168,13 +168,31 @@ function bindRows(days) {
       console.log("🔥 CLICK KPI:", getKPI());
       console.log("🔥 CLICK LEVEL:", MARKET_STATE.level);
 
-      /* ============================================================
-COUNTRY → CITY / MEMBER CITY
+/* ============================================================
+MEMBER DAY → COUNTRY
+============================================================ */
+
+if (MARKET_STATE.level === "member_day") {
+
+  const day = row.dataset.day;
+  if (!day) return;
+
+  setActiveDay(day);
+
+  MARKET_STATE.level = "member_country";
+
+  await renderMarketV2(days);
+
+  return;
+}
+
+/* ============================================================
+COUNTRY → CITY / MEMBER COUNTRY → MEMBER CITY
 ============================================================ */
 
 if (
   MARKET_STATE.level === "country" ||
-  MARKET_STATE.level === "member_city"
+  MARKET_STATE.level === "member_country"
 ) {
 
   const country =
@@ -183,21 +201,14 @@ if (
 
   if (!country) return;
 
-  console.log("🔥 COUNTRY CLICK:", country);
-
   MARKET_STATE.country = country;
 
   MARKET_STATE.city = null;
   MARKET_STATE.store = null;
   MARKET_STATE.user = null;
 
-  setActiveDay(
-    getActiveDay() ||
-    new Date().toISOString().split("T")[0]
-  );
-
   if (getKPI() === "users") {
-    MARKET_STATE.level = "member_user";
+    MARKET_STATE.level = "member_city";
   } else {
     MARKET_STATE.level = "city";
   }
@@ -327,6 +338,50 @@ async function renderCountry(days, tbody) {
   <td class="num">${views}</td>
   <td class="num">${clicks}</td>
   <td class="num ${cls}">${ctr}</td>
+</tr>`;
+
+  }).join("");
+
+  bindRows(days);
+
+  window.WCL_MARKET_DATA = data;
+
+  renderChart(data);
+}
+
+/* ============================================================
+MEMBER DAY RENDER
+============================================================ */
+
+async function renderMemberDays(days, tbody) {
+
+  setMarketHeaders("Date");
+
+  const { data, error } = await sb.rpc(
+    "analytics_member_days",
+    {
+      p_days: days
+    }
+  );
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  if (!data?.length) {
+    renderEmpty(tbody);
+    return;
+  }
+
+  tbody.innerHTML = data.map(r => {
+
+    return `
+<tr data-day="${r.day}">
+  <td>${r.day}</td>
+  <td class="num">${r.views || 0}</td>
+  <td class="num">0</td>
+  <td class="num">—</td>
 </tr>`;
 
   }).join("");
@@ -648,32 +703,35 @@ export async function renderMarketV2(days = 30) {
   /* ============================================================
      USERS FLOW
   ============================================================ */
+if (KPI === "users") {
 
-  if (KPI === "users") {
+  if (MARKET_STATE.level === "member_day") {
+    await renderMemberDays(days, tbody);
+    return;
+  }
 
-  if (MARKET_STATE.level === "country") {
+  if (MARKET_STATE.level === "member_country") {
     await renderMemberCountries(days, tbody);
     return;
   }
 
-    if (MARKET_STATE.level === "member_city") {
-      await renderCity(days, tbody);
-      return;
-    }
-
-    if (MARKET_STATE.level === "member_user") {
-      await renderMemberUser(days, tbody);
-      return;
-    }
-
-    if (MARKET_STATE.level === "member_timeline") {
-      await renderMemberTimeline(tbody);
-      return;
-    }
-
+  if (MARKET_STATE.level === "member_city") {
+    await renderCity(days, tbody);
     return;
   }
 
+  if (MARKET_STATE.level === "member_user") {
+    await renderMemberUser(days, tbody);
+    return;
+  }
+
+  if (MARKET_STATE.level === "member_timeline") {
+    await renderMemberTimeline(tbody);
+    return;
+  }
+
+  return;
+}
   /* ============================================================
      MARKET FLOW
   ============================================================ */
