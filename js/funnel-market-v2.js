@@ -164,6 +164,8 @@ function bindRows(days) {
   tbody.querySelectorAll("tr").forEach(row => {
 
     row.onclick = async () => {
+      console.log("🔥 CLICK KPI:", getKPI());
+console.log("🔥 CLICK LEVEL:", MARKET_STATE.level);
 
       /* ============================================================
 COUNTRY → CITY / MEMBER CITY
