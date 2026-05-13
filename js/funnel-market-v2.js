@@ -182,10 +182,9 @@ if (MARKET_STATE.level === "country") {
   MARKET_STATE.store = null;
   MARKET_STATE.user = null;
 
-  if (!getActiveDay()) {
-    setActiveDay(
-      new Date().toISOString().split("T")[0]
-    );
+setActiveDay(
+  new Date().toISOString().split("T")[0]
+);
   }
 
   if (getKPI() === "users") {
