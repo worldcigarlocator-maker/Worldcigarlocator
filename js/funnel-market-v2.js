@@ -255,15 +255,45 @@ CHART
 
 function renderChart(data) {
 
-  if (!window.renderMarketChart) return;
-  if (MARKET_STATE.level === "member_timeline") return;
-  if (MARKET_STATE.level === "member_user") return;
+  if (MARKET_STATE.level === "member_timeline") {
+    return;
+  }
 
-  window.renderMarketChart(
-    data || [],
-    MARKET_STATE.sort,
-    MARKET_STATE.chartType
-  );
+  if (MARKET_STATE.level === "member_user") {
+    return;
+  }
+
+  // ============================================================
+  // MEMBERS
+  // ============================================================
+
+  if (getKPI() === "users") {
+
+    if (window.renderMemberChart) {
+
+      window.renderMemberChart(
+        data || []
+      );
+
+    }
+
+    return;
+  }
+
+  // ============================================================
+  // MARKET
+  // ============================================================
+
+  if (window.renderMarketChart) {
+
+    window.renderMarketChart(
+      data || [],
+      MARKET_STATE.sort,
+      MARKET_STATE.chartType
+    );
+
+  }
+
 }
 
 /* ============================================================
