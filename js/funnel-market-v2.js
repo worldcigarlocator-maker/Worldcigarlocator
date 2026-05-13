@@ -74,14 +74,14 @@ function renderBreadcrumb() {
   if (getKPI() === "users") {
 
     items.push(`
-      <span class="crumb active">
+      <span class="crumb active" data-level="member_day">
         Members
       </span>
     `);
 
     if (getActiveDay()) {
       items.push(`
-        <span class="crumb">
+        <span class="crumb" data-level="member_country">
           ${getActiveDay()}
         </span>
       `);
@@ -89,7 +89,7 @@ function renderBreadcrumb() {
 
     if (MARKET_STATE.country) {
       items.push(`
-        <span class="crumb">
+        <span class="crumb" data-level="member_city">
           ${MARKET_STATE.country}
         </span>
       `);
@@ -97,7 +97,7 @@ function renderBreadcrumb() {
 
     if (MARKET_STATE.city) {
       items.push(`
-        <span class="crumb">
+        <span class="crumb" data-level="member_user">
           ${MARKET_STATE.city}
         </span>
       `);
@@ -118,8 +118,36 @@ function renderBreadcrumb() {
   `);
 
   el.classList.remove("hidden");
-}
 
+  el.querySelectorAll(".crumb").forEach(c => {
+
+    c.onclick = async () => {
+
+      const level = c.dataset.level;
+      if (!level) return;
+
+      MARKET_STATE.level = level;
+
+      if (level === "member_day") {
+        MARKET_STATE.country = null;
+        MARKET_STATE.city = null;
+        MARKET_STATE.user = null;
+      }
+
+      if (level === "member_country") {
+        MARKET_STATE.city = null;
+        MARKET_STATE.user = null;
+      }
+
+      if (level === "member_city") {
+        MARKET_STATE.user = null;
+      }
+
+      await renderMarketV2();
+    };
+
+  });
+}
 /* ============================================================
 HEADERS
 ============================================================ */
