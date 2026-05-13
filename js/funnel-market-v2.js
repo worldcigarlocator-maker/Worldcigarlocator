@@ -38,7 +38,7 @@ STATE
 ============================================================ */
 
 const MARKET_STATE = {
-  level: "country",
+ level: "member_day",
 
   country: null,
   city: null,
