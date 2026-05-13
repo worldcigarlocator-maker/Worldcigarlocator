@@ -1301,6 +1301,116 @@ window.renderUsersChart = function (rows) {
 };
 
 /* ============================================================
+MEMBER CHART
+============================================================ */
+
+window.renderMemberChart = function (rows = []) {
+
+  if (!rows?.length) return;
+
+  const labels = rows.map(r =>
+    r.day ||
+    r.country ||
+    r.city ||
+    "-"
+  );
+
+  const values = rows.map(r =>
+    Number(r.views || 0)
+  );
+
+  const ctx =
+    document.getElementById("marketChart");
+
+  if (!ctx) return;
+
+  if (window.memberChart) {
+    window.memberChart.destroy();
+  }
+
+  window.memberChart = new Chart(ctx, {
+
+    type: "line",
+
+    data: {
+      labels,
+      datasets: [{
+        label: "Logins",
+        data: values,
+
+        tension: 0.35,
+
+        borderColor: "#d6b36a",
+        borderWidth: 2,
+
+        pointRadius: 3,
+        pointHoverRadius: 6,
+
+        fill: true,
+
+        backgroundColor: (ctx) => {
+
+          const gradient =
+            ctx.chart.ctx.createLinearGradient(
+              0, 0, 0, 260
+            );
+
+          gradient.addColorStop(
+            0,
+            "rgba(214,179,106,0.35)"
+          );
+
+          gradient.addColorStop(
+            1,
+            "rgba(214,179,106,0.02)"
+          );
+
+          return gradient;
+        }
+      }]
+    },
+
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+
+      scales: {
+
+        x: {
+          ticks: {
+            color: "rgba(255,255,255,0.6)"
+          },
+          grid: {
+            color: "rgba(255,255,255,0.05)"
+          }
+        },
+
+        y: {
+          beginAtZero: true,
+
+          ticks: {
+            color: "rgba(255,255,255,0.7)"
+          },
+
+          grid: {
+            color: "rgba(255,255,255,0.05)"
+          }
+        }
+
+      }
+    }
+
+  });
+
+};
+
+/* ============================================================
    MARKET CHART (SMOOTH ENGINE)
    ============================================================ */
 
