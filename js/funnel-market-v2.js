@@ -342,7 +342,7 @@ async function renderCity(days, tbody) {
     const res = await sb.rpc(
       "analytics_member_cities",
       {
-        p_day: getActiveDay(),
+        p_day: String(getActiveDay()),
         p_country: MARKET_STATE.country
       }
     );
@@ -407,7 +407,7 @@ async function renderMemberUser(days, tbody) {
   const { data, error } = await sb.rpc(
     "analytics_members_by_city",
     {
-      p_day: getActiveDay(),
+      p_day: String(getActiveDay()),
       p_country: MARKET_STATE.country,
       p_city: MARKET_STATE.city
     }
