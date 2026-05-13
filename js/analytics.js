@@ -799,56 +799,48 @@ pdf.setFontSize(9);
 pdf.setTextColor(180, 180, 180);
 
 // ============================================================
-// USERS
+// MEMBERS + MARKET (UNIFIED ENGINE)
 // ============================================================
 
-if (kpi === "users") {
+if (
+  kpi === "users" ||
+  kpi === "views" ||
+  kpi === "clicks" ||
+  kpi === "ctr"
+) {
 
-  pdf.text("Date", margin, y);
-  pdf.text("Users", 190, y, { align: "right" });
+  const isMembers = kpi === "users";
 
-  y += 3;
-  pdf.setDrawColor(60, 60, 60);
-  pdf.line(margin, y, pageWidth - margin, y);
-  y += 6;
+  pdf.text(
+    isMembers ? "Member" : "Name",
+    margin,
+    y
+  );
 
-  const rows = document.querySelectorAll("#usersTable tbody tr");
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setTextColor(230, 230, 230);
-
-  [...rows].slice(0, 12).forEach(tr => {
-
-    const tds = tr.querySelectorAll("td");
-    if (tds.length < 2) return;
-
-    const date = tds[0].textContent;
-    const users = tds[1].textContent;
-
-    pdf.text(date, margin, y);
-    pdf.text(users, 190, y, { align: "right" });
-
-    y += 6;
-  });
-}
-
-// ============================================================
-// MARKET
-// ============================================================
-
-if (kpi === "views" || kpi === "clicks" || kpi === "ctr") {
-
-  pdf.text("Name", margin, y);
   pdf.text("Views", 120, y, { align: "right" });
   pdf.text("Clicks", 150, y, { align: "right" });
-  pdf.text("CTR", 190, y, { align: "right" });
+  pdf.text(
+    isMembers ? "Logins" : "CTR",
+    190,
+    y,
+    { align: "right" }
+  );
 
   y += 3;
+
   pdf.setDrawColor(60, 60, 60);
-  pdf.line(margin, y, pageWidth - margin, y);
+
+  pdf.line(
+    margin,
+    y,
+    pageWidth - margin,
+    y
+  );
+
   y += 6;
 
-  const rows = document.querySelectorAll("#marketDemandBody tr");
+  const rows =
+    document.querySelectorAll("#marketDemandBody tr");
 
   pdf.setFont("helvetica", "normal");
   pdf.setTextColor(230, 230, 230);
@@ -856,12 +848,35 @@ if (kpi === "views" || kpi === "clicks" || kpi === "ctr") {
   [...rows].slice(0, 12).forEach(tr => {
 
     const tds = tr.querySelectorAll("td");
+
     if (tds.length < 4) return;
 
-    pdf.text(tds[0].textContent, margin, y);
-    pdf.text(tds[1].textContent, 120, y, { align: "right" });
-    pdf.text(tds[2].textContent, 150, y, { align: "right" });
-    pdf.text(tds[3].textContent, 190, y, { align: "right" });
+    pdf.text(
+      tds[0].textContent,
+      margin,
+      y
+    );
+
+    pdf.text(
+      tds[1].textContent,
+      120,
+      y,
+      { align: "right" }
+    );
+
+    pdf.text(
+      tds[2].textContent,
+      150,
+      y,
+      { align: "right" }
+    );
+
+    pdf.text(
+      tds[3].textContent,
+      190,
+      y,
+      { align: "right" }
+    );
 
     y += 6;
   });
