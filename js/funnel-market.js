@@ -4,7 +4,7 @@
 
 export async function renderMarket(days = 30) {
 
-  const m = await import("./market-v2.js");
+  const m = await import("./funnel-market-v2.js");
 
   return m.renderMarketV2(days);
 }
