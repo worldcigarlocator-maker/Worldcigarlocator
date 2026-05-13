@@ -118,7 +118,7 @@ setActiveDay(day);
 
     // 🔥 RENDER
     const days = Number(document.getElementById("globalRange")?.value || 30);
- const m = await import("./market-v2.js");
+ const m = await import("./funnel-market-v2.js");
 await m.renderMarketV2(days);
 
   };
