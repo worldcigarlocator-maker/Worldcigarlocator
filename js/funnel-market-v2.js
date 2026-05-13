@@ -164,72 +164,68 @@ function bindRows(days) {
   tbody.querySelectorAll("tr").forEach(row => {
 
     row.onclick = async () => {
+
       console.log("🔥 CLICK KPI:", getKPI());
-console.log("🔥 CLICK LEVEL:", MARKET_STATE.level);
+      console.log("🔥 CLICK LEVEL:", MARKET_STATE.level);
 
-          };
-
-  });
-
-}
       /* ============================================================
-COUNTRY → CITY / MEMBER CITY
-============================================================ */
+      COUNTRY → CITY / MEMBER CITY
+      ============================================================ */
 
-if (MARKET_STATE.level === "country") {
+      if (MARKET_STATE.level === "country") {
 
-  const country = row.dataset.country;
-  if (!country) return;
+        const country = row.dataset.country;
+        if (!country) return;
 
-  MARKET_STATE.country = country;
+        MARKET_STATE.country = country;
 
-  MARKET_STATE.city = null;
-  MARKET_STATE.store = null;
-  MARKET_STATE.user = null;
+        MARKET_STATE.city = null;
+        MARKET_STATE.store = null;
+        MARKET_STATE.user = null;
 
-setActiveDay(
-  new Date().toISOString().split("T")[0]
-);
-  }
+        setActiveDay(
+          new Date().toISOString().split("T")[0]
+        );
 
-  if (getKPI() === "users") {
-    MARKET_STATE.level = "member_city";
-  } else {
-    MARKET_STATE.level = "city";
-  }
+        if (getKPI() === "users") {
+          MARKET_STATE.level = "member_city";
+        } else {
+          MARKET_STATE.level = "city";
+        }
 
-  await renderMarketV2(days);
+        await renderMarketV2(days);
 
-  return;
-}
+        return;
+      }
 
-/* ============================================================
-CITY → STORE / MEMBER USER
-============================================================ */
+      /* ============================================================
+      CITY → STORE / MEMBER USER
+      ============================================================ */
 
-if (
-  MARKET_STATE.level === "city" ||
-  MARKET_STATE.level === "member_city"
-) {
+      if (
+        MARKET_STATE.level === "city" ||
+        MARKET_STATE.level === "member_city"
+      ) {
 
-  const city = row.dataset.city;
-  if (!city) return;
+        const city = row.dataset.city;
+        if (!city) return;
 
-  MARKET_STATE.city = city;
+        MARKET_STATE.city = city;
 
-  MARKET_STATE.store = null;
-  MARKET_STATE.user = null;
+        MARKET_STATE.store = null;
+        MARKET_STATE.user = null;
 
-  if (MARKET_STATE.level === "member_city") {
-    MARKET_STATE.level = "member_user";
-  } else {
-    MARKET_STATE.level = "store";
-  }
+        if (MARKET_STATE.level === "member_city") {
+          MARKET_STATE.level = "member_user";
+        } else {
+          MARKET_STATE.level = "store";
+        }
 
-  await renderMarketV2(days);
+        await renderMarketV2(days);
 
-  return;
-}
+        return;
+      }
+
       /* ============================================================
       MEMBER USER → TIMELINE
       ============================================================ */
@@ -243,6 +239,7 @@ if (
         MARKET_STATE.level = "member_timeline";
 
         await renderMarketV2(days);
+
         return;
       }
 
@@ -259,12 +256,14 @@ if (
         MARKET_STATE.level = "traffic";
 
         await renderMarketV2(days);
+
         return;
       }
 
     };
 
   });
+
 }
 
 /* ============================================================
