@@ -1522,3 +1522,39 @@ TABLE POLISH — STEP 1
 .hidden {
   display: none;
 }
+
+/* ============================================================
+BREADCRUMB
+============================================================ */
+
+.market-breadcrumb{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+
+  margin-bottom:14px;
+
+  font-size:13px;
+}
+
+.crumb{
+  color:#d6b36a;
+
+  cursor:pointer;
+
+  transition:0.2s ease;
+}
+
+.crumb:hover{
+  color:#fff;
+  text-shadow:0 0 10px rgba(214,179,106,0.6);
+}
+
+.crumb.active{
+  font-weight:700;
+}
+
+.crumb-sep{
+  opacity:0.5;
+}
