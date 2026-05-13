@@ -179,6 +179,12 @@ function bindRows(days) {
         MARKET_STATE.store = null;
         MARKET_STATE.user = null;
 
+        if (!getActiveDay()) {
+  setActiveDay(
+    new Date().toISOString().split("T")[0]
+  );
+}
+
         if (getKPI() === "users") {
           MARKET_STATE.level = "member_city";
         } else {
