@@ -167,6 +167,11 @@ function bindRows(days) {
       console.log("🔥 CLICK KPI:", getKPI());
 console.log("🔥 CLICK LEVEL:", MARKET_STATE.level);
 
+          };
+
+  });
+
+}
       /* ============================================================
 COUNTRY → CITY / MEMBER CITY
 ============================================================ */
