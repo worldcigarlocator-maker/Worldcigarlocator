@@ -60,6 +60,65 @@ function getBody() {
 function getTableHead() {
   return document.querySelector("#marketDemandTable thead");
 }
+function getBreadcrumb() {
+  return document.getElementById("marketBreadcrumb");
+}
+
+function renderBreadcrumb() {
+
+  const el = getBreadcrumb();
+  if (!el) return;
+
+  const items = [];
+
+  if (getKPI() === "users") {
+
+    items.push(`
+      <span class="crumb active">
+        Members
+      </span>
+    `);
+
+    if (getActiveDay()) {
+      items.push(`
+        <span class="crumb">
+          ${getActiveDay()}
+        </span>
+      `);
+    }
+
+    if (MARKET_STATE.country) {
+      items.push(`
+        <span class="crumb">
+          ${MARKET_STATE.country}
+        </span>
+      `);
+    }
+
+    if (MARKET_STATE.city) {
+      items.push(`
+        <span class="crumb">
+          ${MARKET_STATE.city}
+        </span>
+      `);
+    }
+
+  } else {
+
+    items.push(`
+      <span class="crumb active">
+        Market
+      </span>
+    `);
+
+  }
+
+  el.innerHTML = items.join(`
+    <span class="crumb-sep">›</span>
+  `);
+
+  el.classList.remove("hidden");
+}
 
 /* ============================================================
 HEADERS
@@ -709,6 +768,8 @@ export async function renderMarketV2(days = 30) {
 
   const tbody = getBody();
   if (!tbody) return;
+  renderBreadcrumb();
+  
 
   /* ============================================================
      USERS FLOW
