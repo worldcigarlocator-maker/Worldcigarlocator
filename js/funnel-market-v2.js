@@ -367,7 +367,7 @@ MEMBER DAY RENDER
 
 async function renderMemberDays(days, tbody) {
 
-  setMarketHeaders("Date");
+  setMemberDayHeaders();
 
   const { data, error } = await sb.rpc(
     "analytics_member_days",
@@ -388,15 +388,13 @@ async function renderMemberDays(days, tbody) {
 
   tbody.innerHTML = data.map(r => {
 
-    return `
+  return `
 <tr data-day="${r.day}">
   <td>${r.day}</td>
   <td class="num">${r.views || 0}</td>
-  <td class="num">0</td>
-  <td class="num">—</td>
 </tr>`;
 
-  }).join("");
+}).join("");
 
   bindRows(days);
 
