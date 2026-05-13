@@ -1106,15 +1106,16 @@ subscribe(async (state) => {
   // USERS
   // ============================================================
 
-  if (state.kpi === "users") {
+if (state.kpi === "users") {
 
-    usersView?.classList.remove("hidden");
+  marketView?.classList.remove("hidden");
 
-    const m = await import("./funnel-users.js");
-    await m.renderUsersOverview(days);
+  const m = await import("./funnel-market-v2.js");
 
-    return;
-  }
+  await m.renderMarketV2(days);
+
+  return;
+}
 
   // ============================================================
   // STORES
