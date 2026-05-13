@@ -38,7 +38,7 @@ STATE
 ============================================================ */
 
 const MARKET_STATE = {
- level: "member_day",
+  level: "member_day",
 
   country: null,
   city: null,
@@ -48,6 +48,8 @@ const MARKET_STATE = {
   sort: "views",
   chartType: "bar"
 };
+
+MARKET_STATE.memberDays = 7;
 
 /* ============================================================
 DOM
@@ -459,7 +461,7 @@ async function renderMemberDays(days, tbody) {
   const { data, error } = await sb.rpc(
     "analytics_member_days",
     {
-      p_days: days
+      p_days: MARKET_STATE.memberDays
     }
   );
 
@@ -857,6 +859,44 @@ if (KPI === "users") {
 }
 
 /* ============================================================
+MEMBER RANGE
+============================================================ */
+
+function bindMemberRange() {
+
+  const buttons =
+    document.querySelectorAll(".member-range-btn");
+
+  buttons.forEach(btn => {
+
+    btn.onclick = async () => {
+
+      const days =
+        Number(btn.dataset.range || 7);
+
+      MARKET_STATE.memberDays = days;
+
+      MARKET_STATE.level = "member_day";
+
+      MARKET_STATE.country = null;
+      MARKET_STATE.city = null;
+      MARKET_STATE.user = null;
+
+      buttons.forEach(b =>
+        b.classList.remove("active")
+      );
+
+      btn.classList.add("active");
+
+      await renderMarketV2(days);
+
+    };
+
+  });
+
+}
+
+/* ============================================================
 BIND MARKET
 ============================================================ */
 
@@ -923,6 +963,7 @@ document.addEventListener("DOMContentLoaded", () => {
     Number(rangeEl?.value || 30);
 
   bindMarketToggle(getDays);
+  bindMemberRange();
 
 });
 
