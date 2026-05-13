@@ -603,9 +603,6 @@ export async function renderMarketV2(days = 30) {
 
   if (KPI === "users") {
 
-    if (MARKET_STATE.level === "country") {
-      MARKET_STATE.level = "member_city";
-    }
 
     if (MARKET_STATE.level === "member_city") {
       await renderCity(days, tbody);
