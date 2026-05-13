@@ -342,10 +342,16 @@ async function renderCity(days, tbody) {
 
     setMemberCityHeaders();
 
+    const activeDay =
+      getActiveDay() ||
+      new Date().toISOString().split("T")[0];
+
+    console.log("🔥 MEMBER DAY:", activeDay);
+
     const res = await sb.rpc(
       "analytics_member_cities",
       {
-        p_day: String(getActiveDay()),
+        p_day: activeDay,
         p_country: MARKET_STATE.country
       }
     );
