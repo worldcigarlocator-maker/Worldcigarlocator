@@ -671,3 +671,7 @@ document.addEventListener("DOMContentLoaded", () => {
   bindMarketToggle(getDays);
 
 });
+
+export function renderHeatmap() {
+  console.log("🔥 HEATMAP PLACEHOLDER");
+}
