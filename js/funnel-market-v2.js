@@ -5,9 +5,9 @@ WCL — MARKET V2 (CLEAN ENGINE)
 import { supabase } from "/js/globals.js";
 import {
   getKPI,
-  getActiveDay
+  getActiveDay,
+  setActiveDay
 } from "/js/analytics-state.js";
-
 const sb = supabase;
 
 console.log("🔥 MARKET V2 LOADED");
