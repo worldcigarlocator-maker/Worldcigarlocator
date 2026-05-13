@@ -433,9 +433,14 @@ await trackEvent(
   "user_login",
   {
     email: email,
+
     country:
       window.WCL_GEO
-        ?.country || null
+        ?.country || null,
+
+    city:
+      window.WCL_GEO
+        ?.city || null
   }
 );
 
