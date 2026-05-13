@@ -339,6 +339,54 @@ async function renderCountry(days, tbody) {
 }
 
 /* ============================================================
+MEMBER COUNTRY RENDER
+============================================================ */
+
+async function renderMemberCountries(days, tbody) {
+
+  setMarketHeaders("Country");
+
+  const activeDay =
+    getActiveDay() ||
+    new Date().toISOString().split("T")[0];
+
+  const { data, error } = await sb.rpc(
+    "analytics_member_countries",
+    {
+      p_day: activeDay
+    }
+  );
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  if (!data?.length) {
+    renderEmpty(tbody);
+    return;
+  }
+
+  tbody.innerHTML = data.map(r => {
+
+    return `
+<tr data-country="${r.country}">
+  <td>${r.country || "-"}</td>
+  <td class="num">${r.views || 0}</td>
+  <td class="num">0</td>
+  <td class="num">—</td>
+</tr>`;
+
+  }).join("");
+
+  bindRows(days);
+
+  window.WCL_MARKET_DATA = data;
+
+  renderChart(data);
+}
+
+/* ============================================================
 CITY RENDER
 ============================================================ */
 
