@@ -169,34 +169,43 @@ function bindRows(days) {
       console.log("🔥 CLICK LEVEL:", MARKET_STATE.level);
 
       /* ============================================================
-      COUNTRY → CITY / MEMBER CITY
-      ============================================================ */
+COUNTRY → CITY / MEMBER CITY
+============================================================ */
 
-      if (MARKET_STATE.level === "country") {
+if (
+  MARKET_STATE.level === "country" ||
+  MARKET_STATE.level === "member_city"
+) {
 
-        const country = row.dataset.country;
-        if (!country) return;
+  const country =
+    row.dataset.country ||
+    row.querySelector("td")?.textContent;
 
-        MARKET_STATE.country = country;
+  if (!country) return;
 
-        MARKET_STATE.city = null;
-        MARKET_STATE.store = null;
-        MARKET_STATE.user = null;
+  console.log("🔥 COUNTRY CLICK:", country);
 
-        setActiveDay(
-          new Date().toISOString().split("T")[0]
-        );
+  MARKET_STATE.country = country;
 
-        if (getKPI() === "users") {
-          MARKET_STATE.level = "member_city";
-        } else {
-          MARKET_STATE.level = "city";
-        }
+  MARKET_STATE.city = null;
+  MARKET_STATE.store = null;
+  MARKET_STATE.user = null;
 
-        await renderMarketV2(days);
+  setActiveDay(
+    getActiveDay() ||
+    new Date().toISOString().split("T")[0]
+  );
 
-        return;
-      }
+  if (getKPI() === "users") {
+    MARKET_STATE.level = "member_user";
+  } else {
+    MARKET_STATE.level = "city";
+  }
+
+  await renderMarketV2(days);
+
+  return;
+}
 
       /* ============================================================
       CITY → STORE / MEMBER USER
