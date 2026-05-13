@@ -435,14 +435,14 @@ await trackEvent(
     email: email,
 
     country:
-      window.WCL_GEO
-        ?.country || null,
+      window.WCL_GEO?.country || null,
 
     city:
-      window.WCL_GEO
-        ?.city || null
+      window.WCL_GEO?.city || null
   }
 );
+
+submit.disabled = false;
 
 submit.disabled = false;
 
