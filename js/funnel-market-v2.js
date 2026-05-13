@@ -217,7 +217,6 @@ function setMemberUserHeaders() {
   <th>Member</th>
   <th>Email</th>
   <th class="num">Logins</th>
-  <th>Language</th>
 </tr>`;
 }
 
@@ -676,17 +675,16 @@ async function renderMemberUser(days, tbody) {
     return;
   }
 
-  tbody.innerHTML = data.map(u => {
+ tbody.innerHTML = data.map(u => {
 
-    return `
+  return `
 <tr data-user="${u.user_id}">
   <td>${u.display_name || u.email || "Unknown"}</td>
   <td>${u.email || "-"}</td>
   <td class="num">${u.total_logins || 0}</td>
-  <td>${u.language || "-"}</td>
 </tr>`;
 
-  }).join("");
+}).join("");
 
   bindRows(days);
 
