@@ -5,7 +5,7 @@ WCL — ANALYTICS.JS
 import { supabase } from "/js/globals.js";
 import { renderUsersOverview } from "./funnel-users.js";
 import { renderMarketV2 } from "./funnel-market-v2.js";
-import { renderHeatmap } from "./funnel-market.js";
+import { renderHeatmap } from "./heatmap.js";
 import {
   getKPI,
   setKPI,
