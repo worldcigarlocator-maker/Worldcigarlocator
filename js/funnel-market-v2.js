@@ -79,6 +79,18 @@ function setMarketHeaders(label = "Location") {
 </tr>`;
 }
 
+function setMemberDayHeaders() {
+
+  const thead = getTableHead();
+  if (!thead) return;
+
+  thead.innerHTML = `
+<tr>
+  <th>Date</th>
+  <th class="num">Logins</th>
+</tr>`;
+}
+
 function setMemberCityHeaders() {
 
   const thead = getTableHead();
