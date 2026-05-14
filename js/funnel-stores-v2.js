@@ -46,6 +46,7 @@ function ensureStoresSurface() {
 
     const head = panel.querySelector(".panelhead h2");
     if (head) head.textContent = "Top Stores";
+    
 
     const thead = panel.querySelector("thead");
     if (thead) {
@@ -238,6 +239,10 @@ data.sort((a, b) => {
 
   switch (STORES_STATE.sort) {
 
+        case "name":
+  return String(a.name || "")
+    .localeCompare(String(b.name || ""));
+
     case "views":
       return (b.views || 0) - (a.views || 0);
 
@@ -354,7 +359,7 @@ const commentsBadge =
     }
 
     if (!data?.length) {
-      renderEmpty("No city data");
+      renderEmpty("No city data", 4);
       return;
     }
 
@@ -399,7 +404,7 @@ const commentsBadge =
     }
 
     if (!data?.length) {
-      renderEmpty("No source data");
+      renderEmpty("No source data", 4);
       return;
     }
 
@@ -424,10 +429,15 @@ const commentsBadge =
    ============================================================ */
 
 export function resetStoresV2() {
+
   STORES_STATE.level = "store";
+
   STORES_STATE.storeId = null;
   STORES_STATE.city = null;
   STORES_STATE.country = null;
+
+  STORES_STATE.sort = "views";
+
 }
 
 /* ============================================================
