@@ -2277,3 +2277,174 @@ BREADCRUMB
   }
 
 }
+/* ============================================================
+   MARKET / CHART BUTTON SYSTEM
+   ============================================================ */
+
+.toggle-btn,
+.chart-type-btn{
+
+  min-width:58px;
+  height:36px;
+
+  padding:0 16px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:999px;
+
+  border:
+    1px solid rgba(255,255,255,0.10);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.06),
+      rgba(255,255,255,0.03)
+    );
+
+  color:
+    rgba(255,255,255,0.74);
+
+  font-size:13px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:
+    transform .16s ease,
+    border-color .16s ease,
+    background .16s ease,
+    box-shadow .16s ease,
+    color .16s ease;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* ============================================================
+   HOVER
+   ============================================================ */
+
+.toggle-btn:hover,
+.chart-type-btn:hover{
+
+  transform:translateY(-1px);
+
+  border-color:
+    rgba(255,255,255,0.18);
+
+  color:#fff;
+}
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+
+.toggle-btn[data-sort="views"].active{
+
+  background:
+    linear-gradient(
+      135deg,
+      #c084fc,
+      #9333ea
+    );
+
+  color:#fff;
+
+  border-color:
+    rgba(192,132,252,0.45);
+
+  box-shadow:
+    0 0 18px rgba(192,132,252,0.38);
+}
+
+/* ============================================================
+   CLICKS
+   ============================================================ */
+
+.toggle-btn[data-sort="clicks"].active{
+
+  background:
+    linear-gradient(
+      135deg,
+      #fb923c,
+      #f97316
+    );
+
+  color:#fff;
+
+  border-color:
+    rgba(249,115,22,0.45);
+
+  box-shadow:
+    0 0 18px rgba(249,115,22,0.34);
+}
+
+/* ============================================================
+   CTR
+   ============================================================ */
+
+.toggle-btn[data-sort="ctr"].active{
+
+  background:
+    linear-gradient(
+      135deg,
+      #22d3ee,
+      #0891b2
+    );
+
+  color:#fff;
+
+  border-color:
+    rgba(34,211,238,0.45);
+
+  box-shadow:
+    0 0 18px rgba(34,211,238,0.34);
+}
+
+/* ============================================================
+   BAR
+   ============================================================ */
+
+.chart-type-btn[data-type="bar"].active{
+
+  background:
+    linear-gradient(
+      135deg,
+      #8b5cf6,
+      #d946ef
+    );
+
+  color:#fff;
+
+  border-color:
+    rgba(217,70,239,0.42);
+
+  box-shadow:
+    0 0 18px rgba(217,70,239,0.36);
+}
+
+/* ============================================================
+   LINE
+   ============================================================ */
+
+.chart-type-btn[data-type="line"].active{
+
+  background:
+    linear-gradient(
+      135deg,
+      #4fd1ff,
+      #2563eb
+    );
+
+  color:#fff;
+
+  border-color:
+    rgba(79,209,255,0.42);
+
+  box-shadow:
+    0 0 18px rgba(79,209,255,0.34);
+}
