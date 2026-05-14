@@ -65,27 +65,110 @@ export async function exportAnalyticsPDF() {
   );
 
   /* ============================================================
-     TABLE
-  ============================================================ */
+   TABLE DATA
+============================================================ */
 
-  y = renderPdfTable(
-    pdf,
-    margin,
-    pageWidth,
+const safeRows = rows.filter(tr => {
+
+  const cells = tr.querySelectorAll("td");
+
+  if (!cells.length) return false;
+
+  const first =
+    cells[0]?.textContent?.trim();
+
+  return first && first !== "-";
+
+});
+
+if (!safeRows.length) {
+
+  pdf.setTextColor(140,140,140);
+
+  pdf.text(
+    "No analytics data available.",
+    20,
     y
   );
+
+  y += 10;
+
+} else {
+
+  pdf.setFontSize(11);
+  pdf.setTextColor(255,255,255);
+
+  safeRows.slice(0, 14).forEach((tr) => {
+
+    const cells = [
+      ...tr.querySelectorAll("td")
+    ];
+
+    const values = cells.map(td =>
+      td.textContent.trim()
+    );
+
+    const rowText =
+      values.join("   •   ");
+
+    pdf.text(
+      rowText,
+      20,
+      y
+    );
+
+    y += 8;
+
+  });
+
+}
 
   /* ============================================================
      CHART
   ============================================================ */
+/* ============================================================
+   CHART
+============================================================ */
 
-  y = renderPdfChart(
-    pdf,
-    margin,
-    pageWidth,
-    y
-  );
+const activeChart =
+  kpi === "users"
+    ? usersChartCanvas
+    : chartCanvas;
 
+if (
+  activeChart &&
+  activeChart.toDataURL
+) {
+
+  try {
+
+    const imgData =
+      activeChart.toDataURL(
+        "image/png",
+        1.0
+      );
+
+    pdf.addImage(
+      imgData,
+      "PNG",
+      20,
+      y + 10,
+      170,
+      70
+    );
+
+    y += 90;
+
+  } catch (err) {
+
+    console.warn(
+      "Chart export failed",
+      err
+    );
+
+  }
+
+}
   /* ============================================================
      FOOTER
   ============================================================ */
