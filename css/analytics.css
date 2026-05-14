@@ -743,6 +743,8 @@ body.analytics::after{
    MARKET KPI ACTIVE
    ============================================================ */
 
+/* VIEWS — PURPLE */
+
 .toggle-btn[data-sort="views"].active{
 
   color:#fff;
@@ -760,6 +762,8 @@ body.analytics::after{
   box-shadow:
     0 0 16px rgba(192,132,252,0.34);
 }
+
+/* CLICKS — CYAN */
 
 .toggle-btn[data-sort="clicks"].active{
 
@@ -779,24 +783,25 @@ body.analytics::after{
     0 0 16px rgba(79,209,255,0.34);
 }
 
+/* CTR — GREEN */
+
 .toggle-btn[data-sort="ctr"].active{
 
   color:#fff;
 
   border-color:
-    rgba(34,211,238,0.34);
+    rgba(34,197,94,0.34);
 
   background:
     linear-gradient(
       90deg,
-      #22d3ee,
-      #06b6d4
+      #22c55e,
+      #16a34a
     );
 
   box-shadow:
-    0 0 16px rgba(34,211,238,0.34);
+    0 0 16px rgba(34,197,94,0.34);
 }
-
 /* ============================================================
    CHART TYPE ACTIVE
    ============================================================ */
