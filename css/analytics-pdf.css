@@ -1,0 +1,230 @@
+/* ============================================================
+   WCL PDF REPORT SYSTEM
+   ============================================================ */
+
+:root{
+
+  --pdf-bg:#05070f;
+
+  --pdf-card:
+    rgba(15,20,35,0.96);
+
+  --pdf-border:
+    rgba(255,255,255,0.08);
+
+  --pdf-text:#f8fbff;
+
+  --pdf-muted:
+    rgba(248,251,255,0.62);
+
+  --pdf-cyan:#4fd1ff;
+  --pdf-green:#6ee7b7;
+  --pdf-purple:#c084fc;
+  --pdf-orange:#f59e0b;
+  --pdf-pink:#ec4899;
+  --pdf-gold:#d6b36a;
+
+}
+
+
+/* ============================================================
+   PAGE
+   ============================================================ */
+
+.pdf-page{
+
+  width:210mm;
+  min-height:297mm;
+
+  padding:18mm;
+
+  background:var(--pdf-bg);
+
+  color:var(--pdf-text);
+
+  font-family:
+    "DM Sans",
+    Arial,
+    sans-serif;
+
+}
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.pdf-header{
+
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+
+  margin-bottom:22mm;
+
+}
+
+.pdf-logo{
+
+  width:160px;
+  object-fit:contain;
+
+}
+
+.pdf-date{
+
+  font-size:11px;
+  color:var(--pdf-muted);
+
+}
+
+
+/* ============================================================
+   KPI GRID
+   ============================================================ */
+
+.pdf-kpis{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(3,1fr);
+
+  gap:14px;
+
+  margin-bottom:20mm;
+
+}
+
+.pdf-kpi{
+
+  padding:18px;
+
+  border-radius:18px;
+
+  background:var(--pdf-card);
+
+  border:
+    1px solid var(--pdf-border);
+
+}
+
+.pdf-kpi-label{
+
+  margin-bottom:10px;
+
+  font-size:11px;
+  font-weight:700;
+
+  letter-spacing:.08em;
+  text-transform:uppercase;
+
+  color:var(--pdf-muted);
+
+}
+
+.pdf-kpi-value{
+
+  font-size:32px;
+  font-weight:900;
+
+}
+
+
+/* ============================================================
+   SECTION
+   ============================================================ */
+
+.pdf-section{
+
+  margin-bottom:18mm;
+
+}
+
+.pdf-section-title{
+
+  margin-bottom:10mm;
+
+  font-size:18px;
+  font-weight:800;
+
+  letter-spacing:.04em;
+
+}
+
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+
+.pdf-table{
+
+  width:100%;
+
+  border-collapse:collapse;
+
+}
+
+.pdf-table thead th{
+
+  padding:10px 12px;
+
+  text-align:left;
+
+  font-size:11px;
+  font-weight:800;
+
+  color:var(--pdf-muted);
+
+  border-bottom:
+    1px solid rgba(255,255,255,0.10);
+
+}
+
+.pdf-table tbody td{
+
+  padding:12px;
+
+  border-bottom:
+    1px solid rgba(255,255,255,0.05);
+
+  font-size:12px;
+
+}
+
+
+/* ============================================================
+   CHART
+   ============================================================ */
+
+.pdf-chart{
+
+  margin-top:18mm;
+
+  padding:16px;
+
+  border-radius:20px;
+
+  background:var(--pdf-card);
+
+  border:
+    1px solid var(--pdf-border);
+
+}
+
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.pdf-footer{
+
+  margin-top:20mm;
+
+  text-align:center;
+
+  font-size:10px;
+
+  color:var(--pdf-muted);
+
+}
