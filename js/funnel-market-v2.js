@@ -721,24 +721,24 @@ tbody.innerHTML = data.map(r => {
 }
 
 /* ============================================================
-CITY RENDER
+COUNTRY RENDER
 ============================================================ */
 
-async function renderCity(days, tbody) {
+async function renderCountry(days, tbody) {
 
   setMarketHeaders(
-    "City",
+    "Country",
     "Visitors",
     "Clicks",
     "CTR",
     "Momentum",
-    "Discovery"
+    "Discovery",
+    "Top City"
   );
 
   const { data, error } = await sb.rpc(
-    "analytics_market_cities_v1",
+    "analytics_market_countries_v1",
     {
-      p_country: MARKET_STATE.country,
       p_days: days
     }
   );
@@ -749,7 +749,7 @@ async function renderCity(days, tbody) {
   }
 
   if (!data?.length) {
-    renderEmpty(tbody, 6);
+    renderEmpty(tbody, 7);
     return;
   }
 
@@ -777,7 +777,7 @@ async function renderCity(days, tbody) {
 
   });
 
-  tbody.innerHTML = data.map(r => {
+  tbody.innerHTML = data.map((r, index) => {
 
     const visitors =
       Number(r.visitors || 0);
@@ -794,6 +794,15 @@ async function renderCity(days, tbody) {
     const discovery =
       r.discovery || "Direct";
 
+    const topCity =
+      r.top_city || "-";
+
+    const trafficWidth =
+      Math.min(
+        (visitors / data[0].visitors) * 100,
+        100
+      );
+
     let momentumClass =
       "momentum-stable";
 
@@ -805,14 +814,64 @@ async function renderCity(days, tbody) {
       momentumClass = "momentum-growing";
     }
 
+    let discoveryClass =
+      "discovery-direct";
+
+    if (
+      discovery.toLowerCase() ===
+      "search"
+    ) {
+      discoveryClass =
+        "discovery-search";
+    }
+
+    if (
+      discovery.toLowerCase() ===
+      "map"
+    ) {
+      discoveryClass =
+        "discovery-map";
+    }
+
+    if (
+      discovery.toLowerCase() ===
+      "sidebar"
+    ) {
+      discoveryClass =
+        "discovery-sidebar";
+    }
+
     return `
 
 <tr
-  data-city="${r.city}"
+  data-country="${r.country}"
+  class="
+    market-country-row
+    ${index === 0 ? "top-row" : ""}
+  "
 >
 
-  <td>
-    ${r.city || "-"}
+  <td class="market-country-cell">
+
+    <div class="market-country-main">
+
+      <span class="market-country-name">
+        ${r.country || "-"}
+      </span>
+
+      <div class="market-traffic-bar">
+
+        <div
+          class="market-traffic-fill"
+          style="
+            width:${trafficWidth}%;
+          "
+        ></div>
+
+      </div>
+
+    </div>
+
   </td>
 
   <td class="num">
@@ -823,7 +882,7 @@ async function renderCity(days, tbody) {
     ${clicks}
   </td>
 
-  <td class="num">
+  <td class="num ctr-good">
     ${ctr}
   </td>
 
@@ -839,7 +898,22 @@ async function renderCity(days, tbody) {
   </td>
 
   <td class="num">
-    ${discovery}
+
+    <span class="
+      discovery-pill
+      ${discoveryClass}
+    ">
+      ${discovery}
+    </span>
+
+  </td>
+
+  <td class="num">
+
+    <span class="top-city-pill">
+      ${topCity}
+    </span>
+
   </td>
 
 </tr>
@@ -855,7 +929,6 @@ async function renderCity(days, tbody) {
   renderChart(data);
 
 }
-
 /* ============================================================
 MEMBER USER RENDER
 ============================================================ */
