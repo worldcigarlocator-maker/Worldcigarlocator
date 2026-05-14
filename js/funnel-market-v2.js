@@ -38,7 +38,11 @@ STATE
 ============================================================ */
 
 const MARKET_STATE = {
-  level: "member_day",
+
+  level:
+    getKPI() === "users"
+      ? "member_day"
+      : "country",
 
   country: null,
   city: null,
@@ -47,9 +51,11 @@ const MARKET_STATE = {
 
   sort: "views",
   chartType: "bar"
+
 };
 
 MARKET_STATE.memberDays = 7;
+
 
 /* ============================================================
 DOM
