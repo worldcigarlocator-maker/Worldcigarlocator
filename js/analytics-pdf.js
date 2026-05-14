@@ -60,22 +60,310 @@ const margin = 12;
 
 let y = 14;
 
+   /* ============================================================
+   KPI THEME ENGINE
+============================================================ */
+
+const KPI_THEME = {
+
+  users: {
+    primary: [79,209,255],
+    secondary: [34,211,238],
+    dark: [8,20,34]
+  },
+
+  views: {
+    primary: [192,132,252],
+    secondary: [147,51,234],
+    dark: [18,12,34]
+  },
+
+  clicks: {
+    primary: [251,146,60],
+    secondary: [245,158,11],
+    dark: [34,18,8]
+  },
+
+  ctr: {
+    primary: [34,197,94],
+    secondary: [22,163,74],
+    dark: [8,26,18]
+  },
+
+  stores: {
+    primary: [110,231,183],
+    secondary: [16,185,129],
+    dark: [8,24,18]
+  }
+
+};
+
+const theme =
+  KPI_THEME[kpi] ||
+  KPI_THEME.views;
+
+   const isMembers =
+  kpi === "users";
+   
+   /* ============================================================
+   ASSET LOADER
+============================================================ */
+
+async function loadImageBase64(src) {
+
+  const img = new Image();
+
+  img.src = src;
+
+  await new Promise((resolve, reject) => {
+
+    img.onload = resolve;
+    img.onerror = reject;
+
+  });
+
+  const canvas =
+    document.createElement("canvas");
+
+  canvas.width =
+    img.width;
+
+  canvas.height =
+    img.height;
+
+  const ctx =
+    canvas.getContext("2d");
+
+  ctx.drawImage(
+    img,
+    0,
+    0
+  );
+
+  return canvas.toDataURL("image/png");
+
+}
+
+/* ============================================================
+   PDF ASSETS
+============================================================ */
+
+const logoBase64 =
+  await loadImageBase64(
+    "/images/wcl_brand_text.png"
+  );
+
+const coverBase64 =
+  await loadImageBase64(
+    "/images/brand1.png"
+  );
   
 
   /* ============================================================
      BACKGROUND
   ============================================================ */
 
-  pdf.setFillColor(5, 5, 5);
+pdf.setFillColor(5, 5, 5);
 
-  pdf.rect(
-    0,
-    0,
-    210,
-    297,
-    "F"
+pdf.rect(
+  0,
+  0,
+  pageWidth,
+  pageHeight,
+  "F"
+);
+
+/* ============================================================
+   EXECUTIVE COVER PAGE
+============================================================ */
+
+function renderCoverPage() {
+
+  /* ============================================================
+     BACKGROUND
+  ============================================================ */
+
+pdf.setFillColor(
+  5,
+  8,
+  16
+);
+
+pdf.rect(
+  0,
+  0,
+  pageWidth,
+  pageHeight,
+  "F"
+);
+
+  /* ============================================================
+     HERO IMAGE
+  ============================================================ */
+
+pdf.addImage(
+  coverBase64,
+  "PNG",
+  0,
+  0,
+  pageWidth,
+  120
+);
+
+  /* ============================================================
+     DARK OVERLAY
+  ============================================================ */
+
+ pdf.setFillColor(
+  0,
+  0,
+  0
+);
+
+pdf.setGState(
+  new pdf.GState({ opacity: 0.45 })
+);
+
+pdf.rect(
+  0,
+  0,
+  pageWidth,
+  120,
+  "F"
+);
+
+pdf.setGState(
+  new pdf.GState({ opacity: 1 })
+);
+
+  /* ============================================================
+     BRAND
+  ============================================================ */
+
+  pdf.addImage(
+    logoBase64,
+    "PNG",
+    margin,
+    20,
+    72,
+    16
   );
 
+  /* ============================================================
+     REPORT TITLE
+  ============================================================ */
+
+  pdf.setFont(
+    "helvetica",
+    "bold"
+  );
+
+  pdf.setTextColor(
+    255,
+    255,
+    255
+  );
+
+  pdf.setFontSize(28);
+
+  pdf.text(
+    "Analytics Report",
+    margin,
+    150
+  );
+
+  /* ============================================================
+     SUBTITLE
+  ============================================================ */
+
+  pdf.setFont(
+    "helvetica",
+    "normal"
+  );
+
+  pdf.setFontSize(12);
+
+  pdf.setTextColor(
+    180,
+    190,
+    210
+  );
+
+  pdf.text(
+    "Executive Intelligence Dashboard",
+    margin,
+    162
+  );
+
+  /* ============================================================
+     KPI INFO
+  ============================================================ */
+
+  pdf.setFontSize(11);
+
+  pdf.text(
+    `Selected KPI: ${String(kpi).toUpperCase()}`,
+    margin,
+    188
+  );
+
+  pdf.text(
+    `Generated: ${new Date().toLocaleString()}`,
+    margin,
+    196
+  );
+
+  pdf.text(
+    `Rows Exported: ${rows.length}`,
+    margin,
+    204
+  );
+
+  /* ============================================================
+     FOOTER LINE
+  ============================================================ */
+
+ pdf.setDrawColor(
+  ...theme.primary
+);
+
+  pdf.line(
+    margin,
+    240,
+    pageWidth - margin,
+    240
+  );
+
+  /* ============================================================
+     FOOTER
+  ============================================================ */
+
+  pdf.setFontSize(9);
+
+  pdf.setTextColor(
+    120,
+    130,
+    150
+  );
+
+  pdf.text(
+    "WORLD CIGAR LOCATOR — CONFIDENTIAL ANALYTICS",
+    margin,
+    248
+  );
+
+  /* ============================================================
+     NEXT PAGE
+  ============================================================ */
+
+  pdf.addPage();
+
+  currentPage++;
+
+  renderPageHeader();
+
+}
+   
 /* ============================================================
    PAGE HEADER ENGINE
 ============================================================ */
@@ -151,11 +439,9 @@ function renderPageHeader() {
      DIVIDER
   ============================================================ */
 
-  pdf.setDrawColor(
-    79,
-    209,
-    255
-  );
+ pdf.setDrawColor(
+  ...theme.primary
+);
 
   pdf.line(
     margin,
@@ -171,102 +457,127 @@ function renderPageHeader() {
    FIRST PAGE
 ============================================================ */
 
-renderPageHeader();
+renderCoverPage();
 
   /* ============================================================
-   KPI CARDS
+   EXECUTIVE KPI CARDS
 ============================================================ */
 
 const cards = [
 
   {
-    label:"Views",
-    value:global.views,
-    color:[192,132,252]
+    label: "Views",
+    value: global.views || "0",
+    color: [192,132,252]
   },
 
   {
-    label:"Stores",
-    value:global.stores,
-    color:[110,231,183]
+    label: "Users",
+    value: global.users || "0",
+    color: [79,209,255]
   },
 
   {
-    label:"Users",
-    value:global.users,
-    color:[79,209,255]
+    label: "Stores",
+    value: global.stores || "0",
+    color: [110,231,183]
   }
 
 ];
 
-const cardWidth = 56;
-const cardHeight = 24;
-const gap = 8;
+const cardWidth =
+  (pageWidth - margin * 2 - 10) / 3;
 
-cards.forEach((card, index) => {
+cards.forEach((card, i) => {
 
   const x =
-    12 + ((cardWidth + gap) * index);
+    margin + (cardWidth + 5) * i;
 
-  // background
-  pdf.setFillColor(12,16,28);
+  /* ============================================================
+     CARD BG
+  ============================================================ */
+
+pdf.setFillColor(
+  ...theme.dark
+);
 
   pdf.roundedRect(
     x,
     y,
     cardWidth,
-    cardHeight,
-    6,
-    6,
+    28,
+    4,
+    4,
     "F"
   );
 
-  // border glow
-  pdf.setDrawColor(
-    card.color[0],
-    card.color[1],
-    card.color[2]
-  );
+  /* ============================================================
+     GLOW TOP LINE
+  ============================================================ */
 
-  pdf.roundedRect(
+  pdf.setDrawColor(
+  ...theme.primary
+);
+
+  pdf.setLineWidth(1.2);
+
+  pdf.line(
     x,
     y,
-    cardWidth,
-    cardHeight,
-    6,
-    6
+    x + cardWidth,
+    y
   );
 
-  // label
-  pdf.setFontSize(9);
+  /* ============================================================
+     LABEL
+  ============================================================ */
 
-  pdf.setTextColor(150,150,150);
-
-  pdf.text(
-    card.label,
-    x + 6,
-    y + 7
+  pdf.setFont(
+    "helvetica",
+    "normal"
   );
 
-  // value
-  pdf.setFontSize(18);
+  pdf.setFontSize(8);
 
   pdf.setTextColor(
-    card.color[0],
-    card.color[1],
-    card.color[2]
+    160,
+    170,
+    190
+  );
+
+  pdf.text(
+    card.label.toUpperCase(),
+    x + 5,
+    y + 8
+  );
+
+  /* ============================================================
+     VALUE
+  ============================================================ */
+
+  pdf.setFont(
+    "helvetica",
+    "bold"
+  );
+
+  pdf.setFontSize(20);
+
+  pdf.setTextColor(
+    255,
+    255,
+    255
   );
 
   pdf.text(
     String(card.value),
-    x + 6,
-    y + 18
+    x + 5,
+    y + 20
   );
 
 });
 
-y += 34;
-
+y += 38;
+   
   /* ============================================================
    TABLE SECTION
 ============================================================ */
@@ -284,274 +595,252 @@ pdf.text(
 y += 10;
 
 /* ============================================================
-   TABLE HEADER
+   EXECUTIVE TABLE HEADER
 ============================================================ */
 
-const columns = [
-  "Name",
-  "Views",
-  "Clicks",
-  "CTR"
-];
-
-const colX = [
-  14,
-  120,
-  155,
-  190
-];
-
-pdf.setFillColor(18,24,40);
+pdf.setFillColor(
+  12,
+  18,
+  30
+);
 
 pdf.roundedRect(
   margin,
-  y,
-  184,
-  12,
-  4,
-  4,
+  y - 6,
+  pageWidth - (margin * 2),
+  14,
+  3,
+  3,
   "F"
 );
 
-pdf.setFontSize(10);
+pdf.setFont(
+  "helvetica",
+  "bold"
+);
 
-pdf.setTextColor(170,180,200);
+pdf.setFontSize(9);
 
-columns.forEach((col, i) => {
+pdf.setTextColor(
+  180,
+  190,
+  210
+);
 
-  pdf.text(
-    col,
-    colX[i],
-    y + 8,
-    {
-      align:
-        i === 0
-          ? "left"
-          : "right"
-    }
-  );
+pdf.text(
+  isMembers
+    ? "MEMBER"
+    : "NAME",
+  margin + 5,
+  y + 2
+);
 
-});
+pdf.text(
+  "VIEWS",
+  120,
+  y + 2,
+  { align:"right" }
+);
 
-y += 18;
+pdf.text(
+  "CLICKS",
+  150,
+  y + 2,
+  { align:"right" }
+);
+
+pdf.text(
+  isMembers
+    ? "LOGINS"
+    : "CTR",
+  190,
+  y + 2,
+  { align:"right" }
+);
+
+y += 16;
 
 /* ============================================================
-   ROWS
+   EXECUTIVE TABLE ROWS
 ============================================================ */
 
-const safeRows =
-  Array.isArray(rows)
-    ? rows
-    : [];
+pdf.setFont(
+  "helvetica",
+  "normal"
+);
 
-safeRows
-  .slice(0, 18)
+rows
+  .filter(r => r)
+  .slice(0, 14)
   .forEach((row, index) => {
 
-    // page break
-    if (y > 250) {
+    const rowY =
+      y + (index * 10);
 
-      pdf.addPage();
+    /* ============================================================
+       ROW BG
+    ============================================================ */
 
-      y = 20;
-    }
-
-    // alternating bg
-    if (index % 2 === 0) {
-
-      pdf.setFillColor(10,14,24);
-
-    } else {
-
-      pdf.setFillColor(15,20,32);
-
-    }
+    pdf.setFillColor(
+      index % 2 === 0
+        ? 16
+        : 10,
+      index % 2 === 0
+        ? 24
+        : 18,
+      index % 2 === 0
+        ? 40
+        : 30
+    );
 
     pdf.roundedRect(
       margin,
-      y - 6,
-      184,
-      10,
-      3,
-      3,
+      rowY - 5,
+      pageWidth - (margin * 2),
+      8,
+      2,
+      2,
       "F"
     );
 
-    const views =
-      Number(row.views || 0);
+    /* ============================================================
+       TEXT
+    ============================================================ */
 
-    const clicks =
-      Number(row.clicks || 0);
+    pdf.setTextColor(
+      255,
+      255,
+      255
+    );
 
-    const ctr =
-      views > 0
-        ? (
-            (clicks / views) * 100
-          ).toFixed(1) + "%"
-        : "0%";
-
-    pdf.setFontSize(10);
-
-    pdf.setTextColor(255,255,255);
+    pdf.setFontSize(9);
 
     pdf.text(
       String(
-        row.name ||
-        row.country ||
-        row.city ||
-        "-"
+        row.label || "—"
       ),
-      14,
-      y
+      margin + 5,
+      rowY
     );
 
     pdf.text(
-      String(views),
+      String(
+        row.views || 0
+      ),
       120,
-      y,
+      rowY,
       { align:"right" }
     );
 
     pdf.text(
-      String(clicks),
-      155,
-      y,
+      String(
+        row.clicks || 0
+      ),
+      150,
+      rowY,
       { align:"right" }
     );
 
-    // ctr color
-    if (Number.parseFloat(ctr) >= 20) {
-
-      pdf.setTextColor(
-        110,
-        231,
-        183
-      );
-
-    } else {
-
-      pdf.setTextColor(
-        245,
-        158,
-        11
-      );
-
-    }
-
     pdf.text(
-      ctr,
+      String(
+        row.ctr || "0%"
+      ),
       190,
-      y,
+      rowY,
       { align:"right" }
     );
 
-    y += 14;
+  });
 
-});
+y += (rows.length * 10) + 8;
 
 /* ============================================================
-   CHART SECTION
+   EXECUTIVE CHART SECTION
 ============================================================ */
 
-if (chartCanvas?.toDataURL) {
-
-  // auto page
-  if (y > 180) {
-
-    pdf.addPage();
-
-    y = 20;
-  }
+if (chartCanvas) {
 
   /* ============================================================
-     SECTION TITLE
+     CHART FRAME
   ============================================================ */
 
-  pdf.setFontSize(16);
-
-  pdf.setTextColor(255,255,255);
-
-  pdf.text(
-    "Performance Chart",
-    margin,
-    y
+  pdf.setFillColor(
+    10,
+    16,
+    28
   );
-
-  y += 10;
-
-  /* ============================================================
-     CHART CARD
-  ============================================================ */
-
-  pdf.setFillColor(12,16,28);
 
   pdf.roundedRect(
     margin,
     y,
-    184,
-    88,
-    8,
-    8,
+    pageWidth - (margin * 2),
+    92,
+    5,
+    5,
     "F"
   );
 
   pdf.setDrawColor(
-    79,
-    209,
-    255
-  );
+  ...theme.primary
+);
+
+  pdf.setLineWidth(0.6);
 
   pdf.roundedRect(
     margin,
     y,
-    184,
-    88,
-    8,
-    8
+    pageWidth - (margin * 2),
+    92,
+    5,
+    5
   );
 
   /* ============================================================
-     IMAGE
+     TITLE
   ============================================================ */
 
-  const imgData =
+  pdf.setFont(
+    "helvetica",
+    "bold"
+  );
+
+  pdf.setFontSize(10);
+
+  pdf.setTextColor(
+    255,
+    255,
+    255
+  );
+
+  pdf.text(
+    "Performance Visualization",
+    margin + 6,
+    y + 10
+  );
+
+  /* ============================================================
+     CHART
+  ============================================================ */
+
+  const chartImage =
     chartCanvas.toDataURL(
       "image/png",
       1
     );
 
   pdf.addImage(
-    imgData,
+    chartImage,
     "PNG",
-    margin + 6,
-    y + 6,
-    172,
-    76
+    margin + 4,
+    y + 16,
+    pageWidth - (margin * 2) - 8,
+    68
   );
 
-  y += 100;
+  y += 102;
+
 }
-
-/* ============================================================
-   FOOTER
-============================================================ */
-
-pdf.setFontSize(9);
-
-pdf.setTextColor(
-  120,
-  130,
-  150
-);
-
-pdf.text(
-  "Generated by World Cigar Locator Analytics",
-  105,
-  287,
-  { align:"center" }
-);
    
-
   /* ============================================================
      SAVE
   ============================================================ */
@@ -562,442 +851,4 @@ pdf.text(
 
 }
 
-/* ============================================================
-   HEADER
-============================================================ */
 
-async function renderPdfHeader(
-  pdf,
-  margin,
-  pageWidth,
-  y
-) {
-
-  try {
-
-    const img = new Image();
-
-    img.src =
-      "/images/wcl_brand_text.png";
-
-    await new Promise((resolve, reject) => {
-
-      img.onload = resolve;
-      img.onerror = reject;
-
-    });
-
-    const canvas =
-      document.createElement("canvas");
-
-    canvas.width =
-      img.width;
-
-    canvas.height =
-      img.height;
-
-    const ctx =
-      canvas.getContext("2d");
-
-    ctx.drawImage(
-      img,
-      0,
-      0
-    );
-
-    const png =
-      canvas.toDataURL("image/png");
-
-    pdf.addImage(
-      png,
-      "PNG",
-      margin,
-      y - 6,
-      55,
-      12
-    );
-
-  } catch (e) {
-
-    console.warn(
-      "PDF logo failed",
-      e
-    );
-
-  }
-
-  pdf.setTextColor(
-    150,
-    150,
-    150
-  );
-
-  pdf.setFont(
-    "helvetica",
-    "normal"
-  );
-
-  pdf.setFontSize(9);
-
-  pdf.text(
-    new Date().toLocaleString(),
-    pageWidth - margin,
-    y,
-    { align: "right" }
-  );
-
-  y += 18;
-
-  return y;
-
-}
-
-/* ============================================================
-   KPI CARDS
-============================================================ */
-
-function renderPdfKpis(
-  pdf,
-  margin,
-  pageWidth,
-  y
-) {
-
-  const cards = [
-
-    {
-      label: "Views",
-      value:
-        document.getElementById(
-          "globalMarket"
-        )?.textContent || "0"
-    },
-
-    {
-      label: "Stores",
-      value:
-        document.getElementById(
-          "globalStores"
-        )?.textContent || "0"
-    },
-
-    {
-      label: "Users",
-      value:
-        document.getElementById(
-          "globalUsers"
-        )?.textContent || "0"
-    }
-
-  ];
-
-  const boxWidth =
-    (pageWidth - margin * 2 - 10) / 3;
-
-  cards.forEach((k, i) => {
-
-    const x =
-      margin + (boxWidth + 5) * i;
-
-    pdf.setFillColor(
-      20,
-      20,
-      20
-    );
-
-    pdf.roundedRect(
-      x,
-      y,
-      boxWidth,
-      16,
-      3,
-      3,
-      "F"
-    );
-
-    pdf.setTextColor(
-      150,
-      150,
-      150
-    );
-
-    pdf.setFontSize(8);
-
-    pdf.text(
-      k.label,
-      x + 4,
-      y + 5
-    );
-
-    pdf.setTextColor(
-      255,
-      255,
-      255
-    );
-
-    pdf.setFont(
-      "helvetica",
-      "bold"
-    );
-
-    pdf.setFontSize(12);
-
-    pdf.text(
-      String(k.value),
-      x + 4,
-      y + 11
-    );
-
-  });
-
-  y += 24;
-
-  return y;
-
-}
-
-/* ============================================================
-   TABLE
-============================================================ */
-
-function renderPdfTable(
-  pdf,
-  margin,
-  pageWidth,
-  y
-) {
-
-  const rows =
-    window.WCL_MARKET_DATA || [];
-
-  if (!rows.length) {
-
-    pdf.setTextColor(
-      180,
-      180,
-      180
-    );
-
-    pdf.text(
-      "No data available.",
-      margin,
-      y
-    );
-
-    return y + 10;
-
-  }
-
-  pdf.setFont(
-    "helvetica",
-    "bold"
-  );
-
-  pdf.setFontSize(9);
-
-  pdf.setTextColor(
-    180,
-    180,
-    180
-  );
-
-  pdf.text(
-    "Name",
-    margin,
-    y
-  );
-
-  pdf.text(
-    "Views",
-    120,
-    y,
-    { align: "right" }
-  );
-
-  pdf.text(
-    "Clicks",
-    150,
-    y,
-    { align: "right" }
-  );
-
-  pdf.text(
-    "CTR",
-    190,
-    y,
-    { align: "right" }
-  );
-
-  y += 3;
-
-  pdf.setDrawColor(
-    60,
-    60,
-    60
-  );
-
-  pdf.line(
-    margin,
-    y,
-    pageWidth - margin,
-    y
-  );
-
-  y += 6;
-
-  pdf.setFont(
-    "helvetica",
-    "normal"
-  );
-
-  pdf.setTextColor(
-    230,
-    230,
-    230
-  );
-
-  rows.slice(0, 12).forEach(r => {
-
-    const name =
-      r.country ||
-      r.city ||
-      r.name ||
-      r.source ||
-      "-";
-
-    const views =
-      Number(
-        r.views ||
-        r.visitors ||
-        0
-      );
-
-    const clicks =
-      Number(
-        r.clicks || 0
-      );
-
-    const ctr =
-      views
-        ? (
-            (clicks / views) * 100
-          ).toFixed(1) + "%"
-        : "0%";
-
-    pdf.text(
-      String(name),
-      margin,
-      y
-    );
-
-    pdf.text(
-      String(views),
-      120,
-      y,
-      { align: "right" }
-    );
-
-    pdf.text(
-      String(clicks),
-      150,
-      y,
-      { align: "right" }
-    );
-
-    pdf.text(
-      ctr,
-      190,
-      y,
-      { align: "right" }
-    );
-
-    y += 6;
-
-  });
-
-  y += 8;
-
-  return y;
-
-}
-
-/* ============================================================
-   CHART
-============================================================ */
-
-function renderPdfChart(
-  pdf,
-  margin,
-  pageWidth,
-  y
-) {
-
-  const chartCanvas =
-    document.getElementById(
-      "marketChart"
-    );
-
-  if (
-    !chartCanvas ||
-    !chartCanvas.toDataURL
-  ) {
-    return y;
-  }
-
-  try {
-
-    const imgData =
-      chartCanvas.toDataURL(
-        "image/png",
-        1.0
-      );
-
-    pdf.addImage(
-      imgData,
-      "PNG",
-      margin,
-      y,
-      pageWidth - margin * 2,
-      80
-    );
-
-    y += 90;
-
-  } catch (e) {
-
-    console.warn(
-      "Chart export failed",
-      e
-    );
-
-  }
-
-  return y;
-
-}
-
-/* ============================================================
-   FOOTER
-============================================================ */
-
-function renderPdfFooter(
-  pdf,
-  pageWidth
-) {
-
-  pdf.setFontSize(8);
-
-  pdf.setTextColor(
-    120,
-    120,
-    120
-  );
-
-  pdf.text(
-    "World Cigar Locator — Analytics Export",
-    pageWidth / 2,
-    290,
-    { align: "center" }
-  );
-
-}
