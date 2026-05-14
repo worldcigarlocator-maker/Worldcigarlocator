@@ -601,7 +601,7 @@ body.analytics::after{
   box-shadow:var(--glow-green), 0 16px 40px rgba(0,0,0,0.35);
 }
 
-.kpi-views.active{
+.kpi-card[data-kpi="views"].active{
 
   opacity:1;
   transform:translateY(-3px);
