@@ -5,17 +5,20 @@ import { supabase } from "/js/globals.js";
 const sb = supabase;
 
 console.log("🔥 STORES V2 LOADED");
+
 /* ============================================================
    STATE
    ============================================================ */
 
 const STORES_STATE = {
   level: "store",   // store → city → traffic
+
   storeId: null,
   city: null,
   country: null,
-  days: 30
-   sort: "views"
+
+  days: 30,
+  sort: "views"
 };
 
 /* ============================================================
@@ -91,7 +94,7 @@ function ensureStoresSurface() {
    HELPERS
    ============================================================ */
 
-function renderEmpty(msg, colspan = 4) {
+function renderEmpty(msg, colspan = 8) {
   const tbody = getBody();
   if (!tbody) return;
 
@@ -107,6 +110,36 @@ function escapeHtml(str) {
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
+}
+
+/* ============================================================
+SORT
+============================================================ */
+
+function bindStoreSorting(days) {
+
+  const headers =
+    document.querySelectorAll(
+      "#marketDemandTable th[data-sort]"
+    );
+
+  headers.forEach(th => {
+
+ th.onclick = async (e) => {
+
+  e.stopPropagation();
+
+      const sort = th.dataset.sort;
+      if (!sort) return;
+
+      STORES_STATE.sort = sort;
+
+      await renderStoresV2(days);
+
+    };
+
+  });
+
 }
 
 /* ============================================================
@@ -172,10 +205,12 @@ export async function renderStoresV2(days = 30) {
 
     if (head) head.textContent = "Top Stores";
 
-    const { data, error } = await sb.rpc("analytics_store_intelligence_v1", {
-      p_days: days,
-      p_limit: 50
-    });
+   const { data, error } = await sb.rpc(
+  "analytics_store_intelligence_v1",
+  {
+    p_days: days
+  }
+);
 
     if (error) {
       console.error(error);
@@ -188,6 +223,40 @@ export async function renderStoresV2(days = 30) {
       return;
     }
 
+data.sort((a, b) => {
+
+  switch (STORES_STATE.sort) {
+
+    case "views":
+      return (b.views || 0) - (a.views || 0);
+
+    case "clicks":
+      return (b.clicks || 0) - (a.clicks || 0);
+
+    case "ctr":
+      return Number(b.ctr || 0) - Number(a.ctr || 0);
+
+    case "favorites":
+      return (b.favorites || 0) - (a.favorites || 0);
+
+    case "avg_rating":
+      return Number(b.avg_rating || 0) -
+             Number(a.avg_rating || 0);
+
+    case "ratings_count":
+      return (b.ratings_count || 0) -
+             (a.ratings_count || 0);
+
+    case "comments_count":
+      return (b.comments_count || 0) -
+             (a.comments_count || 0);
+
+    default:
+      return (b.views || 0) - (a.views || 0);
+  }
+
+});
+     
    tbody.innerHTML = data.map(r => {
 
   const ctr =
@@ -218,6 +287,7 @@ export async function renderStoresV2(days = 30) {
 }).join("");
 
     bindClicks(days);
+     bindStoreSorting(days);
     return;
   }
 
