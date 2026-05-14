@@ -276,10 +276,39 @@ data.sort((a, b) => {
   const rating =
     Number(r.avg_rating || 0).toFixed(1);
 
+      const favoriteBadge =
+  Number(r.favorites || 0) > 0
+    ? "❤️"
+    : "";
+
+const ratingBadge =
+  Number(r.avg_rating || 0) >= 4.5
+    ? "⭐"
+    : "";
+
+const commentsBadge =
+  Number(r.comments_count || 0) >= 5
+    ? "💬"
+    : "";
+
   return `
     <tr data-store-id="${r.store_id}">
 
-      <td>${escapeHtml(r.name)}</td>
+<td class="store-name-cell">
+
+  <span class="store-name">
+    ${escapeHtml(r.name)}
+  </span>
+
+  <span class="store-badges">
+
+    ${favoriteBadge}
+    ${ratingBadge}
+    ${commentsBadge}
+
+  </span>
+
+</td>
 
       <td class="num">${r.views || 0}</td>
       <td class="num">${r.clicks || 0}</td>
