@@ -1478,7 +1478,7 @@ window.renderMemberChart = function (rows = []) {
    MARKET CHART (SMOOTH ENGINE)
    ============================================================ */
 
-let marketChart;
+window.marketChart = null;
 
 window.renderMarketChart = function (rows, sort, type = "bar") {
 
