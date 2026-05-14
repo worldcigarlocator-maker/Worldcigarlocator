@@ -150,22 +150,74 @@ function renderBreadcrumb() {
 
   });
 }
+
 /* ============================================================
 HEADERS
 ============================================================ */
 
-function setMarketHeaders(label = "Location") {
+function setMarketHeaders(
+  label = "Location",
+  col2 = "Views",
+  col3 = "Clicks",
+  col4 = "CTR",
+  col5 = "",
+  col6 = "",
+  col7 = ""
+) {
 
   const thead = getTableHead();
   if (!thead) return;
 
   thead.innerHTML = `
 <tr>
+
   <th>${label}</th>
-  <th class="num">Views</th>
-  <th class="num">Clicks</th>
-  <th class="num">CTR</th>
-</tr>`;
+
+  <th class="num">
+    ${col2}
+  </th>
+
+  <th class="num">
+    ${col3}
+  </th>
+
+  <th class="num">
+    ${col4}
+  </th>
+
+  ${
+    col5
+      ? `
+        <th class="num">
+          ${col5}
+        </th>
+      `
+      : ""
+  }
+
+  ${
+    col6
+      ? `
+        <th class="num">
+          ${col6}
+        </th>
+      `
+      : ""
+  }
+
+  ${
+    col7
+      ? `
+        <th class="num">
+          ${col7}
+        </th>
+      `
+      : ""
+  }
+
+</tr>
+`;
+
 }
 
 function setMemberDayHeaders() {
@@ -191,7 +243,6 @@ function setMemberCountryHeaders() {
   <th class="num">Logins</th>
 </tr>`;
 }
-
 
 function setMemberCityHeaders() {
 
@@ -344,23 +395,35 @@ if (
 
   if (!country) return;
 
-  MARKET_STATE.country = country;
+  console.log(
+    "MARKET COUNTRY:",
+    country
+  );
+
+  MARKET_STATE.country =
+    String(country).trim();
 
   MARKET_STATE.city = null;
   MARKET_STATE.store = null;
   MARKET_STATE.user = null;
 
   if (getKPI() === "users") {
-    MARKET_STATE.level = "member_city";
+
+    MARKET_STATE.level =
+      "member_city";
+
   } else {
-    MARKET_STATE.level = "city";
+
+    MARKET_STATE.level =
+      "city";
+
   }
 
   await renderMarketV2(days);
 
   return;
-}
 
+}
       /* ============================================================
       CITY → STORE / MEMBER USER
       ============================================================ */
@@ -435,17 +498,30 @@ COUNTRY RENDER
 
 async function renderCountry(days, tbody) {
 
-  setMarketHeaders("Location");
-
-  const { data, error } = await sb.rpc(
-    "analytics_market_v1",
-    { p_days: days }
+  setMarketHeaders(
+    "Country",
+    "Visitors",
+    "Clicks",
+    "CTR",
+    "Momentum",
+    "Discovery",
+    "Top City"
   );
 
-  if (error) return console.error(error);
+  const { data, error } = await sb.rpc(
+    "analytics_market_countries_v1",
+    {
+      p_days: days
+    }
+  );
+
+  if (error) {
+    console.error(error);
+    return;
+  }
 
   if (!data?.length) {
-    renderEmpty(tbody);
+    renderEmpty(tbody, 7);
     return;
   }
 
@@ -454,34 +530,98 @@ async function renderCountry(days, tbody) {
     switch (MARKET_STATE.sort) {
 
       case "views":
-        return (b.views || 0) - (a.views || 0);
+        return (b.visitors || 0) -
+               (a.visitors || 0);
 
       case "clicks":
-        return (b.clicks || 0) - (a.clicks || 0);
+        return (b.clicks || 0) -
+               (a.clicks || 0);
 
       case "ctr":
-        return ((b.clicks || 0) / (b.views || 1)) -
-               ((a.clicks || 0) / (a.views || 1));
+        return Number(b.ctr || 0) -
+               Number(a.ctr || 0);
 
       default:
-        return (b.views || 0) - (a.views || 0);
+        return (b.visitors || 0) -
+               (a.visitors || 0);
+
     }
 
   });
 
   tbody.innerHTML = data.map(r => {
 
-    const views = Number(r.views || 0);
-    const clicks = Number(r.clicks || 0);
-    const { label: ctr, cls } = getCtrMeta(views, clicks);
+    const visitors =
+      Number(r.visitors || 0);
+
+    const clicks =
+      Number(r.clicks || 0);
+
+    const ctr =
+      Number(r.ctr || 0).toFixed(1) + "%";
+
+    const momentum =
+      r.momentum || "Stable";
+
+    const discovery =
+      r.discovery || "Direct";
+
+    const topCity =
+      r.top_city || "-";
+
+    let momentumClass =
+      "momentum-stable";
+
+    if (momentum === "Hot") {
+      momentumClass = "momentum-hot";
+    }
+
+    if (momentum === "Growing") {
+      momentumClass = "momentum-growing";
+    }
 
     return `
+
 <tr data-country="${r.country}">
-  <td>${r.country || "-"}</td>
-  <td class="num">${views}</td>
-  <td class="num">${clicks}</td>
-  <td class="num ${cls}">${ctr}</td>
-</tr>`;
+
+  <td>
+    ${r.country || "-"}
+  </td>
+
+  <td class="num">
+    ${visitors}
+  </td>
+
+  <td class="num">
+    ${clicks}
+  </td>
+
+  <td class="num">
+    ${ctr}
+  </td>
+
+  <td class="num">
+
+    <span class="
+      momentum-pill
+      ${momentumClass}
+    ">
+      ${momentum}
+    </span>
+
+  </td>
+
+  <td class="num">
+    ${discovery}
+  </td>
+
+  <td class="num">
+    ${topCity}
+  </td>
+
+</tr>
+
+`;
 
   }).join("");
 
@@ -490,8 +630,8 @@ async function renderCountry(days, tbody) {
   window.WCL_MARKET_DATA = data;
 
   renderChart(data);
-}
 
+}
 /* ============================================================
 MEMBER DAY RENDER
 ============================================================ */
@@ -586,69 +726,134 @@ CITY RENDER
 
 async function renderCity(days, tbody) {
 
-  let data = null;
-  let error = null;
+  setMarketHeaders(
+    "City",
+    "Visitors",
+    "Clicks",
+    "CTR",
+    "Momentum",
+    "Discovery"
+  );
 
-  if (MARKET_STATE.level === "member_city") {
+  const { data, error } = await sb.rpc(
+    "analytics_market_cities_v1",
+    {
+      p_country: MARKET_STATE.country,
+      p_days: days
+    }
+  );
 
-    setMemberCityHeaders();
-
-    const activeDay =
-      getActiveDay() ||
-      new Date().toISOString().split("T")[0];
-
-    console.log("🔥 MEMBER DAY:", activeDay);
-
-    const res = await sb.rpc(
-      "analytics_member_cities",
-      {
-        p_day: activeDay,
-        p_country: MARKET_STATE.country
-      }
-    );
-
-    data = res.data;
-    error = res.error;
-
-  } else {
-
-    setMarketHeaders("City");
-
-    const res = await sb.rpc(
-      "analytics_top_cities",
-      {
-        p_days: days,
-        p_country: MARKET_STATE.country,
-        p_limit: 100
-      }
-    );
-
-    data = res.data;
-    error = res.error;
-  }
-
-  if (error) return console.error(error);
-
-  if (!data?.length) {
-    renderEmpty(tbody);
+  if (error) {
+    console.error(error);
     return;
   }
 
-tbody.innerHTML = data.map(c => {
+  if (!data?.length) {
+    renderEmpty(tbody, 6);
+    return;
+  }
 
-  return `
-<tr data-city="${c.city}">
-  <td>${c.city || "-"}</td>
-  <td class="num">${c.views || 0}</td>
-</tr>`;
+  data.sort((a, b) => {
 
-}).join("");
+    switch (MARKET_STATE.sort) {
+
+      case "views":
+        return (b.visitors || 0) -
+               (a.visitors || 0);
+
+      case "clicks":
+        return (b.clicks || 0) -
+               (a.clicks || 0);
+
+      case "ctr":
+        return Number(b.ctr || 0) -
+               Number(a.ctr || 0);
+
+      default:
+        return (b.visitors || 0) -
+               (a.visitors || 0);
+
+    }
+
+  });
+
+  tbody.innerHTML = data.map(r => {
+
+    const visitors =
+      Number(r.visitors || 0);
+
+    const clicks =
+      Number(r.clicks || 0);
+
+    const ctr =
+      Number(r.ctr || 0).toFixed(1) + "%";
+
+    const momentum =
+      r.momentum || "Stable";
+
+    const discovery =
+      r.discovery || "Direct";
+
+    let momentumClass =
+      "momentum-stable";
+
+    if (momentum === "Hot") {
+      momentumClass = "momentum-hot";
+    }
+
+    if (momentum === "Growing") {
+      momentumClass = "momentum-growing";
+    }
+
+    return `
+
+<tr
+  data-city="${r.city}"
+>
+
+  <td>
+    ${r.city || "-"}
+  </td>
+
+  <td class="num">
+    ${visitors}
+  </td>
+
+  <td class="num">
+    ${clicks}
+  </td>
+
+  <td class="num">
+    ${ctr}
+  </td>
+
+  <td class="num">
+
+    <span class="
+      momentum-pill
+      ${momentumClass}
+    ">
+      ${momentum}
+    </span>
+
+  </td>
+
+  <td class="num">
+    ${discovery}
+  </td>
+
+</tr>
+
+`;
+
+  }).join("");
 
   bindRows(days);
 
   window.WCL_MARKET_DATA = data;
 
   renderChart(data);
+
 }
 
 /* ============================================================
