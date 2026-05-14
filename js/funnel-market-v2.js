@@ -790,6 +790,133 @@ async function renderCountry(days, tbody) {
   renderChart(data);
 
 }
+
+/* ============================================================
+CITY RENDER
+============================================================ */
+
+async function renderCity(days, tbody) {
+
+  setMarketHeaders(
+    "City",
+    "Visitors",
+    "Clicks",
+    "CTR",
+    "Momentum",
+    "Discovery"
+  );
+
+  const { data, error } = await sb.rpc(
+    "analytics_market_cities_v1",
+    {
+      p_country: MARKET_STATE.country,
+      p_days: days
+    }
+  );
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  if (!data?.length) {
+    renderEmpty(tbody, 6);
+    return;
+  }
+
+  data.sort((a, b) => {
+
+    switch (MARKET_STATE.sort) {
+
+      case "views":
+        return (b.visitors || 0) - (a.visitors || 0);
+
+      case "clicks":
+        return (b.clicks || 0) - (a.clicks || 0);
+
+      case "ctr":
+        return Number(b.ctr || 0) - Number(a.ctr || 0);
+
+      default:
+        return (b.visitors || 0) - (a.visitors || 0);
+    }
+
+  });
+
+  tbody.innerHTML = data.map(r => {
+
+    const visitors = Number(r.visitors || 0);
+    const clicks = Number(r.clicks || 0);
+    const ctr = Number(r.ctr || 0).toFixed(1) + "%";
+
+    const momentum = r.momentum || "Stable";
+    const discovery = r.discovery || "Direct";
+
+    let momentumClass = "momentum-stable";
+
+    if (momentum === "Hot") {
+      momentumClass = "momentum-hot";
+    }
+
+    if (momentum === "Growing") {
+      momentumClass = "momentum-growing";
+    }
+
+    let discoveryClass = "discovery-direct";
+
+    if (discovery.toLowerCase() === "search") {
+      discoveryClass = "discovery-search";
+    }
+
+    if (discovery.toLowerCase() === "map") {
+      discoveryClass = "discovery-map";
+    }
+
+    if (discovery.toLowerCase() === "sidebar") {
+      discoveryClass = "discovery-sidebar";
+    }
+
+    return `
+<tr data-city="${r.city}">
+
+  <td>
+    ${r.city || "-"}
+  </td>
+
+  <td class="num">
+    ${visitors}
+  </td>
+
+  <td class="num">
+    ${clicks}
+  </td>
+
+  <td class="num">
+    ${ctr}
+  </td>
+
+  <td class="num">
+    <span class="momentum-pill ${momentumClass}">
+      ${momentum}
+    </span>
+  </td>
+
+  <td class="num">
+    <span class="discovery-pill ${discoveryClass}">
+      ${discovery}
+    </span>
+  </td>
+
+</tr>`;
+  }).join("");
+
+  bindRows(days);
+
+  window.WCL_MARKET_DATA = data;
+
+  renderChart(data);
+}
+
 /* ============================================================
 MEMBER USER RENDER
 ============================================================ */
