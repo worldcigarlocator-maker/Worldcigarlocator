@@ -1009,11 +1009,13 @@ function init() {
 
   bindKpiMini();
 
- if (exportBtn) {
+if (exportBtn) {
+
   exportBtn.addEventListener(
     "click",
-    exportAnalyticsPDF
+    exportPDF
   );
+
 }
 
   // 🔹 default KPI
