@@ -22,18 +22,45 @@ export async function exportAnalyticsPDF({
 
 }) {
 
-  const { jsPDF } = window.jspdf;
+  /* ============================================================
+   ORIENTATION ENGINE
+============================================================ */
 
-  const pdf = new jsPDF(
-    "p",
-    "mm",
-    "a4"
-  );
+const landscape =
+  rows?.length > 10 ||
+  kpi === "stores";
 
-  const pageWidth = 210;
-  const margin = 12;
+const pdf = new jsPDF({
 
-  let y = 14;
+  orientation:
+    landscape
+      ? "landscape"
+      : "portrait",
+
+  unit:"mm",
+  format:"a4"
+
+});
+
+/* ============================================================
+   PAGE SIZE
+============================================================ */
+
+const pageWidth =
+  landscape
+    ? 297
+    : 210;
+
+const pageHeight =
+  landscape
+    ? 210
+    : 297;
+
+const margin = 12;
+
+let y = 14;
+
+  
 
   /* ============================================================
      BACKGROUND
@@ -49,138 +76,481 @@ export async function exportAnalyticsPDF({
     "F"
   );
 
-  /* ============================================================
-     HEADER
-  ============================================================ */
-
-  y = await renderPdfHeader(
-    pdf,
-    margin,
-    pageWidth,
-    y
-  );
-
-  /* ============================================================
-     KPI CARDS
-  ============================================================ */
-
-  y = renderPdfKpis(
-    pdf,
-    margin,
-    pageWidth,
-    y
-  );
-
-  /* ============================================================
-   TABLE DATA
+/* ============================================================
+   PAGE HEADER ENGINE
 ============================================================ */
 
-const safeRows = rows.filter(tr => {
+let currentPage = 1;
 
-  const cells = tr.querySelectorAll("td");
+function renderPageHeader() {
 
-  if (!cells.length) return false;
+  /* ============================================================
+     LOGO
+  ============================================================ */
 
-  const first =
-    cells[0]?.textContent?.trim();
+  pdf.addImage(
+    logoBase64,
+    "PNG",
+    margin,
+    10,
+    52,
+    12
+  );
 
-  return first && first !== "-";
+  /* ============================================================
+     TITLE
+  ============================================================ */
+
+  pdf.setFontSize(22);
+
+  pdf.setTextColor(
+    255,
+    255,
+    255
+  );
+
+  pdf.text(
+    "Analytics Report",
+    margin,
+    34
+  );
+
+  /* ============================================================
+     META
+  ============================================================ */
+
+  pdf.setFontSize(9);
+
+  pdf.setTextColor(
+    140,
+    150,
+    170
+  );
+
+  pdf.text(
+    `KPI: ${String(kpi).toUpperCase()}`,
+    margin,
+    41
+  );
+
+  pdf.text(
+    new Date().toLocaleString(),
+    pageWidth - margin,
+    18,
+    { align:"right" }
+  );
+
+  pdf.text(
+    `Page ${currentPage}`,
+    pageWidth - margin,
+    24,
+    { align:"right" }
+  );
+
+  /* ============================================================
+     DIVIDER
+  ============================================================ */
+
+  pdf.setDrawColor(
+    79,
+    209,
+    255
+  );
+
+  pdf.line(
+    margin,
+    48,
+    pageWidth - margin,
+    48
+  );
+
+  y = 60;
+}
+
+/* ============================================================
+   FIRST PAGE
+============================================================ */
+
+renderPageHeader();
+
+  /* ============================================================
+   KPI CARDS
+============================================================ */
+
+const cards = [
+
+  {
+    label:"Views",
+    value:global.views,
+    color:[192,132,252]
+  },
+
+  {
+    label:"Stores",
+    value:global.stores,
+    color:[110,231,183]
+  },
+
+  {
+    label:"Users",
+    value:global.users,
+    color:[79,209,255]
+  }
+
+];
+
+const cardWidth = 56;
+const cardHeight = 24;
+const gap = 8;
+
+cards.forEach((card, index) => {
+
+  const x =
+    12 + ((cardWidth + gap) * index);
+
+  // background
+  pdf.setFillColor(12,16,28);
+
+  pdf.roundedRect(
+    x,
+    y,
+    cardWidth,
+    cardHeight,
+    6,
+    6,
+    "F"
+  );
+
+  // border glow
+  pdf.setDrawColor(
+    card.color[0],
+    card.color[1],
+    card.color[2]
+  );
+
+  pdf.roundedRect(
+    x,
+    y,
+    cardWidth,
+    cardHeight,
+    6,
+    6
+  );
+
+  // label
+  pdf.setFontSize(9);
+
+  pdf.setTextColor(150,150,150);
+
+  pdf.text(
+    card.label,
+    x + 6,
+    y + 7
+  );
+
+  // value
+  pdf.setFontSize(18);
+
+  pdf.setTextColor(
+    card.color[0],
+    card.color[1],
+    card.color[2]
+  );
+
+  pdf.text(
+    String(card.value),
+    x + 6,
+    y + 18
+  );
 
 });
 
-if (!safeRows.length) {
+y += 34;
 
-  pdf.setTextColor(140,140,140);
+  /* ============================================================
+   TABLE SECTION
+============================================================ */
+
+pdf.setFontSize(16);
+
+pdf.setTextColor(255,255,255);
+
+pdf.text(
+  "Analytics Breakdown",
+  margin,
+  y
+);
+
+y += 10;
+
+/* ============================================================
+   TABLE HEADER
+============================================================ */
+
+const columns = [
+  "Name",
+  "Views",
+  "Clicks",
+  "CTR"
+];
+
+const colX = [
+  14,
+  120,
+  155,
+  190
+];
+
+pdf.setFillColor(18,24,40);
+
+pdf.roundedRect(
+  margin,
+  y,
+  184,
+  12,
+  4,
+  4,
+  "F"
+);
+
+pdf.setFontSize(10);
+
+pdf.setTextColor(170,180,200);
+
+columns.forEach((col, i) => {
 
   pdf.text(
-    "No analytics data available.",
-    20,
+    col,
+    colX[i],
+    y + 8,
+    {
+      align:
+        i === 0
+          ? "left"
+          : "right"
+    }
+  );
+
+});
+
+y += 18;
+
+/* ============================================================
+   ROWS
+============================================================ */
+
+const safeRows =
+  Array.isArray(rows)
+    ? rows
+    : [];
+
+safeRows
+  .slice(0, 18)
+  .forEach((row, index) => {
+
+    // page break
+    if (y > 250) {
+
+      pdf.addPage();
+
+      y = 20;
+    }
+
+    // alternating bg
+    if (index % 2 === 0) {
+
+      pdf.setFillColor(10,14,24);
+
+    } else {
+
+      pdf.setFillColor(15,20,32);
+
+    }
+
+    pdf.roundedRect(
+      margin,
+      y - 6,
+      184,
+      10,
+      3,
+      3,
+      "F"
+    );
+
+    const views =
+      Number(row.views || 0);
+
+    const clicks =
+      Number(row.clicks || 0);
+
+    const ctr =
+      views > 0
+        ? (
+            (clicks / views) * 100
+          ).toFixed(1) + "%"
+        : "0%";
+
+    pdf.setFontSize(10);
+
+    pdf.setTextColor(255,255,255);
+
+    pdf.text(
+      String(
+        row.name ||
+        row.country ||
+        row.city ||
+        "-"
+      ),
+      14,
+      y
+    );
+
+    pdf.text(
+      String(views),
+      120,
+      y,
+      { align:"right" }
+    );
+
+    pdf.text(
+      String(clicks),
+      155,
+      y,
+      { align:"right" }
+    );
+
+    // ctr color
+    if (Number.parseFloat(ctr) >= 20) {
+
+      pdf.setTextColor(
+        110,
+        231,
+        183
+      );
+
+    } else {
+
+      pdf.setTextColor(
+        245,
+        158,
+        11
+      );
+
+    }
+
+    pdf.text(
+      ctr,
+      190,
+      y,
+      { align:"right" }
+    );
+
+    y += 14;
+
+});
+
+/* ============================================================
+   CHART SECTION
+============================================================ */
+
+if (chartCanvas?.toDataURL) {
+
+  // auto page
+  if (y > 180) {
+
+    pdf.addPage();
+
+    y = 20;
+  }
+
+  /* ============================================================
+     SECTION TITLE
+  ============================================================ */
+
+  pdf.setFontSize(16);
+
+  pdf.setTextColor(255,255,255);
+
+  pdf.text(
+    "Performance Chart",
+    margin,
     y
   );
 
   y += 10;
 
-} else {
-
-  pdf.setFontSize(11);
-  pdf.setTextColor(255,255,255);
-
-  safeRows.slice(0, 14).forEach((tr) => {
-
-    const cells = [
-      ...tr.querySelectorAll("td")
-    ];
-
-    const values = cells.map(td =>
-      td.textContent.trim()
-    );
-
-    const rowText =
-      values.join("   •   ");
-
-    pdf.text(
-      rowText,
-      20,
-      y
-    );
-
-    y += 8;
-
-  });
-
-}
-
   /* ============================================================
-     CHART
+     CHART CARD
   ============================================================ */
 
-const activeChart =
-  kpi === "users"
-    ? usersChartCanvas
-    : chartCanvas;
+  pdf.setFillColor(12,16,28);
 
-if (
-  activeChart &&
-  activeChart.toDataURL
-) {
-
-  try {
-
-    const imgData =
-      activeChart.toDataURL(
-        "image/png",
-        1.0
-      );
-
-    pdf.addImage(
-      imgData,
-      "PNG",
-      20,
-      y + 10,
-      170,
-      70
-    );
-
-    y += 90;
-
-  } catch (err) {
-
-    console.warn(
-      "Chart export failed",
-      err
-    );
-
-  }
-
-}
-  /* ============================================================
-     FOOTER
-  ============================================================ */
-
-  renderPdfFooter(
-    pdf,
-    pageWidth
+  pdf.roundedRect(
+    margin,
+    y,
+    184,
+    88,
+    8,
+    8,
+    "F"
   );
+
+  pdf.setDrawColor(
+    79,
+    209,
+    255
+  );
+
+  pdf.roundedRect(
+    margin,
+    y,
+    184,
+    88,
+    8,
+    8
+  );
+
+  /* ============================================================
+     IMAGE
+  ============================================================ */
+
+  const imgData =
+    chartCanvas.toDataURL(
+      "image/png",
+      1
+    );
+
+  pdf.addImage(
+    imgData,
+    "PNG",
+    margin + 6,
+    y + 6,
+    172,
+    76
+  );
+
+  y += 100;
+}
+
+/* ============================================================
+   FOOTER
+============================================================ */
+
+pdf.setFontSize(9);
+
+pdf.setTextColor(
+  120,
+  130,
+  150
+);
+
+pdf.text(
+  "Generated by World Cigar Locator Analytics",
+  105,
+  287,
+  { align:"center" }
+);
+   
 
   /* ============================================================
      SAVE
