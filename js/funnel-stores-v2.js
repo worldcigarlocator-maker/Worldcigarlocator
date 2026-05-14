@@ -923,37 +923,145 @@ function renderSourceSection({
 
 </div>
 
-        <div class="dossier-source-row">
-          <span>Search</span>
-          <strong>
-            ${getSourceViews("search")}
-          </strong>
-        </div>
+     <div class="dossier-source-row">
 
-        <div class="dossier-source-row">
-          <span>Map</span>
-          <strong>
-            ${getSourceViews("map")}
-          </strong>
-        </div>
+  <div class="dossier-source-head">
 
-        <div class="dossier-source-row">
-          <span>Modal</span>
-          <strong>
-            ${getSourceViews("modal")}
-          </strong>
-        </div>
+    <span>
+      Search
+    </span>
 
-        <div class="dossier-source-row">
-          <span>Direct</span>
-          <strong>
-            ${getSourceViews("direct")}
-          </strong>
-        </div>
+    <strong>
+      ${getSourceViews("search")}
+    </strong>
 
-      </div>
+  </div>
 
-    </div>
+  <div class="source-bar">
+
+    <div
+      class="source-bar-fill search"
+      style="
+        width:
+        ${
+          totalViews > 0
+            ? (
+                getSourceViews("search")
+                / totalViews
+              ) * 100
+            : 0
+        }%;
+      "
+    ></div>
+
+  </div>
+
+</div>
+
+<div class="dossier-source-row">
+
+  <div class="dossier-source-head">
+
+    <span>
+      Map
+    </span>
+
+    <strong>
+      ${getSourceViews("map")}
+    </strong>
+
+  </div>
+
+  <div class="source-bar">
+
+    <div
+      class="source-bar-fill map"
+      style="
+        width:
+        ${
+          totalViews > 0
+            ? (
+                getSourceViews("map")
+                / totalViews
+              ) * 100
+            : 0
+        }%;
+      "
+    ></div>
+
+  </div>
+
+</div>
+
+<div class="dossier-source-row">
+
+  <div class="dossier-source-head">
+
+    <span>
+      Modal
+    </span>
+
+    <strong>
+      ${getSourceViews("modal")}
+    </strong>
+
+  </div>
+
+  <div class="source-bar">
+
+    <div
+      class="source-bar-fill modal"
+      style="
+        width:
+        ${
+          totalViews > 0
+            ? (
+                getSourceViews("modal")
+                / totalViews
+              ) * 100
+            : 0
+        }%;
+      "
+    ></div>
+
+  </div>
+
+</div>
+
+<div class="dossier-source-row">
+
+  <div class="dossier-source-head">
+
+    <span>
+      Direct
+    </span>
+
+    <strong>
+      ${getSourceViews("direct")}
+    </strong>
+
+  </div>
+
+  <div class="source-bar">
+
+    <div
+      class="source-bar-fill direct"
+      style="
+        width:
+        ${
+          totalViews > 0
+            ? (
+                getSourceViews("direct")
+                / totalViews
+              ) * 100
+            : 0
+        }%;
+      "
+    ></div>
+
+  </div>
+
+</div>
 
   `;
 
