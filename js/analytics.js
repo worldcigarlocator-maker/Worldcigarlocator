@@ -320,6 +320,20 @@ function bindKpiMini() {
       el.classList.add("active");
 
       /* ============================================================
+   RESET CHARTS
+============================================================ */
+
+if (window.marketChart) {
+  window.marketChart.destroy();
+  window.marketChart = null;
+}
+
+if (window.memberChart) {
+  window.memberChart.destroy();
+  window.memberChart = null;
+}
+
+      /* ============================================================
          STATE
       ============================================================ */
 
