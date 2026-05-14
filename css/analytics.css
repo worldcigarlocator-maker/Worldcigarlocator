@@ -1578,3 +1578,81 @@ BREADCRUMB
   text-shadow:
     0 0 10px rgba(214,179,106,.45);
 }
+
+/* ============================================================
+   TREND METER
+   ============================================================ */
+
+.trend-meter{
+  width:100%;
+  height:8px;
+
+  margin-top:12px;
+
+  border-radius:999px;
+
+  overflow:hidden;
+
+  background:
+    rgba(255,255,255,0.08);
+
+  box-shadow:
+    inset 0 0 8px rgba(0,0,0,0.35);
+}
+
+.trend-meter-fill{
+  height:100%;
+
+  border-radius:999px;
+
+  transition:
+    width .4s ease;
+}
+
+/* HOT */
+
+.trend-meter-fill.hot{
+
+  background:
+    linear-gradient(
+      90deg,
+      #ff5f6d,
+      #ffc371
+    );
+
+  box-shadow:
+    0 0 18px rgba(255,95,109,0.55);
+
+}
+
+/* GROWING */
+
+.trend-meter-fill.growing{
+
+  background:
+    linear-gradient(
+      90deg,
+      #4fd1ff,
+      #22d3ee
+    );
+
+  box-shadow:
+    0 0 18px rgba(79,209,255,0.45);
+
+}
+
+/* SLOW */
+
+.trend-meter-fill.slow{
+
+  background:
+    linear-gradient(
+      90deg,
+      #6b7280,
+      #9ca3af
+    );
+
+  box-shadow:
+    0 0 12px rgba(156,163,175,0.22);
+
+}
