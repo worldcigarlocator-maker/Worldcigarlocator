@@ -1558,3 +1558,23 @@ BREADCRUMB
 .crumb-sep{
   opacity:0.5;
 }
+
+/* ============================================================
+   ACTIVE STORE SORT
+============================================================ */
+
+#marketDemandTable th[data-sort]{
+  cursor:pointer;
+  transition:all .18s ease;
+}
+
+#marketDemandTable th[data-sort]:hover{
+  color:#d6b36a;
+}
+
+#marketDemandTable th.active-sort{
+  color:#d6b36a;
+
+  text-shadow:
+    0 0 10px rgba(214,179,106,.45);
+}
