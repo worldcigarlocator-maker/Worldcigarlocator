@@ -158,7 +158,11 @@ const coverBase64 =
     "/images/brand1.png"
   );
   
-
+const watermarkBase64 =
+  await loadImageBase64(
+    "/images/ab.svg"
+  );
+   
   /* ============================================================
      BACKGROUND
   ============================================================ */
