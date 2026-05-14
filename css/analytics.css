@@ -1703,6 +1703,18 @@ BREADCRUMB
 
 .source-bar-fill.sidebar{
 
+  background:
+    linear-gradient(
+      90deg,
+      #c084fc,
+      #9333ea
+    );
+
+  box-shadow:
+    0 0 16px rgba(192,132,252,0.42);
+
+}
+
 /* SEARCH */
 
 .source-bar-fill.search{
