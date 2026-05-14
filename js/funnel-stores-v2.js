@@ -125,6 +125,12 @@ function bindStoreSorting(days) {
 
   headers.forEach(th => {
 
+     th.classList.remove("active-sort");
+
+if (th.dataset.sort === STORES_STATE.sort) {
+  th.classList.add("active-sort");
+}
+     
  th.onclick = async (e) => {
 
   e.stopPropagation();
@@ -133,6 +139,11 @@ function bindStoreSorting(days) {
       if (!sort) return;
 
       STORES_STATE.sort = sort;
+    headers.forEach(h =>
+  h.classList.remove("active-sort")
+);
+
+th.classList.add("active-sort");
 
       await renderStoresV2(days);
 
