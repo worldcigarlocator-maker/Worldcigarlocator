@@ -1353,6 +1353,8 @@ window.renderUsersChart = function (rows) {
 MEMBER CHART
 ============================================================ */
 
+window.memberChart = null;
+
 window.renderMemberChart = function (rows = []) {
 
   if (!rows?.length) return;
@@ -1372,6 +1374,19 @@ window.renderMemberChart = function (rows = []) {
     document.getElementById("marketChart");
 
   if (!ctx) return;
+
+  /* ============================================================
+     DESTROY MARKET CHART
+  ============================================================ */
+
+  if (window.marketChart) {
+    window.marketChart.destroy();
+    window.marketChart = null;
+  }
+
+  /* ============================================================
+     DESTROY MEMBER CHART
+  ============================================================ */
 
   if (window.memberChart) {
     window.memberChart.destroy();
