@@ -45,15 +45,23 @@ function ensureStoresSurface() {
 
     const thead = panel.querySelector("thead");
     if (thead) {
-      thead.innerHTML = `
-        <tr>
-          <th>Store</th>
-          <th class="num">Views</th>
-          <th class="num">Clicks</th>
-          <th class="num">CTR</th>
-        </tr>
-      `;
-    }
+  thead.innerHTML = `
+    <tr>
+      <th>Store</th>
+
+      <th class="num">Views</th>
+      <th class="num">Clicks</th>
+      <th class="num">CTR</th>
+
+      <th class="num">Favorites</th>
+
+      <th class="num">Rating</th>
+      <th class="num">Ratings</th>
+
+      <th class="num">Comments</th>
+    </tr>
+  `;
+}
   }
 }
 
