@@ -30,6 +30,8 @@ const landscape =
   rows?.length > 10 ||
   kpi === "stores";
 
+const { jsPDF } = window.jspdf;
+
 const pdf = new jsPDF({
 
   orientation:
