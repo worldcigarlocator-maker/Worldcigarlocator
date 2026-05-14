@@ -748,10 +748,6 @@ function runLocalFilter() {
    PDF EXPORT
 ============================================================ */
 
-import {
-  exportAnalyticsPDF
-} from "./analytics-pdf.js";
-
 async function exportPDF() {
 
   await exportAnalyticsPDF();
