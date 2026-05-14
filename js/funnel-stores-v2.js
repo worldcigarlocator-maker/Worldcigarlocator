@@ -889,11 +889,39 @@ function renderSourceSection({
       <div class="dossier-sources">
 
         <div class="dossier-source-row">
-          <span>Sidebar</span>
-          <strong>
-            ${getSourceViews("sidebar")}
-          </strong>
-        </div>
+
+  <div class="dossier-source-head">
+
+    <span>
+      Sidebar
+    </span>
+
+    <strong>
+      ${getSourceViews("sidebar")}
+    </strong>
+
+  </div>
+
+  <div class="source-bar">
+
+    <div
+      class="source-bar-fill sidebar"
+      style="
+        width:
+        ${
+          totalViews > 0
+            ? (
+                getSourceViews("sidebar")
+                / totalViews
+              ) * 100
+            : 0
+        }%;
+      "
+    ></div>
+
+  </div>
+
+</div>
 
         <div class="dossier-source-row">
           <span>Search</span>
