@@ -1703,14 +1703,66 @@ BREADCRUMB
 
 .source-bar-fill.sidebar{
 
+/* SEARCH */
+
+.source-bar-fill.search{
+
   background:
     linear-gradient(
       90deg,
-      #c084fc,
-      #9333ea
+      #4fd1ff,
+      #22d3ee
     );
 
   box-shadow:
-    0 0 16px rgba(192,132,252,0.45);
+    0 0 16px rgba(79,209,255,0.45);
+
+}
+
+/* MAP */
+
+.source-bar-fill.map{
+
+  background:
+    linear-gradient(
+      90deg,
+      #22c55e,
+      #86efac
+    );
+
+  box-shadow:
+    0 0 16px rgba(34,197,94,0.40);
+
+}
+
+/* MODAL */
+
+.source-bar-fill.modal{
+
+  background:
+    linear-gradient(
+      90deg,
+      #f59e0b,
+      #facc15
+    );
+
+  box-shadow:
+    0 0 16px rgba(245,158,11,0.42);
+
+}
+
+/* DIRECT */
+
+.source-bar-fill.direct{
+
+  background:
+    linear-gradient(
+      90deg,
+      #fb7185,
+      #f472b6
+    );
+
+  box-shadow:
+    0 0 16px rgba(244,114,182,0.42);
 
 }
