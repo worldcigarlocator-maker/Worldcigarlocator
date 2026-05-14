@@ -417,7 +417,7 @@ const commentsBadge =
   }
 }
 
- /* ============================================================
+/* ============================================================
    PERFORMANCE SCORE
    ============================================================ */
 
@@ -440,6 +440,94 @@ function calculatePerformanceScore({
   score += avgRating * 20;
 
   return Math.round(score);
+
+}
+
+/* ============================================================
+   INTELLIGENCE HELPERS
+   ============================================================ */
+
+function getPrestigeLabel(score) {
+
+  if (score >= 500) {
+    return "Elite";
+  }
+
+  if (score >= 250) {
+    return "Premium";
+  }
+
+  if (score >= 100) {
+    return "Growing";
+  }
+
+  return "Developing";
+
+}
+
+function getMarketPosition(score) {
+
+  if (score >= 500) {
+    return "Top Tier";
+  }
+
+  if (score >= 250) {
+    return "High Performer";
+  }
+
+  if (score >= 100) {
+    return "Competitive";
+  }
+
+  return "Emerging";
+
+}
+
+function getDiscoveryBehavior(source) {
+
+  switch (source) {
+
+    case "Search":
+      return "Intent Driven";
+
+    case "Map":
+      return "Exploration Driven";
+
+    case "Sidebar":
+      return "Navigation Driven";
+
+    case "Modal":
+      return "Engagement Driven";
+
+    default:
+      return "Balanced";
+
+  }
+
+}
+
+function getEngagementQuality({
+  favorites,
+  comments,
+  rating
+}) {
+
+  if (
+    favorites >= 10 &&
+    comments >= 10 &&
+    rating >= 4.5
+  ) {
+    return "Exceptional";
+  }
+
+  if (
+    favorites >= 5 ||
+    comments >= 5
+  ) {
+    return "Strong";
+  }
+
+  return "Low";
 
 }
 
