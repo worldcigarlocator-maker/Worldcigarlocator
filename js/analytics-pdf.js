@@ -11,9 +11,16 @@ import {
    EXPORT
 ============================================================ */
 
-export async function exportAnalyticsPDF() {
+export async function exportAnalyticsPDF({
 
-  console.log("🔥 EXPORT PDF V2");
+  kpi,
+  state,
+  rows,
+  chartCanvas,
+  usersChartCanvas,
+  global
+
+}) {
 
   const { jsPDF } = window.jspdf;
 
@@ -126,9 +133,6 @@ if (!safeRows.length) {
   /* ============================================================
      CHART
   ============================================================ */
-/* ============================================================
-   CHART
-============================================================ */
 
 const activeChart =
   kpi === "users"
