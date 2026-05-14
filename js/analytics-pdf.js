@@ -181,6 +181,35 @@ pdf.rect(
    EXECUTIVE COVER PAGE
 ============================================================ */
 
+/* ============================================================
+   WATERMARK ENGINE
+============================================================ */
+
+function renderWatermark() {
+
+  pdf.setGState(
+    new pdf.GState({
+      opacity: 0.05
+    })
+  );
+
+  pdf.addImage(
+    watermarkBase64,
+    "PNG",
+    pageWidth - 78,
+    pageHeight - 78,
+    54,
+    54
+  );
+
+  pdf.setGState(
+    new pdf.GState({
+      opacity: 1
+    })
+  );
+
+}
+   
 function renderCoverPage() {
 
   /* ============================================================
@@ -365,6 +394,8 @@ pdf.setGState(
   currentPage++;
 
   renderPageHeader();
+   renderCoverPage()
+   
 
 }
    
