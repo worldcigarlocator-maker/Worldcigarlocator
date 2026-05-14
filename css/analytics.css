@@ -603,20 +603,23 @@ body.analytics::after{
 
 .kpi-views.active{
 
-  border-color:
-    rgba(192,132,252,0.78);
+  opacity:1;
+  transform:translateY(-3px);
+
+  border:1px solid rgba(192,132,252,0.72);
 
   background:
     linear-gradient(
       145deg,
-      rgba(192,132,252,0.20),
+      rgba(192,132,252,0.18),
       rgba(147,51,234,0.08)
     );
 
   box-shadow:
-    0 0 0 1px rgba(192,132,252,0.34),
-    0 0 22px rgba(192,132,252,0.26),
-    0 0 46px rgba(192,132,252,0.18),
+    0 0 0 2px rgba(192,132,252,0.22),
+    0 0 22px rgba(192,132,252,0.34),
+    0 0 54px rgba(192,132,252,0.22),
+    inset 0 0 22px rgba(192,132,252,0.08),
     0 16px 40px rgba(0,0,0,0.35);
 
 }
