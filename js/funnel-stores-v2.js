@@ -210,10 +210,11 @@ export async function renderStoresV2(days = 30) {
 
     if (head) head.textContent = "Top Stores";
 
-   const { data, error } = await sb.rpc(
+const { data, error } = await sb.rpc(
   "analytics_store_intelligence_v1",
   {
-    p_days: days
+    p_days: days,
+    p_limit: 50
   }
 );
 
