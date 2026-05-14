@@ -260,12 +260,15 @@ if (title) title.style.display = "none";
 
 /* ============================================================
 KPI MINI
-   ============================================================ */
+============================================================ */
+
 function bindKpiMini() {
 
-  const items = document.querySelectorAll(".kpi-card");
+  const items =
+    document.querySelectorAll(".kpi-card");
 
   items.forEach((el) => {
+
     el.addEventListener("click", () => {
 
       const kpi = el.dataset.kpi;
@@ -273,14 +276,60 @@ function bindKpiMini() {
 
       console.log("KPI CLICK:", kpi);
 
-      // 🔥 ENDAST STATE
+      /* ============================================================
+         RESET MARKET STATE
+      ============================================================ */
+
+      if (window.MARKET_STATE) {
+
+        window.MARKET_STATE.country = null;
+        window.MARKET_STATE.city = null;
+        window.MARKET_STATE.store = null;
+        window.MARKET_STATE.user = null;
+
+        // 🔥 MEMBERS
+        if (kpi === "users") {
+
+          window.MARKET_STATE.level =
+            "member_day";
+
+        }
+
+        // 🔥 MARKET
+        if (
+          kpi === "views" ||
+          kpi === "clicks" ||
+          kpi === "ctr"
+        ) {
+
+          window.MARKET_STATE.level =
+            "country";
+
+        }
+
+      }
+
+      /* ============================================================
+         ACTIVE UI
+      ============================================================ */
+
+      items.forEach(card =>
+        card.classList.remove("active")
+      );
+
+      el.classList.add("active");
+
+      /* ============================================================
+         STATE
+      ============================================================ */
+
       setKPI(kpi);
 
     });
+
   });
 
 }
-
 
 /* ============================================================
    STORES INDEX
