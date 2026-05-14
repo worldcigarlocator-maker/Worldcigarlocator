@@ -1138,6 +1138,37 @@ function renderTrendSection({
   trendPoints
 }) {
 
+  const trendBars =
+    trendPoints
+      .slice(-20)
+      .map(point => {
+
+        const value =
+          Number(point.views || 0);
+
+        const max =
+          Math.max(
+            ...trendPoints.map(
+              p => Number(p.views || 0)
+            ),
+            1
+          );
+
+        const height =
+          (value / max) * 100;
+
+        return `
+          <div
+            class="trend-bar"
+            style="
+              height:${height}%;
+            "
+          ></div>
+        `;
+
+      })
+      .join("");
+
   return `
 
     <div class="dossier-section">
@@ -1146,66 +1177,87 @@ function renderTrendSection({
         Trend Intelligence
       </h3>
 
+      <div class="trend-chart">
+
+        ${trendBars}
+
+      </div>
+
       <div class="dossier-grid">
 
-    <div class="dossier-card">
+        <div class="dossier-card">
 
-  <span>
-    Momentum
-  </span>
+          <span>
+            Momentum
+          </span>
 
-  <strong>
-    ${momentumLabel}
-  </strong>
+          <strong>
+            ${momentumLabel}
+          </strong>
 
-  <div class="trend-meter">
+          <div class="trend-meter">
 
-    <div
-      class="
-        trend-meter-fill
-        ${
-          momentumLabel === "Hot"
-            ? "hot"
-            : momentumLabel === "Growing"
-              ? "growing"
-              : "slow"
-        }
-      "
-      style="
-        width:
-        ${
-          momentumLabel === "Hot"
-            ? "100%"
-            : momentumLabel === "Growing"
-              ? "65%"
-              : "35%"
-        };
-      "
-    ></div>
+            <div
+              class="
+                trend-meter-fill
+                ${
+                  momentumLabel === "Hot"
+                    ? "hot"
+                    : momentumLabel === "Growing"
+                      ? "growing"
+                      : "slow"
+                }
+              "
+              style="
+                width:
+                ${
+                  momentumLabel === "Hot"
+                    ? "100%"
+                    : momentumLabel === "Growing"
+                      ? "65%"
+                      : "35%"
+                };
+              "
+            ></div>
 
-  </div>
+          </div>
 
-</div>
+        </div>
 
         <div class="dossier-card">
-          <span>Avg Views / Day</span>
+
+          <span>
+            Avg Views / Day
+          </span>
+
           <strong>
             ${avgViewsPerDay}
           </strong>
+
         </div>
 
         <div class="dossier-card">
-          <span>Avg Clicks / Day</span>
+
+          <span>
+            Avg Clicks / Day
+          </span>
+
           <strong>
             ${avgClicksPerDay}
           </strong>
+
         </div>
 
         <div class="dossier-card">
-          <span>Trend Points</span>
+
+          <span>
+            Trend Points
+          </span>
+
           <strong>
             ${trendPoints.length}
           </strong>
+
         </div>
 
       </div>
@@ -1574,3 +1626,4 @@ export function resetStoresV2() {
 
 window.renderStoresV2 = renderStoresV2;
 window.resetStoresV2 = resetStoresV2;
+
