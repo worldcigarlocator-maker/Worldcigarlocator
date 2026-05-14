@@ -881,9 +881,6 @@ const discoveryBehavior =
     dominantSource
   );
    
-/* ============================================================
-   COMMERCIAL INTELLIGENCE
-   ============================================================ */
 
 /* ============================================================
    LOCAL MARKET INTELLIGENCE
@@ -1504,6 +1501,71 @@ function renderBehaviorSection({
 
 }
 
+/* ============================================================
+   LOCAL MARKET SECTION
+   ============================================================ */
+
+function renderLocalMarketSection({
+  localCompetitionLevel,
+  audienceType,
+  loyaltyStrength,
+  reputationStrength,
+  trafficBalance
+}) {
+
+  return `
+
+    <div class="dossier-section">
+
+      <h3>
+        Local Market Intelligence
+      </h3>
+
+      <div class="dossier-grid">
+
+        <div class="dossier-card">
+          <span>Competition Level</span>
+          <strong>
+            ${localCompetitionLevel}
+          </strong>
+        </div>
+
+        <div class="dossier-card">
+          <span>Audience Type</span>
+          <strong>
+            ${audienceType}
+          </strong>
+        </div>
+
+        <div class="dossier-card">
+          <span>Loyalty Strength</span>
+          <strong>
+            ${loyaltyStrength}
+          </strong>
+        </div>
+
+        <div class="dossier-card">
+          <span>Reputation Strength</span>
+          <strong>
+            ${reputationStrength}
+          </strong>
+        </div>
+
+        <div class="dossier-card">
+          <span>Traffic Profile</span>
+          <strong>
+            ${trafficBalance}
+          </strong>
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+   
 /* ============================================================
    MARKET CONTEXT SECTION
    ============================================================ */
