@@ -1883,3 +1883,266 @@ body.analytics::after{
   }
 
 }
+
+/* ============================================================
+   MARKET GEO INTELLIGENCE
+   ============================================================ */
+
+.market-country-cell{
+  min-width:240px;
+}
+
+.market-country-main{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.market-country-name{
+  font-size:15px;
+  font-weight:800;
+
+  color:#fff;
+
+  text-shadow:
+    0 0 12px rgba(79,209,255,0.12);
+}
+
+/* ============================================================
+   TRAFFIC BAR
+   ============================================================ */
+
+.market-traffic-bar{
+  width:100%;
+  height:8px;
+
+  overflow:hidden;
+
+  border-radius:999px;
+
+  background:
+    rgba(255,255,255,0.06);
+
+  box-shadow:
+    inset 0 0 8px rgba(0,0,0,0.35);
+}
+
+.market-traffic-fill{
+  height:100%;
+
+  border-radius:999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #4fd1ff,
+      #9333ea
+    );
+
+  box-shadow:
+    0 0 16px rgba(79,209,255,0.34);
+
+  transition:
+    width .35s ease;
+}
+
+/* ============================================================
+   MOMENTUM PILLS
+   ============================================================ */
+
+.momentum-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  min-width:90px;
+
+  padding:7px 12px;
+
+  border-radius:999px;
+
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.momentum-hot{
+
+  color:#fff0ea;
+
+  background:
+    linear-gradient(
+      90deg,
+      #ff5f6d,
+      #ff9966
+    );
+
+  box-shadow:
+    0 0 16px rgba(255,95,109,0.34);
+
+}
+
+.momentum-growing{
+
+  color:#e7fbff;
+
+  background:
+    linear-gradient(
+      90deg,
+      #4fd1ff,
+      #22d3ee
+    );
+
+  box-shadow:
+    0 0 16px rgba(79,209,255,0.30);
+
+}
+
+.momentum-stable{
+
+  color:#d1d5db;
+
+  background:
+    linear-gradient(
+      90deg,
+      #4b5563,
+      #6b7280
+    );
+
+  box-shadow:
+    0 0 12px rgba(107,114,128,0.20);
+
+}
+
+/* ============================================================
+   DISCOVERY PILLS
+   ============================================================ */
+
+.discovery-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  min-width:92px;
+
+  padding:7px 12px;
+
+  border-radius:999px;
+
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.discovery-search{
+
+  color:#ecfeff;
+
+  background:
+    linear-gradient(
+      90deg,
+      #06b6d4,
+      #3b82f6
+    );
+
+  box-shadow:
+    0 0 16px rgba(59,130,246,0.26);
+
+}
+
+.discovery-map{
+
+  color:#ecfdf5;
+
+  background:
+    linear-gradient(
+      90deg,
+      #22c55e,
+      #16a34a
+    );
+
+  box-shadow:
+    0 0 16px rgba(34,197,94,0.24);
+
+}
+
+.discovery-sidebar{
+
+  color:#faf5ff;
+
+  background:
+    linear-gradient(
+      90deg,
+      #c084fc,
+      #9333ea
+    );
+
+  box-shadow:
+    0 0 16px rgba(192,132,252,0.24);
+
+}
+
+.discovery-direct{
+
+  color:#fff7ed;
+
+  background:
+    linear-gradient(
+      90deg,
+      #f59e0b,
+      #ea580c
+    );
+
+  box-shadow:
+    0 0 16px rgba(245,158,11,0.24);
+
+}
+
+/* ============================================================
+   TOP CITY
+   ============================================================ */
+
+.top-city-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:7px 12px;
+
+  border-radius:999px;
+
+  font-size:12px;
+  font-weight:700;
+
+  color:#ffe7a3;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(214,179,106,0.20),
+      rgba(255,215,120,0.08)
+    );
+
+  border:
+    1px solid rgba(214,179,106,0.22);
+
+  box-shadow:
+    0 0 16px rgba(214,179,106,0.10);
+}
+
+/* ============================================================
+   MARKET ROW
+   ============================================================ */
+
+.market-country-row{
+  cursor:pointer;
+}
+
+.market-country-row:hover .market-country-name{
+  color:#fff;
+
+  text-shadow:
+    0 0 18px rgba(79,209,255,0.22);
+}
