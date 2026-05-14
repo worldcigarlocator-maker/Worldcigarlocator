@@ -602,8 +602,23 @@ body.analytics::after{
 }
 
 .kpi-views.active{
-  border-color:rgba(168,85,247,0.58);
-  box-shadow:var(--glow-purple), 0 16px 40px rgba(0,0,0,0.35);
+
+  border-color:
+    rgba(192,132,252,0.78);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(192,132,252,0.20),
+      rgba(147,51,234,0.08)
+    );
+
+  box-shadow:
+    0 0 0 1px rgba(192,132,252,0.34),
+    0 0 22px rgba(192,132,252,0.26),
+    0 0 46px rgba(192,132,252,0.18),
+    0 16px 40px rgba(0,0,0,0.35);
+
 }
 
 .kpi-clicks.active{
