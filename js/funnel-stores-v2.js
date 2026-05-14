@@ -1415,7 +1415,7 @@ function renderBehaviorSection({
 
 }
 
- /* ============================================================
+/* ============================================================
    MARKET CONTEXT SECTION
    ============================================================ */
 
@@ -1484,7 +1484,6 @@ function renderMarketContextSection({
    COMMERCIAL SECTION
    ============================================================ */
 
-
 function renderCommercialSection({
   premiumCandidate,
   tourismCandidate,
@@ -1492,7 +1491,65 @@ function renderCommercialSection({
   partnershipCandidate
 }) {
 
-   /* ============================================================
+  return `
+
+    <div class="dossier-section">
+
+      <h3>
+        Commercial Intelligence
+      </h3>
+
+      <div class="dossier-grid">
+
+        <div class="dossier-card">
+          <span>Premium Candidate</span>
+          <strong>
+            ${premiumCandidate
+              ? "Yes"
+              : "No"
+            }
+          </strong>
+        </div>
+
+        <div class="dossier-card">
+          <span>Tourism Potential</span>
+          <strong>
+            ${tourismCandidate
+              ? "High"
+              : "Normal"
+            }
+          </strong>
+        </div>
+
+        <div class="dossier-card">
+          <span>Expansion Potential</span>
+          <strong>
+            ${expansionCandidate
+              ? "Strong"
+              : "Low"
+            }
+          </strong>
+        </div>
+
+        <div class="dossier-card">
+          <span>Partnership Grade</span>
+          <strong>
+            ${partnershipCandidate
+              ? "Qualified"
+              : "Developing"
+            }
+          </strong>
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+/* ============================================================
    PREDICTIVE SECTION
    ============================================================ */
 
@@ -1562,7 +1619,7 @@ function renderPredictiveSection({
   `;
 
 }
-   
+
   /* ============================================================
      RENDER
      ============================================================ */
