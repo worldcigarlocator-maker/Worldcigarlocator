@@ -15,6 +15,7 @@ const STORES_STATE = {
   city: null,
   country: null,
   days: 30
+   sort: "views"
 };
 
 /* ============================================================
@@ -47,19 +48,40 @@ function ensureStoresSurface() {
     if (thead) {
   thead.innerHTML = `
     <tr>
-      <th>Store</th>
 
-      <th class="num">Views</th>
-      <th class="num">Clicks</th>
-      <th class="num">CTR</th>
+  <th data-sort="name">
+    Store
+  </th>
 
-      <th class="num">Favorites</th>
+  <th class="num" data-sort="views">
+    Views
+  </th>
 
-      <th class="num">Rating</th>
-      <th class="num">Ratings</th>
+  <th class="num" data-sort="clicks">
+    Clicks
+  </th>
 
-      <th class="num">Comments</th>
-    </tr>
+  <th class="num" data-sort="ctr">
+    CTR
+  </th>
+
+  <th class="num" data-sort="favorites">
+    Favorites
+  </th>
+
+  <th class="num" data-sort="avg_rating">
+    Rating
+  </th>
+
+  <th class="num" data-sort="ratings_count">
+    Ratings
+  </th>
+
+  <th class="num" data-sort="comments_count">
+    Comments
+  </th>
+
+</tr>
   `;
 }
   }
@@ -150,7 +172,7 @@ export async function renderStoresV2(days = 30) {
 
     if (head) head.textContent = "Top Stores";
 
-    const { data, error } = await sb.rpc("analytics_top_stores_v2", {
+    const { data, error } = await sb.rpc("analytics_store_intelligence_v1", {
       p_days: days,
       p_limit: 50
     });
@@ -166,17 +188,34 @@ export async function renderStoresV2(days = 30) {
       return;
     }
 
-    tbody.innerHTML = data.map(r => {
-      const ctr = r.views ? ((r.clicks / r.views) * 100).toFixed(1) + "%" : "0%";
-      return `
-        <tr data-store-id="${r.store_id}">
-          <td>${escapeHtml(r.name)}</td>
-          <td class="num">${r.views}</td>
-          <td class="num">${r.clicks}</td>
-          <td class="num">${ctr}</td>
-        </tr>
-      `;
-    }).join("");
+   tbody.innerHTML = data.map(r => {
+
+  const ctr =
+    Number(r.ctr || 0).toFixed(1) + "%";
+
+  const rating =
+    Number(r.avg_rating || 0).toFixed(1);
+
+  return `
+    <tr data-store-id="${r.store_id}">
+
+      <td>${escapeHtml(r.name)}</td>
+
+      <td class="num">${r.views || 0}</td>
+      <td class="num">${r.clicks || 0}</td>
+      <td class="num">${ctr}</td>
+
+      <td class="num">${r.favorites || 0}</td>
+
+      <td class="num">${rating}</td>
+      <td class="num">${r.ratings_count || 0}</td>
+
+      <td class="num">${r.comments_count || 0}</td>
+
+    </tr>
+  `;
+
+}).join("");
 
     bindClicks(days);
     return;
