@@ -748,9 +748,45 @@ function runLocalFilter() {
    PDF EXPORT
 ============================================================ */
 
+/* ============================================================
+   PDF EXPORT
+============================================================ */
+
 async function exportPDF() {
 
-  await exportAnalyticsPDF();
+  await exportAnalyticsPDF({
+
+    kpi: getKPI(),
+
+    state: window.MARKET_STATE || {},
+
+    rows: [
+      ...document.querySelectorAll(
+        "#marketDemandBody tr, #topStoresBody tr"
+      )
+    ],
+
+    chartCanvas:
+      document.getElementById("marketChart"),
+
+    usersChartCanvas:
+      document.getElementById("usersChart"),
+
+    global: {
+      views:
+        document.getElementById("globalMarket")
+          ?.textContent || "0",
+
+      stores:
+        document.getElementById("globalStores")
+          ?.textContent || "0",
+
+      users:
+        document.getElementById("globalUsers")
+          ?.textContent || "0"
+    }
+
+  });
 
 }
 
