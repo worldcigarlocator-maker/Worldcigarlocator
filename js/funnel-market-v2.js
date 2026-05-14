@@ -56,6 +56,7 @@ const MARKET_STATE = {
 
 MARKET_STATE.memberDays = 7;
 
+window.MARKET_STATE = MARKET_STATE;
 
 /* ============================================================
 DOM
