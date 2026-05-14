@@ -417,6 +417,32 @@ const commentsBadge =
   }
 }
 
+ /* ============================================================
+   PERFORMANCE SCORE
+   ============================================================ */
+
+function calculatePerformanceScore({
+  totalViews,
+  totalClicks,
+  totalFavorites,
+  totalComments,
+  totalRatings,
+  avgRating
+}) {
+
+  let score = 0;
+
+  score += totalViews * 0.2;
+  score += totalClicks * 2;
+  score += totalFavorites * 8;
+  score += totalComments * 5;
+  score += totalRatings * 4;
+  score += avgRating * 20;
+
+  return Math.round(score);
+
+}
+
 /* ============================================================
    STORE DOSSIER
    ============================================================ */
@@ -595,7 +621,6 @@ const totalRatings =
 const avgRating =
   Number(store.avg_rating || 0);
 
-
 /* ============================================================
    INTELLIGENCE HELPERS
    ============================================================ */
@@ -684,25 +709,17 @@ function getEngagementQuality({
 
 }
 
+const performanceScore =
+  calculatePerformanceScore({
+    totalViews,
+    totalClicks,
+    totalFavorites,
+    totalComments,
+    totalRatings,
+    avgRating
+  });
 
-/* ============================================================
-   PERFORMANCE SCORE
-   ============================================================ */
-
-let performanceScore = 0;
-
-performanceScore += totalViews * 0.2;
-performanceScore += totalClicks * 2;
-performanceScore += totalFavorites * 8;
-performanceScore += totalComments * 5;
-performanceScore += totalRatings * 4;
-performanceScore += avgRating * 20;
-
-performanceScore =
-  Math.round(performanceScore);
-
-
-
+                                                                                                                                       
 /* ============================================================
    PRESTIGE
    ============================================================ */
@@ -779,6 +796,47 @@ const discoveryBehavior =
    COMMERCIAL INTELLIGENCE
    ============================================================ */
 
+/* ============================================================
+   LOCAL MARKET INTELLIGENCE
+   ============================================================ */
+
+const localCompetitionLevel =
+  totalViews >= 250
+    ? "Dominant"
+    : totalViews >= 100
+      ? "Competitive"
+      : totalViews >= 30
+        ? "Emerging"
+        : "Low Visibility";
+
+const audienceType =
+  searchViews > mapViews
+    ? "Intent Visitors"
+    : "Discovery Visitors";
+
+const loyaltyStrength =
+  totalFavorites >= 10
+    ? "High"
+    : totalFavorites >= 5
+      ? "Growing"
+      : "Low";
+
+const reputationStrength =
+  avgRating >= 4.5
+    ? "Excellent"
+    : avgRating >= 4
+      ? "Strong"
+      : "Developing";
+
+const trafficBalance =
+  sourceRanking.length >= 3
+    ? "Diversified"
+    : "Concentrated";
+
+/* ============================================================
+   COMMERCIAL INTELLIGENCE
+   ============================================================ */
+
 const premiumCandidate =
   avgRating >= 4.5 &&
   totalFavorites >= 5;
@@ -794,8 +852,38 @@ const expansionCandidate =
   avgRating >= 4;
 
 /* ============================================================
-   MARKET POSITION
+   MARKET CONTEXT
    ============================================================ */
+
+const cityRank =
+  totalViews >= 250
+    ? "#1"
+    : totalViews >= 100
+      ? "Top 3"
+      : totalViews >= 50
+        ? "Top 10"
+        : "Unranked";
+
+const countryRank =
+  performanceScore >= 500
+    ? "Elite Tier"
+    : performanceScore >= 250
+      ? "High Tier"
+      : performanceScore >= 100
+        ? "Competitive"
+        : "Developing";
+
+const regionalMomentum =
+  momentumLabel === "Hot"
+    ? "Fastest Growing"
+    : momentumLabel === "Growing"
+      ? "Growing"
+      : "Stable";
+
+const destinationStrength =
+  mapViews >= searchViews
+    ? "Destination Lounge"
+    : "Local Discovery";
 
 const marketPosition =
   getMarketPosition(
@@ -812,6 +900,8 @@ const engagementQuality =
     comments: totalComments,
     rating: avgRating
   });
+
+
 
 /* ============================================================
    RENDER HELPERS
@@ -1325,15 +1415,16 @@ function renderBehaviorSection({
 
 }
 
-   /* ============================================================
-   COMMERCIAL SECTION
+ /* ============================================================
+   MARKET CONTEXT SECTION
    ============================================================ */
 
-function renderCommercialSection({
-  premiumCandidate,
-  tourismCandidate,
-  expansionCandidate,
-  partnershipCandidate
+function renderMarketContextSection({
+  cityRank,
+  countryRank,
+  regionalMomentum,
+  destinationStrength,
+  marketPosition
 }) {
 
   return `
@@ -1341,48 +1432,43 @@ function renderCommercialSection({
     <div class="dossier-section">
 
       <h3>
-        Commercial Intelligence
+        Market Context
       </h3>
 
       <div class="dossier-grid">
 
         <div class="dossier-card">
-          <span>Premium Candidate</span>
+          <span>City Position</span>
           <strong>
-            ${premiumCandidate
-              ? "Yes"
-              : "No"
-            }
+            ${cityRank}
           </strong>
         </div>
 
         <div class="dossier-card">
-          <span>Tourism Potential</span>
+          <span>Country Tier</span>
           <strong>
-            ${tourismCandidate
-              ? "High"
-              : "Normal"
-            }
+            ${countryRank}
           </strong>
         </div>
 
         <div class="dossier-card">
-          <span>Expansion Potential</span>
+          <span>Regional Momentum</span>
           <strong>
-            ${expansionCandidate
-              ? "Strong"
-              : "Low"
-            }
+            ${regionalMomentum}
           </strong>
         </div>
 
         <div class="dossier-card">
-          <span>Partnership Grade</span>
+          <span>Destination Profile</span>
           <strong>
-            ${partnershipCandidate
-              ? "Qualified"
-              : "Developing"
-            }
+            ${destinationStrength}
+          </strong>
+        </div>
+
+        <div class="dossier-card">
+          <span>Market Position</span>
+          <strong>
+            ${marketPosition}
           </strong>
         </div>
 
@@ -1393,6 +1479,18 @@ function renderCommercialSection({
   `;
 
 }
+
+/* ============================================================
+   COMMERCIAL SECTION
+   ============================================================ */
+
+
+function renderCommercialSection({
+  premiumCandidate,
+  tourismCandidate,
+  expansionCandidate,
+  partnershipCandidate
+}) {
 
    /* ============================================================
    PREDICTIVE SECTION
@@ -1553,6 +1651,22 @@ ${renderBehaviorSection({
   marketPosition
 })}
 
+
+${renderLocalMarketSection({
+  localCompetitionLevel,
+  audienceType,
+  loyaltyStrength,
+  reputationStrength,
+  trafficBalance
+})}
+
+${renderMarketContextSection({
+  cityRank,
+  countryRank,
+  regionalMomentum,
+  destinationStrength,
+  marketPosition
+})}
 
 ${renderCommercialSection({
   premiumCandidate,
