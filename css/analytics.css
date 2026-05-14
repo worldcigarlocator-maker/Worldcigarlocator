@@ -724,9 +724,14 @@ body.analytics::after{
 
 .table{
   width:100%;
+
   border-collapse:separate;
-  border-spacing:0;
+  border-spacing:0 8px;
 }
+
+/* ============================================================
+   TABLE HEADER
+   ============================================================ */
 
 .table thead{
   position:relative;
@@ -734,47 +739,64 @@ body.analytics::after{
 
 .table thead::after{
   content:"";
+
   position:absolute;
   left:0;
   right:0;
   bottom:0;
+
   height:2px;
 
   background:
     linear-gradient(
       90deg,
-      rgba(0,255,255,0.70),
-      rgba(180,0,255,0.70),
-      rgba(255,0,140,0.70)
+      rgba(0,255,255,0.72),
+      rgba(180,0,255,0.72),
+      rgba(255,0,140,0.72)
     );
-}
 
-.table th,
-.table td{
-  text-align:center !important;
-  vertical-align:middle;
+  box-shadow:
+    0 0 12px rgba(0,255,255,0.30),
+    0 0 18px rgba(180,0,255,0.22);
 }
 
 .table thead th{
   padding:14px 18px;
 
+  text-transform:uppercase;
+  letter-spacing:.06em;
+
   font-size:13px;
   font-weight:800;
-  letter-spacing:.06em;
-  text-transform:uppercase;
 
-  color:rgba(255,255,255,0.65);
+  color:rgba(255,255,255,0.64);
+
+  text-align:center !important;
 }
+
+/* ============================================================
+   TABLE CELLS
+   ============================================================ */
 
 .table td{
   position:relative;
-  z-index:1;
 
   padding:16px 18px;
 
   font-size:14px;
-  color:rgba(255,255,255,0.9);
+  font-weight:500;
+
+  color:rgba(255,255,255,0.92);
+
+  vertical-align:middle;
+  text-align:center !important;
+
+  background:none;
 }
+
+/* ============================================================
+   FIRST COLUMN
+   ============================================================ */
 
 .table th:first-child,
 .table td:first-child{
@@ -783,84 +805,98 @@ body.analytics::after{
 }
 
 .table td:first-child{
-  display:flex;
-  align-items:center;
-  gap:10px;
-
   font-weight:700;
 
   text-shadow:
-    0 0 8px rgba(255,255,255,0.16);
+    0 0 10px rgba(255,255,255,0.10);
 }
 
-.table td:first-child::before{
-  content:"📅";
-
-  font-size:14px;
-  opacity:0.55;
-}
+/* ============================================================
+   NUMERIC CELLS
+   ============================================================ */
 
 .table td.num,
 .table th.num{
   text-align:center !important;
+
   font-variant-numeric:tabular-nums;
 
   text-shadow:
     0 0 8px rgba(255,255,255,0.08);
 }
 
+/* ============================================================
+   TABLE ROWS
+   ============================================================ */
+
 .table tbody tr{
   position:relative;
-
-  height:46px;
-
-  border-radius:12px;
-  border:1px solid transparent;
-
-  background:
-    linear-gradient(
-      90deg,
-      rgba(255,255,255,0.02),
-      rgba(255,255,255,0.045)
-    );
 
   transition:
     background .16s ease,
     border-color .16s ease,
-    transform .16s ease;
-}
-
-.table tbody tr:hover{
-  transform:translateY(-1px);
+    transform .16s ease,
+    box-shadow .16s ease;
 
   background:
     linear-gradient(
       90deg,
-      rgba(79,209,255,0.08),
-      rgba(192,132,252,0.06)
+      rgba(255,255,255,0.025),
+      rgba(255,255,255,0.045)
     );
 
-  border-color:rgba(79,209,255,0.18);
+  border:1px solid rgba(255,255,255,0.04);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03);
 }
+
+/* ============================================================
+   ROW HOVER
+   ============================================================ */
+
+.table tbody tr:hover{
+  transform:translateY(-2px);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(79,209,255,0.09),
+      rgba(192,132,252,0.07)
+    );
+
+  border-color:
+    rgba(79,209,255,0.20);
+
+  box-shadow:
+    0 12px 30px rgba(0,0,0,0.34),
+    0 0 18px rgba(79,209,255,0.12);
+}
+
+/* ============================================================
+   TOP ROW
+   ============================================================ */
 
 .top-row{
   background:
     linear-gradient(
       135deg,
-      rgba(79,209,255,0.075),
-      rgba(192,132,252,0.045)
+      rgba(79,209,255,0.08),
+      rgba(192,132,252,0.06)
     );
 
+  border-color:
+    rgba(79,209,255,0.16);
+
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,0.075),
-    0 0 18px rgba(79,209,255,0.10);
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    0 0 18px rgba(79,209,255,0.08);
 }
 
 .top-row td:first-child{
   font-weight:800;
-  letter-spacing:0.3px;
+  letter-spacing:0.02em;
 }
-
 
 /* ============================================================
    TABLE KPI / CTR STATES
