@@ -2,7 +2,7 @@
 // MAIN.JS — WCL Frontend (CLEAN · DEBUG-SAFE · AUTH-GATE FIXED)
 // ============================================================
 
-import { supabase } from "/js/globals.js";
+import { debugLog, supabase } from "/js/globals.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import { trackEvent } from "./analytics-tracker.js";
 import { resetToHero } from "./cards.js";
@@ -89,7 +89,7 @@ async function syncAuthGate() {
       "authStatus"
     );
   
-console.log("AUTH UI CHECK", {
+debugLog("AUTH UI CHECK", {
   popup,
   loginBtn,
   authStatus
@@ -127,7 +127,7 @@ console.log("AUTH UI CHECK", {
 
       loginBtn.textContent =
         t("login", "Login");
-      console.log(
+      debugLog(
   "LOGIN BTN AFTER SET:",
   loginBtn.textContent
 );
@@ -187,7 +187,7 @@ if (authStatus) {
       profile?.display_name ||
       session.user.email;
 
-    console.log(
+    debugLog(
   "AUTH STATUS AFTER SET:",
   authStatus.textContent
 );
@@ -747,7 +747,7 @@ async function initSidebarOnce() {
 
     await buildFrontendSidebar();
 
-    console.log(
+    debugLog(
       "SIDEBAR BUILT"
     );
 
@@ -770,7 +770,7 @@ document.addEventListener(
   "DOMContentLoaded",
   async () => {
 
-    console.log("MAIN BOOT");
+    debugLog("MAIN BOOT");
 
     // ============================================================
     // I18N INIT
@@ -1259,4 +1259,3 @@ window.syncFavoriteUI =
       });
 
   };
-

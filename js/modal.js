@@ -3,7 +3,7 @@
 // Canonical · RPC-Only · Backend Authority · No Table Access
 // ============================================================
 
-import { supabase } from "/js/globals.js";
+import { debugLog, supabase } from "/js/globals.js";
 import { getLastRenderedStores } from "./cards.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
 import { trackEvent } from "./analytics-tracker.js";
@@ -154,7 +154,7 @@ function resetModal() {
 
 export async function openModal(storeInput) {
 
-  console.log(
+  debugLog(
     "OPEN MODAL CALLED",
     storeInput
   );
@@ -167,7 +167,7 @@ export async function openModal(storeInput) {
 
   if (!inputId) {
 
-    console.log(
+    debugLog(
       "MODAL EARLY RETURN"
     );
 
@@ -182,7 +182,7 @@ export async function openModal(storeInput) {
 
   let store =
     findStore(inputId);
-console.log("STORE FOUND", store);
+debugLog("STORE FOUND", store);
   
   // ============================================================
   // RPC FALLBACK / AUTHORITATIVE LOAD
@@ -208,7 +208,7 @@ console.log("STORE FOUND", store);
 
   store = data[0];
 
-  console.log(
+  debugLog(
     "STORE AFTER RPC",
     store
   );
@@ -221,7 +221,7 @@ console.log("STORE FOUND", store);
 
   if (!storeId) return;
 
-  console.log(
+  debugLog(
   "MODAL RENDER START",
   store
 );
@@ -274,14 +274,14 @@ const seq = MODAL_LOAD_SEQ;
 
 const m = modalEl();
 
-console.log(
+debugLog(
   "MODAL ELEMENT",
   m
 );
 
 if (!m) {
 
-  console.log(
+  debugLog(
     "MODAL ELEMENT MISSING"
   );
 
@@ -294,12 +294,12 @@ m.classList.remove("hidden");
 
 lockScroll(true);
 
-console.log(
+debugLog(
   "MODAL OPENED UI"
 );
 
   lockScroll(true);
-  console.log(
+  debugLog(
   "MODAL OPENED UI"
 );
 
@@ -505,7 +505,7 @@ async function saveRating() {
 
   if (!MODAL_ACTIVE_STORE_ID) return;
 
-  console.log(
+  debugLog(
     "SAVE RATING:",
     MODAL_ACTIVE_STORE_ID,
     MODAL_USER_TEMP_RATING
@@ -525,12 +525,12 @@ async function saveRating() {
       }
     );
 
-  console.log(
+  debugLog(
     "RATING RPC DATA:",
     data
   );
 
-  console.log(
+  debugLog(
     "RATING RPC ERROR:",
     error
   );
@@ -543,7 +543,7 @@ async function saveRating() {
     return;
   }
 
-  console.log("RATING SAVED");
+  debugLog("RATING SAVED");
 }
 
 // ============================================================

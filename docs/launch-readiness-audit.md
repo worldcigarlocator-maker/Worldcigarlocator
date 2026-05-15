@@ -83,6 +83,9 @@ Canonical RPCs:
 
 8. Analytics tracking failures were logging as crash-level console errors. Tracking must never affect rendering or moderation, so analytics network failures now log as warnings and debug payload logs are gated behind `window.WCL_DEBUG_ANALYTICS`.
 
+9. Public discovery modules had launch-noisy development logs in `globals.js`, `main.js`, `cards.js`, and `modal.js`.
+   These are now gated behind `window.WCL_DEBUG`, while real errors still use normal console error/warn paths.
+
 ## Launch Blockers To Resolve
 
 - Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.

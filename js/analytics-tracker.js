@@ -385,7 +385,7 @@ export async function trackEvent(eventType, payload = {}) {
       source: "direct"
     });
 
-    console.log("🔥 SESSION START TRACKED:", today);
+    debugLog("🔥 SESSION START TRACKED:", today);
 
   } catch (err) {
     console.error("Session tracking failed", err);

@@ -152,7 +152,14 @@ Some are imported by analytics or tracking flows. Do not delete them until impor
 
 ## Launch Cleanup Candidates
 
-- Remove or guard debug-only console logs in public modules.
+- Continue removing or guarding debug-only console logs outside the public discovery modules.
 - Confirm `analytics-frontend.js` and `analytics-tracker.js` are not double-counting the same canonical events.
 - Confirm raw `stores` reads are limited to admin/dashboard flows protected by RLS or converted to canonical RPCs/views.
 - Confirm all browser API keys are restricted by domain and API scope.
+
+## Debug Flags
+
+- `window.WCL_DEBUG = true` enables public frontend debug logs.
+- `window.WCL_DEBUG_ANALYTICS = true` enables analytics payload debug logs.
+
+Both flags are off by default.

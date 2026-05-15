@@ -2,7 +2,7 @@
 // CARDS.JS — WCL FRONTEND (DISCOVERY + SORT READY · v5)
 // ============================================================
 
-import { supabase } from "/js/globals.js";
+import { debugLog, supabase } from "/js/globals.js";
 import { openModal } from "./modal.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
 import { trackEvent } from "./analytics-tracker.js";
@@ -399,7 +399,7 @@ trackEvent("store_view", {
   session_hash: localStorage.getItem("wcl_session")
 });
 
-console.log("STORE VIEW EVENT", {
+debugLog("STORE VIEW EVENT", {
   store_id: storeId,
   source: window.CURRENT_SOURCE,
   session: localStorage.getItem("wcl_session")
@@ -697,7 +697,7 @@ export async function runSearch(isLoadMore = false) {
 
   const seq = ++RUN_SEQ;
 
-  console.trace("RUN SEARCH TRIGGERED");
+  debugLog("RUN SEARCH TRIGGERED");
 
   const snap = snapshot();
 
@@ -730,12 +730,12 @@ if (
 
 if (seq !== RUN_SEQ) return;
 
-console.log("RUN SEARCH STARTED", snap);
+debugLog("RUN SEARCH STARTED", snap);
 if (!resp || resp.error) return;
 
   const rawRows = resp.data || [];
-  console.log("DEBUG ROW:", rawRows[0]);
-console.log(
+  debugLog("DEBUG ROW:", rawRows[0]);
+debugLog(
   "MISSING GEO:",
   rawRows.filter(r => !r.city || !r.country).slice(0, 10)
 );
@@ -747,7 +747,7 @@ console.log(
   const filteredRows = applyChipFilters(rawRows);
 
   // TEST LOG
-  console.log("RUN SEARCH FIRED", STATE.search.text);
+  debugLog("RUN SEARCH FIRED", STATE.search.text);
 
 renderCards(filteredRows, isLoadMore);
 
@@ -1076,4 +1076,3 @@ document.addEventListener(
 
   }
 );
-

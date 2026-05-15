@@ -5,6 +5,13 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.94.1";
 
+export const WCL_DEBUG =
+  Boolean(window?.WCL_DEBUG);
+
+export function debugLog(...args) {
+  if (WCL_DEBUG) console.log(...args);
+}
+
 /* ============================================================
    SUPABASE CONFIG
    ============================================================ */
@@ -37,13 +44,9 @@ export const supabase = createClient(
 
 window.supabase = supabase;
 
-/* ============================================================
-   SANITY CHECK (debug)
-   ============================================================ */
-
-console.log("WCL Supabase client loaded");
-console.log("supabase.from =", typeof supabase.from);
-console.log("supabase.rpc =", typeof supabase.rpc);
+debugLog("WCL Supabase client loaded");
+debugLog("supabase.from =", typeof supabase.from);
+debugLog("supabase.rpc =", typeof supabase.rpc);
 
 /* ============================================================
    DOM UTIL
