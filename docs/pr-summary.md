@@ -20,6 +20,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Recorded owner-provided Supabase inventories for tables/views, functions, triggers, RLS status, and policies.
 - Expanded the read-only Supabase audit query to include table grants/permissions.
 - Recorded focused Supabase base-table grant findings; current DB permissions are not launch-safe.
+- Added a draft Supabase security fix SQL file for owner review.
 
 ## Verified
 

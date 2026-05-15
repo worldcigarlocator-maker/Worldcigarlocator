@@ -4,6 +4,10 @@ Draft date: 2026-05-15
 
 Status: draft only. Do not run these changes until the owner approves and a backup/export exists.
 
+Draft SQL file:
+
+- `docs/supabase-security-fix-draft.sql`
+
 ## Why This Is Needed
 
 Focused grant results show broad anon/authenticated privileges on several base tables where RLS is disabled.
