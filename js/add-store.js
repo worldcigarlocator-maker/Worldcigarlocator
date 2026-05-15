@@ -41,7 +41,7 @@ async function loadCitiesForCountry() {
 
   try {
     const { data, error } = await WCL.supabase
-      .from("stores")
+      .from("stores_frontend_public_v5")
       .select("city")
       .ilike("country", country)
       .not("city", "is", null);
@@ -368,4 +368,3 @@ function bindButtons() {
   document.getElementById("clearBtn")
     ?.addEventListener("click", resetForm);
 }
-

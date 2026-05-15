@@ -89,6 +89,11 @@ Canonical RPCs:
 10. Public Supabase contract smoke tests passed with the anon-key already present in `js/globals.js`.
     Verified views/RPCs: `stores_frontend_public_v5`, `sidebar_nodes_v3`, `search_stores_v2`, `stores_within_bounds`, `analytics_top_stores_v2`, `analytics_kpi_v2`, and `analytics_sessions_v1`.
 
+11. Add-store city suggestions and duplicate checks no longer read raw `stores`; they now use `stores_frontend_public_v5`.
+
+12. `i18n.js` now checks that the active `window.supabase` object is the initialized WCL client before trying to load profile language.
+    This prevents add-store pages from logging a startup error when only the Supabase CDN SDK has loaded.
+
 ## Launch Blockers To Resolve
 
 - Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.
@@ -96,7 +101,7 @@ Canonical RPCs:
 - Confirm hosting target: GitHub Pages, Vercel, Netlify, Cloudflare Pages, or another provider.
 - Confirm Supabase RLS and RPC definitions match the canonical frontend contract. Public response smoke tests passed, but schema/RLS definitions are still needed for launch confidence.
 - Confirm public browser keys are restricted to the production domains.
-- Review all direct `stores` access and move public reads to canonical RPCs/views where required.
+- Review remaining direct `stores` access in `js/analytics.js` and `js/backoffice.js`; these appear dashboard/admin-oriented but still need RLS/admin verification.
 - Confirm analytics tracking is not double-emitting events through both `analytics-tracker.js` and `analytics-frontend.js`.
 
 ## Local Workflow For Owner Review

@@ -143,7 +143,7 @@
 
     try {
       const { data, error } = await sb
-        .from("stores")
+        .from("stores_frontend_public_v5")
         .select(
           "id,name,address,city,country,types,approved,deleted,flagged,flag_reason"
         )
