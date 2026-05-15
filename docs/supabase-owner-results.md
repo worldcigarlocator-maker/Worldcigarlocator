@@ -115,3 +115,42 @@ Conclusion so far:
 
 - The concerning `auto_*` moderation/approval function names exist, but they do not appear attached as active triggers in the provided trigger inventory.
 - Still need RLS status and policies to confirm who can insert/update/delete on the protected tables.
+
+## RLS Status Inventory
+
+Owner provided RLS status for public base tables.
+
+Important tables with RLS enabled:
+
+- `stores`
+- `store_pending`
+- `store_comments`
+- `store_favorites`
+- `ratings`
+- `store_reviews`
+- `store_reports`
+- `store_report_actions`
+- `profiles`
+
+This is a good sign for the most sensitive frontend/community/backoffice-facing tables.
+
+Important tables with RLS disabled that need follow-up:
+
+- `analytics_events`
+- `analytics_store_daily`
+- `analytics_stores`
+- `bo_admins`
+- `wcl_admins`
+- `store_report_events`
+- `store_content_flags`
+- `store_flag_logs`
+- `store_photo_queue`
+- `store_translations`
+- `user_events`
+- backup/temp tables such as `stores_backup_*`, `stores_photo_backup_*`, and `temp_*`
+
+Risk note:
+
+- RLS disabled does not automatically prove public exposure.
+- It means protection depends on table grants/privileges and RPC/Edge Function access patterns.
+- Next required results are policies and grants/permissions, especially for `bo_admins`, `wcl_admins`, `analytics_events`, `store_report_events`, and backup/temp tables.
