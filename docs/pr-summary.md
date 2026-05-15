@@ -22,6 +22,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Recorded focused Supabase base-table grant findings; current DB permissions are not launch-safe.
 - Added a draft Supabase security fix SQL file for owner review.
 - Updated the fix draft to harden `approve_store_pending` with a server-side admin check.
+- Recorded function execute grants confirming `approve_store_pending` is executable by `anon`.
 
 ## Verified
 

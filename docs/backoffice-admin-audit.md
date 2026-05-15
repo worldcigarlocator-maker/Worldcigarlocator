@@ -78,6 +78,8 @@ Owner-provided function definitions show:
 
 `approve_store_pending` is therefore unsafe unless its function execute permissions are tightly restricted. The safer fix is to add an internal admin check to the function itself, because browser-side login checks are not authority.
 
+Function execute grants confirm the risk: `approve_store_pending` is currently executable by `anon` and `authenticated`. Because the live function is `SECURITY DEFINER`, this is a hard launch blocker.
+
 ## Risk Notes
 
 - `js/backoffice.js` uses the public anon-key, which is normal for browser apps, but this means database policies must do the real protection.

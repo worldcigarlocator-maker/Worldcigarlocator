@@ -245,3 +245,23 @@ Conclusion:
 
 - `approve_store_pending` is a launch blocker unless function execute privileges are proven admin-only.
 - The safer remediation is to replace `approve_store_pending` with a version that checks `auth.uid()` and `bo_is_admin_v1()` internally, and only deletes the pending row after a successful insert.
+
+## Function Execute Grants
+
+Owner provided function execute grants for admin-sensitive RPCs.
+
+Critical launch blocker confirmed:
+
+- `approve_store_pending` can be executed by `anon`.
+- `approve_store_pending` can be executed by `authenticated`.
+- `approve_store_pending` has no internal admin check in the current live definition.
+
+Other execute grants:
+
+- `bo_is_admin_v1` can be executed by `PUBLIC`, `anon`, and `authenticated`.
+- `bo_moderate_store_report_v1` can be executed by `anon` and `authenticated`, but the function definition checks `auth.uid()` and admin status internally.
+
+Conclusion:
+
+- `approve_store_pending` is currently the highest-risk function because public callers can execute a `SECURITY DEFINER` function that approves pending listings.
+- The fix draft must replace `approve_store_pending` with a version that checks admin status internally and revoke `anon`/`PUBLIC` execute grants.
