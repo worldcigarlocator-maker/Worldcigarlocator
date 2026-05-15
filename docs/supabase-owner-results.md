@@ -265,3 +265,20 @@ Conclusion:
 
 - `approve_store_pending` is currently the highest-risk function because public callers can execute a `SECURITY DEFINER` function that approves pending listings.
 - The fix draft must replace `approve_store_pending` with a version that checks admin status internally and revoke `anon`/`PUBLIC` execute grants.
+
+## Post-Fix Function Execute Verification
+
+Owner ran the security fix draft and provided the function execute verification result.
+
+Result:
+
+- `approve_store_pending`: `authenticated` has `EXECUTE`.
+- `bo_is_admin_v1`: `authenticated` has `EXECUTE`.
+- `bo_moderate_store_report_v1`: `authenticated` has `EXECUTE`.
+- No `anon` execute rows were shown for these admin-sensitive functions.
+- No `PUBLIC` execute rows were shown for these admin-sensitive functions.
+
+Conclusion:
+
+- The highest-risk function execute issue appears fixed.
+- Still need the table grants verification result from the same SQL run to confirm the no-RLS table exposure is fixed.

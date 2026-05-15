@@ -106,6 +106,9 @@ Canonical RPCs:
 17. Owner-provided function execute grants show `approve_store_pending` is executable by `anon` while the live function lacks an internal admin check.
     This is a hard launch blocker because the function approves pending listings as public stores.
 
+18. Post-fix function execute verification shows admin-sensitive RPCs no longer expose `anon`/`PUBLIC` execute grants.
+    Table grant verification is still required before removing the Supabase security blocker.
+
 ## Launch Blockers To Resolve
 
 - Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.
@@ -113,7 +116,7 @@ Canonical RPCs:
 - Confirm hosting target: GitHub Pages, Vercel, Netlify, Cloudflare Pages, or another provider.
 - Confirm Supabase RLS and RPC definitions match the canonical frontend contract. Public response smoke tests passed, but schema/RLS definitions are still needed for launch confidence.
 - Fix Supabase base-table grants/RLS for admin, analytics, moderation/log, and backup tables before launch.
-- Harden `approve_store_pending` and remove public/anon execute rights before launch.
+- Confirm post-fix table grant verification for admin, analytics, moderation/log, and backup tables.
 - Confirm public browser keys are restricted to the production domains.
 - Review remaining direct `stores` access in `js/backoffice.js`; this appears admin-oriented but still needs RLS/admin verification.
 - Confirm analytics tracking is not double-emitting events through both `analytics-tracker.js` and `analytics-frontend.js`.
