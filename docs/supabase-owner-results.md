@@ -308,3 +308,19 @@ Conclusion:
 
 - The first fix closed most of the high-risk exposure.
 - A focused follow-up fix is required to lock down `wcl_admins`.
+
+## Post-Fix wcl_admins Verification
+
+Owner ran the focused `wcl_admins` follow-up fix and provided the verification result.
+
+Result:
+
+- No `wcl_admins` rows were shown.
+- Only `stores` rows remained in the focused check.
+- All remaining `stores` rows showed `rls_enabled = true`.
+
+Conclusion:
+
+- Direct public/authenticated table access to `wcl_admins` appears removed.
+- The original no-RLS admin-table exposure is resolved.
+- `stores` still has broad table grants, but RLS is enabled and must continue to enforce the actual read/write rules.
