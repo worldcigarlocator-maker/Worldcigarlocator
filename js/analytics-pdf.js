@@ -183,9 +183,9 @@ pdf.rect(
    EXECUTIVE COVER PAGE
 ============================================================ */
 
-/* ============================================================
-   WATERMARK ENGINE
-============================================================ */
+      /* ============================================================
+      WATERMARK ENGINE
+      ============================================================ */
 
 function renderWatermark() {
 
@@ -232,17 +232,25 @@ pdf.rect(
   "F"
 );
 
-  /* ============================================================
-     HERO IMAGE
-  ============================================================ */
+ /* ============================================================
+   HERO IMAGE
+============================================================ */
+
+const heroWidth = 170;
+const heroHeight = 95;
+
+const heroX =
+  (pageWidth - heroWidth) / 2;
+
+const heroY = 18;
 
 pdf.addImage(
   coverBase64,
   "PNG",
-  0,
-  0,
-  pageWidth,
-  120
+  heroX,
+  heroY,
+  heroWidth,
+  heroHeight
 );
 
   /* ============================================================
@@ -285,75 +293,106 @@ pdf.setGState(
   );
 
   /* ============================================================
-     REPORT TITLE
-  ============================================================ */
+   REPORT TITLE
+============================================================ */
 
-  pdf.setFont(
-    "helvetica",
-    "bold"
-  );
+pdf.setFont(
+  "helvetica",
+  "bold"
+);
 
-  pdf.setTextColor(
-    255,
-    255,
-    255
-  );
+pdf.setTextColor(
+  255,
+  255,
+  255
+);
 
-  pdf.setFontSize(28);
+pdf.setFontSize(30);
 
-  pdf.text(
-    "Analytics Report",
-    margin,
-    150
-  );
+pdf.text(
+  "Performance &",
+  margin,
+  150
+);
 
+pdf.text(
+  "Visibility Report",
+  margin,
+  164
+);
   /* ============================================================
-     SUBTITLE
-  ============================================================ */
+   SUBTITLE
+============================================================ */
 
-  pdf.setFont(
-    "helvetica",
-    "normal"
-  );
+pdf.setFont(
+  "helvetica",
+  "normal"
+);
 
-  pdf.setFontSize(12);
+pdf.setFontSize(12);
 
-  pdf.setTextColor(
-    180,
-    190,
-    210
-  );
+pdf.setTextColor(
+  180,
+  190,
+  210
+);
 
-  pdf.text(
-    "Executive Intelligence Dashboard",
-    margin,
-    162
-  );
+pdf.text(
+  "Global audience engagement across",
+  margin,
+  182
+);
 
+pdf.text(
+  "the World Cigar Locator platform",
+  margin,
+  190
+);
+
+   pdf.setFontSize(10);
+
+pdf.setTextColor(
+  140,
+  150,
+  170
+);
+
+pdf.text(
+  "The Worlds Largest Online Humidor",
+  margin,
+  204
+);
+   
   /* ============================================================
-     KPI INFO
-  ============================================================ */
+   REPORT INFO
+============================================================ */
 
-  pdf.setFontSize(11);
+pdf.setFontSize(11);
 
-  pdf.text(
-    `Selected KPI: ${String(kpi).toUpperCase()}`,
-    margin,
-    188
-  );
+pdf.setTextColor(
+  190,
+  200,
+  220
+);
 
-  pdf.text(
-    `Generated: ${new Date().toLocaleString()}`,
-    margin,
-    196
-  );
+pdf.text(
+  `Generated ${new Date().toLocaleDateString()}`,
+  margin,
+  214
+);
 
-  pdf.text(
-    `Rows Exported: ${rows.length}`,
-    margin,
-    204
-  );
+pdf.text(
+  "Private partner performance report",
+  margin,
+  222
+);
 
+pdf.text(
+  "Prepared by World Cigar Locator",
+  margin,
+  230
+);
+   
   /* ============================================================
      FOOTER LINE
   ============================================================ */
@@ -387,21 +426,7 @@ pdf.setGState(
     248
   );
 
-
-   /* ============================================================
-   NEXT PAGE
-============================================================ */
-
-pdf.addPage();
-
-currentPage++;
-
-renderPageHeader();
-
-renderWatermark();
-
-}
-   
+ 
 /* ============================================================
    PAGE HEADER ENGINE
 ============================================================ */
@@ -497,6 +522,14 @@ function renderPageHeader() {
 
 renderCoverPage();
 
+pdf.addPage();
+
+currentPage++;
+
+renderPageHeader();
+
+renderWatermark();
+   
   /* ============================================================
    EXECUTIVE KPI CARDS
 ============================================================ */
@@ -504,21 +537,18 @@ renderCoverPage();
 const cards = [
 
   {
-    label: "Views",
-    value: global.views || "0",
-    color: [192,132,252]
+    label: "Audience Reach",
+    value: global.views || "0"
   },
 
   {
-    label: "Users",
-    value: global.users || "0",
-    color: [79,209,255]
+    label: "Website Visits",
+    value: global.clicks || "0"
   },
 
   {
-    label: "Stores",
-    value: global.stores || "0",
-    color: [110,231,183]
+    label: "Platform Exposure",
+    value: global.users || "0"
   }
 
 ];
@@ -625,7 +655,7 @@ pdf.setFontSize(16);
 pdf.setTextColor(255,255,255);
 
 pdf.text(
-  "Analytics Breakdown",
+  "Audience Engagement Overview",
   margin,
   y
 );
@@ -668,20 +698,20 @@ pdf.setTextColor(
 pdf.text(
   isMembers
     ? "MEMBER"
-    : "NAME",
+    : "LOUNGE / MARKET",
   margin + 5,
   y + 2
 );
 
 pdf.text(
-  "VIEWS",
+  "AUDIENCE",
   120,
   y + 2,
   { align:"right" }
 );
 
 pdf.text(
-  "CLICKS",
+  "VISITS",
   150,
   y + 2,
   { align:"right" }
@@ -689,8 +719,8 @@ pdf.text(
 
 pdf.text(
   isMembers
-    ? "LOGINS"
-    : "CTR",
+    ? "ACTIVITY"
+    : "ENGAGEMENT",
   190,
   y + 2,
   { align:"right" }
@@ -851,7 +881,7 @@ if (chartCanvas) {
   );
 
   pdf.text(
-    "Performance Visualization",
+    "Audience Engagement Trends",
     margin + 6,
     y + 10
   );
