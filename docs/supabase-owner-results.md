@@ -201,3 +201,30 @@ Conclusion so far:
 - We need a smaller grant query focused on base tables and high-risk public/authenticated privileges.
 - High-risk tables are `stores`, `store_pending`, `analytics_events`, admin tables, report/moderation tables, user event tables, and backup/temp tables.
 - For launch sign-off, any public/authenticated write grants on base tables must be explained by RLS policies or removed.
+
+## Focused Base Table Grants
+
+Owner provided a focused base-table grant result.
+
+Critical launch blockers found:
+
+- `bo_admins` has anon/authenticated `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE`, with RLS disabled.
+- `analytics_store_daily` has anon/authenticated `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE`, with RLS disabled.
+- `analytics_stores` has anon/authenticated `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE`, with RLS disabled.
+- `store_content_flags` has anon/authenticated `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE`, with RLS disabled.
+- `store_flag_logs` has anon/authenticated `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE`, with RLS disabled.
+- Backup/log tables such as `photo_log_backup_2025_10_29` and `store_flag_logs_backup_2025_10_29` also have broad anon/authenticated grants with RLS disabled.
+- `analytics_events` has anon/authenticated `INSERT` and `SELECT`, with RLS disabled.
+
+Additional notes:
+
+- `store_comments`, `store_favorites`, and `store_pending` have broad grant rows, but RLS is enabled on those tables.
+  Those still need cleanup, especially `TRUNCATE` grants and the public `store_pending` read policy, but they are less urgent than no-RLS tables.
+- Frontend analytics appears to send events through Edge Functions, not by direct table writes to `analytics_events`.
+  This supports moving analytics writes behind server-side authority instead of granting direct public table access.
+
+Conclusion:
+
+- This is a hard launch blocker.
+- Do not merge the PR or launch publicly until Supabase grants/RLS are tightened.
+- Prepare a reviewed Supabase remediation migration before making database changes.

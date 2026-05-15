@@ -19,6 +19,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Fixed add-store i18n startup error when only the Supabase CDN SDK is present.
 - Recorded owner-provided Supabase inventories for tables/views, functions, triggers, RLS status, and policies.
 - Expanded the read-only Supabase audit query to include table grants/permissions.
+- Recorded focused Supabase base-table grant findings; current DB permissions are not launch-safe.
 
 ## Verified
 
@@ -30,6 +31,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 ## Not Ready To Merge Until
 
 - Backoffice/admin access is reviewed against Supabase RLS/admin rules.
+- Supabase base-table grants/RLS are tightened for admin, analytics, moderation/log, and backup tables.
 - Canonical PDFs or Markdown replacements are added/confirmed.
 - Browser keys are confirmed restricted to production domains/API scopes.
 - Analytics ingest endpoint canonical URL is confirmed.
