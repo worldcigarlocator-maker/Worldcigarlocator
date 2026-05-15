@@ -8,6 +8,8 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Added frontend runtime map.
 - Added Supabase contract checklist.
 - Added backoffice/admin audit.
+- Added a read-only Supabase launch audit SQL export.
+- Added an owner-friendly Supabase Dashboard guide.
 - Fixed GitHub Pages workflow so it also runs from the current default branch `Main-1`.
 - Removed stale analytics inline config with `YOUR_KEY`.
 - Gated public debug logs behind explicit debug flags.

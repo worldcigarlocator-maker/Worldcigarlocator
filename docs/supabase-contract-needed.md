@@ -15,6 +15,9 @@ Read-only schema and policy information is enough for code review and launch val
 - RLS policy names and policy expressions.
 - Triggers that mutate `stores`, analytics, moderation, comments, ratings, or favorites.
 
+Use `docs/supabase-readonly-launch-audit.sql` to export this in one read-only query.
+Owner click-by-click instructions are in `docs/supabase-dashboard-guide.md`.
+
 ## Public Anon-Key Verification
 
 Codex ran read-only checks against Supabase with the public anon-key already present in `js/globals.js`.

@@ -11,6 +11,8 @@ Initial Codex audit date: 2026-05-15
 - JavaScript syntax check: passed with `node --check` across `js/*.js`.
 - Frontend runtime map: `docs/frontend-runtime-map.md`
 - Supabase launch contract checklist: `docs/supabase-contract-needed.md`
+- Supabase read-only audit query: `docs/supabase-readonly-launch-audit.sql`
+- Supabase owner guide: `docs/supabase-dashboard-guide.md`
 - Owner workflow: `docs/owner-workflow.md`
 - Backoffice/admin audit: `docs/backoffice-admin-audit.md`
 
