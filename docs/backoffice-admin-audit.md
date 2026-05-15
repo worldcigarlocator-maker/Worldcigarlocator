@@ -55,6 +55,19 @@ Required DB checks:
 - Security mode for admin RPCs: whether each function is `security definer` or `security invoker`.
 - Whether admin RPCs validate the current authenticated user internally, not only a supplied `p_uid`.
 
+## Current Supabase Findings
+
+Owner-provided RLS/policy results show:
+
+- `stores` has anonymous public reads limited to approved, non-deleted stores.
+- `stores` has broad authenticated reads through `stores_authenticated_read`.
+- No direct admin `stores` update policy was visible in the provided policy list.
+- `store_pending` allows public inserts, which fits public add-store submission.
+- `store_pending` also allows public reads with `SELECT true`, which may expose pending submissions before human review.
+- `store_reports` and `store_report_actions` use `bo_is_admin_v1(auth.uid())`, which is the right shape for admin-only report moderation.
+
+This means the backoffice cannot be signed off yet. We still need table grants/permissions and key RPC definitions before deciding whether the current setup is safe or whether the DB rules need a cleanup migration.
+
 ## Risk Notes
 
 - `js/backoffice.js` uses the public anon-key, which is normal for browser apps, but this means database policies must do the real protection.
