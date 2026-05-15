@@ -18,9 +18,14 @@ const ANALYTICS_ENDPOINT =
 const VISITOR_KEY = "wcl_visitor_id";
 const SESSION_KEY = "wcl_session_id";
 const SESSION_DATE_KEY = "wcl_session_date";
+const ANALYTICS_DEBUG = Boolean(window?.WCL_DEBUG_ANALYTICS);
 
 /* Legacy compatibility */
 const LEGACY_SESSION_KEY = "wcl_session";
+
+function debugLog(...args) {
+  if (ANALYTICS_DEBUG) console.log(...args);
+}
 
 /* ============================================================
    DATE HELPER
@@ -241,10 +246,7 @@ export async function trackEvent(eventType, payload = {}) {
     /* ============================================================
        SOURCE
        ============================================================ */
-console.log(
-  "AUTH USER DEBUG",
-  authUser
-);
+    debugLog("AUTH USER DEBUG", authUser);
     const source =
       resolveSource(eventType, payload);
 
@@ -314,7 +316,7 @@ console.log(
        DEBUG
        ============================================================ */
 
-    console.log(
+    debugLog(
       "🚀 ANALYTICS PAYLOAD:",
       JSON.stringify(finalPayload, null, 2)
     );
@@ -340,7 +342,7 @@ console.log(
 
     if (!res.ok) {
 
-      console.error(
+      console.warn(
         "❌ ANALYTICS ERROR:",
         res.status,
         text
@@ -349,12 +351,12 @@ console.log(
       return;
     }
 
-    console.log("✅ ANALYTICS SENT");
+    debugLog("✅ ANALYTICS SENT");
 
   } catch (err) {
 
-    console.error(
-      "💥 ANALYTICS CRASH:",
+    console.warn(
+      "Analytics tracking skipped:",
       err
     );
   }

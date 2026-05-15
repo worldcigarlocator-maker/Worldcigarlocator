@@ -9,6 +9,9 @@ Initial Codex audit date: 2026-05-15
 - Local working branch: `codex-launch-readiness`
 - App type: static HTML/CSS/JavaScript frontend with Supabase and Google Maps integrations.
 - JavaScript syntax check: passed with `node --check` across `js/*.js`.
+- Frontend runtime map: `docs/frontend-runtime-map.md`
+- Supabase launch contract checklist: `docs/supabase-contract-needed.md`
+- Owner workflow: `docs/owner-workflow.md`
 
 ## Canonical Project Rules
 
@@ -72,11 +75,13 @@ Canonical RPCs:
 
    Some of these may be acceptable admin/backoffice flows, but public-facing discovery should not read raw `stores`.
 
-6. `analytics.html` contains `supabaseAnonKey: "YOUR_KEY"` in `window.WCL_ANALYTICS_CFG`, while `js/analytics.js` imports the canonical client from `js/globals.js`.
-   This looks stale and should be removed or replaced only after confirming no external dependency uses it.
+6. `analytics.html` contained `supabaseAnonKey: "YOUR_KEY"` in `window.WCL_ANALYTICS_CFG`, while `js/analytics.js` imports the canonical client from `js/globals.js`.
+   No repository references used `WCL_ANALYTICS_CFG`, so the stale inline config was removed.
 
 7. Google Maps browser keys and Supabase anon keys are committed in frontend files.
    This can be acceptable only if those keys are public/browser keys with strict domain and API restrictions.
+
+8. Analytics tracking failures were logging as crash-level console errors. Tracking must never affect rendering or moderation, so analytics network failures now log as warnings and debug payload logs are gated behind `window.WCL_DEBUG_ANALYTICS`.
 
 ## Launch Blockers To Resolve
 
@@ -86,6 +91,7 @@ Canonical RPCs:
 - Confirm Supabase RLS and RPC definitions match the canonical frontend contract.
 - Confirm public browser keys are restricted to the production domains.
 - Review all direct `stores` access and move public reads to canonical RPCs/views where required.
+- Confirm analytics tracking is not double-emitting events through both `analytics-tracker.js` and `analytics-frontend.js`.
 
 ## Local Workflow For Owner Review
 
