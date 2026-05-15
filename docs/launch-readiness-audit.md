@@ -12,6 +12,7 @@ Initial Codex audit date: 2026-05-15
 - Frontend runtime map: `docs/frontend-runtime-map.md`
 - Supabase launch contract checklist: `docs/supabase-contract-needed.md`
 - Owner workflow: `docs/owner-workflow.md`
+- Backoffice/admin audit: `docs/backoffice-admin-audit.md`
 
 ## Canonical Project Rules
 
@@ -95,6 +96,9 @@ Canonical RPCs:
     This prevents add-store pages from logging a startup error when only the Supabase CDN SDK has loaded.
 
 13. `analytics.js` store dossier loading now reads from `stores_frontend_public_v5` instead of raw `stores`.
+
+14. Backoffice/admin flows are mapped in `docs/backoffice-admin-audit.md`.
+    Frontend has a `bo_is_admin_v1` gate, but DB-level RLS/function definitions are still required before launch sign-off.
 
 ## Launch Blockers To Resolve
 
