@@ -86,12 +86,15 @@ Canonical RPCs:
 9. Public discovery modules had launch-noisy development logs in `globals.js`, `main.js`, `cards.js`, and `modal.js`.
    These are now gated behind `window.WCL_DEBUG`, while real errors still use normal console error/warn paths.
 
+10. Public Supabase contract smoke tests passed with the anon-key already present in `js/globals.js`.
+    Verified views/RPCs: `stores_frontend_public_v5`, `sidebar_nodes_v3`, `search_stores_v2`, `stores_within_bounds`, `analytics_top_stores_v2`, `analytics_kpi_v2`, and `analytics_sessions_v1`.
+
 ## Launch Blockers To Resolve
 
 - Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.
 - Confirm which branch should be production: `Main-1`, `main`, or a renamed branch.
 - Confirm hosting target: GitHub Pages, Vercel, Netlify, Cloudflare Pages, or another provider.
-- Confirm Supabase RLS and RPC definitions match the canonical frontend contract.
+- Confirm Supabase RLS and RPC definitions match the canonical frontend contract. Public response smoke tests passed, but schema/RLS definitions are still needed for launch confidence.
 - Confirm public browser keys are restricted to the production domains.
 - Review all direct `stores` access and move public reads to canonical RPCs/views where required.
 - Confirm analytics tracking is not double-emitting events through both `analytics-tracker.js` and `analytics-frontend.js`.

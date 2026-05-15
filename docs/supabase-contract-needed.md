@@ -15,6 +15,32 @@ Read-only schema and policy information is enough for code review and launch val
 - RLS policy names and policy expressions.
 - Triggers that mutate `stores`, analytics, moderation, comments, ratings, or favorites.
 
+## Public Anon-Key Verification
+
+Codex ran read-only checks against Supabase with the public anon-key already present in `js/globals.js`.
+
+Verified on 2026-05-15:
+
+- `stores_frontend_public_v5`: `200 OK`
+- `sidebar_nodes_v3`: `200 OK`
+- `search_stores_v2`: `200 OK`
+- `stores_within_bounds`: `200 OK`
+- `analytics_top_stores_v2`: `200 OK`
+- `analytics_kpi_v2`: `200 OK`
+- `analytics_sessions_v1`: `200 OK`
+
+Observed response contracts:
+
+- `stores_frontend_public_v5` returns store fields including `id`, `name`, `address`, `city`, `country`, `country_iso2`, `continent`, `phone`, `website`, `type`, `types`, `access`, `approved`, `flagged`, `deleted`, `status`, `photo_reference`, `place_id`, `created_at`, `flag_reason`, and `state`.
+- `sidebar_nodes_v3` returns `continent`, `country`, `country_iso2`, `state`, `city`, `count`, and `level`.
+- `search_stores_v2` returns public store fields plus `comment_count`, `rating_count`, `rating_avg`, and `favorites_count`.
+- `stores_within_bounds` returns map marker fields: `id`, `name`, `lat`, `lng`, `types`, `city`, and `country`.
+- `analytics_top_stores_v2` returns `store_id`, `name`, `city`, `country`, `state`, `views`, `clicks`, and `ctr`.
+- `analytics_kpi_v2` returns `views`, `clicks`, and `ctr`.
+- `analytics_sessions_v1` returns `sessions`.
+
+Remaining Supabase validation still requires schema/RLS/function definitions, not just successful public calls.
+
 ## Canonical Public Contract
 
 The public frontend should use these backend surfaces:
