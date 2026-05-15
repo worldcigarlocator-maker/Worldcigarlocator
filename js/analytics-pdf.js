@@ -414,18 +414,19 @@ pdf.text(
 
   pdf.setFontSize(9);
 
-  pdf.setTextColor(
-    120,
-    130,
-    150
-  );
+pdf.setTextColor(
+  120,
+  130,
+  150
+);
 
-  pdf.text(
-    "WORLD CIGAR LOCATOR — CONFIDENTIAL ANALYTICS",
-    margin,
-    248
-  );
+pdf.text(
+  "WORLD CIGAR LOCATOR — CONFIDENTIAL ANALYTICS",
+  margin,
+  248
+);
 
+}
  
 /* ============================================================
    PAGE HEADER ENGINE
