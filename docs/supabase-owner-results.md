@@ -79,3 +79,39 @@ Next required results:
 - RLS policies.
 - Trigger inventory.
 - Function definitions for admin-sensitive functions, especially `bo_is_admin_v1`, `approve_store_pending`, `bo_moderate_store_report_v1`, and any active `auto_*` trigger functions.
+
+## Trigger Inventory
+
+Owner provided trigger inventory from `information_schema.triggers`.
+
+Important observations:
+
+- No active triggers were listed for:
+  - `auto_approve_stores`
+  - `auto_approve_with_keywords`
+  - `auto_moderate_store`
+  - `auto_flag_store`
+- This is good for the WCL rules:
+  - No auto moderation.
+  - No auto approval.
+  - Human moderation overrides automation.
+- Active `stores` triggers appear focused on normalization/consistency:
+  - `trg_enforce_store_continent`
+  - `trg_enforce_store_status_consistency`
+  - `trg_fix_location_on_insert`
+  - `trg_normalize_country_iso2`
+  - `trg_normalize_store_city`
+  - `trg_set_city_from_address`
+  - `trigger_respect_flag`
+  - `trigger_store_photo`
+- Active review triggers update/log ratings:
+  - `trg_log_review_event`
+  - `trg_update_store_rating`
+- Active timestamp triggers exist for:
+  - `profiles`
+  - `store_reports`
+
+Conclusion so far:
+
+- The concerning `auto_*` moderation/approval function names exist, but they do not appear attached as active triggers in the provided trigger inventory.
+- Still need RLS status and policies to confirm who can insert/update/delete on the protected tables.
