@@ -1,0 +1,111 @@
+# WCL Launch Readiness Audit
+
+Initial Codex audit date: 2026-05-15
+
+## Current Baseline
+
+- Repository: `worldcigarlocator-maker/Worldcigarlocator`
+- Default branch from GitHub metadata: `Main-1`
+- Local working branch: `codex-launch-readiness`
+- App type: static HTML/CSS/JavaScript frontend with Supabase and Google Maps integrations.
+- JavaScript syntax check: passed with `node --check` across `js/*.js`.
+
+## Canonical Project Rules
+
+The active WCL rules currently live in `agents.md`.
+
+Key rules that must control launch work:
+
+- Backend authority overrides frontend.
+- No frontend aggregation.
+- No frontend counts logic.
+- Sidebar counts are backend-only.
+- Analytics are append-only.
+- No destructive changes without approval.
+- Human moderation overrides automation.
+- No assumptions.
+
+Forbidden patterns:
+
+- `LIMIT` in sidebar logic.
+- Direct public frontend access to raw `stores`.
+- Smart frontend geo logic.
+- Auto moderation.
+- Auto approval.
+- Silent mutations.
+
+Canonical frontend dataset:
+
+- `stores_frontend_public_v5`
+
+Canonical RPCs:
+
+- `search_stores_v2`
+- `sidebar_nodes_v3`
+- `stores_within_bounds`
+- `analytics_top_stores_v2`
+
+## Immediate Findings
+
+1. GitHub Pages workflow was only listening to `main`, while the repository default branch is `Main-1`.
+   This can prevent deployment when launch changes are merged to the current default branch.
+
+2. The canonical PDF documents referenced by `agents.md` are not present in the repository:
+   - `WCL_Kickstart_CURRENT.pdf`
+   - `WCL_Canonical_Spec_CURRENT.pdf`
+   - `WCL_AI_Primer_CURRENT.pdf`
+   - `WCL_Delta_Log_MASTER_v3.1.pdf`
+
+3. `js/sidebar.js` does not use `.limit()`, but it does page through `sidebar_nodes_v3` with `.range()`.
+   Counts are rendered from backend-provided `count` values.
+
+4. Public discovery code uses the expected RPCs:
+   - `js/cards.js` calls `search_stores_v2`.
+   - `js/map.js` calls `stores_within_bounds`.
+   - `js/sidebar.js` reads `sidebar_nodes_v3`.
+
+5. Several files still need classification before launch because they access raw `stores` directly:
+   - `js/analytics.js`
+   - `js/add-shared.js`
+   - `js/add-store.js`
+   - `js/backoffice.js`
+
+   Some of these may be acceptable admin/backoffice flows, but public-facing discovery should not read raw `stores`.
+
+6. `analytics.html` contains `supabaseAnonKey: "YOUR_KEY"` in `window.WCL_ANALYTICS_CFG`, while `js/analytics.js` imports the canonical client from `js/globals.js`.
+   This looks stale and should be removed or replaced only after confirming no external dependency uses it.
+
+7. Google Maps browser keys and Supabase anon keys are committed in frontend files.
+   This can be acceptable only if those keys are public/browser keys with strict domain and API restrictions.
+
+## Launch Blockers To Resolve
+
+- Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.
+- Confirm which branch should be production: `Main-1`, `main`, or a renamed branch.
+- Confirm hosting target: GitHub Pages, Vercel, Netlify, Cloudflare Pages, or another provider.
+- Confirm Supabase RLS and RPC definitions match the canonical frontend contract.
+- Confirm public browser keys are restricted to the production domains.
+- Review all direct `stores` access and move public reads to canonical RPCs/views where required.
+
+## Local Workflow For Owner Review
+
+1. Open this folder in VS Code:
+   `/Users/andreasbagler/Documents/Codex/2026-05-15/jag-har-ett-stort-projekt-som/Worldcigarlocator`
+
+2. Pull/sync when Codex pushes or commits changes.
+
+3. Serve the static site locally from the repository root when needed:
+
+   ```sh
+   python3 -m http.server 4173
+   ```
+
+4. Open:
+   `http://localhost:4173`
+
+## Current Verification Commands
+
+```sh
+git status --short --branch
+node --check js/*.js
+```
