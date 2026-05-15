@@ -161,11 +161,40 @@ grants as (
   from information_schema.role_table_grants
   where table_schema = 'public'
     and grantee in ('anon', 'authenticated', 'public')
+    and table_name in (select table_name from target_tables)
+),
+base_table_grants as (
+  select jsonb_agg(
+    jsonb_build_object(
+      'grantee', g.grantee,
+      'schema', g.table_schema,
+      'table', g.table_name,
+      'privilege', g.privilege_type,
+      'is_grantable', g.is_grantable,
+      'rls_enabled', c.relrowsecurity
+    )
+    order by g.table_name, g.grantee, g.privilege_type
+  ) as data
+  from information_schema.role_table_grants g
+  join information_schema.tables t
+    on t.table_schema = g.table_schema
+   and t.table_name = g.table_name
+  left join pg_namespace n
+    on n.nspname = g.table_schema
+  left join pg_class c
+    on c.relname = g.table_name
+   and c.relnamespace = n.oid
+  where g.table_schema = 'public'
+    and g.grantee in ('anon', 'authenticated', 'public')
+    and g.privilege_type in ('SELECT', 'INSERT', 'UPDATE', 'DELETE', 'TRUNCATE')
+    and t.table_type = 'BASE TABLE'
     and (
-      table_name in (select table_name from target_tables)
-      or table_name like 'store_%'
-      or table_name like 'analytics_%'
-      or table_name like 'bo_%'
+      g.table_name in (select table_name from target_tables)
+      or g.table_name like 'store_%'
+      or g.table_name like 'analytics_%'
+      or g.table_name like 'bo_%'
+      or g.table_name like '%backup%'
+      or g.table_name like 'temp_%'
     )
 ),
 functions as (
@@ -220,6 +249,7 @@ select jsonb_pretty(
     'rls_status', coalesce((select data from rls_status), '[]'::jsonb),
     'policies', coalesce((select data from policies), '[]'::jsonb),
     'grants', coalesce((select data from grants), '[]'::jsonb),
+    'base_table_grants', coalesce((select data from base_table_grants), '[]'::jsonb),
     'functions', coalesce((select data from functions), '[]'::jsonb),
     'triggers', coalesce((select data from triggers), '[]'::jsonb)
   )

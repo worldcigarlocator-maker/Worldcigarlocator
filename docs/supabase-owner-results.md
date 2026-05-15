@@ -185,3 +185,19 @@ Conclusion so far:
 - The public discovery read path looks aligned: anonymous visitors only read approved, non-deleted `stores`.
 - The pending/backoffice path is not ready for launch sign-off yet.
 - The next required result is grants/permissions for anon, authenticated, and public roles.
+
+## Grants / Permissions Inventory
+
+Owner started providing table/view grants for anon, authenticated, and public roles.
+
+Partial observation:
+
+- The first output contained many analytics views with broad anon/authenticated grant rows, including write-looking privileges such as `INSERT`, `UPDATE`, and `DELETE`.
+- Because those rows are on views, not all write-looking grants are necessarily exploitable. Some views are not updatable.
+- The output is too broad to use directly for launch sign-off.
+
+Conclusion so far:
+
+- We need a smaller grant query focused on base tables and high-risk public/authenticated privileges.
+- High-risk tables are `stores`, `store_pending`, `analytics_events`, admin tables, report/moderation tables, user event tables, and backup/temp tables.
+- For launch sign-off, any public/authenticated write grants on base tables must be explained by RLS policies or removed.
