@@ -28,7 +28,15 @@ target_tables as (
     'store_comments',
     'store_favorites',
     'ratings',
-    'analytics_events'
+    'analytics_events',
+    'wcl_admins',
+    'bo_admins',
+    'store_report_events',
+    'store_content_flags',
+    'store_flag_logs',
+    'store_photo_queue',
+    'store_translations',
+    'user_events'
   ]) as table_name
 ),
 target_function_patterns as (
@@ -139,6 +147,27 @@ policies as (
       or tablename like 'bo_%'
     )
 ),
+grants as (
+  select jsonb_agg(
+    jsonb_build_object(
+      'grantee', grantee,
+      'schema', table_schema,
+      'table', table_name,
+      'privilege', privilege_type,
+      'is_grantable', is_grantable
+    )
+    order by table_name, grantee, privilege_type
+  ) as data
+  from information_schema.role_table_grants
+  where table_schema = 'public'
+    and grantee in ('anon', 'authenticated', 'public')
+    and (
+      table_name in (select table_name from target_tables)
+      or table_name like 'store_%'
+      or table_name like 'analytics_%'
+      or table_name like 'bo_%'
+    )
+),
 functions as (
   select jsonb_agg(
     jsonb_build_object(
@@ -190,6 +219,7 @@ select jsonb_pretty(
     'views', coalesce((select data from views), '[]'::jsonb),
     'rls_status', coalesce((select data from rls_status), '[]'::jsonb),
     'policies', coalesce((select data from policies), '[]'::jsonb),
+    'grants', coalesce((select data from grants), '[]'::jsonb),
     'functions', coalesce((select data from functions), '[]'::jsonb),
     'triggers', coalesce((select data from triggers), '[]'::jsonb)
   )

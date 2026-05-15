@@ -74,7 +74,7 @@ Notes:
 
 - `add-store.html` appears public-facing.
 - `add-store-backoffice.html` appears admin/backoffice-facing.
-- Duplicate checks and city suggestions currently read raw `stores`; these need Supabase/RLS review before launch.
+- Duplicate checks and city suggestions now read `stores_frontend_public_v5`, not raw `stores`.
 
 ## Backoffice
 
@@ -117,7 +117,7 @@ Notes:
 
 - `analytics.html` had a stale `window.WCL_ANALYTICS_CFG` block with `supabaseAnonKey: "YOUR_KEY"`.
 - `js/analytics.js` imports the canonical Supabase client from `js/globals.js`, so the stale inline config was removed.
-- Analytics currently includes one raw `stores` read for store dossier loading; this needs backend/RLS classification before launch.
+- Store dossier loading now reads `stores_frontend_public_v5`, not raw `stores`.
 
 ## Standalone Content Pages
 
@@ -154,7 +154,7 @@ Some are imported by analytics or tracking flows. Do not delete them until impor
 
 - Continue removing or guarding debug-only console logs outside the public discovery modules.
 - Confirm `analytics-frontend.js` and `analytics-tracker.js` are not double-counting the same canonical events.
-- Confirm raw `stores` reads are limited to admin/dashboard flows protected by RLS or converted to canonical RPCs/views.
+- Confirm remaining raw `stores` reads are limited to admin/backoffice flows protected by RLS or converted to canonical RPCs/views.
 - Confirm all browser API keys are restricted by domain and API scope.
 
 ## Debug Flags

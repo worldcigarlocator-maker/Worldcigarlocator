@@ -154,3 +154,34 @@ Risk note:
 - RLS disabled does not automatically prove public exposure.
 - It means protection depends on table grants/privileges and RPC/Edge Function access patterns.
 - Next required results are policies and grants/permissions, especially for `bo_admins`, `wcl_admins`, `analytics_events`, `store_report_events`, and backup/temp tables.
+
+## RLS Policy Inventory
+
+Owner provided RLS policies for the public schema.
+
+Good signs:
+
+- `stores` has an anonymous public-read policy limited to approved, non-deleted stores.
+- `stores` has an admin-only insert policy using `wcl_admins`.
+- `store_reports` and `store_report_actions` use `bo_is_admin_v1(auth.uid())` for admin access.
+- `profiles`, `store_favorites`, `store_comments`, `ratings`, and `store_reviews` mostly use "own user" rules for writes.
+- `store_pending` allows public submission inserts, which matches the public add-store flow.
+
+Risks / follow-up items:
+
+- `analytics_events` has an insert policy, but RLS status shows RLS is disabled on `analytics_events`.
+  That means the policy does not enforce protection unless RLS is enabled. We need grants/permissions to know what public users can actually do.
+- `store_pending` has public `SELECT true`.
+  That means pending store submissions may be readable before human review. This likely conflicts with the moderation model unless intentionally approved.
+- `stores_authenticated_read` allows any signed-in user to read all `stores` rows.
+  This may expose non-public store rows to ordinary members unless that is intentional.
+- The provided policies do not show a direct `stores` update policy for admin users.
+  Backoffice has direct update flows, so we need to confirm whether those actions work through RPCs, service-role-only infrastructure, or missing policies.
+- `store_favorites` and `store_reviews` have duplicate/overlapping policies.
+  This is not automatically unsafe, but it shows schema drift and should be simplified later.
+
+Conclusion so far:
+
+- The public discovery read path looks aligned: anonymous visitors only read approved, non-deleted `stores`.
+- The pending/backoffice path is not ready for launch sign-off yet.
+- The next required result is grants/permissions for anon, authenticated, and public roles.

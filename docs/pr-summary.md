@@ -17,6 +17,8 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Verified key public Supabase views/RPCs with the existing public anon-key.
 - Moved add-store helper reads and analytics store detail reads away from raw `stores` to `stores_frontend_public_v5`.
 - Fixed add-store i18n startup error when only the Supabase CDN SDK is present.
+- Recorded owner-provided Supabase inventories for tables/views, functions, triggers, RLS status, and policies.
+- Expanded the read-only Supabase audit query to include table grants/permissions.
 
 ## Verified
 

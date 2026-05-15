@@ -70,13 +70,8 @@ Canonical RPCs:
    - `js/map.js` calls `stores_within_bounds`.
    - `js/sidebar.js` reads `sidebar_nodes_v3`.
 
-5. Several files still need classification before launch because they access raw `stores` directly:
-   - `js/analytics.js`
-   - `js/add-shared.js`
-   - `js/add-store.js`
-   - `js/backoffice.js`
-
-   Some of these may be acceptable admin/backoffice flows, but public-facing discovery should not read raw `stores`.
+5. Public add-store and analytics reads were moved away from raw `stores` to `stores_frontend_public_v5`.
+   Remaining direct raw `stores` access is concentrated in `js/backoffice.js`, which must be confirmed admin-only and RLS-safe before launch.
 
 6. `analytics.html` contained `supabaseAnonKey: "YOUR_KEY"` in `window.WCL_ANALYTICS_CFG`, while `js/analytics.js` imports the canonical client from `js/globals.js`.
    No repository references used `WCL_ANALYTICS_CFG`, so the stale inline config was removed.
@@ -101,6 +96,9 @@ Canonical RPCs:
 
 14. Backoffice/admin flows are mapped in `docs/backoffice-admin-audit.md`.
     Frontend has a `bo_is_admin_v1` gate, but DB-level RLS/function definitions are still required before launch sign-off.
+
+15. Owner-provided Supabase policy results are recorded in `docs/supabase-owner-results.md`.
+    Current follow-up risk areas are `store_pending` public reads, broad authenticated reads on `stores`, inactive RLS on `analytics_events`, and missing grants/permissions visibility.
 
 ## Launch Blockers To Resolve
 
