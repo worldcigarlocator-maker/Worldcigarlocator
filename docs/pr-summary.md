@@ -25,6 +25,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Recorded function execute grants confirming `approve_store_pending` is executable by `anon`.
 - Confirmed Supabase backup exists from 2026-05-15 03:30 before remediation.
 - Recorded post-fix function execute verification removing `anon`/`PUBLIC` from admin-sensitive RPCs.
+- Added focused `wcl_admins` follow-up fix draft after post-fix table verification.
 
 ## Verified
 
@@ -37,6 +38,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 
 - Backoffice/admin access is reviewed against Supabase RLS/admin rules.
 - Post-fix table grants/RLS are verified for admin, analytics, moderation/log, and backup tables.
+- `wcl_admins` direct public/authenticated table access is removed and verified.
 - Canonical PDFs or Markdown replacements are added/confirmed.
 - Browser keys are confirmed restricted to production domains/API scopes.
 - Analytics ingest endpoint canonical URL is confirmed.

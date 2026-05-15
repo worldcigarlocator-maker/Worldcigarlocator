@@ -109,6 +109,9 @@ Canonical RPCs:
 18. Post-fix function execute verification shows admin-sensitive RPCs no longer expose `anon`/`PUBLIC` execute grants.
     Table grant verification is still required before removing the Supabase security blocker.
 
+19. Post-fix table grant verification shows the first security fix closed most high-risk no-RLS table exposure, but `wcl_admins` remains directly accessible by anon/authenticated roles.
+    A focused follow-up fix is required before launch.
+
 ## Launch Blockers To Resolve
 
 - Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.
@@ -117,6 +120,7 @@ Canonical RPCs:
 - Confirm Supabase RLS and RPC definitions match the canonical frontend contract. Public response smoke tests passed, but schema/RLS definitions are still needed for launch confidence.
 - Fix Supabase base-table grants/RLS for admin, analytics, moderation/log, and backup tables before launch.
 - Confirm post-fix table grant verification for admin, analytics, moderation/log, and backup tables.
+- Lock down `wcl_admins` direct access before launch.
 - Confirm public browser keys are restricted to the production domains.
 - Review remaining direct `stores` access in `js/backoffice.js`; this appears admin-oriented but still needs RLS/admin verification.
 - Confirm analytics tracking is not double-emitting events through both `analytics-tracker.js` and `analytics-frontend.js`.

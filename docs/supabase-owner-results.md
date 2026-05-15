@@ -282,3 +282,29 @@ Conclusion:
 
 - The highest-risk function execute issue appears fixed.
 - Still need the table grants verification result from the same SQL run to confirm the no-RLS table exposure is fixed.
+
+## Post-Fix Table Grants Verification
+
+Owner provided the table grants verification after running the first security fix.
+
+Good results:
+
+- `analytics_events` now has only `INSERT` for `anon` and `authenticated`, with RLS enabled.
+- `store_pending` now has `INSERT` for `anon` and `authenticated`, with RLS enabled.
+- `store_pending` has `SELECT` for `authenticated`, with RLS enabled and an admin-only select policy.
+- The previously exposed no-RLS tables such as `bo_admins`, `analytics_store_daily`, `analytics_stores`, `store_content_flags`, `store_flag_logs`, and backup tables were not shown in the focused result.
+
+Remaining blocker:
+
+- `wcl_admins` still has anon/authenticated `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE`, with RLS disabled.
+
+Notes:
+
+- `stores` still shows broad grants for `anon` and `authenticated`, but RLS is enabled.
+  Based on the owner-provided policies, anonymous `stores` reads remain limited to approved, non-deleted rows, and inserts are admin-gated.
+- The `wcl_admins` exposure cannot remain for launch because it is the admin truth table used by `bo_is_admin_v1`.
+
+Conclusion:
+
+- The first fix closed most of the high-risk exposure.
+- A focused follow-up fix is required to lock down `wcl_admins`.
