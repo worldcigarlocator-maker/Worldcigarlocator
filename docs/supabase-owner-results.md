@@ -41,3 +41,41 @@ Conclusion so far:
 - The database contains both active and historical surfaces.
 - Table/view names alone are not enough for launch sign-off.
 - Next required results are RLS status, policies, and function/RPC definitions.
+
+## Function / RPC Inventory
+
+Owner provided a function/RPC inventory with function names, arguments, return types, and `security_definer` status.
+
+Important observations:
+
+- Backoffice/admin RPCs exist:
+  - `bo_is_admin_v1`
+  - `approve_store_pending`
+  - `bo_list_store_reports_v1`
+  - `bo_moderate_store_report_v1`
+  - other `bo_*` report functions
+- Analytics RPCs exist in many versions.
+- Canonical analytics RPCs used by frontend exist:
+  - `analytics_kpi_v2`
+  - `analytics_sessions_v1`
+  - `analytics_store_daily`
+  - `analytics_store_summary`
+  - `analytics_top_stores_v2`
+- Several automatic moderation/approval trigger functions exist:
+  - `auto_approve_stores`
+  - `auto_approve_with_keywords`
+  - `auto_flag_store`
+  - `auto_moderate_store`
+
+Risk note:
+
+- WCL rules say no auto moderation and no auto approval.
+- Function names alone do not prove these are active.
+- Trigger inventory is required next to confirm whether these functions are currently attached to live tables.
+
+Next required results:
+
+- RLS status.
+- RLS policies.
+- Trigger inventory.
+- Function definitions for admin-sensitive functions, especially `bo_is_admin_v1`, `approve_store_pending`, `bo_moderate_store_report_v1`, and any active `auto_*` trigger functions.
