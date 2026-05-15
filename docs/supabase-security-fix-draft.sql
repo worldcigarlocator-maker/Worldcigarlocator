@@ -7,7 +7,7 @@
 -- What this does:
 --   - Removes direct public/authenticated access from internal no-RLS tables.
 --   - Adds server-side admin enforcement to approve_store_pending.
---   - Keeps analytics append-only by allowing INSERT only for canonical events.
+--   - Keeps analytics append-only by allowing INSERT only for known frontend events.
 --   - Stops public reads of pending store submissions.
 --   - Keeps pending store submission INSERT available for the public add-store flow.
 --
@@ -132,7 +132,17 @@ on public.analytics_events
 for insert
 to anon, authenticated
 with check (
-  event_type in ('store_view', 'store_opened', 'website_clicked')
+  event_type in (
+    'store_view',
+    'store_opened',
+    'website_clicked',
+    -- Compatibility with current frontend analytics.
+    -- These should be reviewed separately against the canonical analytics rules.
+    'session_start',
+    'user_login',
+    'map_viewport',
+    'search'
+  )
 );
 
 -- Analytics summary/internal tables should not be directly public mutable.

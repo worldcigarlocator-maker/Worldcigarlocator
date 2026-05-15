@@ -23,6 +23,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Added a draft Supabase security fix SQL file for owner review.
 - Updated the fix draft to harden `approve_store_pending` with a server-side admin check.
 - Recorded function execute grants confirming `approve_store_pending` is executable by `anon`.
+- Confirmed Supabase backup exists from 2026-05-15 03:30 before remediation.
 
 ## Verified
 

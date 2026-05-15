@@ -36,6 +36,7 @@ Also high-risk:
 - `analytics_events` has public/authenticated direct `INSERT` and `SELECT` while RLS is disabled.
 - `store_pending` has RLS enabled, but the current public `SELECT true` policy appears to expose pending submissions before human review.
 - `approve_store_pending` is `SECURITY DEFINER` but does not check `auth.uid()` or admin status before approving a pending store.
+- Backup confirmed by owner: Supabase has a backup from 2026-05-15 03:30.
 
 ## Intended Safe Shape
 
@@ -44,6 +45,7 @@ Also high-risk:
 - Pending submissions are not publicly readable.
 - Analytics writes go through Edge Functions or controlled RPCs.
 - Analytics tables are not directly readable or mutable by anon/authenticated users unless explicitly required.
+- The first security fix keeps known current analytics inserts working. Canonical analytics cleanup remains separate.
 - Admin lists and admin truth tables are never public.
 - Admin RPCs enforce admin status inside the function, not only through the frontend.
 - Backup/temp tables are never public.
