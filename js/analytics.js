@@ -475,7 +475,7 @@ console.log("SELECT STORE", storeId);
   hideAutocomplete();
 
 const { data, error } = await sb
-  .from("stores")
+  .from("stores_frontend_public_v5")
   .select("*")
   .eq("id", storeId)
   .single();

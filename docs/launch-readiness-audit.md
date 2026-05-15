@@ -94,6 +94,8 @@ Canonical RPCs:
 12. `i18n.js` now checks that the active `window.supabase` object is the initialized WCL client before trying to load profile language.
     This prevents add-store pages from logging a startup error when only the Supabase CDN SDK has loaded.
 
+13. `analytics.js` store dossier loading now reads from `stores_frontend_public_v5` instead of raw `stores`.
+
 ## Launch Blockers To Resolve
 
 - Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.
@@ -101,7 +103,7 @@ Canonical RPCs:
 - Confirm hosting target: GitHub Pages, Vercel, Netlify, Cloudflare Pages, or another provider.
 - Confirm Supabase RLS and RPC definitions match the canonical frontend contract. Public response smoke tests passed, but schema/RLS definitions are still needed for launch confidence.
 - Confirm public browser keys are restricted to the production domains.
-- Review remaining direct `stores` access in `js/analytics.js` and `js/backoffice.js`; these appear dashboard/admin-oriented but still need RLS/admin verification.
+- Review remaining direct `stores` access in `js/backoffice.js`; this appears admin-oriented but still needs RLS/admin verification.
 - Confirm analytics tracking is not double-emitting events through both `analytics-tracker.js` and `analytics-frontend.js`.
 
 ## Local Workflow For Owner Review
