@@ -68,6 +68,16 @@ Owner-provided RLS/policy results show:
 
 This means the backoffice cannot be signed off yet. We still need table grants/permissions and key RPC definitions before deciding whether the current setup is safe or whether the DB rules need a cleanup migration.
 
+## Current RPC Findings
+
+Owner-provided function definitions show:
+
+- `bo_is_admin_v1` is `SECURITY DEFINER` and checks `wcl_admins` against `auth.users`.
+- `bo_moderate_store_report_v1` is `SECURITY DEFINER` and checks `auth.uid()` plus `bo_is_admin_v1()` before changing report status.
+- `approve_store_pending` is `SECURITY DEFINER`, but it does not check `auth.uid()` or admin status before inserting into `stores` as `approved = true` and deleting the pending row.
+
+`approve_store_pending` is therefore unsafe unless its function execute permissions are tightly restricted. The safer fix is to add an internal admin check to the function itself, because browser-side login checks are not authority.
+
 ## Risk Notes
 
 - `js/backoffice.js` uses the public anon-key, which is normal for browser apps, but this means database policies must do the real protection.

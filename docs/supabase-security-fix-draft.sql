@@ -6,6 +6,7 @@
 --
 -- What this does:
 --   - Removes direct public/authenticated access from internal no-RLS tables.
+--   - Adds server-side admin enforcement to approve_store_pending.
 --   - Keeps analytics append-only by allowing INSERT only for canonical events.
 --   - Stops public reads of pending store submissions.
 --   - Keeps pending store submission INSERT available for the public add-store flow.
@@ -44,6 +45,69 @@ revoke all privileges on table public.bo_admins from anon, authenticated;
 -- Do not revoke public.wcl_admins in this draft yet.
 -- Current stores insert policy references public.wcl_admins directly.
 -- First replace that policy with a SECURITY DEFINER admin check, then lock wcl_admins.
+
+-- Admin RPC hardening:
+-- The previous approve_store_pending function was SECURITY DEFINER but did not
+-- check auth.uid() or admin status before approving and deleting pending rows.
+create or replace function public.approve_store_pending(p_id bigint)
+returns void
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_uid uuid;
+  v_is_admin boolean;
+  rec record;
+begin
+  v_uid := auth.uid();
+
+  if v_uid is null then
+    raise exception 'Unauthorized: no auth.uid()' using errcode = '28000';
+  end if;
+
+  select public.bo_is_admin_v1(v_uid) into v_is_admin;
+
+  if not coalesce(v_is_admin, false) then
+    raise exception 'Forbidden: admin only' using errcode = '42501';
+  end if;
+
+  select *
+  into rec
+  from public.store_pending
+  where id = p_id
+  for update;
+
+  if not found then
+    return;
+  end if;
+
+  insert into public.stores (
+    name, address, city, country, country_iso2,
+    lat, lng, phone, website, types, access,
+    place_id, photo_reference, created_at,
+    approved, status
+  )
+  values (
+    rec.name, rec.address, rec.city, rec.country, rec.country_iso2,
+    rec.lat, rec.lng, rec.phone, rec.website, rec.types, rec.access,
+    rec.place_id, rec.photo_reference, now(),
+    true, 'approved'
+  );
+
+  delete from public.store_pending
+  where id = rec.id;
+end;
+$function$;
+
+revoke all privileges on function public.approve_store_pending(bigint) from public, anon;
+grant execute on function public.approve_store_pending(bigint) to authenticated;
+
+revoke all privileges on function public.bo_moderate_store_report_v1(uuid, text, text) from public, anon;
+grant execute on function public.bo_moderate_store_report_v1(uuid, text, text) to authenticated;
+
+revoke all privileges on function public.bo_is_admin_v1(uuid) from public, anon;
+grant execute on function public.bo_is_admin_v1(uuid) to authenticated;
 
 -- Analytics event table: append-only for canonical event types.
 alter table public.analytics_events enable row level security;
@@ -86,10 +150,36 @@ revoke all privileges on table public.store_translations from anon, authenticate
 revoke all privileges on table public.user_events from anon, authenticated;
 
 -- Backup/log snapshots should never be public.
-revoke all privileges on table public.photo_log_backup_2025_10_29 from anon, authenticated;
-revoke all privileges on table public.store_flag_logs_backup_2025_10_29 from anon, authenticated;
-revoke all privileges on table public.stores_backup_2025_10_29 from anon, authenticated;
-revoke all privileges on table public.trash_log_backup_2025_10_29 from anon, authenticated;
+do $$
+declare
+  table_name text;
+begin
+  foreach table_name in array array[
+    'photo_log_backup_2025_10_29',
+    'store_flag_logs_backup_2025_10_29',
+    'stores_backup_2025_10_29',
+    'stores_photo_backup_2025_12_28',
+    'stores_photo_backup_2025_12_29',
+    'stores_photo_backup_2025_12_30',
+    'stores_photo_backup_2025_12_31',
+    'stores_photo_backup_2026_01_01',
+    'stores_photo_backup_2026_01_02',
+    'stores_photo_backup_2026_01_03',
+    'stores_photo_repair_batch_2026_01_16',
+    'trash_log_backup_2025_10_29',
+    'temp_city_geoname_map',
+    'temp_geonames_aliases'
+  ]
+  loop
+    if to_regclass(format('public.%I', table_name)) is not null then
+      execute format(
+        'revoke all privileges on table public.%I from anon, authenticated',
+        table_name
+      );
+    end if;
+  end loop;
+end
+$$;
 
 -- Pending submissions:
 -- Public visitors may submit. They should not read the pending queue.
@@ -162,3 +252,18 @@ where g.table_schema = 'public'
     or g.table_name like 'temp_%'
   )
 order by g.table_name, g.grantee, g.privilege_type;
+
+-- Function execute verification:
+select
+  routine_name as function_name,
+  grantee,
+  privilege_type
+from information_schema.routine_privileges
+where routine_schema = 'public'
+  and routine_name in (
+    'approve_store_pending',
+    'bo_is_admin_v1',
+    'bo_moderate_store_report_v1'
+  )
+  and grantee in ('anon', 'authenticated', 'PUBLIC', 'public')
+order by routine_name, grantee, privilege_type;

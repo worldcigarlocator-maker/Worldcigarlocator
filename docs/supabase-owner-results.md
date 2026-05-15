@@ -228,3 +228,20 @@ Conclusion:
 - This is a hard launch blocker.
 - Do not merge the PR or launch publicly until Supabase grants/RLS are tightened.
 - Prepare a reviewed Supabase remediation migration before making database changes.
+
+## Admin Function Definition Review
+
+Owner provided definitions for `approve_store_pending`, `bo_is_admin_v1`, and `bo_moderate_store_report_v1`.
+
+Findings:
+
+- `bo_is_admin_v1` is `SECURITY DEFINER` and checks `wcl_admins` against `auth.users`.
+- `bo_moderate_store_report_v1` checks `auth.uid()` and calls `bo_is_admin_v1()` before updating reports. This is the right server-side shape.
+- `approve_store_pending` is `SECURITY DEFINER` but does not check `auth.uid()` or admin status.
+- `approve_store_pending` inserts pending rows into `stores` with `approved = true`.
+- The current `approve_store_pending` catches insert errors and still deletes the pending row afterward. That can silently lose pending submissions.
+
+Conclusion:
+
+- `approve_store_pending` is a launch blocker unless function execute privileges are proven admin-only.
+- The safer remediation is to replace `approve_store_pending` with a version that checks `auth.uid()` and `bo_is_admin_v1()` internally, and only deletes the pending row after a successful insert.

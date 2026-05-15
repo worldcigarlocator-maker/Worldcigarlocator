@@ -35,6 +35,7 @@ Also high-risk:
 
 - `analytics_events` has public/authenticated direct `INSERT` and `SELECT` while RLS is disabled.
 - `store_pending` has RLS enabled, but the current public `SELECT true` policy appears to expose pending submissions before human review.
+- `approve_store_pending` is `SECURITY DEFINER` but does not check `auth.uid()` or admin status before approving a pending store.
 
 ## Intended Safe Shape
 
@@ -44,44 +45,16 @@ Also high-risk:
 - Analytics writes go through Edge Functions or controlled RPCs.
 - Analytics tables are not directly readable or mutable by anon/authenticated users unless explicitly required.
 - Admin lists and admin truth tables are never public.
+- Admin RPCs enforce admin status inside the function, not only through the frontend.
 - Backup/temp tables are never public.
 
 ## Draft SQL Direction
 
-This is a review draft, not an instruction to run immediately.
+The current full review draft is in:
 
-```sql
--- Draft only. Review before running.
-begin;
+- `docs/supabase-security-fix-draft.sql`
 
--- Admin truth tables should not be directly public/authenticated.
-revoke all privileges on table public.bo_admins from anon, authenticated;
-revoke all privileges on table public.wcl_admins from anon, authenticated;
-
--- Analytics derived tables should not be directly public mutable.
-revoke all privileges on table public.analytics_store_daily from anon, authenticated;
-revoke all privileges on table public.analytics_stores from anon, authenticated;
-
--- Analytics events should be append-only through the approved ingest path.
--- If Edge Functions use service-role writes, direct public table access can be removed.
-revoke all privileges on table public.analytics_events from anon, authenticated;
-
--- Moderation/log tables should not be directly public/authenticated.
-revoke all privileges on table public.store_content_flags from anon, authenticated;
-revoke all privileges on table public.store_flag_logs from anon, authenticated;
-revoke all privileges on table public.store_report_events from anon, authenticated;
-
--- Queue/translation/user-event internals should not be public by default.
-revoke all privileges on table public.store_photo_queue from anon, authenticated;
-revoke all privileges on table public.store_translations from anon, authenticated;
-revoke all privileges on table public.user_events from anon, authenticated;
-
--- Backup/temp tables should never be public.
-revoke all privileges on table public.photo_log_backup_2025_10_29 from anon, authenticated;
-revoke all privileges on table public.store_flag_logs_backup_2025_10_29 from anon, authenticated;
-
-commit;
-```
+Do not copy older snippets from this plan. The fix draft is the source to review because it also hardens `approve_store_pending`.
 
 ## Required Follow-Up
 

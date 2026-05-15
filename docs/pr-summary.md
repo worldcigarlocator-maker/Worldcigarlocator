@@ -21,6 +21,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Expanded the read-only Supabase audit query to include table grants/permissions.
 - Recorded focused Supabase base-table grant findings; current DB permissions are not launch-safe.
 - Added a draft Supabase security fix SQL file for owner review.
+- Updated the fix draft to harden `approve_store_pending` with a server-side admin check.
 
 ## Verified
 
@@ -33,6 +34,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 
 - Backoffice/admin access is reviewed against Supabase RLS/admin rules.
 - Supabase base-table grants/RLS are tightened for admin, analytics, moderation/log, and backup tables.
+- `approve_store_pending` is protected by server-side admin checks and verified execute grants.
 - Canonical PDFs or Markdown replacements are added/confirmed.
 - Browser keys are confirmed restricted to production domains/API scopes.
 - Analytics ingest endpoint canonical URL is confirmed.
