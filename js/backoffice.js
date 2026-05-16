@@ -382,7 +382,7 @@ function makeExpandableRow(label, items, level) {
             }
           </td>
           <td class="action-td">
-            <button class="btn small blue" onclick="editStore(${s.id})">Edit</button>
+            <button class="btn small blue" type="button" data-edit-store-id="${s.id}">Edit</button>
             <button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
             ${
               !hasPhoto
@@ -1073,7 +1073,7 @@ body.appendChild(loc);
     const reviewsLink = document.createElement("div");
     reviewsLink.className = "reviewslink";
     reviewsLink.innerHTML = `
-      <button class="btn small ghost" onclick="editStore(${s.id})">
+      <button class="btn small ghost" type="button" data-edit-store-id="${s.id}">
          View Comments / Reviews
       </button>
     `;
@@ -1144,8 +1144,10 @@ if (s._is_reported) {
 /* 🔹 STORE ACTIONS (som vanligt) */
 const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
 const deleteBtn  = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
-const editBtn    = makeBtn("Edit", () => editStore(s.id), "blue");
+const editBtn    = makeBtn("Edit", null, "blue");
 const repairBtn  = makeBtn("Repair Photo", (ev) => repairPhoto(s.id, s.place_id, img, ev), "orange");
+
+editBtn.dataset.editStoreId = s.id;
 
 actions.append(approveBtn, deleteBtn, editBtn, repairBtn);
 
@@ -1160,19 +1162,28 @@ grid.appendChild(card);
 async function editStore(id) {
   closeEdit();
 
-  //  Hämta store + kommentarer parallellt
-  const [storeResp, commentsResp] = await Promise.all([
-    WCL.supabase.from("stores").select("*").eq("id", id).single(),
-    WCL.supabase.from("store_comments").select("*").eq("store_id", id).order("created_at", { ascending: false })
-  ]);
+  let storeResp;
+  let commentsResp;
+
+  try {
+    //  Hämta store + kommentarer parallellt
+    [storeResp, commentsResp] = await Promise.all([
+      WCL.supabase.from("stores").select("*").eq("id", id).single(),
+      WCL.supabase.from("store_comments").select("*").eq("store_id", id).order("created_at", { ascending: false })
+    ]);
+  } catch (err) {
+    console.error("Edit load crashed:", err);
+    toast("Edit could not open", "error");
+    return;
+  }
 
   const store = storeResp?.data;
   const error = storeResp?.error;
   const comments = commentsResp?.data || [];
 
   if (error || !store) {
-    toast("Failed to load store", "error");
-    console.error(error);
+    toast("Edit could not load this store", "error");
+    console.error("Edit load failed:", error);
     return;
   }
 
@@ -1267,6 +1278,9 @@ async function editStore(id) {
   `;
   document.body.appendChild(modal);
   document.body.classList.add("modal-open");
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) closeEdit();
+  });
 
   //  Fyll kontinent
   const contSel = $("#edit-continent");
@@ -1386,6 +1400,8 @@ function closeEdit() {
   document.querySelectorAll(".modal-backdrop").forEach((m) => m.remove());
   document.body.classList.remove("modal-open");
 }
+
+window.editStore = editStore;
 /* ============================================================
    STORE REPORTS — STORE-CENTRIC MODERATION (PENDING ONLY)
    ============================================================ */
@@ -1444,6 +1460,19 @@ async function loadStoreReports() {
 /* ===================== UI WIRING ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   console.log(" DOM fully loaded — Backoffice ready");
+
+  document.addEventListener("click", (event) => {
+    const editButton = event.target.closest("[data-edit-store-id]");
+    if (!editButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const storeId = Number(editButton.dataset.editStoreId);
+    if (!Number.isFinite(storeId)) return;
+
+    editStore(storeId);
+  });
 
   //  Filterknappar
   $$(".filters .pill").forEach((p) =>
@@ -1514,6 +1543,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ===================== BUTTON ===================== */
 function makeBtn(label, onclick, cls = "") {
   const b = document.createElement("button");
+  b.type = "button";
   b.className = `btn ${cls}`.trim();
   b.textContent = label;
   if (typeof onclick === "function") b.onclick = onclick;
