@@ -18,6 +18,29 @@ const qs = (sel) =>
 let LOGIN_BINDINGS_BOUND = false;
 let BETA_LANDING_BINDINGS_BOUND = false;
 let refreshAuthButtons = () => {};
+let OPEN_LOGIN_AFTER_BOOT = false;
+
+try {
+  const url =
+    new URL(window.location.href);
+
+  OPEN_LOGIN_AFTER_BOOT =
+    url.searchParams.get("signin") === "1" ||
+    url.searchParams.get("login") === "1";
+
+  if (OPEN_LOGIN_AFTER_BOOT) {
+    url.searchParams.delete("signin");
+    url.searchParams.delete("login");
+
+    window.history.replaceState(
+      {},
+      "",
+      url.pathname +
+        url.search +
+        url.hash
+    );
+  }
+} catch {}
 
 // ============================================================
 // LOGIN POPUP (UI)
@@ -96,7 +119,10 @@ function bindBetaLandingButtons() {
 
   qs("#betaLoginBtn")?.addEventListener(
     "click",
-    () => showLoginPopup("login")
+    (event) => {
+      event.preventDefault();
+      showLoginPopup("login");
+    }
   );
 
 }
@@ -995,6 +1021,11 @@ document.addEventListener(
 
           await syncAuthAndMaybeBootApp();
 
+          if (OPEN_LOGIN_AFTER_BOOT) {
+            OPEN_LOGIN_AFTER_BOOT = false;
+            showLoginPopup("login");
+          }
+
         }
       );
 
@@ -1017,6 +1048,11 @@ document.addEventListener(
       bindLoginButtons();
 
       await syncAuthAndMaybeBootApp();
+
+      if (OPEN_LOGIN_AFTER_BOOT) {
+        OPEN_LOGIN_AFTER_BOOT = false;
+        showLoginPopup("login");
+      }
 
     }
 
