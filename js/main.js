@@ -92,6 +92,16 @@ async function syncAuthGate() {
       "loginPopup"
     );
 
+  const betaLanding =
+    document.getElementById(
+      "betaLanding"
+    );
+
+  const appContainer =
+    document.querySelector(
+      ".container"
+    );
+
   const loginBtn =
     document.getElementById(
       "loginBtn"
@@ -123,6 +133,25 @@ debugLog("AUTH UI CHECK", {
       "auth-locked"
     );
 
+    betaLanding?.classList.remove(
+      "hidden"
+    );
+
+    betaLanding?.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    appContainer?.setAttribute(
+      "inert",
+      ""
+    );
+
+    appContainer?.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
     // ❌ Ta bort auto-popup
 
     if (popup) {
@@ -152,7 +181,7 @@ debugLog("AUTH UI CHECK", {
       authStatus.textContent = "";
     }
 
-    return;
+    return null;
 
   }
 
@@ -162,6 +191,23 @@ debugLog("AUTH UI CHECK", {
 
 document.body.classList.remove(
   "auth-locked"
+);
+
+betaLanding?.classList.add(
+  "hidden"
+);
+
+betaLanding?.setAttribute(
+  "aria-hidden",
+  "true"
+);
+
+appContainer?.removeAttribute(
+  "inert"
+);
+
+appContainer?.removeAttribute(
+  "aria-hidden"
 );
 
 if (popup) {
@@ -218,8 +264,11 @@ if (authStatus) {
   }
 
 }
-  }
-  
+
+  return session;
+
+}
+
 // ============================================================
 // LOGIN BINDINGS
 // ============================================================
@@ -270,6 +319,16 @@ function bindLoginButtons() {
   );
 
   qs("#startSignupBtn")?.addEventListener(
+    "click",
+    () => showLoginPopup("signup")
+  );
+
+  qs("#betaLoginBtn")?.addEventListener(
+    "click",
+    () => showLoginPopup("login")
+  );
+
+  qs("#betaSignupBtn")?.addEventListener(
     "click",
     () => showLoginPopup("signup")
   );
@@ -504,7 +563,7 @@ if (label) {
 
 hideLoginPopup();
 
-await syncAuthGate();
+await syncAuthAndMaybeBootApp();
 
   }
 );
@@ -606,6 +665,8 @@ signupBtn?.addEventListener(
       // auto login
 
       hideLoginPopup();
+
+      await syncAuthAndMaybeBootApp();
 
     } else {
 
@@ -844,6 +905,17 @@ async function initSidebarOnce() {
 
 }
 
+async function syncAuthAndMaybeBootApp() {
+  const session =
+    await syncAuthGate();
+
+  if (session) {
+    await initSidebarOnce();
+  }
+
+  return session;
+}
+
 // ============================================================
 // BOOT
 // ============================================================
@@ -905,13 +977,9 @@ document.addEventListener(
             "hidden"
           );
 
-          // start app after age gate
-
-          await initSidebarOnce();
-
           bindLoginButtons();
 
-          await syncAuthGate();
+          await syncAuthAndMaybeBootApp();
 
         }
       );
@@ -932,11 +1000,9 @@ document.addEventListener(
       // NORMAL BOOT
       // ============================================================
 
-      await initSidebarOnce();
-
       bindLoginButtons();
 
-      await syncAuthGate();
+      await syncAuthAndMaybeBootApp();
 
     }
 
@@ -975,7 +1041,7 @@ addBtn?.addEventListener(
 );
 
 // ------------------------------------------------------------
-// AUTH LISTENER (sync gate only; never rebuild sidebar)
+// AUTH LISTENER (unlock and boot app only after login)
 // ------------------------------------------------------------
 
 window.addEventListener(
@@ -985,7 +1051,7 @@ window.addEventListener(
     supabase.auth.onAuthStateChange(
       () => {
 
-        syncAuthGate();
+        syncAuthAndMaybeBootApp();
 
       }
     );
@@ -1246,6 +1312,13 @@ window.addEventListener(
       );
 
     if (!storeId) return;
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth.getSession();
+
+    if (!session) return;
 
     // wait for app boot
 

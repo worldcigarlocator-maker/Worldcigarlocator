@@ -200,8 +200,9 @@ Canonical RPCs:
     `docs/store-report-spam-filter-requirements.md`.
     The Edge Function source is not in this repository, so the true server-side spam filter still needs Supabase verification or implementation before launch.
 
-44. Rebuilt the public start surface around the real app instead of the old launch lock.
-    Removed the legacy hardcoded `js/start.js` access gate, added hero actions for exploration/login/account creation, kept the age gate in `js/main.js`, added a close control to the login modal, and implemented the cookie consent banner.
+44. Rebuilt the public start surface as a private beta lock above the real app.
+    Removed the legacy hardcoded `js/start.js` access gate, added a branded beta landing surface with create account/sign in, kept the age gate in `js/main.js`, added a close control to the login modal, and implemented the cookie consent banner.
+    The app container stays hidden/inert until Supabase reports an authenticated session, and sidebar/app boot is deferred until login.
     Public analytics now waits for cookie consent before sending events.
 
 45. Rebuilt the analytics PDF export engine.

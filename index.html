@@ -66,7 +66,69 @@
   <link rel="stylesheet" href="css/mobile.css">
 </head>
 
-<body>
+<body class="auth-locked">
+
+  <!-- PRIVATE BETA LANDING -->
+  <section
+    id="betaLanding"
+    class="beta-landing"
+    aria-labelledby="betaLandingTitle"
+  >
+    <div class="beta-shell">
+      <img
+        class="beta-brand-image"
+        src="images/brand1.png"
+        alt="WCL World Cigar Locator"
+      >
+
+      <p class="beta-kicker">
+        Private beta
+      </p>
+
+      <h1 id="betaLandingTitle">
+        Welcome to World Cigar Locator
+      </h1>
+
+      <div class="beta-copy">
+        <p>
+          Your global guide to cigar lounges, hidden humidors and premium cigar destinations.
+        </p>
+        <p>
+          From luxury lounges to unexpected hidden gems, WCL helps you discover where to buy or enjoy cigars - anywhere in the world.
+        </p>
+        <p>
+          Save your favorites, leave ratings and get personalized recommendations.
+        </p>
+        <p>
+          Find. Explore. Enjoy.
+        </p>
+      </div>
+
+      <div class="beta-divider" aria-hidden="true">
+        <span></span>
+        <strong>*</strong>
+        <span></span>
+      </div>
+
+      <div class="beta-actions">
+        <button
+          id="betaSignupBtn"
+          class="beta-btn beta-btn-primary"
+          type="button"
+        >
+          Create account
+        </button>
+
+        <button
+          id="betaLoginBtn"
+          class="beta-btn beta-btn-secondary"
+          type="button"
+        >
+          Sign in
+        </button>
+      </div>
+    </div>
+  </section>
 
   <!-- AGE GATE -->
   <div id="ageGate" class="age-gate hidden" role="dialog" aria-modal="true">
@@ -554,13 +616,7 @@
 
           <div class="start-hero-actions">
             <button id="startExploreBtn" type="button">
-              Start exploring
-            </button>
-            <button id="startLoginBtn" type="button">
-              Login
-            </button>
-            <button id="startSignupBtn" type="button">
-              Create account
+              Explore the locator
             </button>
           </div>
         </div>
@@ -575,32 +631,33 @@
 
       <section id="mapView"></section>
 
- <div id="cookieBanner" class="cookie-banner">
-
-  <div class="cookie-inner">
-
-    <div
-      class="cookie-text"
-      data-i18n="cookie_message"
-    >
-      We use essential cookies and limited analytics to improve your experience and maintain platform security.
-      By continuing to use this site, you agree to our
-      <a href="privacy.html">Privacy Policy</a>.
-    </div>
-
-    <button
-      id="cookieOkBtn"
-      type="button"
-      class="cookie-btn"
-      data-i18n="ok"
-    >
-      OK
-    </button>
+    </main>
 
   </div>
 
-</div>
-    </main>
+  <div id="cookieBanner" class="cookie-banner">
+
+    <div class="cookie-inner">
+
+      <div
+        class="cookie-text"
+        data-i18n="cookie_message"
+      >
+        We use essential cookies and limited analytics to improve your experience and maintain platform security.
+        By continuing to use this site, you agree to our
+        <a href="privacy.html">Privacy Policy</a>.
+      </div>
+
+      <button
+        id="cookieOkBtn"
+        type="button"
+        class="cookie-btn"
+        data-i18n="ok"
+      >
+        OK
+      </button>
+
+    </div>
 
   </div>
 
