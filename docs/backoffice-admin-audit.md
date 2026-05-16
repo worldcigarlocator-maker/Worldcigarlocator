@@ -81,6 +81,7 @@ Post-remediation verification now also shows:
 - Owner functionally tested comment deletion in the edit modal.
 - `store_pending` has the focused authenticated delete grant plus RLS for admin pending rejection.
 - Owner functionally tested `Reject Pending`.
+- Owner completed the final read/edit/approve/reject/delete-restore backoffice functional test checklist.
 
 ## Current RPC Findings
 
@@ -129,7 +130,6 @@ Backoffice `stores`, `store_pending`, and approval authority has been reviewed t
 
 Next admin-specific follow-up:
 
-- Functionally test the remaining backoffice read/edit/approve/reject paths after the Supabase remediation.
 - Verify production analytics ingest after deployment.
 
 Safe frontend-only changes already completed elsewhere:

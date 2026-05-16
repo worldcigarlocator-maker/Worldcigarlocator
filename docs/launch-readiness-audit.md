@@ -186,9 +186,11 @@ Canonical RPCs:
 39. Added an owner-friendly checklist for the final backoffice read/edit/approve/reject test:
     `docs/backoffice-functional-test-checklist.md`.
 
+40. Owner completed the final backoffice functional test checklist.
+    Backoffice read, edit, approve, reject, delete/restore, and comment moderation flows work after the Supabase remediation.
+
 ## Launch Blockers To Resolve
 
-- Functionally test remaining backoffice read/edit/approve/reject flows after the Supabase remediation.
 - Verify production analytics ingest after deployment.
 - Rebuild project documentation after the remaining fixes; stale/canonical docs can be replaced then.
 - Optional later cleanup: standardize the production branch name from `Main-1` to `main` and remove the extra branch.

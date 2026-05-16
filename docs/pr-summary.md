@@ -48,6 +48,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Recorded owner verification that homepage Map View and Add Listing still work with the restricted shared Google Browser Key.
 - Re-audited backoffice direct `stores` access and confirmed it is isolated to admin backoffice paths covered by verified RLS.
 - Added a backoffice functional test checklist for the remaining owner click-test.
+- Recorded owner verification that the final backoffice read/edit/approve/reject/delete-restore flows work.
 
 ## Verified
 
@@ -58,6 +59,5 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 
 ## Not Ready To Merge Until
 
-- Remaining backoffice read/edit/approve/reject flows are functionally tested after Supabase remediation.
 - Production analytics ingest is verified after deployment.
 - Project documentation is rebuilt after the remaining fixes.
