@@ -435,7 +435,7 @@ Conclusion:
 - Pending rejection is now separated from real store delete/restore behavior.
 - The ID collision risk between `store_pending.id` and `stores.id` is resolved in the current frontend flow.
 
-## Open Analytics Dashboard RPC Follow-Up
+## Post-Fix Analytics Dashboard RPC Verification
 
 Owner tested the analytics dashboard after public analytics tracking was consolidated.
 
@@ -455,3 +455,19 @@ Conclusion:
 - Do not grant direct `SELECT` on `analytics_events` to browser roles.
 - Dashboard analytics should be read through admin-checked `SECURITY DEFINER` RPC wrappers.
 - Draft: `docs/supabase-analytics-admin-rpc-fix-draft.sql`.
+
+Owner then ran the focused analytics admin RPC wrapper draft and provided function execute verification.
+
+Result:
+
+- `analytics_market_cities_v1`: `authenticated` has `EXECUTE`.
+- `analytics_market_countries_v1`: `authenticated` has `EXECUTE`.
+- `analytics_store_intelligence_v1`: `authenticated` has `EXECUTE`.
+- No `anon` execute rows were shown for these dashboard RPCs.
+- No `PUBLIC` execute rows were shown for these dashboard RPCs.
+
+Conclusion:
+
+- Dashboard RPC execute grants now have the intended grant shape.
+- The wrappers still rely on their internal `bo_is_admin_v1(auth.uid())` checks for admin-only authority.
+- Owner should reload the analytics dashboard to confirm the previous `permission denied for table analytics_events` browser errors are gone.
