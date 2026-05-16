@@ -97,11 +97,11 @@ Analytics:
 - `analytics_events`
 - any analytics aggregate views used by the RPCs above
 - Edge Function endpoint for analytics ingest:
-  - `js/analytics-frontend.js` currently calls `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/analytics-ingest`
-  - `js/analytics-tracker.js` currently calls `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/functions/v1/analytics-ingest`
+  - `js/analytics-tracker.js` is the active public event layer and currently calls `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/functions/v1/analytics-ingest`
+  - `js/analytics-frontend.js` is retained as legacy code but is no longer loaded by `js/main.js`
   - GitHub workflows use the Supabase project URL pattern `https://gbxxoeplkzbhsvagnfsr.supabase.co/functions/v1/...`
   - Supabase Edge Functions docs show the project URL pattern as `https://[YOUR_PROJECT_ID].supabase.co/functions/v1/function-name`: <https://supabase.com/docs/guides/functions/quickstart>
-  - Confirm the canonical analytics ingest URL before changing event delivery.
+  - Verify production analytics ingest after deployment before deleting legacy analytics files.
 
 User/community:
 

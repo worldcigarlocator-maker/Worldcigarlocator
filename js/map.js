@@ -77,7 +77,7 @@ async function loadGoogle() {
 export async function initMap() {
 
   if (window.WCL_ANALYTICS) {
-    window.WCL_ANALYTICS.setSource("map");
+    window.WCL_ANALYTICS?.setSource?.("map");
   }
 
   if (map) return;
@@ -336,7 +336,7 @@ function createMarker(store) {
     if (!s) return;
 
     // 🔒 SOURCE LOCK (MAP)
-    window.WCL_ANALYTICS.setSource("map");
+    window.WCL_ANALYTICS?.setSource?.("map");
 
     if (e?.domEvent) {
       e.domEvent.stopPropagation();

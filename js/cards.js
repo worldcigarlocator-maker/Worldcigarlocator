@@ -7,9 +7,6 @@ import { openModal } from "./modal.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
 import { trackEvent } from "./analytics-tracker.js";
 
-const VIEW_OBSERVER =
-  window?.WCL_ANALYTICS?.VIEW_OBSERVER ?? { observe() {}, unobserve() {} };
-
 const dom = (sel) => document.querySelector(sel);
 
 // ============================================================
@@ -259,6 +256,7 @@ function applyChipFilters(rows) {
 
 export function activateSearch({ text = "", sort } = {}) {
   CURRENT_RENDER_SOURCE = "search";
+  window.WCL_ANALYTICS?.setSource?.("search");
   MASTER_MODE = MASTER.SEARCH;
 
 STATE.location = {
@@ -310,6 +308,7 @@ STATE.location = {
 
 export function activateLocation(next = {}) {
 CURRENT_RENDER_SOURCE = "sidebar";
+  window.WCL_ANALYTICS?.setSource?.("sidebar");
   MASTER_MODE = MASTER.LOCATION;
 
   STATE.search.text = "";
@@ -390,20 +389,20 @@ function initStoreViewObserver() {
         const el = entry.target;
 
         const storeId = el.dataset.storeId;
-        const city = el.dataset.city;
-        const country = el.dataset.country;
+        const city = el.dataset.city || null;
+        const country = el.dataset.country || null;
 
-trackEvent("store_view", {
-  store_id: Number(storeId),
-  source: window.CURRENT_SOURCE || "map",
-  session_hash: localStorage.getItem("wcl_session")
-});
+        trackEvent("store_view", {
+          store_id: Number(storeId),
+          country,
+          city,
+          source: el.dataset.source || window.CURRENT_SOURCE || "direct"
+        });
 
-debugLog("STORE VIEW EVENT", {
-  store_id: storeId,
-  source: window.CURRENT_SOURCE,
-  session: localStorage.getItem("wcl_session")
-});
+        debugLog("STORE VIEW EVENT", {
+          store_id: storeId,
+          source: el.dataset.source || window.CURRENT_SOURCE
+        });
         
         storeViewObserver.unobserve(el);
       });
@@ -441,6 +440,7 @@ function renderCards(list, append = false) {
   // ============================================================
 
 setTimeout(() => {
+  initStoreViewObserver();
 
   grid.querySelectorAll(".store-card").forEach((card) => {
 
@@ -452,7 +452,7 @@ setTimeout(() => {
       return;
     }
 
-    VIEW_OBSERVER.observe(card);
+    storeViewObserver.observe(card);
 
   });
 

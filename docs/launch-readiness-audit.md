@@ -138,6 +138,10 @@ Canonical RPCs:
     `anon` has only `INSERT`, while `authenticated` has `INSERT`, `SELECT`, and `DELETE`, all with RLS enabled.
     Owner confirmed `Reject Pending` works and no real store row was trashed during retest.
 
+28. Public analytics tracking was simplified to one active event sender.
+    `js/analytics-tracker.js` is now the active public tracking layer, while `js/analytics-frontend.js` is no longer imported by `js/main.js`.
+    Modal opens now send `store_opened` through the canonical tracker, visible cards send `store_view`, and website clicks still send `website_clicked`.
+
 ## Launch Blockers To Resolve
 
 - Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.
@@ -147,7 +151,7 @@ Canonical RPCs:
 - Functionally test backoffice read/edit/approve/comment-delete flows after the Supabase remediation.
 - Confirm public browser keys are restricted to the production domains.
 - Confirm remaining direct `stores` access in `js/backoffice.js` remains admin-oriented and covered by the verified `stores` RLS policies.
-- Confirm analytics tracking is not double-emitting events through both `analytics-tracker.js` and `analytics-frontend.js`.
+- Verify production analytics ingest after deployment.
 
 ## Local Workflow For Owner Review
 

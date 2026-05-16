@@ -26,7 +26,6 @@ Runtime modules imported by the public discovery flow:
 - `js/store-ui.js` - shared store card/modal display helpers.
 - `js/map-pins.js` - map pin rendering helpers.
 - `js/analytics-tracker.js` - canonical event tracking layer.
-- `js/analytics-frontend.js` - loaded from `main.js` through the page flow and still needs final classification.
 - `js/start.js` - age/access gate.
 - `js/i18n.js` - locale loading and translation.
 
@@ -145,15 +144,15 @@ These files are present but not directly loaded by the main public page:
 - `js/funnel-stores-v2.js`
 - `js/funnel-market-v2.js`
 - `js/funnel-users.js`
-- `js/analytics-frontend.js`
 - `js/view-dedupe.js`
 
-Some are imported by analytics or tracking flows. Do not delete them until imports and runtime behavior are verified in browser.
+`js/analytics-frontend.js` is retained in the repository as a legacy/parallel analytics implementation, but it is no longer loaded by the public discovery page.
+Do not delete legacy files until production analytics has been verified after deployment.
 
 ## Launch Cleanup Candidates
 
 - Continue removing or guarding debug-only console logs outside the public discovery modules.
-- Confirm `analytics-frontend.js` and `analytics-tracker.js` are not double-counting the same canonical events.
+- Verify production analytics ingest after deployment using `js/analytics-tracker.js` as the active public event layer.
 - Confirm remaining raw `stores` reads are limited to admin/backoffice flows protected by RLS or converted to canonical RPCs/views.
 - Confirm all browser API keys are restricted by domain and API scope.
 

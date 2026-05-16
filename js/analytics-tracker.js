@@ -121,11 +121,27 @@ function resolveSource(eventType, payload = {}) {
   if (payload?.source) return payload.source;
   if (window?.MODAL_SOURCE) return window.MODAL_SOURCE;
   if (window?.CURRENT_SOURCE) return window.CURRENT_SOURCE;
+  if (window?.__WCL__?.MODAL_SOURCE) return window.__WCL__.MODAL_SOURCE;
+  if (window?.__WCL__?.CURRENT_SOURCE) return window.__WCL__.CURRENT_SOURCE;
 
   if (eventType === "store_view") return "map";
   if (eventType === "store_opened") return "search";
 
   return "direct";
+}
+
+function setAnalyticsSource(source = "direct") {
+  const next = source || "direct";
+  window.CURRENT_SOURCE = next;
+  window.__WCL__ = window.__WCL__ || {};
+  window.__WCL__.CURRENT_SOURCE = next;
+}
+
+function setModalSource(source = "direct") {
+  const next = source || "direct";
+  window.MODAL_SOURCE = next;
+  window.__WCL__ = window.__WCL__ || {};
+  window.__WCL__.MODAL_SOURCE = next;
 }
 
 /* ============================================================
@@ -391,3 +407,9 @@ export async function trackEvent(eventType, payload = {}) {
     console.error("Session tracking failed", err);
   }
 })();
+
+window.WCL_ANALYTICS = {
+  send: trackEvent,
+  setSource: setAnalyticsSource,
+  setModalSource
+};

@@ -355,7 +355,7 @@ function bindSidebarEvents(menu) {
     // ------------------------------------------------------------
 if (clickedLabel && level !== "continent") {
 
-  window.WCL_ANALYTICS.setSource("sidebar");
+  window.WCL_ANALYTICS?.setSource?.("sidebar");
 
   activateLocation({
     continent: line.dataset.continent || null,

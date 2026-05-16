@@ -7,7 +7,6 @@ import { buildFrontendSidebar } from "./sidebar.js";
 import { trackEvent } from "./analytics-tracker.js";
 import { resetToHero } from "./cards.js";
 
-import "./analytics-frontend.js";
 import "./start.js";
 
 import {

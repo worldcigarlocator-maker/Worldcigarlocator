@@ -36,6 +36,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Split pending submission actions from real store actions so pending IDs cannot trigger `stores` edit/delete/photo updates.
 - Added a focused `store_pending` admin-reject policy draft for pending moderation review.
 - Recorded post-fix pending reject verification and owner functional test.
+- Removed the legacy public analytics batch sender from the active public page flow and kept `analytics-tracker.js` as the single event sender.
 
 ## Verified
 
@@ -50,5 +51,5 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Backoffice read/edit/approve/reject/comment-delete flows are functionally tested after Supabase remediation.
 - Canonical PDFs or Markdown replacements are added/confirmed.
 - Browser keys are confirmed restricted to production domains/API scopes.
-- Analytics ingest endpoint canonical URL is confirmed.
+- Production analytics ingest is verified after deployment.
 - Remaining raw `stores` access in `js/backoffice.js` is confirmed admin-only and RLS-safe.

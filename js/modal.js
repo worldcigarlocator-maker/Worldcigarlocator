@@ -238,12 +238,13 @@ debugLog("STORE FOUND", store);
     "direct";
 
   window.MODAL_SOURCE = MODAL_SOURCE;
+  window.WCL_ANALYTICS?.setModalSource?.(MODAL_SOURCE);
 
   // ============================================================
   // ANALYTICS
   // ============================================================
 
- window.WCL_ANALYTICS?.send?.(
+  trackEvent(
     "store_opened",
     {
       store_id: storeId,
@@ -252,15 +253,6 @@ debugLog("STORE FOUND", store);
       source: MODAL_SOURCE
     }
   );
-
-  trackEvent("store_view", {
-    store_id: storeId,
-    country: store.country || null,
-    city: store.city || null,
-    source: MODAL_SOURCE,
-    session_hash:
-      localStorage.getItem("wcl_session")
-  });
 
   // ============================================================
   // MODAL STATE
