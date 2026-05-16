@@ -123,15 +123,21 @@ Canonical RPCs:
 
 23. Post-fix stores policy verification confirms public reads are limited to approved, non-deleted stores and admin insert/update/read paths use `bo_is_admin_v1`.
 
+24. Backoffice edit modal layout was fixed so the edit panel has a bounded modal frame, controlled image sizing, internal scrolling, and stable edit-button handling.
+
+25. Backoffice comment deletion needs a focused Supabase follow-up.
+    The edit modal calls direct `store_comments` delete, while the previously provided policies showed own-comment deletion but no explicit admin delete policy.
+    Draft: `docs/supabase-store-comments-admin-fix-draft.sql`.
+
 ## Launch Blockers To Resolve
 
 - Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.
 - Confirm which branch should be production: `Main-1`, `main`, or a renamed branch.
 - Confirm hosting target: GitHub Pages, Vercel, Netlify, Cloudflare Pages, or another provider.
-- Confirm Supabase RLS and RPC definitions match the canonical frontend contract. Public response smoke tests passed, but schema/RLS definitions are still needed for launch confidence.
-- Functionally test backoffice read/edit/approve flows after the Supabase remediation.
+- Review and apply the focused `store_comments` admin-delete policy if admins should moderate comments from the edit modal.
+- Functionally test backoffice read/edit/approve/comment-delete flows after the Supabase remediation.
 - Confirm public browser keys are restricted to the production domains.
-- Review remaining direct `stores` access in `js/backoffice.js`; this appears admin-oriented but still needs RLS/admin verification.
+- Confirm remaining direct `stores` access in `js/backoffice.js` remains admin-oriented and covered by the verified `stores` RLS policies.
 - Confirm analytics tracking is not double-emitting events through both `analytics-tracker.js` and `analytics-frontend.js`.
 
 ## Local Workflow For Owner Review

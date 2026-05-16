@@ -57,7 +57,7 @@ Required DB checks:
 
 ## Current Supabase Findings
 
-Owner-provided RLS/policy results show:
+Owner-provided RLS/policy results originally showed:
 
 - `stores` has anonymous public reads limited to approved, non-deleted stores.
 - `stores` has broad authenticated reads through `stores_authenticated_read`.
@@ -66,7 +66,19 @@ Owner-provided RLS/policy results show:
 - `store_pending` also allows public reads with `SELECT true`, which may expose pending submissions before human review.
 - `store_reports` and `store_report_actions` use `bo_is_admin_v1(auth.uid())`, which is the right shape for admin-only report moderation.
 
-This means the backoffice cannot be signed off yet. We still need table grants/permissions and key RPC definitions before deciding whether the current setup is safe or whether the DB rules need a cleanup migration.
+Remediation progress recorded in `docs/supabase-owner-results.md` now shows:
+
+- `approve_store_pending` has an internal admin check and no longer exposes `anon`/`PUBLIC` execute grants.
+- Direct anon/authenticated access to no-RLS internal tables was reduced.
+- Direct anon/authenticated access to `wcl_admins` was removed.
+- `store_pending` public reads were removed; authenticated admin reads use `bo_is_admin_v1(auth.uid())`.
+- `stores` anonymous/authenticated reads are limited to approved, non-deleted stores unless the caller is an admin.
+- `stores` admin insert/update paths use `bo_is_admin_v1(auth.uid())`.
+
+Remaining follow-up:
+
+- `store_comments` admin deletion needs an explicit RLS policy if the edit modal should let admins remove user comments.
+  Draft: `docs/supabase-store-comments-admin-fix-draft.sql`.
 
 ## Current RPC Findings
 
@@ -76,9 +88,9 @@ Owner-provided function definitions show:
 - `bo_moderate_store_report_v1` is `SECURITY DEFINER` and checks `auth.uid()` plus `bo_is_admin_v1()` before changing report status.
 - `approve_store_pending` is `SECURITY DEFINER`, but it does not check `auth.uid()` or admin status before inserting into `stores` as `approved = true` and deleting the pending row.
 
-`approve_store_pending` is therefore unsafe unless its function execute permissions are tightly restricted. The safer fix is to add an internal admin check to the function itself, because browser-side login checks are not authority.
+`approve_store_pending` was therefore unsafe until it received an internal admin check and tighter function execute grants.
 
-Function execute grants confirm the risk: `approve_store_pending` is currently executable by `anon` and `authenticated`. Because the live function is `SECURITY DEFINER`, this is a hard launch blocker.
+Post-fix owner verification shows this highest-risk RPC exposure is resolved.
 
 ## Risk Notes
 
@@ -86,10 +98,16 @@ Function execute grants confirm the risk: `approve_store_pending` is currently e
 - If any authenticated non-admin user can update `stores`, `store_pending`, `store_comments`, or report tables directly, the frontend guard is not sufficient.
 - If `approve_store_pending` or `bo_moderate_store_report_v1` trusts input without checking the caller's admin status, the RPC is unsafe.
 - Backoffice still has many debug logs. These are admin-only and lower priority than DB authority, but they should be gated or removed before final launch polish.
+- The edit modal uses direct `store_comments` deletion for comment moderation. Without an admin delete policy, that action may fail for comments created by other users.
 
 ## Current Codex Position
 
-Do not change backoffice write flows until Supabase RLS/function definitions are reviewed.
+Backoffice `stores`, `store_pending`, and approval authority has been reviewed through owner-provided Supabase verification.
+
+Next admin-specific follow-up:
+
+- Review and, if approved, run `docs/supabase-store-comments-admin-fix-draft.sql`.
+- Functionally test comment deletion in the edit modal after that policy is applied.
 
 Safe frontend-only changes already completed elsewhere:
 

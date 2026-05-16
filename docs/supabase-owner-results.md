@@ -383,3 +383,21 @@ Conclusion:
   - normal signed-in users see public stores only;
   - admins can read and update all stores for backoffice.
 - Supabase authority checks are now aligned with the backoffice admin model for `stores`.
+
+## Open Backoffice Comment Moderation Follow-Up
+
+Backoffice edit modal reads and deletes rows from `store_comments`.
+
+Owner-provided policies showed:
+
+- public comment reads are allowed;
+- authenticated users can insert their own comments;
+- users can delete their own comments.
+
+No explicit admin delete policy for `store_comments` was provided.
+
+Conclusion:
+
+- Store editing is now covered by verified `stores` RLS.
+- Comment moderation still needs a focused policy if admins should delete comments written by other users.
+- Draft: `docs/supabase-store-comments-admin-fix-draft.sql`.
