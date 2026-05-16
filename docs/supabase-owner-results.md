@@ -402,7 +402,7 @@ Conclusion:
 - Comment moderation still needs a focused policy if admins should delete comments written by other users.
 - Draft: `docs/supabase-store-comments-admin-fix-draft.sql`.
 
-## Open Pending Rejection Follow-Up
+## Post-Fix Pending Rejection Verification
 
 Backoffice pending submissions live in `store_pending`.
 
@@ -420,5 +420,17 @@ Frontend fix:
 
 Remaining database follow-up:
 
-- `Reject Pending` needs admin delete authority on `store_pending`.
-- Draft: `docs/supabase-store-pending-admin-reject-draft.sql`.
+- Owner ran the focused pending reject SQL draft.
+- Verification showed `anon` has only `INSERT` on `store_pending`.
+- Verification showed `authenticated` has `INSERT`, `SELECT`, and `DELETE` on `store_pending`.
+- RLS is enabled on `store_pending`.
+
+Functional test:
+
+- Owner confirmed `Reject Pending` works correctly in backoffice.
+- No real `stores` row was moved to Trash during the retest.
+
+Conclusion:
+
+- Pending rejection is now separated from real store delete/restore behavior.
+- The ID collision risk between `store_pending.id` and `stores.id` is resolved in the current frontend flow.

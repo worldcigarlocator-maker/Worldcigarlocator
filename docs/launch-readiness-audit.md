@@ -134,13 +134,16 @@ Canonical RPCs:
     Backoffice now labels pending rows as `Pending ID` and only shows pending-safe actions: `Approve` and `Reject Pending`.
     Draft for admin reject permission: `docs/supabase-store-pending-admin-reject-draft.sql`.
 
+27. Post-fix pending reject verification shows `store_pending` grants are launch-appropriate for the current flow:
+    `anon` has only `INSERT`, while `authenticated` has `INSERT`, `SELECT`, and `DELETE`, all with RLS enabled.
+    Owner confirmed `Reject Pending` works and no real store row was trashed during retest.
+
 ## Launch Blockers To Resolve
 
 - Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.
 - Confirm which branch should be production: `Main-1`, `main`, or a renamed branch.
 - Confirm hosting target: GitHub Pages, Vercel, Netlify, Cloudflare Pages, or another provider.
 - Review and apply the focused `store_comments` admin-delete policy if admins should moderate comments from the edit modal.
-- Review and apply the focused `store_pending` admin-reject policy if admins should reject/remove pending submissions from backoffice.
 - Functionally test backoffice read/edit/approve/comment-delete flows after the Supabase remediation.
 - Confirm public browser keys are restricted to the production domains.
 - Confirm remaining direct `stores` access in `js/backoffice.js` remains admin-oriented and covered by the verified `stores` RLS policies.
