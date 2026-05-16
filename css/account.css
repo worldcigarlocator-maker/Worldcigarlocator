@@ -19,6 +19,45 @@
   min-height:100vh;
 }
 
+.account-signup-gate{
+  grid-template-columns:minmax(0, 560px);
+  justify-content:center;
+  align-content:center;
+}
+
+.account-helper{
+  margin:0 0 8px;
+  color:rgba(255,255,255,0.66);
+  line-height:1.45;
+}
+
+.account-rules-check{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  margin-top:4px;
+  color:rgba(255,255,255,0.72);
+  font-size:14px;
+  line-height:1.45;
+}
+
+.account-rules-check input{
+  margin-top:3px;
+  accent-color:rgb(var(--global));
+}
+
+.account-secondary-link{
+  display:inline-flex;
+  align-items:center;
+  color:rgba(255,255,255,0.62);
+  font-weight:600;
+  text-decoration:none;
+}
+
+.account-secondary-link:hover{
+  color:rgb(var(--global));
+}
+
 /* ============================================================
    SIDEBAR
    ============================================================ */

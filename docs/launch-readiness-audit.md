@@ -209,6 +209,9 @@ Canonical RPCs:
     The new export creates a clean cover page, executive summary, chart page, and paginated table pages.
     Export row selection now follows the active analytics KPI instead of mixing market and store rows.
 
+46. Reworked account creation as a dedicated onboarding path.
+    The beta landing Create account action now routes to `account.html?mode=signup`, the old create-account action was removed from the login popup, and account creation requires email, password, display name/alias, and acceptance of WCL conduct/legal-age rules before calling Supabase Auth.
+
 ## Launch Blockers To Resolve
 
 - Verify production analytics ingest after deployment.

@@ -14,6 +14,30 @@ import { initI18n } from "/js/i18n.js";
 const emailInput =
   document.getElementById("accountEmail");
 
+const accountApp =
+  document.getElementById("accountApp");
+
+const signupGate =
+  document.getElementById("accountSignupGate");
+
+const signupEmailInput =
+  document.getElementById("signupEmail");
+
+const signupPasswordInput =
+  document.getElementById("signupPassword");
+
+const signupDisplayNameInput =
+  document.getElementById("signupDisplayName");
+
+const signupRulesInput =
+  document.getElementById("signupRulesAccepted");
+
+const createAccountPageBtn =
+  document.getElementById("createAccountPageBtn");
+
+const signupMessageBox =
+  document.getElementById("signupMessage");
+
 const displayNameInput =
   document.getElementById("accountDisplayName");
 
@@ -64,6 +88,44 @@ function setMessage(
       : "rgba(255,255,255,0.78)";
 }
 
+function isSignupMode() {
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  return (
+    params.get("mode") === "signup" ||
+    params.get("signup") === "1"
+  );
+}
+
+function setSignupMessage(
+  text,
+  isError = false
+) {
+
+  if (!signupMessageBox) return;
+
+  signupMessageBox.textContent = text;
+
+  signupMessageBox.style.color =
+    isError
+      ? "#ff8c8c"
+      : "rgba(255,255,255,0.78)";
+}
+
+function showSignupGate() {
+  signupGate?.classList.remove("hidden");
+  accountApp?.classList.add("hidden");
+  signupEmailInput?.focus();
+}
+
+function showAccountApp() {
+  signupGate?.classList.add("hidden");
+  accountApp?.classList.remove("hidden");
+}
+
 // ============================================================
 // LOAD ACCOUNT
 // ============================================================
@@ -75,9 +137,16 @@ async function loadAccount() {
   } = await supabase.auth.getUser();
 
   if (!user) {
+    if (isSignupMode()) {
+      showSignupGate();
+      return null;
+    }
+
     window.location.href = "/";
-    return;
+    return null;
   }
+
+  showAccountApp();
 
   const { data, error } =
     await supabase
@@ -103,6 +172,110 @@ async function loadAccount() {
     displayNameInput.value =
       data?.display_name || "";
   }
+
+  return user;
+}
+
+// ============================================================
+// CREATE ACCOUNT
+// ============================================================
+
+async function createAccountFromPage() {
+  const email =
+    signupEmailInput?.value?.trim() || "";
+
+  const password =
+    signupPasswordInput?.value?.trim() || "";
+
+  const displayName =
+    signupDisplayNameInput?.value?.trim() || "";
+
+  const rulesAccepted =
+    !!signupRulesInput?.checked;
+
+  if (!email || !password) {
+    setSignupMessage(
+      "Enter email and password",
+      true
+    );
+    return;
+  }
+
+  if (password.length < 6) {
+    setSignupMessage(
+      "Password must be at least 6 characters",
+      true
+    );
+    return;
+  }
+
+  if (!displayName) {
+    setSignupMessage(
+      "Enter a name or alias",
+      true
+    );
+    return;
+  }
+
+  if (!rulesAccepted) {
+    setSignupMessage(
+      "You need to accept the WCL rules before creating an account",
+      true
+    );
+    return;
+  }
+
+  if (createAccountPageBtn) {
+    createAccountPageBtn.disabled = true;
+  }
+  setSignupMessage("Creating account...");
+
+  const acceptedAt =
+    new Date().toISOString();
+
+  const { data, error } =
+    await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          display_name: displayName,
+          wcl_rules_accepted: true,
+          wcl_rules_accepted_at: acceptedAt
+        }
+      }
+    });
+
+  if (createAccountPageBtn) {
+    createAccountPageBtn.disabled = false;
+  }
+
+  if (error) {
+    setSignupMessage(error.message, true);
+    return;
+  }
+
+  if (data?.session?.user?.id) {
+    await supabase
+      .from("profiles")
+      .upsert(
+        {
+          id: data.session.user.id,
+          email,
+          display_name: displayName
+        },
+        {
+          onConflict: "id"
+        }
+      );
+
+    window.location.href = "account.html";
+    return;
+  }
+
+  setSignupMessage(
+    "Account created. Check your email and confirm the account, then sign in."
+  );
 }
 
 // ============================================================
@@ -639,6 +812,31 @@ async function loadFavorites() {
 // EVENTS
 // ============================================================
 
+createAccountPageBtn?.addEventListener(
+  "click",
+  createAccountFromPage
+);
+
+signupPasswordInput?.addEventListener(
+  "keydown",
+  (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      createAccountFromPage();
+    }
+  }
+);
+
+signupDisplayNameInput?.addEventListener(
+  "keydown",
+  (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      createAccountFromPage();
+    }
+  }
+);
+
 saveDisplayBtn?.addEventListener(
   "click",
   saveDisplayName
@@ -669,7 +867,10 @@ document.addEventListener(
 
     await initI18n();
 
-    await loadAccount();
+    const user =
+      await loadAccount();
+
+    if (!user) return;
 
     await loadMyComments();
 

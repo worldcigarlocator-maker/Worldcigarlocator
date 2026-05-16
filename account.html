@@ -126,10 +126,132 @@
 </header>
 
 <!-- ============================================================
+     CREATE ACCOUNT
+============================================================ -->
+
+<main
+  id="accountSignupGate"
+  class="account-page account-signup-gate hidden"
+>
+  <section class="account-content">
+
+    <div class="account-card">
+
+      <div class="account-card-header">
+        <h2>
+          Create account
+        </h2>
+      </div>
+
+      <p class="account-helper">
+        Create your WCL account before entering the private beta.
+      </p>
+
+      <div class="account-field">
+
+        <label
+          class="account-label"
+          for="signupEmail"
+        >
+          Email
+        </label>
+
+        <input
+          id="signupEmail"
+          class="account-input"
+          type="email"
+          autocomplete="email"
+          placeholder="Email"
+        >
+
+      </div>
+
+      <div class="account-field">
+
+        <label
+          class="account-label"
+          for="signupPassword"
+        >
+          Password
+        </label>
+
+        <input
+          id="signupPassword"
+          class="account-input"
+          type="password"
+          autocomplete="new-password"
+          placeholder="Password"
+        >
+
+      </div>
+
+      <div class="account-field">
+
+        <label
+          class="account-label"
+          for="signupDisplayName"
+        >
+          Name / Alias
+        </label>
+
+        <input
+          id="signupDisplayName"
+          class="account-input"
+          type="text"
+          autocomplete="nickname"
+          placeholder="Name or alias shown on WCL"
+        >
+
+      </div>
+
+      <label class="account-rules-check">
+        <input
+          id="signupRulesAccepted"
+          type="checkbox"
+        >
+
+        <span>
+          I confirm that I am of legal smoking age, will keep a respectful tone, will not sell products through WCL, and understand that comments are user-submitted content.
+        </span>
+      </label>
+
+      <div class="account-actions">
+
+        <button
+          id="createAccountPageBtn"
+          class="account-btn"
+          type="button"
+        >
+          Create account
+        </button>
+
+        <a
+          class="account-secondary-link"
+          href="/"
+        >
+          I already have an account
+        </a>
+
+      </div>
+
+      <div
+        id="signupMessage"
+        class="account-message"
+      ></div>
+
+    </div>
+
+  </section>
+</main>
+
+<!-- ============================================================
      ACCOUNT PAGE
 ============================================================ -->
 
-<main class="account-page">
+<main
+  id="accountApp"
+  class="account-page"
+>
 
 <!-- ============================================================
      SIDEBAR

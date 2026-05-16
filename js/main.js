@@ -40,6 +40,12 @@ function hideLoginPopup() {
 
 function showLoginPopup(mode = "login") {
 
+  if (mode === "signup") {
+    window.location.href =
+      "account.html?mode=signup";
+    return;
+  }
+
   const popup =
     qs("#loginPopup");
 
@@ -395,10 +401,10 @@ function bindLoginButtons() {
     submit.disabled =
       !(email && pass);
 
-    // SIGNUP
-
-    signupBtn.disabled =
-      !(email && pass);
+    if (signupBtn) {
+      signupBtn.disabled =
+        !(email && pass);
+    }
 
     // RESET
 

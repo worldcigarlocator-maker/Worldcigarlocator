@@ -54,6 +54,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Updated the old report page so users report from the listing instead of emailing.
 - Documented required server-side spam filtering for `submit_store_report_v1`.
 - Removed the old hardcoded start/access gate and rebuilt it as a branded private beta landing surface with create account/sign in, age gate, and cookie-consent flows; the app stays hidden/inert until Supabase confirms login, and public analytics waits for consent.
+- Moved account creation out of the login popup and into `account.html?mode=signup`, with required email, password, name/alias, and WCL rules acceptance before Supabase signup.
 - Rebuilt the analytics PDF export into a cleaner report with cover, summary, chart, and paginated table pages.
 
 ## Verified
