@@ -179,10 +179,13 @@ Canonical RPCs:
 37. Owner re-tested after the shared restricted Google Browser Key code change.
     Homepage Map View and Add Listing Google search/autocomplete both work.
 
+38. Backoffice direct `stores` access was re-audited after Supabase remediation.
+    Code search shows raw `stores` access is isolated to `js/backoffice.js`.
+    These read/update paths match the verified `stores` RLS policies using `bo_is_admin_v1(auth.uid())`.
+
 ## Launch Blockers To Resolve
 
 - Functionally test remaining backoffice read/edit/approve/reject flows after the Supabase remediation.
-- Confirm remaining direct `stores` access in `js/backoffice.js` remains admin-oriented and covered by the verified `stores` RLS policies.
 - Verify production analytics ingest after deployment.
 - Rebuild project documentation after the remaining fixes; stale/canonical docs can be replaced then.
 - Optional later cleanup: standardize the production branch name from `Main-1` to `main` and remove the extra branch.

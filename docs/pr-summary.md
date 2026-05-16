@@ -46,6 +46,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Added a Google Maps browser key restriction guide for owner action in Google Cloud.
 - Moved public map loading to the shared restricted Google Browser Key.
 - Recorded owner verification that homepage Map View and Add Listing still work with the restricted shared Google Browser Key.
+- Re-audited backoffice direct `stores` access and confirmed it is isolated to admin backoffice paths covered by verified RLS.
 
 ## Verified
 
@@ -58,5 +59,4 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 
 - Remaining backoffice read/edit/approve/reject flows are functionally tested after Supabase remediation.
 - Production analytics ingest is verified after deployment.
-- Remaining raw `stores` access in `js/backoffice.js` is confirmed admin-only and RLS-safe.
 - Project documentation is rebuilt after the remaining fixes.

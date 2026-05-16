@@ -75,12 +75,12 @@ Remediation progress recorded in `docs/supabase-owner-results.md` now shows:
 - `stores` anonymous/authenticated reads are limited to approved, non-deleted stores unless the caller is an admin.
 - `stores` admin insert/update paths use `bo_is_admin_v1(auth.uid())`.
 
-Remaining follow-up:
+Post-remediation verification now also shows:
 
-- `store_comments` admin deletion needs an explicit RLS policy if the edit modal should let admins remove user comments.
-  Draft: `docs/supabase-store-comments-admin-fix-draft.sql`.
-- `store_pending` admin rejection needs an explicit delete policy if admins should remove pending submissions without approving them.
-  Draft: `docs/supabase-store-pending-admin-reject-draft.sql`.
+- `store_comments` has the focused admin delete path required for backoffice comment moderation.
+- Owner functionally tested comment deletion in the edit modal.
+- `store_pending` has the focused authenticated delete grant plus RLS for admin pending rejection.
+- Owner functionally tested `Reject Pending`.
 
 ## Current RPC Findings
 
@@ -94,15 +94,34 @@ Owner-provided function definitions show:
 
 Post-fix owner verification shows this highest-risk RPC exposure is resolved.
 
+## Direct Stores Access Review
+
+Current code search shows direct `stores` table access only in `js/backoffice.js`.
+
+Observed direct `stores` paths:
+
+- Backoffice list loading through `reloadData`.
+- Backoffice edit modal load by store id.
+- Backoffice save/edit update.
+- Backoffice unflag update.
+- Backoffice trash/restore update.
+- Backoffice photo repair update.
+
+Conclusion:
+
+- Public frontend discovery no longer reads raw `stores` directly.
+- Remaining direct `stores` access is isolated to the admin backoffice surface.
+- The verified `stores` RLS policies now match those backoffice needs:
+  - public/normal users can read only approved, non-deleted rows;
+  - admins can read and update through `bo_is_admin_v1(auth.uid())`;
+  - service role keeps backend authority.
+
 ## Risk Notes
 
 - `js/backoffice.js` uses the public anon-key, which is normal for browser apps, but this means database policies must do the real protection.
 - If any authenticated non-admin user can update `stores`, `store_pending`, `store_comments`, or report tables directly, the frontend guard is not sufficient.
 - If `approve_store_pending` or `bo_moderate_store_report_v1` trusts input without checking the caller's admin status, the RPC is unsafe.
-- Backoffice still has many debug logs. These are admin-only and lower priority than DB authority, but they should be gated or removed before final launch polish.
-- The edit modal uses direct `store_comments` deletion for comment moderation. Without an admin delete policy, that action may fail for comments created by other users.
-- Pending submissions use `store_pending.id`, not `stores.id`.
-  Backoffice must never call store edit/delete/photo actions with a pending ID.
+- Pending submissions use `store_pending.id`, not `stores.id`; this is now guarded in the UI by separate pending-only actions.
 
 ## Current Codex Position
 
@@ -110,11 +129,10 @@ Backoffice `stores`, `store_pending`, and approval authority has been reviewed t
 
 Next admin-specific follow-up:
 
-- Review and, if approved, run `docs/supabase-store-comments-admin-fix-draft.sql`.
-- Review and, if approved, run `docs/supabase-store-pending-admin-reject-draft.sql`.
-- Functionally test comment deletion in the edit modal after that policy is applied.
+- Functionally test the remaining backoffice read/edit/approve/reject paths after the Supabase remediation.
+- Verify production analytics ingest after deployment.
 
 Safe frontend-only changes already completed elsewhere:
 
 - Public discovery/add-store/analytics reads now avoid raw `stores` where possible.
-- Remaining raw `stores` access is isolated to `js/backoffice.js`.
+- Remaining raw `stores` access is isolated to `js/backoffice.js` and covered by verified admin RLS.
