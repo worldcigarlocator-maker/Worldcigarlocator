@@ -120,6 +120,36 @@ let RENDER_STEP = 100;
 const $  = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 const safe = (v) => (v ?? "").toString();
+const isPendingSubmission = (s) => s?._source_table === "store_pending";
+
+function normalizePendingSubmission(s) {
+  return {
+    id: s.id,
+    pending_id: s.id,
+    _source_table: "store_pending",
+    name: s.name,
+    city: s.city,
+    country: s.country,
+    continent: s.continent || null,
+
+    types: s.types || [],
+    access: s.access || null,
+    rating: null,
+
+    address: s.address || null,
+    phone: s.phone || null,
+    website: s.website || null,
+
+    photo_reference: s.photo_reference || null,
+    place_id: s.place_id || null,
+
+    approved: false,
+    flagged: false,
+    deleted: false,
+
+    status: "pending"
+  };
+}
 
 const toast = (msg, cls = "success") => {
   const c = $("#toast-container");
@@ -387,17 +417,21 @@ function makeExpandableRow(label, items, level) {
             }
           </td>
           <td class="action-td">
-            <button class="btn small blue" type="button" data-edit-store-id="${s.id}">Edit</button>
-            <button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
             ${
-              !hasPhoto
-                ? `<button class="btn small orange"
+              isPendingSubmission(s)
+                ? `<button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
+                   <button class="btn small danger" onclick="rejectPendingSubmission(${s.id})">Reject Pending</button>`
+                : `<button class="btn small blue" type="button" data-edit-store-id="${s.id}">Edit</button>
+                   ${
+                     !hasPhoto
+                       ? `<button class="btn small orange"
 onclick="repairPhoto(${s.id}, '${(s.place_id || "").replace(/'/g, "\\'")}', null, event)">
-                   Repair
-                 </button>`
-                : ""
+                          Repair
+                        </button>`
+                       : ""
+                   }
+                   <button class="btn small danger" onclick="toggleDeleteById(${s.id})">Delete</button>`
             }
-            <button class="btn small danger" onclick="toggleDeleteById(${s.id})">Delete</button>
           </td>
         `;
 
@@ -739,33 +773,8 @@ if (CURRENT_TAB === "pending") {
 
     if (error) throw error;
 
-    // 🔥 NORMALISERA → SAMMA SHAPE SOM stores
-    STORES = (data || []).map(s => ({
-
-      id: s.id,
-      name: s.name,
-      city: s.city,
-      country: s.country,
-      continent: s.continent || null,
-
-      types: s.types || [],
-      access: s.access || null,
-      rating: null,
-
-      address: s.address || null,
-      phone: s.phone || null,
-      website: s.website || null,
-
-      photo_reference: s.photo_reference || null,
-      place_id: s.place_id || null,
-
-      approved: false,
-      flagged: false,
-      deleted: false,
-
-      status: "pending"
-
-    }));
+    // Pending has its own ID space. Never treat pending IDs as store IDs.
+    STORES = (data || []).map(normalizePendingSubmission);
 
     render();
     updateRegionCounts();
@@ -990,7 +999,7 @@ storeViewObserver.observe(card);
 /* ----------- Store ID (admin only) ----------- */
 const idRow = document.createElement("div");
 idRow.className = "store-id";
-idRow.textContent = `ID: ${s.id}`;
+idRow.textContent = isPendingSubmission(s) ? `Pending ID: ${s.id}` : `ID: ${s.id}`;
 body.appendChild(idRow);
 
 /* ----------- Name (2 lines) ----------- */
@@ -1075,14 +1084,16 @@ body.appendChild(loc);
     body.appendChild(info);
 
     /* ----------- Reviews Link ----------- */
-    const reviewsLink = document.createElement("div");
-    reviewsLink.className = "reviewslink";
-    reviewsLink.innerHTML = `
-      <button class="btn small ghost" type="button" data-edit-store-id="${s.id}">
-         View Comments / Reviews
-      </button>
-    `;
-    body.appendChild(reviewsLink);
+    if (!isPendingSubmission(s)) {
+      const reviewsLink = document.createElement("div");
+      reviewsLink.className = "reviewslink";
+      reviewsLink.innerHTML = `
+        <button class="btn small ghost" type="button" data-edit-store-id="${s.id}">
+           View Comments / Reviews
+        </button>
+      `;
+      body.appendChild(reviewsLink);
+    }
 
      if (s._is_reported) {
   const reportInfo = document.createElement("div");
@@ -1146,15 +1157,20 @@ if (s._is_reported) {
   actions.append(reviewedBtn, resolveBtn, rejectBtn);
 }
 
-/* 🔹 STORE ACTIONS (som vanligt) */
-const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
-const deleteBtn  = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
-const editBtn    = makeBtn("Edit", null, "blue");
-const repairBtn  = makeBtn("Repair Photo", (ev) => repairPhoto(s.id, s.place_id, img, ev), "orange");
+if (isPendingSubmission(s)) {
+  const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
+  const rejectBtn = makeBtn("Reject Pending", () => rejectPendingSubmission(s.id), "danger");
 
-editBtn.dataset.editStoreId = s.id;
+  actions.append(approveBtn, rejectBtn);
+} else {
+  const deleteBtn  = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
+  const editBtn    = makeBtn("Edit", null, "blue");
+  const repairBtn  = makeBtn("Repair Photo", (ev) => repairPhoto(s.id, s.place_id, img, ev), "orange");
 
-actions.append(approveBtn, deleteBtn, editBtn, repairBtn);
+  editBtn.dataset.editStoreId = s.id;
+
+  actions.append(deleteBtn, editBtn, repairBtn);
+}
 
 card.appendChild(body);
 card.appendChild(actions);
@@ -1407,6 +1423,7 @@ function closeEdit() {
 }
 
 window.editStore = editStore;
+window.rejectPendingSubmission = rejectPendingSubmission;
 /* ============================================================
    STORE REPORTS — STORE-CENTRIC MODERATION (PENDING ONLY)
    ============================================================ */
@@ -1539,7 +1556,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    STORES = data || [];
+    STORES = CURRENT_TAB === "pending"
+      ? (data || []).map(normalizePendingSubmission)
+      : (data || []);
 
     render();
   });
@@ -1600,6 +1619,11 @@ async function unflagStore(id) {
 
 /* 🗑️ DELETE / RESTORE */
 async function toggleDelete(s) {
+  if (isPendingSubmission(s)) {
+    toast("Pending items use Reject Pending, not store Delete", "error");
+    return;
+  }
+
   const next = !s.deleted;
 
   const { error } = await WCL.supabase
@@ -1625,6 +1649,24 @@ async function toggleDeleteById(id) {
     return;
   }
   return toggleDelete(s);
+}
+
+async function rejectPendingSubmission(id) {
+  if (!confirm("Reject this pending listing? This removes it from the pending queue.")) return;
+
+  const { error } = await WCL.supabase
+    .from("store_pending")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Reject pending failed:", error);
+    toast("Pending reject needs admin DB permission", "error");
+    return;
+  }
+
+  toast("Pending listing rejected");
+  await reloadData("pending");
 }
      /* ==================== REPAIR PHOTO ================= */
 async function repairPhoto(id, place_id, imgEl, ev) {

@@ -401,3 +401,24 @@ Conclusion:
 - Store editing is now covered by verified `stores` RLS.
 - Comment moderation still needs a focused policy if admins should delete comments written by other users.
 - Draft: `docs/supabase-store-comments-admin-fix-draft.sql`.
+
+## Open Pending Rejection Follow-Up
+
+Backoffice pending submissions live in `store_pending`.
+
+Important rule:
+
+- `store_pending.id` is not a `stores.id`.
+- These two tables have separate ID sequences.
+- Backoffice must not use pending IDs for real store edit/delete/photo actions.
+
+Frontend fix:
+
+- Pending cards now display `Pending ID`.
+- Pending cards only show pending-safe actions: `Approve` and `Reject Pending`.
+- Real store cards no longer show the pending approval action.
+
+Remaining database follow-up:
+
+- `Reject Pending` needs admin delete authority on `store_pending`.
+- Draft: `docs/supabase-store-pending-admin-reject-draft.sql`.

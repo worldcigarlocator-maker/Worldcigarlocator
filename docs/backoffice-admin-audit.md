@@ -79,6 +79,8 @@ Remaining follow-up:
 
 - `store_comments` admin deletion needs an explicit RLS policy if the edit modal should let admins remove user comments.
   Draft: `docs/supabase-store-comments-admin-fix-draft.sql`.
+- `store_pending` admin rejection needs an explicit delete policy if admins should remove pending submissions without approving them.
+  Draft: `docs/supabase-store-pending-admin-reject-draft.sql`.
 
 ## Current RPC Findings
 
@@ -99,6 +101,8 @@ Post-fix owner verification shows this highest-risk RPC exposure is resolved.
 - If `approve_store_pending` or `bo_moderate_store_report_v1` trusts input without checking the caller's admin status, the RPC is unsafe.
 - Backoffice still has many debug logs. These are admin-only and lower priority than DB authority, but they should be gated or removed before final launch polish.
 - The edit modal uses direct `store_comments` deletion for comment moderation. Without an admin delete policy, that action may fail for comments created by other users.
+- Pending submissions use `store_pending.id`, not `stores.id`.
+  Backoffice must never call store edit/delete/photo actions with a pending ID.
 
 ## Current Codex Position
 
@@ -107,6 +111,7 @@ Backoffice `stores`, `store_pending`, and approval authority has been reviewed t
 Next admin-specific follow-up:
 
 - Review and, if approved, run `docs/supabase-store-comments-admin-fix-draft.sql`.
+- Review and, if approved, run `docs/supabase-store-pending-admin-reject-draft.sql`.
 - Functionally test comment deletion in the edit modal after that policy is applied.
 
 Safe frontend-only changes already completed elsewhere:

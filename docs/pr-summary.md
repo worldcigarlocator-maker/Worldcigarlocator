@@ -33,6 +33,8 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Fixed the backoffice edit modal frame/scroll/image sizing and hardened edit-button click handling.
 - Added a focused `store_comments` admin-delete policy draft for comment moderation review.
 - Gated normal backoffice debug logs behind `window.WCL_DEBUG_BACKOFFICE` / `window.WCL_DEBUG` while keeping warnings and errors visible.
+- Split pending submission actions from real store actions so pending IDs cannot trigger `stores` edit/delete/photo updates.
+- Added a focused `store_pending` admin-reject policy draft for pending moderation review.
 
 ## Verified
 
@@ -44,7 +46,8 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 ## Not Ready To Merge Until
 
 - The focused `store_comments` admin-delete policy is reviewed/applied if admins should delete user comments in backoffice.
-- Backoffice read/edit/approve/comment-delete flows are functionally tested after Supabase remediation.
+- The focused `store_pending` admin-reject policy is reviewed/applied if admins should reject pending submissions in backoffice.
+- Backoffice read/edit/approve/reject/comment-delete flows are functionally tested after Supabase remediation.
 - Canonical PDFs or Markdown replacements are added/confirmed.
 - Browser keys are confirmed restricted to production domains/API scopes.
 - Analytics ingest endpoint canonical URL is confirmed.
