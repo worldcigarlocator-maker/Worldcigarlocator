@@ -4,12 +4,19 @@ Status: owner action required in Google Cloud.
 
 ## What Needs Restricting
 
-WCL has two public Google Maps browser keys in the frontend.
+WCL now uses one public Google Maps browser key in the active frontend.
+
+Historical note:
+
+- The public map previously used a separate Google key in `js/map.js`.
+- The map now imports the shared browser key from `js/globals.js`.
+- The add-store pages still load the same shared key directly from their HTML script tag because they are non-module pages.
 
 ### Public Map Key
 
 Used by:
 
+- `js/globals.js`
 - `js/map.js`
 
 Current purpose:
@@ -37,6 +44,7 @@ Optional local/dev handling:
 
 Used by:
 
+- `js/globals.js`
 - `js/add-shared.js`
 - `add-store.html`
 - `add-store-backoffice.html`
@@ -55,6 +63,7 @@ Recommended Google Cloud setup:
 - API restrictions:
   - Maps JavaScript API
   - Places API
+  - Places API (New), if it is enabled in the Google Cloud project
 
 Optional local/dev handling:
 
@@ -77,16 +86,12 @@ Never put a Supabase `service_role` key or `sb_secret_...` key in frontend code.
 
 1. Open Google Cloud Console.
 2. Go to Google Maps Platform > Credentials.
-3. Open the public map key used by `js/map.js`.
+3. Open the Browser Key used by the frontend.
 4. Set Application restriction to Websites.
 5. Add only the production referrers listed above.
-6. Set API restrictions to Maps JavaScript API.
+6. Set API restrictions to Maps JavaScript API, Places API, and Places API (New) if enabled.
 7. Save.
-8. Open the add-store / Places key.
-9. Set Application restriction to Websites.
-10. Add only the production referrers listed above.
-11. Set API restrictions to Maps JavaScript API and Places API.
-12. Save.
+8. Do not use an unrestricted server-style key in frontend code.
 
 ## Verification After Saving
 
