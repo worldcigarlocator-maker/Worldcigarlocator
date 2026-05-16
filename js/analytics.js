@@ -754,15 +754,24 @@ function runLocalFilter() {
 
 async function exportPDF() {
 
+  const activeKpi = getKPI();
+
+  const rowSelector =
+    activeKpi === "users"
+      ? "#overviewTableBody tr, #usersDrillBody tr"
+      : activeKpi === "stores"
+        ? "#topStoresBody tr"
+        : "#marketDemandBody tr";
+
   await exportAnalyticsPDF({
 
-    kpi: getKPI(),
+    kpi: activeKpi,
 
     state: window.MARKET_STATE || {},
 
     rows: [
       ...document.querySelectorAll(
-        "#marketDemandBody tr, #topStoresBody tr"
+        rowSelector
       )
     ],
 

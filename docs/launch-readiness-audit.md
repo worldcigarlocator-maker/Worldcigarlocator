@@ -204,9 +204,14 @@ Canonical RPCs:
     Removed the legacy hardcoded `js/start.js` access gate, added hero actions for exploration/login/account creation, kept the age gate in `js/main.js`, added a close control to the login modal, and implemented the cookie consent banner.
     Public analytics now waits for cookie consent before sending events.
 
+45. Rebuilt the analytics PDF export engine.
+    The new export creates a clean cover page, executive summary, chart page, and paginated table pages.
+    Export row selection now follows the active analytics KPI instead of mixing market and store rows.
+
 ## Launch Blockers To Resolve
 
 - Verify production analytics ingest after deployment.
+- Owner visual check of the rebuilt analytics PDF in the browser.
 - Verify or implement the server-side spam filter in `submit_store_report_v1`.
 - Rebuild project documentation after the remaining fixes; stale/canonical docs can be replaced then.
 - Optional later cleanup: standardize the production branch name from `Main-1` to `main` and remove the extra branch.

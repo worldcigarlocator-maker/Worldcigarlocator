@@ -54,6 +54,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Updated the old report page so users report from the listing instead of emailing.
 - Documented required server-side spam filtering for `submit_store_report_v1`.
 - Removed the old hardcoded start/access gate and rebuilt the homepage start surface around real explore, login, create account, age gate, and cookie-consent flows; public analytics now waits for consent.
+- Rebuilt the analytics PDF export into a cleaner report with cover, summary, chart, and paginated table pages.
 
 ## Verified
 
@@ -61,6 +62,8 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - `git diff --check`
 - Local browser checks for homepage, add-store, and analytics pages
 - Read-only Supabase smoke checks for public dataset/RPC responses
+
+Note: the latest start/PDF visual browser pass still needs owner click-review because the in-app browser pane was unavailable during this run.
 
 ## Not Ready To Merge Until
 
