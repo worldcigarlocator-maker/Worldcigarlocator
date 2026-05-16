@@ -434,3 +434,24 @@ Conclusion:
 
 - Pending rejection is now separated from real store delete/restore behavior.
 - The ID collision risk between `store_pending.id` and `stores.id` is resolved in the current frontend flow.
+
+## Open Analytics Dashboard RPC Follow-Up
+
+Owner tested the analytics dashboard after public analytics tracking was consolidated.
+
+Observed browser errors:
+
+- `analytics_store_intelligence_v1`: `permission denied for table analytics_events`.
+- `analytics_market_countries_v1`: RPC error in `funnel-market-v2.js`.
+- `analytics_market_cities_v1` is likely affected by the same pattern because it is part of the same dashboard flow.
+
+Cause:
+
+- `analytics_events` is now intentionally append-only for browser roles.
+- Some dashboard RPCs were still `SECURITY INVOKER`, so they tried to read `analytics_events` with the browser user's direct table privileges.
+
+Conclusion:
+
+- Do not grant direct `SELECT` on `analytics_events` to browser roles.
+- Dashboard analytics should be read through admin-checked `SECURITY DEFINER` RPC wrappers.
+- Draft: `docs/supabase-analytics-admin-rpc-fix-draft.sql`.

@@ -142,12 +142,18 @@ Canonical RPCs:
     `js/analytics-tracker.js` is now the active public tracking layer, while `js/analytics-frontend.js` is no longer imported by `js/main.js`.
     Modal opens now send `store_opened` through the canonical tracker, visible cards send `store_view`, and website clicks still send `website_clicked`.
 
+29. Analytics dashboard testing after the security fix showed `permission denied for table analytics_events` from dashboard RPCs:
+    `analytics_store_intelligence_v1`, `analytics_market_countries_v1`, and likely `analytics_market_cities_v1`.
+    A focused SQL draft was added to wrap these as admin-checked SECURITY DEFINER RPCs without granting direct `SELECT` on `analytics_events`.
+    Draft: `docs/supabase-analytics-admin-rpc-fix-draft.sql`.
+
 ## Launch Blockers To Resolve
 
 - Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.
 - Confirm which branch should be production: `Main-1`, `main`, or a renamed branch.
 - Confirm hosting target: GitHub Pages, Vercel, Netlify, Cloudflare Pages, or another provider.
 - Review and apply the focused `store_comments` admin-delete policy if admins should moderate comments from the edit modal.
+- Review and apply the focused analytics admin RPC wrapper draft if the analytics dashboard still shows permission errors.
 - Functionally test backoffice read/edit/approve/comment-delete flows after the Supabase remediation.
 - Confirm public browser keys are restricted to the production domains.
 - Confirm remaining direct `stores` access in `js/backoffice.js` remains admin-oriented and covered by the verified `stores` RLS policies.
