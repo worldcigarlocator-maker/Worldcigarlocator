@@ -183,6 +183,9 @@ Canonical RPCs:
     Code search shows raw `stores` access is isolated to `js/backoffice.js`.
     These read/update paths match the verified `stores` RLS policies using `bo_is_admin_v1(auth.uid())`.
 
+39. Added an owner-friendly checklist for the final backoffice read/edit/approve/reject test:
+    `docs/backoffice-functional-test-checklist.md`.
+
 ## Launch Blockers To Resolve
 
 - Functionally test remaining backoffice read/edit/approve/reject flows after the Supabase remediation.
