@@ -16,6 +16,7 @@ const qs = (sel) =>
   document.querySelector(sel);
 
 let LOGIN_BINDINGS_BOUND = false;
+let BETA_LANDING_BINDINGS_BOUND = false;
 let refreshAuthButtons = () => {};
 
 // ============================================================
@@ -86,6 +87,21 @@ function showLoginPopup(mode = "login") {
   refreshAuthButtons();
 
 }
+
+function bindBetaLandingButtons() {
+
+  if (BETA_LANDING_BINDINGS_BOUND) return;
+
+  BETA_LANDING_BINDINGS_BOUND = true;
+
+  qs("#betaLoginBtn")?.addEventListener(
+    "click",
+    () => showLoginPopup("login")
+  );
+
+}
+
+bindBetaLandingButtons();
 
 // ============================================================
 // AUTH GATE (source of truth = session)
@@ -329,15 +345,7 @@ function bindLoginButtons() {
     () => showLoginPopup("signup")
   );
 
-  qs("#betaLoginBtn")?.addEventListener(
-    "click",
-    () => showLoginPopup("login")
-  );
-
-  qs("#betaSignupBtn")?.addEventListener(
-    "click",
-    () => showLoginPopup("signup")
-  );
+  bindBetaLandingButtons();
 
   qs("#startExploreBtn")?.addEventListener(
     "click",

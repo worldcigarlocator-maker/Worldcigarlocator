@@ -25,7 +25,7 @@ body:not(.auth-locked) .beta-landing{
 .beta-landing{
   position:fixed;
   inset:0;
-  z-index:8000;
+  z-index:20000;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -133,6 +133,9 @@ body:not(.auth-locked) .beta-landing{
 }
 
 .beta-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
   min-height:54px;
   border-radius:6px;
   border:1px solid rgba(201,149,74,0.78);
@@ -140,6 +143,7 @@ body:not(.auth-locked) .beta-landing{
   font-size:0.95rem;
   font-weight:800;
   text-transform:uppercase;
+  text-decoration:none;
   letter-spacing:0;
   cursor:pointer;
   transition:transform .18s ease, background .18s ease, color .18s ease, border-color .18s ease;
