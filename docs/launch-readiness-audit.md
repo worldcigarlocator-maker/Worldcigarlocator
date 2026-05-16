@@ -161,9 +161,13 @@ Canonical RPCs:
     current production branch is `Main-1`, with optional later cleanup to rename/standardize to `main`;
     project documentation should be rebuilt after the remaining fixes instead of preserving stale docs.
 
+33. Post-fix `store_comments` grant verification shows the intended grant layer:
+    `anon` has only `SELECT`, while `authenticated` has `SELECT`, `INSERT`, and `DELETE`, all with RLS enabled.
+    A functional backoffice delete test is still required to confirm the admin RLS policy behaves correctly in the real UI.
+
 ## Launch Blockers To Resolve
 
-- Apply and test the focused `store_comments` admin-delete policy so admins can moderate comments from the edit modal.
+- Functionally test the focused `store_comments` admin-delete flow so admins can moderate comments from the edit modal.
 - Functionally test backoffice read/edit/approve/comment-delete flows after the Supabase remediation.
 - Confirm public browser keys are restricted to the production domains.
 - Confirm remaining direct `stores` access in `js/backoffice.js` remains admin-oriented and covered by the verified `stores` RLS policies.
