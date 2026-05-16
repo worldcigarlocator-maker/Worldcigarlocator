@@ -117,14 +117,6 @@ function bindBetaLandingButtons() {
 
   BETA_LANDING_BINDINGS_BOUND = true;
 
-  qs("#betaLoginBtn")?.addEventListener(
-    "click",
-    (event) => {
-      event.preventDefault();
-      showLoginPopup("login");
-    }
-  );
-
 }
 
 bindBetaLandingButtons();

@@ -20,6 +20,9 @@ const accountApp =
 const signupGate =
   document.getElementById("accountSignupGate");
 
+const signinGate =
+  document.getElementById("accountSigninGate");
+
 const signupEmailInput =
   document.getElementById("signupEmail");
 
@@ -37,6 +40,18 @@ const createAccountPageBtn =
 
 const signupMessageBox =
   document.getElementById("signupMessage");
+
+const signinEmailInput =
+  document.getElementById("signinEmail");
+
+const signinPasswordInput =
+  document.getElementById("signinPassword");
+
+const signinAccountPageBtn =
+  document.getElementById("signinAccountPageBtn");
+
+const signinMessageBox =
+  document.getElementById("signinMessage");
 
 const displayNameInput =
   document.getElementById("accountDisplayName");
@@ -100,6 +115,19 @@ function isSignupMode() {
   );
 }
 
+function isSigninMode() {
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  return (
+    params.get("mode") === "signin" ||
+    params.get("signin") === "1" ||
+    params.get("login") === "1"
+  );
+}
+
 function setSignupMessage(
   text,
   isError = false
@@ -115,14 +143,38 @@ function setSignupMessage(
       : "rgba(255,255,255,0.78)";
 }
 
+function setSigninMessage(
+  text,
+  isError = false
+) {
+
+  if (!signinMessageBox) return;
+
+  signinMessageBox.textContent = text;
+
+  signinMessageBox.style.color =
+    isError
+      ? "#ff8c8c"
+      : "rgba(255,255,255,0.78)";
+}
+
 function showSignupGate() {
   signupGate?.classList.remove("hidden");
+  signinGate?.classList.add("hidden");
   accountApp?.classList.add("hidden");
   signupEmailInput?.focus();
 }
 
+function showSigninGate() {
+  signinGate?.classList.remove("hidden");
+  signupGate?.classList.add("hidden");
+  accountApp?.classList.add("hidden");
+  signinEmailInput?.focus();
+}
+
 function showAccountApp() {
   signupGate?.classList.add("hidden");
+  signinGate?.classList.add("hidden");
   accountApp?.classList.remove("hidden");
 }
 
@@ -137,6 +189,11 @@ async function loadAccount() {
   } = await supabase.auth.getUser();
 
   if (!user) {
+    if (isSigninMode()) {
+      showSigninGate();
+      return null;
+    }
+
     if (isSignupMode()) {
       showSignupGate();
       return null;
@@ -276,6 +333,49 @@ async function createAccountFromPage() {
   setSignupMessage(
     "Account created. Check your email and confirm the account, then sign in."
   );
+}
+
+// ============================================================
+// SIGN IN
+// ============================================================
+
+async function signInFromPage() {
+  const email =
+    signinEmailInput?.value?.trim() || "";
+
+  const password =
+    signinPasswordInput?.value?.trim() || "";
+
+  if (!email || !password) {
+    setSigninMessage(
+      "Enter email and password",
+      true
+    );
+    return;
+  }
+
+  if (signinAccountPageBtn) {
+    signinAccountPageBtn.disabled = true;
+  }
+
+  setSigninMessage("Signing in...");
+
+  const { error } =
+    await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+  if (signinAccountPageBtn) {
+    signinAccountPageBtn.disabled = false;
+  }
+
+  if (error) {
+    setSigninMessage(error.message, true);
+    return;
+  }
+
+  window.location.href = "/";
 }
 
 // ============================================================
@@ -817,6 +917,11 @@ createAccountPageBtn?.addEventListener(
   createAccountFromPage
 );
 
+signinAccountPageBtn?.addEventListener(
+  "click",
+  signInFromPage
+);
+
 signupPasswordInput?.addEventListener(
   "keydown",
   (event) => {
@@ -833,6 +938,16 @@ signupDisplayNameInput?.addEventListener(
     if (event.key === "Enter") {
       event.preventDefault();
       createAccountFromPage();
+    }
+  }
+);
+
+signinPasswordInput?.addEventListener(
+  "keydown",
+  (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      signInFromPage();
     }
   }
 );
