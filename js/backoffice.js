@@ -1179,6 +1179,8 @@ async function editStore(id) {
   //  Bygg modal
   const modal = document.createElement("div");
   modal.className = "modal-backdrop";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
   modal.innerHTML = `
     <div class="modal">
       <h3>Edit Store</h3>
@@ -1264,6 +1266,7 @@ async function editStore(id) {
     </div>
   `;
   document.body.appendChild(modal);
+  document.body.classList.add("modal-open");
 
   //  Fyll kontinent
   const contSel = $("#edit-continent");
@@ -1381,6 +1384,7 @@ $("#edit-next").onclick = () => {
 /* ==================== CLOSE MODAL ================= */
 function closeEdit() {
   document.querySelectorAll(".modal-backdrop").forEach((m) => m.remove());
+  document.body.classList.remove("modal-open");
 }
 /* ============================================================
    STORE REPORTS — STORE-CENTRIC MODERATION (PENDING ONLY)
