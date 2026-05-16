@@ -108,6 +108,16 @@ let CURRENT_TAB = "approved";   // approved | pending | flagged | deleted | dupl
 let CURRENT_VIEW = "cards";     // cards | list
 let HIER_SEL = { continent: null, country: null, state: null, city: null };
 
+const REPORT_TYPE_LABELS = {
+  no_longer_sells: "Store type is wrong",
+  no_smoking_allowed: "Lounge type is wrong",
+  membership_policy_wrong: "Phone or website is wrong",
+  wrong_address: "Wrong address",
+  permanently_closed: "Does not exist any longer",
+  duplicate: "Duplicate",
+  other: "Other"
+};
+
 // ============================================================
 // RENDER LIMIT (Backoffice performance)
 // ============================================================
@@ -121,6 +131,8 @@ const $  = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 const safe = (v) => (v ?? "").toString();
 const isPendingSubmission = (s) => s?._source_table === "store_pending";
+const reportTypeLabel = (type) =>
+  REPORT_TYPE_LABELS[type] || type || "Reported issue";
 
 function normalizePendingSubmission(s) {
   return {
@@ -1101,7 +1113,7 @@ body.appendChild(loc);
   reportInfo.innerHTML = `
     <div class="report-line">
       ⚠ Reported issue:
-      <strong>${safe(s._report_type)}</strong>
+      <strong>${safe(reportTypeLabel(s._report_type))}</strong>
     </div>
   `;
   body.appendChild(reportInfo);

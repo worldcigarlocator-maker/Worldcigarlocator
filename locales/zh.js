@@ -193,17 +193,29 @@ most_saved: "最多收藏",
   dont_sell_cigars:
     "不销售雪茄",
 
+  report_store_type_wrong:
+    "商店类型不正确",
+
   not_allowed_to_smoke:
     "禁止吸烟",
 
+  report_lounge_type_wrong:
+    "休息室类型不正确",
+
   membership_policy_wrong:
     "会员政策错误",
+
+  report_phone_or_website_wrong:
+    "电话或网站不正确",
 
   wrong_address:
     "错误地址",
 
   permanently_closed:
     "永久关闭",
+
+  report_does_not_exist:
+    "已不再存在",
 
   duplicate:
     "重复",

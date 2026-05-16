@@ -190,17 +190,29 @@ most_saved: "Más guardados",
   dont_sell_cigars:
     "No venden cigarros",
 
+  report_store_type_wrong:
+    "El tipo de tienda es incorrecto",
+
   not_allowed_to_smoke:
     "No se permite fumar",
 
+  report_lounge_type_wrong:
+    "El tipo de lounge es incorrecto",
+
   membership_policy_wrong:
     "Política de membresía incorrecta",
+
+  report_phone_or_website_wrong:
+    "El teléfono o sitio web es incorrecto",
 
   wrong_address:
     "Dirección incorrecta",
 
   permanently_closed:
     "Cerrado permanentemente",
+
+  report_does_not_exist:
+    "Ya no existe",
 
   duplicate:
     "Duplicado",
@@ -328,4 +340,3 @@ most_saved: "Más guardados",
 
   privacy: "Privacidad"
 };
-

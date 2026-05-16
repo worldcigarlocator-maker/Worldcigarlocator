@@ -49,6 +49,10 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Re-audited backoffice direct `stores` access and confirmed it is isolated to admin backoffice paths covered by verified RLS.
 - Added a backoffice functional test checklist for the remaining owner click-test.
 - Recorded owner verification that the final backoffice read/edit/approve/reject/delete-restore flows work.
+- Added a report button to every public store card and wired it into the existing report modal flow.
+- Added clearer report choices, browser-side duplicate/cooldown guards, and human-readable backoffice report labels.
+- Updated the old report page so users report from the listing instead of emailing.
+- Documented required server-side spam filtering for `submit_store_report_v1`.
 
 ## Verified
 
@@ -60,4 +64,5 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 ## Not Ready To Merge Until
 
 - Production analytics ingest is verified after deployment.
+- The `submit_store_report_v1` Edge Function has a verified server-side spam filter.
 - Project documentation is rebuilt after the remaining fixes.

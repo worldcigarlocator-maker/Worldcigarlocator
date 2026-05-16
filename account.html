@@ -809,6 +809,17 @@
           <div id="modalComments" class="modal-comments-feed"></div>
         </div>
 
+        <button
+          id="modalReportIssue"
+          class="modal-report-btn"
+          type="button"
+          data-i18n="report_listing"
+          aria-controls="modalReportSection"
+          aria-expanded="false"
+        >
+          Report this listing
+        </button>
+
         <!-- REPORT SECTION -->
         <div id="modalReportSection" class="modal-report-section hidden">
         <h3
@@ -819,13 +830,13 @@
 </h3>
 
           <div id="modalReportChips" class="modal-report-chips">
-            <button class="report-chip" data-type="no_longer_sells">Don’t sell cigars</button>
-            <button class="report-chip" data-type="no_smoking_allowed">Not allowed to smoke</button>
-            <button class="report-chip" data-type="membership_policy_wrong">Membership policy wrong</button>
-            <button class="report-chip" data-type="wrong_address">Wrong address</button>
-            <button class="report-chip" data-type="permanently_closed">Permanently closed</button>
-            <button class="report-chip" data-type="duplicate">Duplicate</button>
-            <button class="report-chip" data-type="other">Other</button>
+            <button class="report-chip" data-type="no_longer_sells" data-i18n="report_store_type_wrong">Store type is wrong</button>
+            <button class="report-chip" data-type="no_smoking_allowed" data-i18n="report_lounge_type_wrong">Lounge type is wrong</button>
+            <button class="report-chip" data-type="membership_policy_wrong" data-i18n="report_phone_or_website_wrong">Phone or website is wrong</button>
+            <button class="report-chip" data-type="wrong_address" data-i18n="wrong_address">Wrong address</button>
+            <button class="report-chip" data-type="permanently_closed" data-i18n="report_does_not_exist">Does not exist any longer</button>
+            <button class="report-chip" data-type="duplicate" data-i18n="duplicate">Duplicate</button>
+            <button class="report-chip" data-type="other" data-i18n="other">Other</button>
           </div>
 
           <textarea
@@ -833,6 +844,15 @@
             class="modal-report-textarea hidden"
             placeholder="Describe the issue..."
           ></textarea>
+
+          <input
+            id="modalReportWebsite"
+            class="modal-report-honeypot"
+            type="text"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          >
 
         <button
   id="modalSubmitReport"

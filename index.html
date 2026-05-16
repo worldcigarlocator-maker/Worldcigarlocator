@@ -734,6 +734,17 @@
 
 </div>
 
+<button
+  id="modalReportIssue"
+  class="modal-report-btn"
+  type="button"
+  data-i18n="report_listing"
+  aria-controls="modalReportSection"
+  aria-expanded="false"
+>
+  Report this listing
+</button>
+
       <!-- REPORT SECTION -->
 
 <div
@@ -756,25 +767,25 @@
     <button
       class="report-chip"
       data-type="no_longer_sells"
-      data-i18n="dont_sell_cigars"
+      data-i18n="report_store_type_wrong"
     >
-      Don’t sell cigars
+      Store type is wrong
     </button>
 
     <button
       class="report-chip"
       data-type="no_smoking_allowed"
-      data-i18n="not_allowed_to_smoke"
+      data-i18n="report_lounge_type_wrong"
     >
-      Not allowed to smoke
+      Lounge type is wrong
     </button>
 
     <button
       class="report-chip"
       data-type="membership_policy_wrong"
-      data-i18n="membership_policy_wrong"
+      data-i18n="report_phone_or_website_wrong"
     >
-      Membership policy wrong
+      Phone or website is wrong
     </button>
 
     <button
@@ -788,9 +799,9 @@
     <button
       class="report-chip"
       data-type="permanently_closed"
-      data-i18n="permanently_closed"
+      data-i18n="report_does_not_exist"
     >
-      Permanently closed
+      Does not exist any longer
     </button>
 
     <button
@@ -817,6 +828,15 @@
     placeholder="Describe the issue..."
     data-i18n-placeholder="describe_issue"
   ></textarea>
+
+  <input
+    id="modalReportWebsite"
+    class="modal-report-honeypot"
+    type="text"
+    tabindex="-1"
+    autocomplete="off"
+    aria-hidden="true"
+  >
 
   <button
     id="modalSubmitReport"

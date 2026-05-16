@@ -193,17 +193,29 @@ export default {
   dont_sell_cigars:
     "لا يبيع السيجار",
 
+  report_store_type_wrong:
+    "نوع المتجر غير صحيح",
+
   not_allowed_to_smoke:
     "التدخين غير مسموح",
 
+  report_lounge_type_wrong:
+    "نوع الصالة غير صحيح",
+
   membership_policy_wrong:
     "سياسة العضوية غير صحيحة",
+
+  report_phone_or_website_wrong:
+    "رقم الهاتف أو الموقع غير صحيح",
 
   wrong_address:
     "عنوان غير صحيح",
 
   permanently_closed:
     "مغلق نهائيًا",
+
+  report_does_not_exist:
+    "لم يعد موجودًا",
 
   duplicate:
     "مكرر",

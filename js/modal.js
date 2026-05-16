@@ -24,11 +24,19 @@ let MODAL_REPLY_TO = null;
 // ============================================================
 
 let REPORT_SELECTED = new Set();
+let REPORT_OPENED_AT = 0;
+let REPORT_SUBMITTING = false;
+
+const REPORT_COOLDOWN_MS = 10 * 60 * 1000;
+const REPORT_HOURLY_LIMIT = 5;
+const REPORT_HISTORY_KEY = "wcl_report_history_v1";
 
 const reportSection = () => document.getElementById("modalReportSection");
 const reportChips = () => document.querySelectorAll(".report-chip");
 const reportTextarea = () => document.getElementById("modalReportMessage");
 const reportSubmit = () => document.getElementById("modalSubmitReport");
+const reportSuccess = () => document.getElementById("modalReportSuccess");
+const reportHoneypot = () => document.getElementById("modalReportWebsite");
 
 function resetReportUI() {
   REPORT_SELECTED.clear();
@@ -44,6 +52,19 @@ function resetReportUI() {
 
   if (reportSubmit()) {
     reportSubmit().disabled = true;
+    reportSubmit().textContent = "Submit report";
+    reportSubmit().classList.remove("success");
+  }
+
+  if (reportSuccess()) {
+    reportSuccess().classList.add("hidden");
+    reportSuccess().classList.remove("error", "success", "info");
+    reportSuccess().textContent =
+      "Thank you for helping us keep World Cigar Locator accurate and up to date.";
+  }
+
+  if (reportHoneypot()) {
+    reportHoneypot().value = "";
   }
 }
 
@@ -62,6 +83,81 @@ function updateReportUI() {
       reportTextarea().value = "";
     }
   }
+}
+
+function showReportFeedback(message, type = "info") {
+  const target = reportSuccess();
+  if (!target) return;
+
+  target.textContent = message;
+  target.classList.remove("hidden", "error", "success", "info");
+  target.classList.add(type);
+}
+
+function readReportHistory() {
+  try {
+    return JSON.parse(
+      localStorage.getItem(REPORT_HISTORY_KEY) || "[]"
+    );
+  } catch {
+    return [];
+  }
+}
+
+function writeReportHistory(history) {
+  try {
+    localStorage.setItem(
+      REPORT_HISTORY_KEY,
+      JSON.stringify(history)
+    );
+  } catch {}
+}
+
+function reportSignature(storeId, types, message) {
+  return [
+    storeId,
+    types.slice().sort().join(","),
+    (message || "").toLowerCase().trim()
+  ].join("|");
+}
+
+function getReportBlockReason(storeId, types, message) {
+  const now = Date.now();
+  const recent = readReportHistory()
+    .filter((item) => now - item.ts < 60 * 60 * 1000);
+
+  const signature =
+    reportSignature(storeId, types, message);
+
+  const duplicate = recent.find(
+    (item) =>
+      item.signature === signature &&
+      now - item.ts < REPORT_COOLDOWN_MS
+  );
+
+  if (duplicate) {
+    return "You already sent this report. Thank you.";
+  }
+
+  if (recent.length >= REPORT_HOURLY_LIMIT) {
+    return "Too many reports in a short time. Please try again later.";
+  }
+
+  return null;
+}
+
+function rememberReport(storeId, types, message) {
+  const now = Date.now();
+  const history = readReportHistory()
+    .filter((item) => now - item.ts < 60 * 60 * 1000);
+
+  history.push({
+    ts: now,
+    storeId,
+    signature: reportSignature(storeId, types, message)
+  });
+
+  writeReportHistory(history);
 }
 // ============================================================
 // DOM HELPERS
@@ -144,6 +240,12 @@ function resetModal() {
   if (modalCommentInput()) modalCommentInput().value = "";
   if (modalCommentCount()) modalCommentCount().textContent = "Comments 0";
 
+  reportSection()?.classList.add("hidden");
+  document
+    .getElementById("modalReportIssue")
+    ?.setAttribute("aria-expanded", "false");
+  resetReportUI();
+
   MODAL_USER_TEMP_RATING = 0;
   highlightStars(0);
 }
@@ -179,6 +281,11 @@ export async function openModal(storeInput) {
     storeInput !== null
       ? storeInput.source || null
       : null;
+
+  const shouldOpenReport =
+    typeof storeInput === "object" &&
+    storeInput !== null &&
+    storeInput.openReport === true;
 
   let store =
     findStore(inputId);
@@ -281,6 +388,14 @@ if (!m) {
 }
 
 resetModal();
+
+if (shouldOpenReport) {
+  REPORT_OPENED_AT = Date.now();
+  reportSection()?.classList.remove("hidden");
+  document
+    .getElementById("modalReportIssue")
+    ?.setAttribute("aria-expanded", "true");
+}
 
 m.classList.remove("hidden");
 
@@ -703,6 +818,7 @@ async function submitComment() {
 async function submitReportIssue() {
   if (!MODAL_ACTIVE_STORE_ID) return;
   if (REPORT_SELECTED.size === 0) return;
+  if (REPORT_SUBMITTING) return;
 
   const types = Array.from(REPORT_SELECTED);
 
@@ -710,6 +826,40 @@ async function submitReportIssue() {
     REPORT_SELECTED.has("other") && reportTextarea()
       ? reportTextarea().value.trim()
       : null;
+
+  if (reportHoneypot()?.value) {
+    return;
+  }
+
+  const elapsedMs = REPORT_OPENED_AT
+    ? Date.now() - REPORT_OPENED_AT
+    : 0;
+
+  if (elapsedMs > 0 && elapsedMs < 900) {
+    showReportFeedback(
+      "Please take a moment to review the report before sending.",
+      "error"
+    );
+    return;
+  }
+
+  const blockReason =
+    getReportBlockReason(
+      MODAL_ACTIVE_STORE_ID,
+      types,
+      message
+    );
+
+  if (blockReason) {
+    showReportFeedback(blockReason, "error");
+    return;
+  }
+
+  REPORT_SUBMITTING = true;
+  if (reportSubmit()) {
+    reportSubmit().disabled = true;
+    reportSubmit().textContent = "Sending...";
+  }
 
   try {
     const { error } = await supabase.functions.invoke(
@@ -719,22 +869,41 @@ async function submitReportIssue() {
           store_id: MODAL_ACTIVE_STORE_ID,
           report_types: types,
           message: message || null,
+          client_elapsed_ms: elapsedMs,
+          client_report_id:
+            globalThis.crypto?.randomUUID?.() || String(Date.now()),
         },
       }
     );
 
     if (error) {
       console.error("submit_store_report_v1 error:", error);
+      showReportFeedback(
+        "Report could not be sent. Please try again.",
+        "error"
+      );
+      if (reportSubmit()) {
+        reportSubmit().textContent = "Submit report";
+      }
       return;
     }
 
+    rememberReport(
+      MODAL_ACTIVE_STORE_ID,
+      types,
+      message
+    );
+
     resetReportUI();
-    reportSection()?.classList.add("hidden");
+    showReportFeedback(
+      "Report submitted. Thank you for helping keep WCL accurate.",
+      "success"
+    );
 
 const btn = reportSubmit();
 if (btn) {
   btn.classList.add("success");
-  btn.textContent = "Report submitted ✓";
+  btn.textContent = "Report submitted";
   btn.disabled = true;
 
   setTimeout(() => {
@@ -748,6 +917,16 @@ if (btn) {
 
   } catch (err) {
     console.error("submit_store_report_v1 exception:", err);
+    showReportFeedback(
+      "Report could not be sent. Please try again.",
+      "error"
+    );
+    if (reportSubmit()) {
+      reportSubmit().textContent = "Submit report";
+    }
+  } finally {
+    REPORT_SUBMITTING = false;
+    updateReportUI();
   }
 }
 
@@ -905,7 +1084,13 @@ if (
       const section = reportSection();
       if (!section) return;
 
-      section.classList.toggle("hidden");
+      const isHidden = section.classList.toggle("hidden");
+      REPORT_OPENED_AT = isHidden
+        ? 0
+        : Date.now();
+      e.target
+        .closest("#modalReportIssue")
+        ?.setAttribute("aria-expanded", String(!isHidden));
       resetReportUI();
       return;
     }

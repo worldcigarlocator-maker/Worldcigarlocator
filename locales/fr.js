@@ -193,17 +193,29 @@ no_ratings:
 dont_sell_cigars:
 "Ne vend pas de cigares",
 
+report_store_type_wrong:
+"Type de boutique incorrect",
+
 not_allowed_to_smoke:
 "Interdiction de fumer",
 
+report_lounge_type_wrong:
+"Type de lounge incorrect",
+
 membership_policy_wrong:
 "Politique de membre incorrecte",
+
+report_phone_or_website_wrong:
+"Téléphone ou site web incorrect",
 
 wrong_address:
 "Adresse incorrecte",
 
 permanently_closed:
 "Fermé définitivement",
+
+report_does_not_exist:
+"N’existe plus",
 
 duplicate:
 "Doublon",

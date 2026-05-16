@@ -9,6 +9,20 @@ const el = (id) => document.getElementById(id);
 
 let ACTIVE_REPORT_ID = null;
 
+const REPORT_TYPE_LABELS = {
+  no_longer_sells: "Store type is wrong",
+  no_smoking_allowed: "Lounge type is wrong",
+  membership_policy_wrong: "Phone or website is wrong",
+  wrong_address: "Wrong address",
+  permanently_closed: "Does not exist any longer",
+  duplicate: "Duplicate",
+  other: "Other"
+};
+
+function reportTypeLabel(type) {
+  return REPORT_TYPE_LABELS[type] || type || "Reported issue";
+}
+
 // ------------------------------------------------------------
 // LOAD LIST
 // ------------------------------------------------------------
@@ -45,7 +59,7 @@ function renderList(rows) {
       </div>
       <div class="ri-sub">${r.country} · ${r.city}</div>
       <div class="ri-meta">
-        <span>${r.report_type}</span>
+        <span>${reportTypeLabel(r.report_type)}</span>
         <span>Count: ${r.report_count}</span>
       </div>
     `;
@@ -95,7 +109,7 @@ function renderDetails({ store, report, audit }) {
 
   el("detailStatusPill").textContent = report.status;
 
-  el("detailType").textContent = report.report_type;
+  el("detailType").textContent = reportTypeLabel(report.report_type);
   el("detailCount").textContent = report.report_count;
 
   el("detailCreated").textContent =

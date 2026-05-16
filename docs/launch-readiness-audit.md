@@ -189,9 +189,21 @@ Canonical RPCs:
 40. Owner completed the final backoffice functional test checklist.
     Backoffice read, edit, approve, reject, delete/restore, and comment moderation flows work after the Supabase remediation.
 
+41. Added a public report action to every store card.
+    The card button opens the existing store modal directly into the report form, with clearer report choices and a light browser-side spam guard.
+    The old report information page now points users back to the per-listing report flow instead of email submission.
+
+42. Backoffice report labels now render human-readable issue names instead of raw report codes.
+    The underlying report type values remain compatible with the existing `submit_store_report_v1` flow and report moderation RPCs.
+
+43. Added server-side spam filter requirements for `submit_store_report_v1`:
+    `docs/store-report-spam-filter-requirements.md`.
+    The Edge Function source is not in this repository, so the true server-side spam filter still needs Supabase verification or implementation before launch.
+
 ## Launch Blockers To Resolve
 
 - Verify production analytics ingest after deployment.
+- Verify or implement the server-side spam filter in `submit_store_report_v1`.
 - Rebuild project documentation after the remaining fixes; stale/canonical docs can be replaced then.
 - Optional later cleanup: standardize the production branch name from `Main-1` to `main` and remove the extra branch.
 

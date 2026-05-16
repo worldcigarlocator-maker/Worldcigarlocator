@@ -193,17 +193,29 @@ most_saved: "Mais salvos",
   dont_sell_cigars:
     "Não vende charutos",
 
+  report_store_type_wrong:
+    "Tipo de loja incorreto",
+
   not_allowed_to_smoke:
     "Não é permitido fumar",
 
+  report_lounge_type_wrong:
+    "Tipo de lounge incorreto",
+
   membership_policy_wrong:
     "Política de membros incorreta",
+
+  report_phone_or_website_wrong:
+    "Telefone ou site incorreto",
 
   wrong_address:
     "Endereço incorreto",
 
   permanently_closed:
     "Fechado permanentemente",
+
+  report_does_not_exist:
+    "Não existe mais",
 
   duplicate:
     "Duplicado",

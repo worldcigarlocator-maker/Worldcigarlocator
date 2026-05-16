@@ -193,17 +193,29 @@ most_saved: "最も保存済み",
   dont_sell_cigars:
     "シガーを販売していません",
 
+  report_store_type_wrong:
+    "店舗タイプが正しくありません",
+
   not_allowed_to_smoke:
     "喫煙不可",
 
+  report_lounge_type_wrong:
+    "ラウンジタイプが正しくありません",
+
   membership_policy_wrong:
     "会員ポリシーが誤っています",
+
+  report_phone_or_website_wrong:
+    "電話番号またはウェブサイトが正しくありません",
 
   wrong_address:
     "住所が間違っています",
 
   permanently_closed:
     "閉業済み",
+
+  report_does_not_exist:
+    "現在は存在しません",
 
   duplicate:
     "重複",
