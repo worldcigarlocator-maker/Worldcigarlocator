@@ -167,10 +167,15 @@ Canonical RPCs:
 34. Owner functionally tested backoffice comment deletion after the focused `store_comments` admin-delete policy.
     Comment moderation from the edit modal now works.
 
+35. Browser key restriction review found two public Google Maps browser keys:
+    one for the public map and one for add-store/backoffice Places autocomplete.
+    Added owner guide: `docs/browser-key-restriction-guide.md`.
+    Supabase anon/publishable key remains browser-visible by design and is protected through RLS/grants/RPC policies, not domain restrictions.
+
 ## Launch Blockers To Resolve
 
 - Functionally test remaining backoffice read/edit/approve/reject flows after the Supabase remediation.
-- Confirm public browser keys are restricted to the production domains.
+- Apply and verify Google Maps browser key restrictions in Google Cloud.
 - Confirm remaining direct `stores` access in `js/backoffice.js` remains admin-oriented and covered by the verified `stores` RLS policies.
 - Verify production analytics ingest after deployment.
 - Rebuild project documentation after the remaining fixes; stale/canonical docs can be replaced then.

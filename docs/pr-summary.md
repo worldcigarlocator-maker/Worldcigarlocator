@@ -43,6 +43,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Recorded owner launch-prep decisions: admins should delete comments, browser keys must be restricted, `Main-1` remains production for now, and documentation will be rebuilt after fixes.
 - Recorded post-fix `store_comments` grant verification for backoffice comment moderation.
 - Recorded owner functional verification that backoffice comment deletion works.
+- Added a Google Maps browser key restriction guide for owner action in Google Cloud.
 
 ## Verified
 
@@ -54,7 +55,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 ## Not Ready To Merge Until
 
 - Remaining backoffice read/edit/approve/reject flows are functionally tested after Supabase remediation.
-- Browser keys are confirmed restricted to production domains/API scopes.
+- Google Maps browser keys are confirmed restricted to production domains/API scopes.
 - Production analytics ingest is verified after deployment.
 - Remaining raw `stores` access in `js/backoffice.js` is confirmed admin-only and RLS-safe.
 - Project documentation is rebuilt after the remaining fixes.
