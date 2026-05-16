@@ -470,4 +470,6 @@ Conclusion:
 
 - Dashboard RPC execute grants now have the intended grant shape.
 - The wrappers still rely on their internal `bo_is_admin_v1(auth.uid())` checks for admin-only authority.
-- Owner should reload the analytics dashboard to confirm the previous `permission denied for table analytics_events` browser errors are gone.
+- Owner reloaded the analytics dashboard and confirmed it works.
+- The previous `permission denied for table analytics_events` browser errors are gone.
+- The remaining `chart.umd.min.js.map` 404 is an external Chart.js source-map warning and not a WCL runtime failure.

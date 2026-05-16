@@ -39,6 +39,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Removed the legacy public analytics batch sender from the active public page flow and kept `analytics-tracker.js` as the single event sender.
 - Added a focused analytics admin RPC wrapper draft for dashboard RPCs blocked by the append-only `analytics_events` policy.
 - Recorded post-fix analytics dashboard RPC execute verification.
+- Recorded owner functional verification that the analytics dashboard now works.
 
 ## Verified
 
@@ -50,7 +51,6 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 ## Not Ready To Merge Until
 
 - The focused `store_comments` admin-delete policy is reviewed/applied if admins should delete user comments in backoffice.
-- The analytics dashboard is reloaded and functionally verified after the admin RPC wrapper fix.
 - Backoffice read/edit/approve/reject/comment-delete flows are functionally tested after Supabase remediation.
 - Canonical PDFs or Markdown replacements are added/confirmed.
 - Browser keys are confirmed restricted to production domains/API scopes.

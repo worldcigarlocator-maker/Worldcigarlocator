@@ -151,13 +151,16 @@ Canonical RPCs:
     `analytics_store_intelligence_v1`, `analytics_market_countries_v1`, and `analytics_market_cities_v1`.
     No `anon`/`PUBLIC` execute rows were shown.
 
+31. Owner reloaded the analytics dashboard after the admin RPC wrapper fix and confirmed it works.
+    The prior `permission denied for table analytics_events` errors are gone.
+    The remaining `chart.umd.min.js.map` 404 is an external Chart.js source-map warning and not a WCL runtime failure.
+
 ## Launch Blockers To Resolve
 
 - Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.
 - Confirm which branch should be production: `Main-1`, `main`, or a renamed branch.
 - Confirm hosting target: GitHub Pages, Vercel, Netlify, Cloudflare Pages, or another provider.
 - Review and apply the focused `store_comments` admin-delete policy if admins should moderate comments from the edit modal.
-- Reload and functionally verify the analytics dashboard after the analytics admin RPC wrapper fix.
 - Functionally test backoffice read/edit/approve/comment-delete flows after the Supabase remediation.
 - Confirm public browser keys are restricted to the production domains.
 - Confirm remaining direct `stores` access in `js/backoffice.js` remains admin-oriented and covered by the verified `stores` RLS policies.
