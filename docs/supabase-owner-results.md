@@ -399,7 +399,8 @@ No explicit admin delete policy for `store_comments` was provided.
 Conclusion:
 
 - Store editing is now covered by verified `stores` RLS.
-- Comment moderation still needs a focused policy if admins should delete comments written by other users.
+- Owner confirmed admins should be able to delete comments written by other users.
+- Comment moderation still needs the focused admin delete policy applied and tested.
 - Draft: `docs/supabase-store-comments-admin-fix-draft.sql`.
 
 ## Post-Fix Pending Rejection Verification

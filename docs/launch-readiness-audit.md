@@ -155,16 +155,21 @@ Canonical RPCs:
     The prior `permission denied for table analytics_events` errors are gone.
     The remaining `chart.umd.min.js.map` 404 is an external Chart.js source-map warning and not a WCL runtime failure.
 
+32. Owner confirmed launch-prep decisions:
+    admins should be able to delete user comments in backoffice;
+    browser keys must be restricted before launch;
+    current production branch is `Main-1`, with optional later cleanup to rename/standardize to `main`;
+    project documentation should be rebuilt after the remaining fixes instead of preserving stale docs.
+
 ## Launch Blockers To Resolve
 
-- Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.
-- Confirm which branch should be production: `Main-1`, `main`, or a renamed branch.
-- Confirm hosting target: GitHub Pages, Vercel, Netlify, Cloudflare Pages, or another provider.
-- Review and apply the focused `store_comments` admin-delete policy if admins should moderate comments from the edit modal.
+- Apply and test the focused `store_comments` admin-delete policy so admins can moderate comments from the edit modal.
 - Functionally test backoffice read/edit/approve/comment-delete flows after the Supabase remediation.
 - Confirm public browser keys are restricted to the production domains.
 - Confirm remaining direct `stores` access in `js/backoffice.js` remains admin-oriented and covered by the verified `stores` RLS policies.
 - Verify production analytics ingest after deployment.
+- Rebuild project documentation after the remaining fixes; stale/canonical docs can be replaced then.
+- Optional later cleanup: standardize the production branch name from `Main-1` to `main` and remove the extra branch.
 
 ## Local Workflow For Owner Review
 

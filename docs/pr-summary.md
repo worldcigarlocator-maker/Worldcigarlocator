@@ -40,6 +40,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Added a focused analytics admin RPC wrapper draft for dashboard RPCs blocked by the append-only `analytics_events` policy.
 - Recorded post-fix analytics dashboard RPC execute verification.
 - Recorded owner functional verification that the analytics dashboard now works.
+- Recorded owner launch-prep decisions: admins should delete comments, browser keys must be restricted, `Main-1` remains production for now, and documentation will be rebuilt after fixes.
 
 ## Verified
 
@@ -50,9 +51,9 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 
 ## Not Ready To Merge Until
 
-- The focused `store_comments` admin-delete policy is reviewed/applied if admins should delete user comments in backoffice.
+- The focused `store_comments` admin-delete policy is applied and comment deletion is tested in backoffice.
 - Backoffice read/edit/approve/reject/comment-delete flows are functionally tested after Supabase remediation.
-- Canonical PDFs or Markdown replacements are added/confirmed.
 - Browser keys are confirmed restricted to production domains/API scopes.
 - Production analytics ingest is verified after deployment.
 - Remaining raw `stores` access in `js/backoffice.js` is confirmed admin-only and RLS-safe.
+- Project documentation is rebuilt after the remaining fixes.
