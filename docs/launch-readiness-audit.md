@@ -121,14 +121,15 @@ Canonical RPCs:
 22. Post-fix stores grant verification shows `anon` has only `SELECT` on `stores`, while `authenticated` has `SELECT`, `INSERT`, and `UPDATE`, all under RLS.
     Stores policy verification is still needed to confirm the row-level rules.
 
+23. Post-fix stores policy verification confirms public reads are limited to approved, non-deleted stores and admin insert/update/read paths use `bo_is_admin_v1`.
+
 ## Launch Blockers To Resolve
 
 - Add or provide the four canonical PDFs, or replace them with current Markdown equivalents.
 - Confirm which branch should be production: `Main-1`, `main`, or a renamed branch.
 - Confirm hosting target: GitHub Pages, Vercel, Netlify, Cloudflare Pages, or another provider.
 - Confirm Supabase RLS and RPC definitions match the canonical frontend contract. Public response smoke tests passed, but schema/RLS definitions are still needed for launch confidence.
-- Confirm final Supabase policies for `stores`, `store_pending`, and `analytics_events` after the remediation.
-- Confirm final `stores` policies after the focused stores follow-up.
+- Functionally test backoffice read/edit/approve flows after the Supabase remediation.
 - Confirm public browser keys are restricted to the production domains.
 - Review remaining direct `stores` access in `js/backoffice.js`; this appears admin-oriented but still needs RLS/admin verification.
 - Confirm analytics tracking is not double-emitting events through both `analytics-tracker.js` and `analytics-frontend.js`.

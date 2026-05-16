@@ -363,3 +363,23 @@ Conclusion:
 
 - The stores table grants now look launch-appropriate as a grant layer.
 - RLS policies still need separate verification because grants alone do not show the row-level rules.
+
+## Post-Fix Stores Policy Verification
+
+Owner provided stores policies after the focused stores follow-up.
+
+Result:
+
+- `stores_public_read` allows `anon` SELECT only where `approved = true` and `deleted = false`.
+- `stores_authenticated_read` allows authenticated SELECT only for approved, non-deleted stores or admins via `bo_is_admin_v1(auth.uid())`.
+- `bo_insert_stores_admin_only` allows authenticated INSERT only for admins via `bo_is_admin_v1(auth.uid())`.
+- `stores_admin_update` allows authenticated UPDATE only for admins via `bo_is_admin_v1(auth.uid())`.
+- `stores_service_all` remains available to `service_role`.
+
+Conclusion:
+
+- Stores RLS now matches the intended split:
+  - public users see public stores only;
+  - normal signed-in users see public stores only;
+  - admins can read and update all stores for backoffice.
+- Supabase authority checks are now aligned with the backoffice admin model for `stores`.
