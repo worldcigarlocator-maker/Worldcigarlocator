@@ -32,6 +32,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Recorded post-fix `stores` policy verification.
 - Fixed the backoffice edit modal frame/scroll/image sizing and hardened edit-button click handling.
 - Added a focused `store_comments` admin-delete policy draft for comment moderation review.
+- Gated normal backoffice debug logs behind `window.WCL_DEBUG_BACKOFFICE` / `window.WCL_DEBUG` while keeping warnings and errors visible.
 
 ## Verified
 

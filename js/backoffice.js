@@ -2,7 +2,12 @@
    Backoffice — Moderation + Hierarki + Edit + Proxy + ISO Flags
    ============================================================ */
 
-console.log(" Backoffice loaded ");
+const DEBUG_BACKOFFICE = window.WCL_DEBUG_BACKOFFICE === true || window.WCL_DEBUG === true;
+const debugLog = (...args) => {
+  if (DEBUG_BACKOFFICE) console.log(...args);
+};
+
+debugLog("Backoffice loaded");
 
 /* ======================== CONFIG ======================== */
 const WCL = {
@@ -148,7 +153,7 @@ function initStoreViewObserver() {
 
       if (!storeId) return;
 
-      console.log("Store viewed:", storeId);
+      debugLog("Store viewed:", storeId);
 
       // logga bara en gång
       storeViewObserver.unobserve(el);
@@ -628,7 +633,7 @@ function updateRegionCounts() {
     badge.textContent = `(${n})`;
   });
 
-  console.log(" Region counts (RPC):", counts);
+  debugLog("Region counts (RPC):", counts);
 }
 
 /* ============================================================
@@ -701,8 +706,8 @@ function render() {
    DATA LOADING — STABIL, FÖRUTSÄGBAR & UX-SÄKER
    ============================================================ */
 async function reloadData(tab = CURRENT_TAB) {
-console.log("RELOAD CALLED WITH:", tab);
-console.log("CURRENT_TAB BEFORE SET:", CURRENT_TAB);
+debugLog("RELOAD CALLED WITH:", tab);
+debugLog("CURRENT_TAB BEFORE SET:", CURRENT_TAB);
    
   const prevTab = CURRENT_TAB;
 
@@ -711,7 +716,7 @@ console.log("CURRENT_TAB BEFORE SET:", CURRENT_TAB);
   }
 
   CURRENT_TAB = tab;
-console.log("CURRENT_TAB AFTER SET:", CURRENT_TAB);
+debugLog("CURRENT_TAB AFTER SET:", CURRENT_TAB);
   /* =========================
      UI: active tab
      ========================= */
@@ -730,7 +735,7 @@ if (CURRENT_TAB === "pending") {
       .from("store_pending")
       .select("*")
       .order("id", { ascending: true });
-     console.log("PENDING RAW DATA:", data);
+     debugLog("PENDING RAW DATA:", data);
 
     if (error) throw error;
 
@@ -929,7 +934,7 @@ if (CURRENT_TAB === "pending") {
      ========================= */
   window.scrollTo(0, scrollY);
 
-  console.log(
+  debugLog(
     `reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}`
   );
 }
@@ -1459,7 +1464,7 @@ async function loadStoreReports() {
 
 /* ===================== UI WIRING ========================= */
 document.addEventListener("DOMContentLoaded", () => {
-  console.log(" DOM fully loaded — Backoffice ready");
+  debugLog("DOM fully loaded — Backoffice ready");
 
   document.addEventListener("click", (event) => {
     const editButton = event.target.closest("[data-edit-store-id]");
@@ -1515,7 +1520,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    console.log("🔎 Searching DB:", term, "TAB:", CURRENT_TAB);
+    debugLog("Searching DB:", term, "TAB:", CURRENT_TAB);
 
     let table = "stores";
 
@@ -1555,12 +1560,12 @@ function makeBtn(label, onclick, cls = "") {
 /*  APPROVE — pending → stores */
 async function approveStore(id) {
 
-  console.log("APPROVE CLICK ID:", id);
+  debugLog("APPROVE CLICK ID:", id);
 
   const { data, error } = await WCL.supabase
     .rpc("approve_store_pending", { p_id: id });
 
-  console.log("RPC RESPONSE:", data, error);
+  debugLog("RPC RESPONSE:", data, error);
 
   if (error) {
     console.error("Approve failed:", error);
