@@ -11,17 +11,105 @@
 .hero{
   position:relative;
   max-width:1390px;
-  margin:2.8rem auto 0;
-  aspect-ratio:16/9;
-  border-radius:18px;
+  margin:2.2rem auto 0;
+  min-height:min(68vh, 720px);
+  border-radius:12px;
   overflow:hidden;
   background:#000;
+}
+
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.48);
+  z-index:1;
+  pointer-events:none;
 }
 
 .hero img{
   width:100%;
   height:100%;
-  object-fit:contain;
+  object-fit:cover;
+  position:absolute;
+  inset:0;
+  opacity:0.92;
+}
+
+.start-hero-copy{
+  position:relative;
+  z-index:2;
+  width:min(680px, calc(100% - 48px));
+  min-height:min(68vh, 720px);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-start;
+  margin-left:clamp(24px, 6vw, 92px);
+  padding:64px 0;
+  color:#fff;
+}
+
+.start-kicker{
+  margin-bottom:14px;
+  color:rgb(var(--global));
+  font-weight:700;
+  letter-spacing:0;
+  text-transform:uppercase;
+  font-size:0.78rem;
+}
+
+.start-hero-copy h1{
+  max-width:620px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:72px;
+  line-height:0.98;
+  letter-spacing:0;
+  color:#fff;
+}
+
+.start-hero-copy p:not(.start-kicker){
+  max-width:520px;
+  margin-top:22px;
+  color:rgba(255,255,255,0.78);
+  line-height:1.55;
+  font-size:1rem;
+}
+
+.start-hero-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:28px;
+}
+
+.start-hero-actions button{
+  min-height:42px;
+  padding:0 18px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.08);
+  color:#fff;
+  font-family:"DM Sans",sans-serif;
+  font-weight:700;
+  cursor:pointer;
+  transition:background .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+.start-hero-actions button:first-child{
+  background:rgb(var(--global));
+  border-color:rgb(var(--global));
+}
+
+.start-hero-actions button:hover{
+  background:rgba(255,255,255,0.16);
+  border-color:rgba(255,255,255,0.34);
+  transform:translateY(-1px);
+}
+
+.start-hero-actions button:first-child:hover{
+  background:rgba(var(--global),0.88);
+  border-color:rgba(var(--global),0.88);
 }
 
 
@@ -174,6 +262,20 @@
   text-align:center;
 }
 
+.login-close{
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:34px !important;
+  height:34px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  color:rgba(255,255,255,0.7);
+}
+
 
 /* ============================================================
    HUMIDOR GLOW
@@ -312,8 +414,8 @@
   align-items:center;
   justify-content:center;
 
-  background:rgba(0,0,0,0.16);
-  backdrop-filter:blur(1.5px);
+  background:rgba(0,0,0,0.72);
+  backdrop-filter:blur(8px);
 
   z-index:100000;
 }
@@ -363,9 +465,9 @@
 .cookie-banner{
 
   position:fixed;
-  left:0;
-  right:0;
-  bottom:0;
+  left:16px;
+  right:16px;
+  bottom:16px;
 
   z-index:9999;
 
@@ -376,10 +478,12 @@
 
   padding:12px 14px;
 
-  border-top:1px solid rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;
 
   background:rgba(10,10,10,0.96);
   backdrop-filter:blur(8px);
+  box-shadow:0 18px 45px rgba(0,0,0,0.38);
 }
 
 
@@ -606,3 +710,54 @@ body.static-page{
   margin-bottom:6px;
 }
 
+@media (max-width: 1100px){
+  .start-hero-copy h1{
+    font-size:56px;
+  }
+}
+
+@media (max-width: 768px){
+  .hero{
+    margin:1rem 12px 0;
+    min-height:62vh;
+    border-radius:10px;
+  }
+
+  .start-hero-copy{
+    width:calc(100% - 32px);
+    min-height:62vh;
+    margin-left:16px;
+    padding:42px 0;
+  }
+
+  .start-hero-copy h1{
+    font-size:40px;
+  }
+
+  .start-hero-copy p:not(.start-kicker){
+    font-size:0.94rem;
+  }
+
+  .start-hero-actions{
+    width:100%;
+  }
+
+  .start-hero-actions button{
+    flex:1 1 100%;
+  }
+
+  .cookie-banner{
+    left:10px;
+    right:10px;
+    bottom:10px;
+  }
+
+  .cookie-inner{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .cookie-btn{
+    width:100%;
+  }
+}

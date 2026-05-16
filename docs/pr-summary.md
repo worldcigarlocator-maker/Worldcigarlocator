@@ -53,6 +53,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Added clearer report choices, browser-side duplicate/cooldown guards, and human-readable backoffice report labels.
 - Updated the old report page so users report from the listing instead of emailing.
 - Documented required server-side spam filtering for `submit_store_report_v1`.
+- Removed the old hardcoded start/access gate and rebuilt the homepage start surface around real explore, login, create account, age gate, and cookie-consent flows; public analytics now waits for consent.
 
 ## Verified
 

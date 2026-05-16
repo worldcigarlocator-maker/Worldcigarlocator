@@ -7,8 +7,6 @@ import { buildFrontendSidebar } from "./sidebar.js";
 import { trackEvent } from "./analytics-tracker.js";
 import { resetToHero } from "./cards.js";
 
-import "./start.js";
-
 import {
   t,
   initI18n
@@ -16,6 +14,9 @@ import {
 
 const qs = (sel) =>
   document.querySelector(sel);
+
+let LOGIN_BINDINGS_BOUND = false;
+let refreshAuthButtons = () => {};
 
 // ============================================================
 // LOGIN POPUP (UI)
@@ -37,12 +38,14 @@ function hideLoginPopup() {
 
 }
 
-function showLoginPopup() {
+function showLoginPopup(mode = "login") {
 
   const popup =
     qs("#loginPopup");
 
   if (!popup) return;
+
+  popup.dataset.mode = mode;
 
   popup.style.display =
     "flex";
@@ -60,10 +63,21 @@ function showLoginPopup() {
     qs("#authMessage");
 
   if (msg) {
-    msg.textContent = "";
+    msg.textContent =
+      mode === "signup"
+        ? t(
+            "signup_enter_email_password",
+            "Enter an email and create a password for your new account. You will receive a confirmation email, just follow the given link. Welcome!"
+          )
+        : "";
+
+    msg.className =
+      mode === "signup"
+        ? "auth-message success"
+        : "auth-message";
   }
 
-  updateButtons();
+  refreshAuthButtons();
 
 }
 
@@ -212,6 +226,13 @@ if (authStatus) {
 
 function bindLoginButtons() {
 
+  if (LOGIN_BINDINGS_BOUND) {
+    refreshAuthButtons();
+    return;
+  }
+
+  LOGIN_BINDINGS_BOUND = true;
+
   // Sidebar "Login" button
 
   const loginBtn =
@@ -241,6 +262,29 @@ function bindLoginButtons() {
       showLoginPopup();
 
     }
+  );
+
+  qs("#startLoginBtn")?.addEventListener(
+    "click",
+    () => showLoginPopup("login")
+  );
+
+  qs("#startSignupBtn")?.addEventListener(
+    "click",
+    () => showLoginPopup("signup")
+  );
+
+  qs("#startExploreBtn")?.addEventListener(
+    "click",
+    () => {
+      qs("#searchInput")?.focus();
+      resetToHero();
+    }
+  );
+
+  qs("#loginClose")?.addEventListener(
+    "click",
+    hideLoginPopup
   );
 
   // 🔥 AUTH MESSAGE
@@ -303,6 +347,8 @@ function bindLoginButtons() {
       !email;
 
   }
+
+  refreshAuthButtons = updateButtons;
 
   emailInput?.addEventListener(
     "input",
@@ -731,6 +777,43 @@ try {
 }
 
 // ============================================================
+// COOKIE BANNER
+// ============================================================
+
+function initCookieBanner() {
+  const banner = qs("#cookieBanner");
+  const okBtn = qs("#cookieOkBtn");
+  const storageKey = "wcl_cookie_consent_v1";
+
+  if (!banner || !okBtn) return;
+
+  try {
+    if (localStorage.getItem(storageKey) === "accepted") {
+      banner.style.display = "none";
+      return;
+    }
+  } catch {}
+
+  banner.style.display = "flex";
+
+  okBtn.addEventListener(
+    "click",
+    () => {
+      try {
+        localStorage.setItem(storageKey, "accepted");
+      } catch {}
+
+      window.dispatchEvent(
+        new Event("wcl:cookie-consent")
+      );
+
+      banner.style.display = "none";
+    },
+    { once: true }
+  );
+}
+
+// ============================================================
 // SIDEBAR INIT (run once)
 // ============================================================
 
@@ -776,6 +859,8 @@ document.addEventListener(
     // ============================================================
 
     await initI18n();
+
+    initCookieBanner();
 
     const ageGate =
       document.getElementById(

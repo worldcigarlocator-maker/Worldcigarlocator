@@ -26,8 +26,8 @@ Runtime modules imported by the public discovery flow:
 - `js/store-ui.js` - shared store card/modal display helpers.
 - `js/map-pins.js` - map pin rendering helpers.
 - `js/analytics-tracker.js` - canonical event tracking layer.
-- `js/start.js` - age/access gate.
 - `js/i18n.js` - locale loading and translation.
+- Start, age gate, login/create account, and cookie banner behavior is owned by `js/main.js`.
 
 Canonical backend contract observed in public discovery:
 

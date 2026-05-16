@@ -117,12 +117,13 @@ textarea{
 
 .hero{
 
-  margin-top:16px;
+  margin:16px 12px 0;
 
-  width:100%;
-  height:30vh;
+  width:auto;
+  height:auto;
+  min-height:62vh;
 
-  border-radius:16px;
+  border-radius:10px;
   overflow:hidden;
 
 }
@@ -130,8 +131,27 @@ textarea{
 .hero img{
   width:100%;
   height:100%;
-  object-fit: contain;
+  object-fit:cover;
   object-position:center;
+}
+
+.start-hero-copy{
+  width:calc(100% - 32px);
+  min-height:62vh;
+  margin-left:16px;
+  padding:42px 0;
+}
+
+.start-hero-copy h1{
+  font-size:40px;
+}
+
+.start-hero-actions{
+  width:100%;
+}
+
+.start-hero-actions button{
+  flex:1 1 100%;
 }
 
 .search-panel{

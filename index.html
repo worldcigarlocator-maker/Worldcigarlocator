@@ -69,7 +69,7 @@
 <body>
 
   <!-- AGE GATE -->
-  <div id="ageGate" class="age-gate hidden">
+  <div id="ageGate" class="age-gate hidden" role="dialog" aria-modal="true">
     <div class="login-box age-box">
       <h1 class="login-title">World Cigar Locator</h1>
 
@@ -110,6 +110,15 @@
 >
 
   <div class="login-box">
+
+    <button
+      id="loginClose"
+      class="login-close"
+      type="button"
+      aria-label="Close login"
+    >
+      &times;
+    </button>
 
     <h1 class="login-title">
       World Cigar Locator
@@ -536,6 +545,25 @@
       
       <section class="hero" id="heroImage">
         <img src="images/world-cigar-locator-hero.jpg" alt="World Cigar Locator">
+        <div class="start-hero-copy">
+          <p class="start-kicker">World Cigar Locator</p>
+          <h1>Find cigar stores and lounges worldwide</h1>
+          <p>
+            Independent listings for cigar shops, lounges, and member-friendly destinations across the world.
+          </p>
+
+          <div class="start-hero-actions">
+            <button id="startExploreBtn" type="button">
+              Start exploring
+            </button>
+            <button id="startLoginBtn" type="button">
+              Login
+            </button>
+            <button id="startSignupBtn" type="button">
+              Create account
+            </button>
+          </div>
+        </div>
         <div id="heroText"></div>
       </section>
 
@@ -557,7 +585,7 @@
     >
       We use essential cookies and limited analytics to improve your experience and maintain platform security.
       By continuing to use this site, you agree to our
-      Privacy Policy.
+      <a href="privacy.html">Privacy Policy</a>.
     </div>
 
     <button

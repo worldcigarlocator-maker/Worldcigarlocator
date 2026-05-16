@@ -18,6 +18,7 @@ const ANALYTICS_ENDPOINT =
 const VISITOR_KEY = "wcl_visitor_id";
 const SESSION_KEY = "wcl_session_id";
 const SESSION_DATE_KEY = "wcl_session_date";
+const COOKIE_CONSENT_KEY = "wcl_cookie_consent_v1";
 const ANALYTICS_DEBUG = Boolean(window?.WCL_DEBUG_ANALYTICS);
 
 /* Legacy compatibility */
@@ -25,6 +26,14 @@ const LEGACY_SESSION_KEY = "wcl_session";
 
 function debugLog(...args) {
   if (ANALYTICS_DEBUG) console.log(...args);
+}
+
+function hasAnalyticsConsent() {
+  try {
+    return localStorage.getItem(COOKIE_CONSENT_KEY) === "accepted";
+  } catch {
+    return false;
+  }
 }
 
 /* ============================================================
@@ -210,6 +219,7 @@ export async function trackEvent(eventType, payload = {}) {
   try {
 
     if (!eventType) return;
+    if (!hasAnalyticsConsent()) return;
 
     /* ============================================================
        DEDUPE
@@ -382,8 +392,10 @@ export async function trackEvent(eventType, payload = {}) {
    SESSION START
    ============================================================ */
 
-(function trackSessionStart() {
+function trackSessionStart() {
   try {
+    if (!hasAnalyticsConsent()) return;
+
     const today = getTodayKey();
     const previousTrackedDate =
       localStorage.getItem("wcl_session_start_tracked_date");
@@ -406,7 +418,17 @@ export async function trackEvent(eventType, payload = {}) {
   } catch (err) {
     console.error("Session tracking failed", err);
   }
-})();
+}
+
+if (hasAnalyticsConsent()) {
+  trackSessionStart();
+} else {
+  window.addEventListener(
+    "wcl:cookie-consent",
+    trackSessionStart,
+    { once: true }
+  );
+}
 
 window.WCL_ANALYTICS = {
   send: trackEvent,
