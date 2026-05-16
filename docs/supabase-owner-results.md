@@ -407,8 +407,9 @@ Conclusion:
 
 - Store editing is now covered by verified `stores` RLS.
 - The grant layer now matches the intended public/admin split for comments.
-- Admin delete authority still depends on the RLS policy that checks `bo_is_admin_v1(auth.uid())`.
-- A real backoffice comment-delete click test is still required before this launch item is closed.
+- Admin delete authority is enforced through the RLS policy that checks `bo_is_admin_v1(auth.uid())`.
+- Owner confirmed a real backoffice comment-delete click test works.
+- Backoffice comment moderation is no longer an open launch blocker.
 
 ## Post-Fix Pending Rejection Verification
 

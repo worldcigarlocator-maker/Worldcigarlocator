@@ -42,6 +42,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Recorded owner functional verification that the analytics dashboard now works.
 - Recorded owner launch-prep decisions: admins should delete comments, browser keys must be restricted, `Main-1` remains production for now, and documentation will be rebuilt after fixes.
 - Recorded post-fix `store_comments` grant verification for backoffice comment moderation.
+- Recorded owner functional verification that backoffice comment deletion works.
 
 ## Verified
 
@@ -52,8 +53,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 
 ## Not Ready To Merge Until
 
-- Comment deletion is functionally tested in backoffice after the focused `store_comments` admin-delete policy.
-- Backoffice read/edit/approve/reject/comment-delete flows are functionally tested after Supabase remediation.
+- Remaining backoffice read/edit/approve/reject flows are functionally tested after Supabase remediation.
 - Browser keys are confirmed restricted to production domains/API scopes.
 - Production analytics ingest is verified after deployment.
 - Remaining raw `stores` access in `js/backoffice.js` is confirmed admin-only and RLS-safe.

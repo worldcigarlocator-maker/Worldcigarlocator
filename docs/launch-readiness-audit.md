@@ -163,12 +163,13 @@ Canonical RPCs:
 
 33. Post-fix `store_comments` grant verification shows the intended grant layer:
     `anon` has only `SELECT`, while `authenticated` has `SELECT`, `INSERT`, and `DELETE`, all with RLS enabled.
-    A functional backoffice delete test is still required to confirm the admin RLS policy behaves correctly in the real UI.
+
+34. Owner functionally tested backoffice comment deletion after the focused `store_comments` admin-delete policy.
+    Comment moderation from the edit modal now works.
 
 ## Launch Blockers To Resolve
 
-- Functionally test the focused `store_comments` admin-delete flow so admins can moderate comments from the edit modal.
-- Functionally test backoffice read/edit/approve/comment-delete flows after the Supabase remediation.
+- Functionally test remaining backoffice read/edit/approve/reject flows after the Supabase remediation.
 - Confirm public browser keys are restricted to the production domains.
 - Confirm remaining direct `stores` access in `js/backoffice.js` remains admin-oriented and covered by the verified `stores` RLS policies.
 - Verify production analytics ingest after deployment.
