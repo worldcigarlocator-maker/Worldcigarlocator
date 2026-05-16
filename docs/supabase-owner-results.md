@@ -347,3 +347,19 @@ Conclusion:
 - A focused stores policy follow-up is needed.
 - Normal authenticated users should be limited to approved, non-deleted stores.
 - Admin users should be allowed to read and update all stores via `bo_is_admin_v1`.
+
+## Post-Fix Stores Grants Verification
+
+Owner ran the focused stores policy follow-up and provided the table grants result.
+
+Result:
+
+- `anon` has `SELECT` on `stores`, with RLS enabled.
+- `authenticated` has `SELECT`, `INSERT`, and `UPDATE` on `stores`, with RLS enabled.
+- `anon` no longer shows `INSERT`, `UPDATE`, or `DELETE` on `stores`.
+- No `TRUNCATE` grants were shown.
+
+Conclusion:
+
+- The stores table grants now look launch-appropriate as a grant layer.
+- RLS policies still need separate verification because grants alone do not show the row-level rules.

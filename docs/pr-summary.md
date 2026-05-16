@@ -28,6 +28,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Added focused `wcl_admins` follow-up fix draft after post-fix table verification.
 - Recorded post-fix `wcl_admins` verification showing no direct anon/authenticated grants.
 - Added focused `stores` policy follow-up draft for authenticated reads and admin updates.
+- Recorded post-fix `stores` grant verification.
 
 ## Verified
 
@@ -40,7 +41,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 
 - Backoffice/admin access is reviewed against Supabase RLS/admin rules.
 - Final Supabase policies are confirmed for `stores`, `store_pending`, and `analytics_events` after remediation.
-- Focused `stores` policy follow-up is applied and verified.
+- Final `stores` policies are verified after the focused stores follow-up.
 - Canonical PDFs or Markdown replacements are added/confirmed.
 - Browser keys are confirmed restricted to production domains/API scopes.
 - Analytics ingest endpoint canonical URL is confirmed.
