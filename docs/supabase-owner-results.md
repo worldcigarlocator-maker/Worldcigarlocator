@@ -324,3 +324,26 @@ Conclusion:
 - Direct public/authenticated table access to `wcl_admins` appears removed.
 - The original no-RLS admin-table exposure is resolved.
 - `stores` still has broad table grants, but RLS is enabled and must continue to enforce the actual read/write rules.
+
+## Final Policy Verification
+
+Owner provided final policies for `analytics_events`, `store_pending`, and `stores` after remediation.
+
+Good results:
+
+- `analytics_events` now has insert-only RLS for known frontend event types.
+- `store_pending` allows public/authenticated inserts.
+- `store_pending` select is limited to authenticated admins through `bo_is_admin_v1(auth.uid())`.
+- `stores` anonymous select is limited to approved, non-deleted stores.
+- `stores` insert is admin-only through `bo_is_admin_v1(auth.uid())`.
+
+Remaining follow-up:
+
+- `stores_authenticated_read` currently allows any authenticated user to read all `stores` rows with `qual = true`.
+- No explicit admin `UPDATE` policy was shown for `stores`, but the current backoffice uses direct `stores` updates for edit/unflag/trash/photo repair.
+
+Conclusion:
+
+- A focused stores policy follow-up is needed.
+- Normal authenticated users should be limited to approved, non-deleted stores.
+- Admin users should be allowed to read and update all stores via `bo_is_admin_v1`.
