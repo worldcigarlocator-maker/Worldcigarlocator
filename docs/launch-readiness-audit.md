@@ -176,10 +176,12 @@ Canonical RPCs:
     This removes the second public Google browser key from active frontend code.
     Owner configured the Browser Key restrictions in Google Cloud and confirmed homepage map and Add Listing Google search still work.
 
+37. Owner re-tested after the shared restricted Google Browser Key code change.
+    Homepage Map View and Add Listing Google search/autocomplete both work.
+
 ## Launch Blockers To Resolve
 
 - Functionally test remaining backoffice read/edit/approve/reject flows after the Supabase remediation.
-- Re-test homepage map and Add Listing once this branch is pulled/deployed with the shared restricted Google Browser Key.
 - Confirm remaining direct `stores` access in `js/backoffice.js` remains admin-oriented and covered by the verified `stores` RLS policies.
 - Verify production analytics ingest after deployment.
 - Rebuild project documentation after the remaining fixes; stale/canonical docs can be replaced then.
