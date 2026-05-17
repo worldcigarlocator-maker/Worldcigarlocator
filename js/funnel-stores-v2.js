@@ -209,6 +209,7 @@ export async function renderStoresV2(days = 30) {
   if (STORES_STATE.level === "store") {
 
     if (head) head.textContent = "Top Stores";
+    window.WCL_STORE_DOSSIER = null;
 
 const { data, error } = await sb.rpc(
   "analytics_store_intelligence_v1",
@@ -986,6 +987,77 @@ const engagementQuality =
     comments: totalComments,
     rating: avgRating
   });
+
+window.WCL_STORE_DOSSIER = {
+  store: {
+    store_id: store.store_id,
+    name: store.name,
+    views: totalViews,
+    clicks: totalClicks,
+    ctr: Number(store.ctr || 0).toFixed(1) + "%",
+    favorites: totalFavorites,
+    avg_rating: avgRating,
+    ratings_count: totalRatings,
+    comments_count: totalComments
+  },
+  performanceScore,
+  prestigeLabel,
+  hiddenGem,
+  sources: sourceRanking,
+  trend: {
+    momentumLabel,
+    avgViewsPerDay,
+    avgClicksPerDay,
+    trendPoints: trendPoints.length
+  },
+  behavior: {
+    dominantSource,
+    discoveryBehavior,
+    engagementQuality,
+    marketPosition
+  },
+  localMarket: {
+    localCompetitionLevel,
+    audienceType,
+    loyaltyStrength,
+    reputationStrength,
+    trafficBalance
+  },
+  engagement: {
+    loyalty: totalFavorites > 0 ? "Strong" : "Low",
+    reputation:
+      avgRating >= 4.5
+        ? "Excellent"
+        : avgRating >= 3.5
+          ? "Good"
+          : "Developing",
+    community: totalComments >= 5 ? "Active" : "Quiet"
+  },
+  marketContext: {
+    cityRank,
+    countryRank,
+    regionalMomentum,
+    destinationStrength,
+    marketPosition
+  },
+  commercial: {
+    premiumCandidate,
+    tourismCandidate,
+    expansionCandidate,
+    partnershipCandidate
+  },
+  predictive: {
+    growthOutlook:
+      momentumLabel === "Hot"
+        ? "Accelerating"
+        : momentumLabel === "Growing"
+          ? "Positive"
+          : "Stable",
+    breakoutPotential: hiddenGem ? "High" : "Normal",
+    decayRisk: avgViewsPerDay <= 1 ? "Elevated" : "Low",
+    audienceTrajectory: avgClicksPerDay >= 5 ? "Expanding" : "Steady"
+  }
+};
 
 
 
@@ -1914,6 +1986,7 @@ ${renderPredictiveSection({
       STORES_STATE.storeId = null;
 
       STORES_STATE.sort = "views";
+      window.WCL_STORE_DOSSIER = null;
 
       await renderStoresV2(
         STORES_STATE.days
@@ -1937,6 +2010,7 @@ export function resetStoresV2() {
   STORES_STATE.storeId = null;
   STORES_STATE.city = null;
   STORES_STATE.country = null;
+  window.WCL_STORE_DOSSIER = null;
 
   STORES_STATE.sort = "views";
 
@@ -1948,4 +2022,3 @@ export function resetStoresV2() {
 
 window.renderStoresV2 = renderStoresV2;
 window.resetStoresV2 = resetStoresV2;
-

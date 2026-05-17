@@ -33,7 +33,8 @@ export async function exportAnalyticsPDF({
   chartCanvas,
   usersChartCanvas,
   global = {},
-  store = null
+  store = null,
+  dossier = null
 }) {
   const { jsPDF } = window.jspdf || {};
 
@@ -56,8 +57,10 @@ export async function exportAnalyticsPDF({
   const reportRows = normalizeRows(rows, activeKpi);
   const chart = selectChartCanvas(activeKpi, chartCanvas, usersChartCanvas, store);
   const chartImage = canvasToImage(chart);
-  const title = reportTitle(activeKpi, store);
-  const subtitle = contextLine(activeKpi, state, generated, store);
+  const dossierStore = dossier?.store || null;
+  const reportStore = store || dossierStore;
+  const title = reportTitle(activeKpi, reportStore);
+  const subtitle = contextLine(activeKpi, state, generated, reportStore);
   let pageNo = 0;
 
   function addContentPage() {
@@ -77,7 +80,7 @@ export async function exportAnalyticsPDF({
     activeKpi,
     state,
     reportRows,
-    store
+    store: reportStore
   });
   pageNo++;
 
@@ -85,13 +88,26 @@ export async function exportAnalyticsPDF({
 
   let y = 48;
 
-  if (store) {
-    y = drawStoreSummary(y, store);
+  if (dossier) {
+    drawDossierReport({
+      dossier,
+      addContentPage
+    });
+
+    drawClosingPage({ addContentPage });
+
+    pdf.save(fileName(activeKpi, reportStore, generated));
+    PDF_INSTANCE = null;
+    return;
+  }
+
+  if (reportStore) {
+    y = drawStoreSummary(y, reportStore);
   }
 
   y = drawMetricCards(
     y,
-    metricCards({ activeKpi, global, reportRows, state, store })
+    metricCards({ activeKpi, global, reportRows, state, store: reportStore })
   );
 
   if (chartImage) {
@@ -108,16 +124,16 @@ export async function exportAnalyticsPDF({
       y,
       rows: reportRows,
       kpi: activeKpi,
-      store,
+      store: reportStore,
       addContentPage
     });
   } else {
     y = drawNoRows(y + 8);
   }
 
-  drawClosingPage({ hero, logo, generated, addContentPage });
+  drawClosingPage({ addContentPage });
 
-  pdf.save(fileName(activeKpi, store, generated));
+  pdf.save(fileName(activeKpi, reportStore, generated));
   PDF_INSTANCE = null;
 }
 
@@ -210,6 +226,7 @@ function drawCoverPage({
 function drawPageBase({
   title,
   subtitle,
+  logo,
   generated,
   pageNo
 }) {
@@ -221,7 +238,7 @@ function drawPageBase({
   pdf.setFillColor(...BRAND.panel);
   pdf.rect(0, 0, PAGE.width, 35, "F");
 
-  drawHeaderBrand(PAGE.margin, 7);
+  drawHeaderBrand(PAGE.margin, 6, logo);
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(12.5);
@@ -264,28 +281,17 @@ function drawPageBase({
   });
 }
 
-function drawHeaderBrand(x, y) {
+function drawHeaderBrand(x, y, logo) {
   const pdf = currentPdf();
 
-  pdf.setFillColor(...BRAND.black);
-  pdf.roundedRect(x, y, 30, 20, 2, 2, "F");
-  pdf.setDrawColor(...BRAND.line);
-  pdf.roundedRect(x, y, 30, 20, 2, 2);
+  if (logo && safeAddImage(logo, "PNG", x, y, 31, 21)) {
+    return;
+  }
 
   pdf.setFont("times", "normal");
   pdf.setFontSize(16);
   pdf.setTextColor(...BRAND.goldSoft);
-  pdf.text("WCL", x + 15, y + 9.2, { align: "center" });
-
-  pdf.setDrawColor(...BRAND.gold);
-  pdf.setLineWidth(0.2);
-  pdf.line(x + 7, y + 11, x + 23, y + 11);
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(3.7);
-  pdf.setTextColor(...BRAND.muted);
-  pdf.text("WORLD CIGAR LOCATOR", x + 15, y + 15.2, { align: "center" });
-  pdf.text("worldcigarlocator.com", x + 15, y + 18, { align: "center" });
+  pdf.text("WCL", x + 15, y + 10, { align: "center" });
 }
 
 function drawStoreSummary(y, store) {
@@ -430,6 +436,179 @@ function drawRowsTable({
   return yy + 4;
 }
 
+function drawDossierReport({
+  dossier,
+  addContentPage
+}) {
+  let y = 48;
+
+  y = drawDossierHeader(y, dossier);
+  y = drawDossierMetrics(y + 6, dossier);
+  y = drawDossierSources(y + 8, dossier);
+
+  addContentPage();
+  y = 48;
+  y = drawDossierCardSection(y, "Trend Intelligence", [
+    ["Momentum", dossier.trend?.momentumLabel],
+    ["Avg Views / Day", dossier.trend?.avgViewsPerDay],
+    ["Avg Clicks / Day", dossier.trend?.avgClicksPerDay],
+    ["Trend Points", dossier.trend?.trendPoints]
+  ]);
+
+  y = drawDossierCardSection(y + 8, "Behavioral Intelligence", [
+    ["Dominant Source", dossier.behavior?.dominantSource],
+    ["User Discovery", dossier.behavior?.discoveryBehavior],
+    ["Engagement Quality", dossier.behavior?.engagementQuality],
+    ["Market Position", dossier.behavior?.marketPosition]
+  ]);
+
+  y = drawDossierCardSection(y + 8, "Local Market Intelligence", [
+    ["Competition Level", dossier.localMarket?.localCompetitionLevel],
+    ["Audience Type", dossier.localMarket?.audienceType],
+    ["Loyalty Strength", dossier.localMarket?.loyaltyStrength],
+    ["Reputation Strength", dossier.localMarket?.reputationStrength],
+    ["Traffic Profile", dossier.localMarket?.trafficBalance]
+  ]);
+
+  if (y > 204) {
+    addContentPage();
+    y = 48;
+  }
+
+  y = drawDossierCardSection(y + 8, "Engagement Signals", [
+    ["Loyalty", dossier.engagement?.loyalty],
+    ["Reputation", dossier.engagement?.reputation],
+    ["Community", dossier.engagement?.community]
+  ]);
+
+  drawDossierCardSection(y + 8, "Predictive Signals", [
+    ["Growth Outlook", dossier.predictive?.growthOutlook],
+    ["Breakout Potential", dossier.predictive?.breakoutPotential],
+    ["Decay Risk", dossier.predictive?.decayRisk],
+    ["Audience Trajectory", dossier.predictive?.audienceTrajectory]
+  ]);
+}
+
+function drawDossierHeader(y, dossier) {
+  const pdf = currentPdf();
+  const x = PAGE.margin;
+  const width = PAGE.width - PAGE.margin * 2;
+
+  drawSectionTitle(y, dossier.store?.name || "Store Intelligence");
+
+  pdf.setFillColor(...BRAND.panel);
+  pdf.roundedRect(x, y + 8, width, 34, 4, 4, "F");
+  pdf.setDrawColor(...BRAND.line);
+  pdf.roundedRect(x, y + 8, width, 34, 4, 4);
+
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(9);
+  pdf.setTextColor(...BRAND.goldSoft);
+  pdf.text("PRESTIGE", x + 7, y + 20);
+
+  pdf.setFontSize(15);
+  pdf.setTextColor(...BRAND.cream);
+  pdf.text(safePdfText(dossier.prestigeLabel || "Developing"), x + 7, y + 31);
+
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(8);
+  pdf.setTextColor(...BRAND.muted);
+  pdf.text("PERFORMANCE SCORE", x + width - 7, y + 20, { align: "right" });
+
+  pdf.setFontSize(18);
+  pdf.setTextColor(...BRAND.cream);
+  pdf.text(String(dossier.performanceScore || 0), x + width - 7, y + 32, {
+    align: "right"
+  });
+
+  return y + 50;
+}
+
+function drawDossierMetrics(y, dossier) {
+  return drawDossierCardGrid(y, [
+    ["Views", dossier.store?.views],
+    ["Clicks", dossier.store?.clicks],
+    ["CTR", dossier.store?.ctr],
+    ["Favorites", dossier.store?.favorites],
+    ["Rating", Number(dossier.store?.avg_rating || 0).toFixed(1)],
+    ["Comments", dossier.store?.comments_count]
+  ], 3);
+}
+
+function drawDossierSources(y, dossier) {
+  const pdf = currentPdf();
+  const x = PAGE.margin;
+  const width = PAGE.width - PAGE.margin * 2;
+  const sources = dossier.sources || [];
+  const max = Math.max(...sources.map((source) => Number(source.views || 0)), 1);
+
+  drawSectionTitle(y, "Top Traffic Sources");
+
+  pdf.setFillColor(...BRAND.panel);
+  pdf.roundedRect(x, y + 8, width, 62, 4, 4, "F");
+  pdf.setDrawColor(...BRAND.line);
+  pdf.roundedRect(x, y + 8, width, 62, 4, 4);
+
+  sources.slice(0, 5).forEach((source, index) => {
+    const rowY = y + 21 + index * 10;
+    const views = Number(source.views || 0);
+    const fillWidth = ((width - 47) * views) / max;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(7.5);
+    pdf.setTextColor(...BRAND.cream);
+    pdf.text(source.label || "Unknown", x + 7, rowY);
+
+    pdf.setTextColor(...BRAND.cream);
+    pdf.text(String(views), x + width - 7, rowY, { align: "right" });
+
+    pdf.setFillColor(44, 48, 58);
+    pdf.roundedRect(x + 34, rowY - 3.8, width - 47, 2.6, 1, 1, "F");
+    pdf.setFillColor(80, 205, 235);
+    pdf.roundedRect(x + 34, rowY - 3.8, fillWidth, 2.6, 1, 1, "F");
+  });
+
+  return y + 80;
+}
+
+function drawDossierCardSection(y, title, cards) {
+  drawSectionTitle(y, title);
+  return drawDossierCardGrid(y + 10, cards, cards.length > 4 ? 3 : 2);
+}
+
+function drawDossierCardGrid(y, cards, columns = 3) {
+  const pdf = currentPdf();
+  const gap = 5;
+  const x = PAGE.margin;
+  const width = PAGE.width - PAGE.margin * 2;
+  const cardWidth = (width - gap * (columns - 1)) / columns;
+  const cardHeight = 27;
+
+  cards.forEach((card, index) => {
+    const col = index % columns;
+    const row = Math.floor(index / columns);
+    const xx = x + col * (cardWidth + gap);
+    const yy = y + row * (cardHeight + gap);
+
+    pdf.setFillColor(...BRAND.panel);
+    pdf.roundedRect(xx, yy, cardWidth, cardHeight, 4, 4, "F");
+    pdf.setDrawColor(...BRAND.line);
+    pdf.roundedRect(xx, yy, cardWidth, cardHeight, 4, 4);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(6.8);
+    pdf.setTextColor(...BRAND.muted);
+    pdf.text(String(card[0]).toUpperCase(), xx + 4.5, yy + 8);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    pdf.setTextColor(...BRAND.cream);
+    pdf.text(safePdfText(fitText(card[1] ?? "-", 18)), xx + 4.5, yy + 19);
+  });
+
+  return y + Math.ceil(cards.length / columns) * (cardHeight + gap);
+}
+
 function drawTableChunk(y, rows, headers, offset) {
   const pdf = currentPdf();
   const x = PAGE.margin;
@@ -502,7 +681,7 @@ function drawNoRows(y) {
   return y + 48;
 }
 
-function drawClosingPage({ hero, logo, generated, addContentPage }) {
+function drawClosingPage({ addContentPage }) {
   const pdf = currentPdf();
 
   addContentPage();
@@ -510,18 +689,12 @@ function drawClosingPage({ hero, logo, generated, addContentPage }) {
   pdf.setFillColor(...BRAND.black);
   pdf.rect(0, 35, PAGE.width, PAGE.height - 35, "F");
 
-  if (hero) {
-    safeAddImage(hero, "PNG", 43, 55, 124, 82);
-  } else if (logo) {
-    safeAddImage(logo, "PNG", 55, 68, 100, 66);
-  }
-
-  drawGoldDivider(154, 48);
+  drawGoldDivider(94, 48);
 
   pdf.setFont("times", "normal");
   pdf.setFontSize(22);
   pdf.setTextColor(...BRAND.goldSoft);
-  pdf.text("World Cigar Locator", PAGE.width / 2, 176, {
+  pdf.text("World Cigar Locator", PAGE.width / 2, 116, {
     align: "center"
   });
 
@@ -531,22 +704,16 @@ function drawClosingPage({ hero, logo, generated, addContentPage }) {
   pdf.text(
     "Global cigar store and lounge intelligence",
     PAGE.width / 2,
-    190,
+    130,
     { align: "center" }
   );
 
   pdf.setFontSize(9);
   pdf.setTextColor(...BRAND.goldSoft);
-  pdf.text("worldcigarlocator.com", PAGE.width / 2, 208, {
+  pdf.text("worldcigarlocator.com", PAGE.width / 2, 150, {
     align: "center"
   });
-  pdf.text("analytics@worldcigarlocator.com", PAGE.width / 2, 218, {
-    align: "center"
-  });
-
-  pdf.setFontSize(7.5);
-  pdf.setTextColor(...BRAND.muted);
-  pdf.text(`Generated ${generated.toLocaleString()}`, PAGE.width / 2, 250, {
+  pdf.text("analytics@worldcigarlocator.com", PAGE.width / 2, 160, {
     align: "center"
   });
 }

@@ -770,6 +770,11 @@ async function exportPDF() {
       ? storeRows
       : getRowsForPdf(activeKpi);
 
+    const storeDossier =
+      activeKpi === "stores"
+        ? window.WCL_STORE_DOSSIER || null
+        : null;
+
     const selectedStore = ACTIVE_STORE
       ? {
           ...ACTIVE_STORE,
@@ -812,7 +817,9 @@ async function exportPDF() {
             ?.textContent || "0"
       },
 
-      store: selectedStore
+      store: selectedStore,
+
+      dossier: storeDossier
 
     });
 
