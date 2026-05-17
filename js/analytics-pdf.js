@@ -380,7 +380,14 @@ function drawChartBlock(y, image) {
   pdf.setDrawColor(...BRAND.line);
   pdf.roundedRect(x, y + 8, width, height, 4, 4);
 
-  const imageAdded = safeAddImage(image, "PNG", x + 7, y + 14, width - 14, height - 16);
+  const imageAdded = safeAddImage(
+    image,
+    imageFormat(image),
+    x + 7,
+    y + 14,
+    width - 14,
+    height - 16
+  );
 
   if (!imageAdded) {
     pdf.setFont("helvetica", "normal");
@@ -808,10 +815,44 @@ function canvasToImage(canvas) {
     if (!canvas.width || !canvas.height) return null;
     if (!hasVisibleCanvasContent(canvas)) return null;
 
-    return canvas.toDataURL("image/png", 1);
+    const normalized = document.createElement("canvas");
+    normalized.width = 1400;
+    normalized.height = 620;
+
+    const ctx = normalized.getContext("2d");
+    if (!ctx) return null;
+
+    ctx.fillStyle = "#0e0d0c";
+    ctx.fillRect(0, 0, normalized.width, normalized.height);
+
+    const padding = 34;
+    const sourceRatio = canvas.width / canvas.height;
+    const targetWidth = normalized.width - padding * 2;
+    const targetHeight = normalized.height - padding * 2;
+    const targetRatio = targetWidth / targetHeight;
+    let drawWidth = targetWidth;
+    let drawHeight = targetHeight;
+
+    if (sourceRatio > targetRatio) {
+      drawHeight = drawWidth / sourceRatio;
+    } else {
+      drawWidth = drawHeight * sourceRatio;
+    }
+
+    const x = (normalized.width - drawWidth) / 2;
+    const y = (normalized.height - drawHeight) / 2;
+
+    ctx.drawImage(canvas, x, y, drawWidth, drawHeight);
+
+    return normalized.toDataURL("image/jpeg", 0.92);
   } catch {
     return null;
   }
+}
+
+function imageFormat(image) {
+  if (typeof image !== "string") return "PNG";
+  return image.startsWith("data:image/jpeg") ? "JPEG" : "PNG";
 }
 
 function hasVisibleCanvasContent(canvas) {
