@@ -1,27 +1,27 @@
 /* ============================================================
    WCL Analytics PDF Export
-   A4 premium business report
+   Premium A4 report layout
 ============================================================ */
 
 import { getKPI } from "./analytics-state.js";
 
 const BRAND = {
-  black: [7, 7, 7],
-  ink: [24, 24, 24],
-  muted: [98, 104, 112],
-  line: [221, 224, 228],
-  soft: [247, 247, 245],
-  gold: [155, 119, 62],
-  goldSoft: [239, 234, 225],
+  black: [4, 4, 4],
+  panel: [14, 13, 12],
+  panelSoft: [24, 22, 19],
+  line: [79, 64, 43],
+  gold: [196, 151, 78],
+  goldSoft: [232, 203, 148],
+  cream: [244, 237, 222],
+  muted: [176, 166, 150],
   white: [255, 255, 255]
 };
 
 const PAGE = {
   width: 210,
   height: 297,
-  margin: 16,
-  headerHeight: 38,
-  footerY: 282
+  margin: 18,
+  footerY: 280
 };
 
 let PDF_INSTANCE = null;
@@ -50,83 +50,160 @@ export async function exportAnalyticsPDF({
 
   PDF_INSTANCE = pdf;
 
+  const hero = await loadImageBase64("/images/brand1.png");
   const logo = await loadImageBase64("/images/wcl_brand_text.png");
-  const reportRows = normalizeRows(rows);
   const generated = new Date();
-  const chart = activeKpi === "users" ? usersChartCanvas : chartCanvas;
+  const reportRows = normalizeRows(rows, activeKpi);
+  const chart = selectChartCanvas(activeKpi, chartCanvas, usersChartCanvas, store);
+  const chartImage = canvasToImage(chart);
   const title = reportTitle(activeKpi, store);
   const subtitle = contextLine(activeKpi, state, generated, store);
   let pageNo = 0;
 
-  function addPage() {
+  function addContentPage() {
     if (pageNo > 0) {
       pdf.addPage();
     }
 
     pageNo++;
-    drawPageBase({
-      logo,
-      title,
-      subtitle,
-      generated,
-      pageNo
-    });
+    drawPageBase({ logo, title, subtitle, generated, pageNo });
   }
 
-  addPage();
-  drawIntro({
-    y: 50,
-    activeKpi,
+  drawCoverPage({
+    hero,
     generated,
-    reportRows,
+    title,
+    subtitle,
+    activeKpi,
     state,
+    reportRows,
     store
   });
+  pageNo++;
 
-  let y = 124;
+  addContentPage();
+
+  let y = 48;
 
   if (store) {
-    drawStoreBlock(y, store);
-    y += 62;
+    y = drawStoreSummary(y, store);
   }
 
-  drawMetrics(y, metricCards({ activeKpi, global, reportRows, state, store }));
-  y += 43;
-
-  const chartImage = canvasToImage(chart);
+  y = drawMetricCards(
+    y,
+    metricCards({ activeKpi, global, reportRows, state, store })
+  );
 
   if (chartImage) {
-    if (y > 185) {
-      addPage();
-      y = 52;
-    }
-
-    drawSectionTitle(y, "Active Chart");
-    drawChart(y + 8, chartImage);
-    y += 82;
+    y = drawChartBlock(y + 8, chartImage);
   }
 
   if (reportRows.length) {
-    if (y > 200) {
-      addPage();
-      y = 52;
+    if (y > 214) {
+      addContentPage();
+      y = 48;
     }
 
-    drawSectionTitle(y, tableTitle(activeKpi, store));
-    y += 9;
-    y = drawTable(y, reportRows.slice(0, 14), activeKpi, 0);
+    y = drawRowsTable({
+      y,
+      rows: reportRows,
+      kpi: activeKpi,
+      store,
+      addContentPage
+    });
   } else {
-    drawEmptyState(y, "No table rows were available for this export.");
-    y += 32;
+    y = drawNoRows(y + 8);
   }
 
-  if (reportRows.length > 14) {
-    drawTableContinuation(reportRows.slice(14), activeKpi, 14, addPage);
-  }
-
-  drawClosingBlock(addPage);
+  drawClosingPage({ hero, logo, generated, addContentPage });
 
   pdf.save(fileName(activeKpi, store));
+}
+
+function drawCoverPage({
+  hero,
+  generated,
+  title,
+  subtitle,
+  activeKpi,
+  state,
+  reportRows,
+  store
+}) {
+  const pdf = currentPdf();
+
+  pdf.setFillColor(...BRAND.black);
+  pdf.rect(0, 0, PAGE.width, PAGE.height, "F");
+
+  if (hero) {
+    pdf.addImage(hero, "PNG", 31, 39, 148, 98);
+  }
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(9);
+  pdf.setTextColor(...BRAND.muted);
+  pdf.text(formatDate(generated), PAGE.width - PAGE.margin, 24, {
+    align: "right"
+  });
+
+  pdf.setDrawColor(...BRAND.line);
+  pdf.setLineWidth(0.3);
+  pdf.line(PAGE.margin, 31, PAGE.width - PAGE.margin, 31);
+
+  pdf.setFont("times", "normal");
+  pdf.setFontSize(24);
+  pdf.setTextColor(...BRAND.goldSoft);
+  pdf.text("Analytics Report", PAGE.width / 2, 158, {
+    align: "center"
+  });
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(10.5);
+  pdf.setTextColor(...BRAND.cream);
+  pdf.text(
+    pdf.splitTextToSize(title, PAGE.width - PAGE.margin * 2),
+    PAGE.width / 2,
+    170,
+    { align: "center" }
+  );
+
+  pdf.setTextColor(...BRAND.muted);
+  pdf.setFontSize(9);
+  pdf.text(
+    pdf.splitTextToSize(subtitle, PAGE.width - PAGE.margin * 2),
+    PAGE.width / 2,
+    182,
+    { align: "center" }
+  );
+
+  drawGoldDivider(198, 52);
+
+  const overview = [
+    `Scope: ${selectedView(activeKpi, state, store)}`,
+    `Rows included: ${reportRows.length}`,
+    "Prepared for business review and backoffice decision support"
+  ];
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(9);
+  pdf.setTextColor(...BRAND.cream);
+  overview.forEach((line, index) => {
+    pdf.text(line, PAGE.width / 2, 213 + index * 8, {
+      align: "center"
+    });
+  });
+
+  const legal =
+    "This report is generated from World Cigar Locator analytics data and reflects the selected view at the time of export. Analytics do not influence moderation, listing approval, or store visibility. Store and lounge information may change over time and should be verified before business decisions are made.";
+
+  pdf.setFontSize(7.8);
+  pdf.setTextColor(...BRAND.muted);
+  pdf.text(
+    pdf.splitTextToSize(legal, 145),
+    PAGE.width / 2,
+    246,
+    { align: "center" }
+  );
 }
 
 function drawPageBase({
@@ -138,110 +215,75 @@ function drawPageBase({
 }) {
   const pdf = currentPdf();
 
-  pdf.setFillColor(...BRAND.white);
+  pdf.setFillColor(...BRAND.black);
   pdf.rect(0, 0, PAGE.width, PAGE.height, "F");
 
-  pdf.setFillColor(...BRAND.black);
-  pdf.rect(0, 0, PAGE.width, PAGE.headerHeight, "F");
+  pdf.setFillColor(...BRAND.panel);
+  pdf.rect(0, 0, PAGE.width, 35, "F");
 
   if (logo) {
-    pdf.setFillColor(...BRAND.white);
-    pdf.roundedRect(PAGE.margin, 7, 35, 22, 2, 2, "F");
-    pdf.addImage(logo, "PNG", PAGE.margin + 2, 8.5, 31, 19);
+    pdf.setFillColor(...BRAND.cream);
+    pdf.roundedRect(PAGE.margin, 8, 30, 17, 2, 2, "F");
+    pdf.addImage(logo, "PNG", PAGE.margin + 2, 9, 26, 15);
   } else {
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(13);
-    pdf.setTextColor(...BRAND.gold);
-    pdf.text("WCL", PAGE.margin, 20);
+    pdf.setFont("times", "normal");
+    pdf.setFontSize(18);
+    pdf.setTextColor(...BRAND.goldSoft);
+    pdf.text("WCL", PAGE.margin, 21);
   }
 
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(14);
-  pdf.setTextColor(...BRAND.white);
-  pdf.text(title, 58, 16);
+  pdf.setFontSize(12.5);
+  pdf.setTextColor(...BRAND.cream);
+  pdf.text(fitText(title, 62), 54, 16);
 
   pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(8.5);
-  pdf.setTextColor(202, 204, 208);
-  pdf.text(fitText(subtitle, 84), 58, 25);
+  pdf.setFontSize(8);
+  pdf.setTextColor(...BRAND.muted);
+  pdf.text(fitText(subtitle, 82), 54, 24);
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(8.5);
-  pdf.setTextColor(...BRAND.white);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(8);
+  pdf.setTextColor(...BRAND.cream);
   pdf.text(formatDate(generated), PAGE.width - PAGE.margin, 16, {
     align: "right"
   });
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setTextColor(180, 184, 190);
-  pdf.text(`Page ${pageNo}`, PAGE.width - PAGE.margin, 25, {
+  pdf.setTextColor(...BRAND.muted);
+  pdf.text(`Page ${pageNo}`, PAGE.width - PAGE.margin, 24, {
     align: "right"
   });
 
   pdf.setDrawColor(...BRAND.gold);
-  pdf.setLineWidth(0.6);
-  pdf.line(PAGE.margin, PAGE.headerHeight, PAGE.width - PAGE.margin, PAGE.headerHeight);
+  pdf.setLineWidth(0.45);
+  pdf.line(PAGE.margin, 35, PAGE.width - PAGE.margin, 35);
 
   pdf.setDrawColor(...BRAND.line);
-  pdf.setLineWidth(0.2);
+  pdf.setLineWidth(0.25);
   pdf.line(PAGE.margin, PAGE.footerY, PAGE.width - PAGE.margin, PAGE.footerY);
 
   pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(7.5);
+  pdf.setFontSize(7.3);
   pdf.setTextColor(...BRAND.muted);
-  pdf.text("Generated by World Cigar Locator", PAGE.margin, 289);
-  pdf.text("worldcigarlocator.com", PAGE.width / 2, 289, {
+  pdf.text("World Cigar Locator Analytics", PAGE.margin, 288);
+  pdf.text("worldcigarlocator.com", PAGE.width / 2, 288, {
     align: "center"
   });
-  pdf.text(`Page ${pageNo}`, PAGE.width - PAGE.margin, 289, {
+  pdf.text(`Page ${pageNo}`, PAGE.width - PAGE.margin, 288, {
     align: "right"
   });
 }
 
-function drawIntro({
-  y,
-  activeKpi,
-  generated,
-  reportRows,
-  state,
-  store
-}) {
-  const pdf = currentPdf();
-
-  drawSectionTitle(y, "Report Overview");
-
-  const body =
-    "This report is generated from World Cigar Locator analytics data and reflects the selected view at the time of export. The data is intended for informational and business review purposes only. Analytics do not influence moderation, listing approval, or store visibility. Store and lounge information may change over time and should be verified before business decisions are made.";
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(9);
-  pdf.setTextColor(...BRAND.muted);
-  pdf.text(pdf.splitTextToSize(body, PAGE.width - PAGE.margin * 2), PAGE.margin, y + 9);
-
-  const meta = [
-    ["Report type", reportTitle(activeKpi, store)],
-    ["Generated", generated.toLocaleString()],
-    ["Selected view", selectedView(activeKpi, state, store)],
-    ["Included rows", String(reportRows.length)]
-  ];
-
-  drawMetaGrid(y + 38, meta);
-}
-
-function drawStoreBlock(y, store) {
+function drawStoreSummary(y, store) {
   const pdf = currentPdf();
   const x = PAGE.margin;
   const width = PAGE.width - PAGE.margin * 2;
 
-  pdf.setFillColor(...BRAND.soft);
-  pdf.roundedRect(x, y, width, 50, 4, 4, "F");
-  pdf.setDrawColor(...BRAND.line);
-  pdf.roundedRect(x, y, width, 50, 4, 4);
+  drawSectionTitle(y, store.name || "Selected Store / Lounge");
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(15);
-  pdf.setTextColor(...BRAND.ink);
-  pdf.text(fitText(store.name || "Selected Store", 62), x + 6, y + 12);
+  pdf.setFillColor(...BRAND.panel);
+  pdf.roundedRect(x, y + 8, width, 44, 4, 4, "F");
+  pdf.setDrawColor(...BRAND.line);
+  pdf.roundedRect(x, y + 8, width, 44, 4, 4);
 
   const details = [
     ["Location", [store.city, store.country].filter(Boolean).join(", ") || "-"],
@@ -253,81 +295,230 @@ function drawStoreBlock(y, store) {
   ];
 
   pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(8.2);
+  pdf.setFontSize(7.8);
 
   details.forEach((item, index) => {
     const col = index % 2;
     const row = Math.floor(index / 2);
-    const labelX = x + 6 + col * 86;
+    const labelX = x + 7 + col * 86;
     const valueX = labelX + 24;
-    const rowY = y + 23 + row * 8;
+    const rowY = y + 22 + row * 8.5;
 
-    pdf.setTextColor(...BRAND.muted);
-    pdf.text(item[0], labelX, rowY);
+    pdf.setTextColor(...BRAND.goldSoft);
+    pdf.text(item[0].toUpperCase(), labelX, rowY);
 
-    pdf.setTextColor(...BRAND.ink);
-    pdf.text(fitText(item[1], 38), valueX, rowY);
+    pdf.setTextColor(...BRAND.cream);
+    pdf.text(fitText(item[1], 36), valueX, rowY);
   });
+
+  return y + 61;
 }
 
-function drawMetrics(y, cards) {
+function drawMetricCards(y, cards) {
+  const pdf = currentPdf();
   const gap = 5;
   const x = PAGE.margin;
   const width = PAGE.width - PAGE.margin * 2;
   const cardWidth = (width - gap * 2) / 3;
 
   cards.slice(0, 3).forEach((card, index) => {
-    drawMetricCard(x + index * (cardWidth + gap), y, cardWidth, card);
-  });
-}
+    const xx = x + index * (cardWidth + gap);
 
-function drawMetricCard(x, y, width, card) {
-  const pdf = currentPdf();
-
-  pdf.setFillColor(...BRAND.soft);
-  pdf.roundedRect(x, y, width, 32, 4, 4, "F");
-  pdf.setDrawColor(...BRAND.line);
-  pdf.roundedRect(x, y, width, 32, 4, 4);
-
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(7.5);
-  pdf.setTextColor(...BRAND.gold);
-  pdf.text(card.label.toUpperCase(), x + 5, y + 8);
-
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(17);
-  pdf.setTextColor(...BRAND.ink);
-  pdf.text(String(card.value), x + 5, y + 20);
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(7.2);
-  pdf.setTextColor(...BRAND.muted);
-  pdf.text(fitText(card.note, 28), x + 5, y + 28);
-}
-
-function drawMetaGrid(y, items) {
-  const pdf = currentPdf();
-  const width = PAGE.width - PAGE.margin * 2;
-  const cellWidth = width / 2;
-
-  pdf.setFillColor(...BRAND.goldSoft);
-  pdf.roundedRect(PAGE.margin, y, width, 28, 4, 4, "F");
-
-  items.forEach((item, index) => {
-    const col = index % 2;
-    const row = Math.floor(index / 2);
-    const x = PAGE.margin + col * cellWidth + 6;
-    const yy = y + 9 + row * 11;
+    pdf.setFillColor(...BRAND.panel);
+    pdf.roundedRect(xx, y, cardWidth, 31, 4, 4, "F");
+    pdf.setDrawColor(...BRAND.line);
+    pdf.roundedRect(xx, y, cardWidth, 31, 4, 4);
 
     pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(7.4);
-    pdf.setTextColor(...BRAND.gold);
-    pdf.text(item[0].toUpperCase(), x, yy);
+    pdf.setFontSize(7);
+    pdf.setTextColor(...BRAND.goldSoft);
+    pdf.text(card.label.toUpperCase(), xx + 5, y + 8);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(17);
+    pdf.setTextColor(...BRAND.cream);
+    pdf.text(String(card.value), xx + 5, y + 20);
 
     pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(8.3);
-    pdf.setTextColor(...BRAND.ink);
-    pdf.text(fitText(item[1], 38), x + 33, yy);
+    pdf.setFontSize(7);
+    pdf.setTextColor(...BRAND.muted);
+    pdf.text(fitText(card.note, 27), xx + 5, y + 27);
+  });
+
+  return y + 38;
+}
+
+function drawChartBlock(y, image) {
+  const pdf = currentPdf();
+  const x = PAGE.margin;
+  const width = PAGE.width - PAGE.margin * 2;
+  const height = 76;
+
+  if (y + height > PAGE.footerY - 8) {
+    return y;
+  }
+
+  drawSectionTitle(y, "Active Chart");
+
+  pdf.setFillColor(...BRAND.panel);
+  pdf.roundedRect(x, y + 8, width, height, 4, 4, "F");
+  pdf.setDrawColor(...BRAND.line);
+  pdf.roundedRect(x, y + 8, width, height, 4, 4);
+
+  pdf.addImage(image, "PNG", x + 7, y + 14, width - 14, height - 16);
+
+  return y + height + 18;
+}
+
+function drawRowsTable({
+  y,
+  rows,
+  kpi,
+  store,
+  addContentPage
+}) {
+  const headers = tableHeaders(kpi, rows, store);
+  const firstPageRows = rowsPerPage(y, headers.length);
+  let offset = 0;
+  let yy = y;
+
+  drawSectionTitle(yy, tableTitle(kpi, store));
+  yy += 9;
+  yy = drawTableChunk(yy, rows.slice(0, firstPageRows), headers, offset);
+  offset += firstPageRows;
+
+  while (offset < rows.length) {
+    addContentPage();
+    yy = 48;
+    drawSectionTitle(yy, "Detailed Rows Continued");
+    yy += 9;
+
+    const pageRows = rowsPerPage(yy, headers.length);
+    yy = drawTableChunk(yy, rows.slice(offset, offset + pageRows), headers, offset);
+    offset += pageRows;
+  }
+
+  return yy + 4;
+}
+
+function drawTableChunk(y, rows, headers, offset) {
+  const pdf = currentPdf();
+  const x = PAGE.margin;
+  const width = PAGE.width - PAGE.margin * 2;
+  const rowHeight = headers.length > 5 ? 7.2 : 8;
+  const columns = tableColumns(headers.length, width);
+
+  pdf.setFillColor(...BRAND.gold);
+  pdf.roundedRect(x, y, width, 9, 2, 2, "F");
+
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(headers.length > 5 ? 6.4 : 7);
+  pdf.setTextColor(...BRAND.black);
+  headers.forEach((header, index) => {
+    const column = columns[index];
+    const align = index === 0 ? "left" : "right";
+    pdf.text(header, column.x, y + 6.2, { align });
+  });
+
+  let rowY = y + 13;
+
+  rows.forEach((row, rowIndex) => {
+    const isEven = rowIndex % 2 === 0;
+
+    pdf.setFillColor(...(isEven ? BRAND.panel : BRAND.panelSoft));
+    pdf.rect(x, rowY - 5, width, rowHeight, "F");
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(headers.length > 5 ? 6.5 : 7.2);
+
+    const values = row.values.slice(0, headers.length);
+    values[0] = `${offset + rowIndex + 1}. ${values[0] || "-"}`;
+
+    headers.forEach((_, index) => {
+      const column = columns[index];
+      const align = index === 0 ? "left" : "right";
+      const maxLength = index === 0 ? column.max : 12;
+
+      pdf.setTextColor(index === 0 ? BRAND.cream : BRAND.muted);
+      pdf.text(fitText(values[index] || "-", maxLength), column.x, rowY, { align });
+    });
+
+    rowY += rowHeight;
+  });
+
+  return rowY + 5;
+}
+
+function drawNoRows(y) {
+  const pdf = currentPdf();
+  const x = PAGE.margin;
+  const width = PAGE.width - PAGE.margin * 2;
+
+  drawSectionTitle(y, "Report Data");
+
+  pdf.setFillColor(...BRAND.panel);
+  pdf.roundedRect(x, y + 8, width, 32, 4, 4, "F");
+  pdf.setDrawColor(...BRAND.line);
+  pdf.roundedRect(x, y + 8, width, 32, 4, 4);
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(8.5);
+  pdf.setTextColor(...BRAND.muted);
+  pdf.text(
+    "No exportable table rows were available in the selected view.",
+    x + 7,
+    y + 27
+  );
+
+  return y + 48;
+}
+
+function drawClosingPage({ hero, logo, generated, addContentPage }) {
+  const pdf = currentPdf();
+
+  addContentPage();
+
+  pdf.setFillColor(...BRAND.black);
+  pdf.rect(0, 35, PAGE.width, PAGE.height - 35, "F");
+
+  if (hero) {
+    pdf.addImage(hero, "PNG", 43, 55, 124, 82);
+  } else if (logo) {
+    pdf.addImage(logo, "PNG", 55, 68, 100, 66);
+  }
+
+  drawGoldDivider(154, 48);
+
+  pdf.setFont("times", "normal");
+  pdf.setFontSize(22);
+  pdf.setTextColor(...BRAND.goldSoft);
+  pdf.text("World Cigar Locator", PAGE.width / 2, 176, {
+    align: "center"
+  });
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(10);
+  pdf.setTextColor(...BRAND.cream);
+  pdf.text(
+    "Global cigar store and lounge intelligence",
+    PAGE.width / 2,
+    190,
+    { align: "center" }
+  );
+
+  pdf.setFontSize(9);
+  pdf.setTextColor(...BRAND.goldSoft);
+  pdf.text("worldcigarlocator.com", PAGE.width / 2, 208, {
+    align: "center"
+  });
+  pdf.text("analytics@worldcigarlocator.com", PAGE.width / 2, 218, {
+    align: "center"
+  });
+
+  pdf.setFontSize(7.5);
+  pdf.setTextColor(...BRAND.muted);
+  pdf.text(`Generated ${generated.toLocaleString()}`, PAGE.width / 2, 250, {
+    align: "center"
   });
 }
 
@@ -335,134 +526,28 @@ function drawSectionTitle(y, title) {
   const pdf = currentPdf();
 
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(12);
-  pdf.setTextColor(...BRAND.ink);
+  pdf.setFontSize(11);
+  pdf.setTextColor(...BRAND.cream);
   pdf.text(title, PAGE.margin, y);
 
   pdf.setDrawColor(...BRAND.gold);
-  pdf.setLineWidth(0.5);
-  pdf.line(PAGE.margin, y + 4, PAGE.margin + 32, y + 4);
+  pdf.setLineWidth(0.45);
+  pdf.line(PAGE.margin, y + 4, PAGE.margin + 31, y + 4);
 }
 
-function drawChart(y, image) {
+function drawGoldDivider(y, width = 44) {
   const pdf = currentPdf();
-  const x = PAGE.margin;
-  const width = PAGE.width - PAGE.margin * 2;
+  const center = PAGE.width / 2;
 
-  pdf.setFillColor(...BRAND.soft);
-  pdf.roundedRect(x, y, width, 68, 4, 4, "F");
   pdf.setDrawColor(...BRAND.line);
-  pdf.roundedRect(x, y, width, 68, 4, 4);
+  pdf.setLineWidth(0.25);
+  pdf.line(center - width, y, center - 5, y);
+  pdf.line(center + 5, y, center + width, y);
 
-  pdf.addImage(image, "PNG", x + 6, y + 6, width - 12, 56);
-}
-
-function drawTableContinuation(rows, kpi, offset, addPage) {
-  const rowsPerPage = 24;
-
-  for (let start = 0; start < rows.length; start += rowsPerPage) {
-    const chunk = rows.slice(start, start + rowsPerPage);
-
-    addPage();
-    drawSectionTitle(52, start === 0 ? "Detailed Rows Continued" : "Detailed Rows");
-    drawTable(62, chunk, kpi, offset + start);
-  }
-}
-
-function drawTable(y, rows, kpi, offset = 0) {
-  const pdf = currentPdf();
-  const width = PAGE.width - PAGE.margin * 2;
-  const headers = tableHeaders(kpi);
-  const col = {
-    label: PAGE.margin + 5,
-    first: PAGE.margin + width - 58,
-    second: PAGE.margin + width - 34,
-    third: PAGE.margin + width - 9
-  };
-
-  pdf.setFillColor(...BRAND.black);
-  pdf.roundedRect(PAGE.margin, y, width, 10, 2, 2, "F");
-
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(7.6);
-  pdf.setTextColor(...BRAND.white);
-  pdf.text(headers[0], col.label, y + 6.5);
-  pdf.text(headers[1], col.first, y + 6.5, { align: "right" });
-
-  if (headers[2]) {
-    pdf.text(headers[2], col.second, y + 6.5, { align: "right" });
-  }
-
-  if (headers[3]) {
-    pdf.text(headers[3], col.third, y + 6.5, { align: "right" });
-  }
-
-  let rowY = y + 15;
-
-  rows.forEach((row, index) => {
-    const isEven = index % 2 === 0;
-
-    pdf.setFillColor(...(isEven ? [253, 253, 252] : [247, 247, 245]));
-    pdf.rect(PAGE.margin, rowY - 5, width, 8, "F");
-
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(7.9);
-    pdf.setTextColor(...BRAND.ink);
-    pdf.text(fitText(`${offset + index + 1}. ${row.label}`, 74), col.label, rowY);
-
-    pdf.setTextColor(...BRAND.muted);
-    pdf.text(row.first || "-", col.first, rowY, { align: "right" });
-
-    if (headers[2]) {
-      pdf.text(row.second || "-", col.second, rowY, { align: "right" });
-    }
-
-    if (headers[3]) {
-      pdf.text(row.third || "-", col.third, rowY, { align: "right" });
-    }
-
-    rowY += 8;
-  });
-
-  return rowY + 5;
-}
-
-function drawEmptyState(y, message) {
-  const pdf = currentPdf();
-  const width = PAGE.width - PAGE.margin * 2;
-
-  pdf.setFillColor(...BRAND.soft);
-  pdf.roundedRect(PAGE.margin, y, width, 28, 4, 4, "F");
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(8.5);
-  pdf.setTextColor(...BRAND.muted);
-  pdf.text(message, PAGE.margin + 6, y + 16);
-}
-
-function drawClosingBlock(addPage) {
-  const pdf = currentPdf();
-
-  addPage();
-  const x = PAGE.margin;
-  const y = 100;
-  const width = PAGE.width - PAGE.margin * 2;
-
-  pdf.setFillColor(...BRAND.black);
-  pdf.roundedRect(x, y, width, 64, 5, 5, "F");
-
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(15);
-  pdf.setTextColor(...BRAND.white);
-  pdf.text("World Cigar Locator", x + 10, y + 18);
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(10);
-  pdf.setTextColor(210, 214, 220);
-  pdf.text("Global cigar store and lounge intelligence", x + 10, y + 30);
-
-  pdf.setTextColor(...BRAND.gold);
-  pdf.text("worldcigarlocator.com", x + 10, y + 45);
-  pdf.text("analytics@worldcigarlocator.com", x + 10, y + 55);
+  pdf.setFont("times", "normal");
+  pdf.setFontSize(14);
+  pdf.setTextColor(...BRAND.goldSoft);
+  pdf.text("*", center, y + 1.5, { align: "center" });
 }
 
 function metricCards({
@@ -526,7 +611,7 @@ function metricCards({
       },
       {
         label: "Sort",
-        value: "Views",
+        value: state?.sort || "Views",
         note: "Current ranking"
       }
     ];
@@ -551,20 +636,56 @@ function metricCards({
   ];
 }
 
-function tableHeaders(kpi) {
-  if (kpi === "users") {
-    return ["Date / Location", "Members", "", ""];
+function tableHeaders(kpi, rows, store) {
+  if (store) {
+    return ["Date / Source", "Views", "Clicks", "CTR"];
   }
 
-  return [
-    kpi === "stores" ? "Store / Lounge" : "Location",
-    "Views",
-    "Clicks",
-    "CTR"
-  ];
+  if (kpi === "users") {
+    return ["Date / Location", "Members"];
+  }
+
+  if (kpi === "stores") {
+    const maxValues = Math.max(...rows.map((row) => row.values.length), 0);
+
+    if (maxValues >= 8) {
+      return ["Store / Lounge", "Views", "Clicks", "CTR", "Fav", "Rating", "Ratings", "Comments"];
+    }
+
+    return ["Store / Lounge", "Views", "Clicks", "CTR"];
+  }
+
+  return ["Location", "Views", "Clicks", "CTR"];
 }
 
-function normalizeRows(rowNodes) {
+function tableColumns(count, width) {
+  const labelWidth = count > 5 ? 70 : 92;
+  const restWidth = width - labelWidth;
+  const restCount = Math.max(count - 1, 1);
+  const columns = [
+    {
+      x: PAGE.margin + 5,
+      max: count > 5 ? 36 : 50
+    }
+  ];
+
+  for (let index = 1; index < count; index++) {
+    columns.push({
+      x: PAGE.margin + labelWidth + (restWidth / restCount) * index - 4,
+      max: 12
+    });
+  }
+
+  return columns;
+}
+
+function rowsPerPage(y, columnCount) {
+  const rowHeight = columnCount > 5 ? 7.2 : 8;
+  const available = PAGE.footerY - y - 24;
+  return Math.max(Math.floor(available / rowHeight), 8);
+}
+
+function normalizeRows(rowNodes, kpi) {
   return [...(rowNodes || [])]
     .map((row) => {
       const cells = [...row.querySelectorAll("td")]
@@ -575,18 +696,29 @@ function normalizeRows(rowNodes) {
 
       const label = cells[0];
 
-      if (/loading|no data|no events/i.test(label)) {
+      if (/loading|no data|no events|failed/i.test(label)) {
         return null;
       }
 
+      const max = kpi === "stores" && cells.length >= 8 ? 8 : 4;
+
       return {
-        label,
-        first: cells[1] || "",
-        second: cells[2] || "",
-        third: cells[3] || ""
+        values: cells.slice(0, max)
       };
     })
     .filter(Boolean);
+}
+
+function selectChartCanvas(activeKpi, chartCanvas, usersChartCanvas, store) {
+  if (store || activeKpi === "stores") {
+    return null;
+  }
+
+  if (activeKpi === "users") {
+    return usersChartCanvas || null;
+  }
+
+  return chartCanvas || null;
 }
 
 function reportTitle(kpi, store) {
@@ -608,7 +740,7 @@ function reportTitle(kpi, store) {
 function tableTitle(kpi, store) {
   if (store) return "Store Activity";
   if (kpi === "users") return "Member Activity";
-  if (kpi === "stores") return "Store / Lounge Ranking";
+  if (kpi === "stores") return "Store / Lounge Performance";
   return "Market Data";
 }
 
@@ -651,10 +783,47 @@ function normalizeType(store) {
 function canvasToImage(canvas) {
   try {
     if (!canvas || typeof canvas.toDataURL !== "function") return null;
+    if (!canvas.width || !canvas.height) return null;
+    if (!hasVisibleCanvasContent(canvas)) return null;
+
     return canvas.toDataURL("image/png", 1);
   } catch {
     return null;
   }
+}
+
+function hasVisibleCanvasContent(canvas) {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return false;
+
+  const width = Math.min(canvas.width, 240);
+  const height = Math.min(canvas.height, 140);
+  const sample = document.createElement("canvas");
+  sample.width = width;
+  sample.height = height;
+
+  const sampleCtx = sample.getContext("2d");
+  sampleCtx.drawImage(canvas, 0, 0, width, height);
+
+  const data = sampleCtx.getImageData(0, 0, width, height).data;
+  let visiblePixels = 0;
+
+  for (let index = 0; index < data.length; index += 32) {
+    const alpha = data[index + 3];
+    const red = data[index];
+    const green = data[index + 1];
+    const blue = data[index + 2];
+
+    if (alpha > 8 && (red < 245 || green < 245 || blue < 245)) {
+      visiblePixels++;
+    }
+
+    if (visiblePixels > 40) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 async function loadImageBase64(src) {

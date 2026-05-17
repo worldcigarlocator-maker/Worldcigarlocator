@@ -755,28 +755,15 @@ function runLocalFilter() {
 async function exportPDF() {
 
   const activeKpi = getKPI();
-  const storeRows = ACTIVE_STORE
-    ? [
-        ...document.querySelectorAll(
-          "#trendTable tbody tr"
-        )
-      ]
-    : [];
+  await prepareChartsForPdf();
 
-  const rowSelector =
-    activeKpi === "users"
-      ? "#overviewTableBody tr, #usersDrillBody tr"
-      : activeKpi === "stores"
-        ? "#topStoresBody tr"
-        : "#marketDemandBody tr";
+  const storeRows = ACTIVE_STORE
+    ? getExportableTableRows("#trendTable tbody tr")
+    : [];
 
   const rows = storeRows.length
     ? storeRows
-    : [
-        ...document.querySelectorAll(
-          rowSelector
-        )
-      ];
+    : getRowsForPdf(activeKpi);
 
   const selectedStore = ACTIVE_STORE
     ? {
@@ -799,7 +786,9 @@ async function exportPDF() {
     rows,
 
     chartCanvas:
-      document.getElementById("marketChart"),
+      activeKpi === "stores"
+        ? null
+        : document.getElementById("marketChart"),
 
     usersChartCanvas:
       document.getElementById("usersChart"),
@@ -822,6 +811,54 @@ async function exportPDF() {
 
   });
 
+}
+
+async function prepareChartsForPdf() {
+  window.marketChart?.update("none");
+  window.memberChart?.update("none");
+  window.usersChart?.update("none");
+
+  await new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(resolve);
+    });
+  });
+}
+
+function getRowsForPdf(activeKpi) {
+  if (activeKpi === "users") {
+    return getExportableTableRows(
+      "#overviewTableBody tr, #usersDrillBody tr"
+    );
+  }
+
+  if (activeKpi === "stores") {
+    const storePerformanceRows =
+      getExportableTableRows("#marketDemandBody tr");
+
+    if (storePerformanceRows.length) {
+      return storePerformanceRows;
+    }
+
+    return getExportableTableRows("#topStoresBody tr");
+  }
+
+  return getExportableTableRows("#marketDemandBody tr");
+}
+
+function getExportableTableRows(selector) {
+  return [
+    ...document.querySelectorAll(selector)
+  ].filter((row) => {
+    const cells = [
+      ...row.querySelectorAll("td")
+    ];
+
+    if (cells.length < 2) return false;
+
+    const text = row.textContent || "";
+    return !/loading|no data|no events|failed/i.test(text);
+  });
 }
 
 /* ============================================================
@@ -1163,6 +1200,8 @@ window.renderUsersChart = function (rows) {
       }
     }
   });
+
+  window.usersChart = usersChart;
 
 };
 
