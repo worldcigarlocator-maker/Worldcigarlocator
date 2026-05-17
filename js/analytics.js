@@ -814,15 +814,21 @@ async function exportPDF() {
 }
 
 async function prepareChartsForPdf() {
-  window.marketChart?.update("none");
-  window.memberChart?.update("none");
-  window.usersChart?.update("none");
+  updateChartForPdf(window.marketChart);
+  updateChartForPdf(window.memberChart);
+  updateChartForPdf(window.usersChart);
 
   await new Promise((resolve) => {
     requestAnimationFrame(() => {
       requestAnimationFrame(resolve);
     });
   });
+}
+
+function updateChartForPdf(chart) {
+  if (typeof chart?.update === "function") {
+    chart.update("none");
+  }
 }
 
 function getRowsForPdf(activeKpi) {
