@@ -755,6 +755,13 @@ function runLocalFilter() {
 async function exportPDF() {
 
   const activeKpi = getKPI();
+  const storeRows = ACTIVE_STORE
+    ? [
+        ...document.querySelectorAll(
+          "#trendTable tbody tr"
+        )
+      ]
+    : [];
 
   const rowSelector =
     activeKpi === "users"
@@ -763,17 +770,33 @@ async function exportPDF() {
         ? "#topStoresBody tr"
         : "#marketDemandBody tr";
 
+  const rows = storeRows.length
+    ? storeRows
+    : [
+        ...document.querySelectorAll(
+          rowSelector
+        )
+      ];
+
+  const selectedStore = ACTIVE_STORE
+    ? {
+        ...ACTIVE_STORE,
+        views:
+          kpiViews?.textContent || "0",
+        clicks:
+          kpiClicks?.textContent || "0",
+        ctr:
+          kpiCtr?.textContent || "0%"
+      }
+    : null;
+
   await exportAnalyticsPDF({
 
     kpi: activeKpi,
 
     state: window.MARKET_STATE || {},
 
-    rows: [
-      ...document.querySelectorAll(
-        rowSelector
-      )
-    ],
+    rows,
 
     chartCanvas:
       document.getElementById("marketChart"),
@@ -793,7 +816,9 @@ async function exportPDF() {
       users:
         document.getElementById("globalUsers")
           ?.textContent || "0"
-    }
+    },
+
+    store: selectedStore
 
   });
 

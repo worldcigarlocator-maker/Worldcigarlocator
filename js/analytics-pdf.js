@@ -1,25 +1,30 @@
 /* ============================================================
    WCL Analytics PDF Export
-   Clean report layout for partner/admin review
+   A4 premium business report
 ============================================================ */
 
 import { getKPI } from "./analytics-state.js";
 
 const BRAND = {
-  ink: [18, 18, 18],
-  muted: [105, 110, 118],
-  line: [222, 224, 228],
+  black: [7, 7, 7],
+  ink: [24, 24, 24],
+  muted: [98, 104, 112],
+  line: [221, 224, 228],
   soft: [247, 247, 245],
-  gold: [115, 98, 75],
-  goldSoft: [236, 231, 222],
+  gold: [155, 119, 62],
+  goldSoft: [239, 234, 225],
   white: [255, 255, 255]
 };
 
 const PAGE = {
   width: 210,
   height: 297,
-  margin: 16
+  margin: 16,
+  headerHeight: 38,
+  footerY: 282
 };
+
+let PDF_INSTANCE = null;
 
 export async function exportAnalyticsPDF({
   kpi,
@@ -27,7 +32,8 @@ export async function exportAnalyticsPDF({
   rows = [],
   chartCanvas,
   usersChartCanvas,
-  global = {}
+  global = {},
+  store = null
 }) {
   const { jsPDF } = window.jspdf || {};
 
@@ -45,10 +51,11 @@ export async function exportAnalyticsPDF({
   PDF_INSTANCE = pdf;
 
   const logo = await loadImageBase64("/images/wcl_brand_text.png");
-  const cover = await loadImageBase64("/images/brand1.png");
   const reportRows = normalizeRows(rows);
-  const chart = activeKpi === "users" ? usersChartCanvas : chartCanvas;
   const generated = new Date();
+  const chart = activeKpi === "users" ? usersChartCanvas : chartCanvas;
+  const title = reportTitle(activeKpi, store);
+  const subtitle = contextLine(activeKpi, state, generated, store);
   let pageNo = 0;
 
   function addPage() {
@@ -57,298 +64,309 @@ export async function exportAnalyticsPDF({
     }
 
     pageNo++;
-    drawPageBase();
-  }
-
-  function drawPageBase() {
-    pdf.setFillColor(...BRAND.white);
-    pdf.rect(0, 0, PAGE.width, PAGE.height, "F");
-
-    pdf.setDrawColor(...BRAND.line);
-    pdf.line(PAGE.margin, 278, PAGE.width - PAGE.margin, 278);
-
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(8);
-    pdf.setTextColor(...BRAND.muted);
-    pdf.text("World Cigar Locator Analytics", PAGE.margin, 286);
-    pdf.text(`Page ${pageNo}`, PAGE.width - PAGE.margin, 286, {
-      align: "right"
+    drawPageBase({
+      logo,
+      title,
+      subtitle,
+      generated,
+      pageNo
     });
   }
 
-  function drawBrandHeader(title, subtitle) {
-    if (logo) {
-      pdf.addImage(logo, "PNG", PAGE.margin, 13, 52, 12);
-    } else {
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(13);
-      pdf.setTextColor(...BRAND.gold);
-      pdf.text("World Cigar Locator", PAGE.margin, 21);
-    }
+  addPage();
+  drawIntro({
+    y: 50,
+    activeKpi,
+    generated,
+    reportRows,
+    state,
+    store
+  });
 
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(18);
-    pdf.setTextColor(...BRAND.ink);
-    pdf.text(title, PAGE.margin, 40);
+  let y = 124;
 
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(9);
-    pdf.setTextColor(...BRAND.muted);
-    pdf.text(subtitle, PAGE.margin, 47);
-
-    pdf.setDrawColor(...BRAND.gold);
-    pdf.setLineWidth(0.8);
-    pdf.line(PAGE.margin, 54, PAGE.width - PAGE.margin, 54);
+  if (store) {
+    drawStoreBlock(y, store);
+    y += 62;
   }
 
-  function drawCover() {
-    addPage();
+  drawMetrics(y, metricCards({ activeKpi, global, reportRows, state, store }));
+  y += 43;
 
-    pdf.setFillColor(8, 8, 8);
-    pdf.rect(0, 0, PAGE.width, PAGE.height, "F");
+  const chartImage = canvasToImage(chart);
 
-    if (cover) {
-      pdf.addImage(cover, "PNG", 0, 0, PAGE.width, 120);
-      pdf.setFillColor(0, 0, 0);
-      pdf.setGState(new pdf.GState({ opacity: 0.58 }));
-      pdf.rect(0, 0, PAGE.width, 120, "F");
-      pdf.setGState(new pdf.GState({ opacity: 1 }));
-    }
-
-    if (logo) {
-      pdf.addImage(logo, "PNG", PAGE.margin, 22, 68, 16);
-    } else {
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(14);
-      pdf.setTextColor(...BRAND.gold);
-      pdf.text("World Cigar Locator", PAGE.margin, 32);
-    }
-
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(30);
-    pdf.setTextColor(...BRAND.white);
-    pdf.text("Analytics Report", PAGE.margin, 154);
-
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(12);
-    pdf.setTextColor(220, 220, 220);
-    pdf.text(reportTitle(activeKpi), PAGE.margin, 166);
-
-    pdf.setFillColor(...BRAND.gold);
-    pdf.rect(PAGE.margin, 184, 42, 1.5, "F");
-
-    pdf.setFontSize(10);
-    pdf.setTextColor(190, 190, 190);
-    pdf.text(`Generated ${generated.toLocaleString()}`, PAGE.margin, 202);
-    pdf.text("Prepared by World Cigar Locator", PAGE.margin, 211);
-    pdf.text("Private admin and partner performance report", PAGE.margin, 220);
-
-    pdf.setFontSize(8);
-    pdf.setTextColor(130, 130, 130);
-    pdf.text(
-      "Human moderation remains separate from analytics. Reports are informational only.",
-      PAGE.margin,
-      266
-    );
-  }
-
-  function drawSummary() {
-    addPage();
-    drawBrandHeader(
-      "Executive Summary",
-      contextLine(activeKpi, state, generated)
-    );
-
-    const cards = [
-      {
-        label: "Members",
-        value: global.users || "0",
-        note: "Known member activity"
-      },
-      {
-        label: "Stores",
-        value: global.stores || "0",
-        note: "Approved public listings"
-      },
-      {
-        label: "Market",
-        value: global.views || "0",
-        note: "Demand and visibility"
-      }
-    ];
-
-    let y = 68;
-    const gap = 5;
-    const cardWidth =
-      (PAGE.width - PAGE.margin * 2 - gap * 2) / 3;
-
-    cards.forEach((card, index) => {
-      const x = PAGE.margin + index * (cardWidth + gap);
-      drawMetricCard(x, y, cardWidth, card);
-    });
-
-    y += 48;
-
-    drawInsightBlock(
-      y,
-      "Report Notes",
-      [
-        `Current focus: ${reportTitle(activeKpi)}`,
-        `${reportRows.length} rows are included from the active analytics view.`,
-        "Analytics data is read-only and does not influence moderation or listing status."
-      ]
-    );
-
-    y += 58;
-
-    if (reportRows.length) {
-      drawTablePreview(y, reportRows.slice(0, 6), activeKpi);
-    } else {
-      drawEmptyState(y, "No table rows were available for this export.");
-    }
-  }
-
-  function drawChartPage() {
-    if (!chart) return;
-
-    const image = canvasToImage(chart);
-    if (!image) return;
-
-    addPage();
-    drawBrandHeader(
-      "Trend View",
-      "Chart captured from the active analytics dashboard"
-    );
-
-    pdf.setFillColor(...BRAND.soft);
-    pdf.roundedRect(PAGE.margin, 68, PAGE.width - PAGE.margin * 2, 128, 5, 5, "F");
-
-    pdf.setDrawColor(...BRAND.line);
-    pdf.roundedRect(PAGE.margin, 68, PAGE.width - PAGE.margin * 2, 128, 5, 5);
-
-    pdf.addImage(
-      image,
-      "PNG",
-      PAGE.margin + 7,
-      78,
-      PAGE.width - PAGE.margin * 2 - 14,
-      108
-    );
-
-    drawInsightBlock(
-      214,
-      "Reading The Chart",
-      [
-        "Use the chart to understand movement over time, not for moderation decisions.",
-        "Compare the trend with the table pages for the stores or markets driving the change."
-      ]
-    );
-  }
-
-  function drawTablePages() {
-    if (!reportRows.length) return;
-
-    const rowsPerPage = 20;
-
-    for (let start = 0; start < reportRows.length; start += rowsPerPage) {
-      const chunk = reportRows.slice(start, start + rowsPerPage);
-
+  if (chartImage) {
+    if (y > 185) {
       addPage();
-      drawBrandHeader(
-        start === 0 ? "Detailed Rows" : "Detailed Rows Continued",
-        `${reportRows.length} rows exported from the active dashboard view`
-      );
-
-      drawTable(68, chunk, activeKpi, start);
+      y = 52;
     }
+
+    drawSectionTitle(y, "Active Chart");
+    drawChart(y + 8, chartImage);
+    y += 82;
   }
 
-  drawCover();
-  drawSummary();
-  drawChartPage();
-  drawTablePages();
+  if (reportRows.length) {
+    if (y > 200) {
+      addPage();
+      y = 52;
+    }
 
-  pdf.save(`wcl-${activeKpi}-analytics-report.pdf`);
+    drawSectionTitle(y, tableTitle(activeKpi, store));
+    y += 9;
+    y = drawTable(y, reportRows.slice(0, 14), activeKpi, 0);
+  } else {
+    drawEmptyState(y, "No table rows were available for this export.");
+    y += 32;
+  }
+
+  if (reportRows.length > 14) {
+    drawTableContinuation(reportRows.slice(14), activeKpi, 14, addPage);
+  }
+
+  drawClosingBlock(addPage);
+
+  pdf.save(fileName(activeKpi, store));
 }
 
-function drawMetricCard(x, y, width, card) {
+function drawPageBase({
+  logo,
+  title,
+  subtitle,
+  generated,
+  pageNo
+}) {
   const pdf = currentPdf();
-  pdf.setFillColor(...BRAND.soft);
-  pdf.roundedRect(x, y, width, 34, 4, 4, "F");
 
-  pdf.setDrawColor(...BRAND.line);
-  pdf.roundedRect(x, y, width, 34, 4, 4);
+  pdf.setFillColor(...BRAND.white);
+  pdf.rect(0, 0, PAGE.width, PAGE.height, "F");
 
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(8);
-  pdf.setTextColor(...BRAND.muted);
-  pdf.text(card.label.toUpperCase(), x + 5, y + 9);
+  pdf.setFillColor(...BRAND.black);
+  pdf.rect(0, 0, PAGE.width, PAGE.headerHeight, "F");
+
+  if (logo) {
+    pdf.setFillColor(...BRAND.white);
+    pdf.roundedRect(PAGE.margin, 7, 35, 22, 2, 2, "F");
+    pdf.addImage(logo, "PNG", PAGE.margin + 2, 8.5, 31, 19);
+  } else {
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(13);
+    pdf.setTextColor(...BRAND.gold);
+    pdf.text("WCL", PAGE.margin, 20);
+  }
 
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(18);
-  pdf.setTextColor(...BRAND.ink);
-  pdf.text(String(card.value), x + 5, y + 21);
+  pdf.setFontSize(14);
+  pdf.setTextColor(...BRAND.white);
+  pdf.text(title, 58, 16);
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(8.5);
+  pdf.setTextColor(202, 204, 208);
+  pdf.text(fitText(subtitle, 84), 58, 25);
+
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(8.5);
+  pdf.setTextColor(...BRAND.white);
+  pdf.text(formatDate(generated), PAGE.width - PAGE.margin, 16, {
+    align: "right"
+  });
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(180, 184, 190);
+  pdf.text(`Page ${pageNo}`, PAGE.width - PAGE.margin, 25, {
+    align: "right"
+  });
+
+  pdf.setDrawColor(...BRAND.gold);
+  pdf.setLineWidth(0.6);
+  pdf.line(PAGE.margin, PAGE.headerHeight, PAGE.width - PAGE.margin, PAGE.headerHeight);
+
+  pdf.setDrawColor(...BRAND.line);
+  pdf.setLineWidth(0.2);
+  pdf.line(PAGE.margin, PAGE.footerY, PAGE.width - PAGE.margin, PAGE.footerY);
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(7.5);
   pdf.setTextColor(...BRAND.muted);
-  pdf.text(card.note, x + 5, y + 29);
-}
-
-let PDF_INSTANCE = null;
-
-function currentPdf() {
-  return PDF_INSTANCE;
-}
-
-function drawInsightBlock(y, title, items) {
-  const pdf = currentPdf();
-  const x = PAGE.margin;
-  const width = PAGE.width - PAGE.margin * 2;
-
-  pdf.setFillColor(...BRAND.goldSoft);
-  pdf.roundedRect(x, y, width, 42, 4, 4, "F");
-
-  pdf.setDrawColor(220, 210, 196);
-  pdf.roundedRect(x, y, width, 42, 4, 4);
-
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(11);
-  pdf.setTextColor(...BRAND.ink);
-  pdf.text(title, x + 6, y + 10);
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(8.5);
-  pdf.setTextColor(...BRAND.muted);
-
-  items.slice(0, 3).forEach((item, index) => {
-    const lines = pdf.splitTextToSize(String(item), width - 18);
-    pdf.text(lines.slice(0, 2), x + 6, y + 20 + index * 7);
+  pdf.text("Generated by World Cigar Locator", PAGE.margin, 289);
+  pdf.text("worldcigarlocator.com", PAGE.width / 2, 289, {
+    align: "center"
+  });
+  pdf.text(`Page ${pageNo}`, PAGE.width - PAGE.margin, 289, {
+    align: "right"
   });
 }
 
-function drawEmptyState(y, message) {
+function drawIntro({
+  y,
+  activeKpi,
+  generated,
+  reportRows,
+  state,
+  store
+}) {
   const pdf = currentPdf();
-  const width = PAGE.width - PAGE.margin * 2;
 
-  pdf.setFillColor(...BRAND.soft);
-  pdf.roundedRect(PAGE.margin, y, width, 30, 4, 4, "F");
+  drawSectionTitle(y, "Report Overview");
+
+  const body =
+    "This report is generated from World Cigar Locator analytics data and reflects the selected view at the time of export. The data is intended for informational and business review purposes only. Analytics do not influence moderation, listing approval, or store visibility. Store and lounge information may change over time and should be verified before business decisions are made.";
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(9);
   pdf.setTextColor(...BRAND.muted);
-  pdf.text(message, PAGE.margin + 6, y + 17);
+  pdf.text(pdf.splitTextToSize(body, PAGE.width - PAGE.margin * 2), PAGE.margin, y + 9);
+
+  const meta = [
+    ["Report type", reportTitle(activeKpi, store)],
+    ["Generated", generated.toLocaleString()],
+    ["Selected view", selectedView(activeKpi, state, store)],
+    ["Included rows", String(reportRows.length)]
+  ];
+
+  drawMetaGrid(y + 38, meta);
 }
 
-function drawTablePreview(y, rows, kpi) {
+function drawStoreBlock(y, store) {
+  const pdf = currentPdf();
+  const x = PAGE.margin;
+  const width = PAGE.width - PAGE.margin * 2;
+
+  pdf.setFillColor(...BRAND.soft);
+  pdf.roundedRect(x, y, width, 50, 4, 4, "F");
+  pdf.setDrawColor(...BRAND.line);
+  pdf.roundedRect(x, y, width, 50, 4, 4);
+
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(15);
+  pdf.setTextColor(...BRAND.ink);
+  pdf.text(fitText(store.name || "Selected Store", 62), x + 6, y + 12);
+
+  const details = [
+    ["Location", [store.city, store.country].filter(Boolean).join(", ") || "-"],
+    ["Type", normalizeType(store)],
+    ["Access", store.access ? String(store.access).toUpperCase() : "-"],
+    ["Website", store.website || "-"],
+    ["Phone", store.phone || "-"],
+    ["Address", store.address || "-"]
+  ];
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(8.2);
+
+  details.forEach((item, index) => {
+    const col = index % 2;
+    const row = Math.floor(index / 2);
+    const labelX = x + 6 + col * 86;
+    const valueX = labelX + 24;
+    const rowY = y + 23 + row * 8;
+
+    pdf.setTextColor(...BRAND.muted);
+    pdf.text(item[0], labelX, rowY);
+
+    pdf.setTextColor(...BRAND.ink);
+    pdf.text(fitText(item[1], 38), valueX, rowY);
+  });
+}
+
+function drawMetrics(y, cards) {
+  const gap = 5;
+  const x = PAGE.margin;
+  const width = PAGE.width - PAGE.margin * 2;
+  const cardWidth = (width - gap * 2) / 3;
+
+  cards.slice(0, 3).forEach((card, index) => {
+    drawMetricCard(x + index * (cardWidth + gap), y, cardWidth, card);
+  });
+}
+
+function drawMetricCard(x, y, width, card) {
+  const pdf = currentPdf();
+
+  pdf.setFillColor(...BRAND.soft);
+  pdf.roundedRect(x, y, width, 32, 4, 4, "F");
+  pdf.setDrawColor(...BRAND.line);
+  pdf.roundedRect(x, y, width, 32, 4, 4);
+
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(7.5);
+  pdf.setTextColor(...BRAND.gold);
+  pdf.text(card.label.toUpperCase(), x + 5, y + 8);
+
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(17);
+  pdf.setTextColor(...BRAND.ink);
+  pdf.text(String(card.value), x + 5, y + 20);
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(7.2);
+  pdf.setTextColor(...BRAND.muted);
+  pdf.text(fitText(card.note, 28), x + 5, y + 28);
+}
+
+function drawMetaGrid(y, items) {
+  const pdf = currentPdf();
+  const width = PAGE.width - PAGE.margin * 2;
+  const cellWidth = width / 2;
+
+  pdf.setFillColor(...BRAND.goldSoft);
+  pdf.roundedRect(PAGE.margin, y, width, 28, 4, 4, "F");
+
+  items.forEach((item, index) => {
+    const col = index % 2;
+    const row = Math.floor(index / 2);
+    const x = PAGE.margin + col * cellWidth + 6;
+    const yy = y + 9 + row * 11;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(7.4);
+    pdf.setTextColor(...BRAND.gold);
+    pdf.text(item[0].toUpperCase(), x, yy);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(8.3);
+    pdf.setTextColor(...BRAND.ink);
+    pdf.text(fitText(item[1], 38), x + 33, yy);
+  });
+}
+
+function drawSectionTitle(y, title) {
   const pdf = currentPdf();
 
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(13);
+  pdf.setFontSize(12);
   pdf.setTextColor(...BRAND.ink);
-  pdf.text("Top Rows Preview", PAGE.margin, y);
+  pdf.text(title, PAGE.margin, y);
 
-  drawTable(y + 10, rows, kpi, 0);
+  pdf.setDrawColor(...BRAND.gold);
+  pdf.setLineWidth(0.5);
+  pdf.line(PAGE.margin, y + 4, PAGE.margin + 32, y + 4);
+}
+
+function drawChart(y, image) {
+  const pdf = currentPdf();
+  const x = PAGE.margin;
+  const width = PAGE.width - PAGE.margin * 2;
+
+  pdf.setFillColor(...BRAND.soft);
+  pdf.roundedRect(x, y, width, 68, 4, 4, "F");
+  pdf.setDrawColor(...BRAND.line);
+  pdf.roundedRect(x, y, width, 68, 4, 4);
+
+  pdf.addImage(image, "PNG", x + 6, y + 6, width - 12, 56);
+}
+
+function drawTableContinuation(rows, kpi, offset, addPage) {
+  const rowsPerPage = 24;
+
+  for (let start = 0; start < rows.length; start += rowsPerPage) {
+    const chunk = rows.slice(start, start + rowsPerPage);
+
+    addPage();
+    drawSectionTitle(52, start === 0 ? "Detailed Rows Continued" : "Detailed Rows");
+    drawTable(62, chunk, kpi, offset + start);
+  }
 }
 
 function drawTable(y, rows, kpi, offset = 0) {
@@ -356,61 +374,181 @@ function drawTable(y, rows, kpi, offset = 0) {
   const width = PAGE.width - PAGE.margin * 2;
   const headers = tableHeaders(kpi);
   const col = {
-    label: PAGE.margin + 6,
-    first: PAGE.margin + width - 60,
-    second: PAGE.margin + width - 35,
-    third: PAGE.margin + width - 10
+    label: PAGE.margin + 5,
+    first: PAGE.margin + width - 58,
+    second: PAGE.margin + width - 34,
+    third: PAGE.margin + width - 9
   };
 
-  pdf.setFillColor(...BRAND.ink);
-  pdf.roundedRect(PAGE.margin, y, width, 11, 3, 3, "F");
+  pdf.setFillColor(...BRAND.black);
+  pdf.roundedRect(PAGE.margin, y, width, 10, 2, 2, "F");
 
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(8);
+  pdf.setFontSize(7.6);
   pdf.setTextColor(...BRAND.white);
-  pdf.text(headers[0], col.label, y + 7);
-  pdf.text(headers[1], col.first, y + 7, { align: "right" });
+  pdf.text(headers[0], col.label, y + 6.5);
+  pdf.text(headers[1], col.first, y + 6.5, { align: "right" });
 
   if (headers[2]) {
-    pdf.text(headers[2], col.second, y + 7, { align: "right" });
+    pdf.text(headers[2], col.second, y + 6.5, { align: "right" });
   }
 
   if (headers[3]) {
-    pdf.text(headers[3], col.third, y + 7, { align: "right" });
+    pdf.text(headers[3], col.third, y + 6.5, { align: "right" });
   }
 
-  let rowY = y + 16;
+  let rowY = y + 15;
 
   rows.forEach((row, index) => {
     const isEven = index % 2 === 0;
 
-    pdf.setFillColor(
-      ...(isEven ? [252, 252, 250] : [246, 246, 244])
-    );
+    pdf.setFillColor(...(isEven ? [253, 253, 252] : [247, 247, 245]));
     pdf.rect(PAGE.margin, rowY - 5, width, 8, "F");
 
     pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(8.5);
+    pdf.setFontSize(7.9);
     pdf.setTextColor(...BRAND.ink);
-    pdf.text(
-      fitText(`${offset + index + 1}. ${row.label}`, 82),
-      col.label,
-      rowY
-    );
+    pdf.text(fitText(`${offset + index + 1}. ${row.label}`, 74), col.label, rowY);
 
     pdf.setTextColor(...BRAND.muted);
-    pdf.text(row.first || "0", col.first, rowY, { align: "right" });
+    pdf.text(row.first || "-", col.first, rowY, { align: "right" });
 
     if (headers[2]) {
-      pdf.text(row.second || "0", col.second, rowY, { align: "right" });
+      pdf.text(row.second || "-", col.second, rowY, { align: "right" });
     }
 
     if (headers[3]) {
-      pdf.text(row.third || "0%", col.third, rowY, { align: "right" });
+      pdf.text(row.third || "-", col.third, rowY, { align: "right" });
     }
 
-    rowY += 9;
+    rowY += 8;
   });
+
+  return rowY + 5;
+}
+
+function drawEmptyState(y, message) {
+  const pdf = currentPdf();
+  const width = PAGE.width - PAGE.margin * 2;
+
+  pdf.setFillColor(...BRAND.soft);
+  pdf.roundedRect(PAGE.margin, y, width, 28, 4, 4, "F");
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(8.5);
+  pdf.setTextColor(...BRAND.muted);
+  pdf.text(message, PAGE.margin + 6, y + 16);
+}
+
+function drawClosingBlock(addPage) {
+  const pdf = currentPdf();
+
+  addPage();
+  const x = PAGE.margin;
+  const y = 100;
+  const width = PAGE.width - PAGE.margin * 2;
+
+  pdf.setFillColor(...BRAND.black);
+  pdf.roundedRect(x, y, width, 64, 5, 5, "F");
+
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(15);
+  pdf.setTextColor(...BRAND.white);
+  pdf.text("World Cigar Locator", x + 10, y + 18);
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(10);
+  pdf.setTextColor(210, 214, 220);
+  pdf.text("Global cigar store and lounge intelligence", x + 10, y + 30);
+
+  pdf.setTextColor(...BRAND.gold);
+  pdf.text("worldcigarlocator.com", x + 10, y + 45);
+  pdf.text("analytics@worldcigarlocator.com", x + 10, y + 55);
+}
+
+function metricCards({
+  activeKpi,
+  global,
+  reportRows,
+  state,
+  store
+}) {
+  if (store) {
+    return [
+      {
+        label: "Views",
+        value: store.views || "0",
+        note: "Selected range"
+      },
+      {
+        label: "Clicks",
+        value: store.clicks || "0",
+        note: "Website engagement"
+      },
+      {
+        label: "CTR",
+        value: store.ctr || "0%",
+        note: "Click-through rate"
+      }
+    ];
+  }
+
+  if (activeKpi === "users") {
+    return [
+      {
+        label: "Members",
+        value: global.users || "0",
+        note: "Known member activity"
+      },
+      {
+        label: "Rows",
+        value: reportRows.length,
+        note: "Exported from view"
+      },
+      {
+        label: "Focus",
+        value: "Members",
+        note: "Audience analytics"
+      }
+    ];
+  }
+
+  if (activeKpi === "stores") {
+    return [
+      {
+        label: "Stores",
+        value: global.stores || "0",
+        note: "Approved public listings"
+      },
+      {
+        label: "Rows",
+        value: reportRows.length,
+        note: "Exported from view"
+      },
+      {
+        label: "Sort",
+        value: "Views",
+        note: "Current ranking"
+      }
+    ];
+  }
+
+  return [
+    {
+      label: "Market",
+      value: global.views || "0",
+      note: "Demand and visibility"
+    },
+    {
+      label: "Rows",
+      value: reportRows.length,
+      note: "Exported from view"
+    },
+    {
+      label: "Sort",
+      value: state?.sort || activeKpi,
+      note: "Current market focus"
+    }
+  ];
 }
 
 function tableHeaders(kpi) {
@@ -419,7 +557,7 @@ function tableHeaders(kpi) {
   }
 
   return [
-    kpi === "stores" ? "Store" : "Location",
+    kpi === "stores" ? "Store / Lounge" : "Location",
     "Views",
     "Clicks",
     "CTR"
@@ -430,20 +568,20 @@ function normalizeRows(rowNodes) {
   return [...(rowNodes || [])]
     .map((row) => {
       const cells = [...row.querySelectorAll("td")]
-        .map((cell) => cell.textContent.trim())
+        .map((cell) => cell.textContent.trim().replace(/\s+/g, " "))
         .filter(Boolean);
 
       if (cells.length < 2) return null;
 
       const label = cells[0];
 
-      if (/loading|no data/i.test(label)) {
+      if (/loading|no data|no events/i.test(label)) {
         return null;
       }
 
       return {
         label,
-        first: cells[1] || "0",
+        first: cells[1] || "",
         second: cells[2] || "",
         third: cells[3] || ""
       };
@@ -451,28 +589,63 @@ function normalizeRows(rowNodes) {
     .filter(Boolean);
 }
 
-function reportTitle(kpi) {
+function reportTitle(kpi, store) {
+  if (store) {
+    return "World Cigar Locator Store Performance Report";
+  }
+
   const titles = {
-    users: "Members and Audience Activity",
-    stores: "Store Visibility and Engagement",
-    views: "Market Demand and Traffic",
-    clicks: "Website Visit Performance",
-    ctr: "Engagement Rate Performance"
+    users: "World Cigar Locator Member Analytics Report",
+    stores: "World Cigar Locator Store Analytics Report",
+    views: "World Cigar Locator Market Report",
+    clicks: "World Cigar Locator Website Click Report",
+    ctr: "World Cigar Locator Engagement Report"
   };
 
-  return titles[kpi] || "Analytics Performance";
+  return titles[kpi] || "World Cigar Locator Analytics Report";
 }
 
-function contextLine(kpi, state, generated) {
-  const parts = [
-    reportTitle(kpi),
+function tableTitle(kpi, store) {
+  if (store) return "Store Activity";
+  if (kpi === "users") return "Member Activity";
+  if (kpi === "stores") return "Store / Lounge Ranking";
+  return "Market Data";
+}
+
+function contextLine(kpi, state, generated, store) {
+  if (store) {
+    return [
+      store.name,
+      store.city,
+      store.country,
+      formatDate(generated)
+    ].filter(Boolean).join(" / ");
+  }
+
+  return [
+    selectedView(kpi, state, store),
     state?.country,
     state?.city,
     state?.sort ? `Sorted by ${state.sort}` : null,
-    generated.toLocaleDateString()
-  ].filter(Boolean);
+    formatDate(generated)
+  ].filter(Boolean).join(" / ");
+}
 
-  return parts.join(" / ");
+function selectedView(kpi, state, store) {
+  if (store) return store.name || "Selected store";
+  if (kpi === "users") return "Members";
+  if (kpi === "stores") return "Top stores";
+
+  const scope = [state?.country, state?.city].filter(Boolean).join(", ");
+  return scope ? `Market: ${scope}` : "Market";
+}
+
+function normalizeType(store) {
+  if (Array.isArray(store?.types)) {
+    return store.types.join(", ");
+  }
+
+  return store?.type || "-";
 }
 
 function canvasToImage(canvas) {
@@ -508,6 +681,26 @@ async function loadImageBase64(src) {
   });
 }
 
+function currentPdf() {
+  return PDF_INSTANCE;
+}
+
+function formatDate(value) {
+  return value.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "2-digit"
+  });
+}
+
+function fileName(kpi, store) {
+  const base = store
+    ? `wcl-store-${slug(store.name || "performance")}`
+    : `wcl-${slug(kpi || "analytics")}`;
+
+  return `${base}-report.pdf`;
+}
+
 function fitText(value, maxLength) {
   const text = String(value || "");
 
@@ -516,4 +709,12 @@ function fitText(value, maxLength) {
   }
 
   return `${text.slice(0, maxLength - 1)}...`;
+}
+
+function slug(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 42) || "analytics";
 }
