@@ -754,63 +754,81 @@ function runLocalFilter() {
 
 async function exportPDF() {
 
-  const activeKpi = getKPI();
-  await prepareChartsForPdf();
+  if (exportBtn) {
+    exportBtn.disabled = true;
+  }
 
-  const storeRows = ACTIVE_STORE
-    ? getExportableTableRows("#trendTable tbody tr")
-    : [];
+  try {
+    const activeKpi = getActiveKpiForPdf();
+    await prepareChartsForPdf();
 
-  const rows = storeRows.length
-    ? storeRows
-    : getRowsForPdf(activeKpi);
+    const storeRows = ACTIVE_STORE
+      ? getExportableTableRows("#trendTable tbody tr")
+      : [];
 
-  const selectedStore = ACTIVE_STORE
-    ? {
-        ...ACTIVE_STORE,
+    const rows = storeRows.length
+      ? storeRows
+      : getRowsForPdf(activeKpi);
+
+    const selectedStore = ACTIVE_STORE
+      ? {
+          ...ACTIVE_STORE,
+          views:
+            kpiViews?.textContent || "0",
+          clicks:
+            kpiClicks?.textContent || "0",
+          ctr:
+            kpiCtr?.textContent || "0%"
+        }
+      : null;
+
+    await exportAnalyticsPDF({
+
+      kpi: activeKpi,
+
+      state: window.MARKET_STATE || {},
+
+      rows,
+
+      chartCanvas:
+        activeKpi === "stores"
+          ? null
+          : document.getElementById("marketChart"),
+
+      usersChartCanvas:
+        document.getElementById("usersChart"),
+
+      global: {
         views:
-          kpiViews?.textContent || "0",
-        clicks:
-          kpiClicks?.textContent || "0",
-        ctr:
-          kpiCtr?.textContent || "0%"
-      }
-    : null;
+          document.getElementById("globalMarket")
+            ?.textContent || "0",
 
-  await exportAnalyticsPDF({
+        stores:
+          document.getElementById("globalStores")
+            ?.textContent || "0",
 
-    kpi: activeKpi,
+        users:
+          document.getElementById("globalUsers")
+            ?.textContent || "0"
+      },
 
-    state: window.MARKET_STATE || {},
+      store: selectedStore
 
-    rows,
+    });
 
-    chartCanvas:
-      activeKpi === "stores"
-        ? null
-        : document.getElementById("marketChart"),
+  } catch (error) {
+    console.error("PDF export failed", error);
+    alert("PDF export failed. Please try again after the analytics view has finished loading.");
+  } finally {
+    if (exportBtn) {
+      exportBtn.disabled = false;
+    }
+  }
 
-    usersChartCanvas:
-      document.getElementById("usersChart"),
+}
 
-    global: {
-      views:
-        document.getElementById("globalMarket")
-          ?.textContent || "0",
-
-      stores:
-        document.getElementById("globalStores")
-          ?.textContent || "0",
-
-      users:
-        document.getElementById("globalUsers")
-          ?.textContent || "0"
-    },
-
-    store: selectedStore
-
-  });
-
+function getActiveKpiForPdf() {
+  return document.querySelector(".kpi-card.active")?.dataset?.kpi || getKPI();
 }
 
 async function prepareChartsForPdf() {

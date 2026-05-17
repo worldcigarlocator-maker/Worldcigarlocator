@@ -117,7 +117,8 @@ export async function exportAnalyticsPDF({
 
   drawClosingPage({ hero, logo, generated, addContentPage });
 
-  pdf.save(fileName(activeKpi, store));
+  pdf.save(fileName(activeKpi, store, generated));
+  PDF_INSTANCE = null;
 }
 
 function drawCoverPage({
@@ -136,7 +137,7 @@ function drawCoverPage({
   pdf.rect(0, 0, PAGE.width, PAGE.height, "F");
 
   if (hero) {
-    pdf.addImage(hero, "PNG", 31, 39, 148, 98);
+    safeAddImage(hero, "PNG", 31, 39, 148, 98);
   }
 
   pdf.setFont("helvetica", "normal");
@@ -207,7 +208,6 @@ function drawCoverPage({
 }
 
 function drawPageBase({
-  logo,
   title,
   subtitle,
   generated,
@@ -221,26 +221,17 @@ function drawPageBase({
   pdf.setFillColor(...BRAND.panel);
   pdf.rect(0, 0, PAGE.width, 35, "F");
 
-  if (logo) {
-    pdf.setFillColor(...BRAND.cream);
-    pdf.roundedRect(PAGE.margin, 8, 30, 17, 2, 2, "F");
-    pdf.addImage(logo, "PNG", PAGE.margin + 2, 9, 26, 15);
-  } else {
-    pdf.setFont("times", "normal");
-    pdf.setFontSize(18);
-    pdf.setTextColor(...BRAND.goldSoft);
-    pdf.text("WCL", PAGE.margin, 21);
-  }
+  drawHeaderBrand(PAGE.margin, 7);
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(12.5);
   pdf.setTextColor(...BRAND.cream);
-  pdf.text(fitText(title, 62), 54, 16);
+  pdf.text(safePdfText(fitText(title, 62)), 54, 16);
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(8);
   pdf.setTextColor(...BRAND.muted);
-  pdf.text(fitText(subtitle, 82), 54, 24);
+  pdf.text(safePdfText(fitText(subtitle, 82)), 54, 24);
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(8);
@@ -271,6 +262,30 @@ function drawPageBase({
   pdf.text(`Page ${pageNo}`, PAGE.width - PAGE.margin, 288, {
     align: "right"
   });
+}
+
+function drawHeaderBrand(x, y) {
+  const pdf = currentPdf();
+
+  pdf.setFillColor(...BRAND.black);
+  pdf.roundedRect(x, y, 30, 20, 2, 2, "F");
+  pdf.setDrawColor(...BRAND.line);
+  pdf.roundedRect(x, y, 30, 20, 2, 2);
+
+  pdf.setFont("times", "normal");
+  pdf.setFontSize(16);
+  pdf.setTextColor(...BRAND.goldSoft);
+  pdf.text("WCL", x + 15, y + 9.2, { align: "center" });
+
+  pdf.setDrawColor(...BRAND.gold);
+  pdf.setLineWidth(0.2);
+  pdf.line(x + 7, y + 11, x + 23, y + 11);
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(3.7);
+  pdf.setTextColor(...BRAND.muted);
+  pdf.text("WORLD CIGAR LOCATOR", x + 15, y + 15.2, { align: "center" });
+  pdf.text("worldcigarlocator.com", x + 15, y + 18, { align: "center" });
 }
 
 function drawStoreSummary(y, store) {
@@ -365,7 +380,14 @@ function drawChartBlock(y, image) {
   pdf.setDrawColor(...BRAND.line);
   pdf.roundedRect(x, y + 8, width, height, 4, 4);
 
-  pdf.addImage(image, "PNG", x + 7, y + 14, width - 14, height - 16);
+  const imageAdded = safeAddImage(image, "PNG", x + 7, y + 14, width - 14, height - 16);
+
+  if (!imageAdded) {
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(8);
+    pdf.setTextColor(...BRAND.muted);
+    pdf.text("Chart unavailable for this export.", x + 7, y + 44);
+  }
 
   return y + height + 18;
 }
@@ -440,7 +462,7 @@ function drawTableChunk(y, rows, headers, offset) {
       const maxLength = index === 0 ? column.max : 12;
 
       pdf.setTextColor(index === 0 ? BRAND.cream : BRAND.muted);
-      pdf.text(fitText(values[index] || "-", maxLength), column.x, rowY, { align });
+      pdf.text(safePdfText(fitText(values[index] || "-", maxLength)), column.x, rowY, { align });
     });
 
     rowY += rowHeight;
@@ -482,9 +504,9 @@ function drawClosingPage({ hero, logo, generated, addContentPage }) {
   pdf.rect(0, 35, PAGE.width, PAGE.height - 35, "F");
 
   if (hero) {
-    pdf.addImage(hero, "PNG", 43, 55, 124, 82);
+    safeAddImage(hero, "PNG", 43, 55, 124, 82);
   } else if (logo) {
-    pdf.addImage(logo, "PNG", 55, 68, 100, 66);
+    safeAddImage(logo, "PNG", 55, 68, 100, 66);
   }
 
   drawGoldDivider(154, 48);
@@ -862,12 +884,12 @@ function formatDate(value) {
   });
 }
 
-function fileName(kpi, store) {
+function fileName(kpi, store, generated = new Date()) {
   const base = store
     ? `wcl-store-${slug(store.name || "performance")}`
     : `wcl-${slug(kpi || "analytics")}`;
 
-  return `${base}-report.pdf`;
+  return `${base}-report-${timestamp(generated)}.pdf`;
 }
 
 function fitText(value, maxLength) {
@@ -878,6 +900,48 @@ function fitText(value, maxLength) {
   }
 
   return `${text.slice(0, maxLength - 1)}...`;
+}
+
+function safePdfText(value) {
+  return String(value ?? "-").replace(/[\u0000-\u001F\u007F]/g, " ");
+}
+
+function safeAddImage(image, format, x, y, width, height) {
+  const pdf = currentPdf();
+  const numbers = [x, y, width, height].map(Number);
+
+  if (
+    !pdf ||
+    typeof image !== "string" ||
+    !image.startsWith("data:image/") ||
+    numbers.some((number) => !Number.isFinite(number)) ||
+    numbers[2] <= 0 ||
+    numbers[3] <= 0
+  ) {
+    return false;
+  }
+
+  try {
+    pdf.addImage(image, format, numbers[0], numbers[1], numbers[2], numbers[3]);
+    return true;
+  } catch (error) {
+    console.warn("PDF image skipped", error);
+    return false;
+  }
+}
+
+function timestamp(value) {
+  const pad = (number) => String(number).padStart(2, "0");
+
+  return [
+    value.getFullYear(),
+    pad(value.getMonth() + 1),
+    pad(value.getDate())
+  ].join("-") + "-" + [
+    pad(value.getHours()),
+    pad(value.getMinutes()),
+    pad(value.getSeconds())
+  ].join("");
 }
 
 function slug(value) {
