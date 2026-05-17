@@ -461,7 +461,7 @@ function drawTableChunk(y, rows, headers, offset) {
       const align = index === 0 ? "left" : "right";
       const maxLength = index === 0 ? column.max : 12;
 
-      pdf.setTextColor(index === 0 ? BRAND.cream : BRAND.muted);
+      pdf.setTextColor(...(index === 0 ? BRAND.cream : BRAND.muted));
       pdf.text(safePdfText(fitText(values[index] || "-", maxLength)), column.x, rowY, { align });
     });
 
