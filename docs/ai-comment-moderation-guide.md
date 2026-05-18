@@ -3,6 +3,7 @@
 ## Goal
 
 Blacklist terms should act as a warning signal, not as a blind judge.
+AI moderation must apply the same WCL policy across all languages.
 
 The flow is:
 
@@ -25,6 +26,7 @@ Normal cigar discussion is allowed:
 - store sells cigars
 - good value
 - lounge recommendations
+- equivalent normal cigar discussion in any supported language
 
 ## What AI Should Block
 
@@ -39,6 +41,7 @@ The AI classifier blocks:
 - payment handles
 - spam/scam links
 - political campaigning
+- equivalent policy violations in any language
 
 ## Required Supabase Secrets
 
