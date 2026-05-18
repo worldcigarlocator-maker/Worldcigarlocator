@@ -203,6 +203,78 @@
   letter-spacing:-0.02em;
 }
 
+.account-settings-card{
+  width:min(1080px, 100%);
+  padding:34px;
+}
+
+.account-settings-card .account-card-header{
+  margin-bottom:24px;
+  padding-bottom:20px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.account-settings-section{
+  padding:22px;
+  margin-top:18px;
+
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.08);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.035),
+      rgba(255,255,255,0.018)
+    );
+}
+
+.account-settings-section:first-of-type{
+  margin-top:0;
+}
+
+.account-settings-section-danger{
+  border-color:rgba(169,54,54,0.22);
+}
+
+.account-settings-section h3{
+  margin:0 0 18px;
+
+  color:rgb(var(--global));
+
+  font-size:13px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:0;
+}
+
+.account-settings-fields{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:18px;
+}
+
+.account-settings-section .account-field{
+  margin-bottom:0;
+}
+
+.account-settings-section .account-actions,
+.account-settings-section .account-danger-actions{
+  margin-top:18px;
+}
+
+.account-settings-section .account-btn{
+  min-width:150px;
+}
+
+.account-settings-section-danger .account-btn{
+  min-width:118px;
+}
+
+.account-settings-section-danger .account-btn.danger{
+  min-width:170px;
+}
+
 /* ============================================================
    FIELDS
    ============================================================ */
@@ -538,6 +610,14 @@
     white-space:nowrap;
   }
 
+  .account-settings-card{
+    width:100%;
+  }
+
+  .account-settings-fields{
+    grid-template-columns:1fr;
+  }
+
 }
 
 @media (max-width: 640px){
@@ -545,6 +625,14 @@
   .account-card{
     padding:20px;
     border-radius:16px;
+  }
+
+  .account-settings-card{
+    padding:20px;
+  }
+
+  .account-settings-section{
+    padding:18px;
   }
 
   .account-card-header{

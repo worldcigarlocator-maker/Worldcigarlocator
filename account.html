@@ -434,7 +434,7 @@
 
 <section id="accountSettings">
 
-  <div class="account-card">
+  <div class="account-card account-settings-card">
 
     <div class="account-card-header">
       <h2 data-i18n="account_settings">
@@ -442,107 +442,135 @@
       </h2>
     </div>
 
-    <div class="account-field">
+    <div class="account-settings-section">
 
-      <label
-        class="account-label"
-        data-i18n="email"
-      >
-        Email
-      </label>
+      <h3>
+        Profile
+      </h3>
 
-      <input
-        id="accountEmail"
-        class="account-input"
-        type="email"
-        disabled
-      >
+      <div class="account-settings-fields">
 
-    </div>
+        <div class="account-field">
 
-    <div class="account-field">
+          <label
+            class="account-label"
+            data-i18n="email"
+          >
+            Email
+          </label>
 
-      <label
-        class="account-label"
-        data-i18n="display_name"
-      >
-        Display Name
-      </label>
+          <input
+            id="accountEmail"
+            class="account-input"
+            type="email"
+            disabled
+          >
 
-      <input
-        id="accountDisplayName"
-        class="account-input"
-        type="text"
-        placeholder="Display name"
-        data-i18n-placeholder="display_name"
-      >
+        </div>
 
-    </div>
+        <div class="account-field">
 
-    <div class="account-actions">
+          <label
+            class="account-label"
+            data-i18n="display_name"
+          >
+            Display Name
+          </label>
 
-      <button
-        id="saveDisplayNameBtn"
-        class="account-btn"
-        type="button"
-        data-i18n="save_changes"
-      >
-        Save Changes
-      </button>
+          <input
+            id="accountDisplayName"
+            class="account-input"
+            type="text"
+            placeholder="Display name"
+            data-i18n-placeholder="display_name"
+          >
 
-    </div>
+        </div>
 
-    <div class="account-field">
+      </div>
 
-      <label
-        class="account-label"
-        data-i18n="change_password"
-      >
-        Change Password
-      </label>
+      <div class="account-actions">
 
-      <input
-        id="accountPassword"
-        class="account-input"
-        type="password"
-        placeholder="New password"
-        data-i18n-placeholder="new_password"
-      >
+        <button
+          id="saveDisplayNameBtn"
+          class="account-btn"
+          type="button"
+          data-i18n="save_changes"
+        >
+          Save Changes
+        </button>
+
+      </div>
 
     </div>
 
-    <div class="account-actions">
+    <div class="account-settings-section">
 
-      <button
-        id="changePasswordBtn"
-        class="account-btn"
-        type="button"
-        data-i18n="change_password"
-      >
-        Change Password
-      </button>
+      <h3>
+        Security
+      </h3>
+
+      <div class="account-field">
+
+        <label
+          class="account-label"
+          data-i18n="change_password"
+        >
+          Change Password
+        </label>
+
+        <input
+          id="accountPassword"
+          class="account-input"
+          type="password"
+          placeholder="New password"
+          data-i18n-placeholder="new_password"
+        >
+
+      </div>
+
+      <div class="account-actions">
+
+        <button
+          id="changePasswordBtn"
+          class="account-btn"
+          type="button"
+          data-i18n="change_password"
+        >
+          Change Password
+        </button>
+
+      </div>
 
     </div>
 
-    <div class="account-danger-actions">
+    <div class="account-settings-section account-settings-section-danger">
 
-      <button
-        id="logoutAccountBtn"
-        class="account-btn"
-        type="button"
-        data-i18n="logout"
-      >
-        Logout
-      </button>
+      <h3>
+        Account
+      </h3>
 
-      <button
-        id="deleteAccountBtn"
-        class="account-btn danger"
-        type="button"
-        data-i18n="delete_account"
-      >
-        Delete Account
-      </button>
+      <div class="account-danger-actions">
+
+        <button
+          id="logoutAccountBtn"
+          class="account-btn"
+          type="button"
+          data-i18n="logout"
+        >
+          Logout
+        </button>
+
+        <button
+          id="deleteAccountBtn"
+          class="account-btn danger"
+          type="button"
+          data-i18n="delete_account"
+        >
+          Delete Account
+        </button>
+
+      </div>
 
     </div>
 
