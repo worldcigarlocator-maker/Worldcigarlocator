@@ -1012,14 +1012,14 @@ const navButtons =
 
 const accountSections = [
   "accountSettings",
-  "accountComments",
-  "accountRatings",
-  "accountFavorites",
-  "accountNotifications",
   "accountLanguage",
-  "accountSessions",
+  "accountComments",
+  "accountFavorites",
+  "accountRatings",
+  "accountNotifications",
+  "accountAdmin",
   "accountContributor",
-  "accountAdmin"
+  "accountSessions"
 ];
 
 // ============================================================
