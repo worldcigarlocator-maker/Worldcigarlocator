@@ -35,7 +35,7 @@ background: var(--bg);
 .sidebar-brand-lockup{
   position:relative;
   width:205px;
-  height:116px;
+  height:92px;
   display:block;
   overflow:hidden;
   background:#050505;
@@ -46,22 +46,7 @@ background: var(--bg);
   height:100%;
   display:block;
   object-fit:cover;
-  object-position:center 40%;
-}
-
-.sidebar-brand-lockup::after{
-  content:"";
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:0;
-  height:31px;
-  background:linear-gradient(
-    180deg,
-    rgba(5,5,5,0),
-    #050505 42%,
-    #050505 100%
-  );
+  object-position:center;
 }
 
 .sidebar-total{

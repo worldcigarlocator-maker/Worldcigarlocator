@@ -52,7 +52,7 @@ export async function exportAnalyticsPDF({
   PDF_INSTANCE = pdf;
 
   const hero = await loadImageBase64("/images/brand1.png");
-  const logo = await loadImageBase64("/images/wcl_brand_text.png");
+  const logo = await loadImageBase64("/images/wcl_brand_text_no_url.png");
   const generated = new Date();
   const reportRows = normalizeRows(rows, activeKpi);
   const chart = selectChartCanvas(activeKpi, chartCanvas, usersChartCanvas, store);
@@ -284,7 +284,7 @@ function drawPageBase({
 function drawHeaderBrand(x, y, logo) {
   const pdf = currentPdf();
 
-  if (logo && safeAddImage(logo, "PNG", x, y, 31, 21)) {
+  if (logo && safeAddImage(logo, "PNG", x, y, 31, 13.7)) {
     return;
   }
 
