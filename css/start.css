@@ -180,8 +180,9 @@ body:not(.auth-locked) .beta-landing{
    ============================================================ */
 .hero{
   position:relative;
-  max-width:1390px;
-  margin:2.2rem auto 0;
+  width:min(calc(100% - 32px), 1080px);
+  max-width:none;
+  margin:1.4rem auto 0;
   aspect-ratio:2048 / 1365;
   min-height:0;
   border-radius:12px;
