@@ -212,11 +212,17 @@ Canonical RPCs:
 46. Reworked account creation as a dedicated onboarding path.
     The beta landing Create account action now routes to `account.html?mode=signup`, the old create-account action was removed from the login popup, and account creation requires email, password, display name/alias, and acceptance of WCL conduct/legal-age rules before calling Supabase Auth.
 
+47. Added a content policy moderation draft:
+    `docs/supabase-content-policy-moderation-draft.sql`.
+    The draft blocks comments through a backend trigger when text matches WCL blacklist terms after whitelist terms are removed, and flags pending add-store submissions for owner review when listing text matches the same policy.
+    Frontend comments now show a clear WCL policy message when the backend refuses the post.
+
 ## Launch Blockers To Resolve
 
 - Verify production analytics ingest after deployment.
 - Owner visual check of the rebuilt analytics PDF in the browser.
 - Verify or implement the server-side spam filter in `submit_store_report_v1`.
+- Review, run, and verify `docs/supabase-content-policy-moderation-draft.sql` in Supabase.
 - Rebuild project documentation after the remaining fixes; stale/canonical docs can be replaced then.
 - Optional later cleanup: standardize the production branch name from `Main-1` to `main` and remove the extra branch.
 

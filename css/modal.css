@@ -335,6 +335,20 @@
   background: rgba(var(--global), 0.08);
 }
 
+.modal-comment-policy-message {
+  margin-top: 0.75rem;
+  padding: 0.72rem 0.85rem;
+
+  border: 1px solid rgba(180, 74, 74, 0.42);
+  border-radius: 10px;
+
+  background: rgba(180, 74, 74, 0.12);
+  color: #f0c0b8;
+
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
 .modal-comments-header {
   display: inline-flex;
   align-items: center;

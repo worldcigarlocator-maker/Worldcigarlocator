@@ -181,6 +181,7 @@ const modalComments     = () => el("modalComments");
 const modalCommentInput = () => el("modalCommentInput");
 const modalSendComment  = () => el("modalSendComment");
 const modalCommentCount = () => el("modalCommentCount");
+const modalCommentPolicyMessage = () => el("modalCommentPolicyMessage");
 
 // ============================================================
 // UTIL
@@ -239,6 +240,7 @@ function resetModal() {
   if (modalComments()) modalComments().innerHTML = "";
   if (modalCommentInput()) modalCommentInput().value = "";
   if (modalCommentCount()) modalCommentCount().textContent = "Comments 0";
+  hideCommentPolicyMessage();
 
   reportSection()?.classList.add("hidden");
   document
@@ -248,6 +250,40 @@ function resetModal() {
 
   MODAL_USER_TEMP_RATING = 0;
   highlightStars(0);
+}
+
+function hideCommentPolicyMessage() {
+  const box = modalCommentPolicyMessage();
+  if (!box) return;
+
+  box.textContent = "";
+  box.classList.add("hidden");
+}
+
+function showCommentPolicyMessage(
+  message = "Due to WCL policy, we can not post your comment."
+) {
+  const box = modalCommentPolicyMessage();
+  if (!box) return;
+
+  box.textContent = message;
+  box.classList.remove("hidden");
+}
+
+function isPolicyBlockedError(error) {
+  const text = [
+    error?.message,
+    error?.details,
+    error?.hint
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return (
+    text.includes("wcl_policy_blocked") ||
+    text.includes("content policy")
+  );
 }
 
 // ============================================================
@@ -788,6 +824,8 @@ async function submitComment() {
   const text = input?.value?.trim() || "";
   if (!text) return;
 
+  hideCommentPolicyMessage();
+
   const { error } = await supabase.rpc("modal_add_comment_v1", {
     p_store_id: MODAL_ACTIVE_STORE_ID,
     p_comment: text,
@@ -796,6 +834,11 @@ async function submitComment() {
 
   if (error) {
     console.error("modal_add_comment_v1 error:", error);
+
+    if (isPolicyBlockedError(error)) {
+      showCommentPolicyMessage();
+    }
+
     return;
   }
 
