@@ -774,6 +774,11 @@
   outline:none;
 }
 
+.account-nav-btn[hidden],
+.account-future-module{
+  display:none !important;
+}
+
 /* ============================================================
    FAVORITES
    ============================================================ */

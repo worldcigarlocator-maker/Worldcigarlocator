@@ -400,6 +400,8 @@
     class="account-nav-btn"
     data-section="accountSessions"
     data-i18n="sessions"
+    data-future-module="true"
+    hidden
   >
     Sessions
   </button>
@@ -408,6 +410,8 @@
     class="account-nav-btn"
     data-section="accountContributor"
     data-i18n="contributor"
+    data-future-module="true"
+    hidden
   >
     Contributor
   </button>
@@ -416,6 +420,8 @@
     class="account-nav-btn"
     data-section="accountAdmin"
     data-i18n="admin"
+    data-future-module="true"
+    hidden
   >
     Admin
   </button>
@@ -829,7 +835,12 @@
      SESSIONS
 ============================================================ -->
 
-<section id="accountSessions">
+<section
+  id="accountSessions"
+  class="account-future-module hidden"
+  data-future-module="sessions"
+  hidden
+>
 
   <div class="account-card">
 
@@ -854,7 +865,12 @@
      CONTRIBUTOR
 ============================================================ -->
 
-<section id="accountContributor">
+<section
+  id="accountContributor"
+  class="account-future-module hidden"
+  data-future-module="contributor"
+  hidden
+>
 
   <div class="account-card">
 
@@ -879,7 +895,12 @@
      ADMIN
 ============================================================ -->
 
-<section id="accountAdmin">
+<section
+  id="accountAdmin"
+  class="account-future-module hidden"
+  data-future-module="admin"
+  hidden
+>
 
   <div class="account-card">
 
