@@ -24,6 +24,24 @@
   <!-- Theme color -->
   <meta name="theme-color" content="#050505">
 
+  <script>
+    (function () {
+      try {
+        var params =
+          new URLSearchParams(window.location.search);
+
+        if (
+          params.get("app") === "1" ||
+          params.get("main") === "1"
+        ) {
+          document.documentElement.classList.add(
+            "wcl-direct-main"
+          );
+        }
+      } catch (err) {}
+    })();
+  </script>
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

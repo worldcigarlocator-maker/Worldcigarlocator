@@ -19,6 +19,7 @@ let LOGIN_BINDINGS_BOUND = false;
 let BETA_LANDING_BINDINGS_BOUND = false;
 let refreshAuthButtons = () => {};
 let OPEN_LOGIN_AFTER_BOOT = false;
+let DIRECT_MAIN_AFTER_BOOT = false;
 
 try {
   const url =
@@ -28,9 +29,18 @@ try {
     url.searchParams.get("signin") === "1" ||
     url.searchParams.get("login") === "1";
 
-  if (OPEN_LOGIN_AFTER_BOOT) {
+  DIRECT_MAIN_AFTER_BOOT =
+    url.searchParams.get("app") === "1" ||
+    url.searchParams.get("main") === "1";
+
+  if (
+    OPEN_LOGIN_AFTER_BOOT ||
+    DIRECT_MAIN_AFTER_BOOT
+  ) {
     url.searchParams.delete("signin");
     url.searchParams.delete("login");
+    url.searchParams.delete("app");
+    url.searchParams.delete("main");
 
     window.history.replaceState(
       {},
@@ -169,6 +179,12 @@ debugLog("AUTH UI CHECK", {
 
   if (!session) {
 
+    DIRECT_MAIN_AFTER_BOOT = false;
+
+    document.documentElement.classList.remove(
+      "wcl-direct-main"
+    );
+
     document.body.classList.add(
       "auth-locked"
     );
@@ -248,6 +264,12 @@ appContainer?.removeAttribute(
 
 appContainer?.removeAttribute(
   "aria-hidden"
+);
+
+DIRECT_MAIN_AFTER_BOOT = false;
+
+document.documentElement.classList.remove(
+  "wcl-direct-main"
 );
 
 if (popup) {

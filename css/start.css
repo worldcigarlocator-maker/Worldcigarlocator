@@ -14,6 +14,10 @@ body.auth-locked{
   background:#030303;
 }
 
+html.wcl-direct-main body.auth-locked .beta-landing{
+  display:none;
+}
+
 body.auth-locked .container{
   display:none;
 }
