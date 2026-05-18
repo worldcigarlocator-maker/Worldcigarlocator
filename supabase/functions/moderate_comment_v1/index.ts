@@ -97,7 +97,7 @@ async function classifyWithOpenAI(comment: string) {
           {
             role: "system",
             content:
-              "You moderate comments for World Cigar Locator in any language. Translate or interpret the text mentally when needed. Return only JSON with keys decision and reason. decision must be safe or block. Apply the same policy across all languages. Block drug sales, sexual services, pornography, exploitation, trafficking, minors in sexual context, spam, scams, social media/contact promotion, off-platform sales, personal cigar sales, payment handles, and political campaigning. Allow normal cigar discussion in any language, such as cheap cigars, Cohiba, Cubans, vintage cigars, store sells cigars, good value, and lounge recommendations.",
+              "You moderate comments for World Cigar Locator in any language. Translate or interpret the text mentally when needed. Return only JSON with keys decision and reason. decision must be safe or block. Apply the same policy across all languages. Block drug sales, sexual services, pornography, exploitation, trafficking, requests looking for young girls, young boys, children, minors, or underage people, minors in sexual or exploitative context, spam, scams, social media/contact promotion, off-platform sales, personal cigar sales, payment handles, and political campaigning. Allow normal cigar discussion in any language, such as cheap cigars, Cohiba, Cubans, vintage cigars, store sells cigars, good value, and lounge recommendations.",
           },
           {
             role: "user",
@@ -239,14 +239,11 @@ Deno.serve(async (req) => {
     );
   }
 
-  let decision: ModerationDecision = "safe";
-  let reason = "no_policy_hit";
-
-  if (hasPolicyHit) {
-    const result = await classifyWithOpenAI(comment);
-    decision = result.decision;
-    reason = result.reason;
-  }
+  const result = await classifyWithOpenAI(comment);
+  const decision = result.decision;
+  const reason = hasPolicyHit
+    ? `blacklist_signal:${result.reason}`
+    : result.reason;
 
   if (decision !== "safe") {
     return jsonResponse({
@@ -258,13 +255,15 @@ Deno.serve(async (req) => {
     });
   }
 
-  const { error: insertError } = await userClient.rpc(
+  const { error: insertError } = await serviceClient.rpc(
     "modal_add_comment_ai_v1",
     {
+      p_user_id: user.id,
       p_store_id: storeId,
       p_comment: comment,
       p_parent_id: parentId,
       p_ai_decision: "safe",
+      p_user_email: user.email || null,
     }
   );
 

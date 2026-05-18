@@ -322,15 +322,19 @@ async function addCommentWithModeration({
   }
 
   if (error) {
-    debugLog(
-      "moderate_comment_v1 unavailable, using RPC fallback",
+    console.warn(
+      "moderate_comment_v1 unavailable",
       error
+    );
+
+    showCommentPolicyMessage(
+      "Comment moderation is temporarily unavailable. Please try again shortly."
     );
   }
 
   return {
     ok: false,
-    handled: false,
+    handled: true,
     error
   };
 }
@@ -882,23 +886,11 @@ async function submitComment() {
       parentId: MODAL_REPLY_TO
     });
 
-  let error = moderated.error || null;
-  let posted = moderated.ok;
-
-  if (!moderated.handled) {
-    const fallback =
-      await supabase.rpc("modal_add_comment_v1", {
-        p_store_id: MODAL_ACTIVE_STORE_ID,
-        p_comment: text,
-        p_parent_id: MODAL_REPLY_TO,
-      });
-
-    error = fallback.error;
-    posted = !fallback.error;
-  }
+  const error = moderated.error || null;
+  const posted = moderated.ok;
 
   if (!posted && error) {
-    console.error("modal_add_comment_v1 error:", error);
+    console.error("moderate_comment_v1 error:", error);
 
     if (isPolicyBlockedError(error)) {
       showCommentPolicyMessage();

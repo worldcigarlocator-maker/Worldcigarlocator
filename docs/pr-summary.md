@@ -58,7 +58,7 @@ Pull request: <https://github.com/worldcigarlocator-maker/Worldcigarlocator/pull
 - Rebuilt the analytics PDF export into a cleaner report with cover, summary, chart, and paginated table pages.
 - Added a Supabase content policy moderation draft for comment blocking and pending-listing flagging using the existing blacklist/whitelist tables.
 - Added a user-facing comment policy message for blocked comments.
-- Added a deployable Supabase Edge Function scaffold for AI-assisted comment moderation, plus a follow-up SQL draft that lets trusted AI-safe comments pass the database trigger.
+- Added a deployable Supabase Edge Function scaffold for AI-assisted comment moderation, plus a follow-up SQL draft that forces the browser comment path through AI moderation, makes the trusted insert RPC service-role only, and lets trusted AI-safe comments pass the database trigger.
 
 ## Verified
 

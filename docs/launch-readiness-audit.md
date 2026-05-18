@@ -218,9 +218,9 @@ Canonical RPCs:
     Frontend comments now show a clear WCL policy message when the backend refuses the post.
 
 48. Added AI-assisted comment moderation scaffolding.
-    The frontend now attempts to post comments through `moderate_comment_v1` first, with the old RPC path retained as a fallback while the Edge Function is not deployed.
-    The Edge Function lives at `supabase/functions/moderate_comment_v1/index.ts`, keeps the OpenAI key server-side, checks blacklist/whitelist first, calls OpenAI only on policy hits, and posts only when the decision is `safe`.
-    The SQL follow-up `docs/supabase-ai-comment-moderation-draft.sql` updates the database trigger so a trusted AI-safe decision can pass while the trigger remains the final safety net.
+    The frontend now posts comments through `moderate_comment_v1`; there is no browser fallback to the old direct comment RPC when the Edge Function is unavailable.
+    The Edge Function lives at `supabase/functions/moderate_comment_v1/index.ts`, keeps the OpenAI key server-side, checks blacklist/whitelist as an extra signal, calls OpenAI on every comment, and posts only when the decision is `safe`.
+    The SQL follow-up `docs/supabase-ai-comment-moderation-draft.sql` updates the database trigger so a trusted AI-safe decision can pass while the trigger remains the final safety net, removes direct browser comment RPC access, and removes direct browser INSERT access to `store_comments`.
 
 ## Launch Blockers To Resolve
 

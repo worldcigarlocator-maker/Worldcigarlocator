@@ -16,6 +16,10 @@
 --     decision inside the same transaction.
 --   - Adds modal_add_comment_ai_v1 for the Supabase Edge Function
 --     moderate_comment_v1.
+--   - Removes direct browser execute access from modal_add_comment_v1 and
+--     modal_add_comment_ai_v1 so the active app path is forced through the
+--     AI moderation Edge Function.
+--   - Removes direct browser INSERT access from store_comments.
 --
 -- What this does not do:
 --   - It does not auto-approve stores.
@@ -65,10 +69,12 @@ end;
 $function$;
 
 create or replace function public.modal_add_comment_ai_v1(
+  p_user_id uuid,
   p_store_id bigint,
   p_comment text,
   p_parent_id bigint default null,
-  p_ai_decision text default 'block'
+  p_ai_decision text default 'block',
+  p_user_email text default null
 )
 returns jsonb
 language plpgsql
@@ -76,13 +82,18 @@ security definer
 set search_path to 'public'
 as $function$
 declare
-  v_uid uuid;
+  v_role text;
 begin
-  v_uid := auth.uid();
+  v_role := auth.role();
 
-  if v_uid is null then
-    raise exception 'Unauthorized: no auth.uid()'
-      using errcode = '28000';
+  if coalesce(v_role, '') <> 'service_role' then
+    raise exception 'Forbidden: service role only'
+      using errcode = '42501';
+  end if;
+
+  if p_user_id is null then
+    raise exception 'Missing user id'
+      using errcode = '22023';
   end if;
 
   if lower(coalesce(p_ai_decision, '')) <> 'safe' then
@@ -95,6 +106,24 @@ begin
   perform set_config(
     'wcl.ai_moderation_decision',
     'safe',
+    true
+  );
+
+  perform set_config(
+    'request.jwt.claim.sub',
+    p_user_id::text,
+    true
+  );
+
+  perform set_config(
+    'request.jwt.claim.role',
+    'authenticated',
+    true
+  );
+
+  perform set_config(
+    'request.jwt.claim.email',
+    coalesce(p_user_email, ''),
     true
   );
 
@@ -114,18 +143,47 @@ end;
 $function$;
 
 revoke all privileges on function public.modal_add_comment_ai_v1(
+  uuid,
   bigint,
   text,
   bigint,
+  text,
   text
-) from public, anon;
+) from public, anon, authenticated;
 
 grant execute on function public.modal_add_comment_ai_v1(
+  uuid,
   bigint,
   text,
   bigint,
+  text,
   text
-) to authenticated;
+) to service_role;
+
+revoke insert, update, truncate on table public.store_comments
+from anon, authenticated;
+
+do $$
+declare
+  v_signature regprocedure;
+begin
+  for v_signature in
+    select p.oid::regprocedure
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname in (
+        'modal_add_comment_v1',
+        'modal_add_comment_ai_v1'
+      )
+  loop
+    execute format(
+      'revoke all privileges on function %s from public, anon, authenticated',
+      v_signature
+    );
+  end loop;
+end
+$$;
 
 commit;
 
@@ -150,7 +208,28 @@ from information_schema.routine_privileges
 where routine_schema = 'public'
   and routine_name in (
     'wcl_text_has_policy_hit_v1',
+    'modal_add_comment_v1',
     'modal_add_comment_ai_v1'
   )
   and grantee in ('anon', 'authenticated', 'service_role', 'PUBLIC', 'public')
 order by routine_name, grantee, privilege_type;
+
+select
+  g.grantee,
+  g.table_name,
+  g.privilege_type,
+  c.relrowsecurity as rls_enabled
+from information_schema.role_table_grants g
+join information_schema.tables t
+  on t.table_schema = g.table_schema
+ and t.table_name = g.table_name
+left join pg_namespace n
+  on n.nspname = g.table_schema
+left join pg_class c
+  on c.relname = g.table_name
+ and c.relnamespace = n.oid
+where g.table_schema = 'public'
+  and g.table_name = 'store_comments'
+  and g.grantee in ('anon', 'authenticated', 'public')
+  and g.privilege_type in ('SELECT', 'INSERT', 'UPDATE', 'DELETE', 'TRUNCATE')
+order by g.grantee, g.privilege_type;

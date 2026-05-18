@@ -9,11 +9,16 @@ The flow is:
 
 1. User posts a comment.
 2. Supabase Edge Function `moderate_comment_v1` receives the comment.
-3. Backend checks `keywords_blacklist` / `keywords_whitelist`.
-4. If there is no policy hit, the comment is posted.
-5. If there is a policy hit, OpenAI reviews the context.
-6. AI returns `safe` or `block`.
-7. Only `safe` comments are inserted.
+3. Backend checks `keywords_blacklist` / `keywords_whitelist` as an extra signal.
+4. OpenAI reviews the full context in any language.
+5. AI returns `safe` or `block`.
+6. Only `safe` comments are inserted.
+
+There is no browser fallback to the old direct comment RPC. If the Edge Function
+is unavailable, the comment is not posted.
+
+The trusted insert RPC is service-role only, and direct browser INSERT access to
+`store_comments` is removed.
 
 ## What AI Should Allow
 
@@ -35,6 +40,7 @@ The AI classifier blocks:
 - illegal drug sales
 - sexual services or pornography
 - exploitation, trafficking, or sexual minors context
+- requests looking for young girls, young boys, children, minors, or underage people
 - social media promotion
 - off-platform contact
 - personal cigar/product sales
@@ -73,6 +79,7 @@ SUPABASE_SERVICE_ROLE_KEY
    - `Nice lounge` posts.
    - `They sell lots of Cubans here` posts.
    - `DM me on Telegram to buy cigars` blocks.
+   - `Looking for young girl` blocks.
    - `wclblocktest` blocks unless the AI classifies the full context as safe.
 6. Remove the test blacklist term.
 
