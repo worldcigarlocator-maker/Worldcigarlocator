@@ -39,6 +39,8 @@ background: var(--bg);
   display:block;
   overflow:hidden;
   background:#050505;
+  transform:translateY(-18px);
+  margin-bottom:-18px;
 }
 
 .sidebar-brand-lockup img{
@@ -46,7 +48,7 @@ background: var(--bg);
   height:100%;
   display:block;
   object-fit:cover;
-  object-position:center;
+  object-position:center 32%;
 }
 
 .sidebar-total{
@@ -64,10 +66,10 @@ background: var(--bg);
 }
 
 #sidebarGlobalCount{
-  font-size:0.86rem;
+  font-size:0.8rem;
   font-weight:700;
-  color:rgb(var(--global));
-  opacity:0.9;
+  color:rgba(var(--global),0.74);
+  opacity:0.86;
 }
 
 
