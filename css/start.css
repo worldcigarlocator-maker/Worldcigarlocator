@@ -81,18 +81,25 @@ body:not(.auth-locked) .beta-landing{
 }
 
 .beta-copy{
-  width:min(760px, 100%);
-  margin-top:14px;
+  width:min(680px, 100%);
+  margin-top:12px;
   display:flex;
   flex-direction:column;
-  gap:7px;
+  align-items:center;
+  gap:5px;
   color:#f0dfc1;
-  font-size:clamp(13px, 1.26vw, 15.7px);
-  line-height:1.42;
+  font-size:clamp(12.4px, 1.18vw, 14.8px);
+  line-height:1.5;
 }
 
 .beta-copy p{
+  max-width:660px;
   margin:0;
+}
+
+.beta-copy-signoff{
+  margin-top:4px;
+  color:#d8b37c;
 }
 
 .beta-actions{
@@ -872,8 +879,12 @@ body.static-page{
   }
 
   .beta-copy{
-    gap:8px;
-    font-size:15px;
+    gap:7px;
+    font-size:13.4px;
+  }
+
+  .beta-copy br{
+    display:none;
   }
 
   .beta-actions{
