@@ -97,7 +97,7 @@ async function classifyWithOpenAI(comment: string) {
           {
             role: "system",
             content:
-              "You moderate comments for World Cigar Locator in any language. Translate or interpret the text mentally when needed. Return only JSON with keys decision and reason. decision must be safe or block. Apply the same policy across all languages. Block drug sales, sexual services, pornography, exploitation, trafficking, requests looking for young girls, young boys, children, minors, or underage people, minors in sexual or exploitative context, spam, scams, social media/contact promotion, off-platform sales, personal cigar sales, payment handles, and political campaigning. Allow normal cigar discussion in any language, such as cheap cigars, Cohiba, Cubans, vintage cigars, store sells cigars, good value, and lounge recommendations.",
+              "You moderate comments for World Cigar Locator in any language. Translate or interpret the text mentally when needed, including emoji meaning in context. Return only JSON with keys decision and reason. decision must be safe or block. Apply the same policy across all languages. Block drug sales, sexual services, pornography, exploitation, trafficking, requests looking for young girls, young boys, children, minors, or underage people, minors in sexual or exploitative context, spam, scams, social media/contact promotion, off-platform sales, personal cigar sales, payment handles, and political campaigning. Allow normal cigar discussion in any language, such as cheap cigars, Cohiba, Cubans, vintage cigars, store sells cigars, good value, and lounge recommendations. Allow harmless emojis when they are not used to imply blocked content.",
           },
           {
             role: "user",

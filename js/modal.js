@@ -38,6 +38,15 @@ const reportSubmit = () => document.getElementById("modalSubmitReport");
 const reportSuccess = () => document.getElementById("modalReportSuccess");
 const reportHoneypot = () => document.getElementById("modalReportWebsite");
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function resetReportUI() {
   REPORT_SELECTED.clear();
 
@@ -811,7 +820,8 @@ async function loadComments(storeId, seq) {
   // ============================================================
 
   function renderComment(c, isReply = false) {
-    const name = c.display_name || "Anonymous";
+    const name = escapeHtml(c.display_name || "Anonymous");
+    const comment = escapeHtml(c.comment || "");
 
     return `
       <div class="modal-comment ${isReply ? "reply" : ""}">
@@ -835,7 +845,7 @@ async function loadComments(storeId, seq) {
         </div>
 
         <div class="modal-comment-text" data-id="${c.id}">
-          ${c.comment || ""}
+          ${comment}
         </div>
 
         <div class="modal-comment-actions">

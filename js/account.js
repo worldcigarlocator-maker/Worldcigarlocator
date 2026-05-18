@@ -88,6 +88,15 @@ function tr(key, fallback = "") {
 
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function setMessage(
   text,
   isError = false
@@ -559,6 +568,13 @@ async function loadMyComments() {
 
   const store =
     item.stores || {};
+  const location = [
+    store.country,
+    store.city
+  ]
+    .filter(Boolean)
+    .map(escapeHtml)
+    .join(", ");
 
   return `
     <div
@@ -571,16 +587,11 @@ async function loadMyComments() {
         <div>
 
           <div class="account-comment-store">
-            ${store.name || "Unknown Store"}
+            ${escapeHtml(store.name || "Unknown Store")}
           </div>
 
           <div class="account-comment-location">
-            ${[
-              store.country,
-              store.city
-            ]
-              .filter(Boolean)
-              .join(", ")}
+            ${location}
           </div>
 
         </div>
@@ -594,7 +605,7 @@ async function loadMyComments() {
       </div>
 
       <div class="account-comment-text">
-        ${item.comment || ""}
+        ${escapeHtml(item.comment || "")}
       </div>
 
     </div>

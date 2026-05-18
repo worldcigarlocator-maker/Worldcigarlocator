@@ -31,6 +31,7 @@ Normal cigar discussion is allowed:
 - store sells cigars
 - good value
 - lounge recommendations
+- harmless emojis such as thumbs up, stars, fire, flags, and smileys
 - equivalent normal cigar discussion in any supported language
 
 ## What AI Should Block
@@ -47,6 +48,7 @@ The AI classifier blocks:
 - payment handles
 - spam/scam links
 - political campaigning
+- emojis used to imply blocked content
 - equivalent policy violations in any language
 
 ## Required Supabase Secrets
@@ -77,6 +79,7 @@ SUPABASE_SERVICE_ROLE_KEY
 4. Add a test blacklist term such as `wclblocktest`.
 5. Verify:
    - `Nice lounge` posts.
+   - `Great lounge 👍🏾` posts.
    - `They sell lots of Cubans here` posts.
    - `DM me on Telegram to buy cigars` blocks.
    - `Looking for young girl` blocks.
