@@ -20,10 +20,10 @@ export function subscribe(fn) {
   listeners.push(fn);
 }
 
-function notify() {
-  for (const fn of listeners) {
-    fn({ ...STATE }); // skicka copy (säkerhet)
-  }
+async function notify() {
+  await Promise.all(
+    listeners.map(fn => fn({ ...STATE }))
+  );
 }
 
 /* ============================================================
@@ -52,7 +52,7 @@ export function getActiveDay() {
 
 export function setActiveDay(day) {
   STATE.day = day;
-  notify(); // 🔥 KRITISK
+  return notify(); // 🔥 KRITISK
 }
 
 export function getActiveCountry() {
@@ -70,7 +70,7 @@ export function getContextLocation() {
 // 🔥 KPI change
 export function setKPI(kpi) {
   STATE.kpi = kpi;
-  notify();
+  return notify();
 }
 
 // 🔥 Reset ALL
@@ -80,7 +80,7 @@ export function resetState() {
   STATE.day = null;
   STATE.country = null;
   STATE.contextLocation = null;
-  notify();
+  return notify();
 }
 
 // 🔥 Click day (chart → country level)
@@ -89,7 +89,7 @@ export function applyDay(day) {
   STATE.level = "country";
   STATE.country = null;
   STATE.contextLocation = null;
-  notify();
+  return notify();
 }
 
 // 🔥 Click country (→ city level)
@@ -98,7 +98,7 @@ export function applyCountry(country) {
   STATE.country = country;
 
   // 🔥 KRITISKT
-  notify();
+  return notify();
 
 }
 
@@ -107,5 +107,5 @@ export function applyContextCity(city, country) {
   STATE.contextLocation = city;
   STATE.country = country;
   STATE.level = "city";
-  notify();
+  return notify();
 }

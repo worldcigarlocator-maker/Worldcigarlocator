@@ -552,7 +552,8 @@ async function renderStoreDossier() {
   const { data, error } = await sb.rpc(
     "analytics_store_intelligence_v1",
     {
-      p_days: STORES_STATE.days
+      p_days: STORES_STATE.days,
+      p_limit: 10000
     }
   );
 
@@ -2016,9 +2017,26 @@ export function resetStoresV2() {
 
 }
 
+export async function openStoreDossierById(storeId, days = 30) {
+
+  const id = Number(storeId);
+  if (!id) return;
+
+  STORES_STATE.level = "store";
+  STORES_STATE.storeId = id;
+  STORES_STATE.city = null;
+  STORES_STATE.country = null;
+  STORES_STATE.days = days;
+
+  ensureStoresSurface();
+
+  await renderStoreDossier();
+}
+
 /* ============================================================
    DEBUG
    ============================================================ */
 
 window.renderStoresV2 = renderStoresV2;
 window.resetStoresV2 = resetStoresV2;
+window.openStoreDossierById = openStoreDossierById;

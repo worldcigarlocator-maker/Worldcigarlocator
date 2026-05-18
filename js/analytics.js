@@ -45,29 +45,97 @@ const searchResults = $("#searchResults");
 const searchBtn = $("#searchBtn");
 const clearBtn = $("#clearBtn");
 
+const COUNTRY_ALIASES = {
+  sverige: "Sweden",
+  sweden: "Sweden",
+  norge: "Norway",
+  norway: "Norway",
+  danmark: "Denmark",
+  denmark: "Denmark",
+  finland: "Finland",
+  island: "Iceland",
+  iceland: "Iceland",
+  tyskland: "Germany",
+  germany: "Germany",
+  polen: "Poland",
+  poland: "Poland",
+  spanien: "Spain",
+  spain: "Spain",
+  frankrike: "France",
+  france: "France",
+  italien: "Italy",
+  italy: "Italy",
+  nederlanderna: "Netherlands",
+  holland: "Netherlands",
+  netherlands: "Netherlands",
+  belgien: "Belgium",
+  belgium: "Belgium",
+  schweiz: "Switzerland",
+  switzerland: "Switzerland",
+  osterrike: "Austria",
+  austria: "Austria",
+  portugal: "Portugal",
+  grekland: "Greece",
+  greece: "Greece",
+  turkiet: "Turkey",
+  turkey: "Turkey",
+  storbritannien: "United Kingdom",
+  england: "United Kingdom",
+  uk: "United Kingdom",
+  "united kingdom": "United Kingdom",
+  irland: "Ireland",
+  ireland: "Ireland",
+  usa: "United States",
+  us: "United States",
+  "united states": "United States",
+  "forenta staterna": "United States",
+  amerika: "United States",
+  canada: "Canada",
+  kanada: "Canada",
+  mexiko: "Mexico",
+  mexico: "Mexico",
+  brasilien: "Brazil",
+  brazil: "Brazil",
+  argentina: "Argentina",
+  chile: "Chile",
+  thailand: "Thailand",
+  japan: "Japan",
+  kina: "China",
+  china: "China",
+  singapore: "Singapore",
+  australien: "Australia",
+  australia: "Australia"
+};
+
 /* ============================================================
-   SEARCH BINDINGS (LOCAL FILTER)
+   SEARCH BINDINGS
    ============================================================ */
 
 if (searchInput) {
   searchInput.addEventListener("input", () => {
-    runLocalFilter();
+    clearSearchStatus();
+  });
+
+  searchInput.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    runAnalyticsSearch();
   });
 }
 
 if (searchBtn) {
   searchBtn.addEventListener("click", () => {
-    runLocalFilter();
+    runAnalyticsSearch();
   });
 }
 
 if (clearBtn) {
   clearBtn.addEventListener("click", () => {
 
-    resetAll();           // 🔥 NY – reset sidebar + state
+    resetAll();
 
     searchInput.value = "";
-    resetLocalFilter();
+    clearSearchStatus();
 
   });
 }
@@ -352,7 +420,9 @@ if (window.memberChart) {
 
 async function loadStoresIndex() {
 
-  const { data, error } = await sb
+  if (STORES_INDEX.length) return;
+
+  let { data, error } = await sb
     .from("analytics_store_search_v1")
     .select("store_id, name, city, country, types, access")
     .eq("deleted", false)
@@ -361,12 +431,25 @@ async function loadStoresIndex() {
     .limit(50000);
 
   if (error) {
+    console.warn("Store search index failed, trying frontend view", error);
+
+    const fallback = await sb
+      .from("stores_frontend_public_v5")
+      .select("id, name, city, country, types, access")
+      .order("name", { ascending: true })
+      .limit(50000);
+
+    data = fallback.data;
+    error = fallback.error;
+  }
+
+  if (error) {
     console.error("Failed to load stores index", error);
     return;
   }
 
   STORES_INDEX = (data || []).map(s => ({
-    id: s.store_id,
+    id: s.store_id || s.id,
     name: s.name,
     city: s.city,
     country: s.country,
@@ -464,6 +547,244 @@ function triggerSearchFromUI() {
   );
 
   if (match) selectStoreById(Number(match.id));
+}
+
+/* ============================================================
+   SMART ANALYTICS SEARCH
+   ============================================================ */
+
+async function runAnalyticsSearch() {
+
+  const raw = (searchInput?.value || "").trim();
+
+  if (!raw) {
+    clearSearchStatus();
+    return;
+  }
+
+  hideAutocomplete();
+  setSearchStatus(`Searching for "${escapeHtml(raw)}"...`);
+
+  const id = getStoreIdFromQuery(raw);
+
+  if (id) {
+    await openStoreSearchResult(id, `ID ${id}`);
+    return;
+  }
+
+  await loadStoresIndex();
+
+  const location = resolveLocationSearch(raw);
+
+  if (location?.type === "country") {
+    await openMarketSearchResult({
+      country: location.country,
+      label: location.country
+    });
+    return;
+  }
+
+  if (location?.type === "city") {
+    await openMarketSearchResult({
+      country: location.country,
+      city: location.city,
+      label: [location.city, location.country]
+        .filter(Boolean)
+        .join(", ")
+    });
+    return;
+  }
+
+  const store = resolveStoreSearch(raw);
+
+  if (store) {
+    await openStoreSearchResult(
+      Number(store.id),
+      store.name || `ID ${store.id}`
+    );
+    return;
+  }
+
+  setSearchStatus(
+    `No analytics match for "${escapeHtml(raw)}". Try a country, city, store name or ID.`
+  );
+}
+
+function getStoreIdFromQuery(value) {
+
+  const text = String(value || "").trim();
+
+  if (/^\d+$/.test(text)) {
+    return Number(text);
+  }
+
+  const match = text.match(/(?:^|\b)id\s*#?\s*(\d{1,10})\b/i);
+
+  return match ? Number(match[1]) : null;
+}
+
+function resolveLocationSearch(value) {
+
+  const query = normalizeSearchText(value);
+  const aliasCountry = COUNTRY_ALIASES[query];
+
+  if (aliasCountry) {
+    return {
+      type: "country",
+      country: aliasCountry
+    };
+  }
+
+  const countries = uniqueByNormalized(
+    STORES_INDEX
+      .map(s => s.country)
+      .filter(Boolean)
+  );
+
+  const exactCountry = countries.find(country =>
+    normalizeSearchText(country) === query
+  );
+
+  if (exactCountry) {
+    return {
+      type: "country",
+      country: exactCountry
+    };
+  }
+
+  const cities = uniqueStoreLocations();
+
+  const exactCity = cities.find(item =>
+    normalizeSearchText(item.city) === query
+  );
+
+  if (exactCity) {
+    return {
+      type: "city",
+      city: exactCity.city,
+      country: exactCity.country
+    };
+  }
+
+  return null;
+}
+
+function resolveStoreSearch(value) {
+
+  const query = normalizeSearchText(value);
+
+  return STORES_INDEX.find(store =>
+    normalizeSearchText(store.name) === query
+  ) || STORES_INDEX.find(store =>
+    normalizeSearchText(store.name).includes(query)
+  );
+}
+
+async function openMarketSearchResult({ country, city = null, label }) {
+
+  const days = Number(globalRangeSelect?.value || 30);
+
+  activateKpiCard("views");
+
+  if (window.MARKET_STATE) {
+    window.MARKET_STATE.country = country || null;
+    window.MARKET_STATE.city = city || null;
+    window.MARKET_STATE.store = null;
+    window.MARKET_STATE.user = null;
+    window.MARKET_STATE.level = city ? "store" : "city";
+  }
+
+  await setKPI("views");
+
+  setSearchStatus(`Opened Market: ${escapeHtml(label || country || city)}`);
+}
+
+async function openStoreSearchResult(storeId, label) {
+
+  const days = Number(globalRangeSelect?.value || 30);
+
+  activateKpiCard("stores");
+
+  await setKPI("stores");
+
+  const storesModule = await import("./funnel-stores-v2.js");
+
+  await storesModule.openStoreDossierById(storeId, days);
+
+  setSearchStatus(`Opened Store Intelligence: ${escapeHtml(label)}`);
+}
+
+function activateKpiCard(kpi) {
+
+  document.querySelectorAll(".kpi-card")
+    .forEach(card => card.classList.remove("active"));
+
+  document.querySelector(`.kpi-card[data-kpi="${kpi}"]`)
+    ?.classList.add("active");
+}
+
+function setSearchStatus(message) {
+
+  const info = document.getElementById("filterInfo");
+  if (!info) return;
+
+  info.innerHTML = message;
+  info.classList.remove("hidden");
+}
+
+function clearSearchStatus() {
+
+  const info = document.getElementById("filterInfo");
+  if (!info) return;
+
+  info.innerHTML = "";
+  info.classList.add("hidden");
+}
+
+function uniqueByNormalized(values) {
+
+  const seen = new Map();
+
+  values.forEach(value => {
+    const key = normalizeSearchText(value);
+    if (!key || seen.has(key)) return;
+    seen.set(key, value);
+  });
+
+  return [...seen.values()];
+}
+
+function uniqueStoreLocations() {
+
+  const seen = new Map();
+
+  STORES_INDEX.forEach(store => {
+    const city = store.city;
+    const country = store.country;
+    const key = normalizeSearchText([city, country].join("|"));
+
+    if (!city || seen.has(key)) return;
+
+    seen.set(key, {
+      city,
+      country
+    });
+  });
+
+  return [...seen.values()];
+}
+
+function normalizeSearchText(value) {
+
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /* ============================================================
@@ -912,11 +1233,14 @@ function resetAll() {
 
   ACTIVE_STORE = null;
 
-  storePanel.classList.add("hidden");
-  storeEmpty.classList.remove("hidden");
+  storePanel?.classList.add("hidden");
+  storeEmpty?.classList.remove("hidden");
 
-  trendTbody.innerHTML = "";
-  eventsTbody.innerHTML = "";
+  if (trendTbody) trendTbody.innerHTML = "";
+  if (eventsTbody) eventsTbody.innerHTML = "";
+
+  clearSearchStatus();
+  resetAnalyticsView();
 
   /* ============================================================
      🔥 RESET SIDEBAR HIERARCHY (NEW)
@@ -950,6 +1274,22 @@ function resetAll() {
     if (child) child.classList.add("show");
   }
 
+}
+
+function resetAnalyticsView() {
+
+  if (window.MARKET_STATE) {
+    window.MARKET_STATE.level = "member_day";
+    window.MARKET_STATE.country = null;
+    window.MARKET_STATE.city = null;
+    window.MARKET_STATE.store = null;
+    window.MARKET_STATE.user = null;
+  }
+
+  window.resetStoresV2?.();
+
+  activateKpiCard("users");
+  setKPI("users");
 }
 /* ============================================================
    UTILS
