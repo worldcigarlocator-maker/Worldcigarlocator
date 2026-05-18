@@ -135,7 +135,7 @@ function updateSearchCount(value) {
   }
 
   const formatted = new Intl.NumberFormat().format(value);
-el.textContent = `${formatted} Listings found`;
+el.textContent = `${formatted} listings found`;
 }
 // ============================================================
 // HERO RESET
