@@ -63,7 +63,7 @@ body:not(.auth-locked) .beta-landing{
 }
 
 .beta-brand-image{
-  width:min(650px, 100%);
+  width:min(618px, 100%);
   aspect-ratio:3 / 2;
   object-fit:cover;
   border-radius:2px;
@@ -71,7 +71,7 @@ body:not(.auth-locked) .beta-landing{
 }
 
 .beta-shell h1{
-  margin:18px 0 0;
+  margin:22px 0 0;
   font-family:Georgia,"Times New Roman",serif;
   color:#c9954a;
   font-size:clamp(30px, 3.54vw, 46.5px);
@@ -82,11 +82,11 @@ body:not(.auth-locked) .beta-landing{
 
 .beta-copy{
   width:min(680px, 100%);
-  margin-top:12px;
+  margin-top:16px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:5px;
+  gap:7px;
   color:#f0dfc1;
   font-size:clamp(12.4px, 1.18vw, 14.8px);
   line-height:1.5;
@@ -98,13 +98,13 @@ body:not(.auth-locked) .beta-landing{
 }
 
 .beta-copy-signoff{
-  margin-top:4px;
+  margin-top:6px;
   color:#d8b37c;
 }
 
 .beta-actions{
   width:min(710px, 100%);
-  margin-top:22px;
+  margin-top:24px;
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:18px;
@@ -874,7 +874,7 @@ body.static-page{
   }
 
   .beta-brand-image{
-    width:100%;
+    width:min(95%, 100%);
     aspect-ratio:16 / 10;
   }
 
