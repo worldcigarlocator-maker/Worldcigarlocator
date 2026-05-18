@@ -44,20 +44,8 @@ body{
   font-family:var(--font);
   margin:0;
 
-  background:
-    radial-gradient(
-      circle at 18% 0%,
-      rgba(214,179,106,0.10),
-      transparent 34%
-    ),
-    linear-gradient(
-      180deg,
-      #050505 0%,
-      #080a10 52%,
-      #050505 100%
-    );
-
-color:#e6edf7;
+  background:#050505;
+  color:#e6edf7;
   min-height:100vh;
 }
 
@@ -166,8 +154,8 @@ color:#e6edf7;
 }
 
 .backoffice-brand{
-  width:132px;
-  height:58px;
+  width:170px;
+  height:72px;
   flex-shrink:0;
   display:block;
   object-fit:cover;
@@ -724,8 +712,8 @@ body.modal-open{
   }
 
   .backoffice-brand{
-    width:118px;
-    height:52px;
+    width:146px;
+    height:62px;
   }
 
   .topbar .actions,
