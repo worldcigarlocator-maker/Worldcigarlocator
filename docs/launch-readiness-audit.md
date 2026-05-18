@@ -217,12 +217,18 @@ Canonical RPCs:
     The draft blocks comments through a backend trigger when text matches WCL blacklist terms after whitelist terms are removed, and flags pending add-store submissions for owner review when listing text matches the same policy.
     Frontend comments now show a clear WCL policy message when the backend refuses the post.
 
+48. Added AI-assisted comment moderation scaffolding.
+    The frontend now attempts to post comments through `moderate_comment_v1` first, with the old RPC path retained as a fallback while the Edge Function is not deployed.
+    The Edge Function lives at `supabase/functions/moderate_comment_v1/index.ts`, keeps the OpenAI key server-side, checks blacklist/whitelist first, calls OpenAI only on policy hits, and posts only when the decision is `safe`.
+    The SQL follow-up `docs/supabase-ai-comment-moderation-draft.sql` updates the database trigger so a trusted AI-safe decision can pass while the trigger remains the final safety net.
+
 ## Launch Blockers To Resolve
 
 - Verify production analytics ingest after deployment.
 - Owner visual check of the rebuilt analytics PDF in the browser.
 - Verify or implement the server-side spam filter in `submit_store_report_v1`.
 - Review, run, and verify `docs/supabase-content-policy-moderation-draft.sql` in Supabase.
+- Run `docs/supabase-ai-comment-moderation-draft.sql`, deploy `moderate_comment_v1`, set OpenAI Supabase secrets, and verify safe/block comment behavior.
 - Rebuild project documentation after the remaining fixes; stale/canonical docs can be replaced then.
 - Optional later cleanup: standardize the production branch name from `Main-1` to `main` and remove the extra branch.
 

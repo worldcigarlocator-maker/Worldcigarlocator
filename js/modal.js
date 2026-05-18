@@ -286,6 +286,55 @@ function isPolicyBlockedError(error) {
   );
 }
 
+async function addCommentWithModeration({
+  storeId,
+  text,
+  parentId
+}) {
+  const { data, error } = await supabase.functions.invoke(
+    "moderate_comment_v1",
+    {
+      body: {
+        store_id: storeId,
+        comment: text,
+        parent_id: parentId
+      }
+    }
+  );
+
+  if (!error && data?.status === "blocked") {
+    showCommentPolicyMessage(
+      data.message ||
+        "Due to WCL policy, we can not post your comment."
+    );
+
+    return {
+      ok: false,
+      handled: true
+    };
+  }
+
+  if (!error && data?.ok) {
+    return {
+      ok: true,
+      handled: true
+    };
+  }
+
+  if (error) {
+    debugLog(
+      "moderate_comment_v1 unavailable, using RPC fallback",
+      error
+    );
+  }
+
+  return {
+    ok: false,
+    handled: false,
+    error
+  };
+}
+
 // ============================================================
 // OPEN / CLOSE
 // ============================================================
@@ -826,13 +875,29 @@ async function submitComment() {
 
   hideCommentPolicyMessage();
 
-  const { error } = await supabase.rpc("modal_add_comment_v1", {
-    p_store_id: MODAL_ACTIVE_STORE_ID,
-    p_comment: text,
-    p_parent_id: MODAL_REPLY_TO,
-  });
+  const moderated =
+    await addCommentWithModeration({
+      storeId: MODAL_ACTIVE_STORE_ID,
+      text,
+      parentId: MODAL_REPLY_TO
+    });
 
-  if (error) {
+  let error = moderated.error || null;
+  let posted = moderated.ok;
+
+  if (!moderated.handled) {
+    const fallback =
+      await supabase.rpc("modal_add_comment_v1", {
+        p_store_id: MODAL_ACTIVE_STORE_ID,
+        p_comment: text,
+        p_parent_id: MODAL_REPLY_TO,
+      });
+
+    error = fallback.error;
+    posted = !fallback.error;
+  }
+
+  if (!posted && error) {
     console.error("modal_add_comment_v1 error:", error);
 
     if (isPolicyBlockedError(error)) {
@@ -841,6 +906,8 @@ async function submitComment() {
 
     return;
   }
+
+  if (!posted) return;
 
   if (input) input.value = "";
 
