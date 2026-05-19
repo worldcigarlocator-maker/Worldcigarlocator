@@ -1,228 +1,135 @@
-# 🌍 World Cigar Locator (WCL)
-
-World Cigar Locator (WCL) is a global directory and mapping platform for cigar lounges, cigar shops, and premium smoking locations around the world.  
-The goal is to deliver the most accurate and user-friendly cigar venue index worldwide.
-
-WCL consists of:
-
-- A public-facing frontend  
-- A secure admin Backoffice  
-- A Supabase backend with RLS  
-- Server-side Edge Functions  
-- Google Maps / Places integrations  
-- Optional OpenAI-powered metadata tools  
-
----
+# World Cigar Locator
+
+World Cigar Locator (WCL) is a global discovery platform for cigar stores,
+lounges, hidden humidors, and premium cigar destinations.
 
-## 🚀 Features
+The product combines a public search and map experience, member accounts,
+community signals, owner-submitted listings, admin moderation, and analytics
+for market and venue intelligence.
 
-### Public Website
-- Global list of cigar lounges and cigar-friendly locations  
-- Fast continent → country → city navigation  
-- Google Maps integration  
-- Automatic photo fetching via **photo-proxy**  
-- Fully responsive UI  
-- Real-time data from Supabase  
-- Clean, trusted, and consistent card layout  
+## Product Scope
 
-### Admin Backoffice
-- Secure login via Supabase Auth  
-- Admin-only write permissions  
-- Add, edit, and remove venues  
-- Approval, moderation & flagging system  
-- Photo replacement & metadata upload  
-- AI-assisted tools (optional)  
-- Excel-style list view for bulk editing  
-- Place ID validator & duplicate detection  
+- Public discovery website with search, maps, sidebar navigation, and listing cards.
+- Authenticated member area for account settings, favorites, ratings, and comments.
+- Public listing submission flow routed through review before publication.
+- Admin Backoffice for listing approval, editing, rejection, reports, comments, and trash handling.
+- Analytics workspace for market, store, member, and PDF reporting workflows.
+- AI-assisted comment moderation through a Supabase Edge Function.
 
-### Security & API Architecture
-- Full **RLS (Row Level Security)** protection  
-- All sensitive logic runs via **Edge Functions**  
-- OpenAI & Google server keys never exposed  
-- Strict domain restrictions for browser keys  
-- Rate-limiting and abuse protection  
-- Safe public endpoints (read-only, filtered)  
+## Architecture
 
----
+WCL is a static frontend backed by Supabase.
 
-## 🏗 Architecture Overview
+```text
+Browser
+  -> Static HTML, CSS, and JavaScript
+  -> Supabase Auth, views, RLS policies, and RPCs
+  -> Google Maps / Places browser APIs
 
-Frontend (public website)
-│
-├─ Static HTML/CSS/JS
-│ └─ Fetches only approved venues (RLS-filtered)
-│
-├─ Google Maps JS API (browser key, domain restricted)
-│
-Backend
-│
-├─ Supabase PostgreSQL
-│ ├─ Tables: stores, countries, cities, continents
-│ ├─ RLS: anon SELECT only where approved=true
-│ └─ Functions: counts, metadata helpers
-│
-├─ Supabase Auth (Admin only)
-│
-├─ Edge Functions
-│ ├─ photo-proxy (Google Photos → browser)
-│ ├─ openai-metadata (optional)
-│ ├─ admin-store-actions
-│ └─ data cleanup & tools
-│
-External Integrations
-│
-├─ Google Places / Photos (server key only)
-└─ OpenAI API (server key only)
+Supabase
+  -> PostgreSQL tables, views, triggers, and RLS
+  -> Security-definer RPCs for controlled backend authority
+  -> Edge Functions for AI moderation and server-side integrations
 
+External Services
+  -> Google Maps / Places / Photos
+  -> OpenAI for policy-aware comment moderation
+```
 
----
+## Repository Map
 
-## ⚙️ Requirements
+```text
+/
+  index.html                 Public WCL experience
+  account.html               Member account workspace
+  analytics.html             Analytics and PDF reporting workspace
+  backoffice.html            Admin Backoffice
+  add-store.html             Public add-listing flow
+  reports.html               Report and moderation views
 
-- Supabase project (Free or Pro)  
-- Node.js (optional for local development)  
-- Google Cloud account with Places API enabled  
-- OpenAI account (optional metadata tools)  
-- Hosting provider (Vercel, Netlify, GitHub Pages, Cloudflare Pages)
+  css/                       Page, component, and core styles
+  js/                        Frontend runtime modules
+  images/                    Brand, hero, icon, and content assets
+  assets/                    SVG logos, flags, and shared visual assets
+  locales/                   Localized static page content and language files
+  supabase/functions/        Supabase Edge Function source
+  docs/                      Launch, security, Supabase, and owner documentation
+```
 
----
+## Canonical Runtime Rules
 
-## 🔑 Environment Variables (Supabase Secrets)
+These rules protect the product model and should be treated as non-negotiable:
 
-All secrets must be stored in Supabase → **Project Settings → Secrets**:
+- Backend authority overrides frontend behavior.
+- The frontend must not aggregate authoritative counts.
+- Sidebar counts are backend-only.
+- Analytics are append-only.
+- Human moderation overrides automation.
+- No destructive database changes without owner approval.
+- The public frontend must not use direct raw-store access for canonical listing data.
 
-OPENAI_API_KEY=sk-xxxx
-GOOGLE_SERVER_KEY=xxxx
-MAPS_BROWSER_KEY=xxxx
-SUPABASE_URL=https://xxx.supabase.co
+## Canonical Data Surfaces
 
-SUPABASE_SERVICE_ROLE=xxxx
+Public listing and navigation flows should use the approved backend surfaces:
 
+- `stores_frontend_public_v5`
+- `search_stores_v2`
+- `sidebar_nodes_v3`
+- `stores_within_bounds`
+- `analytics_top_stores_v2`
 
-Do **not** commit any `.env` files to GitHub.
+## Security Principles
 
----
+- No service-role keys or private API keys in frontend code.
+- Supabase RLS remains the first database safety layer.
+- Admin writes are routed through authenticated checks and controlled RPCs.
+- Browser API keys are domain-restricted and API-restricted.
+- Public listing submissions go into review before becoming public.
+- Public comments go through AI-assisted moderation before insert.
+- Analytics events are append-only and must not influence listing approval or visibility.
 
-## 🖼 Photo Proxy (Edge Function)
+See [SECURITY.md](SECURITY.md) for the security model.
 
-WCL uses a secure proxy to fetch Google Place Photos without exposing server keys.
+## Development Workflow
 
-**Frontend request example:**
+The site can be previewed locally from the repository root:
 
-/photo-proxy?ref=PHOTO_REFERENCE&maxwidth=800
+```sh
+python3 -m http.server 4173
+```
 
+Then open:
 
-The Edge Function:
+```text
+http://localhost:4173
+```
 
-- Receives the request from browser  
-- Fetches the image from Google using server key  
-- Streams it back as a safe, proxied response  
-- Keeps server key private at all times  
+For owner workflow, GitHub branch handling, and local review steps, see
+[docs/owner-workflow.md](docs/owner-workflow.md).
 
----
+## Documentation
 
-## 🔐 Security Model
+Start with [docs/README.md](docs/README.md). It separates active operational
+documentation from historical launch notes and SQL drafts.
 
-Full security documentation is available in **SECURITY.md**.
+Key documents:
 
-Key principles:
+- [docs/browser-key-restriction-guide.md](docs/browser-key-restriction-guide.md)
+- [docs/ai-comment-moderation-guide.md](docs/ai-comment-moderation-guide.md)
+- [docs/backoffice-functional-test-checklist.md](docs/backoffice-functional-test-checklist.md)
+- [docs/my-account-future-modules.md](docs/my-account-future-modules.md)
+- [project_map.md](project_map.md)
 
-- No sensitive API key in frontend  
-- RLS restricts public access to approved data only  
-- Admin Backoffice protected by Supabase Auth  
-- Edge Functions verify JWT tokens  
-- All writes require admin privileges  
-- Rate-limits applied on backend  
-- Google browser keys locked to `worldcigarlocator.com`  
+## Deployment Notes
 
----
+- Frontend hosting is static.
+- Supabase manages authentication, database policies, RPCs, and Edge Functions.
+- Google browser keys must remain restricted to approved WCL domains.
+- Supabase secrets must be configured in the Supabase dashboard or CLI, never committed.
+- Production changes should be reviewed through a pull request before merging.
 
-## 📦 Deployment
+## Ownership
 
-### Frontend
-Can be deployed to:
-
-- Vercel  
-- Netlify  
-- GitHub Pages  
-- Cloudflare Pages  
-
-The site is entirely static and requires no server.
-
-### Edge Functions
-Deployed via Supabase CLI:
-
-supabase functions deploy photo-proxy
-supabase functions deploy admin-store-actions
-
-
-### Supabase
-Database is handled automatically via:
-
-- SQL migrations
-- RLS policies
-- triggers & functions
-
----
-
-## 📊 Data Model (Simplified)
-
-stores
-id
-name
-country
-city
-continent
-lat
-lng
-address
-website
-phone
-place_id
-photo_reference
-access
-type
-rating
-approved
-flagged
-deleted
-created_at
-updated_at
-
-
----
-
-## 🧪 Testing
-
-Manual testing recommended:
-
-- Test photo-proxy with several Google Place IDs  
-- Add/remove venues through Backoffice  
-- Validate RLS by making anon requests  
-- Confirm admin-only write actions  
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome.  
-To contribute:
-
-- Document any schema changes  
-- Include screenshots for UI updates  
-- Never commit secrets or API keys  
-- Follow the project architecture and naming standards  
-
----
-
-## 📄 License
-
-Copyright © 2025  
-The project may not be copied or redistributed without permission from the owner.
-
----
-
-## ⭐ Thank You for Using World Cigar Locator!
-
-More features are coming soon — AI tools, automatic metadata, improved photo systems, and more.
-
+World Cigar Locator is a proprietary project. Code, brand assets, data model,
+and documentation may not be copied, redistributed, or used commercially without
+permission from the owner.

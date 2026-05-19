@@ -343,7 +343,7 @@ export async function trackEvent(eventType, payload = {}) {
        ============================================================ */
 
     debugLog(
-      "🚀 ANALYTICS PAYLOAD:",
+      "ANALYTICS PAYLOAD:",
       JSON.stringify(finalPayload, null, 2)
     );
 
@@ -369,7 +369,7 @@ export async function trackEvent(eventType, payload = {}) {
     if (!res.ok) {
 
       console.warn(
-        "❌ ANALYTICS ERROR:",
+        "ANALYTICS ERROR:",
         res.status,
         text
       );
@@ -377,7 +377,7 @@ export async function trackEvent(eventType, payload = {}) {
       return;
     }
 
-    debugLog("✅ ANALYTICS SENT");
+    debugLog("ANALYTICS SENT");
 
   } catch (err) {
 
@@ -413,7 +413,7 @@ function trackSessionStart() {
       source: "direct"
     });
 
-    debugLog("🔥 SESSION START TRACKED:", today);
+    debugLog("SESSION START TRACKED:", today);
 
   } catch (err) {
     console.error("Session tracking failed", err);

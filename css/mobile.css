@@ -36,10 +36,10 @@ textarea{
   padding:100px 1rem 2rem;
   min-height:100vh;
 
-  display:block;              /* 🔥 viktig ändring */
+  display:block;              /* viktig ändring */
   position:relative;
 
-  overflow-anchor:none;       /* 🔥 stoppar scroll jump */
+  overflow-anchor:none;       /* stoppar scroll jump */
 }
 /* ============================================================
    MOBILE HEADER
@@ -173,7 +173,7 @@ textarea{
 /* ============================================================
    SEARCH — MOBILE CLEAN (NO CAPSULE UI)
    ============================================================ */
-   /* 🔥 HIDE DESKTOP SEARCH IN MOBILE */
+   /* HIDE DESKTOP SEARCH IN MOBILE */
 .search-panel{
   display:none !important;
 }
@@ -189,7 +189,7 @@ textarea{
 /* ============================================================
    SEARCH PANEL — REMOVE DOUBLE CONTAINER
    ============================================================ */
-/* 🔥 DÖDA OUTER BORDER */
+/* DÖDA OUTER BORDER */
 .search-panel::before,
 .search-panel::after{
   display:none !important;
@@ -326,7 +326,7 @@ display:block;
     padding-inline:.5rem;
   }
 
-  /* 🔥 CRITICAL — REMOVE FIXED WIDTH FROM DESKTOP */
+  /* CRITICAL — REMOVE FIXED WIDTH FROM DESKTOP */
   .store-card{
     width:100%;
     height:auto;
@@ -414,7 +414,7 @@ display:block;
   border-top:1px solid rgba(255,255,255,0.08);
   border-bottom:1px solid rgba(255,255,255,0.08);
 
-  /* 🔥 START STÄNGD */
+  /* START STÄNGD */
   max-height:0;
   opacity:0;
   overflow:hidden;
@@ -577,7 +577,7 @@ display:block;
   background:none !important;
   border:none !important;
 
-  color:rgb(var(--global));   /* 🔥 styr SVG */
+  color:rgb(var(--global));   /* styr SVG */
   cursor:pointer;
 }
 

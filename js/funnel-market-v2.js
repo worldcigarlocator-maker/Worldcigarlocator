@@ -1,5 +1,5 @@
 /* ============================================================
-WCL — MARKET V2 (CLEAN ENGINE)
+WCL - Market V2
 ============================================================ */
 
 import { supabase } from "/js/globals.js";
@@ -9,8 +9,6 @@ import {
   setActiveDay
 } from "/js/analytics-state.js";
 const sb = supabase;
-
-console.log("🔥 MARKET V2 LOADED");
 
 /* ============================================================
 CTR HELPER (GLOBAL, CANONICAL)
@@ -379,11 +377,8 @@ function bindRows(days) {
 
     row.onclick = async () => {
 
-      console.log("🔥 CLICK KPI:", getKPI());
-      console.log("🔥 CLICK LEVEL:", MARKET_STATE.level);
-
 /* ============================================================
-MEMBER DAY → COUNTRY
+MEMBER DAY -> COUNTRY
 ============================================================ */
 
 if (MARKET_STATE.level === "member_day") {
@@ -401,7 +396,7 @@ if (MARKET_STATE.level === "member_day") {
 }
 
 /* ============================================================
-COUNTRY → CITY / MEMBER COUNTRY → MEMBER CITY
+COUNTRY -> CITY / MEMBER COUNTRY -> MEMBER CITY
 ============================================================ */
 
 if (
@@ -414,11 +409,6 @@ if (
     row.querySelector("td")?.textContent;
 
   if (!country) return;
-
-  console.log(
-    "MARKET COUNTRY:",
-    country
-  );
 
   MARKET_STATE.country =
     String(country).trim();
@@ -1171,11 +1161,6 @@ export async function renderMarketV2(days = 30) {
 
   const KPI = getKPI();
 
-  console.log("🔥 MARKET V2 RENDER", {
-    ...MARKET_STATE,
-    kpi: KPI
-  });
-
   const tbody = getBody();
   if (!tbody) return;
   renderBreadcrumb();
@@ -1348,5 +1333,5 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 export function renderHeatmap() {
-  console.log("🔥 HEATMAP PLACEHOLDER");
+  // Reserved for the future heatmap panel.
 }

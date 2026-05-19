@@ -1,15 +1,33 @@
-# WCL Flag Set (ISO-2)
+# WCL Shared Assets
 
-Detta är flaggsettet för **World Cigar Locator (Backoffice + Frontend)**.
+This folder contains shared visual assets used by the World Cigar Locator
+frontend and Backoffice.
 
-✅ ISO-2 format  
-✅ Små bokstäver  
-✅ 190 relevanta länder  
-✅ Optimerade SVG-filer  
-✅ Används i Backoffice Card View  
-✅ Återanvänds i frontend i senare version
+## Contents
 
-Lägg till fler vid behov, men håll namnet:
-`{iso}.svg`  
-ex:
+- `icons/` - WCL logo and shared interface SVG files.
+- `flags/` - ISO-2 country flags and continent icons.
 
+## Flag Naming Standard
+
+Country flags use lowercase ISO-2 filenames:
+
+```text
+se.svg
+us.svg
+de.svg
+```
+
+Continent flags live in:
+
+```text
+assets/flags/continent/
+```
+
+## Usage Notes
+
+- Keep filenames stable because frontend code may reference them directly.
+- Optimize new SVG assets before committing.
+- Do not replace brand assets without checking all pages that reference them.
+- Prefer adding a new asset and updating references intentionally over
+  overwriting an asset whose old dimensions may be relied on by the UI.

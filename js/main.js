@@ -208,7 +208,7 @@ debugLog("AUTH UI CHECK", {
       "true"
     );
 
-    // ❌ Ta bort auto-popup
+    // Ta bort auto-popup
 
     if (popup) {
 
@@ -360,7 +360,7 @@ function bindLoginButtons() {
 
       if (session) {
 
-        // 🔥 LOGOUT
+        // LOGOUT
 
         await supabase.auth.signOut();
 
@@ -368,7 +368,7 @@ function bindLoginButtons() {
 
       }
 
-      // 🔥 LOGIN
+      // LOGIN
 
       showLoginPopup();
 
@@ -400,7 +400,7 @@ function bindLoginButtons() {
     hideLoginPopup
   );
 
-  // 🔥 AUTH MESSAGE
+  // AUTH MESSAGE
 
   const msg =
     qs("#authMessage");
@@ -419,7 +419,7 @@ function bindLoginButtons() {
 
   }
 
-  // 🔥 BUTTONS
+  // BUTTONS
 
   const signupBtn =
     qs("#signupSubmit");
@@ -583,10 +583,10 @@ if (error) {
 
 }
 
-// 🔥 force session persist
+// force session persist
 await supabase.auth.getSession();
 
-// 🔥 TRACK LOGIN
+// TRACK LOGIN
 await trackEvent(
   "user_login",
   {
@@ -646,7 +646,7 @@ signupBtn?.addEventListener(
     const label =
       qs(".login-text");
 
-    // 🔥 VISA MODE DIREKT
+    // VISA MODE DIREKT
 
     if (!email || !pass) {
 
@@ -712,7 +712,7 @@ signupBtn?.addEventListener(
 
     }
 
-    // 🔥 HANDLE BOTH CASES
+    // HANDLE BOTH CASES
 
     if (data?.session) {
 

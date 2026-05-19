@@ -1,126 +1,149 @@
-# World Cigar Locator – Security Blueprint
+# World Cigar Locator Security Model
 
-Senast uppdaterad: 2025-11-27
+Last updated: 2026-05-19
 
-Detta dokument beskriver säkerhetsmodellen för World Cigar Locator (WCL), inklusive
-hantering av hemligheter, API-nycklar, backend-logik, RLS och frontend-begränsningar.
+This document describes the current security model for World Cigar Locator
+(WCL). It is written for owner review, external technical review, and future
+handover.
 
----
+## Security Objectives
 
-## 1. Översikt
+- Keep private API keys and service-role credentials out of the browser.
+- Expose only approved public listing data to anonymous visitors.
+- Route sensitive writes through Supabase Auth, RLS, and controlled RPCs.
+- Keep analytics append-only and separate from listing moderation.
+- Allow human moderation to override automation.
+- Block unsafe community comments before they are written to the database.
+- Keep Google browser keys restricted by domain and API scope.
 
-WCL består av:
+## Public Frontend Boundary
 
-- **Publik frontend** (statisk webb + Supabase som datakälla)
-- **Backoffice / Adminpanel** (endast för inloggade admins)
-- **Supabase** (databas + RLS + Edge Functions)
-- **Externa API:er**
-  - OpenAI API
-  - Google Maps / Places (inkl. foto)
+The public frontend may read approved public listing surfaces and call approved
+RPCs only.
 
-Målet är att:
-- API-nycklar aldrig exponeras publikt
-- Endast godkänd data exponeras mot publik frontend
-- Alla muterande operationer kräver autentiserad admin
+Canonical public data surfaces include:
 
----
+- `stores_frontend_public_v5`
+- `search_stores_v2`
+- `sidebar_nodes_v3`
+- `stores_within_bounds`
 
-## 2. Hemligheter & API-nycklar
+The public frontend must not use service-role credentials or unrestricted
+database access.
 
-### 2.1 Var hemligheter lagras
+## Supabase Auth and Admin Checks
 
-Alla hemliga nycklar ska lagras som **Supabase Secrets**:
+Admin behavior is controlled through Supabase Auth and server-side admin checks.
 
-- `OPENAI_API_KEY`
-- `GOOGLE_SERVER_API_KEY` (Places / Photos, endast server)
-- `MAPS_BROWSER_API_KEY` (klient, men låst på domännivå)
+Important backend functions:
 
-Inga keys får:
+- `bo_is_admin_v1`
+- `approve_store_pending`
+- `bo_moderate_store_report_v1`
 
-- ligga hårdkodade i repo
-- ligga i `.env` som committas
-- ligga i frontend-kod
+Admin-only workflows must verify the signed-in user server-side before changing
+listings, pending submissions, reports, comments, or moderation state.
 
-### 2.2 Användning
+## Row Level Security
 
-- **OpenAI**  
-  - Endast i Edge Functions / backend  
-  - Hämtas via `Deno.env.get("OPENAI_API_KEY")`
+RLS is part of the active safety model for key user-facing tables.
 
-- **Google server key**  
-  - Endast i foto-proxy / andra serverfunktioner  
-  - Aldrig direkt i browsern
-
-- **Maps browser key**  
-  - Får ligga i frontend, men:
-    - Begränsad till domäner: t.ex. `worldcigarlocator.com`
-    - Endast nödvändiga APIs aktiverade (Maps JS, Places, ev. Geocoding om behövs)
-
----
-
-## 3. Supabase & RLS
-
-### 3.1 RLS (Row Level Security)
-
-Tabeller som styrs med RLS (exempel):
+Important protected areas include:
 
 - `stores`
-- `cities`
-- `countries`
-- `flags` (om sådan finns)
-- ev. `flags_reports` eller liknande
+- `store_pending`
+- `store_comments`
+- `store_reports`
+- `store_report_actions`
+- `store_favorites`
+- `profiles`
 
-**Princip:**
+Public users may read approved public listing data. Authenticated users may use
+member features. Admin users may access moderation and backoffice flows through
+admin policies or controlled RPCs.
 
-- **anon (publik)**:
-  - Får endast SELECT på offentliga / `approved = true` rader
-  - Får inte INSERT / UPDATE / DELETE
+## Listing Submission Model
 
-- **auth (inloggad användare)**:
-  - Begränsad till det som är rimligt (oftast fortfarande read-only)
+Public add-listing submissions go into `store_pending`. They are not published
+directly.
 
-- **admin / service role**:
-  - Får skriva, men bara via kontrollerad backend (Edge Functions / Backoffice)
+Approval is performed through an admin-controlled path. The approval function
+must check admin authority before moving a pending listing into the public
+listing table.
 
-Exempelpolicy för `stores`:
+## Comment Moderation Model
 
-- Publik:
-  - `SELECT` där `approved = true` och `status = 'active'`
-- Backoffice (admin):
-  - Full read/write via service role eller specifik role
+Public comments are routed through the Supabase Edge Function
+`moderate_comment_v1`.
 
-### 3.2 Direktanslutning från frontend
+The moderation flow is:
 
-Frontend bör använda:
-- `supabase-js` med **anon-key**
-- Endast SELECT mot vyer eller tabeller som är hårt filtrerade av RLS
+1. The browser submits the comment to the Edge Function.
+2. The function checks the WCL policy context.
+3. The function uses OpenAI for language-aware classification.
+4. Safe comments are inserted through the trusted backend path.
+5. Blocked comments are not written to `store_comments`.
 
----
+The old direct browser insert path for comments should remain closed.
 
-## 4. Backoffice / Adminpanel
+## Analytics Model
 
-### 4.1 Autentisering
+Analytics events are append-only. They may be used for reporting and market
+insight, but they must not decide moderation, approval, deletion, ranking, or
+store visibility by themselves.
 
-- Backoffice kräver alltid **Supabase Auth** (e-post eller annan metod)
-- Endast användare med roll "admin" (eller motsvarande fält) får:
-  - Ändra `stores`
-  - Godkänna / avvisa poster
-  - Ändra foton, flaggor, metadata
+Canonical public event types:
 
-### 4.2 Autorisering (authorization)
+- `store_view`
+- `store_opened`
+- `website_clicked`
 
-Varje känslig funktion ska kontrollera:
+Additional internal event types may exist for analytics workflows, but they
+should remain controlled and documented.
 
-1. Är användaren inloggad?
-2. Har användaren rätt roll / behörighet?
+## API Keys and Secrets
 
-I Edge Functions / admin-API:
+Secrets must be stored in Supabase or the relevant hosting provider, never in
+frontend code or committed files.
 
-```ts
-const { data: { user } } = await supabase.auth.getUser();
+Important secret names:
 
-if (!user) {
-  return new Response("Unauthorized", { status: 401 });
-}
+- `OPENAI_API_KEY`
+- `OPENAI_COMMENT_MODERATION_MODEL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- Google server-side API keys used by backend functions
 
-// Exempel: kolla roll i JWT claim eller profil-tabell
+Browser keys must be restricted in Google Cloud:
+
+- Application restriction: approved WCL domains only.
+- API restriction: only APIs required by the browser.
+
+See [docs/browser-key-restriction-guide.md](docs/browser-key-restriction-guide.md).
+
+## Backoffice Safety
+
+Backoffice is an admin workspace. It may show broader operational data than the
+public frontend, but writes must still be authorized server-side.
+
+Backoffice permissions should support:
+
+- Listing approval, edit, reject, restore, and soft delete.
+- Comment moderation and admin deletion.
+- Report review and status changes.
+- Pending listing review.
+- Read-only analytics where appropriate.
+
+## Operational Verification
+
+Before launch or handover, verify:
+
+- Anonymous users can only see approved public listings.
+- Anonymous users can submit pending listings but cannot read the pending queue.
+- Anonymous users cannot write directly to `store_comments`.
+- Authenticated non-admin users cannot approve or edit public listings.
+- Admin users can use Backoffice workflows.
+- Comment moderation blocks unsafe content and allows normal cigar discussion.
+- Browser keys reject unapproved origins.
+- No service-role key is present in frontend files.
+
+Detailed launch notes and SQL history live in [docs/README.md](docs/README.md).

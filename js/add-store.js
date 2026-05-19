@@ -1,9 +1,7 @@
 /* ================================================================
    js/add-store.js
-   Backoffice — Add Store (STRICT + HYBRID SAFE)
+   Backoffice - Add Store
    ================================================================ */
-
-console.log("🚀 Add Store Backoffice loaded");
 
 /* ================================================================
    GLOBAL STATE
@@ -20,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   bindTypeSelector();
   bindButtons();
 
-  // Country → load existing cities
+  // Country -> load existing cities
   document
     .getElementById("country")
     ?.addEventListener("change", loadCitiesForCountry);
@@ -244,7 +242,6 @@ function bindTypeSelector() {
             selectedTypes.filter((t) => t !== val);
         }
 
-        console.log("selectedTypes:", selectedTypes);
       });
 
     });
@@ -320,7 +317,7 @@ const payload = {
 
     if (error) throw error;
 
-    WCL.toastShared("✅ Store saved", "success");
+    WCL.toastShared("Store saved", "success");
     resetForm();
 
   } catch (err) {

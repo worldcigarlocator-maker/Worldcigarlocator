@@ -94,7 +94,7 @@ background: var(--bg);
 
 .sidebar-actions .sidebar-btn{
   flex:1 1 0;
-  min-width:0;   /* 🔥 stoppar overflow-buggen */
+  min-width:0;   /* stoppar overflow-buggen */
 }
 
 
@@ -109,7 +109,7 @@ background: var(--bg);
 
   border-radius:10px;
 
-  /* 🔥 BASE GLOW */
+  /* BASE GLOW */
   box-shadow:
     0 4px 12px rgba(var(--global),0.35),
     0 0 0 1px rgba(var(--global),0.25),
@@ -123,7 +123,7 @@ background: var(--bg);
 
   transform:translateY(-1px);
 
-  /* 🔥 HOVER GLOW BOOST */
+  /* HOVER GLOW BOOST */
   box-shadow:
     0 6px 18px rgba(var(--global),0.45),
     0 0 0 1px rgba(var(--global),0.4),
@@ -155,10 +155,10 @@ background: var(--bg);
 ============================================================ */
 
 .sidebar-nav{
-  flex:1;                 /* 🔥 tar all remaining height */
-  min-height:0;           /* 🔥 KRITISK för scroll */
+  flex:1;                 /* tar all remaining height */
+  min-height:0;           /* KRITISK för scroll */
 
-  overflow-y:auto;        /* 🔥 scroll här */
+  overflow-y:auto;        /* scroll här */
   padding:0.6rem 0;
 
   border-top:1px solid rgba(255,255,255,0.12);
@@ -209,13 +209,13 @@ background: var(--bg);
   font-weight: 600;
   color: #766148;
 
-  border-bottom: 1px solid var(--border); /* 🔥 bara under */
+  border-bottom: 1px solid var(--border); /* bara under */
 
   padding-top: 0.65rem;
   padding-bottom: 0.65rem;
 }
 
-/* 🔥 ta bort linje ovanför första continent */
+/* ta bort linje ovanför första continent */
 .node:first-child .line.continent {
   border-top: none;
 }

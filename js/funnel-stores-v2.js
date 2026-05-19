@@ -1,10 +1,8 @@
 /* ============================================================
-   WCL — STORES V2 (STORE PERFORMANCE ENGINE)
+   WCL - Stores V2
    ============================================================ */
 import { supabase } from "/js/globals.js";
 const sb = supabase;
-
-console.log("🔥 STORES V2 LOADED");
 
 /* ============================================================
    STATE
@@ -174,11 +172,6 @@ if (STORES_STATE.level === "store") {
   if (!id) return;
 
   STORES_STATE.storeId = id;
-
-  console.log(
-    "OPEN STORE DOSSIER:",
-    STORES_STATE.storeId
-  );
 
    await renderStoreDossier();
    

@@ -1,10 +1,8 @@
-# WCL AI BOOTSTRAP
+# WCL AI Operating Rules
 
-## Canonical Documents
-- WCL_Kickstart_CURRENT.pdf
-- WCL_Canonical_Spec_CURRENT.pdf
-- WCL_AI_Primer_CURRENT.pdf
-- WCL_Delta_Log_MASTER_v3.1.pdf
+This file captures the non-negotiable project rules for AI-assisted work on
+World Cigar Locator. It should be read before making structural frontend,
+backend, Supabase, analytics, or moderation changes.
 
 ## Core Rules
 - Backend authority overrides frontend
@@ -41,10 +39,10 @@ stores_frontend_public_v5
 
 ## Geography Rules
 USA:
-continent → country → state → city
+continent -> country -> state -> city
 
 All other countries:
-continent → country → city
+continent -> country -> city
 
 ## Analytics Rules
 Canonical events:

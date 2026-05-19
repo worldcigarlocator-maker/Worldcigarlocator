@@ -1,5 +1,5 @@
 /* ============================================================
-WCL — ANALYTICS.JS
+WCL - Analytics
 ============================================================ */
 
 import { supabase } from "/js/globals.js";
@@ -15,20 +15,14 @@ import {
   setActiveDay,
   getActiveCountry,
   applyCountry,
-  subscribe   // 🔥 lägg till denna
+  subscribe
 } from "./analytics-state.js";
 
-console.log("🔥 KPI SCRIPT LOADED");
-console.log("STEP 1");
-
 const sb = supabase;
-window.sb = sb; // 
-
-console.log("STEP 2");
 
 
 /* ============================================================
-   WCL Analytics — Backoffice 555
+   WCL Analytics
    ============================================================ */
 
 const $ = (s) => document.querySelector(s);
@@ -150,12 +144,12 @@ if (globalRangeSelect) {
 
 await loadGlobalKpis();
 
-// 🔥 trigga re-render via state
+// trigga re-render via state
 const kpi = getKPI();
 setKPI(null);
 setTimeout(() => setKPI(kpi), 0);
 
-// 🔥 STATE-DRIVEN (handled via subscribe)
+// STATE-DRIVEN (handled via subscribe)
 
     if (ACTIVE_STORE) {
       await loadStoreDossier(ACTIVE_STORE.id);
@@ -280,7 +274,7 @@ function showMarketPanel(panelId) {
 
 function goToMarketTab(panel = "panel-heatmap") {
 
-  // 🔥 STOPPA helt om vi är i STORES
+  // STOPPA helt om vi är i STORES
   if (getKPI() === "stores") return;
 
   const tb = document.getElementById("drilldownToolbar");
@@ -316,13 +310,13 @@ function updateDrilldownUI(tab) {
   if (!tb || !title) return;
 
   if (tab === "overview") {
-  tb.style.display = "block"; // 🔥 visa toolbar
+  tb.style.display = "block"; // visa toolbar
 }
 
-  // ✅ show annars
+  // show annars
   tb.style.display = "block";
 
-  // 🔥 REMOVE TITLE (handled in UI instead)
+  // REMOVE TITLE (handled in UI instead)
 if (title) title.style.display = "none";
   
 }
@@ -343,8 +337,6 @@ function bindKpiMini() {
       const kpi = el.dataset.kpi;
       if (!kpi) return;
 
-      console.log("KPI CLICK:", kpi);
-
       /* ============================================================
          RESET MARKET STATE
       ============================================================ */
@@ -356,7 +348,7 @@ function bindKpiMini() {
         window.MARKET_STATE.store = null;
         window.MARKET_STATE.user = null;
 
-        // 🔥 MEMBERS
+        // Members
         if (kpi === "users") {
 
           window.MARKET_STATE.level =
@@ -364,7 +356,7 @@ function bindKpiMini() {
 
         }
 
-        // 🔥 MARKET
+        // Market
         if (
           kpi === "views" ||
           kpi === "clicks" ||
@@ -792,7 +784,6 @@ function normalizeSearchText(value) {
    ============================================================ */
 
 async function selectStoreById(storeId) {
-console.log("SELECT STORE", storeId);
   hideAutocomplete();
 
 const { data, error } = await sb
@@ -801,14 +792,12 @@ const { data, error } = await sb
   .eq("id", storeId)
   .single();
 
-console.log("STORE FETCH RESULT", data, error);
-   
 if (error || !data) {
   console.error("Failed to load store", error);
   return;
 }
 
-  // ✅ NU finns data
+  // Store data is now available for the dossier panel.
   searchInput.value = data.name || "";
    searchInput.blur(); // stänger keyboard / fokus
 
@@ -816,14 +805,13 @@ if (error || !data) {
 
 storeEmpty.classList.add("hidden");
 storePanel.classList.remove("hidden");
-console.log("PANEL STATE", storePanel.classList);
 
 storePanel.scrollIntoView({
   behavior: "smooth",
   block: "start"
 });
 
-// 🔥 FORCE CLEAN TAB SWITCH (CLASS-BASED)
+// Force clean tab switch through classes.
 document.querySelectorAll(".analytics-tab").forEach(el => {
   el.classList.add("hidden");
 });
@@ -833,7 +821,7 @@ if (overviewTab) {
   overviewTab.classList.remove("hidden");
 }
 
-// 🔥 CONTINUE
+// CONTINUE
 renderStoreHeader(data);
 
 await loadStoreDossier(storeId);
@@ -869,9 +857,6 @@ function renderStoreHeader(s) {
 }
 
 async function loadStoreDossier(storeId) {
-     console.log("LOAD DOSSIER START", storeId);
-
-
 const days = Number(globalRangeSelect?.value || 30);
 
 const { data: summary, error: e1 } =
@@ -879,8 +864,6 @@ const { data: summary, error: e1 } =
     p_store_id: storeId,
     p_days: days
   });
-
-console.log("SUMMARY RESULT", summary, e1);
 
   if (e1) {
 
@@ -1036,13 +1019,13 @@ function runLocalFilter() {
 
   filtered.forEach(tr => tbody.appendChild(tr));
 
-  // 🔥 INFO BAR
+  // INFO BAR
   if (info) {
     info.innerHTML = `${filtered.length} results for "<strong>${q}</strong>"`;
     info.classList.remove("hidden");
   }
 
-  // 🔥 rebuild dataset for chart
+  // rebuild dataset for chart
   const chartRows = filtered.map(tr => {
 
     const tds = tr.querySelectorAll("td");
@@ -1243,7 +1226,7 @@ function resetAll() {
   resetAnalyticsView();
 
   /* ============================================================
-     🔥 RESET SIDEBAR HIERARCHY (NEW)
+     RESET SIDEBAR HIERARCHY (NEW)
   ============================================================ */
 
   const sidebar = document.querySelector(".sidebar");
@@ -1252,11 +1235,11 @@ function resetAll() {
   const nodes = sidebar.querySelectorAll(".node");
   const children = sidebar.querySelectorAll(".children");
 
-  // 🔥 stäng allt
+  // stäng allt
   nodes.forEach(n => n.classList.remove("open"));
   children.forEach(c => c.classList.remove("show"));
 
-  // 🔥 öppna default continent
+  // öppna default continent
   const userLang = navigator.language;
   const defaultContinent =
     (window.getDefaultContinent && window.getDefaultContinent(userLang))
@@ -1336,23 +1319,17 @@ async function loadTrafficFlow() {
     
     const ctrValue = views ? (clicks / views) : 0;
 
-console.log("CTR DEBUG:", {
-  source: r.source,
-  views,
-  clicks,
-  ctrValue
-});
     const ctr = (ctrValue * 100).toFixed(2) + "%";
 
 let ctrClass = "";
 
-// 🔴 ALLT med 0 CTR = problem
+// Any viewed source with 0 CTR needs attention.
 if (ctrValue === 0 && views > 0) ctrClass = "ctr-bad";
 
-// 🟠 låg CTR
+// Low CTR.
 else if (ctrValue > 0 && ctrValue < 0.2) ctrClass = "ctr-low";
 
-// 🟢 bra CTR
+// Healthy CTR.
 else if (ctrValue >= 0.2) ctrClass = "ctr-good";
 
     return `
@@ -1360,9 +1337,7 @@ else if (ctrValue >= 0.2) ctrClass = "ctr-good";
         <td>${escapeHtml(r.source || "direct")}</td>
         <td class="num">${views}</td>
         <td class="num">${clicks}</td>
-       <td class="num ${ctrClass}">
-  ${ctr} | class: ${ctrClass} | v:${views} c:${clicks}
-</td>
+        <td class="num ${ctrClass}">${ctr}</td>
       </tr>
     `;
 
@@ -1370,21 +1345,16 @@ else if (ctrValue >= 0.2) ctrClass = "ctr-good";
 }
 
 subscribe(async (state) => {
-
-  console.log("🔥 STATE UPDATE:", state); // 🔥 ADD THIS
-
   const days = Number(globalRangeSelect?.value || 30);
 
   const usersView = document.getElementById("view-users");
   const marketView = document.getElementById("view-market");
   const storesView = document.getElementById("view-stores");
 
-  // 🔥 RESET ALL
+  // Reset all analytics views before rendering the active one.
   usersView?.classList.add("hidden");
   marketView?.classList.add("hidden");
   storesView?.classList.add("hidden");
-
-  console.log("SUBSCRIBE TRIGGER", state.kpi);
 
   // ============================================================
   // STORES
@@ -1395,7 +1365,6 @@ if (state.kpi === "stores") {
   marketView?.classList.remove("hidden");
 
   const m = await import("./funnel-stores-v2.js");
-  console.log("MODULE STORES:", m); // 🔥
 
   await m.renderStoresV2(days);
 
@@ -1446,9 +1415,6 @@ if (
   // ============================================================
 
 function init() {
-
-  console.log("🔥 INIT RUNNING");
-
   bindKpiMini();
 
 if (exportBtn) {
@@ -1496,7 +1462,7 @@ window.renderUsersChart = function (rows) {
   const ctx = document.getElementById("usersChart");
   if (!ctx) return;
 
-  // 🔥 destroy old chart
+  // destroy old chart
   if (usersChart) {
     usersChart.destroy();
   }
@@ -1518,11 +1484,11 @@ window.renderUsersChart = function (rows) {
         pointRadius: 3,
         pointBackgroundColor: "#4fd1ff",
 
-        // 🔥 HOVER EFFECT
+        // HOVER EFFECT
         pointHoverRadius: 6,
         pointHoverBackgroundColor: "#ffffff",
 
-        // 🔥 FILL GRADIENT
+        // FILL GRADIENT
         fill: true,
         backgroundColor: (ctx) => {
           const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 260);
@@ -1537,7 +1503,7 @@ window.renderUsersChart = function (rows) {
       responsive: true,
       maintainAspectRatio: false,
 
-      // 🔥 SMOOTH INTERACTION
+      // SMOOTH INTERACTION
       interaction: {
         mode: "index",
         intersect: false
@@ -1765,7 +1731,7 @@ window.renderMarketChart = function (rows, sort, type = "bar") {
 if (!marketChart) {
 
   marketChart = new Chart(ctx, {
-    type: type || "bar", // 🔥 FIX
+    type: type || "bar", // FIX
 
     data: {
       labels: finalLabels,
@@ -1782,13 +1748,13 @@ if (!marketChart) {
 
   applyMarketStyle(marketChart, sort, type || "bar");
 
-  marketChart.update(); // 🔥 säkerställ render
+  marketChart.update(); // säkerställ render
 
   return;
 }
 
   /* ============================================================
-     UPDATE (🔥 SMOOTH)
+     UPDATE (SMOOTH)
      ============================================================ */
 
 if (marketChart.config.type !== type) {
@@ -1803,7 +1769,7 @@ if (marketChart.config.type !== type) {
 
   Object.assign(marketChart.options, getMarketChartOptions(sort));
 
-  marketChart.update(); // 🔥 NO DESTROY
+  marketChart.update(); // NO DESTROY
 
 };
 

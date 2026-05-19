@@ -40,7 +40,7 @@ export function getKPI() {
 
 export function getLevel() {
 
-  // 🔥 SINGLE SOURCE OF TRUTH
+  // SINGLE SOURCE OF TRUTH
   if (STATE.country) return "city";
 
   return "country";
@@ -52,7 +52,7 @@ export function getActiveDay() {
 
 export function setActiveDay(day) {
   STATE.day = day;
-  return notify(); // 🔥 KRITISK
+  return notify(); // KRITISK
 }
 
 export function getActiveCountry() {
@@ -67,13 +67,13 @@ export function getContextLocation() {
    SAFE STATE TRANSITIONS (ONLY WAY TO CHANGE STATE)
    ============================================================ */
 
-// 🔥 KPI change
+// KPI change
 export function setKPI(kpi) {
   STATE.kpi = kpi;
   return notify();
 }
 
-// 🔥 Reset ALL
+// Reset ALL
 export function resetState() {
   STATE.kpi = "users";
   STATE.level = "country";
@@ -83,7 +83,7 @@ export function resetState() {
   return notify();
 }
 
-// 🔥 Click day (chart → country level)
+// Click day (chart → country level)
 export function applyDay(day) {
   STATE.day = day;
   STATE.level = "country";
@@ -92,17 +92,17 @@ export function applyDay(day) {
   return notify();
 }
 
-// 🔥 Click country (→ city level)
+// Click country (→ city level)
 export function applyCountry(country) {
 
   STATE.country = country;
 
-  // 🔥 KRITISKT
+  // KRITISKT
   return notify();
 
 }
 
-// 🔥 External context (search etc)
+// External context (search etc)
 export function applyContextCity(city, country) {
   STATE.contextLocation = city;
   STATE.country = country;

@@ -13,7 +13,7 @@
 
   const sb = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
   if (!sb) {
-    console.error("❌ Supabase SDK missing. Load supabase-js before add-shared.js");
+    console.error("Supabase SDK missing. Load supabase-js before add-shared.js");
     return;
   }
 
@@ -37,14 +37,14 @@
     "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
 
   /* ==========================================================
-     🚫 GEO-PRINCIP
+     Geography ownership
      ==========================================================
      Frontend:
        - skickar country + country_iso2
        - SÄTTER ALDRIG continent
 
      Backend:
-       - geo_countries (iso2 → continent)
+       - geo_countries (iso2 -> continent)
        - trigger sätter continent
   ========================================================== */
 
@@ -219,5 +219,4 @@
     toastShared,
   });
 
-  console.log("✅ add-shared.js loaded (canonical, backend-driven geo)");
 })();

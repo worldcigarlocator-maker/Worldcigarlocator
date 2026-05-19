@@ -34,7 +34,7 @@ function debugLog(...args) {
 window.__WCL__.CURRENT_SOURCE = "direct";
 
 export function setTrafficSource(src) {
-  debugLog("🔥 SET SOURCE →", src);
+  debugLog("SET SOURCE →", src);
    
 if (!window.__WCL__.CURRENT_SOURCE || window.__WCL__.CURRENT_SOURCE === "direct") {
   window.__WCL__.CURRENT_SOURCE = src || "direct";
@@ -99,7 +99,7 @@ function sendEvent(event_type, payload = {}) {
       actor_type: "anon",
       session_hash: getSession(),
 
-      // 🔥 RESPEKTERA EXPLICIT SOURCE FÖRST
+      // RESPEKTERA EXPLICIT SOURCE FÖRST
       source:
         payload?.source ||
         window?.__WCL__?.MODAL_SOURCE ||
@@ -190,7 +190,7 @@ setInterval(() => {
     credentials: "omit",
     body: JSON.stringify({ events: batch })
   })
-  .then(() => debugLog("🚀 BATCH SENT", batch.length))
+  .then(() => debugLog("BATCH SENT", batch.length))
   .catch(err => console.warn("Analytics batch skipped", err));
 
 }, BATCH_INTERVAL);
