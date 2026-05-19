@@ -124,6 +124,39 @@
     }
   }
 
+  async function sendEmailNotification(action, payload = {}) {
+    try {
+      const { data, error } = await sb.functions.invoke(
+        "send_wcl_email_v1",
+        {
+          body: {
+            action,
+            ...payload,
+          },
+        }
+      );
+
+      if (error) {
+        console.warn("WCL email skipped:", error);
+        return {
+          ok: false,
+          error,
+        };
+      }
+
+      return data || {
+        ok: true,
+      };
+    } catch (error) {
+      console.warn("WCL email failed:", error);
+
+      return {
+        ok: false,
+        error,
+      };
+    }
+  }
+
   /* ===================== DUPLICATE CHECK ===================== */
   function norm(v) {
     return String(v || "").trim().toLowerCase();
@@ -215,6 +248,7 @@
     buildProxyUrl,
     fetchPhotoRefs,
     loadProxyPhotoInto,
+    sendEmailNotification,
     checkDuplicates,
     toastShared,
   });

@@ -7,6 +7,7 @@ import { debugLog, supabase } from "/js/globals.js";
 import { getLastRenderedStores } from "./cards.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
 import { trackEvent } from "./analytics-tracker.js";
+import { sendWclEmail } from "./email.js";
 
 
 // ============================================================
@@ -1004,6 +1005,17 @@ async function submitReportIssue() {
       MODAL_ACTIVE_STORE_ID,
       types,
       message
+    );
+
+    void sendWclEmail(
+      "report_received",
+      {
+        report: {
+          store_id: MODAL_ACTIVE_STORE_ID,
+          report_types: types,
+          message: message || null,
+        },
+      }
     );
 
     resetReportUI();

@@ -110,6 +110,9 @@ Important secret names:
 
 - `OPENAI_API_KEY`
 - `OPENAI_COMMENT_MODERATION_MODEL`
+- `RESEND_API_KEY`
+- `WCL_EMAIL_FROM`
+- `WCL_EMAIL_REPLY_TO`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - Google server-side API keys used by backend functions
 

@@ -116,6 +116,7 @@ Key documents:
 
 - [docs/browser-key-restriction-guide.md](docs/browser-key-restriction-guide.md)
 - [docs/ai-comment-moderation-guide.md](docs/ai-comment-moderation-guide.md)
+- [docs/email-structure.md](docs/email-structure.md)
 - [docs/backoffice-functional-test-checklist.md](docs/backoffice-functional-test-checklist.md)
 - [docs/my-account-future-modules.md](docs/my-account-future-modules.md)
 - [project_map.md](project_map.md)

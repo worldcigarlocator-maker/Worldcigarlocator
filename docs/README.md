@@ -14,6 +14,7 @@ For a first read, start here:
 
 - [browser-key-restriction-guide.md](browser-key-restriction-guide.md) - Google browser key restrictions.
 - [ai-comment-moderation-guide.md](ai-comment-moderation-guide.md) - AI-assisted comment moderation.
+- [email-structure.md](email-structure.md) - Resend, Supabase Auth, and WCL transactional email structure.
 - [backoffice-functional-test-checklist.md](backoffice-functional-test-checklist.md) - Backoffice smoke test checklist.
 - [my-account-future-modules.md](my-account-future-modules.md) - future account modules that are intentionally documented but not active.
 - [frontend-runtime-map.md](frontend-runtime-map.md) - frontend file ownership and runtime responsibilities.

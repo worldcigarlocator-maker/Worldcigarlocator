@@ -317,6 +317,18 @@ const payload = {
 
     if (error) throw error;
 
+    void WCL.sendEmailNotification?.(
+      "listing_submitted",
+      {
+        listing: {
+          name,
+          city,
+          country,
+          website,
+        },
+      }
+    );
+
     WCL.toastShared("Store saved", "success");
     resetForm();
 
