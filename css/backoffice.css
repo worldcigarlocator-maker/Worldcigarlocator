@@ -243,6 +243,16 @@ body{
   cursor:pointer;
 }
 
+.pill .badge-count{
+  margin-left:6px;
+  font-size:.84em;
+  opacity:.76;
+}
+
+.pill.active .badge-count{
+  opacity:.92;
+}
+
 .pill:hover{
   box-shadow:var(--glow-soft);
   transform:translateY(-1px);
@@ -380,6 +390,7 @@ body{
 .card.border-red{border-color:var(--red)}
 .card.border-gold{border-color:var(--gold)}
 .card.border-gray{border-color:var(--gray)}
+.card.border-orange{border-color:#ff8c42}
 
 .card img.photo{
   width:100%;
@@ -437,6 +448,90 @@ body{
 .badge.gray{background:var(--gray)}
 .badge.gold{background:var(--gold);color:#000}
 .badge.blue{background:var(--blue)}
+.badge.orange{background:#ff8c42;color:#111}
+.badge.ghost{
+  background:rgba(255,255,255,0.08);
+  color:var(--muted);
+  border:1px solid rgba(255,255,255,0.12);
+}
+
+/* ============================================================
+   REPORT MODERATION
+   ============================================================ */
+
+.report-info{
+  margin-top:.45rem;
+  padding:.85rem;
+  border-radius:10px;
+  border:1px solid rgba(255,140,66,0.32);
+  background:
+    linear-gradient(180deg, rgba(255,140,66,0.13), rgba(255,140,66,0.05)),
+    rgba(5,5,5,0.36);
+}
+
+.report-kicker,
+.report-guidance-title{
+  color:#ffb179;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.report-title{
+  margin-top:.22rem;
+  color:#fff;
+  font-size:1rem;
+  font-weight:900;
+}
+
+.report-meta{
+  margin-top:.18rem;
+  color:var(--muted);
+  font-size:.8rem;
+}
+
+.report-summary{
+  margin:.6rem 0 .65rem;
+  color:rgba(246,251,255,0.82);
+  font-size:.83rem;
+  line-height:1.35;
+}
+
+.report-note{
+  margin:.6rem 0 .7rem;
+  padding:.62rem .7rem;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.06);
+}
+
+.report-note div{
+  color:#ffb179;
+  font-size:.7rem;
+  font-weight:900;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+
+.report-note p{
+  margin:.32rem 0 0;
+  color:rgba(246,251,255,0.84);
+  font-size:.82rem;
+  line-height:1.35;
+}
+
+.report-action-list{
+  margin:.45rem 0 0;
+  padding-left:1.05rem;
+  color:rgba(246,251,255,0.78);
+  font-size:.8rem;
+  line-height:1.38;
+}
+
+.report-action-list li + li{
+  margin-top:.24rem;
+}
 
 /* ============================================================
    ACTION BUTTONS

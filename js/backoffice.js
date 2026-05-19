@@ -118,6 +118,67 @@ const REPORT_TYPE_LABELS = {
   other: "Other"
 };
 
+const DEFAULT_REPORT_GUIDANCE = {
+  summary: "Review the listing details and any reporter note before closing the case.",
+  steps: [
+    "Open Edit and verify the listing data.",
+    "Update the listing if needed.",
+    "Resolve only after the issue has been checked."
+  ]
+};
+
+const REPORT_TYPE_GUIDANCE = {
+  no_longer_sells: {
+    summary: "The listing may be tagged as the wrong business type.",
+    steps: [
+      "Open Edit and check whether Store should be added or removed.",
+      "Save the corrected type if the report is valid.",
+      "Reject the report if the current type is already correct."
+    ]
+  },
+  no_smoking_allowed: {
+    summary: "The lounge tag or access setup may be wrong.",
+    steps: [
+      "Open Edit and check whether Lounge should be added or removed.",
+      "Verify access if the listing is members only.",
+      "Resolve after the type and access are correct."
+    ]
+  },
+  membership_policy_wrong: {
+    summary: "The reporter says the phone number or website is wrong.",
+    steps: [
+      "Open Edit and verify phone and website.",
+      "Update incorrect contact details.",
+      "Resolve after the contact data has been checked."
+    ]
+  },
+  wrong_address: {
+    summary: "The address or location details may be inaccurate.",
+    steps: [
+      "Open Edit and verify address, city, country and map data.",
+      "Correct the location fields if needed.",
+      "Resolve after the listing points to the right place."
+    ]
+  },
+  permanently_closed: {
+    summary: "The reporter says this place does not exist any longer.",
+    steps: [
+      "Verify the listing manually before changing visibility.",
+      "If confirmed, move the listing to Trash.",
+      "Resolve after the public listing is corrected."
+    ]
+  },
+  duplicate: {
+    summary: "The reporter says this is a duplicate listing.",
+    steps: [
+      "Search by name, city and ID to find the matching listing.",
+      "Keep the strongest record and move the duplicate to Trash if confirmed.",
+      "Resolve after the duplicate state is handled."
+    ]
+  },
+  other: DEFAULT_REPORT_GUIDANCE
+};
+
 // ============================================================
 // RENDER LIMIT (Backoffice performance)
 // ============================================================
@@ -130,9 +191,82 @@ let RENDER_STEP = 100;
 const $  = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 const safe = (v) => (v ?? "").toString();
+const escapeHtml = (v) =>
+  safe(v).replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[ch]);
 const isPendingSubmission = (s) => s?._source_table === "store_pending";
 const reportTypeLabel = (type) =>
   REPORT_TYPE_LABELS[type] || type || "Reported issue";
+const reportGuidance = (type) =>
+  REPORT_TYPE_GUIDANCE[type] || DEFAULT_REPORT_GUIDANCE;
+
+function buildReportDetails(s) {
+  const reportTypes =
+    Array.isArray(s._report_types) && s._report_types.length
+      ? s._report_types
+      : [s._report_type].filter(Boolean);
+  const label = reportTypes.length
+    ? reportTypes.map(reportTypeLabel).join(", ")
+    : reportTypeLabel(s._report_type);
+  const guidance = reportGuidance(s._report_type);
+  const reportCount = Number(s._report_count) || 1;
+  const status = s._report_status || "pending";
+  const reporterNote = (s._report_messages || [])
+    .map((message) => message?.message || "")
+    .find((message) => message.trim());
+  const steps = guidance.steps
+    .map((step) => `<li>${escapeHtml(step)}</li>`)
+    .join("");
+  const noteHtml = reporterNote
+    ? `
+      <div class="report-note">
+        <div>Reporter note</div>
+        <p>${escapeHtml(reporterNote)}</p>
+      </div>
+    `
+    : "";
+
+  return `
+    <div class="report-kicker">Reported issue</div>
+    <div class="report-title">${escapeHtml(label)}</div>
+    <div class="report-meta">
+      ${reportCount} report${reportCount === 1 ? "" : "s"} · ${escapeHtml(status)}
+    </div>
+    <p class="report-summary">${escapeHtml(guidance.summary)}</p>
+    ${noteHtml}
+    <div class="report-guidance-title">Recommended handling</div>
+    <ul class="report-action-list">${steps}</ul>
+  `;
+}
+
+async function fetchReportDetails(reportId) {
+  try {
+    const { data, error } = await WCL.supabase
+      .rpc("bo_get_report_details_v2", { p_report_id: reportId });
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.warn("Report details unavailable:", error);
+    return null;
+  }
+}
+
+function reportModerationNote(s, action) {
+  const label = reportTypeLabel(s?._report_type);
+  const actionText = {
+    set_reviewed: "reviewed",
+    resolve: "resolved",
+    reject: "rejected"
+  }[action] || action;
+
+  return `${label} report ${actionText} from backoffice.`;
+}
 
 function normalizePendingSubmission(s) {
   return {
@@ -641,6 +775,33 @@ function countryToContinent(country) {
   return countryContinentMap[c] || "Unknown";
 }
 
+function setPillCount(tab, count) {
+  const pill = $(`.filters .pill[data-tab="${tab}"]`);
+  if (!pill) return;
+
+  let badge = pill.querySelector(".badge-count");
+  if (!badge) {
+    badge = document.createElement("span");
+    badge.className = "badge-count";
+    pill.appendChild(badge);
+  }
+
+  badge.textContent = `(${Number(count) || 0})`;
+}
+
+async function refreshReportPillCount() {
+  try {
+    const { data, error } = await WCL.supabase
+      .rpc("bo_list_store_reports_v1", { p_status: "pending" });
+
+    if (error) throw error;
+
+    setPillCount("reports", Array.isArray(data) ? data.length : 0);
+  } catch (error) {
+    console.error("Report count failed:", error);
+  }
+}
+
 
 /* ============================================================
    REGION COUNTS — använder RPC (ingen 1000-limit)
@@ -667,16 +828,7 @@ function updateRegionCounts() {
     const n = counts[tab];
     if (n === undefined) return;
 
-    let badge = p.querySelector(".badge-count");
-    if (!badge) {
-      badge = document.createElement("span");
-      badge.className = "badge-count";
-      badge.style.marginLeft = "6px";
-      badge.style.fontSize = ".85rem";
-      badge.style.opacity = "0.7";
-      p.appendChild(badge);
-    }
-    badge.textContent = `(${n})`;
+    setPillCount(tab, n);
   });
 
   debugLog("Region counts (RPC):", counts);
@@ -790,6 +942,7 @@ if (CURRENT_TAB === "pending") {
 
     render();
     updateRegionCounts();
+    void refreshReportPillCount();
 
     return;
 
@@ -949,6 +1102,7 @@ if (CURRENT_TAB === "pending") {
      ========================= */
   render();
   updateRegionCounts();
+  void refreshReportPillCount();
 
   /* =========================
      Återställ scroll
@@ -1110,12 +1264,7 @@ body.appendChild(loc);
      if (s._is_reported) {
   const reportInfo = document.createElement("div");
   reportInfo.className = "report-info";
-  reportInfo.innerHTML = `
-    <div class="report-line">
-      ⚠ Reported issue:
-      <strong>${safe(reportTypeLabel(s._report_type))}</strong>
-    </div>
-  `;
+  reportInfo.innerHTML = buildReportDetails(s);
   body.appendChild(reportInfo);
 }
 
@@ -1126,12 +1275,15 @@ status.className = "badges";
 let reportBadges = "";
 
 if (s._is_reported) {
+  const reportCount = Number(s._report_count) || 1;
+  const reportStatus = s._report_status || "pending";
+
   reportBadges += `
     <span class="badge orange">
-      REPORT x${s._report_count}
+      REPORT x${reportCount}
     </span>
     <span class="badge orange ghost">
-      ${s._report_status?.toUpperCase()}
+      ${safe(reportStatus).toUpperCase()}
     </span>
   `;
 }
@@ -1154,16 +1306,28 @@ actions.className = "actions";
 /* 🔶 REPORT MODERATION (om report) */
 if (s._is_reported) {
 
-  const reviewedBtn = makeBtn("Set Reviewed", async () => {
-    await moderateReport(s._report_id, "set_reviewed");
+  const reviewedBtn = makeBtn("Mark Reviewed", async () => {
+    await moderateReport(
+      s._report_id,
+      "set_reviewed",
+      reportModerationNote(s, "set_reviewed")
+    );
   }, "small orange");
 
   const resolveBtn = makeBtn("Resolve", async () => {
-    await moderateReport(s._report_id, "resolve");
+    await moderateReport(
+      s._report_id,
+      "resolve",
+      reportModerationNote(s, "resolve")
+    );
   }, "small green");
 
   const rejectBtn = makeBtn("Reject", async () => {
-    await moderateReport(s._report_id, "reject");
+    await moderateReport(
+      s._report_id,
+      "reject",
+      reportModerationNote(s, "reject")
+    );
   }, "small danger");
 
   actions.append(reviewedBtn, resolveBtn, rejectBtn);
@@ -1458,35 +1622,51 @@ async function loadStoreReports() {
     return;
   }
 
+  setPillCount("reports", Array.isArray(data) ? data.length : 0);
+
   if (!data || !data.length) {
     STORES = [];
     render();
     return;
   }
 
-  // 🔁 Transform reports → store-like objects
-  STORES = data.map(r => ({
-    id: r.store_id,
-    name: r.store_name,
-    city: r.city,
-    country: r.country,
-    continent: r.continent,
-    types: r.types,
-    access: r.access,
-    rating: r.rating,
-    address: r.address,
-    phone: r.phone,
-    website: r.website,
-    photo_reference: r.photo_reference,
-    country_iso2: r.country_iso2,
+  const reportDetails = await Promise.all(
+    data.map((r) => fetchReportDetails(r.id))
+  );
 
-    // 🔶 Report metadata
-    _is_reported: true,
-    _report_id: r.id,
-    _report_type: r.report_type,
-    _report_count: r.report_count,
-    _report_status: r.status
-  }));
+  // 🔁 Transform reports → store-like objects
+  STORES = data.map((r, index) => {
+    const detailReport = reportDetails[index]?.report || {};
+    const reportTypes =
+      Array.isArray(detailReport.report_types)
+        ? detailReport.report_types
+        : null;
+
+    return {
+      id: r.store_id,
+      name: r.store_name,
+      city: r.city,
+      country: r.country,
+      continent: r.continent,
+      types: r.types,
+      access: r.access,
+      rating: r.rating,
+      address: r.address,
+      phone: r.phone,
+      website: r.website,
+      photo_reference: r.photo_reference,
+      country_iso2: r.country_iso2,
+
+      // Report metadata
+      _is_reported: true,
+      _report_id: r.id,
+      _report_type: detailReport.report_type || r.report_type,
+      _report_types: reportTypes,
+      _report_count: detailReport.report_count || r.report_count,
+      _report_status: detailReport.status || r.status,
+      _report_messages: detailReport.messages || []
+    };
+  });
 
   render();
 }
@@ -1731,14 +1911,14 @@ async function repairPhoto(id, place_id, imgEl, ev) {
 }
 
      
-async function moderateReport(reportId, action) {
+async function moderateReport(reportId, action, note = null) {
 
   const { error } = await WCL.supabase.rpc(
     "bo_moderate_store_report_v1",
     {
       p_report_id: reportId,
       p_action: action,
-      p_note: null
+      p_note: note
     }
   );
 

@@ -634,16 +634,6 @@ function cardHTML(s) {
         >
           Comment (${s.comment_count || 0})
         </button>
-
-        <button
-          class="report-card-btn"
-          type="button"
-          data-report-store-id="${s.id}"
-          aria-label="Report listing"
-          title="Report listing"
-        >
-          Report
-        </button>
       </div>
 
     </div>
@@ -1033,35 +1023,6 @@ function bindGrid() {
         }
 
         syncFavoriteUI(storeId);
-
-        return;
-      }
-
-      // ============================================================
-      // REPORT STORE
-      // ============================================================
-
-      const reportBtn =
-        e.target.closest(
-          ".report-card-btn"
-        );
-
-      if (reportBtn) {
-
-        e.stopPropagation();
-
-        const storeId =
-          Number(
-            reportBtn.dataset.reportStoreId
-          );
-
-        if (!storeId) return;
-
-        openModal({
-          id: storeId,
-          source: "report_card",
-          openReport: true
-        });
 
         return;
       }
