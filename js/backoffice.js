@@ -108,6 +108,11 @@ let CURRENT_TAB = "approved";   // approved | pending | flagged | deleted | dupl
 let CURRENT_VIEW = "cards";     // cards | list
 let HIER_SEL = { continent: null, country: null, state: null, city: null };
 
+const STORE_SELECT_FIELDS =
+  "id,name,city,country,continent,type,types,address,phone,access,rating," +
+  "approved,flagged,deleted,status,photo_reference,place_id,website," +
+  "created_at,flag_reason,country_iso2";
+
 const REPORT_TYPE_LABELS = {
   no_longer_sells: "Store type is wrong",
   no_smoking_allowed: "Lounge type is wrong",
@@ -204,6 +209,148 @@ const reportTypeLabel = (type) =>
   REPORT_TYPE_LABELS[type] || type || "Reported issue";
 const reportGuidance = (type) =>
   REPORT_TYPE_GUIDANCE[type] || DEFAULT_REPORT_GUIDANCE;
+
+const SEARCH_ALIASES = {
+  europa: ["europe"],
+  europe: ["europa"],
+  nordamerika: ["north america"],
+  "north america": ["nordamerika"],
+  sydamerika: ["south america"],
+  "south america": ["sydamerika"],
+  asien: ["asia"],
+  asia: ["asien"],
+  afrika: ["africa"],
+  africa: ["afrika"],
+  oceanien: ["oceania"],
+  oceania: ["oceanien"],
+  australien: ["australia"],
+  australia: ["australien"],
+  sverige: ["sweden"],
+  sweden: ["sverige"],
+  tyskland: ["germany"],
+  germany: ["tyskland"],
+  polen: ["poland"],
+  poland: ["polen"],
+  danmark: ["denmark"],
+  denmark: ["danmark"],
+  norge: ["norway"],
+  norway: ["norge"],
+  finland: ["finland"],
+  frankrike: ["france"],
+  france: ["frankrike"],
+  spanien: ["spain"],
+  spain: ["spanien"],
+  italien: ["italy"],
+  italy: ["italien"],
+  usa: ["united states", "united states of america"],
+  amerika: ["united states"],
+  "united states": ["usa", "amerika"],
+  storbritannien: ["united kingdom", "great britain"],
+  "united kingdom": ["storbritannien"]
+};
+
+function searchTerms(term) {
+  const clean = safe(term).trim().toLowerCase();
+  if (!clean) return [];
+
+  return Array.from(
+    new Set([
+      clean,
+      ...(SEARCH_ALIASES[clean] || [])
+    ])
+  );
+}
+
+function storeMatchesSearch(store, rawTerm) {
+  const terms = searchTerms(rawTerm);
+  if (!terms.length) return true;
+
+  const numericTerm =
+    /^\d+$/.test(terms[0]) ? Number(terms[0]) : null;
+
+  if (
+    numericTerm !== null &&
+    [store.id, store.pending_id, store.store_id]
+      .some((id) => Number(id) === numericTerm)
+  ) {
+    return true;
+  }
+
+  const reportTypes =
+    Array.isArray(store._report_types)
+      ? store._report_types.map(reportTypeLabel)
+      : [reportTypeLabel(store._report_type)];
+
+  const haystack = [
+    store.name,
+    store.city,
+    store.country,
+    store.continent,
+    store.address,
+    store.phone,
+    store.website,
+    store.country_iso2,
+    store.access,
+    store.status,
+    store.flag_reason,
+    store._report_status,
+    store._report_type,
+    ...reportTypes,
+    ...(Array.isArray(store.types) ? store.types : [store.type])
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return terms.some((term) => haystack.includes(term));
+}
+
+function escapeSearchPattern(term) {
+  return safe(term).replace(/[,%()]/g, " ").trim();
+}
+
+function buildSearchOrFilter(table, rawTerm) {
+  const columns =
+    table === "store_pending"
+      ? [
+          "name",
+          "city",
+          "country",
+          "address",
+          "phone",
+          "website",
+          "country_iso2"
+        ]
+      : [
+          "name",
+          "city",
+          "country",
+          "continent",
+          "address",
+          "phone",
+          "website",
+          "country_iso2",
+          "status",
+          "flag_reason"
+        ];
+
+  const parts = [];
+  const terms = searchTerms(rawTerm)
+    .map(escapeSearchPattern)
+    .filter(Boolean);
+
+  if (/^\d+$/.test(terms[0] || "")) {
+    parts.push(`id.eq.${Number(terms[0])}`);
+  }
+
+  terms.forEach((term) => {
+    columns.forEach((column) => {
+      parts.push(`${column}.ilike.%${term}%`);
+    });
+  });
+
+  return parts.join(",");
+}
 
 function buildReportDetails(s) {
   const reportTypes =
@@ -847,15 +994,8 @@ function render() {
   // SEARCH
   // ============================================================
 
-  if (/^\d+$/.test(term)) {
-    const id = Number(term);
-    list = list.filter(s => s.id === id);
-  }
-  else if (term) {
-    list = list.filter(s =>
-      [s.name, s.city, s.country]
-        .some(v => safe(v).toLowerCase().includes(term))
-    );
+  if (term) {
+    list = list.filter((s) => storeMatchesSearch(s, term));
   }
 
 
@@ -1010,14 +1150,9 @@ if (CURRENT_TAB === "pending") {
   /* =========================
      2) Bas-query (stores)
      ========================= */
-  const SELECT_FIELDS =
-    "id,name,city,country,continent,type,types,address,phone,access,rating," +
-    "approved,flagged,deleted,status,photo_reference,place_id,website," +
-    "created_at,flag_reason,country_iso2";
-
   let base = WCL.supabase
     .from("stores")
-    .select(SELECT_FIELDS);
+    .select(STORE_SELECT_FIELDS);
 
   /* ============================================================
      TAB LOGIC
@@ -1731,17 +1866,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
     debugLog("Searching DB:", term, "TAB:", CURRENT_TAB);
 
+    if (CURRENT_TAB === "reports") {
+      render();
+      return;
+    }
+
     let table = "stores";
 
     if (CURRENT_TAB === "pending") {
       table = "store_pending";
     }
 
-    const { data, error } = await WCL.supabase
+    const searchFilter = buildSearchOrFilter(table, term);
+    if (!searchFilter) {
+      render();
+      return;
+    }
+
+    let query = WCL.supabase
       .from(table)
-      .select("*")
-      .ilike("name", `%${term}%`)
-      .limit(100);
+      .select(table === "stores" ? STORE_SELECT_FIELDS : "*")
+      .or(searchFilter)
+      .limit(150);
+
+    if (table === "stores") {
+      if (CURRENT_TAB === "approved") {
+        query = query
+          .eq("approved", true)
+          .eq("deleted", false);
+      } else if (CURRENT_TAB === "flagged") {
+        query = query
+          .eq("flagged", true)
+          .eq("deleted", false);
+      } else if (CURRENT_TAB === "duplicates") {
+        query = query
+          .eq("flagged", true)
+          .eq("deleted", false)
+          .eq("flag_reason", "possible_duplicate");
+      } else if (CURRENT_TAB === "deleted") {
+        query = query.eq("deleted", true);
+      } else {
+        query = query.eq("deleted", false);
+      }
+
+      query = query.order("id", { ascending: false });
+    } else {
+      query = query.order("id", { ascending: true });
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error(error);
