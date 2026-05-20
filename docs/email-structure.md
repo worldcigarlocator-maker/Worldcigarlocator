@@ -53,6 +53,10 @@ If `WCL_ADMIN_EMAIL` is configured, WCL also receives an admin copy for:
 - `listing_submitted`
 - `report_received`
 
+If the signed-in user's email is the same as `WCL_ADMIN_EMAIL`, the function
+sends only one email and uses the admin version with `Submitted by` included.
+This avoids duplicate emails for owner/admin testing.
+
 ## Required Supabase Secrets
 
 Set these in Supabase before deploying or testing outbound mail:
@@ -160,10 +164,12 @@ Body:
    - listing is saved to pending review.
    - user receives `WCL: Listing submission received`.
    - admin receives an admin copy if `WCL_ADMIN_EMAIL` is set.
+   - if user email equals `WCL_ADMIN_EMAIL`, only one email is received.
 7. Submit a test listing report and confirm:
    - report appears in Backoffice.
    - user receives `WCL: Listing report received`.
    - admin receives an admin copy if configured.
+   - if user email equals `WCL_ADMIN_EMAIL`, only one email is received.
 8. Test Supabase Auth signup confirmation and reset password templates.
 
 ## Safety Notes

@@ -55,6 +55,10 @@ function isEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function normalizeEmail(value: string) {
+  return String(value || "").trim().toLowerCase();
+}
+
 function baseText(lines: string[]) {
   return [
     SITE_NAME,
@@ -305,6 +309,23 @@ function buildTemplate(action: EmailAction, body: any) {
   }
 }
 
+function buildAdminTemplate(template: EmailTemplate, userEmail: string) {
+  return {
+    ...template,
+    subject: `[Admin] ${template.subject}`,
+    text: [
+      template.text,
+      "",
+      `Submitted by: ${userEmail}`,
+    ].join("\n"),
+    html: template.html.replace(
+      "</div>\n              </td>",
+      `<p style="margin:20px 0 0;color:#8f867c;">Submitted by: ${escapeHtml(userEmail)}</p></div>
+              </td>`
+    ),
+  };
+}
+
 async function sendWithResend({
   to,
   template,
@@ -416,8 +437,8 @@ Deno.serve(async (req) => {
   }
 
   const user = await getUserFromRequest(req);
-  const requestedTo = String(body.to || "").trim().toLowerCase();
-  const userEmail = String(user?.email || "").trim().toLowerCase();
+  const requestedTo = normalizeEmail(body.to || "");
+  const userEmail = normalizeEmail(user?.email || "");
   const recipient = requestedTo || userEmail;
 
   if (!recipient || !isEmail(recipient)) {
@@ -451,9 +472,22 @@ Deno.serve(async (req) => {
   }
 
   const template = buildTemplate(action, body);
+  const adminEmail = normalizeEmail(readEnv("WCL_ADMIN_EMAIL"));
+  const shouldSendAdmin = Boolean(
+    adminEmail &&
+    isEmail(adminEmail) &&
+    ["listing_submitted", "report_received"].includes(action)
+  );
+  const adminTemplate =
+    shouldSendAdmin ? buildAdminTemplate(template, userEmail) : null;
+  const recipientTemplate =
+    shouldSendAdmin && adminEmail === recipient && adminTemplate
+      ? adminTemplate
+      : template;
+
   const result = await sendWithResend({
     to: recipient,
-    template,
+    template: recipientTemplate,
   });
 
   if (!result.ok) {
@@ -468,29 +502,9 @@ Deno.serve(async (req) => {
     );
   }
 
-  const adminEmail = readEnv("WCL_ADMIN_EMAIL");
-  let adminSent = false;
+  let adminSent = shouldSendAdmin && adminEmail === recipient;
 
-  if (
-    adminEmail &&
-    isEmail(adminEmail) &&
-    ["listing_submitted", "report_received"].includes(action)
-  ) {
-    const adminTemplate = {
-      ...template,
-      subject: `[Admin] ${template.subject}`,
-      text: [
-        template.text,
-        "",
-        `Submitted by: ${userEmail}`,
-      ].join("\n"),
-      html: template.html.replace(
-        "</div>\n              </td>",
-        `<p style="margin:20px 0 0;color:#8f867c;">Submitted by: ${escapeHtml(userEmail)}</p></div>
-              </td>`
-      ),
-    };
-
+  if (shouldSendAdmin && adminEmail !== recipient && adminTemplate) {
     const adminResult = await sendWithResend({
       to: adminEmail,
       template: adminTemplate,
