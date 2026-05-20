@@ -156,6 +156,7 @@ continent -> country -> city
 
 - `README.md` for product and repository overview.
 - `SECURITY.md` for security model.
+- `docs/system-building-blocks.md` for the product building blocks and service map.
 - `docs/README.md` for documentation index.
 - `docs/owner-workflow.md` for owner-friendly GitHub and local workflow.
 - `docs/backoffice-functional-test-checklist.md` for manual QA.

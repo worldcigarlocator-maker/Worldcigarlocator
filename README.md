@@ -114,6 +114,7 @@ documentation from historical launch notes and SQL drafts.
 
 Key documents:
 
+- [docs/system-building-blocks.md](docs/system-building-blocks.md)
 - [docs/browser-key-restriction-guide.md](docs/browser-key-restriction-guide.md)
 - [docs/ai-comment-moderation-guide.md](docs/ai-comment-moderation-guide.md)
 - [docs/email-structure.md](docs/email-structure.md)

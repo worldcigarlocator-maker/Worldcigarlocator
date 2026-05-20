@@ -18,6 +18,7 @@ For a first read, start here:
 - [backoffice-functional-test-checklist.md](backoffice-functional-test-checklist.md) - Backoffice smoke test checklist.
 - [my-account-future-modules.md](my-account-future-modules.md) - future account modules that are intentionally documented but not active.
 - [frontend-runtime-map.md](frontend-runtime-map.md) - frontend file ownership and runtime responsibilities.
+- [system-building-blocks.md](system-building-blocks.md) - high-level building blocks that create the WCL product.
 
 ## Launch and Review History
 
