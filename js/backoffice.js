@@ -1953,7 +1953,21 @@ async function approveStore(id) {
 
   if (error) {
     console.error("Approve failed:", error);
-    toast("Error approving", "error");
+
+    const isConflict =
+      error.code === "23505" ||
+      error.status === 409 ||
+      /duplicate|conflict|unique/i.test(
+        `${error.message || ""} ${error.details || ""}`
+      );
+
+    toast(
+      isConflict
+        ? "Approve blocked: possible duplicate listing"
+        : `Approve failed: ${error.message || "database rejected it"}`,
+      "error"
+    );
+
     return;
   }
 
