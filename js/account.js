@@ -3,7 +3,10 @@
 // ACCOUNT.JS — WCL ACCOUNT PAGE
 // ============================================================
 
-import { supabase } from "/js/globals.js";
+import {
+  supabase,
+  TURNSTILE_SITE_KEY
+} from "/js/globals.js";
 import { openModal } from "/js/modal.js";
 import { initI18n } from "/js/i18n.js";
 
@@ -34,6 +37,12 @@ const signupDisplayNameInput =
 
 const signupRulesInput =
   document.getElementById("signupRulesAccepted");
+
+const signupTurnstileWrap =
+  document.getElementById("signupTurnstileWrap");
+
+const signupTurnstileEl =
+  document.getElementById("signupTurnstile");
 
 const createAccountPageBtn =
   document.getElementById("createAccountPageBtn");
@@ -73,6 +82,10 @@ const deleteBtn =
 
 const messageBox =
   document.getElementById("accountMessage");
+
+let signupCaptchaToken = "";
+let signupCaptchaWidgetId = null;
+let turnstileScriptPromise = null;
 
 // ============================================================
 // HELPERS
@@ -167,11 +180,120 @@ function setSigninMessage(
       : "rgba(255,255,255,0.78)";
 }
 
+function hasSignupCaptcha() {
+  return Boolean(TURNSTILE_SITE_KEY);
+}
+
+function loadTurnstileScript() {
+  if (window.turnstile) {
+    return Promise.resolve(window.turnstile);
+  }
+
+  if (turnstileScriptPromise) {
+    return turnstileScriptPromise;
+  }
+
+  turnstileScriptPromise =
+    new Promise((resolve, reject) => {
+      const script =
+        document.createElement("script");
+
+      script.src =
+        "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+
+      script.onload = () => {
+        if (window.turnstile) {
+          resolve(window.turnstile);
+          return;
+        }
+
+        reject(
+          new Error("Turnstile did not load")
+        );
+      };
+
+      script.onerror = () => {
+        reject(
+          new Error("Turnstile script failed")
+        );
+      };
+
+      document.head.appendChild(script);
+    });
+
+  return turnstileScriptPromise;
+}
+
+async function renderSignupCaptcha() {
+  if (
+    !hasSignupCaptcha() ||
+    !signupTurnstileWrap ||
+    !signupTurnstileEl
+  ) {
+    return;
+  }
+
+  signupTurnstileWrap.hidden = false;
+
+  if (signupCaptchaWidgetId !== null) {
+    return;
+  }
+
+  try {
+    const turnstile =
+      await loadTurnstileScript();
+
+    signupCaptchaWidgetId =
+      turnstile.render(
+        signupTurnstileEl,
+        {
+          sitekey: TURNSTILE_SITE_KEY,
+          theme: "dark",
+          callback(token) {
+            signupCaptchaToken = token || "";
+          },
+          "expired-callback"() {
+            signupCaptchaToken = "";
+          },
+          "error-callback"() {
+            signupCaptchaToken = "";
+            setSignupMessage(
+              "Bot check failed. Please try again.",
+              true
+            );
+          }
+        }
+      );
+  } catch (error) {
+    console.warn("Turnstile load failed:", error);
+    setSignupMessage(
+      "Bot check could not load. Please refresh and try again.",
+      true
+    );
+  }
+}
+
+function resetSignupCaptcha() {
+  signupCaptchaToken = "";
+
+  if (
+    signupCaptchaWidgetId !== null &&
+    window.turnstile?.reset
+  ) {
+    window.turnstile.reset(
+      signupCaptchaWidgetId
+    );
+  }
+}
+
 function showSignupGate() {
   signupGate?.classList.remove("hidden");
   signinGate?.classList.add("hidden");
   accountApp?.classList.add("hidden");
   signupEmailInput?.focus();
+  void renderSignupCaptcha();
 }
 
 function showSigninGate() {
@@ -291,6 +413,15 @@ async function createAccountFromPage() {
     return;
   }
 
+  if (hasSignupCaptcha() && !signupCaptchaToken) {
+    setSignupMessage(
+      "Complete the bot check before creating an account",
+      true
+    );
+    void renderSignupCaptcha();
+    return;
+  }
+
   if (createAccountPageBtn) {
     createAccountPageBtn.disabled = true;
   }
@@ -299,17 +430,24 @@ async function createAccountFromPage() {
   const acceptedAt =
     new Date().toISOString();
 
+  const options = {
+    data: {
+      display_name: displayName,
+      wcl_rules_accepted: true,
+      wcl_rules_accepted_at: acceptedAt
+    }
+  };
+
+  if (hasSignupCaptcha()) {
+    options.captchaToken =
+      signupCaptchaToken;
+  }
+
   const { data, error } =
     await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          display_name: displayName,
-          wcl_rules_accepted: true,
-          wcl_rules_accepted_at: acceptedAt
-        }
-      }
+      options
     });
 
   if (createAccountPageBtn) {
@@ -317,9 +455,12 @@ async function createAccountFromPage() {
   }
 
   if (error) {
+    resetSignupCaptcha();
     setSignupMessage(error.message, true);
     return;
   }
+
+  resetSignupCaptcha();
 
   if (data?.session?.user?.id) {
     await supabase

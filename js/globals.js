@@ -25,6 +25,9 @@ export const SUPABASE_ANON_KEY =
 export const GOOGLE_BROWSER_KEY =
   "AIzaSyDdn7E6_dfwUjGQ1IUdJ2rQXUeEYIIzVtQ";
 
+export const TURNSTILE_SITE_KEY =
+  "0x4AAAAAADT5_s9phOVJNoBS";
+
 /* ============================================================
    SUPABASE CLIENT
    ============================================================ */
@@ -46,6 +49,7 @@ export const supabase = createClient(
    ============================================================ */
 
 window.supabase = supabase;
+window.WCL_TURNSTILE_SITE_KEY = TURNSTILE_SITE_KEY;
 
 debugLog("WCL Supabase client loaded");
 debugLog("supabase.from =", typeof supabase.from);

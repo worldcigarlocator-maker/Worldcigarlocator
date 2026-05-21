@@ -61,6 +61,18 @@
   color:rgb(var(--global));
 }
 
+.account-turnstile-wrap{
+  margin:16px 0 4px;
+}
+
+.account-turnstile-wrap[hidden]{
+  display:none;
+}
+
+.account-turnstile{
+  min-height:65px;
+}
+
 /* ============================================================
    SIDEBAR
    ============================================================ */
