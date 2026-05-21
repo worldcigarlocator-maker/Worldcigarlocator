@@ -311,18 +311,27 @@ max-height: 9999px;
   gap: 0.55rem;
 }
 
-.sidebar-footer a {
+.sidebar-footer a,
+.sidebar-footer-link {
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.01em;
 
   color: rgba(255,255,255,0.55);
   text-decoration: none;
+  text-align: left;
+
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
 
   transition: color 0.18s ease, transform 0.18s ease;
 }
 
-.sidebar-footer a:hover {
+.sidebar-footer a:hover,
+.sidebar-footer-link:hover {
   color: #766148; /* matchar continent-färgen */
   transform: translateX(2px);
 }

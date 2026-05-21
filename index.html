@@ -376,6 +376,14 @@
     Privacy Policy
   </a>
 
+  <button
+    id="cookieSettingsBtn"
+    type="button"
+    class="sidebar-footer-link"
+  >
+    Cookie Settings
+  </button>
+
   <a
     href="account.html"
     data-i18n="manage_my_account"
@@ -619,27 +627,83 @@
 
   </div>
 
-  <div id="cookieBanner" class="cookie-banner">
+  <div
+    id="cookieBanner"
+    class="cookie-banner"
+    role="dialog"
+    aria-live="polite"
+    aria-label="Cookie settings"
+  >
 
     <div class="cookie-inner">
 
-      <div
-        class="cookie-text"
-        data-i18n="cookie_message"
-      >
-        We use essential cookies and limited analytics to improve your experience and maintain platform security.
-        By continuing to use this site, you agree to our
-        <a href="privacy.html">Privacy Policy</a>.
+      <div class="cookie-copy">
+        <div class="cookie-title">Cookie Settings</div>
+        <div class="cookie-text">
+          WCL uses necessary storage for login, age confirmation, language and security.
+          Analytics is optional and helps us understand how the platform is used.
+          You can accept or reject analytics now, and change this later in the sidebar.
+          Read our <a href="privacy.html">Privacy Policy</a>.
+        </div>
+
+        <div
+          id="cookieManagePanel"
+          class="cookie-manage hidden"
+        >
+          <div class="cookie-option">
+            <div>
+              <strong>Necessary</strong>
+              <span>Required for login, age gate, language, security and core site functions.</span>
+            </div>
+            <span class="cookie-required">Always active</span>
+          </div>
+
+          <label class="cookie-option">
+            <span>
+              <strong>Analytics</strong>
+              <span>Optional usage analytics for improving WCL. No ads or paid placement.</span>
+            </span>
+            <input
+              id="cookieAnalyticsToggle"
+              type="checkbox"
+            >
+          </label>
+        </div>
       </div>
 
-      <button
-        id="cookieOkBtn"
-        type="button"
-        class="cookie-btn"
-        data-i18n="ok"
-      >
-        OK
-      </button>
+      <div class="cookie-actions">
+        <button
+          id="cookieRejectBtn"
+          type="button"
+          class="cookie-btn"
+        >
+          Reject analytics
+        </button>
+
+        <button
+          id="cookieManageBtn"
+          type="button"
+          class="cookie-btn"
+        >
+          Manage
+        </button>
+
+        <button
+          id="cookieSaveBtn"
+          type="button"
+          class="cookie-btn hidden"
+        >
+          Save settings
+        </button>
+
+        <button
+          id="cookieAcceptBtn"
+          type="button"
+          class="cookie-btn primary"
+        >
+          Accept analytics
+        </button>
+      </div>
 
     </div>
 

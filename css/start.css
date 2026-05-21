@@ -643,12 +643,28 @@ body:not(.auth-locked) .beta-landing{
   width:min(1100px,100%);
 
   display:flex;
-  gap:12px;
+  gap:18px;
 
-  align-items:center;
+  align-items:flex-start;
   justify-content:space-between;
 
   padding:0 10px;
+}
+
+.cookie-copy{
+  flex:1 1 auto;
+  min-width:0;
+}
+
+.cookie-title{
+  margin-bottom:5px;
+
+  color:rgba(255,255,255,0.94);
+
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
 }
 
 
@@ -666,6 +682,14 @@ body:not(.auth-locked) .beta-landing{
   font-weight:600;
 }
 
+
+.cookie-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+
+  justify-content:flex-end;
+}
 
 .cookie-btn{
 
@@ -687,8 +711,69 @@ body:not(.auth-locked) .beta-landing{
   cursor:pointer;
 }
 
+.cookie-btn.primary{
+  border-color:rgba(var(--global),0.72);
+  background:rgba(var(--global),0.22);
+  color:#fff;
+}
+
 .cookie-btn:hover{
   background:rgba(255,255,255,0.10);
+}
+
+.cookie-btn.primary:hover{
+  background:rgba(var(--global),0.32);
+}
+
+.cookie-manage{
+  display:grid;
+  gap:8px;
+
+  margin-top:12px;
+  padding-top:12px;
+
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+
+.cookie-option{
+  display:flex;
+  gap:12px;
+
+  align-items:center;
+  justify-content:space-between;
+
+  color:rgba(255,255,255,0.82);
+
+  font-size:12px;
+  line-height:1.35;
+}
+
+.cookie-option strong{
+  display:block;
+  margin-bottom:2px;
+
+  color:rgba(255,255,255,0.92);
+
+  font-size:12px;
+}
+
+.cookie-option span span{
+  display:block;
+  color:rgba(255,255,255,0.58);
+}
+
+.cookie-required{
+  white-space:nowrap;
+  color:rgb(var(--global));
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+}
+
+.cookie-option input{
+  width:18px;
+  height:18px;
+  accent-color:rgb(var(--global));
 }
 
 
@@ -937,7 +1022,18 @@ body.static-page{
     align-items:flex-start;
   }
 
-  .cookie-btn{
+  .cookie-actions{
     width:100%;
+    justify-content:stretch;
+  }
+
+  .cookie-btn{
+    flex:1 1 100%;
+    width:100%;
+  }
+
+  .cookie-option{
+    align-items:flex-start;
+    flex-direction:column;
   }
 }
