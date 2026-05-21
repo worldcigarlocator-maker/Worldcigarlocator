@@ -20,6 +20,11 @@ const SESSION_KEY = "wcl_session_id";
 const SESSION_DATE_KEY = "wcl_session_date";
 const COOKIE_CONSENT_KEY = "wcl_cookie_consent_v1";
 const ANALYTICS_DEBUG = Boolean(window?.WCL_DEBUG_ANALYTICS);
+const BASIC_AGGREGATE_EVENTS = new Set([
+  "store_view",
+  "store_opened",
+  "website_clicked"
+]);
 
 /* Legacy compatibility */
 const LEGACY_SESSION_KEY = "wcl_session";
@@ -28,7 +33,7 @@ function debugLog(...args) {
   if (ANALYTICS_DEBUG) console.log(...args);
 }
 
-function hasAnalyticsConsent() {
+function hasEnhancedAnalyticsConsent() {
   try {
     return localStorage.getItem(COOKIE_CONSENT_KEY) === "accepted";
   } catch {
@@ -210,6 +215,23 @@ function getExtraPayload(payload = {}) {
   return extra;
 }
 
+function buildBasicAggregatePayload(eventType, payload = {}) {
+  return {
+    event_type: eventType,
+    analytics_mode: "basic_aggregate",
+    source: resolveSource(eventType, payload),
+    store_id: payload?.store_id || null,
+    store_country:
+      payload?.country ||
+      payload?.store_country ||
+      null,
+    store_city:
+      payload?.city ||
+      payload?.store_city ||
+      null
+  };
+}
+
 /* ============================================================
    TRACK EVENT
    ============================================================ */
@@ -219,17 +241,36 @@ export async function trackEvent(eventType, payload = {}) {
   try {
 
     if (!eventType) return;
-    if (!hasAnalyticsConsent()) return;
+
+    const hasEnhancedConsent =
+      hasEnhancedAnalyticsConsent();
+
+    const isBasicAggregateEvent =
+      BASIC_AGGREGATE_EVENTS.has(eventType);
+
+    if (!hasEnhancedConsent && !isBasicAggregateEvent) return;
 
     /* ============================================================
        DEDUPE
        ============================================================ */
 
-    if (eventType === "store_view" && payload.store_id) {
+    if (
+      hasEnhancedConsent &&
+      eventType === "store_view" &&
+      payload.store_id
+    ) {
 
       if (hasViewedStore(payload.store_id)) return;
 
       markStoreViewed(payload.store_id);
+    }
+
+    if (!hasEnhancedConsent) {
+      await sendAnalyticsPayload(
+        buildBasicAggregatePayload(eventType, payload)
+      );
+
+      return;
     }
 
     /* ============================================================
@@ -347,37 +388,7 @@ export async function trackEvent(eventType, payload = {}) {
       JSON.stringify(finalPayload, null, 2)
     );
 
-    /* ============================================================
-       SEND
-       ============================================================ */
-
-    const res = await fetch(
-      ANALYTICS_ENDPOINT,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(finalPayload)
-      }
-    );
-
-    const text = await res.text();
-
-    if (!res.ok) {
-
-      console.warn(
-        "ANALYTICS ERROR:",
-        res.status,
-        text
-      );
-
-      return;
-    }
-
-    debugLog("ANALYTICS SENT");
+    await sendAnalyticsPayload(finalPayload);
 
   } catch (err) {
 
@@ -388,13 +399,47 @@ export async function trackEvent(eventType, payload = {}) {
   }
 }
 
+async function sendAnalyticsPayload(finalPayload) {
+  /* ============================================================
+     SEND
+     ============================================================ */
+
+  const res = await fetch(
+    ANALYTICS_ENDPOINT,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify(finalPayload)
+    }
+  );
+
+  const text = await res.text();
+
+  if (!res.ok) {
+
+    console.warn(
+      "ANALYTICS ERROR:",
+      res.status,
+      text
+    );
+
+    return;
+  }
+
+  debugLog("ANALYTICS SENT");
+}
+
 /* ============================================================
    SESSION START
    ============================================================ */
 
 function trackSessionStart() {
   try {
-    if (!hasAnalyticsConsent()) return;
+    if (!hasEnhancedAnalyticsConsent()) return;
 
     const today = getTodayKey();
     const previousTrackedDate =
@@ -420,7 +465,7 @@ function trackSessionStart() {
   }
 }
 
-if (hasAnalyticsConsent()) {
+if (hasEnhancedAnalyticsConsent()) {
   trackSessionStart();
 } else {
   window.addEventListener(

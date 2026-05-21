@@ -2,7 +2,8 @@
 
 ## Purpose
 
-World Cigar Locator separates required site storage from optional analytics.
+World Cigar Locator separates required site storage, privacy-safe aggregate
+analytics, and optional enhanced analytics.
 
 Required storage covers:
 
@@ -12,12 +13,20 @@ Required storage covers:
 - security and anti-abuse state
 - core listing, map, report and moderation workflows
 
-Optional analytics covers:
+Privacy-safe aggregate analytics runs without analytics cookies, visitor IDs,
+session IDs, account IDs, email addresses, user geography, or IP-derived user
+location stored by WCL. It covers:
 
-- session start events
 - listing views and opens
 - website click events
+
+Optional enhanced analytics covers:
+
+- session start events
+- visitor/session continuity
+- signed-in member context where available
 - search and map usage events
+- user geography for analytics
 
 ## Runtime Keys
 
@@ -30,17 +39,19 @@ Allowed values:
 - `accepted`
 - `rejected`
 
-Analytics is only sent when the value is `accepted`.
+Enhanced analytics is only sent when the value is `accepted`.
+Basic aggregate listing analytics can still be sent when the value is
+`rejected`, but without visitor/session/account identifiers.
 
-If analytics is rejected or withdrawn, the frontend removes analytics visitor,
-session and view-dedupe identifiers from local storage/session storage.
+If enhanced analytics is rejected or withdrawn, the frontend removes analytics
+visitor, session and view-dedupe identifiers from local storage/session storage.
 
 ## User Controls
 
 The homepage cookie banner provides:
 
-- `Accept analytics`
-- `Reject analytics`
+- `Accept enhanced`
+- `Reject enhanced`
 - `Manage`
 - `Save settings`
 
