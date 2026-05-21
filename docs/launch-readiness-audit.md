@@ -200,8 +200,8 @@ Canonical RPCs:
     `docs/store-report-spam-filter-requirements.md`.
     The Edge Function source is not in this repository, so the true server-side spam filter still needs Supabase verification or implementation before launch.
 
-44. Rebuilt the public start surface as a private beta lock above the real app.
-    Removed the legacy hardcoded `js/start.js` access gate, added a branded beta landing surface with create account/sign in, kept the age gate in `js/main.js`, added a close control to the login modal, and implemented the cookie consent banner.
+44. Rebuilt the public start surface as an auth lock above the real app.
+    Removed the legacy hardcoded `js/start.js` access gate, added a branded auth landing surface with create account/sign in, kept the age gate in `js/main.js`, added a close control to the login modal, and implemented the cookie consent banner.
     The app container stays hidden/inert until Supabase reports an authenticated session, and sidebar/app boot is deferred until login.
     Public analytics now waits for cookie consent before sending events.
 
@@ -210,7 +210,7 @@ Canonical RPCs:
     Export row selection now follows the active analytics KPI instead of mixing market and store rows.
 
 46. Reworked account creation as a dedicated onboarding path.
-    The beta landing Create account action now routes to `account.html?mode=signup`, the old create-account action was removed from the login popup, and account creation requires email, password, display name/alias, and acceptance of WCL conduct/legal-age rules before calling Supabase Auth.
+    The auth landing Create account action now routes to `account.html?mode=signup`, the old create-account action was removed from the login popup, and account creation requires email, password, display name/alias, and acceptance of WCL conduct/legal-age rules before calling Supabase Auth.
 
 47. Added a content policy moderation draft:
     `docs/supabase-content-policy-moderation-draft.sql`.
