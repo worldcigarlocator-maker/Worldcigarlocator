@@ -19,10 +19,10 @@ background: var(--bg);
 /* ================= HEADER ================= */
 
 .sidebar-header{
-  padding: 1.8rem 1.2rem 1rem;
+  padding:1.45rem 1.2rem 1rem;
   display:flex;
   flex-direction:column;
-  gap:0.1rem;
+  gap:0.2rem;
 }
 
 /* LABEL */
@@ -32,13 +32,32 @@ background: var(--bg);
   justify-content:center;
 }
 
+.sidebar-brand-lockup{
+  position:relative;
+  width:205px;
+  height:92px;
+  display:block;
+  overflow:hidden;
+  background:#050505;
+  transform:translateY(-18px);
+  margin-bottom:-18px;
+}
+
+.sidebar-brand-lockup img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:center 32%;
+}
+
 .sidebar-total{
   display:flex;
   justify-content:center;
   align-items:center;
 
-  margin-top:-18px;          /* 🔥 närmare label */
-  padding:0 0 0.9rem;      /* 🔥 mer luft till divider */
+  margin-top:-0.28rem;
+  padding:0 0 0.95rem;
 
   border-bottom:1px solid rgba(255,255,255,0.08);
 
@@ -47,10 +66,10 @@ background: var(--bg);
 }
 
 #sidebarGlobalCount{
-  font-size:0.78rem;
-  font-weight:500;
-  color:rgb(var(--global));
-  opacity:0.65;
+  font-size:0.8rem;
+  font-weight:700;
+  color:rgba(var(--global),0.74);
+  opacity:0.86;
 }
 
 
@@ -75,7 +94,7 @@ background: var(--bg);
 
 .sidebar-actions .sidebar-btn{
   flex:1 1 0;
-  min-width:0;   /* 🔥 stoppar overflow-buggen */
+  min-width:0;   /* stoppar overflow-buggen */
 }
 
 
@@ -90,7 +109,7 @@ background: var(--bg);
 
   border-radius:10px;
 
-  /* 🔥 BASE GLOW */
+  /* BASE GLOW */
   box-shadow:
     0 4px 12px rgba(var(--global),0.35),
     0 0 0 1px rgba(var(--global),0.25),
@@ -104,7 +123,7 @@ background: var(--bg);
 
   transform:translateY(-1px);
 
-  /* 🔥 HOVER GLOW BOOST */
+  /* HOVER GLOW BOOST */
   box-shadow:
     0 6px 18px rgba(var(--global),0.45),
     0 0 0 1px rgba(var(--global),0.4),
@@ -136,10 +155,10 @@ background: var(--bg);
 ============================================================ */
 
 .sidebar-nav{
-  flex:1;                 /* 🔥 tar all remaining height */
-  min-height:0;           /* 🔥 KRITISK för scroll */
+  flex:1;                 /* tar all remaining height */
+  min-height:0;           /* KRITISK för scroll */
 
-  overflow-y:auto;        /* 🔥 scroll här */
+  overflow-y:auto;        /* scroll här */
   padding:0.6rem 0;
 
   border-top:1px solid rgba(255,255,255,0.12);
@@ -190,13 +209,13 @@ background: var(--bg);
   font-weight: 600;
   color: #766148;
 
-  border-bottom: 1px solid var(--border); /* 🔥 bara under */
+  border-bottom: 1px solid var(--border); /* bara under */
 
   padding-top: 0.65rem;
   padding-bottom: 0.65rem;
 }
 
-/* 🔥 ta bort linje ovanför första continent */
+/* ta bort linje ovanför första continent */
 .node:first-child .line.continent {
   border-top: none;
 }
@@ -292,18 +311,27 @@ max-height: 9999px;
   gap: 0.55rem;
 }
 
-.sidebar-footer a {
+.sidebar-footer a,
+.sidebar-footer-link {
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.01em;
 
   color: rgba(255,255,255,0.55);
   text-decoration: none;
+  text-align: left;
+
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
 
   transition: color 0.18s ease, transform 0.18s ease;
 }
 
-.sidebar-footer a:hover {
+.sidebar-footer a:hover,
+.sidebar-footer-link:hover {
   color: #766148; /* matchar continent-färgen */
   transform: translateX(2px);
 }
@@ -335,4 +363,3 @@ max-height: 9999px;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
-

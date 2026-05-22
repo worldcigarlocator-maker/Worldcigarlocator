@@ -48,7 +48,9 @@
        ============================================================ -->
 
   <header class="topbar">
-    <h1>World Cigar Locator — Analytics</h1>
+    <a class="analytics-brand" href="analytics.html" aria-label="World Cigar Locator Analytics">
+      <img src="images/wcl_brand_text_no_url.png" alt="World Cigar Locator" />
+    </a>
     <nav class="nav">
       <a class="navlink" href="backoffice.html">Backoffice</a>
     </nav>
@@ -87,7 +89,7 @@
   <div class="searchrow">
 
     <div class="searchbox">
-      <input id="searchInput" type="text" placeholder="Search..." />
+      <input id="searchInput" type="text" placeholder="Search country, store or ID..." />
     </div>
 
     <button id="searchBtn" class="btn primary">Search</button>
@@ -141,7 +143,7 @@
   </table>
 </div>
 
-<!-- 🔥 CHART (MÅSTE VARA I SYNLIG PANEL) -->
+<!-- CHART (MÅSTE VARA I SYNLIG PANEL) -->
 <div class="chart-panel">
   <canvas id="usersChart"></canvas>
 </div>
@@ -312,17 +314,6 @@
 
 
   </section>
-
-  <!-- ============================================================
-       CONFIG
-       ============================================================ -->
-
-  <script>
-    window.WCL_ANALYTICS_CFG = {
-      supabaseUrl: "https://gbxxoeplkzbhsvagnfsr.supabase.co",
-      supabaseAnonKey: "YOUR_KEY"
-    };
-  </script>
 
   <!-- ============================================================
        SCRIPT

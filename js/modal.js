@@ -3,10 +3,11 @@
 // Canonical · RPC-Only · Backend Authority · No Table Access
 // ============================================================
 
-import { supabase } from "/js/globals.js";
+import { debugLog, supabase } from "/js/globals.js";
 import { getLastRenderedStores } from "./cards.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
 import { trackEvent } from "./analytics-tracker.js";
+import { sendWclEmail } from "./email.js";
 
 
 // ============================================================
@@ -24,11 +25,28 @@ let MODAL_REPLY_TO = null;
 // ============================================================
 
 let REPORT_SELECTED = new Set();
+let REPORT_OPENED_AT = 0;
+let REPORT_SUBMITTING = false;
+
+const REPORT_COOLDOWN_MS = 10 * 60 * 1000;
+const REPORT_HOURLY_LIMIT = 5;
+const REPORT_HISTORY_KEY = "wcl_report_history_v1";
 
 const reportSection = () => document.getElementById("modalReportSection");
 const reportChips = () => document.querySelectorAll(".report-chip");
 const reportTextarea = () => document.getElementById("modalReportMessage");
 const reportSubmit = () => document.getElementById("modalSubmitReport");
+const reportSuccess = () => document.getElementById("modalReportSuccess");
+const reportHoneypot = () => document.getElementById("modalReportWebsite");
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
 function resetReportUI() {
   REPORT_SELECTED.clear();
@@ -44,6 +62,19 @@ function resetReportUI() {
 
   if (reportSubmit()) {
     reportSubmit().disabled = true;
+    reportSubmit().textContent = "Submit report";
+    reportSubmit().classList.remove("success");
+  }
+
+  if (reportSuccess()) {
+    reportSuccess().classList.add("hidden");
+    reportSuccess().classList.remove("error", "success", "info");
+    reportSuccess().textContent =
+      "Thank you for helping us keep World Cigar Locator accurate and up to date.";
+  }
+
+  if (reportHoneypot()) {
+    reportHoneypot().value = "";
   }
 }
 
@@ -63,6 +94,81 @@ function updateReportUI() {
     }
   }
 }
+
+function showReportFeedback(message, type = "info") {
+  const target = reportSuccess();
+  if (!target) return;
+
+  target.textContent = message;
+  target.classList.remove("hidden", "error", "success", "info");
+  target.classList.add(type);
+}
+
+function readReportHistory() {
+  try {
+    return JSON.parse(
+      localStorage.getItem(REPORT_HISTORY_KEY) || "[]"
+    );
+  } catch {
+    return [];
+  }
+}
+
+function writeReportHistory(history) {
+  try {
+    localStorage.setItem(
+      REPORT_HISTORY_KEY,
+      JSON.stringify(history)
+    );
+  } catch {}
+}
+
+function reportSignature(storeId, types, message) {
+  return [
+    storeId,
+    types.slice().sort().join(","),
+    (message || "").toLowerCase().trim()
+  ].join("|");
+}
+
+function getReportBlockReason(storeId, types, message) {
+  const now = Date.now();
+  const recent = readReportHistory()
+    .filter((item) => now - item.ts < 60 * 60 * 1000);
+
+  const signature =
+    reportSignature(storeId, types, message);
+
+  const duplicate = recent.find(
+    (item) =>
+      item.signature === signature &&
+      now - item.ts < REPORT_COOLDOWN_MS
+  );
+
+  if (duplicate) {
+    return "You already sent this report. Thank you.";
+  }
+
+  if (recent.length >= REPORT_HOURLY_LIMIT) {
+    return "Too many reports in a short time. Please try again later.";
+  }
+
+  return null;
+}
+
+function rememberReport(storeId, types, message) {
+  const now = Date.now();
+  const history = readReportHistory()
+    .filter((item) => now - item.ts < 60 * 60 * 1000);
+
+  history.push({
+    ts: now,
+    storeId,
+    signature: reportSignature(storeId, types, message)
+  });
+
+  writeReportHistory(history);
+}
 // ============================================================
 // DOM HELPERS
 // ============================================================
@@ -71,6 +177,7 @@ const el = (id) => document.getElementById(id);
 
 const modalEl           = () => el("storeModal");
 const modalImg          = () => el("modalImg");
+const modalPhotoAttribution = () => el("modalPhotoAttribution");
 const modalName         = () => el("modalName");
 const modalFlag         = () => el("modalFlag");
 const modalLocation     = () => el("modalLocation");
@@ -85,6 +192,7 @@ const modalComments     = () => el("modalComments");
 const modalCommentInput = () => el("modalCommentInput");
 const modalSendComment  = () => el("modalSendComment");
 const modalCommentCount = () => el("modalCommentCount");
+const modalCommentPolicyMessage = () => el("modalCommentPolicyMessage");
 
 // ============================================================
 // UTIL
@@ -116,6 +224,7 @@ function highlightStars(count) {
 
 function resetModal() {
   if (modalImg()) modalImg().src = "";
+  modalPhotoAttribution()?.classList.add("hidden");
   if (modalName()) modalName().textContent = "";
   if (modalLocation()) modalLocation().textContent = "";
   if (modalBadges()) modalBadges().innerHTML = "";
@@ -143,9 +252,103 @@ function resetModal() {
   if (modalComments()) modalComments().innerHTML = "";
   if (modalCommentInput()) modalCommentInput().value = "";
   if (modalCommentCount()) modalCommentCount().textContent = "Comments 0";
+  hideCommentPolicyMessage();
+
+  reportSection()?.classList.add("hidden");
+  document
+    .getElementById("modalReportIssue")
+    ?.setAttribute("aria-expanded", "false");
+  resetReportUI();
 
   MODAL_USER_TEMP_RATING = 0;
   highlightStars(0);
+}
+
+function hideCommentPolicyMessage() {
+  const box = modalCommentPolicyMessage();
+  if (!box) return;
+
+  box.textContent = "";
+  box.classList.add("hidden");
+}
+
+function showCommentPolicyMessage(
+  message = "Due to WCL policy, we can not post your comment."
+) {
+  const box = modalCommentPolicyMessage();
+  if (!box) return;
+
+  box.textContent = message;
+  box.classList.remove("hidden");
+}
+
+function isPolicyBlockedError(error) {
+  const text = [
+    error?.message,
+    error?.details,
+    error?.hint
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return (
+    text.includes("wcl_policy_blocked") ||
+    text.includes("content policy")
+  );
+}
+
+async function addCommentWithModeration({
+  storeId,
+  text,
+  parentId
+}) {
+  const { data, error } = await supabase.functions.invoke(
+    "moderate_comment_v1",
+    {
+      body: {
+        store_id: storeId,
+        comment: text,
+        parent_id: parentId
+      }
+    }
+  );
+
+  if (!error && data?.status === "blocked") {
+    showCommentPolicyMessage(
+      data.message ||
+        "Due to WCL policy, we can not post your comment."
+    );
+
+    return {
+      ok: false,
+      handled: true
+    };
+  }
+
+  if (!error && data?.ok) {
+    return {
+      ok: true,
+      handled: true
+    };
+  }
+
+  if (error) {
+    console.warn(
+      "moderate_comment_v1 unavailable",
+      error
+    );
+
+    showCommentPolicyMessage(
+      "Comment moderation is temporarily unavailable. Please try again shortly."
+    );
+  }
+
+  return {
+    ok: false,
+    handled: true,
+    error
+  };
 }
 
 // ============================================================
@@ -154,7 +357,7 @@ function resetModal() {
 
 export async function openModal(storeInput) {
 
-  console.log(
+  debugLog(
     "OPEN MODAL CALLED",
     storeInput
   );
@@ -167,7 +370,7 @@ export async function openModal(storeInput) {
 
   if (!inputId) {
 
-    console.log(
+    debugLog(
       "MODAL EARLY RETURN"
     );
 
@@ -180,9 +383,14 @@ export async function openModal(storeInput) {
       ? storeInput.source || null
       : null;
 
+  const shouldOpenReport =
+    typeof storeInput === "object" &&
+    storeInput !== null &&
+    storeInput.openReport === true;
+
   let store =
     findStore(inputId);
-console.log("STORE FOUND", store);
+debugLog("STORE FOUND", store);
   
   // ============================================================
   // RPC FALLBACK / AUTHORITATIVE LOAD
@@ -208,7 +416,7 @@ console.log("STORE FOUND", store);
 
   store = data[0];
 
-  console.log(
+  debugLog(
     "STORE AFTER RPC",
     store
   );
@@ -221,7 +429,7 @@ console.log("STORE FOUND", store);
 
   if (!storeId) return;
 
-  console.log(
+  debugLog(
   "MODAL RENDER START",
   store
 );
@@ -238,12 +446,13 @@ console.log("STORE FOUND", store);
     "direct";
 
   window.MODAL_SOURCE = MODAL_SOURCE;
+  window.WCL_ANALYTICS?.setModalSource?.(MODAL_SOURCE);
 
   // ============================================================
   // ANALYTICS
   // ============================================================
 
- window.WCL_ANALYTICS?.send?.(
+  trackEvent(
     "store_opened",
     {
       store_id: storeId,
@@ -252,15 +461,6 @@ console.log("STORE FOUND", store);
       source: MODAL_SOURCE
     }
   );
-
-  trackEvent("store_view", {
-    store_id: storeId,
-    country: store.country || null,
-    city: store.city || null,
-    source: MODAL_SOURCE,
-    session_hash:
-      localStorage.getItem("wcl_session")
-  });
 
   // ============================================================
   // MODAL STATE
@@ -274,14 +474,14 @@ const seq = MODAL_LOAD_SEQ;
 
 const m = modalEl();
 
-console.log(
+debugLog(
   "MODAL ELEMENT",
   m
 );
 
 if (!m) {
 
-  console.log(
+  debugLog(
     "MODAL ELEMENT MISSING"
   );
 
@@ -290,16 +490,24 @@ if (!m) {
 
 resetModal();
 
+if (shouldOpenReport) {
+  REPORT_OPENED_AT = Date.now();
+  reportSection()?.classList.remove("hidden");
+  document
+    .getElementById("modalReportIssue")
+    ?.setAttribute("aria-expanded", "true");
+}
+
 m.classList.remove("hidden");
 
 lockScroll(true);
 
-console.log(
+debugLog(
   "MODAL OPENED UI"
 );
 
   lockScroll(true);
-  console.log(
+  debugLog(
   "MODAL OPENED UI"
 );
 
@@ -332,6 +540,15 @@ console.log(
   if (modalImg()) {
     modalImg().src = getPhotoUrl(store);
   }
+
+  modalPhotoAttribution()?.classList.toggle(
+    "hidden",
+    !(
+      store.photo_reference &&
+      !store.photo_cdn_url &&
+      !store.photo_url
+    )
+  );
 
   const flagUrl = getFlagUrl(store);
 
@@ -505,7 +722,7 @@ async function saveRating() {
 
   if (!MODAL_ACTIVE_STORE_ID) return;
 
-  console.log(
+  debugLog(
     "SAVE RATING:",
     MODAL_ACTIVE_STORE_ID,
     MODAL_USER_TEMP_RATING
@@ -525,12 +742,12 @@ async function saveRating() {
       }
     );
 
-  console.log(
+  debugLog(
     "RATING RPC DATA:",
     data
   );
 
-  console.log(
+  debugLog(
     "RATING RPC ERROR:",
     error
   );
@@ -543,7 +760,7 @@ async function saveRating() {
     return;
   }
 
-  console.log("RATING SAVED");
+  debugLog("RATING SAVED");
 }
 
 // ============================================================
@@ -615,7 +832,8 @@ async function loadComments(storeId, seq) {
   // ============================================================
 
   function renderComment(c, isReply = false) {
-    const name = c.display_name || "Anonymous";
+    const name = escapeHtml(c.display_name || "Anonymous");
+    const comment = escapeHtml(c.comment || "");
 
     return `
       <div class="modal-comment ${isReply ? "reply" : ""}">
@@ -639,7 +857,7 @@ async function loadComments(storeId, seq) {
         </div>
 
         <div class="modal-comment-text" data-id="${c.id}">
-          ${c.comment || ""}
+          ${comment}
         </div>
 
         <div class="modal-comment-actions">
@@ -681,16 +899,29 @@ async function submitComment() {
   const text = input?.value?.trim() || "";
   if (!text) return;
 
-  const { error } = await supabase.rpc("modal_add_comment_v1", {
-    p_store_id: MODAL_ACTIVE_STORE_ID,
-    p_comment: text,
-    p_parent_id: MODAL_REPLY_TO,
-  });
+  hideCommentPolicyMessage();
 
-  if (error) {
-    console.error("modal_add_comment_v1 error:", error);
+  const moderated =
+    await addCommentWithModeration({
+      storeId: MODAL_ACTIVE_STORE_ID,
+      text,
+      parentId: MODAL_REPLY_TO
+    });
+
+  const error = moderated.error || null;
+  const posted = moderated.ok;
+
+  if (!posted && error) {
+    console.error("moderate_comment_v1 error:", error);
+
+    if (isPolicyBlockedError(error)) {
+      showCommentPolicyMessage();
+    }
+
     return;
   }
+
+  if (!posted) return;
 
   if (input) input.value = "";
 
@@ -711,6 +942,7 @@ async function submitComment() {
 async function submitReportIssue() {
   if (!MODAL_ACTIVE_STORE_ID) return;
   if (REPORT_SELECTED.size === 0) return;
+  if (REPORT_SUBMITTING) return;
 
   const types = Array.from(REPORT_SELECTED);
 
@@ -718,6 +950,40 @@ async function submitReportIssue() {
     REPORT_SELECTED.has("other") && reportTextarea()
       ? reportTextarea().value.trim()
       : null;
+
+  if (reportHoneypot()?.value) {
+    return;
+  }
+
+  const elapsedMs = REPORT_OPENED_AT
+    ? Date.now() - REPORT_OPENED_AT
+    : 0;
+
+  if (elapsedMs > 0 && elapsedMs < 900) {
+    showReportFeedback(
+      "Please take a moment to review the report before sending.",
+      "error"
+    );
+    return;
+  }
+
+  const blockReason =
+    getReportBlockReason(
+      MODAL_ACTIVE_STORE_ID,
+      types,
+      message
+    );
+
+  if (blockReason) {
+    showReportFeedback(blockReason, "error");
+    return;
+  }
+
+  REPORT_SUBMITTING = true;
+  if (reportSubmit()) {
+    reportSubmit().disabled = true;
+    reportSubmit().textContent = "Sending...";
+  }
 
   try {
     const { error } = await supabase.functions.invoke(
@@ -727,22 +993,52 @@ async function submitReportIssue() {
           store_id: MODAL_ACTIVE_STORE_ID,
           report_types: types,
           message: message || null,
+          client_elapsed_ms: elapsedMs,
+          client_report_id:
+            globalThis.crypto?.randomUUID?.() || String(Date.now()),
         },
       }
     );
 
     if (error) {
       console.error("submit_store_report_v1 error:", error);
+      showReportFeedback(
+        "Report could not be sent. Please try again.",
+        "error"
+      );
+      if (reportSubmit()) {
+        reportSubmit().textContent = "Submit report";
+      }
       return;
     }
 
+    rememberReport(
+      MODAL_ACTIVE_STORE_ID,
+      types,
+      message
+    );
+
+    void sendWclEmail(
+      "report_received",
+      {
+        report: {
+          store_id: MODAL_ACTIVE_STORE_ID,
+          report_types: types,
+          message: message || null,
+        },
+      }
+    );
+
     resetReportUI();
-    reportSection()?.classList.add("hidden");
+    showReportFeedback(
+      "Report submitted. Thank you for helping keep WCL accurate.",
+      "success"
+    );
 
 const btn = reportSubmit();
 if (btn) {
   btn.classList.add("success");
-  btn.textContent = "Report submitted ✓";
+  btn.textContent = "Report submitted";
   btn.disabled = true;
 
   setTimeout(() => {
@@ -756,6 +1052,16 @@ if (btn) {
 
   } catch (err) {
     console.error("submit_store_report_v1 exception:", err);
+    showReportFeedback(
+      "Report could not be sent. Please try again.",
+      "error"
+    );
+    if (reportSubmit()) {
+      reportSubmit().textContent = "Submit report";
+    }
+  } finally {
+    REPORT_SUBMITTING = false;
+    updateReportUI();
   }
 }
 
@@ -913,7 +1219,13 @@ if (
       const section = reportSection();
       if (!section) return;
 
-      section.classList.toggle("hidden");
+      const isHidden = section.classList.toggle("hidden");
+      REPORT_OPENED_AT = isHidden
+        ? 0
+        : Date.now();
+      e.target
+        .closest("#modalReportIssue")
+        ?.setAttribute("aria-expanded", String(!isHidden));
       resetReportUI();
       return;
     }

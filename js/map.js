@@ -4,7 +4,7 @@
 // Enterprise · Stable · Fast
 // ============================================================
 
-import { supabase } from "/js/globals.js";
+import { GOOGLE_BROWSER_KEY, supabase } from "/js/globals.js";
 import { openModal } from "./modal.js";
 import { buildPin } from "./map-pins.js";
 import { trackEvent } from "./analytics-tracker.js";
@@ -56,7 +56,7 @@ async function loadGoogle() {
 
   if (!googleLoaded) {
     await loadScript(
-      "https://maps.googleapis.com/maps/api/js?key=AIzaSyBzHH9QNHPGWpQrczIGgWs1wnHGALiwNZw&v=weekly&libraries=marker"
+      `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_BROWSER_KEY}&v=weekly&libraries=marker`
     );
     googleLoaded = true;
   }
@@ -77,7 +77,7 @@ async function loadGoogle() {
 export async function initMap() {
 
   if (window.WCL_ANALYTICS) {
-    window.WCL_ANALYTICS.setSource("map");
+    window.WCL_ANALYTICS?.setSource?.("map");
   }
 
   if (map) return;
@@ -336,7 +336,7 @@ function createMarker(store) {
     if (!s) return;
 
     // 🔒 SOURCE LOCK (MAP)
-    window.WCL_ANALYTICS.setSource("map");
+    window.WCL_ANALYTICS?.setSource?.("map");
 
     if (e?.domEvent) {
       e.domEvent.stopPropagation();
@@ -360,7 +360,7 @@ function createMarker(store) {
       "0 0 0 3px rgba(115,98,75,0.45), 0 10px 22px rgba(0,0,0,0.65)";
     pin.style.zIndex = "5";
 
-    // ✅ ENDA KORREKTA SÄTTET
+    // ENDA KORREKTA SÄTTET
     openModal({
       id: s.id,
       source: "map"

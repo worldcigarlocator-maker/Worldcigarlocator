@@ -24,6 +24,24 @@
   <!-- Theme color -->
   <meta name="theme-color" content="#050505">
 
+  <script>
+    (function () {
+      try {
+        var params =
+          new URLSearchParams(window.location.search);
+
+        if (
+          params.get("app") === "1" ||
+          params.get("main") === "1"
+        ) {
+          document.documentElement.classList.add(
+            "wcl-direct-main"
+          );
+        }
+      } catch (err) {}
+    })();
+  </script>
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,10 +84,64 @@
   <link rel="stylesheet" href="css/mobile.css">
 </head>
 
-<body>
+<body class="auth-locked">
+
+  <!-- AUTH LANDING -->
+  <section
+    id="betaLanding"
+    class="beta-landing"
+    aria-labelledby="betaLandingTitle"
+  >
+    <div class="beta-shell">
+      <img
+        class="beta-brand-image"
+        src="images/start1.png"
+        alt="WCL World Cigar Locator"
+      >
+
+      <h1 id="betaLandingTitle">
+        Welcome to World Cigar Locator
+      </h1>
+
+      <div class="beta-copy">
+        <p>
+          Your global guide to cigar lounges, hidden humidors and premium cigar destinations.
+        </p>
+        <p>
+          From luxury lounges to unexpected hidden gems, WCL helps you discover
+          <br>
+          where to buy or enjoy cigars - anywhere in the world.
+        </p>
+        <p>
+          Save your favorites, leave ratings and get personalized recommendations.
+        </p>
+        <p class="beta-copy-signoff">
+          Find. Explore. Enjoy.
+        </p>
+      </div>
+
+      <div class="beta-actions">
+        <a
+          id="betaSignupBtn"
+          class="beta-btn beta-btn-primary"
+          href="account.html?mode=signup"
+        >
+          Create account
+        </a>
+
+        <a
+          id="betaLoginBtn"
+          class="beta-btn beta-btn-secondary"
+          href="account.html?mode=signin"
+        >
+          Sign in
+        </a>
+      </div>
+    </div>
+  </section>
 
   <!-- AGE GATE -->
-  <div id="ageGate" class="age-gate hidden">
+  <div id="ageGate" class="age-gate hidden" role="dialog" aria-modal="true">
     <div class="login-box age-box">
       <h1 class="login-title">World Cigar Locator</h1>
 
@@ -110,6 +182,15 @@
 >
 
   <div class="login-box">
+
+    <button
+      id="loginClose"
+      class="login-close"
+      type="button"
+      aria-label="Close login"
+    >
+      &times;
+    </button>
 
     <h1 class="login-title">
       World Cigar Locator
@@ -172,13 +253,6 @@
     <div class="auth-actions">
 
       <button
-        id="signupSubmit"
-        data-i18n="create_new_account"
-      >
-        Create A New Account
-      </button>
-
-      <button
         id="resetSubmit"
         data-i18n="reset_password"
       >
@@ -187,7 +261,7 @@
 
     </div>
 
-    <!-- 🔥 AUTH MESSAGE -->
+    <!-- AUTH MESSAGE -->
 
     <div
       id="authMessage"
@@ -210,18 +284,12 @@
   <header class="sidebar-header">
 
     <div class="sidebar-brand" id="homeBtn" role="button" aria-label="Go to Home">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160" aria-hidden="true">
-        <text
-          x="260"
-          y="100"
-          text-anchor="middle"
-          font-size="56"
-          fill="rgb(115, 98, 75)"
-          font-family="Georgia, 'Times New Roman', serif"
+      <span class="sidebar-brand-lockup">
+        <img
+          src="images/wcl_brand_text_no_url.png"
+          alt="World Cigar Locator"
         >
-          World Cigar Locator
-        </text>
-      </svg>
+      </span>
     </div>
 
     <!-- COUNT UNDER LABEL -->
@@ -307,6 +375,14 @@
   >
     Privacy Policy
   </a>
+
+  <button
+    id="cookieSettingsBtn"
+    type="button"
+    class="sidebar-footer-link"
+  >
+    Cookie Settings
+  </button>
 
   <a
     href="account.html"
@@ -466,7 +542,7 @@
           
       </div>
 
-<!-- 🔥 MOBILE SEARCH (ISOLATED) -->
+<!-- MOBILE SEARCH (ISOLATED) -->
 
 <div class="mobile-search">
 
@@ -498,7 +574,7 @@
 
 </div>
 
-<!-- 🔥 MOBILE ACTIONS -->
+<!-- MOBILE ACTIONS -->
 
 <div class="mobile-actions">
 
@@ -547,32 +623,98 @@
 
       <section id="mapView"></section>
 
- <div id="cookieBanner" class="cookie-banner">
-
-  <div class="cookie-inner">
-
-    <div
-      class="cookie-text"
-      data-i18n="cookie_message"
-    >
-      We use essential cookies and limited analytics to improve your experience and maintain platform security.
-      By continuing to use this site, you agree to our
-      Privacy Policy.
-    </div>
-
-    <button
-      id="cookieOkBtn"
-      type="button"
-      class="cookie-btn"
-      data-i18n="ok"
-    >
-      OK
-    </button>
+    </main>
 
   </div>
 
-</div>
-    </main>
+  <div
+    id="cookieBanner"
+    class="cookie-banner"
+    role="dialog"
+    aria-live="polite"
+    aria-label="Cookie settings"
+  >
+
+    <div class="cookie-inner">
+
+      <div class="cookie-copy">
+        <div class="cookie-title">Cookie Settings</div>
+        <div class="cookie-text">
+          WCL uses necessary storage for login, age confirmation, language and security.
+          WCL also uses privacy-safe aggregate analytics for listing views and website clicks.
+          Enhanced analytics is optional and helps us understand sessions and usage patterns.
+          You can accept or reject enhanced analytics now, and change this later in the sidebar.
+          Read our <a href="privacy.html">Privacy Policy</a>.
+        </div>
+
+        <div
+          id="cookieManagePanel"
+          class="cookie-manage hidden"
+        >
+          <div class="cookie-option">
+            <div>
+              <strong>Necessary</strong>
+              <span>Required for login, age gate, language, security and core site functions.</span>
+            </div>
+            <span class="cookie-required">Always active</span>
+          </div>
+
+          <div class="cookie-option">
+            <div>
+              <strong>Aggregate analytics</strong>
+              <span>Anonymous listing views, store opens and website clicks. No visitor or session tracking.</span>
+            </div>
+            <span class="cookie-required">Always active</span>
+          </div>
+
+          <label class="cookie-option">
+            <span>
+              <strong>Enhanced analytics</strong>
+              <span>Optional enhanced analytics for sessions and journeys. No advertising pixels.</span>
+            </span>
+            <input
+              id="cookieAnalyticsToggle"
+              type="checkbox"
+            >
+          </label>
+        </div>
+      </div>
+
+      <div class="cookie-actions">
+        <button
+          id="cookieRejectBtn"
+          type="button"
+          class="cookie-btn"
+        >
+          Reject enhanced
+        </button>
+
+        <button
+          id="cookieManageBtn"
+          type="button"
+          class="cookie-btn"
+        >
+          Manage
+        </button>
+
+        <button
+          id="cookieSaveBtn"
+          type="button"
+          class="cookie-btn hidden"
+        >
+          Save settings
+        </button>
+
+        <button
+          id="cookieAcceptBtn"
+          type="button"
+          class="cookie-btn primary"
+        >
+          Accept enhanced
+        </button>
+      </div>
+
+    </div>
 
   </div>
 
@@ -614,7 +756,16 @@
 
 </div>
 
-      <img id="modalImg" class="modal-img" alt="">
+      <div class="modal-img-wrap">
+        <img id="modalImg" class="modal-img" alt="">
+        <span
+          id="modalPhotoAttribution"
+          class="google-attribution modal-google-attribution hidden"
+          translate="no"
+        >
+          Google Maps
+        </span>
+      </div>
 
       <div class="modal-body">
 
@@ -728,11 +879,28 @@
   </button>
 
   <div
+    id="modalCommentPolicyMessage"
+    class="modal-comment-policy-message hidden"
+    role="status"
+  ></div>
+
+  <div
     id="modalComments"
     class="modal-comments-feed"
   ></div>
 
 </div>
+
+<button
+  id="modalReportIssue"
+  class="modal-report-btn"
+  type="button"
+  data-i18n="report_listing"
+  aria-controls="modalReportSection"
+  aria-expanded="false"
+>
+  Report this listing
+</button>
 
       <!-- REPORT SECTION -->
 
@@ -756,25 +924,25 @@
     <button
       class="report-chip"
       data-type="no_longer_sells"
-      data-i18n="dont_sell_cigars"
+      data-i18n="report_store_type_wrong"
     >
-      Don’t sell cigars
+      Store type is wrong
     </button>
 
     <button
       class="report-chip"
       data-type="no_smoking_allowed"
-      data-i18n="not_allowed_to_smoke"
+      data-i18n="report_lounge_type_wrong"
     >
-      Not allowed to smoke
+      Lounge type is wrong
     </button>
 
     <button
       class="report-chip"
       data-type="membership_policy_wrong"
-      data-i18n="membership_policy_wrong"
+      data-i18n="report_phone_or_website_wrong"
     >
-      Membership policy wrong
+      Phone or website is wrong
     </button>
 
     <button
@@ -788,9 +956,9 @@
     <button
       class="report-chip"
       data-type="permanently_closed"
-      data-i18n="permanently_closed"
+      data-i18n="report_does_not_exist"
     >
-      Permanently closed
+      Does not exist any longer
     </button>
 
     <button
@@ -817,6 +985,15 @@
     placeholder="Describe the issue..."
     data-i18n-placeholder="describe_issue"
   ></textarea>
+
+  <input
+    id="modalReportWebsite"
+    class="modal-report-honeypot"
+    type="text"
+    tabindex="-1"
+    autocomplete="off"
+    aria-hidden="true"
+  >
 
   <button
     id="modalSubmitReport"

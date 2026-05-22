@@ -36,10 +36,10 @@ textarea{
   padding:100px 1rem 2rem;
   min-height:100vh;
 
-  display:block;              /* 🔥 viktig ändring */
+  display:block;              /* viktig ändring */
   position:relative;
 
-  overflow-anchor:none;       /* 🔥 stoppar scroll jump */
+  overflow-anchor:none;       /* stoppar scroll jump */
 }
 /* ============================================================
    MOBILE HEADER
@@ -117,12 +117,14 @@ textarea{
 
 .hero{
 
-  margin-top:16px;
+  margin:16px 12px 0;
 
-  width:100%;
-  height:30vh;
+  width:auto;
+  height:auto;
+  aspect-ratio:2048 / 1365;
+  min-height:0;
 
-  border-radius:16px;
+  border-radius:10px;
   overflow:hidden;
 
 }
@@ -130,8 +132,27 @@ textarea{
 .hero img{
   width:100%;
   height:100%;
-  object-fit: contain;
+  object-fit:contain;
   object-position:center;
+}
+
+.start-hero-copy{
+  width:calc(100% - 32px);
+  min-height:62vh;
+  margin-left:16px;
+  padding:42px 0;
+}
+
+.start-hero-copy h1{
+  font-size:40px;
+}
+
+.start-hero-actions{
+  width:100%;
+}
+
+.start-hero-actions button{
+  flex:1 1 100%;
 }
 
 .search-panel{
@@ -152,7 +173,7 @@ textarea{
 /* ============================================================
    SEARCH — MOBILE CLEAN (NO CAPSULE UI)
    ============================================================ */
-   /* 🔥 HIDE DESKTOP SEARCH IN MOBILE */
+   /* HIDE DESKTOP SEARCH IN MOBILE */
 .search-panel{
   display:none !important;
 }
@@ -168,7 +189,7 @@ textarea{
 /* ============================================================
    SEARCH PANEL — REMOVE DOUBLE CONTAINER
    ============================================================ */
-/* 🔥 DÖDA OUTER BORDER */
+/* DÖDA OUTER BORDER */
 .search-panel::before,
 .search-panel::after{
   display:none !important;
@@ -305,7 +326,7 @@ display:block;
     padding-inline:.5rem;
   }
 
-  /* 🔥 CRITICAL — REMOVE FIXED WIDTH FROM DESKTOP */
+  /* CRITICAL — REMOVE FIXED WIDTH FROM DESKTOP */
   .store-card{
     width:100%;
     height:auto;
@@ -393,7 +414,7 @@ display:block;
   border-top:1px solid rgba(255,255,255,0.08);
   border-bottom:1px solid rgba(255,255,255,0.08);
 
-  /* 🔥 START STÄNGD */
+  /* START STÄNGD */
   max-height:0;
   opacity:0;
   overflow:hidden;
@@ -556,7 +577,7 @@ display:block;
   background:none !important;
   border:none !important;
 
-  color:rgb(var(--global));   /* 🔥 styr SVG */
+  color:rgb(var(--global));   /* styr SVG */
   cursor:pointer;
 }
 

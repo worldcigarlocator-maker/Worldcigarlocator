@@ -3,8 +3,9 @@ name: Deploy GitHub Pages
 on:
   push:
     branches:
+      - Main-1
       - main
-  workflow_dispatch:   # 👈 ny rad
+  workflow_dispatch:
 
 
 permissions:
@@ -29,7 +30,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./  # publicera hela rotmappen
+          path: ./
 
   deploy:
     environment:

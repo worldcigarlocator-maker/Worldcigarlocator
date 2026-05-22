@@ -2,13 +2,10 @@
 // MAIN.JS — WCL Frontend (CLEAN · DEBUG-SAFE · AUTH-GATE FIXED)
 // ============================================================
 
-import { supabase } from "/js/globals.js";
+import { debugLog, supabase } from "/js/globals.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import { trackEvent } from "./analytics-tracker.js";
 import { resetToHero } from "./cards.js";
-
-import "./analytics-frontend.js";
-import "./start.js";
 
 import {
   t,
@@ -17,6 +14,43 @@ import {
 
 const qs = (sel) =>
   document.querySelector(sel);
+
+let LOGIN_BINDINGS_BOUND = false;
+let BETA_LANDING_BINDINGS_BOUND = false;
+let refreshAuthButtons = () => {};
+let OPEN_LOGIN_AFTER_BOOT = false;
+let DIRECT_MAIN_AFTER_BOOT = false;
+
+try {
+  const url =
+    new URL(window.location.href);
+
+  OPEN_LOGIN_AFTER_BOOT =
+    url.searchParams.get("signin") === "1" ||
+    url.searchParams.get("login") === "1";
+
+  DIRECT_MAIN_AFTER_BOOT =
+    url.searchParams.get("app") === "1" ||
+    url.searchParams.get("main") === "1";
+
+  if (
+    OPEN_LOGIN_AFTER_BOOT ||
+    DIRECT_MAIN_AFTER_BOOT
+  ) {
+    url.searchParams.delete("signin");
+    url.searchParams.delete("login");
+    url.searchParams.delete("app");
+    url.searchParams.delete("main");
+
+    window.history.replaceState(
+      {},
+      "",
+      url.pathname +
+        url.search +
+        url.hash
+    );
+  }
+} catch {}
 
 // ============================================================
 // LOGIN POPUP (UI)
@@ -38,12 +72,20 @@ function hideLoginPopup() {
 
 }
 
-function showLoginPopup() {
+function showLoginPopup(mode = "login") {
+
+  if (mode === "signup") {
+    window.location.href =
+      "account.html?mode=signup";
+    return;
+  }
 
   const popup =
     qs("#loginPopup");
 
   if (!popup) return;
+
+  popup.dataset.mode = mode;
 
   popup.style.display =
     "flex";
@@ -61,12 +103,33 @@ function showLoginPopup() {
     qs("#authMessage");
 
   if (msg) {
-    msg.textContent = "";
+    msg.textContent =
+      mode === "signup"
+        ? t(
+            "signup_enter_email_password",
+            "Enter an email and create a password for your new account. You will receive a confirmation email, just follow the given link. Welcome!"
+          )
+        : "";
+
+    msg.className =
+      mode === "signup"
+        ? "auth-message success"
+        : "auth-message";
   }
 
-  updateButtons();
+  refreshAuthButtons();
 
 }
+
+function bindBetaLandingButtons() {
+
+  if (BETA_LANDING_BINDINGS_BOUND) return;
+
+  BETA_LANDING_BINDINGS_BOUND = true;
+
+}
+
+bindBetaLandingButtons();
 
 // ============================================================
 // AUTH GATE (source of truth = session)
@@ -79,6 +142,16 @@ async function syncAuthGate() {
       "loginPopup"
     );
 
+  const betaLanding =
+    document.getElementById(
+      "betaLanding"
+    );
+
+  const appContainer =
+    document.querySelector(
+      ".container"
+    );
+
   const loginBtn =
     document.getElementById(
       "loginBtn"
@@ -89,7 +162,7 @@ async function syncAuthGate() {
       "authStatus"
     );
   
-console.log("AUTH UI CHECK", {
+debugLog("AUTH UI CHECK", {
   popup,
   loginBtn,
   authStatus
@@ -106,11 +179,36 @@ console.log("AUTH UI CHECK", {
 
   if (!session) {
 
+    DIRECT_MAIN_AFTER_BOOT = false;
+
+    document.documentElement.classList.remove(
+      "wcl-direct-main"
+    );
+
     document.body.classList.add(
       "auth-locked"
     );
 
-    // ❌ Ta bort auto-popup
+    betaLanding?.classList.remove(
+      "hidden"
+    );
+
+    betaLanding?.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    appContainer?.setAttribute(
+      "inert",
+      ""
+    );
+
+    appContainer?.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    // Ta bort auto-popup
 
     if (popup) {
 
@@ -127,7 +225,7 @@ console.log("AUTH UI CHECK", {
 
       loginBtn.textContent =
         t("login", "Login");
-      console.log(
+      debugLog(
   "LOGIN BTN AFTER SET:",
   loginBtn.textContent
 );
@@ -139,7 +237,7 @@ console.log("AUTH UI CHECK", {
       authStatus.textContent = "";
     }
 
-    return;
+    return null;
 
   }
 
@@ -149,6 +247,29 @@ console.log("AUTH UI CHECK", {
 
 document.body.classList.remove(
   "auth-locked"
+);
+
+betaLanding?.classList.add(
+  "hidden"
+);
+
+betaLanding?.setAttribute(
+  "aria-hidden",
+  "true"
+);
+
+appContainer?.removeAttribute(
+  "inert"
+);
+
+appContainer?.removeAttribute(
+  "aria-hidden"
+);
+
+DIRECT_MAIN_AFTER_BOOT = false;
+
+document.documentElement.classList.remove(
+  "wcl-direct-main"
 );
 
 if (popup) {
@@ -187,7 +308,7 @@ if (authStatus) {
       profile?.display_name ||
       session.user.email;
 
-    console.log(
+    debugLog(
   "AUTH STATUS AFTER SET:",
   authStatus.textContent
 );
@@ -205,13 +326,23 @@ if (authStatus) {
   }
 
 }
-  }
-  
+
+  return session;
+
+}
+
 // ============================================================
 // LOGIN BINDINGS
 // ============================================================
 
 function bindLoginButtons() {
+
+  if (LOGIN_BINDINGS_BOUND) {
+    refreshAuthButtons();
+    return;
+  }
+
+  LOGIN_BINDINGS_BOUND = true;
 
   // Sidebar "Login" button
 
@@ -229,7 +360,7 @@ function bindLoginButtons() {
 
       if (session) {
 
-        // 🔥 LOGOUT
+        // LOGOUT
 
         await supabase.auth.signOut();
 
@@ -237,14 +368,39 @@ function bindLoginButtons() {
 
       }
 
-      // 🔥 LOGIN
+      // LOGIN
 
       showLoginPopup();
 
     }
   );
 
-  // 🔥 AUTH MESSAGE
+  qs("#startLoginBtn")?.addEventListener(
+    "click",
+    () => showLoginPopup("login")
+  );
+
+  qs("#startSignupBtn")?.addEventListener(
+    "click",
+    () => showLoginPopup("signup")
+  );
+
+  bindBetaLandingButtons();
+
+  qs("#startExploreBtn")?.addEventListener(
+    "click",
+    () => {
+      qs("#searchInput")?.focus();
+      resetToHero();
+    }
+  );
+
+  qs("#loginClose")?.addEventListener(
+    "click",
+    hideLoginPopup
+  );
+
+  // AUTH MESSAGE
 
   const msg =
     qs("#authMessage");
@@ -263,7 +419,7 @@ function bindLoginButtons() {
 
   }
 
-  // 🔥 BUTTONS
+  // BUTTONS
 
   const signupBtn =
     qs("#signupSubmit");
@@ -293,10 +449,10 @@ function bindLoginButtons() {
     submit.disabled =
       !(email && pass);
 
-    // SIGNUP
-
-    signupBtn.disabled =
-      !(email && pass);
+    if (signupBtn) {
+      signupBtn.disabled =
+        !(email && pass);
+    }
 
     // RESET
 
@@ -304,6 +460,8 @@ function bindLoginButtons() {
       !email;
 
   }
+
+  refreshAuthButtons = updateButtons;
 
   emailInput?.addEventListener(
     "input",
@@ -425,10 +583,10 @@ if (error) {
 
 }
 
-// 🔥 force session persist
+// force session persist
 await supabase.auth.getSession();
 
-// 🔥 TRACK LOGIN
+// TRACK LOGIN
 await trackEvent(
   "user_login",
   {
@@ -459,7 +617,7 @@ if (label) {
 
 hideLoginPopup();
 
-await syncAuthGate();
+await syncAuthAndMaybeBootApp();
 
   }
 );
@@ -488,7 +646,7 @@ signupBtn?.addEventListener(
     const label =
       qs(".login-text");
 
-    // 🔥 VISA MODE DIREKT
+    // VISA MODE DIREKT
 
     if (!email || !pass) {
 
@@ -554,13 +712,15 @@ signupBtn?.addEventListener(
 
     }
 
-    // 🔥 HANDLE BOTH CASES
+    // HANDLE BOTH CASES
 
     if (data?.session) {
 
       // auto login
 
       hideLoginPopup();
+
+      await syncAuthAndMaybeBootApp();
 
     } else {
 
@@ -732,6 +892,171 @@ try {
 }
 
 // ============================================================
+// COOKIE BANNER
+// ============================================================
+
+function initCookieBanner() {
+  const banner = qs("#cookieBanner");
+  const acceptBtn = qs("#cookieAcceptBtn");
+  const rejectBtn = qs("#cookieRejectBtn");
+  const manageBtn = qs("#cookieManageBtn");
+  const saveBtn = qs("#cookieSaveBtn");
+  const settingsBtn = qs("#cookieSettingsBtn");
+  const managePanel = qs("#cookieManagePanel");
+  const analyticsToggle = qs("#cookieAnalyticsToggle");
+  const storageKey = "wcl_cookie_consent_v1";
+
+  if (!banner) return;
+
+  function getConsent() {
+    try {
+      return localStorage.getItem(storageKey);
+    } catch {
+      return null;
+    }
+  }
+
+  function clearAnalyticsStorage() {
+    try {
+      [
+        "wcl_visitor_id",
+        "wcl_session_id",
+        "wcl_session_date",
+        "wcl_session",
+        "wcl_session_start_tracked_date",
+        "wcl_viewed_stores"
+      ].forEach((key) => localStorage.removeItem(key));
+
+      const localKeys = [];
+
+      for (let i = 0; i < localStorage.length; i += 1) {
+        const key = localStorage.key(i);
+        if (key) localKeys.push(key);
+      }
+
+      localKeys.forEach((key) => {
+        if (
+          key.startsWith("wcl_viewed_v1:") ||
+          key.startsWith("wcl_viewed_stores_")
+        ) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch {}
+
+    try {
+      const sessionKeys = [];
+
+      for (let i = 0; i < sessionStorage.length; i += 1) {
+        const key = sessionStorage.key(i);
+        if (key) sessionKeys.push(key);
+      }
+
+      sessionKeys.forEach((key) => {
+        if (key.startsWith("wcl_viewed_stores_")) {
+          sessionStorage.removeItem(key);
+        }
+      });
+    } catch {}
+  }
+
+  function hideBanner() {
+    banner.style.display = "none";
+    managePanel?.classList.add("hidden");
+    saveBtn?.classList.add("hidden");
+    manageBtn?.classList.remove("hidden");
+    acceptBtn?.classList.remove("hidden");
+  }
+
+  function showBanner(showManage = false) {
+    const accepted =
+      getConsent() === "accepted";
+
+    if (analyticsToggle) {
+      analyticsToggle.checked = accepted;
+    }
+
+    managePanel?.classList.toggle(
+      "hidden",
+      !showManage
+    );
+
+    saveBtn?.classList.toggle(
+      "hidden",
+      !showManage
+    );
+
+    manageBtn?.classList.toggle(
+      "hidden",
+      showManage
+    );
+
+    acceptBtn?.classList.toggle(
+      "hidden",
+      showManage
+    );
+
+    banner.style.display = "flex";
+  }
+
+  function saveConsent(value) {
+    try {
+      localStorage.setItem(storageKey, value);
+    } catch {}
+
+    if (value === "accepted") {
+      window.dispatchEvent(
+        new Event("wcl:cookie-consent")
+      );
+    } else {
+      clearAnalyticsStorage();
+      window.dispatchEvent(
+        new Event("wcl:cookie-consent-declined")
+      );
+    }
+
+    hideBanner();
+  }
+
+  if (getConsent()) {
+    hideBanner();
+  } else {
+    showBanner(false);
+  }
+
+  acceptBtn?.addEventListener(
+    "click",
+    () => saveConsent("accepted")
+  );
+
+  rejectBtn?.addEventListener(
+    "click",
+    () => saveConsent("rejected")
+  );
+
+  manageBtn?.addEventListener(
+    "click",
+    () => showBanner(true)
+  );
+
+  saveBtn?.addEventListener(
+    "click",
+    () => {
+      saveConsent(
+        analyticsToggle?.checked
+          ? "accepted"
+          : "rejected"
+      );
+    }
+  );
+
+  settingsBtn?.addEventListener(
+    "click",
+    () => showBanner(true)
+  );
+}
+
+// ============================================================
 // SIDEBAR INIT (run once)
 // ============================================================
 
@@ -747,7 +1072,7 @@ async function initSidebarOnce() {
 
     await buildFrontendSidebar();
 
-    console.log(
+    debugLog(
       "SIDEBAR BUILT"
     );
 
@@ -762,6 +1087,17 @@ async function initSidebarOnce() {
 
 }
 
+async function syncAuthAndMaybeBootApp() {
+  const session =
+    await syncAuthGate();
+
+  if (session) {
+    await initSidebarOnce();
+  }
+
+  return session;
+}
+
 // ============================================================
 // BOOT
 // ============================================================
@@ -770,13 +1106,15 @@ document.addEventListener(
   "DOMContentLoaded",
   async () => {
 
-    console.log("MAIN BOOT");
+    debugLog("MAIN BOOT");
 
     // ============================================================
     // I18N INIT
     // ============================================================
 
     await initI18n();
+
+    initCookieBanner();
 
     const ageGate =
       document.getElementById(
@@ -821,13 +1159,14 @@ document.addEventListener(
             "hidden"
           );
 
-          // start app after age gate
-
-          await initSidebarOnce();
-
           bindLoginButtons();
 
-          await syncAuthGate();
+          await syncAuthAndMaybeBootApp();
+
+          if (OPEN_LOGIN_AFTER_BOOT) {
+            OPEN_LOGIN_AFTER_BOOT = false;
+            showLoginPopup("login");
+          }
 
         }
       );
@@ -848,11 +1187,14 @@ document.addEventListener(
       // NORMAL BOOT
       // ============================================================
 
-      await initSidebarOnce();
-
       bindLoginButtons();
 
-      await syncAuthGate();
+      await syncAuthAndMaybeBootApp();
+
+      if (OPEN_LOGIN_AFTER_BOOT) {
+        OPEN_LOGIN_AFTER_BOOT = false;
+        showLoginPopup("login");
+      }
 
     }
 
@@ -891,7 +1233,7 @@ addBtn?.addEventListener(
 );
 
 // ------------------------------------------------------------
-// AUTH LISTENER (sync gate only; never rebuild sidebar)
+// AUTH LISTENER (unlock and boot app only after login)
 // ------------------------------------------------------------
 
 window.addEventListener(
@@ -901,7 +1243,7 @@ window.addEventListener(
     supabase.auth.onAuthStateChange(
       () => {
 
-        syncAuthGate();
+        syncAuthAndMaybeBootApp();
 
       }
     );
@@ -1163,6 +1505,13 @@ window.addEventListener(
 
     if (!storeId) return;
 
+    const {
+      data: { session }
+    } =
+      await supabase.auth.getSession();
+
+    if (!session) return;
+
     // wait for app boot
 
     await new Promise(
@@ -1259,4 +1608,3 @@ window.syncFavoriteUI =
       });
 
   };
-

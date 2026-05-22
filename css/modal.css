@@ -172,19 +172,31 @@
 
 /* ================= IMAGE ================= */
 
-.modal-img {
-  position: relative;
-  z-index: 1;
-
+.modal-img-wrap{
+  position:relative;
   width: 100%;
   height: 285px;
-
-  object-fit: cover;
+  overflow:hidden;
 
   border-top-left-radius: 18px;
   border-top-right-radius: 18px;
 
   border-bottom: 1px solid rgba(var(--global), 0.25);
+}
+
+.modal-img {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.modal-google-attribution{
+  right:12px;
+  bottom:12px;
 }
 
 /* ================= BODY ================= */
@@ -243,7 +255,7 @@
 }
 
 .modal-rating h3 {
-  display: none;        /* 🔥 remove "Your rating" */
+  display: none;        /* remove "Your rating" */
 }
 
 .star-picker {
@@ -333,6 +345,20 @@
 
 #modalSendComment:hover {
   background: rgba(var(--global), 0.08);
+}
+
+.modal-comment-policy-message {
+  margin-top: 0.75rem;
+  padding: 0.72rem 0.85rem;
+
+  border: 1px solid rgba(180, 74, 74, 0.42);
+  border-radius: 10px;
+
+  background: rgba(180, 74, 74, 0.12);
+  color: #f0c0b8;
+
+  font-size: 0.88rem;
+  line-height: 1.35;
 }
 
 .modal-comments-header {
@@ -562,6 +588,15 @@ color: rgb(var(--global));
   border-color: rgb(var(--global));
 }
 
+.modal-report-honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* ============================================================
    REPORT SUBMIT BUTTON
    ============================================================ */
@@ -603,20 +638,48 @@ color: rgb(var(--global));
   border-color: #3f7a52;
 }
 
+.modal-report-success {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.modal-report-success.success {
+  border-color: rgba(99, 180, 124, 0.55);
+  background: rgba(99, 180, 124, 0.12);
+  color: #dff5e7;
+}
+
+.modal-report-success.error {
+  border-color: rgba(224, 105, 105, 0.55);
+  background: rgba(224, 105, 105, 0.12);
+  color: #f5dddd;
+}
+
 /* ================= Toggle Button ================= */
 
 .modal-report-btn {
   margin-top: 1.5rem;
-  background: transparent;
-  border: none;
+  width: 100%;
+  min-height: 40px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
   color: rgb(var(--global));
   font-size: 0.9rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .modal-report-btn:hover {
-  opacity: 0.7;
+  background: rgba(var(--global), 0.1);
+  border-color: rgba(var(--global), 0.45);
 }
 
 #modalWebsite,

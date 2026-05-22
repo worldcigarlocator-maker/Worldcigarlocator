@@ -193,17 +193,29 @@ export default {
   dont_sell_cigars:
     "Non vende sigari",
 
+  report_store_type_wrong:
+    "Il tipo di negozio non è corretto",
+
   not_allowed_to_smoke:
     "Non è consentito fumare",
 
+  report_lounge_type_wrong:
+    "Il tipo di lounge non è corretto",
+
   membership_policy_wrong:
     "Politica membri errata",
+
+  report_phone_or_website_wrong:
+    "Telefono o sito web non corretto",
 
   wrong_address:
     "Indirizzo errato",
 
   permanently_closed:
     "Chiuso definitivamente",
+
+  report_does_not_exist:
+    "Non esiste più",
 
   duplicate:
     "Duplicato",

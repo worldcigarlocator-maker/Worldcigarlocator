@@ -150,7 +150,7 @@ let TIMER = null;
 
   input.addEventListener("keydown", (e) => {
 
-  // 🔥 MOBILE
+  // MOBILE
   if (isMobile()) {
 
     if (e.key !== "Enter") return;
@@ -159,7 +159,7 @@ let TIMER = null;
 
     const text = input.value.trim();
 
-    // 🔥 CLOSE KEYBOARD
+    // CLOSE KEYBOARD
     input.blur();
 
     if (!text) {
@@ -197,13 +197,13 @@ let TIMER = null;
 
     const text = input.value.trim();
 
-    // 🔥 FREEZE SCROLL
+    // FREEZE SCROLL
     const scrollY = window.scrollY;
     document.body.style.position = "fixed";
     document.body.style.top = `-${scrollY}px`;
     document.body.style.width = "100%";
 
-    // 🔥 CLOSE KEYBOARD
+    // CLOSE KEYBOARD
     input.blur();
 
     setTimeout(() => {
@@ -213,7 +213,7 @@ let TIMER = null;
   resetToHero();
 } else {
 
-  // 🔥 FORCE UI STATE
+  // FORCE UI STATE
   hero?.classList.add("hidden");
   mapView?.classList.add("hidden");
   storeGrid?.classList.remove("hidden");
@@ -222,7 +222,7 @@ let TIMER = null;
   activateSearch({ text });
 }
 
-      // 🔥 UNFREEZE
+      // UNFREEZE
       document.body.style.position = "";
       document.body.style.top = "";
       document.body.style.width = "";
@@ -247,7 +247,7 @@ clearBtn?.addEventListener("click", () => {
   resetAllFilters();
   resetToHero();
 
-  // 🔥 NEW — RESET SIDEBAR
+  // NEW — RESET SIDEBAR
   document.dispatchEvent(new CustomEvent("wcl:reset-sidebar"));
 
   controls?.querySelectorAll(".active")

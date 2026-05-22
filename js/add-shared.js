@@ -13,7 +13,7 @@
 
   const sb = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
   if (!sb) {
-    console.error("❌ Supabase SDK missing. Load supabase-js before add-shared.js");
+    console.error("Supabase SDK missing. Load supabase-js before add-shared.js");
     return;
   }
 
@@ -37,14 +37,14 @@
     "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/lounge.jpg";
 
   /* ==========================================================
-     🚫 GEO-PRINCIP
+     Geography ownership
      ==========================================================
      Frontend:
        - skickar country + country_iso2
        - SÄTTER ALDRIG continent
 
      Backend:
-       - geo_countries (iso2 → continent)
+       - geo_countries (iso2 -> continent)
        - trigger sätter continent
   ========================================================== */
 
@@ -124,6 +124,39 @@
     }
   }
 
+  async function sendEmailNotification(action, payload = {}) {
+    try {
+      const { data, error } = await sb.functions.invoke(
+        "send_wcl_email_v1",
+        {
+          body: {
+            action,
+            ...payload,
+          },
+        }
+      );
+
+      if (error) {
+        console.warn("WCL email skipped:", error);
+        return {
+          ok: false,
+          error,
+        };
+      }
+
+      return data || {
+        ok: true,
+      };
+    } catch (error) {
+      console.warn("WCL email failed:", error);
+
+      return {
+        ok: false,
+        error,
+      };
+    }
+  }
+
   /* ===================== DUPLICATE CHECK ===================== */
   function norm(v) {
     return String(v || "").trim().toLowerCase();
@@ -143,7 +176,7 @@
 
     try {
       const { data, error } = await sb
-        .from("stores")
+        .from("stores_frontend_public_v5")
         .select(
           "id,name,address,city,country,types,approved,deleted,flagged,flag_reason"
         )
@@ -215,9 +248,9 @@
     buildProxyUrl,
     fetchPhotoRefs,
     loadProxyPhotoInto,
+    sendEmailNotification,
     checkDuplicates,
     toastShared,
   });
 
-  console.log("✅ add-shared.js loaded (canonical, backend-driven geo)");
 })();

@@ -2,13 +2,10 @@
 // CARDS.JS — WCL FRONTEND (DISCOVERY + SORT READY · v5)
 // ============================================================
 
-import { supabase } from "/js/globals.js";
+import { debugLog, supabase } from "/js/globals.js";
 import { openModal } from "./modal.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
 import { trackEvent } from "./analytics-tracker.js";
-
-const VIEW_OBSERVER =
-  window?.WCL_ANALYTICS?.VIEW_OBSERVER ?? { observe() {}, unobserve() {} };
 
 const dom = (sel) => document.querySelector(sel);
 
@@ -138,7 +135,7 @@ function updateSearchCount(value) {
   }
 
   const formatted = new Intl.NumberFormat().format(value);
-el.textContent = `${formatted} Listings found`;
+el.textContent = `${formatted} listings found`;
 }
 // ============================================================
 // HERO RESET
@@ -259,6 +256,7 @@ function applyChipFilters(rows) {
 
 export function activateSearch({ text = "", sort } = {}) {
   CURRENT_RENDER_SOURCE = "search";
+  window.WCL_ANALYTICS?.setSource?.("search");
   MASTER_MODE = MASTER.SEARCH;
 
 STATE.location = {
@@ -310,6 +308,7 @@ STATE.location = {
 
 export function activateLocation(next = {}) {
 CURRENT_RENDER_SOURCE = "sidebar";
+  window.WCL_ANALYTICS?.setSource?.("sidebar");
   MASTER_MODE = MASTER.LOCATION;
 
   STATE.search.text = "";
@@ -390,20 +389,20 @@ function initStoreViewObserver() {
         const el = entry.target;
 
         const storeId = el.dataset.storeId;
-        const city = el.dataset.city;
-        const country = el.dataset.country;
+        const city = el.dataset.city || null;
+        const country = el.dataset.country || null;
 
-trackEvent("store_view", {
-  store_id: Number(storeId),
-  source: window.CURRENT_SOURCE || "map",
-  session_hash: localStorage.getItem("wcl_session")
-});
+        trackEvent("store_view", {
+          store_id: Number(storeId),
+          country,
+          city,
+          source: el.dataset.source || window.CURRENT_SOURCE || "direct"
+        });
 
-console.log("STORE VIEW EVENT", {
-  store_id: storeId,
-  source: window.CURRENT_SOURCE,
-  session: localStorage.getItem("wcl_session")
-});
+        debugLog("STORE VIEW EVENT", {
+          store_id: storeId,
+          source: el.dataset.source || window.CURRENT_SOURCE
+        });
         
         storeViewObserver.unobserve(el);
       });
@@ -441,6 +440,7 @@ function renderCards(list, append = false) {
   // ============================================================
 
 setTimeout(() => {
+  initStoreViewObserver();
 
   grid.querySelectorAll(".store-card").forEach((card) => {
 
@@ -452,7 +452,7 @@ setTimeout(() => {
       return;
     }
 
-    VIEW_OBSERVER.observe(card);
+    storeViewObserver.observe(card);
 
   });
 
@@ -520,6 +520,8 @@ function cardHTML(s) {
 
   const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
+  const usesGooglePhoto =
+    Boolean(s.photo_reference && !s.photo_cdn_url && !s.photo_url);
 
   return `
 <article 
@@ -547,12 +549,19 @@ function cardHTML(s) {
       </svg>
     </button>
 
-    <img
-      src="${img}"
-      class="store-img"
-      loading="lazy"
-      onerror="this.onerror=null;this.src='images/store.jpg'"
-    />
+    <div class="store-img-wrap">
+      <img
+        src="${img}"
+        class="store-img"
+        loading="lazy"
+        onerror="this.onerror=null;this.src='images/store.jpg'"
+      />
+      ${
+        usesGooglePhoto
+          ? `<span class="google-attribution" translate="no">Google Maps</span>`
+          : ""
+      }
+    </div>
 
     <div class="store-body">
 
@@ -627,12 +636,14 @@ function cardHTML(s) {
           : ""
       }
 
-      <button
-        class="reviews-btn"
-        type="button"
-      >
-        Comment (${s.comment_count || 0})
-      </button>
+      <div class="card-action-row">
+        <button
+          class="reviews-btn"
+          type="button"
+        >
+          Comment (${s.comment_count || 0})
+        </button>
+      </div>
 
     </div>
 
@@ -697,7 +708,7 @@ export async function runSearch(isLoadMore = false) {
 
   const seq = ++RUN_SEQ;
 
-  console.trace("RUN SEARCH TRIGGERED");
+  debugLog("RUN SEARCH TRIGGERED");
 
   const snap = snapshot();
 
@@ -716,7 +727,7 @@ if (
   (!snap.access || snap.access.length === 0)
 ) {
 
-  // 🔥 ENDast visa hero — MEN nollställ UI korrekt
+  // ENDast visa hero — MEN nollställ UI korrekt
   resetToHero();
 
   updateSearchCount(GLOBAL_TOTAL);
@@ -730,12 +741,12 @@ if (
 
 if (seq !== RUN_SEQ) return;
 
-console.log("RUN SEARCH STARTED", snap);
+debugLog("RUN SEARCH STARTED", snap);
 if (!resp || resp.error) return;
 
   const rawRows = resp.data || [];
-  console.log("DEBUG ROW:", rawRows[0]);
-console.log(
+  debugLog("DEBUG ROW:", rawRows[0]);
+debugLog(
   "MISSING GEO:",
   rawRows.filter(r => !r.city || !r.country).slice(0, 10)
 );
@@ -747,7 +758,7 @@ console.log(
   const filteredRows = applyChipFilters(rawRows);
 
   // TEST LOG
-  console.log("RUN SEARCH FIRED", STATE.search.text);
+  debugLog("RUN SEARCH FIRED", STATE.search.text);
 
 renderCards(filteredRows, isLoadMore);
 
@@ -1076,4 +1087,3 @@ document.addEventListener(
 
   }
 );
-

@@ -33,7 +33,10 @@ export async function getLanguage() {
 
     /* ================= PROFILE ================= */
 
-    if (window.supabase) {
+    if (
+      window.supabase?.auth?.getUser &&
+      window.supabase?.from
+    ) {
 
       const {
         data: { user }
@@ -75,8 +78,8 @@ export async function getLanguage() {
 
   } catch (err) {
 
-    console.error(
-      "I18N PROFILE LOAD ERROR",
+    console.warn(
+      "I18N profile language skipped",
       err
     );
 

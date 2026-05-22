@@ -200,7 +200,7 @@ function renderSidebar(continents, menu) {
         continent,
       });
 
-      // 🔥 AUTO OPEN 
+      // AUTO OPEN
 if (continent === defaultContinent) {
   continentNode.wrapper.classList.add("open");
   continentNode.childrenContainer.classList.add("show");
@@ -265,7 +265,7 @@ if (continent === defaultContinent) {
       menu.append(continentNode.wrapper);
     });
 
-  // 🔥 CENTER VIEWPORT (INITIAL ONLY)
+  // CENTER VIEWPORT (INITIAL ONLY)
   requestAnimationFrame(centerSidebarViewportOnce);
 }
 
@@ -355,7 +355,7 @@ function bindSidebarEvents(menu) {
     // ------------------------------------------------------------
 if (clickedLabel && level !== "continent") {
 
-  window.WCL_ANALYTICS.setSource("sidebar");
+  window.WCL_ANALYTICS?.setSource?.("sidebar");
 
   activateLocation({
     continent: line.dataset.continent || null,
@@ -364,7 +364,7 @@ if (clickedLabel && level !== "continent") {
     city: line.dataset.city || null,
   });
 
-  // 🔥 SCROLL TO TOP (MAIN CONTENT)
+  // SCROLL TO TOP (MAIN CONTENT)
   window.scrollTo({
     top: 0,
     behavior: "smooth"
@@ -405,17 +405,17 @@ document.addEventListener("wcl:reset-sidebar", () => {
   const sidebar = document.querySelector(".sidebar");
   if (!sidebar) return;
 
-  // 🔥 SCROLL TO TOP (NEW)
+  // SCROLL TO TOP (NEW)
   sidebar.scrollTop = 0;
 
-  // 🔥 stäng allt
+  // stäng allt
   const nodes = sidebar.querySelectorAll(".node");
   const children = sidebar.querySelectorAll(".children");
 
   nodes.forEach(n => n.classList.remove("open"));
   children.forEach(c => c.classList.remove("show"));
 
-  // 🔥 default continent
+  // default continent
   const userLang = navigator.language;
   const defaultContinent = getDefaultContinent(userLang);
 

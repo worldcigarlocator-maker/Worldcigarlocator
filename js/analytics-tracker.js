@@ -18,9 +18,28 @@ const ANALYTICS_ENDPOINT =
 const VISITOR_KEY = "wcl_visitor_id";
 const SESSION_KEY = "wcl_session_id";
 const SESSION_DATE_KEY = "wcl_session_date";
+const COOKIE_CONSENT_KEY = "wcl_cookie_consent_v1";
+const ANALYTICS_DEBUG = Boolean(window?.WCL_DEBUG_ANALYTICS);
+const BASIC_AGGREGATE_EVENTS = new Set([
+  "store_view",
+  "store_opened",
+  "website_clicked"
+]);
 
 /* Legacy compatibility */
 const LEGACY_SESSION_KEY = "wcl_session";
+
+function debugLog(...args) {
+  if (ANALYTICS_DEBUG) console.log(...args);
+}
+
+function hasEnhancedAnalyticsConsent() {
+  try {
+    return localStorage.getItem(COOKIE_CONSENT_KEY) === "accepted";
+  } catch {
+    return false;
+  }
+}
 
 /* ============================================================
    DATE HELPER
@@ -116,11 +135,27 @@ function resolveSource(eventType, payload = {}) {
   if (payload?.source) return payload.source;
   if (window?.MODAL_SOURCE) return window.MODAL_SOURCE;
   if (window?.CURRENT_SOURCE) return window.CURRENT_SOURCE;
+  if (window?.__WCL__?.MODAL_SOURCE) return window.__WCL__.MODAL_SOURCE;
+  if (window?.__WCL__?.CURRENT_SOURCE) return window.__WCL__.CURRENT_SOURCE;
 
   if (eventType === "store_view") return "map";
   if (eventType === "store_opened") return "search";
 
   return "direct";
+}
+
+function setAnalyticsSource(source = "direct") {
+  const next = source || "direct";
+  window.CURRENT_SOURCE = next;
+  window.__WCL__ = window.__WCL__ || {};
+  window.__WCL__.CURRENT_SOURCE = next;
+}
+
+function setModalSource(source = "direct") {
+  const next = source || "direct";
+  window.MODAL_SOURCE = next;
+  window.__WCL__ = window.__WCL__ || {};
+  window.__WCL__.MODAL_SOURCE = next;
 }
 
 /* ============================================================
@@ -180,6 +215,23 @@ function getExtraPayload(payload = {}) {
   return extra;
 }
 
+function buildBasicAggregatePayload(eventType, payload = {}) {
+  return {
+    event_type: eventType,
+    analytics_mode: "basic_aggregate",
+    source: resolveSource(eventType, payload),
+    store_id: payload?.store_id || null,
+    store_country:
+      payload?.country ||
+      payload?.store_country ||
+      null,
+    store_city:
+      payload?.city ||
+      payload?.store_city ||
+      null
+  };
+}
+
 /* ============================================================
    TRACK EVENT
    ============================================================ */
@@ -190,15 +242,35 @@ export async function trackEvent(eventType, payload = {}) {
 
     if (!eventType) return;
 
+    const hasEnhancedConsent =
+      hasEnhancedAnalyticsConsent();
+
+    const isBasicAggregateEvent =
+      BASIC_AGGREGATE_EVENTS.has(eventType);
+
+    if (!hasEnhancedConsent && !isBasicAggregateEvent) return;
+
     /* ============================================================
        DEDUPE
        ============================================================ */
 
-    if (eventType === "store_view" && payload.store_id) {
+    if (
+      hasEnhancedConsent &&
+      eventType === "store_view" &&
+      payload.store_id
+    ) {
 
       if (hasViewedStore(payload.store_id)) return;
 
       markStoreViewed(payload.store_id);
+    }
+
+    if (!hasEnhancedConsent) {
+      await sendAnalyticsPayload(
+        buildBasicAggregatePayload(eventType, payload)
+      );
+
+      return;
     }
 
     /* ============================================================
@@ -241,10 +313,7 @@ export async function trackEvent(eventType, payload = {}) {
     /* ============================================================
        SOURCE
        ============================================================ */
-console.log(
-  "AUTH USER DEBUG",
-  authUser
-);
+    debugLog("AUTH USER DEBUG", authUser);
     const source =
       resolveSource(eventType, payload);
 
@@ -314,58 +383,64 @@ console.log(
        DEBUG
        ============================================================ */
 
-    console.log(
-      "🚀 ANALYTICS PAYLOAD:",
+    debugLog(
+      "ANALYTICS PAYLOAD:",
       JSON.stringify(finalPayload, null, 2)
     );
 
-    /* ============================================================
-       SEND
-       ============================================================ */
-
-    const res = await fetch(
-      ANALYTICS_ENDPOINT,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(finalPayload)
-      }
-    );
-
-    const text = await res.text();
-
-    if (!res.ok) {
-
-      console.error(
-        "❌ ANALYTICS ERROR:",
-        res.status,
-        text
-      );
-
-      return;
-    }
-
-    console.log("✅ ANALYTICS SENT");
+    await sendAnalyticsPayload(finalPayload);
 
   } catch (err) {
 
-    console.error(
-      "💥 ANALYTICS CRASH:",
+    console.warn(
+      "Analytics tracking skipped:",
       err
     );
   }
+}
+
+async function sendAnalyticsPayload(finalPayload) {
+  /* ============================================================
+     SEND
+     ============================================================ */
+
+  const res = await fetch(
+    ANALYTICS_ENDPOINT,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify(finalPayload)
+    }
+  );
+
+  const text = await res.text();
+
+  if (!res.ok) {
+
+    console.warn(
+      "ANALYTICS ERROR:",
+      res.status,
+      text
+    );
+
+    return;
+  }
+
+  debugLog("ANALYTICS SENT");
 }
 
 /* ============================================================
    SESSION START
    ============================================================ */
 
-(function trackSessionStart() {
+function trackSessionStart() {
   try {
+    if (!hasEnhancedAnalyticsConsent()) return;
+
     const today = getTodayKey();
     const previousTrackedDate =
       localStorage.getItem("wcl_session_start_tracked_date");
@@ -383,9 +458,25 @@ console.log(
       source: "direct"
     });
 
-    console.log("🔥 SESSION START TRACKED:", today);
+    debugLog("SESSION START TRACKED:", today);
 
   } catch (err) {
     console.error("Session tracking failed", err);
   }
-})();
+}
+
+if (hasEnhancedAnalyticsConsent()) {
+  trackSessionStart();
+} else {
+  window.addEventListener(
+    "wcl:cookie-consent",
+    trackSessionStart,
+    { once: true }
+  );
+}
+
+window.WCL_ANALYTICS = {
+  send: trackEvent,
+  setSource: setAnalyticsSource,
+  setModalSource
+};

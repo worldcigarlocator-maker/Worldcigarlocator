@@ -1,21 +1,15 @@
 /* ============================================================
-   WCL — USERS FUNNEL (DEBUG IMPORT)
+   WCL - Users Funnel
    ============================================================ */
 
 import { supabase as sb } from "/js/globals.js";
 import { setActiveDay } from "/js/analytics-state.js";
-
-console.log("🔥 FUNNEL USERS LOADED");
-console.log("🔥 sb =", sb);
-console.log("🔥 typeof sb.rpc =", typeof sb?.rpc);
 
 /* ============================================================
    USERS OVERVIEW
    ============================================================ */
 
 export async function renderUsersOverview(days = 7) {
-
-  console.log("👤 USERS OVERVIEW");
 
   try {
 
@@ -90,22 +84,20 @@ document.querySelectorAll("#overviewTableBody tr").forEach(tr => {
 
    const day = localDay;
 
-    console.log("SET DAY:", day);
-
-    // 🔥 RESET COUNTRY (garanterar LEVEL = country)
+    // Reset country to guarantee the country-level drilldown state.
  const state = await import("/js/analytics-state.js");
 
-// 🔥 1. RESET COUNTRY
+// 1. Reset country.
 state.applyCountry(null);
 
-// 🔥 2. FORCE LEVEL DIREKT EFTER
+// 2. Force level immediately after country reset.
 state.setLevel?.("member_country");
 
-// 🔥 3. SÄTT DAG SIST
+// 3. Set active day last.
 setActiveDay(day);
 
      
-    // 🔥 UI
+    // Update active analytics views.
     document.getElementById("view-users")?.classList.remove("hidden");
     document.getElementById("view-market")?.classList.add("hidden");
     document.getElementById("view-stores")?.classList.add("hidden");
@@ -116,7 +108,7 @@ setActiveDay(day);
     if (drillPanel) drillPanel.classList.remove("hidden");
     if (overviewSection) overviewSection.classList.add("hidden");
 
-    // 🔥 RENDER
+    // Render member country drilldown.
     const days = Number(document.getElementById("globalRange")?.value || 30);
  const m = await import("./funnel-market-v2.js");
 await m.renderMarketV2(days);

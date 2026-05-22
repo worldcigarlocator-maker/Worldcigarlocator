@@ -2,7 +2,12 @@
    Backoffice — Moderation + Hierarki + Edit + Proxy + ISO Flags
    ============================================================ */
 
-console.log(" Backoffice loaded ");
+const DEBUG_BACKOFFICE = window.WCL_DEBUG_BACKOFFICE === true || window.WCL_DEBUG === true;
+const debugLog = (...args) => {
+  if (DEBUG_BACKOFFICE) console.log(...args);
+};
+
+debugLog("Backoffice loaded");
 
 /* ======================== CONFIG ======================== */
 const WCL = {
@@ -103,6 +108,82 @@ let CURRENT_TAB = "approved";   // approved | pending | flagged | deleted | dupl
 let CURRENT_VIEW = "cards";     // cards | list
 let HIER_SEL = { continent: null, country: null, state: null, city: null };
 
+const STORE_SELECT_FIELDS =
+  "id,name,city,country,continent,type,types,address,phone,access,rating," +
+  "approved,flagged,deleted,status,photo_reference,place_id,website," +
+  "created_at,flag_reason,country_iso2";
+
+const REPORT_TYPE_LABELS = {
+  no_longer_sells: "Store type is wrong",
+  no_smoking_allowed: "Lounge type is wrong",
+  membership_policy_wrong: "Phone or website is wrong",
+  wrong_address: "Wrong address",
+  permanently_closed: "Does not exist any longer",
+  duplicate: "Duplicate",
+  other: "Other"
+};
+
+const DEFAULT_REPORT_GUIDANCE = {
+  summary: "Review the listing details and any reporter note before closing the case.",
+  steps: [
+    "Open Edit and verify the listing data.",
+    "Update the listing if needed.",
+    "Resolve only after the issue has been checked."
+  ]
+};
+
+const REPORT_TYPE_GUIDANCE = {
+  no_longer_sells: {
+    summary: "The listing may be tagged as the wrong business type.",
+    steps: [
+      "Open Edit and check whether Store should be added or removed.",
+      "Save the corrected type if the report is valid.",
+      "Reject the report if the current type is already correct."
+    ]
+  },
+  no_smoking_allowed: {
+    summary: "The lounge tag or access setup may be wrong.",
+    steps: [
+      "Open Edit and check whether Lounge should be added or removed.",
+      "Verify access if the listing is members only.",
+      "Resolve after the type and access are correct."
+    ]
+  },
+  membership_policy_wrong: {
+    summary: "The reporter says the phone number or website is wrong.",
+    steps: [
+      "Open Edit and verify phone and website.",
+      "Update incorrect contact details.",
+      "Resolve after the contact data has been checked."
+    ]
+  },
+  wrong_address: {
+    summary: "The address or location details may be inaccurate.",
+    steps: [
+      "Open Edit and verify address, city, country and map data.",
+      "Correct the location fields if needed.",
+      "Resolve after the listing points to the right place."
+    ]
+  },
+  permanently_closed: {
+    summary: "The reporter says this place does not exist any longer.",
+    steps: [
+      "Verify the listing manually before changing visibility.",
+      "If confirmed, move the listing to Trash.",
+      "Resolve after the public listing is corrected."
+    ]
+  },
+  duplicate: {
+    summary: "The reporter says this is a duplicate listing.",
+    steps: [
+      "Search by name, city and ID to find the matching listing.",
+      "Keep the strongest record and move the duplicate to Trash if confirmed.",
+      "Resolve after the duplicate state is handled."
+    ]
+  },
+  other: DEFAULT_REPORT_GUIDANCE
+};
+
 // ============================================================
 // RENDER LIMIT (Backoffice performance)
 // ============================================================
@@ -115,6 +196,253 @@ let RENDER_STEP = 100;
 const $  = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 const safe = (v) => (v ?? "").toString();
+const escapeHtml = (v) =>
+  safe(v).replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[ch]);
+const isPendingSubmission = (s) => s?._source_table === "store_pending";
+const reportTypeLabel = (type) =>
+  REPORT_TYPE_LABELS[type] || type || "Reported issue";
+const reportGuidance = (type) =>
+  REPORT_TYPE_GUIDANCE[type] || DEFAULT_REPORT_GUIDANCE;
+
+const SEARCH_ALIASES = {
+  europa: ["europe"],
+  europe: ["europa"],
+  nordamerika: ["north america"],
+  "north america": ["nordamerika"],
+  sydamerika: ["south america"],
+  "south america": ["sydamerika"],
+  asien: ["asia"],
+  asia: ["asien"],
+  afrika: ["africa"],
+  africa: ["afrika"],
+  oceanien: ["oceania"],
+  oceania: ["oceanien"],
+  australien: ["australia"],
+  australia: ["australien"],
+  sverige: ["sweden"],
+  sweden: ["sverige"],
+  tyskland: ["germany"],
+  germany: ["tyskland"],
+  polen: ["poland"],
+  poland: ["polen"],
+  danmark: ["denmark"],
+  denmark: ["danmark"],
+  norge: ["norway"],
+  norway: ["norge"],
+  finland: ["finland"],
+  frankrike: ["france"],
+  france: ["frankrike"],
+  spanien: ["spain"],
+  spain: ["spanien"],
+  italien: ["italy"],
+  italy: ["italien"],
+  usa: ["united states", "united states of america"],
+  amerika: ["united states"],
+  "united states": ["usa", "amerika"],
+  storbritannien: ["united kingdom", "great britain"],
+  "united kingdom": ["storbritannien"]
+};
+
+function searchTerms(term) {
+  const clean = safe(term).trim().toLowerCase();
+  if (!clean) return [];
+
+  return Array.from(
+    new Set([
+      clean,
+      ...(SEARCH_ALIASES[clean] || [])
+    ])
+  );
+}
+
+function storeMatchesSearch(store, rawTerm) {
+  const terms = searchTerms(rawTerm);
+  if (!terms.length) return true;
+
+  const numericTerm =
+    /^\d+$/.test(terms[0]) ? Number(terms[0]) : null;
+
+  if (
+    numericTerm !== null &&
+    [store.id, store.pending_id, store.store_id]
+      .some((id) => Number(id) === numericTerm)
+  ) {
+    return true;
+  }
+
+  const reportTypes =
+    Array.isArray(store._report_types)
+      ? store._report_types.map(reportTypeLabel)
+      : [reportTypeLabel(store._report_type)];
+
+  const haystack = [
+    store.name,
+    store.city,
+    store.country,
+    store.continent,
+    store.address,
+    store.phone,
+    store.website,
+    store.country_iso2,
+    store.access,
+    store.status,
+    store.flag_reason,
+    store._report_status,
+    store._report_type,
+    ...reportTypes,
+    ...(Array.isArray(store.types) ? store.types : [store.type])
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return terms.some((term) => haystack.includes(term));
+}
+
+function escapeSearchPattern(term) {
+  return safe(term).replace(/[,%()]/g, " ").trim();
+}
+
+function buildSearchOrFilter(table, rawTerm) {
+  const columns =
+    table === "store_pending"
+      ? [
+          "name",
+          "city",
+          "country",
+          "address",
+          "phone",
+          "website",
+          "country_iso2"
+        ]
+      : [
+          "name",
+          "city",
+          "country",
+          "continent",
+          "address",
+          "phone",
+          "website",
+          "country_iso2",
+          "status",
+          "flag_reason"
+        ];
+
+  const parts = [];
+  const terms = searchTerms(rawTerm)
+    .map(escapeSearchPattern)
+    .filter(Boolean);
+
+  if (/^\d+$/.test(terms[0] || "")) {
+    parts.push(`id.eq.${Number(terms[0])}`);
+  }
+
+  terms.forEach((term) => {
+    columns.forEach((column) => {
+      parts.push(`${column}.ilike.%${term}%`);
+    });
+  });
+
+  return parts.join(",");
+}
+
+function buildReportDetails(s) {
+  const reportTypes =
+    Array.isArray(s._report_types) && s._report_types.length
+      ? s._report_types
+      : [s._report_type].filter(Boolean);
+  const label = reportTypes.length
+    ? reportTypes.map(reportTypeLabel).join(", ")
+    : reportTypeLabel(s._report_type);
+  const guidance = reportGuidance(s._report_type);
+  const reportCount = Number(s._report_count) || 1;
+  const status = s._report_status || "pending";
+  const reporterNote = (s._report_messages || [])
+    .map((message) => message?.message || "")
+    .find((message) => message.trim());
+  const steps = guidance.steps
+    .map((step) => `<li>${escapeHtml(step)}</li>`)
+    .join("");
+  const noteHtml = reporterNote
+    ? `
+      <div class="report-note">
+        <div>Reporter note</div>
+        <p>${escapeHtml(reporterNote)}</p>
+      </div>
+    `
+    : "";
+
+  return `
+    <div class="report-kicker">Reported issue</div>
+    <div class="report-title">${escapeHtml(label)}</div>
+    <div class="report-meta">
+      ${reportCount} report${reportCount === 1 ? "" : "s"} · ${escapeHtml(status)}
+    </div>
+    <p class="report-summary">${escapeHtml(guidance.summary)}</p>
+    ${noteHtml}
+    <div class="report-guidance-title">Recommended handling</div>
+    <ul class="report-action-list">${steps}</ul>
+  `;
+}
+
+async function fetchReportDetails(reportId) {
+  try {
+    const { data, error } = await WCL.supabase
+      .rpc("bo_get_report_details_v2", { p_report_id: reportId });
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.warn("Report details unavailable:", error);
+    return null;
+  }
+}
+
+function reportModerationNote(s, action) {
+  const label = reportTypeLabel(s?._report_type);
+  const actionText = {
+    set_reviewed: "reviewed",
+    resolve: "resolved",
+    reject: "rejected"
+  }[action] || action;
+
+  return `${label} report ${actionText} from backoffice.`;
+}
+
+function normalizePendingSubmission(s) {
+  return {
+    id: s.id,
+    pending_id: s.id,
+    _source_table: "store_pending",
+    name: s.name,
+    city: s.city,
+    country: s.country,
+    continent: s.continent || null,
+
+    types: s.types || [],
+    access: s.access || null,
+    rating: null,
+
+    address: s.address || null,
+    phone: s.phone || null,
+    website: s.website || null,
+
+    photo_reference: s.photo_reference || null,
+    place_id: s.place_id || null,
+
+    approved: false,
+    flagged: false,
+    deleted: false,
+
+    status: "pending"
+  };
+}
 
 const toast = (msg, cls = "success") => {
   const c = $("#toast-container");
@@ -148,7 +476,7 @@ function initStoreViewObserver() {
 
       if (!storeId) return;
 
-      console.log("Store viewed:", storeId);
+      debugLog("Store viewed:", storeId);
 
       // logga bara en gång
       storeViewObserver.unobserve(el);
@@ -382,17 +710,21 @@ function makeExpandableRow(label, items, level) {
             }
           </td>
           <td class="action-td">
-            <button class="btn small blue" onclick="editStore(${s.id})">Edit</button>
-            <button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
             ${
-              !hasPhoto
-                ? `<button class="btn small orange"
+              isPendingSubmission(s)
+                ? `<button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
+                   <button class="btn small danger" onclick="rejectPendingSubmission(${s.id})">Reject Pending</button>`
+                : `<button class="btn small blue" type="button" data-edit-store-id="${s.id}">Edit</button>
+                   ${
+                     !hasPhoto
+                       ? `<button class="btn small orange"
 onclick="repairPhoto(${s.id}, '${(s.place_id || "").replace(/'/g, "\\'")}', null, event)">
-                   Repair
-                 </button>`
-                : ""
+                          Repair
+                        </button>`
+                       : ""
+                   }
+                   <button class="btn small danger" onclick="toggleDeleteById(${s.id})">Delete</button>`
             }
-            <button class="btn small danger" onclick="toggleDeleteById(${s.id})">Delete</button>
           </td>
         `;
 
@@ -590,6 +922,33 @@ function countryToContinent(country) {
   return countryContinentMap[c] || "Unknown";
 }
 
+function setPillCount(tab, count) {
+  const pill = $(`.filters .pill[data-tab="${tab}"]`);
+  if (!pill) return;
+
+  let badge = pill.querySelector(".badge-count");
+  if (!badge) {
+    badge = document.createElement("span");
+    badge.className = "badge-count";
+    pill.appendChild(badge);
+  }
+
+  badge.textContent = `(${Number(count) || 0})`;
+}
+
+async function refreshReportPillCount() {
+  try {
+    const { data, error } = await WCL.supabase
+      .rpc("bo_list_store_reports_v1", { p_status: "pending" });
+
+    if (error) throw error;
+
+    setPillCount("reports", Array.isArray(data) ? data.length : 0);
+  } catch (error) {
+    console.error("Report count failed:", error);
+  }
+}
+
 
 /* ============================================================
    REGION COUNTS — använder RPC (ingen 1000-limit)
@@ -616,19 +975,10 @@ function updateRegionCounts() {
     const n = counts[tab];
     if (n === undefined) return;
 
-    let badge = p.querySelector(".badge-count");
-    if (!badge) {
-      badge = document.createElement("span");
-      badge.className = "badge-count";
-      badge.style.marginLeft = "6px";
-      badge.style.fontSize = ".85rem";
-      badge.style.opacity = "0.7";
-      p.appendChild(badge);
-    }
-    badge.textContent = `(${n})`;
+    setPillCount(tab, n);
   });
 
-  console.log(" Region counts (RPC):", counts);
+  debugLog("Region counts (RPC):", counts);
 }
 
 /* ============================================================
@@ -644,15 +994,8 @@ function render() {
   // SEARCH
   // ============================================================
 
-  if (/^\d+$/.test(term)) {
-    const id = Number(term);
-    list = list.filter(s => s.id === id);
-  }
-  else if (term) {
-    list = list.filter(s =>
-      [s.name, s.city, s.country]
-        .some(v => safe(v).toLowerCase().includes(term))
-    );
+  if (term) {
+    list = list.filter((s) => storeMatchesSearch(s, term));
   }
 
 
@@ -701,8 +1044,8 @@ function render() {
    DATA LOADING — STABIL, FÖRUTSÄGBAR & UX-SÄKER
    ============================================================ */
 async function reloadData(tab = CURRENT_TAB) {
-console.log("RELOAD CALLED WITH:", tab);
-console.log("CURRENT_TAB BEFORE SET:", CURRENT_TAB);
+debugLog("RELOAD CALLED WITH:", tab);
+debugLog("CURRENT_TAB BEFORE SET:", CURRENT_TAB);
    
   const prevTab = CURRENT_TAB;
 
@@ -711,7 +1054,7 @@ console.log("CURRENT_TAB BEFORE SET:", CURRENT_TAB);
   }
 
   CURRENT_TAB = tab;
-console.log("CURRENT_TAB AFTER SET:", CURRENT_TAB);
+debugLog("CURRENT_TAB AFTER SET:", CURRENT_TAB);
   /* =========================
      UI: active tab
      ========================= */
@@ -730,40 +1073,16 @@ if (CURRENT_TAB === "pending") {
       .from("store_pending")
       .select("*")
       .order("id", { ascending: true });
-     console.log("PENDING RAW DATA:", data);
+     debugLog("PENDING RAW DATA:", data);
 
     if (error) throw error;
 
-    // 🔥 NORMALISERA → SAMMA SHAPE SOM stores
-    STORES = (data || []).map(s => ({
-
-      id: s.id,
-      name: s.name,
-      city: s.city,
-      country: s.country,
-      continent: s.continent || null,
-
-      types: s.types || [],
-      access: s.access || null,
-      rating: null,
-
-      address: s.address || null,
-      phone: s.phone || null,
-      website: s.website || null,
-
-      photo_reference: s.photo_reference || null,
-      place_id: s.place_id || null,
-
-      approved: false,
-      flagged: false,
-      deleted: false,
-
-      status: "pending"
-
-    }));
+    // Pending has its own ID space. Never treat pending IDs as store IDs.
+    STORES = (data || []).map(normalizePendingSubmission);
 
     render();
     updateRegionCounts();
+    void refreshReportPillCount();
 
     return;
 
@@ -831,14 +1150,9 @@ if (CURRENT_TAB === "pending") {
   /* =========================
      2) Bas-query (stores)
      ========================= */
-  const SELECT_FIELDS =
-    "id,name,city,country,continent,type,types,address,phone,access,rating," +
-    "approved,flagged,deleted,status,photo_reference,place_id,website," +
-    "created_at,flag_reason,country_iso2";
-
   let base = WCL.supabase
     .from("stores")
-    .select(SELECT_FIELDS);
+    .select(STORE_SELECT_FIELDS);
 
   /* ============================================================
      TAB LOGIC
@@ -923,13 +1237,14 @@ if (CURRENT_TAB === "pending") {
      ========================= */
   render();
   updateRegionCounts();
+  void refreshReportPillCount();
 
   /* =========================
      Återställ scroll
      ========================= */
   window.scrollTo(0, scrollY);
 
-  console.log(
+  debugLog(
     `reloadData(): tab=${CURRENT_TAB}, shown=${STORES.length}`
   );
 }
@@ -985,7 +1300,7 @@ storeViewObserver.observe(card);
 /* ----------- Store ID (admin only) ----------- */
 const idRow = document.createElement("div");
 idRow.className = "store-id";
-idRow.textContent = `ID: ${s.id}`;
+idRow.textContent = isPendingSubmission(s) ? `Pending ID: ${s.id}` : `ID: ${s.id}`;
 body.appendChild(idRow);
 
 /* ----------- Name (2 lines) ----------- */
@@ -1070,24 +1385,21 @@ body.appendChild(loc);
     body.appendChild(info);
 
     /* ----------- Reviews Link ----------- */
-    const reviewsLink = document.createElement("div");
-    reviewsLink.className = "reviewslink";
-    reviewsLink.innerHTML = `
-      <button class="btn small ghost" onclick="editStore(${s.id})">
-         View Comments / Reviews
-      </button>
-    `;
-    body.appendChild(reviewsLink);
+    if (!isPendingSubmission(s)) {
+      const reviewsLink = document.createElement("div");
+      reviewsLink.className = "reviewslink";
+      reviewsLink.innerHTML = `
+        <button class="btn small ghost" type="button" data-edit-store-id="${s.id}">
+           View Comments / Reviews
+        </button>
+      `;
+      body.appendChild(reviewsLink);
+    }
 
      if (s._is_reported) {
   const reportInfo = document.createElement("div");
   reportInfo.className = "report-info";
-  reportInfo.innerHTML = `
-    <div class="report-line">
-      ⚠ Reported issue:
-      <strong>${safe(s._report_type)}</strong>
-    </div>
-  `;
+  reportInfo.innerHTML = buildReportDetails(s);
   body.appendChild(reportInfo);
 }
 
@@ -1098,12 +1410,15 @@ status.className = "badges";
 let reportBadges = "";
 
 if (s._is_reported) {
+  const reportCount = Number(s._report_count) || 1;
+  const reportStatus = s._report_status || "pending";
+
   reportBadges += `
     <span class="badge orange">
-      REPORT x${s._report_count}
+      REPORT x${reportCount}
     </span>
     <span class="badge orange ghost">
-      ${s._report_status?.toUpperCase()}
+      ${safe(reportStatus).toUpperCase()}
     </span>
   `;
 }
@@ -1126,28 +1441,47 @@ actions.className = "actions";
 /* 🔶 REPORT MODERATION (om report) */
 if (s._is_reported) {
 
-  const reviewedBtn = makeBtn("Set Reviewed", async () => {
-    await moderateReport(s._report_id, "set_reviewed");
+  const reviewedBtn = makeBtn("Mark Reviewed", async () => {
+    await moderateReport(
+      s._report_id,
+      "set_reviewed",
+      reportModerationNote(s, "set_reviewed")
+    );
   }, "small orange");
 
   const resolveBtn = makeBtn("Resolve", async () => {
-    await moderateReport(s._report_id, "resolve");
+    await moderateReport(
+      s._report_id,
+      "resolve",
+      reportModerationNote(s, "resolve")
+    );
   }, "small green");
 
   const rejectBtn = makeBtn("Reject", async () => {
-    await moderateReport(s._report_id, "reject");
+    await moderateReport(
+      s._report_id,
+      "reject",
+      reportModerationNote(s, "reject")
+    );
   }, "small danger");
 
   actions.append(reviewedBtn, resolveBtn, rejectBtn);
 }
 
-/* 🔹 STORE ACTIONS (som vanligt) */
-const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
-const deleteBtn  = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
-const editBtn    = makeBtn("Edit", () => editStore(s.id), "blue");
-const repairBtn  = makeBtn("Repair Photo", (ev) => repairPhoto(s.id, s.place_id, img, ev), "orange");
+if (isPendingSubmission(s)) {
+  const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
+  const rejectBtn = makeBtn("Reject Pending", () => rejectPendingSubmission(s.id), "danger");
 
-actions.append(approveBtn, deleteBtn, editBtn, repairBtn);
+  actions.append(approveBtn, rejectBtn);
+} else {
+  const deleteBtn  = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
+  const editBtn    = makeBtn("Edit", null, "blue");
+  const repairBtn  = makeBtn("Repair Photo", (ev) => repairPhoto(s.id, s.place_id, img, ev), "orange");
+
+  editBtn.dataset.editStoreId = s.id;
+
+  actions.append(deleteBtn, editBtn, repairBtn);
+}
 
 card.appendChild(body);
 card.appendChild(actions);
@@ -1160,25 +1494,36 @@ grid.appendChild(card);
 async function editStore(id) {
   closeEdit();
 
-  //  Hämta store + kommentarer parallellt
-  const [storeResp, commentsResp] = await Promise.all([
-    WCL.supabase.from("stores").select("*").eq("id", id).single(),
-    WCL.supabase.from("store_comments").select("*").eq("store_id", id).order("created_at", { ascending: false })
-  ]);
+  let storeResp;
+  let commentsResp;
+
+  try {
+    //  Hämta store + kommentarer parallellt
+    [storeResp, commentsResp] = await Promise.all([
+      WCL.supabase.from("stores").select("*").eq("id", id).single(),
+      WCL.supabase.from("store_comments").select("*").eq("store_id", id).order("created_at", { ascending: false })
+    ]);
+  } catch (err) {
+    console.error("Edit load crashed:", err);
+    toast("Edit could not open", "error");
+    return;
+  }
 
   const store = storeResp?.data;
   const error = storeResp?.error;
   const comments = commentsResp?.data || [];
 
   if (error || !store) {
-    toast("Failed to load store", "error");
-    console.error(error);
+    toast("Edit could not load this store", "error");
+    console.error("Edit load failed:", error);
     return;
   }
 
   //  Bygg modal
   const modal = document.createElement("div");
   modal.className = "modal-backdrop";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
   modal.innerHTML = `
     <div class="modal">
       <h3>Edit Store</h3>
@@ -1264,6 +1609,10 @@ async function editStore(id) {
     </div>
   `;
   document.body.appendChild(modal);
+  document.body.classList.add("modal-open");
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) closeEdit();
+  });
 
   //  Fyll kontinent
   const contSel = $("#edit-continent");
@@ -1381,7 +1730,11 @@ $("#edit-next").onclick = () => {
 /* ==================== CLOSE MODAL ================= */
 function closeEdit() {
   document.querySelectorAll(".modal-backdrop").forEach((m) => m.remove());
+  document.body.classList.remove("modal-open");
 }
+
+window.editStore = editStore;
+window.rejectPendingSubmission = rejectPendingSubmission;
 /* ============================================================
    STORE REPORTS — STORE-CENTRIC MODERATION (PENDING ONLY)
    ============================================================ */
@@ -1404,42 +1757,71 @@ async function loadStoreReports() {
     return;
   }
 
+  setPillCount("reports", Array.isArray(data) ? data.length : 0);
+
   if (!data || !data.length) {
     STORES = [];
     render();
     return;
   }
 
-  // 🔁 Transform reports → store-like objects
-  STORES = data.map(r => ({
-    id: r.store_id,
-    name: r.store_name,
-    city: r.city,
-    country: r.country,
-    continent: r.continent,
-    types: r.types,
-    access: r.access,
-    rating: r.rating,
-    address: r.address,
-    phone: r.phone,
-    website: r.website,
-    photo_reference: r.photo_reference,
-    country_iso2: r.country_iso2,
+  const reportDetails = await Promise.all(
+    data.map((r) => fetchReportDetails(r.id))
+  );
 
-    // 🔶 Report metadata
-    _is_reported: true,
-    _report_id: r.id,
-    _report_type: r.report_type,
-    _report_count: r.report_count,
-    _report_status: r.status
-  }));
+  // 🔁 Transform reports → store-like objects
+  STORES = data.map((r, index) => {
+    const detailReport = reportDetails[index]?.report || {};
+    const reportTypes =
+      Array.isArray(detailReport.report_types)
+        ? detailReport.report_types
+        : null;
+
+    return {
+      id: r.store_id,
+      name: r.store_name,
+      city: r.city,
+      country: r.country,
+      continent: r.continent,
+      types: r.types,
+      access: r.access,
+      rating: r.rating,
+      address: r.address,
+      phone: r.phone,
+      website: r.website,
+      photo_reference: r.photo_reference,
+      country_iso2: r.country_iso2,
+
+      // Report metadata
+      _is_reported: true,
+      _report_id: r.id,
+      _report_type: detailReport.report_type || r.report_type,
+      _report_types: reportTypes,
+      _report_count: detailReport.report_count || r.report_count,
+      _report_status: detailReport.status || r.status,
+      _report_messages: detailReport.messages || []
+    };
+  });
 
   render();
 }
 
 /* ===================== UI WIRING ========================= */
 document.addEventListener("DOMContentLoaded", () => {
-  console.log(" DOM fully loaded — Backoffice ready");
+  debugLog("DOM fully loaded — Backoffice ready");
+
+  document.addEventListener("click", (event) => {
+    const editButton = event.target.closest("[data-edit-store-id]");
+    if (!editButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const storeId = Number(editButton.dataset.editStoreId);
+    if (!Number.isFinite(storeId)) return;
+
+    editStore(storeId);
+  });
 
   //  Filterknappar
   $$(".filters .pill").forEach((p) =>
@@ -1482,7 +1864,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    console.log("🔎 Searching DB:", term, "TAB:", CURRENT_TAB);
+    debugLog("Searching DB:", term, "TAB:", CURRENT_TAB);
+
+    if (CURRENT_TAB === "reports") {
+      render();
+      return;
+    }
 
     let table = "stores";
 
@@ -1490,18 +1877,53 @@ document.addEventListener("DOMContentLoaded", () => {
       table = "store_pending";
     }
 
-    const { data, error } = await WCL.supabase
+    const searchFilter = buildSearchOrFilter(table, term);
+    if (!searchFilter) {
+      render();
+      return;
+    }
+
+    let query = WCL.supabase
       .from(table)
-      .select("*")
-      .ilike("name", `%${term}%`)
-      .limit(100);
+      .select(table === "stores" ? STORE_SELECT_FIELDS : "*")
+      .or(searchFilter)
+      .limit(150);
+
+    if (table === "stores") {
+      if (CURRENT_TAB === "approved") {
+        query = query
+          .eq("approved", true)
+          .eq("deleted", false);
+      } else if (CURRENT_TAB === "flagged") {
+        query = query
+          .eq("flagged", true)
+          .eq("deleted", false);
+      } else if (CURRENT_TAB === "duplicates") {
+        query = query
+          .eq("flagged", true)
+          .eq("deleted", false)
+          .eq("flag_reason", "possible_duplicate");
+      } else if (CURRENT_TAB === "deleted") {
+        query = query.eq("deleted", true);
+      } else {
+        query = query.eq("deleted", false);
+      }
+
+      query = query.order("id", { ascending: false });
+    } else {
+      query = query.order("id", { ascending: true });
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error(error);
       return;
     }
 
-    STORES = data || [];
+    STORES = CURRENT_TAB === "pending"
+      ? (data || []).map(normalizePendingSubmission)
+      : (data || []);
 
     render();
   });
@@ -1510,6 +1932,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ===================== BUTTON ===================== */
 function makeBtn(label, onclick, cls = "") {
   const b = document.createElement("button");
+  b.type = "button";
   b.className = `btn ${cls}`.trim();
   b.textContent = label;
   if (typeof onclick === "function") b.onclick = onclick;
@@ -1521,16 +1944,30 @@ function makeBtn(label, onclick, cls = "") {
 /*  APPROVE — pending → stores */
 async function approveStore(id) {
 
-  console.log("APPROVE CLICK ID:", id);
+  debugLog("APPROVE CLICK ID:", id);
 
   const { data, error } = await WCL.supabase
     .rpc("approve_store_pending", { p_id: id });
 
-  console.log("RPC RESPONSE:", data, error);
+  debugLog("RPC RESPONSE:", data, error);
 
   if (error) {
     console.error("Approve failed:", error);
-    toast("Error approving", "error");
+
+    const isConflict =
+      error.code === "23505" ||
+      error.status === 409 ||
+      /duplicate|conflict|unique/i.test(
+        `${error.message || ""} ${error.details || ""}`
+      );
+
+    toast(
+      isConflict
+        ? "Approve blocked: possible duplicate listing"
+        : `Approve failed: ${error.message || "database rejected it"}`,
+      "error"
+    );
+
     return;
   }
 
@@ -1561,6 +1998,11 @@ async function unflagStore(id) {
 
 /* 🗑️ DELETE / RESTORE */
 async function toggleDelete(s) {
+  if (isPendingSubmission(s)) {
+    toast("Pending items use Reject Pending, not store Delete", "error");
+    return;
+  }
+
   const next = !s.deleted;
 
   const { error } = await WCL.supabase
@@ -1586,6 +2028,24 @@ async function toggleDeleteById(id) {
     return;
   }
   return toggleDelete(s);
+}
+
+async function rejectPendingSubmission(id) {
+  if (!confirm("Reject this pending listing? This removes it from the pending queue.")) return;
+
+  const { error } = await WCL.supabase
+    .from("store_pending")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Reject pending failed:", error);
+    toast("Pending reject needs admin DB permission", "error");
+    return;
+  }
+
+  toast("Pending listing rejected");
+  await reloadData("pending");
 }
      /* ==================== REPAIR PHOTO ================= */
 async function repairPhoto(id, place_id, imgEl, ev) {
@@ -1638,14 +2098,14 @@ async function repairPhoto(id, place_id, imgEl, ev) {
 }
 
      
-async function moderateReport(reportId, action) {
+async function moderateReport(reportId, action, note = null) {
 
   const { error } = await WCL.supabase.rpc(
     "bo_moderate_store_report_v1",
     {
       p_report_id: reportId,
       p_action: action,
-      p_note: null
+      p_note: note
     }
   );
 

@@ -1,5 +1,5 @@
 /* ============================================================
-WCL — MARKET V2 (CLEAN ENGINE)
+WCL - Market V2
 ============================================================ */
 
 import { supabase } from "/js/globals.js";
@@ -9,8 +9,6 @@ import {
   setActiveDay
 } from "/js/analytics-state.js";
 const sb = supabase;
-
-console.log("🔥 MARKET V2 LOADED");
 
 /* ============================================================
 CTR HELPER (GLOBAL, CANONICAL)
@@ -306,6 +304,19 @@ function renderEmpty(tbody, colspan = 4) {
 </tr>`;
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value)
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 /* ============================================================
 CHART
 ============================================================ */
@@ -366,11 +377,8 @@ function bindRows(days) {
 
     row.onclick = async () => {
 
-      console.log("🔥 CLICK KPI:", getKPI());
-      console.log("🔥 CLICK LEVEL:", MARKET_STATE.level);
-
 /* ============================================================
-MEMBER DAY → COUNTRY
+MEMBER DAY -> COUNTRY
 ============================================================ */
 
 if (MARKET_STATE.level === "member_day") {
@@ -388,7 +396,7 @@ if (MARKET_STATE.level === "member_day") {
 }
 
 /* ============================================================
-COUNTRY → CITY / MEMBER COUNTRY → MEMBER CITY
+COUNTRY -> CITY / MEMBER COUNTRY -> MEMBER CITY
 ============================================================ */
 
 if (
@@ -401,11 +409,6 @@ if (
     row.querySelector("td")?.textContent;
 
   if (!country) return;
-
-  console.log(
-    "MARKET COUNTRY:",
-    country
-  );
 
   MARKET_STATE.country =
     String(country).trim();
@@ -580,6 +583,66 @@ tbody.innerHTML = data.map(r => {
 </tr>`;
 
 }).join("");
+
+  bindRows(days);
+
+  window.WCL_MARKET_DATA = data;
+
+  renderChart(data);
+}
+
+/* ============================================================
+MEMBER CITY RENDER
+============================================================ */
+
+async function renderMemberCities(days, tbody) {
+
+  setMemberCityHeaders();
+
+  const activeDay =
+    getActiveDay() ||
+    new Date().toISOString().split("T")[0];
+
+  const { data, error } = await sb.rpc(
+    "analytics_member_cities",
+    {
+      p_day: activeDay,
+      p_country: MARKET_STATE.country
+    }
+  );
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  if (!data?.length) {
+    renderEmpty(tbody, 4);
+    return;
+  }
+
+  data.sort((a, b) =>
+    Number(b.views || 0) - Number(a.views || 0)
+  );
+
+  tbody.innerHTML = data.map(r => {
+
+    const views = Number(r.views || 0);
+    const clicks = Number(r.clicks || 0);
+    const ctr =
+      views > 0
+        ? ((clicks / views) * 100).toFixed(1) + "%"
+        : "0.0%";
+
+    return `
+<tr data-city="${escapeAttr(r.city || "")}">
+  <td>${escapeHtml(r.city || "-")}</td>
+  <td class="num">${views}</td>
+  <td class="num">${clicks}</td>
+  <td class="num">${ctr}</td>
+</tr>`;
+
+  }).join("");
 
   bindRows(days);
 
@@ -1098,11 +1161,6 @@ export async function renderMarketV2(days = 30) {
 
   const KPI = getKPI();
 
-  console.log("🔥 MARKET V2 RENDER", {
-    ...MARKET_STATE,
-    kpi: KPI
-  });
-
   const tbody = getBody();
   if (!tbody) return;
   renderBreadcrumb();
@@ -1124,7 +1182,7 @@ if (KPI === "users") {
   }
 
   if (MARKET_STATE.level === "member_city") {
-    await renderCity(days, tbody);
+    await renderMemberCities(days, tbody);
     return;
   }
 
@@ -1275,5 +1333,5 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 export function renderHeatmap() {
-  console.log("🔥 HEATMAP PLACEHOLDER");
+  // Reserved for the future heatmap panel.
 }

@@ -20,10 +20,10 @@ export function subscribe(fn) {
   listeners.push(fn);
 }
 
-function notify() {
-  for (const fn of listeners) {
-    fn({ ...STATE }); // skicka copy (säkerhet)
-  }
+async function notify() {
+  await Promise.all(
+    listeners.map(fn => fn({ ...STATE }))
+  );
 }
 
 /* ============================================================
@@ -40,7 +40,7 @@ export function getKPI() {
 
 export function getLevel() {
 
-  // 🔥 SINGLE SOURCE OF TRUTH
+  // SINGLE SOURCE OF TRUTH
   if (STATE.country) return "city";
 
   return "country";
@@ -52,7 +52,7 @@ export function getActiveDay() {
 
 export function setActiveDay(day) {
   STATE.day = day;
-  notify(); // 🔥 KRITISK
+  return notify(); // KRITISK
 }
 
 export function getActiveCountry() {
@@ -67,45 +67,45 @@ export function getContextLocation() {
    SAFE STATE TRANSITIONS (ONLY WAY TO CHANGE STATE)
    ============================================================ */
 
-// 🔥 KPI change
+// KPI change
 export function setKPI(kpi) {
   STATE.kpi = kpi;
-  notify();
+  return notify();
 }
 
-// 🔥 Reset ALL
+// Reset ALL
 export function resetState() {
   STATE.kpi = "users";
   STATE.level = "country";
   STATE.day = null;
   STATE.country = null;
   STATE.contextLocation = null;
-  notify();
+  return notify();
 }
 
-// 🔥 Click day (chart → country level)
+// Click day (chart → country level)
 export function applyDay(day) {
   STATE.day = day;
   STATE.level = "country";
   STATE.country = null;
   STATE.contextLocation = null;
-  notify();
+  return notify();
 }
 
-// 🔥 Click country (→ city level)
+// Click country (→ city level)
 export function applyCountry(country) {
 
   STATE.country = country;
 
-  // 🔥 KRITISKT
-  notify();
+  // KRITISKT
+  return notify();
 
 }
 
-// 🔥 External context (search etc)
+// External context (search etc)
 export function applyContextCity(city, country) {
   STATE.contextLocation = city;
   STATE.country = country;
   STATE.level = "city";
-  notify();
+  return notify();
 }

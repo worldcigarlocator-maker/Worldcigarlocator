@@ -1,9 +1,7 @@
 /* ================================================================
    js/add-store.js
-   Backoffice — Add Store (STRICT + HYBRID SAFE)
+   Backoffice - Add Store
    ================================================================ */
-
-console.log("🚀 Add Store Backoffice loaded");
 
 /* ================================================================
    GLOBAL STATE
@@ -20,10 +18,16 @@ document.addEventListener("DOMContentLoaded", () => {
   bindTypeSelector();
   bindButtons();
 
-  // Country → load existing cities
+  // Country -> load existing cities
   document
     .getElementById("country")
     ?.addEventListener("change", loadCitiesForCountry);
+
+  ["name", "addr", "city", "country"].forEach((id) => {
+    document
+      .getElementById(id)
+      ?.addEventListener("input", clearDuplicateNotice);
+  });
 });
 
 /* ================================================================
@@ -41,7 +45,7 @@ async function loadCitiesForCountry() {
 
   try {
     const { data, error } = await WCL.supabase
-      .from("stores")
+      .from("stores_frontend_public_v5")
       .select("city")
       .ilike("country", country)
       .not("city", "is", null);
@@ -149,6 +153,7 @@ async function onPlaceDetails(place, status) {
   };
 
   autofillForm();
+  await showDuplicateWarning(window.selectedPlace);
   await loadPhotos(place.place_id);
 }
 
@@ -171,6 +176,99 @@ function autofillForm() {
   set("website", window.selectedPlace.website);
 
   loadCitiesForCountry();
+}
+
+/* ================================================================
+   DUPLICATE CHECK
+   ================================================================ */
+function uniqueDuplicateMatches(result) {
+  const seen = new Set();
+  const matches = [];
+
+  [
+    ...(result?.exact || []),
+    ...(result?.possible || []),
+  ].forEach((store) => {
+    const key =
+      store?.id ||
+      `${store?.name || ""}|${store?.address || ""}`;
+
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    matches.push(store);
+  });
+
+  return matches;
+}
+
+function duplicateCandidateFromForm() {
+  return {
+    name: document.getElementById("name")?.value.trim() || "",
+    address: document.getElementById("addr")?.value.trim() || "",
+    city: document.getElementById("city")?.value.trim() || "",
+    country: document.getElementById("country")?.value.trim() || "",
+  };
+}
+
+function renderDuplicateNotice(matches) {
+  const notice = document.getElementById("duplicateNotice");
+  if (!notice) return;
+
+  notice.textContent = "";
+
+  const title = document.createElement("strong");
+  title.textContent = "Duplicate listing found";
+  notice.appendChild(title);
+
+  const text = document.createElement("p");
+  text.textContent =
+    "This address already exists in WCL. Please use the existing listing instead of submitting a duplicate.";
+  notice.appendChild(text);
+
+  const list = document.createElement("ul");
+  matches.slice(0, 4).forEach((store) => {
+    const item = document.createElement("li");
+    item.textContent = [
+      store?.name,
+      store?.address,
+      [store?.city, store?.country].filter(Boolean).join(", "),
+    ]
+      .filter(Boolean)
+      .join(" · ");
+
+    list.appendChild(item);
+  });
+
+  notice.appendChild(list);
+  notice.hidden = false;
+}
+
+function clearDuplicateNotice() {
+  const notice = document.getElementById("duplicateNotice");
+  if (!notice) return;
+
+  notice.textContent = "";
+  notice.hidden = true;
+}
+
+async function findDuplicateMatches(candidate) {
+  if (!WCL.checkDuplicates) return [];
+
+  const result = await WCL.checkDuplicates(candidate);
+  return uniqueDuplicateMatches(result);
+}
+
+async function showDuplicateWarning(candidate) {
+  const matches = await findDuplicateMatches(candidate);
+
+  if (matches.length) {
+    renderDuplicateNotice(matches);
+    WCL.toastShared("Duplicate listing found", "error");
+    return true;
+  }
+
+  clearDuplicateNotice();
+  return false;
 }
 
 /* ================================================================
@@ -244,7 +342,6 @@ function bindTypeSelector() {
             selectedTypes.filter((t) => t !== val);
         }
 
-        console.log("selectedTypes:", selectedTypes);
       });
 
     });
@@ -258,7 +355,7 @@ async function saveStore() {
   const address = document.getElementById("addr")?.value.trim();
   const city = document.getElementById("city")?.value.trim();
   const stateRaw = document.getElementById("state")?.value.trim();
-const state = stateRaw || null;
+  let state = stateRaw || null;
 
   const country = document.getElementById("country")?.value.trim();
   const phone = document.getElementById("phone")?.value.trim();
@@ -268,6 +365,11 @@ const state = stateRaw || null;
   if (!address) return WCL.toastShared("Address is required", "error");
   if (!city) return WCL.toastShared("City is required", "error");
   if (!country) return WCL.toastShared("Country is required", "error");
+
+  if (await showDuplicateWarning(duplicateCandidateFromForm())) {
+    return;
+  }
+
   if (!selectedTypes.length)
     return WCL.toastShared("Select at least one type", "error");
 
@@ -320,7 +422,19 @@ const payload = {
 
     if (error) throw error;
 
-    WCL.toastShared("✅ Store saved", "success");
+    void WCL.sendEmailNotification?.(
+      "listing_submitted",
+      {
+        listing: {
+          name,
+          city,
+          country,
+          website,
+        },
+      }
+    );
+
+    WCL.toastShared("Store saved", "success");
     resetForm();
 
   } catch (err) {
@@ -351,6 +465,8 @@ function resetForm() {
   selectedTypes = [];
   currentPhotoIndex = 0;
 
+  clearDuplicateNotice();
+
   document.getElementById("preview-photo").src =
     WCL.fallbackForType("store");
 
@@ -368,4 +484,3 @@ function bindButtons() {
   document.getElementById("clearBtn")
     ?.addEventListener("click", resetForm);
 }
-

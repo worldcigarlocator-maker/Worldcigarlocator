@@ -11,6 +11,9 @@ build/
 out/
 *.log
 
+# Supabase CLI local cache
+supabase/.temp/
+
 # Env files (hemliga nycklar m.m.)
 .env
 .env.*

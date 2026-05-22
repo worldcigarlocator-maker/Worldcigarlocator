@@ -20,6 +20,11 @@ const ANALYTICS_INGEST_URL =
 const SESSION_IDLE_MS = 30 * 60 * 1000; // 30 min
 const EVENT_QUEUE = [];
 const BATCH_INTERVAL = 5000; // 5 sek
+const ANALYTICS_DEBUG = Boolean(window?.WCL_DEBUG_ANALYTICS);
+
+function debugLog(...args) {
+  if (ANALYTICS_DEBUG) console.log(...args);
+}
 
 
 // ============================================================
@@ -29,7 +34,7 @@ const BATCH_INTERVAL = 5000; // 5 sek
 window.__WCL__.CURRENT_SOURCE = "direct";
 
 export function setTrafficSource(src) {
-  console.log("🔥 SET SOURCE →", src);
+  debugLog("SET SOURCE →", src);
    
 if (!window.__WCL__.CURRENT_SOURCE || window.__WCL__.CURRENT_SOURCE === "direct") {
   window.__WCL__.CURRENT_SOURCE = src || "direct";
@@ -94,7 +99,7 @@ function sendEvent(event_type, payload = {}) {
       actor_type: "anon",
       session_hash: getSession(),
 
-      // 🔥 RESPEKTERA EXPLICIT SOURCE FÖRST
+      // RESPEKTERA EXPLICIT SOURCE FÖRST
       source:
         payload?.source ||
         window?.__WCL__?.MODAL_SOURCE ||
@@ -106,10 +111,10 @@ function sendEvent(event_type, payload = {}) {
 
     EVENT_QUEUE.push(finalPayload);
 
-    console.log("🧠 QUEUED EVENT", finalPayload);
+    debugLog("🧠 QUEUED EVENT", finalPayload);
 
   } catch (err) {
-    console.error("❌ ANALYTICS ERROR", err);
+    console.warn("Analytics queue skipped", err);
   }
 
 }
@@ -185,8 +190,8 @@ setInterval(() => {
     credentials: "omit",
     body: JSON.stringify({ events: batch })
   })
-  .then(res => console.log("🚀 BATCH SENT", batch.length))
-  .catch(err => console.error("❌ BATCH ERROR", err));
+  .then(() => debugLog("BATCH SENT", batch.length))
+  .catch(err => console.warn("Analytics batch skipped", err));
 
 }, BATCH_INTERVAL);
 

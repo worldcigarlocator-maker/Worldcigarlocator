@@ -121,10 +121,35 @@ grid-template-columns: repeat(auto-fit, minmax(240px, 265px));}
    IMAGE
    ============================================================ */
 
+.store-img-wrap{
+  position:relative;
+  width:100%;
+  height:180px;
+  overflow:hidden;
+}
+
 .store-img {
   width: 100%;
-  height: 180px;
+  height: 100%;
   object-fit: cover;
+}
+
+.google-attribution{
+  position:absolute;
+  right:8px;
+  bottom:8px;
+  z-index:2;
+
+  padding:3px 6px;
+
+  border-radius:4px;
+  background:rgba(0,0,0,0.64);
+
+  color:rgba(255,255,255,0.92);
+  font-size:10px;
+  font-weight:600;
+  line-height:1;
+  letter-spacing:0;
 }
 
 /* ============================================================
@@ -332,11 +357,17 @@ color: rgba(var(--global), 0.85);
 }
 
 /* ============================================================
-   COMMENTS BUTTON
+   CARD ACTIONS
    ============================================================ */
 
-.reviews-btn {
+.card-action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   margin-top: auto;
+}
+
+.reviews-btn {
+  width: 100%;
   height: 38px;
   border-radius: 999px;
 border: 1px solid rgba(var(--global), 0.6);
@@ -427,4 +458,3 @@ box-shadow: 0 0 0 1px rgba(var(--global), 0.5);
   background: rgb(var(--global));
   color: white;
 }
-
