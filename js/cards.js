@@ -520,6 +520,8 @@ function cardHTML(s) {
 
   const img = getPhotoUrl(s);
   const flag = getFlagUrl(s);
+  const usesGooglePhoto =
+    Boolean(s.photo_reference && !s.photo_cdn_url && !s.photo_url);
 
   return `
 <article 
@@ -547,12 +549,19 @@ function cardHTML(s) {
       </svg>
     </button>
 
-    <img
-      src="${img}"
-      class="store-img"
-      loading="lazy"
-      onerror="this.onerror=null;this.src='images/store.jpg'"
-    />
+    <div class="store-img-wrap">
+      <img
+        src="${img}"
+        class="store-img"
+        loading="lazy"
+        onerror="this.onerror=null;this.src='images/store.jpg'"
+      />
+      ${
+        usesGooglePhoto
+          ? `<span class="google-attribution" translate="no">Google Maps</span>`
+          : ""
+      }
+    </div>
 
     <div class="store-body">
 

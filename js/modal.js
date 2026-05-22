@@ -177,6 +177,7 @@ const el = (id) => document.getElementById(id);
 
 const modalEl           = () => el("storeModal");
 const modalImg          = () => el("modalImg");
+const modalPhotoAttribution = () => el("modalPhotoAttribution");
 const modalName         = () => el("modalName");
 const modalFlag         = () => el("modalFlag");
 const modalLocation     = () => el("modalLocation");
@@ -223,6 +224,7 @@ function highlightStars(count) {
 
 function resetModal() {
   if (modalImg()) modalImg().src = "";
+  modalPhotoAttribution()?.classList.add("hidden");
   if (modalName()) modalName().textContent = "";
   if (modalLocation()) modalLocation().textContent = "";
   if (modalBadges()) modalBadges().innerHTML = "";
@@ -538,6 +540,15 @@ debugLog(
   if (modalImg()) {
     modalImg().src = getPhotoUrl(store);
   }
+
+  modalPhotoAttribution()?.classList.toggle(
+    "hidden",
+    !(
+      store.photo_reference &&
+      !store.photo_cdn_url &&
+      !store.photo_url
+    )
+  );
 
   const flagUrl = getFlagUrl(store);
 

@@ -172,19 +172,31 @@
 
 /* ================= IMAGE ================= */
 
-.modal-img {
-  position: relative;
-  z-index: 1;
-
+.modal-img-wrap{
+  position:relative;
   width: 100%;
   height: 285px;
-
-  object-fit: cover;
+  overflow:hidden;
 
   border-top-left-radius: 18px;
   border-top-right-radius: 18px;
 
   border-bottom: 1px solid rgba(var(--global), 0.25);
+}
+
+.modal-img {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.modal-google-attribution{
+  right:12px;
+  bottom:12px;
 }
 
 /* ================= BODY ================= */
