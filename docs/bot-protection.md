@@ -5,7 +5,7 @@ WCL uses bot protection only where it creates the most value without making the 
 ## Launch Scope
 
 - Create Account: Cloudflare Turnstile through Supabase Auth CAPTCHA.
-- Login: no CAPTCHA at launch.
+- Login: Cloudflare Turnstile through Supabase Auth CAPTCHA when Supabase CAPTCHA protection is enabled.
 - Add Listing: duplicate blocking plus human backoffice review.
 - Report Listing: browser-side cooldown guard plus Supabase Edge Function submission path.
 
@@ -17,4 +17,5 @@ WCL uses bot protection only where it creates the most value without making the 
 4. In Supabase Dashboard, go to Authentication settings and enable CAPTCHA protection.
 5. Select Cloudflare Turnstile and paste the secret key.
 
-The frontend sends the Turnstile token through `supabase.auth.signUp` as `options.captchaToken`.
+The frontend sends the Turnstile token through Supabase Auth as `options.captchaToken`
+for account creation and sign-in.

@@ -56,6 +56,12 @@ const signinEmailInput =
 const signinPasswordInput =
   document.getElementById("signinPassword");
 
+const signinTurnstileWrap =
+  document.getElementById("signinTurnstileWrap");
+
+const signinTurnstileEl =
+  document.getElementById("signinTurnstile");
+
 const signinAccountPageBtn =
   document.getElementById("signinAccountPageBtn");
 
@@ -85,6 +91,8 @@ const messageBox =
 
 let signupCaptchaToken = "";
 let signupCaptchaWidgetId = null;
+let signinCaptchaToken = "";
+let signinCaptchaWidgetId = null;
 let turnstileScriptPromise = null;
 
 // ============================================================
@@ -275,6 +283,55 @@ async function renderSignupCaptcha() {
   }
 }
 
+async function renderSigninCaptcha() {
+  if (
+    !hasSignupCaptcha() ||
+    !signinTurnstileWrap ||
+    !signinTurnstileEl
+  ) {
+    return;
+  }
+
+  signinTurnstileWrap.hidden = false;
+
+  if (signinCaptchaWidgetId !== null) {
+    return;
+  }
+
+  try {
+    const turnstile =
+      await loadTurnstileScript();
+
+    signinCaptchaWidgetId =
+      turnstile.render(
+        signinTurnstileEl,
+        {
+          sitekey: TURNSTILE_SITE_KEY,
+          theme: "dark",
+          callback(token) {
+            signinCaptchaToken = token || "";
+          },
+          "expired-callback"() {
+            signinCaptchaToken = "";
+          },
+          "error-callback"() {
+            signinCaptchaToken = "";
+            setSigninMessage(
+              "Bot check failed. Please try again.",
+              true
+            );
+          }
+        }
+      );
+  } catch (error) {
+    console.warn("Turnstile load failed:", error);
+    setSigninMessage(
+      "Bot check could not load. Please refresh and try again.",
+      true
+    );
+  }
+}
+
 function resetSignupCaptcha() {
   signupCaptchaToken = "";
 
@@ -284,6 +341,19 @@ function resetSignupCaptcha() {
   ) {
     window.turnstile.reset(
       signupCaptchaWidgetId
+    );
+  }
+}
+
+function resetSigninCaptcha() {
+  signinCaptchaToken = "";
+
+  if (
+    signinCaptchaWidgetId !== null &&
+    window.turnstile?.reset
+  ) {
+    window.turnstile.reset(
+      signinCaptchaWidgetId
     );
   }
 }
@@ -301,6 +371,7 @@ function showSigninGate() {
   signupGate?.classList.add("hidden");
   accountApp?.classList.add("hidden");
   signinEmailInput?.focus();
+  void renderSigninCaptcha();
 }
 
 function showAccountApp() {
@@ -504,26 +575,48 @@ async function signInFromPage() {
     return;
   }
 
+  if (hasSignupCaptcha() && !signinCaptchaToken) {
+    setSigninMessage(
+      "Complete the bot check before signing in",
+      true
+    );
+    void renderSigninCaptcha();
+    return;
+  }
+
   if (signinAccountPageBtn) {
     signinAccountPageBtn.disabled = true;
   }
 
   setSigninMessage("Signing in...");
 
+  const credentials = {
+    email,
+    password
+  };
+
+  if (hasSignupCaptcha()) {
+    credentials.options = {
+      captchaToken: signinCaptchaToken
+    };
+  }
+
   const { error } =
-    await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+    await supabase.auth.signInWithPassword(
+      credentials
+    );
 
   if (signinAccountPageBtn) {
     signinAccountPageBtn.disabled = false;
   }
 
   if (error) {
+    resetSigninCaptcha();
     setSigninMessage(error.message, true);
     return;
   }
+
+  resetSigninCaptcha();
 
   window.location.href = "/";
 }
