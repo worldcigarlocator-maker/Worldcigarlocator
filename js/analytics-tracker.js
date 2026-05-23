@@ -23,7 +23,8 @@ const ANALYTICS_DEBUG = Boolean(window?.WCL_DEBUG_ANALYTICS);
 const BASIC_AGGREGATE_EVENTS = new Set([
   "store_view",
   "store_opened",
-  "website_clicked"
+  "website_clicked",
+  "user_login"
 ]);
 
 /* Legacy compatibility */
