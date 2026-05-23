@@ -8,6 +8,7 @@ import {
   TURNSTILE_SITE_KEY
 } from "/js/globals.js";
 import { openModal } from "/js/modal.js";
+import { trackEvent } from "/js/analytics-tracker.js";
 import { initI18n } from "/js/i18n.js";
 
 // ============================================================
@@ -706,6 +707,10 @@ async function signInFromPage() {
   }
 
   resetSigninCaptcha();
+
+  await trackEvent("user_login", {
+    email
+  });
 
   window.location.href = "/";
 }
