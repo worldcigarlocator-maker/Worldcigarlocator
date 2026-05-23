@@ -17,6 +17,7 @@ import { sendWclEmail } from "./email.js";
 let MODAL_ACTIVE_STORE_ID = null;
 let MODAL_LOAD_SEQ = 0;
 let MODAL_USER_TEMP_RATING = 0;
+let MODAL_RATING_SAVE_SEQ = 0;
 let MODAL_EVENTS_BOUND = false;
 let MODAL_REPLY_TO = null;
 
@@ -38,6 +39,7 @@ const reportTextarea = () => document.getElementById("modalReportMessage");
 const reportSubmit = () => document.getElementById("modalSubmitReport");
 const reportSuccess = () => document.getElementById("modalReportSuccess");
 const reportHoneypot = () => document.getElementById("modalReportWebsite");
+const reportToggle = () => document.getElementById("modalReportIssue");
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -189,10 +191,13 @@ const modalDirections   = () => el("modalDirections");
 const modalStarPicker   = () => el("modalStarPicker");
 const modalSendRating   = () => el("modalSendRating");
 const modalComments     = () => el("modalComments");
+const modalCommentsPanel = () => el("modalCommentsPanel");
+const modalCommentsToggle = () => el("modalCommentsToggle");
 const modalCommentInput = () => el("modalCommentInput");
 const modalSendComment  = () => el("modalSendComment");
 const modalCommentCount = () => el("modalCommentCount");
 const modalCommentPolicyMessage = () => el("modalCommentPolicyMessage");
+const modalRatingStatus = () => el("modalRatingStatus");
 
 // ============================================================
 // UTIL
@@ -220,6 +225,62 @@ function highlightStars(count) {
     s.textContent = active ? "★" : "☆";
     s.classList.toggle("active", active);
   });
+}
+
+function setRatingStatus(text = "", state = "") {
+  const status = modalRatingStatus();
+  if (!status) return;
+
+  status.textContent = text;
+  status.classList.toggle("error", state === "error");
+}
+
+function setCommentsOpen(open) {
+  const panel = modalCommentsPanel();
+  const toggle = modalCommentsToggle();
+
+  if (panel) {
+    panel.classList.toggle("hidden", !open);
+  }
+
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", String(open));
+  }
+
+  updateCommentCountLabel();
+}
+
+function toggleCommentsPanel() {
+  const panel = modalCommentsPanel();
+  const isOpen = panel && !panel.classList.contains("hidden");
+  setCommentsOpen(!isOpen);
+}
+
+function setCommentCount(count) {
+  const target = modalCommentCount();
+  if (!target) return;
+
+  target.dataset.count = String(Number(count) || 0);
+  updateCommentCountLabel();
+}
+
+function updateCommentCountLabel() {
+  const target = modalCommentCount();
+  if (!target) return;
+
+  const count = Number(target.dataset.count) || 0;
+  const panel = modalCommentsPanel();
+  const isOpen = panel && !panel.classList.contains("hidden");
+
+  target.textContent = `${isOpen ? "↑" : "↓"} Comments ${count}`;
+}
+
+function setReportToggleOpen(open) {
+  const button = reportToggle();
+  if (!button) return;
+
+  button.setAttribute("aria-expanded", String(open));
+  button.textContent = `${open ? "↑" : "↓"} Report this listing`;
 }
 
 function resetModal() {
@@ -250,17 +311,18 @@ function resetModal() {
   }
 
   if (modalComments()) modalComments().innerHTML = "";
+  setCommentsOpen(false);
   if (modalCommentInput()) modalCommentInput().value = "";
-  if (modalCommentCount()) modalCommentCount().textContent = "Comments 0";
+  setCommentCount(0);
+  setRatingStatus("");
   hideCommentPolicyMessage();
 
   reportSection()?.classList.add("hidden");
-  document
-    .getElementById("modalReportIssue")
-    ?.setAttribute("aria-expanded", "false");
+  setReportToggleOpen(false);
   resetReportUI();
 
   MODAL_USER_TEMP_RATING = 0;
+  MODAL_RATING_SAVE_SEQ++;
   highlightStars(0);
 }
 
@@ -493,9 +555,7 @@ resetModal();
 if (shouldOpenReport) {
   REPORT_OPENED_AT = Date.now();
   reportSection()?.classList.remove("hidden");
-  document
-    .getElementById("modalReportIssue")
-    ?.setAttribute("aria-expanded", "true");
+  setReportToggleOpen(true);
 }
 
 m.classList.remove("hidden");
@@ -597,7 +657,7 @@ debugLog(
     link.href =
       `https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/visit-store?store_id=${store.id}`;
 
-    link.style.display = "inline";
+    link.style.display = "inline-flex";
 
     link.onclick = (e) => {
 
@@ -640,7 +700,7 @@ debugLog(
     dir.href =
       `https://www.google.com/maps/dir/?api=1&destination=${name}&destination_place_id=${store.place_id}`;
 
-    dir.style.display = "inline";
+    dir.style.display = "inline-flex";
   }
 
   // ============================================================
@@ -664,8 +724,7 @@ debugLog(
 
     if (modalCommentCount()) {
 
-      modalCommentCount().textContent =
-        `Comments ${row.comment_count || 0}`;
+      setCommentCount(row.comment_count || 0);
     }
 
     MODAL_USER_TEMP_RATING =
@@ -697,6 +756,7 @@ export function closeModal() {
   reportSection()?.classList.add(
     "hidden"
   );
+  setReportToggleOpen(false);
 
   const favoriteBtn =
     document.getElementById(
@@ -721,6 +781,10 @@ export function closeModal() {
 async function saveRating() {
 
   if (!MODAL_ACTIVE_STORE_ID) return;
+
+  const saveSeq = ++MODAL_RATING_SAVE_SEQ;
+
+  setRatingStatus("Saving");
 
   debugLog(
     "SAVE RATING:",
@@ -757,7 +821,20 @@ async function saveRating() {
       "modal_save_rating_v1 error:",
       error
     );
+    if (saveSeq === MODAL_RATING_SAVE_SEQ) {
+      setRatingStatus("Not saved", "error");
+    }
     return;
+  }
+
+  if (saveSeq === MODAL_RATING_SAVE_SEQ) {
+    setRatingStatus("Saved");
+
+    setTimeout(() => {
+      if (saveSeq === MODAL_RATING_SAVE_SEQ) {
+        setRatingStatus("");
+      }
+    }, 1600);
   }
 
   debugLog("RATING SAVED");
@@ -781,17 +858,13 @@ async function loadComments(storeId, seq) {
 
   if (error) {
     console.error("modal_load_comments_v1 error:", error);
-    if (modalCommentCount()) {
-      modalCommentCount().textContent = "Comments 0";
-    }
+    setCommentCount(0);
     return;
   }
 
   const comments = data || [];
 
-  if (modalCommentCount()) {
-    modalCommentCount().textContent = `Comments ${comments.length}`;
-  }
+  setCommentCount(comments.length);
 
   if (!comments.length) return;
 
@@ -1046,6 +1119,7 @@ if (btn) {
     btn.textContent = "Submit report";
     btn.disabled = true;
     reportSection()?.classList.add("hidden");
+    setReportToggleOpen(false);
     resetReportUI();
   }, 1800);
 }
@@ -1091,6 +1165,11 @@ function bindEvents() {
 
     if (e.target.closest("#modalSendRating")) {
       await saveRating();
+      return;
+    }
+
+    if (e.target.closest("#modalCommentsToggle")) {
+      toggleCommentsPanel();
       return;
     }
 
@@ -1220,12 +1299,11 @@ if (
       if (!section) return;
 
       const isHidden = section.classList.toggle("hidden");
+      const isOpen = !isHidden;
       REPORT_OPENED_AT = isHidden
         ? 0
         : Date.now();
-      e.target
-        .closest("#modalReportIssue")
-        ?.setAttribute("aria-expanded", String(!isHidden));
+      setReportToggleOpen(isOpen);
       resetReportUI();
       return;
     }
@@ -1366,13 +1444,15 @@ if (
   const picker = modalStarPicker();
   if (picker) {
     picker.querySelectorAll("span").forEach((star) => {
-      star.addEventListener("click", () => {
+      star.addEventListener("click", async () => {
         const val = Number(star.dataset.val) || 0;
 
         MODAL_USER_TEMP_RATING =
           MODAL_USER_TEMP_RATING === val ? 0 : val;
 
         highlightStars(MODAL_USER_TEMP_RATING);
+
+        await saveRating();
       });
     });
   }

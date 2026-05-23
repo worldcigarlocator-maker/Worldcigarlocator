@@ -76,6 +76,11 @@ export function resolveStoreImage(store) {
     return store.photo_cdn_url;
   }
 
+  // WCL-controlled replacement image
+  if (store.photo_url) {
+    return store.photo_url;
+  }
+
   // Google Places photo proxy
   if (store.photo_reference) {
     return (

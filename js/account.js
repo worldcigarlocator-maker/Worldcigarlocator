@@ -47,6 +47,21 @@ const signupTurnstileEl =
 const createAccountPageBtn =
   document.getElementById("createAccountPageBtn");
 
+const signupFormCard =
+  document.getElementById("signupFormCard");
+
+const signupSuccessCard =
+  document.getElementById("signupSuccessCard");
+
+const signupSuccessEmail =
+  document.getElementById("signupSuccessEmail");
+
+const signupResendEmailBtn =
+  document.getElementById("signupResendEmailBtn");
+
+const signupResendMessageBox =
+  document.getElementById("signupResendMessage");
+
 const signupMessageBox =
   document.getElementById("signupMessage");
 
@@ -94,6 +109,7 @@ let signupCaptchaWidgetId = null;
 let signinCaptchaToken = "";
 let signinCaptchaWidgetId = null;
 let turnstileScriptPromise = null;
+let lastSignupEmail = "";
 
 // ============================================================
 // HELPERS
@@ -171,6 +187,38 @@ function setSignupMessage(
     isError
       ? "#ff8c8c"
       : "rgba(255,255,255,0.78)";
+}
+
+function setSignupResendMessage(
+  text,
+  isError = false
+) {
+
+  if (!signupResendMessageBox) return;
+
+  signupResendMessageBox.textContent = text;
+
+  signupResendMessageBox.style.color =
+    isError
+      ? "#ff8c8c"
+      : "rgba(255,255,255,0.78)";
+}
+
+function showSignupSuccess(email) {
+  lastSignupEmail = email || "";
+
+  signupFormCard?.classList.add("hidden");
+  signupSuccessCard?.classList.remove("hidden");
+
+  if (signupSuccessEmail) {
+    signupSuccessEmail.textContent =
+      lastSignupEmail
+        ? `Confirmation email sent to ${lastSignupEmail}`
+        : "";
+  }
+
+  setSignupMessage("");
+  setSignupResendMessage("");
 }
 
 function setSigninMessage(
@@ -362,6 +410,9 @@ function showSignupGate() {
   signupGate?.classList.remove("hidden");
   signinGate?.classList.add("hidden");
   accountApp?.classList.add("hidden");
+  signupFormCard?.classList.remove("hidden");
+  signupSuccessCard?.classList.add("hidden");
+  setSignupResendMessage("");
   signupEmailInput?.focus();
   void renderSignupCaptcha();
 }
@@ -551,8 +602,46 @@ async function createAccountFromPage() {
     return;
   }
 
-  setSignupMessage(
-    "Account created. Check your email and confirm the account, then sign in."
+  showSignupSuccess(email);
+}
+
+async function resendSignupEmail() {
+  const email =
+    lastSignupEmail ||
+    signupEmailInput?.value?.trim() ||
+    "";
+
+  if (!email) {
+    setSignupResendMessage(
+      "Enter your email and try again.",
+      true
+    );
+    return;
+  }
+
+  if (signupResendEmailBtn) {
+    signupResendEmailBtn.disabled = true;
+  }
+
+  setSignupResendMessage("Sending confirmation email...");
+
+  const { error } =
+    await supabase.auth.resend({
+      type: "signup",
+      email
+    });
+
+  if (signupResendEmailBtn) {
+    signupResendEmailBtn.disabled = false;
+  }
+
+  if (error) {
+    setSignupResendMessage(error.message, true);
+    return;
+  }
+
+  setSignupResendMessage(
+    "Confirmation email sent again. Please check your inbox."
   );
 }
 
@@ -1160,6 +1249,11 @@ async function loadFavorites() {
 createAccountPageBtn?.addEventListener(
   "click",
   createAccountFromPage
+);
+
+signupResendEmailBtn?.addEventListener(
+  "click",
+  resendSignupEmail
 );
 
 signinAccountPageBtn?.addEventListener(

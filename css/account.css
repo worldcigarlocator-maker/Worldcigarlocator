@@ -34,6 +34,35 @@
   line-height:1.45;
 }
 
+.account-signup-success{
+  text-align:left;
+}
+
+.account-success-copy{
+  max-width:38rem;
+  font-size:15px;
+}
+
+.account-success-email{
+  margin:18px 0 0;
+  padding:14px 16px;
+
+  border:1px solid rgba(var(--global),0.2);
+  border-radius:14px;
+
+  background:rgba(0,0,0,0.22);
+  color:rgba(255,255,255,0.82);
+
+  font-size:14px;
+  font-weight:700;
+  word-break:break-word;
+}
+
+.account-success-actions{
+  align-items:center;
+  flex-wrap:wrap;
+}
+
 .account-rules-check{
   display:flex;
   gap:12px;
@@ -378,6 +407,32 @@
     transform .16s ease,
     opacity .16s ease,
     box-shadow .16s ease;
+}
+
+.account-btn-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+}
+
+.account-secondary-button{
+  min-height:44px;
+  padding:0 2px;
+
+  border:0;
+  background:transparent;
+
+  color:rgba(255,255,255,0.68);
+
+  font-size:13px;
+  font-weight:800;
+
+  cursor:pointer;
+}
+
+.account-secondary-button:hover{
+  color:rgb(var(--global));
 }
 
 .account-btn:hover{

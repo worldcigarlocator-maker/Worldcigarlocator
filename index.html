@@ -461,47 +461,125 @@
 >
 
   <button
-    class="control-btn"
-    data-filter="type"
-    data-value="store"
-    data-i18n="stores"
+    class="filters-toggle"
+    id="searchFiltersBtn"
+    type="button"
+    aria-expanded="false"
+    aria-controls="searchFiltersMenu"
   >
-    Stores
+    <span>Filters</span>
+    <span
+      class="filters-count"
+      id="searchFiltersCount"
+      aria-live="polite"
+    ></span>
+    <span class="filters-caret" aria-hidden="true">▾</span>
   </button>
 
-<button
-  class="control-btn"
-  data-filter="type"
-  data-value="lounge"
-  data-i18n="lounge"
->
-  Lounge
-</button>
-
-  <button
-    class="control-btn"
-    data-filter="access"
-    data-value="members"
-    data-i18n="members"
+  <div
+    class="filters-menu"
+    id="searchFiltersMenu"
+    hidden
   >
-    Members
-  </button>
 
-  <button
-    class="control-btn sort-btn"
-    data-sort="rating_desc"
-    data-i18n="top_rated"
-  >
-    Top Rated
-  </button>
+    <div class="filters-menu-head">
+      <span>Search filters</span>
+    </div>
 
- <button
-  class="control-btn sort-btn"
-  data-sort="favorites_desc"
-  data-i18n="most_saved"
->
-  Most Saved
-</button>
+    <div class="filters-group">
+      <div class="filters-group-label">Type</div>
+
+      <button
+        class="filter-option"
+        type="button"
+        data-filter="type"
+        data-value="store"
+        aria-pressed="false"
+      >
+        <span class="filter-check" aria-hidden="true"></span>
+        <span>Store</span>
+      </button>
+
+      <button
+        class="filter-option"
+        type="button"
+        data-filter="type"
+        data-value="lounge"
+        aria-pressed="false"
+      >
+        <span class="filter-check" aria-hidden="true"></span>
+        <span>Lounge</span>
+      </button>
+    </div>
+
+    <div class="filters-group">
+      <div class="filters-group-label">Access</div>
+
+      <button
+        class="filter-option"
+        type="button"
+        data-filter="access"
+        data-value="members"
+        aria-pressed="false"
+      >
+        <span class="filter-check" aria-hidden="true"></span>
+        <span>Members only</span>
+      </button>
+    </div>
+
+    <div class="filters-group">
+      <div class="filters-group-label">Sort</div>
+
+      <button
+        class="filter-option sort-btn"
+        type="button"
+        data-sort="relevance"
+        aria-pressed="false"
+      >
+        <span class="filter-radio" aria-hidden="true"></span>
+        <span>Best match</span>
+      </button>
+
+      <button
+        class="filter-option sort-btn"
+        type="button"
+        data-sort="rating_desc"
+        aria-pressed="false"
+      >
+        <span class="filter-radio" aria-hidden="true"></span>
+        <span>Top rated</span>
+      </button>
+
+      <button
+        class="filter-option sort-btn"
+        type="button"
+        data-sort="favorites_desc"
+        aria-pressed="false"
+      >
+        <span class="filter-radio" aria-hidden="true"></span>
+        <span>Most saved</span>
+      </button>
+    </div>
+
+    <div class="filters-menu-actions">
+      <button
+        class="filters-reset"
+        type="button"
+        data-filter-reset
+      >
+        Reset filters
+      </button>
+
+      <button
+        class="filters-done"
+        type="button"
+        data-filter-close
+      >
+        Done
+      </button>
+    </div>
+
+  </div>
 
 </div>
 
@@ -763,13 +841,35 @@
           class="google-attribution modal-google-attribution hidden"
           translate="no"
         >
-          Google Maps
+          Picture by Google Maps
         </span>
       </div>
 
       <div class="modal-body">
 
         <h2 id="modalName" class="modal-title"></h2>
+
+        <div class="modal-rating">
+
+          <div
+            id="modalStarPicker"
+            class="star-picker"
+            aria-label="Your rating"
+          >
+            <span data-val="1">☆</span>
+            <span data-val="2">☆</span>
+            <span data-val="3">☆</span>
+            <span data-val="4">☆</span>
+            <span data-val="5">☆</span>
+          </div>
+
+          <span
+            id="modalRatingStatus"
+            class="modal-rating-status"
+            aria-live="polite"
+          ></span>
+
+        </div>
 
         <div class="modal-location">
           <img id="modalFlag" class="flag" alt="">
@@ -796,10 +896,11 @@
     <span id="modalPhone"></span>
   </p>
 
-  <p>
+  <p class="modal-action-row modal-action-row-website">
 
     <a
       id="modalWebsite"
+      class="visit-website-pill"
       href="#"
       target="_blank"
       rel="noopener"
@@ -810,60 +911,45 @@
 
   </p>
 
-  <p>
+  <p class="modal-action-row">
 
     <a
       id="modalDirections"
       href="#"
       target="_blank"
       rel="noopener"
-      data-i18n="directions"
     >
-      Directions
+      Get Directions
     </a>
 
   </p>
-
-</div>
-
-<div class="modal-rating">
-
-  <h3 data-i18n="your_rating">
-    Your rating
-  </h3>
-
-  <div
-    id="modalStarPicker"
-    class="star-picker"
-  >
-    <span data-val="1">☆</span>
-    <span data-val="2">☆</span>
-    <span data-val="3">☆</span>
-    <span data-val="4">☆</span>
-    <span data-val="5">☆</span>
-  </div>
-
-  <button
-    id="modalSendRating"
-    data-i18n="submit_rating"
-  >
-    Submit rating
-  </button>
 
 </div>
         <div class="modal-comments">
 
   <div class="modal-comments-header">
 
-    <span
-      id="modalCommentCount"
-      class="modal-count-pill"
-      data-i18n="comments_count"
+    <button
+      id="modalCommentsToggle"
+      class="modal-comments-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="modalCommentsPanel"
     >
-      Comments
+      <span
+      id="modalCommentCount"
+      class="modal-comments-label"
+    >
+      ↓ Comments 0
     </span>
+    </button>
 
   </div>
+
+  <div
+    id="modalCommentsPanel"
+    class="modal-comments-panel hidden"
+  >
 
   <textarea
     id="modalCommentInput"
@@ -889,17 +975,18 @@
     class="modal-comments-feed"
   ></div>
 
+  </div>
+
 </div>
 
 <button
   id="modalReportIssue"
   class="modal-report-btn"
   type="button"
-  data-i18n="report_listing"
   aria-controls="modalReportSection"
   aria-expanded="false"
 >
-  Report this listing
+  ↓ Report this listing
 </button>
 
       <!-- REPORT SECTION -->
