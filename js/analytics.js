@@ -1239,23 +1239,7 @@ function resetAll() {
   nodes.forEach(n => n.classList.remove("open"));
   children.forEach(c => c.classList.remove("show"));
 
-  // öppna default continent
-  const userLang = navigator.language;
-  const defaultContinent =
-    (window.getDefaultContinent && window.getDefaultContinent(userLang))
-    || "Europe";
-
-  const target = sidebar.querySelector(
-    `.line[data-level="continent"][data-continent="${defaultContinent}"]`
-  );
-
-  if (target) {
-    const wrapper = target.closest(".node");
-    const child = wrapper?.querySelector(":scope > .children");
-
-    if (wrapper) wrapper.classList.add("open");
-    if (child) child.classList.add("show");
-  }
+  sidebar.scrollTop = 0;
 
 }
 

@@ -139,7 +139,10 @@
 >
   <section class="account-content">
 
-    <div class="account-card">
+    <div
+      id="signupFormCard"
+      class="account-card"
+    >
 
       <div class="account-card-header">
         <h2>
@@ -251,6 +254,54 @@
 
       <div
         id="signupMessage"
+        class="account-message"
+      ></div>
+
+    </div>
+
+    <div
+      id="signupSuccessCard"
+      class="account-card account-signup-success hidden"
+      role="status"
+      aria-live="polite"
+    >
+
+      <div class="account-card-header">
+        <h2>
+          Thank you for joining World Cigar Locator
+        </h2>
+      </div>
+
+      <p class="account-helper account-success-copy">
+        Please check your email and confirm your account before signing in.
+      </p>
+
+      <p
+        id="signupSuccessEmail"
+        class="account-success-email"
+      ></p>
+
+      <div class="account-actions account-success-actions">
+
+        <a
+          class="account-btn account-btn-link"
+          href="account.html?mode=signin"
+        >
+          Sign in
+        </a>
+
+        <button
+          id="signupResendEmailBtn"
+          class="account-secondary-button"
+          type="button"
+        >
+          Didn't receive any email? Click here
+        </button>
+
+      </div>
+
+      <div
+        id="signupResendMessage"
         class="account-message"
       ></div>
 

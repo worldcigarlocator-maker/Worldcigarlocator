@@ -104,7 +104,11 @@ window.logout = async () => {
 /* ======================== STATE ========================= */
 let STORES = [];
 let REPORTS = [];               // separat state för store_reports
-let CURRENT_TAB = "approved";   // approved | pending | flagged | deleted | duplicates | reports
+let PHOTO_STORES = [];
+let PHOTO_FILTER = "google";
+let PHOTO_RENDER_LIMIT = 120;
+let PHOTO_URL_COLUMN_AVAILABLE = true;
+let CURRENT_TAB = "approved";   // approved | pending | flagged | deleted | duplicates | reports | photos
 let CURRENT_VIEW = "cards";     // cards | list
 let HIER_SEL = { continent: null, country: null, state: null, city: null };
 
@@ -112,6 +116,8 @@ const STORE_SELECT_FIELDS =
   "id,name,city,country,continent,type,types,address,phone,access,rating," +
   "approved,flagged,deleted,status,photo_reference,place_id,website," +
   "created_at,flag_reason,country_iso2";
+
+const PHOTO_SELECT_FIELDS = `${STORE_SELECT_FIELDS},photo_url`;
 
 const REPORT_TYPE_LABELS = {
   no_longer_sells: "Store type is wrong",
@@ -512,6 +518,332 @@ async function fetchAllStores(query) {
   return all;
 }
 
+/* ============================================================
+   PHOTO REPLACEMENT REVIEW
+   ============================================================ */
+async function loadPhotoReview() {
+  CURRENT_VIEW = "cards";
+  PHOTO_RENDER_LIMIT = 120;
+
+  $$(".viewtoggle .seg").forEach((seg) =>
+    seg.classList.toggle("active", seg.dataset.view === "cards")
+  );
+
+  $("#cards") && ($("#cards").style.display = "grid");
+  $(".listview-wrap") && ($(".listview-wrap").style.display = "none");
+
+  const grid = $("#cards");
+  if (grid) {
+    grid.classList.add("photo-review-grid");
+    grid.innerHTML = "<p class='muted center'>Loading photo review...</p>";
+  }
+
+  try {
+    let data = [];
+
+    try {
+      data = await fetchAllStores(
+        WCL.supabase
+          .from("stores")
+          .select(PHOTO_SELECT_FIELDS)
+          .eq("approved", true)
+          .eq("deleted", false)
+          .order("id", { ascending: false })
+      );
+      PHOTO_URL_COLUMN_AVAILABLE = true;
+    } catch (error) {
+      if (!isMissingPhotoUrlColumnError(error)) throw error;
+
+      PHOTO_URL_COLUMN_AVAILABLE = false;
+      data = await fetchAllStores(
+        WCL.supabase
+          .from("stores")
+          .select(STORE_SELECT_FIELDS)
+          .eq("approved", true)
+          .eq("deleted", false)
+          .order("id", { ascending: false })
+      );
+    }
+
+    PHOTO_STORES = data || [];
+    STORES = PHOTO_STORES;
+    renderPhotoReview();
+    updatePhotoPillCount();
+    updateRegionCounts();
+    void refreshReportPillCount();
+  } catch (error) {
+    console.error("Photo review load failed:", error);
+    if (grid) {
+      grid.innerHTML = "<p class='error center'>Error loading photo review</p>";
+    }
+  }
+}
+
+function photoStats(rows) {
+  return rows.reduce((acc, store) => {
+    acc.total += 1;
+    acc[photoSource(store)] += 1;
+    return acc;
+  }, {
+    total: 0,
+    google: 0,
+    custom: 0,
+    fallback: 0
+  });
+}
+
+function updatePhotoPillCount() {
+  const stats = photoStats(PHOTO_STORES);
+  setPillCount("photos", stats.google);
+}
+
+function renderPhotoReview() {
+  const grid = $("#cards");
+  if (!grid) return;
+
+  grid.classList.add("photo-review-grid");
+  grid.innerHTML = "";
+
+  const searchTerm = ($("#searchInput")?.value || "").trim();
+  const stats = photoStats(PHOTO_STORES);
+
+  const list = PHOTO_STORES.filter((store) => {
+    const source = photoSource(store);
+    const sourceMatch = PHOTO_FILTER === "all" || source === PHOTO_FILTER;
+    return sourceMatch && storeMatchesSearch(store, searchTerm);
+  });
+  const visibleList = list.slice(0, PHOTO_RENDER_LIMIT);
+
+  const panel = document.createElement("section");
+  panel.className = "photo-review-panel";
+
+  const header = document.createElement("div");
+  header.className = "photo-review-header";
+
+  const titleWrap = document.createElement("div");
+  const title = document.createElement("h2");
+  title.textContent = "Photo Replacement";
+
+  const subtitle = document.createElement("p");
+  subtitle.textContent =
+    "Review listings that still use Google Places photos and replace them one by one with WCL-controlled images.";
+
+  titleWrap.append(title, subtitle);
+  header.appendChild(titleWrap);
+
+  const summary = document.createElement("div");
+  summary.className = "photo-review-summary";
+
+  [
+    ["Google", stats.google],
+    ["Custom", stats.custom],
+    ["No image", stats.fallback],
+    ["Total", stats.total]
+  ].forEach(([label, value]) => {
+    const item = document.createElement("div");
+    item.className = "photo-review-stat";
+
+    const labelEl = document.createElement("span");
+    labelEl.textContent = label;
+
+    const valueEl = document.createElement("strong");
+    valueEl.textContent = Number(value).toLocaleString("sv-SE");
+
+    item.append(labelEl, valueEl);
+    summary.appendChild(item);
+  });
+
+  header.appendChild(summary);
+  panel.appendChild(header);
+
+  if (!PHOTO_URL_COLUMN_AVAILABLE) {
+    const warning = document.createElement("div");
+    warning.className = "photo-review-warning";
+    warning.textContent =
+      "Supabase saknar fortfarande kolumnen photo_url. Du kan inventera bilder här, men sparning av egna bild-URL:er aktiveras först när SQL-steget i dokumentationen är kört.";
+    panel.appendChild(warning);
+  }
+
+  const controls = document.createElement("div");
+  controls.className = "photo-review-controls";
+
+  [
+    ["google", "Google to replace", stats.google],
+    ["custom", "Custom", stats.custom],
+    ["fallback", "No image", stats.fallback],
+    ["all", "All", stats.total]
+  ].forEach(([key, label, count]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `photo-filter-btn ${PHOTO_FILTER === key ? "active" : ""}`;
+    button.textContent = `${label} (${Number(count).toLocaleString("sv-SE")})`;
+    button.onclick = () => {
+      PHOTO_FILTER = key;
+      PHOTO_RENDER_LIMIT = 120;
+      renderPhotoReview();
+    };
+    controls.appendChild(button);
+  });
+
+  panel.appendChild(controls);
+
+  const countLine = document.createElement("p");
+  countLine.className = "muted photo-review-count";
+  countLine.textContent = `Showing ${list.length.toLocaleString("sv-SE")} listings`;
+  panel.appendChild(countLine);
+
+  const cards = document.createElement("div");
+  cards.className = "photo-review-cards";
+
+  if (!list.length) {
+    const empty = document.createElement("p");
+    empty.className = "muted center";
+    empty.textContent = "No listings match this view.";
+    cards.appendChild(empty);
+  } else {
+    visibleList.forEach((store) => cards.appendChild(renderPhotoReviewCard(store)));
+  }
+
+  if (list.length > visibleList.length) {
+    const loadMore = document.createElement("div");
+    loadMore.className = "photo-review-load-more";
+
+    const info = document.createElement("span");
+    info.textContent = `Showing ${visibleList.length.toLocaleString("sv-SE")} / ${list.length.toLocaleString("sv-SE")}`;
+
+    const button = makeBtn("Load More", () => {
+      PHOTO_RENDER_LIMIT += 120;
+      renderPhotoReview();
+    }, "small blue");
+
+    loadMore.append(info, button);
+    cards.appendChild(loadMore);
+  }
+
+  panel.appendChild(cards);
+  grid.appendChild(panel);
+}
+
+function renderPhotoReviewCard(store) {
+  const source = photoSource(store);
+  const customUrl = customPhotoUrl(store);
+
+  const card = document.createElement("article");
+  card.className = `photo-review-card source-${source}`;
+
+  const preview = document.createElement("div");
+  preview.className = "photo-review-preview";
+
+  const img = document.createElement("img");
+  img.alt = safe(store.name || "Store photo");
+  img.src = customUrl || WCL.FALLBACK_IMG;
+  img.onerror = () => (img.src = WCL.FALLBACK_IMG);
+
+  const sourceBadge = document.createElement("span");
+  sourceBadge.className = `photo-source-badge ${source}`;
+  sourceBadge.textContent = photoSourceLabel(source);
+
+  preview.append(img, sourceBadge);
+  card.appendChild(preview);
+
+  const body = document.createElement("div");
+  body.className = "photo-review-body";
+
+  const meta = document.createElement("div");
+  meta.className = "photo-review-meta";
+  meta.textContent = `ID ${store.id} · ${safe(store.country || "Unknown")}, ${safe(store.city || "Unknown")}`;
+
+  const name = document.createElement("h3");
+  name.textContent = safe(store.name || "Unnamed listing");
+
+  const details = document.createElement("p");
+  details.textContent = safe(store.address || "No address saved");
+
+  body.append(meta, name, details);
+
+  const form = document.createElement("div");
+  form.className = "photo-review-form";
+
+  const input = document.createElement("input");
+  input.type = "url";
+  input.placeholder = PHOTO_URL_COLUMN_AVAILABLE
+    ? "https://example.com/wcl-image.jpg"
+    : "Run the photo_url SQL step before saving";
+  input.value = safe(store.photo_url || "");
+  input.disabled = !PHOTO_URL_COLUMN_AVAILABLE;
+
+  const helper = document.createElement("small");
+  helper.textContent = source === "google"
+    ? "Google preview is intentionally not loaded until you click Preview Google."
+    : "Use a WCL-approved image URL. Google photos should not be copied into this field.";
+
+  form.append(input, helper);
+  body.appendChild(form);
+
+  const actions = document.createElement("div");
+  actions.className = "photo-review-actions";
+
+  if (store.photo_reference) {
+    const previewBtn = makeBtn("Preview Google", () => {
+      img.src = buildPhotoProxyUrl(store.photo_reference, 800);
+      helper.textContent = "Google preview loaded for this listing only.";
+    }, "small orange");
+    actions.appendChild(previewBtn);
+  }
+
+  const saveBtn = makeBtn("Save Image URL", () => savePhotoReplacement(store.id, input), "small green");
+  saveBtn.disabled = !PHOTO_URL_COLUMN_AVAILABLE;
+  actions.appendChild(saveBtn);
+
+  if (customUrl && PHOTO_URL_COLUMN_AVAILABLE) {
+    const clearBtn = makeBtn("Clear Custom", async () => {
+      input.value = "";
+      await savePhotoReplacement(store.id, input);
+    }, "small danger");
+    actions.appendChild(clearBtn);
+  }
+
+  const editBtn = makeBtn("Open Edit", () => editStore(store.id), "small blue");
+  actions.appendChild(editBtn);
+
+  body.appendChild(actions);
+  card.appendChild(body);
+
+  return card;
+}
+
+async function savePhotoReplacement(storeId, input) {
+  if (!PHOTO_URL_COLUMN_AVAILABLE) {
+    toast("Run the photo_url SQL step before saving image URLs", "error");
+    return;
+  }
+
+  const value = safe(input?.value || "").trim();
+
+  if (!isValidReplacementPhotoUrl(value)) {
+    toast("Use a full https image URL", "error");
+    return;
+  }
+
+  const { error } = await WCL.supabase
+    .from("stores")
+    .update({ photo_url: value || null })
+    .eq("id", storeId);
+
+  if (error) {
+    console.error("Photo URL save failed:", error);
+    toast("Photo URL could not be saved", "error");
+    return;
+  }
+
+  const store = PHOTO_STORES.find((item) => Number(item.id) === Number(storeId));
+  if (store) store.photo_url = value || null;
+
+  toast(value ? "Photo URL saved" : "Custom photo cleared");
+  renderPhotoReview();
+  updatePhotoPillCount();
+}
+
 
 /* ============================================================
    HELPER: groupBy
@@ -848,11 +1180,57 @@ function flagURL(country, isoOverride = null){
 const photoURL = (ref, w = 800) =>
   ref ? `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(ref)}&maxwidth=${w}` : WCL.FALLBACK_IMG;
 
+function customPhotoUrl(store) {
+  return safe(store?.photo_url || store?.photo_cdn_url || "").trim();
+}
+
+function storePhotoURL(store, w = 800) {
+  return customPhotoUrl(store) || photoURL(store?.photo_reference, w);
+}
+
 function buildPhotoProxyUrl(photo_reference, maxwidth = 800) {
   if (!photo_reference) {
     return `${WCL.PHOTO_PROXY_URL}?fallback=1`;
   }
   return `${WCL.PHOTO_PROXY_URL}?photo_reference=${encodeURIComponent(photo_reference)}&maxwidth=${maxwidth}`;
+}
+
+function photoSource(store) {
+  if (customPhotoUrl(store)) return "custom";
+  if (store?.photo_reference) return "google";
+  return "fallback";
+}
+
+function photoSourceLabel(source) {
+  return {
+    custom: "Custom image",
+    google: "Google Places",
+    fallback: "No image"
+  }[source] || "Unknown";
+}
+
+function isValidReplacementPhotoUrl(value) {
+  if (!value) return true;
+  return /^https:\/\/[^\s]+$/i.test(value);
+}
+
+function isMissingPhotoUrlColumnError(error) {
+  const text = [
+    error?.code,
+    error?.message,
+    error?.details,
+    error?.hint
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return text.includes("photo_url") && (
+    text.includes("does not exist") ||
+    text.includes("could not find") ||
+    text.includes("schema cache") ||
+    text.includes("column")
+  );
 }
 
 
@@ -986,6 +1364,11 @@ function updateRegionCounts() {
    ============================================================ */
 function render() {
 
+  if (CURRENT_TAB === "photos") {
+    renderPhotoReview();
+    return;
+  }
+
   const term = ($("#searchInput")?.value || "").trim().toLowerCase();
 
   let list = STORES;
@@ -1061,6 +1444,10 @@ debugLog("CURRENT_TAB AFTER SET:", CURRENT_TAB);
   $$(".filters .pill").forEach((p) =>
     p.classList.toggle("active", p.dataset.tab === CURRENT_TAB)
   );
+
+  if (CURRENT_TAB === "photos") {
+    return loadPhotoReview();
+  }
 
   /* =========================
    HARD STOP — PENDING (CANONICAL FIX)
@@ -1252,6 +1639,7 @@ if (CURRENT_TAB === "pending") {
 /* ===================== CARDS ===================== */
 function renderCards(list) {
   const grid = $("#cards");
+  grid.classList.remove("photo-review-grid");
   grid.innerHTML = "";
 
   list.forEach((s) => {
@@ -1289,7 +1677,7 @@ storeViewObserver.observe(card);
     /* ----------- Photo ----------- */
     const img = document.createElement("img");
     img.className = "photo";
-    img.src = photoURL(s.photo_reference, 800);
+    img.src = storePhotoURL(s, 800);
     img.onerror = () => (img.src = WCL.FALLBACK_IMG);
     card.appendChild(img);
 
@@ -1857,6 +2245,12 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#searchInput")?.addEventListener("input", async (e) => {
 
     const term = e.target.value.trim();
+
+    if (CURRENT_TAB === "photos") {
+      PHOTO_RENDER_LIMIT = 120;
+      renderPhotoReview();
+      return;
+    }
 
     // Tomt → tillbaka till normal state
     if (!term) {

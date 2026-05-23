@@ -4,11 +4,17 @@
 
 import {
   activateSearch,
+  activateLocation,
   toggleChip,
   resetToHero,
   setSort,
   resetAllFilters
 } from "./cards.js";
+
+import {
+  attachSearchAutocomplete,
+  canonicalizeKnownSearch
+} from "./search-autocomplete.js";
 
 const qs = (sel) => document.querySelector(sel);
 
@@ -33,6 +39,9 @@ const input = isMobile() ? inputMobile : inputDesktop;
 const clearBtn = qs("#clearBtn");
 const label    = qs(".search-label");
 const controls = qs("#searchControls");
+const filtersToggle = qs("#searchFiltersBtn");
+const filtersMenu = qs("#searchFiltersMenu");
+const filtersCount = qs("#searchFiltersCount");
 
 const mapBtn         = qs("#mapViewBtn");
 const mapView        = qs("#mapView");
@@ -55,6 +64,113 @@ resetToHero();
   
 let MAP_MODE = false;
 let TIMER = null;
+
+function scrollToResultsTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+function runToolbarSearch(rawText) {
+  const text = canonicalizeKnownSearch(rawText).trim();
+
+  if (!text) {
+    resetAllFilters();
+    resetToHero();
+    return;
+  }
+
+  activateSearch({ text });
+}
+
+function runToolbarLocation(path) {
+  if (!path) return;
+
+  activateLocation({
+    continent: path.continent || null,
+    country: path.country || null,
+    state: path.state || null,
+    city: path.city || null,
+  });
+
+  scrollToResultsTop();
+}
+
+const autocompleteOptions = {
+  onSearch: (text) => {
+    clearTimeout(TIMER);
+    runToolbarSearch(text);
+    scrollToResultsTop();
+  },
+  onLocation: (path) => {
+    clearTimeout(TIMER);
+    runToolbarLocation(path);
+  },
+};
+
+attachSearchAutocomplete(inputDesktop, autocompleteOptions);
+attachSearchAutocomplete(inputMobile, autocompleteOptions);
+
+function activeFilterCount() {
+  if (!controls) return 0;
+
+  const chipCount = controls.querySelectorAll("[data-filter].active").length;
+  const sortCount = controls.querySelectorAll("[data-sort].active").length;
+
+  return chipCount + sortCount;
+}
+
+function updateFilterUi() {
+  const count = activeFilterCount();
+
+  if (filtersCount) {
+    filtersCount.textContent = count ? String(count) : "";
+  }
+
+  filtersToggle?.classList.toggle("has-active", count > 0);
+
+  controls?.querySelectorAll("[data-filter], [data-sort]").forEach((btn) => {
+    btn.setAttribute("aria-pressed", btn.classList.contains("active") ? "true" : "false");
+  });
+}
+
+function setFiltersOpen(open) {
+  if (!filtersToggle || !filtersMenu) return;
+
+  filtersToggle.classList.toggle("active", open);
+  filtersToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  filtersMenu.hidden = !open;
+}
+
+function toggleFiltersOpen() {
+  setFiltersOpen(Boolean(filtersMenu?.hidden));
+}
+
+function resetDesktopFilters() {
+  const activeFilters = Array.from(
+    controls?.querySelectorAll("[data-filter].active") || []
+  );
+
+  activeFilters.forEach((btn) => {
+    btn.classList.remove("active");
+
+    const { filter, value } = btn.dataset;
+    if (filter === "type") toggleChip({ type: value });
+    if (filter === "access") toggleChip({ access: value });
+  });
+
+  const hadSort = Boolean(controls?.querySelector("[data-sort].active"));
+
+  controls?.querySelectorAll("[data-sort]")
+    .forEach((btn) => btn.classList.remove("active"));
+
+  if (hadSort) setSort("relevance");
+
+  updateFilterUi();
+}
+
+updateFilterUi();
 
   // ============================================================
   // MAP MODE
@@ -94,6 +210,9 @@ let TIMER = null;
 
     controls?.querySelectorAll(".active")
       .forEach(el => el.classList.remove("active"));
+
+    updateFilterUi();
+    setFiltersOpen(false);
 
   });
 
@@ -143,7 +262,7 @@ let TIMER = null;
 
     TIMER = setTimeout(() => {
       if (!text) resetAllFilters();
-      else activateSearch({ text });
+      else runToolbarSearch(text);
     }, 250);
 
   }, true);
@@ -165,9 +284,7 @@ let TIMER = null;
     if (!text) {
       resetAllFilters();
       resetToHero();
-    } else {
-      activateSearch({ text });
-    }
+    } else runToolbarSearch(text);
 
     window.scrollTo(0, 0);
     return;
@@ -181,9 +298,7 @@ let TIMER = null;
   if (!text) {
     resetAllFilters();
     resetToHero();
-  } else {
-    activateSearch({ text });
-  }
+  } else runToolbarSearch(text);
 
 });
 
@@ -219,7 +334,7 @@ let TIMER = null;
   storeGrid?.classList.remove("hidden");
   resultsToolbar?.classList.remove("hidden");
 
-  activateSearch({ text });
+  runToolbarSearch(text);
 }
 
       // UNFREEZE
@@ -253,6 +368,9 @@ clearBtn?.addEventListener("click", () => {
   controls?.querySelectorAll(".active")
     .forEach(el => el.classList.remove("active"));
 
+  updateFilterUi();
+  setFiltersOpen(false);
+
   document.querySelectorAll("#mobileFilters .active")
     .forEach(el => el.classList.remove("active"));
 
@@ -280,6 +398,24 @@ clearBtn?.addEventListener("click", () => {
   // ============================================================
 
   controls?.addEventListener("click", (e) => {
+    const clickedToggle = e.target.closest("#searchFiltersBtn");
+    if (clickedToggle) {
+      e.preventDefault();
+      toggleFiltersOpen();
+      return;
+    }
+
+    if (e.target.closest("[data-filter-close]")) {
+      e.preventDefault();
+      setFiltersOpen(false);
+      return;
+    }
+
+    if (e.target.closest("[data-filter-reset]")) {
+      e.preventDefault();
+      resetDesktopFilters();
+      return;
+    }
 
     const btn = e.target.closest("[data-filter], [data-sort]");
     if (!btn) return;
@@ -293,6 +429,7 @@ clearBtn?.addEventListener("click", () => {
       if (filter === "type") toggleChip({ type: value });
       if (filter === "access") toggleChip({ access: value });
 
+      updateFilterUi();
       return;
     }
 
@@ -302,14 +439,29 @@ clearBtn?.addEventListener("click", () => {
       controls.querySelectorAll("[data-sort]")
         .forEach(el => el.classList.remove("active"));
 
-      if (!isActive) {
+      if (sort === "relevance") {
+        setSort("relevance");
+      } else if (!isActive) {
         btn.classList.add("active");
         setSort(sort);
       } else {
         setSort("relevance");
       }
+
+      updateFilterUi();
     }
 
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!filtersMenu || filtersMenu.hidden) return;
+    if (e.target.closest("#searchControls")) return;
+    setFiltersOpen(false);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    setFiltersOpen(false);
   });
 
   // ============================================================

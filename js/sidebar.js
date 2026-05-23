@@ -5,26 +5,6 @@
 import { activateLocation } from "./cards.js";
 import { supabase } from "/js/globals.js";
 
-// ============================================================
-// GEO DEFAULT (AUTO OPEN CONTINENT)
-// ============================================================
-
-const LOCALE_TO_CONTINENT = {
-  "sv": "Europe",
-  "en": "Europe",
-  "en-US": "North America",
-  "en-GB": "Europe",
-  "fr": "Europe",
-  "de": "Europe",
-  "es": "Europe",
-};
-
-function getDefaultContinent(lang){
-  return LOCALE_TO_CONTINENT[lang]
-    || LOCALE_TO_CONTINENT[lang.split("-")[0]]
-    || "Europe";
-}
-
 const sortAZ = (a, b) =>
   String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
 
@@ -163,34 +143,10 @@ export async function buildFrontendSidebar() {
 }
 
 // ============================================================
-// CENTER SIDEBAR VIEWPORT (INITIAL ONLY)
-// ============================================================
-
-function centerSidebarViewportOnce() {
-
-  const sidebar = document.querySelector(".sidebar");
-  if (!sidebar) return;
-
-  if (sidebar.dataset.centered === "true") return;
-
-  const contentHeight = sidebar.scrollHeight;
-  const containerHeight = sidebar.clientHeight;
-
-  if (contentHeight <= containerHeight) return;
-
-  sidebar.scrollTop = (contentHeight - containerHeight) / 2;
-
-  sidebar.dataset.centered = "true";
-}
-
-// ============================================================
 // RENDER
 // ============================================================
 
 function renderSidebar(continents, menu) {
-
-  const userLang = navigator.language;
-  const defaultContinent = getDefaultContinent(userLang);
 
   Object.entries(continents)
     .sort(([a], [b]) => sortAZ(a, b))
@@ -199,12 +155,6 @@ function renderSidebar(continents, menu) {
       const continentNode = createNode("continent", continent, cData.count, null, {
         continent,
       });
-
-      // AUTO OPEN
-if (continent === defaultContinent) {
-  continentNode.wrapper.classList.add("open");
-  continentNode.childrenContainer.classList.add("show");
-}
 
       Object.entries(cData.countries)
         .sort(([a], [b]) => sortAZ(a, b))
@@ -265,8 +215,11 @@ if (continent === defaultContinent) {
       menu.append(continentNode.wrapper);
     });
 
-  // CENTER VIEWPORT (INITIAL ONLY)
-  requestAnimationFrame(centerSidebarViewportOnce);
+  // Start closed so the full hierarchy feels scannable at first glance.
+  requestAnimationFrame(() => {
+    const sidebar = document.querySelector(".sidebar");
+    if (sidebar) sidebar.scrollTop = 0;
+  });
 }
 
 // ============================================================
@@ -414,21 +367,5 @@ document.addEventListener("wcl:reset-sidebar", () => {
 
   nodes.forEach(n => n.classList.remove("open"));
   children.forEach(c => c.classList.remove("show"));
-
-  // default continent
-  const userLang = navigator.language;
-  const defaultContinent = getDefaultContinent(userLang);
-
-  const target = sidebar.querySelector(
-    `.line[data-level="continent"][data-continent="${defaultContinent}"]`
-  );
-
-  if (!target) return;
-
-  const wrapper = target.closest(".node");
-  const child = wrapper?.querySelector(":scope > .children");
-
-  if (wrapper) wrapper.classList.add("open");
-  if (child) child.classList.add("show");
 
 });

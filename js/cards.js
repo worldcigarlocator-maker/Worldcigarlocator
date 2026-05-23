@@ -558,7 +558,7 @@ function cardHTML(s) {
       />
       ${
         usesGooglePhoto
-          ? `<span class="google-attribution" translate="no">Google Maps</span>`
+          ? `<span class="google-attribution" translate="no">Picture by Google Maps</span>`
           : ""
       }
     </div>
@@ -568,6 +568,12 @@ function cardHTML(s) {
       <h3 class="store-title">
         ${s.name || "Unnamed"}
       </h3>
+
+    ${buildStars(
+  s.rating_avg,
+  s.rating_count,
+  s.user_rating
+)}
 
       <div class="locrow">
 
@@ -585,12 +591,6 @@ function cardHTML(s) {
         </p>
 
       </div>
-
-    ${buildStars(
-  s.rating_avg,
-  s.rating_count,
-  s.user_rating
-)}
 
       <div class="badge-row">
         ${buildBadges(s)}
@@ -625,11 +625,13 @@ function cardHTML(s) {
           ? `
             <div class="visit-link">
               <a
-                href="${s.website}"
+                class="visit-website-pill"
+                href="https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/visit-store?store_id=${Number(s.id)}"
                 target="_blank"
                 rel="noopener"
+                data-store-id="${Number(s.id)}"
               >
-                Visit
+                Visit website
               </a>
             </div>
           `
@@ -972,6 +974,57 @@ function bindGrid() {
   grid.addEventListener(
     "click",
     async (e) => {
+
+      // ============================================================
+      // VISIT WEBSITE
+      // ============================================================
+
+      const visitWebsite =
+        e.target.closest(
+          ".visit-website-pill"
+        );
+
+      if (visitWebsite) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const card =
+          visitWebsite.closest(
+            ".store-card"
+          );
+
+        const storeId =
+          Number(
+            visitWebsite.dataset.storeId ||
+            card?.dataset.storeId
+          );
+
+        if (!storeId) return;
+
+        const store =
+          LAST_RENDERED_STORES.find(
+            (item) => Number(item?.id) === storeId
+          );
+
+        trackEvent(
+          "website_clicked",
+          {
+            store_id: storeId,
+            country: store?.country || null,
+            city: store?.city || null,
+            source: card?.dataset.source || "card"
+          }
+        );
+
+        setTimeout(() => {
+          window.open(
+            visitWebsite.href,
+            "_blank"
+          );
+        }, 120);
+
+        return;
+      }
 
       // ============================================================
       // FAVORITE HEART
