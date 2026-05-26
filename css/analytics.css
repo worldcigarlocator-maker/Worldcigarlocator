@@ -620,6 +620,11 @@ body.analytics::after{
   text-shadow:0 0 12px rgba(79,195,247,0.42);
 }
 
+.kpi-logins .kpi-value{
+  color:#d6b36a;
+  text-shadow:0 0 12px rgba(214,179,106,0.32);
+}
+
 .kpi-card[data-kpi="stores"] .kpi-value,
 .kpi-stores.active .kpi-value{
   color:#81C784;

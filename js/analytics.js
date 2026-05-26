@@ -31,6 +31,7 @@ const $$ = (s) => document.querySelectorAll(s);
 const globalRangeSelect = document.getElementById("globalRange");
 const globalStores = $("#globalStores");
 const globalUsers = $("#globalUsers");
+const globalLoginsToday = $("#globalLoginsToday");
 
 const trafficFlowBody = $("#trafficFlowBody");
 
@@ -224,16 +225,25 @@ async function loadGlobalKpis() {
 }
 
   // -------------------------
-  // USERS (sessions)
+  // MEMBERS + LOGINS
   // -------------------------
-  const { data: sessionData, error: sessionError } =
-    await sb.rpc("analytics_sessions_v1", { p_days: days });
+  const { data: membersData, error: membersError } =
+    await sb.rpc("analytics_members_overview_v1", {
+      p_days: days
+    });
 
-  if (sessionError) {
-    console.error("Sessions error", sessionError);
-  } else if (sessionData?.length) {
-    const s = sessionData[0].sessions || 0;
-    if (globalUsers) globalUsers.textContent = s;
+  if (membersError) {
+    console.error("Members overview error", membersError);
+  } else if (membersData?.length) {
+    const row = membersData[0];
+    if (globalUsers) {
+      globalUsers.textContent =
+        row.total_members ?? "0";
+    }
+    if (globalLoginsToday) {
+      globalLoginsToday.textContent =
+        row.members_logged_in_today ?? "0";
+    }
   }
 
   // -------------------------
