@@ -14,6 +14,7 @@ const WCL = {
   SUPABASE_URL: "https://gbxxoeplkzbhsvagnfsr.supabase.co",
   SUPABASE_ANON_KEY:
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieHhvZXBsa3piaHN2YWduZnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NjQ1MDAsImV4cCI6MjA3MzI0MDUwMH0.E4Vk-GyLe22vyyfRy05hZtf4t5w_Bd_B-tkEFZ1alT4",
+  TURNSTILE_SITE_KEY: "0x4AAAAAADT5_s9phOVJNoBS",
   PHOTO_PROXY_URL: "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy",
   PHOTO_REFS_URL:  "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs",
   FALLBACK_IMG:   "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg",
@@ -23,6 +24,58 @@ const WCL = {
 
 /* Supabase */
 WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_KEY);
+
+let backofficeCaptchaToken = "";
+let backofficeCaptchaWidgetId = null;
+
+function setLoginError(message = "") {
+  const el = document.getElementById("login-error");
+  if (el) el.textContent = message;
+}
+
+function renderBackofficeCaptcha() {
+  if (!WCL.TURNSTILE_SITE_KEY) return;
+
+  const wrap = document.getElementById("backofficeTurnstileWrap");
+  const target = document.getElementById("backofficeTurnstile");
+
+  if (!wrap || !target) return;
+
+  wrap.hidden = false;
+
+  if (!window.turnstile?.render) {
+    window.setTimeout(renderBackofficeCaptcha, 250);
+    return;
+  }
+
+  if (backofficeCaptchaWidgetId !== null) return;
+
+  backofficeCaptchaWidgetId = window.turnstile.render(target, {
+    sitekey: WCL.TURNSTILE_SITE_KEY,
+    callback(token) {
+      backofficeCaptchaToken = token || "";
+      setLoginError("");
+    },
+    "expired-callback"() {
+      backofficeCaptchaToken = "";
+    },
+    "error-callback"() {
+      backofficeCaptchaToken = "";
+      setLoginError("Captcha check failed. Please try again.");
+    }
+  });
+}
+
+function resetBackofficeCaptcha() {
+  backofficeCaptchaToken = "";
+
+  if (
+    backofficeCaptchaWidgetId !== null &&
+    window.turnstile?.reset
+  ) {
+    window.turnstile.reset(backofficeCaptchaWidgetId);
+  }
+}
 
 
 /* ============================================================
@@ -66,21 +119,43 @@ async function checkAuth(user) {
 
 document.addEventListener("DOMContentLoaded", async () => {
 
+  renderBackofficeCaptcha();
+
   // Login button
   document.getElementById("login-btn")?.addEventListener("click", async () => {
 
     const email = document.getElementById("email")?.value.trim();
     const password = document.getElementById("password")?.value.trim();
 
-    const { data, error } =
-      await WCL.supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      const el = document.getElementById("login-error");
-      if (el) el.textContent = "Wrong email or password";
+    if (WCL.TURNSTILE_SITE_KEY && !backofficeCaptchaToken) {
+      setLoginError("Complete the bot check before logging in.");
+      renderBackofficeCaptcha();
       return;
     }
 
+    const credentials = { email, password };
+
+    if (WCL.TURNSTILE_SITE_KEY) {
+      credentials.options = {
+        captchaToken: backofficeCaptchaToken
+      };
+    }
+
+    const { data, error } =
+      await WCL.supabase.auth.signInWithPassword(credentials);
+
+    if (error) {
+      console.warn("Backoffice login failed:", error);
+      resetBackofficeCaptcha();
+      setLoginError(
+        /captcha/i.test(error.message || "")
+          ? "Complete the bot check before logging in."
+          : "Wrong email or password"
+      );
+      return;
+    }
+
+    resetBackofficeCaptcha();
     await checkAuth(data.user);
   });
 

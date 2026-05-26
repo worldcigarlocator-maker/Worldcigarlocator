@@ -11,6 +11,7 @@
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/backoffice.css" />
@@ -27,6 +28,9 @@
       <h2>World Cigar Locator — Backoffice</h2>
       <input id="email" type="email" placeholder="Email" autocomplete="username" />
       <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+      <div id="backofficeTurnstileWrap" class="backoffice-turnstile-wrap">
+        <div id="backofficeTurnstile"></div>
+      </div>
       <button id="login-btn">Login</button>
       <p id="login-error" class="error"></p>
     </div>

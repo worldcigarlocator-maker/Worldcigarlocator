@@ -86,6 +86,10 @@ body{
   color:#fff;
 }
 
+.backoffice-turnstile-wrap{
+  margin:4px 0 14px;
+}
+
 .login-card button{
   width:100%;
   padding:11px 14px;
