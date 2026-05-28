@@ -976,9 +976,17 @@ body.modal-open{
   cursor:not-allowed;
 }
 
+.photo-file-input{
+  display:none;
+}
+
 .photo-review-form small{
   color:var(--muted);
   line-height:1.35;
+}
+
+.photo-review-form .photo-upload-note{
+  color:#b99a7a;
 }
 
 .photo-review-actions{

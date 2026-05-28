@@ -17,6 +17,8 @@ const WCL = {
   TURNSTILE_SITE_KEY: "0x4AAAAAADT5_s9phOVJNoBS",
   PHOTO_PROXY_URL: "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-proxy",
   PHOTO_REFS_URL:  "https://gbxxoeplkzbhsvagnfsr.functions.supabase.co/photo-refs",
+  PHOTO_UPLOAD_BUCKET: "store-photos",
+  PHOTO_UPLOAD_MAX_BYTES: 8 * 1024 * 1024,
   FALLBACK_IMG:   "https://worldcigarlocator-maker.github.io/Worldcigarlocator/images/store.jpg",
 
   FLAGS_BASE: "https://worldcigarlocator-maker.github.io/Worldcigarlocator/assets/flags"
@@ -186,6 +188,8 @@ let PHOTO_URL_COLUMN_AVAILABLE = true;
 let CURRENT_TAB = "approved";   // approved | pending | flagged | deleted | duplicates | reports | photos
 let CURRENT_VIEW = "cards";     // cards | list
 let HIER_SEL = { continent: null, country: null, state: null, city: null };
+
+const PHOTO_UPLOAD_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 const STORE_SELECT_FIELDS =
   "id,name,city,country,continent,type,types,address,phone,access,rating," +
@@ -701,7 +705,7 @@ function renderPhotoReview() {
 
   const subtitle = document.createElement("p");
   subtitle.textContent =
-    "Review listings that still use Google Places photos and replace them one by one with WCL-controlled images.";
+    "Review listings that still use Google Places photos and replace them one by one with WCL-controlled image URLs or uploaded venue-approved images.";
 
   titleWrap.append(title, subtitle);
   header.appendChild(titleWrap);
@@ -735,7 +739,7 @@ function renderPhotoReview() {
     const warning = document.createElement("div");
     warning.className = "photo-review-warning";
     warning.textContent =
-      "Supabase saknar fortfarande kolumnen photo_url. Du kan inventera bilder här, men sparning av egna bild-URL:er aktiveras först när SQL-steget i dokumentationen är kört.";
+      "Supabase saknar fortfarande photo_url-steget. Du kan inventera bilder här, men egna bilder aktiveras först när SQL-steget i dokumentationen är kört.";
     panel.appendChild(warning);
   }
 
@@ -852,7 +856,28 @@ function renderPhotoReviewCard(store) {
     ? "Google preview is intentionally not loaded until you click Preview Google."
     : "Use a WCL-approved image URL. Google photos should not be copied into this field.";
 
-  form.append(input, helper);
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = Array.from(PHOTO_UPLOAD_TYPES).join(",");
+  fileInput.className = "photo-file-input";
+  fileInput.disabled = !PHOTO_URL_COLUMN_AVAILABLE;
+
+  const uploadNote = document.createElement("small");
+  uploadNote.className = "photo-upload-note";
+  uploadNote.textContent = "Upload only images WCL has permission to use. JPG, PNG or WebP, max 8 MB.";
+
+  let uploadBtn;
+  fileInput.onchange = async () => {
+    await uploadStorePhoto(store.id, fileInput.files?.[0], {
+      button: uploadBtn,
+      helper,
+      img,
+      input
+    });
+    fileInput.value = "";
+  };
+
+  form.append(input, helper, fileInput, uploadNote);
   body.appendChild(form);
 
   const actions = document.createElement("div");
@@ -869,6 +894,10 @@ function renderPhotoReviewCard(store) {
   const saveBtn = makeBtn("Save Image URL", () => savePhotoReplacement(store.id, input), "small green");
   saveBtn.disabled = !PHOTO_URL_COLUMN_AVAILABLE;
   actions.appendChild(saveBtn);
+
+  uploadBtn = makeBtn("Upload from Computer", () => fileInput.click(), "small green");
+  uploadBtn.disabled = !PHOTO_URL_COLUMN_AVAILABLE;
+  actions.appendChild(uploadBtn);
 
   if (customUrl && PHOTO_URL_COLUMN_AVAILABLE) {
     const clearBtn = makeBtn("Clear Custom", async () => {
@@ -917,6 +946,107 @@ async function savePhotoReplacement(storeId, input) {
   toast(value ? "Photo URL saved" : "Custom photo cleared");
   renderPhotoReview();
   updatePhotoPillCount();
+}
+
+async function uploadStorePhoto(storeId, file, context = {}) {
+  if (!PHOTO_URL_COLUMN_AVAILABLE) {
+    toast("Run the photo_url SQL step before uploading images", "error");
+    return;
+  }
+
+  if (!file) return;
+
+  const validationError = validateStorePhotoFile(file);
+  if (validationError) {
+    toast(validationError, "error");
+    return;
+  }
+
+  const button = context.button;
+  const originalLabel = button?.textContent || "";
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Uploading...";
+  }
+
+  try {
+    const extension = storePhotoExtension(file);
+    const path = `stores/${Number(storeId) || "unknown"}/main-${Date.now()}.${extension}`;
+
+    const { error: uploadError } = await WCL.supabase.storage
+      .from(WCL.PHOTO_UPLOAD_BUCKET)
+      .upload(path, file, {
+        cacheControl: "31536000",
+        contentType: file.type,
+        upsert: true
+      });
+
+    if (uploadError) {
+      console.error("Photo upload failed:", uploadError);
+      toast(storageUploadErrorMessage(uploadError), "error");
+      return;
+    }
+
+    const { data } = WCL.supabase.storage
+      .from(WCL.PHOTO_UPLOAD_BUCKET)
+      .getPublicUrl(path);
+
+    const publicUrl = safe(data?.publicUrl || "").trim();
+    if (!publicUrl) {
+      toast("Photo uploaded, but public URL could not be created", "error");
+      return;
+    }
+
+    if (context.input) context.input.value = publicUrl;
+    if (context.img) context.img.src = publicUrl;
+    if (context.helper) context.helper.textContent = "Uploaded WCL image from computer.";
+
+    await savePhotoReplacement(storeId, context.input || { value: publicUrl });
+  } finally {
+    if (button) {
+      button.disabled = !PHOTO_URL_COLUMN_AVAILABLE;
+      button.textContent = originalLabel || "Upload from Computer";
+    }
+  }
+}
+
+function validateStorePhotoFile(file) {
+  if (!PHOTO_UPLOAD_TYPES.has(file.type)) {
+    return "Use JPG, PNG or WebP images only";
+  }
+
+  if (file.size > WCL.PHOTO_UPLOAD_MAX_BYTES) {
+    return "Image is too large. Max 8 MB";
+  }
+
+  return "";
+}
+
+function storePhotoExtension(file) {
+  return {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp"
+  }[file.type] || "jpg";
+}
+
+function storageUploadErrorMessage(error) {
+  const text = safe(error?.message || error?.error || "").toLowerCase();
+
+  if (
+    text.includes("bucket") ||
+    text.includes("policy") ||
+    text.includes("permission") ||
+    text.includes("unauthorized") ||
+    text.includes("not found") ||
+    text.includes("row-level") ||
+    text.includes("403")
+  ) {
+    return "Photo upload is not active yet. Run the Supabase storage SQL first";
+  }
+
+  return "Photo could not be uploaded";
 }
 
 

@@ -39,8 +39,8 @@ export function buildBadges(store) {
 
 // PHOTO
 export function getPhotoUrl(store) {
-  if (store?.photo_cdn_url) return store.photo_cdn_url;
   if (store?.photo_url) return store.photo_url;
+  if (store?.photo_cdn_url) return store.photo_cdn_url;
 
   if (store?.photo_reference) {
     return `${PHOTO_PROXY_BASE}/photo-proxy?photo_reference=${encodeURIComponent(

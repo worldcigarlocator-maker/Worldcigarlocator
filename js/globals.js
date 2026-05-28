@@ -71,14 +71,14 @@ export function resolveStoreImage(store) {
 
   if (!store) return FALLBACK_IMAGE;
 
-  // CDN image (highest priority)
-  if (store.photo_cdn_url) {
-    return store.photo_cdn_url;
-  }
-
   // WCL-controlled replacement image
   if (store.photo_url) {
     return store.photo_url;
+  }
+
+  // CDN image
+  if (store.photo_cdn_url) {
+    return store.photo_cdn_url;
   }
 
   // Google Places photo proxy
