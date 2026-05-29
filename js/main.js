@@ -4,7 +4,10 @@
 
 import { debugLog, supabase } from "/js/globals.js";
 import { buildFrontendSidebar } from "./sidebar.js";
-import { trackLoginEvent } from "./analytics-tracker.js";
+import {
+  trackAuthenticatedMemberActive,
+  trackLoginEvent
+} from "./analytics-tracker.js";
 import { resetToHero } from "./cards.js";
 
 import {
@@ -244,6 +247,8 @@ debugLog("AUTH UI CHECK", {
 // ============================================================
 // LOGGED IN
 // ============================================================
+
+void trackAuthenticatedMemberActive("session_active");
 
 document.body.classList.remove(
   "auth-locked"

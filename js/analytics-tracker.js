@@ -19,6 +19,7 @@ const VISITOR_KEY = "wcl_visitor_id";
 const SESSION_KEY = "wcl_session_id";
 const SESSION_DATE_KEY = "wcl_session_date";
 const COOKIE_CONSENT_KEY = "wcl_cookie_consent_v1";
+const DAILY_LOGIN_TRACK_KEY = "wcl_login_tracked_date_v1";
 const ANALYTICS_DEBUG = Boolean(window?.WCL_DEBUG_ANALYTICS);
 const BASIC_AGGREGATE_EVENTS = new Set([
   "store_view",
@@ -401,21 +402,73 @@ export async function trackEvent(eventType, payload = {}) {
 }
 
 export async function trackLoginEvent(source = "login") {
+  const tracked = await logUserLogin(source || "login");
+  if (tracked) {
+    await markCurrentUserLoginTrackedToday();
+    return;
+  }
+
+  await trackEvent("user_login", {
+    source: source || "login"
+  });
+}
+
+export async function trackAuthenticatedMemberActive(source = "session_active") {
+  try {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user?.id) return;
+    if (hasUserLoginTrackedToday(user.id)) return;
+
+    const tracked = await logUserLogin(source || "session_active");
+    if (tracked) {
+      markUserLoginTrackedToday(user.id);
+    }
+  } catch (err) {
+    console.warn("Authenticated member activity skipped:", err);
+  }
+}
+
+async function logUserLogin(source = "login") {
   try {
     const { error } = await supabase.rpc("log_user_login_v1", {
       p_source: source || "login"
     });
 
-    if (!error) return;
+    if (!error) return true;
 
     console.warn("LOGIN RPC TRACKING FAILED:", error);
   } catch (err) {
     console.warn("LOGIN RPC TRACKING SKIPPED:", err);
   }
 
-  await trackEvent("user_login", {
-    source: source || "login"
-  });
+  return false;
+}
+
+async function markCurrentUserLoginTrackedToday() {
+  try {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (user?.id) markUserLoginTrackedToday(user.id);
+  } catch {
+    // Non-blocking analytics marker only.
+  }
+}
+
+function hasUserLoginTrackedToday(userId) {
+  return localStorage.getItem(loginTrackedKey(userId)) === getTodayKey();
+}
+
+function markUserLoginTrackedToday(userId) {
+  localStorage.setItem(loginTrackedKey(userId), getTodayKey());
+}
+
+function loginTrackedKey(userId) {
+  return `${DAILY_LOGIN_TRACK_KEY}:${userId}`;
 }
 
 async function sendAnalyticsPayload(finalPayload) {

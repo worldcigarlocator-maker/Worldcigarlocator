@@ -8,7 +8,10 @@ import {
   TURNSTILE_SITE_KEY
 } from "/js/globals.js";
 import { openModal } from "/js/modal.js";
-import { trackLoginEvent } from "/js/analytics-tracker.js";
+import {
+  trackAuthenticatedMemberActive,
+  trackLoginEvent
+} from "/js/analytics-tracker.js";
 import { initI18n } from "/js/i18n.js";
 
 // ============================================================
@@ -456,6 +459,8 @@ async function loadAccount() {
     window.location.href = "/";
     return null;
   }
+
+  void trackAuthenticatedMemberActive("account_session_active");
 
   showAccountApp();
 
