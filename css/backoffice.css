@@ -600,9 +600,9 @@ tr:hover td{background:rgba(255,255,255,0.06)}
 }
 
 .modal-backdrop .modal{
-  background:#fff;
-  color:var(--text);
-  border:1px solid rgba(255,255,255,.22);
+  background:linear-gradient(180deg,rgba(16,16,16,.98),rgba(6,6,6,.98));
+  color:#f7f4ee;
+  border:1px solid rgba(126,98,75,.55);
   border-radius:14px;
   box-shadow:0 24px 80px rgba(0,0,0,.55);
   padding:24px;
@@ -613,7 +613,7 @@ tr:hover td{background:rgba(255,255,255,0.06)}
 
 .modal-backdrop .modal h3{
   margin:0 0 18px;
-  color:var(--text);
+  color:#f7f4ee;
 }
 
 .modal-backdrop .edit-grid{
@@ -624,7 +624,7 @@ tr:hover td{background:rgba(255,255,255,0.06)}
 }
 
 .modal-backdrop .edit-grid > label{
-  color:#374151;
+  color:#b99a7a;
   font-weight:800;
 }
 
@@ -633,10 +633,31 @@ tr:hover td{background:rgba(255,255,255,0.06)}
   width:100%;
   min-width:0;
   padding:10px 12px;
-  border:1px solid var(--border);
+  border:1px solid rgba(126,98,75,.5);
   border-radius:10px;
-  color:var(--text);
+  background:rgba(0,0,0,.42);
+  color:#fff;
   font:inherit;
+}
+
+.modal-backdrop .edit-grid input:focus,
+.modal-backdrop .edit-grid select:focus{
+  outline:none;
+  border-color:#a07a5e;
+  box-shadow:0 0 0 3px rgba(126,98,75,.22);
+}
+
+.modal-backdrop .edit-grid input:-webkit-autofill,
+.modal-backdrop .edit-grid input:-webkit-autofill:hover,
+.modal-backdrop .edit-grid input:-webkit-autofill:focus{
+  -webkit-text-fill-color:#fff;
+  box-shadow:0 0 0 1000px #171717 inset;
+  caret-color:#fff;
+}
+
+.modal-backdrop .edit-grid select option{
+  background:#111;
+  color:#fff;
 }
 
 .modal-backdrop .type-group,
@@ -651,7 +672,7 @@ tr:hover td{background:rgba(255,255,255,0.06)}
   display:inline-flex;
   align-items:center;
   gap:6px;
-  color:var(--text);
+  color:#f7f4ee;
   font-weight:700;
 }
 
@@ -698,17 +719,17 @@ tr:hover td{background:rgba(255,255,255,0.06)}
 .modal-backdrop .comment-list{
   max-height:220px;
   overflow:auto;
-  border:1px solid var(--border);
+  border:1px solid rgba(126,98,75,.35);
   border-radius:12px;
   padding:10px;
-  background:#f8fafc;
+  background:rgba(0,0,0,.26);
 }
 
 .modal-backdrop .comment-item{
   display:grid;
   gap:4px;
   padding:10px 0;
-  border-bottom:1px solid var(--border);
+  border-bottom:1px solid rgba(255,255,255,.08);
 }
 
 .modal-backdrop .comment-item:last-child{border-bottom:0}
@@ -724,8 +745,8 @@ tr:hover td{background:rgba(255,255,255,0.06)}
   gap:10px;
   margin:18px -24px -24px;
   padding:14px 24px;
-  background:linear-gradient(180deg, rgba(255,255,255,.86), #fff 38%);
-  border-top:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(6,6,6,.74), #060606 38%);
+  border-top:1px solid rgba(126,98,75,.38);
 }
 
 body.modal-open{

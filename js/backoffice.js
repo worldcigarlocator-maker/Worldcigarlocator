@@ -193,10 +193,10 @@ const PHOTO_UPLOAD_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 const STORE_SELECT_FIELDS =
   "id,name,city,country,continent,type,types,address,phone,access,rating," +
-  "approved,flagged,deleted,status,photo_reference,place_id,website," +
+  "approved,flagged,deleted,status,photo_reference,photo_url,place_id,website," +
   "created_at,flag_reason,country_iso2";
 
-const PHOTO_SELECT_FIELDS = `${STORE_SELECT_FIELDS},photo_url`;
+const PHOTO_SELECT_FIELDS = STORE_SELECT_FIELDS;
 
 const REPORT_TYPE_LABELS = {
   no_longer_sells: "Store type is wrong",
@@ -2168,12 +2168,12 @@ async function editStore(id) {
         <div class="photo-picker">
           <button id="edit-prev" class="photo-nav">◀</button>
           <img id="edit-photo" class="preview-photo"
-            src="${store.photo_reference ? buildPhotoProxyUrl(store.photo_reference) : WCL.FALLBACK_IMG}" />
+            src="${storePhotoURL(store)}" />
           <button id="edit-next" class="photo-nav">▶</button>
         </div>
 
         <div id="photo-meta" class="muted center">
-          ${store.photo_reference ? "Loaded from proxy" : "No photo loaded"}
+          ${customPhotoUrl(store) ? "Custom WCL image" : store.photo_reference ? "Loaded from proxy" : "No photo loaded"}
         </div>
 
         ${
