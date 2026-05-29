@@ -7,6 +7,7 @@
 import { GOOGLE_BROWSER_KEY, supabase } from "/js/globals.js";
 import { openModal } from "./modal.js";
 import { buildPin } from "./map-pins.js";
+import { hydrateStorePhotoUrls } from "./store-photos.js";
 import { trackEvent } from "./analytics-tracker.js";
 
 // ============================================================
@@ -255,7 +256,9 @@ async function loadStores() {
     return;
   }
 
-  renderMarkers(data || []);
+  const stores = data || [];
+  await hydrateStorePhotoUrls(stores);
+  renderMarkers(stores);
 
 }
 

@@ -5,6 +5,7 @@
 import { debugLog, supabase } from "/js/globals.js";
 import { openModal } from "./modal.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
+import { hydrateStorePhotoUrls } from "./store-photos.js";
 import { trackEvent } from "./analytics-tracker.js";
 
 const dom = (sel) => document.querySelector(sel);
@@ -747,6 +748,8 @@ debugLog("RUN SEARCH STARTED", snap);
 if (!resp || resp.error) return;
 
   const rawRows = resp.data || [];
+  await hydrateStorePhotoUrls(rawRows);
+
   debugLog("DEBUG ROW:", rawRows[0]);
 debugLog(
   "MISSING GEO:",

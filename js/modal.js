@@ -6,6 +6,7 @@
 import { debugLog, supabase } from "/js/globals.js";
 import { getLastRenderedStores } from "./cards.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
+import { hydrateStorePhotoUrl } from "./store-photos.js";
 import { trackEvent } from "./analytics-tracker.js";
 import { sendWclEmail } from "./email.js";
 
@@ -486,6 +487,8 @@ debugLog("STORE FOUND", store);
 }
   
   if (!store) return;
+
+  await hydrateStorePhotoUrl(store);
 
   const storeId = Number(store.id);
 
