@@ -400,6 +400,24 @@ export async function trackEvent(eventType, payload = {}) {
   }
 }
 
+export async function trackLoginEvent(source = "login") {
+  try {
+    const { error } = await supabase.rpc("log_user_login_v1", {
+      p_source: source || "login"
+    });
+
+    if (!error) return;
+
+    console.warn("LOGIN RPC TRACKING FAILED:", error);
+  } catch (err) {
+    console.warn("LOGIN RPC TRACKING SKIPPED:", err);
+  }
+
+  await trackEvent("user_login", {
+    source: source || "login"
+  });
+}
+
 async function sendAnalyticsPayload(finalPayload) {
   /* ============================================================
      SEND

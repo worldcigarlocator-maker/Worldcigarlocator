@@ -4,7 +4,7 @@
 
 import { debugLog, supabase } from "/js/globals.js";
 import { buildFrontendSidebar } from "./sidebar.js";
-import { trackEvent } from "./analytics-tracker.js";
+import { trackLoginEvent } from "./analytics-tracker.js";
 import { resetToHero } from "./cards.js";
 
 import {
@@ -587,18 +587,7 @@ if (error) {
 await supabase.auth.getSession();
 
 // TRACK LOGIN
-await trackEvent(
-  "user_login",
-  {
-    email: email,
-
-    country:
-      window.WCL_GEO?.country || null,
-
-    city:
-      window.WCL_GEO?.city || null
-  }
-);
+await trackLoginEvent("main_login");
 
 submit.disabled = false;
 
