@@ -53,8 +53,8 @@ begin
       count(*)::bigint as total_members,
       count(*) filter (
         where (u.created_at at time zone 'Europe/Stockholm')::date = v_today
-      )::bigint as new_members_today,
-      count(distinct u.id)::bigint filter (
+      ) as new_members_today,
+      count(distinct u.id) filter (
         where u.last_sign_in_at is not null
           and (u.last_sign_in_at at time zone 'Europe/Stockholm')::date = v_today
       ) as auth_members_logged_in_today
@@ -64,14 +64,14 @@ begin
     select
       count(*) filter (
         where (e.timestamp at time zone 'Europe/Stockholm')::date = v_today
-      )::bigint as login_events_today,
+      ) as login_events_today,
       count(*) filter (
         where (e.timestamp at time zone 'Europe/Stockholm')::date >= v_period_start
-      )::bigint as login_events_period,
+      ) as login_events_period,
       count(distinct nullif(e.payload->>'user_id', '')) filter (
         where (e.timestamp at time zone 'Europe/Stockholm')::date = v_today
           and nullif(e.payload->>'user_id', '') is not null
-      )::bigint as event_members_logged_in_today
+      ) as event_members_logged_in_today
     from public.analytics_events e
     where e.event_type = 'user_login'
   )
