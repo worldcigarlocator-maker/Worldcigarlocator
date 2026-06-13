@@ -2,7 +2,11 @@
 // MAIN.JS — WCL Frontend (CLEAN · DEBUG-SAFE · AUTH-GATE FIXED)
 // ============================================================
 
-import { debugLog, supabase } from "/js/globals.js";
+import {
+  debugLog,
+  supabase,
+  TURNSTILE_SITE_KEY
+} from "/js/globals.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import {
   trackEvent,
@@ -26,6 +30,9 @@ let OPEN_LOGIN_AFTER_BOOT = false;
 let DIRECT_MAIN_AFTER_BOOT = false;
 let SITE_OPEN_TRACKED = false;
 let ENTRANCE_GATE_BINDINGS_BOUND = false;
+let mainSigninCaptchaToken = "";
+let mainSigninCaptchaWidgetId = null;
+let mainSigninTurnstileScriptPromise = null;
 
 function hasLegalAgeConfirmation() {
   try {
@@ -88,6 +95,99 @@ function hideLoginPopup() {
 
 }
 
+function loadMainSigninTurnstileScript() {
+  if (window.turnstile) {
+    return Promise.resolve(window.turnstile);
+  }
+
+  if (mainSigninTurnstileScriptPromise) {
+    return mainSigninTurnstileScriptPromise;
+  }
+
+  mainSigninTurnstileScriptPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+
+    script.onload = () => {
+      if (window.turnstile) {
+        resolve(window.turnstile);
+        return;
+      }
+
+      reject(new Error("Turnstile did not load"));
+    };
+
+    script.onerror = () => {
+      reject(new Error("Turnstile script failed"));
+    };
+
+    document.head.appendChild(script);
+  });
+
+  return mainSigninTurnstileScriptPromise;
+}
+
+async function renderMainSigninCaptcha() {
+  if (!TURNSTILE_SITE_KEY) return;
+
+  const wrap = qs("#mainSigninTurnstileWrap");
+  const target = qs("#mainSigninTurnstile");
+
+  if (!wrap || !target) return;
+
+  wrap.hidden = false;
+
+  if (mainSigninCaptchaWidgetId !== null) return;
+
+  try {
+    const turnstile = await loadMainSigninTurnstileScript();
+
+    mainSigninCaptchaWidgetId = turnstile.render(target, {
+      sitekey: TURNSTILE_SITE_KEY,
+      theme: "dark",
+      callback(token) {
+        mainSigninCaptchaToken = token || "";
+        const message = qs("#authMessage");
+        if (message?.textContent?.toLowerCase().includes("bot check")) {
+          message.textContent = "";
+          message.className = "auth-message";
+        }
+      },
+      "expired-callback"() {
+        mainSigninCaptchaToken = "";
+      },
+      "error-callback"() {
+        mainSigninCaptchaToken = "";
+        const message = qs("#authMessage");
+        if (message) {
+          message.textContent = "Bot check failed. Please try again.";
+          message.className = "auth-message error";
+        }
+      }
+    });
+  } catch (error) {
+    console.warn("Main sign-in Turnstile load failed:", error);
+    const message = qs("#authMessage");
+    if (message) {
+      message.textContent = "Bot check could not load. Please refresh and try again.";
+      message.className = "auth-message error";
+    }
+  }
+}
+
+function resetMainSigninCaptcha() {
+  mainSigninCaptchaToken = "";
+
+  if (
+    mainSigninCaptchaWidgetId !== null &&
+    window.turnstile?.reset
+  ) {
+    window.turnstile.reset(mainSigninCaptchaWidgetId);
+  }
+}
+
 function showLoginPopup(mode = "login", message = "") {
 
   if (mode === "signup") {
@@ -109,6 +209,10 @@ function showLoginPopup(mode = "login", message = "") {
   popup.classList.remove(
     "hidden"
   );
+
+  window.requestAnimationFrame(() => {
+    void renderMainSigninCaptcha();
+  });
 
   const email =
     qs("#loginEmail");
@@ -541,6 +645,15 @@ submit?.addEventListener(
 
     }
 
+    if (TURNSTILE_SITE_KEY && !mainSigninCaptchaToken) {
+      setMessage(
+        "Complete the bot check before signing in",
+        "error"
+      );
+      void renderMainSigninCaptcha();
+      return;
+    }
+
     try {
 
       if (remember?.checked) {
@@ -576,17 +689,25 @@ submit?.addEventListener(
 
     }
 
-    const {
-  data,
-  error
-} =
-  await supabase.auth
-    .signInWithPassword({
+    const credentials = {
       email,
-      password: pass,
-    });
+      password: pass
+    };
+
+    if (TURNSTILE_SITE_KEY) {
+      credentials.options = {
+        captchaToken: mainSigninCaptchaToken
+      };
+    }
+
+    const {
+      data,
+      error
+    } = await supabase.auth.signInWithPassword(credentials);
 
 if (error) {
+
+  resetMainSigninCaptcha();
 
   setMessage(
     error.message,
@@ -632,6 +753,7 @@ if (label) {
 }
 
 hideLoginPopup();
+resetMainSigninCaptcha();
 
 await syncAuthAndMaybeBootApp();
 
@@ -1243,7 +1365,7 @@ document.addEventListener(
 );
 
 // ------------------------------------------------------------
-// ADD STORE BUTTON (auth guarded)
+// ADD STORE BUTTON (public submission)
 // ------------------------------------------------------------
 
 const addBtn =
@@ -1251,22 +1373,7 @@ const addBtn =
 
 addBtn?.addEventListener(
   "click",
-  async () => {
-
-    const {
-      data: { session }
-    } =
-      await supabase.auth
-        .getSession();
-
-    if (!session) {
-
-      showLoginPopup();
-
-      return;
-
-    }
-
+  () => {
     window.location.href =
       "add-store.html";
 

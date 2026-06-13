@@ -551,6 +551,17 @@ body:not(.auth-locked) .beta-landing{
   color:rgba(255,255,255,0.65);
 }
 
+.main-signin-turnstile-wrap{
+  min-height:65px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.main-signin-turnstile-wrap[hidden]{
+  display:none;
+}
+
 
 /* ============================================================
    LOGIN BUTTON
