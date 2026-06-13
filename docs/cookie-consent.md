@@ -17,8 +17,10 @@ Privacy-safe aggregate analytics runs without analytics cookies, visitor IDs,
 session IDs, account IDs, email addresses, user geography, or IP-derived user
 location stored by WCL. It covers:
 
-- listing views and opens
-- website click events
+- page loads
+- listing impressions and store opens
+- website and directions click events
+- search-use counts without free-text search queries
 
 Optional enhanced analytics covers:
 
@@ -42,6 +44,10 @@ Allowed values:
 Enhanced analytics is only sent when the value is `accepted`.
 Basic aggregate listing analytics can still be sent when the value is
 `rejected`, but without visitor/session/account identifiers.
+
+Basic aggregate analytics measures events, not unique people. For example,
+`page loads` is an exact count of page loads and must not be presented as an
+exact count of unique visitors.
 
 If enhanced analytics is rejected or withdrawn, the frontend removes analytics
 visitor, session and view-dedupe identifiers from local storage/session storage.

@@ -5,6 +5,7 @@
 import { debugLog, supabase } from "/js/globals.js";
 import { buildFrontendSidebar } from "./sidebar.js";
 import {
+  trackEvent,
   trackAuthenticatedMemberActive,
   trackLoginEvent
 } from "./analytics-tracker.js";
@@ -23,6 +24,18 @@ let BETA_LANDING_BINDINGS_BOUND = false;
 let refreshAuthButtons = () => {};
 let OPEN_LOGIN_AFTER_BOOT = false;
 let DIRECT_MAIN_AFTER_BOOT = false;
+let SITE_OPEN_TRACKED = false;
+let ENTRANCE_GATE_BINDINGS_BOUND = false;
+
+function hasLegalAgeConfirmation() {
+  try {
+    return localStorage.getItem(
+      "wcl_age_verified"
+    ) === "1";
+  } catch {
+    return false;
+  }
+}
 
 try {
   const url =
@@ -75,7 +88,7 @@ function hideLoginPopup() {
 
 }
 
-function showLoginPopup(mode = "login") {
+function showLoginPopup(mode = "login", message = "") {
 
   if (mode === "signup") {
     window.location.href =
@@ -107,12 +120,13 @@ function showLoginPopup(mode = "login") {
 
   if (msg) {
     msg.textContent =
-      mode === "signup"
+      message ||
+      (mode === "signup"
         ? t(
             "signup_enter_email_password",
             "Enter an email and create a password for your new account. You will receive a confirmation email, just follow the given link. Welcome!"
           )
-        : "";
+        : "");
 
     msg.className =
       mode === "signup"
@@ -176,6 +190,11 @@ debugLog("AUTH UI CHECK", {
   } =
     await supabase.auth.getSession();
 
+  // Keep the directory closed until the visitor has actively confirmed age.
+  if (!hasLegalAgeConfirmation()) {
+    return session || null;
+  }
+
   // ============================================================
   // NOT LOGGED IN
   // ============================================================
@@ -188,27 +207,25 @@ debugLog("AUTH UI CHECK", {
       "wcl-direct-main"
     );
 
-    document.body.classList.add(
+    document.body.classList.remove(
       "auth-locked"
     );
 
-    betaLanding?.classList.remove(
+    betaLanding?.classList.add(
       "hidden"
     );
 
     betaLanding?.setAttribute(
       "aria-hidden",
-      "false"
-    );
-
-    appContainer?.setAttribute(
-      "inert",
-      ""
-    );
-
-    appContainer?.setAttribute(
-      "aria-hidden",
       "true"
+    );
+
+    appContainer?.removeAttribute(
+      "inert"
+    );
+
+    appContainer?.removeAttribute(
+      "aria-hidden"
     );
 
     // Ta bort auto-popup
@@ -386,6 +403,11 @@ function bindLoginButtons() {
   );
 
   qs("#startSignupBtn")?.addEventListener(
+    "click",
+    () => showLoginPopup("signup")
+  );
+
+  qs("#authCreateAccountBtn")?.addEventListener(
     "click",
     () => showLoginPopup("signup")
   );
@@ -1050,6 +1072,15 @@ function initCookieBanner() {
   );
 }
 
+function trackSiteOpenedOnce() {
+  if (SITE_OPEN_TRACKED) return;
+  SITE_OPEN_TRACKED = true;
+
+  void trackEvent("site_opened", {
+    source: "direct"
+  });
+}
+
 // ============================================================
 // SIDEBAR INIT (run once)
 // ============================================================
@@ -1085,11 +1116,54 @@ async function syncAuthAndMaybeBootApp() {
   const session =
     await syncAuthGate();
 
-  if (session) {
-    await initSidebarOnce();
-  }
+  await initSidebarOnce();
 
   return session;
+}
+
+function bindEntranceGate(onEnter) {
+  if (ENTRANCE_GATE_BINDINGS_BOUND) return;
+
+  const startEnterBtn =
+    document.getElementById(
+      "startEnterBtn"
+    );
+
+  const legalAgeConfirm =
+    document.getElementById(
+      "startLegalAgeConfirm"
+    );
+
+  if (!startEnterBtn || !legalAgeConfirm) return;
+
+  ENTRANCE_GATE_BINDINGS_BOUND = true;
+
+  const syncEnterButton = () => {
+    startEnterBtn.disabled =
+      !legalAgeConfirm.checked;
+  };
+
+  legalAgeConfirm.addEventListener(
+    "change",
+    syncEnterButton
+  );
+
+  legalAgeConfirm.addEventListener(
+    "input",
+    syncEnterButton
+  );
+
+  startEnterBtn.addEventListener(
+    "click",
+    async () => {
+      if (!legalAgeConfirm.checked) return;
+
+      startEnterBtn.disabled = true;
+      await onEnter();
+    }
+  );
+
+  syncEnterButton();
 }
 
 // ============================================================
@@ -1102,86 +1176,59 @@ document.addEventListener(
 
     debugLog("MAIN BOOT");
 
+    const enterPublicDirectory =
+      async () => {
+        try {
+          localStorage.setItem(
+            "wcl_age_verified",
+            "1"
+          );
+        } catch {}
+
+        bindLoginButtons();
+        initCookieBanner();
+        trackSiteOpenedOnce();
+
+        await syncAuthAndMaybeBootApp();
+
+        if (OPEN_LOGIN_AFTER_BOOT) {
+          OPEN_LOGIN_AFTER_BOOT = false;
+          showLoginPopup("login");
+        }
+      };
+
+    // Bind the entrance controls immediately. Slow auth or language requests
+    // must never leave the visible Enter button unusable.
+    bindEntranceGate(
+      enterPublicDirectory
+    );
+
     // ============================================================
     // I18N INIT
     // ============================================================
 
-    await initI18n();
-
-    initCookieBanner();
-
-    const ageGate =
-      document.getElementById(
-        "ageGate"
+    try {
+      await initI18n();
+    } catch (err) {
+      console.warn(
+        "I18N init skipped",
+        err
       );
-
-    const enterBtn =
-      document.getElementById(
-        "enterBtn"
-      );
-
-    const leaveBtn =
-      document.getElementById(
-        "leaveBtn"
-      );
-
-    const ageVerified =
-      localStorage.getItem(
-        "wcl_age_verified"
-      );
+    }
 
     // ============================================================
     // AGE GATE
     // ============================================================
 
-    if (!ageVerified) {
-
-      ageGate?.classList.remove(
-        "hidden"
-      );
-
-      enterBtn?.addEventListener(
-        "click",
-        async () => {
-
-          localStorage.setItem(
-            "wcl_age_verified",
-            "1"
-          );
-
-          ageGate.classList.add(
-            "hidden"
-          );
-
-          bindLoginButtons();
-
-          await syncAuthAndMaybeBootApp();
-
-          if (OPEN_LOGIN_AFTER_BOOT) {
-            OPEN_LOGIN_AFTER_BOOT = false;
-            showLoginPopup("login");
-          }
-
-        }
-      );
-
-      leaveBtn?.addEventListener(
-        "click",
-        () => {
-
-          window.location.href =
-            "https://www.google.com";
-
-        }
-      );
-
-    } else {
+    if (hasLegalAgeConfirmation()) {
 
       // ============================================================
       // NORMAL BOOT
       // ============================================================
 
       bindLoginButtons();
+      initCookieBanner();
+      trackSiteOpenedOnce();
 
       await syncAuthAndMaybeBootApp();
 
@@ -1227,7 +1274,7 @@ addBtn?.addEventListener(
 );
 
 // ------------------------------------------------------------
-// AUTH LISTENER (unlock and boot app only after login)
+// AUTH LISTENER
 // ------------------------------------------------------------
 
 window.addEventListener(
@@ -1237,11 +1284,24 @@ window.addEventListener(
     supabase.auth.onAuthStateChange(
       () => {
 
-        syncAuthAndMaybeBootApp();
+        if (hasLegalAgeConfirmation()) {
+          syncAuthAndMaybeBootApp();
+        }
 
       }
     );
 
+  }
+);
+
+window.addEventListener(
+  "wcl:auth-required",
+  (event) => {
+    showLoginPopup(
+      "login",
+      event.detail?.message ||
+        "Sign in to use this feature."
+    );
   }
 );
 
@@ -1499,13 +1559,6 @@ window.addEventListener(
 
     if (!storeId) return;
 
-    const {
-      data: { session }
-    } =
-      await supabase.auth.getSession();
-
-    if (!session) return;
-
     // wait for app boot
 
     await new Promise(
@@ -1518,7 +1571,7 @@ window.addEventListener(
 
     openModal({
       id: storeId,
-      source: "account"
+      source: "deep_link"
     });
 
   }
@@ -1535,6 +1588,22 @@ window.syncFavoriteUI =
       Number(storeId);
 
     if (!id) return;
+
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      document
+        .querySelectorAll(
+          `.favorite-btn[data-store-id="${id}"],
+           .favorite-heart[data-store-id="${id}"],
+           #modalFavoriteBtn[data-store-id="${id}"]`
+        )
+        .forEach((btn) => btn.classList.remove("active"));
+
+      return;
+    }
 
     const {
       data,

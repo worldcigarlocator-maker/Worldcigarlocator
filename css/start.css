@@ -14,10 +14,6 @@ body.auth-locked{
   background:#030303;
 }
 
-html.wcl-direct-main body.auth-locked .beta-landing{
-  display:none;
-}
-
 body.auth-locked .container{
   display:none;
 }
@@ -102,12 +98,33 @@ body:not(.auth-locked) .beta-landing{
   color:#d8b37c;
 }
 
+.beta-age-confirm{
+  width:min(650px, 100%);
+  margin-top:22px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  gap:12px;
+  color:rgba(244,234,217,0.78);
+  font-size:clamp(12px, 1.08vw, 14px);
+  line-height:1.45;
+  text-align:left;
+  cursor:pointer;
+}
+
+.beta-age-confirm input{
+  flex:0 0 auto;
+  width:18px;
+  height:18px;
+  margin:1px 0 0;
+  accent-color:#a8792d;
+  cursor:pointer;
+}
+
 .beta-actions{
-  width:min(710px, 100%);
-  margin-top:24px;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:18px;
+  width:min(540px, 100%);
+  margin-top:20px;
+  display:block;
 }
 
 .beta-btn{
@@ -127,7 +144,15 @@ body:not(.auth-locked) .beta-landing{
   transition:transform .18s ease, background .18s ease, color .18s ease, border-color .18s ease;
 }
 
+.beta-btn:disabled{
+  opacity:0.38;
+  cursor:not-allowed;
+  transform:none;
+  filter:saturate(0.45);
+}
+
 .beta-btn-primary{
+  width:100%;
   background:linear-gradient(180deg, #d9a958, #a8792d);
   color:#080604;
   border-color:#d7a557;
@@ -143,7 +168,7 @@ body:not(.auth-locked) .beta-landing{
   border-color:#f0c16c;
 }
 
-.beta-btn-primary:hover{
+.beta-btn-primary:hover:not(:disabled){
   background:linear-gradient(180deg, #e3b867, #b98734);
 }
 
@@ -333,6 +358,7 @@ body:not(.auth-locked) .beta-landing{
 
 /* CREATE + FORGOT — storlek */
 #signupSubmit,
+#authCreateAccountBtn,
 #resetSubmit{
   height:44px;
   font-weight:500;
@@ -340,6 +366,11 @@ body:not(.auth-locked) .beta-landing{
 
 /* CREATE — accent */
 #signupSubmit{
+  color:rgb(var(--global));
+  border-color:rgba(var(--global),.4);
+}
+
+#authCreateAccountBtn{
   color:rgb(var(--global));
   border-color:rgba(var(--global),.4);
 }
@@ -972,9 +1003,13 @@ body.static-page{
     display:none;
   }
 
+  .beta-age-confirm{
+    width:min(520px, 100%);
+    margin-top:20px;
+  }
+
   .beta-actions{
-    grid-template-columns:1fr;
-    gap:12px;
+    width:min(520px, 100%);
   }
 
   .beta-btn{

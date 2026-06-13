@@ -19,6 +19,8 @@ For a first read, start here:
 - [my-account-future-modules.md](my-account-future-modules.md) - future account modules that are intentionally documented but not active.
 - [frontend-runtime-map.md](frontend-runtime-map.md) - frontend file ownership and runtime responsibilities.
 - [system-building-blocks.md](system-building-blocks.md) - high-level building blocks that create the WCL product.
+- [public-access-and-traffic.md](public-access-and-traffic.md) - public browsing, account-only actions, and privacy-safe traffic analytics.
+- [cookie-consent.md](cookie-consent.md) - necessary storage, aggregate analytics, and optional enhanced analytics.
 
 ## Launch and Review History
 
@@ -45,9 +47,11 @@ Important SQL history:
 - `supabase-stores-policy-follow-up.sql`
 - `supabase-store-comments-admin-fix-draft.sql`
 - `supabase-store-pending-admin-reject-draft.sql`
+- `supabase-store-pending-admin-edit.sql`
 - `supabase-analytics-admin-rpc-fix-draft.sql`
 - `supabase-content-policy-moderation-draft.sql`
 - `supabase-ai-comment-moderation-draft.sql`
+- `supabase-public-traffic-analytics.sql`
 
 ## Documentation Rule
 

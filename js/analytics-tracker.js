@@ -22,10 +22,22 @@ const COOKIE_CONSENT_KEY = "wcl_cookie_consent_v1";
 const DAILY_LOGIN_TRACK_KEY = "wcl_login_tracked_date_v1";
 const ANALYTICS_DEBUG = Boolean(window?.WCL_DEBUG_ANALYTICS);
 const BASIC_AGGREGATE_EVENTS = new Set([
+  "site_opened",
   "store_view",
   "store_opened",
   "website_clicked",
-  "user_login"
+  "directions_clicked",
+  "search_used"
+]);
+const AGGREGATE_ONLY_EVENTS = new Set([
+  "site_opened",
+  "directions_clicked",
+  "search_used"
+]);
+const LEGACY_BASIC_FALLBACK_EVENTS = new Set([
+  "store_view",
+  "store_opened",
+  "website_clicked"
 ]);
 
 /* Legacy compatibility */
@@ -234,6 +246,37 @@ function buildBasicAggregatePayload(eventType, payload = {}) {
   };
 }
 
+async function sendBasicAggregateEvent(eventType, payload = {}) {
+  const cleanPayload =
+    buildBasicAggregatePayload(eventType, payload);
+
+  try {
+    const { error } = await supabase.rpc(
+      "log_public_activity_v1",
+      {
+        p_event_type: cleanPayload.event_type,
+        p_source: cleanPayload.source,
+        p_store_id: cleanPayload.store_id,
+        p_store_country: cleanPayload.store_country,
+        p_store_city: cleanPayload.store_city
+      }
+    );
+
+    if (!error) {
+      debugLog("BASIC AGGREGATE SENT");
+      return;
+    }
+
+    console.warn("BASIC AGGREGATE RPC FAILED:", error);
+  } catch (error) {
+    console.warn("BASIC AGGREGATE RPC SKIPPED:", error);
+  }
+
+  if (LEGACY_BASIC_FALLBACK_EVENTS.has(eventType)) {
+    await sendAnalyticsPayload(cleanPayload);
+  }
+}
+
 /* ============================================================
    TRACK EVENT
    ============================================================ */
@@ -252,6 +295,11 @@ export async function trackEvent(eventType, payload = {}) {
 
     if (!hasEnhancedConsent && !isBasicAggregateEvent) return;
 
+    if (AGGREGATE_ONLY_EVENTS.has(eventType)) {
+      await sendBasicAggregateEvent(eventType, payload);
+      return;
+    }
+
     /* ============================================================
        DEDUPE
        ============================================================ */
@@ -268,9 +316,7 @@ export async function trackEvent(eventType, payload = {}) {
     }
 
     if (!hasEnhancedConsent) {
-      await sendAnalyticsPayload(
-        buildBasicAggregatePayload(eventType, payload)
-      );
+      await sendBasicAggregateEvent(eventType, payload);
 
       return;
     }

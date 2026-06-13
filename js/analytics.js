@@ -31,7 +31,9 @@ const $$ = (s) => document.querySelectorAll(s);
 const globalRangeSelect = document.getElementById("globalRange");
 const globalStores = $("#globalStores");
 const globalUsers = $("#globalUsers");
-const globalLoginsToday = $("#globalLoginsToday");
+const globalPageLoads = $("#globalPageLoads");
+const globalStoreOpens = $("#globalStoreOpens");
+const globalWebsiteClicks = $("#globalWebsiteClicks");
 
 const trafficFlowBody = $("#trafficFlowBody");
 
@@ -141,7 +143,7 @@ const storePanel = $("#storePanel");
 if (globalRangeSelect) {
   globalRangeSelect.addEventListener("change", async () => {
 
-    const days = Number(globalRangeSelect?.value || 30);
+    const days = Number(globalRangeSelect?.value || 7);
 
 await loadGlobalKpis();
 
@@ -198,7 +200,7 @@ let ACTIVE_STORE = null;
    ============================================================ */
 async function loadGlobalKpis() {
 
-  const days = Number(globalRangeSelect?.value || 30);
+  const days = Number(globalRangeSelect?.value || 7);
 
   // -------------------------
   // MAIN KPI
@@ -217,12 +219,35 @@ async function loadGlobalKpis() {
 
   if (globalViews) globalViews.textContent = row.views ?? "0";
 
-  const globalMarket = document.getElementById("globalMarket");
-  if (globalMarket) globalMarket.textContent = row.views ?? "0";
-
   if (globalClicks) globalClicks.textContent = row.clicks ?? "0";
   if (globalCtr) globalCtr.textContent = (row.ctr ?? 0) + "%";
 }
+
+  // -------------------------
+  // PRIVACY-SAFE TRAFFIC
+  // -------------------------
+  const { data: trafficData, error: trafficError } =
+    await sb.rpc("analytics_traffic_overview_v1", {
+      p_days: days
+    });
+
+  if (trafficError) {
+    console.error("Traffic overview error", trafficError);
+  } else if (trafficData?.length) {
+    const row = trafficData[0];
+
+    if (globalPageLoads) {
+      globalPageLoads.textContent = row.page_loads ?? "0";
+    }
+
+    if (globalStoreOpens) {
+      globalStoreOpens.textContent = row.store_opens ?? "0";
+    }
+
+    if (globalWebsiteClicks) {
+      globalWebsiteClicks.textContent = row.website_clicks ?? "0";
+    }
+  }
 
   // -------------------------
   // MEMBERS + LOGINS
@@ -239,10 +264,6 @@ async function loadGlobalKpis() {
     if (globalUsers) {
       globalUsers.textContent =
         row.total_members ?? "0";
-    }
-    if (globalLoginsToday) {
-      globalLoginsToday.textContent =
-        row.members_logged_in_today ?? "0";
     }
   }
 
@@ -684,7 +705,7 @@ function resolveStoreSearch(value) {
 
 async function openMarketSearchResult({ country, city = null, label }) {
 
-  const days = Number(globalRangeSelect?.value || 30);
+  const days = Number(globalRangeSelect?.value || 7);
 
   activateKpiCard("views");
 
@@ -703,7 +724,7 @@ async function openMarketSearchResult({ country, city = null, label }) {
 
 async function openStoreSearchResult(storeId, label) {
 
-  const days = Number(globalRangeSelect?.value || 30);
+  const days = Number(globalRangeSelect?.value || 7);
 
   activateKpiCard("stores");
 
@@ -867,7 +888,7 @@ function renderStoreHeader(s) {
 }
 
 async function loadStoreDossier(storeId) {
-const days = Number(globalRangeSelect?.value || 30);
+const days = Number(globalRangeSelect?.value || 7);
 
 const { data: summary, error: e1 } =
   await sb.rpc("analytics_store_summary", {
@@ -1119,7 +1140,7 @@ async function exportPDF() {
 
       global: {
         views:
-          document.getElementById("globalMarket")
+          document.getElementById("globalPageLoads")
             ?.textContent || "0",
 
         stores:
@@ -1265,8 +1286,8 @@ function resetAnalyticsView() {
 
   window.resetStoresV2?.();
 
-  activateKpiCard("users");
-  setKPI("users");
+  activateKpiCard("views");
+  setKPI("views");
 }
 /* ============================================================
    UTILS
@@ -1339,7 +1360,7 @@ else if (ctrValue >= 0.2) ctrClass = "ctr-good";
 }
 
 subscribe(async (state) => {
-  const days = Number(globalRangeSelect?.value || 30);
+  const days = Number(globalRangeSelect?.value || 7);
 
   const usersView = document.getElementById("view-users");
   const marketView = document.getElementById("view-market");
@@ -1421,13 +1442,13 @@ if (exportBtn) {
 }
 
   // 🔹 default KPI
-  setKPI("users");
+  setKPI("views");
 
   // 🔹 active UI state
   document.querySelectorAll(".kpi-card")
     .forEach(el => el.classList.remove("active"));
 
-  document.querySelector('[data-kpi="users"]')
+  document.querySelector('[data-kpi="views"]')
     ?.classList.add("active");
 
   // 🔹 background

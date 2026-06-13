@@ -29,43 +29,83 @@ WCL.supabase = window.supabase.createClient(WCL.SUPABASE_URL, WCL.SUPABASE_ANON_
 
 let backofficeCaptchaToken = "";
 let backofficeCaptchaWidgetId = null;
+let backofficeTurnstileScriptPromise = null;
 
 function setLoginError(message = "") {
   const el = document.getElementById("login-error");
   if (el) el.textContent = message;
 }
 
-function renderBackofficeCaptcha() {
+function loadBackofficeTurnstileScript() {
+  if (window.turnstile) {
+    return Promise.resolve(window.turnstile);
+  }
+
+  if (backofficeTurnstileScriptPromise) {
+    return backofficeTurnstileScriptPromise;
+  }
+
+  backofficeTurnstileScriptPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+
+    script.onload = () => {
+      if (window.turnstile) {
+        resolve(window.turnstile);
+        return;
+      }
+
+      reject(new Error("Turnstile did not load"));
+    };
+
+    script.onerror = () => {
+      reject(new Error("Turnstile script failed"));
+    };
+
+    document.head.appendChild(script);
+  });
+
+  return backofficeTurnstileScriptPromise;
+}
+
+async function renderBackofficeCaptcha() {
   if (!WCL.TURNSTILE_SITE_KEY) return;
 
+  const loginScreen = document.getElementById("login-screen");
   const wrap = document.getElementById("backofficeTurnstileWrap");
   const target = document.getElementById("backofficeTurnstile");
 
-  if (!wrap || !target) return;
+  if (!loginScreen || !wrap || !target) return;
+  if (window.getComputedStyle(loginScreen).display === "none") return;
 
   wrap.hidden = false;
 
-  if (!window.turnstile?.render) {
-    window.setTimeout(renderBackofficeCaptcha, 250);
-    return;
-  }
-
   if (backofficeCaptchaWidgetId !== null) return;
 
-  backofficeCaptchaWidgetId = window.turnstile.render(target, {
-    sitekey: WCL.TURNSTILE_SITE_KEY,
-    callback(token) {
-      backofficeCaptchaToken = token || "";
-      setLoginError("");
-    },
-    "expired-callback"() {
-      backofficeCaptchaToken = "";
-    },
-    "error-callback"() {
-      backofficeCaptchaToken = "";
-      setLoginError("Captcha check failed. Please try again.");
-    }
-  });
+  try {
+    const turnstile = await loadBackofficeTurnstileScript();
+
+    backofficeCaptchaWidgetId = turnstile.render(target, {
+      sitekey: WCL.TURNSTILE_SITE_KEY,
+      theme: "dark",
+      callback(token) {
+        backofficeCaptchaToken = token || "";
+        setLoginError("");
+      },
+      "expired-callback"() {
+        backofficeCaptchaToken = "";
+      },
+      "error-callback"() {
+        backofficeCaptchaToken = "";
+        setLoginError("Captcha check failed. Please try again.");
+      }
+    });
+  } catch (error) {
+    console.warn("Backoffice Turnstile load failed:", error);
+    setLoginError("Captcha could not load. Please refresh and try again.");
+  }
 }
 
 function resetBackofficeCaptcha() {
@@ -93,6 +133,9 @@ async function showApp() {
 async function showLogin() {
   document.querySelector(".wrap")?.style.setProperty("display", "none");
   document.getElementById("login-screen")?.style.setProperty("display", "flex");
+  window.requestAnimationFrame(() => {
+    void renderBackofficeCaptcha();
+  });
 }
 
 async function checkAuth(user) {
@@ -121,17 +164,20 @@ async function checkAuth(user) {
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-  renderBackofficeCaptcha();
-
   // Login button
   document.getElementById("login-btn")?.addEventListener("click", async () => {
 
     const email = document.getElementById("email")?.value.trim();
     const password = document.getElementById("password")?.value.trim();
 
+    if (!email || !password) {
+      setLoginError("Enter email and password.");
+      return;
+    }
+
     if (WCL.TURNSTILE_SITE_KEY && !backofficeCaptchaToken) {
       setLoginError("Complete the bot check before logging in.");
-      renderBackofficeCaptcha();
+      void renderBackofficeCaptcha();
       return;
     }
 
@@ -507,7 +553,9 @@ function normalizePendingSubmission(s) {
     _source_table: "store_pending",
     name: s.name,
     city: s.city,
+    state: s.state || null,
     country: s.country,
+    country_iso2: s.country_iso2 || null,
     continent: s.continent || null,
 
     types: s.types || [],
@@ -520,6 +568,8 @@ function normalizePendingSubmission(s) {
 
     photo_reference: s.photo_reference || null,
     place_id: s.place_id || null,
+    lat: s.lat ?? null,
+    lng: s.lng ?? null,
 
     approved: false,
     flagged: false,
@@ -1245,11 +1295,17 @@ function makeExpandableRow(label, items, level) {
                 ? `<span class="badge gold">PENDING</span>`
                 : ""
             }
+            ${
+              isPendingSubmission(s) && !s.country_iso2
+                ? `<span class="badge red">MISSING ISO-2</span>`
+                : ""
+            }
           </td>
           <td class="action-td">
             ${
               isPendingSubmission(s)
                 ? `<button class="btn small green" onclick="approveStore(${s.id})">Approve</button>
+                   <button class="btn small blue" type="button" onclick="editPendingSubmission(${s.id})">Edit Pending</button>
                    <button class="btn small danger" onclick="rejectPendingSubmission(${s.id})">Reject Pending</button>`
                 : `<button class="btn small blue" type="button" data-edit-store-id="${s.id}">Edit</button>
                    ${
@@ -1365,8 +1421,9 @@ function flagURL(country, isoOverride = null){
   if (!country && !isoOverride) return null;
 
   // A) Om redan iso-override (supabase future-proof)
-  if (isoOverride && ISO2_BASE[isoOverride]) {
-    return `${WCL.FLAGS_BASE}/${isoOverride}.svg`;
+  const normalizedOverride = normalizeCountryKey(isoOverride);
+  if (normalizedOverride && ISO2_BASE[normalizedOverride]) {
+    return `${WCL.FLAGS_BASE}/${normalizedOverride}.svg`;
   }
 
   const key = normalizeCountryKey(country);
@@ -1379,6 +1436,20 @@ function flagURL(country, isoOverride = null){
   // C) Vanliga namn/alias
   const iso = COUNTRY_TO_ISO2[key];
   return iso ? `${WCL.FLAGS_BASE}/${iso}.svg` : null;
+}
+
+function resolveCountryIso2(country, isoOverride = null) {
+  const normalizedOverride = normalizeCountryKey(isoOverride);
+  if (normalizedOverride && ISO2_BASE[normalizedOverride]) {
+    return normalizedOverride.toUpperCase();
+  }
+
+  const key = normalizeCountryKey(country);
+  if (ISO2_BASE[key]) {
+    return key.toUpperCase();
+  }
+
+  return (COUNTRY_TO_ISO2[key] || "").toUpperCase();
 }
 
 /* ---------- Images ---------- */
@@ -2022,6 +2093,7 @@ status.innerHTML = `
   ${s.flagged ? `<span class='badge red'>FLAGGED</span>` : ""}
   ${s.deleted ? `<span class='badge gray'>DELETED</span>` : ""}
   ${!s.approved && !s.flagged && !s.deleted ? `<span class='badge gold'>PENDING</span>` : ""}
+  ${isPendingSubmission(s) && !s.country_iso2 ? `<span class='badge red'>MISSING ISO-2</span>` : ""}
   <span style="margin-left:6px;color:var(--muted)"> ${s.rating ?? "–"}</span>
 `;
 
@@ -2063,9 +2135,10 @@ if (s._is_reported) {
 
 if (isPendingSubmission(s)) {
   const approveBtn = makeBtn("Approve", () => approveStore(s.id), "green");
+  const editBtn = makeBtn("Edit Pending", () => editPendingSubmission(s.id), "blue");
   const rejectBtn = makeBtn("Reject Pending", () => rejectPendingSubmission(s.id), "danger");
 
-  actions.append(approveBtn, rejectBtn);
+  actions.append(approveBtn, editBtn, rejectBtn);
 } else {
   const deleteBtn  = makeBtn(s.deleted ? "Restore" : "Delete", () => toggleDelete(s), "danger");
   const editBtn    = makeBtn("Edit", null, "blue");
@@ -2082,6 +2155,236 @@ grid.appendChild(card);
 
   }); // stänger forEach
 }     // stänger renderCards
+
+/* ==================== EDIT PENDING MODAL ==================== */
+async function editPendingSubmission(id) {
+  closeEdit();
+
+  const { data: pending, error } = await WCL.supabase
+    .from("store_pending")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !pending) {
+    console.error("Pending edit load failed:", error);
+    toast("Pending listing could not be loaded", "error");
+    return;
+  }
+
+  const modal = document.createElement("div");
+  modal.className = "modal-backdrop";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.innerHTML = `
+    <div class="modal">
+      <h3>Edit Pending Listing #${Number(id)}</h3>
+      <p class="pending-edit-note">
+        Correct the submitted information before approval. This only changes
+        the pending submission and cannot alter an existing public listing.
+      </p>
+
+      <div class="edit-grid">
+        <label for="pending-edit-name">Name</label>
+        <input id="pending-edit-name" value="${escapeHtml(pending.name)}" />
+
+        <label for="pending-edit-address">Address</label>
+        <input id="pending-edit-address" value="${escapeHtml(pending.address)}" />
+
+        <label for="pending-edit-city">City</label>
+        <input id="pending-edit-city" value="${escapeHtml(pending.city)}" />
+
+        <label for="pending-edit-state">State / Region</label>
+        <input id="pending-edit-state" value="${escapeHtml(pending.state)}" />
+
+        <label for="pending-edit-country">Country</label>
+        <input id="pending-edit-country" value="${escapeHtml(pending.country)}" />
+
+        <label for="pending-edit-country-iso2">Country ISO-2</label>
+        <div class="pending-iso-row">
+          <input
+            id="pending-edit-country-iso2"
+            value="${escapeHtml(pending.country_iso2)}"
+            maxlength="2"
+            placeholder="Example: SE"
+          />
+          <button id="pending-detect-iso2" class="btn small ghost" type="button">
+            Detect from country
+          </button>
+        </div>
+
+        <label for="pending-edit-phone">Phone</label>
+        <input id="pending-edit-phone" value="${escapeHtml(pending.phone)}" />
+
+        <label for="pending-edit-website">Website</label>
+        <input id="pending-edit-website" value="${escapeHtml(pending.website)}" />
+
+        <label for="pending-edit-place-id">Google Place ID</label>
+        <input id="pending-edit-place-id" value="${escapeHtml(pending.place_id)}" />
+
+        <label>Type</label>
+        <div class="type-group">
+          <label class="type-btn"><input type="checkbox" value="store"> Store</label>
+          <label class="type-btn"><input type="checkbox" value="lounge"> Lounge</label>
+        </div>
+
+        <label>Access</label>
+        <div class="access-group">
+          <label class="access-pill"><input type="radio" name="pending-access" value="public"><span>Public</span></label>
+          <label class="access-pill"><input type="radio" name="pending-access" value="members"><span>Members Only</span></label>
+        </div>
+      </div>
+
+      <div class="row">
+        <p id="pending-edit-status" class="pending-edit-status" role="status"></p>
+        <button class="btn ghost" id="pending-edit-cancel" type="button">Cancel</button>
+        <button class="btn blue" id="pending-edit-save" type="button">Save Pending Changes</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  document.body.classList.add("modal-open");
+
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) closeEdit();
+  });
+
+  const byId = (fieldId) => modal.querySelector(`#${fieldId}`);
+  const currentTypes = Array.isArray(pending.types) ? pending.types : [];
+
+  modal.querySelectorAll(".type-btn input").forEach((checkbox) => {
+    checkbox.checked = currentTypes.includes(checkbox.value);
+  });
+
+  modal.querySelectorAll("input[name='pending-access']").forEach((radio) => {
+    radio.checked = pending.access === radio.value;
+  });
+
+  const detectIso2 = () => {
+    const detected = resolveCountryIso2(
+      byId("pending-edit-country").value,
+      byId("pending-edit-country-iso2").value
+    );
+
+    if (!detected) {
+      toast("Country ISO-2 could not be detected. Enter the two-letter code manually.", "error");
+      return;
+    }
+
+    byId("pending-edit-country-iso2").value = detected;
+  };
+
+  byId("pending-detect-iso2").addEventListener("click", detectIso2);
+
+  byId("pending-edit-country-iso2").addEventListener("input", (event) => {
+    event.target.value = event.target.value
+      .replace(/[^a-z]/gi, "")
+      .slice(0, 2)
+      .toUpperCase();
+  });
+
+  byId("pending-edit-cancel").addEventListener("click", closeEdit);
+
+  byId("pending-edit-save").addEventListener("click", async () => {
+    const saveButton = byId("pending-edit-save");
+    const saveStatus = byId("pending-edit-status");
+    const selectedTypes = Array.from(
+      modal.querySelectorAll(".type-btn input:checked")
+    ).map((checkbox) => checkbox.value);
+    const selectedAccess =
+      modal.querySelector("input[name='pending-access']:checked")?.value || null;
+    const country = byId("pending-edit-country").value.trim();
+    const countryIso2 =
+      byId("pending-edit-country-iso2").value.trim().toUpperCase() ||
+      resolveCountryIso2(country);
+    const name = byId("pending-edit-name").value.trim();
+
+    if (!name) {
+      saveStatus.textContent = "Name is required.";
+      saveStatus.classList.add("error");
+      return;
+    }
+
+    if (!country) {
+      saveStatus.textContent = "Country is required.";
+      saveStatus.classList.add("error");
+      return;
+    }
+
+    if (!/^[A-Z]{2}$/.test(countryIso2)) {
+      saveStatus.textContent = "Country ISO-2 must contain two letters, for example SE.";
+      saveStatus.classList.add("error");
+      return;
+    }
+
+    if (!selectedTypes.length) {
+      saveStatus.textContent = "Select Store, Lounge or both.";
+      saveStatus.classList.add("error");
+      return;
+    }
+
+    if (!selectedAccess) {
+      saveStatus.textContent = "Select Public or Members Only.";
+      saveStatus.classList.add("error");
+      return;
+    }
+
+    const patch = {
+      name,
+      address: byId("pending-edit-address").value.trim(),
+      city: byId("pending-edit-city").value.trim(),
+      state: byId("pending-edit-state").value.trim(),
+      country,
+      country_iso2: countryIso2,
+      phone: byId("pending-edit-phone").value.trim(),
+      website: byId("pending-edit-website").value.trim(),
+      place_id: byId("pending-edit-place-id").value.trim(),
+      types: selectedTypes,
+      access: selectedAccess
+    };
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving…";
+    saveStatus.textContent = "Saving pending changes…";
+    saveStatus.classList.remove("error");
+
+    try {
+      const { error: saveError } = await WCL.supabase.rpc(
+        "bo_update_store_pending_v1",
+        {
+          p_id: id,
+          p_patch: patch
+        }
+      );
+
+      if (saveError) {
+        console.error("Pending edit save failed:", saveError);
+        saveStatus.textContent =
+          /bo_update_store_pending_v1|schema cache|function/i.test(
+            saveError.message || ""
+          )
+            ? "Pending edit backend must be installed in Supabase first."
+            : `Pending save failed: ${saveError.message || "database rejected it"}`;
+        saveStatus.classList.add("error");
+        return;
+      }
+
+      saveStatus.textContent = "Pending listing updated.";
+      saveStatus.classList.remove("error");
+      toast("Pending listing updated");
+      closeEdit();
+      await reloadData("pending");
+    } catch (saveError) {
+      console.error("Pending edit save crashed:", saveError);
+      saveStatus.textContent = "Pending save failed. Please try again.";
+      saveStatus.classList.add("error");
+    } finally {
+      saveButton.disabled = false;
+      saveButton.textContent = "Save Pending Changes";
+    }
+  });
+}
 
 /* ==================== EDIT MODAL ================= */
 async function editStore(id) {
@@ -2327,6 +2630,7 @@ function closeEdit() {
 }
 
 window.editStore = editStore;
+window.editPendingSubmission = editPendingSubmission;
 window.rejectPendingSubmission = rejectPendingSubmission;
 /* ============================================================
    STORE REPORTS — STORE-CENTRIC MODERATION (PENDING ONLY)
@@ -2553,6 +2857,10 @@ async function approveStore(id) {
   if (error) {
     console.error("Approve failed:", error);
 
+    const needsCountryIso2 =
+      /country_iso2/i.test(
+        `${error.message || ""} ${error.details || ""}`
+      );
     const isConflict =
       error.code === "23505" ||
       error.status === 409 ||
@@ -2561,7 +2869,9 @@ async function approveStore(id) {
       );
 
     toast(
-      isConflict
+      needsCountryIso2
+        ? "Approve blocked: open Edit Pending and add Country ISO-2"
+        : isConflict
         ? "Approve blocked: possible duplicate listing"
         : `Approve failed: ${error.message || "database rejected it"}`,
       "error"

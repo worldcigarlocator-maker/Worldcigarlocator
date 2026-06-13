@@ -616,6 +616,12 @@ tr:hover td{background:rgba(255,255,255,0.06)}
   color:#f7f4ee;
 }
 
+.modal-backdrop .pending-edit-note{
+  margin:-8px 0 20px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
 .modal-backdrop .edit-grid{
   display:grid;
   grid-template-columns:140px minmax(0,1fr);
@@ -658,6 +664,13 @@ tr:hover td{background:rgba(255,255,255,0.06)}
 .modal-backdrop .edit-grid select option{
   background:#111;
   color:#fff;
+}
+
+.modal-backdrop .pending-iso-row{
+  display:grid;
+  grid-template-columns:minmax(110px, 180px) auto;
+  gap:10px;
+  align-items:center;
 }
 
 .modal-backdrop .type-group,
@@ -749,6 +762,18 @@ tr:hover td{background:rgba(255,255,255,0.06)}
   border-top:1px solid rgba(126,98,75,.38);
 }
 
+.modal-backdrop .pending-edit-status{
+  flex:1 1 240px;
+  align-self:center;
+  margin:0 auto 0 0;
+  color:var(--muted);
+  line-height:1.35;
+}
+
+.modal-backdrop .pending-edit-status.error{
+  color:#ff8c8c;
+}
+
 body.modal-open{
   overflow:hidden;
 }
@@ -767,6 +792,10 @@ body.modal-open{
   .modal-backdrop .edit-grid{
     grid-template-columns:1fr;
     gap:8px;
+  }
+
+  .modal-backdrop .pending-iso-row{
+    grid-template-columns:1fr;
   }
 
   .modal-backdrop #photo-meta{
@@ -1065,6 +1094,7 @@ body.modal-open{
   position:fixed;
   right:20px;
   bottom:20px;
+  z-index:30000;
   background:var(--blue);
   color:#fff;
   padding:10px 14px;

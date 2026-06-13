@@ -105,69 +105,42 @@
 
       <div class="beta-copy">
         <p>
-          WCL brings together one of the most extensive collections of cigar-friendly places worldwide.
+          Created for cigar enthusiasts, WCL helps you discover cigar stores,
+          lounges and distinguished destinations worldwide.
         </p>
         <p>
-          Explore lounges, hidden humidors and premium cigar destinations, and see what other cigar enthusiasts have shared through comments and ratings.
+          Explore ratings and comments, share your experiences, suggest new
+          locations, and report outdated information to help keep WCL accurate
+          and relevant.
         </p>
         <p class="beta-copy-signoff">
           Find. Explore. Enjoy.
         </p>
       </div>
 
-      <div class="beta-actions">
-        <a
-          id="betaSignupBtn"
-          class="beta-btn beta-btn-primary"
-          href="account.html?mode=signup"
+      <label class="beta-age-confirm" for="startLegalAgeConfirm">
+        <input
+          id="startLegalAgeConfirm"
+          type="checkbox"
         >
-          Create account
-        </a>
+        <span>
+          To enter, I confirm that I am of legal age for tobacco products in my
+          country or region.
+        </span>
+      </label>
 
-        <a
-          id="betaLoginBtn"
-          class="beta-btn beta-btn-secondary"
-          href="account.html?mode=signin"
+      <div class="beta-actions">
+        <button
+          id="startEnterBtn"
+          class="beta-btn beta-btn-primary"
+          type="button"
+          disabled
         >
-          Sign in
-        </a>
+          Enter World Cigar Locator
+        </button>
       </div>
     </div>
   </section>
-
-  <!-- AGE GATE -->
-  <div id="ageGate" class="age-gate hidden" role="dialog" aria-modal="true">
-    <div class="login-box age-box">
-      <h1 class="login-title">World Cigar Locator</h1>
-
-      <p
-  class="login-sub"
-  data-i18n="legal_smoking_age"
->
-  You must be of legal smoking age to enter.
-</p>
-
-<div class="age-actions">
-
-  <button
-    id="enterBtn"
-    class="age-enter"
-    data-i18n="enter"
-  >
-    Enter
-  </button>
-
-  <button
-    id="leaveBtn"
-    class="age-leave"
-    data-i18n="leave"
-  >
-    Leave
-  </button>
-
-</div>
-    </div>
-  </div>
 
 <!-- LOGIN POPUP -->
 <div
@@ -193,9 +166,8 @@
 
     <p
       class="login-sub"
-      data-i18n="global_humidor_opens_soon"
     >
-      Our global humidor opens soon
+      Sign in to save favorites, rate places and join the conversation.
     </p>
 
     <input
@@ -246,6 +218,13 @@
     </button>
 
     <div class="auth-actions">
+
+      <button
+        id="authCreateAccountBtn"
+        type="button"
+      >
+        Create account
+      </button>
 
       <button
         id="resetSubmit"
@@ -312,7 +291,7 @@
 
     <button
       class="sidebar-btn primary"
-      onclick="location.href='add-store.html'"
+      id="addStoreBtn"
       data-i18n="add_listing"
     >
       Add Listing
@@ -714,7 +693,8 @@
         <div class="cookie-title">Cookie Settings</div>
         <div class="cookie-text">
           WCL uses necessary storage for login, age confirmation, language and security.
-          WCL also uses privacy-safe aggregate analytics for listing views and website clicks.
+          WCL also counts privacy-safe anonymous page loads and core listing interactions.
+          Aggregate traffic contains no visitor, session or account IDs and no free-text searches.
           Enhanced analytics is optional and helps us understand sessions and usage patterns.
           You can accept or reject enhanced analytics now, and change this later in the sidebar.
           Read our <a href="privacy.html">Privacy Policy</a>.
@@ -735,7 +715,7 @@
           <div class="cookie-option">
             <div>
               <strong>Aggregate analytics</strong>
-              <span>Anonymous listing views, store opens and website clicks. No visitor or session tracking.</span>
+              <span>Anonymous page loads, listing impressions, store opens, website and directions clicks, and search-use counts. No visitor, session or account IDs and no search text.</span>
             </div>
             <span class="cookie-required">Always active</span>
           </div>

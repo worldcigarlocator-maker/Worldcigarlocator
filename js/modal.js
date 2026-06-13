@@ -9,6 +9,7 @@ import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
 import { hydrateStorePhotoUrl } from "./store-photos.js";
 import { trackEvent } from "./analytics-tracker.js";
 import { sendWclEmail } from "./email.js";
+import { requireAuthenticatedUser } from "./auth-ui.js";
 
 
 // ============================================================
@@ -704,6 +705,15 @@ debugLog(
       `https://www.google.com/maps/dir/?api=1&destination=${name}&destination_place_id=${store.place_id}`;
 
     dir.style.display = "inline-flex";
+
+    dir.onclick = () => {
+      void trackEvent("directions_clicked", {
+        store_id: Number(store.id),
+        country: store.country || null,
+        city: store.city || null,
+        source: window.MODAL_SOURCE
+      });
+    };
   }
 
   // ============================================================
@@ -784,6 +794,12 @@ export function closeModal() {
 async function saveRating() {
 
   if (!MODAL_ACTIVE_STORE_ID) return;
+
+  const user = await requireAuthenticatedUser(
+    "Sign in to rate this place."
+  );
+
+  if (!user) return;
 
   const saveSeq = ++MODAL_RATING_SAVE_SEQ;
 
@@ -970,6 +986,12 @@ async function loadComments(storeId, seq) {
 
 async function submitComment() {
   if (!MODAL_ACTIVE_STORE_ID) return;
+
+  const user = await requireAuthenticatedUser(
+    "Sign in to post comments and replies."
+  );
+
+  if (!user) return;
 
   const input = modalCommentInput();
   const text = input?.value?.trim() || "";
@@ -1244,6 +1266,12 @@ if (
 
       if (!storeId) return;
 
+      const user = await requireAuthenticatedUser(
+        "Sign in to save places to your favorites."
+      );
+
+      if (!user) return;
+
       const isActive =
         btn.classList.contains("active");
 
@@ -1366,6 +1394,12 @@ if (
     const reply = e.target.closest(".modal-comment-reply");
 
     if (reply && reply.dataset.id) {
+      const user = await requireAuthenticatedUser(
+        "Sign in to post comments and replies."
+      );
+
+      if (!user) return;
+
       MODAL_REPLY_TO = Number(reply.dataset.id);
 
       const input = modalCommentInput();
@@ -1448,6 +1482,12 @@ if (
   if (picker) {
     picker.querySelectorAll("span").forEach((star) => {
       star.addEventListener("click", async () => {
+        const user = await requireAuthenticatedUser(
+          "Sign in to rate this place."
+        );
+
+        if (!user) return;
+
         const val = Number(star.dataset.val) || 0;
 
         MODAL_USER_TEMP_RATING =

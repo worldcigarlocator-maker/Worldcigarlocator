@@ -3,7 +3,7 @@
    ============================================================ */
 
 const STATE = {
-  kpi: "users",            // "users" | "views" | "clicks" | "ctr" | "stores"
+  kpi: "views",            // "users" | "views" | "clicks" | "ctr" | "stores"
   level: "country",        // "country" | "city"
   day: null,               // "YYYY-MM-DD" | null
   country: null,           // string | null
@@ -75,7 +75,7 @@ export function setKPI(kpi) {
 
 // Reset ALL
 export function resetState() {
-  STATE.kpi = "users";
+  STATE.kpi = "views";
   STATE.level = "country";
   STATE.day = null;
   STATE.country = null;

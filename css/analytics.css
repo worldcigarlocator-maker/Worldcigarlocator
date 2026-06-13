@@ -521,7 +521,7 @@ body.analytics::after{
   display:flex;
   align-items:center;
   gap:14px;
-  flex-wrap:nowrap;
+  flex-wrap:wrap;
 }
 
 .kpi-card{

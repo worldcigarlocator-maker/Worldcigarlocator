@@ -7,6 +7,7 @@ import { openModal } from "./modal.js";
 import { getPhotoUrl, getFlagUrl, buildBadges } from "./store-ui.js";
 import { hydrateStorePhotoUrls } from "./store-photos.js";
 import { trackEvent } from "./analytics-tracker.js";
+import { requireAuthenticatedUser } from "./auth-ui.js";
 
 const dom = (sel) => document.querySelector(sel);
 
@@ -183,6 +184,15 @@ function hasAnyChips() {
   return (
     (STATE.chips.type && STATE.chips.type.length > 0) ||
     (STATE.chips.access && STATE.chips.access.length > 0)
+  );
+}
+
+function hasMeaningfulSearchState() {
+  return Boolean(
+    STATE.search.text?.trim() ||
+    hasAnyLocation() ||
+    hasAnyChips() ||
+    SORT_MODE !== "relevance"
   );
 }
 
@@ -791,7 +801,11 @@ if (!isLoadMore) {
 
 CURRENT_RENDER_SOURCE = window.CURRENT_SOURCE || "direct";
   
-  if (!isLoadMore) {
+  if (!isLoadMore && hasMeaningfulSearchState()) {
+    trackEvent("search_used", {
+      source: "search"
+    });
+
     trackEvent("search", {
       query: STATE.search.text || null,
 
@@ -856,6 +870,12 @@ export async function toggleFavorite(storeId) {
   const id = Number(storeId);
 
   if (!id) return false;
+
+  const user = await requireAuthenticatedUser(
+    "Sign in to save places to your favorites."
+  );
+
+  if (!user) return false;
 
   const isActive =
     FAVORITES.has(id);
@@ -1049,45 +1069,7 @@ function bindGrid() {
 
         if (!storeId) return;
 
-        const isActive =
-          FAVORITES.has(storeId);
-
-        if (isActive) {
-
-          const { error } =
-            await supabase.rpc(
-              "remove_store_favorite_v1",
-              {
-                p_store_id: storeId
-              }
-            );
-
-          if (error) {
-            console.error(error);
-            return;
-          }
-
-          FAVORITES.delete(storeId);
-
-        } else {
-
-          const { error } =
-            await supabase.rpc(
-              "save_store_favorite_v1",
-              {
-                p_store_id: storeId
-              }
-            );
-
-          if (error) {
-            console.error(error);
-            return;
-          }
-
-          FAVORITES.add(storeId);
-        }
-
-        syncFavoriteUI(storeId);
+        await toggleFavorite(storeId);
 
         return;
       }
