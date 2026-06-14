@@ -252,7 +252,9 @@ function applyChipFilters(rows) {
 
     const typeOk =
       selectedTypes.length === 0 ||
-      selectedTypes.some((t) => storeTypes.includes(t));
+      (selectedTypes.length === 1
+        ? storeTypes.length === 1 && storeTypes.includes(selectedTypes[0])
+        : selectedTypes.some((t) => storeTypes.includes(t)));
 
     const accessOk =
       selectedAccess.length === 0 || selectedAccess.includes(accessVal);
