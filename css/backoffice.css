@@ -634,7 +634,7 @@ tr:hover td{background:rgba(255,255,255,0.06)}
   font-weight:800;
 }
 
-.modal-backdrop .edit-grid input,
+.modal-backdrop .edit-grid input:not([type="checkbox"]):not([type="radio"]),
 .modal-backdrop .edit-grid select{
   width:100%;
   min-width:0;
@@ -646,7 +646,7 @@ tr:hover td{background:rgba(255,255,255,0.06)}
   font:inherit;
 }
 
-.modal-backdrop .edit-grid input:focus,
+.modal-backdrop .edit-grid input:not([type="checkbox"]):not([type="radio"]):focus,
 .modal-backdrop .edit-grid select:focus{
   outline:none;
   border-color:#a07a5e;
@@ -685,8 +685,26 @@ tr:hover td{background:rgba(255,255,255,0.06)}
   display:inline-flex;
   align-items:center;
   gap:6px;
+  min-height:44px;
   color:#f7f4ee;
   font-weight:700;
+  cursor:pointer;
+}
+
+.modal-backdrop .type-btn input,
+.modal-backdrop .access-pill input{
+  width:18px;
+  height:18px;
+  flex:0 0 18px;
+  margin:0;
+  accent-color:var(--gold);
+  cursor:pointer;
+}
+
+.modal-backdrop .type-btn input:focus-visible,
+.modal-backdrop .access-pill input:focus-visible{
+  outline:2px solid var(--gold);
+  outline-offset:3px;
 }
 
 .modal-backdrop .photo-picker{
